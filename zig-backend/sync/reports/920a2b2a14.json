@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2021-04-27",
+  "needs_port": true,
+  "sha": "920a2b2a145f5995d1709c3d665a51d2c4d2b570",
+  "short_sha": "920a2b2a14",
+  "subject": "perf: `Ord USize` instance and missing `inline`",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

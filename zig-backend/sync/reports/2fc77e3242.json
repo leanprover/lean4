@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-29",
+  "needs_port": false,
+  "sha": "2fc77e3242e7b21f27c1d06b0fa51c2a4a81fa82",
+  "short_sha": "2fc77e3242",
+  "subject": "perf: compress the AIG representation (#7720)",
+  "zig_target": {}
+}

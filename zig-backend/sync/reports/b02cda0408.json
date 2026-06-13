@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-11",
+  "needs_port": false,
+  "sha": "b02cda04089d72658f10bd5cfac5a5aa1b7a40a7",
+  "short_sha": "b02cda0408",
+  "subject": "chore: move more tests to new frontend",
+  "zig_target": {}
+}

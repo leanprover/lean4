@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-09-29",
+  "needs_port": true,
+  "sha": "5746338c157394b9a0621dd50a4b62b6dc58d955",
+  "short_sha": "5746338c15",
+  "subject": "fix: mark `Lean.Name.mkStr*` functions as `[reducible]`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

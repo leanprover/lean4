@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-11-28",
+  "needs_port": false,
+  "sha": "3f05179fdb3b4700d1ef09f31a4cfd8644fb18a4",
+  "short_sha": "3f05179fdb",
+  "subject": "chore: CI: fix Linux release jobs (#11424)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    }
+  ],
+  "date": "2019-12-23",
+  "needs_port": true,
+  "sha": "1a7cd0e54de1438260f8d0d1a60dc7e800375b89",
+  "short_sha": "1a7cd0e54d",
+  "subject": "feat: support `ident` antiquotations (inside term parsers, for now)",
+  "zig_target": {
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean",
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean"
+  }
+}

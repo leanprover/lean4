@@ -1,0 +1,66 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Definition.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Definition.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Exception.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Exception.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Log.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Log.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/TermApp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/TermBinders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermBinders.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    }
+  ],
+  "date": "2020-01-10",
+  "needs_port": true,
+  "sha": "f73ff914eb44ee11b120d530e1f157cc4a765ee2",
+  "short_sha": "f73ff914eb",
+  "subject": "feat: extensible elaboration functions",
+  "zig_target": {
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean",
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Definition.lean": "zig-backend/src/init/Lean/Elab/Definition.lean",
+    "src/Init/Lean/Elab/Exception.lean": "zig-backend/src/init/Lean/Elab/Exception.lean",
+    "src/Init/Lean/Elab/Log.lean": "zig-backend/src/init/Lean/Elab/Log.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Elab/TermApp.lean": "zig-backend/src/init/Lean/Elab/TermApp.lean",
+    "src/Init/Lean/Elab/TermBinders.lean": "zig-backend/src/init/Lean/Elab/TermBinders.lean",
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean"
+  }
+}

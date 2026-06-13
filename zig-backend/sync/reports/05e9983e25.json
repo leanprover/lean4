@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-26",
+  "needs_port": false,
+  "sha": "05e9983e2596589bf056925511aac0de89fdbff1",
+  "short_sha": "05e9983e25",
+  "subject": "feat: better support for `match`-application in the simplifier",
+  "zig_target": {}
+}

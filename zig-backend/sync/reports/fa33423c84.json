@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-11-13",
+  "needs_port": false,
+  "sha": "fa33423c84965132383a15eda9c7b9fb231251c3",
+  "short_sha": "fa33423c84",
+  "subject": "chore: pr-body: run as part of merge_group, but do not do anything (#6069)",
+  "zig_target": {}
+}

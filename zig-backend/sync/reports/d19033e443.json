@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-23",
+  "needs_port": false,
+  "sha": "d19033e44326ce9323f4c0e80f030f3051ba4c26",
+  "short_sha": "d19033e443",
+  "subject": "fix: correctly parse json unicode escapes",
+  "zig_target": {}
+}

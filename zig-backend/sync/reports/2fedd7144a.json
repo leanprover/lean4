@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-01-30",
+  "needs_port": true,
+  "sha": "2fedd7144aff67f65ee95736d6fa8a1f9319ebc4",
+  "short_sha": "2fedd7144a",
+  "subject": "feat: normalize `!=` and `==` in `grind` (#6870)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

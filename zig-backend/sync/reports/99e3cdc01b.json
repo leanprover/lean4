@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-05-13",
+  "needs_port": true,
+  "sha": "99e3cdc01ba934be5755cf07cf1c77fda0834942",
+  "short_sha": "99e3cdc01b",
+  "subject": "chore(frontends/lean): delete `lean_environment`",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

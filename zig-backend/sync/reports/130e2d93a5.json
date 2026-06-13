@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2025-04-17",
+  "needs_port": true,
+  "sha": "130e2d93a53f79f8728c204db35b3db475dd07e2",
+  "short_sha": "130e2d93a5",
+  "subject": "fix: change inlining heuristics to match old code generator (#8006)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

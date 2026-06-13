@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-21",
+  "needs_port": false,
+  "sha": "fa40491c78871c99d23b8823f4d37f6100a6f74d",
+  "short_sha": "fa40491c78",
+  "subject": "test: benchmark `MetaM` vs `SymM` (#12100)",
+  "zig_target": {}
+}

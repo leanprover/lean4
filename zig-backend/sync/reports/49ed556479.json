@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-10",
+  "needs_port": false,
+  "sha": "49ed556479195039b6982c4c434d92ba09e56446",
+  "short_sha": "49ed556479",
+  "subject": "test: add VCGen test suite for sym mvcgen benchmarks (#12855)",
+  "zig_target": {}
+}

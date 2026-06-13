@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-30",
+  "needs_port": false,
+  "sha": "312de57aeca48662839c1647b6a41e63186833dc",
+  "short_sha": "312de57aec",
+  "subject": "test(tests/lean/reader1): test error recovery and fix bug",
+  "zig_target": {}
+}

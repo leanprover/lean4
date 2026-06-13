@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-07-24",
+  "needs_port": false,
+  "sha": "4fdf74500d6c0069e9ecb92bf809100a2da1ee84",
+  "short_sha": "4fdf74500d",
+  "subject": "fix: Remove duplicate syntax definitions for `mvcgen*` (#9505)",
+  "zig_target": {}
+}

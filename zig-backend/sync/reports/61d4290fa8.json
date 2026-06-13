@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "61d4290fa84604b8bf0c309563afe4fcf6e063e4",
+  "short_sha": "61d4290fa8",
+  "subject": "feat: add `paren`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+  }
+}

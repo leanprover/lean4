@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-25",
+  "needs_port": false,
+  "sha": "feb864712f34d992091b9e1915808a0de4739f78",
+  "short_sha": "feb864712f",
+  "subject": "fix: spurious warning message in `grind` (#10962)",
+  "zig_target": {}
+}

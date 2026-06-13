@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    }
+  ],
+  "date": "2025-09-09",
+  "needs_port": true,
+  "sha": "f9b2e550bb6be77df08f159a9469bfb9fafb3a97",
+  "short_sha": "f9b2e550bb",
+  "subject": "feat: grind annotations for basic monad transformers (#10227)",
+  "zig_target": {
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean"
+  }
+}

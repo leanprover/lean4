@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "ef27df890772b76a75c1ea405a5a7abb1b9761ae",
+  "short_sha": "ef27df8907",
+  "subject": "chore(library/tactic): remove `simp`",
+  "zig_target": {}
+}

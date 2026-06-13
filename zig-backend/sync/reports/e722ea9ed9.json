@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-26",
+  "needs_port": false,
+  "sha": "e722ea9ed99bd5ced6d3c4cc8293b4ddbd518e27",
+  "short_sha": "e722ea9ed9",
+  "subject": "feat(library/init/lean): implement `findOLean` and `findLean` in Lean",
+  "zig_target": {}
+}

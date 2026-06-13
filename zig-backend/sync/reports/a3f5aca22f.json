@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2021-01-21",
+  "needs_port": true,
+  "sha": "a3f5aca22f05f2e1a19e2608812ed965c38981a2",
+  "short_sha": "a3f5aca22f",
+  "subject": "fix: tail-recursive readBinToEnd",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

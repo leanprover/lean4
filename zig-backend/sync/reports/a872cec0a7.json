@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-06",
+  "needs_port": false,
+  "sha": "a872cec0a7bc5b7f47c589f98e5dc63e5d3992a0",
+  "short_sha": "a872cec0a7",
+  "subject": "refactor: use `match decEq`, not `if h :` in `deriving DecidableEq` (#10274)",
+  "zig_target": {}
+}

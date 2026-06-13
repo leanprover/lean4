@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-21",
+  "needs_port": false,
+  "sha": "3d9e587862c2f565a5b50e8b28dfcfbb13997be3",
+  "short_sha": "3d9e587862",
+  "subject": "fix: check type mismatch at dependent pattern matching compiler",
+  "zig_target": {}
+}

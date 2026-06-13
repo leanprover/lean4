@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-19",
+  "needs_port": false,
+  "sha": "36e040ecfa1d05caad354a0db0908ffaba15926c",
+  "short_sha": "36e040ecfa",
+  "subject": "test: reimplement compiler/foreign on top of leanmake",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-09",
+  "needs_port": false,
+  "sha": "7fc12014dae3c4622348f33ff8be5eed2a95fb20",
+  "short_sha": "7fc12014da",
+  "subject": "fix: make sure splitTarget? skips `match` expressions that produce type errors at `splitMatch`",
+  "zig_target": {}
+}

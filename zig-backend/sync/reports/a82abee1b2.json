@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/SOM.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/SOM.lean"
+    }
+  ],
+  "date": "2022-04-22",
+  "needs_port": true,
+  "sha": "a82abee1b2c1e07f1d103427b015691101a0134d",
+  "short_sha": "a82abee1b2",
+  "subject": "feat: sum of monomials normal form by reflection",
+  "zig_target": {
+    "src/Init/Data/Nat.lean": "zig-backend/src/init/Data/Nat.lean",
+    "src/Init/Data/Nat/SOM.lean": "zig-backend/src/init/Data/Nat/SOM.lean"
+  }
+}

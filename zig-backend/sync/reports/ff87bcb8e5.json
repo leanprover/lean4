@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-06",
+  "needs_port": false,
+  "sha": "ff87bcb8e57caeee38aa1dd05a212c0b2c51a902",
+  "short_sha": "ff87bcb8e5",
+  "subject": "feat: add option for simplifying `have` decls in two passes (#11923)",
+  "zig_target": {}
+}

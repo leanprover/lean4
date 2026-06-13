@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-02",
+  "needs_port": false,
+  "sha": "5a651898942d47a4bd067507e5a70d7b5c628ef9",
+  "short_sha": "5a65189894",
+  "subject": "chore: use empty string for `--githash` instead of weird \"GITDIR-NOTFOUND\" when not building from commit",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-07-20",
+  "needs_port": false,
+  "sha": "b714e087d67b6ebfde93281db224327218d021a5",
+  "short_sha": "b714e087d6",
+  "subject": "fix: widgetSourceRegistry now stores the UserWidgetDefinition declaration name instead of WidgetSource",
+  "zig_target": {}
+}

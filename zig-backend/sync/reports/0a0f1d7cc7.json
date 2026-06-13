@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-06",
+  "needs_port": false,
+  "sha": "0a0f1d7cc717592d1014bf6ec929372654e97965",
+  "short_sha": "0a0f1d7cc7",
+  "subject": "fix: `variable` must execute pending tactics and elaboration problems (#4370)",
+  "zig_target": {}
+}

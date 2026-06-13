@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-27",
+  "needs_port": false,
+  "sha": "668f07039ce4d041cd7515935193d569cde88de9",
+  "short_sha": "668f07039c",
+  "subject": "chore: do not use Sym.inferType in mvcgen if inputs are not shared (#12713)",
+  "zig_target": {}
+}

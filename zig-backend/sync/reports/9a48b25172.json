@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-26",
+  "needs_port": false,
+  "sha": "9a48b251720a882393e1d86e11e2de63b4eed645",
+  "short_sha": "9a48b25172",
+  "subject": "chore: simplify signatures",
+  "zig_target": {}
+}

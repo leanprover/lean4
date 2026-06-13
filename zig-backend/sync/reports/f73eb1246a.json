@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-15",
+  "needs_port": false,
+  "sha": "f73eb1246aa275295e1eec459ac6bd4662ba6fd1",
+  "short_sha": "f73eb1246a",
+  "subject": "feat: add `pp.safe_shadowing`",
+  "zig_target": {}
+}

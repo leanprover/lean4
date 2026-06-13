@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-19",
+  "needs_port": false,
+  "sha": "fc97c63c724a8cf3c74024ea7b7141b71f58e7ee",
+  "short_sha": "fc97c63c72",
+  "subject": "fix(library/derive_attribute): vm_compile synthesized instances",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-08-25",
+  "needs_port": false,
+  "sha": "741347281c02472f6716d584489e2a001eba8268",
+  "short_sha": "741347281c",
+  "subject": "fix: dot notation for recursive invocation of private definitions (#10120)",
+  "zig_target": {}
+}

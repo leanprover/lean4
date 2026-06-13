@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-12-01",
+  "needs_port": false,
+  "sha": "2da5b528b7fffda67976214b7fc7c42168133533",
+  "short_sha": "2da5b528b7",
+  "subject": "feat: add difference on `DTreeMap`/`TreeMap`/`TreeSet` (#11407)",
+  "zig_target": {}
+}

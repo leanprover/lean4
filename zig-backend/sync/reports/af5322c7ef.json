@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-08-18",
+  "needs_port": true,
+  "sha": "af5322c7efb3375eec70cfc0c5914c7aa2638956",
+  "short_sha": "af5322c7ef",
+  "subject": "feat: tactic info per `intro` hypothesis, `rfl` pattern (#9942)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

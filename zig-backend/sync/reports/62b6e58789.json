@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-26",
+  "needs_port": false,
+  "sha": "62b6e5878981d1bb6d414f21b0c6f8d8a36e6834",
+  "short_sha": "62b6e58789",
+  "subject": "fix: avoid unnecessary proof steps in `simp` (#4567)",
+  "zig_target": {}
+}

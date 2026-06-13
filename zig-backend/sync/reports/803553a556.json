@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-05-13",
+  "needs_port": false,
+  "sha": "803553a556fd82fa1060efb0c43eda542130cb16",
+  "short_sha": "803553a556",
+  "subject": "feat: additional fieldinfo in structure instance notation (#13728)",
+  "zig_target": {}
+}

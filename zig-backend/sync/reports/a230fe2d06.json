@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    }
+  ],
+  "date": "2021-08-06",
+  "needs_port": true,
+  "sha": "a230fe2d06cf61b7aa86f7b26bdf2ff13d9a2dc6",
+  "short_sha": "a230fe2d06",
+  "subject": "fix: forallMetaTelescope issue",
+  "zig_target": {
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean"
+  }
+}

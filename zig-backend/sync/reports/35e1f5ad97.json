@@ -1,0 +1,31 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "old_path": "src/Init/Control/Foldable.lean",
+      "path": "src/Init/Control/Traversable.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Control/Traversable.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    },
+    {
+      "path": "src/Init/Data/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range.lean"
+    }
+  ],
+  "date": "2021-02-28",
+  "needs_port": true,
+  "sha": "35e1f5ad97522f115cb29ff8e330c569c9fe0083",
+  "short_sha": "35e1f5ad97",
+  "subject": "refactor: `Foldable` => `Traversable`",
+  "zig_target": {
+    "src/Init/Control/Traversable.lean": "zig-backend/src/init/Control/Traversable.lean",
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean",
+    "src/Init/Data/Range.lean": "zig-backend/src/init/Data/Range.lean"
+  }
+}

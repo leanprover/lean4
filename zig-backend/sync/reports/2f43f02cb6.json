@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-06-26",
+  "needs_port": false,
+  "sha": "2f43f02cb61bfde4534d5f4b14d7a5dfe10c458b",
+  "short_sha": "2f43f02cb6",
+  "subject": "chore: Grove: high-level sections (#9011)",
+  "zig_target": {}
+}

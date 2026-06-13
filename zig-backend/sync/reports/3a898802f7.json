@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-17",
+  "needs_port": false,
+  "sha": "3a898802f75a4120a6c160f736d39f63979b14a3",
+  "short_sha": "3a898802f7",
+  "subject": "feat: inline type class instances",
+  "zig_target": {}
+}

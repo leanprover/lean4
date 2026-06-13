@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    }
+  ],
+  "date": "2026-02-06",
+  "needs_port": true,
+  "sha": "8d29c591e6e796ee13123ade9cda327f91bde060",
+  "short_sha": "8d29c591e6",
+  "subject": "refactor: behavior of `inline` annotations in the compiler (#12344)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+  }
+}

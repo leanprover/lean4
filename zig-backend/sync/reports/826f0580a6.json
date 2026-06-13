@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-02",
+  "needs_port": false,
+  "sha": "826f0580a6e8e547e51f0e1ee55333eedf06a77b",
+  "short_sha": "826f0580a6",
+  "subject": "fix: propagate expected type at do-`match_expr`",
+  "zig_target": {}
+}

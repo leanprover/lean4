@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-21",
+  "needs_port": false,
+  "sha": "20cbb4389a4c99d818c466da831f961b25f61e36",
+  "short_sha": "20cbb4389a",
+  "subject": "fix: Nix: VS Code override",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-18",
+  "needs_port": false,
+  "sha": "b1d5a4284d0cae6f630f017df2dbd66a0ae3a749",
+  "short_sha": "b1d5a4284d",
+  "subject": "feat(library/init/lean): address issue raised in the previous commit",
+  "zig_target": {}
+}

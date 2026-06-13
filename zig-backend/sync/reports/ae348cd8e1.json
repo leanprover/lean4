@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-25",
+  "needs_port": false,
+  "sha": "ae348cd8e1de43b505c60767e5b8ab5b03c34639",
+  "short_sha": "ae348cd8e1",
+  "subject": "doc: more about Lean packages",
+  "zig_target": {}
+}

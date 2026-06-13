@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-01-23",
+  "needs_port": false,
+  "sha": "4a3401f69a5fd3d247943df1ab7a78e56566bc8a",
+  "short_sha": "4a3401f69a",
+  "subject": "fix: enable Verso docstrings in `where`-blocks (#12122)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-25",
+  "needs_port": false,
+  "sha": "97100dcd02676e5afdf910186e570ea30f262b54",
+  "short_sha": "97100dcd02",
+  "subject": "feat: build all CLI targets in the same build pass",
+  "zig_target": {}
+}

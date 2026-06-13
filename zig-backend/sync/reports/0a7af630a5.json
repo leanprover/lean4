@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-08-12",
+  "needs_port": false,
+  "sha": "0a7af630a5f7557c8499c59c96f61aae368c2fab",
+  "short_sha": "0a7af630a5",
+  "subject": "chore: when a linter crashes, prefix its name (#4967)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-08",
+  "needs_port": false,
+  "sha": "ebe2cf272e41f15579a92ad45feabe551911e5f5",
+  "short_sha": "ebe2cf272e",
+  "subject": "feat: add `MonadCacheT`",
+  "zig_target": {}
+}

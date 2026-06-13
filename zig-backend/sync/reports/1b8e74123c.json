@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-21",
+  "needs_port": false,
+  "sha": "1b8e74123cb6580ec76d0713ab51fbd0772a2f92",
+  "short_sha": "1b8e74123c",
+  "subject": "feat(frontends/lean/{builtin_exprs,elaborator}): special-case `try` inside of `node!`",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Checker.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Checker.lean"
+    }
+  ],
+  "date": "2025-07-06",
+  "needs_port": true,
+  "sha": "d0e097cd1d7100b2d2baae79e55e5e782b930ce8",
+  "short_sha": "d0e097cd1d",
+  "subject": "chore: remove IRType.{isStruct,isUnion} (#9219)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/Checker.lean": "zig-backend/src/lean/compiler/ir/Checker.lean"
+  }
+}

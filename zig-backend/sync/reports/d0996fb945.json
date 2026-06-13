@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-03",
+  "needs_port": false,
+  "sha": "d0996fb9450dc37230adea9d10ecfdf10330ef67",
+  "short_sha": "d0996fb945",
+  "subject": "chore: improve EOI error message",
+  "zig_target": {}
+}

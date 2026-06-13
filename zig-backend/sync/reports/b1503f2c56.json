@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-19",
+  "needs_port": false,
+  "sha": "b1503f2c564757ea4adc81ad3af51068ad34e65e",
+  "short_sha": "b1503f2c56",
+  "subject": "perf(library/init/data/array/basic): remove inefficient `mforeachAux` and add new `hmmap` and `hmap`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-02-09",
+  "needs_port": true,
+  "sha": "5b4c24ff9752d0afe64200a6b8cc10aedfbc83eb",
+  "short_sha": "5b4c24ff97",
+  "subject": "chore: add `nomatch` tactic (#3294)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

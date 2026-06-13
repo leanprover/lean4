@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-30",
+  "needs_port": false,
+  "sha": "d532c4ad294d89796af49c3bfb8c71285ea71a1c",
+  "short_sha": "d532c4ad29",
+  "subject": "feat(tests/bench): add safe binarytrees.swift from https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/binarytrees-swift-1.html",
+  "zig_target": {}
+}

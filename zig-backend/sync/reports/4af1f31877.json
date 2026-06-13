@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-23",
+  "needs_port": false,
+  "sha": "4af1f31877d4698e178ef60165a47b998c21ae30",
+  "short_sha": "4af1f31877",
+  "subject": "feat(util, kernel): add obj_list wrapper for Lean list objects, and use it to implement list of universe levels",
+  "zig_target": {}
+}

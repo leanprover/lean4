@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-10",
+  "needs_port": false,
+  "sha": "0af15f9b1d1177d5fe6c8359b33377a5fe931d4f",
+  "short_sha": "0af15f9b1d",
+  "subject": "feat: bv_decide add BV_EXTRACT_FULL preprocessing rule (#7429)",
+  "zig_target": {}
+}

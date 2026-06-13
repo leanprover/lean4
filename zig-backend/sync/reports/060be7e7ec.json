@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-13",
+  "needs_port": false,
+  "sha": "060be7e7ec38af3ba5cbe53925a7085ee65568f8",
+  "short_sha": "060be7e7ec",
+  "subject": "fix: `::` is infix right",
+  "zig_target": {}
+}

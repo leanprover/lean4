@@ -1,0 +1,18 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/Uri.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Uri.lean"
+    }
+  ],
+  "date": "2026-01-28",
+  "needs_port": true,
+  "sha": "819fb6a6a89f6f3095451fa071cf25a05a4b469f",
+  "short_sha": "819fb6a6a8",
+  "subject": "fix: use windows path separators in `System.Uri.fileUriToPath?` (#12197)",
+  "zig_target": {
+    "src/Init/System/Uri.lean": "zig-backend/src/init/System/Uri.lean"
+  }
+}

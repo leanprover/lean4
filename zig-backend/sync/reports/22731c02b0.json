@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-05",
+  "needs_port": false,
+  "sha": "22731c02b068d3d5588907929f7b66d88fed2d7e",
+  "short_sha": "22731c02b0",
+  "subject": "fix: auto implicit locals in inductive families",
+  "zig_target": {}
+}

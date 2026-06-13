@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2026-03-01",
+  "needs_port": true,
+  "sha": "5dd8d570fd12419c6dd7df114c0a9c4b92777973",
+  "short_sha": "5dd8d570fd",
+  "subject": "feat: add pp.fvars.anonymous option (#12688)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

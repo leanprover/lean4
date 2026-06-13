@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-02",
+  "needs_port": false,
+  "sha": "7603e49169edd10a757c3a97fde5975bd346ff76",
+  "short_sha": "7603e49169",
+  "subject": "chore: bump Lean version",
+  "zig_target": {}
+}

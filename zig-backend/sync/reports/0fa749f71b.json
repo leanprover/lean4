@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-17",
+  "needs_port": false,
+  "sha": "0fa749f71b69605b66a4d2390feba3f74b77e400",
+  "short_sha": "0fa749f71b",
+  "subject": "refactor: lake: introduce `lowerHexUInt64` (#13455)",
+  "zig_target": {}
+}

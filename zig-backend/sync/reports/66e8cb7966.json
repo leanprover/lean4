@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2024-02-11",
+  "needs_port": false,
+  "sha": "66e8cb79662541a88811ab7d91e755c34d965aa8",
+  "short_sha": "66e8cb7966",
+  "subject": "doc: implicit type arguments are indexed in the discrtree (#3301)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    }
+  ],
+  "date": "2024-09-11",
+  "needs_port": true,
+  "sha": "d4cc934149146f7cc6862301d4fa8685c44f0a37",
+  "short_sha": "d4cc934149",
+  "subject": "chore: rename Int.div/mod to tdiv/tmod (#5301)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod.lean": "zig-backend/src/init/Data/Int/DivMod.lean",
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+  }
+}

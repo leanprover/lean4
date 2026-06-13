@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-08-09",
+  "needs_port": false,
+  "sha": "934054b8d09e145ebc0e56682ec0dbc8ef6f23b9",
+  "short_sha": "934054b8d0",
+  "subject": "chore(tests/lean/trust0/basic): use nomatch",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-07",
+  "needs_port": false,
+  "sha": "94d51b232178c25dd7e772dea11fb36b2bcb1fe3",
+  "short_sha": "94d51b2321",
+  "subject": "chore: cleanup builtin `simproc`s using `OptionT`",
+  "zig_target": {}
+}

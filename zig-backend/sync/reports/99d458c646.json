@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-06",
+  "needs_port": false,
+  "sha": "99d458c646e00fa76868edda68534bda6781beb2",
+  "short_sha": "99d458c646",
+  "subject": "Update init to produce `package.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-28",
+  "needs_port": false,
+  "sha": "85d8c4fa855b6356dac990ba50ee84918210272f",
+  "short_sha": "85d8c4fa85",
+  "subject": "chore: add proper kind for `tacticSeq1Indented`",
+  "zig_target": {}
+}

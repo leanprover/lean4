@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-02-15",
+  "needs_port": true,
+  "sha": "ae524d465fac731391e2fb1cf4490338dc213f83",
+  "short_sha": "ae524d465f",
+  "subject": "chore: a missing List lemma in Init (#3344)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

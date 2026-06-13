@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-11",
+  "needs_port": false,
+  "sha": "50e50408eba00bf6fc3db60c50fe3ee2fd5aa1b2",
+  "short_sha": "50e50408eb",
+  "subject": "feat(kernel): type checker with local_ctx",
+  "zig_target": {}
+}

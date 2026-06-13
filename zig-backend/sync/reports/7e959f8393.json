@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-02-06",
+  "needs_port": true,
+  "sha": "7e959f83933fd2a88f8aceb9546860b12830d316",
+  "short_sha": "7e959f8393",
+  "subject": "chore: try to control code explosion",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-11",
+  "needs_port": false,
+  "sha": "239069111645dbf4b1c029de4fa110173f9b80b6",
+  "short_sha": "2390691116",
+  "subject": "chore: remove obsolete workaround",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-28",
+  "needs_port": false,
+  "sha": "ccf400506ab29b9b37afa24450de2b285cc5ec75",
+  "short_sha": "ccf400506a",
+  "subject": "test(tests/playground/rbmap_checkpoint2): modified length",
+  "zig_target": {}
+}

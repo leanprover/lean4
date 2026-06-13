@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-23",
+  "needs_port": false,
+  "sha": "79e6732fc6bbf5af831b76f310f9c488d44e7a16",
+  "short_sha": "79e6732fc6",
+  "subject": "fix: update `tokenTable` at `withNamespace` parser combinator",
+  "zig_target": {}
+}

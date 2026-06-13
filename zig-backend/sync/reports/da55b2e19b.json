@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-04",
+  "needs_port": false,
+  "sha": "da55b2e19b6af219f43f3599f1a72151799eb524",
+  "short_sha": "da55b2e19b",
+  "subject": "chore: updates to release_checklist.md (#7817)",
+  "zig_target": {}
+}

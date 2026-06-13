@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-12",
+  "needs_port": false,
+  "sha": "3f75f08e1d0fe56f5d6ecf1741f6450f369c31ba",
+  "short_sha": "3f75f08e1d",
+  "subject": "feat: abstract metavars in `grind` preprocessor (#8299)",
+  "zig_target": {}
+}

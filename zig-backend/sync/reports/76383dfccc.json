@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-07",
+  "needs_port": false,
+  "sha": "76383dfcccee0d319cf6073598f35a98ce317938",
+  "short_sha": "76383dfccc",
+  "subject": "fix: properly catch CLI errors",
+  "zig_target": {}
+}

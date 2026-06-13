@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-15",
+  "needs_port": false,
+  "sha": "8fd25ec3262923465dc1c5d6f6689d017a090d10",
+  "short_sha": "8fd25ec326",
+  "subject": "feat: export \"constructions\"",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-05",
+  "needs_port": false,
+  "sha": "d9a6680536b34d02d41be305cac5842ecc415ba7",
+  "short_sha": "d9a6680536",
+  "subject": "doc: describe the auto implicit chaining in the release notes",
+  "zig_target": {}
+}

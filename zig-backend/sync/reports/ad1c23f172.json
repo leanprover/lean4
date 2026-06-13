@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-11-01",
+  "needs_port": false,
+  "sha": "ad1c23f1722a9862fe368793c35366c3273e4afb",
+  "short_sha": "ad1c23f172",
+  "subject": "fix: bug in replaceLocalDeclDefEq",
+  "zig_target": {}
+}

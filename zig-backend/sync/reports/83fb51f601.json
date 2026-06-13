@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-02",
+  "needs_port": false,
+  "sha": "83fb51f601a1e349ff23f2d4a3cb1e08a52ef7ec",
+  "short_sha": "83fb51f601",
+  "subject": "chore: remove `StrategyAttrs`",
+  "zig_target": {}
+}

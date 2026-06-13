@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2024-05-15",
+  "needs_port": true,
+  "sha": "d0e34aaed50c1bfbb15717d60b310d094341bb3e",
+  "short_sha": "d0e34aaed5",
+  "subject": "feat: add `revertAll` tactic for `grind` (#4167)",
+  "zig_target": {
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

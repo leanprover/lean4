@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-06",
+  "needs_port": false,
+  "sha": "f934a866469b58367f10f203c62cb19ac7f85edd",
+  "short_sha": "f934a86646",
+  "subject": "feat: add `(ref : Syntax)` to `Meta.Exception.other`",
+  "zig_target": {}
+}

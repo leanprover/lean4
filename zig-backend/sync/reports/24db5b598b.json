@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-06",
+  "needs_port": false,
+  "sha": "24db5b598bafdda144d6e1580dccabbdc8bbada0",
+  "short_sha": "24db5b598b",
+  "subject": "feat: use `realizeConst` for all equation, unfold, induction, and partial fixpoint theorems  (#7261)",
+  "zig_target": {}
+}

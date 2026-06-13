@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-13",
+  "needs_port": false,
+  "sha": "d2e5c1c300198b7a5ea3bba0d8f84abf8e958a84",
+  "short_sha": "d2e5c1c300",
+  "subject": "feat: improve `dbgTrace!` macro",
+  "zig_target": {}
+}

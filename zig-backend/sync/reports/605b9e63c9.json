@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-07",
+  "needs_port": false,
+  "sha": "605b9e63c9c6897b2bdc8317b3f3d9ae7936bf71",
+  "short_sha": "605b9e63c9",
+  "subject": "chore: disable broken test",
+  "zig_target": {}
+}

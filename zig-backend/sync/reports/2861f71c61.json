@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-19",
+  "needs_port": false,
+  "sha": "2861f71c61a1d76ee7869c1ed4010e283d29f495",
+  "short_sha": "2861f71c61",
+  "subject": "feat: add option `autoLift`",
+  "zig_target": {}
+}

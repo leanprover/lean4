@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-29",
+  "needs_port": false,
+  "sha": "5075153c154e3aaaea3f7931972b53341cbc6f36",
+  "short_sha": "5075153c15",
+  "subject": "feat: better support for inductive predicates in `grind` (#6854)",
+  "zig_target": {}
+}

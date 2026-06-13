@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Message.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Exception.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Exception.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Message.lean"
+    }
+  ],
+  "date": "2020-03-20",
+  "needs_port": true,
+  "sha": "b705142ae4e71ce8da965c6c1d2ccd694822c32b",
+  "short_sha": "b705142ae4",
+  "subject": "refactor: `KernelException` at `MetaM`",
+  "zig_target": {
+    "src/Init/Lean/Message.lean": "zig-backend/src/init/Lean/Message.lean",
+    "src/Init/Lean/Meta/Exception.lean": "zig-backend/src/init/Lean/Meta/Exception.lean",
+    "src/Init/Lean/Meta/Message.lean": "zig-backend/src/init/Lean/Meta/Message.lean"
+  }
+}

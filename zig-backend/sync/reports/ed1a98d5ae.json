@@ -1,0 +1,10 @@
+{
+  "author": "Adrien Champion",
+  "backend_changes": [],
+  "date": "2023-11-17",
+  "needs_port": false,
+  "sha": "ed1a98d5aea3842f91beba373cd38e0e61f582ed",
+  "short_sha": "ed1a98d5ae",
+  "subject": "doc: add documentation for `universe`, `open`, `export`, `variable`",
+  "zig_target": {}
+}

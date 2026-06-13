@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    }
+  ],
+  "date": "2022-08-23",
+  "needs_port": true,
+  "sha": "f5415b2f81e017b7a2a18f3635e5284443ed619c",
+  "short_sha": "f5415b2f81",
+  "subject": "feat: add `Decl.check`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+  }
+}

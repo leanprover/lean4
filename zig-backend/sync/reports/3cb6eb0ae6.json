@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-18",
+  "needs_port": false,
+  "sha": "3cb6eb0ae676a5450c46ff7aca0cc98ce767bc79",
+  "short_sha": "3cb6eb0ae6",
+  "subject": "fix: ensure a local instance is not registered multiple times (#4210)",
+  "zig_target": {}
+}

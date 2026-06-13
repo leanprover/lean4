@@ -1,0 +1,18 @@
+{
+  "author": "Vlad Tsyrklevich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-02-01",
+  "needs_port": true,
+  "sha": "ca96ea331ed2c37b1037a25e3e8da5242e868b2a",
+  "short_sha": "ca96ea331e",
+  "subject": "feat: teach bv_normalize to rewrite subtractions to additions (#6890)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

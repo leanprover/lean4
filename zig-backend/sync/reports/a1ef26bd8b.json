@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-01-15",
+  "needs_port": false,
+  "sha": "a1ef26bd8bc2c92e0769ba8ef527a45bed747350",
+  "short_sha": "a1ef26bd8b",
+  "subject": "perf: improve bv_decide preprocessing based on Bitwuzla optimisations (#6641)",
+  "zig_target": {}
+}

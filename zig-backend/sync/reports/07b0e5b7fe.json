@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-12",
+  "needs_port": false,
+  "sha": "07b0e5b7fe596178282214a5c29f42e555bba59b",
+  "short_sha": "07b0e5b7fe",
+  "subject": "chore: compile against glibc 2.26 (#7037)",
+  "zig_target": {}
+}

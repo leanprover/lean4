@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-01-30",
+  "needs_port": false,
+  "sha": "bffcfde602aed7e0e7180ccaf5ef73a3ec504c49",
+  "short_sha": "bffcfde602",
+  "subject": "refactor: `ModuleInfo` -> `Module`",
+  "zig_target": {}
+}

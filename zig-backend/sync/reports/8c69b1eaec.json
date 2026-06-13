@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-09-29",
+  "needs_port": false,
+  "sha": "8c69b1eaeceeb985376dc014020392a994a521f8",
+  "short_sha": "8c69b1eaec",
+  "subject": "feat: suggest qualified names while editing Verso docstrings (#10584)",
+  "zig_target": {}
+}

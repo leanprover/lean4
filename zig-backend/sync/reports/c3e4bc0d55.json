@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-22",
+  "needs_port": false,
+  "sha": "c3e4bc0d55bef156531635c9b3d74c966d988348",
+  "short_sha": "c3e4bc0d55",
+  "subject": "fix: `enableTracing`",
+  "zig_target": {}
+}

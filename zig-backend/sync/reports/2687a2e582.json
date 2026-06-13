@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-13",
+  "needs_port": false,
+  "sha": "2687a2e58284f110774fe0fcb8dc67c3353f855c",
+  "short_sha": "2687a2e582",
+  "subject": "fix: loss of user input when worker event is received",
+  "zig_target": {}
+}

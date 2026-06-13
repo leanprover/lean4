@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "e9d65dd2de58648feeab49beba8ca643e1e8fcf3",
+  "short_sha": "e9d65dd2de",
+  "subject": "chore: improve `sanitizeNames` superscripts",
+  "zig_target": {}
+}

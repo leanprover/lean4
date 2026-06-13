@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-07",
+  "needs_port": false,
+  "sha": "eff63632b3f2b5c06ad1c9488939a8a6b1f7f57a",
+  "short_sha": "eff63632b3",
+  "subject": "feat: improve error message when max heartbeats is reached during TC",
+  "zig_target": {}
+}

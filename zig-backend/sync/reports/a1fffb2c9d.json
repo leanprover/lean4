@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "a1fffb2c9dd1224d210f5b4f30325f78c702efa9",
+  "short_sha": "a1fffb2c9d",
+  "subject": "chore(tests/lean/fail/run_command): obsolete test",
+  "zig_target": {}
+}

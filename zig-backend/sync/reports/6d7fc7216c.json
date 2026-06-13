@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-01-18",
+  "needs_port": false,
+  "sha": "6d7fc7216c66e3d1cbc6ea851356a9c0f28fcc44",
+  "short_sha": "6d7fc7216c",
+  "subject": "fix: get pkg for dep name not mod at `buildDepOleans`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-04",
+  "needs_port": false,
+  "sha": "60339d6c8736ef27c883e10e5305223b75d5b763",
+  "short_sha": "60339d6c87",
+  "subject": "feat(library/init/data/hashmap/basic): missing function",
+  "zig_target": {}
+}

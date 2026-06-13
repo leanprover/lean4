@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-13",
+  "needs_port": false,
+  "sha": "2337b95676b1369d867be80a2fc0fb525dd00c95",
+  "short_sha": "2337b95676",
+  "subject": "feat: improve case split heuristics in `grind` (#7946)",
+  "zig_target": {}
+}

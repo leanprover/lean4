@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-02",
+  "needs_port": false,
+  "sha": "b7ca76a96e93d5a4daf4effda21734171316a1eb",
+  "short_sha": "b7ca76a96e",
+  "subject": "chore: refine PR description guidance in `.claude/CLAUDE.md` (#13597)",
+  "zig_target": {}
+}

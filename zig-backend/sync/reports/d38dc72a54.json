@@ -1,0 +1,36 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Folds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Folds.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-16",
+  "needs_port": true,
+  "sha": "d38dc72a540dbdd32cc79d2c09851036653155a6",
+  "short_sha": "d38dc72a54",
+  "subject": "chore: introduce BitVec.setWidth to unify zeroExtend and truncate",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Folds.lean": "zig-backend/src/init/Data/BitVec/Folds.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

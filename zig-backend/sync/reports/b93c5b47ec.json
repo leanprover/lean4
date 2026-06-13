@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "b93c5b47ecb61116b74a6b1c9575e60a57833584",
+  "short_sha": "b93c5b47ec",
+  "subject": "chore: remove `Alias.lean`",
+  "zig_target": {}
+}

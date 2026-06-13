@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-08",
+  "needs_port": false,
+  "sha": "6d1b2094e932455a0edbddc85368a441c221929d",
+  "short_sha": "6d1b2094e9",
+  "subject": "chore: nix flake update",
+  "zig_target": {}
+}

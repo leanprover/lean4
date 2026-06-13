@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-13",
+  "needs_port": true,
+  "sha": "3d6d51d2c667df22736c7940e9712d73adc7b563",
+  "short_sha": "3d6d51d2c6",
+  "subject": "feat: BitVec.lt_allOnes (#7465)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

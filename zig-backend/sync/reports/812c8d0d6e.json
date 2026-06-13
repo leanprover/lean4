@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-01",
+  "needs_port": false,
+  "sha": "812c8d0d6e5d3d54a4b214471dc0f25958094f8d",
+  "short_sha": "812c8d0d6e",
+  "subject": "doc: clarify Windows limitations",
+  "zig_target": {}
+}

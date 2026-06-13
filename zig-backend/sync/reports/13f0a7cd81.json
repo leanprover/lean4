@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-03",
+  "needs_port": false,
+  "sha": "13f0a7cd810db8ea2ae6cc6aca5adbf4eb9b3941",
+  "short_sha": "13f0a7cd81",
+  "subject": "chore(frontends/lean, library/vm): save some debugging help code",
+  "zig_target": {}
+}

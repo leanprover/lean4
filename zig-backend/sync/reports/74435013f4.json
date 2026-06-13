@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-04-07",
+  "needs_port": true,
+  "sha": "74435013f4988c75cd11b16b9e8213917dbc3ea5",
+  "short_sha": "74435013f4",
+  "subject": "chore: remove now-broken workarounds",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

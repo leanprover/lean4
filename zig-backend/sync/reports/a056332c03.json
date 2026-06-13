@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-18",
+  "needs_port": false,
+  "sha": "a056332c03814faed7dedd9de837fe84a5e1844c",
+  "short_sha": "a056332c03",
+  "subject": "fix: `registerLetRecsToLift`",
+  "zig_target": {}
+}

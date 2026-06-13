@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2022-10-14",
+  "needs_port": true,
+  "sha": "0a126b770253ef47666124c636e65be71020d490",
+  "short_sha": "0a126b7702",
+  "subject": "perf: better support for \"inlineable\" instances",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

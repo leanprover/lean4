@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2026-05-05",
+  "needs_port": false,
+  "sha": "70098e432b50731ba6435d57c4843d7aa290e0fc",
+  "short_sha": "70098e432b",
+  "subject": "fix: handle interrupted reads (#13493)",
+  "zig_target": {}
+}

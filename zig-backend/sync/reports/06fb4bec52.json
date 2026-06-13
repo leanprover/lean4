@@ -1,0 +1,24 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range/Polymorphic/NatLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/NatLemmas.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    }
+  ],
+  "date": "2026-04-08",
+  "needs_port": true,
+  "sha": "06fb4bec529131fc93166ddc47eb93c2ffc147b8",
+  "short_sha": "06fb4bec52",
+  "subject": "feat: require indentation in commands, allow empty tactic sequences (#13229)",
+  "zig_target": {
+    "src/Init/Data/Range/Polymorphic/NatLemmas.lean": "zig-backend/src/init/Data/Range/Polymorphic/NatLemmas.lean",
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+  }
+}

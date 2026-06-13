@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2021-08-05",
+  "needs_port": true,
+  "sha": "4dbb3e6db1af91c653820d33417b6fc42a349e07",
+  "short_sha": "4dbb3e6db1",
+  "subject": "fix: add workaround to prevent code explosion at `deriving` for `FromJson`",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

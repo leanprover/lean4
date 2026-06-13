@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-09-14",
+  "needs_port": true,
+  "sha": "fce8ca304b327e75f9d5672ed76c93eecf41b96d",
+  "short_sha": "fce8ca304b",
+  "subject": "fix: reintroduce code that cancels all remaining tasks on task manager shutdown",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

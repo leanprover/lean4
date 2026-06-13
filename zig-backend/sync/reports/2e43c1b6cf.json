@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "2e43c1b6cfd04455766717ea53b617e0402e04ce",
+  "short_sha": "2e43c1b6cf",
+  "subject": "fix: `keyName` regression caused by refactor",
+  "zig_target": {}
+}

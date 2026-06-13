@@ -1,0 +1,96 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Basic.lean"
+    },
+    {
+      "path": "src/Init/Control/EState.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/EState.lean"
+    },
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/Control/ExceptCps.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/ExceptCps.lean"
+    },
+    {
+      "path": "src/Init/Control/Id.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Id.lean"
+    },
+    {
+      "path": "src/Init/Control/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Option.lean"
+    },
+    {
+      "path": "src/Init/Control/Reader.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Reader.lean"
+    },
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    },
+    {
+      "path": "src/Init/Control/StateCps.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateCps.lean"
+    },
+    {
+      "path": "src/Init/Control/StateRef.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateRef.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/ST.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/ST.lean"
+    }
+  ],
+  "date": "2022-10-12",
+  "needs_port": true,
+  "sha": "870de844dcc7b834481820524872e9ce01ca0fe3",
+  "short_sha": "870de844dc",
+  "subject": "chore: annotate relevant monadic code with `[alwaysInline]`",
+  "zig_target": {
+    "src/Init/Control/Basic.lean": "zig-backend/src/init/Control/Basic.lean",
+    "src/Init/Control/EState.lean": "zig-backend/src/init/Control/EState.lean",
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/Control/ExceptCps.lean": "zig-backend/src/init/Control/ExceptCps.lean",
+    "src/Init/Control/Id.lean": "zig-backend/src/init/Control/Id.lean",
+    "src/Init/Control/Option.lean": "zig-backend/src/init/Control/Option.lean",
+    "src/Init/Control/Reader.lean": "zig-backend/src/init/Control/Reader.lean",
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean",
+    "src/Init/Control/StateCps.lean": "zig-backend/src/init/Control/StateCps.lean",
+    "src/Init/Control/StateRef.lean": "zig-backend/src/init/Control/StateRef.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/ST.lean": "zig-backend/src/init/System/ST.lean"
+  }
+}

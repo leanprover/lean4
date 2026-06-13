@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "f06b1bbb5cfbee83a6def8153816185c3e956985",
+  "short_sha": "f06b1bbb5c",
+  "subject": "test: add bootstrap example",
+  "zig_target": {}
+}

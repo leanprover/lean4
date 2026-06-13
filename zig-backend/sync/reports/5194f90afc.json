@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-09-05",
+  "needs_port": false,
+  "sha": "5194f90afc68e7e2794083aa21fdfcf77454a576",
+  "short_sha": "5194f90afc",
+  "subject": "chore(util/kvmap): make constructors explicit",
+  "zig_target": {}
+}

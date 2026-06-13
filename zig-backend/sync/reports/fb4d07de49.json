@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-13",
+  "needs_port": false,
+  "sha": "fb4d07de4943a798a654713e61e6dea4024c5d5e",
+  "short_sha": "fb4d07de49",
+  "subject": "chore: lean4-mode: use proper hook for goal refresh",
+  "zig_target": {}
+}

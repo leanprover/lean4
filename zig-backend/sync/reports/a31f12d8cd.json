@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-23",
+  "needs_port": false,
+  "sha": "a31f12d8cd7f05aaddc2e0384d795f068afe995e",
+  "short_sha": "a31f12d8cd",
+  "subject": "chore(library/init/core): revert `ite`+thunks modification",
+  "zig_target": {}
+}

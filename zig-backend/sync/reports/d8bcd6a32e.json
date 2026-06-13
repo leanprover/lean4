@@ -1,0 +1,10 @@
+{
+  "author": "damiano",
+  "backend_changes": [],
+  "date": "2025-01-23",
+  "needs_port": false,
+  "sha": "d8bcd6a32ee3b7a37dc2e823840232052aefae8d",
+  "short_sha": "d8bcd6a32e",
+  "subject": "doc: correspondence `ModuleIdx` <--> `Environment.moduleNames` (#6749)",
+  "zig_target": {}
+}

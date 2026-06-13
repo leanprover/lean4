@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-28",
+  "needs_port": false,
+  "sha": "e26f86dd4563de40f46f1e710495bdeca4ca1783",
+  "short_sha": "e26f86dd45",
+  "subject": "fix: improve `simpH?`, remove unnecessary hypotheses",
+  "zig_target": {}
+}

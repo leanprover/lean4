@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-14",
+  "needs_port": false,
+  "sha": "6b28162eee96775328848dca35a93558057110d4",
+  "short_sha": "6b28162eee",
+  "subject": "chore(library/init/lean/parser/combinators): move out combinators",
+  "zig_target": {}
+}

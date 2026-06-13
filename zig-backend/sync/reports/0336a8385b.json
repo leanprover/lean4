@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2026-01-26",
+  "needs_port": false,
+  "sha": "0336a8385b8a8393b077179444ea18133de22e65",
+  "short_sha": "0336a8385b",
+  "subject": "chore: inline trace nodes (#11954)",
+  "zig_target": {}
+}

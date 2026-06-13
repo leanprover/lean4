@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-12",
+  "needs_port": false,
+  "sha": "d1beded289011e717b3bd23037384d6e3f762df3",
+  "short_sha": "d1beded289",
+  "subject": "chore: Nix: sanitize drv names",
+  "zig_target": {}
+}

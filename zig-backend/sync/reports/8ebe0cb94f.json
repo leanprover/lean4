@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2019-12-26",
+  "needs_port": true,
+  "sha": "8ebe0cb94fd4fed1a5358f88b274cf026e59a652",
+  "short_sha": "8ebe0cb94f",
+  "subject": "feat: fieldIdx antiquotation",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

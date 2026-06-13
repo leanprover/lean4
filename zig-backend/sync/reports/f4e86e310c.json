@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-03",
+  "needs_port": false,
+  "sha": "f4e86e310c2e1951cfa95e1b9d5a88d929ee1a81",
+  "short_sha": "f4e86e310c",
+  "subject": "chore: add failing grind test (unknown metavariable) (#8607)",
+  "zig_target": {}
+}

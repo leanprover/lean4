@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-06",
+  "needs_port": false,
+  "sha": "423fed79a9de75705f34b3e8648db7e076c688d7",
+  "short_sha": "423fed79a9",
+  "subject": "feat: simplify `.arrow` ctor at `DiscrTree.lean`",
+  "zig_target": {}
+}

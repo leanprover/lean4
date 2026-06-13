@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "6466bbbaf9c430f18d3f4ed598520ef15deb41ce",
+  "short_sha": "6466bbbaf9",
+  "subject": "feat: admit alternatives that failed",
+  "zig_target": {}
+}

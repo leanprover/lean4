@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    }
+  ],
+  "date": "2021-01-09",
+  "needs_port": true,
+  "sha": "873634be7e22745b87affafb37622b727252cb98",
+  "short_sha": "873634be7e",
+  "subject": "feat: hierarchical `InfoTree`",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean"
+  }
+}

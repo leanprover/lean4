@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-04-17",
+  "needs_port": true,
+  "sha": "32a309c566735793ac733ea99fb9ebc79ab02a90",
+  "short_sha": "32a309c566",
+  "subject": "fix(library/compiler/specialize): make sure `specialize` generates valid LCNF",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

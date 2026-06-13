@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-10",
+  "needs_port": false,
+  "sha": "bcd7185f42beac66e1925d33f0b2dab1adc1592b",
+  "short_sha": "bcd7185f42",
+  "subject": "chore: CI: try reenabling sanitized Lake test",
+  "zig_target": {}
+}

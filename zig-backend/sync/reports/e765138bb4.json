@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-24",
+  "needs_port": false,
+  "sha": "e765138bb4dc05ed563237203c9db1ba81c2c57a",
+  "short_sha": "e765138bb4",
+  "subject": "chore: add `isDebugEnabled` to `grind` (#11792)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-07-03",
+  "needs_port": false,
+  "sha": "c2edae92c8632b8525ffd34ed518a523d81be956",
+  "short_sha": "c2edae92c8",
+  "subject": "fix: make sure syntax nodes always run their formatters (#4631)",
+  "zig_target": {}
+}

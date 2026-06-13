@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2024-11-19",
+  "needs_port": false,
+  "sha": "a00cf6330f78cdc793fa8f75e72a5bbc96c4b149",
+  "short_sha": "a00cf6330f",
+  "subject": "fix: add a missing case to `Level.geq` (#2689)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-03-24",
+  "needs_port": false,
+  "sha": "90baf14e82112f244ec8fe83f86853cad3c4d335",
+  "short_sha": "90baf14e82",
+  "subject": "doc: add lib and style changes to lean3changes.md",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    }
+  ],
+  "date": "2025-08-12",
+  "needs_port": true,
+  "sha": "639baaaa033f95677a5b606da9e4300e373d1809",
+  "short_sha": "639baaaa03",
+  "subject": "refactor: adopt `do` notation (#9882)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-16",
+  "needs_port": false,
+  "sha": "8748031853c8201b30a70402df105a9ed3256cfc",
+  "short_sha": "8748031853",
+  "subject": "fix: only run `processInaccessibleAsCtor` if there is at least one constructor around (#10793)",
+  "zig_target": {}
+}

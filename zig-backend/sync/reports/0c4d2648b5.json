@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-05-11",
+  "needs_port": false,
+  "sha": "0c4d2648b51e12d96cfe1d4cee2c44908e8e00bd",
+  "short_sha": "0c4d2648b5",
+  "subject": "test: harden cancellation_empty_by against scheduling races (#13704)",
+  "zig_target": {}
+}

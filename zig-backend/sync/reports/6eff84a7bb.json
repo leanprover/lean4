@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-17",
+  "needs_port": false,
+  "sha": "6eff84a7bbc6e4e2da6cc017531451715fcd6671",
+  "short_sha": "6eff84a7bb",
+  "subject": "refactor: add generic `mkBaseNameFor`",
+  "zig_target": {}
+}

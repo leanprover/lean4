@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-14",
+  "needs_port": false,
+  "sha": "6b97e4165045177f8bef6831e516ccee241a55b4",
+  "short_sha": "6b97e41650",
+  "subject": "feat: sanity check for instances in `grind ring` (#10380)",
+  "zig_target": {}
+}

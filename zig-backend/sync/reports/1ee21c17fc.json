@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-02-21",
+  "needs_port": false,
+  "sha": "1ee21c17fc9709d24cd79204ecfe3c690bc1820c",
+  "short_sha": "1ee21c17fc",
+  "subject": "feat: use Lake plugin for Lake imports (#7157)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2026-01-02",
+  "needs_port": true,
+  "sha": "d8f0507d2a7e79e62c88663212f3c1f422ee7a60",
+  "short_sha": "d8f0507d2a",
+  "subject": "perf: faster getLine (#11874)",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

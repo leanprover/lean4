@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-06-05",
+  "needs_port": false,
+  "sha": "5cd9f805b744b30f4d5406535d8a58f4c5272eff",
+  "short_sha": "5cd9f805b7",
+  "subject": "fix: without recover bad simp arg should fail (#4359)",
+  "zig_target": {}
+}

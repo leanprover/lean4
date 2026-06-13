@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-30",
+  "needs_port": false,
+  "sha": "c9d6636eaea393d4943053ed9fc2490d7062822a",
+  "short_sha": "c9d6636eae",
+  "subject": "feat: first, trivial formatter implementation",
+  "zig_target": {}
+}

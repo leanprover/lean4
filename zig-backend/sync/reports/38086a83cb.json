@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-02-01",
+  "needs_port": true,
+  "sha": "38086a83cb32656c75c7c8ed06e3d1a8c25c9d12",
+  "short_sha": "38086a83cb",
+  "subject": "feat: add `Grind.Config.verbose` and `reportIssue!` macro (#6904)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

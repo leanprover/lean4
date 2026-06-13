@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-12-21",
+  "needs_port": false,
+  "sha": "bddb2152e5be6c03f7dd104cab3e1cc39bc5d3c0",
+  "short_sha": "bddb2152e5",
+  "subject": "chore: default `compiler.enableNew` to false until development restarts (#3034)",
+  "zig_target": {}
+}

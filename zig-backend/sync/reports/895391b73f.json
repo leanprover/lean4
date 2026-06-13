@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-07-26",
+  "needs_port": true,
+  "sha": "895391b73ff5c098fce44a93392f04816d939c73",
+  "short_sha": "895391b73f",
+  "subject": "feat: List.IsPrefix/IsSuffix is decidable (#4837)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

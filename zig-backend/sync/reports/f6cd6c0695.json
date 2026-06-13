@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-15",
+  "needs_port": false,
+  "sha": "f6cd6c069587cfe62dd68cb6330f9ad794a56724",
+  "short_sha": "f6cd6c0695",
+  "subject": "chore: Nix: cache LeanInk output",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-24",
+  "needs_port": true,
+  "sha": "ac90dba90fba4dc86d0733ac88fcf941ea36fe84",
+  "short_sha": "ac90dba90f",
+  "subject": "chore(library/compiler/csimp): disable bogus warning",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

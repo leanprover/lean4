@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2019-11-18",
+  "needs_port": true,
+  "sha": "46adfcfdb6c3a7caccbc86451410c2610048d4d3",
+  "short_sha": "46adfcfdb6",
+  "subject": "refactor: `Name` fully implemented in Lean",
+  "zig_target": {
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

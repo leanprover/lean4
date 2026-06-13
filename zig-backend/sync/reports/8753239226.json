@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-20",
+  "needs_port": true,
+  "sha": "8753239226ae57df750079a518f88c921680a3cb",
+  "short_sha": "8753239226",
+  "subject": "chore: remove `Grind.Config.failures` options (#8423)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-22",
+  "needs_port": false,
+  "sha": "4972f214be58fb932205b6c563aa4fbfb94673c2",
+  "short_sha": "4972f214be",
+  "subject": "fix: sorried errors in rpcServerMethod",
+  "zig_target": {}
+}

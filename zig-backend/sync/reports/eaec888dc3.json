@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-07",
+  "needs_port": true,
+  "sha": "eaec888dc3e6df647f54b94184e8ad8f0e8c84b1",
+  "short_sha": "eaec888dc3",
+  "subject": "refactor: add `isPossibleRef`/`isDefiniteRef` fields to RC `VarInfo` (#9789)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

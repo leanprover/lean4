@@ -1,0 +1,10 @@
+{
+  "author": "Ed Ayers",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "5130da82a85cea2299e90111bccbb64cf9bb66ce",
+  "short_sha": "5130da82a8",
+  "subject": "doc: src/Lean/Widget/InteractiveGoal.lean",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-23",
+  "needs_port": false,
+  "sha": "146df5ac74b33f0feada599474c9736fa7ddb4bc",
+  "short_sha": "146df5ac74",
+  "subject": "feat: `EqCnstr.mkNullCertExt` (#8071)",
+  "zig_target": {}
+}

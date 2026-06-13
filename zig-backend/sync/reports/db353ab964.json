@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-31",
+  "needs_port": false,
+  "sha": "db353ab964763b7a170f7af4db85af2c9705c923",
+  "short_sha": "db353ab964",
+  "subject": "fix: ematch generalized patterns (#8570)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-23",
+  "needs_port": false,
+  "sha": "226121433fa7d6964c94bda4fc2a9bd340c8f9ab",
+  "short_sha": "226121433f",
+  "subject": "fix: semantic highlighting of projection notation elaborated twice",
+  "zig_target": {}
+}

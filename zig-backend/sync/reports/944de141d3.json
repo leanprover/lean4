@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-09",
+  "needs_port": true,
+  "sha": "944de141d33a912bb767581199652f5a0362063e",
+  "short_sha": "944de141d3",
+  "subject": "perf(library/compiler/ir_interpreter): use specialized stubs",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

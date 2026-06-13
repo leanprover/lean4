@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Rozowski",
+  "backend_changes": [],
+  "date": "2025-08-28",
+  "needs_port": false,
+  "sha": "eb013fb90d91f0b4354e61047993e6f533035e5f",
+  "short_sha": "eb013fb90d",
+  "subject": "fix: construction of `CompleteLattice` instance for eta-reduced definitions (#10144)",
+  "zig_target": {}
+}

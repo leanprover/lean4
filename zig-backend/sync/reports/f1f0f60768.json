@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-07-28",
+  "needs_port": true,
+  "sha": "f1f0f6076890ead4ac31f14bec2432aebdcc086b",
+  "short_sha": "f1f0f60768",
+  "subject": "fix: linter warnings",
+  "zig_target": {
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

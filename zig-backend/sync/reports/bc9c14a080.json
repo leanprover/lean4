@@ -1,0 +1,18 @@
+{
+  "author": "pcpthm",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2022-08-25",
+  "needs_port": true,
+  "sha": "bc9c14a080b9a028f90059e9e6c081e0ffc8dc89",
+  "short_sha": "bc9c14a080",
+  "subject": "fix: remove duplicate OfNat Int instance",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

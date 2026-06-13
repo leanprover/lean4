@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-31",
+  "needs_port": false,
+  "sha": "33a963d82b2153e70a81269fbdac878d85225dfc",
+  "short_sha": "33a963d82b",
+  "subject": "refactor: make formatter stack-based, much like the parser",
+  "zig_target": {}
+}

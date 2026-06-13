@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Toposort.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Toposort.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Toposort.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Toposort.lean"
+    }
+  ],
+  "date": "2026-02-23",
+  "needs_port": true,
+  "sha": "d20b6ece5816d36041b5a8c7caaf17c99f7d3ea2",
+  "short_sha": "d20b6ece58",
+  "subject": "refactor: port toposort from IR to LCNF (#12644)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Toposort.lean": "zig-backend/src/lean/compiler/ir/Toposort.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/Toposort.lean": "zig-backend/src/lean/compiler/lcnf/Toposort.lean"
+  }
+}

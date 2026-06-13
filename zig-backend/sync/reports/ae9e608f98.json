@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-06",
+  "needs_port": false,
+  "sha": "ae9e608f98c92382e90f6abbbfac6859ecda1f90",
+  "short_sha": "ae9e608f98",
+  "subject": "doc: add quickstart to SUMMARY",
+  "zig_target": {}
+}

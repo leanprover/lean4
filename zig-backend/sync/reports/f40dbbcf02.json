@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-08",
+  "needs_port": false,
+  "sha": "f40dbbcf022a3872dd6b7eaf73a7b4409ce19604",
+  "short_sha": "f40dbbcf02",
+  "subject": "chore: remove `verbosity` from `LoadConfig`",
+  "zig_target": {}
+}

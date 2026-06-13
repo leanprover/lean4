@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-12",
+  "needs_port": true,
+  "sha": "adfd6c090ef7d6bdcc8f69c5dd6f919b1b71cab3",
+  "short_sha": "adfd6c090e",
+  "subject": "chore: add Nat.self_sub_mod lemma (#5306)",
+  "zig_target": {
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

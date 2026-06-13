@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2020-10-23",
+  "needs_port": true,
+  "sha": "535765993a8137cfbab0261ffa2db2982f02933c",
+  "short_sha": "535765993a",
+  "subject": "chore: move to new frontend",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

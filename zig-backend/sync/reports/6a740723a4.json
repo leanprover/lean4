@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-24",
+  "needs_port": false,
+  "sha": "6a740723a4113ad8b61b85a3f1423ea1cb6e940c",
+  "short_sha": "6a740723a4",
+  "subject": "chore(frontends/lean): remove `node!` and `nodeChoice!` macros",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-30",
+  "needs_port": false,
+  "sha": "3a5887276c0ab64d1245cf9b9515fdb2ccffe569",
+  "short_sha": "3a5887276c",
+  "subject": "fix: handle assigned metavariables during pattern matching (#11850)",
+  "zig_target": {}
+}

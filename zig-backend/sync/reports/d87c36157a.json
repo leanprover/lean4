@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-24",
+  "needs_port": false,
+  "sha": "d87c36157a16667eae5da390da649b62cf2e2bfb",
+  "short_sha": "d87c36157a",
+  "subject": "perf: speed up Expr.replace",
+  "zig_target": {}
+}

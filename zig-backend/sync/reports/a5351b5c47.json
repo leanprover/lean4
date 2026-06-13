@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-08-04",
+  "needs_port": true,
+  "sha": "a5351b5c47c302d27d52b6ad0ee8136de291e5b1",
+  "short_sha": "a5351b5c47",
+  "subject": "perf: add `Poy.combine_mul_k` (#9706)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

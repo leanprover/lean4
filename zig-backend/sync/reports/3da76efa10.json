@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-25",
+  "needs_port": false,
+  "sha": "3da76efa10374843f6c7072b040646f5ccf363d2",
+  "short_sha": "3da76efa10",
+  "subject": "chore: Nix: remove Leanpkg from default deps",
+  "zig_target": {}
+}

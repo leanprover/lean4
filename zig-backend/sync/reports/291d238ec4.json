@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-10-22",
+  "needs_port": false,
+  "sha": "291d238ec4fca5219ff6f742441fa92cbc7a2426",
+  "short_sha": "291d238ec4",
+  "subject": "test: symbol clash on private import of same def (#10915)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-22",
+  "needs_port": false,
+  "sha": "f6a25b13b956728f9b580775e815107bbb0b0b7a",
+  "short_sha": "f6a25b13b9",
+  "subject": "chore: `grind` cleanup (#11775)",
+  "zig_target": {}
+}

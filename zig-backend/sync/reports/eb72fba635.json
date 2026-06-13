@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-20",
+  "needs_port": false,
+  "sha": "eb72fba635e40d05b8bebe89e3effa550764400f",
+  "short_sha": "eb72fba635",
+  "subject": "refactor: build C files using leanmake/leanc in stage 0 as well",
+  "zig_target": {}
+}

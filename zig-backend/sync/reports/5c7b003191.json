@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-16",
+  "needs_port": false,
+  "sha": "5c7b00319177d08d1096b8464d762ed2a8aee720",
+  "short_sha": "5c7b003191",
+  "subject": "chore: lean.code-workspace: fix terminal cwd (#10802)",
+  "zig_target": {}
+}

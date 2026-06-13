@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-07-26",
+  "needs_port": false,
+  "sha": "4d295d85b6d4769b0d4bfa09815f187277ab27c9",
+  "short_sha": "4d295d85b6",
+  "subject": "fix: make `zero`/`succ` hoverable in `induction`/`cases` (#9571)",
+  "zig_target": {}
+}

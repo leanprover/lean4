@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-20",
+  "needs_port": false,
+  "sha": "9e30ac32654de89e8e17b3cc71ad1f18d95dc620",
+  "short_sha": "9e30ac3265",
+  "subject": "feat: add `Expr.fvarsSubset` (#6430)",
+  "zig_target": {}
+}

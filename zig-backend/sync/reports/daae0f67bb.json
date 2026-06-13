@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-09",
+  "needs_port": true,
+  "sha": "daae0f67bbcdbff5357a765dd976e3759b28d5d8",
+  "short_sha": "daae0f67bb",
+  "subject": "fix(library/compiler/ir_interpreter): --run ignored first argument",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

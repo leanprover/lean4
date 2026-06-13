@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    },
+    {
+      "path": "src/runtime/serializer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.cpp"
+    },
+    {
+      "path": "src/runtime/utf8.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.cpp"
+    },
+    {
+      "path": "src/runtime/utf8.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.h"
+    }
+  ],
+  "date": "2018-06-15",
+  "needs_port": true,
+  "sha": "fe2d416cde827b6219c7c23dadfe087b5ee0c1c3",
+  "short_sha": "fe2d416cde",
+  "subject": "fix(runtime,util,kernel): should not use strcmp to compare Lean string objects",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h",
+    "src/runtime/serializer.cpp": "zig-backend/src/runtime/serializer.cpp",
+    "src/runtime/utf8.cpp": "zig-backend/src/runtime/utf8.cpp",
+    "src/runtime/utf8.h": "zig-backend/src/runtime/utf8.h"
+  }
+}

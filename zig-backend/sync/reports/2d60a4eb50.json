@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "2d60a4eb50fcb13e1fa0362f498112ff4c65fd98",
+  "short_sha": "2d60a4eb50",
+  "subject": "chore(tests/bench/speedcenter.exec.yaml): simplify 'stdlib' benchmark",
+  "zig_target": {}
+}

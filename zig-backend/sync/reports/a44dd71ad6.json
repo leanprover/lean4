@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-06-15",
+  "needs_port": false,
+  "sha": "a44dd71ad62a1760e32b0e8a12449e560ddcf492",
+  "short_sha": "a44dd71ad6",
+  "subject": "feat: add flag for apply to defer failed typeclass syntheses as goals",
+  "zig_target": {}
+}

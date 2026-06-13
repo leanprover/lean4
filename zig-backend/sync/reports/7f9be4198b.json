@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-04",
+  "needs_port": false,
+  "sha": "7f9be4198b8f2370e3dd2b35ae35a89cec6bb44e",
+  "short_sha": "7f9be4198b",
+  "subject": "fix: `Induction.lean` after `binderIdent` normalization",
+  "zig_target": {}
+}

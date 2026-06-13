@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/struct_cases_on.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/struct_cases_on.cpp"
+    },
+    {
+      "path": "src/library/compiler/struct_cases_on.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/struct_cases_on.h"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    }
+  ],
+  "date": "2019-04-22",
+  "needs_port": true,
+  "sha": "f222dc7cca36aeb4d5bfc3d879aa1bd893abe25c",
+  "short_sha": "f222dc7cca",
+  "subject": "feat(library/compiler): destructive updates for `{x with ...}` expressions",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp",
+    "src/library/compiler/struct_cases_on.cpp": "zig-backend/src/library/compiler/struct_cases_on.cpp",
+    "src/library/compiler/struct_cases_on.h": "zig-backend/src/library/compiler/struct_cases_on.h",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h"
+  }
+}

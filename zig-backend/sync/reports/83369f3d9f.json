@@ -1,0 +1,18 @@
+{
+  "author": "Austin Letson",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    }
+  ],
+  "date": "2024-03-26",
+  "needs_port": true,
+  "sha": "83369f3d9fbc222b4479fb227b16749ab55adddf",
+  "short_sha": "83369f3d9f",
+  "subject": "fix: update System.FilePath.parent to handle edge cases for absolute paths (#3645)",
+  "zig_target": {
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean"
+  }
+}

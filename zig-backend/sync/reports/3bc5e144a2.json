@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AbstractMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/DiscrTreeTypes.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTreeTypes.lean"
+    }
+  ],
+  "date": "2019-12-01",
+  "needs_port": true,
+  "sha": "3bc5e144a24b3890c8a89c1c872f790ae4782a41",
+  "short_sha": "3bc5e144a2",
+  "subject": "feat: add `synthInstance` cache",
+  "zig_target": {
+    "src/Init/Lean/Meta/AbstractMVars.lean": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean",
+    "src/Init/Lean/Meta/DiscrTreeTypes.lean": "zig-backend/src/init/Lean/Meta/DiscrTreeTypes.lean"
+  }
+}

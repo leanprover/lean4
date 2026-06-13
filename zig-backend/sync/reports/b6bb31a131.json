@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-13",
+  "needs_port": false,
+  "sha": "b6bb31a131e5ce6502e987a2ff5fa1db2af42e07",
+  "short_sha": "b6bb31a131",
+  "subject": "feat: \"compile\" 'extern' axioms",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-07",
+  "needs_port": false,
+  "sha": "e67e0960860aa772a8a92846d88175d7487789dd",
+  "short_sha": "e67e096086",
+  "subject": "fix: patch bin/lake",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-08-17",
+  "needs_port": false,
+  "sha": "e9d60e143a8b1ee06be1f201f78068250a2b8949",
+  "short_sha": "e9d60e143a",
+  "subject": "perf: avoid allocation in `mkUnexpectedTokenErrors`",
+  "zig_target": {}
+}

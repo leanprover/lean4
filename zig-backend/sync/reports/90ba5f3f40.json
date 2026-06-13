@@ -1,0 +1,18 @@
+{
+  "author": "Elazar Gershuni",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Nat/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Sublist.lean"
+    }
+  ],
+  "date": "2026-01-28",
+  "needs_port": true,
+  "sha": "90ba5f3f409446aeb20251d01de66c46fcf1f3de",
+  "short_sha": "90ba5f3f40",
+  "subject": "feat: add prefix and suffix map injectivity lemmas (#12108)",
+  "zig_target": {
+    "src/Init/Data/List/Nat/Sublist.lean": "zig-backend/src/init/Data/List/Nat/Sublist.lean"
+  }
+}

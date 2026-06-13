@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    }
+  ],
+  "date": "2020-08-20",
+  "needs_port": true,
+  "sha": "ca1982441f8ffb3c5bfb90997b172108cb432f1f",
+  "short_sha": "ca1982441f",
+  "subject": "feat: add support for to be added `ST`",
+  "zig_target": {
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp"
+  }
+}

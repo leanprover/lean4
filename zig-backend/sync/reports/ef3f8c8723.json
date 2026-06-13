@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2020-11-08",
+  "needs_port": true,
+  "sha": "ef3f8c872327d4b6fbb8c221bd26ed8e3837a144",
+  "short_sha": "ef3f8c8723",
+  "subject": "feat: add `funext` tactic macro",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

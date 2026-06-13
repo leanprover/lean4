@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-30",
+  "needs_port": false,
+  "sha": "ac8f0526f6720a2f66f6bdb8e0d478b9afb762b0",
+  "short_sha": "ac8f0526f6",
+  "subject": "feat: report goals from multiple info states",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-29",
+  "needs_port": false,
+  "sha": "61fba365f21491a6f1857fcde4ce6d679878acf3",
+  "short_sha": "61fba365f2",
+  "subject": "fix: revert shared library split on non-Windows platforms (#3529)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2019-04-18",
+  "needs_port": true,
+  "sha": "0ea944ad9f439c1c0cd3547320996794be0cc98d",
+  "short_sha": "0ea944ad9f",
+  "subject": "feat(library/compiler/csimp): add transformation to complement eager lambda lifting",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

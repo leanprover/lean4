@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-24",
+  "needs_port": false,
+  "sha": "cb210b0adc8ce6e900813d82c681de77aa0b98a5",
+  "short_sha": "cb210b0adc",
+  "subject": "feat: expose `Expr.hasExprMVar` and `Expr.hasLevelMVar`",
+  "zig_target": {}
+}

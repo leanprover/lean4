@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-08-01",
+  "needs_port": false,
+  "sha": "dcea47db02a61616060dcc0f6ac19e8e6300b8cc",
+  "short_sha": "dcea47db02",
+  "subject": "chore: shorten suggestion about diagnostics (#4882)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-25",
+  "needs_port": false,
+  "sha": "901fcddf894706c6ccb57a650fe31ef4b839e28b",
+  "short_sha": "901fcddf89",
+  "subject": "chore: first `|` is now optional at `macro_rules`",
+  "zig_target": {}
+}

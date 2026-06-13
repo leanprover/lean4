@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-30",
+  "needs_port": false,
+  "sha": "3ca2bf432f0c8b7edc2225ce23ebe0a0db6b4eb8",
+  "short_sha": "3ca2bf432f",
+  "subject": "test(tests/lean/revert): add new tests for Lean without delayed abstraction macro",
+  "zig_target": {}
+}

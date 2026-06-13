@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-15",
+  "needs_port": false,
+  "sha": "a2613a36a4253263bb0e44688406e3cc68686991",
+  "short_sha": "a2613a36a4",
+  "subject": "fix: incorrect dependencies due to assigned variables",
+  "zig_target": {}
+}

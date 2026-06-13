@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-03",
+  "needs_port": false,
+  "sha": "8b248e2d8c7e265ea4ba0ed491cdf52daa7514a3",
+  "short_sha": "8b248e2d8c",
+  "subject": "feat: elaborate `for h : x in xs do ...` notation",
+  "zig_target": {}
+}

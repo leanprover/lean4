@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-13",
+  "needs_port": false,
+  "sha": "a716528067019e015bdfd5683268fed232518e9b",
+  "short_sha": "a716528067",
+  "subject": "fix(tests/playground/parser/parser): reset position",
+  "zig_target": {}
+}

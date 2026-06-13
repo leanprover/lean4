@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-04-15",
+  "needs_port": false,
+  "sha": "346da2c29cfe687c47f7dec929b3279795cc141e",
+  "short_sha": "346da2c29c",
+  "subject": "feat: bare `lake run` default scripts",
+  "zig_target": {}
+}

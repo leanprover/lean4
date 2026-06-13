@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-16",
+  "needs_port": false,
+  "sha": "600740da8578f7141cdd6c7b58febbc37ca543bd",
+  "short_sha": "600740da85",
+  "subject": "feat: inlining local function declarations",
+  "zig_target": {}
+}

@@ -1,0 +1,60 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    },
+    {
+      "path": "src/shell/lean_js.h",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/lean_js.h"
+    },
+    {
+      "path": "src/shell/lean_js.html",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/lean_js.html"
+    },
+    {
+      "path": "src/shell/lean_js_main.cpp",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/lean_js_main.cpp"
+    },
+    {
+      "path": "src/shell/lean_js_new.cpp",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/lean_js_new.cpp"
+    },
+    {
+      "path": "src/shell/server.cpp",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/server.cpp"
+    },
+    {
+      "path": "src/shell/server.h",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/server.h"
+    }
+  ],
+  "date": "2018-09-05",
+  "needs_port": true,
+  "sha": "b3c44ec56e1f7f5b6026365d03443de953f61757",
+  "short_sha": "b3c44ec56e",
+  "subject": "chore(shell/{server,lean_js}): remove",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp",
+    "src/shell/lean_js.h": "zig-backend/src/shell/lean_js.h",
+    "src/shell/lean_js.html": "zig-backend/src/shell/lean_js.html",
+    "src/shell/lean_js_main.cpp": "zig-backend/src/shell/lean_js_main.cpp",
+    "src/shell/lean_js_new.cpp": "zig-backend/src/shell/lean_js_new.cpp",
+    "src/shell/server.cpp": "zig-backend/src/shell/server.cpp",
+    "src/shell/server.h": "zig-backend/src/shell/server.h"
+  }
+}

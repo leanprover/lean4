@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-07-29",
+  "needs_port": false,
+  "sha": "9c910ebe8e042fbc17a4eb05e22b257f92b7d49a",
+  "short_sha": "9c910ebe8e",
+  "subject": "perf: faster `replace \"\\r\\n\" \"\\n\"`",
+  "zig_target": {}
+}

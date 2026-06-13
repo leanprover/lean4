@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-30",
+  "needs_port": false,
+  "sha": "83c139f7504706624eb3dcb3d78000d4fc6f4d13",
+  "short_sha": "83c139f750",
+  "subject": "feat: improve `set_option diagnostics true` (#4031)",
+  "zig_target": {}
+}

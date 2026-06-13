@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-12",
+  "needs_port": false,
+  "sha": "da865fc33a1cadca8a57d7eb81225c8f22308ca3",
+  "short_sha": "da865fc33a",
+  "subject": "refactor(frontends/lean/{vm_,}elaborator): move name resolution over to parser locals",
+  "zig_target": {}
+}

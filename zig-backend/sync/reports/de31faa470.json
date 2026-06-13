@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-21",
+  "needs_port": false,
+  "sha": "de31faa470f2da42c0346256fd4a8b8c86b4b264",
+  "short_sha": "de31faa470",
+  "subject": "feat: case splitting `match`-expressions with overlapping patterns in `grind` (#6735)",
+  "zig_target": {}
+}

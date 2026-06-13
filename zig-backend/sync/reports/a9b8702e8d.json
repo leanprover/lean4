@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-12",
+  "needs_port": false,
+  "sha": "a9b8702e8d65ec8d968a0d0e213ff3a6d16d79a6",
+  "short_sha": "a9b8702e8d",
+  "subject": "doc: add `processAssignment` documentation",
+  "zig_target": {}
+}

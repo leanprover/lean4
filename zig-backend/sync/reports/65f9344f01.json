@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    }
+  ],
+  "date": "2022-08-25",
+  "needs_port": true,
+  "sha": "65f9344f01b23f0a78c65bd8f5c7d48a8eff4760",
+  "short_sha": "65f9344f01",
+  "subject": "feat: check whether join points are fully applied at `Check.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean",
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+  }
+}

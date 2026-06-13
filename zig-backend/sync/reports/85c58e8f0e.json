@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/old_erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/old_erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-10-02",
+  "needs_port": true,
+  "sha": "85c58e8f0edf12d7240ec93413299dd014b44030",
+  "short_sha": "85c58e8f0e",
+  "subject": "feat(library/compiler): add support for string literals in the old VM",
+  "zig_target": {
+    "src/library/compiler/old_erase_irrelevant.cpp": "zig-backend/src/library/compiler/old_erase_irrelevant.cpp",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

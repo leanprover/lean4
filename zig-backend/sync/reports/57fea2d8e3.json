@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-03-11",
+  "needs_port": false,
+  "sha": "57fea2d8e33a61721fcf44f5aadb72178dc346cd",
+  "short_sha": "57fea2d8e3",
+  "subject": "feat: accept empty git hash as version",
+  "zig_target": {}
+}

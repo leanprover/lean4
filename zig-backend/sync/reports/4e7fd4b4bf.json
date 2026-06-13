@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-03",
+  "needs_port": false,
+  "sha": "4e7fd4b4bf2a271cf11efbab050de86add4313a3",
+  "short_sha": "4e7fd4b4bf",
+  "subject": "chore: add `doSeqIndent` kind",
+  "zig_target": {}
+}

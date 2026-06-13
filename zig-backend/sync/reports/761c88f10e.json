@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-02-12",
+  "needs_port": false,
+  "sha": "761c88f10e42fd58872bd000566d8553e5d7104c",
+  "short_sha": "761c88f10e",
+  "subject": "feat: propagate wfParam through let (#7039)",
+  "zig_target": {}
+}

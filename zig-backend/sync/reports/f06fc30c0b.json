@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2024-11-15",
+  "needs_port": false,
+  "sha": "f06fc30c0bdc0d6035d1276f6c23bd42109791a3",
+  "short_sha": "f06fc30c0b",
+  "subject": "perf: remove `@[specialize]` from mkBinding (#6019)",
+  "zig_target": {}
+}

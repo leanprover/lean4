@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-03",
+  "needs_port": false,
+  "sha": "5e6d3511f42a6c9163ed334337b7cb5dcb56aebb",
+  "short_sha": "5e6d3511f4",
+  "subject": "chore(frontends/lean/print_cmd): display rule info",
+  "zig_target": {}
+}

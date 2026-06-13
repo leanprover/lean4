@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/borrowed_annotation.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/borrowed_annotation.cpp"
+    }
+  ],
+  "date": "2019-02-22",
+  "needs_port": true,
+  "sha": "07aa990f22a0b603ab16034613b03670453d6e22",
+  "short_sha": "07aa990f22",
+  "subject": "fix(library/compiler/borrowed_annotation): ensure that exported functions do not take borrowed arguments",
+  "zig_target": {
+    "src/library/compiler/borrowed_annotation.cpp": "zig-backend/src/library/compiler/borrowed_annotation.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-27",
+  "needs_port": false,
+  "sha": "75e95f93a9b2fc754fc6801d52a6dd196ac82e02",
+  "short_sha": "75e95f93a9",
+  "subject": "feat: improve `let` error locality",
+  "zig_target": {}
+}

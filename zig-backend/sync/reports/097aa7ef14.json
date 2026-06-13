@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.cpp"
+    }
+  ],
+  "date": "2018-09-21",
+  "needs_port": true,
+  "sha": "097aa7ef140ddc593d27e593c913689acd2eeccb",
+  "short_sha": "097aa7ef14",
+  "subject": "chore(library/compiler): cleanup cce",
+  "zig_target": {
+    "src/library/compiler/cse.cpp": "zig-backend/src/library/compiler/cse.cpp"
+  }
+}

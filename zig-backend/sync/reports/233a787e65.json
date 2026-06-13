@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-06-23",
+  "needs_port": false,
+  "sha": "233a787e651aefac83c602f167dd10bc5701ff03",
+  "short_sha": "233a787e65",
+  "subject": "chore: add test for sepByIndent.formatter",
+  "zig_target": {}
+}

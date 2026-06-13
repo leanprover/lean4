@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/LiveVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LiveVars.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2020-12-13",
+  "needs_port": true,
+  "sha": "3b6d65c3c32c12b603681a650169799d209a759a",
+  "short_sha": "3b6d65c3c3",
+  "subject": "chore: use `deriving Inhabited`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean",
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean",
+    "src/Lean/Compiler/IR/LiveVars.lean": "zig-backend/src/lean/compiler/ir/LiveVars.lean",
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-28",
+  "needs_port": true,
+  "sha": "4dd8648a25a093edbadadd1a926feb0c265f3878",
+  "short_sha": "4dd8648a25",
+  "subject": "feat: different syntax for new `clear_value` tactic (#8516)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

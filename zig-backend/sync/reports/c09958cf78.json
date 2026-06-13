@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-17",
+  "needs_port": false,
+  "sha": "c09958cf78a172716ae820ca1ffe6ab2d28cd3ac",
+  "short_sha": "c09958cf78",
+  "subject": "chore: do not display MessageData tags by default",
+  "zig_target": {}
+}

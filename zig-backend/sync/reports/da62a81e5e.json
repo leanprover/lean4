@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-07",
+  "needs_port": false,
+  "sha": "da62a81e5e2e65cf21783a6277fbe8dbd3ad073b",
+  "short_sha": "da62a81e5e",
+  "subject": "feat: shake: track simpset/grindset uses (#12375)",
+  "zig_target": {}
+}

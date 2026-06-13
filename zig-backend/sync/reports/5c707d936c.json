@@ -1,0 +1,36 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Stream.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Stream.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Stream.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Stream.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Stream.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Stream.lean"
+    }
+  ],
+  "date": "2025-10-02",
+  "needs_port": true,
+  "sha": "5c707d936c9766d354e142e79d2f965af5ba07f2",
+  "short_sha": "5c707d936c",
+  "subject": "chore: rename `Stream` to `Std.Stream` (#10645)",
+  "zig_target": {
+    "src/Init/Data/Stream.lean": "zig-backend/src/init/Data/Stream.lean",
+    "src/Init/Data/String/Stream.lean": "zig-backend/src/init/Data/String/Stream.lean",
+    "src/Init/Data/Vector/Basic.lean": "zig-backend/src/init/Data/Vector/Basic.lean",
+    "src/Init/Data/Vector/Stream.lean": "zig-backend/src/init/Data/Vector/Stream.lean"
+  }
+}

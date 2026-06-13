@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-19",
+  "needs_port": false,
+  "sha": "d66d00dece1633a5cd5a87645722237b7af877d6",
+  "short_sha": "d66d00dece",
+  "subject": "fix: missing occurs-check at delayed assignment (#4217)",
+  "zig_target": {}
+}

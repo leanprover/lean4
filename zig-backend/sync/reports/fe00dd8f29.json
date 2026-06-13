@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-02",
+  "needs_port": false,
+  "sha": "fe00dd8f292ed280684403b4cf6444a83f1b81bd",
+  "short_sha": "fe00dd8f29",
+  "subject": "fix: missing `sanitizeNames` at `msgToInteractiveAux`",
+  "zig_target": {}
+}

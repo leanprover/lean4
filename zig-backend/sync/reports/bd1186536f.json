@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToExpr.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToExpr.lean"
+    }
+  ],
+  "date": "2022-08-22",
+  "needs_port": true,
+  "sha": "bd1186536fde8192e6c48ff0f3123bf9a5eb20e3",
+  "short_sha": "bd1186536f",
+  "subject": "feat: `LCNF` to `Expr` translator",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToExpr.lean": "zig-backend/src/lean/compiler/lcnf/ToExpr.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-02",
+  "needs_port": false,
+  "sha": "d2f169a2110cf71d30dc3e8ad3377c5270bf92eb",
+  "short_sha": "d2f169a211",
+  "subject": "chore(library/init/lean/parser/parser): remove unnecessary `unsafe` code",
+  "zig_target": {}
+}

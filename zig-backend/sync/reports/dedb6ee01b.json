@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2022-02-17",
+  "needs_port": true,
+  "sha": "dedb6ee01bfca70481f615f79ff06d8bcf187de0",
+  "short_sha": "dedb6ee01b",
+  "subject": "fix: skip value if type is computationally irrelevant",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

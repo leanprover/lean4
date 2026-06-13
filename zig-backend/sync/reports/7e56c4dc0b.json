@@ -1,0 +1,10 @@
+{
+  "author": "Jannis Limperg",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "7e56c4dc0b4952084db5098fda5381f8ca45e4bb",
+  "short_sha": "7e56c4dc0b",
+  "subject": "refactor: simplify BinomialHeap.Heap",
+  "zig_target": {}
+}

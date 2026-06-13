@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-10",
+  "needs_port": false,
+  "sha": "2a63b392ddad0bef1d42eb973fe50964644de236",
+  "short_sha": "2a63b392dd",
+  "subject": "fix: ring module in `grind` (#8713)",
+  "zig_target": {}
+}

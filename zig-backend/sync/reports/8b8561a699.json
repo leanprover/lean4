@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-07-21",
+  "needs_port": false,
+  "sha": "8b8561a699c951bab2e312b7d0963577f12c98b0",
+  "short_sha": "8b8561a699",
+  "subject": "feat: improved go to definition (#9040)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "7a89d453917291f21c13d09a964af25f0474cb0c",
+  "short_sha": "7a89d45391",
+  "subject": "feat(script): add helper script for patching lean files",
+  "zig_target": {}
+}

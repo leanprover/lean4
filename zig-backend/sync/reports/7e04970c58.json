@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-04-08",
+  "needs_port": false,
+  "sha": "7e04970c5897f93d8559fe45b600db988fe9b0ee",
+  "short_sha": "7e04970c58",
+  "subject": "fix: skip nightly-testing merge when branch does not exist (#13308)",
+  "zig_target": {}
+}

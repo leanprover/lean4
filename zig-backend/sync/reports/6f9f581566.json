@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Hygiene.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Hygiene.lean"
+    },
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-01-21",
+  "needs_port": true,
+  "sha": "6f9f5815668e7eb647914460c8ac6b95d72d7943",
+  "short_sha": "6f9f581566",
+  "subject": "feat: add `Syntax.identToAtom`",
+  "zig_target": {
+    "src/Init/Lean/Hygiene.lean": "zig-backend/src/init/Lean/Hygiene.lean",
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-04",
+  "needs_port": false,
+  "sha": "8db0474571743569af9151e492dc688bae69dd5f",
+  "short_sha": "8db0474571",
+  "subject": "feat(library/init/data/random): random numbers",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-02",
+  "needs_port": false,
+  "sha": "e20b2c359a185de06d230d5fa6214d842b2f7516",
+  "short_sha": "e20b2c359a",
+  "subject": "feat: server: show goal state after tactic if cursor not strictly before tactic",
+  "zig_target": {}
+}

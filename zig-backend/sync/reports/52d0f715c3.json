@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-01-19",
+  "needs_port": false,
+  "sha": "52d0f715c30bea99af79d490a3a6bf1fa51d1516",
+  "short_sha": "52d0f715c3",
+  "subject": "refactor: rewrite: produce simpler proof terms (#3121)",
+  "zig_target": {}
+}

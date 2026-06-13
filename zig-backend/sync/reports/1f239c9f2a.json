@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-17",
+  "needs_port": false,
+  "sha": "1f239c9f2a36d1aaa1cb3c119c5ed85862de179c",
+  "short_sha": "1f239c9f2a",
+  "subject": "feat(library/init/lean/parser/syntax): pretty-print `ident` nodes",
+  "zig_target": {}
+}

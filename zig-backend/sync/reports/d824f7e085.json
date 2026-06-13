@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "d824f7e0858e81d7d06726fcd1b5b415a48676ad",
+  "short_sha": "d824f7e085",
+  "subject": "feat: identifier suggestions for non-dotted identifiers (#11619)",
+  "zig_target": {}
+}

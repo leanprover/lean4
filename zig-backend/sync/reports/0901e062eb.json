@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-08-31",
+  "needs_port": false,
+  "sha": "0901e062ebd5f4e31995aa60e10ed9992c7869f0",
+  "short_sha": "0901e062eb",
+  "subject": "feat: when making PR releases, only download necessary artifacts (#2474)",
+  "zig_target": {}
+}

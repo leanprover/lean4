@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-02",
+  "needs_port": false,
+  "sha": "1d17c7df2beafbef0b480aa68d395b37db278732",
+  "short_sha": "1d17c7df2b",
+  "subject": "chore: cleanup and remove unnecessary `checkpointDefEq` (#4029)",
+  "zig_target": {}
+}

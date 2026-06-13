@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-26",
+  "needs_port": false,
+  "sha": "4fc2aead452c95ad177563ecb759686e748a9d5c",
+  "short_sha": "4fc2aead45",
+  "subject": "fix: missing `checkAssignment` at `assignToConstFun`",
+  "zig_target": {}
+}

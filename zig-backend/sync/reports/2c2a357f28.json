@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-11",
+  "needs_port": false,
+  "sha": "2c2a357f283c15cabd8f296d3b9fd70e6bb3f06e",
+  "short_sha": "2c2a357f28",
+  "subject": "chore: remove disabled test",
+  "zig_target": {}
+}

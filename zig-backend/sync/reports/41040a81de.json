@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-07",
+  "needs_port": false,
+  "sha": "41040a81decedd4d9daf061d682f4ce2d8d70df7",
+  "short_sha": "41040a81de",
+  "subject": "fix: auxiliary matcher definitions should be treated as abbreviations",
+  "zig_target": {}
+}

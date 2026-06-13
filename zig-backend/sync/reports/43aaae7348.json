@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-17",
+  "needs_port": true,
+  "sha": "43aaae7348770036657845521d0451822df05946",
+  "short_sha": "43aaae7348",
+  "subject": "feat: add `BitVec.(toNat, toInt, toFin)_shiftLeftZeroExtend` (#8811)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-05-19",
+  "needs_port": true,
+  "sha": "10fdfc54cbc81d54b49405d3fe583b7144862605",
+  "short_sha": "10fdfc54cb",
+  "subject": "chore: upstream HSMul notation typeclass (#8401)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

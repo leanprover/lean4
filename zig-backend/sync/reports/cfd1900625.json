@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-06-04",
+  "needs_port": false,
+  "sha": "cfd190062553e4909a3241cd2e5f623755649fa7",
+  "short_sha": "cfd1900625",
+  "subject": "fix: #eval: redirect stdout/stderr",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-17",
+  "needs_port": false,
+  "sha": "dc148003cbe06490acb61f8297f8a365aa6fe0ab",
+  "short_sha": "dc148003cb",
+  "subject": "chore: Nix: remove annoying output",
+  "zig_target": {}
+}

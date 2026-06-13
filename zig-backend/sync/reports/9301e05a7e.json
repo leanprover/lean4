@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-27",
+  "needs_port": false,
+  "sha": "9301e05a7e9015445262ffaa400dde128ae45a1b",
+  "short_sha": "9301e05a7e",
+  "subject": "feat: double-quoted quotation semantics and basic precheck hooks",
+  "zig_target": {}
+}

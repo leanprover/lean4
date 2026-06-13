@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-20",
+  "needs_port": false,
+  "sha": "a52b4184526c9ed57eaf06a5b7d33e8be2467e43",
+  "short_sha": "a52b418452",
+  "subject": "refactor(*): mk sure old `name` has same shape of new `lean.name` type",
+  "zig_target": {}
+}

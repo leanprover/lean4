@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-30",
+  "needs_port": false,
+  "sha": "3d74e1ba4427e9c221217a5dee8c9a082917829f",
+  "short_sha": "3d74e1ba44",
+  "subject": "chore: track `.ir` output files in Lake (#9060)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-02",
+  "needs_port": false,
+  "sha": "680ee2116163cd43aca89774bd28e426b55df28a",
+  "short_sha": "680ee21161",
+  "subject": "feat(library/init/lean/compiler/ir): add `unreachbranches.lean`",
+  "zig_target": {}
+}

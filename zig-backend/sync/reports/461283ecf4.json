@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-11",
+  "needs_port": true,
+  "sha": "461283ecf4b3a2ecee9e9bc546ba96aa1cb6307e",
+  "short_sha": "461283ecf4",
+  "subject": "chore: restoring Option simp confluence (#5307)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

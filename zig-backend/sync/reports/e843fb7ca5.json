@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-10-16",
+  "needs_port": false,
+  "sha": "e843fb7ca5b596945820b76eaaa51754e8acfe47",
+  "short_sha": "e843fb7ca5",
+  "subject": "fix: widget messages",
+  "zig_target": {}
+}

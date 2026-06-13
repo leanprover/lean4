@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-05-13",
+  "needs_port": false,
+  "sha": "d833f82fe8b963415064a605159ccdfa3026d768",
+  "short_sha": "d833f82fe8",
+  "subject": "chore: rerun CI only when full-ci label is added or removed (#4136)",
+  "zig_target": {}
+}

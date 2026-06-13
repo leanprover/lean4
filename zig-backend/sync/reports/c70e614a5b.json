@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-04",
+  "needs_port": false,
+  "sha": "c70e614a5bdeadff98a899731478fe3a598288fb",
+  "short_sha": "c70e614a5b",
+  "subject": "chore: harden use of panics in `Lean.Environment` (#7321)",
+  "zig_target": {}
+}

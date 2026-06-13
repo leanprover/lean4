@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/FreeVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/FreeVars.lean"
+    }
+  ],
+  "date": "2025-08-04",
+  "needs_port": true,
+  "sha": "78b941019b22af8cedab1f7fa4fd4041cb2c4daa",
+  "short_sha": "78b941019b",
+  "subject": "refactor: use a state monad rather than combinators for computing free indices (#9711)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/FreeVars.lean": "zig-backend/src/lean/compiler/ir/FreeVars.lean"
+  }
+}

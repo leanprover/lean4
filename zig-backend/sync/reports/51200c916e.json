@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    },
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/serializer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.cpp"
+    }
+  ],
+  "date": "2021-03-04",
+  "needs_port": true,
+  "sha": "51200c916e06554682332f3e4dda7f8fe1416ced",
+  "short_sha": "51200c916e",
+  "subject": "chore: make explicit user and internal `panic`s",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp",
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/serializer.cpp": "zig-backend/src/runtime/serializer.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-05",
+  "needs_port": false,
+  "sha": "af51e3e4b1c655df43476972c4d9aeae76e49046",
+  "short_sha": "af51e3e4b1",
+  "subject": "fix: make sure all kernel constants are persisted eventually (#8238)",
+  "zig_target": {}
+}

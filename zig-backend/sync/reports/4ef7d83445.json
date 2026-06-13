@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-29",
+  "needs_port": false,
+  "sha": "4ef7d83445dbab8039f645bf570180da9241358b",
+  "short_sha": "4ef7d83445",
+  "subject": "test: bundled structures",
+  "zig_target": {}
+}

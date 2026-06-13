@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BEq.lean"
+    },
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-05-29",
+  "needs_port": true,
+  "sha": "4316629119b710c0518e04d4f154db3db7df0d3a",
+  "short_sha": "4316629119",
+  "subject": "fix: `BEq` support in `grind` (#8536)",
+  "zig_target": {
+    "src/Init/Data/BEq.lean": "zig-backend/src/init/Data/BEq.lean",
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

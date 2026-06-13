@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    }
+  ],
+  "date": "2018-11-07",
+  "needs_port": true,
+  "sha": "c285d48c967abed3c06eba61c1ddd7db7d92e4ba",
+  "short_sha": "c285d48c96",
+  "subject": "feat(library/compiler/erase_irrelevant): simplify `mk_runtime_type`",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h"
+  }
+}

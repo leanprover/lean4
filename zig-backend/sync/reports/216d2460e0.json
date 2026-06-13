@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2023-08-23",
+  "needs_port": false,
+  "sha": "216d2460e0adec8317fdeeb6f2543cb7442564fd",
+  "short_sha": "216d2460e0",
+  "subject": "doc: explanation for `lake.lock` disabling",
+  "zig_target": {}
+}

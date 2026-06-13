@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-05-21",
+  "needs_port": false,
+  "sha": "8ca00918fb3a21c4b14a5b66abce4a716604938c",
+  "short_sha": "8ca00918fb",
+  "subject": "chore: lake: fix `noRelease` test when lean repo is tagged (#4244)",
+  "zig_target": {}
+}

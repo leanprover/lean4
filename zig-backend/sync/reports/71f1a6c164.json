@@ -1,0 +1,42 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Monadic/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    }
+  ],
+  "date": "2025-10-20",
+  "needs_port": true,
+  "sha": "71f1a6c164f7bcccebe9d41a8693a54956f2b9bd",
+  "short_sha": "71f1a6c164",
+  "subject": "feat: Iterator `find?` consumer and variants (#10769)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-04",
+  "needs_port": false,
+  "sha": "281ede6ed47731f150e003fb5046a4e41e4b6cf6",
+  "short_sha": "281ede6ed4",
+  "subject": "feat: handle references notifications",
+  "zig_target": {}
+}

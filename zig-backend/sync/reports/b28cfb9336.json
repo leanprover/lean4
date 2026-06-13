@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/interrupt.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.cpp"
+    },
+    {
+      "path": "src/runtime/interrupt.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.h"
+    }
+  ],
+  "date": "2024-07-02",
+  "needs_port": true,
+  "sha": "b28cfb9336202f06d6023feed030e9240079b426",
+  "short_sha": "b28cfb9336",
+  "subject": "fix: Windows build (#4628)",
+  "zig_target": {
+    "src/runtime/interrupt.cpp": "zig-backend/src/runtime/interrupt.cpp",
+    "src/runtime/interrupt.h": "zig-backend/src/runtime/interrupt.h"
+  }
+}

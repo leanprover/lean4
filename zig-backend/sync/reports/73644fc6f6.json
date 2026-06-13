@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-11-16",
+  "needs_port": false,
+  "sha": "73644fc6f6016c5768e02ceadc8129d4f9a55478",
+  "short_sha": "73644fc6f6",
+  "subject": "docs: add a section about how to insert text from a widget",
+  "zig_target": {}
+}

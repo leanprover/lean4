@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-04-15",
+  "needs_port": true,
+  "sha": "7423e570f44d9396b87cc6171d1a98d44e2c8c3a",
+  "short_sha": "7423e570f4",
+  "subject": "chore: lake: temporarily disable tests in `tests` (#7979)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

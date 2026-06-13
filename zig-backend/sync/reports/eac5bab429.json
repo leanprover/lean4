@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2022-03-01",
+  "needs_port": true,
+  "sha": "eac5bab429511cd41fae5eba3eb5f4cafa5fc639",
+  "short_sha": "eac5bab429",
+  "subject": "chore: helper theorem",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

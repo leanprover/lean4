@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-10",
+  "needs_port": false,
+  "sha": "e26ec036ba5e9e3aeda826f0a0f5c06051550eea",
+  "short_sha": "e26ec036ba",
+  "subject": "feat: add `instantiateForall`",
+  "zig_target": {}
+}

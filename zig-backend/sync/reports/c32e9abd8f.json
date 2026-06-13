@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    }
+  ],
+  "date": "2020-01-16",
+  "needs_port": true,
+  "sha": "c32e9abd8f2c24848eb2336aef16d6a5ed9f637b",
+  "short_sha": "c32e9abd8f",
+  "subject": "feat: add `(tactic| ...) notation",
+  "zig_target": {
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-04-17",
+  "needs_port": true,
+  "sha": "ad2e7a2d60d512a169537894659336ea011414c3",
+  "short_sha": "ad2e7a2d60",
+  "subject": "chore(library/compiler/specialize): remove dead code",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

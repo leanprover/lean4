@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-01-20",
+  "needs_port": true,
+  "sha": "1dbfc4b337109d13350e3d3f80d0f7c0e313d543",
+  "short_sha": "1dbfc4b337",
+  "subject": "fix: add `checkNoWsBefore` before option `*` in `mkAntiquot`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

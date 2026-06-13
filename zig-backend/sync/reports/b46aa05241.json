@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2021-08-27",
+  "needs_port": false,
+  "sha": "b46aa0524142ae5dfd77aa255fa9401a019bba2a",
+  "short_sha": "b46aa05241",
+  "subject": "doc: new way to install lean4-mode",
+  "zig_target": {}
+}

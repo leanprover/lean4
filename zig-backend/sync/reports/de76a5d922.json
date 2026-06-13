@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-09-20",
+  "needs_port": false,
+  "sha": "de76a5d9225014334c5a0b57b5decec5e469f778",
+  "short_sha": "de76a5d922",
+  "subject": "chore: activate stale PR labeler",
+  "zig_target": {}
+}

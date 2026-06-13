@@ -1,0 +1,10 @@
+{
+  "author": "Johan Commelin",
+  "backend_changes": [],
+  "date": "2025-02-04",
+  "needs_port": false,
+  "sha": "412389f71f8a24307e3adba69b38b4b685b04f72",
+  "short_sha": "412389f71f",
+  "subject": "chore: add commit hash to error message in script/release_notes.py (#6944)",
+  "zig_target": {}
+}

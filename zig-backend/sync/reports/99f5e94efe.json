@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-06-28",
+  "needs_port": true,
+  "sha": "99f5e94efe0fb16395b965052a82f1e4f3d4b7c8",
+  "short_sha": "99f5e94efe",
+  "subject": "feat: MonadExcept.ofExcept",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

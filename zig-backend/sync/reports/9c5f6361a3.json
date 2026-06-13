@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-09",
+  "needs_port": false,
+  "sha": "9c5f6361a31798ae4337af344e2c7394f061e623",
+  "short_sha": "9c5f6361a3",
+  "subject": "doc: document the new pattern elaboration procedure",
+  "zig_target": {}
+}

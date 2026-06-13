@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-22",
+  "needs_port": false,
+  "sha": "3a4d2cded30beb3343ba0e13a3ddb2809703e26d",
+  "short_sha": "3a4d2cded3",
+  "subject": "refactor: Introduce PProdN module (#4807)",
+  "zig_target": {}
+}

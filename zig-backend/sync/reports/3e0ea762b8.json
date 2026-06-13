@@ -1,0 +1,24 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    }
+  ],
+  "date": "2024-07-05",
+  "needs_port": true,
+  "sha": "3e0ea762b831c5bc373c7486c66b80a5910fdbf2",
+  "short_sha": "3e0ea762b8",
+  "subject": "feat: Std.HashMap (#4583)",
+  "zig_target": {
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean",
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean"
+  }
+}

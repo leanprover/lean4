@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/BinderPredicates.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/BinderPredicates.lean"
+    }
+  ],
+  "date": "2024-02-14",
+  "needs_port": true,
+  "sha": "329e00661a9ad5d4b96c5042294f7a6ef59beade",
+  "short_sha": "329e00661a",
+  "subject": "chore: upstream Std.Util.ExtendedBinders (#3320)",
+  "zig_target": {
+    "src/Init/BinderPredicates.lean": "zig-backend/src/init/BinderPredicates.lean"
+  }
+}

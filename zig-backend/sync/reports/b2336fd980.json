@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-12-02",
+  "needs_port": false,
+  "sha": "b2336fd9803dc976aacc2d4b43df90f57c6de1c0",
+  "short_sha": "b2336fd980",
+  "subject": "perf: speed up bv_decide reflection using Lean.RArray (#6288)",
+  "zig_target": {}
+}

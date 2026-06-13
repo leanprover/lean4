@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-23",
+  "needs_port": false,
+  "sha": "bf5f107e74da9e25cd747275af3dcff5bea6d7bb",
+  "short_sha": "bf5f107e74",
+  "subject": "doc: missing NFM examples",
+  "zig_target": {}
+}

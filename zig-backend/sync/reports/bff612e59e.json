@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-06-09",
+  "needs_port": false,
+  "sha": "bff612e59e4860bef5180db08356ab5f256bea86",
+  "short_sha": "bff612e59e",
+  "subject": "fix: simp: synthesize non-inst-implicit tc args",
+  "zig_target": {}
+}

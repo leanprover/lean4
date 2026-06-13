@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-10-03",
+  "needs_port": false,
+  "sha": "62c8d4cc57a1d0e5a770ae386ea23e5d9db21477",
+  "short_sha": "62c8d4cc57",
+  "subject": "perf(lean/typeclass/context.lean): quick checks",
+  "zig_target": {}
+}

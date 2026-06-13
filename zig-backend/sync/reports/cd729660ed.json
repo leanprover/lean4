@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-19",
+  "needs_port": false,
+  "sha": "cd729660edf551493e6770ef6c66c77a4fc5babb",
+  "short_sha": "cd729660ed",
+  "subject": "chore: allow quoting private names from inside public scope (#9985)",
+  "zig_target": {}
+}

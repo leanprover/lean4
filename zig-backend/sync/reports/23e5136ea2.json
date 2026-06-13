@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "23e5136ea2766976368ee9f1f61e437199fdb361",
+  "short_sha": "23e5136ea2",
+  "subject": "fix(library/equations_compiler/wf_rec): do not generate code for auxiliary `*._pack` functions added by equation compiler",
+  "zig_target": {}
+}

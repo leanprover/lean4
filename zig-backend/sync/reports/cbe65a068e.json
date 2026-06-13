@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/TermApp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+    },
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    }
+  ],
+  "date": "2020-01-01",
+  "needs_port": true,
+  "sha": "cbe65a068ee61a01250999184786435e36cbc4ea",
+  "short_sha": "cbe65a068e",
+  "subject": "fix: `addLValArg`",
+  "zig_target": {
+    "src/Init/Lean/Elab/TermApp.lean": "zig-backend/src/init/Lean/Elab/TermApp.lean",
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean"
+  }
+}

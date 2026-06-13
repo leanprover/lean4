@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-06",
+  "needs_port": false,
+  "sha": "905b2eedcde628467eed419c6c004ada0b308ab3",
+  "short_sha": "905b2eedcd",
+  "subject": "test: cutsat (#7372)",
+  "zig_target": {}
+}

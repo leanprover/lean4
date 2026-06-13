@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "50a23a3aa5900ec4b4a7f1d8c05bae422aa19635",
+  "short_sha": "50a23a3aa5",
+  "subject": "refactor: print last error message on build failure + cleanup",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-12-06",
+  "needs_port": true,
+  "sha": "d2203aa5a0c9770db08dcd2dbd1701e81dce50bc",
+  "short_sha": "d2203aa5a0",
+  "subject": "chore: restrict dangerous typed syntax coercions",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

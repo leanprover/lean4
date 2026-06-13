@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/WHNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/WHNF.lean"
+    }
+  ],
+  "date": "2020-03-17",
+  "needs_port": true,
+  "sha": "6d08311765ecc9d1dddc99382fe2d537bf18c856",
+  "short_sha": "6d08311765",
+  "subject": "feat: support for `Nat` operations at `MetaM` `isDefEq`",
+  "zig_target": {
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean",
+    "src/Init/Lean/Meta/WHNF.lean": "zig-backend/src/init/Lean/Meta/WHNF.lean"
+  }
+}

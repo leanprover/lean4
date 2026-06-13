@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-28",
+  "needs_port": false,
+  "sha": "b027946496170e3a51bf9283ebd8a2887f6c84ae",
+  "short_sha": "b027946496",
+  "subject": "feat: suffix linter messages with option name",
+  "zig_target": {}
+}

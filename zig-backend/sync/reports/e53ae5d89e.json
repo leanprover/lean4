@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-02-28",
+  "needs_port": true,
+  "sha": "e53ae5d89efd254f6f245f9479c7b4f1c8ecdbc8",
+  "short_sha": "e53ae5d89e",
+  "subject": "chore: remove leftovers (#3537)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/LambdaLifting.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean"
+    }
+  ],
+  "date": "2022-10-16",
+  "needs_port": true,
+  "sha": "9244a7a8a5e9f9462361264cc131145049332339",
+  "short_sha": "9244a7a8a5",
+  "subject": "fix: ensure old and new compiler auxiliary declaration names do not collide",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/LambdaLifting.lean": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean"
+  }
+}

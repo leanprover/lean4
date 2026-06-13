@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-10",
+  "needs_port": false,
+  "sha": "f95ed029990060794dc522e51629846040bbd006",
+  "short_sha": "f95ed02999",
+  "subject": "feat(library/init/lean/parser/parser): add `withPosition` and `checkColGe` parsers",
+  "zig_target": {}
+}

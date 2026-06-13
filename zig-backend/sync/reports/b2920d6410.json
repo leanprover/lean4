@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-07-07",
+  "needs_port": true,
+  "sha": "b2920d641022bf48c34d15fe0992fb70f5afed28",
+  "short_sha": "b2920d6410",
+  "subject": "chore: consolidate `noncomputable` diagnostics (#9239)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

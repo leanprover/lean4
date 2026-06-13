@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-25",
+  "needs_port": false,
+  "sha": "dee571e13b5c922049f66cee23490e48e068c8b0",
+  "short_sha": "dee571e13b",
+  "subject": "chore: revert `mvcgen witnesses` syntax (#12882) (#13120)",
+  "zig_target": {}
+}

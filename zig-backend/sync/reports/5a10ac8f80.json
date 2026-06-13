@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-06-17",
+  "needs_port": false,
+  "sha": "5a10ac8f807964e070863b8b30636ac63f349b22",
+  "short_sha": "5a10ac8f80",
+  "subject": "chore: delete platform-specific test",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+    }
+  ],
+  "date": "2025-06-16",
+  "needs_port": true,
+  "sha": "997892d49a89e79350bfdebcb82b70eb2c4cadf9",
+  "short_sha": "997892d49a",
+  "subject": "fix: constant fold Char.ofNat in LCNF simp (#8816)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+  }
+}

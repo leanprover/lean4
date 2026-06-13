@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-18",
+  "needs_port": false,
+  "sha": "96acc7269de67512c0b7ae75be0e0d21a0be2b66",
+  "short_sha": "96acc7269d",
+  "subject": "fix: use typed syntax",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-02-28",
+  "needs_port": false,
+  "sha": "7dd5e957daaf22a234b5cb0feace1daecf7c5b06",
+  "short_sha": "7dd5e957da",
+  "subject": "feat: `ToExpr IntX` (#7268)",
+  "zig_target": {}
+}

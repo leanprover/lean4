@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-14",
+  "needs_port": false,
+  "sha": "314c5c9d41d098801d300882bf64c4d2c1465bea",
+  "short_sha": "314c5c9d41",
+  "subject": "feat: run single non-category quotation under interpreter as well",
+  "zig_target": {}
+}

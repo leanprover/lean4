@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-07",
+  "needs_port": false,
+  "sha": "ef87b33cdc26e707dcfb1cc9cf6dbc7dbd4212a5",
+  "short_sha": "ef87b33cdc",
+  "subject": "test: add another missing hole test",
+  "zig_target": {}
+}

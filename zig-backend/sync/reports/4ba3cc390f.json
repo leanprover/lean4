@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2018-10-25",
+  "needs_port": true,
+  "sha": "4ba3cc390f1c118b3843e76e8f017d5836d492b9",
+  "short_sha": "4ba3cc390f",
+  "subject": "fix(library/compiler/specialize): assertion violation `lean_assert(!has_fvar(code));`",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

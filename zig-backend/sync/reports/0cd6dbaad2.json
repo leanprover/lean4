@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-04-05",
+  "needs_port": false,
+  "sha": "0cd6dbaad297021c43b906ec247de446d056056f",
+  "short_sha": "0cd6dbaad2",
+  "subject": "feat: add `Sym.Arith` infrastructure for arithmetic normalization (#13289)",
+  "zig_target": {}
+}

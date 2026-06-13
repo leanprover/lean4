@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-11-27",
+  "needs_port": false,
+  "sha": "04f80a1f9fde402acbbbd9e480928d919bbd0bc0",
+  "short_sha": "04f80a1f9f",
+  "subject": "feat: lake: detailed Reservoir fetch error (#6231)",
+  "zig_target": {}
+}

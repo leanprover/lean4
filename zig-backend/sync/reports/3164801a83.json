@@ -1,0 +1,10 @@
+{
+  "author": "Max Wagner",
+  "backend_changes": [],
+  "date": "2019-02-08",
+  "needs_port": false,
+  "sha": "3164801a830a6fa25273db3f3d97f1f05fb1b434",
+  "short_sha": "3164801a83",
+  "subject": "fix(library/vm): unary op dummies copy-paste error",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-06",
+  "needs_port": false,
+  "sha": "0bfcf434ac9637f08cce41b32a9e60972ef3b171",
+  "short_sha": "0bfcf434ac",
+  "subject": "fix: jump to definition inside of a mutually inductive declaration",
+  "zig_target": {}
+}

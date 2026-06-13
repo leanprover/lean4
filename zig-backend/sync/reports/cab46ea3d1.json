@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-08-19",
+  "needs_port": false,
+  "sha": "cab46ea3d19caa6604e936fb74d48ab80e0f687c",
+  "short_sha": "cab46ea3d1",
+  "subject": "fix: `leanOptions` in lakefile.toml schema (#9988)",
+  "zig_target": {}
+}

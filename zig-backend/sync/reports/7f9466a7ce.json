@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-24",
+  "needs_port": true,
+  "sha": "7f9466a7ce342e78e6993a79be6cf383541b8a4f",
+  "short_sha": "7f9466a7ce",
+  "subject": "chore: use soft line breaks at `if-then-else` formatters",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

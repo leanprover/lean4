@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-03-05",
+  "needs_port": false,
+  "sha": "f0f7c3ff01f6f39904c015531562633ef7d2be42",
+  "short_sha": "f0f7c3ff01",
+  "subject": "fix: inlay hints inserted at wrong position after edit (#7343)",
+  "zig_target": {}
+}

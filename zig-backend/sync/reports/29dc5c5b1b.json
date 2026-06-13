@@ -1,0 +1,18 @@
+{
+  "author": "Fran\u00e7ois G. Dorais",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2021-05-31",
+  "needs_port": true,
+  "sha": "29dc5c5b1b43c84a101da8c0c16603c3fcb16779",
+  "short_sha": "29dc5c5b1b",
+  "subject": "fix: duplicate namespace prefix",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

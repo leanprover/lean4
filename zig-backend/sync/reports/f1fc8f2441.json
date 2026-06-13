@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-12-10",
+  "needs_port": false,
+  "sha": "f1fc8f24416de19b76672e763330ede62fc2fa49",
+  "short_sha": "f1fc8f2441",
+  "subject": "fix: space before where/:= in inductive",
+  "zig_target": {}
+}

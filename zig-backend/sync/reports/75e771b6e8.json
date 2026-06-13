@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-18",
+  "needs_port": false,
+  "sha": "75e771b6e85d2654d12e7cde7b5f78976a6db84c",
+  "short_sha": "75e771b6e8",
+  "subject": "feat: add support for fixed argument prefix at `mkFix` and `elabWFRel`",
+  "zig_target": {}
+}

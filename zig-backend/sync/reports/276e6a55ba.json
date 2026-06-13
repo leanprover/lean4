@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-09",
+  "needs_port": false,
+  "sha": "276e6a55ba92fbcece68c7ecef9b0a744f87adbd",
+  "short_sha": "276e6a55ba",
+  "subject": "feat: improve `collectPatternVars`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-07",
+  "needs_port": false,
+  "sha": "38baeaf373a19e57130dd7b003a2aaa67b527e6a",
+  "short_sha": "38baeaf373",
+  "subject": "feat: backtrack when applying default instances if subproblems cannot be solved",
+  "zig_target": {}
+}

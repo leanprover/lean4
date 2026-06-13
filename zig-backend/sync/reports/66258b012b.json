@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2021-07-22",
+  "needs_port": true,
+  "sha": "66258b012b8c642ba388bb595b5fc2d92c8ec4ea",
+  "short_sha": "66258b012b",
+  "subject": "chore: fix windows build",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

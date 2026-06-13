@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-15",
+  "needs_port": false,
+  "sha": "58d5a1192834515eb651d8cd787049d9db9f5723",
+  "short_sha": "58d5a11928",
+  "subject": "Revert \"fix: induction: do not register `_` as binder in info tree\"",
+  "zig_target": {}
+}

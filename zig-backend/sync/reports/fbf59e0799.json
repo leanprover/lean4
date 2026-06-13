@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-15",
+  "needs_port": false,
+  "sha": "fbf59e0799a66b3f65ce052864919470ac4ad4e4",
+  "short_sha": "fbf59e0799",
+  "subject": "fix: register `levelNames` defined in the `inductive` command",
+  "zig_target": {}
+}

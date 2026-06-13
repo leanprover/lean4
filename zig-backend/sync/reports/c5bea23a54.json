@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-05-28",
+  "needs_port": false,
+  "sha": "c5bea23a54092f7eb33bca49bc6e73ec43281b39",
+  "short_sha": "c5bea23a54",
+  "subject": "feat: `value_of%` elaborator (#8512)",
+  "zig_target": {}
+}

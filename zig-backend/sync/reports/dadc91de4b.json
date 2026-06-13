@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-05",
+  "needs_port": false,
+  "sha": "dadc91de4b15626cf5f7ade50f07ef94beba7bb1",
+  "short_sha": "dadc91de4b",
+  "subject": "feat: `backward.isDefEq.respectTransparency` (part 1) (#12338)",
+  "zig_target": {}
+}

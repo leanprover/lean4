@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-20",
+  "needs_port": false,
+  "sha": "b30903d1fcae504013d493c8d15f368a62e0e89e",
+  "short_sha": "b30903d1fc",
+  "subject": "refactor: make use of recursive structures in snapshot types (#6141)",
+  "zig_target": {}
+}

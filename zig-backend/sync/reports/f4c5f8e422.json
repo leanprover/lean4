@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-02-06",
+  "needs_port": false,
+  "sha": "f4c5f8e422ac3edbcc6ac6f00791b730ea258f3f",
+  "short_sha": "f4c5f8e422",
+  "subject": "fix: set `data?` field in eager code actions (#12332)",
+  "zig_target": {}
+}

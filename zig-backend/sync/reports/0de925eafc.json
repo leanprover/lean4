@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-02",
+  "needs_port": false,
+  "sha": "0de925eafcfcff0f2c86e036f91bb451136b04c4",
+  "short_sha": "0de925eafc",
+  "subject": "chore: prepare `omega` and `solve_by_elim` for new tactic config syntax (#5928)",
+  "zig_target": {}
+}

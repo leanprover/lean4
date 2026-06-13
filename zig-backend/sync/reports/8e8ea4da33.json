@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-13",
+  "needs_port": false,
+  "sha": "8e8ea4da336e42d86e673cf7193916d87d19d680",
+  "short_sha": "8e8ea4da33",
+  "subject": "ci: add GitHub Actions workflow",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-23",
+  "needs_port": false,
+  "sha": "4073b20b7d351cb8c38c537e615e5c81740c424c",
+  "short_sha": "4073b20b7d",
+  "subject": "chore: add bcrypt in CMakeLists",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2026-04-14",
+  "needs_port": true,
+  "sha": "1884c3b2ed559513f455b39ffc42ae3d0ece3f8b",
+  "short_sha": "1884c3b2ed",
+  "subject": "feat: make mimalloc security options available (#13401)",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

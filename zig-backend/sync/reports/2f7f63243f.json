@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/SplitSCC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SplitSCC.lean"
+    }
+  ],
+  "date": "2026-01-14",
+  "needs_port": true,
+  "sha": "2f7f63243fbc7e4341e8b2825472d1980bc91235",
+  "short_sha": "2f7f63243f",
+  "subject": "perf: fast path for SCC decomposition (#12009)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/SplitSCC.lean": "zig-backend/src/lean/compiler/lcnf/SplitSCC.lean"
+  }
+}

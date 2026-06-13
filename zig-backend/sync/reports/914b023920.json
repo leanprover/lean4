@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    },
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2019-02-05",
+  "needs_port": true,
+  "sha": "914b023920db3be51a4bd9b74367b15aa62db573",
+  "short_sha": "914b023920",
+  "subject": "feat(library/compiler): treat `decidable` as an enumeration type",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp",
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

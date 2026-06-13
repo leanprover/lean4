@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-01-09",
+  "needs_port": false,
+  "sha": "b7c3ff6e6d6ffa52fac42e333a39ab7950e1e7d7",
+  "short_sha": "b7c3ff6e6d",
+  "subject": "fix: manage all declarations in a given derive (#3058)",
+  "zig_target": {}
+}

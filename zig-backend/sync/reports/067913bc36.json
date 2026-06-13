@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2024-02-19",
+  "needs_port": true,
+  "sha": "067913bc36b50fa8912b6f9e16d981c717889359",
+  "short_sha": "067913bc36",
+  "subject": "chore: remove sorry",
+  "zig_target": {
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

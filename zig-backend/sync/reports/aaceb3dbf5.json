@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2025-11-11",
+  "needs_port": false,
+  "sha": "aaceb3dbf50f0a7cc2b7ee2fe49822e07f08fe6d",
+  "short_sha": "aaceb3dbf5",
+  "subject": "chore: CI: bump actions/upload-artifact from 4 to 5 (#11052)",
+  "zig_target": {}
+}

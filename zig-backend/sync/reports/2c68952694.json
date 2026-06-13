@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "2c689526941a2d2fab6d8935e189084e3451e48d",
+  "short_sha": "2c68952694",
+  "subject": "chore: refactor match elaborator to be used from the do elaborator (#12451)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-09-14",
+  "needs_port": false,
+  "sha": "f771dea78b01bd4fff123a372ed3311186bd43ad",
+  "short_sha": "f771dea78b",
+  "subject": "fix: make sure app elaborator eta feature does not result in capturable variables (#10377)",
+  "zig_target": {}
+}

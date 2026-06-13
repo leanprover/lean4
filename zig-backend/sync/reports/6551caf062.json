@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-11-19",
+  "needs_port": true,
+  "sha": "6551caf0628d53adb4f51155cc11ecf07553865f",
+  "short_sha": "6551caf062",
+  "subject": "feat: define `$` notation at `Notation.lean`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

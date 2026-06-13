@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-20",
+  "needs_port": false,
+  "sha": "9b842b7554b932f51bd7efe4e76791dd596025ed",
+  "short_sha": "9b842b7554",
+  "subject": "fix: message context in `grind` code actions (#10473)",
+  "zig_target": {}
+}

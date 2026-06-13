@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/CollectLevelParams.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Util/CollectLevelParams.lean"
+    }
+  ],
+  "date": "2020-01-05",
+  "needs_port": true,
+  "sha": "9134cef8915ce77297d2a2dca6c28918543bd599",
+  "short_sha": "9134cef891",
+  "subject": "feat: add `collectLevelParams`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Declaration.lean": "zig-backend/src/init/Lean/Elab/Declaration.lean",
+    "src/Init/Lean/Util/CollectLevelParams.lean": "zig-backend/src/init/Lean/Util/CollectLevelParams.lean"
+  }
+}

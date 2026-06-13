@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-28",
+  "needs_port": false,
+  "sha": "729047b5a2753b25dff98fe753dff15f98ace598",
+  "short_sha": "729047b5a2",
+  "subject": "feat: auto bound implicit at constructors",
+  "zig_target": {}
+}

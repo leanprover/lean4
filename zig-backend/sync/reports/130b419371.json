@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "130b419371714b8add2b8e3e7b03b6dc9b79e365",
+  "short_sha": "130b419371",
+  "subject": "chore(frontends/lean): remove `break_at_pos` support",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/simp_inductive.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.cpp"
+    }
+  ],
+  "date": "2018-10-26",
+  "needs_port": true,
+  "sha": "f336dde4efaff17facbb4bf600393b7e815f072d",
+  "short_sha": "f336dde4ef",
+  "subject": "chore(library/compiler/simp_inductive): don't need `type_checker::state`",
+  "zig_target": {
+    "src/library/compiler/simp_inductive.cpp": "zig-backend/src/library/compiler/simp_inductive.cpp"
+  }
+}

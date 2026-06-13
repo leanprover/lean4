@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/closed_term_cache.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/closed_term_cache.cpp"
+    },
+    {
+      "path": "src/library/compiler/closed_term_cache.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/closed_term_cache.h"
+    },
+    {
+      "path": "src/library/compiler/extract_closed.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.cpp"
+    },
+    {
+      "path": "src/library/compiler/extract_closed.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.h"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    }
+  ],
+  "date": "2018-11-13",
+  "needs_port": true,
+  "sha": "a2817c364424e6901e5bb26e30c410916d65dd64",
+  "short_sha": "a2817c3644",
+  "subject": "refactor(library/compiler): move closed term cache to separate module",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/closed_term_cache.cpp": "zig-backend/src/library/compiler/closed_term_cache.cpp",
+    "src/library/compiler/closed_term_cache.h": "zig-backend/src/library/compiler/closed_term_cache.h",
+    "src/library/compiler/extract_closed.cpp": "zig-backend/src/library/compiler/extract_closed.cpp",
+    "src/library/compiler/extract_closed.h": "zig-backend/src/library/compiler/extract_closed.h",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp"
+  }
+}

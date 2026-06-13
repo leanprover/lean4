@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-06-07",
+  "needs_port": false,
+  "sha": "18264ae62e1107cca2bcad878b4ab4c3c41cf120",
+  "short_sha": "18264ae62e",
+  "subject": "feat: `getBitVecValue?` understands `BitVec.ofNatLt` (#4391)",
+  "zig_target": {}
+}

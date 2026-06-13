@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-12",
+  "needs_port": false,
+  "sha": "84d9c6ed8b4d9663607cda2fd5845a849e5fbd78",
+  "short_sha": "84d9c6ed8b",
+  "subject": "fix: bug at `TerminalCases.lean`",
+  "zig_target": {}
+}

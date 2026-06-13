@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-22",
+  "needs_port": false,
+  "sha": "a1240f7b8041efcde635a9748b52e398a6f20d24",
+  "short_sha": "a1240f7b80",
+  "subject": "fix: correct `alternative`-fold base in do `match` (#13491)",
+  "zig_target": {}
+}

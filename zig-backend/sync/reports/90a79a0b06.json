@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-06-29",
+  "needs_port": false,
+  "sha": "90a79a0b06b897fa7a9dda55d30ac129c0dd16cf",
+  "short_sha": "90a79a0b06",
+  "subject": "chore: remove command `universes`",
+  "zig_target": {}
+}

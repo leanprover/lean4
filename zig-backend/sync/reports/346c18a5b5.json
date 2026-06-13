@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-27",
+  "needs_port": false,
+  "sha": "346c18a5b5338a95d461b4d727ce825667b91381",
+  "short_sha": "346c18a5b5",
+  "subject": "perf: improve `namespacesExt` import function",
+  "zig_target": {}
+}

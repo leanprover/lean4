@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+    }
+  ],
+  "date": "2022-09-30",
+  "needs_port": true,
+  "sha": "15909f209fbf90c7fc16a837865e5600ca253d2e",
+  "short_sha": "15909f209f",
+  "subject": "feat: inline small declarations not tagged with `[noinline]`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-03",
+  "needs_port": false,
+  "sha": "19856c4ca7f1ee26d074dcf6266d900241635e51",
+  "short_sha": "19856c4ca7",
+  "subject": "chore(library/init/data/hashmap/default): missing file",
+  "zig_target": {}
+}

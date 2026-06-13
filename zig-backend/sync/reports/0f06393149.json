@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-15",
+  "needs_port": false,
+  "sha": "0f0639314904f58586a489d42a27d2d1dab74aa3",
+  "short_sha": "0f06393149",
+  "subject": "chore: USE_LAKE: integrate into CMake (#4466)",
+  "zig_target": {}
+}

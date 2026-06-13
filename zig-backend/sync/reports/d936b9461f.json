@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-13",
+  "needs_port": false,
+  "sha": "d936b9461f078ef003ac406adce312815e6cf16f",
+  "short_sha": "d936b9461f",
+  "subject": "fix: always ensure `expectedType` when processing overloaded symbols and/or notation",
+  "zig_target": {}
+}

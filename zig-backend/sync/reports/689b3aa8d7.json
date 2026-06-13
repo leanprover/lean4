@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-10-01",
+  "needs_port": false,
+  "sha": "689b3aa8d747fa9575c36746d67f83b1f7caeaa7",
+  "short_sha": "689b3aa8d7",
+  "subject": "feat: disable \"experimental\" warning for `mvcgen` (#10638)",
+  "zig_target": {}
+}

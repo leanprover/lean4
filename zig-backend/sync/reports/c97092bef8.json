@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-07",
+  "needs_port": false,
+  "sha": "c97092bef8428570d8ab737f03f63426bff075af",
+  "short_sha": "c97092bef8",
+  "subject": "chore: omega calls assumption first (#7230)",
+  "zig_target": {}
+}

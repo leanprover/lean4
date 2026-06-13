@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2021-01-24",
+  "needs_port": true,
+  "sha": "da5d46cd5db3d890f5458d31227ce121a86f9f67",
+  "short_sha": "da5d46cd5d",
+  "subject": "fix: memory access violation",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

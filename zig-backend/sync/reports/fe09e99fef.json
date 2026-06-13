@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Attributes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Attributes.lean"
+    }
+  ],
+  "date": "2020-01-08",
+  "needs_port": true,
+  "sha": "fe09e99fefb3a3c444c82be2b729b62ddaa3a56e",
+  "short_sha": "fe09e99fef",
+  "subject": "chore: disable attribute features that are not currently being used",
+  "zig_target": {
+    "src/Init/Lean/Attributes.lean": "zig-backend/src/init/Lean/Attributes.lean"
+  }
+}

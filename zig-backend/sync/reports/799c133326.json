@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-03",
+  "needs_port": false,
+  "sha": "799c13332656b275be31ef1640231e0775971f35",
+  "short_sha": "799c133326",
+  "subject": "feat(kernel/inductive): add `inductive_is_stuck`",
+  "zig_target": {}
+}

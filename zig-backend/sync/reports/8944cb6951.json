@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-20",
+  "needs_port": false,
+  "sha": "8944cb6951e3ef7cf74ea1de3490aca1130d655a",
+  "short_sha": "8944cb6951",
+  "subject": "fix(frontends/lean/builtin_cmds): do not include time spent copying memory",
+  "zig_target": {}
+}

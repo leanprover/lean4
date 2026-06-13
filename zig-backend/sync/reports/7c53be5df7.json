@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-11",
+  "needs_port": false,
+  "sha": "7c53be5df7b5a52be438a91fbcb782492407f89d",
+  "short_sha": "7c53be5df7",
+  "subject": "chore(library/init): remove remaining set notation",
+  "zig_target": {}
+}

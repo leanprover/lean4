@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-03",
+  "needs_port": false,
+  "sha": "9a349a913ad4f3231b6f2dc2a2a92f31763aaa3d",
+  "short_sha": "9a349a913a",
+  "subject": "chore: remove `sortApp`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "00599cf62b42a7eb63011f2e7c6fa5decdf1a7c9",
+  "short_sha": "00599cf62b",
+  "subject": "fix: types of the recursive functions being defined cannot reference other functions in the same mutual block",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/DoNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/DoNotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-31",
+  "needs_port": true,
+  "sha": "34a6029a289493d5e867462712c1858ed239bee2",
+  "short_sha": "34a6029a28",
+  "subject": "feat: expand `do` elements",
+  "zig_target": {
+    "src/Init/Lean/Elab/DoNotation.lean": "zig-backend/src/init/Lean/Elab/DoNotation.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

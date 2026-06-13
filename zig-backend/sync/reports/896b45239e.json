@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2018-09-20",
+  "needs_port": true,
+  "sha": "896b45239e2d093e21b0315571d9d32a7daff35f",
+  "short_sha": "896b45239e",
+  "subject": "feat(library/module_mgr,shell/lean): abort on import with errors",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

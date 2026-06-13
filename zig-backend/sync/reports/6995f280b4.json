@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-07-25",
+  "needs_port": false,
+  "sha": "6995f280b4f9fa734c160cd8fa65e1b7354d3677",
+  "short_sha": "6995f280b4",
+  "subject": "fix: unfold abstracted proofs before processing recursion (#9191)",
+  "zig_target": {}
+}

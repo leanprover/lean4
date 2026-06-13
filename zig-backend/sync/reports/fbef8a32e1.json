@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "fbef8a32e19f8d6c473216aaa7ffc0eca6ff20ab",
+  "short_sha": "fbef8a32e1",
+  "subject": "feat: add support for stuck class projection function applications at `getStuckMVar?`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-04",
+  "needs_port": false,
+  "sha": "b2c83a37d8ec8282a0b6b41103abc40c70f7564e",
+  "short_sha": "b2c83a37d8",
+  "subject": "feat: Nix: Emacs PoC",
+  "zig_target": {}
+}

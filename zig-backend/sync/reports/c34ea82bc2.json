@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-08",
+  "needs_port": false,
+  "sha": "c34ea82bc206bb5138aad494e5b36ac5ddb35e48",
+  "short_sha": "c34ea82bc2",
+  "subject": "refactor: `grind ring` as solver extension (#10308)",
+  "zig_target": {}
+}

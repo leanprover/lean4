@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    }
+  ],
+  "date": "2024-05-06",
+  "needs_port": true,
+  "sha": "3c11cca3cb132078074a6a33e60d7e97614ba369",
+  "short_sha": "3c11cca3cb",
+  "subject": "feat: upstream lemmas about basic List/Array operations (#4059)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/List.lean": "zig-backend/src/init/Data/List.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Elias Aebi",
+  "backend_changes": [],
+  "date": "2022-09-11",
+  "needs_port": false,
+  "sha": "689afdb3b7aba959d446b5b9f18f6a7ac93e57e5",
+  "short_sha": "689afdb3b7",
+  "subject": "doc: enable syntax highlighting for the Macro Overview (#1577)",
+  "zig_target": {}
+}

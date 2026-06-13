@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    }
+  ],
+  "date": "2021-03-03",
+  "needs_port": true,
+  "sha": "4aec7579dba1d383061e532a38d177371147b660",
+  "short_sha": "4aec7579db",
+  "subject": "test: add `do` equivalence examples",
+  "zig_target": {
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean"
+  }
+}

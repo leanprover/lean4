@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "35b2f596f1394b073da223b928f5d9b62d99384e",
+  "short_sha": "35b2f596f1",
+  "subject": "test: use `decide` and `nativeDecide`",
+  "zig_target": {}
+}

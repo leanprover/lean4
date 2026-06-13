@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-09",
+  "needs_port": false,
+  "sha": "75a92843200e009ffcb4ab0617cf11a4b4ba9efb",
+  "short_sha": "75a9284320",
+  "subject": "feat: lake: lean lib `extraDepTargets` & related tweaks",
+  "zig_target": {}
+}

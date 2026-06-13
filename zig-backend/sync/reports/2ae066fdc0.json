@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    }
+  ],
+  "date": "2025-06-07",
+  "needs_port": true,
+  "sha": "2ae066fdc08a81161ed7df50766b25e0aeb14b78",
+  "short_sha": "2ae066fdc0",
+  "subject": "fix: only mark a cases discriminant used if it has non-default alt (#8681)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+  }
+}

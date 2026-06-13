@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "13fbd8304eee3024e71f26c7192ec18be3e15b8d",
+  "short_sha": "13fbd8304e",
+  "subject": "chore(library,frontends/lean): use `is_constructor`, `is_recursor`, `is_inductive` helper functions",
+  "zig_target": {}
+}

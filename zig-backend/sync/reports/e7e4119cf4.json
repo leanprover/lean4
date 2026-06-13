@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-07-06",
+  "needs_port": true,
+  "sha": "e7e4119cf4d92784630319516a0a71fd83236e3c",
+  "short_sha": "e7e4119cf4",
+  "subject": "chore: move handling of Quot.{mk, lcInv} from toIR to toMono (#9230)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean",
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

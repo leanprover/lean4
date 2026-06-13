@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-19",
+  "needs_port": false,
+  "sha": "b1c82f776b960e91dc3c3d924f90bc3bfd319b9a",
+  "short_sha": "b1c82f776b",
+  "subject": "chore: `mbtc` in `grind cutsat` (#10462)",
+  "zig_target": {}
+}

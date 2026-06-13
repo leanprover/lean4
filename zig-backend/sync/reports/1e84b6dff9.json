@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lint.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lint.lean"
+    }
+  ],
+  "date": "2025-11-13",
+  "needs_port": true,
+  "sha": "1e84b6dff9ed4ceaa33b20cb3bbad450edb39875",
+  "short_sha": "1e84b6dff9",
+  "subject": "feat: add `#grind_lint check in module <module>` (#11167)",
+  "zig_target": {
+    "src/Init/Grind/Lint.lean": "zig-backend/src/init/Grind/Lint.lean"
+  }
+}

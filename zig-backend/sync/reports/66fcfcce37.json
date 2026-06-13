@@ -1,0 +1,10 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [],
+  "date": "2021-10-12",
+  "needs_port": false,
+  "sha": "66fcfcce3716774dacbd35e1ea0f5c75356df311",
+  "short_sha": "66fcfcce37",
+  "subject": "doc: tutorial on parsing the arithmetic grammar using macros",
+  "zig_target": {}
+}

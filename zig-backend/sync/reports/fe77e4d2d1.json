@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-04-15",
+  "needs_port": false,
+  "sha": "fe77e4d2d19500e361b3a2f3a07f1eee7511d674",
+  "short_sha": "fe77e4d2d1",
+  "subject": "fix: `coinductive` syntax causing panic in macro scopes (#13420)",
+  "zig_target": {}
+}

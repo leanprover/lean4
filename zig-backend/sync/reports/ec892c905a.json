@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-22",
+  "needs_port": true,
+  "sha": "ec892c905a8c77a726c46819549413eb3769c266",
+  "short_sha": "ec892c905a",
+  "subject": "fix: missing `tracingAt`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

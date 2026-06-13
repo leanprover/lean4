@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-07-02",
+  "needs_port": false,
+  "sha": "6f85e325013911ced0af8c5decdad4be628a8ba6",
+  "short_sha": "6f85e32501",
+  "subject": "fix: lake: recreate static archives & use `T`, not `--thin` (#9165)",
+  "zig_target": {}
+}

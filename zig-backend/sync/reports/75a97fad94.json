@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-14",
+  "needs_port": false,
+  "sha": "75a97fad941fdb7fed77ed15dd13db6086dbee63",
+  "short_sha": "75a97fad94",
+  "subject": "feat: nicer token parse errors",
+  "zig_target": {}
+}

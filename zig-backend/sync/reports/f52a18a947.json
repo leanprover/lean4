@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-05-11",
+  "needs_port": false,
+  "sha": "f52a18a9472f40a864a78d3c8f8cf202751f576b",
+  "short_sha": "f52a18a947",
+  "subject": "chore: re-enable Lake tests (#13692)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-05-12",
+  "needs_port": true,
+  "sha": "e212890dfc2b360c917570a8acaeda4f4351a083",
+  "short_sha": "e212890dfc",
+  "subject": "perf: optimize `Lean/Compiler/IR/ToIR` compilation time and size (#8286)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

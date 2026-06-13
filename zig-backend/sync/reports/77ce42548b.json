@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-13",
+  "needs_port": false,
+  "sha": "77ce42548be38ff9781ad2c38b2a3a61898747e2",
+  "short_sha": "77ce42548b",
+  "subject": "fix: add `nonReservedSymbol`",
+  "zig_target": {}
+}

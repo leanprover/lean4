@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-09-27",
+  "needs_port": false,
+  "sha": "3817b16c3513486ba7cabf44152b912c09a5dea2",
+  "short_sha": "3817b16c35",
+  "subject": "chore: use separate secrets for commenting and branching in pr-release.yml (#5490)",
+  "zig_target": {}
+}

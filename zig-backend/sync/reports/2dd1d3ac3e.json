@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-25",
+  "needs_port": false,
+  "sha": "2dd1d3ac3eff0b9cf1f2fba073f15840c2e9d2c9",
+  "short_sha": "2dd1d3ac3e",
+  "subject": "chore: move `ShareCommon` to `Std`",
+  "zig_target": {}
+}

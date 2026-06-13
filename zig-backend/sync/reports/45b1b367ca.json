@@ -1,0 +1,10 @@
+{
+  "author": "Aaron Tomb",
+  "backend_changes": [],
+  "date": "2024-10-23",
+  "needs_port": false,
+  "sha": "45b1b367ca1424f5a3c5fdef84bbeee284998216",
+  "short_sha": "45b1b367ca",
+  "subject": "test: add a benchmark that is slow to elaborate (#5656)",
+  "zig_target": {}
+}

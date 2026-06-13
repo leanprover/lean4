@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-05-10",
+  "needs_port": false,
+  "sha": "1f21ababfa9415843d864a5a049c5dfc62204836",
+  "short_sha": "1f21ababfa",
+  "subject": "chore: remove etaExperiment option",
+  "zig_target": {}
+}

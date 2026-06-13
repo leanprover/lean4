@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-03-20",
+  "needs_port": true,
+  "sha": "ab974c1c4cfffe3d1a5542654ef7cd84e5decf8e",
+  "short_sha": "ab974c1c4c",
+  "subject": "chore(shell/CMakeLists,library/Makefile): store stage1 C++ output in build directory",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

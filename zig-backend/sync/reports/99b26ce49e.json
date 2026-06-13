@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-19",
+  "needs_port": false,
+  "sha": "99b26ce49e8071d541692eb52a86731f6addd28a",
+  "short_sha": "99b26ce49e",
+  "subject": "feat: add `lake shake` command (#11921)",
+  "zig_target": {}
+}

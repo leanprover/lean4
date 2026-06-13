@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/utf8.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/utf8.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/utf8.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.cpp"
+    }
+  ],
+  "date": "2020-12-14",
+  "needs_port": true,
+  "sha": "c71eebde8ca96a9660cfd3d26d685b985e0b387a",
+  "short_sha": "c71eebde8c",
+  "subject": "chore: remove `util/buffer.h` dependency from `runtime`",
+  "zig_target": {
+    "src/include/lean/utf8.h": "zig-backend/include/lean/utf8.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/utf8.cpp": "zig-backend/src/runtime/utf8.cpp"
+  }
+}

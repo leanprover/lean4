@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-04-16",
+  "needs_port": false,
+  "sha": "b99356ebcfcd43ab9945198301b48bd7849525e6",
+  "short_sha": "b99356ebcf",
+  "subject": "chore: enable `warning.simp.varHead` (#13403)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-28",
+  "needs_port": false,
+  "sha": "371fc8868af55eef20b63b9132cea60eb316c117",
+  "short_sha": "371fc8868a",
+  "subject": "doc: move out Nix setup",
+  "zig_target": {}
+}

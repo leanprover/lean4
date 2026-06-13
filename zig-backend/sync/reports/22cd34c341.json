@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Rozowski",
+  "backend_changes": [],
+  "date": "2025-06-23",
+  "needs_port": false,
+  "sha": "22cd34c341200986cbcbdbb8d1d40c24db595bf5",
+  "short_sha": "22cd34c341",
+  "subject": "chore: rename keywords for (co)inductive predicates and the names of the associated (co)induction principles",
+  "zig_target": {}
+}

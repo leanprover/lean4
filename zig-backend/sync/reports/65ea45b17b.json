@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-06-26",
+  "needs_port": false,
+  "sha": "65ea45b17ba597ace0d00f6465b7e3ffef5b69c4",
+  "short_sha": "65ea45b17b",
+  "subject": "chore: ci: fixes to Grove workflow (#9014)",
+  "zig_target": {}
+}

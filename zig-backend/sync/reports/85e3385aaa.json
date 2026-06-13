@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-05-23",
+  "needs_port": false,
+  "sha": "85e3385aaa157ace5fe594ca703f1a8f5d7da7cc",
+  "short_sha": "85e3385aaa",
+  "subject": "feat: only update deps in `configure` + don't ignore `manifest.json`",
+  "zig_target": {}
+}

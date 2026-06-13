@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-06-21",
+  "needs_port": false,
+  "sha": "425f42cd839fab576e9be4ba18e76f2bf837615a",
+  "short_sha": "425f42cd83",
+  "subject": "feat: better support for `Nat` literals at `DiscrTree.lean`",
+  "zig_target": {}
+}

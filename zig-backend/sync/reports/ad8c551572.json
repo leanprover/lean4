@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-21",
+  "needs_port": false,
+  "sha": "ad8c55157288b9697741358ba9fe1f9061df5913",
+  "short_sha": "ad8c551572",
+  "subject": "chore: Nix: reduce runtime closure of cmake derivations",
+  "zig_target": {}
+}

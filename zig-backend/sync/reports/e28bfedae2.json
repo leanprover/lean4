@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-09-27",
+  "needs_port": false,
+  "sha": "e28bfedae200fd3a9c6ee4604199d612a5ffb5e7",
+  "short_sha": "e28bfedae2",
+  "subject": "doc: remove inaccurate `PersistentEnvExtension.setState/modifyState` claim",
+  "zig_target": {}
+}

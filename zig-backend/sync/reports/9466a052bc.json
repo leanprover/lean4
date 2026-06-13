@@ -1,0 +1,18 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/timer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/timer.cpp"
+    }
+  ],
+  "date": "2025-12-10",
+  "needs_port": true,
+  "sha": "9466a052bc91a8c04a03b1bc5c1ee606f0a0a238",
+  "short_sha": "9466a052bc",
+  "subject": "fix: segmentation fault that was triggered when initializing a new timer and a reset was called at the same time (#11521)",
+  "zig_target": {
+    "src/runtime/uv/timer.cpp": "zig-backend/src/runtime/uv/timer.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-09-20",
+  "needs_port": false,
+  "sha": "0a2d121e457fce19f59b5f0477b268a867dfb6e5",
+  "short_sha": "0a2d121e45",
+  "subject": "fix: modify projection instance binder info (#5376)",
+  "zig_target": {}
+}

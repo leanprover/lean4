@@ -1,0 +1,30 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-07",
+  "needs_port": true,
+  "sha": "313f6b3c74fd51abd645709878849f1978e28ae7",
+  "short_sha": "313f6b3c74",
+  "subject": "chore: name variables in Data/BitVec consistently (#4930)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

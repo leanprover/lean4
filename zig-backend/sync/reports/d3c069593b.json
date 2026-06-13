@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-17",
+  "needs_port": false,
+  "sha": "d3c069593b80cdb1dbaac72f624fbf9ad5f2d87d",
+  "short_sha": "d3c069593b",
+  "subject": "refactor: introduce `Package.depPkgs` (#13445)",
+  "zig_target": {}
+}

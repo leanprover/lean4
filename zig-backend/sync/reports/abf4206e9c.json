@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-07-29",
+  "needs_port": false,
+  "sha": "abf4206e9c0fcadf17b6f7933434fd1580175015",
+  "short_sha": "abf4206e9c",
+  "subject": "chore: CI: fix msys2",
+  "zig_target": {}
+}

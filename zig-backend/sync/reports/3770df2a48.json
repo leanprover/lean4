@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.cpp"
+    }
+  ],
+  "date": "2018-08-28",
+  "needs_port": true,
+  "sha": "3770df2a48588c9e2273546d9b36bcdc55aa6dc5",
+  "short_sha": "3770df2a48",
+  "subject": "fix(runtime/apply): must use `free_heap_obj` instead of `free`",
+  "zig_target": {
+    "src/runtime/apply.cpp": "zig-backend/src/runtime/apply.cpp"
+  }
+}

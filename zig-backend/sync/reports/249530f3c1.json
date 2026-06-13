@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-23",
+  "needs_port": false,
+  "sha": "249530f3c1ada34ceadcdeaba61b82e4360d3577",
+  "short_sha": "249530f3c1",
+  "subject": "feat: `partial` inhabitation uses local `Inhabited` instances created from parameters (#5821)",
+  "zig_target": {}
+}

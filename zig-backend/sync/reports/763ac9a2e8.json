@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-02",
+  "needs_port": false,
+  "sha": "763ac9a2e8b1ad72f3dbe328c62ed42eac8ca264",
+  "short_sha": "763ac9a2e8",
+  "subject": "refactor: pipe `proc` output to logger",
+  "zig_target": {}
+}

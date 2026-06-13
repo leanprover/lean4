@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2024-08-03",
+  "needs_port": true,
+  "sha": "647a5e94925791f6a16b629b6c16ffad60a7f478",
+  "short_sha": "647a5e9492",
+  "subject": "perf: use `NatPow Int` instead of `HPow Int Nat Int` (#4903)",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

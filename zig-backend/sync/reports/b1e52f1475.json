@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-11-13",
+  "needs_port": false,
+  "sha": "b1e52f14756c74eefc0ccda62dc4c7c330a6ded3",
+  "short_sha": "b1e52f1475",
+  "subject": "chore: mark `Meta.Context.config` as private (#6051)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-16",
+  "needs_port": false,
+  "sha": "5482a116422fcb848226e0545255756836ce635f",
+  "short_sha": "5482a11642",
+  "subject": "feat(library/init/lean/compiler/ir/default): add new entry point",
+  "zig_target": {}
+}

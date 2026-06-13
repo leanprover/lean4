@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-25",
+  "needs_port": false,
+  "sha": "7ce5b0c4ffd5e009d5e429102a7580bc223fc21a",
+  "short_sha": "7ce5b0c4ff",
+  "subject": "feat: CI: build darwin_aarch64",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-07",
+  "needs_port": false,
+  "sha": "cf6a182f697c7883b58a25007e1a7f779b5080ce",
+  "short_sha": "cf6a182f69",
+  "subject": "chore: profile `grind` satellite solvers (#9246)",
+  "zig_target": {}
+}

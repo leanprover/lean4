@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-20",
+  "needs_port": false,
+  "sha": "458835360f8ca16f06a514c347dc5b0b183f3976",
+  "short_sha": "458835360f",
+  "subject": "fix: `[implemented_by]` at functions defined by well-founded recursion (#4508)",
+  "zig_target": {}
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/runtime/libuv.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/libuv.cpp"
+    },
+    {
+      "path": "src/runtime/libuv.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/libuv.h"
+    }
+  ],
+  "date": "2025-06-27",
+  "needs_port": true,
+  "sha": "0f2cb91336f600f64b955216650de528f2c80d5d",
+  "short_sha": "0f2cb91336",
+  "subject": "feat: add `lean_setup_libuv` for initializing required LIBUV components (#8636)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/runtime/libuv.cpp": "zig-backend/src/runtime/libuv.cpp",
+    "src/runtime/libuv.h": "zig-backend/src/runtime/libuv.h"
+  }
+}

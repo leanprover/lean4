@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/lambda_lifting.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.h"
+    }
+  ],
+  "date": "2019-04-06",
+  "needs_port": true,
+  "sha": "d3afb41f51a66252170638dd0ae36151b9bafd40",
+  "short_sha": "d3afb41f51",
+  "subject": "feat(library/compiler/lambda_lifting): add function detecting lambda_lifting aux declarations",
+  "zig_target": {
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/lambda_lifting.h": "zig-backend/src/library/compiler/lambda_lifting.h"
+  }
+}

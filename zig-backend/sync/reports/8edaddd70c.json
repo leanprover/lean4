@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-02-03",
+  "needs_port": false,
+  "sha": "8edaddd70c6dd03343ad38320afdf048980d2ab5",
+  "short_sha": "8edaddd70c",
+  "subject": "refactor: post-stage0 clean-up for #6898 (#6920)",
+  "zig_target": {}
+}

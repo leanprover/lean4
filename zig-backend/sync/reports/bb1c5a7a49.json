@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-09-06",
+  "needs_port": false,
+  "sha": "bb1c5a7a49a4dbe9928afa6cb71fc6c7c0a4f1d1",
+  "short_sha": "bb1c5a7a49",
+  "subject": "doc: ink all .lean files in doc/",
+  "zig_target": {}
+}

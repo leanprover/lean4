@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    }
+  ],
+  "date": "2022-02-23",
+  "needs_port": true,
+  "sha": "902e60c480608221f5d0206e30ad03431029599f",
+  "short_sha": "902e60c480",
+  "subject": "feat: add `Format.isEmpty`",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "ca1101ddddb7b4a897752662c1ce829f961cff44",
+  "short_sha": "ca1101dddd",
+  "subject": "feat: `#print T.rec` to show more information (#10543)",
+  "zig_target": {}
+}

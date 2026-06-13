@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "c6df6b775b5fe50be7838df010697ee48a57f3ee",
+  "short_sha": "c6df6b775b",
+  "subject": "fix: `Tactic.elabTerm` must disable `errToSorry`",
+  "zig_target": {
+    "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

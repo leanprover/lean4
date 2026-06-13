@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Message.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Message.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Util.lean"
+    }
+  ],
+  "date": "2020-01-16",
+  "needs_port": true,
+  "sha": "8862a82aac81ba23babcd4b3cc21fdd723bac435",
+  "short_sha": "8862a82aac",
+  "subject": "feat: add `MessageData.ofGoal`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Message.lean": "zig-backend/src/init/Lean/Message.lean",
+    "src/Init/Lean/Meta/Message.lean": "zig-backend/src/init/Lean/Meta/Message.lean",
+    "src/Init/Lean/Meta/Tactic/Util.lean": "zig-backend/src/init/Lean/Meta/Tactic/Util.lean"
+  }
+}

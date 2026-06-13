@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-30",
+  "needs_port": false,
+  "sha": "6b62ed0c99089a5119bde3d9d361da2c7ae3eac5",
+  "short_sha": "6b62ed0c99",
+  "subject": "fix(library/relative.py): macos path names are case insensitive",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Simon Hudon",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2020-06-03",
+  "needs_port": true,
+  "sha": "a64e78b90b3c8e77e9e0bce5368053f1ddb841f2",
+  "short_sha": "a64e78b90b",
+  "subject": "feat: add std streams",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

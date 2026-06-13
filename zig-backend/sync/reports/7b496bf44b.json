@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-03",
+  "needs_port": false,
+  "sha": "7b496bf44b990a250ff5844fda41ecd9ddff2881",
+  "short_sha": "7b496bf44b",
+  "subject": "feat: improve `cases` tactic used in `grind` (#6516)",
+  "zig_target": {}
+}

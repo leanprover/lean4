@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-16",
+  "needs_port": false,
+  "sha": "92a89a07ffee8548d87f626d8a630f9f7ebd96de",
+  "short_sha": "92a89a07ff",
+  "subject": "chore: `Expr.CachedData` => `Expr.Data`",
+  "zig_target": {}
+}

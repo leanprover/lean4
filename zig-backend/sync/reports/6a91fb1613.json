@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "6a91fb16131d430c365dac9d4e05bc68eab8ee25",
+  "short_sha": "6a91fb1613",
+  "subject": "fix: delaborating projections",
+  "zig_target": {}
+}

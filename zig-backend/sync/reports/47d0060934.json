@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "47d0060934cbcadb72be408d935818f45860265e",
+  "short_sha": "47d0060934",
+  "subject": "chore: CI: bump actions/github-script from 6 to 7 (#5962)",
+  "zig_target": {}
+}

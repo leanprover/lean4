@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-02-16",
+  "needs_port": true,
+  "sha": "96c6f9dc96218ac06d14965dd81d2cc8a7752e3b",
+  "short_sha": "96c6f9dc96",
+  "subject": "feat: fun_induction and fun_cases tactics (#7069)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-06",
+  "needs_port": false,
+  "sha": "143b2b49c8bb6d0bdf7ac5719f1f106b95253222",
+  "short_sha": "143b2b49c8",
+  "subject": "fix: induction: do not register `_` as binder in info tree",
+  "zig_target": {}
+}

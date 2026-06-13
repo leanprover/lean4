@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-25",
+  "needs_port": false,
+  "sha": "db38bc404388b6b7ea2fe4589f417265a988eb95",
+  "short_sha": "db38bc4043",
+  "subject": "fix: missing check at `infer_proj`",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-03-31",
+  "needs_port": true,
+  "sha": "3b85d26af715bc3a3ab6ba1ba127911e2bf63976",
+  "short_sha": "3b85d26af7",
+  "subject": "perf: use mimalloc for all Lean allocations  (#7736)",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

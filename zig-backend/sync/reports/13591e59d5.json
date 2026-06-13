@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-06",
+  "needs_port": false,
+  "sha": "13591e59d5295e540239876deedbc9f7a127c4bb",
+  "short_sha": "13591e59d5",
+  "subject": "chore: improve regular 'for' error message",
+  "zig_target": {}
+}

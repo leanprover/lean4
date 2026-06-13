@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2021-12-23",
+  "needs_port": false,
+  "sha": "5d3e3b9296114f997a6c9029c42b4ed085f49b71",
+  "short_sha": "5d3e3b9296",
+  "subject": "fix: don't drop tags in identNoAntiquot",
+  "zig_target": {}
+}

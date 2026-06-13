@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-08-24",
+  "needs_port": true,
+  "sha": "86c2c328103da6c94c5fd0c22c2a2c56b6395960",
+  "short_sha": "86c2c32810",
+  "subject": "fix(runtime/object): memory leak",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

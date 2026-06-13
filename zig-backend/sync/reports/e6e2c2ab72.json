@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "e6e2c2ab72ab5f51f3ee2ab2b0c461f80dffa530",
+  "short_sha": "e6e2c2ab72",
+  "subject": "test: make  `git` example clone local repo",
+  "zig_target": {}
+}

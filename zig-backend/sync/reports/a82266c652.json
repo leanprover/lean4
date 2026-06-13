@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-10-03",
+  "needs_port": false,
+  "sha": "a82266c65246214d78a0352fedc48e52799540d9",
+  "short_sha": "a82266c652",
+  "subject": "feat(library/init/lean/typeclass): #synth with tabled resolution",
+  "zig_target": {}
+}

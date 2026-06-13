@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2021-09-01",
+  "needs_port": true,
+  "sha": "6d8058034abb42c06c69d1cbe7c8402c6b87f2cd",
+  "short_sha": "6d8058034a",
+  "subject": "chore: basic `conv` mode parsers",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

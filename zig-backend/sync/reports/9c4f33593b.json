@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-10-03",
+  "needs_port": false,
+  "sha": "9c4f33593b8011fe4af0d1086cf35cbeefd5b31d",
+  "short_sha": "9c4f33593b",
+  "subject": "chore(typeclass): use Option.toBool",
+  "zig_target": {}
+}

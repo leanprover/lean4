@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Alias.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Alias.lean"
+    }
+  ],
+  "date": "2020-01-11",
+  "needs_port": true,
+  "sha": "5eebda7e34fbfbf1f6919015c4a6eac4ee6ec1b6",
+  "short_sha": "5eebda7e34",
+  "subject": "chore: add workaround for allowing new frontend to see old frontend exports",
+  "zig_target": {
+    "src/Init/Lean/Elab/Alias.lean": "zig-backend/src/init/Lean/Elab/Alias.lean"
+  }
+}

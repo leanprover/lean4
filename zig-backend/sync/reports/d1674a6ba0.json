@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "d1674a6ba0d2f3898f6d9dc4ab96c5b9fda48527",
+  "short_sha": "d1674a6ba0",
+  "subject": "refactor: rename `helloDeps`  test to `deps`",
+  "zig_target": {}
+}

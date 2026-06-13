@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-06",
+  "needs_port": false,
+  "sha": "f6359195aa6ff1420d21c61395a1bdf93e54aabd",
+  "short_sha": "f6359195aa",
+  "subject": "feat: lean4-mode: support plain goal view",
+  "zig_target": {}
+}

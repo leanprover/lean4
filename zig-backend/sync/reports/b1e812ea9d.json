@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-03-13",
+  "needs_port": true,
+  "sha": "b1e812ea9d9f72653eab807bf3e26d4b6d2f291c",
+  "short_sha": "b1e812ea9d",
+  "subject": "feat(library/compiler/specialize): restrict the kind of argument that can be specialized",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

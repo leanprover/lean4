@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/ElabTerm.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/ElabTerm.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "53480e077d69d1961bb17899910a16316362ecf3",
+  "short_sha": "53480e077d",
+  "subject": "feat: ensure tactics invoke `synthesizeSyntheticMVars` at `elabTerm`",
+  "zig_target": {
+    "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+    "src/Init/Lean/Elab/Tactic.lean": "zig-backend/src/init/Lean/Elab/Tactic.lean",
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean",
+    "src/Init/Lean/Elab/Tactic/ElabTerm.lean": "zig-backend/src/init/Lean/Elab/Tactic/ElabTerm.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

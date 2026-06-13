@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-12",
+  "needs_port": false,
+  "sha": "a9145d3312f2ca5076889cbbc8096c1c74f32128",
+  "short_sha": "a9145d3312",
+  "subject": "fix: do not block in snapshot reporter when creating ilean update (#9784)",
+  "zig_target": {}
+}

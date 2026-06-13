@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-27",
+  "needs_port": false,
+  "sha": "e250e8e433ded1f4e121450b9aa4a2ca58131c2d",
+  "short_sha": "e250e8e433",
+  "subject": "fix: Nix: use interpreter.prefer_native=false during bootstrap",
+  "zig_target": {}
+}

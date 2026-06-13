@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-26",
+  "needs_port": false,
+  "sha": "25126cd0579d34c14200b9c2ccd94989438cb51e",
+  "short_sha": "25126cd057",
+  "subject": "fix: `autoParam` is structure fields lost in multiple inheritance",
+  "zig_target": {}
+}

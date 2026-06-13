@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-20",
+  "needs_port": false,
+  "sha": "4935829abe93236b32457ba4904f0ab1317de49a",
+  "short_sha": "4935829abe",
+  "subject": "feat: generalize `infoview.maxTraceChildren` to the cmdline (#6716)",
+  "zig_target": {}
+}

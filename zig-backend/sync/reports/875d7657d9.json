@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-30",
+  "needs_port": false,
+  "sha": "875d7657d96d1da3d8a7d4f748f48487dcc60a5b",
+  "short_sha": "875d7657d9",
+  "subject": "feat: implement `isEquiv` in Lean",
+  "zig_target": {}
+}

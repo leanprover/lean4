@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-18",
+  "needs_port": false,
+  "sha": "1bc7c0812c90dc638cceefaf98751146668bf167",
+  "short_sha": "1bc7c0812c",
+  "subject": "chore(kernel,library): remove `task` from the kernel and library",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-27",
+  "needs_port": false,
+  "sha": "df53e6c4cf67b98af563352d64167cdf9e74ad59",
+  "short_sha": "df53e6c4cf",
+  "subject": "refactor: simplify `simpImpl`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Connor Baker",
+  "backend_changes": [],
+  "date": "2023-08-21",
+  "needs_port": false,
+  "sha": "24cfae2421fee24988dc50e39caae7f86ffcb248",
+  "short_sha": "24cfae2421",
+  "subject": "doc: fix typo in Lake's Require DSL",
+  "zig_target": {}
+}

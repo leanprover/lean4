@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-27",
+  "needs_port": false,
+  "sha": "c3f8e219c0bebb0390c9e0556bcdab7c115f7729",
+  "short_sha": "c3f8e219c0",
+  "subject": "feat(library/init/lean/expander): preresolve global references (not actually used anywhere yet)",
+  "zig_target": {}
+}

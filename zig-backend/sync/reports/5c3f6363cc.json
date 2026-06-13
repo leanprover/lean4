@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-30",
+  "needs_port": false,
+  "sha": "5c3f6363ccca9fd8e6a352147c8403ee2169bcff",
+  "short_sha": "5c3f6363cc",
+  "subject": "fix: mismatch between `TheoremVal` in Lean and C++ (#4035)",
+  "zig_target": {}
+}

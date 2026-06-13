@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-10",
+  "needs_port": false,
+  "sha": "cda11dea25e8f1c72779c7d68331b4f71df5f64d",
+  "short_sha": "cda11dea25",
+  "subject": "feat: check universe parameters in mutually recursive inductive declaration",
+  "zig_target": {}
+}

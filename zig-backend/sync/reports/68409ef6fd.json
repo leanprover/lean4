@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "68409ef6fdebb2a1735f33c871ee13cc51a9e20a",
+  "short_sha": "68409ef6fd",
+  "subject": "chore: turn some crashes into errors (#8402)",
+  "zig_target": {}
+}

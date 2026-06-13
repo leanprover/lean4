@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-13",
+  "needs_port": false,
+  "sha": "40f9704540798d5d254ea7ff8fce16f9d8c2ee33",
+  "short_sha": "40f9704540",
+  "subject": "chore(library/init/lean/environment): add placeholders for writing/reading .olean files",
+  "zig_target": {}
+}

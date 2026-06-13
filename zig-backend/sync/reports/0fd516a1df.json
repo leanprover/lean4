@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-03",
+  "needs_port": false,
+  "sha": "0fd516a1df63e4ad494042bd164789bea7e0a1d6",
+  "short_sha": "0fd516a1df",
+  "subject": "feat: add simpler `getElem_map` statements given `LawfulBEq` for all HashMap variants (#8188)",
+  "zig_target": {}
+}

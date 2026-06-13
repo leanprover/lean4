@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-11",
+  "needs_port": false,
+  "sha": "33aaabaed7adf810adcc35e2535cc7eff991d7b8",
+  "short_sha": "33aaabaed7",
+  "subject": "fix: FunInd: rewrite matches more reliably in `.induct_unfolding` (#8277)",
+  "zig_target": {}
+}

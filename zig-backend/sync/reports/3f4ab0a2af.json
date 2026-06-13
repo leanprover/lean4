@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-18",
+  "needs_port": false,
+  "sha": "3f4ab0a2af38355d25f6319b7026b4ed26c52311",
+  "short_sha": "3f4ab0a2af",
+  "subject": "feat: implement elab_rules",
+  "zig_target": {}
+}

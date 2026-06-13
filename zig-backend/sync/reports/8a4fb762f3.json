@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    }
+  ],
+  "date": "2025-11-25",
+  "needs_port": true,
+  "sha": "8a4fb762f3b907e88167953fd5899b63a759e47b",
+  "short_sha": "8a4fb762f3",
+  "subject": "feat: `grind` `use`/`instantiate only` can activate all scoped theorems in a namespace (#11335)",
+  "zig_target": {
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2021-03-24",
+  "needs_port": true,
+  "sha": "2dfd262e4da86d850f3588e537b665ac2daa7ed4",
+  "short_sha": "2dfd262e4d",
+  "subject": "chore: cleanup",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    }
+  ],
+  "date": "2025-03-31",
+  "needs_port": true,
+  "sha": "d6303a8e7fa2e1f51ab86e37ab3fb533e9341bb6",
+  "short_sha": "d6303a8e7f",
+  "subject": "refactor: factor out common code for structure default values (#7737)",
+  "zig_target": {
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean"
+  }
+}

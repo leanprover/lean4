@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/FloatLetIn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean"
+    }
+  ],
+  "date": "2026-02-11",
+  "needs_port": true,
+  "sha": "975f81d5606ba177c498b6e1b44d19c92302a493",
+  "short_sha": "975f81d560",
+  "subject": "fix: use getImpureSignature? everywhere (#12436)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FloatLetIn.lean": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean",
+    "src/Lean/Compiler/LCNF/ResetReuse.lean": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-11-30",
+  "needs_port": false,
+  "sha": "70ad1deb00d462b87f8f641252343e3b5e18ad0f",
+  "short_sha": "70ad1deb00",
+  "subject": "fix: catch error in msgToInteractiveDiagnostic",
+  "zig_target": {}
+}

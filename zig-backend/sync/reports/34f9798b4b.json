@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-11-11",
+  "needs_port": false,
+  "sha": "34f9798b4bae7a07eb2b42143db82ef70e72b128",
+  "short_sha": "34f9798b4b",
+  "subject": "feat: add DTreeMap/TreeMap/TreeSet iterators and slices (#10776)",
+  "zig_target": {}
+}

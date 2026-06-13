@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-22",
+  "needs_port": false,
+  "sha": "48f4f6a9081e4fc0feaeb77d3b8869e31a61b820",
+  "short_sha": "48f4f6a908",
+  "subject": "doc: Nix: clarify .#executable command",
+  "zig_target": {}
+}

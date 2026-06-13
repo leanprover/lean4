@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-11",
+  "needs_port": false,
+  "sha": "c66cb01a4bd90952bc77325af4c3d0e2e509b2bb",
+  "short_sha": "c66cb01a4b",
+  "subject": "feat: `listLit` and `arrayLit` as macros",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-23",
+  "needs_port": false,
+  "sha": "12306ba401ef67202abda4df6cebb370666392a0",
+  "short_sha": "12306ba401",
+  "subject": "fix: -lgmp should come last",
+  "zig_target": {}
+}

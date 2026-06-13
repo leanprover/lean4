@@ -1,0 +1,19 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "old_path": "src/Bootstrap/Dynamic.lean",
+      "path": "src/Init/Dynamic.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Dynamic.lean"
+    }
+  ],
+  "date": "2022-08-29",
+  "needs_port": true,
+  "sha": "158e182b8be0f5ad6e986e288adbe1d87f7c24c3",
+  "short_sha": "158e182b8b",
+  "subject": "chore: move Bootstrap.Dynamic -> Init.Dynamic",
+  "zig_target": {
+    "src/Init/Dynamic.lean": "zig-backend/src/init/Dynamic.lean"
+  }
+}

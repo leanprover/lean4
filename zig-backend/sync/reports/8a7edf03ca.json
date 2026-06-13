@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-16",
+  "needs_port": false,
+  "sha": "8a7edf03caebc844629f5d2069a2148e5f2c58e3",
+  "short_sha": "8a7edf03ca",
+  "subject": "feat: add `commitWhenSome?`",
+  "zig_target": {}
+}

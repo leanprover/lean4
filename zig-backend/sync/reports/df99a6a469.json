@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-31",
+  "needs_port": false,
+  "sha": "df99a6a469584532daa57d986e795dd559bee57c",
+  "short_sha": "df99a6a469",
+  "subject": "fix: Nix: tests (almost, apart from leanmake & server tests)",
+  "zig_target": {}
+}

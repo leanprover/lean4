@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-16",
+  "needs_port": false,
+  "sha": "19051d9a0de7f10909cc2892431165bffd7e9530",
+  "short_sha": "19051d9a0d",
+  "subject": "chore(library/init/lean/localcontext): export as C functions",
+  "zig_target": {}
+}

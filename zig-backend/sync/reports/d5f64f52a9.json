@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-13",
+  "needs_port": false,
+  "sha": "d5f64f52a91be7dd53525a10d1f9e2f70a73267c",
+  "short_sha": "d5f64f52a9",
+  "subject": "feat: add `CtorView` and modifier validation for inductive and constructors",
+  "zig_target": {}
+}

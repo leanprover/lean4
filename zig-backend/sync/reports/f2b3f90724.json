@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-11",
+  "needs_port": false,
+  "sha": "f2b3f907243146aa247bb88d3968be3cde406cf4",
+  "short_sha": "f2b3f90724",
+  "subject": "refactor: symmetric equality congruence in `grind` (#11147)",
+  "zig_target": {}
+}

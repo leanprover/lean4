@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-25",
+  "needs_port": false,
+  "sha": "6dbb54d221d55761ce609f3bdf4328e713047c46",
+  "short_sha": "6dbb54d221",
+  "subject": "fix: offset terms internalization (#6777)",
+  "zig_target": {}
+}

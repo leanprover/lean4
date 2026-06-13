@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/ToExpr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/ToExpr.lean"
+    }
+  ],
+  "date": "2020-03-18",
+  "needs_port": true,
+  "sha": "b4942fcd3055b1bfa03d2d53755090b77fc6da6e",
+  "short_sha": "b4942fcd30",
+  "subject": "feat: add `ToExpr` instances",
+  "zig_target": {
+    "src/Init/Lean/ToExpr.lean": "zig-backend/src/init/Lean/ToExpr.lean"
+  }
+}

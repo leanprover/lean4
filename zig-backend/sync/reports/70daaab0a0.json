@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "70daaab0a09ac2d4b55d8a05e1ac42e79195d44f",
+  "short_sha": "70daaab0a0",
+  "subject": "chore: Nix: use /nix/var/cache/ccache for macOS",
+  "zig_target": {}
+}

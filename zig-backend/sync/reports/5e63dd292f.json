@@ -1,0 +1,10 @@
+{
+  "author": "Andr\u00e9s Goens",
+  "backend_changes": [],
+  "date": "2025-01-18",
+  "needs_port": false,
+  "sha": "5e63dd292f53fad4b4355c702a9ee277424ec6fd",
+  "short_sha": "5e63dd292f",
+  "subject": "chore: fix typo in docstring of mkMVar (#6687)",
+  "zig_target": {}
+}

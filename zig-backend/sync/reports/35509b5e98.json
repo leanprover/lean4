@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-05",
+  "needs_port": false,
+  "sha": "35509b5e981a48f5817f466ace81bef1b25bbbc3",
+  "short_sha": "35509b5e98",
+  "subject": "refactor: more sensible ordering of declarations in Lean.Parser.Basic",
+  "zig_target": {}
+}

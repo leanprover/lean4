@@ -1,0 +1,10 @@
+{
+  "author": "Parker Bjur",
+  "backend_changes": [],
+  "date": "2021-01-06",
+  "needs_port": false,
+  "sha": "fd408e81404e33e11be39c140f56bba1619127a7",
+  "short_sha": "fd408e8140",
+  "subject": "chore: fix typo in faq (#253)",
+  "zig_target": {}
+}

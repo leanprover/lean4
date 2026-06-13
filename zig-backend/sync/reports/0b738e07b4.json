@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/CtorLayout.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CtorLayout.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-06-29",
+  "needs_port": true,
+  "sha": "0b738e07b49d3464a6a1d0833376b8a700ee273a",
+  "short_sha": "0b738e07b4",
+  "subject": "chore: move more functions to CtorLayout (#9080)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/CtorLayout.lean": "zig-backend/src/lean/compiler/ir/CtorLayout.lean",
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

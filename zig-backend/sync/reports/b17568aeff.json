@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-06",
+  "needs_port": false,
+  "sha": "b17568aeffeecc34a0b4495eb73b8a7e7a6ecf4d",
+  "short_sha": "b17568aeff",
+  "subject": "feat(library/init/lean/elaborator): pass current namespace to C++ elaborator",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-04-23",
+  "needs_port": false,
+  "sha": "7a076d0bd4240b8db8c383d2f2e85103bf4a268e",
+  "short_sha": "7a076d0bd4",
+  "subject": "fix: lake: package duplication in workspace (#3957)",
+  "zig_target": {}
+}

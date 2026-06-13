@@ -1,0 +1,10 @@
+{
+  "author": "Parth Shastri",
+  "backend_changes": [],
+  "date": "2025-08-06",
+  "needs_port": false,
+  "sha": "d5e19f9b288abe7e2c1ed359fb026ed9ae83f6e0",
+  "short_sha": "d5e19f9b28",
+  "subject": "fix: remove accidental instance for `lexOrd` (#9739)",
+  "zig_target": {}
+}

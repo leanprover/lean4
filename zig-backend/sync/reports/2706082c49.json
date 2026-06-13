@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-24",
+  "needs_port": false,
+  "sha": "2706082c491235937cb1d892cd81e41505ab4f36",
+  "short_sha": "2706082c49",
+  "subject": "refactor: make aux structure default declarations use all parameters (#7656)",
+  "zig_target": {}
+}

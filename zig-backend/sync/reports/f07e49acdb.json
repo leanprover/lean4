@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-07-18",
+  "needs_port": true,
+  "sha": "f07e49acdbfcc6193922852c7525bc19363b3a31",
+  "short_sha": "f07e49acdb",
+  "subject": "chore: parse names properly",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

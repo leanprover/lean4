@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-21",
+  "needs_port": false,
+  "sha": "3c4c413c2ce185895ad596bb86ac88d657cba5c2",
+  "short_sha": "3c4c413c2c",
+  "subject": "test(tests/bench/rbmap2): fix benchmark",
+  "zig_target": {}
+}

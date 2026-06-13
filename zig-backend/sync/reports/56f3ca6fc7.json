@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-21",
+  "needs_port": false,
+  "sha": "56f3ca6fc74ad5bfbc0feafc4d5a48e87571db62",
+  "short_sha": "56f3ca6fc7",
+  "subject": "fix: propagation in `grind order` (#10877)",
+  "zig_target": {}
+}

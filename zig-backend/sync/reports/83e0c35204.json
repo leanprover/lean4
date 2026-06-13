@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-02-02",
+  "needs_port": true,
+  "sha": "83e0c35204ba773418544548553842ecd3b3c5e4",
+  "short_sha": "83e0c35204",
+  "subject": "chore(runtime/object): closure double-free assert",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

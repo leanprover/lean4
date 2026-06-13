@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "c29da66c5a27356504dc1e764b3da759faa8cd73",
+  "short_sha": "c29da66c5a",
+  "subject": "fix: annotate binders in `intro` for hover / go to def",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "757da9f6f36068fcf003ee4679d12f3e2f5f94c6",
+  "short_sha": "757da9f6f3",
+  "subject": "fix: more accurate invalid shadowin error position",
+  "zig_target": {}
+}

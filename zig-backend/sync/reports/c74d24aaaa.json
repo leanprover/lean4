@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-19",
+  "needs_port": false,
+  "sha": "c74d24aaaa8c356785fa3fc24f271febc86ba3dd",
+  "short_sha": "c74d24aaaa",
+  "subject": "fix: allow `exact?` to suggest local private declarations (#11736)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-07-09",
+  "needs_port": true,
+  "sha": "4c707d3b3c0e24ad246492a70f46830035af9b62",
+  "short_sha": "4c707d3b3c",
+  "subject": "feat: use `binop%` to elaborate `%`-applications",
+  "zig_target": {
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean",
+    "src/Init/Data/UInt.lean": "zig-backend/src/init/Data/UInt.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

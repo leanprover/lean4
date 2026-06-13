@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-26",
+  "needs_port": false,
+  "sha": "aa30a8f27346446ee0fe408ac281d3d0b379c603",
+  "short_sha": "aa30a8f273",
+  "subject": "fix(frontends/lean/elaborator): remove dubious error reporting code that makes Lean compiled with clang 8 segfault",
+  "zig_target": {}
+}

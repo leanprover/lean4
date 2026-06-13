@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "bcebc0a14580b3ab7b77aaff98e708198fb86a4e",
+  "short_sha": "bcebc0a145",
+  "subject": "chore: Nix: set up Cachix",
+  "zig_target": {}
+}

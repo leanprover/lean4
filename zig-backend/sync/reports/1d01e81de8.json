@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-25",
+  "needs_port": false,
+  "sha": "1d01e81de82389629419b2343bc9c580b55fca61",
+  "short_sha": "1d01e81de8",
+  "subject": "refactor(library/init/lean/parser): do not construct final syntax tree independent from intermediate outputs",
+  "zig_target": {}
+}

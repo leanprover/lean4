@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-13",
+  "needs_port": false,
+  "sha": "435431ca7e08b66abca030611820abdd483715db",
+  "short_sha": "435431ca7e",
+  "subject": "feat: hide elaboration errors from partial syntax trees by default",
+  "zig_target": {}
+}

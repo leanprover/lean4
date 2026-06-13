@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-16",
+  "needs_port": true,
+  "sha": "2e68ffb6171b29b3dd80d1501cb8c27990f6f09b",
+  "short_sha": "2e68ffb617",
+  "subject": "fix: missing `set s`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

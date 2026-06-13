@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ReduceArity.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean"
+    }
+  ],
+  "date": "2025-11-17",
+  "needs_port": true,
+  "sha": "eba5a5a6ef478086246b5f9ef72bf949a2aed6d5",
+  "short_sha": "eba5a5a6ef",
+  "subject": "fix: consider over-applications in `reduceArity` compiler pass (#11185)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ReduceArity.lean": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean"
+  }
+}

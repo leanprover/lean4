@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-26",
+  "needs_port": false,
+  "sha": "6810d31602eaaa0c93b7378bf907783033f7ce4e",
+  "short_sha": "6810d31602",
+  "subject": "chore: CI: cache again on failure (#10137)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-10-22",
+  "needs_port": false,
+  "sha": "d0abe1d382520524f48b0b3ad3cd3ce8e1688b1a",
+  "short_sha": "d0abe1d382",
+  "subject": "fix: restore synchronous fast-forwarding path in language processor (#5802)",
+  "zig_target": {}
+}

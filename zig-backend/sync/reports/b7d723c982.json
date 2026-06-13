@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-08-16",
+  "needs_port": true,
+  "sha": "b7d723c9820833c68027a6bb1bf7d8ab042b517b",
+  "short_sha": "b7d723c982",
+  "subject": "refactor: compile runtime/ into new static library `leanrt`",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

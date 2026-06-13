@@ -1,0 +1,48 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-11",
+  "needs_port": true,
+  "sha": "e7e57d40c4c5ee692a48a60a023327cc17c9bf83",
+  "short_sha": "e7e57d40c4",
+  "subject": "feat: add BitVec.[toNat|toFin|toInt]_[sshiftRight|sshiftRight'] (#7104)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Nat/Bitwise/Basic.lean": "zig-backend/src/init/Data/Nat/Bitwise/Basic.lean",
+    "src/Init/Data/SInt/Lemmas.lean": "zig-backend/src/init/Data/SInt/Lemmas.lean"
+  }
+}

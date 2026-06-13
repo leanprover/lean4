@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2026-02-17",
+  "needs_port": false,
+  "sha": "200f65649ac094b7aea4b53d962e91aa80bddaa7",
+  "short_sha": "200f65649a",
+  "subject": "feat: relate `HashSet.ofList` to a fold (#12521)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-04-12",
+  "needs_port": false,
+  "sha": "712967c6f611b55dfeab2a13f7e98bbdbd97d58a",
+  "short_sha": "712967c6f6",
+  "subject": "refactor: registerRpcProcedure",
+  "zig_target": {}
+}

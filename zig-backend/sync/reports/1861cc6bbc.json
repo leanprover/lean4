@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-05",
+  "needs_port": false,
+  "sha": "1861cc6bbc5ba92a512c2899ca8c728183e5db36",
+  "short_sha": "1861cc6bbc",
+  "subject": "fix: panic in `grind ring` (#10265)",
+  "zig_target": {}
+}

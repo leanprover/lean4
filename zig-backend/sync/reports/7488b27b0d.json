@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sublist.lean"
+    }
+  ],
+  "date": "2024-08-23",
+  "needs_port": true,
+  "sha": "7488b27b0dea46bbe05fe1c2ab5dba3d4ffbdba0",
+  "short_sha": "7488b27b0d",
+  "subject": "feat: lemmas about membership of sublists (#5132)",
+  "zig_target": {
+    "src/Init/Data/List/Erase.lean": "zig-backend/src/init/Data/List/Erase.lean",
+    "src/Init/Data/List/Sublist.lean": "zig-backend/src/init/Data/List/Sublist.lean"
+  }
+}

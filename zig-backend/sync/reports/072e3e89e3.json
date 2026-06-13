@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-12",
+  "needs_port": false,
+  "sha": "072e3e89e3ba151c83f98bc09eed584190ec8856",
+  "short_sha": "072e3e89e3",
+  "subject": "fix: local forall activation in `grind` (#9880)",
+  "zig_target": {}
+}

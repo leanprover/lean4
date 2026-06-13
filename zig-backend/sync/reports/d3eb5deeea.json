@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-22",
+  "needs_port": false,
+  "sha": "d3eb5deeea25aaafbeaae90685ef4d46db861b9e",
+  "short_sha": "d3eb5deeea",
+  "subject": "chore: Nix: fix macOS build",
+  "zig_target": {}
+}

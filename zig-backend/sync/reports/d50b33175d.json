@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-08",
+  "needs_port": false,
+  "sha": "d50b33175d75384cc76c1ff8f78e8bba3bf41fe3",
+  "short_sha": "d50b33175d",
+  "subject": "feat: improve `forIn` elaborator element type propagation",
+  "zig_target": {}
+}

@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/lc_util.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/lc_util.h"
+    },
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/lcnf.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.h"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    }
+  ],
+  "date": "2018-09-11",
+  "needs_port": true,
+  "sha": "9b21287a3e364d4b38a411f3e5e916e47cd2c20b",
+  "short_sha": "9b21287a3e",
+  "subject": "feat(library/compiler/lcnf): add lean compiler normal form",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/lc_util.h": "zig-backend/src/library/compiler/lc_util.h",
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp",
+    "src/library/compiler/lcnf.h": "zig-backend/src/library/compiler/lcnf.h",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp"
+  }
+}

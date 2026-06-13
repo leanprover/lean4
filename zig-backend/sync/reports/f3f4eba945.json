@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    }
+  ],
+  "date": "2022-12-12",
+  "needs_port": true,
+  "sha": "f3f4eba945a21e005c71c5851d97e0aa582029a6",
+  "short_sha": "f3f4eba945",
+  "subject": "fix: make Format.*join* tail-recursive",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean"
+  }
+}

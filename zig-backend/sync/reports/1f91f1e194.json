@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-02",
+  "needs_port": false,
+  "sha": "1f91f1e1946ac27e839b0faf7fdb8e60ca36b590",
+  "short_sha": "1f91f1e194",
+  "subject": "feat: implement more of the crash-restart behavior",
+  "zig_target": {}
+}

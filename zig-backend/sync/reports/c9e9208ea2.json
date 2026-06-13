@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-22",
+  "needs_port": false,
+  "sha": "c9e9208ea29a34fe715310f47fa5ce786a4b3b8e",
+  "short_sha": "c9e9208ea2",
+  "subject": "feat: cleanup bigop example",
+  "zig_target": {}
+}

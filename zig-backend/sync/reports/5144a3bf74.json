@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-06-28",
+  "needs_port": true,
+  "sha": "5144a3bf74e0587c651e3aee4b471f0cd93149f8",
+  "short_sha": "5144a3bf74",
+  "subject": "chore: rename lowerEnumToScalarType to lowerEnumToScalarType? (#9063)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

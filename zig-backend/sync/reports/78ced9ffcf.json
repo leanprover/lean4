@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-11",
+  "needs_port": false,
+  "sha": "78ced9ffcf62295c1c9e2418ee75ab954c0e4011",
+  "short_sha": "78ced9ffcf",
+  "subject": "refactor(library/module_mgr): minimize parser interface",
+  "zig_target": {}
+}

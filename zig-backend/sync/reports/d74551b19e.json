@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-01",
+  "needs_port": false,
+  "sha": "d74551b19e4bafab3853f518e531cb31f3edb521",
+  "short_sha": "d74551b19e",
+  "subject": "feat: elaborate header of mutually recursive definitions",
+  "zig_target": {}
+}

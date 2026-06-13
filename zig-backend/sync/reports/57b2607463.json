@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-02-03",
+  "needs_port": true,
+  "sha": "57b260746362df581471fea02805d93f33a9d22f",
+  "short_sha": "57b2607463",
+  "subject": "fix(library/compiler/specialize): declare specialized functions before caller",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

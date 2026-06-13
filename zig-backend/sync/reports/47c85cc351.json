@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-01-20",
+  "needs_port": true,
+  "sha": "47c85cc3517bf5c7bbf3b29a718d3c2e4075fcfa",
+  "short_sha": "47c85cc351",
+  "subject": "fix: bug at `ParserDescr.ident`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

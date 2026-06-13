@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    }
+  ],
+  "date": "2023-01-09",
+  "needs_port": true,
+  "sha": "5615ba6606162dd3e931e84482d6540d5411d69c",
+  "short_sha": "5615ba6606",
+  "subject": "feat: implement `uset` for LLVM (#2025)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.h"
+    }
+  ],
+  "date": "2025-12-09",
+  "needs_port": true,
+  "sha": "6e711bf067a0d9dc6623996b4bd3757ac6c46886",
+  "short_sha": "6e711bf067",
+  "subject": "fix: ensure padding bytes for `lean::mpz` objects in olean files are zero (#11485)",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/compact.h": "zig-backend/src/runtime/compact.h"
+  }
+}

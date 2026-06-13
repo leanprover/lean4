@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-27",
+  "needs_port": false,
+  "sha": "7bf032d6fecaeb349a539bf1b42752636a4cb00e",
+  "short_sha": "7bf032d6fe",
+  "subject": "chore(frontends/lean): remove `calc`-expression",
+  "zig_target": {}
+}

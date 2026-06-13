@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-03",
+  "needs_port": false,
+  "sha": "42b3ed5903e966e20dae820953ee3c9a90bac504",
+  "short_sha": "42b3ed5903",
+  "subject": "test: add `Pi.single` test",
+  "zig_target": {}
+}

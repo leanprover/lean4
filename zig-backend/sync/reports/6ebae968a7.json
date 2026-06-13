@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Random.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Random.lean"
+    }
+  ],
+  "date": "2022-06-27",
+  "needs_port": true,
+  "sha": "6ebae968a7d8a2404735e83d63cd7dec193e301b",
+  "short_sha": "6ebae968a7",
+  "subject": "feat: use `IO.getRandomBytes` to initialize random seed",
+  "zig_target": {
+    "src/Init/Data/Random.lean": "zig-backend/src/init/Data/Random.lean"
+  }
+}

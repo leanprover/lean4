@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-20",
+  "needs_port": true,
+  "sha": "5eafa7e39187db22829fec5c1b447acb92c70051",
+  "short_sha": "5eafa7e391",
+  "subject": "feat(runtime/lean): UInt8/UInt16/UInt32/UInt64/USize APIs",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-10-13",
+  "needs_port": false,
+  "sha": "9d427fdfcf40c914c24c77cd47962a7e2e6eb4a3",
+  "short_sha": "9d427fdfcf",
+  "subject": "feat: \"try this\" messages with support for interactivity (#10524)",
+  "zig_target": {}
+}

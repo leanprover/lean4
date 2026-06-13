@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-24",
+  "needs_port": false,
+  "sha": "eaed6ba6a38078f9984b12da6add80af59ac5271",
+  "short_sha": "eaed6ba6a3",
+  "subject": "refactor: polymorphic `MetaM` combinators",
+  "zig_target": {}
+}

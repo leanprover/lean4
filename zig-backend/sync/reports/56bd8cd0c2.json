@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "56bd8cd0c24b9570acc2c0a3960ca75636349109",
+  "short_sha": "56bd8cd0c2",
+  "subject": "refactor: remove unnecessary use of `constNames` in `LazyDiscrTree` (#12422)",
+  "zig_target": {}
+}

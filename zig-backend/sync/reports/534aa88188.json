@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-03-24",
+  "needs_port": false,
+  "sha": "534aa8818872c1ac79680b2f069252ce6c789930",
+  "short_sha": "534aa88188",
+  "subject": "doc: MetaM",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-03-06",
+  "needs_port": true,
+  "sha": "5770edbffd4a64b976a2cb926591e233caf6543e",
+  "short_sha": "5770edbffd",
+  "subject": "feat: workaround for the constant approximation issue",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

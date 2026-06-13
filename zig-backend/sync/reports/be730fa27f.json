@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-02-12",
+  "needs_port": false,
+  "sha": "be730fa27f2b8fcf55f9e6bb51ad9f6fdc716ebd",
+  "short_sha": "be730fa27f",
+  "subject": "feat: add `#check_failure` as keyword",
+  "zig_target": {}
+}

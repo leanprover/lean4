@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-07-27",
+  "needs_port": true,
+  "sha": "bc525d980e4da41f81e89e9f16653e499575f45c",
+  "short_sha": "bc525d980e",
+  "subject": "chore(shell/CMakeLists): fix test",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-06-03",
+  "needs_port": true,
+  "sha": "cd73105dffc2ecb3266926e9a8a8e0b8b95c8b84",
+  "short_sha": "cd73105dff",
+  "subject": "refactor(kernel/environment,library/private,library/init/lean/environment): move main module name to header",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

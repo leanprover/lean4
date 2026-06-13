@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "b939162168219cd2a1bcbf8ae7065adba61cc889",
+  "short_sha": "b939162168",
+  "subject": "chore(library): switch from snake_case to camelCase",
+  "zig_target": {}
+}

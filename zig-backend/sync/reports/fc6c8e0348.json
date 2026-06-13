@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-12",
+  "needs_port": false,
+  "sha": "fc6c8e0348618c4215f33ddb14755366aec7aaca",
+  "short_sha": "fc6c8e0348",
+  "subject": "fix: beta reduce value at `processAssignmentFOApprox`",
+  "zig_target": {}
+}

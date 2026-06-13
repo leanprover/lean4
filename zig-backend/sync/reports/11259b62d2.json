@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-25",
+  "needs_port": false,
+  "sha": "11259b62d27998d830520fb79ce5714656d16d96",
+  "short_sha": "11259b62d2",
+  "subject": "chore(frontends/lean/elaborator): try to make error positions a bit more accurate",
+  "zig_target": {}
+}

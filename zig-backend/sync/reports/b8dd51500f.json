@@ -1,0 +1,10 @@
+{
+  "author": "Leni Aniva",
+  "backend_changes": [],
+  "date": "2024-06-28",
+  "needs_port": false,
+  "sha": "b8dd51500f6783247aa61ccc3806396302dd4401",
+  "short_sha": "b8dd51500f",
+  "subject": "fix: nix: add platform dependent flag to lib target (#3811)",
+  "zig_target": {}
+}

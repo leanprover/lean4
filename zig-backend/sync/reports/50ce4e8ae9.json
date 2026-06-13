@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-05",
+  "needs_port": false,
+  "sha": "50ce4e8ae928075d73106b14841fa7c21d35943a",
+  "short_sha": "50ce4e8ae9",
+  "subject": "chore(library/init/meta/interactive_base): remove Lean3 format macros",
+  "zig_target": {}
+}

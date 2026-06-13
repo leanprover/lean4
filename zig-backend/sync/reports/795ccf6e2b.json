@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2021-08-25",
+  "needs_port": true,
+  "sha": "795ccf6e2b75e77bd9e8433673bcb2f27a1f2675",
+  "short_sha": "795ccf6e2b",
+  "subject": "chore: add `Trans` instances for tutorial",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

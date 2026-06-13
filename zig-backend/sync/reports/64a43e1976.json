@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "64a43e197662f25abb8dc669798c138f8efb79ad",
+  "short_sha": "64a43e1976",
+  "subject": "chore(library/init/control/combinators): use `namespace`",
+  "zig_target": {}
+}

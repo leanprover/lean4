@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-16",
+  "needs_port": false,
+  "sha": "002efd0db63909ca896a1c25237c9f93e9f615d9",
+  "short_sha": "002efd0db6",
+  "subject": "chore: server: exclude some nodes from semantic highlighting",
+  "zig_target": {}
+}

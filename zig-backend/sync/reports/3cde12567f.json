@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Field.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Field.lean"
+    }
+  ],
+  "date": "2025-07-24",
+  "needs_port": true,
+  "sha": "3cde12567f8156e91a13e87a224ba696cc5ecdcc",
+  "short_sha": "3cde12567f",
+  "subject": "feat: add HPow Int field to Field (#9500)",
+  "zig_target": {
+    "src/Init/Grind/Ring/Basic.lean": "zig-backend/src/init/Grind/Ring/Basic.lean",
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean",
+    "src/Init/Grind/Ring/Field.lean": "zig-backend/src/init/Grind/Ring/Field.lean"
+  }
+}

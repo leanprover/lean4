@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-26",
+  "needs_port": false,
+  "sha": "d526262266dea8e390749d3407607fb47787456d",
+  "short_sha": "d526262266",
+  "subject": "refactor(library/init/lean/parser/reader/basic): rec_t.recurse: clearer implementation",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-27",
+  "needs_port": false,
+  "sha": "d06fff0f139714642510e55b273e24409cbeeade",
+  "short_sha": "d06fff0f13",
+  "subject": "chore: CI: use restored ccache cache in `update-stage0`",
+  "zig_target": {}
+}

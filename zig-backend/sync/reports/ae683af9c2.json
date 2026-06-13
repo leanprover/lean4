@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "ae683af9c2f1efc2031f9b8ba570e07e1f52f06e",
+  "short_sha": "ae683af9c2",
+  "subject": "refactor: merge `AsyncList.updateFinishedPrefix/finishedPrefix`",
+  "zig_target": {}
+}

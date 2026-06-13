@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-14",
+  "needs_port": false,
+  "sha": "0945a87fbb5e07a47f018fe5ba518461c2280561",
+  "short_sha": "0945a87fbb",
+  "subject": "fix(library/init/lean/elaborator): to_pexpr: explicitness modifiers",
+  "zig_target": {}
+}

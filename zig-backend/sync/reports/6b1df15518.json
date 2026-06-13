@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-31",
+  "needs_port": false,
+  "sha": "6b1df1551830f91c0c194cf71b8265aed53602e8",
+  "short_sha": "6b1df15518",
+  "subject": "chore: ignore test output files",
+  "zig_target": {}
+}

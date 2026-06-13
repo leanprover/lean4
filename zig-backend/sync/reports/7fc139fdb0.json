@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-15",
+  "needs_port": false,
+  "sha": "7fc139fdb0791979dc02366cb360231e80db8d3a",
+  "short_sha": "7fc139fdb0",
+  "subject": "chore: add doc-string for tactics",
+  "zig_target": {}
+}

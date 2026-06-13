@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-14",
+  "needs_port": false,
+  "sha": "022bf2f822c5b978c1fe9ad477c11420b93ddead",
+  "short_sha": "022bf2f822",
+  "subject": "feat: add higher-order Miller pattern support in e-matching (#12483)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-11",
+  "needs_port": false,
+  "sha": "298af4f7492cf544005b554e44724078d2f0cdb4",
+  "short_sha": "298af4f749",
+  "subject": "chore: Nix: work around NixOS/nixpkgs#109033",
+  "zig_target": {}
+}

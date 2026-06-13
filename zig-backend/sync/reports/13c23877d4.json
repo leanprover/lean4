@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-09-19",
+  "needs_port": false,
+  "sha": "13c23877d46eb02468ee409e28b130aa53c15426",
+  "short_sha": "13c23877d4",
+  "subject": "fix: reduce through `let`s in `mvcgen` main loop (#10453)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-21",
+  "needs_port": false,
+  "sha": "8987de75c13d26ed7c69fce6009de2346fe2ad01",
+  "short_sha": "8987de75c1",
+  "subject": "feat: add `Environment.addExtraName`",
+  "zig_target": {}
+}

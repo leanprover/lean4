@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    }
+  ],
+  "date": "2022-02-25",
+  "needs_port": true,
+  "sha": "3b130ee42f9053f33a48e6de07fe3f337844dfcc",
+  "short_sha": "3b130ee42f",
+  "subject": "feat: add `Poly.toExpr`",
+  "zig_target": {
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean"
+  }
+}

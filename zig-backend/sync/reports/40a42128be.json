@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-12",
+  "needs_port": false,
+  "sha": "40a42128be7e197955b74563cf0d14d4b8fa1aed",
+  "short_sha": "40a42128be",
+  "subject": "fix: auto completion improvements",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-27",
+  "needs_port": false,
+  "sha": "4ce04776b66d121005bb67539e850f9c9ae98dde",
+  "short_sha": "4ce04776b6",
+  "subject": "fix: do not assign synthetic opaque MVars in mspec (#12184)",
+  "zig_target": {}
+}

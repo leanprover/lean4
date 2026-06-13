@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-01-24",
+  "needs_port": false,
+  "sha": "214471a2c99ec0e2606ae48592fc7e5ea22a1626",
+  "short_sha": "214471a2c9",
+  "subject": "feat(library/abstract_parser): add `parse_name` virtual method",
+  "zig_target": {}
+}

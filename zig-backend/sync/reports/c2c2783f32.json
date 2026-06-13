@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-10",
+  "needs_port": false,
+  "sha": "c2c2783f32b861ea1963cde2d8143b9ca47f833a",
+  "short_sha": "c2c2783f32",
+  "subject": "feat: improve dot name resolution by lazily unfolding resulting type",
+  "zig_target": {}
+}

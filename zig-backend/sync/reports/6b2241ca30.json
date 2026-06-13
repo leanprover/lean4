@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-05",
+  "needs_port": false,
+  "sha": "6b2241ca30ff28fd84649b48be6b7ad77da1412c",
+  "short_sha": "6b2241ca30",
+  "subject": "chore: Nix: `executable` should not be a function",
+  "zig_target": {}
+}

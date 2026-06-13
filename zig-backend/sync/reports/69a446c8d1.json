@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-23",
+  "needs_port": false,
+  "sha": "69a446c8d1a494feaed00cb9a940754dbcc80692",
+  "short_sha": "69a446c8d1",
+  "subject": "feat: add field `all` to `DefinitionVal` and `TheoremVal`",
+  "zig_target": {}
+}

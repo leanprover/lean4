@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-22",
+  "needs_port": false,
+  "sha": "8c2cb44ac0885a244b93cb02e37af4836724377d",
+  "short_sha": "8c2cb44ac0",
+  "subject": "fix: error message produced by `lean_mk_projections`",
+  "zig_target": {}
+}

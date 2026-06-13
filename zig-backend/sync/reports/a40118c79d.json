@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2022-09-08",
+  "needs_port": true,
+  "sha": "a40118c79de5ff8ee641c966fe006bf0ab741750",
+  "short_sha": "a40118c79d",
+  "subject": "chore: disable eager `applyCasesOnImplementedBy`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean",
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

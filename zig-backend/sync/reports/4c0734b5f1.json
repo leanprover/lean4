@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-04",
+  "needs_port": false,
+  "sha": "4c0734b5f1976c947751b362e97c35c5d931743a",
+  "short_sha": "4c0734b5f1",
+  "subject": "feat: use hash traces for o file, static lib, and bin targets",
+  "zig_target": {}
+}

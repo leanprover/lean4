@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/compact.h"
+    },
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2021-07-23",
+  "needs_port": true,
+  "sha": "4766ee0b5e13b143a9fa69f50d7fdcaeb1cad69a",
+  "short_sha": "4766ee0b5e",
+  "subject": "feat: try to mmap() .olean files on Linux & macOS",
+  "zig_target": {
+    "src/include/lean/compact.h": "zig-backend/include/lean/compact.h",
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

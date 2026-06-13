@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-16",
+  "needs_port": false,
+  "sha": "490c482af25e93656dd06c5f5fcbef3cfd7d71aa",
+  "short_sha": "490c482af2",
+  "subject": "fix: allow `[runParserAttributeHooks]` on imported declarations, add non-builtin variant",
+  "zig_target": {}
+}

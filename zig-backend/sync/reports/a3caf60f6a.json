@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Basic.lean"
+    },
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-26",
+  "needs_port": true,
+  "sha": "a3caf60f6acb4a1acfa803f2e72a37eb9ca0e7fd",
+  "short_sha": "a3caf60f6a",
+  "subject": "feat: rename get_elem_tactic_trivial to get_elem_tactic_extensible",
+  "zig_target": {
+    "src/Init/Data/Range/Basic.lean": "zig-backend/src/init/Data/Range/Basic.lean",
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

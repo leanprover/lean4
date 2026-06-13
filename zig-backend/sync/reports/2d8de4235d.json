@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-09",
+  "needs_port": false,
+  "sha": "2d8de4235d6e495ea0acd93e03c8d983a7fa045f",
+  "short_sha": "2d8de4235d",
+  "subject": "feat: model-based theory combination for `ToInt` types (#10325)",
+  "zig_target": {}
+}

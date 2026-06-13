@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Check.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/LevelDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Trace.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Trace.lean"
+    }
+  ],
+  "date": "2019-12-05",
+  "needs_port": true,
+  "sha": "dd0b71938d10224160bc40eb265a2cfdc851ed95",
+  "short_sha": "dd0b71938d",
+  "subject": "feat: register `Meta` tracing options",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/Check.lean": "zig-backend/src/init/Lean/Meta/Check.lean",
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean",
+    "src/Init/Lean/Meta/LevelDefEq.lean": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean",
+    "src/Init/Lean/Util/Trace.lean": "zig-backend/src/init/Lean/Util/Trace.lean"
+  }
+}

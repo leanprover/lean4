@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-01",
+  "needs_port": false,
+  "sha": "9d2eadc754731d2bcdc064f9aad2ac95323ad7ce",
+  "short_sha": "9d2eadc754",
+  "subject": "chore(library/init/lean/compiler): delete `@[effectful]`",
+  "zig_target": {}
+}

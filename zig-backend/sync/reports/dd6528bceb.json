@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-12",
+  "needs_port": false,
+  "sha": "dd6528bceb2cfd31681466f0e7b19d04154728e3",
+  "short_sha": "dd6528bceb",
+  "subject": "fix: undo incorrect JSON encoding",
+  "zig_target": {}
+}

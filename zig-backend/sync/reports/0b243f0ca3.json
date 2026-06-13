@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-27",
+  "needs_port": false,
+  "sha": "0b243f0ca33e1f6a2948c94896b22b2f304ac4c8",
+  "short_sha": "0b243f0ca3",
+  "subject": "chore: Nix: avoid import errors for now",
+  "zig_target": {}
+}

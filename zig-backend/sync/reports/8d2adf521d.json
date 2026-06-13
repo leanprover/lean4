@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-12",
+  "needs_port": false,
+  "sha": "8d2adf521d2b7636347a5b01bfe473bf0fcfaf31",
+  "short_sha": "8d2adf521d",
+  "subject": "feat: allow duplicate theorems to be imported",
+  "zig_target": {}
+}

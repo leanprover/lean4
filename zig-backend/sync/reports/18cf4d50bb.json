@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-25",
+  "needs_port": false,
+  "sha": "18cf4d50bbc34a1fc160f5a7f638e0c1e9e042a0",
+  "short_sha": "18cf4d50bb",
+  "subject": "chore(frontends/lean/elaborator): ignore error caused by synthetic sorry",
+  "zig_target": {}
+}

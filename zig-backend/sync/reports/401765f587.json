@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2021-04-01",
+  "needs_port": true,
+  "sha": "401765f5873f9c20c6e5aba5b40a4d0dd0411e98",
+  "short_sha": "401765f587",
+  "subject": "test: add test that `deriving Ord` compiles in various cases.",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

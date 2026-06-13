@@ -1,0 +1,10 @@
+{
+  "author": "Mac",
+  "backend_changes": [],
+  "date": "2023-05-24",
+  "needs_port": false,
+  "sha": "b74d9c09d5899a1d2a2dedf038693a758129b959",
+  "short_sha": "b74d9c09d5",
+  "subject": "chore: delete unintended commit of `flake.lock` (leanprover/lake#170)",
+  "zig_target": {}
+}

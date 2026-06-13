@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-01",
+  "needs_port": false,
+  "sha": "cfec797e69db7ac4a4ffe3bd94dd8ecbd00d9e17",
+  "short_sha": "cfec797e69",
+  "subject": "feat(library/init/lean/compiler/ir): helper functions",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-12-21",
+  "needs_port": false,
+  "sha": "546bb8f053a95180abf6e7ab509a4b3f23b61155",
+  "short_sha": "546bb8f053",
+  "subject": "fix: widgets: do not highlight entire expression in popup",
+  "zig_target": {}
+}

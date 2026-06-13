@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-19",
+  "needs_port": false,
+  "sha": "5b44a6f93d63641d058e381b7353fdd9673eee2e",
+  "short_sha": "5b44a6f93d",
+  "subject": "feat(library/init/lean/parser/parsec): structured `doc_comment` syntax nodes",
+  "zig_target": {}
+}

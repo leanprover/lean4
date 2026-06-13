@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-26",
+  "needs_port": false,
+  "sha": "6f73f19d19ab326df6e161d6309c2983cf599ddc",
+  "short_sha": "6f73f19d19",
+  "subject": "chore(tests/playground/rbmap_standalone): make sure lean version mirrors the OCaml one",
+  "zig_target": {}
+}

@@ -1,0 +1,114 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/FloatArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/FloatArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    },
+    {
+      "path": "src/Init/Data/List/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/FinRange.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MapIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MapIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArrayImpl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArrayImpl.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-03-13",
+  "needs_port": true,
+  "sha": "25179352b49ee3e5b77053aec1b77626ad759d98",
+  "short_sha": "25179352b4",
+  "subject": "doc: review List docstrings for manual (#7452)",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean",
+    "src/Init/Data/FloatArray/Basic.lean": "zig-backend/src/init/Data/FloatArray/Basic.lean",
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean",
+    "src/Init/Data/List/FinRange.lean": "zig-backend/src/init/Data/List/FinRange.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/MapIdx.lean": "zig-backend/src/init/Data/List/MapIdx.lean",
+    "src/Init/Data/List/Monadic.lean": "zig-backend/src/init/Data/List/Monadic.lean",
+    "src/Init/Data/List/OfFn.lean": "zig-backend/src/init/Data/List/OfFn.lean",
+    "src/Init/Data/List/Sort/Basic.lean": "zig-backend/src/init/Data/List/Sort/Basic.lean",
+    "src/Init/Data/List/ToArrayImpl.lean": "zig-backend/src/init/Data/List/ToArrayImpl.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/ToString/Basic.lean": "zig-backend/src/init/Data/ToString/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

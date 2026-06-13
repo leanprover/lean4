@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-01",
+  "needs_port": false,
+  "sha": "07d5722b67ee1cc2775f0d09bc93708c3ec96975",
+  "short_sha": "07d5722b67",
+  "subject": "feat: add explicit process termination procedure, ensure crash handling on writes and accumulate changes of single didChange packet",
+  "zig_target": {}
+}

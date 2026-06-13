@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "b5d7f9a763d963e817bf2d469b80b7f729a1e638",
+  "short_sha": "b5d7f9a763",
+  "subject": "chore: cleanup Trace",
+  "zig_target": {}
+}

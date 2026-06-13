@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-08-07",
+  "needs_port": false,
+  "sha": "5be4f5e30c1fc47dada8c369fc8843644dc8a3d4",
+  "short_sha": "5be4f5e30c",
+  "subject": "perf: skip `eraseRecAppSyntaxExpr` if it is not needed (#4935)",
+  "zig_target": {}
+}

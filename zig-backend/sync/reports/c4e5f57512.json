@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    }
+  ],
+  "date": "2025-08-30",
+  "needs_port": true,
+  "sha": "c4e5f575121d508e02c82edd603f3c2808bdb5bc",
+  "short_sha": "c4e5f57512",
+  "subject": "feat: proof terms for `grind ac` (#10189)",
+  "zig_target": {
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean"
+  }
+}

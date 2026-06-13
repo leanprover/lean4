@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    }
+  ],
+  "date": "2022-10-07",
+  "needs_port": true,
+  "sha": "9eb641e7da4145c0f5fc14390e0222f255e2b659",
+  "short_sha": "9eb641e7da",
+  "subject": "feat: reuse specialized functions between different compilation units",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.h"
+    }
+  ],
+  "date": "2019-02-13",
+  "needs_port": true,
+  "sha": "6afad35aac52eac8ba26ad52a3802498e963e115",
+  "short_sha": "6afad35aac",
+  "subject": "feat(library/compiler): emit `extern \"C\"` for extern/foreign dependencies when needed",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/extern_attribute.h": "zig-backend/src/library/compiler/extern_attribute.h"
+  }
+}

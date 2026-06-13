@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Mem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Mem.lean"
+    }
+  ],
+  "date": "2022-04-02",
+  "needs_port": true,
+  "sha": "64cfbc1ae33a7a3167a84678a0d4137eaa618e8f",
+  "short_sha": "64cfbc1ae3",
+  "subject": "feat: add helper tactic for applying `sizeOf (a.get i) < sizeOf a` automatically in termination proofs",
+  "zig_target": {
+    "src/Init/Data/Array/Mem.lean": "zig-backend/src/init/Data/Array/Mem.lean"
+  }
+}

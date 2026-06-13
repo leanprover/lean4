@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-15",
+  "needs_port": false,
+  "sha": "c4747752feff8bf51cb425cee7dedf15cce31707",
+  "short_sha": "c4747752fe",
+  "subject": "fix: detect private references in inferred type of public def (#10762)",
+  "zig_target": {}
+}

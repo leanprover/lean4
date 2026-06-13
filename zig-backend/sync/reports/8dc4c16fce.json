@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2026-04-02",
+  "needs_port": true,
+  "sha": "8dc4c16fce958530bec47314b1adec926a0d7b07",
+  "short_sha": "8dc4c16fce",
+  "subject": "fix: correct `String` cases codegen to use `String.toByteArray` (#13242)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

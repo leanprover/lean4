@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "9f2d5432090b4e99f28920318b72ce5040d92203",
+  "short_sha": "9f2d543209",
+  "subject": "chore(library/init/core): hide arguments for `lc_proof`, `lc_cast` and `lc_unreachable`",
+  "zig_target": {}
+}

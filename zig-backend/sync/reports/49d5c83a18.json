@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-11",
+  "needs_port": false,
+  "sha": "49d5c83a18706c539cf9ac8c2a4cfecaca62e984",
+  "short_sha": "49d5c83a18",
+  "subject": "feat(library/init/lean/parser/command): add `abbrev`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/StructInst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+    }
+  ],
+  "date": "2020-05-21",
+  "needs_port": true,
+  "sha": "7a964ecbea90495e8d4ec06c4880b0690995db3d",
+  "short_sha": "7a964ecbea",
+  "subject": "chore: register `Elab.struct trace class",
+  "zig_target": {
+    "src/Init/Lean/Elab/StructInst.lean": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+  }
+}

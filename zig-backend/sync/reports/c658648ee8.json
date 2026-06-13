@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-02",
+  "needs_port": false,
+  "sha": "c658648ee8923a66ce3ff8bb79bbd4550dbb10b4",
+  "short_sha": "c658648ee8",
+  "subject": "refactor: split Lean.EnvironmentExtension from Lean.Environment (#7794)",
+  "zig_target": {}
+}

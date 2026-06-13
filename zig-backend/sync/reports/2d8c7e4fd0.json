@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-21",
+  "needs_port": false,
+  "sha": "2d8c7e4fd0df2af59fff6f91b4d702c336af3436",
+  "short_sha": "2d8c7e4fd0",
+  "subject": "fix: MetaM.run'",
+  "zig_target": {}
+}

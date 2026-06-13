@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-13",
+  "needs_port": false,
+  "sha": "2ccd382e6fe5c6e488c48d3a9989b7aa9b77e106",
+  "short_sha": "2ccd382e6f",
+  "subject": "refactor: formatter: remove unnecessary concatenation",
+  "zig_target": {}
+}

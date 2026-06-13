@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-12-30",
+  "needs_port": false,
+  "sha": "05664b15a3cfee3f97b86c98ae54ee4cd96f1df6",
+  "short_sha": "05664b15a3",
+  "subject": "fix: update naming of `FinitenessRelation` fields in the `sigmaIterator.lean` benchmark (#11836)",
+  "zig_target": {}
+}

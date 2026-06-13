@@ -1,0 +1,10 @@
+{
+  "author": "Adrien Champion",
+  "backend_changes": [],
+  "date": "2022-11-08",
+  "needs_port": false,
+  "sha": "5849fdc6c93829fa5d574a9b5032f0c825da0633",
+  "short_sha": "5849fdc6c9",
+  "subject": "feat: require strict indentation on nested by-s",
+  "zig_target": {}
+}

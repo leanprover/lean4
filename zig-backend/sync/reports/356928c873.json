@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/extract_closed.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.cpp"
+    },
+    {
+      "path": "src/library/compiler/extract_closed.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.h"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    }
+  ],
+  "date": "2018-10-19",
+  "needs_port": true,
+  "sha": "356928c8734241b4a125025bd0f68336bcc14227",
+  "short_sha": "356928c873",
+  "subject": "feat(library/compiler): add extract_closed skeleton",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/extract_closed.cpp": "zig-backend/src/library/compiler/extract_closed.cpp",
+    "src/library/compiler/extract_closed.h": "zig-backend/src/library/compiler/extract_closed.h",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp"
+  }
+}

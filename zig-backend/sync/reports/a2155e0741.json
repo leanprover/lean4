@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-30",
+  "needs_port": false,
+  "sha": "a2155e0741733b137b18683b6241a9176356974e",
+  "short_sha": "a2155e0741",
+  "subject": "fix: bug in `mkMatchCondProf?` in `grind` (#6879)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    }
+  ],
+  "date": "2025-04-28",
+  "needs_port": true,
+  "sha": "436ebdad78b818438293d2d5691f0b13539ebfe4",
+  "short_sha": "436ebdad78",
+  "subject": "feat: add List.findRev? and findSomeRev?, and simp lemmas (#8147)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean"
+  }
+}

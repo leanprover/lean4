@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2025-12-11",
+  "needs_port": true,
+  "sha": "b8c53b1d290f1c657beca787dfc9a0478d05966e",
+  "short_sha": "b8c53b1d29",
+  "subject": "chore: remove IR elim dead branches (#11576)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

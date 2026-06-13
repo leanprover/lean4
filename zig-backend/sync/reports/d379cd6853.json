@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-10-15",
+  "needs_port": false,
+  "sha": "d379cd6853601399e271b2b875c2d13236342925",
+  "short_sha": "d379cd6853",
+  "subject": "fix: out-of-bounds array access",
+  "zig_target": {}
+}

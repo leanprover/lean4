@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-04",
+  "needs_port": false,
+  "sha": "400aa435f36be45685ff8d4d6ec0f4e9aa5ea5c9",
+  "short_sha": "400aa435f3",
+  "subject": "fix: add missing precedence to `liftMethod` and remove unnecessary precedence from `doLet`",
+  "zig_target": {}
+}

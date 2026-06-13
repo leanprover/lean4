@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-07",
+  "needs_port": false,
+  "sha": "c9fa63edad16b2762c5df823eaa45acc0cac0c16",
+  "short_sha": "c9fa63edad",
+  "subject": "feat(library/init/lean/localcontext): add `LocalContext.mfor`",
+  "zig_target": {}
+}

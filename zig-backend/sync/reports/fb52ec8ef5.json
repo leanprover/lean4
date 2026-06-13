@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-14",
+  "needs_port": false,
+  "sha": "fb52ec8ef54ce673c009e2c1a6ea7184f02db3be",
+  "short_sha": "fb52ec8ef5",
+  "subject": "feat: store binder information in the `InfoTree`",
+  "zig_target": {}
+}

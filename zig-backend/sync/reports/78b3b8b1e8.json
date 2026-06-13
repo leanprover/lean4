@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-22",
+  "needs_port": false,
+  "sha": "78b3b8b1e80c351509f9fd4bb834fca66bd33e26",
+  "short_sha": "78b3b8b1e8",
+  "subject": "fix: `pattern` should only match if the head symbols are equal",
+  "zig_target": {}
+}

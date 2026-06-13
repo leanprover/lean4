@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    }
+  ],
+  "date": "2020-06-25",
+  "needs_port": true,
+  "sha": "02aa8498cdb80174a287e470d86785462d525a4c",
+  "short_sha": "02aa8498cd",
+  "subject": "chore: move `AssocList` to `Std`",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+  }
+}

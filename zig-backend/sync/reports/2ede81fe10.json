@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-04-09",
+  "needs_port": false,
+  "sha": "2ede81fe10dd62db471d1b70f43c808dd6baca63",
+  "short_sha": "2ede81fe10",
+  "subject": "fix: search path related bugs (#7873)",
+  "zig_target": {}
+}

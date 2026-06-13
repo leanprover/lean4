@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-10-14",
+  "needs_port": true,
+  "sha": "6047d7c2b6b39677fd559e358bb0b26efbc9a0cd",
+  "short_sha": "6047d7c2b6",
+  "subject": "feat: quick and dirty `#lang` annotation",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

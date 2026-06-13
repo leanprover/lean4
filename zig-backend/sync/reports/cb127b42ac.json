@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-08",
+  "needs_port": false,
+  "sha": "cb127b42ace8a5d056e4a974b8986eb8145dd9d4",
+  "short_sha": "cb127b42ac",
+  "subject": "chore: rename compileDeclsNew to compileDeclsImpl (#9261)",
+  "zig_target": {}
+}

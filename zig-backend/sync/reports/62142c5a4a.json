@@ -1,0 +1,24 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    },
+    {
+      "path": "src/runtime/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.h"
+    }
+  ],
+  "date": "2026-05-10",
+  "needs_port": true,
+  "sha": "62142c5a4a625f46e19fd3c63f206cc3ee23d2de",
+  "short_sha": "62142c5a4a",
+  "subject": "chore: add missing `noexcept`s (#13370)",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp",
+    "src/runtime/mpz.h": "zig-backend/src/runtime/mpz.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-14",
+  "needs_port": false,
+  "sha": "ac692bfc79f3e6e7d98ab181ae8d42d6263b7ab1",
+  "short_sha": "ac692bfc79",
+  "subject": "feat: add new `static quotations`",
+  "zig_target": {}
+}

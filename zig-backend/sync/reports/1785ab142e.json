@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-03",
+  "needs_port": false,
+  "sha": "1785ab142e4bc9d3e09a32f8c560b9160aa37a56",
+  "short_sha": "1785ab142e",
+  "subject": "refactor: move Lean.PrettyPrinter.Delaborator.SubExpr to Lean.SubExpr",
+  "zig_target": {}
+}

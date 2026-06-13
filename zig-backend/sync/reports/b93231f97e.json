@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-05-19",
+  "needs_port": false,
+  "sha": "b93231f97eacfa5fb33c7d736839abdd02b83bd9",
+  "short_sha": "b93231f97e",
+  "subject": "feat: improve inductive type parameter error messages (#8338)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    }
+  ],
+  "date": "2025-06-03",
+  "needs_port": true,
+  "sha": "0f4459b42c87d7712391e6d87160da3077fff671",
+  "short_sha": "0f4459b42c",
+  "subject": "chore: add `@[grind]` annotations to `Fin.getElem_fin` (#8605)",
+  "zig_target": {
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean"
+  }
+}

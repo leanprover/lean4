@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    }
+  ],
+  "date": "2018-09-24",
+  "needs_port": true,
+  "sha": "1f42b5bce92e28b29637300dec588fa5e93d3203",
+  "short_sha": "1f42b5bce9",
+  "subject": "feat(library/compiler/preprocess): missing trace option",
+  "zig_target": {
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp"
+  }
+}

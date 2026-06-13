@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2021-09-27",
+  "needs_port": true,
+  "sha": "4c051896dfcebdd41daacaa6fa50b43050475b25",
+  "short_sha": "4c051896df",
+  "subject": "refactor: `sizeofMeasure` => `sizeOfWFRel`",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

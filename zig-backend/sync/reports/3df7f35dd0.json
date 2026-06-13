@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-03-17",
+  "needs_port": false,
+  "sha": "3df7f35dd0416fc376579ade49efae3b68ca4e38",
+  "short_sha": "3df7f35dd0",
+  "subject": "test: kernel isDefEq support for Nat operations",
+  "zig_target": {}
+}

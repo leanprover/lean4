@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-02",
+  "needs_port": false,
+  "sha": "3d76e48181beaf7360a5cd8ff7982865d6d5b298",
+  "short_sha": "3d76e48181",
+  "subject": "fix: do not build deep deps multiple times",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-18",
+  "needs_port": false,
+  "sha": "1ff0e7a2f2e8e57e67811f790a18d0b99ee16012",
+  "short_sha": "1ff0e7a2f2",
+  "subject": "fix: `split at h` when `h` has forward dependencies (#4211)",
+  "zig_target": {}
+}

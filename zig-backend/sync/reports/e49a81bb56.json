@@ -1,0 +1,10 @@
+{
+  "author": "Timo",
+  "backend_changes": [],
+  "date": "2022-06-27",
+  "needs_port": false,
+  "sha": "e49a81bb563fd2d5b961a02b36b4a66a7a24f2cc",
+  "short_sha": "e49a81bb56",
+  "subject": "doc: fix typo",
+  "zig_target": {}
+}

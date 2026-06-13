@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ExtractClosed.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExtractClosed.lean"
+    }
+  ],
+  "date": "2026-02-26",
+  "needs_port": true,
+  "sha": "738688efeed68cd70c7ae8a51e07d63e0095b73e",
+  "short_sha": "738688efee",
+  "subject": "chore: cleanup after closed term extraction by removing dead values (#12717)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ExtractClosed.lean": "zig-backend/src/lean/compiler/lcnf/ExtractClosed.lean"
+  }
+}

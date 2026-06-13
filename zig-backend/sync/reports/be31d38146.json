@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-12",
+  "needs_port": false,
+  "sha": "be31d381467b096eb11f7f69f03253d7512aa042",
+  "short_sha": "be31d38146",
+  "subject": "chore: CI: lower ctest timeout",
+  "zig_target": {}
+}

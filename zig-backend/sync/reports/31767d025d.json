@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-30",
+  "needs_port": false,
+  "sha": "31767d025de92576835e00493844e05c1cde80e0",
+  "short_sha": "31767d025d",
+  "subject": "feat: improve `AbstractMetavarContext` interface",
+  "zig_target": {}
+}

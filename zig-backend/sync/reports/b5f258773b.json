@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    }
+  ],
+  "date": "2020-04-03",
+  "needs_port": true,
+  "sha": "b5f258773b9d5a28c17164e8bd6e689fab93d400",
+  "short_sha": "b5f258773b",
+  "subject": "feat: add `Float`",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean"
+  }
+}

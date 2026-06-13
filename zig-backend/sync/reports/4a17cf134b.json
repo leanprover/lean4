@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "4a17cf134b7122cee309c982a8b7fb4adc9602e7",
+  "short_sha": "4a17cf134b",
+  "subject": "feat(library/init/lean/parser/term): add `forall` parser",
+  "zig_target": {}
+}

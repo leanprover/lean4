@@ -1,0 +1,72 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/PP.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/PP.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    },
+    {
+      "path": "src/Init/Simproc.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Simproc.lean"
+    },
+    {
+      "path": "src/Init/TacticsExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/TacticsExtra.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Meta.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Visibility.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+    }
+  ],
+  "date": "2025-09-17",
+  "needs_port": true,
+  "sha": "719765ec5c35bd9045c0c4079efe9c444c25244f",
+  "short_sha": "719765ec5c",
+  "subject": "feat: overhaul `meta` system (#10362)",
+  "zig_target": {
+    "src/Init/Grind/PP.lean": "zig-backend/src/init/Grind/PP.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean",
+    "src/Init/Simproc.lean": "zig-backend/src/init/Simproc.lean",
+    "src/Init/TacticsExtra.lean": "zig-backend/src/init/TacticsExtra.lean",
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean",
+    "src/Lean/Compiler/IR/Meta.lean": "zig-backend/src/lean/compiler/ir/Meta.lean",
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/Visibility.lean": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+  }
+}

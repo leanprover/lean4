@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    }
+  ],
+  "date": "2020-01-16",
+  "needs_port": true,
+  "sha": "1f673f16242d942f6485f48cd487072bfdf62c53",
+  "short_sha": "1f673f1624",
+  "subject": "refactor: improve names, fields, etc",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic.lean": "zig-backend/src/init/Lean/Elab/Tactic.lean",
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+  }
+}

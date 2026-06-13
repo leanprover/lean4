@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-12",
+  "needs_port": false,
+  "sha": "ecfd65ffb7131978da6f66bb57d4c9c997f1d610",
+  "short_sha": "ecfd65ffb7",
+  "subject": "Clean up `buildModule` code and integrate cycle fix",
+  "zig_target": {}
+}

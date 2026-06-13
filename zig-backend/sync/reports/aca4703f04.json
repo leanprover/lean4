@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-11-16",
+  "needs_port": false,
+  "sha": "aca4703f046b1abaccde9ffc31849b2a7b2f456d",
+  "short_sha": "aca4703f04",
+  "subject": "fix: fix the code example for widgets docs.",
+  "zig_target": {}
+}

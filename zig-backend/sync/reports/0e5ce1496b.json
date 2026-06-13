@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-07-01",
+  "needs_port": true,
+  "sha": "0e5ce1496bdc7d85793662a9b1b9dd0b62db9078",
+  "short_sha": "0e5ce1496b",
+  "subject": "fix: pretty-printing of `grind` syntax (#9128)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

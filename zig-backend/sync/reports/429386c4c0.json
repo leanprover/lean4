@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-06",
+  "needs_port": false,
+  "sha": "429386c4c06810df9083935fa4bf62615a3f66e3",
+  "short_sha": "429386c4c0",
+  "subject": "refactor: update  `print-paths` JSON format to match server",
+  "zig_target": {}
+}

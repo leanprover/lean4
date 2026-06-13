@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-27",
+  "needs_port": true,
+  "sha": "cf54e5e5d205a87962bb59fcc07711c95af7a840",
+  "short_sha": "cf54e5e5d2",
+  "subject": "feat: basic `Fin` order lemmas (#7692)",
+  "zig_target": {
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

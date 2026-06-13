@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extract_closed.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.cpp"
+    }
+  ],
+  "date": "2019-02-11",
+  "needs_port": true,
+  "sha": "ccc4fe1468649017d644a8487d1ace7442f02165",
+  "short_sha": "ccc4fe1468",
+  "subject": "fix(library/compiler/extract_closed): add new auxiliary declarations before",
+  "zig_target": {
+    "src/library/compiler/extract_closed.cpp": "zig-backend/src/library/compiler/extract_closed.cpp"
+  }
+}

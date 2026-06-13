@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-05",
+  "needs_port": false,
+  "sha": "ab19966d659d207d6b204bb7d90b55cd30375e3c",
+  "short_sha": "ab19966d65",
+  "subject": "feat(library/init/lean/parser/reader): automatically promote tokens through `reader`s",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-04-10",
+  "needs_port": false,
+  "sha": "09ab15dc6dadc672bc35db62b4641a375830e77f",
+  "short_sha": "09ab15dc6d",
+  "subject": "fix: remove infinite loop in `withFnRefWhenTagAppFns` (#7904)",
+  "zig_target": {}
+}

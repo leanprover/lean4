@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    }
+  ],
+  "date": "2025-04-10",
+  "needs_port": true,
+  "sha": "6e7209dfa3e59bec4acb622ce0ba0afeddba9690",
+  "short_sha": "6e7209dfa3",
+  "subject": "chore: add Int.dvd_iff_bmod_eq_zero (#7890)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+  }
+}

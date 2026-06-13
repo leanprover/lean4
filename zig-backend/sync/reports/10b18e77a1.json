@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-27",
+  "needs_port": false,
+  "sha": "10b18e77a1045dd81e9516d6b269305784a1705d",
+  "short_sha": "10b18e77a1",
+  "subject": "feat(library/init/lean/parser/reader/basic): combinators: create partial syntax trees",
+  "zig_target": {}
+}

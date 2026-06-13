@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-10-10",
+  "needs_port": false,
+  "sha": "09092549d0aae325d687d5086c5a7b0a726a10d7",
+  "short_sha": "09092549d0",
+  "subject": "fix: Verso docstring semantic highlighting fixes (#10662)",
+  "zig_target": {}
+}

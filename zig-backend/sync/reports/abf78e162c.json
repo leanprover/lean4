@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-12",
+  "needs_port": false,
+  "sha": "abf78e162c0450fb02f27d124acf5cbeaff3e8e9",
+  "short_sha": "abf78e162c",
+  "subject": "feat: add notation for disabling implicit lambda feature",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-19",
+  "needs_port": false,
+  "sha": "4f318d3304fea47364efa5794adb38a8bb983fbc",
+  "short_sha": "4f318d3304",
+  "subject": "test: use dot notation in the example",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-12",
+  "needs_port": false,
+  "sha": "e590ebf54d0f49d028bd82104770b4891850c436",
+  "short_sha": "e590ebf54d",
+  "subject": "feat(kernel/inductive): initialize m_elim_level",
+  "zig_target": {}
+}

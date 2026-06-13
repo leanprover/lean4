@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-07-05",
+  "needs_port": true,
+  "sha": "bd06e076241c5f8d29706edcd38d8bd924533d0c",
+  "short_sha": "bd06e07624",
+  "subject": "fix: make the name in dependsOnNoncomputable clickable (#9207)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    }
+  ],
+  "date": "2024-08-27",
+  "needs_port": true,
+  "sha": "b518091bd46154c841dc1577919dda1aa9d11f85",
+  "short_sha": "b518091bd4",
+  "subject": "chore: better statement for List.find?_filterMap (#5177)",
+  "zig_target": {
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean",
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean"
+  }
+}

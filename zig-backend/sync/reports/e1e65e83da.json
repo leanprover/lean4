@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-12",
+  "needs_port": false,
+  "sha": "e1e65e83da720ad1a7c8af6b8007986b1bb7fc4c",
+  "short_sha": "e1e65e83da",
+  "subject": "fix: try to synthesize instance for substructures",
+  "zig_target": {}
+}

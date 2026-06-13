@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-05-29",
+  "needs_port": false,
+  "sha": "e68c6a38fb7ae749eee1dcb516f156ee577b5f9d",
+  "short_sha": "e68c6a38fb",
+  "subject": "feat: lake: relative paths for Lean build messages (#8539)",
+  "zig_target": {}
+}

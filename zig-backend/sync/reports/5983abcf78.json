@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-13",
+  "needs_port": false,
+  "sha": "5983abcf784d5b00af1fc563b2bdae11463c1cba",
+  "short_sha": "5983abcf78",
+  "subject": "fix: lake: use manifest opts",
+  "zig_target": {}
+}

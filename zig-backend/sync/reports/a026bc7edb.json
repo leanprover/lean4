@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-14",
+  "needs_port": false,
+  "sha": "a026bc7edbc0dfd5e7d194469e0851c35169f2aa",
+  "short_sha": "a026bc7edb",
+  "subject": "feat: let dot notation see through `CoeFun` instances (#5692)",
+  "zig_target": {}
+}

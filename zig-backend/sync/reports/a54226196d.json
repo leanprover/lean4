@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/OfFn.lean"
+    }
+  ],
+  "date": "2024-11-07",
+  "needs_port": true,
+  "sha": "a54226196dd87afb0256cb231b9376b3cebef05f",
+  "short_sha": "a54226196d",
+  "subject": "feat: minor lemmas about List.ofFn (#5982)",
+  "zig_target": {
+    "src/Init/Data/List/OfFn.lean": "zig-backend/src/init/Data/List/OfFn.lean"
+  }
+}

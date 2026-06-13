@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2025-09-09",
+  "needs_port": true,
+  "sha": "e75e6fbe9e85f953accdd8ac44280397e20ab695",
+  "short_sha": "e75e6fbe9e",
+  "subject": "chore: don't include redundant empty strings in string interpolation (#10269)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

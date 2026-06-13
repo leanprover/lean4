@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    }
+  ],
+  "date": "2025-12-04",
+  "needs_port": true,
+  "sha": "d60ef53d54e1fa311627369e2163d933a6b8f9dd",
+  "short_sha": "d60ef53d54",
+  "subject": "refactor: make CCPO class Prop-valued (#11425)",
+  "zig_target": {
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean"
+  }
+}

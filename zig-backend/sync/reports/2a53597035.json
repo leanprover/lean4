@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-06",
+  "needs_port": false,
+  "sha": "2a53597035b4eca9afd3a17b350b2105d0972a8c",
+  "short_sha": "2a53597035",
+  "subject": "doc: new `MetavarContext` requirements and design",
+  "zig_target": {}
+}

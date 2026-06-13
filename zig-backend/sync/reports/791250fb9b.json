@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "791250fb9bb166ac3de58844f2b12fe8eda04120",
+  "short_sha": "791250fb9b",
+  "subject": "chore: remove `unfold_lemmas` option",
+  "zig_target": {}
+}

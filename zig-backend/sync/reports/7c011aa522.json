@@ -1,0 +1,18 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/signal.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/signal.cpp"
+    }
+  ],
+  "date": "2026-03-17",
+  "needs_port": true,
+  "sha": "7c011aa5222d338da96fa48f7f601e267700c928",
+  "short_sha": "7c011aa522",
+  "subject": "fix: use process signal numbers from correct architecture (#12900)",
+  "zig_target": {
+    "src/runtime/uv/signal.cpp": "zig-backend/src/runtime/uv/signal.cpp"
+  }
+}

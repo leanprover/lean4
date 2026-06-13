@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-10-13",
+  "needs_port": false,
+  "sha": "828aea48f4a4f4a2e09eb422a1fd94236a3d7b07",
+  "short_sha": "828aea48f4",
+  "subject": "chore: CI: cancel outdated workflows",
+  "zig_target": {}
+}

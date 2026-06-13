@@ -1,0 +1,24 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2021-05-03",
+  "needs_port": true,
+  "sha": "a22bba7bbf9c7026c595f863ad647ac30cfeafa1",
+  "short_sha": "a22bba7bbf",
+  "subject": "feat: Process.exit",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

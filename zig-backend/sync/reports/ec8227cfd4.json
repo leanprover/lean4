@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-01-17",
+  "needs_port": true,
+  "sha": "ec8227cfd4d3735045744ce78812da50082fc5d1",
+  "short_sha": "ec8227cfd4",
+  "subject": "fix: antiquotation kinds `:term` should not be new tokens",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

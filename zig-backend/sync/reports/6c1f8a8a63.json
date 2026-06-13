@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-08-06",
+  "needs_port": false,
+  "sha": "6c1f8a8a63f1f65bda4e45a80dba4ba768c32e59",
+  "short_sha": "6c1f8a8a63",
+  "subject": "fix: ensure autoparam errors have correct positions (#4926)",
+  "zig_target": {}
+}

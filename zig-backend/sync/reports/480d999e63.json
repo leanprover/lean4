@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2018-05-22",
+  "needs_port": true,
+  "sha": "480d999e638c95253fa13038fe7a659591a54f82",
+  "short_sha": "480d999e63",
+  "subject": "fix(runtime/object): bugs at `string_append` and `string_push`",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

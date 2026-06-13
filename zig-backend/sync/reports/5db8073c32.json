@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-12",
+  "needs_port": false,
+  "sha": "5db8073c32e580eb4c7669ccf2dcf7b0c95de1c9",
+  "short_sha": "5db8073c32",
+  "subject": "chore: CI: nightlies race condition",
+  "zig_target": {}
+}

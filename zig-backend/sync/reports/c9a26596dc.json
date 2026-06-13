@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-10-14",
+  "needs_port": false,
+  "sha": "c9a26596dce26d9a6bc3768947ac0b4c154bf702",
+  "short_sha": "c9a26596dc",
+  "subject": "refactor: switch resolve to double eval strategy",
+  "zig_target": {}
+}

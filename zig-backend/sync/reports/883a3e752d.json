@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-05-07",
+  "needs_port": false,
+  "sha": "883a3e752d78cf0d30628817379a6001252b5595",
+  "short_sha": "883a3e752d",
+  "subject": "chore: allow omega to use classicality, in case Decidable instances are too big (#4073)",
+  "zig_target": {}
+}

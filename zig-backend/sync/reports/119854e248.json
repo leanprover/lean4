@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-16",
+  "needs_port": false,
+  "sha": "119854e2487d4f342d9814ef1dce70e6af305b47",
+  "short_sha": "119854e248",
+  "subject": "feat: add hints for missing structure instance fields (#9317)",
+  "zig_target": {}
+}

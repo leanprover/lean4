@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "4b49aa4b5040002b453bdb30b7e65b57bfccd0bd",
+  "short_sha": "4b49aa4b50",
+  "subject": "chore(tests/compiler): fix test",
+  "zig_target": {}
+}

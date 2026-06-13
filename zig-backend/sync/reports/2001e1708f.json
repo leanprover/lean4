@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "2001e1708f6bc051345f06aa8a9841e5a1f85793",
+  "short_sha": "2001e1708f",
+  "subject": "feat: add support for `cases h_1:e_1, ..., h_n:e_n using elim`",
+  "zig_target": {}
+}

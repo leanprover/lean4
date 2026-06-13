@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-10",
+  "needs_port": false,
+  "sha": "c6929ae69a932f691d18801a5a44f62c1982dbd1",
+  "short_sha": "c6929ae69a",
+  "subject": "feat: Nix: basic setup",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+    }
+  ],
+  "date": "2022-10-13",
+  "needs_port": true,
+  "sha": "19301c09c680accc40759894af87d6454e6ca1b7",
+  "short_sha": "19301c09c6",
+  "subject": "chore: remove unnecessary `match`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+  }
+}

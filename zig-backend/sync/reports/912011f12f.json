@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    }
+  ],
+  "date": "2020-01-06",
+  "needs_port": true,
+  "sha": "912011f12f84a6151b3508ab2cd7a6d52bb17a96",
+  "short_sha": "912011f12f",
+  "subject": "fix: variable patterns in match_syntax",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+  }
+}

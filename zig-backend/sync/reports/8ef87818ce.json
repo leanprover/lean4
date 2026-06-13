@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-05",
+  "needs_port": false,
+  "sha": "8ef87818ce3033f067d50b24d05704884870af2d",
+  "short_sha": "8ef87818ce",
+  "subject": "feat(library/init/lean/parser/reader): implement basic tokenizer",
+  "zig_target": {}
+}

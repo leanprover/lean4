@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-08-02",
+  "needs_port": false,
+  "sha": "ea6fca24c29c2f304aa3d7ea6842c9c9628bbb68",
+  "short_sha": "ea6fca24c2",
+  "subject": "refactor: pp.analyze StateT for analyzeApp",
+  "zig_target": {}
+}

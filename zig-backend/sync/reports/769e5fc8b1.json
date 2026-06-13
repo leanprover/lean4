@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "769e5fc8b1790703e9924264cd9a27eb3d29d4f5",
+  "short_sha": "769e5fc8b1",
+  "subject": "chore(tests/playground/termparsertest1): add support for testing failures",
+  "zig_target": {}
+}

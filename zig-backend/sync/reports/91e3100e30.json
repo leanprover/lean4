@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-18",
+  "needs_port": false,
+  "sha": "91e3100e30d0862bc4dca9eb957f62d8ebd80149",
+  "short_sha": "91e3100e30",
+  "subject": "fix: properly resolve syntax kinds in macro/elab_rules",
+  "zig_target": {}
+}

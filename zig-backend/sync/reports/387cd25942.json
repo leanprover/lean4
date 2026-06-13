@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-06",
+  "needs_port": false,
+  "sha": "387cd25942d9173cbcdac62c4e2970910250d25e",
+  "short_sha": "387cd25942",
+  "subject": "feat(library/init/lean/parser/term): implement Pratt parser",
+  "zig_target": {}
+}

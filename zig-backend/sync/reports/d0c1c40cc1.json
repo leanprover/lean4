@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-06",
+  "needs_port": false,
+  "sha": "d0c1c40cc10bfa90e6b1bc13ccc137e2c5eabf22",
+  "short_sha": "d0c1c40cc1",
+  "subject": "feat(library/init/lean/compiler/ir): started alpha equivalence",
+  "zig_target": {}
+}

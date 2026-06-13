@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-21",
+  "needs_port": false,
+  "sha": "1354fd9ccd5a49eb757a3847fc167d700b94f3b2",
+  "short_sha": "1354fd9ccd",
+  "subject": "perf: do not detect `lean`'s toolchain",
+  "zig_target": {}
+}

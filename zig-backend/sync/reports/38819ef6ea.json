@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-25",
+  "needs_port": false,
+  "sha": "38819ef6ea72b8499202fbc5e3160d8310609615",
+  "short_sha": "38819ef6ea",
+  "subject": "doc: more on Unicode symbols in LaTeX",
+  "zig_target": {}
+}

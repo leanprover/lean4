@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    }
+  ],
+  "date": "2022-10-12",
+  "needs_port": true,
+  "sha": "b9f174604d351ea8f67040bb589f9c35ded6f97b",
+  "short_sha": "b9f174604d",
+  "subject": "feat: check new `alwaysInline` attribute",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-25",
+  "needs_port": false,
+  "sha": "8eee5ff27f38f7b4856391293e32e8697a570414",
+  "short_sha": "8eee5ff27f",
+  "subject": "fix: do not include internal `match` equational theorems at simp trace (#4274)",
+  "zig_target": {}
+}

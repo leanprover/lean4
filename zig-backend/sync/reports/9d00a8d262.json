@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-01",
+  "needs_port": false,
+  "sha": "9d00a8d262f235319b674cc0806097c40e2b8243",
+  "short_sha": "9d00a8d262",
+  "subject": "feat(tests/playground/radixtree): use bit shift and land instead instead of / and %",
+  "zig_target": {}
+}

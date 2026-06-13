@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-09-04",
+  "needs_port": true,
+  "sha": "ac56a9e79f71ec286228c5687475b1d79b702412",
+  "short_sha": "ac56a9e79f",
+  "subject": "fix: run tasks to completion on task_manager shutdown to prevent leaks",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

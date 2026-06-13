@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-10-25",
+  "needs_port": false,
+  "sha": "748f0d6c1517b025a8f5c9a61ed0b705ef64c44d",
+  "short_sha": "748f0d6c15",
+  "subject": "fix: `instantiateMVars` slowdown in the language server (#5805)",
+  "zig_target": {}
+}

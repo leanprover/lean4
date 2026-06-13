@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-24",
+  "needs_port": false,
+  "sha": "f7f04483b17a8459f1a7ef5ab7fa5bd5096b7660",
+  "short_sha": "f7f04483b1",
+  "subject": "feat: add `src/Lean/Meta/Tactic/LinearArith/Nat.lean`",
+  "zig_target": {}
+}

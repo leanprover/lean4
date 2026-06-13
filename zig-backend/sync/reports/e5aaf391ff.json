@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-19",
+  "needs_port": false,
+  "sha": "e5aaf391ffac4076b2178341051d41c9cb76d796",
+  "short_sha": "e5aaf391ff",
+  "subject": "fix(library/init/lean/parser/syntax): macro_scopes.flip",
+  "zig_target": {}
+}

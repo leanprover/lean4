@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-10",
+  "needs_port": false,
+  "sha": "f58afaaa433a877e845c76bd3dcffbba6435709d",
+  "short_sha": "f58afaaa43",
+  "subject": "fix: make sure `let _ := val` and `let _ : type := val` are treated at `letIdDecl`",
+  "zig_target": {}
+}

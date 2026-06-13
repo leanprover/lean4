@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-06-29",
+  "needs_port": false,
+  "sha": "47f18661c5433674689ddbc2d3f5c0c55a8fd93b",
+  "short_sha": "47f18661c5",
+  "subject": "refactor(library/init/lean/parser/parser_t): remove some uses of `lift`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-18",
+  "needs_port": false,
+  "sha": "389537cf0e8bfa37b0123a2d9ff00a88391eb98b",
+  "short_sha": "389537cf0e",
+  "subject": "fix: consistent term order in linear integer normalization (#7560)",
+  "zig_target": {}
+}

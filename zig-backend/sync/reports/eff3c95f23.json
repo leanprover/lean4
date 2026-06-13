@@ -1,0 +1,10 @@
+{
+  "author": "Alex J Best",
+  "backend_changes": [],
+  "date": "2022-11-21",
+  "needs_port": false,
+  "sha": "eff3c95f235d98695fd9cb590b53b2225c926c3a",
+  "short_sha": "eff3c95f23",
+  "subject": "chore: fix typo in getNumBuiltiAttributes name",
+  "zig_target": {}
+}

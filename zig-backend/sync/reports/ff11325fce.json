@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-03",
+  "needs_port": false,
+  "sha": "ff11325fce9732ce07449cbc35e27c602cfa3efd",
+  "short_sha": "ff11325fce",
+  "subject": "perf: use `mkArray` in `fuzzyMatchCore`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    }
+  ],
+  "date": "2021-05-06",
+  "needs_port": true,
+  "sha": "8e81f03e3aae0ebfa9fa245bf125b06fa468096f",
+  "short_sha": "8e81f03e3a",
+  "subject": "chore: adjust `stdlib` to recent changes",
+  "zig_target": {
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean"
+  }
+}

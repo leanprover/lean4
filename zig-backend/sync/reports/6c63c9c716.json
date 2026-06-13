@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-05-30",
+  "needs_port": false,
+  "sha": "6c63c9c716603f0f29ec72189242261f7580e88a",
+  "short_sha": "6c63c9c716",
+  "subject": "feat: quotations for parser aliases (#4307)",
+  "zig_target": {}
+}

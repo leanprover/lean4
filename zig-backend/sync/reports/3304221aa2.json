@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-06-07",
+  "needs_port": false,
+  "sha": "3304221aa20df33819861ee60937a1b6b3fbad31",
+  "short_sha": "3304221aa2",
+  "subject": "chore(tests/lean/lisp.lean): update test output",
+  "zig_target": {}
+}

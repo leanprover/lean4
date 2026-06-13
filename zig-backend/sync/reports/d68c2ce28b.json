@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-02",
+  "needs_port": false,
+  "sha": "d68c2ce28bc11ec0271a97aa7a7316905f15a484",
+  "short_sha": "d68c2ce28b",
+  "subject": "chore: remove stray profiler option from test",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-18",
+  "needs_port": true,
+  "sha": "aaf1966a87241208b092adb2c1aa5d1b0c5cab83",
+  "short_sha": "aaf1966a87",
+  "subject": "fix(library/compiler/llnf): explicit boxing should treat variables with function type (e.g., `_obj -> _obj`) as `_obj`",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

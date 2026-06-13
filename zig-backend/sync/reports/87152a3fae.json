@@ -1,0 +1,48 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Sublist.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Pairwise.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sublist.lean"
+    }
+  ],
+  "date": "2025-05-27",
+  "needs_port": true,
+  "sha": "87152a3fae3100f31238c5d842c5ed1fb11d423c",
+  "short_sha": "87152a3fae",
+  "subject": "feat: `grind` annotations for `List.Sublist`/`IsInfix`/`IsPrefix`/`IsSuffix` (#8497)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean",
+    "src/Init/Data/List/Nat/Sublist.lean": "zig-backend/src/init/Data/List/Nat/Sublist.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/Pairwise.lean": "zig-backend/src/init/Data/List/Pairwise.lean",
+    "src/Init/Data/List/Sublist.lean": "zig-backend/src/init/Data/List/Sublist.lean"
+  }
+}

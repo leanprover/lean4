@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-08-23",
+  "needs_port": false,
+  "sha": "a93e315e72f04a3fa8892801005601c76e25f09e",
+  "short_sha": "a93e315e72",
+  "subject": "fix: include all of `Lake.Util` in core build (#10090)",
+  "zig_target": {}
+}

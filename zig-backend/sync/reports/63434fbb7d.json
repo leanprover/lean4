@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-02-04",
+  "needs_port": false,
+  "sha": "63434fbb7d0723c51ac7559fef3e9b10ebc3267f",
+  "short_sha": "63434fbb7d",
+  "subject": "chore: add parser tests",
+  "zig_target": {}
+}

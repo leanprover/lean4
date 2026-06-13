@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-21",
+  "needs_port": false,
+  "sha": "501bd64a894215020e5479e265d9285b116ac528",
+  "short_sha": "501bd64a89",
+  "subject": "chore: CI: avoid empty matrix error (#7620)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2022-10-02",
+  "needs_port": true,
+  "sha": "eaab29712d89b621b283e81b7708166bb742472e",
+  "short_sha": "eaab29712d",
+  "subject": "feat: extend join point context pass",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

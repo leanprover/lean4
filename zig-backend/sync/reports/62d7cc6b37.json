@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-27",
+  "needs_port": false,
+  "sha": "62d7cc6b37576aed8056c4ff725a4a243c2ca6ed",
+  "short_sha": "62d7cc6b37",
+  "subject": "feat(library/init/wf): remove `wf_term_hack`",
+  "zig_target": {}
+}

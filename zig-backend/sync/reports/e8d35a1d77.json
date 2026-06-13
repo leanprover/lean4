@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-26",
+  "needs_port": false,
+  "sha": "e8d35a1d77a96fdbe89efde1bb30c1f43cc2ecb7",
+  "short_sha": "e8d35a1d77",
+  "subject": "fix: make library suggestions available in module files (#11373)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth Bhat",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    }
+  ],
+  "date": "2023-01-09",
+  "needs_port": true,
+  "sha": "ae4f2de9513354c79f933ade4b35439bd92ac837",
+  "short_sha": "ae4f2de951",
+  "subject": "fix: metadata codegen for LLVM",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+  }
+}

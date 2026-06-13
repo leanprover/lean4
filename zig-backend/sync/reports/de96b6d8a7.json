@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-15",
+  "needs_port": false,
+  "sha": "de96b6d8a71c50692f3589ad6a354546b58c57a1",
+  "short_sha": "de96b6d8a7",
+  "subject": "feat: structural recursion over nested datatypes (#4733)",
+  "zig_target": {}
+}

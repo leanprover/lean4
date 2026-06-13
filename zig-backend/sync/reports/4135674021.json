@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Attr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Attr.lean"
+    },
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    }
+  ],
+  "date": "2025-11-22",
+  "needs_port": true,
+  "sha": "41356740210745d6b9735cb779fbd0f9eee591e5",
+  "short_sha": "4135674021",
+  "subject": "feat: add `funCC` (function-valued congruence closure) to `grind` (#11323)",
+  "zig_target": {
+    "src/Init/Grind/Attr.lean": "zig-backend/src/init/Grind/Attr.lean",
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean"
+  }
+}

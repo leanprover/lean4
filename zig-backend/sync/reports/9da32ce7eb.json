@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "9da32ce7ebdc463bf2b88f5c4d1e6c525a717703",
+  "short_sha": "9da32ce7eb",
+  "subject": "chore: add Packager test",
+  "zig_target": {}
+}

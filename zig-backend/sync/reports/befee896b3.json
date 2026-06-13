@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-10",
+  "needs_port": true,
+  "sha": "befee896b38349a51dad1627360adbab317f3192",
+  "short_sha": "befee896b3",
+  "subject": "feat: linear integer inequality normalization using `gcd` of coefficients (#7030)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2023-01-04",
+  "needs_port": true,
+  "sha": "d74d4230b704a2d62568a29dbf69e25deee02217",
+  "short_sha": "d74d4230b7",
+  "subject": "fix: avoid warning by dropping '#pragma once'",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

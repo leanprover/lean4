@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-08",
+  "needs_port": false,
+  "sha": "0a09706b0b5550d0f72c4f68bb8f2a1063315f98",
+  "short_sha": "0a09706b0b",
+  "subject": "chore: add `try`, `catch`, and `finally` to the list of keywords",
+  "zig_target": {}
+}

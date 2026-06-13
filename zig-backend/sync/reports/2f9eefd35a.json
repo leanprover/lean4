@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "2f9eefd35a53d8e90a86bb2845583abe4411a30d",
+  "short_sha": "2f9eefd35a",
+  "subject": "feat: inductive `BuildKey` + proper custom targets",
+  "zig_target": {}
+}

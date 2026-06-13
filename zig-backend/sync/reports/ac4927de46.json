@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-16",
+  "needs_port": true,
+  "sha": "ac4927de4684c12be6efe5bed8c151a015bce2b2",
+  "short_sha": "ac4927de46",
+  "subject": "feat: List.foldlRecOn (#5039)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

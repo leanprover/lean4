@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-13",
+  "needs_port": false,
+  "sha": "98a8867d904e924f0e85952067cf801cdba899db",
+  "short_sha": "98a8867d90",
+  "subject": "chore: add coercions for new frontend",
+  "zig_target": {}
+}

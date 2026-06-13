@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Poly.lean"
+    }
+  ],
+  "date": "2025-06-29",
+  "needs_port": true,
+  "sha": "b95b0069e7374f7c3dbf059af96aba9badcbb7a0",
+  "short_sha": "b95b0069e7",
+  "subject": "feat: use comm ring module to normalize nonlinear polynomials in `grind cutsat` (#9074)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Grind/Ring/Poly.lean": "zig-backend/src/init/Grind/Ring/Poly.lean"
+  }
+}

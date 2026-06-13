@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Format.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    }
+  ],
+  "date": "2025-08-14",
+  "needs_port": true,
+  "sha": "ddfeca1b1b58dfa9cc3a25f200f2ccb42e6c861a",
+  "short_sha": "ddfeca1b1b",
+  "subject": "fix: do not allow access to private primitives in public scope (#9890)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Format.lean": "zig-backend/src/lean/compiler/ir/Format.lean",
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+  }
+}

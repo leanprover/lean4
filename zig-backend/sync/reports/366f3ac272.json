@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-06-10",
+  "needs_port": false,
+  "sha": "366f3ac272b6a12b19cabd8573652fc138804bdf",
+  "short_sha": "366f3ac272",
+  "subject": "feat: order the output of #print axioms (#4416)",
+  "zig_target": {}
+}

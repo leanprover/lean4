@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    }
+  ],
+  "date": "2020-01-19",
+  "needs_port": true,
+  "sha": "b2c92d57b35082f63919101177d88d30d7881255",
+  "short_sha": "b2c92d57b3",
+  "subject": "feat: add `withReducible`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+  }
+}

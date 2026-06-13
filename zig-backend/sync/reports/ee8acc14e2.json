@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-05-03",
+  "needs_port": false,
+  "sha": "ee8acc14e2aa6fb1917583b6618437f23d00d8a6",
+  "short_sha": "ee8acc14e2",
+  "subject": "fix: `grind` cast internalization order (#13625)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-07",
+  "needs_port": false,
+  "sha": "0e018711822aa3cb70d727c4ba1d230677f01bd1",
+  "short_sha": "0e01871182",
+  "subject": "fix(library/init/lean/elaborator): re-add borrow annotations",
+  "zig_target": {}
+}

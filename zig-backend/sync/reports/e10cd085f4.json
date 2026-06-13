@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "e10cd085f4823a742ac98ed962ecb74a1c3233ff",
+  "short_sha": "e10cd085f4",
+  "subject": "feat: use `sanitizeNames` at `ppGoal`",
+  "zig_target": {}
+}

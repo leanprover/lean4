@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Instances.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/init/Data/List/Instances.lean"
+    }
+  ],
+  "date": "2020-10-05",
+  "needs_port": true,
+  "sha": "98dbe45ab8b95319a37bd110d648cd86bbe25b02",
+  "short_sha": "98dbe45ab8",
+  "subject": "chore: remove `Monad List` instance",
+  "zig_target": {
+    "src/Init/Data/List.lean": "zig-backend/src/init/Data/List.lean",
+    "src/Init/Data/List/Instances.lean": "zig-backend/src/init/Data/List/Instances.lean"
+  }
+}

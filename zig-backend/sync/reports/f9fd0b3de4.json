@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-08-12",
+  "needs_port": true,
+  "sha": "f9fd0b3de4626a668d4ae6b45609dd2b94db82b5",
+  "short_sha": "f9fd0b3de4",
+  "subject": "feat: `calc`",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

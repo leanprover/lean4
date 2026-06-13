@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-09",
+  "needs_port": true,
+  "sha": "78379e22241431b1d75a6dd753f927d63263b87a",
+  "short_sha": "78379e2224",
+  "subject": "fix(library/compiler/llnf): avoid unnecessary let-decl at `cast_if_needed`",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

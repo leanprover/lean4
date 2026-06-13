@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-11",
+  "needs_port": false,
+  "sha": "e1e5ad30ae1bca234fb7b95da3b11b311d1a1344",
+  "short_sha": "e1e5ad30ae",
+  "subject": "chore: Nix: update VS Code",
+  "zig_target": {}
+}

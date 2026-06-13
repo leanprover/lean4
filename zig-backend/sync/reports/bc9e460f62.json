@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-21",
+  "needs_port": false,
+  "sha": "bc9e460f62026c13992a797c5030996ae1f28af5",
+  "short_sha": "bc9e460f62",
+  "subject": "fix(library/init/lean/compiler/ir): `collectUsedDecls` must take initialization functions into account",
+  "zig_target": {}
+}

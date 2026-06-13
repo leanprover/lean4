@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-10-11",
+  "needs_port": false,
+  "sha": "6bdfde7939d57d968c5d00d14a8329d8cd7aa037",
+  "short_sha": "6bdfde7939",
+  "subject": "fix: quot reduction bug",
+  "zig_target": {}
+}

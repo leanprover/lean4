@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-22",
+  "needs_port": false,
+  "sha": "9a3678935dcabf49e2178721279a6f9a1fe2b664",
+  "short_sha": "9a3678935d",
+  "subject": "feat: add sanity checks to `register_sym_simp` (#13040)",
+  "zig_target": {}
+}

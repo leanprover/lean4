@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    }
+  ],
+  "date": "2021-02-19",
+  "needs_port": true,
+  "sha": "e1f696526675530740ca818380dc27f29ec162ac",
+  "short_sha": "e1f6965266",
+  "subject": "feat: allow user to define rewrite lemmas with (local) `match` expressions",
+  "zig_target": {
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean"
+  }
+}

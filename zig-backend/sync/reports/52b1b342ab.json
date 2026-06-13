@@ -1,0 +1,240 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/ST.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/ST.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Format.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ToIRType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Irrelevant.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Irrelevant.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/MonoTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Types.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/interrupt.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.cpp"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/memory.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/memory.cpp"
+    },
+    {
+      "path": "src/runtime/mutex.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mutex.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    },
+    {
+      "path": "src/runtime/uv/dns.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/dns.cpp"
+    },
+    {
+      "path": "src/runtime/uv/dns.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/dns.h"
+    },
+    {
+      "path": "src/runtime/uv/event_loop.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/event_loop.cpp"
+    },
+    {
+      "path": "src/runtime/uv/event_loop.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/event_loop.h"
+    },
+    {
+      "path": "src/runtime/uv/net_addr.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/net_addr.cpp"
+    },
+    {
+      "path": "src/runtime/uv/net_addr.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/net_addr.h"
+    },
+    {
+      "path": "src/runtime/uv/signal.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/signal.cpp"
+    },
+    {
+      "path": "src/runtime/uv/signal.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/signal.h"
+    },
+    {
+      "path": "src/runtime/uv/system.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/system.cpp"
+    },
+    {
+      "path": "src/runtime/uv/system.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/system.h"
+    },
+    {
+      "path": "src/runtime/uv/tcp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.cpp"
+    },
+    {
+      "path": "src/runtime/uv/tcp.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.h"
+    },
+    {
+      "path": "src/runtime/uv/timer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/timer.cpp"
+    },
+    {
+      "path": "src/runtime/uv/timer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/timer.h"
+    },
+    {
+      "path": "src/runtime/uv/udp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/udp.cpp"
+    },
+    {
+      "path": "src/runtime/uv/udp.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/udp.h"
+    }
+  ],
+  "date": "2025-10-22",
+  "needs_port": true,
+  "sha": "52b1b342ab639acc8a80aa3bc568d884fa2b2986",
+  "short_sha": "52b1b342ab",
+  "subject": "feat: zero cost BaseIO (#10625)",
+  "zig_target": {
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/ST.lean": "zig-backend/src/init/System/ST.lean",
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/Format.lean": "zig-backend/src/lean/compiler/ir/Format.lean",
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean",
+    "src/Lean/Compiler/IR/ToIRType.lean": "zig-backend/src/lean/compiler/ir/ToIRType.lean",
+    "src/Lean/Compiler/LCNF/Irrelevant.lean": "zig-backend/src/lean/compiler/lcnf/Irrelevant.lean",
+    "src/Lean/Compiler/LCNF/MonoTypes.lean": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean",
+    "src/Lean/Compiler/LCNF/Types.lean": "zig-backend/src/lean/compiler/lcnf/Types.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/interrupt.cpp": "zig-backend/src/runtime/interrupt.cpp",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/memory.cpp": "zig-backend/src/runtime/memory.cpp",
+    "src/runtime/mutex.cpp": "zig-backend/src/runtime/mutex.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp",
+    "src/runtime/uv/dns.cpp": "zig-backend/src/runtime/uv/dns.cpp",
+    "src/runtime/uv/dns.h": "zig-backend/src/runtime/uv/dns.h",
+    "src/runtime/uv/event_loop.cpp": "zig-backend/src/runtime/uv/event_loop.cpp",
+    "src/runtime/uv/event_loop.h": "zig-backend/src/runtime/uv/event_loop.h",
+    "src/runtime/uv/net_addr.cpp": "zig-backend/src/runtime/uv/net_addr.cpp",
+    "src/runtime/uv/net_addr.h": "zig-backend/src/runtime/uv/net_addr.h",
+    "src/runtime/uv/signal.cpp": "zig-backend/src/runtime/uv/signal.cpp",
+    "src/runtime/uv/signal.h": "zig-backend/src/runtime/uv/signal.h",
+    "src/runtime/uv/system.cpp": "zig-backend/src/runtime/uv/system.cpp",
+    "src/runtime/uv/system.h": "zig-backend/src/runtime/uv/system.h",
+    "src/runtime/uv/tcp.cpp": "zig-backend/src/runtime/uv/tcp.cpp",
+    "src/runtime/uv/tcp.h": "zig-backend/src/runtime/uv/tcp.h",
+    "src/runtime/uv/timer.cpp": "zig-backend/src/runtime/uv/timer.cpp",
+    "src/runtime/uv/timer.h": "zig-backend/src/runtime/uv/timer.h",
+    "src/runtime/uv/udp.cpp": "zig-backend/src/runtime/uv/udp.cpp",
+    "src/runtime/uv/udp.h": "zig-backend/src/runtime/uv/udp.h"
+  }
+}

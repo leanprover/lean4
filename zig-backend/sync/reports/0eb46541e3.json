@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-25",
+  "needs_port": false,
+  "sha": "0eb46541e3bda049528610c5af9f7b0bca6315de",
+  "short_sha": "0eb46541e3",
+  "subject": "feat: `Environment.findTask` (#7673)",
+  "zig_target": {}
+}

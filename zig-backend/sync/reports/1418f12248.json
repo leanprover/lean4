@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "1418f12248abf31f22965286bf5183dbb4bf9233",
+  "short_sha": "1418f12248",
+  "subject": "fix: reject `[class]` at declarations that are not inductive datatypes or structures",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-12-11",
+  "needs_port": true,
+  "sha": "58f8e215022173931b4bb8d0635aca9faf8bcce5",
+  "short_sha": "58f8e21502",
+  "subject": "feat: labeled and unique sorries (#5757)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

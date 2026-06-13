@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-11",
+  "needs_port": false,
+  "sha": "e7d1cdd36a52a94f68c289d4828e99ff4e0eba60",
+  "short_sha": "e7d1cdd36a",
+  "subject": "refactor: reimplement mkNoConfusionType in Lean (#10334)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2021-12-13",
+  "needs_port": true,
+  "sha": "0ade9ee39b72e7f52501e92480e60ebaee8332b9",
+  "short_sha": "0ade9ee39b",
+  "subject": "fix: make `IO.Process.Child.wait` fallible",
+  "zig_target": {
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

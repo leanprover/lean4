@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-03-11",
+  "needs_port": false,
+  "sha": "e43b5263637f4259aac41c6554f5fe91167ccec7",
+  "short_sha": "e43b526363",
+  "subject": "feat: add `cbv` simprocs for arrays (#12875)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-10-25",
+  "needs_port": true,
+  "sha": "b80eab722b2302708a14b085e530c6e74e904aef",
+  "short_sha": "b80eab722b",
+  "subject": "chore: avoid hack at `--deps`",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

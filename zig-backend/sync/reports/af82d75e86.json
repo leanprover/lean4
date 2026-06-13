@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-13",
+  "needs_port": false,
+  "sha": "af82d75e86d42ef6e358af7e171c1ad30af6c02c",
+  "short_sha": "af82d75e86",
+  "subject": "fix: bv_decide don't analyze terms under binders by accident (#7477)",
+  "zig_target": {}
+}

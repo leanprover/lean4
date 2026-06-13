@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-23",
+  "needs_port": false,
+  "sha": "a00674fcba0662b36db77f841d1f85906d95021a",
+  "short_sha": "a00674fcba",
+  "subject": "feat: compute .olean base address from module name",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "6988a8e69a66f608de6c626978f265b20d885fee",
+  "short_sha": "6988a8e69a",
+  "subject": "fix(library/Makefile): avoid half-finished .cpp files",
+  "zig_target": {}
+}

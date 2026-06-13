@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-22",
+  "needs_port": false,
+  "sha": "cd4cd581bea8a5e89d41a708564202f974cecd00",
+  "short_sha": "cd4cd581be",
+  "subject": "feat: make `infix` non-associative",
+  "zig_target": {}
+}

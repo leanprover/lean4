@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-30",
+  "needs_port": false,
+  "sha": "1a369521cb8c0348e429d435f1c5b19dd3e4f22d",
+  "short_sha": "1a369521cb",
+  "subject": "chore(library/init/lean/macro): update macro TODO list",
+  "zig_target": {}
+}

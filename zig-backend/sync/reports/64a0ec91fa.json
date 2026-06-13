@@ -1,0 +1,10 @@
+{
+  "author": "Yuri de Wit",
+  "backend_changes": [],
+  "date": "2022-09-19",
+  "needs_port": false,
+  "sha": "64a0ec91fa594f8284dd2110267e0616f65ca91a",
+  "short_sha": "64a0ec91fa",
+  "subject": "chore: few updates to Expr documentation",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2021-05-28",
+  "needs_port": true,
+  "sha": "37dcbf34210d164b2bba657f18c7dd9762717e86",
+  "short_sha": "37dcbf3421",
+  "subject": "feat: have `Ord` imply `LT/LE`",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

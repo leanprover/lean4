@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-04",
+  "needs_port": false,
+  "sha": "fff1e12878129052161d46133adadf2c3709d086",
+  "short_sha": "fff1e12878",
+  "subject": "fix: be more careful with `MatchResult.uncovered` in syntax match",
+  "zig_target": {}
+}

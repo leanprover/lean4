@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CSE.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CSE.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2025-04-16",
+  "needs_port": true,
+  "sha": "a81169bbe4b1ce11cf8a19e6303fcdbd7ff123e3",
+  "short_sha": "a81169bbe4",
+  "subject": "fix: don't eliminate fun decls in CSE in the base phase (#7996)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CSE.lean": "zig-backend/src/lean/compiler/lcnf/CSE.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

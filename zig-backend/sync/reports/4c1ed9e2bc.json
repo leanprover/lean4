@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-13",
+  "needs_port": false,
+  "sha": "4c1ed9e2bc0cfc1edb63f0ada4b7e565dad7bd8e",
+  "short_sha": "4c1ed9e2bc",
+  "subject": "fix: hovers in appUnexpander attr",
+  "zig_target": {}
+}

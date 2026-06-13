@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-13",
+  "needs_port": false,
+  "sha": "3cebe7464cf60b2b577f2b961e39277eff036f25",
+  "short_sha": "3cebe7464c",
+  "subject": "fix: protect against jumping over the stack guard page",
+  "zig_target": {}
+}

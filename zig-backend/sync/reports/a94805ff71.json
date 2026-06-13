@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-07-18",
+  "needs_port": false,
+  "sha": "a94805ff71f7576ee014aafc76b29e29b066bd80",
+  "short_sha": "a94805ff71",
+  "subject": "perf: ensure `Expr.replaceExpr` preserve DAG structure in `Expr`s (#4779)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-12-08",
+  "needs_port": true,
+  "sha": "6a41d04827cd0bdc6f0a3184a90a22f8c8d767be",
+  "short_sha": "6a41d04827",
+  "subject": "fix: missing `panic`s",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

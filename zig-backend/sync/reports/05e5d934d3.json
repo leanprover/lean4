@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-21",
+  "needs_port": false,
+  "sha": "05e5d934d33e90149772c29869bac08d8fcc3ad9",
+  "short_sha": "05e5d934d3",
+  "subject": "feat: change default precedence for new `syntax`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-30",
+  "needs_port": false,
+  "sha": "7ed4d1c43270df528b45241f2a3d72ca80457c23",
+  "short_sha": "7ed4d1c432",
+  "subject": "feat: add builtin `simproc` support",
+  "zig_target": {}
+}

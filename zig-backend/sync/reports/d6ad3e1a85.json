@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    }
+  ],
+  "date": "2025-04-27",
+  "needs_port": true,
+  "sha": "d6ad3e1a85f8c30a82aec11436a41b721ea1870c",
+  "short_sha": "d6ad3e1a85",
+  "subject": "fix: monomial order in the `CommRing` module (#8133)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2025-08-21",
+  "needs_port": true,
+  "sha": "e3947cbe208a09775bb5ec1a4dc18ea484241a68",
+  "short_sha": "e3947cbe20",
+  "subject": "chore: remove bad Option grind annotation (#10000)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

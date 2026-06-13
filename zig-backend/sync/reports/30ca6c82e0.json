@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    }
+  ],
+  "date": "2025-07-21",
+  "needs_port": true,
+  "sha": "30ca6c82e04c755fb2c06fada6083526dd14672a",
+  "short_sha": "30ca6c82e0",
+  "subject": "refactor: use named params (#9460)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+  }
+}

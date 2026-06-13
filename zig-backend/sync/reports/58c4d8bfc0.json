@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/EState.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/EState.lean"
+    },
+    {
+      "path": "src/Init/Control/Lift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lift.lean"
+    },
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    },
+    {
+      "path": "src/Init/Control/StateRef.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateRef.lean"
+    }
+  ],
+  "date": "2020-08-18",
+  "needs_port": true,
+  "sha": "58c4d8bfc026ab14be359d408f10f1bd0417e9a7",
+  "short_sha": "58c4d8bfc0",
+  "subject": "refactor: add `MonadStateOf`",
+  "zig_target": {
+    "src/Init/Control/EState.lean": "zig-backend/src/init/Control/EState.lean",
+    "src/Init/Control/Lift.lean": "zig-backend/src/init/Control/Lift.lean",
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean",
+    "src/Init/Control/StateRef.lean": "zig-backend/src/init/Control/StateRef.lean"
+  }
+}

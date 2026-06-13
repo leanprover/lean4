@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-12",
+  "needs_port": false,
+  "sha": "2eb0f58bdd4059b5028c04e62ac47907341d43e4",
+  "short_sha": "2eb0f58bdd",
+  "subject": "chore: restart worker only on didChange",
+  "zig_target": {}
+}

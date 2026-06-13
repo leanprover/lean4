@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-24",
+  "needs_port": false,
+  "sha": "db83a5274853c1ca354b31e2aaa9fedd2a7f6ac0",
+  "short_sha": "db83a52748",
+  "subject": "chore(library/init/lean/compiler/ir/emitc): cleanup",
+  "zig_target": {}
+}

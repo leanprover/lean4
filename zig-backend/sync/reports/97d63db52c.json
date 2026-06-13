@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-25",
+  "needs_port": false,
+  "sha": "97d63db52cd2fc3353f8a75f48209de0011f1bd3",
+  "short_sha": "97d63db52c",
+  "subject": "fix: `mbtc` for nonlinear terms in `grind cutsat` (#10965)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-03-01",
+  "needs_port": false,
+  "sha": "3746005f5fc35d030d26ced2f7bcaabc295224c2",
+  "short_sha": "3746005f5f",
+  "subject": "fix: reject projection `(_ : \u2203 x, p).2`",
+  "zig_target": {}
+}

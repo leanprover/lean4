@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-08",
+  "needs_port": false,
+  "sha": "d75d7aa0d5de3dde20e9bc1f3341a5ff04e871f7",
+  "short_sha": "d75d7aa0d5",
+  "subject": "fix: server: ignore unknown implementation-dependent notifications",
+  "zig_target": {}
+}

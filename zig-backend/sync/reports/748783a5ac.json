@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-15",
+  "needs_port": false,
+  "sha": "748783a5acbacadd19050db4bd219588f72b3594",
+  "short_sha": "748783a5ac",
+  "subject": "feat: add internal `skip` do-element parser (#13413)",
+  "zig_target": {}
+}

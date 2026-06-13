@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "1c671965c57d5d4a84408d640b73c2885e166905",
+  "short_sha": "1c671965c5",
+  "subject": "feat(library/init/lean/options): add `registerOption`",
+  "zig_target": {}
+}

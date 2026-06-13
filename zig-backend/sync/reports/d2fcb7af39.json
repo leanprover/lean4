@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2018-10-08",
+  "needs_port": true,
+  "sha": "d2fcb7af39a19a590077a50d75827027abeb6378",
+  "short_sha": "d2fcb7af39",
+  "subject": "chore(library/compiler/compiler): add tracing to new compiler frontend",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

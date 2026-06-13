@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2024-04-07",
+  "needs_port": false,
+  "sha": "a82f0d94136f13586705b463a1747c0208e15685",
+  "short_sha": "a82f0d9413",
+  "subject": "fix: offset typeclass checking in simp rules (#3838)",
+  "zig_target": {}
+}

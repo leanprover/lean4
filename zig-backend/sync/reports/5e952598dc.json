@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-06-03",
+  "needs_port": false,
+  "sha": "5e952598dc780dcea330631036b616544ed3aa31",
+  "short_sha": "5e952598dc",
+  "subject": "fix: let private names be unresolved in the pretty printer, fix shadowing bug when `pp.universes` is true (#8617)",
+  "zig_target": {}
+}

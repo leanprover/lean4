@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-11",
+  "needs_port": true,
+  "sha": "4f730d82e0d1af6e4b4b9804203201284b5aac52",
+  "short_sha": "4f730d82e0",
+  "subject": "feat: `elabAppFn`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

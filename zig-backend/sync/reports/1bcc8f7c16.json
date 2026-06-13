@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-25",
+  "needs_port": false,
+  "sha": "1bcc8f7c16c0cbe4577cba6d2e5aec0e6ec56514",
+  "short_sha": "1bcc8f7c16",
+  "subject": "chore: parenthesizer: more helpful panic message",
+  "zig_target": {}
+}

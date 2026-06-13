@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-29",
+  "needs_port": false,
+  "sha": "72fc3f6679bf932774207863deaade6464b21bb2",
+  "short_sha": "72fc3f6679",
+  "subject": "feat: separate benchmark for profiling the stdlib per-file",
+  "zig_target": {}
+}

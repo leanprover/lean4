@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-28",
+  "needs_port": false,
+  "sha": "7f9013e49662598b7e5a20c86f64378396483440",
+  "short_sha": "7f9013e496",
+  "subject": "fix: `seq1Unbox`",
+  "zig_target": {}
+}

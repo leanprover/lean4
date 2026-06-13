@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-15",
+  "needs_port": false,
+  "sha": "10b99a678c9d91133006399ebb0c7dffb0c5be96",
+  "short_sha": "10b99a678c",
+  "subject": "chore(util/list_ref): add `objects` a list of objects",
+  "zig_target": {}
+}

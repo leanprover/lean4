@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    }
+  ],
+  "date": "2022-03-01",
+  "needs_port": true,
+  "sha": "de51160929293f81fc92907646c41c6ec25aafb4",
+  "short_sha": "de51160929",
+  "subject": "fix: core library",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean"
+  }
+}

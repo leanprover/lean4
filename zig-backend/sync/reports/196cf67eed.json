@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-02-05",
+  "needs_port": false,
+  "sha": "196cf67eed2272bc4528de9ecc7b454659cbd3c4",
+  "short_sha": "196cf67eed",
+  "subject": "fix: handle overlapping definitions",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-06-09",
+  "needs_port": true,
+  "sha": "f61a4128010a54c54c7b1d737e6b052f2c8883c3",
+  "short_sha": "f61a412801",
+  "subject": "fix: make unsafeBaseIO noinline (#8669)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

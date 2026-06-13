@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-10-04",
+  "needs_port": true,
+  "sha": "0714716477951807523641a4ed39fd329001d293",
+  "short_sha": "0714716477",
+  "subject": "fix: file and import names, tests and stage0",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

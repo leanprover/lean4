@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-28",
+  "needs_port": false,
+  "sha": "0dfefb7b78452fe9c3af21a57ebf0cca96f4b7e8",
+  "short_sha": "0dfefb7b78",
+  "subject": "fix: lean4-mode: inaccessibles highlighting",
+  "zig_target": {}
+}

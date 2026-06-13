@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-15",
+  "needs_port": false,
+  "sha": "466e8a6c5eb37d1382b7ab3d354b18f54c25662c",
+  "short_sha": "466e8a6c5e",
+  "subject": "fix: adjust unsafe trick for upcoming optimization (#9393)",
+  "zig_target": {}
+}

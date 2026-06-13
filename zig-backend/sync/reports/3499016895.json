@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    }
+  ],
+  "date": "2021-05-31",
+  "needs_port": true,
+  "sha": "349901689510d8ff1daeb5af8cec80c15733a1bd",
+  "short_sha": "3499016895",
+  "subject": "chore: improve error message when compiling code containing axioms or noncomputable definitions",
+  "zig_target": {
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+  }
+}

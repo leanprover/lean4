@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    }
+  ],
+  "date": "2026-01-22",
+  "needs_port": true,
+  "sha": "0a0323734b2d10c3f9355659f8e44b67bd36f644",
+  "short_sha": "0a0323734b",
+  "subject": "feat: suggest `Int*.toNatClamp` for `Int*.toNat` (#11979)",
+  "zig_target": {
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean"
+  }
+}

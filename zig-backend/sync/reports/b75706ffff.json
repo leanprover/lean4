@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-01",
+  "needs_port": false,
+  "sha": "b75706ffff0fd61a4e127a00ba731d375e159827",
+  "short_sha": "b75706ffff",
+  "subject": "test(tests/playground/lowtech_expander): add support for fixing SyntaxNodeKinds when reading Syntax objects from .olean",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-24",
+  "needs_port": false,
+  "sha": "896da853046ce831f17d48894c0eef833087ff57",
+  "short_sha": "896da85304",
+  "subject": "fix: CI CMakeLists.txt version check extracts wrong value (#12131)",
+  "zig_target": {}
+}

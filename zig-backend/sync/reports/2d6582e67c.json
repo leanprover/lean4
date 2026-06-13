@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-12",
+  "needs_port": true,
+  "sha": "2d6582e67c84cbf0fbf5602a71c51fb00ee96e79",
+  "short_sha": "2d6582e67c",
+  "subject": "fix(library/compiler/lcnf): dumb mistake, Pi case is not reachable",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-08-24",
+  "needs_port": false,
+  "sha": "ff792c3a3ab9f2f7c03a7596311072b584036e0c",
+  "short_sha": "ff792c3a3a",
+  "subject": "feat: abstract visitLet, visitLambda, visitForall",
+  "zig_target": {}
+}

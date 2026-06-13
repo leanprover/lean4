@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-08-31",
+  "needs_port": false,
+  "sha": "88c193d71cac69d501c8f55e65b6b3628edcb684",
+  "short_sha": "88c193d71c",
+  "subject": "fix: out of bounds access when the CNF is too small (#5220)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-04-01",
+  "needs_port": false,
+  "sha": "cdd982a030b13c2585d52312f80da8eb32e02553",
+  "short_sha": "cdd982a030",
+  "subject": "feat: add `deprecated_syntax` (#13108)",
+  "zig_target": {}
+}

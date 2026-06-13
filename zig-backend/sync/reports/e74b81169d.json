@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-17",
+  "needs_port": false,
+  "sha": "e74b81169d3787de135630e0b1cf1f91faa549b0",
+  "short_sha": "e74b81169d",
+  "subject": "feat: `split` to generalize proof discriminants (#10425)",
+  "zig_target": {}
+}

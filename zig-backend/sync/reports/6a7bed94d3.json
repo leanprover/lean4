@@ -1,0 +1,10 @@
+{
+  "author": "L",
+  "backend_changes": [],
+  "date": "2024-06-10",
+  "needs_port": false,
+  "sha": "6a7bed94d35a0981a7e19bdf09903e15c62a3c3c",
+  "short_sha": "6a7bed94d3",
+  "subject": "fix: kernel exception from fvars left from `?m a b` instantiation (#4410)",
+  "zig_target": {}
+}

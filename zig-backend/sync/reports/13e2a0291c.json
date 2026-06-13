@@ -1,0 +1,10 @@
+{
+  "author": "Johan Commelin",
+  "backend_changes": [],
+  "date": "2025-02-03",
+  "needs_port": false,
+  "sha": "13e2a0291c1ed26ef7558558f57069b5723447f7",
+  "short_sha": "13e2a0291c",
+  "subject": "chore: split RELEASES.md into releases/ folder (#6918)",
+  "zig_target": {}
+}

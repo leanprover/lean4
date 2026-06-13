@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-25",
+  "needs_port": false,
+  "sha": "262ac674aa29b0f11e609150aa62a79c61e1bf8f",
+  "short_sha": "262ac674aa",
+  "subject": "feat: improve `runTactic`",
+  "zig_target": {}
+}

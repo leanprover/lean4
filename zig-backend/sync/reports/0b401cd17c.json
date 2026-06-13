@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/AddExtern.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+    }
+  ],
+  "date": "2026-03-27",
+  "needs_port": true,
+  "sha": "0b401cd17cb5419cdfdd6bee216bc8affaddb1d9",
+  "short_sha": "0b401cd17c",
+  "subject": "refactor: compile `@[extern]` via standard pipeline (#13102)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/AddExtern.lean": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+  }
+}

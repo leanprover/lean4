@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/emit_bytecode.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_bytecode.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_inductive.cpp",
+      "status": "D",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_inductive.h",
+      "status": "D",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.h"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2018-10-29",
+  "needs_port": true,
+  "sha": "d871c4f7d8e693b4eba3a3f3fb02162b17f31e48",
+  "short_sha": "d871c4f7d8",
+  "subject": "feat(library/compiler): replace `simp_inductive` with `llnf`",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/emit_bytecode.cpp": "zig-backend/src/library/compiler/emit_bytecode.cpp",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/simp_inductive.cpp": "zig-backend/src/library/compiler/simp_inductive.cpp",
+    "src/library/compiler/simp_inductive.h": "zig-backend/src/library/compiler/simp_inductive.h",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Syntax.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-02-18",
+  "needs_port": true,
+  "sha": "86d2b82c29497767b4b5377567ea2341faf2bd70",
+  "short_sha": "86d2b82c29",
+  "subject": "refactor: get rid of antiquotExpr hack",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean",
+    "src/Init/Lean/Elab/Syntax.lean": "zig-backend/src/init/Lean/Elab/Syntax.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

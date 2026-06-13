@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-10-29",
+  "needs_port": false,
+  "sha": "4714f84fb9511bebd5ecbdd81e2c35de2bc627d3",
+  "short_sha": "4714f84fb9",
+  "subject": "fix: lake: do not delete path dependencies (#5878)",
+  "zig_target": {}
+}

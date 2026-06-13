@@ -1,0 +1,10 @@
+{
+  "author": "Zygimantas Straznickas",
+  "backend_changes": [],
+  "date": "2021-02-22",
+  "needs_port": false,
+  "sha": "49ebd30fd5c562eea453fe0ff628fad9e6034539",
+  "short_sha": "49ebd30fd5",
+  "subject": "fix: fix deriving Repr for structure-like inductives",
+  "zig_target": {}
+}

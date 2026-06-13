@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-10",
+  "needs_port": false,
+  "sha": "e7bf1cd3dc79fb64d5d1529a3fdaec0a587c1073",
+  "short_sha": "e7bf1cd3dc",
+  "subject": "refactor: simplify `adaptUncacheableContextFn`",
+  "zig_target": {}
+}

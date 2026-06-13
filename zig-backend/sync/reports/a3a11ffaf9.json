@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/SOM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/SOM.lean"
+    }
+  ],
+  "date": "2025-04-16",
+  "needs_port": true,
+  "sha": "a3a11ffaf91046dd1be0529307d929b46e7c4b9f",
+  "short_sha": "a3a11ffaf9",
+  "subject": "feat: revlex and grevlex monomial orders  (#7986)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/SOM.lean": "zig-backend/src/init/Grind/CommRing/SOM.lean"
+  }
+}

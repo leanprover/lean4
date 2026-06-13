@@ -1,0 +1,24 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Mod.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/Mod.lean"
+    }
+  ],
+  "date": "2024-03-04",
+  "needs_port": true,
+  "sha": "791142a7ff8f4d1f03aff8d8c2aa0f6a10db12dd",
+  "short_sha": "791142a7ff",
+  "subject": "feat: Nat.mul_mod (#3582)",
+  "zig_target": {
+    "src/Init/Data/Nat.lean": "zig-backend/src/init/Data/Nat.lean",
+    "src/Init/Data/Nat/Mod.lean": "zig-backend/src/init/Data/Nat/Mod.lean"
+  }
+}

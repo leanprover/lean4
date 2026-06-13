@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Vector/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Attach.lean"
+    }
+  ],
+  "date": "2025-09-17",
+  "needs_port": true,
+  "sha": "6ca699b1ff7cee2638dc7d11a2f38c24a79afe96",
+  "short_sha": "6ca699b1ff",
+  "subject": "feat: enable new E-matching pattern inference procedure in `grind` (#10432)",
+  "zig_target": {
+    "src/Init/Data/Vector/Attach.lean": "zig-backend/src/init/Data/Vector/Attach.lean"
+  }
+}

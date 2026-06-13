@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-30",
+  "needs_port": false,
+  "sha": "c3383de6ff383c8c6db34745455c7fb225497ea9",
+  "short_sha": "c3383de6ff",
+  "subject": "feat: add helper method `withDischarger`",
+  "zig_target": {}
+}

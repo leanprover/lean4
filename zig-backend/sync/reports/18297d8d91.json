@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Subarray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Subarray.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2023-01-19",
+  "needs_port": true,
+  "sha": "18297d8d918cc808c37c23ad497bca7f98dbe973",
+  "short_sha": "18297d8d91",
+  "subject": "fix: notation unexpander on overapplication of non-nullary notation",
+  "zig_target": {
+    "src/Init/Data/Array/Subarray.lean": "zig-backend/src/init/Data/Array/Subarray.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

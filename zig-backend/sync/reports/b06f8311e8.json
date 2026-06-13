@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2020-10-20",
+  "needs_port": true,
+  "sha": "b06f8311e85a3dea02ae73d5e3fc3a1b7d98f9f5",
+  "short_sha": "b06f8311e8",
+  "subject": "fix: avoid using native code during bootstrap",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

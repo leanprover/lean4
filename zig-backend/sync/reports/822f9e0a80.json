@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-06",
+  "needs_port": false,
+  "sha": "822f9e0a805f0021aace04923290156906b2b6c8",
+  "short_sha": "822f9e0a80",
+  "subject": "chore: `deriving Hashable` under the module system  (#9760)",
+  "zig_target": {}
+}

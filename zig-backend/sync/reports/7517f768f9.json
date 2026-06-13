@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "7517f768f9820abaf24ace53372bec8699a09a1c",
+  "short_sha": "7517f768f9",
+  "subject": "feat: lightweight dependent match motive for do match (#12673)",
+  "zig_target": {}
+}

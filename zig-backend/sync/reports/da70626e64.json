@@ -1,0 +1,18 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/signal.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/signal.cpp"
+    }
+  ],
+  "date": "2025-12-26",
+  "needs_port": true,
+  "sha": "da70626e641066ece839b56a7e9e9cffdecedc6e",
+  "short_sha": "da70626e64",
+  "subject": "fix: `Signal.Handler` segmentation fault with `Selector` (#11724)",
+  "zig_target": {
+    "src/runtime/uv/signal.cpp": "zig-backend/src/runtime/uv/signal.cpp"
+  }
+}

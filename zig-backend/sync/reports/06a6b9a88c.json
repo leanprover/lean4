@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-19",
+  "needs_port": false,
+  "sha": "06a6b9a88c1562023b3e138c059ec53dc0e24ec5",
+  "short_sha": "06a6b9a88c",
+  "subject": "feat: add pure `Packager` variant",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-31",
+  "needs_port": false,
+  "sha": "2808cc2744a57e16fde80dd04afc0429c17ea050",
+  "short_sha": "2808cc2744",
+  "subject": "feat: improve manifest test",
+  "zig_target": {}
+}

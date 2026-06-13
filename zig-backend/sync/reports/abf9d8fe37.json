@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2018-05-20",
+  "needs_port": true,
+  "sha": "abf9d8fe37c95b41f4a26b775598674a30343377",
+  "short_sha": "abf9d8fe37",
+  "subject": "fix(runtime/object): assertion violation",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

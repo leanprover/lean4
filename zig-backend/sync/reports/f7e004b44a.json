@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "f7e004b44a1549724413fbb98bb1d32ea1f6ea90",
+  "short_sha": "f7e004b44a",
+  "subject": "refactor: split Lean.Parser.Parser",
+  "zig_target": {}
+}

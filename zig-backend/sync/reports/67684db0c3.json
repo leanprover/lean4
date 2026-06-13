@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-10-14",
+  "needs_port": true,
+  "sha": "67684db0c33d5788cfa5504139e584810824fe5e",
+  "short_sha": "67684db0c3",
+  "subject": "chore: delete more CMake cruft",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

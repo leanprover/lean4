@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-26",
+  "needs_port": false,
+  "sha": "c11e88c768e02f03b1e7cbf9c7477254845376b9",
+  "short_sha": "c11e88c768",
+  "subject": "test: Reparen: don't remove parentheses in syntax quotations",
+  "zig_target": {}
+}

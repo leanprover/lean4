@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    },
+    {
+      "path": "src/runtime/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.h"
+    }
+  ],
+  "date": "2021-10-26",
+  "needs_port": true,
+  "sha": "6d0fa6da7cdb536472a100c8b14a6753a60f0342",
+  "short_sha": "6d0fa6da7c",
+  "subject": "chore: remove `mpz` dead code",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp",
+    "src/runtime/mpz.h": "zig-backend/src/runtime/mpz.h"
+  }
+}

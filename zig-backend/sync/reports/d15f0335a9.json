@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-08-07",
+  "needs_port": false,
+  "sha": "d15f0335a95b1a07a7e5866e9b2bb9f5e401b3a7",
+  "short_sha": "d15f0335a9",
+  "subject": "feat: setup `Std.Sat` with definitions of SAT and CNF (#4933)",
+  "zig_target": {}
+}

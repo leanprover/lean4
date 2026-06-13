@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-29",
+  "needs_port": false,
+  "sha": "0eb9671787a01aaa77e8876b2fe5a214d8cbe68c",
+  "short_sha": "0eb9671787",
+  "subject": "fix: proof term for Nullstellensatz certificate (#8168)",
+  "zig_target": {}
+}

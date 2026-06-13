@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-03-21",
+  "needs_port": false,
+  "sha": "2b11c8d9a4b2ed4c09e828e07269ab491fa5bfc6",
+  "short_sha": "2b11c8d9a4",
+  "subject": "chore: bump server version to 0.3.0 (#7624)",
+  "zig_target": {}
+}

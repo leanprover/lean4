@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-24",
+  "needs_port": false,
+  "sha": "ccea4c2043f6c1d7b8dd8d4c68ca9eaa5135bb21",
+  "short_sha": "ccea4c2043",
+  "subject": "chore(tests/playground/rbmap): use `+1` instead of `+k` to avoid big number arithmetic when we increase number of elements inserted",
+  "zig_target": {}
+}

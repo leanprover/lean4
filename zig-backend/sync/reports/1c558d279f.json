@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-07",
+  "needs_port": false,
+  "sha": "1c558d279f20f03b86a6b289562e6cf44a0ae6e2",
+  "short_sha": "1c558d279f",
+  "subject": "feat: add `mut` modifier to `doLet`",
+  "zig_target": {}
+}

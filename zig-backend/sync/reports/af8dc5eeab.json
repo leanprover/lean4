@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-21",
+  "needs_port": false,
+  "sha": "af8dc5eeab8ea32a444c32c2b172b73ef0e1a71f",
+  "short_sha": "af8dc5eeab",
+  "subject": "feat: pretty print `Syntax` in messages",
+  "zig_target": {}
+}

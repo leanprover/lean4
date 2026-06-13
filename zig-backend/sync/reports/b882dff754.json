@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-11-11",
+  "needs_port": true,
+  "sha": "b882dff7547dbf1729e47651163a27c6268b8557",
+  "short_sha": "b882dff754",
+  "subject": "chore: do not use `if-then-else` notation at `Prelude.lean`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

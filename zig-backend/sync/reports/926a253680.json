@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-02-04",
+  "needs_port": false,
+  "sha": "926a2536809cc24d32b2ea1d2731fc71c86be234",
+  "short_sha": "926a253680",
+  "subject": "fix: serve: fall back to `lean --server` on error",
+  "zig_target": {}
+}

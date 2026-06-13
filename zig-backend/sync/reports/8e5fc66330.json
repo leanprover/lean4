@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-12",
+  "needs_port": false,
+  "sha": "8e5fc66330f4fb73add8ec1032d482c5c5d195cc",
+  "short_sha": "8e5fc66330",
+  "subject": "fix: do not error on non-existent search path entries",
+  "zig_target": {}
+}

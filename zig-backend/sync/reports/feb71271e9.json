@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2022-07-31",
+  "needs_port": true,
+  "sha": "feb71271e990d4fe937d2d6c99d87cd0179ce2b6",
+  "short_sha": "feb71271e9",
+  "subject": "fix: remove redundant alternatives",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

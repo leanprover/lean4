@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-15",
+  "needs_port": false,
+  "sha": "ffc3436dd60868ddb1b77f74bd8a1467bd0c8afb",
+  "short_sha": "ffc3436dd6",
+  "subject": "feat(library/init/lean): remove some TODOs using the new opaque constants",
+  "zig_target": {}
+}

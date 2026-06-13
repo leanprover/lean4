@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    },
+    {
+      "path": "src/library/compiler/builtin.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.h"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2018-11-15",
+  "needs_port": true,
+  "sha": "e5666b3464b4c5e635c26a621c0ff9717748d066",
+  "short_sha": "e5666b3464",
+  "subject": "feat(library/compiler): remove another reference to `vm.h`",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp",
+    "src/library/compiler/builtin.h": "zig-backend/src/library/compiler/builtin.h",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

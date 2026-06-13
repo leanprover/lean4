@@ -1,0 +1,48 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/SplitOn.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/SplitOn.lean"
+    },
+    {
+      "path": "src/Init/Data/List/SplitOn/Basic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/SplitOn/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/SplitOn/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/SplitOn/Lemmas.lean"
+    }
+  ],
+  "date": "2026-02-26",
+  "needs_port": true,
+  "sha": "1e4894b43128ca4caad07cdbf94f81d8e8635b6f",
+  "short_sha": "1e4894b431",
+  "subject": "feat: upstream `List.splitOn(P)` (#12702)",
+  "zig_target": {
+    "src/Init/Data/List.lean": "zig-backend/src/init/Data/List.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/SplitOn.lean": "zig-backend/src/init/Data/List/SplitOn.lean",
+    "src/Init/Data/List/SplitOn/Basic.lean": "zig-backend/src/init/Data/List/SplitOn/Basic.lean",
+    "src/Init/Data/List/SplitOn/Lemmas.lean": "zig-backend/src/init/Data/List/SplitOn/Lemmas.lean"
+  }
+}

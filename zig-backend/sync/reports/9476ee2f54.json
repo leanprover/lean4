@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-08",
+  "needs_port": false,
+  "sha": "9476ee2f5437f9a461e78178ccd375f60eb54ef7",
+  "short_sha": "9476ee2f54",
+  "subject": "fix: benchmarks CI",
+  "zig_target": {}
+}

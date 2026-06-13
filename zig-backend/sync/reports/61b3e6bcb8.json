@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "61b3e6bcb809e26825ffac38d1fe25a921537d80",
+  "short_sha": "61b3e6bcb8",
+  "subject": "fix: reduce projections of expanded structures at `copyDefaultValue?`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-08-25",
+  "needs_port": false,
+  "sha": "c95100e8fd7e9c72297b1dee39676be1033c39df",
+  "short_sha": "c95100e8fd",
+  "subject": "fix: de-prioritize `PartialTermInfo` in hover info selection (#10047)",
+  "zig_target": {}
+}

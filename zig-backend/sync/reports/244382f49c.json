@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    }
+  ],
+  "date": "2020-01-27",
+  "needs_port": true,
+  "sha": "244382f49cc52d93b55d1128fbdaaa16def959a8",
+  "short_sha": "244382f49c",
+  "subject": "chore: reintroduce accidentally dropped withMacroExpansion",
+  "zig_target": {
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+  }
+}

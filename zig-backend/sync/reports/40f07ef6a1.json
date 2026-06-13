@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-06-21",
+  "needs_port": false,
+  "sha": "40f07ef6a1adccc6b315c579a71e4ccb90980093",
+  "short_sha": "40f07ef6a1",
+  "subject": "fix: make mangling injective again",
+  "zig_target": {}
+}

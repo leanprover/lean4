@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-10",
+  "needs_port": false,
+  "sha": "bdab63048a0eacd95021616448cbc37e5ee95cb2",
+  "short_sha": "bdab63048a",
+  "subject": "doc: testing Lean while avoiding rebuilds for downstream projects (#10328)",
+  "zig_target": {}
+}

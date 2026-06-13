@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-07",
+  "needs_port": false,
+  "sha": "2c8c20d424f11877b424e52e3e0153a34fc70670",
+  "short_sha": "2c8c20d424",
+  "subject": "feat: add `[eliminator]` attribute specifying default recursors/eliminators for the `cases` and `induction` tactics",
+  "zig_target": {}
+}

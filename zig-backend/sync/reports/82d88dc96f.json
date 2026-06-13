@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-03",
+  "needs_port": false,
+  "sha": "82d88dc96f9126941e42aa795c2e28a8c00bebca",
+  "short_sha": "82d88dc96f",
+  "subject": "chore(library/init/core): make sure new frontend can parse it",
+  "zig_target": {}
+}

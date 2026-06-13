@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-15",
+  "needs_port": false,
+  "sha": "20dde073163fff4543a36e0fda7aa5ac7b6157d8",
+  "short_sha": "20dde07316",
+  "subject": "feat(tests/playground/report): %GC times",
+  "zig_target": {}
+}

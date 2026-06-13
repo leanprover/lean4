@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-18",
+  "needs_port": false,
+  "sha": "38a3c3613497bcf4cb1ffc6601b827702b290eb0",
+  "short_sha": "38a3c36134",
+  "subject": "feat: make `leanmake` extensible with custom Makefiles; rename standard Makefile to lean.mk; document",
+  "zig_target": {}
+}

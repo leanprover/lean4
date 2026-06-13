@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "b9152a5296264a630023e38538788b192be97b17",
+  "short_sha": "b9152a5296",
+  "subject": "refactor: move, generalize `findSyntaxStack?`",
+  "zig_target": {}
+}

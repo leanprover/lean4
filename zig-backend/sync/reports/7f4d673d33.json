@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-25",
+  "needs_port": false,
+  "sha": "7f4d673d33fd062f5f59f87c60b11ada4e64638b",
+  "short_sha": "7f4d673d33",
+  "subject": "perf: make `builtin_initialize` backing def private (#9540)",
+  "zig_target": {}
+}

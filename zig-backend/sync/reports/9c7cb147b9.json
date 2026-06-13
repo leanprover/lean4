@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-05",
+  "needs_port": false,
+  "sha": "9c7cb147b91fd1330764de7336c2ad2745e73f52",
+  "short_sha": "9c7cb147b9",
+  "subject": "fix: `extern_lib` and `precompileModules` on macOS (#8236)",
+  "zig_target": {}
+}

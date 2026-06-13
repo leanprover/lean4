@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-11",
+  "needs_port": false,
+  "sha": "d7cbdebf0b18b0e4d0008ef92d13e1785c5c6033",
+  "short_sha": "d7cbdebf0b",
+  "subject": "chore: cleanup `simp` benchmark (#11971)",
+  "zig_target": {}
+}

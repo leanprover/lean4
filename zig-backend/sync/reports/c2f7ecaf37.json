@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-10",
+  "needs_port": false,
+  "sha": "c2f7ecaf37a732b71c5d54b8fcfb74cc371d6f83",
+  "short_sha": "c2f7ecaf37",
+  "subject": "feat: server: also transmit array of goals",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    }
+  ],
+  "date": "2020-01-07",
+  "needs_port": true,
+  "sha": "4b08b1eea3c36ba138414cae1af957d1a8f81cff",
+  "short_sha": "4b08b1eea3",
+  "subject": "fix: `?m t =?= ?n`",
+  "zig_target": {
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+  }
+}

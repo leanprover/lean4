@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-15",
+  "needs_port": false,
+  "sha": "3481f43130125ebbae42d49582c6096aeb842e76",
+  "short_sha": "3481f43130",
+  "subject": "fix: FunInd: strip MData when creating the unfolding theorem (#8354)",
+  "zig_target": {}
+}

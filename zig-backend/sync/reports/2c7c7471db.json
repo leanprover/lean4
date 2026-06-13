@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-04-02",
+  "needs_port": true,
+  "sha": "2c7c7471db761a1f6733795c710239b719379773",
+  "short_sha": "2c7c7471db",
+  "subject": "feat: add `case'` tactic for writing macros",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

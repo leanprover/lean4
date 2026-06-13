@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-07",
+  "needs_port": false,
+  "sha": "5f035af4f5a9e9e5ffa240b650b07936b9acbb53",
+  "short_sha": "5f035af4f5",
+  "subject": "feat: add array literal notation to new parser",
+  "zig_target": {}
+}

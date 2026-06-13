@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-26",
+  "needs_port": false,
+  "sha": "1c50603112abbef59e66e55e2119ba0e37f80077",
+  "short_sha": "1c50603112",
+  "subject": "fix: `ReplaceLocalDecl`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-11",
+  "needs_port": false,
+  "sha": "9675b7c9520eaee5ce4f0f626ba40514978ec44a",
+  "short_sha": "9675b7c952",
+  "subject": "fix(frontends/lean/elaborator): ignore mdata when processing field notation",
+  "zig_target": {}
+}

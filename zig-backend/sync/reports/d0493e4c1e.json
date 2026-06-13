@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-14",
+  "needs_port": false,
+  "sha": "d0493e4c1e8e93fadfe4dbc713b42e1d5e5afc13",
+  "short_sha": "d0493e4c1e",
+  "subject": "fix: `declare_syntax_cat` in non-public sections (#11991)",
+  "zig_target": {}
+}

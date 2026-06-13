@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-07-01",
+  "needs_port": true,
+  "sha": "72f421054d8c374690b99f4ffc930276da2fe68e",
+  "short_sha": "72f421054d",
+  "subject": "fix: do not truncate at null bytes in panic messages (#9103)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

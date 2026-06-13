@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-02-04",
+  "needs_port": false,
+  "sha": "da2b91558e3f1c3de89602c33d61988957a4a36d",
+  "short_sha": "da2b91558e",
+  "subject": "feat: improve simp trace formatting (#6951)",
+  "zig_target": {}
+}

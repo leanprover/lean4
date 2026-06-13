@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-18",
+  "needs_port": false,
+  "sha": "115ca8755537f2237015dead40bdf056d3cbd6e9",
+  "short_sha": "115ca87555",
+  "subject": "feat(library/init/lean/core): define core language",
+  "zig_target": {}
+}

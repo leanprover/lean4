@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    }
+  ],
+  "date": "2024-08-25",
+  "needs_port": true,
+  "sha": "75781b46f5652660b10b4c4655ac4ce0bb52b044",
+  "short_sha": "75781b46f5",
+  "subject": "feat: lemmas about List.attach/pmap (#5153)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/AC.lean"
+    }
+  ],
+  "date": "2022-04-21",
+  "needs_port": true,
+  "sha": "09dfd975936dd4db2ef4916637bd04507f1c74a7",
+  "short_sha": "09dfd97593",
+  "subject": "chore: remove temporary workaround",
+  "zig_target": {
+    "src/Init/Data/AC.lean": "zig-backend/src/init/Data/AC.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-23",
+  "needs_port": false,
+  "sha": "fc821745ae24ae9d43725aaecfcece6735cc232e",
+  "short_sha": "fc821745ae",
+  "subject": "fix: swallow exception on hover formatting",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [],
+  "date": "2022-09-05",
+  "needs_port": false,
+  "sha": "cc9545663927a60dd0f95c71afd24ae43331d589",
+  "short_sha": "cc95456639",
+  "subject": "doc: add documentation on monads (#1505)",
+  "zig_target": {}
+}

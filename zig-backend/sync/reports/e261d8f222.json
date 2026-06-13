@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-01",
+  "needs_port": false,
+  "sha": "e261d8f2227810efc164d2cb8c80ea87d2282b82",
+  "short_sha": "e261d8f222",
+  "subject": "perf(library/init): missing [inline] attributes",
+  "zig_target": {}
+}

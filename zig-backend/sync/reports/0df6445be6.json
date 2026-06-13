@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-14",
+  "needs_port": false,
+  "sha": "0df6445be680d67486a40e43d18c0fcc6c5f7db6",
+  "short_sha": "0df6445be6",
+  "subject": "fix: relax `[builtinParenthesizer]` check",
+  "zig_target": {}
+}

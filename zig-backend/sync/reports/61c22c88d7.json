@@ -1,0 +1,48 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/ByCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/ByCases.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Iterate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Iterate.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/PropLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/PropLemmas.lean"
+    }
+  ],
+  "date": "2024-02-21",
+  "needs_port": true,
+  "sha": "61c22c88d7714d989e47727dbd6b9ec55d2c4a6b",
+  "short_sha": "61c22c88d7",
+  "subject": "chore: address copyright inconsistencies (#3448)",
+  "zig_target": {
+    "src/Init/ByCases.lean": "zig-backend/src/init/ByCases.lean",
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/Fin/Iterate.lean": "zig-backend/src/init/Data/Fin/Iterate.lean",
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean",
+    "src/Init/PropLemmas.lean": "zig-backend/src/init/PropLemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-17",
+  "needs_port": false,
+  "sha": "70312191f7b863423bed4d039780356e7770719f",
+  "short_sha": "70312191f7",
+  "subject": "feat: make sure `packDomain` and `packMutual` ignore the fixed arguments",
+  "zig_target": {}
+}

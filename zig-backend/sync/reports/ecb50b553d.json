@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-09",
+  "needs_port": false,
+  "sha": "ecb50b553d6667ea574b61327942a0df399b3323",
+  "short_sha": "ecb50b553d",
+  "subject": "feat(library/init/lean/environment): environment extension registration and API",
+  "zig_target": {}
+}

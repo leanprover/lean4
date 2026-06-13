@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-05",
+  "needs_port": false,
+  "sha": "f17101cfbeec42b30545d5c6645cc7daf97b09ce",
+  "short_sha": "f17101cfbe",
+  "subject": "chore(src/CMakeLists): update version number",
+  "zig_target": {}
+}

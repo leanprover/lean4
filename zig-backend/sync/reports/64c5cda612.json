@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-19",
+  "needs_port": false,
+  "sha": "64c5cda612f09487f0e4650ff11b6d80fbc9a533",
+  "short_sha": "64c5cda612",
+  "subject": "test: David's lex with string iterators",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-06",
+  "needs_port": false,
+  "sha": "079ad47f0242770076a5e0a88923cc7d75a12701",
+  "short_sha": "079ad47f02",
+  "subject": "fix: mixed unary and non-unary functions",
+  "zig_target": {}
+}

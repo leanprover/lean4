@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-04-23",
+  "needs_port": false,
+  "sha": "f40c51f3469b5bd396090068513d26efaa4f4b1e",
+  "short_sha": "f40c51f346",
+  "subject": "chore: prevent stage0 changes via the merge queue (#3971)",
+  "zig_target": {}
+}

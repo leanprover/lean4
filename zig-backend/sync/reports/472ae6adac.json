@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Subst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Subst.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "472ae6adacfbf7922d60e6de887276b0d805f128",
+  "short_sha": "472ae6adac",
+  "subject": "fix: typos and bugs",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Subst.lean": "zig-backend/src/init/Lean/Meta/Tactic/Subst.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-05",
+  "needs_port": false,
+  "sha": "058aea89224c3f6df11be985f2f1ba236a13c4a4",
+  "short_sha": "058aea8922",
+  "subject": "fix: `withSaveInfoContext` at `Inductive.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Level.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Level.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    }
+  ],
+  "date": "2022-09-17",
+  "needs_port": true,
+  "sha": "27c504107e8b4633e1af0310abd609a15890e1e3",
+  "short_sha": "27c504107e",
+  "subject": "feat: universe level parameter helper functions for the compiler",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Level.lean": "zig-backend/src/lean/compiler/lcnf/Level.lean",
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+  }
+}

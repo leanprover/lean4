@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-11",
+  "needs_port": false,
+  "sha": "c460a2e4040e4d3504d1382820d53fa96adb7a9d",
+  "short_sha": "c460a2e404",
+  "subject": "chore: CI: fail when uploading 0 files",
+  "zig_target": {}
+}

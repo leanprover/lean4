@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-04",
+  "needs_port": false,
+  "sha": "80416677d82a7c12a62122f664f34d4ad8fa7781",
+  "short_sha": "80416677d8",
+  "subject": "refactor: compute trace duing build",
+  "zig_target": {}
+}

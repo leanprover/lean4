@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Cases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    }
+  ],
+  "date": "2020-03-04",
+  "needs_port": true,
+  "sha": "dfa392fa17f4a17ffb0ceef0d9fa4f72178ef29f",
+  "short_sha": "dfa392fa17",
+  "subject": "feat: add `generalizeIndices`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic.lean": "zig-backend/src/init/Lean/Meta/Tactic.lean",
+    "src/Init/Lean/Meta/Tactic/Cases.lean": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean"
+  }
+}

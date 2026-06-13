@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-02-02",
+  "needs_port": false,
+  "sha": "89d897a34d64a5f286ff4c808ab36847dc50a7b5",
+  "short_sha": "89d897a34d",
+  "subject": "feat: make coeFun delaborator respect `pp.tagAppFns` (#6729)",
+  "zig_target": {}
+}

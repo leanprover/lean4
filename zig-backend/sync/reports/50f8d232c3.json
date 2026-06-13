@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-18",
+  "needs_port": false,
+  "sha": "50f8d232c315adcece1ac644fc372fafb60fc426",
+  "short_sha": "50f8d232c3",
+  "subject": "feat(frontends/lean/decl_attributes): add `expr_to_syntax`",
+  "zig_target": {}
+}

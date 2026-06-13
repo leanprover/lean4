@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-09-21",
+  "needs_port": false,
+  "sha": "3c6c1c25e44f41c0a8b8e531939089b834196f45",
+  "short_sha": "3c6c1c25e4",
+  "subject": "chore: simplify elan CI setup",
+  "zig_target": {}
+}

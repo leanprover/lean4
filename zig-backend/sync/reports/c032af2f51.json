@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "c032af2f515c00426cb37066f89c0dba3d3605f3",
+  "short_sha": "c032af2f51",
+  "subject": "fix: make `tactic .. at *` save info contexts (#12607)",
+  "zig_target": {}
+}

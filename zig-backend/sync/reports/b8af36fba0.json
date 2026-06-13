@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-10-11",
+  "needs_port": false,
+  "sha": "b8af36fba09ed866e0541083973a4f870a32fe0e",
+  "short_sha": "b8af36fba0",
+  "subject": "chore: update comments at src/Lean/Meta/Basic.lean",
+  "zig_target": {}
+}

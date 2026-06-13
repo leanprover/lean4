@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-05",
+  "needs_port": true,
+  "sha": "31e05cd2bd3b9a895ababfebddacfd82b40efd43",
+  "short_sha": "31e05cd2bd",
+  "subject": "chore: fix typos (#9747)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

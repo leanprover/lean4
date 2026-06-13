@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-02-27",
+  "needs_port": false,
+  "sha": "a179469061b4086b6fe89677f84797289ecae0b8",
+  "short_sha": "a179469061",
+  "subject": "fix: lake: detection of custom Lake build dir (#3506)",
+  "zig_target": {}
+}

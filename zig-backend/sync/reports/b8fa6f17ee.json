@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIRType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+    }
+  ],
+  "date": "2025-08-18",
+  "needs_port": true,
+  "sha": "b8fa6f17eecc28eb533de3071fffc869f1208f6e",
+  "short_sha": "b8fa6f17ee",
+  "subject": "fix: make lcAny-producing arrow types lower to `tobj` rather than `obj` (#9972)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIRType.lean": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+  }
+}

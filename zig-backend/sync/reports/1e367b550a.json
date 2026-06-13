@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-05-09",
+  "needs_port": false,
+  "sha": "1e367b550a0a707491c6608189630220e2b9c4e5",
+  "short_sha": "1e367b550a",
+  "subject": "chore: make Glob.ofString? public (#13563)",
+  "zig_target": {}
+}

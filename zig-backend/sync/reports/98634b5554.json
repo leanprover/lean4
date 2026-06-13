@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-22",
+  "needs_port": false,
+  "sha": "98634b5554bd1458726d82ccfa2fd3bc727ba9ee",
+  "short_sha": "98634b5554",
+  "subject": "fix: `$(_):ident` is not an infallible pattern",
+  "zig_target": {}
+}

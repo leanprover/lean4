@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-16",
+  "needs_port": false,
+  "sha": "3e028e381271ead902b3f5ae33c113d733769c49",
+  "short_sha": "3e028e3812",
+  "subject": "feat: allow `syntax` command to use existing parser declarations",
+  "zig_target": {}
+}

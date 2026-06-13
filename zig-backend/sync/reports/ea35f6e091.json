@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-17",
+  "needs_port": false,
+  "sha": "ea35f6e0917091a9784c6adad84b41582cf485dd",
+  "short_sha": "ea35f6e091",
+  "subject": "fix: missing `mkJpDeclIfNotSimple`",
+  "zig_target": {}
+}

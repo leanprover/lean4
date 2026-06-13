@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-26",
+  "needs_port": true,
+  "sha": "7fed0b5cb0a8257b981202c0070c680695e3b3ca",
+  "short_sha": "7fed0b5cb0",
+  "subject": "fix(library/compiler/csimp): bug in the join point generation",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2021-08-17",
+  "needs_port": true,
+  "sha": "8d90872d284de64a290272be86123ffbb98a52b5",
+  "short_sha": "8d90872d28",
+  "subject": "chore: add `not_not_intro`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

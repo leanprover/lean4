@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-25",
+  "needs_port": false,
+  "sha": "e4926e4b1426994d6c139b4cbf1bf5d7b6cbb192",
+  "short_sha": "e4926e4b14",
+  "subject": "feat: generalize `leanpkg build`",
+  "zig_target": {}
+}

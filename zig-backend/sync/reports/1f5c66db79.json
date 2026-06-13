@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-21",
+  "needs_port": true,
+  "sha": "1f5c66db79ed264eb643a6d7abe95636e7116708",
+  "short_sha": "1f5c66db79",
+  "subject": "feat: improve cutsat model search procedure (#7183)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

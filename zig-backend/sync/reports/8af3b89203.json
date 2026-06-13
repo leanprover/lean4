@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/OfNat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/OfNat.lean"
+    },
+    {
+      "path": "src/Init/Grind/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Util.lean"
+    }
+  ],
+  "date": "2025-06-20",
+  "needs_port": true,
+  "sha": "8af3b8920373017a114ab97ea9a8ca549fef7ffe",
+  "short_sha": "8af3b89203",
+  "subject": "chore: @[expose] defs that appear in grind proof terms (#8882)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Data/Int/OfNat.lean": "zig-backend/src/init/Data/Int/OfNat.lean",
+    "src/Init/Grind/Util.lean": "zig-backend/src/init/Grind/Util.lean"
+  }
+}

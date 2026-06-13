@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-12-21",
+  "needs_port": false,
+  "sha": "767139b23525e81f3ab90ecc04cf1ecf92020d01",
+  "short_sha": "767139b235",
+  "subject": "chore: use all cores in stdlib benchmark",
+  "zig_target": {}
+}

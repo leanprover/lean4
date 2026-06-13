@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-15",
+  "needs_port": false,
+  "sha": "bdc912422836da2cb4e7ea182c9ea57fb46a0dc6",
+  "short_sha": "bdc9124228",
+  "subject": "feat: implement `Std.Do.Triple.mp` (#9931)",
+  "zig_target": {}
+}

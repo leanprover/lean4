@@ -1,0 +1,78 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Cooper.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Cooper.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/OfNat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/OfNat.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    }
+  ],
+  "date": "2025-04-25",
+  "needs_port": true,
+  "sha": "6cdabf58c623c6a5695302925c1384e4894cc02b",
+  "short_sha": "6cdabf58c6",
+  "subject": "chore: deprecate some `Int.ofNat_*` lemmas (#8000)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/Cooper.lean": "zig-backend/src/init/Data/Int/Cooper.lean",
+    "src/Init/Data/Int/DivMod/Basic.lean": "zig-backend/src/init/Data/Int/DivMod/Basic.lean",
+    "src/Init/Data/Int/DivMod/Bootstrap.lean": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/OfNat.lean": "zig-backend/src/init/Data/Int/OfNat.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean"
+  }
+}

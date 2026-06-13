@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-12",
+  "needs_port": false,
+  "sha": "fdc0f906f426d2d03a23a72ab2d000b3106d7e97",
+  "short_sha": "fdc0f906f4",
+  "subject": "feat: improve error message position for compiler errors",
+  "zig_target": {}
+}

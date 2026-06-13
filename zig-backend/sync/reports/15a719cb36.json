@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-09",
+  "needs_port": false,
+  "sha": "15a719cb36ed096d5486992f343f5a8f86f1ccc0",
+  "short_sha": "15a719cb36",
+  "subject": "chore: extract shared match splitting impl from FunInd and `mvcgen` (#11953)",
+  "zig_target": {}
+}

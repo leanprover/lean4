@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/elim_dead_let.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/elim_dead_let.cpp"
+    },
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/extract_closed.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.cpp"
+    },
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    },
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2019-11-15",
+  "needs_port": true,
+  "sha": "85092412c7cce8426acf7aa7df78c1ca9b96eba7",
+  "short_sha": "85092412c7",
+  "subject": "refactor: remove `Expr.FVar` hack",
+  "zig_target": {
+    "src/library/compiler/elim_dead_let.cpp": "zig-backend/src/library/compiler/elim_dead_let.cpp",
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp",
+    "src/library/compiler/extract_closed.cpp": "zig-backend/src/library/compiler/extract_closed.cpp",
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp",
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp",
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

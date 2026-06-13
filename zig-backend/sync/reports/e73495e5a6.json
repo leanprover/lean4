@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-02-26",
+  "needs_port": false,
+  "sha": "e73495e5a6059bfebeed65032fed2b9a1b6933c9",
+  "short_sha": "e73495e5a6",
+  "subject": "fix: lake: warn on fetch cloud release failure (#3401)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-10-23",
+  "needs_port": false,
+  "sha": "771ec8324cd1e220af86f12a7d55785d9ecd7288",
+  "short_sha": "771ec8324c",
+  "subject": "chore: fix configuration for `UnificationHints`",
+  "zig_target": {}
+}

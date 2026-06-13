@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "5a7bf86a42e03866f63a0c7f081b70249225ffd9",
+  "short_sha": "5a7bf86a42",
+  "subject": "test: add test for buggy compiler step",
+  "zig_target": {}
+}

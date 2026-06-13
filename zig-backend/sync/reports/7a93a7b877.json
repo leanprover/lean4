@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-28",
+  "needs_port": false,
+  "sha": "7a93a7b877d029f5789f4de4f67b8eee65236e94",
+  "short_sha": "7a93a7b877",
+  "subject": "fix: reserved name resolution (#3803)",
+  "zig_target": {}
+}

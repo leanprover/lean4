@@ -1,0 +1,114 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/elim_recursors.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/elim_recursors.cpp"
+    },
+    {
+      "path": "src/library/compiler/elim_recursors.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/elim_recursors.h"
+    },
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/eta_expansion.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eta_expansion.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/inliner.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/inliner.cpp"
+    },
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/nat_value.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/nat_value.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_inductive.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    },
+    {
+      "path": "src/shell/lean_js.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean_js.cpp"
+    },
+    {
+      "path": "src/shell/leandoc.cpp",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/leandoc.cpp"
+    },
+    {
+      "path": "src/shell/leandoc.h",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/leandoc.h"
+    }
+  ],
+  "date": "2018-09-06",
+  "needs_port": true,
+  "sha": "58e91559d0799d0a5016ffbe277adc77b845f625",
+  "short_sha": "58e91559d0",
+  "subject": "feat(*): use new inductive datatype module",
+  "zig_target": {
+    "src/library/compiler/elim_recursors.cpp": "zig-backend/src/library/compiler/elim_recursors.cpp",
+    "src/library/compiler/elim_recursors.h": "zig-backend/src/library/compiler/elim_recursors.h",
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp",
+    "src/library/compiler/eta_expansion.cpp": "zig-backend/src/library/compiler/eta_expansion.cpp",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/inliner.cpp": "zig-backend/src/library/compiler/inliner.cpp",
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/nat_value.cpp": "zig-backend/src/library/compiler/nat_value.cpp",
+    "src/library/compiler/simp_inductive.cpp": "zig-backend/src/library/compiler/simp_inductive.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp",
+    "src/shell/lean_js.cpp": "zig-backend/src/shell/lean_js.cpp",
+    "src/shell/leandoc.cpp": "zig-backend/src/shell/leandoc.cpp",
+    "src/shell/leandoc.h": "zig-backend/src/shell/leandoc.h"
+  }
+}

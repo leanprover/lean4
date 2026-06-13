@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-22",
+  "needs_port": true,
+  "sha": "d540ba787a5604ac262e6c72ddb8037b36cb07f3",
+  "short_sha": "d540ba787a",
+  "subject": "feat: Option lemmas (#5128)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

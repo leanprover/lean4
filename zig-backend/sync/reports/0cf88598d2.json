@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-19",
+  "needs_port": false,
+  "sha": "0cf88598d22044388cdc3cdf79ff6381db552569",
+  "short_sha": "0cf88598d2",
+  "subject": "feat(library/init/lean/parser/declaration): stricter grammar for universe parameters and non-optional declaration types",
+  "zig_target": {}
+}

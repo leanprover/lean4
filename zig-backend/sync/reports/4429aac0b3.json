@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    }
+  ],
+  "date": "2019-08-16",
+  "needs_port": true,
+  "sha": "4429aac0b3611d9be1ebd3e226dbd89efe772bb1",
+  "short_sha": "4429aac0b3",
+  "subject": "chore(library/compiler/ir): remove box(13) hack",
+  "zig_target": {
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-14",
+  "needs_port": false,
+  "sha": "19b281e11e687de8c28d6e40b09a9445ca88b106",
+  "short_sha": "19b281e11e",
+  "subject": "fix: universe parameter generation",
+  "zig_target": {}
+}

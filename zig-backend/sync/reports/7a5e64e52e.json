@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-05",
+  "needs_port": false,
+  "sha": "7a5e64e52e130db5a81b36323120e587f22382a8",
+  "short_sha": "7a5e64e52e",
+  "subject": "chore(library/init/lean/compiler): move IR related files to subdirectory",
+  "zig_target": {}
+}

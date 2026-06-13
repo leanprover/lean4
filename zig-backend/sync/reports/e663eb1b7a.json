@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-22",
+  "needs_port": false,
+  "sha": "e663eb1b7a36bf57a5c0fdefae5d1621045d4125",
+  "short_sha": "e663eb1b7a",
+  "subject": "feat: `structure` autoParam inheritance (#7640)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-07-08",
+  "needs_port": false,
+  "sha": "34e65791902dc42b15708b739eb110bcc836bd1c",
+  "short_sha": "34e6579190",
+  "subject": "chore: `Inhabited` instances for `Std.HashMap` (#4682)",
+  "zig_target": {}
+}

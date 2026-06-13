@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-22",
+  "needs_port": true,
+  "sha": "d23216e3ee3b6ea5d493709010ec21cda5316045",
+  "short_sha": "d23216e3ee",
+  "subject": "fix(library/compiler/llnf): bug at explicit_rc_fn",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

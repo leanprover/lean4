@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-03",
+  "needs_port": true,
+  "sha": "921be93535811b73879c14a4b489b09650143590",
+  "short_sha": "921be93535",
+  "subject": "chore: add `@[grind]` to `List/Array/Vector.mem_map` (#8603)",
+  "zig_target": {
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+  }
+}

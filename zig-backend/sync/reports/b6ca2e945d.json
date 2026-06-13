@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-28",
+  "needs_port": false,
+  "sha": "b6ca2e945d561d14e6e32713e618cd8c42c1e0b3",
+  "short_sha": "b6ca2e945d",
+  "subject": "feat(library/init/lean): support unquoted symbols in mixfix notation",
+  "zig_target": {}
+}

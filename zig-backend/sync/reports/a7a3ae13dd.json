@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-29",
+  "needs_port": false,
+  "sha": "a7a3ae13dda9741c67852d6235f2e144a9882359",
+  "short_sha": "a7a3ae13dd",
+  "subject": "feat: allow extra `simproc`s to be provided as `simp` arguments",
+  "zig_target": {}
+}

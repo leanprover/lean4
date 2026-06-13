@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-04",
+  "needs_port": false,
+  "sha": "af6d2077a0583d194b239217d255cb68fbd9baf2",
+  "short_sha": "af6d2077a0",
+  "subject": "refactor: use match compilation to generate splitter (#11220)",
+  "zig_target": {}
+}

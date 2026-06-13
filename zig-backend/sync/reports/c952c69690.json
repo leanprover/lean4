@@ -1,0 +1,24 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2022-07-30",
+  "needs_port": true,
+  "sha": "c952c69690c9174ea68bd9f94f09a6f6f040735d",
+  "short_sha": "c952c69690",
+  "subject": "feat: add missingDocs linter",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

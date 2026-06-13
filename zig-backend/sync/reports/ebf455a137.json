@@ -1,0 +1,10 @@
+{
+  "author": "grunweg",
+  "backend_changes": [],
+  "date": "2025-05-21",
+  "needs_port": false,
+  "sha": "ebf455a13780ea508abee8016b8bb6c5549bf9d7",
+  "short_sha": "ebf455a137",
+  "subject": "doc: clarify that `.now` returns a date(time) in the local time zone (#8331)",
+  "zig_target": {}
+}

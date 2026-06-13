@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-24",
+  "needs_port": false,
+  "sha": "29f6c0fb5ae0e2f73f934d672723438b5c1c26f5",
+  "short_sha": "29f6c0fb5a",
+  "subject": "refactor: split logging from `BuildM` into its own monad",
+  "zig_target": {}
+}

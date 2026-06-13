@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-02",
+  "needs_port": false,
+  "sha": "b146ed735ad8d50eda6f8050214aec8220f63d61",
+  "short_sha": "b146ed735a",
+  "subject": "test(tests/compiler/phashmap): add `PersistentHashMap` test",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-28",
+  "needs_port": false,
+  "sha": "a48d635004cc36852be11fa5a04bfe7773196677",
+  "short_sha": "a48d635004",
+  "subject": "chore(library/init/lean/path): include search path in error message",
+  "zig_target": {}
+}

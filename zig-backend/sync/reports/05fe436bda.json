@@ -1,0 +1,36 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Log2.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Log2.lean"
+    },
+    {
+      "path": "src/Init/SizeOfLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOfLemmas.lean"
+    }
+  ],
+  "date": "2024-09-04",
+  "needs_port": true,
+  "sha": "05fe436bda1489bc96ab7cab2325a71d79977e26",
+  "short_sha": "05fe436bda",
+  "subject": "chore: don't use simp_arith when simp will do (#5256)",
+  "zig_target": {
+    "src/Init/Data/Array/BasicAux.lean": "zig-backend/src/init/Data/Array/BasicAux.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/Data/Nat/Log2.lean": "zig-backend/src/init/Data/Nat/Log2.lean",
+    "src/Init/SizeOfLemmas.lean": "zig-backend/src/init/SizeOfLemmas.lean"
+  }
+}

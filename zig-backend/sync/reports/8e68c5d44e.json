@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-08-28",
+  "needs_port": false,
+  "sha": "8e68c5d44e0d854ee1148454454f00d4e37165b4",
+  "short_sha": "8e68c5d44e",
+  "subject": "chore: cleanup simps in CNF.Basic / DHashMap.Internal.List (#5189)",
+  "zig_target": {}
+}

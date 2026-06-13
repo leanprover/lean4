@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-04-02",
+  "needs_port": true,
+  "sha": "ac9fee5854c41e6c961c652542f95b455e6ff857",
+  "short_sha": "ac9fee5854",
+  "subject": "test: add Lean 3-style interactive server tests",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

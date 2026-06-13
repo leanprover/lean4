@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-15",
+  "needs_port": false,
+  "sha": "0ecbcfdcc3785c155b8f394c655f48f4f7ed0e65",
+  "short_sha": "0ecbcfdcc3",
+  "subject": "chore: remove stray `markPersistent` (#5056)",
+  "zig_target": {}
+}

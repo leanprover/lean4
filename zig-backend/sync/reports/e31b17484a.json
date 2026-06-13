@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2020-12-01",
+  "needs_port": true,
+  "sha": "e31b17484a6183b2e5a04f10f7e644720db8168c",
+  "short_sha": "e31b17484a",
+  "subject": "feat: add instances from `coe` + homogeneous operator to heterogeneous operator",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean",
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

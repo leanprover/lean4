@@ -1,0 +1,10 @@
+{
+  "author": "Jon Eugster",
+  "backend_changes": [],
+  "date": "2024-01-31",
+  "needs_port": false,
+  "sha": "1cb1602977231818fd92df7cb3b3d43943937dda",
+  "short_sha": "1cb1602977",
+  "subject": "doc: add doc for FileMap (#3221)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-19",
+  "needs_port": false,
+  "sha": "eee4e0036415e8def788a631f80ad634fde08c7c",
+  "short_sha": "eee4e00364",
+  "subject": "feat(library/constructions/projection): implement projections using expr.proj constructor",
+  "zig_target": {}
+}

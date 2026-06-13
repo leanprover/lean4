@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-14",
+  "needs_port": false,
+  "sha": "cd287629cb3d973faab4aedb01285d13fbd0cda8",
+  "short_sha": "cd287629cb",
+  "subject": "feat(library/init/lean/elaborator): initial version of translating syntax trees to preterms",
+  "zig_target": {}
+}

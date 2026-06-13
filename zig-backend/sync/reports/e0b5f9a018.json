@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-10",
+  "needs_port": false,
+  "sha": "e0b5f9a0185e6c1f14384f8cba63e757d7fa1318",
+  "short_sha": "e0b5f9a018",
+  "subject": "feat(library/init/lean/environment): extensions can only be registered during initialization",
+  "zig_target": {}
+}

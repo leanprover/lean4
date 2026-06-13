@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-02-24",
+  "needs_port": false,
+  "sha": "69efb783197998e836ac3a6f868c4b8699a7edd8",
+  "short_sha": "69efb78319",
+  "subject": "fix: lake: MSYS2 `OSTYPE` change (#7209)",
+  "zig_target": {}
+}

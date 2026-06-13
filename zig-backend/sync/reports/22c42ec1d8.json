@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2020-01-28",
+  "needs_port": true,
+  "sha": "22c42ec1d815b43e74efd1492411801f4f084e35",
+  "short_sha": "22c42ec1d8",
+  "subject": "chore: remove unnecessary method",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

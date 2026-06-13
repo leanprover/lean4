@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-12-20",
+  "needs_port": true,
+  "sha": "586079462cb6d69a2ddae46ffff98f71fcfb8ea6",
+  "short_sha": "586079462c",
+  "subject": "doc: explain variable conditions in type classes",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

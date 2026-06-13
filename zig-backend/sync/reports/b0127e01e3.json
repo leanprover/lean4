@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-24",
+  "needs_port": false,
+  "sha": "b0127e01e36ba5dc389c644a14e7a80f3310c768",
+  "short_sha": "b0127e01e3",
+  "subject": "chore: final module system fixes and refinements for initial Mathlib porting (#10869)",
+  "zig_target": {}
+}

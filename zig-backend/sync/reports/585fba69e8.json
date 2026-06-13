@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-20",
+  "needs_port": false,
+  "sha": "585fba69e855dab98ce766871998679590d24dfe",
+  "short_sha": "585fba69e8",
+  "subject": "refactor: remove redundancy from common `register_parser_alias` case",
+  "zig_target": {}
+}

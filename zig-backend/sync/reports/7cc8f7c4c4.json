@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-10",
+  "needs_port": false,
+  "sha": "7cc8f7c4c4a79dad08dc887c962ac5429ab27215",
+  "short_sha": "7cc8f7c4c4",
+  "subject": "feat: go to definition for antiquot kinds",
+  "zig_target": {}
+}

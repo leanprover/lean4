@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-03",
+  "needs_port": false,
+  "sha": "d3b04871f54a85da29e880be6ba51c8d71b9dc4d",
+  "short_sha": "d3b04871f5",
+  "subject": "perf: add checkInterrupted to inferType cache miss path (#13258)",
+  "zig_target": {}
+}

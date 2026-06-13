@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-13",
+  "needs_port": false,
+  "sha": "09a0397648d486af6b0da00c2f4478a37a061375",
+  "short_sha": "09a0397648",
+  "subject": "fix(library/init/lean/parser/reader/token): fix keyword parsing using `longest_match`",
+  "zig_target": {}
+}

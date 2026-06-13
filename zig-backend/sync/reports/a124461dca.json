@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-12-12",
+  "needs_port": false,
+  "sha": "a124461dca97fcfceb686c3f6eeb9c960f957a43",
+  "short_sha": "a124461dca",
+  "subject": "chore: rename projection function major field to `self`",
+  "zig_target": {}
+}

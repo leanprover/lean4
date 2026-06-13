@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-23",
+  "needs_port": false,
+  "sha": "765ebcdbf0b9efbe70c959277f3e794e13be197c",
+  "short_sha": "765ebcdbf0",
+  "subject": "feat: use `withoutPosition` consistently",
+  "zig_target": {}
+}

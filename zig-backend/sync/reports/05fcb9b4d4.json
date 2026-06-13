@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/Control/MonadFail.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/init/Control/MonadFail.lean"
+    }
+  ],
+  "date": "2020-02-10",
+  "needs_port": true,
+  "sha": "05fcb9b4d4040efb9a1cab92441a1bff1a2064e1",
+  "short_sha": "05fcb9b4d4",
+  "subject": "chore: remove `MonadFail`",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/Control/MonadFail.lean": "zig-backend/src/init/Control/MonadFail.lean"
+  }
+}

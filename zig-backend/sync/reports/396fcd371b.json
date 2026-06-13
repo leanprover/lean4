@@ -1,0 +1,18 @@
+{
+  "author": "Chris Hughes",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    }
+  ],
+  "date": "2023-01-09",
+  "needs_port": true,
+  "sha": "396fcd371b87abdc65a726dd7218ff6c1ce6a21a",
+  "short_sha": "396fcd371b",
+  "subject": "feat Init.Data.Nat add simp attribute to mod_zero (#1932)",
+  "zig_target": {
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean"
+  }
+}

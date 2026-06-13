@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-08-07",
+  "needs_port": true,
+  "sha": "e51d892fc2d2454cf45dc1bc26dd926a189b0ac0",
+  "short_sha": "e51d892fc2",
+  "subject": "feat: implement USize.toUInt64 model",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

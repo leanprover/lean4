@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-16",
+  "needs_port": false,
+  "sha": "eb25b975015daba3c7ea32d03fe601f41532797d",
+  "short_sha": "eb25b97501",
+  "subject": "fix: pattern variables cannot shadow each other",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "fb18ef36880fcf45b67375c8c68b7c3860918b15",
+  "short_sha": "fb18ef3688",
+  "subject": "feat: simprocs for `UInt??.ofNatCore` and `UInt??.toNat`",
+  "zig_target": {}
+}

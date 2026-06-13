@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Structure.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Structure.lean"
+    }
+  ],
+  "date": "2019-12-12",
+  "needs_port": true,
+  "sha": "d18e8d95b94a173a5c18a54cb98669cc349f0180",
+  "short_sha": "d18e8d95b9",
+  "subject": "feat: add `isStructure`",
+  "zig_target": {
+    "src/Init/Lean/Structure.lean": "zig-backend/src/init/Lean/Structure.lean"
+  }
+}

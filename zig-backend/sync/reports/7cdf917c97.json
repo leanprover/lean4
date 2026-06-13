@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-15",
+  "needs_port": false,
+  "sha": "7cdf917c9708aced043cd5fb9f3b89f53adb987a",
+  "short_sha": "7cdf917c97",
+  "subject": "fix: compiler `do a; b` as `a >>= fun _ => b`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-08",
+  "needs_port": false,
+  "sha": "029510d4f561021a83879e7a147b84af64cc6e7f",
+  "short_sha": "029510d4f5",
+  "subject": "feat: syntax for setting `allowTrailingSep`",
+  "zig_target": {}
+}

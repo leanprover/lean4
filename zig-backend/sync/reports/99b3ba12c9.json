@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-07",
+  "needs_port": false,
+  "sha": "99b3ba12c92dfc787eac45484111b84ce88827e9",
+  "short_sha": "99b3ba12c9",
+  "subject": "fix: error messages from Verso docstring parser (#12372)",
+  "zig_target": {}
+}

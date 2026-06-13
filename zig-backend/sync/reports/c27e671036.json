@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-10-15",
+  "needs_port": true,
+  "sha": "c27e6710369ff504cbe3af6e59855325e74c7348",
+  "short_sha": "c27e671036",
+  "subject": "chore: rename `instDecidableEqQuotientOfDecidableEquiv` to `Quotient.decidableEq` (#5722)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

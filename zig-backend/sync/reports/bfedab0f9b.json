@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-18",
+  "needs_port": false,
+  "sha": "bfedab0f9b8d941eac5e2ad1cda1f413accfe74a",
+  "short_sha": "bfedab0f9b",
+  "subject": "feat: build C files in `print-paths` if facet is not `oleans`",
+  "zig_target": {}
+}

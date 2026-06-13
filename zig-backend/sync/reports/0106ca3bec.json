@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2025-07-03",
+  "needs_port": true,
+  "sha": "0106ca3becc3bca72ee4dab9ea3198989b1ed7f5",
+  "short_sha": "0106ca3bec",
+  "subject": "fix: undefined symbol without `LEAN_USE_GMP` (#9106)",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Find.lean"
+    }
+  ],
+  "date": "2026-01-28",
+  "needs_port": true,
+  "sha": "fa4cd6d78cce7f638788d3f0badc1cfba720eb4b",
+  "short_sha": "fa4cd6d78c",
+  "subject": "feat: add theorems relating find? with findIdx? and findFinIdx? (#12204)",
+  "zig_target": {
+    "src/Init/Data/Array/Find.lean": "zig-backend/src/init/Data/Array/Find.lean",
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean",
+    "src/Init/Data/Vector/Find.lean": "zig-backend/src/init/Data/Vector/Find.lean"
+  }
+}

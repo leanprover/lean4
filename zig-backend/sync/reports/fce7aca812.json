@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    },
+    {
+      "path": "src/shell/lean_js.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean_js.cpp"
+    }
+  ],
+  "date": "2019-01-25",
+  "needs_port": true,
+  "sha": "fce7aca812506f25b5b00eb8c66b961573895a1b",
+  "short_sha": "fce7aca812",
+  "subject": "feat(frontends/lean/vm_elaborator): recover from unknown identifiers",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp",
+    "src/shell/lean_js.cpp": "zig-backend/src/shell/lean_js.cpp"
+  }
+}

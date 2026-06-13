@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-12",
+  "needs_port": false,
+  "sha": "166a6fa75ab99891442f484974a5645148187442",
+  "short_sha": "166a6fa75a",
+  "subject": "feat(library/init/lean/parser/command): missing commands",
+  "zig_target": {}
+}

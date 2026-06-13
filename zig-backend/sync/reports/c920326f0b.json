@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-10-01",
+  "needs_port": false,
+  "sha": "c920326f0b52ed7c9e601511baf672cec2ddc764",
+  "short_sha": "c920326f0b",
+  "subject": "feat: introduce `List.Cursor.pos` as an abbreviation for `prefix.length` (#10642)",
+  "zig_target": {}
+}

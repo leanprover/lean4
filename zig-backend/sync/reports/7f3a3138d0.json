@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2022-02-21",
+  "needs_port": true,
+  "sha": "7f3a3138d0b0ac0ece6a4b5b16856382cb498ceb",
+  "short_sha": "7f3a3138d0",
+  "subject": "feat: helper `Nat` theorems",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

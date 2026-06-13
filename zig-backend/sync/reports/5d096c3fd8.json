@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-12",
+  "needs_port": false,
+  "sha": "5d096c3fd88be3e4ae639d994a0317b59d9dba7d",
+  "short_sha": "5d096c3fd8",
+  "subject": "chore: make `Environment.add` private (#2642)",
+  "zig_target": {}
+}

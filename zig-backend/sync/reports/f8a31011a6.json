@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-15",
+  "needs_port": false,
+  "sha": "f8a31011a6502389839316f9216727e26f7cfc63",
+  "short_sha": "f8a31011a6",
+  "subject": "feat: add more package configuration settings",
+  "zig_target": {}
+}

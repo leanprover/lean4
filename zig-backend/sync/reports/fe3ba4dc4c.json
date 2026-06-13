@@ -1,0 +1,10 @@
+{
+  "author": "Michael Rothgang",
+  "backend_changes": [],
+  "date": "2026-03-09",
+  "needs_port": false,
+  "sha": "fe3ba4dc4c5b794578df3ea66d399e0203ba73fe",
+  "short_sha": "fe3ba4dc4c",
+  "subject": "fix: make the omit, unusedSectionVars and loopingSimpArgs linter respect linter.all (#12563)",
+  "zig_target": {}
+}

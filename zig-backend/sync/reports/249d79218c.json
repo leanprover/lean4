@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-28",
+  "needs_port": false,
+  "sha": "249d79218cd853ce94458f9649351ca8b7882280",
+  "short_sha": "249d79218c",
+  "subject": "test: CoeFun",
+  "zig_target": {}
+}

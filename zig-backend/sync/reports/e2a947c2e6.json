@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-15",
+  "needs_port": false,
+  "sha": "e2a947c2e6871f406b965bf1c66ef72e0fdc0599",
+  "short_sha": "e2a947c2e6",
+  "subject": "feat: track occurrences in linarith (#8801)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2020-08-24",
+  "needs_port": true,
+  "sha": "8630d78b3fcaaa6dd6bd387e5f3d7d0983d1ca90",
+  "short_sha": "8630d78b3f",
+  "subject": "fix: Int.add spec",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

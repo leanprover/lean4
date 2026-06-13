@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    }
+  ],
+  "date": "2020-05-15",
+  "needs_port": true,
+  "sha": "e83edefcc1664f2b9e5a2c6d20f1a72b3bf5605d",
+  "short_sha": "e83edefcc1",
+  "subject": "fix: Syntax.setHeadInfo",
+  "zig_target": {
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean"
+  }
+}

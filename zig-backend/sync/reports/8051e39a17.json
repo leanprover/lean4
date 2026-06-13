@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2026-02-15",
+  "needs_port": true,
+  "sha": "8051e39a17cc86206484bee87c3b27afce4b5608",
+  "short_sha": "8051e39a17",
+  "subject": "doc: expand docstring for @[univ_out_params] (#12487)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

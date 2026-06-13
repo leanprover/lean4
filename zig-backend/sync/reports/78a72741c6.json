@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-03-14",
+  "needs_port": false,
+  "sha": "78a72741c68ddafe93fbb69428ee825f6ebda902",
+  "short_sha": "78a72741c6",
+  "subject": "fix: jump to correct definition when names overlap (#3656)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "9e7a6fa085447927367d6ef92d49968c006babfd",
+  "short_sha": "9e7a6fa085",
+  "subject": "chore: remove dead structure",
+  "zig_target": {}
+}

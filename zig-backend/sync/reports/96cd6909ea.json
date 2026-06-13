@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "96cd6909ea5c94e8c1dd28f34a3253320abc2728",
+  "short_sha": "96cd6909ea",
+  "subject": "doc: fix comment referring to elabElem instead of elabDoElem (#12674)",
+  "zig_target": {}
+}

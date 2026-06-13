@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-04-05",
+  "needs_port": false,
+  "sha": "0aa68312b643abce8f80be35274c306c3fc1601b",
+  "short_sha": "0aa68312b6",
+  "subject": "chore: when setting up Mathlib CI, make sure nightly-with-mathlib branch has been fetched (#3834)",
+  "zig_target": {}
+}

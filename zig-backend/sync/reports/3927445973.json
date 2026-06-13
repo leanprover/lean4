@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-10",
+  "needs_port": false,
+  "sha": "39274459738ab048edc91228ba6aba81b032e8e6",
+  "short_sha": "3927445973",
+  "subject": "chore: build Lean with `Elab.async` (#6989)",
+  "zig_target": {}
+}

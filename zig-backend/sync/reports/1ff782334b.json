@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "1ff782334b719bf9fd65473f5aa7f88bed8a2c4f",
+  "short_sha": "1ff782334b",
+  "subject": "chore: remove option for disabling zeta",
+  "zig_target": {}
+}

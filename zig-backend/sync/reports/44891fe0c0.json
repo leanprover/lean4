@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-20",
+  "needs_port": false,
+  "sha": "44891fe0c049c21735f9920227f5c8097c741dfc",
+  "short_sha": "44891fe0c0",
+  "subject": "chore: make `USE_LAKE` the default (#10003)",
+  "zig_target": {}
+}

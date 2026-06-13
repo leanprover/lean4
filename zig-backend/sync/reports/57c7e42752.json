@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "57c7e42752ca2fef572aec4c2d62b1b43fc83c5a",
+  "short_sha": "57c7e42752",
+  "subject": "fix: make `buildRec`  target wait for deps",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2018-11-07",
+  "needs_port": true,
+  "sha": "b56674cc25f508ffd88f939b91911cbb57226fd1",
+  "short_sha": "b56674cc25",
+  "subject": "fix(library/compiler/specialize): remove bogus optimization",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

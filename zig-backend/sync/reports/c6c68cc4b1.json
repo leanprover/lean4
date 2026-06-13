@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-16",
+  "needs_port": true,
+  "sha": "c6c68cc4b12834b91f067069117a187354fbdad9",
+  "short_sha": "c6c68cc4b1",
+  "subject": "feat: elaborate numerals",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

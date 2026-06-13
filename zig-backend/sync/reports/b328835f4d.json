@@ -1,0 +1,18 @@
+{
+  "author": "tydeu",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2023-08-15",
+  "needs_port": true,
+  "sha": "b328835f4d3a303e61d4e382246d8b8a97052a5f",
+  "short_sha": "b328835f4d",
+  "subject": "fix: lake: reverse-ffi, manifest, and 62 tests",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

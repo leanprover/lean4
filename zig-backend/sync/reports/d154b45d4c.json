@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-01",
+  "needs_port": true,
+  "sha": "d154b45d4c0b6f93532177b69371da52be438544",
+  "short_sha": "d154b45d4c",
+  "subject": "chore(library/compiler/builtin): avoid unused variable warning on clang++",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

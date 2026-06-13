@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-06-05",
+  "needs_port": false,
+  "sha": "f0a11b8864522312e766e591cd32b1b0445993d0",
+  "short_sha": "f0a11b8864",
+  "subject": "fix: FunInd: support structural recursion on reflexive types (#4327)",
+  "zig_target": {}
+}

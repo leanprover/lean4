@@ -1,0 +1,265 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/MonadLift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/MonadLift.lean"
+    },
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lex.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/QSort.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/QSort.lean"
+    },
+    {
+      "path": "src/Init/Data/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec.lean"
+    },
+    {
+      "path": "src/Init/Data/ByteArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray.lean"
+    },
+    {
+      "path": "src/Init/Data/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin.lean"
+    },
+    {
+      "path": "src/Init/Data/FloatArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/FloatArray.lean"
+    },
+    {
+      "path": "src/Init/Data/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format.lean"
+    },
+    {
+      "path": "src/Init/Data/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Internal.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Internal.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    },
+    {
+      "path": "src/Init/Data/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option.lean"
+    },
+    {
+      "path": "src/Init/Data/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String.lean"
+    },
+    {
+      "path": "src/Init/Data/Sum.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Sum.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module.lean"
+    }
+  ],
+  "date": "2025-10-06",
+  "needs_port": true,
+  "sha": "232a0495b0b11e6817adfed89b1e913bbbc34157",
+  "short_sha": "232a0495b0",
+  "subject": "chore: remove `public section` from end of files (#10684)",
+  "truncated": true,
+  "zig_target": {
+    "src/Init/Control.lean": "zig-backend/src/init/Control.lean",
+    "src/Init/Control/Lawful.lean": "zig-backend/src/init/Control/Lawful.lean",
+    "src/Init/Control/Lawful/MonadLift.lean": "zig-backend/src/init/Control/Lawful/MonadLift.lean",
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Array.lean": "zig-backend/src/init/Data/Array.lean",
+    "src/Init/Data/Array/Lex.lean": "zig-backend/src/init/Data/Array/Lex.lean",
+    "src/Init/Data/Array/QSort.lean": "zig-backend/src/init/Data/Array/QSort.lean",
+    "src/Init/Data/Basic.lean": "zig-backend/src/init/Data/Basic.lean",
+    "src/Init/Data/BitVec.lean": "zig-backend/src/init/Data/BitVec.lean",
+    "src/Init/Data/ByteArray.lean": "zig-backend/src/init/Data/ByteArray.lean",
+    "src/Init/Data/Char.lean": "zig-backend/src/init/Data/Char.lean",
+    "src/Init/Data/Fin.lean": "zig-backend/src/init/Data/Fin.lean",
+    "src/Init/Data/FloatArray.lean": "zig-backend/src/init/Data/FloatArray.lean",
+    "src/Init/Data/Format.lean": "zig-backend/src/init/Data/Format.lean",
+    "src/Init/Data/Int.lean": "zig-backend/src/init/Data/Int.lean",
+    "src/Init/Data/Int/Bitwise.lean": "zig-backend/src/init/Data/Int/Bitwise.lean",
+    "src/Init/Data/Int/DivMod.lean": "zig-backend/src/init/Data/Int/DivMod.lean",
+    "src/Init/Data/Iterators/Combinators.lean": "zig-backend/src/init/Data/Iterators/Combinators.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic.lean",
+    "src/Init/Data/Iterators/Consumers.lean": "zig-backend/src/init/Data/Iterators/Consumers.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic.lean",
+    "src/Init/Data/Iterators/Internal.lean": "zig-backend/src/init/Data/Iterators/Internal.lean",
+    "src/Init/Data/Iterators/Lemmas.lean": "zig-backend/src/init/Data/Iterators/Lemmas.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic.lean",
+    "src/Init/Data/List.lean": "zig-backend/src/init/Data/List.lean",
+    "src/Init/Data/List/Nat.lean": "zig-backend/src/init/Data/List/Nat.lean",
+    "src/Init/Data/List/Sort.lean": "zig-backend/src/init/Data/List/Sort.lean",
+    "src/Init/Data/Nat.lean": "zig-backend/src/init/Data/Nat.lean",
+    "src/Init/Data/Nat/Bitwise.lean": "zig-backend/src/init/Data/Nat/Bitwise.lean",
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean",
+    "src/Init/Data/Option.lean": "zig-backend/src/init/Data/Option.lean",
+    "src/Init/Data/Range.lean": "zig-backend/src/init/Data/Range.lean",
+    "src/Init/Data/Slice/Array.lean": "zig-backend/src/init/Data/Slice/Array.lean",
+    "src/Init/Data/String.lean": "zig-backend/src/init/Data/String.lean",
+    "src/Init/Data/Sum.lean": "zig-backend/src/init/Data/Sum.lean",
+    "src/Init/Data/ToString.lean": "zig-backend/src/init/Data/ToString.lean",
+    "src/Init/Data/UInt.lean": "zig-backend/src/init/Data/UInt.lean",
+    "src/Init/Data/Vector.lean": "zig-backend/src/init/Data/Vector.lean",
+    "src/Init/Grind/Module.lean": "zig-backend/src/init/Grind/Module.lean"
+  }
+}

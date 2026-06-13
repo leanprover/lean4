@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "36bfe7b266d62e8decd826455521bd639bf5ef67",
+  "short_sha": "36bfe7b266",
+  "subject": "feat: add `assertAfter` tactic",
+  "zig_target": {}
+}

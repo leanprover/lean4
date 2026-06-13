@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "f84fa475667cd44c9a210a26e61afaf70966fb00",
+  "short_sha": "f84fa47566",
+  "subject": "fix: use `resolveGlobalConstNoOverload` at `implementedBy` attribute handler",
+  "zig_target": {}
+}

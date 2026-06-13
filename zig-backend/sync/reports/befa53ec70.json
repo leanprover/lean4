@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.h"
+    }
+  ],
+  "date": "2019-02-11",
+  "needs_port": true,
+  "sha": "befa53ec7019144ea779029dd4d6f580dfaa0581",
+  "short_sha": "befa53ec70",
+  "subject": "feat(library/compiler/emit_cpp): use new `extern_attribute` module",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/extern_attribute.h": "zig-backend/src/library/compiler/extern_attribute.h"
+  }
+}

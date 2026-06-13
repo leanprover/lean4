@@ -1,0 +1,10 @@
+{
+  "author": "Jannis Limperg",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "8e89cdc05c19e66bef47b67e7094d7de9fe1d750",
+  "short_sha": "8e89cdc05c",
+  "subject": "feat: add BinomialHeap.{deleteMin,tail?}",
+  "zig_target": {}
+}

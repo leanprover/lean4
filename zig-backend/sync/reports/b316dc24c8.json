@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-03",
+  "needs_port": false,
+  "sha": "b316dc24c86f1b8522219ac054999b00e8afe955",
+  "short_sha": "b316dc24c8",
+  "subject": "feat: more array goodies and naming convetion",
+  "zig_target": {}
+}

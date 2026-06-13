@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-08-07",
+  "needs_port": false,
+  "sha": "574066b30b32ed9742042706b59ea0c12d0541d8",
+  "short_sha": "574066b30b",
+  "subject": "fix: language server windows issues (#4821)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-22",
+  "needs_port": false,
+  "sha": "c40cba66fb9b35faef110356ea5b7229badd3962",
+  "short_sha": "c40cba66fb",
+  "subject": "fix(library/init/lean/parser/parser): use `eraseDups` when registering builting parsers",
+  "zig_target": {}
+}

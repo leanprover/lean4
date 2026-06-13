@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "95910108dc12e262b4d49bd7b08796b9bfaff6e0",
+  "short_sha": "95910108dc",
+  "subject": "fix: delaborator: share mdata tree position with child",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-19",
+  "needs_port": true,
+  "sha": "44dd77a739709d50d6c2049daaa9022725e50176",
+  "short_sha": "44dd77a739",
+  "subject": "feat(runtime/lean): ByteArray API",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-21",
+  "needs_port": false,
+  "sha": "c41b3d6928f1227c786b21c3ed9b0eefcb9d455a",
+  "short_sha": "c41b3d6928",
+  "subject": "fix: reset local context at `addPreDefinitions`",
+  "zig_target": {}
+}

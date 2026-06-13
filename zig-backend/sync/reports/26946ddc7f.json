@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-15",
+  "needs_port": false,
+  "sha": "26946ddc7f3bcd20fb8bff94e1dbeb39e3fb08d3",
+  "short_sha": "26946ddc7f",
+  "subject": "feat: `Inv.lean` for grind linarith (#8800)",
+  "zig_target": {}
+}

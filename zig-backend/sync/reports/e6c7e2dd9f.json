@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "e6c7e2dd9f8583f9aba2e23f75666ede911c780d",
+  "short_sha": "e6c7e2dd9f",
+  "subject": "chore: CI: Nix ccache permissions",
+  "zig_target": {}
+}

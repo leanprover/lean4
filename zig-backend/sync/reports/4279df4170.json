@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2020-02-01",
+  "needs_port": true,
+  "sha": "4279df417063a03500c7b47b81332cf74acfe698",
+  "short_sha": "4279df4170",
+  "subject": "perf: special-case antiquotation syntax in Pratt parser to avoid choice nodes",
+  "zig_target": {
+    "src/Init/Lean/Parser/Command.lean": "zig-backend/src/init/Lean/Parser/Command.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

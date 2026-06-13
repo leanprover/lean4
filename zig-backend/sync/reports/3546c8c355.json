@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-29",
+  "needs_port": false,
+  "sha": "3546c8c355dce3115e28155a342e40604a5da509",
+  "short_sha": "3546c8c355",
+  "subject": "chore: always show test diff",
+  "zig_target": {}
+}

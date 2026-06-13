@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    },
+    {
+      "path": "src/library/compiler/ll_infer_type.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.h"
+    }
+  ],
+  "date": "2018-11-09",
+  "needs_port": true,
+  "sha": "d3ad1cbfe18d0b17adca5c7471e7694f27f3cf3f",
+  "short_sha": "d3ad1cbfe1",
+  "subject": "feat(library/compiler): add type inference for ENF and LLNF",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp",
+    "src/library/compiler/ll_infer_type.h": "zig-backend/src/library/compiler/ll_infer_type.h"
+  }
+}

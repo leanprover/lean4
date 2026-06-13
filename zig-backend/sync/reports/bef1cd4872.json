@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-25",
+  "needs_port": false,
+  "sha": "bef1cd487284ba80136940e69055265874ea7e82",
+  "short_sha": "bef1cd4872",
+  "subject": "fix: make structure instance notation (e.g., `{ a, b }`) works in patterns after we define the Set notation in Mathlib",
+  "zig_target": {}
+}

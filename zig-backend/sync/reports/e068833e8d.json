@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-11",
+  "needs_port": false,
+  "sha": "e068833e8d1e4c02c18d5aab4dc7e9a2556f0311",
+  "short_sha": "e068833e8d",
+  "subject": "fix: register missing `simp` trace classes",
+  "zig_target": {}
+}

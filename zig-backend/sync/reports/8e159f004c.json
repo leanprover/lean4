@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-25",
+  "needs_port": false,
+  "sha": "8e159f004cad5f3e3118945adf833225c9c5a7d4",
+  "short_sha": "8e159f004c",
+  "subject": "fix: missing `synthesizeSyntheticMVarsNoPostponing` at `elabMatch`",
+  "zig_target": {}
+}

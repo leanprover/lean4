@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-17",
+  "needs_port": false,
+  "sha": "6561fc259f1fe371b753152640c922c20682d55e",
+  "short_sha": "6561fc259f",
+  "subject": "feat: add `MonadBacktrack` instance for `CompilerM`",
+  "zig_target": {}
+}

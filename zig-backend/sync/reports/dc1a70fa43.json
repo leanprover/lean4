@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-11",
+  "needs_port": false,
+  "sha": "dc1a70fa43d97393e0688b320783aef2aa2809eb",
+  "short_sha": "dc1a70fa43",
+  "subject": "feat: congruence equations for matchers (#8284)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-27",
+  "needs_port": false,
+  "sha": "fb408c024b0849548080d6fd6c77d131f4f487c0",
+  "short_sha": "fb408c024b",
+  "subject": "fix: deleting built-in docstrings",
+  "zig_target": {}
+}

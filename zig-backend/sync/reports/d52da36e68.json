@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-08-07",
+  "needs_port": false,
+  "sha": "d52da36e6869a7eaf334d0d49bc1e69d75f3670b",
+  "short_sha": "d52da36e68",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

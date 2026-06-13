@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-21",
+  "needs_port": false,
+  "sha": "19a701e5c9d2afb98374204ec28f59bf253d8841",
+  "short_sha": "19a701e5c9",
+  "subject": "refactor: one more recursive structure (#6159)",
+  "zig_target": {}
+}

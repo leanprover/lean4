@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-04",
+  "needs_port": false,
+  "sha": "01b0c3e0cc20c9f632860cb86ff65816a9ca12a6",
+  "short_sha": "01b0c3e0cc",
+  "subject": "perf: unfold `GT.gt` and `GE.ge` in the `grind` normalizer (#9199)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2023-10-24",
+  "needs_port": true,
+  "sha": "b00c13a00e17b40744e5de3061adbabf96adbd5c",
+  "short_sha": "b00c13a00e",
+  "subject": "chore: remove \"paper cut\" when using `Fin USize.size` (#2724)",
+  "zig_target": {
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

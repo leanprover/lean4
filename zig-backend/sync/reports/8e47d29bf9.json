@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-03",
+  "needs_port": false,
+  "sha": "8e47d29bf915fa2b6ce0ac6359ec23a74f7b6d42",
+  "short_sha": "8e47d29bf9",
+  "subject": "feat: `debug_assert!` (#7256)",
+  "zig_target": {}
+}

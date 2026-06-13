@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/DoNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/DoNotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    },
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-02-01",
+  "needs_port": true,
+  "sha": "3dfc93550a9e17efddf8ade8ed742e06ff5e80a7",
+  "short_sha": "3dfc93550a",
+  "subject": "feat: add `liftMacroM`",
+  "zig_target": {
+    "src/Init/Lean/Elab/DoNotation.lean": "zig-backend/src/init/Lean/Elab/DoNotation.lean",
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean",
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Check.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/LevelDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Trace.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Trace.lean"
+    }
+  ],
+  "date": "2019-12-08",
+  "needs_port": true,
+  "sha": "1352619ee43075cb783ec002ed9d67cb359892b2",
+  "short_sha": "1352619ee4",
+  "subject": "refactor: `MonadTracer` and helper functions",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/Check.lean": "zig-backend/src/init/Lean/Meta/Check.lean",
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean",
+    "src/Init/Lean/Meta/LevelDefEq.lean": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean",
+    "src/Init/Lean/Util/Trace.lean": "zig-backend/src/init/Lean/Util/Trace.lean"
+  }
+}

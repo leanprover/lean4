@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-11",
+  "needs_port": false,
+  "sha": "1e821d4057bed07b87e014362325a49b707552a8",
+  "short_sha": "1e821d4057",
+  "subject": "chore(library/init/fix): rename primitives",
+  "zig_target": {}
+}

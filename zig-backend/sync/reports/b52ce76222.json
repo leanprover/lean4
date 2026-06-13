@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "b52ce76222230fd2f1d3119055c5635a58fc1130",
+  "short_sha": "b52ce76222",
+  "subject": "feat: display uncaught internal exceptions",
+  "zig_target": {}
+}

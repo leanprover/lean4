@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-17",
+  "needs_port": false,
+  "sha": "308d58ad773fbd916da81637b40162a10e9535c1",
+  "short_sha": "308d58ad77",
+  "subject": "chore(library/init/lean/trace): remove 'meta'",
+  "zig_target": {}
+}

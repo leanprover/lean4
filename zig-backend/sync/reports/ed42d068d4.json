@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/BasicAux.lean"
+    }
+  ],
+  "date": "2025-02-14",
+  "needs_port": true,
+  "sha": "ed42d068d4c3275f2a99890458850ac14249c24b",
+  "short_sha": "ed42d068d4",
+  "subject": "feat: `UIntX.ofNatTruncate` (#7080)",
+  "zig_target": {
+    "src/Init/Data/UInt/BasicAux.lean": "zig-backend/src/init/Data/UInt/BasicAux.lean"
+  }
+}

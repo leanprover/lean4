@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-27",
+  "needs_port": false,
+  "sha": "41539a7725a80c7e413c1de0624f5a78420ebcbf",
+  "short_sha": "41539a7725",
+  "subject": "fix: leftovers in the local context when applying `induction`",
+  "zig_target": {}
+}

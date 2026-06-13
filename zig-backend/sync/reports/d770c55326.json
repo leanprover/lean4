@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-25",
+  "needs_port": false,
+  "sha": "d770c553262c4aed8b6bea936918c5d77cf192d1",
+  "short_sha": "d770c55326",
+  "subject": "feat: universe level parameters in instances are `outParam` by default",
+  "zig_target": {}
+}

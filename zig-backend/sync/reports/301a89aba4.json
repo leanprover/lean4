@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Omega/IntList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/IntList.lean"
+    }
+  ],
+  "date": "2024-06-21",
+  "needs_port": true,
+  "sha": "301a89aba4e462a11b0d45dd9b675c5262c6d358",
+  "short_sha": "301a89aba4",
+  "subject": "feat: lemmas about List.map (#4521)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean",
+    "src/Init/Omega/IntList.lean": "zig-backend/src/init/Omega/IntList.lean"
+  }
+}

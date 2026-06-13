@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-25",
+  "needs_port": false,
+  "sha": "0e28043ec6749ab227d84b690fbb10375dcf714c",
+  "short_sha": "0e28043ec6",
+  "subject": "feat: add `simpTelescope` simproc for simplifying binders before intro (#12154)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-05",
+  "needs_port": false,
+  "sha": "6bf2486e13a78ef1ef37d496a81081fc12bc8f20",
+  "short_sha": "6bf2486e13",
+  "subject": "chore: include comparator and lean4export in release process (#11899)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-08-09",
+  "needs_port": true,
+  "sha": "de5c7cbff04a0eb261bc446f7a0fc669b9b724a7",
+  "short_sha": "de5c7cbff0",
+  "subject": "fix(shell/CMakeLists): bin_lean_stage0 should not be part of the default target as it conflicts with bin_lean",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

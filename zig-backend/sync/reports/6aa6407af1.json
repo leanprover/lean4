@@ -1,0 +1,36 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    },
+    {
+      "path": "src/runtime/buffer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/buffer.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-01-28",
+  "needs_port": true,
+  "sha": "6aa6407af1101eb48ec56ab6596748539810607a",
+  "short_sha": "6aa6407af1",
+  "subject": "perf: use C23's `free_sized` when available (#6598)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp",
+    "src/runtime/buffer.h": "zig-backend/src/runtime/buffer.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

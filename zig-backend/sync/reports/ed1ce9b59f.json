@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-03-03",
+  "needs_port": false,
+  "sha": "ed1ce9b59ff210adf0d897c1b0a59602f92fc1b0",
+  "short_sha": "ed1ce9b59f",
+  "subject": "chore: make lock error message more precise",
+  "zig_target": {}
+}

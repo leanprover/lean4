@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-08",
+  "needs_port": false,
+  "sha": "d1ca45d83aea65fb2482c37372826dc335fa9234",
+  "short_sha": "d1ca45d83a",
+  "subject": "chore: use `#[]` instead of `Array.empty`",
+  "zig_target": {}
+}

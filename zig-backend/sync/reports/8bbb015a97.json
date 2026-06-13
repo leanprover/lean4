@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Fold.lean"
+    }
+  ],
+  "date": "2024-05-29",
+  "needs_port": true,
+  "sha": "8bbb015a973904d00d89cb844920d49c9cacbef5",
+  "short_sha": "8bbb015a97",
+  "subject": "chore: add namespace in Init/Data/Fin/Fold (#4304)",
+  "zig_target": {
+    "src/Init/Data/Fin/Fold.lean": "zig-backend/src/init/Data/Fin/Fold.lean"
+  }
+}

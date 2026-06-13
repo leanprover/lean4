@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-11",
+  "needs_port": false,
+  "sha": "43e57358af85d90ab9b735714e4962785f0ee10f",
+  "short_sha": "43e57358af",
+  "subject": "refactor(library/module_mgr): minor refactorings",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-03",
+  "needs_port": false,
+  "sha": "8d603d34dca8419a1f9ee3343d7edb520c5b8a40",
+  "short_sha": "8d603d34dc",
+  "subject": "feat: make `set_library_suggestions` persistent",
+  "zig_target": {}
+}

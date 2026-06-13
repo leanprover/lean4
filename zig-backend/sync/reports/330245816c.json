@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-14",
+  "needs_port": false,
+  "sha": "330245816cbed696b1ed357ab940db44cb253da8",
+  "short_sha": "330245816c",
+  "subject": "fix: macro: inferred syntax kinds for literal parsers",
+  "zig_target": {}
+}

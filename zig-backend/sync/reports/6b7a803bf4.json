@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-16",
+  "needs_port": false,
+  "sha": "6b7a803bf44ba24cb4feee7d13a580790a4238bd",
+  "short_sha": "6b7a803bf4",
+  "subject": "fix: mapError to store message data context (#8375)",
+  "zig_target": {}
+}

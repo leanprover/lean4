@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "2be87ecd92ea75f0afd7e5cfa12a12a18c59d191",
+  "short_sha": "2be87ecd92",
+  "subject": "chore(library/init): `Bool.tt` => `Bool.true` and `Bool.ff` => `Bool.false`",
+  "zig_target": {}
+}

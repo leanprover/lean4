@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-02",
+  "needs_port": true,
+  "sha": "3f98b4835c434c0319bd16feadb6f77239813eb5",
+  "short_sha": "3f98b4835c",
+  "subject": "chore: add Fin.mk_eq_zero simp lemma (#7286)",
+  "zig_target": {
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

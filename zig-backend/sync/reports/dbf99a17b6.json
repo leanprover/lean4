@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Basic.lean"
+    },
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-11-11",
+  "needs_port": true,
+  "sha": "dbf99a17b63b2d34d40293700fdf755e7786eec1",
+  "short_sha": "dbf99a17b6",
+  "subject": "chore: define notation using `infix` commands",
+  "zig_target": {
+    "src/Init/Control/Basic.lean": "zig-backend/src/init/Control/Basic.lean",
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

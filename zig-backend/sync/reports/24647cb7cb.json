@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-30",
+  "needs_port": false,
+  "sha": "24647cb7cb7182bbd47ffac3a4ce81aaacd87c26",
+  "short_sha": "24647cb7cb",
+  "subject": "fix(library/init/lean/parser/parser): better representation for many1 Syntax node",
+  "zig_target": {}
+}

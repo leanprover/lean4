@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-03-16",
+  "needs_port": false,
+  "sha": "d954706fcf01784bdefd01cd0513565a53b32f17",
+  "short_sha": "d954706fcf",
+  "subject": "feat: `ApplyNewGoals` config for `apply`",
+  "zig_target": {}
+}

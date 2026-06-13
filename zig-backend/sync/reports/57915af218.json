@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-04-23",
+  "needs_port": false,
+  "sha": "57915af218086affceebcb9135811df05e5af083",
+  "short_sha": "57915af218",
+  "subject": "fix: reducing Nat.pow, kernel interprets constant as Nat literal (#8060)",
+  "zig_target": {}
+}

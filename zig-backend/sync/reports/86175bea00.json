@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ExplicitRC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/InferBorrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PropagateBorrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PropagateBorrow.lean"
+    }
+  ],
+  "date": "2026-03-23",
+  "needs_port": true,
+  "sha": "86175bea00f2d963a8c1367ac8ae67dd70ab32ea",
+  "short_sha": "86175bea00",
+  "subject": "perf: teach borrow inference about arrays (#13064)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ExplicitRC.lean": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean",
+    "src/Lean/Compiler/LCNF/InferBorrow.lean": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean",
+    "src/Lean/Compiler/LCNF/PropagateBorrow.lean": "zig-backend/src/lean/compiler/lcnf/PropagateBorrow.lean"
+  }
+}

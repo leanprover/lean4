@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-03-12",
+  "needs_port": true,
+  "sha": "64e60f77b38d32381812410fe44bf619408d2752",
+  "short_sha": "64e60f77b3",
+  "subject": "chore(runtime/object): remove dead code",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

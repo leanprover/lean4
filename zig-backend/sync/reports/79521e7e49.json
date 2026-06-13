@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-07",
+  "needs_port": false,
+  "sha": "79521e7e49ce26a082e2bcabed401b4526021c04",
+  "short_sha": "79521e7e49",
+  "subject": "feat(library/init/core): add has_beq type class",
+  "zig_target": {}
+}

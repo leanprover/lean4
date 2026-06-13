@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-15",
+  "needs_port": false,
+  "sha": "c322ef0cab175670b41416e7ea6871547275d9aa",
+  "short_sha": "c322ef0cab",
+  "subject": "fix(tests/util/object): use new calling convention for `apply`",
+  "zig_target": {}
+}

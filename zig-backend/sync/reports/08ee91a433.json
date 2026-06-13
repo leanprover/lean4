@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2026-01-28",
+  "needs_port": true,
+  "sha": "08ee91a4337f18895f4342e8337cb0ca3980463a",
+  "short_sha": "08ee91a433",
+  "subject": "feat: add DecidableEq instances for Sigma and PSimga (#12193)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

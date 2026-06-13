@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "10a8822ac54ff94f48a2c2454d508fef05b0c4c8",
+  "short_sha": "10a8822ac5",
+  "subject": "fix(library/init/lean/parser/module): use `updateLeading`",
+  "zig_target": {}
+}

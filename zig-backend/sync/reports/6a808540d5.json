@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/System.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System.lean"
+    },
+    {
+      "path": "src/Init/System/Macros.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/init/System/Macros.lean"
+    }
+  ],
+  "date": "2020-10-09",
+  "needs_port": true,
+  "sha": "6a808540d5b12581f88c00c347e7abf4235e4ab5",
+  "short_sha": "6a808540d5",
+  "subject": "chore: remove macro `println!`",
+  "zig_target": {
+    "src/Init/System.lean": "zig-backend/src/init/System.lean",
+    "src/Init/System/Macros.lean": "zig-backend/src/init/System/Macros.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CSE.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CSE.lean"
+    }
+  ],
+  "date": "2025-06-23",
+  "needs_port": true,
+  "sha": "24cbd4efbea2e8d4b398b6362941bb87d8cce138",
+  "short_sha": "24cbd4efbe",
+  "subject": "fix: correctly handle never_extract attribute in LCNF CSE (#8952)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CSE.lean": "zig-backend/src/lean/compiler/lcnf/CSE.lean"
+  }
+}

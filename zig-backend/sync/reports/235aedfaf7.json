@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-07",
+  "needs_port": false,
+  "sha": "235aedfaf7e6e4c6573e79b89b42a225cd0e7e1e",
+  "short_sha": "235aedfaf7",
+  "subject": "chore: use `--wfail` for core CI build (#13294)",
+  "zig_target": {}
+}

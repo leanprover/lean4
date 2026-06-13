@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-23",
+  "needs_port": false,
+  "sha": "13bcbe91cd072a2cbb15c4d021d3bdc96f90c1a1",
+  "short_sha": "13bcbe91cd",
+  "subject": "fix: regression reported at issue #1113",
+  "zig_target": {}
+}

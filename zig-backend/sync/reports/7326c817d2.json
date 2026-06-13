@@ -1,0 +1,10 @@
+{
+  "author": "kzvi",
+  "backend_changes": [],
+  "date": "2022-07-02",
+  "needs_port": false,
+  "sha": "7326c817d22e15c7bf8c8c12670c52b10b137aa9",
+  "short_sha": "7326c817d2",
+  "subject": "fix: fix typos in deBruijn.lean and phoas.lean examples",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-05-31",
+  "needs_port": false,
+  "sha": "502380e1f08bfb377be79fd5b53a15aa4316a411",
+  "short_sha": "502380e1f0",
+  "subject": "fix: record fvar alias info for generalized variables in `induction`/`cases` (#8002)",
+  "zig_target": {}
+}

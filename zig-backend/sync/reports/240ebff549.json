@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.h"
+    }
+  ],
+  "date": "2024-08-07",
+  "needs_port": true,
+  "sha": "240ebff549a2cf557f9abe9568f5de885f13e50d",
+  "short_sha": "240ebff549",
+  "subject": "chore: Windows needs more `LEAN_EXPORT`s (#4941)",
+  "zig_target": {
+    "src/runtime/alloc.h": "zig-backend/src/runtime/alloc.h"
+  }
+}

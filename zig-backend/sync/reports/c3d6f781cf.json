@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-08",
+  "needs_port": false,
+  "sha": "c3d6f781cfa768b0e21748d66042d1ea82b361be",
+  "short_sha": "c3d6f781cf",
+  "subject": "refactor: publishDiagnostics",
+  "zig_target": {}
+}

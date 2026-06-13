@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-21",
+  "needs_port": false,
+  "sha": "cfaba85199c3b513134f26c907cc278985a722c3",
+  "short_sha": "cfaba85199",
+  "subject": "feat: load precompiled modules in the server",
+  "zig_target": {}
+}

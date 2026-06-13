@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-04",
+  "needs_port": false,
+  "sha": "58df9cb813dad6d224a1e48e0a1f85d3485c5df5",
+  "short_sha": "58df9cb813",
+  "subject": "chore(library/Makefile.in): prevent infinite make cycles",
+  "zig_target": {}
+}

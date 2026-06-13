@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-13",
+  "needs_port": false,
+  "sha": "9f21d6fd64bf6fb54498e831b007644f2aaa3d6f",
+  "short_sha": "9f21d6fd64",
+  "subject": "fix: preserve token parse errors",
+  "zig_target": {}
+}

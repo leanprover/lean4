@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-05-20",
+  "needs_port": false,
+  "sha": "42bd44ab82ad6cdfa7b44c1c907863b0d7caaceb",
+  "short_sha": "42bd44ab82",
+  "subject": "refactor: Capture environment modification in `mkMatcher`.",
+  "zig_target": {}
+}

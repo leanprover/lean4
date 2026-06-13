@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "4b57bc26b36e4068d821a1ad3fc2e0a59f938b3d",
+  "short_sha": "4b57bc26b3",
+  "subject": "chore: rm stale test",
+  "zig_target": {}
+}

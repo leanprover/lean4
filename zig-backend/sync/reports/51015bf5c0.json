@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-11-26",
+  "needs_port": false,
+  "sha": "51015bf5c0f9f5cfda42c83eb2e572e7f8193206",
+  "short_sha": "51015bf5c0",
+  "subject": "fix: lake: eager logging when materializing deps (#6225)",
+  "zig_target": {}
+}

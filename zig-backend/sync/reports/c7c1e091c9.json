@@ -1,0 +1,18 @@
+{
+  "author": "Vlad Tsyrklevich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-28",
+  "needs_port": true,
+  "sha": "c7c1e091c9f07ae6f8e8ff7246eb7650e2740dcb",
+  "short_sha": "c7c1e091c9",
+  "subject": "feat: add BitVec comparison lemmas to bv_normalize (#6799)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

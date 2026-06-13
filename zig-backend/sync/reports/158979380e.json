@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-04-24",
+  "needs_port": false,
+  "sha": "158979380edf0cd772faff1e9b736cbe388a6ee6",
+  "short_sha": "158979380e",
+  "subject": "feat: make `Level -> MessageData` coercion respect `pp.mvars` (#3980)",
+  "zig_target": {}
+}

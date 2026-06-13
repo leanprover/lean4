@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-21",
+  "needs_port": false,
+  "sha": "eb0c015e7c7c0d9b77362847b3630894cea81bae",
+  "short_sha": "eb0c015e7c",
+  "subject": "perf: quadratic behavior in `whnfCore` (#7630)",
+  "zig_target": {}
+}

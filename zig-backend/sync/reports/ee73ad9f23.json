@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-30",
+  "needs_port": false,
+  "sha": "ee73ad9f234cd043fd3f38a19d18729465b0cc6b",
+  "short_sha": "ee73ad9f23",
+  "subject": "chore: update mdBook fork",
+  "zig_target": {}
+}

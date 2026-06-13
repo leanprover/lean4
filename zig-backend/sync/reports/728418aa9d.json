@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-03",
+  "needs_port": false,
+  "sha": "728418aa9d311f39d1c77d7c6586c0354832b8d1",
+  "short_sha": "728418aa9d",
+  "subject": "feat: add `ForIn` instance for `LocalContext`",
+  "zig_target": {}
+}

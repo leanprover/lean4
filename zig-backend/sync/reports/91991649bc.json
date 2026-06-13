@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-07",
+  "needs_port": false,
+  "sha": "91991649bc039933fd06b64067eb1b7716059f16",
+  "short_sha": "91991649bc",
+  "subject": "fix: connect occurrences of mutable variable inside and outside `for` in info tree",
+  "zig_target": {}
+}

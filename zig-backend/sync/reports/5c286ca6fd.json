@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-15",
+  "needs_port": false,
+  "sha": "5c286ca6fd93389ac38554e352435b23a46a2dd0",
+  "short_sha": "5c286ca6fd",
+  "subject": "chore: bench cross suite: move default.nix and update README",
+  "zig_target": {}
+}

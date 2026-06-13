@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-25",
+  "needs_port": false,
+  "sha": "ec8b351445d218964f105183b13e0f8a559f53a3",
+  "short_sha": "ec8b351445",
+  "subject": "refactor: generalize some IO-related code",
+  "zig_target": {}
+}

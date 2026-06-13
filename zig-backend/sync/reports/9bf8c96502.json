@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2019-12-20",
+  "needs_port": true,
+  "sha": "9bf8c965025ca05d24b222fdbfcd383f91c2922a",
+  "short_sha": "9bf8c96502",
+  "subject": "feat: save original node kind in antiquot node kind for checking in `match_syntax`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean",
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-09",
+  "needs_port": false,
+  "sha": "2004ea5ec09da0c831ffff28d56453c94b19e510",
+  "short_sha": "2004ea5ec0",
+  "subject": "feat: add `AuxLemma.lean`",
+  "zig_target": {}
+}

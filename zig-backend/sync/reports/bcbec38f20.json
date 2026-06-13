@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-21",
+  "needs_port": false,
+  "sha": "bcbec38f20b49801597d74665405879a7eb1b84b",
+  "short_sha": "bcbec38f20",
+  "subject": "feat: add support for projection functions and extra documentation",
+  "zig_target": {}
+}

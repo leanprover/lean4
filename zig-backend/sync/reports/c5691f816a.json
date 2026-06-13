@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-10-10",
+  "needs_port": false,
+  "sha": "c5691f816a1ff0dd67b009098431f4c808452a52",
+  "short_sha": "c5691f816a",
+  "subject": "feat: cancel tasks on document edit",
+  "zig_target": {}
+}

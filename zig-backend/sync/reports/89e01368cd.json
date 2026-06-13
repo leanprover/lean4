@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-15",
+  "needs_port": false,
+  "sha": "89e01368cdc69725070614a7e25cde975cae6976",
+  "short_sha": "89e01368cd",
+  "subject": "fix(library/init/lean/environment): throw error if environment already contains constant",
+  "zig_target": {}
+}

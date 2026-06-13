@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-04-07",
+  "needs_port": true,
+  "sha": "a3b83f7ca958e3e0e00565fc91252f7db4d31c58",
+  "short_sha": "a3b83f7ca9",
+  "subject": "feat: improve `Bool` normalization in `grind` (#7862)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

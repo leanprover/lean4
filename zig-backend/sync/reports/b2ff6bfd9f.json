@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-30",
+  "needs_port": false,
+  "sha": "b2ff6bfd9f0a20685c0330525e9763871a03c785",
+  "short_sha": "b2ff6bfd9f",
+  "subject": "fix(library/relative.py): Windows and Linux builds",
+  "zig_target": {}
+}

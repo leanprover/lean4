@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/AddExtern.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+    },
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    }
+  ],
+  "date": "2025-07-08",
+  "needs_port": true,
+  "sha": "d664b6b888c9dd21f4e315a120885e8e4e9645da",
+  "short_sha": "d664b6b888",
+  "subject": "fix: move lean_add_extern implementation to Lean (#9268)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/AddExtern.lean": "zig-backend/src/lean/compiler/ir/AddExtern.lean",
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp"
+  }
+}

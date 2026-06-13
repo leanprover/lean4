@@ -1,0 +1,10 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [],
+  "date": "2022-03-11",
+  "needs_port": false,
+  "sha": "6dc576121ddbecade4443600a60a5f269c2f57ff",
+  "short_sha": "6dc576121d",
+  "subject": "doc: replace quickstart leanpkg info with info about lake",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-04",
+  "needs_port": false,
+  "sha": "f3752861c934c277630cc0dc5a812bbcc8b6f3a3",
+  "short_sha": "f3752861c9",
+  "subject": "fix: validate stage0 version matches release version (#12700)",
+  "zig_target": {}
+}

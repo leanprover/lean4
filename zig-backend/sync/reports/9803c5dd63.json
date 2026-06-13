@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2024-05-18",
+  "needs_port": true,
+  "sha": "9803c5dd63dc993628287d5f998525e74af03839",
+  "short_sha": "9803c5dd63",
+  "subject": "chore: prepare to move `cdot` and `calc` parsers to `Lean` namespace",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

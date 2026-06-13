@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    }
+  ],
+  "date": "2021-01-20",
+  "needs_port": true,
+  "sha": "46c62a3fedf00667970a42be2040cbbd3f2be081",
+  "short_sha": "46c62a3fed",
+  "subject": "chore: add missing instances",
+  "zig_target": {
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean"
+  }
+}

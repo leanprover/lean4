@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-03",
+  "needs_port": false,
+  "sha": "152a84c468f4c2a7deb25553e7e41618debcf28f",
+  "short_sha": "152a84c468",
+  "subject": "perf: reject rewrites that produce same expr",
+  "zig_target": {}
+}

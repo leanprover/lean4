@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Types.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+    }
+  ],
+  "date": "2025-10-21",
+  "needs_port": true,
+  "sha": "37b78bd53d82f319a467996c7705292283a4c1ef",
+  "short_sha": "37b78bd53d",
+  "subject": "chore: more module system fixes and refinements for finishing batteries port (#10819)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Types.lean": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+  }
+}

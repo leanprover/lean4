@@ -1,0 +1,18 @@
+{
+  "author": "Markus Schmaus",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    }
+  ],
+  "date": "2024-06-24",
+  "needs_port": true,
+  "sha": "5178c4b6da31889925c0df9e861d3433ce7a6dd8",
+  "short_sha": "5178c4b6da",
+  "subject": "feat: change `succ` to `+ 1` (#4532)",
+  "zig_target": {
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean"
+  }
+}

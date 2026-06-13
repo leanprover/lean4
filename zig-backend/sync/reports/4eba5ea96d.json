@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-11-29",
+  "needs_port": false,
+  "sha": "4eba5ea96dc722ca03b8baf6dece655d33fe8220",
+  "short_sha": "4eba5ea96d",
+  "subject": "fix: shake: only record non-builtin simprocs (#11344)",
+  "zig_target": {}
+}

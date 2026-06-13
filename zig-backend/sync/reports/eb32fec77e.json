@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-05",
+  "needs_port": false,
+  "sha": "eb32fec77ea0ccabbf55f628ed00686585178598",
+  "short_sha": "eb32fec77e",
+  "subject": "feat: add `admit` tactic",
+  "zig_target": {}
+}

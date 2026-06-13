@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-28",
+  "needs_port": false,
+  "sha": "62177069fd7fed65810e8fa71d6017c04b8c2797",
+  "short_sha": "62177069fd",
+  "subject": "fix: induction tactic",
+  "zig_target": {}
+}

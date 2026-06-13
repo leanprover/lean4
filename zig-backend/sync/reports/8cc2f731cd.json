@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-08-16",
+  "needs_port": false,
+  "sha": "8cc2f731cddd862abb24aecf86bfe500bf8d9f5a",
+  "short_sha": "8cc2f731cd",
+  "subject": "chore(tests/bench/speedcenter.exec.yaml): fix again",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-22",
+  "needs_port": false,
+  "sha": "ec20725cfb9f38fa60558b7f6c14e285c7066bcf",
+  "short_sha": "ec20725cfb",
+  "subject": "feat: use `searchFuel` instead of `searchDepth` at `contradiction`",
+  "zig_target": {}
+}

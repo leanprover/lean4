@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-02",
+  "needs_port": false,
+  "sha": "d9956a9d0542f32f52e743dc14205d6f05dd266d",
+  "short_sha": "d9956a9d05",
+  "subject": "perf: properly specialize through `PrefixTree` (#9681)",
+  "zig_target": {}
+}

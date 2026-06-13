@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-30",
+  "needs_port": false,
+  "sha": "6035ed56ea85005982136e3911bff821e437662c",
+  "short_sha": "6035ed56ea",
+  "subject": "fix: make root module \"private\" to the package",
+  "zig_target": {}
+}

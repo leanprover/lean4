@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-06",
+  "needs_port": false,
+  "sha": "5d35e9496ef895339131f00017f2013c10f8edfe",
+  "short_sha": "5d35e9496e",
+  "subject": "doc: fix MetavarContext markdown (#3026)",
+  "zig_target": {}
+}

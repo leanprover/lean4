@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-02-22",
+  "needs_port": true,
+  "sha": "b6ed97bb3dad824d3c1fc82dbf290ef0505c42d0",
+  "short_sha": "b6ed97bb3d",
+  "subject": "feat: setup simp lemmas: 'msb -> getLsb -> decide ...' (#3436)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

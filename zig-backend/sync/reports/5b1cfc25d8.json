@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/extensible_object.h",
+      "status": "D",
+      "zig_target": "zig-backend/include/lean/extensible_object.h"
+    }
+  ],
+  "date": "2021-07-22",
+  "needs_port": true,
+  "sha": "5b1cfc25d8d2971a5a491ecdf97bc1d4b2dd7b8e",
+  "short_sha": "5b1cfc25d8",
+  "subject": "chore: remove obsolete header",
+  "zig_target": {
+    "src/include/lean/extensible_object.h": "zig-backend/include/lean/extensible_object.h"
+  }
+}

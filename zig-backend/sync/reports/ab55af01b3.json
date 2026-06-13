@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-05",
+  "needs_port": false,
+  "sha": "ab55af01b3ac1e04d650f694392e7c873b1fcb6d",
+  "short_sha": "ab55af01b3",
+  "subject": "feat: add builtin MissingDocs handler attr (part 1)",
+  "zig_target": {}
+}

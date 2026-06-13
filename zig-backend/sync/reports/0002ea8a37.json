@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-06-11",
+  "needs_port": false,
+  "sha": "0002ea8a3702a0c2191b03e1274aefc05b53ca8c",
+  "short_sha": "0002ea8a37",
+  "subject": "feat: pre-stage0 groundwork for named error messages (#8649)",
+  "zig_target": {}
+}

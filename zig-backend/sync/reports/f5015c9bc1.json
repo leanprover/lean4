@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-06-16",
+  "needs_port": false,
+  "sha": "f5015c9bc1a41a9521a975dc66c27dd18c2d37d3",
+  "short_sha": "f5015c9bc1",
+  "subject": "feat: adjust fun/do precedence in old frontend",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-07-11",
+  "needs_port": true,
+  "sha": "ae2a9b46885155bd6079148d6341b28715e9b7fa",
+  "short_sha": "ae2a9b4688",
+  "subject": "perf: `propagateEqUp` (#9326)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

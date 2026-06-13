@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-27",
+  "needs_port": false,
+  "sha": "c7347bbe0fb08c2c530778af30d7b2b6f846306b",
+  "short_sha": "c7347bbe0f",
+  "subject": "fix: that's not how Makefiles work",
+  "zig_target": {}
+}

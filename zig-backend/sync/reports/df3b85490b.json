@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-05",
+  "needs_port": false,
+  "sha": "df3b85490b894876e6066790205f20bd1e325b93",
+  "short_sha": "df3b85490b",
+  "subject": "feat(library/init/lean/position): add new `FileMap`",
+  "zig_target": {}
+}

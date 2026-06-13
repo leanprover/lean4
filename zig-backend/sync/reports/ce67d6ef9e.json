@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-04",
+  "needs_port": false,
+  "sha": "ce67d6ef9ea598d5bc7b7dd84985342ca3559db9",
+  "short_sha": "ce67d6ef9e",
+  "subject": "fix: lake: track trace of cached build logs (#4343)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-10",
+  "needs_port": false,
+  "sha": "fc4f51d759c7232584ed3716a924b90c27b516b1",
+  "short_sha": "fc4f51d759",
+  "subject": "feat: pick up specs from the local context in mvcgen (#12395)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-02",
+  "needs_port": false,
+  "sha": "cda84702e9b31165f1f83c657b532f36f34e0bd0",
+  "short_sha": "cda84702e9",
+  "subject": "doc: add guidance on waiting for CI/merges in release command (#12755)",
+  "zig_target": {}
+}

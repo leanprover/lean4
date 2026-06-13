@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-04-23",
+  "needs_port": true,
+  "sha": "1151ef9af0342d1ed854d50d17fcabedd76aec9a",
+  "short_sha": "1151ef9af0",
+  "subject": "chore: add `Macro.Methods`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

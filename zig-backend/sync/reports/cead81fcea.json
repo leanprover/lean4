@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-15",
+  "needs_port": false,
+  "sha": "cead81fcead24922b47b808f18fce9cef5c6bb20",
+  "short_sha": "cead81fcea",
+  "subject": "fix(frontends/lean/inductive_cmds): set `m_explicit_levels`, and call `collect_implicit_locals` only after that",
+  "zig_target": {}
+}

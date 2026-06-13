@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-08",
+  "needs_port": false,
+  "sha": "341b4ac652eb24471aeb55060f423fe6616025b2",
+  "short_sha": "341b4ac652",
+  "subject": "doc: link to some macro documentation",
+  "zig_target": {}
+}

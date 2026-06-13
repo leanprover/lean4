@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Delaborator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Delaborator.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/App.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/App.lean"
+    }
+  ],
+  "date": "2020-03-23",
+  "needs_port": true,
+  "sha": "fdc03c9d7402745293627f1a4295d24184b1363e",
+  "short_sha": "fdc03c9d74",
+  "subject": "feat: delab projections",
+  "zig_target": {
+    "src/Init/Lean/Delaborator.lean": "zig-backend/src/init/Lean/Delaborator.lean",
+    "src/Init/Lean/Elab/App.lean": "zig-backend/src/init/Lean/Elab/App.lean"
+  }
+}

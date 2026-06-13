@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-07-08",
+  "needs_port": false,
+  "sha": "818b9d7de046a57ddb6febdfa93be3fd94b7685c",
+  "short_sha": "818b9d7de0",
+  "subject": "chore: update codeowners (#4681)",
+  "zig_target": {}
+}

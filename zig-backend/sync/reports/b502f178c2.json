@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/reduce_arity.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/reduce_arity.cpp"
+    }
+  ],
+  "date": "2019-06-19",
+  "needs_port": true,
+  "sha": "b502f178c2c435601344ab0996c314e6ad3d642f",
+  "short_sha": "b502f178c2",
+  "subject": "chore(library/compiler/reduce_arity): fix typo",
+  "zig_target": {
+    "src/library/compiler/reduce_arity.cpp": "zig-backend/src/library/compiler/reduce_arity.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-04-28",
+  "needs_port": false,
+  "sha": "87120c312e10bc76c86767ea6082c009e7b0ee80",
+  "short_sha": "87120c312e",
+  "subject": "fix: typo in `enableInitializersExecution` error message (#13553)",
+  "zig_target": {}
+}

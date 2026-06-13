@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-01-25",
+  "needs_port": true,
+  "sha": "7b6caba457667d544922188e8800598dce06a53f",
+  "short_sha": "7b6caba457",
+  "subject": "feat: add `ident as a valid elaboration kind",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

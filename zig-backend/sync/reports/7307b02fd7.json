@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2022-03-25",
+  "needs_port": true,
+  "sha": "7307b02fd7e518eceb80ed96498123c40d729157",
+  "short_sha": "7307b02fd7",
+  "subject": "fix: missing test at `has_trivial_structure`",
+  "zig_target": {
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-02-17",
+  "needs_port": true,
+  "sha": "827021a6c53ccae8aacea911cdbea40ffe15171c",
+  "short_sha": "827021a6c5",
+  "subject": "feat(runtime/object): given `mk_task(o)`, mark objects reachable from `o` as MTHeap",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

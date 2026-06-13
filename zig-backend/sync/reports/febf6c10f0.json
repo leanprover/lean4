@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Int.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/SInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/SInt.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/UInt.lean"
+    }
+  ],
+  "date": "2025-04-30",
+  "needs_port": true,
+  "sha": "febf6c10f0852bb5ccf32eb7f978494ad15eb94e",
+  "short_sha": "febf6c10f0",
+  "subject": "fix: update Grind.CommRing to avoid constructing non-defeq NatCast instance (#8161)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Grind/CommRing/Int.lean": "zig-backend/src/init/Grind/CommRing/Int.lean",
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean",
+    "src/Init/Grind/CommRing/SInt.lean": "zig-backend/src/init/Grind/CommRing/SInt.lean",
+    "src/Init/Grind/CommRing/UInt.lean": "zig-backend/src/init/Grind/CommRing/UInt.lean"
+  }
+}

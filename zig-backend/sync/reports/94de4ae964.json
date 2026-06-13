@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-23",
+  "needs_port": false,
+  "sha": "94de4ae96413d83bf0964d83500be0d3cdeff18f",
+  "short_sha": "94de4ae964",
+  "subject": "fix: make `Repr` deriving instance handle explicit type parameters (#5432)",
+  "zig_target": {}
+}

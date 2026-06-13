@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-15",
+  "needs_port": false,
+  "sha": "ade8cb729618568a61035ad5d3afa0993b243dbd",
+  "short_sha": "ade8cb7296",
+  "subject": "chore(library/init/lean/ir): make it clear that big number may be a tagged pointer",
+  "zig_target": {}
+}

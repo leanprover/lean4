@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-05",
+  "needs_port": false,
+  "sha": "4b9a765cfbdc6a075f33eb48fbdae811b0b9b349",
+  "short_sha": "4b9a765cfb",
+  "subject": "refactor `PackageTarget` -> `ActivePackageTarget`",
+  "zig_target": {}
+}

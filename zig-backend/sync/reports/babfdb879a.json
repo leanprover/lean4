@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-10-25",
+  "needs_port": false,
+  "sha": "babfdb879a49bce8e131a9cd8bf6f8142bcff6c9",
+  "short_sha": "babfdb879a",
+  "subject": "feat: add aux_def command",
+  "zig_target": {}
+}

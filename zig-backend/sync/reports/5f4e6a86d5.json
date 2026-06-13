@@ -1,0 +1,18 @@
+{
+  "author": "jrr6",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2025-07-18",
+  "needs_port": true,
+  "sha": "5f4e6a86d577b9beedc29f1366d5aa36c0fa1a30",
+  "short_sha": "5f4e6a86d5",
+  "subject": "feat: update and explain \"unknown constant\" and \"failed to infer type\" errors (#9423)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

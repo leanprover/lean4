@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Rat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+    }
+  ],
+  "date": "2025-09-24",
+  "needs_port": true,
+  "sha": "ac0b82933f6eac9914011ca2caf38d0e4e991160",
+  "short_sha": "ac0b82933f",
+  "subject": "chore: add variant of `Rat.ofScientific_def` for `grind` (#10534)",
+  "zig_target": {
+    "src/Init/Data/Rat/Lemmas.lean": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+  }
+}

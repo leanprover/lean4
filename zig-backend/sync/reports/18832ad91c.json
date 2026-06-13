@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-04-18",
+  "needs_port": true,
+  "sha": "18832ad91cd8bb650aa1c40223c91f478c181d0c",
+  "short_sha": "18832ad91c",
+  "subject": "feat: add `autoUnfold` to `Simp.Config`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

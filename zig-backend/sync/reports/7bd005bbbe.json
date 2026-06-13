@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-01-04",
+  "needs_port": false,
+  "sha": "7bd005bbbee5c3521546c7aab41fcdbf039a087d",
+  "short_sha": "7bd005bbbe",
+  "subject": "test: add test for local macro in auto tactic",
+  "zig_target": {}
+}

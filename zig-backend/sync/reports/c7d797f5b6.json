@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-31",
+  "needs_port": false,
+  "sha": "c7d797f5b673eb092e236a30c9f4abe43853f33d",
+  "short_sha": "c7d797f5b6",
+  "subject": "feat: add `simpMatch` and use it at `splitMatch`",
+  "zig_target": {}
+}

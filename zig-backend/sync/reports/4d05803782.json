@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    }
+  ],
+  "date": "2022-06-12",
+  "needs_port": true,
+  "sha": "4d05803782e6561d961bf2d77f8644278ab6c0da",
+  "short_sha": "4d05803782",
+  "subject": "feat: WF lemma for Nat division",
+  "zig_target": {
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean"
+  }
+}

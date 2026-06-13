@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-08-24",
+  "needs_port": true,
+  "sha": "720c3ca3e42094e27aa93470610ea23525a29af2",
+  "short_sha": "720c3ca3e4",
+  "subject": "fix(runtime): `size_t` issue OSX vs Linux",
+  "zig_target": {
+    "src/runtime/mpz.h": "zig-backend/src/runtime/mpz.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-08-24",
+  "needs_port": true,
+  "sha": "63b11368cab0ff9e82744d5333e6493d76874b0a",
+  "short_sha": "63b11368ca",
+  "subject": "chore: add `Or.elim` for tutorial",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-11-17",
+  "needs_port": false,
+  "sha": "8671f81aa5c6e1f13d28c453164291f23f6b58cc",
+  "short_sha": "8671f81aa5",
+  "subject": "fix: lakefile require syntax in `package not found on Reservoir` error (#11198)",
+  "zig_target": {}
+}

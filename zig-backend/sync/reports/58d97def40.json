@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-22",
+  "needs_port": false,
+  "sha": "58d97def40c3ae51a109239217e9d66bbbdd6b87",
+  "short_sha": "58d97def40",
+  "subject": "chore: Nix: cache .o files on macOS as well",
+  "zig_target": {}
+}

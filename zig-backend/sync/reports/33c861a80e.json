@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-26",
+  "needs_port": false,
+  "sha": "33c861a80e5e800fe46328e34e3106ac10e4703e",
+  "short_sha": "33c861a80e",
+  "subject": "fix: parenthesizer: really make sure a trailing parser is of the same category as the continuation",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "thorimur",
+  "backend_changes": [],
+  "date": "2023-10-14",
+  "needs_port": false,
+  "sha": "b5e95bf63206a98d5c5c051f20202bfd4cf57b6a",
+  "short_sha": "b5e95bf632",
+  "subject": "fix: allow constants to be marked for `dsimp`",
+  "zig_target": {}
+}

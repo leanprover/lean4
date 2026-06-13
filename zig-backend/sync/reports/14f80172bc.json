@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-10-03",
+  "needs_port": false,
+  "sha": "14f80172bcc099ed97b21eef4a7afbce2ec35b53",
+  "short_sha": "14f80172bc",
+  "subject": "chore: typo in fix-pr-release.yml (#5601)",
+  "zig_target": {}
+}

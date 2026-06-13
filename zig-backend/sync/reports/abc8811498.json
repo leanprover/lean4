@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Level.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Level.lean"
+    }
+  ],
+  "date": "2020-01-05",
+  "needs_port": true,
+  "sha": "abc8811498c71a36743607312dd94caea839f97c",
+  "short_sha": "abc8811498",
+  "subject": "feat: add `LevelSet` and `PersistentLevelSet`",
+  "zig_target": {
+    "src/Init/Lean/Level.lean": "zig-backend/src/init/Lean/Level.lean"
+  }
+}

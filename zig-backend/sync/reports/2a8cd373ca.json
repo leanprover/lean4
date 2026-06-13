@@ -1,0 +1,36 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.h"
+    },
+    {
+      "path": "src/library/compiler/llvm.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llvm.cpp"
+    },
+    {
+      "path": "src/runtime/platform.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/platform.cpp"
+    }
+  ],
+  "date": "2025-06-14",
+  "needs_port": true,
+  "sha": "2a8cd373ca323b01b37105b529cf04cfe19092bc",
+  "short_sha": "2a8cd373ca",
+  "subject": "feat: respect `lean --setup` module name in code generation (#8780)",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp",
+    "src/library/compiler/ir_interpreter.h": "zig-backend/src/library/compiler/ir_interpreter.h",
+    "src/library/compiler/llvm.cpp": "zig-backend/src/library/compiler/llvm.cpp",
+    "src/runtime/platform.cpp": "zig-backend/src/runtime/platform.cpp"
+  }
+}

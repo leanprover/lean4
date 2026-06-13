@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-01-11",
+  "needs_port": false,
+  "sha": "e1887fa5103d2ca40d821ad10c0f5888607af190",
+  "short_sha": "e1887fa510",
+  "subject": "fix: put FFI lib in pkg lib dir in example (for Linux)",
+  "zig_target": {}
+}

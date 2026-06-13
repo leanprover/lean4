@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-25",
+  "needs_port": false,
+  "sha": "9e241a40878c7f4e55279606e0e03ce281159933",
+  "short_sha": "9e241a4087",
+  "subject": "fix: revert \"split ngen on async elab\" (#12148)",
+  "zig_target": {}
+}

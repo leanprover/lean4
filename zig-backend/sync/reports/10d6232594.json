@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-16",
+  "needs_port": false,
+  "sha": "10d6232594ddd6ea04729ab6244bfd9b548f7f27",
+  "short_sha": "10d6232594",
+  "subject": "chore: remove test for #10766 (#10804)",
+  "zig_target": {}
+}

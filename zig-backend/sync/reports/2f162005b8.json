@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    }
+  ],
+  "date": "2025-07-02",
+  "needs_port": true,
+  "sha": "2f162005b8a34e9d7074b0f475c8ab00b10269cb",
+  "short_sha": "2f162005b8",
+  "subject": "refactor: `module`-ize `Std.Data.DHashMap` (#9098)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean"
+  }
+}

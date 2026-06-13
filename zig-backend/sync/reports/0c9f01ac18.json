@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Makefile.in",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Makefile.in"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-12-11",
+  "needs_port": true,
+  "sha": "0c9f01ac184ca348cea4ae51132e4554aaa230ef",
+  "short_sha": "0c9f01ac18",
+  "subject": "fix: truly separate stage2/3 builds by copying all sources",
+  "zig_target": {
+    "src/Init/Makefile.in": "zig-backend/src/init/Makefile.in",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

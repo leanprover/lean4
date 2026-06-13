@@ -1,0 +1,24 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Search.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Search.lean"
+    }
+  ],
+  "date": "2025-11-26",
+  "needs_port": true,
+  "sha": "d8913f88dc2fa63ee66ff475605d1c0cb70bee62",
+  "short_sha": "d8913f88dc",
+  "subject": "feat: move `String` positions between slices (#11380)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Search.lean": "zig-backend/src/init/Data/String/Search.lean"
+  }
+}

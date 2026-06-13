@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-18",
+  "needs_port": false,
+  "sha": "aa177dacc3ce3f0d98cd5caf70081680e28d3b99",
+  "short_sha": "aa177dacc3",
+  "subject": "chore: Nix: fix macOS linker flags",
+  "zig_target": {}
+}

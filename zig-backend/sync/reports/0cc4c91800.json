@@ -1,0 +1,18 @@
+{
+  "author": "Giles Shaw",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div/Basic.lean"
+    }
+  ],
+  "date": "2025-07-22",
+  "needs_port": true,
+  "sha": "0cc4c918008d64269460bdba41fbcd3df8445af6",
+  "short_sha": "0cc4c91800",
+  "subject": "fix: change the proof of Nat.zero_mod to rfl (#9391)",
+  "zig_target": {
+    "src/Init/Data/Nat/Div/Basic.lean": "zig-backend/src/init/Data/Nat/Div/Basic.lean"
+  }
+}

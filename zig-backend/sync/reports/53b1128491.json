@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-13",
+  "needs_port": false,
+  "sha": "53b11284914485f0a77da13f827df1012158d842",
+  "short_sha": "53b1128491",
+  "subject": "chore: minimize amount of inlined code",
+  "zig_target": {}
+}

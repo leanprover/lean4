@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-21",
+  "needs_port": false,
+  "sha": "16873fb123cf79133531e3319450a7a8ddbba1d6",
+  "short_sha": "16873fb123",
+  "subject": "chore: modulize: work around unknown initial command (#12080)",
+  "zig_target": {}
+}

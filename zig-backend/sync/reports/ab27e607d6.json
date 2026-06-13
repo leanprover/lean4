@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-08-11",
+  "needs_port": false,
+  "sha": "ab27e607d6c300bf04c5b260fd9a8eef9cec247f",
+  "short_sha": "ab27e607d6",
+  "subject": "fix: LSP utility bugs",
+  "zig_target": {}
+}

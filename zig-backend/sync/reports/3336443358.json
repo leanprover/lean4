@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-03-29",
+  "needs_port": false,
+  "sha": "333644335800bcdd42cb91b15fd47d5ff7006b94",
+  "short_sha": "3336443358",
+  "subject": "fix: convert traces to messages at outermost level only",
+  "zig_target": {}
+}

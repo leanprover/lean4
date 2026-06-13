@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-06-10",
+  "needs_port": false,
+  "sha": "e123b327a5b451c665f3be25f05eab132eb559b1",
+  "short_sha": "e123b327a5",
+  "subject": "feat: enable auto-implicits in lake math template (#8656)",
+  "zig_target": {}
+}

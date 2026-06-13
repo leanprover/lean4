@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-10-03",
+  "needs_port": false,
+  "sha": "1a1daf8aba8b818da59d5bc62c11b0fe295dc799",
+  "short_sha": "1a1daf8aba",
+  "subject": "fix(typeclass/context): standardize eUnify fail message",
+  "zig_target": {}
+}

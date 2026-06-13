@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-26",
+  "needs_port": true,
+  "sha": "6578b2b6cecb175ecacf393c81fd666495e39a30",
+  "short_sha": "6578b2b6ce",
+  "subject": "chore(library/compiler/csimp): cleanup",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

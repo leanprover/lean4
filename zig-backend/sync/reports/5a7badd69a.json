@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-09",
+  "needs_port": false,
+  "sha": "5a7badd69a556546bab45b684cdd8f2c421d60be",
+  "short_sha": "5a7badd69a",
+  "subject": "feat: add support for erasing keyed attributes",
+  "zig_target": {}
+}

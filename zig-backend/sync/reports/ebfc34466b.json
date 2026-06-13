@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-03-10",
+  "needs_port": false,
+  "sha": "ebfc34466bac3f6eff296d585280633ddd6634fd",
+  "short_sha": "ebfc34466b",
+  "subject": "refactor: use `builtin_cbv_simproc` for the control-flow simprocs in `cbv` (#12870)",
+  "zig_target": {}
+}

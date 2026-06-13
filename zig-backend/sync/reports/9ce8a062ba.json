@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-26",
+  "needs_port": false,
+  "sha": "9ce8a062ba969360551b48cecee62d21c8a4693e",
+  "short_sha": "9ce8a062ba",
+  "subject": "perf: macro_inline ctorIdx for single constructor inductives (#11379)",
+  "zig_target": {}
+}

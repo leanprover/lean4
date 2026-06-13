@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-18",
+  "needs_port": false,
+  "sha": "bec538cc579b248aa93d67491bcbc1efa061063c",
+  "short_sha": "bec538cc57",
+  "subject": "chore: delete disabled new-compiler tests that are no longer very useful (#8873)",
+  "zig_target": {}
+}

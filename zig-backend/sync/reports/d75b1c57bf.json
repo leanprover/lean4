@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    }
+  ],
+  "date": "2018-10-05",
+  "needs_port": true,
+  "sha": "d75b1c57bf4bdb89fd0396c4e8c402946d53c3c7",
+  "short_sha": "d75b1c57bf",
+  "subject": "chore(library/compiler/preprocess): remove dependency",
+  "zig_target": {
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp"
+  }
+}

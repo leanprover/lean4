@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "6469890178986678af97999948b0dd7173554af2",
+  "short_sha": "6469890178",
+  "subject": "fix: apply ring normalizer to equalities coming from `grind` to core to `lia` (#11613)",
+  "zig_target": {}
+}

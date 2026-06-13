@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-01",
+  "needs_port": false,
+  "sha": "4843f933fac856b86e4cce8f9e9472a9cc82afc0",
+  "short_sha": "4843f933fa",
+  "subject": "feat: mkAntiquotNode",
+  "zig_target": {}
+}

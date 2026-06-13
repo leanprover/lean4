@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-19",
+  "needs_port": false,
+  "sha": "e8f768f9fd8cefc758533bc76e3a12b398ed4a39",
+  "short_sha": "e8f768f9fd",
+  "subject": "chore: cleanup `PersistentHashMap.lean`",
+  "zig_target": {}
+}

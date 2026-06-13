@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-09",
+  "needs_port": false,
+  "sha": "3ba9872f33ed92b320352c738cd8daa92db57083",
+  "short_sha": "3ba9872f33",
+  "subject": "feat: allow cdot notation at `simp`",
+  "zig_target": {}
+}

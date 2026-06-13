@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-15",
+  "needs_port": true,
+  "sha": "579d4627765dc8c6229567bbcd4c0fafbb45c563",
+  "short_sha": "579d462776",
+  "subject": "feat(library/compiler/llnf): add `process_app`",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

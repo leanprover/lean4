@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-03",
+  "needs_port": false,
+  "sha": "5b81042614f761f23270d328b9fe5cc33f4a528e",
+  "short_sha": "5b81042614",
+  "subject": "ci: add diffutils to Windows MSYS2 setup",
+  "zig_target": {}
+}

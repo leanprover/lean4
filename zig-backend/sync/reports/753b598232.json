@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "753b598232bc2ce80514014344ace648a292a6a9",
+  "short_sha": "753b598232",
+  "subject": "fix: delaborator: ignore mdata by default",
+  "zig_target": {}
+}

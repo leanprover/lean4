@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/LLVMBindings.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean"
+    },
+    {
+      "path": "src/library/compiler/llvm.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llvm.cpp"
+    }
+  ],
+  "date": "2024-02-13",
+  "needs_port": true,
+  "sha": "06f73d621b30f42e22c2b2ca8d6d797689430738",
+  "short_sha": "06f73d621b",
+  "subject": "fix: type mismatches in the LLVM backend (#3225)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/LLVMBindings.lean": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean",
+    "src/library/compiler/llvm.cpp": "zig-backend/src/library/compiler/llvm.cpp"
+  }
+}

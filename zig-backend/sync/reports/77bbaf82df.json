@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/DecidableEq.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/DecidableEq.lean"
+    }
+  ],
+  "date": "2022-02-10",
+  "needs_port": true,
+  "sha": "77bbaf82df92269fde9c35606214bee9a832d3e1",
+  "short_sha": "77bbaf82df",
+  "subject": "feat: decidable equality for arrays",
+  "zig_target": {
+    "src/Init/Data/Array.lean": "zig-backend/src/init/Data/Array.lean",
+    "src/Init/Data/Array/DecidableEq.lean": "zig-backend/src/init/Data/Array/DecidableEq.lean"
+  }
+}

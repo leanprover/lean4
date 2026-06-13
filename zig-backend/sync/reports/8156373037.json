@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-14",
+  "needs_port": false,
+  "sha": "8156373037445edb7cbd8f804fc95919588733bd",
+  "short_sha": "8156373037",
+  "subject": "fix: pass CMake Lake args to the Lake make build (#13410)",
+  "zig_target": {}
+}

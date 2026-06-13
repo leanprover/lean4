@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-21",
+  "needs_port": true,
+  "sha": "a83487ca5f0c475f5f0e89c463dbe216122bf5fc",
+  "short_sha": "a83487ca5f",
+  "subject": "chore: simplify `toParserDescr`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Syntax.lean": "zig-backend/src/init/Lean/Elab/Syntax.lean"
+  }
+}

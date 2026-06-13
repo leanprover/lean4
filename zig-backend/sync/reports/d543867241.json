@@ -1,0 +1,18 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    }
+  ],
+  "date": "2022-08-16",
+  "needs_port": true,
+  "sha": "d54386724190ad793afd98a324cc26844cccce09",
+  "short_sha": "d543867241",
+  "subject": "doc: fix typos",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean"
+  }
+}

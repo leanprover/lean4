@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-07",
+  "needs_port": false,
+  "sha": "2b9df7d8b9d8535e8ee2b076f6c0feb36b5fdf11",
+  "short_sha": "2b9df7d8b9",
+  "subject": "chore: make it clear that implementation relies on the fact that both branches of the `if-then-else` generate a node with the same kind",
+  "zig_target": {}
+}

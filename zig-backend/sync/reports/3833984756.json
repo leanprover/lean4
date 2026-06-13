@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-01-15",
+  "needs_port": false,
+  "sha": "3833984756c74d1dac426fe5584cb06ea3fffa7f",
+  "short_sha": "3833984756",
+  "subject": "feat: allow go-to-projection to look through reducible definitions (#12004)",
+  "zig_target": {}
+}

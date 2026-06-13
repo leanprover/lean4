@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-03",
+  "needs_port": false,
+  "sha": "d0dc5dfd3d526d0956cea987f8f3b91cfc0ebe17",
+  "short_sha": "d0dc5dfd3d",
+  "subject": "feat: propagation for functions with singleton domain in `grind` (#9699)",
+  "zig_target": {}
+}

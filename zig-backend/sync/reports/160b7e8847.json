@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-21",
+  "needs_port": false,
+  "sha": "160b7e88472c5554ee947b58059084cb8a818f6b",
+  "short_sha": "160b7e8847",
+  "subject": "refactor(library/init/meta/expr): `local_const` will have only one field",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-22",
+  "needs_port": false,
+  "sha": "9f1eb479b01d96b360b18ebf00bae5b929c096f9",
+  "short_sha": "9f1eb479b0",
+  "subject": "feat: functional induction for mutual structural recursion (#4772)",
+  "zig_target": {}
+}

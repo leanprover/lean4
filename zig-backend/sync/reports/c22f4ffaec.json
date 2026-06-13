@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-03",
+  "needs_port": false,
+  "sha": "c22f4ffaec8ef1d5339b25f2f29a2d8fad4c686a",
+  "short_sha": "c22f4ffaec",
+  "subject": "fix: partial fix of `focus` goal state",
+  "zig_target": {}
+}

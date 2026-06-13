@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-24",
+  "needs_port": false,
+  "sha": "0af4b6fb6f2aae054a30efeed7370c06cd8b4698",
+  "short_sha": "0af4b6fb6f",
+  "subject": "chore: remove hack that produces big search space",
+  "zig_target": {}
+}

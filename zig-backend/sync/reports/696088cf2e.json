@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-18",
+  "needs_port": false,
+  "sha": "696088cf2e6654a991426d06f697339b02513d07",
+  "short_sha": "696088cf2e",
+  "subject": "feat(library/init/lean/compiler/initattr): `@[init]` attribute in Lean",
+  "zig_target": {}
+}

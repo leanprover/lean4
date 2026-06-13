@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "1a81d60820ccc927f0cac1a819f2c494d24c68e5",
+  "short_sha": "1a81d60820",
+  "subject": "chore(frontends/lean/parser): simplify binder notation",
+  "zig_target": {}
+}

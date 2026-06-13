@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "dcf5f855ddd71dfc8e73c599834d3e361b816a3b",
+  "short_sha": "dcf5f855dd",
+  "subject": "test: scoped and local instances",
+  "zig_target": {}
+}

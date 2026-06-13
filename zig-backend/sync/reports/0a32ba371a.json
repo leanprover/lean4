@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2025-05-14",
+  "needs_port": false,
+  "sha": "0a32ba371ae28d0d22c46ca36292a328bc400269",
+  "short_sha": "0a32ba371a",
+  "subject": "perf: store `dsimp` cache in a `simp` call (#7428)",
+  "zig_target": {}
+}

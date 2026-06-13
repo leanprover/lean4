@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-03-25",
+  "needs_port": true,
+  "sha": "7c0912d41c6b9547b4b5e17d59bd6c17dfb2b4f2",
+  "short_sha": "7c0912d41c",
+  "subject": "refactor(frontends/lean/lean_environment): move environment parts out of lean_elaborator.cpp",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

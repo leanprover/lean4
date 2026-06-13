@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-11",
+  "needs_port": false,
+  "sha": "e8c23cdf7e6d5670cb2eb0d8fe7feda3577639b3",
+  "short_sha": "e8c23cdf7e",
+  "subject": "feat: add cache at `Lean/Elab/PreDefinition/WF/PackDomain.lean`",
+  "zig_target": {}
+}

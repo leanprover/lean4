@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "7fb763c50fff83c9b28c220f79ec235cac580f8c",
+  "short_sha": "7fb763c50f",
+  "subject": "chore(library/tactic): remove `dsimp` and `unfold` tactics",
+  "zig_target": {}
+}

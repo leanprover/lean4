@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    }
+  ],
+  "date": "2022-09-24",
+  "needs_port": true,
+  "sha": "ce12ecfe13bdeeb04734060ebec03f6acd6f27cd",
+  "short_sha": "ce12ecfe13",
+  "subject": "fix: free variable collision at `LCNF/Specialize.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/PrettyPrinter.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/PrettyPrinter.lean"
+    }
+  ],
+  "date": "2020-04-07",
+  "needs_port": true,
+  "sha": "11c3ada877c7e42c844602feebb99910ce9eb565",
+  "short_sha": "11c3ada877",
+  "subject": "feat: add [parenthesizer] attribute",
+  "zig_target": {
+    "src/Init/Lean/PrettyPrinter.lean": "zig-backend/src/init/Lean/PrettyPrinter.lean"
+  }
+}

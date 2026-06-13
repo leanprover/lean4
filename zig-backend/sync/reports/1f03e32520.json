@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2026-02-19",
+  "needs_port": true,
+  "sha": "1f03e3252001a9a5cdfb354bfc45895d047bf4ff",
+  "short_sha": "1f03e32520",
+  "subject": "perf: inline the hash accessor of Name (#12583)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

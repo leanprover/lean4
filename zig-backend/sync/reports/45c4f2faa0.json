@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-10",
+  "needs_port": false,
+  "sha": "45c4f2faa0a4e67ecdbe17ad8b29683de878e407",
+  "short_sha": "45c4f2faa0",
+  "subject": "refactor: remove _aux_discr",
+  "zig_target": {}
+}

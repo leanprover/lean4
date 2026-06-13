@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-06",
+  "needs_port": false,
+  "sha": "7de749a23ce0531d39c04aa7cd007289628622d9",
+  "short_sha": "7de749a23c",
+  "subject": "refactor: move `setElabConfig` to `Elab` directory",
+  "zig_target": {}
+}

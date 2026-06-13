@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-16",
+  "needs_port": false,
+  "sha": "000db32e401b174e8ad1d4d1c6dbe4e06b8ef585",
+  "short_sha": "000db32e40",
+  "subject": "chore(kernel/type_checker): remove dead branch",
+  "zig_target": {}
+}

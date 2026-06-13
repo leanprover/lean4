@@ -1,0 +1,18 @@
+{
+  "author": "Simon Hudon",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2020-01-23",
+  "needs_port": true,
+  "sha": "123577126c911a8587e888f7577d3009e50d01ce",
+  "short_sha": "123577126c",
+  "subject": "fix: #eval redirection of `stdout`",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

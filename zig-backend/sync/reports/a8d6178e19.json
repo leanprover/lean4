@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-05-30",
+  "needs_port": false,
+  "sha": "a8d6178e19a4b773bba4ecd6aff8a49b01db7491",
+  "short_sha": "a8d6178e19",
+  "subject": "feat: implement `have this` (part 2)",
+  "zig_target": {}
+}

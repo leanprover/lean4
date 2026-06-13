@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-05",
+  "needs_port": true,
+  "sha": "de7d43865e4220526b636bd312afd6305896b3e7",
+  "short_sha": "de7d43865e",
+  "subject": "feat: bitvector trichotomy lemmas (#8203)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

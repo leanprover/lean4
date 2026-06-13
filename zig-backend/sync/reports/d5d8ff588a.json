@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-02",
+  "needs_port": false,
+  "sha": "d5d8ff588abffc7e6ef771e8864aaaeaf89cc910",
+  "short_sha": "d5d8ff588a",
+  "subject": "Solver now returns `Package`",
+  "zig_target": {}
+}

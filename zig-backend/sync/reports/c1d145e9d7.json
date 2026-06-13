@@ -1,0 +1,120 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise/Basic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Gcd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Gcd.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/LemmasAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/LemmasAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Pow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Pow.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lcm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lcm.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/MinMax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/MinMax.lean"
+    },
+    {
+      "path": "src/Init/Omega/Constraint.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Constraint.lean"
+    },
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    },
+    {
+      "path": "src/Init/Omega/IntList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/IntList.lean"
+    }
+  ],
+  "date": "2025-03-12",
+  "needs_port": true,
+  "sha": "c1d145e9d70569274ac868805b4a8591d09718af",
+  "short_sha": "c1d145e9d7",
+  "subject": "feat: revision of Nat/Int lemmas (#7435)",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/Data/Int/Bitwise.lean": "zig-backend/src/init/Data/Int/Bitwise.lean",
+    "src/Init/Data/Int/Bitwise/Basic.lean": "zig-backend/src/init/Data/Int/Bitwise/Basic.lean",
+    "src/Init/Data/Int/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Int/Gcd.lean": "zig-backend/src/init/Data/Int/Gcd.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/LemmasAux.lean": "zig-backend/src/init/Data/Int/LemmasAux.lean",
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Data/Int/Pow.lean": "zig-backend/src/init/Data/Int/Pow.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Lcm.lean": "zig-backend/src/init/Data/Nat/Lcm.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean",
+    "src/Init/Data/Nat/MinMax.lean": "zig-backend/src/init/Data/Nat/MinMax.lean",
+    "src/Init/Omega/Constraint.lean": "zig-backend/src/init/Omega/Constraint.lean",
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean",
+    "src/Init/Omega/IntList.lean": "zig-backend/src/init/Omega/IntList.lean"
+  }
+}

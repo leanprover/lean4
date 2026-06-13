@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    }
+  ],
+  "date": "2021-01-20",
+  "needs_port": true,
+  "sha": "ce11b23a598f3bdda40527bd485501dc99a008f0",
+  "short_sha": "ce11b23a59",
+  "subject": "feat: use `deriving insertion sizeOf` for types defined at `Prelude.lean`",
+  "zig_target": {
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean"
+  }
+}

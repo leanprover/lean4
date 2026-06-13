@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-13",
+  "needs_port": false,
+  "sha": "127776288bfdaeed3b6fa10e30329d2746e6b1ea",
+  "short_sha": "127776288b",
+  "subject": "fix: GuessLex: also look for negations of Nat comparisons (#8321)",
+  "zig_target": {}
+}

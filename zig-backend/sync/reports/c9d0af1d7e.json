@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-16",
+  "needs_port": false,
+  "sha": "c9d0af1d7e95ab3152bc9b83706cca5494733266",
+  "short_sha": "c9d0af1d7e",
+  "subject": "chore: delete tests/lean/run/CompilerProbe.lean (#8833)",
+  "zig_target": {}
+}

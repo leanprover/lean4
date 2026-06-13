@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "ae03f15c92fed5ce240a018a49fbc374f8eaeeb0",
+  "short_sha": "ae03f15c92",
+  "subject": "test: default value set at copied structure",
+  "zig_target": {}
+}

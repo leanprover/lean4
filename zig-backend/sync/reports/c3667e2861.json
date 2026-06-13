@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Function.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Function.lean"
+    }
+  ],
+  "date": "2025-09-11",
+  "needs_port": true,
+  "sha": "c3667e2861798f7163ae674011e45c659ebe8957",
+  "short_sha": "c3667e2861",
+  "subject": "feat: upstream Function.Injective/Surjective (#10341)",
+  "zig_target": {
+    "src/Init/Data/Function.lean": "zig-backend/src/init/Data/Function.lean"
+  }
+}

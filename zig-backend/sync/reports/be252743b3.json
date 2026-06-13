@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-09",
+  "needs_port": false,
+  "sha": "be252743b323e7b07087ee0678c13a31f26c8be7",
+  "short_sha": "be252743b3",
+  "subject": "feat: add string interpolation for `MessageData`",
+  "zig_target": {}
+}

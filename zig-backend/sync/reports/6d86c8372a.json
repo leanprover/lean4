@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-23",
+  "needs_port": false,
+  "sha": "6d86c8372aa6acd3b92a41a38dd1a8d10ceb4fa2",
+  "short_sha": "6d86c8372a",
+  "subject": "perf: shake `Lean.Elab.Idbg` (#12664)",
+  "zig_target": {}
+}

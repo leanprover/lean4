@@ -1,0 +1,48 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/include/lean/io.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/io.h"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2020-08-31",
+  "needs_port": true,
+  "sha": "c88784ef9d7a34820d8ef7189a4777bdb05aa22d",
+  "short_sha": "c88784ef9d",
+  "subject": "refactor: consistent `io_result_mk*` naming",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/include/lean/io.h": "zig-backend/include/lean/io.h",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

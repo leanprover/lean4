@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-30",
+  "needs_port": false,
+  "sha": "8ed4d1d7e4308289637d25be230336efd39b1e72",
+  "short_sha": "8ed4d1d7e4",
+  "subject": "test: test process exit code",
+  "zig_target": {}
+}

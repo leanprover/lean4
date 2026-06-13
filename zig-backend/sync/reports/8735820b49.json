@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-16",
+  "needs_port": false,
+  "sha": "8735820b496b23e857513a35d4997495a37cdc9d",
+  "short_sha": "8735820b49",
+  "subject": "fix: anonymous constructor too restrictive",
+  "zig_target": {}
+}

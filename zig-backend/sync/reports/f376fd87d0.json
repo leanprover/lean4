@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-30",
+  "needs_port": false,
+  "sha": "f376fd87d049b0d49b8c811693a6aa30688c437c",
+  "short_sha": "f376fd87d0",
+  "subject": "feat: AC disequality simplification (#10186)",
+  "zig_target": {}
+}

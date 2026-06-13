@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-04-07",
+  "needs_port": false,
+  "sha": "4f6bcc5adac8d6234a9e3def3675402cb89823c6",
+  "short_sha": "4f6bcc5ada",
+  "subject": "chore: avoid segfault in stage2 (#13296)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-29",
+  "needs_port": false,
+  "sha": "adc462789ae285e9faf1a8cdee60a7544553b35b",
+  "short_sha": "adc462789a",
+  "subject": "chore(tests/playground/Makefile): output tables after benchmarking",
+  "zig_target": {}
+}

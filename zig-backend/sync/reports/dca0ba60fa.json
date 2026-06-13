@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "dca0ba60fa6ac7a3c3331ebbea6c19382bce7bf4",
+  "short_sha": "dca0ba60fa",
+  "subject": "feat(library/init/lean/parser/parser): add `fieldIdx` parser",
+  "zig_target": {}
+}

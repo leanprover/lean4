@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-05",
+  "needs_port": false,
+  "sha": "958f38b31ed9ef83eea53843caa6d0862f8d53ad",
+  "short_sha": "958f38b31e",
+  "subject": "feat: setup lean/lake env for server even if config has errors",
+  "zig_target": {}
+}

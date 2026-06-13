@@ -1,0 +1,60 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Array.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Option/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/List.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Monadic.lean"
+    }
+  ],
+  "date": "2025-05-13",
+  "needs_port": true,
+  "sha": "8eec1e4cfb5bff466c40cc2414a9efa6446f2564",
+  "short_sha": "8eec1e4cfb",
+  "subject": "feat: `Option` lemmas and cleanup (#8298)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Option.lean": "zig-backend/src/init/Data/Option.lean",
+    "src/Init/Data/Option/Array.lean": "zig-backend/src/init/Data/Option/Array.lean",
+    "src/Init/Data/Option/Attach.lean": "zig-backend/src/init/Data/Option/Attach.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Data/Option/List.lean": "zig-backend/src/init/Data/Option/List.lean",
+    "src/Init/Data/Option/Monadic.lean": "zig-backend/src/init/Data/Option/Monadic.lean"
+  }
+}

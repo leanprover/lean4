@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2021-12-03",
+  "needs_port": false,
+  "sha": "dcbc52611542c43b063617d471835a61311ac496",
+  "short_sha": "dcbc526115",
+  "subject": "feat: report header processing errors as error progress",
+  "zig_target": {}
+}

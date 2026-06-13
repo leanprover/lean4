@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-27",
+  "needs_port": true,
+  "sha": "0733273a788f2cdd0770449612806366d77a5a7d",
+  "short_sha": "0733273a78",
+  "subject": "feat: add BitVec.toNat_[abs|sdiv|smod] (#5491)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

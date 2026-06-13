@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-28",
+  "needs_port": false,
+  "sha": "26073c428baf929e1148804323e573fe191b9c74",
+  "short_sha": "26073c428b",
+  "subject": "fix: use `MonadFinally`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2020-02-25",
+  "needs_port": true,
+  "sha": "6a190690219cd409a34b32a7c606a3baad7d0392",
+  "short_sha": "6a19069021",
+  "subject": "feat: add \"filler\" fields",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToExpr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToExpr.lean"
+    }
+  ],
+  "date": "2022-08-23",
+  "needs_port": true,
+  "sha": "bce7eadfbc399ef9510bfdf1b19e369b737dbbfa",
+  "short_sha": "bce7eadfbc",
+  "subject": "feat: add `LCNF/Check.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean",
+    "src/Lean/Compiler/LCNF/InferType.lean": "zig-backend/src/lean/compiler/lcnf/InferType.lean",
+    "src/Lean/Compiler/LCNF/ToExpr.lean": "zig-backend/src/lean/compiler/lcnf/ToExpr.lean"
+  }
+}

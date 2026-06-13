@@ -1,0 +1,84 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/AddExtern.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/SimpCase.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/EmitC.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/EmitUtil.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/EmitUtil.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PhaseExt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PublicDeclsExt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PublicDeclsExt.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SimpCase.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Toposort.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Toposort.lean"
+    }
+  ],
+  "date": "2026-03-11",
+  "needs_port": true,
+  "sha": "652ca9f5b7d832244884d9452ec2f566faa8d680",
+  "short_sha": "652ca9f5b7",
+  "subject": "refactor: port EmitC to LCNF (#12781)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/AddExtern.lean": "zig-backend/src/lean/compiler/ir/AddExtern.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/SimpCase.lean": "zig-backend/src/lean/compiler/ir/SimpCase.lean",
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/EmitC.lean": "zig-backend/src/lean/compiler/lcnf/EmitC.lean",
+    "src/Lean/Compiler/LCNF/EmitUtil.lean": "zig-backend/src/lean/compiler/lcnf/EmitUtil.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/PhaseExt.lean": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean",
+    "src/Lean/Compiler/LCNF/PublicDeclsExt.lean": "zig-backend/src/lean/compiler/lcnf/PublicDeclsExt.lean",
+    "src/Lean/Compiler/LCNF/SimpCase.lean": "zig-backend/src/lean/compiler/lcnf/SimpCase.lean",
+    "src/Lean/Compiler/LCNF/Toposort.lean": "zig-backend/src/lean/compiler/lcnf/Toposort.lean"
+  }
+}

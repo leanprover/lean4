@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-08",
+  "needs_port": false,
+  "sha": "990882376403f4ba0376ab1017863ee38a7946e4",
+  "short_sha": "9908823764",
+  "subject": "chore: upstream Std.Tactic.ByCases",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-09-30",
+  "needs_port": false,
+  "sha": "506abff5327f3162e959ac8e00832a5bd4f50126",
+  "short_sha": "506abff532",
+  "subject": "fix: replace highlight with diffTag",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-08",
+  "needs_port": false,
+  "sha": "707ca63f87cf8bc194e78ad534b088988ecbb2a1",
+  "short_sha": "707ca63f87",
+  "subject": "chore: remove leftover `MK_THREAD_LOCAL_GET`",
+  "zig_target": {}
+}

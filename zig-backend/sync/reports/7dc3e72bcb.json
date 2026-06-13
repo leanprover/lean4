@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-11",
+  "needs_port": false,
+  "sha": "7dc3e72bcb079f552fdce5aa5657ace9857283e2",
+  "short_sha": "7dc3e72bcb",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

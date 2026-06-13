@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Meta.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Visibility.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+    }
+  ],
+  "date": "2025-10-26",
+  "needs_port": true,
+  "sha": "77ddfd49e676cf723912e70f1e97aa860aa095ab",
+  "short_sha": "77ddfd49e6",
+  "subject": "chore: further `shake` improvements (#10947)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Meta.lean": "zig-backend/src/lean/compiler/ir/Meta.lean",
+    "src/Lean/Compiler/LCNF/Visibility.lean": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+  }
+}

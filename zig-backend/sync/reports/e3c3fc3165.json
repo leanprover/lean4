@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-05",
+  "needs_port": false,
+  "sha": "e3c3fc31658043461d6d464b6c8dfcecfd4b5740",
+  "short_sha": "e3c3fc3165",
+  "subject": "feat: add helper macro `forIn!`",
+  "zig_target": {}
+}

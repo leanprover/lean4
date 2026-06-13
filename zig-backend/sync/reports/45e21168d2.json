@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-22",
+  "needs_port": false,
+  "sha": "45e21168d21985cb999bcb83d0781beb0d0e908f",
+  "short_sha": "45e21168d2",
+  "subject": "feat: hierarchical trace kinds",
+  "zig_target": {}
+}

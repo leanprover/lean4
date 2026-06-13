@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-14",
+  "needs_port": true,
+  "sha": "1c0ff0db72c655167a6278cc0869ac239ce92130",
+  "short_sha": "1c0ff0db72",
+  "subject": "fix(library/compiler/lcnf): make sure `lc_cast` applications are not overapplied",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

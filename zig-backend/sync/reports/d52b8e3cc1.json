@@ -1,0 +1,36 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/MonoTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Types.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+    }
+  ],
+  "date": "2025-04-16",
+  "needs_port": true,
+  "sha": "d52b8e3cc162012b7b70ed1d98ba4adc8e5e56ec",
+  "short_sha": "d52b8e3cc1",
+  "subject": "fix: use lcAny in more cases of type erasure (#7990)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/InferType.lean": "zig-backend/src/lean/compiler/lcnf/InferType.lean",
+    "src/Lean/Compiler/LCNF/MonoTypes.lean": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean",
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean",
+    "src/Lean/Compiler/LCNF/Types.lean": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+  }
+}

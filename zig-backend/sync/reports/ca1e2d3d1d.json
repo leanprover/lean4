@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.h"
+    }
+  ],
+  "date": "2018-10-29",
+  "needs_port": true,
+  "sha": "ca1e2d3d1d6a4cb73cb0018e86a26b8ff80048f7",
+  "short_sha": "ca1e2d3d1d",
+  "subject": "fix(library/compiler/llnf): typo and missing case",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp",
+    "src/library/compiler/llnf.h": "zig-backend/src/library/compiler/llnf.h"
+  }
+}

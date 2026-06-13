@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-07-27",
+  "needs_port": false,
+  "sha": "fe5894f2f6fdab1631c00dad2ce3ea80c82b39f0",
+  "short_sha": "fe5894f2f6",
+  "subject": "feat: lake: CLI options to control output & failure log levels (#4847)",
+  "zig_target": {}
+}

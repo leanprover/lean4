@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2026-01-28",
+  "needs_port": true,
+  "sha": "71be4901c37741b97cf999b31da01b6a3e29dfb4",
+  "short_sha": "71be4901c3",
+  "subject": "fix: do not compile with `-fwrapv` (#12132)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

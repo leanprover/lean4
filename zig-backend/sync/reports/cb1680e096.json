@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-08-24",
+  "needs_port": true,
+  "sha": "cb1680e096ae49653fb68c1a65d4b5a539f81ca6",
+  "short_sha": "cb1680e096",
+  "subject": "chore(runtime/object): use same idiom we used at del_core",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-02-13",
+  "needs_port": false,
+  "sha": "40c6dfa3ae15457501f8b603128d131a30a3784d",
+  "short_sha": "40c6dfa3ae",
+  "subject": "chore: dsimproc for UIntX.ofNatLT (#7068)",
+  "zig_target": {}
+}

@@ -1,0 +1,54 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Decidable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Decidable.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/BitVec.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/BitVec.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean"
+    },
+    {
+      "path": "src/Init/Data/Rat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice.lean"
+    }
+  ],
+  "date": "2025-09-26",
+  "needs_port": true,
+  "sha": "f4a02593441e28ff5510b0eedc63cd2e9807d6b4",
+  "short_sha": "f4a0259344",
+  "subject": "chore: cleanups uncovered by `Shake` (#10572)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Decidable.lean": "zig-backend/src/init/Data/BitVec/Decidable.lean",
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Range/Polymorphic/BitVec.lean": "zig-backend/src/init/Data/Range/Polymorphic/BitVec.lean",
+    "src/Init/Data/Range/Polymorphic/UInt.lean": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean",
+    "src/Init/Data/Rat/Basic.lean": "zig-backend/src/init/Data/Rat/Basic.lean",
+    "src/Init/Data/Slice.lean": "zig-backend/src/init/Data/Slice.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AbstractMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean"
+    }
+  ],
+  "date": "2019-12-01",
+  "needs_port": true,
+  "sha": "e82ca1456ed56f15d0cc362e5fb5888817adb6a4",
+  "short_sha": "e82ca1456e",
+  "subject": "chore: user `lambda` instead of `forall` to store result",
+  "zig_target": {
+    "src/Init/Lean/Meta/AbstractMVars.lean": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean"
+  }
+}

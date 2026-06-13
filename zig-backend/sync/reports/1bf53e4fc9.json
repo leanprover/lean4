@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "1bf53e4fc9efc2ee3985b48e50f4cc159bf01700",
+  "short_sha": "1bf53e4fc9",
+  "subject": "doc: add doc strings for `let` parsers",
+  "zig_target": {}
+}

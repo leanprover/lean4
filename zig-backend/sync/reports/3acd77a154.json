@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-09",
+  "needs_port": false,
+  "sha": "3acd77a1544c5f6e485bb36dac04c4d5e02e4b4f",
+  "short_sha": "3acd77a154",
+  "subject": "fix: make `elabTermEnsuringType` respect `errToSorry` when there is a type mismatch (#3633)",
+  "zig_target": {}
+}

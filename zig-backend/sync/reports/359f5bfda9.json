@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-29",
+  "needs_port": false,
+  "sha": "359f5bfda9aab6c917364f84a6b5d56660d02ccd",
+  "short_sha": "359f5bfda9",
+  "subject": "perf: add a large AIG benchmark for bv_decide (#7721)",
+  "zig_target": {}
+}

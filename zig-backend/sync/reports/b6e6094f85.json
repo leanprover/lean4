@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    }
+  ],
+  "date": "2025-11-25",
+  "needs_port": true,
+  "sha": "b6e6094f8522783418a56c85a1addb51724062c2",
+  "short_sha": "b6e6094f85",
+  "subject": "chore: beta reduce in specialization keys (#11353)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2026-03-04",
+  "needs_port": false,
+  "sha": "551086c85480eb69b85b7a59de8e75208c74984a",
+  "short_sha": "551086c854",
+  "subject": "feat: add core HTTP data types (#12126)",
+  "zig_target": {}
+}

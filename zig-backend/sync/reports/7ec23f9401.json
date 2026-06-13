@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-09",
+  "needs_port": false,
+  "sha": "7ec23f9401aef154d7b797f06d39ea2ebc2f0152",
+  "short_sha": "7ec23f9401",
+  "subject": "fix: `macro` command syntax",
+  "zig_target": {}
+}

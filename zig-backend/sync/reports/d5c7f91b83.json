@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-23",
+  "needs_port": false,
+  "sha": "d5c7f91b836a63fc839a7abb9a0b2620245ff77f",
+  "short_sha": "d5c7f91b83",
+  "subject": "chore: reorg manual main page",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-01-15",
+  "needs_port": true,
+  "sha": "51e408590f904a971ff33b114d6e6bfb9ec1f385",
+  "short_sha": "51e408590f",
+  "subject": "chore: do not copy whitespace in Syntax synth helpers",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

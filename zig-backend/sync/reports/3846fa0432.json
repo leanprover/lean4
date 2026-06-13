@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-31",
+  "needs_port": false,
+  "sha": "3846fa04321bb5c10b90ebb9f459864cbf948517",
+  "short_sha": "3846fa0432",
+  "subject": "feat: add `evalUnknown`",
+  "zig_target": {}
+}

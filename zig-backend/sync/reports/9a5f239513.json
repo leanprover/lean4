@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    }
+  ],
+  "date": "2021-03-20",
+  "needs_port": true,
+  "sha": "9a5f2395134a2668ae778f32262b3105c277483a",
+  "short_sha": "9a5f239513",
+  "subject": "refactor: remove `Monad Option` and `Alternative Option`",
+  "zig_target": {
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean"
+  }
+}

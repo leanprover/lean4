@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-06",
+  "needs_port": false,
+  "sha": "ca43608aa01da6f08ffb135227fe54bd8d9beb9b",
+  "short_sha": "ca43608aa0",
+  "subject": "feat: allow combining `private/public` and `protected`",
+  "zig_target": {}
+}

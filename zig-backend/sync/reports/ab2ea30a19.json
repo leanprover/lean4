@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-15",
+  "needs_port": false,
+  "sha": "ab2ea30a19ea804089ef0ea3314628c901da5c3e",
+  "short_sha": "ab2ea30a19",
+  "subject": "feat: replace fvars with consts",
+  "zig_target": {}
+}

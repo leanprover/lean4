@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-15",
+  "needs_port": false,
+  "sha": "eccd5c11c9b8ff535b083b0b664f71c36de1dc9b",
+  "short_sha": "eccd5c11c9",
+  "subject": "perf: `removeUnusedEqnHypotheses`",
+  "zig_target": {}
+}

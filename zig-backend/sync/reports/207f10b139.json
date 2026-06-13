@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "207f10b139d1581182c40bc035c1e50c8f659589",
+  "short_sha": "207f10b139",
+  "subject": "feat(library/init/lean/syntax): add `Syntax.lift`",
+  "zig_target": {}
+}

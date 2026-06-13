@@ -1,0 +1,24 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2024-11-22",
+  "needs_port": true,
+  "sha": "1126407d9b8358248ccf2f6bdc36787633c40887",
+  "short_sha": "1126407d9b",
+  "subject": "feat: create temporary directories (#6148)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

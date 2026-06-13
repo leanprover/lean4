@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-09",
+  "needs_port": false,
+  "sha": "94d899ad95a5c012aefc3677cfc793ef08de6dcf",
+  "short_sha": "94d899ad95",
+  "subject": "refactor: use `supportInterpreter` in lakefile",
+  "zig_target": {}
+}

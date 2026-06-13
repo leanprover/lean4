@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-19",
+  "needs_port": false,
+  "sha": "76753a0696f8e9a93ff58aa61533ed26731133f5",
+  "short_sha": "76753a0696",
+  "subject": "test(tests/playground/expr_const_folding): add Swift translation",
+  "zig_target": {}
+}

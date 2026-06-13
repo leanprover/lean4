@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-01",
+  "needs_port": false,
+  "sha": "de3b1986764418a0d4eefc4a0d2644dd49283da6",
+  "short_sha": "de3b198676",
+  "subject": "fix: use exe over lib & add missing opts from lib config to exe",
+  "zig_target": {}
+}

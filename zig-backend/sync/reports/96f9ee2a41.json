@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/Task.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Task.lean"
+    }
+  ],
+  "date": "2025-03-13",
+  "needs_port": true,
+  "sha": "96f9ee2a41e7e77ef011009107f5f3671d8a0d6c",
+  "short_sha": "96f9ee2a41",
+  "subject": "feat: allow async elab tasks to contribute to info trees reported to linters and request handlers (#7457)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/Task.lean": "zig-backend/src/init/Task.lean"
+  }
+}

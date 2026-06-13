@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "938c19aace99b7a79cc215578eeef84784780b47",
+  "short_sha": "938c19aace",
+  "subject": "chore: rename `mvcgen_invariant_type` attribute to `spec_invariant_type`, part 2 (#13157)",
+  "zig_target": {}
+}

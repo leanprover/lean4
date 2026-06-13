@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-12-01",
+  "needs_port": false,
+  "sha": "677561522db50ceef216ff0edf36db442953370d",
+  "short_sha": "677561522d",
+  "subject": "fix: add missing import (#11441)",
+  "zig_target": {}
+}

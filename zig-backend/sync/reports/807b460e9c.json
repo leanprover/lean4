@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-01",
+  "needs_port": false,
+  "sha": "807b460e9c76277c68158de32b550c50f9118619",
+  "short_sha": "807b460e9c",
+  "subject": "feat(*/elaborator): pass preresolved names to C++ as annotations and use them for global name resolution",
+  "zig_target": {}
+}

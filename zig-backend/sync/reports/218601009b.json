@@ -1,0 +1,60 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/BinSearch.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BinSearch.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ExpandResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/PushProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/PushProj.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+    }
+  ],
+  "date": "2024-10-31",
+  "needs_port": true,
+  "sha": "218601009ba922a42122f575f8ead0cb6f2da73d",
+  "short_sha": "218601009b",
+  "subject": "chore: rename Array.back to back! (#5897)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/BinSearch.lean": "zig-backend/src/init/Data/Array/BinSearch.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Lean/Compiler/IR/ElimDeadVars.lean": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean",
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/ExpandResetReuse.lean": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean",
+    "src/Lean/Compiler/IR/PushProj.lean": "zig-backend/src/lean/compiler/ir/PushProj.lean",
+    "src/Lean/Compiler/IR/SimpCase.lean": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+  }
+}

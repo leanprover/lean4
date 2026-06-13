@@ -1,0 +1,18 @@
+{
+  "author": "Keith Seim",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/dns.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/dns.cpp"
+    }
+  ],
+  "date": "2026-04-07",
+  "needs_port": true,
+  "sha": "ba33c3daa42b5cfb194e31dc5ca855307a84c1f2",
+  "short_sha": "ba33c3daa4",
+  "subject": "fix: match stub signature of lean_uv_dns_get_info to real implementation (#13234)",
+  "zig_target": {
+    "src/runtime/uv/dns.cpp": "zig-backend/src/runtime/uv/dns.cpp"
+  }
+}

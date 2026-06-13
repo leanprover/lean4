@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-09-19",
+  "needs_port": false,
+  "sha": "6bd0a615f1b10c8f93c1ace00f10fe06228c0dc2",
+  "short_sha": "6bd0a615f1",
+  "subject": "chore: CI: add workflow_dispatch for stale labeler",
+  "zig_target": {}
+}

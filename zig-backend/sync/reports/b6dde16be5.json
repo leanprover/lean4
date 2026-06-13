@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-12-03",
+  "needs_port": false,
+  "sha": "b6dde16be5bab6bc1e0d1886117a95b96b6ee2dd",
+  "short_sha": "b6dde16be5",
+  "subject": "chore: remove `#synth` debugging command",
+  "zig_target": {}
+}

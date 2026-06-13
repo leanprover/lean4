@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-08-06",
+  "needs_port": true,
+  "sha": "f759d5dbc1aa18b36bb0affeaeb6ea094fde33db",
+  "short_sha": "f759d5dbc1",
+  "subject": "perf: erase all constructor params in the mono phase (#9764)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-20",
+  "needs_port": true,
+  "sha": "2f218f7ec0f6f07e51d760b8ed1badf762b27a05",
+  "short_sha": "2f218f7ec0",
+  "subject": "refactor(library/compiler/llnf): remove reset/reuse insertion from `to_llnf_fn`",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

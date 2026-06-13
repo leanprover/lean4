@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-05-24",
+  "needs_port": false,
+  "sha": "d3ee0be9080f4572ad3be32e94da906d53dc8987",
+  "short_sha": "d3ee0be908",
+  "subject": "feat: show signature elaboration errors on body parse error (#4267)",
+  "zig_target": {}
+}

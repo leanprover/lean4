@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-04",
+  "needs_port": false,
+  "sha": "54c44d2a6f4071e85e0a7a430664a526ad09bdc5",
+  "short_sha": "54c44d2a6f",
+  "subject": "feat: generate error message if term does not reduce to `true`",
+  "zig_target": {}
+}

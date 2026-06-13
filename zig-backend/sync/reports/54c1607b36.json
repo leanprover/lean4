@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-10-15",
+  "needs_port": true,
+  "sha": "54c1607b360db2c102eabd3c8cf6123b87a8ef52",
+  "short_sha": "54c1607b36",
+  "subject": "chore: export `Name.eraseMacroScopes`",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

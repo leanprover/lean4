@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/App.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/App.lean"
+    }
+  ],
+  "date": "2020-02-11",
+  "needs_port": true,
+  "sha": "ae8eab42ca19495d17338acfb4c7744e5de27e68",
+  "short_sha": "ae8eab42ca",
+  "subject": "feat: update `@` elaborator",
+  "zig_target": {
+    "src/Init/Lean/Elab/App.lean": "zig-backend/src/init/Lean/Elab/App.lean"
+  }
+}

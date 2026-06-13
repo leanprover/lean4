@@ -1,0 +1,24 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2026-03-09",
+  "needs_port": true,
+  "sha": "cdfde63734a0ef08d7f707a1f8a3d6566b24af5b",
+  "short_sha": "cdfde63734",
+  "subject": "feat: tree map `toArray`/`keysArray` lemmas (#12481)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

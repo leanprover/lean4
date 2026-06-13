@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-08-03",
+  "needs_port": true,
+  "sha": "77365abc8b49f5fdf6cd3fbd408c010febe889fa",
+  "short_sha": "77365abc8b",
+  "subject": "chore: Repr Syntax and minor cleanup",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

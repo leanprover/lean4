@@ -1,0 +1,48 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    },
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/CommSolver.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/CommSolver.lean"
+    },
+    {
+      "path": "src/Init/Grind/ToInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/ToInt.lean"
+    }
+  ],
+  "date": "2025-09-16",
+  "needs_port": true,
+  "sha": "7b75db7c6ef545df22bc14ba24f7484933f6667d",
+  "short_sha": "7b75db7c6e",
+  "subject": "refactor: use `deriving LawfulBEq` in `Init` (#10411)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean",
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean",
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean",
+    "src/Init/Grind/Ring/CommSolver.lean": "zig-backend/src/init/Grind/Ring/CommSolver.lean",
+    "src/Init/Grind/ToInt.lean": "zig-backend/src/init/Grind/ToInt.lean"
+  }
+}

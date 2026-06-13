@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-08-10",
+  "needs_port": false,
+  "sha": "42fec60b01bd662d2c16219c7c53304891540341",
+  "short_sha": "42fec60b01",
+  "subject": "fix: printing of integral JsonNumbers",
+  "zig_target": {}
+}

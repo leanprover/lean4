@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2026-03-04",
+  "needs_port": true,
+  "sha": "0fb289c4705c63f8fb0b1fc311c027868da20654",
+  "short_sha": "0fb289c470",
+  "subject": "perf: inline a few Array functions (#9661)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

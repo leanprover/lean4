@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-22",
+  "needs_port": false,
+  "sha": "2a341c01e0c8cdacf04147de0e80fe39ce19ed14",
+  "short_sha": "2a341c01e0",
+  "subject": "doc: replace `variables`",
+  "zig_target": {}
+}

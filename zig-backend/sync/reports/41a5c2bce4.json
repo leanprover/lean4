@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-25",
+  "needs_port": false,
+  "sha": "41a5c2bce466fdba4db5dae9a63cf00a409ee911",
+  "short_sha": "41a5c2bce4",
+  "subject": "feat: add support for negation at `simpCnstr?`",
+  "zig_target": {}
+}

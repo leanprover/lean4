@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-10-14",
+  "needs_port": false,
+  "sha": "731e28df00cba3d932a4191bc42a4992eda2984d",
+  "short_sha": "731e28df00",
+  "subject": "fix: syntax match should not ignore tokens in `<|>`",
+  "zig_target": {}
+}

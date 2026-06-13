@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-19",
+  "needs_port": false,
+  "sha": "40ec0b7ae46f0a971ccb8e4f1b25b8a357ebf36f",
+  "short_sha": "40ec0b7ae4",
+  "subject": "feat: add helper functions and generalize",
+  "zig_target": {}
+}

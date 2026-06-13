@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    }
+  ],
+  "date": "2024-02-08",
+  "needs_port": true,
+  "sha": "021dd2d50970d4eb5c3831af3dd43188632352ca",
+  "short_sha": "021dd2d509",
+  "subject": "feat: additional options for Format.pretty (#3264)",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean"
+  }
+}

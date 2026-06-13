@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    }
+  ],
+  "date": "2024-08-02",
+  "needs_port": true,
+  "sha": "9d0302e749cdc513d11eb36da1599117fc839682",
+  "short_sha": "9d0302e749",
+  "subject": "chore: remove LEAN_EXPORT denylist workaround",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+  }
+}

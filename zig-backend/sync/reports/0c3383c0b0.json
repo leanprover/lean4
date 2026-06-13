@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-10",
+  "needs_port": false,
+  "sha": "0c3383c0b0b7fddaa39663d8adccb4837f90255f",
+  "short_sha": "0c3383c0b0",
+  "subject": "feat: support `let mut x := e | alt`",
+  "zig_target": {}
+}

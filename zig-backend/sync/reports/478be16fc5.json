@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-06",
+  "needs_port": false,
+  "sha": "478be16fc5101772e91924ce3a760fa013e12d73",
+  "short_sha": "478be16fc5",
+  "subject": "feat: Implement `mvcgen +jp` to prevent exponential VC blowup (#9736)",
+  "zig_target": {}
+}

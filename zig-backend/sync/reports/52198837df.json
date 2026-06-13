@@ -1,0 +1,36 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/libuv.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/libuv.h"
+    },
+    {
+      "path": "src/runtime/uv/event_loop.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/event_loop.cpp"
+    },
+    {
+      "path": "src/runtime/uv/net_addr.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/net_addr.h"
+    },
+    {
+      "path": "src/runtime/uv/timer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/timer.cpp"
+    }
+  ],
+  "date": "2025-02-06",
+  "needs_port": true,
+  "sha": "52198837df03266ff49c985a2db35f1613075550",
+  "short_sha": "52198837df",
+  "subject": "feat: improve some files separation and standardize error messages in UV modules (#6830)",
+  "zig_target": {
+    "src/runtime/libuv.h": "zig-backend/src/runtime/libuv.h",
+    "src/runtime/uv/event_loop.cpp": "zig-backend/src/runtime/uv/event_loop.cpp",
+    "src/runtime/uv/net_addr.h": "zig-backend/src/runtime/uv/net_addr.h",
+    "src/runtime/uv/timer.cpp": "zig-backend/src/runtime/uv/timer.cpp"
+  }
+}

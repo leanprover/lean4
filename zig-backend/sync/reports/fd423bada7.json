@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "fd423bada7611385d43677d0685e7e999ba276d8",
+  "short_sha": "fd423bada7",
+  "subject": "fix: pretty print loose bound variables",
+  "zig_target": {}
+}

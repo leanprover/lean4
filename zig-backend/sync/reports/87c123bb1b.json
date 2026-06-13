@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Linter.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Linter.lean"
+    }
+  ],
+  "date": "2026-04-22",
+  "needs_port": true,
+  "sha": "87c123bb1bc54a850e583ea5e2eb79b8a5051070",
+  "short_sha": "87c123bb1b",
+  "subject": "feat: lake: add support for running environment linters (#13431)",
+  "zig_target": {
+    "src/Init/Linter.lean": "zig-backend/src/init/Linter.lean"
+  }
+}

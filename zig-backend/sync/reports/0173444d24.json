@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-02",
+  "needs_port": false,
+  "sha": "0173444d24df9253d7947cfe82519e4a6caffd3a",
+  "short_sha": "0173444d24",
+  "subject": "feat: heterogeneous contructor injectivity in `grind` (#11491)",
+  "zig_target": {}
+}

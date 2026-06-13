@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2019-07-25",
+  "needs_port": true,
+  "sha": "77a59f499819006198a5524caebde45669968f1a",
+  "short_sha": "77a59f4998",
+  "subject": "feat(library/init/io): add `IO.getEnv`",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

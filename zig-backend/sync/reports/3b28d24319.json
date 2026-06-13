@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-03",
+  "needs_port": false,
+  "sha": "3b28d24319a431ea4fd16aefc3371b4936b09cc2",
+  "short_sha": "3b28d24319",
+  "subject": "refactor: make package `name` a `Name`",
+  "zig_target": {}
+}

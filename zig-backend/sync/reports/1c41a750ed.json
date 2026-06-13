@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ReduceJpArity.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ReduceJpArity.lean"
+    }
+  ],
+  "date": "2022-09-05",
+  "needs_port": true,
+  "sha": "1c41a750edec97c313c26d0932f5d4caefbd9d0e",
+  "short_sha": "1c41a750ed",
+  "subject": "feat: add `ReduceJpArity` compiler pass",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/ReduceJpArity.lean": "zig-backend/src/lean/compiler/lcnf/ReduceJpArity.lean"
+  }
+}

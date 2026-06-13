@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-01",
+  "needs_port": false,
+  "sha": "5ced8867b067bbfd153cdbf39146e63e97792d2e",
+  "short_sha": "5ced8867b0",
+  "subject": "feat: anonymous instances and support for all kinds of definition at `mutual`",
+  "zig_target": {}
+}

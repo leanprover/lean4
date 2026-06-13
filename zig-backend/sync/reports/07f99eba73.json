@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-10-04",
+  "needs_port": false,
+  "sha": "07f99eba735440429082835692a5059c0cc7111b",
+  "short_sha": "07f99eba73",
+  "subject": "fix: use local context from `Info` node in widgets",
+  "zig_target": {}
+}

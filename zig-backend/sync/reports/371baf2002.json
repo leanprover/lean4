@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2019-01-28",
+  "needs_port": true,
+  "sha": "371baf200243e1c642e5e069f6fb674cb3d73675",
+  "short_sha": "371baf2002",
+  "subject": "fix(library/compiler/compiler): typo",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

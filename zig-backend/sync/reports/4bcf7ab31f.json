@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-04",
+  "needs_port": false,
+  "sha": "4bcf7ab31f9d824a58dea40f6e95ad7e407f7611",
+  "short_sha": "4bcf7ab31f",
+  "subject": "style: add copyright headers",
+  "zig_target": {}
+}

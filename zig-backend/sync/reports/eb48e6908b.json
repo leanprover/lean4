@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-02-26",
+  "needs_port": false,
+  "sha": "eb48e6908bae574d434280867c3d3d02e36b8152",
+  "short_sha": "eb48e6908b",
+  "subject": "feat: sorted call hierarchy items & no private prefix (#3482)",
+  "zig_target": {}
+}

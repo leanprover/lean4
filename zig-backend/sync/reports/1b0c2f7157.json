@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-15",
+  "needs_port": false,
+  "sha": "1b0c2f7157e4d023bab91ca797366741f6d048f9",
+  "short_sha": "1b0c2f7157",
+  "subject": "feat: parameterize `DiscrTree` indicating whether non trivial reductions are allowed or not when indexing/retrieving terms",
+  "zig_target": {}
+}

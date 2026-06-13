@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BEq.lean"
+    }
+  ],
+  "date": "2025-03-03",
+  "needs_port": true,
+  "sha": "d3eb2fe13c70306a07709074d5e1ec95de26dc9d",
+  "short_sha": "d3eb2fe13c",
+  "subject": "feat: HashMap getKey lemmas (#7289)",
+  "zig_target": {
+    "src/Init/Data/BEq.lean": "zig-backend/src/init/Data/BEq.lean"
+  }
+}

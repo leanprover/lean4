@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-02-03",
+  "needs_port": false,
+  "sha": "0f5dceda4b6ac42f214f4918321ad050abc79891",
+  "short_sha": "0f5dceda4b",
+  "subject": "feat: `recommended_spelling` command (#6869)",
+  "zig_target": {}
+}

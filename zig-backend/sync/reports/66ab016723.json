@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-15",
+  "needs_port": false,
+  "sha": "66ab016723adf233f0c511e2e82cd5884d740614",
+  "short_sha": "66ab016723",
+  "subject": "chore: simp tracing reports \u2190 (#2621)",
+  "zig_target": {}
+}

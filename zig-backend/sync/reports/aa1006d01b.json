@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2018-05-14",
+  "needs_port": true,
+  "sha": "aa1006d01b482939a70499f60e63c31e046b7e16",
+  "short_sha": "aa1006d01b",
+  "subject": "feat(library/init/lean/ir/extract_cpp): generate libleanruntime.a",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

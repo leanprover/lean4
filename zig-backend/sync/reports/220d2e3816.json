@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2022-06-24",
+  "needs_port": true,
+  "sha": "220d2e3816b12780c7567c186b5c61559f5fc480",
+  "short_sha": "220d2e3816",
+  "subject": "feat: add `filterTR` and `[csimp]` theorem",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

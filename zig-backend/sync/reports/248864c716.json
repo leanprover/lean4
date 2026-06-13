@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-10-08",
+  "needs_port": false,
+  "sha": "248864c716e4276da7135de2b624a7b6b198f50c",
+  "short_sha": "248864c716",
+  "subject": "perf: benchmark for modulo on bv_decide (#5653)",
+  "zig_target": {}
+}

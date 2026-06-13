@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-04-15",
+  "needs_port": false,
+  "sha": "eb157000a4b69ac05f582a7061ea18874f7e2c5b",
+  "short_sha": "eb157000a4",
+  "subject": "chore: remove doc of `isLeanOnly` and warn on its use",
+  "zig_target": {}
+}

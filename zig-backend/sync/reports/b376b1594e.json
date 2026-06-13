@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-02",
+  "needs_port": false,
+  "sha": "b376b1594e7dae0843d718417094b540c9f970eb",
+  "short_sha": "b376b1594e",
+  "subject": "test: builtin `simproc` option that is not in the environment",
+  "zig_target": {}
+}

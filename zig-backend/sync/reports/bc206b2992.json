@@ -1,0 +1,54 @@
+{
+  "author": "Fran\u00e7ois G. Dorais",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Prod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Prod.lean"
+    },
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2022-06-15",
+  "needs_port": true,
+  "sha": "bc206b2992481a60310c4000a362aa61d8f49a33",
+  "short_sha": "bc206b2992",
+  "subject": "fix: `LawfulBEq` class",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean",
+    "src/Init/Data/Prod.lean": "zig-backend/src/init/Data/Prod.lean",
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

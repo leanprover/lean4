@@ -1,0 +1,54 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lift.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean.lean"
+    },
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/PrettyPrinter.lean"
+    },
+    {
+      "path": "src/Init/Lean/PrettyPrinter/Parenthesizer.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+    }
+  ],
+  "date": "2020-04-27",
+  "needs_port": true,
+  "sha": "386c706f3ed0d7b003ad68381edfaa3cc0d7fe76",
+  "short_sha": "386c706f3e",
+  "subject": "feat: basic parenthesizer",
+  "zig_target": {
+    "src/Init/Control/Lift.lean": "zig-backend/src/init/Control/Lift.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Lean.lean": "zig-backend/src/init/Lean.lean",
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/PrettyPrinter.lean": "zig-backend/src/init/Lean/PrettyPrinter.lean",
+    "src/Init/Lean/PrettyPrinter/Parenthesizer.lean": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+  }
+}

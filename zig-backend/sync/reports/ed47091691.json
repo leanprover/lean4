@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-21",
+  "needs_port": false,
+  "sha": "ed47091691bfbf37909c700e3060f498c335e9dd",
+  "short_sha": "ed47091691",
+  "subject": "chore: add extra trace messages and document issue",
+  "zig_target": {}
+}

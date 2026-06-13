@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-04",
+  "needs_port": false,
+  "sha": "d22233fc7b9b865905cdd55d40498b983d765543",
+  "short_sha": "d22233fc7b",
+  "subject": "fix: `let_fun` support in `grind` (#6531)",
+  "zig_target": {}
+}

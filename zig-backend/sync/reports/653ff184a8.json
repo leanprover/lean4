@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-23",
+  "needs_port": false,
+  "sha": "653ff184a817572b13d9a2a97aede3a3de7e925e",
+  "short_sha": "653ff184a8",
+  "subject": "fix: semantic highlighting, once more",
+  "zig_target": {}
+}

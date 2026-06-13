@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-02",
+  "needs_port": false,
+  "sha": "b2d88f7bcce9f5cbd3b51488c5d22210faf5efb4",
+  "short_sha": "b2d88f7bcc",
+  "subject": "fix: bug at `saveEqn`",
+  "zig_target": {}
+}

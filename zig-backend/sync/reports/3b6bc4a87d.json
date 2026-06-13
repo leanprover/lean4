@@ -1,0 +1,18 @@
+{
+  "author": "Bulhwi Cha",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2023-07-23",
+  "needs_port": true,
+  "sha": "3b6bc4a87df3e659b13cdb9dd787a888b24ed028",
+  "short_sha": "3b6bc4a87d",
+  "subject": "style: remove unnecessary space characters",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

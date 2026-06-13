@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-04-07",
+  "needs_port": false,
+  "sha": "fd2723d9c05fef1c61b53b6a9e7ae6d89296e9e1",
+  "short_sha": "fd2723d9c0",
+  "subject": "feat: add linter for rfl simp theorems at restricted transparency (#13317)",
+  "zig_target": {}
+}

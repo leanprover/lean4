@@ -1,0 +1,10 @@
+{
+  "author": "Leni Aniva",
+  "backend_changes": [],
+  "date": "2026-01-12",
+  "needs_port": false,
+  "sha": "aa4539750a5db7f0d6f559d71bdf5b08c4fa6a2e",
+  "short_sha": "aa4539750a",
+  "subject": "chore: add header pad on Darwin for patching (#11623)",
+  "zig_target": {}
+}

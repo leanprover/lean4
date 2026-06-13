@@ -1,0 +1,10 @@
+{
+  "author": "Jannis Limperg",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "6ed99b77e986560b09e49c9dec4ceff2cd196f5f",
+  "short_sha": "6ed99b77e9",
+  "subject": "chore: rm redundant branch in BinomialHeap.toList",
+  "zig_target": {}
+}

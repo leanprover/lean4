@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-02",
+  "needs_port": false,
+  "sha": "3a612bfd8b546460b652abf08bef7b23bb2bd3eb",
+  "short_sha": "3a612bfd8b",
+  "subject": "feat(library/init/lean/compiler): add `elimDead` transformation",
+  "zig_target": {}
+}

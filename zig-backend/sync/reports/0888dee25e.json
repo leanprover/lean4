@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2019-03-15",
+  "needs_port": true,
+  "sha": "0888dee25e2fd53d4c3e621fd10c6775e945a01c",
+  "short_sha": "0888dee25e",
+  "subject": "chore(*): `meta` ==> `unsafe`",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

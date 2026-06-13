@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-05",
+  "needs_port": false,
+  "sha": "ff49fd6b7ea9f8b7faf6bb037e13c46c3a4eeb96",
+  "short_sha": "ff49fd6b7e",
+  "subject": "fix: apply `afterCompilation` attributes after we have compiled *all* definitions in a mutual block",
+  "zig_target": {}
+}

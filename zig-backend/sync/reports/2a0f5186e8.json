@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-02-26",
+  "needs_port": true,
+  "sha": "2a0f5186e82c84c00a3375449312b68d46264f5a",
+  "short_sha": "2a0f5186e8",
+  "subject": "fix(runtime/object): bug at `array_push`",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

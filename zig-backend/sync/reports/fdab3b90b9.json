@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-01",
+  "needs_port": false,
+  "sha": "fdab3b90b9ad402a91d2191b6bb80231900e6c6e",
+  "short_sha": "fdab3b90b9",
+  "subject": "refactor(library/init/data/array): new name convention for Array functions",
+  "zig_target": {}
+}

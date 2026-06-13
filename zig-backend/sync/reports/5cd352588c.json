@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/sharecommon.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.h"
+    }
+  ],
+  "date": "2025-04-11",
+  "needs_port": true,
+  "sha": "5cd352588cb33cd97b123632767b0ed7838a2665",
+  "short_sha": "5cd352588c",
+  "subject": "perf: use mimalloc with important C++ hash maps (#7868)",
+  "zig_target": {
+    "src/runtime/sharecommon.h": "zig-backend/src/runtime/sharecommon.h"
+  }
+}

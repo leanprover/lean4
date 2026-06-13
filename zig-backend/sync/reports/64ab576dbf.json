@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-02-01",
+  "needs_port": true,
+  "sha": "64ab576dbf4e656897766e376b91f67a2247772b",
+  "short_sha": "64ab576dbf",
+  "subject": "fix(shell/lean,library/messages): print messages in correct order (and immediately) when --json was not given",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

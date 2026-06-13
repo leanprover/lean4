@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-29",
+  "needs_port": false,
+  "sha": "c8e11d289fa3167ee212233cec396cc26a731e17",
+  "short_sha": "c8e11d289f",
+  "subject": "feat(library/init/data/array/basic): new Array operations from syntax-array experiment",
+  "zig_target": {}
+}

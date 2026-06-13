@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2023-07-19",
+  "needs_port": true,
+  "sha": "61fea57e73b6d6add74897e0d1a0774f9082b25c",
+  "short_sha": "61fea57e73",
+  "subject": "feat: add failIfUnchanged flag to simp",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

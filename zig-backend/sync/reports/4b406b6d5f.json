@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-03-17",
+  "needs_port": false,
+  "sha": "4b406b6d5ffd5f759fc2c49a0ba786f1d33fbeb7",
+  "short_sha": "4b406b6d5f",
+  "subject": "chore: remove comment from `src/stdlib_flags.h` (#7531)",
+  "zig_target": {}
+}

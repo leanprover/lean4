@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-29",
+  "needs_port": true,
+  "sha": "eba3983658faef2d41b7ad00fc2c2e540a1e43e6",
+  "short_sha": "eba3983658",
+  "subject": "feat: use `binrel!` gadget to define `>`, `<`, ... notations",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

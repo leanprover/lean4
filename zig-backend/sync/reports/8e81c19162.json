@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-14",
+  "needs_port": false,
+  "sha": "8e81c19162d7f2ff8ffa19ba5f7c10ee023a263a",
+  "short_sha": "8e81c19162",
+  "subject": "fix: combine \"complete\" and constructor transitions",
+  "zig_target": {}
+}

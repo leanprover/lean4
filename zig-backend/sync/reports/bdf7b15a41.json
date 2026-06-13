@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2021-02-04",
+  "needs_port": true,
+  "sha": "bdf7b15a412501241bfe5fe8f7ae6d415ebdff0d",
+  "short_sha": "bdf7b15a41",
+  "subject": "feat: basic unexpanders for Exists & Sigma",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

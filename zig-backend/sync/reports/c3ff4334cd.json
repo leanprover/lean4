@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-04-06",
+  "needs_port": true,
+  "sha": "c3ff4334cdc63c9e771a10dd5a288f02ce5090e2",
+  "short_sha": "c3ff4334cd",
+  "subject": "fix: lake: library load & link order (#7809)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

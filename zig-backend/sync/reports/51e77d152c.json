@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2023-03-07",
+  "needs_port": true,
+  "sha": "51e77d152c2f941c1351edbd13cf8bb09abcf4d0",
+  "short_sha": "51e77d152c",
+  "subject": "fix: do not inherit file handles across process creation",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

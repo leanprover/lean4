@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-02-03",
+  "needs_port": false,
+  "sha": "809ae9aac3af44abbad89d38b7a4dd00fbb2390b",
+  "short_sha": "809ae9aac3",
+  "subject": "chore: use --since in release_notes.py (#6915)",
+  "zig_target": {}
+}

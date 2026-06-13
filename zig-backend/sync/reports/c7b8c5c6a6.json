@@ -1,0 +1,60 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArray.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArrayImpl.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/ToArrayImpl.lean"
+    },
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    }
+  ],
+  "date": "2024-12-09",
+  "needs_port": true,
+  "sha": "c7b8c5c6a6073bb82916bbbe76f71a710d2dee87",
+  "short_sha": "c7b8c5c6a6",
+  "subject": "chore: alignment of Array and List lemmas (#6342)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Find.lean": "zig-backend/src/init/Data/Array/Find.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/List.lean": "zig-backend/src/init/Data/List.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/ToArray.lean": "zig-backend/src/init/Data/List/ToArray.lean",
+    "src/Init/Data/List/ToArrayImpl.lean": "zig-backend/src/init/Data/List/ToArrayImpl.lean",
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean"
+  }
+}

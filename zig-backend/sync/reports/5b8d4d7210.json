@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "5b8d4d72104e66de541339027b41b7e434c1ab7e",
+  "short_sha": "5b8d4d7210",
+  "subject": "chore: invalidate Lake CI cache (#10587)",
+  "zig_target": {}
+}

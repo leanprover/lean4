@@ -1,0 +1,18 @@
+{
+  "author": "Vlad Tsyrklevich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    }
+  ],
+  "date": "2025-01-08",
+  "needs_port": true,
+  "sha": "78ed072ab0191391e2f2673907e741e5a0a98327",
+  "short_sha": "78ed072ab0",
+  "subject": "feat: add `Int.emod_sub_emod` and `Int.sub_emod_emod` (#6507)",
+  "zig_target": {
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+  }
+}

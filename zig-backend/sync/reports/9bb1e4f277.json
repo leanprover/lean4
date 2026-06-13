@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2025-04-18",
+  "needs_port": true,
+  "sha": "9bb1e4f277c6ea7de69715b70a15a3685748dee1",
+  "short_sha": "9bb1e4f277",
+  "subject": "fix: correctly handle extern functions in the IR elim_dead_branches pass (#8017)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+  }
+}

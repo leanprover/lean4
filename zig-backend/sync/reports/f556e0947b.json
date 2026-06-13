@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-20",
+  "needs_port": true,
+  "sha": "f556e0947b2e4397dc69b6050549b3ed72dc9acb",
+  "short_sha": "f556e0947b",
+  "subject": "fix(library/compiler/lcnf): bug, minor premise must have a lambda for each field in LCNF",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

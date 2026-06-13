@@ -1,0 +1,10 @@
+{
+  "author": "Evgenia Karunus",
+  "backend_changes": [],
+  "date": "2023-01-20",
+  "needs_port": false,
+  "sha": "a125a36bcc79a28963ed5786f94c5d97648a8f99",
+  "short_sha": "a125a36bcc",
+  "subject": "doc: `Expr` docs fix (#2047)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2021-09-09",
+  "needs_port": true,
+  "sha": "5154f462f839153a4e9ad9e371e6b5c1afeb8d96",
+  "short_sha": "5154f462f8",
+  "subject": "feat: add `reduce` conv tactic",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-09",
+  "needs_port": false,
+  "sha": "bdf947206928ce3837b55022e1948717608acfed",
+  "short_sha": "bdf9472069",
+  "subject": "chore: fix changelog path...",
+  "zig_target": {}
+}

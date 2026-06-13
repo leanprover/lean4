@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "58b21fe0c96d8b5e3ca2e747ffe4a249d3997ffa",
+  "short_sha": "58b21fe0c9",
+  "subject": "feat: mark literals as valid kinds",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

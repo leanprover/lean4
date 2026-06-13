@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/FVarUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+    }
+  ],
+  "date": "2026-02-03",
+  "needs_port": true,
+  "sha": "34620ec1f68500c046aa870d17f199b2542beb91",
+  "short_sha": "34620ec1f6",
+  "subject": "perf: speedup some fvar handling in LCNF (#12298)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/FVarUtil.lean": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-21",
+  "needs_port": false,
+  "sha": "d9399924c966be7b7ea245334ff06185a3c4d0b0",
+  "short_sha": "d9399924c9",
+  "subject": "chore(kernel/type_checker): hide aux procedure",
+  "zig_target": {}
+}

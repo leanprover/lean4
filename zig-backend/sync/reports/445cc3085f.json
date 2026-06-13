@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-07",
+  "needs_port": false,
+  "sha": "445cc3085ff990fb955cf7e080d48c5b7dfa7ff1",
+  "short_sha": "445cc3085f",
+  "subject": "refactor: avoid `Name`, `MVarId`, and `FVarId` confusion",
+  "zig_target": {}
+}

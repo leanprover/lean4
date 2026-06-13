@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-22",
+  "needs_port": false,
+  "sha": "1371c636e53c62d1c3779b7ede9d12ce79a04d15",
+  "short_sha": "1371c636e5",
+  "subject": "refactor(kernel/expr): remove pp_name from metavariables",
+  "zig_target": {}
+}

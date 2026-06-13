@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2022-08-18",
+  "needs_port": false,
+  "sha": "743ce431dcfcbf4a8252bcf1f067f7a52095b478",
+  "short_sha": "743ce431dc",
+  "subject": "feat: HashSet.forM",
+  "zig_target": {}
+}

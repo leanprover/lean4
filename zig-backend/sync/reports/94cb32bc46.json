@@ -1,0 +1,18 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/dns.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/dns.cpp"
+    }
+  ],
+  "date": "2025-10-21",
+  "needs_port": true,
+  "sha": "94cb32bc4624275e2dc5cd746f58ea202921208d",
+  "short_sha": "94cb32bc46",
+  "subject": "fix: ipv4 address encoding from libuv to lean (#10854)",
+  "zig_target": {
+    "src/runtime/uv/dns.cpp": "zig-backend/src/runtime/uv/dns.cpp"
+  }
+}

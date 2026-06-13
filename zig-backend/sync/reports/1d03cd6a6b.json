@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-01-20",
+  "needs_port": false,
+  "sha": "1d03cd6a6b9e2cab387692f5ec0d0013b9a9867d",
+  "short_sha": "1d03cd6a6b",
+  "subject": "fix: negative timestamps and `PlainDateTime`s before 1970 (#6668)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-04-14",
+  "needs_port": false,
+  "sha": "d5027c1a298caf999836b064d1422d2542df1bbe",
+  "short_sha": "d5027c1a29",
+  "subject": "chore: lake: rm unused import in `DSL.DeclUtil` (#7964)",
+  "zig_target": {}
+}

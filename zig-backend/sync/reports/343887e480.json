@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-05",
+  "needs_port": false,
+  "sha": "343887e4801301eb0024c73217cacf24fb0f9c85",
+  "short_sha": "343887e480",
+  "subject": "perf: use hasIndepIndices (#11095)",
+  "zig_target": {}
+}

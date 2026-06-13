@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-08-07",
+  "needs_port": false,
+  "sha": "c801a9e8cfa440aee027554e6a538136987e6b0a",
+  "short_sha": "c801a9e8cf",
+  "subject": "feat: use the metavariable index when pretty printing (#9778)",
+  "zig_target": {}
+}

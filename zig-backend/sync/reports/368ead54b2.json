@@ -1,0 +1,72 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/DecidableEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/DecidableEq.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/QSort.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/QSort.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Power2.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Power2.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/AlphaEqv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/AlphaEqv.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Types.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+    }
+  ],
+  "date": "2023-12-22",
+  "needs_port": true,
+  "sha": "368ead54b29c77cd527e89b14f34d0e95cad4837",
+  "short_sha": "368ead54b2",
+  "subject": "refactor: `termination_by` changes in stdlib",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/BasicAux.lean": "zig-backend/src/init/Data/Array/BasicAux.lean",
+    "src/Init/Data/Array/DecidableEq.lean": "zig-backend/src/init/Data/Array/DecidableEq.lean",
+    "src/Init/Data/Array/QSort.lean": "zig-backend/src/init/Data/Array/QSort.lean",
+    "src/Init/Data/Nat/Power2.lean": "zig-backend/src/init/Data/Nat/Power2.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Lean/Compiler/LCNF/AlphaEqv.lean": "zig-backend/src/lean/compiler/lcnf/AlphaEqv.lean",
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean",
+    "src/Lean/Compiler/LCNF/Types.lean": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+  }
+}

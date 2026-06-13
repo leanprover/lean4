@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-05",
+  "needs_port": false,
+  "sha": "a228380626987c8d6737dc004ffa747ba45036b9",
+  "short_sha": "a228380626",
+  "subject": "fix: `shareCommon` issues in `grind` (#7834)",
+  "zig_target": {}
+}

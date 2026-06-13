@@ -1,0 +1,168 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/AlphaEqv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/AlphaEqv.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Closure.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Closure.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/DependsOn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/DependsOn.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDead.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDead.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/FVarUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Level.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Level.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ReduceArity.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DiscrM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/FunDeclInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/FunDeclInfo.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/JpCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpValue.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpValue.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Used.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Used.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/StructProjCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/StructProjCases.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Testing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Testing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-05-18",
+  "needs_port": true,
+  "sha": "006d2925ba5791122ef4854d23543c986419cb77",
+  "short_sha": "006d2925ba",
+  "subject": "chore: rename LetValue.value to .lit (#8393)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean",
+    "src/Lean/Compiler/LCNF/AlphaEqv.lean": "zig-backend/src/lean/compiler/lcnf/AlphaEqv.lean",
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean",
+    "src/Lean/Compiler/LCNF/Closure.lean": "zig-backend/src/lean/compiler/lcnf/Closure.lean",
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/DependsOn.lean": "zig-backend/src/lean/compiler/lcnf/DependsOn.lean",
+    "src/Lean/Compiler/LCNF/ElimDead.lean": "zig-backend/src/lean/compiler/lcnf/ElimDead.lean",
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean",
+    "src/Lean/Compiler/LCNF/FVarUtil.lean": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean",
+    "src/Lean/Compiler/LCNF/InferType.lean": "zig-backend/src/lean/compiler/lcnf/InferType.lean",
+    "src/Lean/Compiler/LCNF/Level.lean": "zig-backend/src/lean/compiler/lcnf/Level.lean",
+    "src/Lean/Compiler/LCNF/PrettyPrinter.lean": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean",
+    "src/Lean/Compiler/LCNF/ReduceArity.lean": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean",
+    "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean",
+    "src/Lean/Compiler/LCNF/Simp/DiscrM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean",
+    "src/Lean/Compiler/LCNF/Simp/FunDeclInfo.lean": "zig-backend/src/lean/compiler/lcnf/Simp/FunDeclInfo.lean",
+    "src/Lean/Compiler/LCNF/Simp/InlineProj.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean",
+    "src/Lean/Compiler/LCNF/Simp/JpCases.lean": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean",
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpValue.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpValue.lean",
+    "src/Lean/Compiler/LCNF/Simp/Used.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Used.lean",
+    "src/Lean/Compiler/LCNF/StructProjCases.lean": "zig-backend/src/lean/compiler/lcnf/StructProjCases.lean",
+    "src/Lean/Compiler/LCNF/Testing.lean": "zig-backend/src/lean/compiler/lcnf/Testing.lean",
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean",
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

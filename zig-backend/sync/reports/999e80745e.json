@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-12",
+  "needs_port": false,
+  "sha": "999e80745e0a80528d993394f4bf32bfe4db1459",
+  "short_sha": "999e80745e",
+  "subject": "test: add test for already fixed issue reported on Zulip",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-04",
+  "needs_port": false,
+  "sha": "9121c4dfa8504053e54a6d3a7304481ec62f0120",
+  "short_sha": "9121c4dfa8",
+  "subject": "feat: facet info param + unique names for facet syntax",
+  "zig_target": {}
+}

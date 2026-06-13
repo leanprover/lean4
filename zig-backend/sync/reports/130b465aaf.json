@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-28",
+  "needs_port": false,
+  "sha": "130b465aafc1e68aa08e2989a88e3a64dff5fdad",
+  "short_sha": "130b465aaf",
+  "subject": "feat: generalize `elab_as_elim` to allow arbitrary motive applications (#5510)",
+  "zig_target": {}
+}

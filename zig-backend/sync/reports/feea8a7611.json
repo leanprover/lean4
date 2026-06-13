@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-01",
+  "needs_port": false,
+  "sha": "feea8a7611f4ec0ad13f72921f87764e4a3937bc",
+  "short_sha": "feea8a7611",
+  "subject": "fix: use pull_request_target for label-triggered workflows (#12638)",
+  "zig_target": {}
+}

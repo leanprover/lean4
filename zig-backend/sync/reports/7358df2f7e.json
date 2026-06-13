@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2022-11-13",
+  "needs_port": true,
+  "sha": "7358df2f7e714a5ad424131290f812dcd80a7cf6",
+  "short_sha": "7358df2f7e",
+  "subject": "chore: remove `Int.natMod`",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

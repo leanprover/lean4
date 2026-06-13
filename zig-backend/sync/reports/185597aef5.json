@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-12-09",
+  "needs_port": false,
+  "sha": "185597aef588f43fe78e9daea0b0f4ea70587da2",
+  "short_sha": "185597aef5",
+  "subject": "chore: remove references to deleted lean4-server.el",
+  "zig_target": {}
+}

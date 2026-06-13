@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-14",
+  "needs_port": false,
+  "sha": "9c6c568caf5e6c6138ffd8b9b148e9b6654a7334",
+  "short_sha": "9c6c568caf",
+  "subject": "fix: don't try to pretty-print underapplied matcher",
+  "zig_target": {}
+}

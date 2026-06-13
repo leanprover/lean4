@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2022-04-20",
+  "needs_port": true,
+  "sha": "bb3fc358c92d6d081a6e30f6ab9dfeb9de17997f",
+  "short_sha": "bb3fc358c9",
+  "subject": "feat: add `LawfulBEq Int` instance",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

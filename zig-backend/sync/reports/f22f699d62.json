@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2021-12-17",
+  "needs_port": true,
+  "sha": "f22f699d627a459f0f8b34321f4f63bb9200e8fe",
+  "short_sha": "f22f699d62",
+  "subject": "feat: split replicate / replicateTR with @[csimp]",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

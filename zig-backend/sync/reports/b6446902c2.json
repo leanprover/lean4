@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2022-04-19",
+  "needs_port": true,
+  "sha": "b6446902c2d1bf9698e3ac05485473ccbd0f607d",
+  "short_sha": "b6446902c2",
+  "subject": "feat: server.stderrAsMessages option",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

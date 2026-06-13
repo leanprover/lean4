@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-03-05",
+  "needs_port": false,
+  "sha": "2b44a4f0d9ebd6e47c9b4b182bcb37943dcbf607",
+  "short_sha": "2b44a4f0d9",
+  "subject": "fix: inlay hint assertion violation when deleting open file (#7346)",
+  "zig_target": {}
+}

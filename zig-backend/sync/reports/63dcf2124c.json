@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-11",
+  "needs_port": false,
+  "sha": "63dcf2124cbf8d9fae6e4118110d04a19c8ae0d5",
+  "short_sha": "63dcf2124c",
+  "subject": "chore: add link to quickstart to README",
+  "zig_target": {}
+}

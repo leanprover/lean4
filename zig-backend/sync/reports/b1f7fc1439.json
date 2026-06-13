@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-27",
+  "needs_port": false,
+  "sha": "b1f7fc1439228bcbbc1b3891059162e80c67eccb",
+  "short_sha": "b1f7fc1439",
+  "subject": "fix: CI: copy Homebrew dependencies",
+  "zig_target": {}
+}

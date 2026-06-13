@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-07",
+  "needs_port": false,
+  "sha": "7beb74fb0fe2c2fef00b733249075c3483fe3a0a",
+  "short_sha": "7beb74fb0f",
+  "subject": "chore(util/sexpr/format): remove dead code",
+  "zig_target": {}
+}

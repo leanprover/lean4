@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-26",
+  "needs_port": false,
+  "sha": "15cca3000a634ac5aaf9040de2229e6d34d1391d",
+  "short_sha": "15cca3000a",
+  "subject": "fix: `withIncRecDepth` was not aborting `simp`",
+  "zig_target": {}
+}

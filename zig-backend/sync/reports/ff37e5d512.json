@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/Cases.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Cases.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2024-05-22",
+  "needs_port": true,
+  "sha": "ff37e5d512efcd3981290270a2fc3ecb100bbd0c",
+  "short_sha": "ff37e5d512",
+  "subject": "feat: add `grind` core module (#4249)",
+  "zig_target": {
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/Cases.lean": "zig-backend/src/init/Grind/Cases.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

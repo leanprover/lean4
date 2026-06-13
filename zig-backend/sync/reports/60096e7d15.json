@@ -1,0 +1,72 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/MonoTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PullFunDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DefaultAlt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DefaultAlt.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/JpCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/SpecInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2024-10-01",
+  "needs_port": true,
+  "sha": "60096e7d150c20d45fb9e2921c85417d1543edac",
+  "short_sha": "60096e7d15",
+  "subject": "refactor: more idiomatic syntax for `if h:` (#5567)",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean",
+    "src/Lean/Compiler/IR/SimpCase.lean": "zig-backend/src/lean/compiler/ir/SimpCase.lean",
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean",
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean",
+    "src/Lean/Compiler/LCNF/MonoTypes.lean": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean",
+    "src/Lean/Compiler/LCNF/PullFunDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean",
+    "src/Lean/Compiler/LCNF/Simp/DefaultAlt.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DefaultAlt.lean",
+    "src/Lean/Compiler/LCNF/Simp/JpCases.lean": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean",
+    "src/Lean/Compiler/LCNF/SpecInfo.lean": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean",
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

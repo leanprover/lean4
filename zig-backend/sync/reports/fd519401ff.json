@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2022-03-03",
+  "needs_port": true,
+  "sha": "fd519401ff408b71fcb2eba230b231898065cf91",
+  "short_sha": "fd519401ff",
+  "subject": "feat: add `Membership` instance for `List`",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

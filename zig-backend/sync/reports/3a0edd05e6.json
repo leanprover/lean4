@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-11-30",
+  "needs_port": false,
+  "sha": "3a0edd05e612bde653c9fdff102d9c948b465700",
+  "short_sha": "3a0edd05e6",
+  "subject": "doc: VS Code dev setup (#2961)",
+  "zig_target": {}
+}

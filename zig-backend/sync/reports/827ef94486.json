@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+    }
+  ],
+  "date": "2022-10-09",
+  "needs_port": true,
+  "sha": "827ef9448650de1dbd48d6606fe82f7a22ee2733",
+  "short_sha": "827ef94486",
+  "subject": "feat: add `eqvTypes`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/InferType.lean": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-11-15",
+  "needs_port": true,
+  "sha": "b1e0c1b59463973210363b1f4886043efc3a2bb6",
+  "short_sha": "b1e0c1b594",
+  "subject": "chore: remove `decide!` tactic (#6016)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

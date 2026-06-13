@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/AC.lean"
+    }
+  ],
+  "date": "2022-03-04",
+  "needs_port": true,
+  "sha": "a60220b036330caf95aa87630c027b1af00eca24",
+  "short_sha": "a60220b036",
+  "subject": "feat: add tactic for ac_refl.",
+  "zig_target": {
+    "src/Init/Data/AC.lean": "zig-backend/src/init/Data/AC.lean"
+  }
+}

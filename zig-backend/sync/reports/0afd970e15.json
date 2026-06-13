@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Definition.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Definition.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-06",
+  "needs_port": true,
+  "sha": "0afd970e15282b2ad70957c210c0a8be25cf9f63",
+  "short_sha": "0afd970e15",
+  "subject": "feat: add `declName?` to `TermElabM` context",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Declaration.lean": "zig-backend/src/init/Lean/Elab/Declaration.lean",
+    "src/Init/Lean/Elab/Definition.lean": "zig-backend/src/init/Lean/Elab/Definition.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

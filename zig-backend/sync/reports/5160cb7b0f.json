@@ -1,0 +1,48 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    },
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    },
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-07-09",
+  "needs_port": true,
+  "sha": "5160cb7b0fc275e456d5aa9096bd10dd7e0c980b",
+  "short_sha": "5160cb7b0f",
+  "subject": "refactor: remove some unnecessary antiquotation kind annotations",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean",
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean",
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

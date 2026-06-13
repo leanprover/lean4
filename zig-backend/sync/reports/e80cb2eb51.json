@@ -1,0 +1,10 @@
+{
+  "author": "Patrick Massot",
+  "backend_changes": [],
+  "date": "2022-10-18",
+  "needs_port": false,
+  "sha": "e80cb2eb51c64c93605e9bb6d79e4c6773fc3897",
+  "short_sha": "e80cb2eb51",
+  "subject": "doc: Option is a monad again",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/struct_cases_on.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/struct_cases_on.cpp"
+    }
+  ],
+  "date": "2019-05-03",
+  "needs_port": true,
+  "sha": "04670c4127becd80abf51be78fb6ef17fe123c62",
+  "short_sha": "04670c4127",
+  "subject": "fix(library/compiler/struct_cases_on): bug and missing case",
+  "zig_target": {
+    "src/library/compiler/struct_cases_on.cpp": "zig-backend/src/library/compiler/struct_cases_on.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "1bc14d1c62623dd0ada65f7af36304138f437ce2",
+  "short_sha": "1bc14d1c62",
+  "subject": "feat: add `List.findM?`",
+  "zig_target": {
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean"
+  }
+}

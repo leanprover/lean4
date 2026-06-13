@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-20",
+  "needs_port": false,
+  "sha": "06a741be5c8068e4382ac61a295a02e553e682fc",
+  "short_sha": "06a741be5c",
+  "subject": "feat: ensure equational theorem conditions occur after the main variables",
+  "zig_target": {}
+}

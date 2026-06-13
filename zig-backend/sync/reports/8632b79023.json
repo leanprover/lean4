@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/OfScientific.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/OfScientific.lean"
+    }
+  ],
+  "date": "2024-10-17",
+  "needs_port": true,
+  "sha": "8632b7902348abdd3a98d40f52de6b74bfc8459a",
+  "short_sha": "8632b79023",
+  "subject": "doc: point out that `OfScientific` is called with raw literals (#5725)",
+  "zig_target": {
+    "src/Init/Data/OfScientific.lean": "zig-backend/src/init/Data/OfScientific.lean"
+  }
+}

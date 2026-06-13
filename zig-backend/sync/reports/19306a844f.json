@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-11",
+  "needs_port": false,
+  "sha": "19306a844fd0f0c867879cdb28f18855cff639fe",
+  "short_sha": "19306a844f",
+  "subject": "chore: delaborator: print BinderInfo.auxDecl as explicit",
+  "zig_target": {}
+}

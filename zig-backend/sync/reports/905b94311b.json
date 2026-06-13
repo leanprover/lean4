@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-19",
+  "needs_port": false,
+  "sha": "905b94311b7318bcf0bc846e1577b622121a5a20",
+  "short_sha": "905b94311b",
+  "subject": "fix(library/init/lean/compiler/ir/borrow): tail call preservation",
+  "zig_target": {}
+}

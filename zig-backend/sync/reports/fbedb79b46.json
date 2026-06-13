@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2024-02-12",
+  "needs_port": false,
+  "sha": "fbedb79b4694ef86162694b1b1b8c489ecbd71ac",
+  "short_sha": "fbedb79b46",
+  "subject": "fix: `add_decl_doc` should check that declarations are local (#3311)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-18",
+  "needs_port": false,
+  "sha": "03ca8734f31e38c547362d3ca8de1185cd29a9a6",
+  "short_sha": "03ca8734f3",
+  "subject": "feat(library/init/lean/parser/parser): add `runParser` for testing",
+  "zig_target": {}
+}

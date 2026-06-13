@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-04",
+  "needs_port": false,
+  "sha": "53c862e34bd372e4bbdcb5fe5ca80c3e4f029928",
+  "short_sha": "53c862e34b",
+  "subject": "chore: add another example using the generated eliminator",
+  "zig_target": {}
+}

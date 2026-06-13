@@ -1,0 +1,48 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    },
+    {
+      "path": "src/runtime/alloc.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.h"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2024-05-22",
+  "needs_port": true,
+  "sha": "f97a7d4234bd76bc0f61e43b8c6a78117c1376df",
+  "short_sha": "f97a7d4234",
+  "subject": "feat: incremental elaboration of definition headers, bodies, and tactics (#3940)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp",
+    "src/runtime/alloc.h": "zig-backend/src/runtime/alloc.h",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

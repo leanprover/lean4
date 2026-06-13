@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-12",
+  "needs_port": false,
+  "sha": "5810418ddd0c090053979c1da71c77a5459bd050",
+  "short_sha": "5810418ddd",
+  "subject": "perf(library/init/lean/ir/extract_cpp): use `derive` to speedup type class resolution",
+  "zig_target": {}
+}

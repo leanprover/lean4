@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-02",
+  "needs_port": false,
+  "sha": "2c45d5568373577b9a2870b8b3f2bc56d1799802",
+  "short_sha": "2c45d55683",
+  "subject": "fix: deep recursion type checking `grind` proof (#11061)",
+  "zig_target": {}
+}

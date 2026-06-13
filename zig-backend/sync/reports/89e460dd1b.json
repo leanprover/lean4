@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-19",
+  "needs_port": false,
+  "sha": "89e460dd1b3eb26558c1111de6d23f6463aa3c19",
+  "short_sha": "89e460dd1b",
+  "subject": "chore: CI: push .ileans to Cachix",
+  "zig_target": {}
+}

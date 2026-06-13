@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-25",
+  "needs_port": false,
+  "sha": "f19b122ab1ac73492935ad606719b20e0aa60b4d",
+  "short_sha": "f19b122ab1",
+  "subject": "feat: add support for \"jump-to-definition\" at `[implementedBy]` attribute",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-31",
+  "needs_port": true,
+  "sha": "e68372cfd9e338d6ed9c1b6fe6bda1f809870099",
+  "short_sha": "e68372cfd9",
+  "subject": "fix(library/compiler/csimp): another join point related bug",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

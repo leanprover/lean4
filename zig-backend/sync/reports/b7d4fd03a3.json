@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/LambdaLifting.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2022-10-08",
+  "needs_port": true,
+  "sha": "b7d4fd03a3827fca5229e8b17516cf5af7c1ef57",
+  "short_sha": "b7d4fd03a3",
+  "subject": "feat: eager lambda lifting",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/LambdaLifting.lean": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

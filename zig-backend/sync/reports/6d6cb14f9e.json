@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.h"
+    },
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-08-20",
+  "needs_port": true,
+  "sha": "6d6cb14f9e73915ad7e7eedbbdf594becf04ef1e",
+  "short_sha": "6d6cb14f9e",
+  "subject": "feat(library/init/lean/compiler/ir/emitc,shell/lean): add `--c=<filename>` option",
+  "zig_target": {
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp",
+    "src/library/compiler/ir.h": "zig-backend/src/library/compiler/ir.h",
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

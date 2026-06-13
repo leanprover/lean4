@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/MethodSpecsSimp.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/MethodSpecsSimp.lean"
+    }
+  ],
+  "date": "2025-09-16",
+  "needs_port": true,
+  "sha": "f3d93970dc4f88c8e7a7c50a01dfb98a5b57c239",
+  "short_sha": "f3d93970dc",
+  "subject": "feat: @[method_specs_simp] in Init (#10407)",
+  "zig_target": {
+    "src/Init/MethodSpecsSimp.lean": "zig-backend/src/init/MethodSpecsSimp.lean"
+  }
+}

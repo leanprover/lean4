@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-01",
+  "needs_port": false,
+  "sha": "3e86729ee0e11548a47f9b294d5292ada92c0b40",
+  "short_sha": "3e86729ee0",
+  "subject": "feat: `grind?` using `finish?` infrastructure (#11057)",
+  "zig_target": {}
+}

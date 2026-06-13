@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-24",
+  "needs_port": true,
+  "sha": "1059e25ca27a2a005705fc4bda23c06f2600caf9",
+  "short_sha": "1059e25ca2",
+  "subject": "feat: BitVec.shiftLeft in terms of extractLsb' (#6743)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

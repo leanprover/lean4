@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-10",
+  "needs_port": false,
+  "sha": "1742c79afeeaedd1c1ef68c343e10e7b01c390a1",
+  "short_sha": "1742c79afe",
+  "subject": "chore: remove auxDecl binder info",
+  "zig_target": {}
+}

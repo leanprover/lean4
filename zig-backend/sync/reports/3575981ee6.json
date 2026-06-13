@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-04",
+  "needs_port": false,
+  "sha": "3575981ee6e363e7e9c69d7007f08258766832e3",
+  "short_sha": "3575981ee6",
+  "subject": "chore: CI: use publish-unit-test-result-action",
+  "zig_target": {}
+}

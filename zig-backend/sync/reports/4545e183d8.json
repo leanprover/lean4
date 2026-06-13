@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-28",
+  "needs_port": false,
+  "sha": "4545e183d82fdeec03c42ee00f38bf19f04ffddf",
+  "short_sha": "4545e183d8",
+  "subject": "fix: go to definition in modified file",
+  "zig_target": {}
+}

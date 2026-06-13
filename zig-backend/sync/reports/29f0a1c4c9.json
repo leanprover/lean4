@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2020-02-08",
+  "needs_port": true,
+  "sha": "29f0a1c4c91cccb198ce37e558f1e751a220089b",
+  "short_sha": "29f0a1c4c9",
+  "subject": "chore: nary subst",
+  "zig_target": {
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

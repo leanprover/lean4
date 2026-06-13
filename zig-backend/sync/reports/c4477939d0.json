@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-12-11",
+  "needs_port": true,
+  "sha": "c4477939d07116df842258bf8f9267deea51c466",
+  "short_sha": "c4477939d0",
+  "subject": "feat: `Int.subNatNat` in `grind` (#11615)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

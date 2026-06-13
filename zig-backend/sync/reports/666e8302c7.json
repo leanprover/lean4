@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-05-04",
+  "needs_port": false,
+  "sha": "666e8302c7fb772674d3b7401780a6cfb16c11ab",
+  "short_sha": "666e8302c7",
+  "subject": "chore: use self-hosted actions runner for some runs (#13543)",
+  "zig_target": {}
+}

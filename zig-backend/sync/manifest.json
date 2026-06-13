@@ -1,0 +1,25 @@
+{
+  "backend_touching_commits": 8238,
+  "content_hash": "cef422131534c5447ef1f386ca1283e7b9b73ccb0150a2cad110a621884548f1",
+  "counts_per_subsystem": {
+    "compiler_ir": 843,
+    "compiler_lcnf": 1718,
+    "include_lean": 230,
+    "init": 14188,
+    "library_compiler": 1915,
+    "runtime": 1541,
+    "shell": 319
+  },
+  "counts_per_year": {
+    "2018": 1364,
+    "2019": 3264,
+    "2020": 4828,
+    "2021": 3673,
+    "2022": 4089,
+    "2023": 929,
+    "2024": 2627,
+    "2025": 4319,
+    "2026": 1349
+  },
+  "total_commits": 26442
+}

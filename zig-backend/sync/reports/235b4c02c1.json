@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-27",
+  "needs_port": false,
+  "sha": "235b4c02c1d2c624e26c5ae5c03f5e811418b1a1",
+  "short_sha": "235b4c02c1",
+  "subject": "feat(library/init/lean/compiler/specialize): implement `specExtension` in Lean",
+  "zig_target": {}
+}

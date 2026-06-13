@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-25",
+  "needs_port": true,
+  "sha": "32888b45a8a18f1432e63f0fcc59d9c8dde4e80e",
+  "short_sha": "32888b45a8",
+  "subject": "chore(library/compiler/csimp): remove leftover",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-03",
+  "needs_port": false,
+  "sha": "c056894da3c36e85acb2b8325ff22cc6624067b5",
+  "short_sha": "c056894da3",
+  "subject": "feat: add `Option.get!`, `Option.getOrElse` ==> `Option.getD`",
+  "zig_target": {}
+}

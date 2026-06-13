@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Option.lean"
+    }
+  ],
+  "date": "2025-10-21",
+  "needs_port": true,
+  "sha": "2991c66c811a6df097d61b19cd66c292d8e88043",
+  "short_sha": "2991c66c81",
+  "subject": "chore: add missing spec lemmas for `OptionT` (#10867)",
+  "zig_target": {
+    "src/Init/Control/Option.lean": "zig-backend/src/init/Control/Option.lean"
+  }
+}

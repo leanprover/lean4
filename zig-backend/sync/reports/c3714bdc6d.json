@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-30",
+  "needs_port": false,
+  "sha": "c3714bdc6d46845c0428735b283c5b48b23cbcf7",
+  "short_sha": "c3714bdc6d",
+  "subject": "feat: add structure to diagnostic information",
+  "zig_target": {}
+}

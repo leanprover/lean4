@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Message.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "d8b69d4fe10f9ecd68e968a86b63939b5a908fd9",
+  "short_sha": "d8b69d4fe1",
+  "subject": "feat: better error messages at `MetaHasEval`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/Message.lean": "zig-backend/src/init/Lean/Meta/Message.lean"
+  }
+}

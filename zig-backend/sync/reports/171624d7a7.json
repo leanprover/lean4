@@ -1,0 +1,10 @@
+{
+  "author": "Lorenz Leutgeb",
+  "backend_changes": [],
+  "date": "2021-12-03",
+  "needs_port": false,
+  "sha": "171624d7a797976e79a546f754e8c4771ee52b20",
+  "short_sha": "171624d7a7",
+  "subject": "chore: nix flake update",
+  "zig_target": {}
+}

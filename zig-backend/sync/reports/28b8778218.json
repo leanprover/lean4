@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-04",
+  "needs_port": false,
+  "sha": "28b8778218ec50548cdd164b90d3403adfb2c6d1",
+  "short_sha": "28b8778218",
+  "subject": "perf: lake: fix `LogIO` inling/lifting (#4351)",
+  "zig_target": {}
+}

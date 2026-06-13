@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-03-30",
+  "needs_port": false,
+  "sha": "93bb94bfea0191c4f385b73283f9db6e7032aca3",
+  "short_sha": "93bb94bfea",
+  "subject": "test: update playground for Hashable",
+  "zig_target": {}
+}

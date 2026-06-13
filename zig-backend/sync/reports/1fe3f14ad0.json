@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "1fe3f14ad0d12bb76a4888099b3f9d9a40a2c678",
+  "short_sha": "1fe3f14ad0",
+  "subject": "chore(*): `Uint` => `UInt`, `Usize` => `USize`",
+  "zig_target": {}
+}

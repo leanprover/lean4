@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2020-10-22",
+  "needs_port": true,
+  "sha": "7964b727e5d1a4c4e51dbab2566426c1202cdff9",
+  "short_sha": "7964b727e5",
+  "subject": "chore: improve error message",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

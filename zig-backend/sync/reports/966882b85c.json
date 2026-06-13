@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-25",
+  "needs_port": false,
+  "sha": "966882b85ce7e20a8296f9dea747c69c0b6b3459",
+  "short_sha": "966882b85c",
+  "subject": "feat: add `Expr.updateMData`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-21",
+  "needs_port": false,
+  "sha": "afca560bdafc02ee91cf612477d8af94c2d70f15",
+  "short_sha": "afca560bda",
+  "subject": "chore: revert `builtin` flag on Origin",
+  "zig_target": {}
+}

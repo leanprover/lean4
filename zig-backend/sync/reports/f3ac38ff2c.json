@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-07-21",
+  "needs_port": false,
+  "sha": "f3ac38ff2cbfa3c0233c3280c3dc1c4207ca305c",
+  "short_sha": "f3ac38ff2c",
+  "subject": "fix: Close pure, trivial goals in `mvcgen` (#9362) (#9447)",
+  "zig_target": {}
+}

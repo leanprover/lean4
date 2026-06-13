@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-03",
+  "needs_port": false,
+  "sha": "a2cf78ac4aec99ea23d162fa143566ef6d47ad56",
+  "short_sha": "a2cf78ac4a",
+  "subject": "perf: `Sym.Simp.DiscrTree` retrieval (#11889)",
+  "zig_target": {}
+}

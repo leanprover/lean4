@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-03-20",
+  "needs_port": false,
+  "sha": "4296e1d83e734b18b4787329e4195569c0518325",
+  "short_sha": "4296e1d83e",
+  "subject": "feat: add tests for `Closure.lean`",
+  "zig_target": {}
+}

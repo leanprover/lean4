@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-12",
+  "needs_port": false,
+  "sha": "32dd3c6b29254d05697c85cbc54a05546c1a4f14",
+  "short_sha": "32dd3c6b29",
+  "subject": "feat: use at least default transparency at `toCtorWhenK`",
+  "zig_target": {}
+}

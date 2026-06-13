@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-06-15",
+  "needs_port": true,
+  "sha": "a12cde41e1056aa6f0c3ef8bc9401a950ede532c",
+  "short_sha": "a12cde41e1",
+  "subject": "chore: work around `macro` limitations",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

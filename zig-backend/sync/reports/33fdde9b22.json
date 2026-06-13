@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+    }
+  ],
+  "date": "2022-09-24",
+  "needs_port": true,
+  "sha": "33fdde9b2259c16fced9679a8378dbe3c596a3c9",
+  "short_sha": "33fdde9b22",
+  "subject": "fix: LCNF `compatibleTypes`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/InferType.lean": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+  }
+}

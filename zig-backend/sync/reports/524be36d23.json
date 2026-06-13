@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-17",
+  "needs_port": false,
+  "sha": "524be36d2349e40d61b556338ab8c3f419596641",
+  "short_sha": "524be36d23",
+  "subject": "feat: build & bundle Lake",
+  "zig_target": {}
+}

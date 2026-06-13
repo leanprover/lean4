@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-17",
+  "needs_port": false,
+  "sha": "5a16745ad9b7776021b88d29bf3af84239a07247",
+  "short_sha": "5a16745ad9",
+  "subject": "chore: Nix: add devShell",
+  "zig_target": {}
+}

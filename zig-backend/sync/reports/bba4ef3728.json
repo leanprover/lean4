@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-03",
+  "needs_port": false,
+  "sha": "bba4ef3728e9c6fd99b3fa3d9dd5dca1411379cc",
+  "short_sha": "bba4ef3728",
+  "subject": "feat: `simproc`s for folding numeric literals (#3586)",
+  "zig_target": {}
+}

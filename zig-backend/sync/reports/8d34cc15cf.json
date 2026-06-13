@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    }
+  ],
+  "date": "2022-10-07",
+  "needs_port": true,
+  "sha": "8d34cc15cfb4f47b9c5ff9d2f1e21608fad1c043",
+  "short_sha": "8d34cc15cf",
+  "subject": "fix: path normalization should not case-normalize entire path",
+  "zig_target": {
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean"
+  }
+}

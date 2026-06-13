@@ -1,0 +1,66 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/AddExtern.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Meta.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Meta.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PhaseExt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Visibility.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+    }
+  ],
+  "date": "2025-07-22",
+  "needs_port": true,
+  "sha": "e28569f2a118f573a1d73c64e43774d74f5b8d10",
+  "short_sha": "e28569f2a1",
+  "subject": "perf: minimize exported codegen data (#9356)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/AddExtern.lean": "zig-backend/src/lean/compiler/ir/AddExtern.lean",
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean",
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean",
+    "src/Lean/Compiler/IR/Meta.lean": "zig-backend/src/lean/compiler/ir/Meta.lean",
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/PhaseExt.lean": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean",
+    "src/Lean/Compiler/LCNF/Visibility.lean": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+  }
+}

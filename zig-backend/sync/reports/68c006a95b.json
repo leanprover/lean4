@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-06-29",
+  "needs_port": false,
+  "sha": "68c006a95bc2d205ce2a557ac56ff6b1e86c30f0",
+  "short_sha": "68c006a95b",
+  "subject": "feat: transform nondependent `let`s into `have`s in declarations and equation lemmas (#8373)",
+  "zig_target": {}
+}

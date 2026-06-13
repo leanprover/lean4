@@ -1,0 +1,42 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Classes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Classes.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/LemmasExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/LemmasExtra.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/PackageFactories.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Order/PackageFactories.lean"
+    }
+  ],
+  "date": "2025-08-19",
+  "needs_port": true,
+  "sha": "24cafcd65dabf3ddc4f4573372932352deb2c38a",
+  "short_sha": "24cafcd65d",
+  "subject": "feat: package factories for order typeclasses (#9797)",
+  "zig_target": {
+    "src/Init/Data/Order.lean": "zig-backend/src/init/Data/Order.lean",
+    "src/Init/Data/Order/Classes.lean": "zig-backend/src/init/Data/Order/Classes.lean",
+    "src/Init/Data/Order/Lemmas.lean": "zig-backend/src/init/Data/Order/Lemmas.lean",
+    "src/Init/Data/Order/LemmasExtra.lean": "zig-backend/src/init/Data/Order/LemmasExtra.lean",
+    "src/Init/Data/Order/PackageFactories.lean": "zig-backend/src/init/Data/Order/PackageFactories.lean"
+  }
+}

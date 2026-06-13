@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    }
+  ],
+  "date": "2019-02-11",
+  "needs_port": true,
+  "sha": "6bc23bcc65d1f656f78c0086e4ac2ee87217bc53",
+  "short_sha": "6bc23bcc65",
+  "subject": "feat(library/compiler/extern_attribute): infer ll_type, arity and borrowed flags from type",
+  "zig_target": {
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-31",
+  "needs_port": false,
+  "sha": "e8ca2e3f6252cc3a56ec67eadcdad0c1c849c374",
+  "short_sha": "e8ca2e3f62",
+  "subject": "feat: formatter: push space at checkWsBefore",
+  "zig_target": {}
+}

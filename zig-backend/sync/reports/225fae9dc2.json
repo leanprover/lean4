@@ -1,0 +1,18 @@
+{
+  "author": "Christian Pehle",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt.lean"
+    }
+  ],
+  "date": "2021-01-14",
+  "needs_port": true,
+  "sha": "225fae9dc21ee375defce9cd1f1665610776b6db",
+  "short_sha": "225fae9dc2",
+  "subject": "feat: add shiftLeft and shiftRight for UInt16 and UInt8",
+  "zig_target": {
+    "src/Init/Data/UInt.lean": "zig-backend/src/init/Data/UInt.lean"
+  }
+}

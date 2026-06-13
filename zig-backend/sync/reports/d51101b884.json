@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-22",
+  "needs_port": false,
+  "sha": "d51101b884a3a58fb516fb428c3f419a60359a88",
+  "short_sha": "d51101b884",
+  "subject": "feat: sanitize `Syntax` in messages",
+  "zig_target": {}
+}

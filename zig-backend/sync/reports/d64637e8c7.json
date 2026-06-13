@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "d64637e8c70085f1781f6e81314e88851a1bcc03",
+  "short_sha": "d64637e8c7",
+  "subject": "fix: Add simp lemmas `SPred.entails_<n>` to replace `SPred.entails_cons` (#9832)",
+  "zig_target": {}
+}

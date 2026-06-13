@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-12-04",
+  "needs_port": false,
+  "sha": "88573c802d41bd569993e98fd85010c38531090f",
+  "short_sha": "88573c802d",
+  "subject": "test: do not filter output for non-diff tests (#6308)",
+  "zig_target": {}
+}

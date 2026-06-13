@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-21",
+  "needs_port": false,
+  "sha": "78d87cf4cdfcfcf0345bb72edf5c020391304c71",
+  "short_sha": "78d87cf4cd",
+  "subject": "fix(library/init/lean/compiler/ir/emitcpp): add missing `lean::`",
+  "zig_target": {}
+}

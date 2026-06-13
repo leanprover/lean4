@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2026-01-25",
+  "needs_port": true,
+  "sha": "45862d548620bcb8c865e7de084b79ac3f62cd5c",
+  "short_sha": "45862d5486",
+  "subject": "feat: improves `simpArrowTelescope` simproc (#12153)",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

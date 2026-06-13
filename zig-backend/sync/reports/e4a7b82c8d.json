@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-09",
+  "needs_port": false,
+  "sha": "e4a7b82c8dd67bd00322ca6db7c62d422c544641",
+  "short_sha": "e4a7b82c8d",
+  "subject": "feat: use interactive goals in messages",
+  "zig_target": {}
+}

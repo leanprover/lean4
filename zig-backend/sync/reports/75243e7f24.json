@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-02-12",
+  "needs_port": true,
+  "sha": "75243e7f244f096aa05ea965a463e7ee46c5830d",
+  "short_sha": "75243e7f24",
+  "subject": "feat: change back `seqLeft/Right` signature",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

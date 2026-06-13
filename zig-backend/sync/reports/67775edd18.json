@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-24",
+  "needs_port": false,
+  "sha": "67775edd18021e48cd0f649634dc8f12326754f3",
+  "short_sha": "67775edd18",
+  "subject": "refactor: make `LeanLib.buildModules` a proper recursive build",
+  "zig_target": {}
+}

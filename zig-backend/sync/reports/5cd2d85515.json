@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-14",
+  "needs_port": false,
+  "sha": "5cd2d855152bbe387bcf9b657f34e67f5bf0010f",
+  "short_sha": "5cd2d85515",
+  "subject": "doc: add trace to glossary + cleanup",
+  "zig_target": {}
+}

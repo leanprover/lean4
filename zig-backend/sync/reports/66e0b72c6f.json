@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-14",
+  "needs_port": false,
+  "sha": "66e0b72c6f3f4f8e83a1f8c6ba82e2c77167a409",
+  "short_sha": "66e0b72c6f",
+  "subject": "test: notation for providing names to equality proofs in `match` expressions is not whitespace sensitivity anymore",
+  "zig_target": {}
+}

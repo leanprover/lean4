@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-16",
+  "needs_port": false,
+  "sha": "7087c4a039cdc603123594ce564ef9a1a49cd8c0",
+  "short_sha": "7087c4a039",
+  "subject": "feat: add `splitNext` `grind` action  (#10801)",
+  "zig_target": {}
+}

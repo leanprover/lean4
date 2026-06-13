@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    }
+  ],
+  "date": "2022-03-19",
+  "needs_port": true,
+  "sha": "9727387129228384a362ffc2589ac5b367ab0a3c",
+  "short_sha": "9727387129",
+  "subject": "feat: helper theorem for proving termination of simple `String` traversal functions",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean"
+  }
+}

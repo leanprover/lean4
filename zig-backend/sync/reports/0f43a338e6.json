@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-14",
+  "needs_port": false,
+  "sha": "0f43a338e661ba248f92f970fb14e7326f5ac4e6",
+  "short_sha": "0f43a338e6",
+  "subject": "feat: improve error message",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-16",
+  "needs_port": false,
+  "sha": "5489e23758e6efb2196173d6474062fc1b3ddbc1",
+  "short_sha": "5489e23758",
+  "subject": "fix(library/init/lean/parser/parser): apply workaround for performance issue created by equation compiler",
+  "zig_target": {}
+}

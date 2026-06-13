@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-09-29",
+  "needs_port": false,
+  "sha": "cf3e7de1434c4faa36e9c5466237068bae634b48",
+  "short_sha": "cf3e7de143",
+  "subject": "feat: let simp apply rules with higher-order patterns (#5479)",
+  "zig_target": {}
+}

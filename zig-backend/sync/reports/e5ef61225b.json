@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-28",
+  "needs_port": false,
+  "sha": "e5ef61225b0b8b1b409cc6c3a2ddd6765a15a392",
+  "short_sha": "e5ef61225b",
+  "subject": "fix: missing condition at lpo case 3",
+  "zig_target": {}
+}

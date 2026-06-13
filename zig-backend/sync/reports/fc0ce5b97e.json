@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-27",
+  "needs_port": false,
+  "sha": "fc0ce5b97ebb9d7370e9705237a96d112710d44e",
+  "short_sha": "fc0ce5b97e",
+  "subject": "chore(library/aliases, frontends/lean): remove local_ref's",
+  "zig_target": {}
+}

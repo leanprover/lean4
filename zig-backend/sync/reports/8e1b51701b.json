@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-01-12",
+  "needs_port": false,
+  "sha": "8e1b51701b929855511762514e528230ea637611",
+  "short_sha": "8e1b51701b",
+  "subject": "chore: pr-release.yml: parentheses are significant in jq (#3169)",
+  "zig_target": {}
+}

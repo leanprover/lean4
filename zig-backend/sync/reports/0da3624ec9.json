@@ -1,0 +1,10 @@
+{
+  "author": "Parth Shastri",
+  "backend_changes": [],
+  "date": "2025-01-12",
+  "needs_port": false,
+  "sha": "0da3624ec9ead9fa26ac1dd5d82964517e558319",
+  "short_sha": "0da3624ec9",
+  "subject": "fix: allow dot idents to resolve to local names (#6602)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Jeremy Tan Jie Rui",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-09-13",
+  "needs_port": true,
+  "sha": "626dda9358ba2a1d6f76b84a6e1d34fbc3b33e68",
+  "short_sha": "626dda9358",
+  "subject": "refactor: tag `Iff.refl` with `@[refl]` (#5329)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

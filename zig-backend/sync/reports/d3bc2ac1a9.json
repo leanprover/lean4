@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/interrupt.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.h"
+    }
+  ],
+  "date": "2023-10-12",
+  "needs_port": true,
+  "sha": "d3bc2ac1a96f20bc0809e3af81ba3abef66d8d0b",
+  "short_sha": "d3bc2ac1a9",
+  "subject": "fix: switch to C++ interruption whitelist",
+  "zig_target": {
+    "src/runtime/interrupt.h": "zig-backend/src/runtime/interrupt.h"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2021-02-04",
+  "needs_port": true,
+  "sha": "d956f0ae9f9462a541c69564bd7b40b5d89a7140",
+  "short_sha": "d956f0ae9f",
+  "subject": "feat: use `destructTuple` to compile `for in` notation instead of pattern matchin",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

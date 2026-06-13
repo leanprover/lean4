@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-02-01",
+  "needs_port": true,
+  "sha": "a8f668a3d2211690c352e59af0a9043c78a3a366",
+  "short_sha": "a8f668a3d2",
+  "subject": "feat(runtime/object): add `LEAN_FAKE_FREE` option to disable freeing runtime objects while debugging",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

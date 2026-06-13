@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Power2.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/Power2.lean"
+    }
+  ],
+  "date": "2022-10-27",
+  "needs_port": true,
+  "sha": "b8f4a345f1aae9fbae93eaeadac46051a66cd7b4",
+  "short_sha": "b8f4a345f1",
+  "subject": "feat: add `Power2`",
+  "zig_target": {
+    "src/Init/Data/Nat.lean": "zig-backend/src/init/Data/Nat.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Power2.lean": "zig-backend/src/init/Data/Nat/Power2.lean"
+  }
+}

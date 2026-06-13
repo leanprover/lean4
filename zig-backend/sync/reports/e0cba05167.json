@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-10-15",
+  "needs_port": false,
+  "sha": "e0cba0516785755d0dbb7b160117591a100ac87f",
+  "short_sha": "e0cba05167",
+  "subject": "refactor: env extensions can only modify `.extensions` (#2661)",
+  "zig_target": {}
+}

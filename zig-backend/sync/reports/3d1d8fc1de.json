@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-04-29",
+  "needs_port": false,
+  "sha": "3d1d8fc1de632aedcd4a4e04404b949ac8572380",
+  "short_sha": "3d1d8fc1de",
+  "subject": "feat: unfolding functional induction principles (#8088)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    }
+  ],
+  "date": "2020-01-07",
+  "needs_port": true,
+  "sha": "3de7d6d5c3bf1727e71d6e42ce79169b89910b98",
+  "short_sha": "3de7d6d5c3",
+  "subject": "fix: remove `mvarTypeNotWellFormedInSmallerLCtx`",
+  "zig_target": {
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+  }
+}

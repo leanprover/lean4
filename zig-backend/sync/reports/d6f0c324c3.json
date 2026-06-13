@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-13",
+  "needs_port": false,
+  "sha": "d6f0c324c31d81191e91ef4294f55fbd66190b85",
+  "short_sha": "d6f0c324c3",
+  "subject": "chore: display E-matching theorems in `goalToMessageData` (#6635)",
+  "zig_target": {}
+}

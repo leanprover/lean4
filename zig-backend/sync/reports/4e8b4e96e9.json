@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/LCtx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/LCtx.lean"
+    }
+  ],
+  "date": "2022-08-24",
+  "needs_port": true,
+  "sha": "4e8b4e96e9aa50134d1da518cc6ab20fc431a50e",
+  "short_sha": "4e8b4e96e9",
+  "subject": "feat: simplify `LCtx`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/LCtx.lean": "zig-backend/src/lean/compiler/lcnf/LCtx.lean"
+  }
+}

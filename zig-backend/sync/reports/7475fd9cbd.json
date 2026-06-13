@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-10-19",
+  "needs_port": false,
+  "sha": "7475fd9cbdd5c7d92e8b8c4c4c81ef8b3fac84d5",
+  "short_sha": "7475fd9cbd",
+  "subject": "feat: ignore `patternIgnore` nodes in syntax patterns",
+  "zig_target": {}
+}

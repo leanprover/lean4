@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-05-12",
+  "needs_port": false,
+  "sha": "7a6c59a3579c1cf292489dfac25b04c0566703ed",
+  "short_sha": "7a6c59a357",
+  "subject": "fix: abort `waitFor` server_interactive tests promptly on file worker fatal error (#13710)",
+  "zig_target": {}
+}

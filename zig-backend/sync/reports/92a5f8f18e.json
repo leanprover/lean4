@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2021-12-01",
+  "needs_port": true,
+  "sha": "92a5f8f18ef848791128b382d52bcd3b04bf3aca",
+  "short_sha": "92a5f8f18e",
+  "subject": "fix: `insert_mpz`",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-17",
+  "needs_port": false,
+  "sha": "d9f53dfec9f80ec2da2c338527bc7b886110b846",
+  "short_sha": "d9f53dfec9",
+  "subject": "refactor: replace `leanpkg.toml` with a `lakefile.lean` + build reorg",
+  "zig_target": {}
+}

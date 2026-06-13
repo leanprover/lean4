@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-02-23",
+  "needs_port": false,
+  "sha": "b9dc76df35f75e85e1d7c77e09645ca6487856db",
+  "short_sha": "b9dc76df35",
+  "subject": "feat: name minor premises using ctor names",
+  "zig_target": {}
+}

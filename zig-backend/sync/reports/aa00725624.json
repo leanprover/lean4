@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2024-12-13",
+  "needs_port": false,
+  "sha": "aa007256249904339aaa13f19705037269545a88",
+  "short_sha": "aa00725624",
+  "subject": "chore: stop running compiler twice during tests (#6321)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-17",
+  "needs_port": false,
+  "sha": "d36552848c98c8f2761266ea52647f6971c7c6ab",
+  "short_sha": "d36552848c",
+  "subject": "chore: hide weird RpcEncoding behind Nonempty",
+  "zig_target": {}
+}

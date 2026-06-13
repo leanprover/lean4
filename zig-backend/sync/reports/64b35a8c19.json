@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2024-11-15",
+  "needs_port": true,
+  "sha": "64b35a8c194da9f36329ee2b5d04e0e757f8c553",
+  "short_sha": "64b35a8c19",
+  "subject": "perf: add `LEAN_ALWAYS_INLINE` to some functions (#6045)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

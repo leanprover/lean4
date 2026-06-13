@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-14",
+  "needs_port": false,
+  "sha": "535435955b482176e8d62a54deebcacdec0827db",
+  "short_sha": "535435955b",
+  "subject": "chore: remove broken Nix build (#9910)",
+  "zig_target": {}
+}

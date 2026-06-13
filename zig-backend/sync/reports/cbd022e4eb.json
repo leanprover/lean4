@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-03",
+  "needs_port": false,
+  "sha": "cbd022e4eb90ffdd6212f4ec2a07d8c58e3e3e50",
+  "short_sha": "cbd022e4eb",
+  "subject": "refactor: `replaceFVarIdAtLocalDecl` => `LocalDecl.replaceFVarId`",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/LCtx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/LCtx.lean"
+    }
+  ],
+  "date": "2022-08-22",
+  "needs_port": true,
+  "sha": "766afdd0bc6c6480113b6dd91033fea871028fcd",
+  "short_sha": "766afdd0bc",
+  "subject": "feat: store `FunDecl`s at `LCNF` local context",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/LCtx.lean": "zig-backend/src/lean/compiler/lcnf/LCtx.lean"
+  }
+}

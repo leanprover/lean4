@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-06",
+  "needs_port": false,
+  "sha": "c7d8271c843bee691a22b28d726fd16197278919",
+  "short_sha": "c7d8271c84",
+  "subject": "feat(library/init/lean/parser/token): save lbp in `token_config`",
+  "zig_target": {}
+}

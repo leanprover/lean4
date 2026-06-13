@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-27",
+  "needs_port": false,
+  "sha": "9e83115072be337316d800febd298d99904d15d5",
+  "short_sha": "9e83115072",
+  "subject": "chore: Nix: lazy-trees compatibility",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-15",
+  "needs_port": false,
+  "sha": "3c68703f39493a129db862f44dfe0ed928bdd767",
+  "short_sha": "3c68703f39",
+  "subject": "feat: elaborate `<-` modifier at `simp` arguments",
+  "zig_target": {}
+}

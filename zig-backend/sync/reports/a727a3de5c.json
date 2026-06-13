@@ -1,0 +1,10 @@
+{
+  "author": "ammkrn",
+  "backend_changes": [],
+  "date": "2021-11-25",
+  "needs_port": false,
+  "sha": "a727a3de5c16862558ba2af6adbf3cfc8df33896",
+  "short_sha": "a727a3de5c",
+  "subject": "fix: syntax/mathlib name in dependencies example",
+  "zig_target": {}
+}

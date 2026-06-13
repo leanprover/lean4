@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-08-08",
+  "needs_port": false,
+  "sha": "23feb04d60a121f7233cd6a0fc6100a487fb88a0",
+  "short_sha": "23feb04d60",
+  "subject": "chore: clean up LSP code style and add more definitions from the spec",
+  "zig_target": {}
+}

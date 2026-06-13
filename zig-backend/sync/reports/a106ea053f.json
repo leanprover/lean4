@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-20",
+  "needs_port": false,
+  "sha": "a106ea053fec080a50204b0ad6dadc69bc3f0937",
+  "short_sha": "a106ea053f",
+  "subject": "test: split grind_lint.lean into 7 smaller files for faster CI (#11271)",
+  "zig_target": {}
+}

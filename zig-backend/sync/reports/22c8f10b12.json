@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "22c8f10b12d600b59c08b4ddb7e17fa1312e8603",
+  "short_sha": "22c8f10b12",
+  "subject": "chore: remove `constant` command",
+  "zig_target": {}
+}

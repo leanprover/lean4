@@ -1,0 +1,10 @@
+{
+  "author": "bc\u00b2",
+  "backend_changes": [],
+  "date": "2023-12-05",
+  "needs_port": false,
+  "sha": "d4f10bc07e575de14edd08ccbcda55e6dd3fa823",
+  "short_sha": "d4f10bc07e",
+  "subject": "feat: detail error message about invalid mutual blocks (#2949)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Tom Levy",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Sort/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Impl.lean"
+    }
+  ],
+  "date": "2025-04-29",
+  "needs_port": true,
+  "sha": "877d51bb15aed08a6a7ee0d61cb6a59a49851710",
+  "short_sha": "877d51bb15",
+  "subject": "doc: fix time complexity of List.merge (#8116)",
+  "zig_target": {
+    "src/Init/Data/List/Sort/Basic.lean": "zig-backend/src/init/Data/List/Sort/Basic.lean",
+    "src/Init/Data/List/Sort/Impl.lean": "zig-backend/src/init/Data/List/Sort/Impl.lean"
+  }
+}

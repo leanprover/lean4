@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-16",
+  "needs_port": false,
+  "sha": "0fa262bb936b31ed89b492a0b50ebea89aaedf7b",
+  "short_sha": "0fa262bb93",
+  "subject": "feat: add priority to `InstanceEntry`",
+  "zig_target": {}
+}

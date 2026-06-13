@@ -1,0 +1,108 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Repr.lean"
+    },
+    {
+      "path": "src/Init/Data/Stream.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Stream.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Defs.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Repr.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Stream.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Stream.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Substring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Substring.lean"
+    },
+    {
+      "path": "src/Init/Data/String/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Name.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Name.lean"
+    },
+    {
+      "path": "src/Init/Meta/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta/Defs.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    }
+  ],
+  "date": "2025-11-16",
+  "needs_port": true,
+  "sha": "bf60550ce52e6af9e015e6bbb1bfff6c3289deda",
+  "short_sha": "bf60550ce5",
+  "subject": "chore: rename `Substring` to `Substring.Raw` (#11154)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Repr.lean": "zig-backend/src/init/Data/Repr.lean",
+    "src/Init/Data/Stream.lean": "zig-backend/src/init/Data/Stream.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Bootstrap.lean": "zig-backend/src/init/Data/String/Bootstrap.lean",
+    "src/Init/Data/String/Defs.lean": "zig-backend/src/init/Data/String/Defs.lean",
+    "src/Init/Data/String/Iterator.lean": "zig-backend/src/init/Data/String/Iterator.lean",
+    "src/Init/Data/String/Repr.lean": "zig-backend/src/init/Data/String/Repr.lean",
+    "src/Init/Data/String/Stream.lean": "zig-backend/src/init/Data/String/Stream.lean",
+    "src/Init/Data/String/Substring.lean": "zig-backend/src/init/Data/String/Substring.lean",
+    "src/Init/Data/String/TakeDrop.lean": "zig-backend/src/init/Data/String/TakeDrop.lean",
+    "src/Init/Data/ToString/Basic.lean": "zig-backend/src/init/Data/ToString/Basic.lean",
+    "src/Init/Data/ToString/Name.lean": "zig-backend/src/init/Data/ToString/Name.lean",
+    "src/Init/Meta/Defs.lean": "zig-backend/src/init/Meta/Defs.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean"
+  }
+}

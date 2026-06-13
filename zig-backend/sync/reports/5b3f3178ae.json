@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-04",
+  "needs_port": false,
+  "sha": "5b3f3178ae241dc37fe2fb221bde0847408e05a7",
+  "short_sha": "5b3f3178ae",
+  "subject": "feat(src/CMakeLists): copy static library to bin directory",
+  "zig_target": {}
+}

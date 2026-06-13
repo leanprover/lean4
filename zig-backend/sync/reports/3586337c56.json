@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-22",
+  "needs_port": false,
+  "sha": "3586337c567f97d9bebd6eba131e08f037441e03",
+  "short_sha": "3586337c56",
+  "subject": "perf: handle easy case efficiently",
+  "zig_target": {}
+}

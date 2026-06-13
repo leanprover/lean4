@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-18",
+  "needs_port": false,
+  "sha": "e61d0be5619bf55043ab4d3317829907fe6e4f39",
+  "short_sha": "e61d0be561",
+  "subject": "feat: isolate fixed prefix at well-founded recursion",
+  "zig_target": {}
+}

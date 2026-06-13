@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-02",
+  "needs_port": false,
+  "sha": "ba7f2849dc75ff7d621606a8863d733ae3438ee1",
+  "short_sha": "ba7f2849dc",
+  "subject": "chore: use aux recursor extension implemented in Lean",
+  "zig_target": {}
+}

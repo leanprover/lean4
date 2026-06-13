@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-05-27",
+  "needs_port": true,
+  "sha": "dbe4aa447eb636bde3a5f2641f6c60ce4b60a968",
+  "short_sha": "dbe4aa447e",
+  "subject": "chore: explicit `lbp` at `ParserDescr.symbol`",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

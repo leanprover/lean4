@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2025-12-04",
+  "needs_port": true,
+  "sha": "455fd0b4488e2adc85f825a52e2ee7d944a5740a",
+  "short_sha": "455fd0b448",
+  "subject": "chore: use `not_value` at `Nat.pow_pos` (#11523)",
+  "zig_target": {
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

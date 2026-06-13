@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-22",
+  "needs_port": false,
+  "sha": "dedd9275ec162e181bbbd11ce65ba3bdfbf38e02",
+  "short_sha": "dedd9275ec",
+  "subject": "fix: `mkCongrSimpCore?` (#9472)",
+  "zig_target": {}
+}

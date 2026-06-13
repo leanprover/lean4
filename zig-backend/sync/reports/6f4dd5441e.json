@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-02-04",
+  "needs_port": false,
+  "sha": "6f4dd5441ecb3fda4cdafb8d5de99209cdf0be9e",
+  "short_sha": "6f4dd5441e",
+  "subject": "chore: disable test on windows",
+  "zig_target": {}
+}

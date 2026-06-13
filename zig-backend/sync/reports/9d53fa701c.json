@@ -1,0 +1,66 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/TermApp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Exception.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Exception.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Message.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Message.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Sorry.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Sorry.lean"
+    }
+  ],
+  "date": "2019-12-22",
+  "needs_port": true,
+  "sha": "9d53fa701c8431f6870e29654ca4788b4beccf7a",
+  "short_sha": "9d53fa701c",
+  "subject": "chore: combine `MessageData.context` + `MessageData.withOptions` into `MessageData.context`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Elab/TermApp.lean": "zig-backend/src/init/Lean/Elab/TermApp.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/Exception.lean": "zig-backend/src/init/Lean/Meta/Exception.lean",
+    "src/Init/Lean/Meta/Message.lean": "zig-backend/src/init/Lean/Meta/Message.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean",
+    "src/Init/Lean/Util/Message.lean": "zig-backend/src/init/Lean/Util/Message.lean",
+    "src/Init/Lean/Util/Sorry.lean": "zig-backend/src/init/Lean/Util/Sorry.lean"
+  }
+}

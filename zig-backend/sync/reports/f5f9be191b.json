@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-05-31",
+  "needs_port": false,
+  "sha": "f5f9be191bd8968fc34cd179640aba047d74e6bd",
+  "short_sha": "f5f9be191b",
+  "subject": "fix: show expected type in term goal",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-12-13",
+  "needs_port": true,
+  "sha": "38c401cf3bd02d1ebf7dcf134f941aee08fbc2db",
+  "short_sha": "38c401cf3b",
+  "subject": "feat: new `Int` operations in `grind` (#11656)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

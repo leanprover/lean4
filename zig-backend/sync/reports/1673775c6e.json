@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.cpp"
+    }
+  ],
+  "date": "2019-01-30",
+  "needs_port": true,
+  "sha": "1673775c6ee606aa95e7120fc860f9b35e210507",
+  "short_sha": "1673775c6e",
+  "subject": "fix(library/compiler/cse): make sure `cse` produces correct result in LLNF expressions",
+  "zig_target": {
+    "src/library/compiler/cse.cpp": "zig-backend/src/library/compiler/cse.cpp"
+  }
+}

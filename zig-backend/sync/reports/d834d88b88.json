@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-01-24",
+  "needs_port": true,
+  "sha": "d834d88b8875245eb9b3348f4ad9858e9069ac0b",
+  "short_sha": "d834d88b88",
+  "subject": "fix: performance bottleneck",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

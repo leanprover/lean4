@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-28",
+  "needs_port": false,
+  "sha": "9df737d49283c81413c7e000478ae5c6f5397f64",
+  "short_sha": "9df737d492",
+  "subject": "fix: lake: race condition in monitor queue (#13559)",
+  "zig_target": {}
+}

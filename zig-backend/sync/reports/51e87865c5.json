@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2026-03-30",
+  "needs_port": true,
+  "sha": "51e87865c598fcc34209f96f77dc23206f43b88b",
+  "short_sha": "51e87865c5",
+  "subject": "feat: add `deprecated_arg` attribute (#13011)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

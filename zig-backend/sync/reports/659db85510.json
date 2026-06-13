@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Gcd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Gcd.lean"
+    }
+  ],
+  "date": "2026-04-08",
+  "needs_port": true,
+  "sha": "659db85510b89fef59785e50ea1870e5683974f8",
+  "short_sha": "659db85510",
+  "subject": "fix: suggest `(rfl)` not `id rfl` in linter (#13319)",
+  "zig_target": {
+    "src/Init/Data/Nat/Gcd.lean": "zig-backend/src/init/Data/Nat/Gcd.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-14",
+  "needs_port": false,
+  "sha": "de9a6374f182586ad597dc7d720cfc2139f488f3",
+  "short_sha": "de9a6374f1",
+  "subject": "feat: make `#check <ident>` always show the signature without elaboration",
+  "zig_target": {}
+}

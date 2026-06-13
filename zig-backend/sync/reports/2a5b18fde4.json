@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-29",
+  "needs_port": false,
+  "sha": "2a5b18fde428e9c31d4a2d7fc2ca1f9ba1a70e1f",
+  "short_sha": "2a5b18fde4",
+  "subject": "test: add `nondet` example",
+  "zig_target": {}
+}

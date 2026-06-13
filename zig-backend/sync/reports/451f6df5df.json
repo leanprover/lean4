@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2022-08-31",
+  "needs_port": true,
+  "sha": "451f6df5dfad6e43aba76b55e1e0947a602ac1be",
+  "short_sha": "451f6df5df",
+  "subject": "fix: IO.waitAny requires nonempty list",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

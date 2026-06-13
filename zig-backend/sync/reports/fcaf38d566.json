@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2020-12-14",
+  "needs_port": true,
+  "sha": "fcaf38d5669d586876606185fd3d88f81099324c",
+  "short_sha": "fcaf38d566",
+  "subject": "fix: handle `prec` DSL at `infixl` macro",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

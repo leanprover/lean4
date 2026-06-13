@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "1fd9adc693d011a7c4e3fab4be1c1c6f81ad7bb9",
+  "short_sha": "1fd9adc693",
+  "subject": "fix: `update-stage0` under the Lake cache",
+  "zig_target": {}
+}

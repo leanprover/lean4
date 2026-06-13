@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-25",
+  "needs_port": false,
+  "sha": "6812bae11abd893fd8b292d6d1d90cc4bc041d7e",
+  "short_sha": "6812bae11a",
+  "subject": "feat: link libraries in a path and platform independent way",
+  "zig_target": {}
+}

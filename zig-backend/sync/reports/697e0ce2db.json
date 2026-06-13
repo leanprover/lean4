@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-06",
+  "needs_port": false,
+  "sha": "697e0ce2dba6e3f13eaa3f02b4007bd3d88064ec",
+  "short_sha": "697e0ce2db",
+  "subject": "feat: apply cleanup tactic before applying decreasing tactic",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Denis Gorbachev",
+  "backend_changes": [],
+  "date": "2023-09-30",
+  "needs_port": false,
+  "sha": "e6292bc0b890aed51447c1f6ef1cd503bd3abf0f",
+  "short_sha": "e6292bc0b8",
+  "subject": "doc: fix docstring typos (#2605)",
+  "zig_target": {}
+}

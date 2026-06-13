@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Closure.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Closure.lean"
+    }
+  ],
+  "date": "2022-12-01",
+  "needs_port": true,
+  "sha": "0a031fc9bbb43c274bb400f121b13711e803f56c",
+  "short_sha": "0a031fc9bb",
+  "subject": "chore: replace `Expr.forEach` with `Expr.forEachWhere`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Closure.lean": "zig-backend/src/lean/compiler/lcnf/Closure.lean"
+  }
+}

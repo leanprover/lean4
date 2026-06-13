@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-21",
+  "needs_port": false,
+  "sha": "a909e8cf26fed08d5e848a41e12382b68dacd3b7",
+  "short_sha": "a909e8cf26",
+  "subject": "feat: arity mismatch error message at well-founded recursion",
+  "zig_target": {}
+}

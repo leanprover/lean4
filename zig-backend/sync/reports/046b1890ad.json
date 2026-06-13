@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-27",
+  "needs_port": false,
+  "sha": "046b1890adf77fdc589e6c25ebe839e4ff176ba4",
+  "short_sha": "046b1890ad",
+  "subject": "feat(src/frontends/lean/decl_util): ignore out_params when deciding whether to include an anonymous inst implicit section variable",
+  "zig_target": {}
+}

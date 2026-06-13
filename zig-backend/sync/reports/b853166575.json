@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "b8531665758f4a7e31d283d8adc6c377ecd83573",
+  "short_sha": "b853166575",
+  "subject": "feat: Deterministic case labels in `mvcgen` (#9843)",
+  "zig_target": {}
+}

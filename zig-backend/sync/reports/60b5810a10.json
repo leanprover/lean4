@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-17",
+  "needs_port": true,
+  "sha": "60b5810a106cf0b2a054d617c82e4265cbed8468",
+  "short_sha": "60b5810a10",
+  "subject": "feat: elaborate `fun` with patterns",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

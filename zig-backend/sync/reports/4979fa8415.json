@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Rat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+    }
+  ],
+  "date": "2026-02-17",
+  "needs_port": true,
+  "sha": "4979fa841503539d32a16bda20b6b5a813370a3f",
+  "short_sha": "4979fa8415",
+  "subject": "chore: make `Rat.abs` lemmas protected (#12504)",
+  "zig_target": {
+    "src/Init/Data/Rat/Lemmas.lean": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+  }
+}

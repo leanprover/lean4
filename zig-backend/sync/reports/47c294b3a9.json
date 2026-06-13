@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-06-16",
+  "needs_port": false,
+  "sha": "47c294b3a988fc6df13821a812e0f75f0837bb0b",
+  "short_sha": "47c294b3a9",
+  "subject": "chore: make Linux Release CI job secondary  (#8818)",
+  "zig_target": {}
+}

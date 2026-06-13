@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    }
+  ],
+  "date": "2025-06-29",
+  "needs_port": true,
+  "sha": "8b1d2fc2d5545418e43d8aeba632ca085d601b9a",
+  "short_sha": "8b1d2fc2d5",
+  "subject": "feat: `OfSemiring.toQ` unexpander (#9076)",
+  "zig_target": {
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+  }
+}

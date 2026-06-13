@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-09",
+  "needs_port": false,
+  "sha": "4875224bd4bdf5ee07571498770eb7092ab779e8",
+  "short_sha": "4875224bd4",
+  "subject": "feat: `unfold` tactic tries to reduce `match` after unfolding",
+  "zig_target": {}
+}

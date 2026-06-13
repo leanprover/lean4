@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/eta_expansion.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eta_expansion.cpp"
+    },
+    {
+      "path": "src/library/compiler/inliner.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/inliner.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    }
+  ],
+  "date": "2018-08-23",
+  "needs_port": true,
+  "sha": "22ba0a11555e3645fad95c4a24dc2fa7640af755",
+  "short_sha": "22ba0a1155",
+  "subject": "chore(library): remove `inverse.cpp`",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp",
+    "src/library/compiler/eta_expansion.cpp": "zig-backend/src/library/compiler/eta_expansion.cpp",
+    "src/library/compiler/inliner.cpp": "zig-backend/src/library/compiler/inliner.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h"
+  }
+}

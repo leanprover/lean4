@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Config.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    }
+  ],
+  "date": "2022-10-12",
+  "needs_port": true,
+  "sha": "8fe4b75c48e947074d95a28afefb8a78df4c602c",
+  "short_sha": "8fe4b75c48",
+  "subject": "feat: do not inline definitions occurring in instances at the base phase",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean",
+    "src/Lean/Compiler/LCNF/Simp/Config.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Config.lean",
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+  }
+}

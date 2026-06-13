@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    }
+  ],
+  "date": "2019-11-22",
+  "needs_port": true,
+  "sha": "a9a27c77d876f4404138f611eefaa16f23e6a7c9",
+  "short_sha": "a9a27c77d8",
+  "subject": "feat: add helper combinators",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean"
+  }
+}

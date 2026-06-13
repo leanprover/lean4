@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2024-07-15",
+  "needs_port": true,
+  "sha": "180c6aaa5e31f9fd5915665280994dfd993aa210",
+  "short_sha": "180c6aaa5e",
+  "subject": "feat: PProd and MProd syntax (part 2) (#4730)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

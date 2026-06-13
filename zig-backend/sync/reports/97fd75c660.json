@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-07-07",
+  "needs_port": true,
+  "sha": "97fd75c6608d1e7b1d2fcd27f65335115e3d2934",
+  "short_sha": "97fd75c660",
+  "subject": "chore: remove redundancy in toMono trivial structure check (#9245)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

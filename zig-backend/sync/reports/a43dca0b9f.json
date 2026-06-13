@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-04",
+  "needs_port": false,
+  "sha": "a43dca0b9f4a282d27cb4d687d47a4ff8d8bed89",
+  "short_sha": "a43dca0b9f",
+  "subject": "fix: add basic support for accessing the field of a section variable in the notation prechecker",
+  "zig_target": {}
+}

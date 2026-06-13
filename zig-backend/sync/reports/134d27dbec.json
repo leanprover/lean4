@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-25",
+  "needs_port": false,
+  "sha": "134d27dbec7075bf2d8114689a4f187dc91bd20e",
+  "short_sha": "134d27dbec",
+  "subject": "feat(library/init/lean/parser/parsec): `longest_match` should return all longest parses",
+  "zig_target": {}
+}

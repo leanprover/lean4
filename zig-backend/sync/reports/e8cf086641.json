@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-16",
+  "needs_port": false,
+  "sha": "e8cf0866410d47cd5b8b0367465631a68c438eda",
+  "short_sha": "e8cf086641",
+  "subject": "fix: synthesize pretty printers early",
+  "zig_target": {}
+}

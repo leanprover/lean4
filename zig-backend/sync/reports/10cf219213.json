@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-04",
+  "needs_port": false,
+  "sha": "10cf2192139f5e29270ccbfff83af37b9b1dabb0",
+  "short_sha": "10cf219213",
+  "subject": "doc: clarify RFC issues",
+  "zig_target": {}
+}

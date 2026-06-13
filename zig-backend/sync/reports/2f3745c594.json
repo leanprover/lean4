@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Definition.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Definition.lean"
+    }
+  ],
+  "date": "2020-03-16",
+  "needs_port": true,
+  "sha": "2f3745c59492c9c61617798e888ae929017196e7",
+  "short_sha": "2f3745c594",
+  "subject": "feat: use `shareCommon`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Definition.lean": "zig-backend/src/init/Lean/Elab/Definition.lean"
+  }
+}

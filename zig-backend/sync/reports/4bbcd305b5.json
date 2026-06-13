@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-08",
+  "needs_port": false,
+  "sha": "4bbcd305b5040e2a926d44fdcd3429af81cbdef8",
+  "short_sha": "4bbcd305b5",
+  "subject": "fix: disable implicit-lambdas when elaborating patterns",
+  "zig_target": {}
+}

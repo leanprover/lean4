@@ -1,0 +1,102 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/FindPos.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/FindPos.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Iterate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Iterate.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/FindPos.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/FindPos.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Iterate.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Iterate.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Splits.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/PosRaw.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/PosRaw.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Termination.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Termination.lean"
+    }
+  ],
+  "date": "2026-02-12",
+  "needs_port": true,
+  "sha": "6cbaada1bffe010d584da42878ebee02b3aaa940",
+  "short_sha": "6cbaada1bf",
+  "subject": "feat: verification of `String.positions`, `String.chars`, `String.revPositions`, `String.revChars`, `ForIn m String Char` (#12456)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/FindPos.lean": "zig-backend/src/init/Data/String/FindPos.lean",
+    "src/Init/Data/String/Iterate.lean": "zig-backend/src/init/Data/String/Iterate.lean",
+    "src/Init/Data/String/Lemmas.lean": "zig-backend/src/init/Data/String/Lemmas.lean",
+    "src/Init/Data/String/Lemmas/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Basic.lean",
+    "src/Init/Data/String/Lemmas/FindPos.lean": "zig-backend/src/init/Data/String/Lemmas/FindPos.lean",
+    "src/Init/Data/String/Lemmas/Iterate.lean": "zig-backend/src/init/Data/String/Lemmas/Iterate.lean",
+    "src/Init/Data/String/Lemmas/Order.lean": "zig-backend/src/init/Data/String/Lemmas/Order.lean",
+    "src/Init/Data/String/Lemmas/Splits.lean": "zig-backend/src/init/Data/String/Lemmas/Splits.lean",
+    "src/Init/Data/String/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Pattern/Basic.lean",
+    "src/Init/Data/String/Pattern/Char.lean": "zig-backend/src/init/Data/String/Pattern/Char.lean",
+    "src/Init/Data/String/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Pattern/Pred.lean",
+    "src/Init/Data/String/PosRaw.lean": "zig-backend/src/init/Data/String/PosRaw.lean",
+    "src/Init/Data/String/Termination.lean": "zig-backend/src/init/Data/String/Termination.lean"
+  }
+}

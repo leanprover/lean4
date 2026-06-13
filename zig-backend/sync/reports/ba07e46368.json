@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/OfSemiring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/OfSemiring.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Poly.lean"
+    }
+  ],
+  "date": "2025-06-24",
+  "needs_port": true,
+  "sha": "ba07e46368189538063220e27221bdd833113b6b",
+  "short_sha": "ba07e46368",
+  "subject": "refactor: simplify semiring normalization helper theorems (#8946)",
+  "zig_target": {
+    "src/Init/Grind/Ring/OfSemiring.lean": "zig-backend/src/init/Grind/Ring/OfSemiring.lean",
+    "src/Init/Grind/Ring/Poly.lean": "zig-backend/src/init/Grind/Ring/Poly.lean"
+  }
+}

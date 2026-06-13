@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    }
+  ],
+  "date": "2020-03-04",
+  "needs_port": true,
+  "sha": "4400c82c4d5621c8ee76085262564c1d72caf4d7",
+  "short_sha": "4400c82c4d",
+  "subject": "feat: add `cases` tactic syntax",
+  "zig_target": {
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+  }
+}

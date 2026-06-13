@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-01",
+  "needs_port": false,
+  "sha": "db3631ba1f98891c6db02c46a2b691b6af618648",
+  "short_sha": "db3631ba1f",
+  "subject": "chore: release notes for 4.11.0 (#5221)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    }
+  ],
+  "date": "2019-11-23",
+  "needs_port": true,
+  "sha": "63d342924631edf0e33af44a7bb90b4c0097a191",
+  "short_sha": "63d3429246",
+  "subject": "fix: reducibility setting should not hide non-definitions (constructors, inductive types, etc)",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean"
+  }
+}

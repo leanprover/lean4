@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-13",
+  "needs_port": false,
+  "sha": "5480d22be6285b0826a85ed81fd48d214edd91f9",
+  "short_sha": "5480d22be6",
+  "subject": "feat(library/init/lean/environment): add `getModifications`",
+  "zig_target": {}
+}

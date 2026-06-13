@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-21",
+  "needs_port": false,
+  "sha": "7b787c81f34327edfe1b033eaf650a015b49a851",
+  "short_sha": "7b787c81f3",
+  "subject": "perf: avoid contended access to `IO.Ref` in `isTracingEnabledFor` (#7601)",
+  "zig_target": {}
+}

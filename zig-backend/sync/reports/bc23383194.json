@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-05-02",
+  "needs_port": false,
+  "sha": "bc233831945b168861e5720b37d5938ea21bb7f5",
+  "short_sha": "bc23383194",
+  "subject": "feat: subst notation (heq \u25b8 h) tries both orientation (#4046)",
+  "zig_target": {}
+}

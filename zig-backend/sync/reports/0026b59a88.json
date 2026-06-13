@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-07",
+  "needs_port": false,
+  "sha": "0026b59a885ef6ca9fb0a1910867656340c82458",
+  "short_sha": "0026b59a88",
+  "subject": "fix(tests/lean/macro_scopes): expected output",
+  "zig_target": {}
+}

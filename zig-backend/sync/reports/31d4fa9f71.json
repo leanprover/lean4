@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-05-16",
+  "needs_port": true,
+  "sha": "31d4fa9f711ac22e89052730c53397c1e05562fa",
+  "short_sha": "31d4fa9f71",
+  "subject": "chore(util/sexpr/options): shrink `options` API",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

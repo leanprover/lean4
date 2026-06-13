@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-09-08",
+  "needs_port": false,
+  "sha": "560e7af1287ede8146da77cdc4674c29598744bf",
+  "short_sha": "560e7af128",
+  "subject": "fix(library/init/lean/compiler/ir/compilerm): borrow annotations on extern decls do not do anything right now",
+  "zig_target": {}
+}

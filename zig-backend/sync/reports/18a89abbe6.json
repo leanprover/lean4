@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-19",
+  "needs_port": false,
+  "sha": "18a89abbe6d0f0528195462098a4663f5c952275",
+  "short_sha": "18a89abbe6",
+  "subject": "chore: fix Windows CI",
+  "zig_target": {}
+}

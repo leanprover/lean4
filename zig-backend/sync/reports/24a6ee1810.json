@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-10-25",
+  "needs_port": true,
+  "sha": "24a6ee1810fd19f21a22b22033c82fa77dae254c",
+  "short_sha": "24a6ee1810",
+  "subject": "chore: use new frontend by default",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

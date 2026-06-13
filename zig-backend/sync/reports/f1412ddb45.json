@@ -1,0 +1,30 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2023-07-19",
+  "needs_port": true,
+  "sha": "f1412ddb4550c22a4302542e4191c54af0cf758e",
+  "short_sha": "f1412ddb45",
+  "subject": "feat: enable failIfUnchanged by default in simp",
+  "zig_target": {
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

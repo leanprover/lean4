@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-06",
+  "needs_port": false,
+  "sha": "30f41fe5426c50e2126dbb760ade0534159065ff",
+  "short_sha": "30f41fe542",
+  "subject": "fix: instance name for deriving ToExpr (#10682)",
+  "zig_target": {}
+}

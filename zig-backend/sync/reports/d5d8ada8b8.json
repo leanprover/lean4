@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "d5d8ada8b837918623f2a2d659ba930a61d8f855",
+  "short_sha": "d5d8ada8b8",
+  "subject": "chore: split LICENSE again",
+  "zig_target": {}
+}

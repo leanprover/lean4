@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-02",
+  "needs_port": false,
+  "sha": "15347272c7709cc84c1431301186402166246521",
+  "short_sha": "15347272c7",
+  "subject": "feat: elaborate `wait_*` notation",
+  "zig_target": {}
+}

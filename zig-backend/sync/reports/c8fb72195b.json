@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2022-06-28",
+  "needs_port": true,
+  "sha": "c8fb72195b852a48090a9a95663da5fc32ac0dd5",
+  "short_sha": "c8fb72195b",
+  "subject": "feat: print panic backtraces on Linux",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

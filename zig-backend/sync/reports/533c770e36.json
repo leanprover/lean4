@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-09",
+  "needs_port": false,
+  "sha": "533c770e36a6ea02093195e67ba19e13042cc378",
+  "short_sha": "533c770e36",
+  "subject": "refactor: remove redundant state",
+  "zig_target": {}
+}

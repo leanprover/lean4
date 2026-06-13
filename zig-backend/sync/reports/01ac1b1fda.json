@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-15",
+  "needs_port": false,
+  "sha": "01ac1b1fdac34a70454f8709fcb847c48f894f90",
+  "short_sha": "01ac1b1fda",
+  "subject": "fix: prevent infinite recursion on pretty printer failure",
+  "zig_target": {}
+}

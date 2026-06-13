@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2022-08-26",
+  "needs_port": true,
+  "sha": "af7f5aa2a0011a239ed559575f739b4b1e44a690",
+  "short_sha": "af7f5aa2a0",
+  "subject": "feat: `dbgStackTrace`",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

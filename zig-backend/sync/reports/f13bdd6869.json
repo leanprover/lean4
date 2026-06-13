@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-05",
+  "needs_port": false,
+  "sha": "f13bdd686972013724c70fdd84cc1afbea2b4cfd",
+  "short_sha": "f13bdd6869",
+  "subject": "fix: error recovery at `sepBy` combinator",
+  "zig_target": {}
+}

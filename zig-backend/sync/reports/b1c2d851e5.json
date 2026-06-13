@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "b1c2d851e5ce29c1ad656a73cb0b4a915fc1f5f5",
+  "short_sha": "b1c2d851e5",
+  "subject": "chore: CI: bump lycheeverse/lychee-action from 1.9.0 to 2.0.2 (#5959)",
+  "zig_target": {}
+}

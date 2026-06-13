@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-29",
+  "needs_port": false,
+  "sha": "5e14a5f561b65e717395c2c3fa03474b02d7c458",
+  "short_sha": "5e14a5f561",
+  "subject": "refactor(library/init/lean/parser/trie): use `String.Pos` instead of `OldIterator`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-05",
+  "needs_port": false,
+  "sha": "b6dc189f0a259d2fa86d52a73c5f3198ea4713fd",
+  "short_sha": "b6dc189f0a",
+  "subject": "feat: augment server env + add dynlib search path",
+  "zig_target": {}
+}

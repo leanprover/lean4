@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-25",
+  "needs_port": false,
+  "sha": "3d1f682144ce6dfabd317e1511ee82fe14459ad7",
+  "short_sha": "3d1f682144",
+  "subject": "feat: missing `whnf` at `checkParamsAndResultType`",
+  "zig_target": {}
+}

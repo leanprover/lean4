@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-22",
+  "needs_port": false,
+  "sha": "25e673df54d9a13e22d17eb9ac2b1944b1ece942",
+  "short_sha": "25e673df54",
+  "subject": "chore: disable `lake.lock` (for now)",
+  "zig_target": {}
+}

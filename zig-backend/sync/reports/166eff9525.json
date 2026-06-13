@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-21",
+  "needs_port": true,
+  "sha": "166eff952583dd252bc7ba12ce727cd8265e3c3d",
+  "short_sha": "166eff9525",
+  "subject": "fix(runtime/lean): missing details",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

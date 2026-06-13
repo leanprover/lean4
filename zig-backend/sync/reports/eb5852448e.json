@@ -1,0 +1,24 @@
+{
+  "author": "Mac",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2021-11-04",
+  "needs_port": true,
+  "sha": "eb5852448ecb2c346398f023bdddb183a8730abf",
+  "short_sha": "eb5852448e",
+  "subject": "feat: generalize IO task functions to `BaseIO := EIO Empty` (#744)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-03",
+  "needs_port": false,
+  "sha": "398bbcfce3649c29dd5a810ba78a1b8396add89b",
+  "short_sha": "398bbcfce3",
+  "subject": "feat: save aditional information for id completion, and suppress implicit prefix when reporting completion types",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    }
+  ],
+  "date": "2020-01-20",
+  "needs_port": true,
+  "sha": "9425ec6a0684441239a4668f6380705fcb2d4ac5",
+  "short_sha": "9425ec6a06",
+  "subject": "chore: remove workaround",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "old_path": "src/util/array_ref.h",
+      "path": "src/include/lean/array_ref.h",
+      "status": "R",
+      "zig_target": "zig-backend/include/lean/array_ref.h"
+    },
+    {
+      "old_path": "src/util/buffer.h",
+      "path": "src/include/lean/buffer.h",
+      "status": "R",
+      "zig_target": "zig-backend/include/lean/buffer.h"
+    },
+    {
+      "old_path": "src/util/list_ref.h",
+      "path": "src/include/lean/list_ref.h",
+      "status": "R",
+      "zig_target": "zig-backend/include/lean/list_ref.h"
+    },
+    {
+      "old_path": "src/util/object_ref.h",
+      "path": "src/include/lean/object_ref.h",
+      "status": "R",
+      "zig_target": "zig-backend/include/lean/object_ref.h"
+    },
+    {
+      "old_path": "src/util/option_ref.h",
+      "path": "src/include/lean/option_ref.h",
+      "status": "R",
+      "zig_target": "zig-backend/include/lean/option_ref.h"
+    },
+    {
+      "old_path": "src/util/pair_ref.h",
+      "path": "src/include/lean/pair_ref.h",
+      "status": "R",
+      "zig_target": "zig-backend/include/lean/pair_ref.h"
+    },
+    {
+      "old_path": "src/util/string_ref.h",
+      "path": "src/include/lean/string_ref.h",
+      "status": "R",
+      "zig_target": "zig-backend/include/lean/string_ref.h"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    },
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "old_path": "src/util/object_ref.cpp",
+      "path": "src/runtime/object_ref.cpp",
+      "status": "R",
+      "zig_target": "zig-backend/src/runtime/object_ref.cpp"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2021-08-16",
+  "needs_port": true,
+  "sha": "14b611af9659522a80a025d1558436d50d5fe217",
+  "short_sha": "14b611af96",
+  "subject": "refactor: move `buffer.h` and `*_ref.h` files to runtime",
+  "zig_target": {
+    "src/include/lean/array_ref.h": "zig-backend/include/lean/array_ref.h",
+    "src/include/lean/buffer.h": "zig-backend/include/lean/buffer.h",
+    "src/include/lean/list_ref.h": "zig-backend/include/lean/list_ref.h",
+    "src/include/lean/object_ref.h": "zig-backend/include/lean/object_ref.h",
+    "src/include/lean/option_ref.h": "zig-backend/include/lean/option_ref.h",
+    "src/include/lean/pair_ref.h": "zig-backend/include/lean/pair_ref.h",
+    "src/include/lean/string_ref.h": "zig-backend/include/lean/string_ref.h",
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/init_attribute.cpp": "zig-backend/src/library/compiler/init_attribute.cpp",
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp",
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h",
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object_ref.cpp": "zig-backend/src/runtime/object_ref.cpp",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

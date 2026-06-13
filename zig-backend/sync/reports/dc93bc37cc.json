@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "dc93bc37ccbd2670f672d7cd774ca9d7185b49ea",
+  "short_sha": "dc93bc37cc",
+  "subject": "chore(tests/playground/environment_ext): fix",
+  "zig_target": {}
+}

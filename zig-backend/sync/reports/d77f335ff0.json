@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful.lean"
+    }
+  ],
+  "date": "2021-02-20",
+  "needs_port": true,
+  "sha": "d77f335ff0c3e39252f71f00051a16cfea63b876",
+  "short_sha": "d77f335ff0",
+  "subject": "feat: add `LawfulMonad` instance for `ExceptT`",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/Control/Lawful.lean": "zig-backend/src/init/Control/Lawful.lean"
+  }
+}

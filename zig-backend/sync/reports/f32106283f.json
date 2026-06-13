@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-21",
+  "needs_port": false,
+  "sha": "f32106283fab28c339b2e3a0d0a5f606fd3175ae",
+  "short_sha": "f32106283f",
+  "subject": "fix: pin `repeat`'s `numRegularExits` at `1` to match `for` (#13494)",
+  "zig_target": {}
+}

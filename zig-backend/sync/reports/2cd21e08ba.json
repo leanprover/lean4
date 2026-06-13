@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-24",
+  "needs_port": false,
+  "sha": "2cd21e08ba2cc07b48cf2f9c07c9647704cd56f4",
+  "short_sha": "2cd21e08ba",
+  "subject": "chore: add `CollectLevelParams.visitLevels`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-14",
+  "needs_port": false,
+  "sha": "3d175ab25fb0f548be3b5d29f376ed8e32f10137",
+  "short_sha": "3d175ab25f",
+  "subject": "fix: the `\u22ef` elaboration warning did not mention `pp.maxSteps` (#5710)",
+  "zig_target": {}
+}

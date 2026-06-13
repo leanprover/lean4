@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-07",
+  "needs_port": false,
+  "sha": "12a714a6f9bcda88954997d1794a1d6f764c351a",
+  "short_sha": "12a714a6f9",
+  "subject": "chore: CI: fix rebase command",
+  "zig_target": {}
+}

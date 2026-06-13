@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/StructInst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+    }
+  ],
+  "date": "2020-02-18",
+  "needs_port": true,
+  "sha": "5a44227f737a56c4b95f6ed1ce29b7b7e9b81835",
+  "short_sha": "5a44227f73",
+  "subject": "fix: `isModifyOp?`",
+  "zig_target": {
+    "src/Init/Lean/Elab/StructInst.lean": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+  }
+}

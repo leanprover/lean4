@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-20",
+  "needs_port": false,
+  "sha": "80e547ae989a152c3475fa7e71d5e48d0e5528df",
+  "short_sha": "80e547ae98",
+  "subject": "feat: add `mkSizeOfInstances`",
+  "zig_target": {}
+}

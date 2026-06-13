@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    }
+  ],
+  "date": "2024-01-10",
+  "needs_port": true,
+  "sha": "4169cac51f69dc3642e41b37c439c2add7bcad4d",
+  "short_sha": "4169cac51f",
+  "subject": "fix: do not strip dotted components from lean module names (#2994)",
+  "zig_target": {
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean"
+  }
+}

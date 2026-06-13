@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-03",
+  "needs_port": false,
+  "sha": "8dde9715a9aded0ec117703f581aeaea58c015b8",
+  "short_sha": "8dde9715a9",
+  "subject": "refactor: associate precedences to parsers instead of tokens",
+  "zig_target": {}
+}

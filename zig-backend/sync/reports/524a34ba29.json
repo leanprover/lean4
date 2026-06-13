@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    }
+  ],
+  "date": "2019-12-11",
+  "needs_port": true,
+  "sha": "524a34ba29af61afab8115658d44465154bacacd",
+  "short_sha": "524a34ba29",
+  "subject": "fix: List notation elaborator",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean"
+  }
+}

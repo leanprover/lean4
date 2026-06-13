@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Order.lean"
+    }
+  ],
+  "date": "2025-09-27",
+  "needs_port": true,
+  "sha": "6881177e38879a502fd6107424e5289794e2f024",
+  "short_sha": "6881177e38",
+  "subject": "feat: `grind order` negative constraints (#10600)",
+  "zig_target": {
+    "src/Init/Grind/Order.lean": "zig-backend/src/init/Grind/Order.lean"
+  }
+}

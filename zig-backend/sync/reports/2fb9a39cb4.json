@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-10",
+  "needs_port": false,
+  "sha": "2fb9a39cb4b015b27b4b8e0c4c62155d5119e37e",
+  "short_sha": "2fb9a39cb4",
+  "subject": "refactor: implement `MonadQuotation` at `CoreM`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-04",
+  "needs_port": false,
+  "sha": "fe947317791abe5edff75a946f86a686bf6d416f",
+  "short_sha": "fe94731779",
+  "subject": "perf: do not use `decide` for rewriting `True`/`False`",
+  "zig_target": {}
+}

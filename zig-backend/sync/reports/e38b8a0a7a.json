@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    }
+  ],
+  "date": "2025-06-08",
+  "needs_port": true,
+  "sha": "e38b8a0a7a0652ca4e45dcce9c118d6b59635335",
+  "short_sha": "e38b8a0a7a",
+  "subject": "feat: proof terms generation for `CommRing` and linarith interface (#8689)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-07",
+  "needs_port": false,
+  "sha": "dcb88d969ab342f1e1bff13597e339f7e2631e99",
+  "short_sha": "dcb88d969a",
+  "subject": "feat: improve auto implicit binder names in definitions/theorems",
+  "zig_target": {}
+}

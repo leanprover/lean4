@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2020-12-30",
+  "needs_port": true,
+  "sha": "d58b02a0bec94196b296b5be1df8f55c1ad26d90",
+  "short_sha": "d58b02a0be",
+  "subject": "fix: translate Windows error codes",
+  "zig_target": {
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

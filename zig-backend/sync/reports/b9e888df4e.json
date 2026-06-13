@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-12-10",
+  "needs_port": true,
+  "sha": "b9e888df4e48ca17f1019752f0d424da2fef7027",
+  "short_sha": "b9e888df4e",
+  "subject": "fix: add `Nat.cast` normalizer missing case (#11580)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

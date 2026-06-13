@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-02",
+  "needs_port": false,
+  "sha": "80c6edc620b3e7a9b2bfecad21b4362559a51df8",
+  "short_sha": "80c6edc620",
+  "subject": "chore(bin/lean-gdb): add lean::object pretty printer",
+  "zig_target": {}
+}

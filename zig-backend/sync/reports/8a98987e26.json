@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-26",
+  "needs_port": false,
+  "sha": "8a98987e267865966926ef3d905e86d363c85c92",
+  "short_sha": "8a98987e26",
+  "subject": "chore: use isDefEq heuristic on regular definitions only",
+  "zig_target": {}
+}

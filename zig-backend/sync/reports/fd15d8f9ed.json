@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-17",
+  "needs_port": false,
+  "sha": "fd15d8f9ed4c8e196e86a316f99e92fc80a74d15",
+  "short_sha": "fd15d8f9ed",
+  "subject": "feat: `Lean.Expr.name?` (#5760)",
+  "zig_target": {}
+}

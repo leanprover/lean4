@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "a639eb185cab63adac2616486c2239a796b7b066",
+  "short_sha": "a639eb185c",
+  "subject": "fix: `dsimp` `zeta` issue",
+  "zig_target": {}
+}

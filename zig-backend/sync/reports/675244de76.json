@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-05",
+  "needs_port": false,
+  "sha": "675244de76633aa3ca93e83a17729c403648bb86",
+  "short_sha": "675244de76",
+  "subject": "feat: `[grind_eq]` attribute for the `grind` tactic (#6539)",
+  "zig_target": {}
+}

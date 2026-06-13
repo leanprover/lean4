@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "b8a32eed8855c9dfb716d2d63a1ea52801603ba1",
+  "short_sha": "b8a32eed88",
+  "subject": "chore(tests/playground): add (temporary) scripts for testing new IR compiler",
+  "zig_target": {}
+}

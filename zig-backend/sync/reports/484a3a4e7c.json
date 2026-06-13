@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-11",
+  "needs_port": false,
+  "sha": "484a3a4e7c3d97f53d010d988ee972a0219d588f",
+  "short_sha": "484a3a4e7c",
+  "subject": "fix: should only cache inferred type when there are no metavars",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-13",
+  "needs_port": false,
+  "sha": "29cc75531a5a0e8626fa5e96371e7ceb98877782",
+  "short_sha": "29cc75531a",
+  "subject": "chore: remove accidental grind trace options (#8311)",
+  "zig_target": {}
+}

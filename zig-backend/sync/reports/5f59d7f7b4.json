@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/interrupt.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.cpp"
+    },
+    {
+      "path": "src/runtime/interrupt.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.h"
+    }
+  ],
+  "date": "2024-01-29",
+  "needs_port": true,
+  "sha": "5f59d7f7b4b2f15a2af2296a3dbc5ff572686de6",
+  "short_sha": "5f59d7f7b4",
+  "subject": "fix: do not throw C++ heartbeat exceptions in pure functions (#3224)",
+  "zig_target": {
+    "src/runtime/interrupt.cpp": "zig-backend/src/runtime/interrupt.cpp",
+    "src/runtime/interrupt.h": "zig-backend/src/runtime/interrupt.h"
+  }
+}

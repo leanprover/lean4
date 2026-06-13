@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-11-24",
+  "needs_port": false,
+  "sha": "8b632dad73a5b0c7ceac6105bac66333c98b050a",
+  "short_sha": "8b632dad73",
+  "subject": "fix: server worker fills stderr pipe",
+  "zig_target": {}
+}

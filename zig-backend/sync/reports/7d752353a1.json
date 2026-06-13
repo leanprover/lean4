@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-02",
+  "needs_port": false,
+  "sha": "7d752353a191949004b7e10338cc5cd054d3b5d0",
+  "short_sha": "7d752353a1",
+  "subject": "feat: add `getElimInfo`",
+  "zig_target": {}
+}

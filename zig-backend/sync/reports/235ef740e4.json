@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-20",
+  "needs_port": false,
+  "sha": "235ef740e40316b1d8aeddbf06e19b5b62742e72",
+  "short_sha": "235ef740e4",
+  "subject": "feat: add `CheckAssignmentQuick.check`",
+  "zig_target": {}
+}

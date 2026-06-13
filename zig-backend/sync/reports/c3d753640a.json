@@ -1,0 +1,48 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitUtil.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/SimpleGroundExpr.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpleGroundExpr.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2026-01-26",
+  "needs_port": true,
+  "sha": "c3d753640add76c6ceb1d3b5b57cc3e5475f2040",
+  "short_sha": "c3d753640a",
+  "subject": "feat: use static initializers where possible (#12082)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/EmitUtil.lean": "zig-backend/src/lean/compiler/ir/EmitUtil.lean",
+    "src/Lean/Compiler/IR/SimpleGroundExpr.lean": "zig-backend/src/lean/compiler/ir/SimpleGroundExpr.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

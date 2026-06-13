@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-31",
+  "needs_port": false,
+  "sha": "008537abbd486f87aec2e1d4d4e6915e12a276f1",
+  "short_sha": "008537abbd",
+  "subject": "fix: FunInd: unfold aux definitions more carefully (#5904)",
+  "zig_target": {}
+}

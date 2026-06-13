@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    },
+    {
+      "path": "src/library/compiler/ll_infer_type.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.h"
+    }
+  ],
+  "date": "2019-03-06",
+  "needs_port": true,
+  "sha": "8e9b0d27998f514634901b0a4770daff095c2f59",
+  "short_sha": "8e9b0d2799",
+  "subject": "fix(library/compiler): inferred types for stage2 declarations",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp",
+    "src/library/compiler/ll_infer_type.h": "zig-backend/src/library/compiler/ll_infer_type.h"
+  }
+}

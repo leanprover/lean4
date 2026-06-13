@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-16",
+  "needs_port": false,
+  "sha": "ca058a6d8ec378d735a78384f1ba555a2dee05ae",
+  "short_sha": "ca058a6d8e",
+  "subject": "chore(library/init/lean/expander): simplify constant normalization",
+  "zig_target": {}
+}

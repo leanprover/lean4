@@ -1,0 +1,30 @@
+{
+  "author": "FR",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    }
+  ],
+  "date": "2024-05-23",
+  "needs_port": true,
+  "sha": "93758cc222515bdb30c3f7379cba4400915b6ad5",
+  "short_sha": "93758cc222",
+  "subject": "perf: faster `Nat.testBit` (#4188)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Nat/Bitwise/Basic.lean": "zig-backend/src/init/Data/Nat/Bitwise/Basic.lean",
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+  }
+}

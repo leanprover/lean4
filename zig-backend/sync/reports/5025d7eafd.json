@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-13",
+  "needs_port": false,
+  "sha": "5025d7eafd8e62e5f062ddba10780525f234065c",
+  "short_sha": "5025d7eafd",
+  "subject": "chore: control generated code size",
+  "zig_target": {}
+}

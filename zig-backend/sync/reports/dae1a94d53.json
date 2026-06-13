@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-02",
+  "needs_port": false,
+  "sha": "dae1a94d53783f47e4dead1313ff67eb74e22da7",
+  "short_sha": "dae1a94d53",
+  "subject": "feat: misc server additions",
+  "zig_target": {}
+}

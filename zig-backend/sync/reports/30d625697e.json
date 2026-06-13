@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-30",
+  "needs_port": false,
+  "sha": "30d625697e13bb23b6ad02aa49d16fe55fbe4bb7",
+  "short_sha": "30d625697e",
+  "subject": "chore: use `Expr.forEachWhere` to implement linter",
+  "zig_target": {}
+}

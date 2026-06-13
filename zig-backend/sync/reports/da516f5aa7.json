@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-15",
+  "needs_port": false,
+  "sha": "da516f5aa72c8271deb1af20c83cb176a42d0edc",
+  "short_sha": "da516f5aa7",
+  "subject": "fix: write .c output file in binary mode for reproducibility",
+  "zig_target": {}
+}

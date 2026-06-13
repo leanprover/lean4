@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-30",
+  "needs_port": false,
+  "sha": "b880181cee4812e9209d788332205d7107944169",
+  "short_sha": "b880181cee",
+  "subject": "feat: add `let rec` tactic parser",
+  "zig_target": {}
+}

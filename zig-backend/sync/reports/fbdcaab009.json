@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/compact.h"
+    },
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2021-07-28",
+  "needs_port": true,
+  "sha": "fbdcaab009e099c14e4f864fb0615c93dd45cfbf",
+  "short_sha": "fbdcaab009",
+  "subject": "feat: show number of mmap-ed modules in --stats",
+  "zig_target": {
+    "src/include/lean/compact.h": "zig-backend/include/lean/compact.h",
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

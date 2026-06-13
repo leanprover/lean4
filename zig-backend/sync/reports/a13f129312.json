@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-12",
+  "needs_port": false,
+  "sha": "a13f12931275725571a63905c0c1a25c0727a66f",
+  "short_sha": "a13f129312",
+  "subject": "feat: antiquotation suffix splices such as `$x:k,*`",
+  "zig_target": {}
+}

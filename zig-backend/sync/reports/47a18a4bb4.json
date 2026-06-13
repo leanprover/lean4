@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2026-02-04",
+  "needs_port": true,
+  "sha": "47a18a4bb44fb88dfa934e1aa3cfcd6a1ff6d047",
+  "short_sha": "47a18a4bb4",
+  "subject": "feat: add experimental `cbv` tactic (#12279)",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

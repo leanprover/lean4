@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-04-14",
+  "needs_port": true,
+  "sha": "8e9da7a1bcfbfc313301df86274f9c93f1cc66db",
+  "short_sha": "8e9da7a1bc",
+  "subject": "feat: wait on dedicated tasks after main is finished (#7958)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

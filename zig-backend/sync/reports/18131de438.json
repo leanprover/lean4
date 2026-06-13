@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Meta.lean"
+    }
+  ],
+  "date": "2025-11-04",
+  "needs_port": true,
+  "sha": "18131de43882e9756ae63181a3da4e85f4e5789e",
+  "short_sha": "18131de438",
+  "subject": "fix: `evalConst` meta check and auxiliary IR decls (#11079)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean",
+    "src/Lean/Compiler/IR/Meta.lean": "zig-backend/src/lean/compiler/ir/Meta.lean"
+  }
+}

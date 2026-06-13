@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-22",
+  "needs_port": false,
+  "sha": "17907a78290e0df5e2c5b2e5bcb0317031df70cc",
+  "short_sha": "17907a7829",
+  "subject": "fix: perform topological sort on pattern variables",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+    }
+  ],
+  "date": "2024-05-08",
+  "needs_port": true,
+  "sha": "93c06c055264dd1d5f62d89242c63b4e45e64826",
+  "short_sha": "93c06c0552",
+  "subject": "feat: relaxed reset/reuse in the code generator (#4100)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ResetReuse.lean": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+  }
+}

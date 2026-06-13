@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-17",
+  "needs_port": false,
+  "sha": "0d52a3f92b4d03ddaa1a3c81d87a0e30adf6b76c",
+  "short_sha": "0d52a3f92b",
+  "subject": "fix: add `attachJp`",
+  "zig_target": {}
+}

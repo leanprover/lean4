@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "3b3e54143c685305b9a5056d004a0da0ffedf2db",
+  "short_sha": "3b3e54143c",
+  "subject": "feat: pp.analyze isSubstLike support Eq.rec",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    }
+  ],
+  "date": "2018-10-05",
+  "needs_port": true,
+  "sha": "fc62e8f3a43a94d99e2d8987cfd5f1c577476af7",
+  "short_sha": "fc62e8f3a4",
+  "subject": "chore(library/compiler): `cdecl` ==> `comp_decl`",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h"
+  }
+}

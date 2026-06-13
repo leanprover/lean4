@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-12",
+  "needs_port": false,
+  "sha": "b0f0536018192899f08df33195514e6c810141b5",
+  "short_sha": "b0f0536018",
+  "subject": "fix: improve error message for overloaded notation",
+  "zig_target": {}
+}

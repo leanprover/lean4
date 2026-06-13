@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    }
+  ],
+  "date": "2022-09-01",
+  "needs_port": true,
+  "sha": "61edf19334d5bfa470b779cc9252309ea27f0bd2",
+  "short_sha": "61edf19334",
+  "subject": "fix: allow LCNF discriminant to have `any` type",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+  }
+}

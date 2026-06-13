@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    }
+  ],
+  "date": "2022-09-04",
+  "needs_port": true,
+  "sha": "df16c5a0e7b53756010e093774dd8c320e9aa7f7",
+  "short_sha": "df16c5a0e7",
+  "subject": "feat: add `Code.collectUsed` and `FunDecl.collectUsed`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-15",
+  "needs_port": false,
+  "sha": "4ff33eaef585acc0977c390c0f52928f573dbd44",
+  "short_sha": "4ff33eaef5",
+  "subject": "feat: updates to release process for cslib (#10385)",
+  "zig_target": {}
+}

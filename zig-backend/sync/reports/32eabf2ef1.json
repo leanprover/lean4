@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-11",
+  "needs_port": false,
+  "sha": "32eabf2ef10fff6c79691357a67c2fe7f0a118d9",
+  "short_sha": "32eabf2ef1",
+  "subject": "chore: remove old elaborator that is not needed anymore",
+  "zig_target": {}
+}

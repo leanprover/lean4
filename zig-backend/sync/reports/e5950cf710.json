@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-04",
+  "needs_port": false,
+  "sha": "e5950cf710b20b04df002c4f1a0d15ce6b1bff91",
+  "short_sha": "e5950cf710",
+  "subject": "test(tests/playground/gen): simple lean file generator",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-09-21",
+  "needs_port": true,
+  "sha": "2ac687b22b532772eca47a40901a5c47e7c09651",
+  "short_sha": "2ac687b22b",
+  "subject": "feat: `if _ : cond then t else e` syntax (part 2)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

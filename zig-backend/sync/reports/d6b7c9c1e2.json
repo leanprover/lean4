@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-03",
+  "needs_port": false,
+  "sha": "d6b7c9c1e21b4e4018551edba10212805eae3b5d",
+  "short_sha": "d6b7c9c1e2",
+  "subject": "test(tests/playground/map_perf): RBMap vs HashMap",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-25",
+  "needs_port": false,
+  "sha": "bbe93c036d126d8caf8d11470b1657d5a555e458",
+  "short_sha": "bbe93c036d",
+  "subject": "feat(library/init/data/string): add `Substring`",
+  "zig_target": {}
+}

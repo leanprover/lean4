@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-29",
+  "needs_port": false,
+  "sha": "9527058df9919ebaf2dad14d53db8a7e67c93ae5",
+  "short_sha": "9527058df9",
+  "subject": "feat: Nix: support overriding stage 0 for chaining builds with different configurations/source trees",
+  "zig_target": {}
+}

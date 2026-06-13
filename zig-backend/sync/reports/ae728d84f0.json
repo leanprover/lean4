@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/LemmasAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/LemmasAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Poly.lean"
+    }
+  ],
+  "date": "2025-08-04",
+  "needs_port": true,
+  "sha": "ae728d84f007f798663eee7976f32b88316a8aeb",
+  "short_sha": "ae728d84f0",
+  "subject": "perf: proof terms for `grind ring` and `grind cutsat` (#9710)",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/Data/Int/LemmasAux.lean": "zig-backend/src/init/Data/Int/LemmasAux.lean",
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Grind/Ring/Poly.lean": "zig-backend/src/init/Grind/Ring/Poly.lean"
+  }
+}

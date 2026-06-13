@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2020-12-17",
+  "needs_port": true,
+  "sha": "dcfef05c8e55e236f09fcdd3626e628e38dfbd35",
+  "short_sha": "dcfef05c8e",
+  "subject": "perf: reuse interpreter caches a bit more",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

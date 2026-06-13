@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-06",
+  "needs_port": false,
+  "sha": "65509c561715611ed729a924a7671e40db526d6f",
+  "short_sha": "65509c5617",
+  "subject": "doc: add basic `perf` documentation",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    }
+  ],
+  "date": "2020-08-14",
+  "needs_port": true,
+  "sha": "b4b60dc3264105ab5ee6636b6a8bf4d186e83743",
+  "short_sha": "b4b60dc326",
+  "subject": "feat: add `List.filterMapM`",
+  "zig_target": {
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "euprunin",
+  "backend_changes": [],
+  "date": "2024-09-24",
+  "needs_port": false,
+  "sha": "2d5ebf3705a5df44ed1fa0fc3d2c70fe2ed2a195",
+  "short_sha": "2d5ebf3705",
+  "subject": "chore: fix spelling mistakes in RELEASES.md (#5440)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-27",
+  "needs_port": false,
+  "sha": "9e18eea271d89f8744f0d455ddcc72436a41739e",
+  "short_sha": "9e18eea271",
+  "subject": "feat: add `mkBackwardRuleFromExpr` (#12205)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-10",
+  "needs_port": false,
+  "sha": "82f521119c07516b2e7dd9b82b75f9b32d6a1751",
+  "short_sha": "82f521119c",
+  "subject": "feat: add `isPropAux` and caches for `FunInfo` module, rename `byUnfoldingReducibleOnly` => `usingTransparency`,",
+  "zig_target": {}
+}

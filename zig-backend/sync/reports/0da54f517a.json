@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-03-16",
+  "needs_port": true,
+  "sha": "0da54f517aafc52bedd0982c8bf1a5809fd004cf",
+  "short_sha": "0da54f517a",
+  "subject": "fix: missing `Nat` div and mod norm rules in `grind` (#7512)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-12",
+  "needs_port": false,
+  "sha": "7046a38e932d2cdea79e511bf5e80e5669cbc2b0",
+  "short_sha": "7046a38e93",
+  "subject": "feat(library/init/lean/parser/command): add `inductive`, `structure` and `class` parsers",
+  "zig_target": {}
+}

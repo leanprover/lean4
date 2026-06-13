@@ -1,0 +1,84 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/runtime/libuv.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/libuv.cpp"
+    },
+    {
+      "path": "src/runtime/libuv.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/libuv.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    },
+    {
+      "path": "src/runtime/uv/event_loop.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/event_loop.cpp"
+    },
+    {
+      "path": "src/runtime/uv/event_loop.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/event_loop.h"
+    },
+    {
+      "path": "src/runtime/uv/net_addr.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/net_addr.cpp"
+    },
+    {
+      "path": "src/runtime/uv/net_addr.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/net_addr.h"
+    },
+    {
+      "path": "src/runtime/uv/tcp.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.cpp"
+    },
+    {
+      "path": "src/runtime/uv/tcp.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.h"
+    }
+  ],
+  "date": "2025-03-19",
+  "needs_port": true,
+  "sha": "d7d1754e692b42ba879cc928ba039035a99f156b",
+  "short_sha": "d7d1754e69",
+  "subject": "feat: socket support using LibUV (#6683)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/libuv.cpp": "zig-backend/src/runtime/libuv.cpp",
+    "src/runtime/libuv.h": "zig-backend/src/runtime/libuv.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h",
+    "src/runtime/uv/event_loop.cpp": "zig-backend/src/runtime/uv/event_loop.cpp",
+    "src/runtime/uv/event_loop.h": "zig-backend/src/runtime/uv/event_loop.h",
+    "src/runtime/uv/net_addr.cpp": "zig-backend/src/runtime/uv/net_addr.cpp",
+    "src/runtime/uv/net_addr.h": "zig-backend/src/runtime/uv/net_addr.h",
+    "src/runtime/uv/tcp.cpp": "zig-backend/src/runtime/uv/tcp.cpp",
+    "src/runtime/uv/tcp.h": "zig-backend/src/runtime/uv/tcp.h"
+  }
+}

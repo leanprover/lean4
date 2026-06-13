@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-15",
+  "needs_port": false,
+  "sha": "1dc3626ff7cf64c1bea413933f6e96eefddd5d19",
+  "short_sha": "1dc3626ff7",
+  "subject": "perf: remove most remaining async blockers in `Init.Data.List.Sublist` (#7500)",
+  "zig_target": {}
+}

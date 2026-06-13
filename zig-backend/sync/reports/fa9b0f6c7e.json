@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-07",
+  "needs_port": false,
+  "sha": "fa9b0f6c7e6ec0c3b1d6e14ec989e2fc01efa4a3",
+  "short_sha": "fa9b0f6c7e",
+  "subject": "feat: remove space before propositions with inaccessible names",
+  "zig_target": {}
+}

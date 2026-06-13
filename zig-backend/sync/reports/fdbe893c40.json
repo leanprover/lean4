@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-23",
+  "needs_port": false,
+  "sha": "fdbe893c408bb5360e802d2e39a2a6d9eb125a2b",
+  "short_sha": "fdbe893c40",
+  "subject": "fix: catch `mkAppM` exceptions",
+  "zig_target": {}
+}

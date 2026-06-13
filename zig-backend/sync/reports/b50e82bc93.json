@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-07",
+  "needs_port": false,
+  "sha": "b50e82bc938dda0d770ea905c7fa423c02a71143",
+  "short_sha": "b50e82bc93",
+  "subject": "feat: `unfold` tactic",
+  "zig_target": {}
+}

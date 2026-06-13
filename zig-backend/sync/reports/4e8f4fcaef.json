@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-21",
+  "needs_port": false,
+  "sha": "4e8f4fcaefd38d65fb45d29b67284fbba7213b55",
+  "short_sha": "4e8f4fcaef",
+  "subject": "refactor: extract `AttributeImplCore`, introduce `ParametricAttributeImpl`",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    },
+    {
+      "path": "src/Init/SizeOfLemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/SizeOfLemmas.lean"
+    }
+  ],
+  "date": "2022-02-28",
+  "needs_port": true,
+  "sha": "802922ddaf40423f6d4e4aa8fea56f2439d0e448",
+  "short_sha": "802922ddaf",
+  "subject": "feat: add helper `sizeOf` simp theorems",
+  "zig_target": {
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean",
+    "src/Init/SizeOfLemmas.lean": "zig-backend/src/init/SizeOfLemmas.lean"
+  }
+}

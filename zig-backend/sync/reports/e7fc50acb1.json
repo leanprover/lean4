@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-31",
+  "needs_port": true,
+  "sha": "e7fc50acb1c1a53297bcd51807bf95580ed86110",
+  "short_sha": "e7fc50acb1",
+  "subject": "feat: dependent implication introduction in `grind` (#7765)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

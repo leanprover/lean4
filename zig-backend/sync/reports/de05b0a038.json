@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-11",
+  "needs_port": false,
+  "sha": "de05b0a03849fddad4bb557119b0192f73a69f30",
+  "short_sha": "de05b0a038",
+  "subject": "chore: add `Eqns.lean` entry point",
+  "zig_target": {}
+}

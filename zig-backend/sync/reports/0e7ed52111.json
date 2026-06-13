@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-28",
+  "needs_port": false,
+  "sha": "0e7ed5211169a1cbd5c3a958ec4b11b961f737a9",
+  "short_sha": "0e7ed52111",
+  "subject": "feat: leanpkg: suppress \"uncaught exception: ...\" message",
+  "zig_target": {}
+}

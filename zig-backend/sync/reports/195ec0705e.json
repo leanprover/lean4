@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-15",
+  "needs_port": false,
+  "sha": "195ec0705e4f2a60a9899b461d83e373cdb22aa2",
+  "short_sha": "195ec0705e",
+  "subject": "feat: expand macros in attributes eagerly",
+  "zig_target": {}
+}

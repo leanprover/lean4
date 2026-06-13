@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-17",
+  "needs_port": false,
+  "sha": "2c644419106a2f0bbd9e3c61ebea6c74f1b442c3",
+  "short_sha": "2c64441910",
+  "subject": "chore: Nix: disable dirty Git tree warning & fix lean4-diff-test-file",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "0bab51b66ef4faa3c30cf1c81091d16ea40fdc22",
+  "short_sha": "0bab51b66e",
+  "subject": "feat: solve typeclass subgoals in reverse order",
+  "zig_target": {}
+}

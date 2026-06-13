@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "cf72e97455d594efc5fed87d45d4fe16683e6fe0",
+  "short_sha": "cf72e97455",
+  "subject": "chore(library): capitalize more Props",
+  "zig_target": {}
+}

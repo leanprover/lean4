@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-02",
+  "needs_port": false,
+  "sha": "5023b40576250d066fee1e01afb332db5b24f845",
+  "short_sha": "5023b40576",
+  "subject": "chore: CI: fix cache (#8579)",
+  "zig_target": {}
+}

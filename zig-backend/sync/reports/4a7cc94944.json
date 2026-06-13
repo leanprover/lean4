@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-21",
+  "needs_port": true,
+  "sha": "4a7cc94944470eec64fd1ad2efa0f2adc4a97614",
+  "short_sha": "4a7cc94944",
+  "subject": "feat(library/compiler/csimp): remove unnecessary trivial let-decls",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

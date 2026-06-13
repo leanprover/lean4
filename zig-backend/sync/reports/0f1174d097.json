@@ -1,0 +1,96 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Dyadic/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Dyadic/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Algebra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Algebra.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Envelope.lean"
+    },
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Module.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Module.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Poly.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/Fin.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/Fin.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/Rat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/Rat.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/SInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/SInt.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/UInt.lean"
+    }
+  ],
+  "date": "2025-08-26",
+  "needs_port": true,
+  "sha": "0f1174d097328d93b5ef05590b895024eb37f1a6",
+  "short_sha": "0f1174d097",
+  "subject": "chore: use SMul rather than HMul in grind algebra typeclasses (#10095)",
+  "zig_target": {
+    "src/Init/Data/Dyadic/Instances.lean": "zig-backend/src/init/Data/Dyadic/Instances.lean",
+    "src/Init/Data/Vector/Algebra.lean": "zig-backend/src/init/Data/Vector/Algebra.lean",
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Module/Envelope.lean": "zig-backend/src/init/Grind/Module/Envelope.lean",
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean",
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean",
+    "src/Init/Grind/Ordered/Module.lean": "zig-backend/src/init/Grind/Ordered/Module.lean",
+    "src/Init/Grind/Ring/Basic.lean": "zig-backend/src/init/Grind/Ring/Basic.lean",
+    "src/Init/Grind/Ring/Poly.lean": "zig-backend/src/init/Grind/Ring/Poly.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean",
+    "src/Init/GrindInstances/Ring/Fin.lean": "zig-backend/src/init/GrindInstances/Ring/Fin.lean",
+    "src/Init/GrindInstances/Ring/Rat.lean": "zig-backend/src/init/GrindInstances/Ring/Rat.lean",
+    "src/Init/GrindInstances/Ring/SInt.lean": "zig-backend/src/init/GrindInstances/Ring/SInt.lean",
+    "src/Init/GrindInstances/Ring/UInt.lean": "zig-backend/src/init/GrindInstances/Ring/UInt.lean"
+  }
+}

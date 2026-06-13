@@ -1,0 +1,61 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lift.lean"
+    },
+    {
+      "path": "src/Init/Data/BinomialHeap/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BinomialHeap/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Default.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Default.lean"
+    },
+    {
+      "old_path": "src/Init/Coe.lean",
+      "path": "src/Init/HasCoe.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/HasCoe.lean"
+    },
+    {
+      "path": "src/Init/Lean/Data/Name.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Name.lean"
+    }
+  ],
+  "date": "2020-01-28",
+  "needs_port": true,
+  "sha": "7809274c3a4f514a92c3bd8f779410046112faff",
+  "short_sha": "7809274c3a",
+  "subject": "chore: `Coe.lean` ==> `HasCoe.lean`",
+  "zig_target": {
+    "src/Init/Control/Lift.lean": "zig-backend/src/init/Control/Lift.lean",
+    "src/Init/Data/BinomialHeap/Basic.lean": "zig-backend/src/init/Data/BinomialHeap/Basic.lean",
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/Data/Nat/Bitwise.lean": "zig-backend/src/init/Data/Nat/Bitwise.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Default.lean": "zig-backend/src/init/Default.lean",
+    "src/Init/HasCoe.lean": "zig-backend/src/init/HasCoe.lean",
+    "src/Init/Lean/Data/Name.lean": "zig-backend/src/init/Lean/Data/Name.lean"
+  }
+}

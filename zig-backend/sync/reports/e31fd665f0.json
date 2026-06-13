@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-26",
+  "needs_port": false,
+  "sha": "e31fd665f0368874c44ef5e88884695e38d4a52b",
+  "short_sha": "e31fd665f0",
+  "subject": "feat: add `checkLineLe` parser",
+  "zig_target": {}
+}

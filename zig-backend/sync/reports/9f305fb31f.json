@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-03",
+  "needs_port": false,
+  "sha": "9f305fb31f4adc7b505eeca9353d2e74924b9b58",
+  "short_sha": "9f305fb31f",
+  "subject": "fix: `rename_i` in macro (#3581)",
+  "zig_target": {}
+}

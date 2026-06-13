@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-06",
+  "needs_port": false,
+  "sha": "9ac41835ba058f49dd329b9e4680af966bae0785",
+  "short_sha": "9ac41835ba",
+  "subject": "test(tests/lean/parser1): add some name resolution tests",
+  "zig_target": {}
+}

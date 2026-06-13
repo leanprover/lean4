@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-18",
+  "needs_port": false,
+  "sha": "6bd3f1168a9cce1fa94e8be3e78e1e7cbd21ceb3",
+  "short_sha": "6bd3f1168a",
+  "subject": "chore(src/CMakeLists): remove now-useless `standard_lib` target and introduce `stdlib` target at stage0",
+  "zig_target": {}
+}

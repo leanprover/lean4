@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Rozowski",
+  "backend_changes": [],
+  "date": "2025-07-30",
+  "needs_port": false,
+  "sha": "7f179705519be46eb4f605646a43863cfcff7b6d",
+  "short_sha": "7f17970551",
+  "subject": "feat: generate (co)induction proof principles for mutually (co)inductive predicates (#9358)",
+  "zig_target": {}
+}

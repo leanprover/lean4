@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-05",
+  "needs_port": true,
+  "sha": "eb5399445a0d3b8f34643bd6eed6745c02581660",
+  "short_sha": "eb5399445a",
+  "subject": "chore: clean up parens (#9740)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

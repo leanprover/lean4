@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-04",
+  "needs_port": false,
+  "sha": "50fa9a0b53ba1a18ea87e1c4e4791602d12445ab",
+  "short_sha": "50fa9a0b53",
+  "subject": "feat: resolve deps immediately and store them in workspace",
+  "zig_target": {}
+}

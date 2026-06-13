@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-03-30",
+  "needs_port": false,
+  "sha": "7f51628986f95067ca88988aa5974be002df6b2b",
+  "short_sha": "7f51628986",
+  "subject": "fix: simp: strip mdata when testing for True/False",
+  "zig_target": {}
+}

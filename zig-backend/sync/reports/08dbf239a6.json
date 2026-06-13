@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-10",
+  "needs_port": false,
+  "sha": "08dbf239a6f7f6506fe331fbed6d6b94acbb4ea3",
+  "short_sha": "08dbf239a6",
+  "subject": "chore: server: redundant let",
+  "zig_target": {}
+}

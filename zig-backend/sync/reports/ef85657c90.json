@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "ef85657c9086a161f0231ffd5b5e4e81165b8a38",
+  "short_sha": "ef85657c90",
+  "subject": "feat(script/gen_constants_cpp): generate snake_case C++ function names",
+  "zig_target": {}
+}

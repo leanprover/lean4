@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-16",
+  "needs_port": false,
+  "sha": "c9ceba17849cb665b57c2a7b9504fa58343860bb",
+  "short_sha": "c9ceba1784",
+  "subject": "fix: use null-safe while-read loop for subverso manifest sync (#12928)",
+  "zig_target": {}
+}

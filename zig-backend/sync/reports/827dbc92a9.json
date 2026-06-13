@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-10-25",
+  "needs_port": false,
+  "sha": "827dbc92a90734a4c76ebe33170235b3b13f9920",
+  "short_sha": "827dbc92a9",
+  "subject": "fix: AsyncList bug",
+  "zig_target": {}
+}

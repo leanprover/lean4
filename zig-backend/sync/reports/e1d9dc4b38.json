@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-16",
+  "needs_port": false,
+  "sha": "e1d9dc4b38f4e6ea05bf58ea0856ca32ad4f558a",
+  "short_sha": "e1d9dc4b38",
+  "subject": "feat: store noncomputable declarations",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-26",
+  "needs_port": false,
+  "sha": "397be6d1c052a2a9d46e23702770fb011cb89f4f",
+  "short_sha": "397be6d1c0",
+  "subject": "test(tests/playground/rbmap_standalone): add standalone rbmap benchmark",
+  "zig_target": {}
+}

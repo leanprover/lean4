@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-27",
+  "needs_port": false,
+  "sha": "2680e1c66f66f9a734f66780b76487166dc52bd7",
+  "short_sha": "2680e1c66f",
+  "subject": "refactor: generalize `computeHash` + cleanup",
+  "zig_target": {}
+}

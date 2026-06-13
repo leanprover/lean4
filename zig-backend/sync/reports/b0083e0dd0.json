@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-20",
+  "needs_port": false,
+  "sha": "b0083e0dd0829908016096a99afcab13d1f0cdf9",
+  "short_sha": "b0083e0dd0",
+  "subject": "feat: use elaborated type to generate instance name",
+  "zig_target": {}
+}

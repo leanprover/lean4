@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-06",
+  "needs_port": false,
+  "sha": "bef161caf75a71ece51edc0d2fa14a677b5f390d",
+  "short_sha": "bef161caf7",
+  "subject": "feat: add better support for discharging equation theorem hypotheses",
+  "zig_target": {}
+}

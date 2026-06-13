@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-15",
+  "needs_port": false,
+  "sha": "bc7f4fd02b0378d389e6e8cb7c16d256b8207832",
+  "short_sha": "bc7f4fd02b",
+  "subject": "test: `hasCSimpAttribute`",
+  "zig_target": {}
+}

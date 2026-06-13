@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-06-07",
+  "needs_port": false,
+  "sha": "9d36bd057c187ffc152359d5590848a4420733d0",
+  "short_sha": "9d36bd057c",
+  "subject": "chore(script/prepare-commit-msg): add simple commit message generator",
+  "zig_target": {}
+}

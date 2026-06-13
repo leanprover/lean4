@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-21",
+  "needs_port": false,
+  "sha": "4eccb5b4792c270ad10ac059b9672a8845961079",
+  "short_sha": "4eccb5b479",
+  "subject": "fix: `grind` diagnostics at `maxHeartbeats` (#8438)",
+  "zig_target": {}
+}

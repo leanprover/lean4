@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-11",
+  "needs_port": false,
+  "sha": "510bc47cc366e7d231c62c31f7ec1cbbacda9e6d",
+  "short_sha": "510bc47cc3",
+  "subject": "fix: delete `lake.lock` on error & test",
+  "zig_target": {}
+}

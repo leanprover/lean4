@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-20",
+  "needs_port": false,
+  "sha": "b98fa5641992c1d64ab18bc74f85d4b2f5d84101",
+  "short_sha": "b98fa56419",
+  "subject": "chore: add workaround to control IR size",
+  "zig_target": {}
+}

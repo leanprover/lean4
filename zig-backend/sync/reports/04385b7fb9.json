@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-03-03",
+  "needs_port": true,
+  "sha": "04385b7fb9cfd12bf65d8b01213dea1d5f2edfda",
+  "short_sha": "04385b7fb9",
+  "subject": "doc: small improvements to docstrings for `let` and `have` tactics (#3560)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

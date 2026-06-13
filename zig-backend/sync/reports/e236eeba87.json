@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "e236eeba870c64178805c2d5a4d6727f9b329fcb",
+  "short_sha": "e236eeba87",
+  "subject": "doc: `liftTermElabM` and `runTermElabM`",
+  "zig_target": {}
+}

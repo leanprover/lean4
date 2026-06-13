@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "eef413cec8973672c80ea4e27838a64403e50cd3",
+  "short_sha": "eef413cec8",
+  "subject": "chore: unused binding in FromToJson",
+  "zig_target": {}
+}

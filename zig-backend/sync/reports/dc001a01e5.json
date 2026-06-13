@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/BinderNameHint.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/BinderNameHint.lean"
+    }
+  ],
+  "date": "2025-02-06",
+  "needs_port": true,
+  "sha": "dc001a01e5042c80b6e22e5417f3c8dde608f9a1",
+  "short_sha": "dc001a01e5",
+  "subject": "feat: binderNameHint (#6947)",
+  "zig_target": {
+    "src/Init/BinderNameHint.lean": "zig-backend/src/init/BinderNameHint.lean"
+  }
+}

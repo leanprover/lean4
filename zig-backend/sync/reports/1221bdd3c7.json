@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2021-12-16",
+  "needs_port": true,
+  "sha": "1221bdd3c7d5395baa451ce8fdd2c2f8a00cbc8f",
+  "short_sha": "1221bdd3c7",
+  "subject": "fix: use redirected stderr for `timeit` & `allocprof`",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

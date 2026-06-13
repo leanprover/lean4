@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-16",
+  "needs_port": false,
+  "sha": "69ab85de140edad51e2a698585d6b274acc160a2",
+  "short_sha": "69ab85de14",
+  "subject": "feat(library/init/lean/parser/command): add `#exit` command",
+  "zig_target": {}
+}

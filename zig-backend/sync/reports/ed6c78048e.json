@@ -1,0 +1,10 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [],
+  "date": "2025-05-27",
+  "needs_port": false,
+  "sha": "ed6c78048efa53c797c86de39620a01ff0c4d8d5",
+  "short_sha": "ed6c78048e",
+  "subject": "chore: skip OS X aarch64 CI only in merge groups (#8334)",
+  "zig_target": {}
+}

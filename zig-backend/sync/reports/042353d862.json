@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "042353d8627478d5f7d98c3978a0f006aad41eca",
+  "short_sha": "042353d862",
+  "subject": "feat: allow cli arguments to be passed to `package.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2021-03-17",
+  "needs_port": true,
+  "sha": "0720a53a9d7726824414ed6b5fc2765499daaa17",
+  "short_sha": "0720a53a9d",
+  "subject": "chore: refactoring and cleanup",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

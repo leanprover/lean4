@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-22",
+  "needs_port": false,
+  "sha": "5866e2bbb7c389015a562bc94af754aa195da8be",
+  "short_sha": "5866e2bbb7",
+  "subject": "chore: use register_parser_alias where possible",
+  "zig_target": {}
+}

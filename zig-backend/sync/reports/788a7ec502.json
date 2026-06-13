@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-22",
+  "needs_port": false,
+  "sha": "788a7ec502c11b4448eed01e5497e4b0d34a1348",
+  "short_sha": "788a7ec502",
+  "subject": "test: avoid re-elaboration of interactive runner (#7177)",
+  "zig_target": {}
+}

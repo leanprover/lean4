@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-28",
+  "needs_port": false,
+  "sha": "07bfeab6be5d559a934fdae00c97426cfe35e7c2",
+  "short_sha": "07bfeab6be",
+  "subject": "feat: add `CoeFun` and `CoeSort` to new `Coe` prototype",
+  "zig_target": {}
+}

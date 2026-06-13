@@ -1,0 +1,24 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2025-04-15",
+  "needs_port": true,
+  "sha": "b51115dac52a5dfe4b0f28ecbae356bc3d502b04",
+  "short_sha": "b51115dac5",
+  "subject": "feat: `IO.Process.SpawnArgs.inheritEnv` (#6081)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

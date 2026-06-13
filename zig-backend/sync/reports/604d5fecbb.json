@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-06",
+  "needs_port": false,
+  "sha": "604d5fecbb958c292060136be6f0b8baf2996cd8",
+  "short_sha": "604d5fecbb",
+  "subject": "feat(library/init/lean/compiler/ir/basic): add `Context`",
+  "zig_target": {}
+}

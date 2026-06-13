@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-11",
+  "needs_port": false,
+  "sha": "309f8d6bf943d131e3b8101130603c9f87738b2d",
+  "short_sha": "309f8d6bf9",
+  "subject": "fix: implicit arguments must be processed with at least default transparency",
+  "zig_target": {}
+}

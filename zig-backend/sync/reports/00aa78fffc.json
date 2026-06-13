@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-18",
+  "needs_port": true,
+  "sha": "00aa78fffc7bfc37d6156e3a2ec99863290a0f94",
+  "short_sha": "00aa78fffc",
+  "subject": "feat(library/compiler/llnf): given `y := _unbox.n x`, mark `x` as an unboxed scalar if `n < sizeof(void*)`",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

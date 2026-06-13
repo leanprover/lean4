@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2023-12-07",
+  "needs_port": true,
+  "sha": "bcbcf50442701038a2239650fd2bcb51265ad08a",
+  "short_sha": "bcbcf50442",
+  "subject": "feat: string gaps for continuing string literals across multiple lines (#2821)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "dda88c9926196398c397058bfa97f2648ee2c5b3",
+  "short_sha": "dda88c9926",
+  "subject": "feat: infoview.maxTraceChildren (#3370)",
+  "zig_target": {}
+}

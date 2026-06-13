@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Frontend.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Frontend.lean"
+    }
+  ],
+  "date": "2019-12-09",
+  "needs_port": true,
+  "sha": "d586dc6c685de96d82f035346269f1d9ac6526cd",
+  "short_sha": "d586dc6c68",
+  "subject": "feat: add `Lean.Elab.process`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Frontend.lean": "zig-backend/src/init/Lean/Elab/Frontend.lean"
+  }
+}

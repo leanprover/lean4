@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-27",
+  "needs_port": false,
+  "sha": "b2ef67819938d14c6fad2a2497a63a1a71d74be2",
+  "short_sha": "b2ef678199",
+  "subject": "doc: constant propagation for simple imperative language",
+  "zig_target": {}
+}

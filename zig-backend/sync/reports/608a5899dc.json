@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-24",
+  "needs_port": false,
+  "sha": "608a5899dc5e9eba260ffd71bc59dd0701482766",
+  "short_sha": "608a5899dc",
+  "subject": "feat: have `#print` show structure field defaults (#7652)",
+  "zig_target": {}
+}

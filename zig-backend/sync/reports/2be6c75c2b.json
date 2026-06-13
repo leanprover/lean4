@@ -1,0 +1,30 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Sorry.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Sorry.lean"
+    }
+  ],
+  "date": "2025-07-26",
+  "needs_port": true,
+  "sha": "2be6c75c2baba5764a2dac57cabfcb69d273d4c9",
+  "short_sha": "2be6c75c2b",
+  "subject": "chore: replace partially redundant calls to FnBody.split with .body (#9568)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean",
+    "src/Lean/Compiler/IR/ResetReuse.lean": "zig-backend/src/lean/compiler/ir/ResetReuse.lean",
+    "src/Lean/Compiler/IR/Sorry.lean": "zig-backend/src/lean/compiler/ir/Sorry.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-19",
+  "needs_port": false,
+  "sha": "d07862db2a60295f9089cee2d7f6faa0f8aa297b",
+  "short_sha": "d07862db2a",
+  "subject": "chore: skip cast-like operations in `grind mbtc` (#10465)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-02",
+  "needs_port": false,
+  "sha": "45d664ff25e97ab3fdf7d9cae55e5cd0e4b003e0",
+  "short_sha": "45d664ff25",
+  "subject": "fix(library/init/lean/compiler/ir/livevars): bug at `updateLiveVars`",
+  "zig_target": {}
+}

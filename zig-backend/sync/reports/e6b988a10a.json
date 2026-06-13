@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-06-13",
+  "needs_port": false,
+  "sha": "e6b988a10a1d670327e78a59dd158af54fc50c52",
+  "short_sha": "e6b988a10a",
+  "subject": "feat: add natural language demo",
+  "zig_target": {}
+}

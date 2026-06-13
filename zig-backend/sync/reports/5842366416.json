@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    }
+  ],
+  "date": "2019-11-24",
+  "needs_port": true,
+  "sha": "5842366416bfe2764480f7c38886d3625066dfe9",
+  "short_sha": "5842366416",
+  "subject": "feat: add `DiscrTree.getUnify`",
+  "zig_target": {
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+  }
+}

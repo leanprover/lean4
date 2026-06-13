@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-13",
+  "needs_port": false,
+  "sha": "e04e9ff87e005600652efb7bb163917a8fe9861e",
+  "short_sha": "e04e9ff87e",
+  "subject": "feat: extend anonymous ctor notation",
+  "zig_target": {}
+}

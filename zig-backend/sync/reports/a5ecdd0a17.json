@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Ext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Ext.lean"
+    }
+  ],
+  "date": "2024-07-17",
+  "needs_port": true,
+  "sha": "a5ecdd0a178067669e71545d8bc78026b8a0ce7e",
+  "short_sha": "a5ecdd0a17",
+  "subject": "feat: improve `@[ext]` error message when `ext_iff` generation fails (#4762)",
+  "zig_target": {
+    "src/Init/Ext.lean": "zig-backend/src/init/Ext.lean"
+  }
+}

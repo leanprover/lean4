@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    }
+  ],
+  "date": "2020-01-07",
+  "needs_port": true,
+  "sha": "db2218cbfdfa4f9e2dd780820e27a77a7ae4c513",
+  "short_sha": "db2218cbfd",
+  "subject": "feat: support antiquotation splices mixed with other items (quotation terms only)",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+  }
+}

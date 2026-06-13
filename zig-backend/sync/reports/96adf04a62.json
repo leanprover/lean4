@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-28",
+  "needs_port": false,
+  "sha": "96adf04a62fcbd48b7ddc51829b76bd161153c73",
+  "short_sha": "96adf04a62",
+  "subject": "fix: reduce parents in `structure` command (#5511)",
+  "zig_target": {}
+}

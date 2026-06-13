@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-13",
+  "needs_port": false,
+  "sha": "b601f2ffb229f2962d23b6a62acd5278dc1efb5b",
+  "short_sha": "b601f2ffb2",
+  "subject": "perf: Nix: use bare command for shared libs",
+  "zig_target": {}
+}

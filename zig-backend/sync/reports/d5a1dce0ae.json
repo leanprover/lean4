@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    }
+  ],
+  "date": "2024-03-22",
+  "needs_port": true,
+  "sha": "d5a1dce0ae92475c73a9c24fc8fb2c8e0d4acbcd",
+  "short_sha": "d5a1dce0ae",
+  "subject": "chore: omega notices that 0 \u2264 (x : Int) % (y : Int) (#3736)",
+  "zig_target": {
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean"
+  }
+}

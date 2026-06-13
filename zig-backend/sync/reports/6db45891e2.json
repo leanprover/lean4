@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-01",
+  "needs_port": false,
+  "sha": "6db45891e206929df3e8bbe09cb4e744617c5303",
+  "short_sha": "6db45891e2",
+  "subject": "feat: add `typeOf!` and `ensureTypeOf!` parsers",
+  "zig_target": {}
+}

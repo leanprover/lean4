@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-29",
+  "needs_port": false,
+  "sha": "7435fd5dd43224d87d92cb7bd2314673ea2a26fb",
+  "short_sha": "7435fd5dd4",
+  "subject": "chore: add `USE_GMP` cmake option",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-08",
+  "needs_port": false,
+  "sha": "ebd72d200f270673f1b4aeef83f7d1e1265e1ba7",
+  "short_sha": "ebd72d200f",
+  "subject": "fix: alloc/free mismatch detected by asan",
+  "zig_target": {}
+}

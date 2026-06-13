@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-26",
+  "needs_port": true,
+  "sha": "70c1e5690dbbf267a0267f28003e1de92352d09a",
+  "short_sha": "70c1e5690d",
+  "subject": "feat: more improvements to List simp confluence (#5163)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

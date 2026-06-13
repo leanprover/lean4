@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-07-11",
+  "needs_port": false,
+  "sha": "ce73bbe277140201cdb3ad3015c13d01948704b2",
+  "short_sha": "ce73bbe277",
+  "subject": "feat: detailed feedback on `decide` tactic failure (#4674)",
+  "zig_target": {}
+}

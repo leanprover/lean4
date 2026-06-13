@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2025-07-29",
+  "needs_port": true,
+  "sha": "6ae31ea2d6e9d6d30c0e2bedac166377a15d07ef",
+  "short_sha": "6ae31ea2d6",
+  "subject": "chore: simplify docstring for propext (#9593)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

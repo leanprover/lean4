@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Injection.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Injection.lean"
+    }
+  ],
+  "date": "2020-03-08",
+  "needs_port": true,
+  "sha": "7cf53b649bcc3fe3a749267db4d2f1ea037a7caf",
+  "short_sha": "7cf53b649b",
+  "subject": "fix: nat literals are constructor applications",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Injection.lean": "zig-backend/src/init/Lean/Meta/Tactic/Injection.lean"
+  }
+}

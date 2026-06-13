@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "c066b5cf1c66babd1a2ac8af704ddf0e50f6656c",
+  "short_sha": "c066b5cf1c",
+  "subject": "feat: pretty printing structures, omit default values (#7589)",
+  "zig_target": {}
+}

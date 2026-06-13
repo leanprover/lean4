@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-23",
+  "needs_port": false,
+  "sha": "950a2b789601ab0653bcfd18d044ad29f8c33e15",
+  "short_sha": "950a2b7896",
+  "subject": "chore: ensure every pkg/ test has a correct lean-toolchain file (#11782)",
+  "zig_target": {}
+}

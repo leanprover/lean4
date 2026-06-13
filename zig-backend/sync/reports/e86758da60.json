@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AppBuilder.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    },
+    {
+      "path": "src/Init/Lean/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/PrettyPrinter.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Closure.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Closure.lean"
+    }
+  ],
+  "date": "2020-05-19",
+  "needs_port": true,
+  "sha": "e86758da60ad8fdc933a9806cf43c9c0b1e8e369",
+  "short_sha": "e86758da60",
+  "subject": "chore: add missing `prelude`s in Init/Lean",
+  "zig_target": {
+    "src/Init/Lean/Meta/AppBuilder.lean": "zig-backend/src/init/Lean/Meta/AppBuilder.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean",
+    "src/Init/Lean/PrettyPrinter.lean": "zig-backend/src/init/Lean/PrettyPrinter.lean",
+    "src/Init/Lean/Util/Closure.lean": "zig-backend/src/init/Lean/Util/Closure.lean"
+  }
+}

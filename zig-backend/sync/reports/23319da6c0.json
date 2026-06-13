@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-08",
+  "needs_port": false,
+  "sha": "23319da6c0809070cd28980568b15f958073d951",
+  "short_sha": "23319da6c0",
+  "subject": "fix: position info for `rw` tactics of the form `rw [h1, h2, ..]`",
+  "zig_target": {}
+}

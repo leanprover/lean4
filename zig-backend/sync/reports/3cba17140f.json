@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-02",
+  "needs_port": false,
+  "sha": "3cba17140f85f1544b48e68941918c58244851cf",
+  "short_sha": "3cba17140f",
+  "subject": "fix: missing case in `checkParents` (#6508)",
+  "zig_target": {}
+}

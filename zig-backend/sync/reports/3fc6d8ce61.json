@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-13",
+  "needs_port": false,
+  "sha": "3fc6d8ce61feb523b2c1a8432a21ddf28bd585d4",
+  "short_sha": "3fc6d8ce61",
+  "subject": "chore: improve constructor syntax",
+  "zig_target": {}
+}

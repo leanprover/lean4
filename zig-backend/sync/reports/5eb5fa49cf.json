@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-14",
+  "needs_port": false,
+  "sha": "5eb5fa49cf9862e99a5bccff8d4ca1a062f81900",
+  "short_sha": "5eb5fa49cf",
+  "subject": "chore: Nix: fix update-stage0-commit",
+  "zig_target": {}
+}

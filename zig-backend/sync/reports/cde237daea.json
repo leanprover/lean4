@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-22",
+  "needs_port": false,
+  "sha": "cde237daeaaba848982378aeda691fe31c0ef5ef",
+  "short_sha": "cde237daea",
+  "subject": "feat: change `structure` command to elaborate fields as if structures are flat (#7302)",
+  "zig_target": {}
+}

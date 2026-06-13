@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-24",
+  "needs_port": false,
+  "sha": "0118de09b920c07029bc1df4c63849b2bdfa8498",
+  "short_sha": "0118de09b9",
+  "subject": "chore: add `mkAuxDefinition`",
+  "zig_target": {}
+}

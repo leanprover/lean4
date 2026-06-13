@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-11",
+  "needs_port": false,
+  "sha": "47735d6706aaab86e97e095a70d1e937b1e4aa97",
+  "short_sha": "47735d6706",
+  "subject": "chore: remove dead function",
+  "zig_target": {}
+}

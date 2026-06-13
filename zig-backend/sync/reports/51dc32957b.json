@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-20",
+  "needs_port": false,
+  "sha": "51dc32957b676f9391d3995d69f96f0f8fc554d1",
+  "short_sha": "51dc32957b",
+  "subject": "feat: show universe args on hover",
+  "zig_target": {}
+}

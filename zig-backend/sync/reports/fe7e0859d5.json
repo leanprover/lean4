@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    }
+  ],
+  "date": "2025-08-14",
+  "needs_port": true,
+  "sha": "fe7e0859d58d7c28314526a97f6a4e467895210a",
+  "short_sha": "fe7e0859d5",
+  "subject": "fix: div/norm normalization assumptions in `grind` (#9919)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+  }
+}

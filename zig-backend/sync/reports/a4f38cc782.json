@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-09",
+  "needs_port": false,
+  "sha": "a4f38cc78250f4c7f813c8d20700d97a53f0d3d6",
+  "short_sha": "a4f38cc782",
+  "subject": "refactor: remove code marked for deletion after old compiler (#9280)",
+  "zig_target": {}
+}

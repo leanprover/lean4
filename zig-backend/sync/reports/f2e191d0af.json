@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/CommSolver.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/CommSolver.lean"
+    }
+  ],
+  "date": "2025-11-23",
+  "needs_port": true,
+  "sha": "f2e191d0afbb5adcc6f12e1779c8b141fc9af996",
+  "short_sha": "f2e191d0af",
+  "subject": "refactor: `grind linarith` ring normalization (#11334)",
+  "zig_target": {
+    "src/Init/Grind/Ring/CommSolver.lean": "zig-backend/src/init/Grind/Ring/CommSolver.lean"
+  }
+}

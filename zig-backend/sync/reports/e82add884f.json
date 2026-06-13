@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-01-25",
+  "needs_port": false,
+  "sha": "e82add884f006b19e4b70952967e030fa9d1a387",
+  "short_sha": "e82add884f",
+  "subject": "Revert \"fix: test files\"",
+  "zig_target": {}
+}

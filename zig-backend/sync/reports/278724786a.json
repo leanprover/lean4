@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "278724786a869b62c03f1c8912ca26ce72eb8ac2",
+  "short_sha": "278724786a",
+  "subject": "chore: improve tc synth traces",
+  "zig_target": {}
+}

@@ -1,0 +1,54 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Sum/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Sum/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Basic.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/BitVec.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/BitVec.lean"
+    }
+  ],
+  "date": "2025-06-21",
+  "needs_port": true,
+  "sha": "61518e435706f18a95e175ef3a643aa1736e5b8e",
+  "short_sha": "61518e4357",
+  "subject": "chore: remove more unused simp args (#8920)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+    "src/Init/Data/Sum/Lemmas.lean": "zig-backend/src/init/Data/Sum/Lemmas.lean",
+    "src/Init/Grind/Ring/Basic.lean": "zig-backend/src/init/Grind/Ring/Basic.lean",
+    "src/Init/GrindInstances/Ring/BitVec.lean": "zig-backend/src/init/GrindInstances/Ring/BitVec.lean"
+  }
+}

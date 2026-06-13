@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2023-11-12",
+  "needs_port": false,
+  "sha": "76a7754d0858086c30cc5024a2a792413f6f24f0",
+  "short_sha": "76a7754d08",
+  "subject": "fix: have parenthesizer copy source info to parenthesized term",
+  "zig_target": {}
+}

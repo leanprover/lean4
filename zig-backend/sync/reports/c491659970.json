@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-23",
+  "needs_port": false,
+  "sha": "c4916599703d5d7ffa9c8745f595ccdff8e01585",
+  "short_sha": "c491659970",
+  "subject": "feat: improve `split` tactic error message",
+  "zig_target": {}
+}

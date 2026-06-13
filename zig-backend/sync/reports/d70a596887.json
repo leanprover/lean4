@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Util.lean"
+    }
+  ],
+  "date": "2025-01-30",
+  "needs_port": true,
+  "sha": "d70a5968872d407a29807f2d4f9a9e8a06c78db6",
+  "short_sha": "d70a596887",
+  "subject": "feat: hide `grind` auxiliary gadgets in messages (#6882)",
+  "zig_target": {
+    "src/Init/Grind/Util.lean": "zig-backend/src/init/Grind/Util.lean"
+  }
+}

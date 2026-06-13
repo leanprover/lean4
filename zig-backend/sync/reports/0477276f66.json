@@ -1,0 +1,18 @@
+{
+  "author": "int-y1",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2023-02-22",
+  "needs_port": true,
+  "sha": "0477276f66b00167896c0b0df3c97cd9413d5aa4",
+  "short_sha": "0477276f66",
+  "subject": "chore: fix typos in prelude",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

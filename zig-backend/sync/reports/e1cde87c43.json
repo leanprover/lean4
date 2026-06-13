@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-30",
+  "needs_port": false,
+  "sha": "e1cde87c43e4c55bc9b358eda808b84f68bef771",
+  "short_sha": "e1cde87c43",
+  "subject": "fix: server: completion & goal state at EOF",
+  "zig_target": {}
+}

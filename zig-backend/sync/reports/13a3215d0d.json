@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-28",
+  "needs_port": false,
+  "sha": "13a3215d0d5a900d04e50a8bae50a68f53644fe5",
+  "short_sha": "13a3215d0d",
+  "subject": "chore: use `Subarray` combinators",
+  "zig_target": {}
+}

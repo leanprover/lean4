@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2020-01-17",
+  "needs_port": true,
+  "sha": "f2231ebbc081dec1527925df693b2470c3d2c2a3",
+  "short_sha": "f2231ebbc0",
+  "subject": "feat: improve `macro` command parser",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean",
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

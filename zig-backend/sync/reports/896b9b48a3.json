@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-03",
+  "needs_port": false,
+  "sha": "896b9b48a357656ac640d4793aecd49febf5cad3",
+  "short_sha": "896b9b48a3",
+  "subject": "perf: eliminate `some` allocations in `iterateLookaround`",
+  "zig_target": {}
+}

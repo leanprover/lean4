@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2022-11-29",
+  "needs_port": true,
+  "sha": "bc21716bad4080240117d181cb259fff26ca181a",
+  "short_sha": "bc21716bad",
+  "subject": "chore: helper `simp` theorems",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

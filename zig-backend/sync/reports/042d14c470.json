@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2023-03-19",
+  "needs_port": true,
+  "sha": "042d14c4702412590eb375e5e9d1d98311cf5c85",
+  "short_sha": "042d14c470",
+  "subject": "fix: List.append_eq name",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

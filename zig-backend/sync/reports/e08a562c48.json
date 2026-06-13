@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-07-09",
+  "needs_port": false,
+  "sha": "e08a562c48f84f9c37af3cc0f41bee0896a85818",
+  "short_sha": "e08a562c48",
+  "subject": "chore: add step to release checklist (#4693)",
+  "zig_target": {}
+}

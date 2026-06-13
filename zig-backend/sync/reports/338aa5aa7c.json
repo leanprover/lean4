@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-23",
+  "needs_port": false,
+  "sha": "338aa5aa7cf5eaef1da65687857fa3b8227de544",
+  "short_sha": "338aa5aa7c",
+  "subject": "fix: `Std.BitVec` occurrences at `OmegaM.lean`",
+  "zig_target": {}
+}

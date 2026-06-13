@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-07",
+  "needs_port": false,
+  "sha": "b782191d0b5599c93ab878aac0120848b73c669e",
+  "short_sha": "b782191d0b",
+  "subject": "chore(tests/lean/run/float_cases_bug): fix test",
+  "zig_target": {}
+}

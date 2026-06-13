@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-10-21",
+  "needs_port": false,
+  "sha": "3768c076542b25661a5ca27d24b5f3f8c6a05633",
+  "short_sha": "3768c07654",
+  "subject": "fix: lake: cache revision path (#10883)",
+  "zig_target": {}
+}

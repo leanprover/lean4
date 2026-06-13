@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-26",
+  "needs_port": false,
+  "sha": "5c11c0b0e8dd92614d5a377bf0a402421e897046",
+  "short_sha": "5c11c0b0e8",
+  "subject": "doc: document metavariables",
+  "zig_target": {}
+}

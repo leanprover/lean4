@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-17",
+  "needs_port": false,
+  "sha": "5800ce17b3d85325eda52de8a395c7cab5903b20",
+  "short_sha": "5800ce17b3",
+  "subject": "chore: CI: upgrade all git checkouts to tree-less clones (#10814)",
+  "zig_target": {}
+}

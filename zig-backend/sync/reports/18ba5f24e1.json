@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-07-26",
+  "needs_port": true,
+  "sha": "18ba5f24e1ded064f7112a8696c569f920cba03a",
+  "short_sha": "18ba5f24e1",
+  "subject": "chore: correct List.Subset lemma names (#4843)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

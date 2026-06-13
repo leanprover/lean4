@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    }
+  ],
+  "date": "2025-12-08",
+  "needs_port": true,
+  "sha": "cdb994b776cd2d252238d79defa44ee33ceb6afe",
+  "short_sha": "cdb994b776",
+  "subject": "chore: remove `@[grind =]` from `List.countP_eq_length_filter` (#11542)",
+  "zig_target": {
+    "src/Init/Data/Array/Count.lean": "zig-backend/src/init/Data/Array/Count.lean",
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean"
+  }
+}

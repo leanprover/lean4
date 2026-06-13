@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-04",
+  "needs_port": false,
+  "sha": "b8ed74e89fbf83e52ca64b2c30e7262908d8b052",
+  "short_sha": "b8ed74e89f",
+  "subject": "feat: recursive builds in `extern_lib`",
+  "zig_target": {}
+}

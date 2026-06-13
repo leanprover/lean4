@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-15",
+  "needs_port": false,
+  "sha": "7af9de41cab2bc628add464b7931bb0a82bb9b44",
+  "short_sha": "7af9de41ca",
+  "subject": "feat(library/init/lean/parser/term): add `borrowed` syntax",
+  "zig_target": {}
+}

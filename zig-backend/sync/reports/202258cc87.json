@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-09",
+  "needs_port": false,
+  "sha": "202258cc87b44a1026cb49b661f3a66bb9bf9514",
+  "short_sha": "202258cc87",
+  "subject": "chore: Nix: remove debug flag",
+  "zig_target": {}
+}

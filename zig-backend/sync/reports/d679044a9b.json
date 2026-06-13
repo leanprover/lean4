@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-03",
+  "needs_port": false,
+  "sha": "d679044a9b2be91e9f70c505a67453f60a0aa48e",
+  "short_sha": "d679044a9b",
+  "subject": "chore: Nix: use `--deps-json` for faster, single IFD per package",
+  "zig_target": {}
+}

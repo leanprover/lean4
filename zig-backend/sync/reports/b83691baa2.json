@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/FVarSubst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/FVarSubst.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Subst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Subst.lean"
+    }
+  ],
+  "date": "2020-02-27",
+  "needs_port": true,
+  "sha": "b83691baa278f4b3311f2ca10dbf1d02fd2e1b95",
+  "short_sha": "b83691baa2",
+  "subject": "feat: compute `fvarSubst`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/FVarSubst.lean": "zig-backend/src/init/Lean/Meta/Tactic/FVarSubst.lean",
+    "src/Init/Lean/Meta/Tactic/Subst.lean": "zig-backend/src/init/Lean/Meta/Tactic/Subst.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Nicolas Rouquette",
+  "backend_changes": [],
+  "date": "2026-01-13",
+  "needs_port": false,
+  "sha": "4133dc06f4fb7402440117119beda4b07a81ad38",
+  "short_sha": "4133dc06f4",
+  "subject": "fix: add missing dependencies for copy-leancpp target (#11809)",
+  "zig_target": {}
+}

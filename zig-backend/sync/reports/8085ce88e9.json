@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-09-28",
+  "needs_port": false,
+  "sha": "8085ce88e9a219ee66729ab477a214b406e86a2e",
+  "short_sha": "8085ce88e9",
+  "subject": "feat: CodeActionProvider",
+  "zig_target": {}
+}

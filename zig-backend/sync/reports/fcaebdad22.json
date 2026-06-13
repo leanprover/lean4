@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-20",
+  "needs_port": false,
+  "sha": "fcaebdad2287275737516ed2f2276f35252d76ba",
+  "short_sha": "fcaebdad22",
+  "subject": "refactor: lake: fix `setDepPkgs` & further verify resolution (#13487)",
+  "zig_target": {}
+}

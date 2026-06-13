@@ -1,0 +1,30 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Decode.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Decode.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Defs.lean"
+    }
+  ],
+  "date": "2025-11-11",
+  "needs_port": true,
+  "sha": "f1224277e2d8b60758cdd564b0c769a944628d29",
+  "short_sha": "f1224277e2",
+  "subject": "perf: improve performance of `String.ValidPos` (#11142)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Decode.lean": "zig-backend/src/init/Data/String/Decode.lean",
+    "src/Init/Data/String/Defs.lean": "zig-backend/src/init/Data/String/Defs.lean"
+  }
+}

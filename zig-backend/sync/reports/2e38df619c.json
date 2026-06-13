@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-11",
+  "needs_port": false,
+  "sha": "2e38df619c5b4baf7ba94e8461962126f7540a77",
+  "short_sha": "2e38df619c",
+  "subject": "fix: `Glob.forEachModuleIn`",
+  "zig_target": {}
+}

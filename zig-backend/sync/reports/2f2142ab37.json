@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-09-23",
+  "needs_port": false,
+  "sha": "2f2142ab37c078cd747a3fce66f0c679f2a61b72",
+  "short_sha": "2f2142ab37",
+  "subject": "feat: enhance the rewriting rules of bv_decide (#5423)",
+  "zig_target": {}
+}

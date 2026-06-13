@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-03-16",
+  "needs_port": true,
+  "sha": "b1c187f717b4d804687baa668a939e9590c3b2a0",
+  "short_sha": "b1c187f717",
+  "subject": "feat(library/compiler): allow `io unit` as `main` function result type",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

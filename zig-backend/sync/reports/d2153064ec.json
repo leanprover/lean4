@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2025-07-26",
+  "needs_port": false,
+  "sha": "d2153064ec94d411ef1da624373161b1c7a0aaea",
+  "short_sha": "d2153064ec",
+  "subject": "doc: clarify nondep behaviour (#9570)",
+  "zig_target": {}
+}

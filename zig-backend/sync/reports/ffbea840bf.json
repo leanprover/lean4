@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-27",
+  "needs_port": false,
+  "sha": "ffbea840bfca68e682f1d4456e763df3f336875a",
+  "short_sha": "ffbea840bf",
+  "subject": "feat: WF.GuessLex: If there is only one plausible measure, use it (#2954)",
+  "zig_target": {}
+}

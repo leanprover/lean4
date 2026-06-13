@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-05",
+  "needs_port": false,
+  "sha": "fbd9c076c0b7eeddbd292a591678c90899db8f66",
+  "short_sha": "fbd9c076c0",
+  "subject": "chore: run nix-ci whenever we run ci (#3600)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-20",
+  "needs_port": false,
+  "sha": "baacf86e7f925905c99d7a58e576ae8cf8ae6c55",
+  "short_sha": "baacf86e7f",
+  "subject": "feat: improve `done` tactic in `grind` interactive mode (#10858)",
+  "zig_target": {}
+}

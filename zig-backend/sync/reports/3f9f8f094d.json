@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-12",
+  "needs_port": false,
+  "sha": "3f9f8f094d974a2c1e5f2e63638d1a809a28fab0",
+  "short_sha": "3f9f8f094d",
+  "subject": "chore: split `Std.Do.SPred.Notation` in preparation for `meta` semantics restrictions (#10358)",
+  "zig_target": {}
+}

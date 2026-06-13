@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-11-26",
+  "needs_port": false,
+  "sha": "70b49435068564c5340748a4b4fa39a46171849f",
+  "short_sha": "70b4943506",
+  "subject": "chore: add release draft for the module system (#11359)",
+  "zig_target": {}
+}

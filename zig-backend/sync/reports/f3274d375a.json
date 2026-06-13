@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-12",
+  "needs_port": false,
+  "sha": "f3274d375a553462268b4d5ce0610ab60392248e",
+  "short_sha": "f3274d375a",
+  "subject": "refactor: lake: simplify load code (#4371)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "8dc3133244292d1b0798ba54d5c281cd8afc0916",
+  "short_sha": "8dc3133244",
+  "subject": "chore: use bash shebang in test scripts",
+  "zig_target": {}
+}

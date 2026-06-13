@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-01-13",
+  "needs_port": true,
+  "sha": "2f5f00ed4fd01adc3f8b5d5bfbb5e648252e28b7",
+  "short_sha": "2f5f00ed4f",
+  "subject": "feat: improve `leadingIdentAsSymbol` trick",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

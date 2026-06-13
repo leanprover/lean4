@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-25",
+  "needs_port": false,
+  "sha": "42a080fae2ef6da9819e1dd998209b237c1042ed",
+  "short_sha": "42a080fae2",
+  "subject": "fix: comments ending in `--/`",
+  "zig_target": {}
+}

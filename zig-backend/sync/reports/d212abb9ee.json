@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-05",
+  "needs_port": false,
+  "sha": "d212abb9ee021990d54ff82d7e23e5ffa6dd789d",
+  "short_sha": "d212abb9ee",
+  "subject": "feat(library/init/lean/syntax): export helper functions for creating syntax in C++",
+  "zig_target": {}
+}

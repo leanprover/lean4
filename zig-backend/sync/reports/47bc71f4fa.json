@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-02",
+  "needs_port": false,
+  "sha": "47bc71f4fafd02b55ea33870913d45091e64cb64",
+  "short_sha": "47bc71f4fa",
+  "subject": "feat(kernel/inductive): postprocess recursors and their rules",
+  "zig_target": {}
+}

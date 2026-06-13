@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-19",
+  "needs_port": true,
+  "sha": "75c104ce06ba4af52173b67932e9a7cc7196598e",
+  "short_sha": "75c104ce06",
+  "subject": "feat: align List/Array/Vector.reverse lemmas (#6695)",
+  "zig_target": {
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+  }
+}

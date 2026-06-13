@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-05",
+  "needs_port": false,
+  "sha": "63b068a77c20546d54e9a3a5ff014a6cbb7df5e0",
+  "short_sha": "63b068a77c",
+  "subject": "chore: remove auxiliary functions used for bootstrapping",
+  "zig_target": {}
+}

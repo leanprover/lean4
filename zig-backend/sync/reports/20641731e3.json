@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    },
+    {
+      "path": "src/library/compiler/builtin.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.h"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-01-29",
+  "needs_port": true,
+  "sha": "20641731e319814db128697fb8537ab3850868c9",
+  "short_sha": "20641731e3",
+  "subject": "feat(library/compiler/emit_cpp): add `emit_instr` skeleton",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp",
+    "src/library/compiler/builtin.h": "zig-backend/src/library/compiler/builtin.h",
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

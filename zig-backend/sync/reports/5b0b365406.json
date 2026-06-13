@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-01-29",
+  "needs_port": false,
+  "sha": "5b0b365406a713fba68b5e817c9f852174ad0b18",
+  "short_sha": "5b0b365406",
+  "subject": "chore: stop `make install` from printing every individual file (#12235)",
+  "zig_target": {}
+}

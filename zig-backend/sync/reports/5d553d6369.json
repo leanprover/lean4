@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-11-17",
+  "needs_port": false,
+  "sha": "5d553d63694414f95e89fd328a032702bd32a4a4",
+  "short_sha": "5d553d6369",
+  "subject": "fix: circular assignment at structure instance elaborator (#6105)",
+  "zig_target": {}
+}

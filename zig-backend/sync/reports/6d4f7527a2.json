@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-07",
+  "needs_port": false,
+  "sha": "6d4f7527a2af99c660a41e6dcdfd291deed18837",
+  "short_sha": "6d4f7527a2",
+  "subject": "feat(library/init/lean/compiler/ir/boxing): explicit boxing and unboxing instructions",
+  "zig_target": {}
+}

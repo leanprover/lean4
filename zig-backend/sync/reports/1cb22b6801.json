@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-11-08",
+  "needs_port": false,
+  "sha": "1cb22b6801dafa5f8ae81994bcb0d3f8e39ca218",
+  "short_sha": "1cb22b6801",
+  "subject": "perf(library/init/lean/parser/command): move common command parsers to the beginning of the list",
+  "zig_target": {}
+}

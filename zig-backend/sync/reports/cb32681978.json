@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-23",
+  "needs_port": false,
+  "sha": "cb32681978e87b7212e3711eba6f0c79e376c8cd",
+  "short_sha": "cb32681978",
+  "subject": "doc: add slide headers to examples",
+  "zig_target": {}
+}

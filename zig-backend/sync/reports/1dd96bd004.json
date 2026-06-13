@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-01-01",
+  "needs_port": false,
+  "sha": "1dd96bd0046fb29398f90c41f19a8e0bd87748e3",
+  "short_sha": "1dd96bd004",
+  "subject": "fix: encode none optional JSON fields as missing",
+  "zig_target": {}
+}

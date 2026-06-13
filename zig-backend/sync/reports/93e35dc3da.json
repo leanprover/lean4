@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-08-14",
+  "needs_port": false,
+  "sha": "93e35dc3dae8fa6cc412e72612719d286cc825d1",
+  "short_sha": "93e35dc3da",
+  "subject": "feat: add lakefile.toml json schema (#9871)",
+  "zig_target": {}
+}

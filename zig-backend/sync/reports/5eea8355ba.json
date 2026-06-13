@@ -1,0 +1,10 @@
+{
+  "author": "thorimur",
+  "backend_changes": [],
+  "date": "2024-09-14",
+  "needs_port": false,
+  "sha": "5eea8355baa64e6fda4e3874a0f45649d4c27633",
+  "short_sha": "5eea8355ba",
+  "subject": "fix: set check level correctly during workflow (#5344)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-23",
+  "needs_port": false,
+  "sha": "4d9150859b409c38dd7c2d81465fdedabb106162",
+  "short_sha": "4d9150859b",
+  "subject": "chore(library/init/core): avoid `{{x : A}}` strict implicit arguments, and cleanup",
+  "zig_target": {}
+}

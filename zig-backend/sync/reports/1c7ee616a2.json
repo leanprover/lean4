@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2019-02-13",
+  "needs_port": false,
+  "sha": "1c7ee616a25196315ff0f669fbcd48c8ab3cd00e",
+  "short_sha": "1c7ee616a2",
+  "subject": "fix(src/CMakeLists): sanitize regex",
+  "zig_target": {}
+}

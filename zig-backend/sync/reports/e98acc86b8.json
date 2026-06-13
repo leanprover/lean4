@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-16",
+  "needs_port": true,
+  "sha": "e98acc86b82a4abb34ef58c09a53a75674c19055",
+  "short_sha": "e98acc86b8",
+  "subject": "feat(library/compiler/emit_cpp): \"merge\" the case with most occurrences as `default:`",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

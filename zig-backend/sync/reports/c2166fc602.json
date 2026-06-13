@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-15",
+  "needs_port": false,
+  "sha": "c2166fc60258732031d4bc22320ba351fad276b7",
+  "short_sha": "c2166fc602",
+  "subject": "chore: work around parameterized parser syntax kinds",
+  "zig_target": {}
+}

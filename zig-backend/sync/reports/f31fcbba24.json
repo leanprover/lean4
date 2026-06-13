@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-14",
+  "needs_port": false,
+  "sha": "f31fcbba242256a662c31b79bef44ed77359ed83",
+  "short_sha": "f31fcbba24",
+  "subject": "chore: remove unnecessary approximation that just complicates the code",
+  "zig_target": {}
+}

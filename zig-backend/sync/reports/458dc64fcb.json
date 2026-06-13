@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-06",
+  "needs_port": false,
+  "sha": "458dc64fcb5c920991743096ac74500264801993",
+  "short_sha": "458dc64fcb",
+  "subject": "refactor: Lean.Meta should not depend on Lean.Elab",
+  "zig_target": {}
+}

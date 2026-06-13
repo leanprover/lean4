@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-02",
+  "needs_port": false,
+  "sha": "aeb60764c1fbbd598d0e3623cf33075b8bac919e",
+  "short_sha": "aeb60764c1",
+  "subject": "feat: auto-complete declaration names in arbitrary namespaces",
+  "zig_target": {}
+}

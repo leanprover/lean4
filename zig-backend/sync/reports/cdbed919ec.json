@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "cdbed919ec27737aaaaf0f4b09c8360825a24605",
+  "short_sha": "cdbed919ec",
+  "subject": "fix: preserve TermInfo for do-match discriminant variables (#12666)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-05-29",
+  "needs_port": false,
+  "sha": "543656c24b6c5e0b3ec9b855705f6eb3aa49d3ad",
+  "short_sha": "543656c24b",
+  "subject": "Merge Configure into Build",
+  "zig_target": {}
+}

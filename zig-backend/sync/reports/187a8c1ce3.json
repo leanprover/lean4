@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "187a8c1ce3ac6e80ee0ee402a1263f6925e19c37",
+  "short_sha": "187a8c1ce3",
+  "subject": "fix: handle non-internalized terms in semiring reifier (#12474)",
+  "zig_target": {}
+}

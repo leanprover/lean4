@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-06",
+  "needs_port": false,
+  "sha": "6169435259e696a92209d56a8722b16c3f78579f",
+  "short_sha": "6169435259",
+  "subject": "refactor: consolidate `MessageData` constructors into lazy formatting with infos",
+  "zig_target": {}
+}

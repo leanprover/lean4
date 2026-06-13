@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "3e76e43843ac3dd44936c7b1b191963bdecbdcc3",
+  "short_sha": "3e76e43843",
+  "subject": "fix(library/init/lean/compiler/ir/borrow): visit join point body",
+  "zig_target": {}
+}

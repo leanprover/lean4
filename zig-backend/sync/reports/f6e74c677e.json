@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-03",
+  "needs_port": false,
+  "sha": "f6e74c677e5de4d5b9d4dffd7f2ba270152f0335",
+  "short_sha": "f6e74c677e",
+  "subject": "doc: metaprogramming-arith: deduplicate",
+  "zig_target": {}
+}

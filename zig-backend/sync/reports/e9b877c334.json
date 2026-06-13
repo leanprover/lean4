@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-17",
+  "needs_port": false,
+  "sha": "e9b877c334f6021e4afd8c32712016163550d79d",
+  "short_sha": "e9b877c334",
+  "subject": "feat(library/init/lean/parser/parser): add `registerBuiltinParserAttribute`",
+  "zig_target": {}
+}

@@ -1,0 +1,42 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Meta/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta/Defs.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    }
+  ],
+  "date": "2025-10-21",
+  "needs_port": true,
+  "sha": "b28daa6d608ba0bd29f45b42743b403e0a915fce",
+  "short_sha": "b28daa6d60",
+  "subject": "chore: rename `String.endPos` -> `String.rawEndPos` (#10853)",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Meta/Defs.lean": "zig-backend/src/init/Meta/Defs.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean"
+  }
+}

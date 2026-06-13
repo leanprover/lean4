@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-13",
+  "needs_port": false,
+  "sha": "996968c54c1b6034a77c769d7f75c72a55d81430",
+  "short_sha": "996968c54c",
+  "subject": "chore: display LCNF declaration type at `Compiler.step`",
+  "zig_target": {}
+}

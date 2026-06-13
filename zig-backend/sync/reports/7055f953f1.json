@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-02-02",
+  "needs_port": false,
+  "sha": "7055f953f1e02cceb5e252e6f4c8724fc565a81a",
+  "short_sha": "7055f953f1",
+  "subject": "doc: fix typo",
+  "zig_target": {}
+}

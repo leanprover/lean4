@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-09",
+  "needs_port": false,
+  "sha": "ac631f47369b5108e001a756ccc87dd9e7d4e8f9",
+  "short_sha": "ac631f4736",
+  "subject": "feat: allow overriding getSimpTheorems in mkSimpContext (#3281)",
+  "zig_target": {}
+}

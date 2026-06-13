@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-17",
+  "needs_port": false,
+  "sha": "d7acf1f844955f808389ef27e6e6ca0fa83dc9d1",
+  "short_sha": "d7acf1f844",
+  "subject": "feat: add `Compiler.jp` trace class",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-16",
+  "needs_port": false,
+  "sha": "1490d095a83d02ab9b596df263c1b3b2a13a81bb",
+  "short_sha": "1490d095a8",
+  "subject": "fix: delaborator: `bind` without lambda",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-31",
+  "needs_port": false,
+  "sha": "d2d2c32c814cefec8655475b24d885071c95ea18",
+  "short_sha": "d2d2c32c81",
+  "subject": "feat(library/init/data/nat/bitwise): use lean::nat_land and lean::nat_lor",
+  "zig_target": {}
+}

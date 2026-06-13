@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-08",
+  "needs_port": false,
+  "sha": "e0869bdf553782f00f0464644e221cf306a9efb2",
+  "short_sha": "e0869bdf55",
+  "subject": "fix: sanitized build",
+  "zig_target": {}
+}

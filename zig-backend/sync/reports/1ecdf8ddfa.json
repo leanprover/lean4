@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-07",
+  "needs_port": false,
+  "sha": "1ecdf8ddfad8fb532da307e155ae9d04f6432b6f",
+  "short_sha": "1ecdf8ddfa",
+  "subject": "chore: simplify and extend `Modulize.lean` (#10692)",
+  "zig_target": {}
+}

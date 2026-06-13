@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-23",
+  "needs_port": false,
+  "sha": "d29b8e542236020f195faad5d7a4af566342f9ff",
+  "short_sha": "d29b8e5422",
+  "subject": "chore: remove binaries before building them",
+  "zig_target": {}
+}

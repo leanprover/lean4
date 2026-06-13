@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DiscrM.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpValue.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpValue.lean"
+    }
+  ],
+  "date": "2022-10-03",
+  "needs_port": true,
+  "sha": "ddbf4c01eb4aaf1620782c687c4e342597e3fd04",
+  "short_sha": "ddbf4c01eb",
+  "subject": "refactor: add `DiscrM.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean",
+    "src/Lean/Compiler/LCNF/Simp/DiscrM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpValue.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpValue.lean"
+  }
+}

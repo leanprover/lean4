@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-21",
+  "needs_port": false,
+  "sha": "d25ec3417bf554642eebb9d69ccddab378d32587",
+  "short_sha": "d25ec3417b",
+  "subject": "chore: remove some `[inline]` and `[specialize]` annotations from `Parser/Basic`",
+  "zig_target": {}
+}

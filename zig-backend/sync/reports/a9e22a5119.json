@@ -1,0 +1,10 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [],
+  "date": "2022-07-28",
+  "needs_port": false,
+  "sha": "a9e22a511967e7ada06c91f851f274f58ee412f1",
+  "short_sha": "a9e22a5119",
+  "subject": "doc: src/Lean/Declaration.lean (#1330)",
+  "zig_target": {}
+}

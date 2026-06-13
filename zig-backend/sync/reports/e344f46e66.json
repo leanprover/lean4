@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/DeclModifiers.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/DeclModifiers.lean"
+    }
+  ],
+  "date": "2020-01-05",
+  "needs_port": true,
+  "sha": "e344f46e665167388a8a24f1de2008dc5e25269a",
+  "short_sha": "e344f46e66",
+  "subject": "chore: allow attributes to parse arguments",
+  "zig_target": {
+    "src/Init/Lean/Elab/DeclModifiers.lean": "zig-backend/src/init/Lean/Elab/DeclModifiers.lean"
+  }
+}

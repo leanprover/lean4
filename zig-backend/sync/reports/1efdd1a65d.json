@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-20",
+  "needs_port": true,
+  "sha": "1efdd1a65d36ba38820c7a44741487d49c9e4ba7",
+  "short_sha": "1efdd1a65d",
+  "subject": "feat(library/compiler/csimp): improve inliner",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

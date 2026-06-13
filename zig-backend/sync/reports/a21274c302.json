@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-30",
+  "needs_port": false,
+  "sha": "a21274c30210b98e2af14bf6a29a71c148288b4a",
+  "short_sha": "a21274c302",
+  "subject": "refactor: make return code part of the CLI + have scripts return code",
+  "zig_target": {}
+}

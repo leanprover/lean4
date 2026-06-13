@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-04-13",
+  "needs_port": false,
+  "sha": "c54f691f4a8b459e29c72a9f21edda5f67ec9f51",
+  "short_sha": "c54f691f4a",
+  "subject": "fix: `end_local_scope` does not work with compound namespace names (#13360)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-07",
+  "needs_port": false,
+  "sha": "91e87a0cd486f372f7a594f5db80c06c7d5ceeaa",
+  "short_sha": "91e87a0cd4",
+  "subject": "feat: add reference implementation for `whnf`",
+  "zig_target": {}
+}

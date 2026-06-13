@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-03",
+  "needs_port": false,
+  "sha": "01b3eb2b051c314c0cc8bc587093894cd27aacaa",
+  "short_sha": "01b3eb2b05",
+  "subject": "feat(library/init/data/assoclist): add `AssocList`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "James Oswald",
+  "backend_changes": [],
+  "date": "2024-10-13",
+  "needs_port": false,
+  "sha": "1d8555fe0bdd02c82664446309b2e167ac89c9e9",
+  "short_sha": "1d8555fe0b",
+  "subject": "fix: help message flags, removes -f flag and adds -g flag (#5685)",
+  "zig_target": {}
+}

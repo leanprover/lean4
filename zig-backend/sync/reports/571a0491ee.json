@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-16",
+  "needs_port": false,
+  "sha": "571a0491ee9a5ed26ee35c10ac3ad561ef40275f",
+  "short_sha": "571a0491ee",
+  "subject": "feat: add `Meta.byCases` helper tactic",
+  "zig_target": {}
+}

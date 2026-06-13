@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-21",
+  "needs_port": false,
+  "sha": "d1aba29b573e080b46fbd9ca6c544ac350a5d523",
+  "short_sha": "d1aba29b57",
+  "subject": "feat: model construction for divisibility constraints in cutsat (#7176)",
+  "zig_target": {}
+}

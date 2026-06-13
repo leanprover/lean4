@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-20",
+  "needs_port": false,
+  "sha": "0b99a18f972d583d01cfc1345bbaf56c1796281a",
+  "short_sha": "0b99a18f97",
+  "subject": "chore(library): use `>>` as notation for `andthen`",
+  "zig_target": {}
+}

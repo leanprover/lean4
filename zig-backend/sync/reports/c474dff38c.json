@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2023-12-07",
+  "needs_port": true,
+  "sha": "c474dff38c401723226277240cd3baec0437de15",
+  "short_sha": "c474dff38c",
+  "subject": "doc: document constructors of `TransparencyMode` (#3037)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

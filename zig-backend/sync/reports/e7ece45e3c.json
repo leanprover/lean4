@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-11-21",
+  "needs_port": false,
+  "sha": "e7ece45e3cf1bff1319b3bbc6185e9488ee3e76c",
+  "short_sha": "e7ece45e3c",
+  "subject": "refactor: rename congruence lemmas for union on `DHashMap`/`HashMap`/`HashSet`/`DTreeMap`/`TreeMap`/`TreeSet` (#11267)",
+  "zig_target": {}
+}

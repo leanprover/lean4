@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-08",
+  "needs_port": false,
+  "sha": "36189cb51ad3615b7930cd7a431ca0c1b9da54e6",
+  "short_sha": "36189cb51a",
+  "subject": "chore: simplify parser cache key computation, panic on environment/token table divergence",
+  "zig_target": {}
+}

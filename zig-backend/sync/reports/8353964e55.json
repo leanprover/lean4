@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-04-08",
+  "needs_port": false,
+  "sha": "8353964e5527df2bb6b406a14e07f01bcd421aef",
+  "short_sha": "8353964e55",
+  "subject": "feat: wire `PowIdentity` into `grind` ring solver (#13088)",
+  "zig_target": {}
+}

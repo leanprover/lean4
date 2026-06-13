@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-26",
+  "needs_port": false,
+  "sha": "7c99d58b8347a9df7c385b03e8aa034dc6567b8f",
+  "short_sha": "7c99d58b83",
+  "subject": "chore: update stage0 and fix local_ctx.cpp",
+  "zig_target": {}
+}

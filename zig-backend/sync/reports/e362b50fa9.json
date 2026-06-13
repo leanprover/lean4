@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2024-05-03",
+  "needs_port": true,
+  "sha": "e362b50fa95d6823e59dd706803a93c25e888535",
+  "short_sha": "e362b50fa9",
+  "subject": "feat: add `seal` and `unseal` commands (#4053)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

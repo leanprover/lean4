@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-07-17",
+  "needs_port": false,
+  "sha": "ba3565f441a4533490c339ead6d9ee5b1220110b",
+  "short_sha": "ba3565f441",
+  "subject": "chore: fix BEq argument order in hash map lemmas (#4732)",
+  "zig_target": {}
+}

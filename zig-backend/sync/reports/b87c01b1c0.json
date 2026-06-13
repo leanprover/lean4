@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    }
+  ],
+  "date": "2025-02-11",
+  "needs_port": true,
+  "sha": "b87c01b1c02e42d1a1657405cbab057aef7fafa6",
+  "short_sha": "b87c01b1c0",
+  "subject": "feat: `simp +arith` sorts linear atoms (#7040)",
+  "zig_target": {
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-05",
+  "needs_port": false,
+  "sha": "5eeea8c6ef18d575a8485ad11b67edb518ab73a0",
+  "short_sha": "5eeea8c6ef",
+  "subject": "fix: use GitHub App for Batteries/Mathlib checkout in PR release (#12320)",
+  "zig_target": {}
+}

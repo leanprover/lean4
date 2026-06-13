@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-30",
+  "needs_port": false,
+  "sha": "731551d6709853acecfda55f21066d688662ec20",
+  "short_sha": "731551d670",
+  "subject": "chore: cleanup `grind` tests (#6871)",
+  "zig_target": {}
+}

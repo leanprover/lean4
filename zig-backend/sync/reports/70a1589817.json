@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-06-25",
+  "needs_port": true,
+  "sha": "70a15898178cfe06219d2e7fcf4dadec41aedf5f",
+  "short_sha": "70a1589817",
+  "subject": "refactor(library/init/lean): move `extern.lean` to `compiler` subdirectory",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

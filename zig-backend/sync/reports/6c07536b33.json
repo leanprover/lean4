@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2021-05-15",
+  "needs_port": true,
+  "sha": "6c07536b330964081f90ec17cbb7a064f7383eac",
+  "short_sha": "6c07536b33",
+  "subject": "feat: simplified, improved `class abbrev` (+ tests)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-01-27",
+  "needs_port": false,
+  "sha": "d86a4089444261be04e167b19fe9f4ea0461bf09",
+  "short_sha": "d86a408944",
+  "subject": "feat: bv_decide can reason about equality of structures (#6740)",
+  "zig_target": {}
+}

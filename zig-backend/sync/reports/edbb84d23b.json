@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "edbb84d23bfc0ba17e28c3fb4968f9c6796f7803",
+  "short_sha": "edbb84d23b",
+  "subject": "chore: CI: `USE_LAKE` secondary build job (#7505)",
+  "zig_target": {}
+}

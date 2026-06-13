@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-04-27",
+  "needs_port": true,
+  "sha": "36ed58351d5db5feeb04fd1c3ffdb16a115f2af8",
+  "short_sha": "36ed58351d",
+  "subject": "fix: add support for builtin casesOn recursors to the new compiler (#8132)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

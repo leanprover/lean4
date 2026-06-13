@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-08-02",
+  "needs_port": false,
+  "sha": "df9ca2033931c2199fe800a4b24a9f03034cd580",
+  "short_sha": "df9ca20339",
+  "subject": "perf: create unfolding theorem for wf-rec in one go (#9646)",
+  "zig_target": {}
+}

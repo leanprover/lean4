@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-17",
+  "needs_port": false,
+  "sha": "eb93894683218fad2f1459d282e41cdc76478686",
+  "short_sha": "eb93894683",
+  "subject": "fix: do not abort elaboration on unclosed parenthesis",
+  "zig_target": {}
+}

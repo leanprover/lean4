@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-13",
+  "needs_port": false,
+  "sha": "fea637288d4b7a80c869f47b61be26eb23aab44d",
+  "short_sha": "fea637288d",
+  "subject": "fix(library/init/data/nat/basic,library/vm/vm_nat): regression in old compiler: primitive for nat equality was ignored",
+  "zig_target": {}
+}

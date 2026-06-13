@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2025-11-02",
+  "needs_port": true,
+  "sha": "823173a7610543d2669a654a0617bbcb55ece708",
+  "short_sha": "823173a761",
+  "subject": "fix: make ST.Ref.ptrEq behave as stated in the docs (#11056)",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

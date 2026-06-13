@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.h"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-10-20",
+  "needs_port": true,
+  "sha": "438b3351ddd72e4fc7c262157e9fd00e90147988",
+  "short_sha": "438b3351dd",
+  "subject": "feat: add interpreter.prefer_native option",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp",
+    "src/library/compiler/ir_interpreter.h": "zig-backend/src/library/compiler/ir_interpreter.h",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

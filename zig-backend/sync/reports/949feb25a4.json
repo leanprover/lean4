@@ -1,0 +1,24 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    },
+    {
+      "path": "src/Init/PropLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/PropLemmas.lean"
+    }
+  ],
+  "date": "2024-09-30",
+  "needs_port": true,
+  "sha": "949feb25a47774f90b8859ee1dcd6ec7d65b66cf",
+  "short_sha": "949feb25a4",
+  "subject": "chore: move `@[simp]` from `exists_prop'` to `exists_prop` (#5529)",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean",
+    "src/Init/PropLemmas.lean": "zig-backend/src/init/PropLemmas.lean"
+  }
+}

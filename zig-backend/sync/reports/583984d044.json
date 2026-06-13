@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/RecursorInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/RecursorInfo.lean"
+    }
+  ],
+  "date": "2020-02-19",
+  "needs_port": true,
+  "sha": "583984d044af02378525b73e8516e0b9f0834597",
+  "short_sha": "583984d044",
+  "subject": "feat: add `getProduceMotiveAndRecursive` and cleanup",
+  "zig_target": {
+    "src/Init/Lean/Meta/RecursorInfo.lean": "zig-backend/src/init/Lean/Meta/RecursorInfo.lean"
+  }
+}

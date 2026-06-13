@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-30",
+  "needs_port": false,
+  "sha": "40ce455e7962d6694d3347f038d06fa9a914e3ec",
+  "short_sha": "40ce455e79",
+  "subject": "chore(tests/bench/rbmap_checkpoint): myLen version for GHC",
+  "zig_target": {}
+}

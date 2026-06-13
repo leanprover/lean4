@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/TermApp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/TermBinders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermBinders.lean"
+    }
+  ],
+  "date": "2019-12-30",
+  "needs_port": true,
+  "sha": "ec13f37414112ea70c41e6e9008b1bcb9d5358c1",
+  "short_sha": "ec13f37414",
+  "subject": "refactor: use more quotations in the elaborator",
+  "zig_target": {
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Elab/TermApp.lean": "zig-backend/src/init/Lean/Elab/TermApp.lean",
+    "src/Init/Lean/Elab/TermBinders.lean": "zig-backend/src/init/Lean/Elab/TermBinders.lean"
+  }
+}

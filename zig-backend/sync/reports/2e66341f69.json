@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    },
+    {
+      "path": "src/Init/System/Promise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Promise.lean"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-02-26",
+  "needs_port": true,
+  "sha": "2e66341f69a0db9ef8b8e5255d0f0cfa73cdadc1",
+  "short_sha": "2e66341f69",
+  "subject": "feat: Environment.realizeConst (#7076)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean",
+    "src/Init/System/Promise.lean": "zig-backend/src/init/System/Promise.lean",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-10-15",
+  "needs_port": false,
+  "sha": "4329eae8d4748e56cdaeaee8c4aa0b7b816a5062",
+  "short_sha": "4329eae8d4",
+  "subject": "fix: unknown identifier minimization (#10797)",
+  "zig_target": {}
+}

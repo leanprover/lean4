@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-19",
+  "needs_port": false,
+  "sha": "9fdef2e4eb870a6da8276c8e6c55293ab2270e3a",
+  "short_sha": "9fdef2e4eb",
+  "subject": "fix: commands that expand into `syntax`",
+  "zig_target": {}
+}

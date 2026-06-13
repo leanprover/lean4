@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-10-02",
+  "needs_port": false,
+  "sha": "00e981edcdf33b05194b8daf2bdfde7d8ff1aaaa",
+  "short_sha": "00e981edcd",
+  "subject": "perf: do not inhibit caching of default-level `match` reduction",
+  "zig_target": {}
+}

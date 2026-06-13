@@ -1,0 +1,10 @@
+{
+  "author": "thorimur",
+  "backend_changes": [],
+  "date": "2023-09-21",
+  "needs_port": false,
+  "sha": "e79370a1e61a346c192b839cec1f9cc6542f4e3e",
+  "short_sha": "e79370a1e6",
+  "subject": "fix: only return new mvars from `refine`, `elabTermWithHoles`, and `withCollectingNewGoalsFrom` (#2502)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-10",
+  "needs_port": false,
+  "sha": "e67a43ab01d3ffa84de48e48ab27ec9fb0522cc5",
+  "short_sha": "e67a43ab01",
+  "subject": "refactor: disable old `LCNF` and `TerminalCases`",
+  "zig_target": {}
+}

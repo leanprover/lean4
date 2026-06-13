@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-09-27",
+  "needs_port": false,
+  "sha": "f22998edfe3a6ed8cbb88715b6bc127c3424b41f",
+  "short_sha": "f22998edfe",
+  "subject": "fix: collect level parameters in evalExpr (#3090)",
+  "zig_target": {}
+}

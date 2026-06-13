@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-05-27",
+  "needs_port": false,
+  "sha": "968ae18f20147bfb58c294280099454e1ce8c44c",
+  "short_sha": "968ae18f20",
+  "subject": "fix: deal with params for inductive predicates.",
+  "zig_target": {}
+}

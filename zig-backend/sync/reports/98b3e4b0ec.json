@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-08-16",
+  "needs_port": true,
+  "sha": "98b3e4b0ec4bbeb6990de40329814a1620065c9b",
+  "short_sha": "98b3e4b0ec",
+  "subject": "chore: fix leanrt compilation flags",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

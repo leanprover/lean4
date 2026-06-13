@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-09",
+  "needs_port": false,
+  "sha": "4401117a6a8ebb5f544f1cb176499d7fdc063703",
+  "short_sha": "4401117a6a",
+  "subject": "chore: make `simpCond` public (#12391)",
+  "zig_target": {}
+}

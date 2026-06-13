@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-10-07",
+  "needs_port": false,
+  "sha": "ca7fee7f0ade540921fc7507969aa0288103f0c7",
+  "short_sha": "ca7fee7f0a",
+  "subject": "fix: detect header changes in watchdog",
+  "zig_target": {}
+}

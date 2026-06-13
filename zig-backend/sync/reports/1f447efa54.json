@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-11",
+  "needs_port": false,
+  "sha": "1f447efa547c2b364fad10df0f0909024a497cff",
+  "short_sha": "1f447efa54",
+  "subject": "doc: update Lean.Parser.Basic",
+  "zig_target": {}
+}

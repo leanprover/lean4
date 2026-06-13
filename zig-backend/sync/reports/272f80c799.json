@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-15",
+  "needs_port": false,
+  "sha": "272f80c799cadb862e73a390b39642fa492b9852",
+  "short_sha": "272f80c799",
+  "subject": "feat(library/init/lean/ir): add `string_push` and `string_append` instructions",
+  "zig_target": {}
+}

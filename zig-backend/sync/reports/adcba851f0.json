@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-02-20",
+  "needs_port": false,
+  "sha": "adcba851f067f96f8751c2bc3043e8188639f1a0",
+  "short_sha": "adcba851f0",
+  "subject": "feat: modify and alter functions for the tree map (#7118)",
+  "zig_target": {}
+}

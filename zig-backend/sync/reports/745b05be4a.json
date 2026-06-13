@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-13",
+  "needs_port": false,
+  "sha": "745b05be4aeffd13e50393c28461bb4868c9be0b",
+  "short_sha": "745b05be4a",
+  "subject": "feat: add `isWellFormed`",
+  "zig_target": {}
+}

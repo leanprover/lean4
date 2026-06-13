@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/AC.lean"
+    }
+  ],
+  "date": "2022-04-21",
+  "needs_port": true,
+  "sha": "57c3114875f3fc04a890323353fdd3c44eeaa53d",
+  "short_sha": "57c3114875",
+  "subject": "fix: `simpAll` and tests",
+  "zig_target": {
+    "src/Init/Data/AC.lean": "zig-backend/src/init/Data/AC.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-15",
+  "needs_port": false,
+  "sha": "6c64b1b20b8b098502361236c841a25c7fb82f6f",
+  "short_sha": "6c64b1b20b",
+  "subject": "chore: work around `for` type inference",
+  "zig_target": {}
+}

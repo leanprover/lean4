@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-02",
+  "needs_port": false,
+  "sha": "5626b537c7604d2205e46ff117f6017ca1ba6b65",
+  "short_sha": "5626b537c7",
+  "subject": "chore: move `nondet` to `Std/Control/Nondet.lean`",
+  "zig_target": {}
+}

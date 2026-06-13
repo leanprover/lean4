@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Div/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div/Lemmas.lean"
+    }
+  ],
+  "date": "2025-02-24",
+  "needs_port": true,
+  "sha": "27e1391e6d4439b42a27b525f3c425c6359891b8",
+  "short_sha": "27e1391e6d",
+  "subject": "feat: complete comparison theorems for `ediv/tdiv/fdiv` and `emod/tmod/fmod` (#7199)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod/Basic.lean": "zig-backend/src/init/Data/Int/DivMod/Basic.lean",
+    "src/Init/Data/Int/DivMod/Bootstrap.lean": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Data/Nat/Div/Lemmas.lean": "zig-backend/src/init/Data/Nat/Div/Lemmas.lean"
+  }
+}

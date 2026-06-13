@@ -1,0 +1,18 @@
+{
+  "author": "tydeu",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2021-11-05",
+  "needs_port": true,
+  "sha": "3f867acfd70f97d7fd25217b1881f4820d1192c3",
+  "short_sha": "3f867acfd7",
+  "subject": "feat: decidable Prop Eq based on propext",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

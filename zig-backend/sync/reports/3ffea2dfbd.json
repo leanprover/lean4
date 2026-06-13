@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-18",
+  "needs_port": false,
+  "sha": "3ffea2dfbd18f91364cfb22b8da2814284c5e53f",
+  "short_sha": "3ffea2dfbd",
+  "subject": "feat: leanmake: add `clean` target",
+  "zig_target": {}
+}

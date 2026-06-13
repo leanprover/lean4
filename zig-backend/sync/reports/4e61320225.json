@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-13",
+  "needs_port": false,
+  "sha": "4e61320225c76514e17246cb0e587c0e736e2c86",
+  "short_sha": "4e61320225",
+  "subject": "chore: `bin/lake` -> `bin/Lake`",
+  "zig_target": {}
+}

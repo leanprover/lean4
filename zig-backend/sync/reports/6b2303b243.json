@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-18",
+  "needs_port": false,
+  "sha": "6b2303b24305deab05a7609985f03af3e9fdece5",
+  "short_sha": "6b2303b243",
+  "subject": "fix: bug at `tryLemmaCore` when `numExtraArgs > 1`",
+  "zig_target": {}
+}

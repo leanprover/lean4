@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Injection.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Injection.lean"
+    }
+  ],
+  "date": "2020-03-08",
+  "needs_port": true,
+  "sha": "7eb6381f6844ca522883a2ccdd09564df8866b0e",
+  "short_sha": "7eb6381f68",
+  "subject": "feat: throw error if unnecessary identifiers are provided",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Injection.lean": "zig-backend/src/init/Lean/Elab/Tactic/Injection.lean"
+  }
+}

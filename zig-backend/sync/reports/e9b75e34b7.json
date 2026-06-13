@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-07-15",
+  "needs_port": true,
+  "sha": "e9b75e34b74acf707fca10e89043333b05731077",
+  "short_sha": "e9b75e34b7",
+  "subject": "perf: decide whether to use _ref variants of inc/dec using IR types (#9399)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

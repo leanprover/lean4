@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-09",
+  "needs_port": false,
+  "sha": "4d79c00846bd30980939713be1749b799204c917",
+  "short_sha": "4d79c00846",
+  "subject": "feat: add double quoted name literal parser",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-03-03",
+  "needs_port": false,
+  "sha": "d2239a57706c0d76432cc38308c7a524e14f3671",
+  "short_sha": "d2239a5770",
+  "subject": "feat: `IntX` simprocs (#7228)",
+  "zig_target": {}
+}

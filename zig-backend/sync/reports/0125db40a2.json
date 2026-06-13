@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2022-02-23",
+  "needs_port": true,
+  "sha": "0125db40a2505f8574b384f1f2ebf13ab9ce8bca",
+  "short_sha": "0125db40a2",
+  "subject": "fix: remove `[..]` annotation from `if` simp theorems",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

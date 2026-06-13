@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2022-09-01",
+  "needs_port": true,
+  "sha": "c1949e05e0b79f6c51faea92b6898132aa688a55",
+  "short_sha": "c1949e05e0",
+  "subject": "feat: migrate to new pass manager",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-07-11",
+  "needs_port": false,
+  "sha": "6e904421304c362a146883baa360f451376dd9b1",
+  "short_sha": "6e90442130",
+  "subject": "chore: disable `benchtest` at debug and fsanitize",
+  "zig_target": {}
+}

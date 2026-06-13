@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-25",
+  "needs_port": false,
+  "sha": "875e4b1904f9eb41630100dd22d689c3cc65a0ae",
+  "short_sha": "875e4b1904",
+  "subject": "fix: tactics in terms in tactic combinators breaking incrementality (#4554)",
+  "zig_target": {}
+}

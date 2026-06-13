@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-20",
+  "needs_port": false,
+  "sha": "b2a99e1b687bd947ea699abc590a80a36727c732",
+  "short_sha": "b2a99e1b68",
+  "subject": "chore: minor optimization at `mkFlatLet`",
+  "zig_target": {}
+}

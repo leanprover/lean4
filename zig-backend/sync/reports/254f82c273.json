@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2021-09-01",
+  "needs_port": true,
+  "sha": "254f82c273d18260d0cba8a49f6a2c5ebfc52936",
+  "short_sha": "254f82c273",
+  "subject": "feat: basic infrastructure for `conv` mode",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

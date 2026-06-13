@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-12",
+  "needs_port": false,
+  "sha": "f487b88024ad32dc187bc30c3599a610eee6d65b",
+  "short_sha": "f487b88024",
+  "subject": "feat: register auxiliary Syntax node kind",
+  "zig_target": {}
+}

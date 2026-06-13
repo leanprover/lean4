@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-25",
+  "needs_port": false,
+  "sha": "af22926d53556500e173cbc802e21328585bbf19",
+  "short_sha": "af22926d53",
+  "subject": "chore: updates to (failing) grind algebra tests (#8987)",
+  "zig_target": {}
+}

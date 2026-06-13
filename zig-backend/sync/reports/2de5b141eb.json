@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-07",
+  "needs_port": false,
+  "sha": "2de5b141ebf44c1cccbea4393409a67b7ee450f5",
+  "short_sha": "2de5b141eb",
+  "subject": "test: interactive: support inserting text",
+  "zig_target": {}
+}

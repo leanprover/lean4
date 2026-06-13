@@ -1,0 +1,10 @@
+{
+  "author": "Alok Singh",
+  "backend_changes": [],
+  "date": "2025-12-15",
+  "needs_port": false,
+  "sha": "949cf6924649a3ad3aa934ee4466438bd6994064",
+  "short_sha": "949cf69246",
+  "subject": "chore: use backticks for `sorry` in diagnostic messages (#11608)",
+  "zig_target": {}
+}

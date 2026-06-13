@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-10-11",
+  "needs_port": false,
+  "sha": "115991066d8b810e4ca32243dfa9d07538ed81f3",
+  "short_sha": "115991066d",
+  "subject": "chore: remove unnecessary `partial` in `ForEachExpr.visit` (#2657)",
+  "zig_target": {}
+}

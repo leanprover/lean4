@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Simproc.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Simproc.lean"
+    }
+  ],
+  "date": "2024-03-28",
+  "needs_port": true,
+  "sha": "d1c0149e17eb860c9228f27c046e367750a592d6",
+  "short_sha": "d1c0149e17",
+  "subject": "chore: fix `simproc` doc-string (#3800)",
+  "zig_target": {
+    "src/Init/Simproc.lean": "zig-backend/src/init/Simproc.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-19",
+  "needs_port": false,
+  "sha": "597313135a8ac37f928583a6da5d8820f9f196f6",
+  "short_sha": "597313135a",
+  "subject": "fix: index out of bounds at `computeFixedIndexBitMask`",
+  "zig_target": {}
+}

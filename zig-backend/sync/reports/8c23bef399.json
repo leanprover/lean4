@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-06",
+  "needs_port": false,
+  "sha": "8c23bef39907e2599fb8ade149b7aa68ab4da311",
+  "short_sha": "8c23bef399",
+  "subject": "feat: add support for `casesOn` applications to structural and well-founded recursion modules",
+  "zig_target": {}
+}

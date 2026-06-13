@@ -1,0 +1,10 @@
+{
+  "author": "Mariana Alanis",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "4d7d82af86d94051e175efa5398be4254e16c439",
+  "short_sha": "4d7d82af86",
+  "subject": "fix: add a better handling in case only worker crashes (CR comments)",
+  "zig_target": {}
+}

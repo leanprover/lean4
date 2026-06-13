@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-14",
+  "needs_port": true,
+  "sha": "abc6bc14475eff651e7049e59e1638a528ed278e",
+  "short_sha": "abc6bc1447",
+  "subject": "chore: use try to fix `:` overload",
+  "zig_target": {
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+  }
+}

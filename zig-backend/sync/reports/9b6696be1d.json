@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/io.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.h"
+    }
+  ],
+  "date": "2024-10-14",
+  "needs_port": true,
+  "sha": "9b6696be1d2a31a1d156c8c11576fb8b47677714",
+  "short_sha": "9b6696be1d",
+  "subject": "feat: use libuv for tempfiles (#5135)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/io.h": "zig-backend/src/runtime/io.h"
+  }
+}

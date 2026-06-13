@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-31",
+  "needs_port": false,
+  "sha": "ae4f3242d4021a0bd32a69564c3c85f7a0d604cf",
+  "short_sha": "ae4f3242d4",
+  "subject": "feat: handle `Syntax.missing` at `TermElab`",
+  "zig_target": {}
+}

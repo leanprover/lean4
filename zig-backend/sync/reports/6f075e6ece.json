@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Enum.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Enum.lean"
+    }
+  ],
+  "date": "2021-09-05",
+  "needs_port": true,
+  "sha": "6f075e6ecefa5eea2ad82ac9f54b7267e3400ca7",
+  "short_sha": "6f075e6ece",
+  "subject": "feat: add `enum` command for declaring enumeration types",
+  "zig_target": {
+    "src/Init/Enum.lean": "zig-backend/src/init/Enum.lean"
+  }
+}

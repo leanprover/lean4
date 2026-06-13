@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "d78e7cd011dda386d6d57efb9def5c0e6a3164fb",
+  "short_sha": "d78e7cd011",
+  "subject": "feat: macro expand `cases` and `induction` tactics multiple LHSs",
+  "zig_target": {}
+}

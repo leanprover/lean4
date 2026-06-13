@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-04-10",
+  "needs_port": false,
+  "sha": "367b0fc80fd22e1256b330080b0c20306338f73c",
+  "short_sha": "367b0fc80f",
+  "subject": "doc: note persistent exts are sometimes needed",
+  "zig_target": {}
+}

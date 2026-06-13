@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-02-01",
+  "needs_port": false,
+  "sha": "2aa4a7957e2701d6551c3c389ac9a07dba668455",
+  "short_sha": "2aa4a7957e",
+  "subject": "feat: configurable server edit delay",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-20",
+  "needs_port": true,
+  "sha": "937b94793882cd95619559e1555b0089eaec36d9",
+  "short_sha": "937b947938",
+  "subject": "feat(library/compiler/llnf): decorate `_cnstr` instruction with inductive type name",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

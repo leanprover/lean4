@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "3ad0871dd42bd34465826c58e58aaf38c343c8a6",
+  "short_sha": "3ad0871dd4",
+  "subject": "chore: increase `class.instance_max_depth`",
+  "zig_target": {}
+}

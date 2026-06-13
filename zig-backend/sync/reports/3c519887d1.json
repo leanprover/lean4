@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-19",
+  "needs_port": false,
+  "sha": "3c519887d12f106963278348ec40de51bdd8ca6c",
+  "short_sha": "3c519887d1",
+  "subject": "chore: generate error message when `MatchEqs` fail",
+  "zig_target": {}
+}

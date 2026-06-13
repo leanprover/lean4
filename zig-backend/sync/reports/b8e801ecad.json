@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-30",
+  "needs_port": false,
+  "sha": "b8e801ecadac3e89b303b8c302abe065ad571e13",
+  "short_sha": "b8e801ecad",
+  "subject": "fix: `deriving BEq` on public inductives with private ctors (#9630)",
+  "zig_target": {}
+}

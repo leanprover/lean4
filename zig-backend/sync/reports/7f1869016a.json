@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-14",
+  "needs_port": false,
+  "sha": "7f1869016a46c39bc4ef30766c8692097253f014",
+  "short_sha": "7f1869016a",
+  "subject": "chore: CI: do not use large runners for secondary jobs (#9352)",
+  "zig_target": {}
+}

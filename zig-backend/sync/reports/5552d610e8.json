@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CSE.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CSE.lean"
+    }
+  ],
+  "date": "2022-08-28",
+  "needs_port": true,
+  "sha": "5552d610e891eae053bca43038744072ce96433d",
+  "short_sha": "5552d610e8",
+  "subject": "chore: missing `updateCases!`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CSE.lean": "zig-backend/src/lean/compiler/lcnf/CSE.lean"
+  }
+}

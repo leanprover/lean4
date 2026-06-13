@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-01-11",
+  "needs_port": false,
+  "sha": "cba3d69e787b13ae1877f3799fe1eab685894937",
+  "short_sha": "cba3d69e78",
+  "subject": "feat: enable info trees in server",
+  "zig_target": {}
+}

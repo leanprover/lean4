@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-08",
+  "needs_port": false,
+  "sha": "9034b6b79b45cc5c5a9b5cd5812e035c930e4b0b",
+  "short_sha": "9034b6b79b",
+  "subject": "chore: bump to v2.0-pre",
+  "zig_target": {}
+}

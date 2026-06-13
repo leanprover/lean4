@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-28",
+  "needs_port": true,
+  "sha": "28a34e798a25affdf98c6eefb7a94e6b600f3324",
+  "short_sha": "28a34e798a",
+  "subject": "feat(library/compiler/csimp): projection to field",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

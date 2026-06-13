@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2020-11-02",
+  "needs_port": true,
+  "sha": "a6fd611db06ecbe16d0749c8b82b4eb7b8656fb7",
+  "short_sha": "a6fd611db0",
+  "subject": "chore: use `generalizing`",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

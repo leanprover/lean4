@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIRType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+    }
+  ],
+  "date": "2025-07-21",
+  "needs_port": true,
+  "sha": "6f5532f069e62f0f6b3fc72ff7c89764397d8b36",
+  "short_sha": "6f5532f069",
+  "subject": "perf: make function types object rather than tobject (#9461)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIRType.lean": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+  }
+}

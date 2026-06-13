@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-06",
+  "needs_port": true,
+  "sha": "eb85081a03466f49729b2ac768a67d185f2b4d35",
+  "short_sha": "eb85081a03",
+  "subject": "fix(library/compiler/emit_cpp): `let y = f x; let z = ...; y` is not a tail call",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

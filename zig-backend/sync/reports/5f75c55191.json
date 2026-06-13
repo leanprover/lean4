@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-06",
+  "needs_port": false,
+  "sha": "5f75c5519113f5cb20ef0997b2a906b51e7ce82c",
+  "short_sha": "5f75c55191",
+  "subject": "fix: do not apply private instances in public scope (#10260)",
+  "zig_target": {}
+}

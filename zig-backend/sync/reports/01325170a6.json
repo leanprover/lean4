@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-07",
+  "needs_port": false,
+  "sha": "01325170a63edbd4c9725cf77201cc60089a190d",
+  "short_sha": "01325170a6",
+  "subject": "feat: make LEANC_CC configurable",
+  "zig_target": {}
+}

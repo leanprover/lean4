@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "d5b6a490549c9d481e396719d0e387abfec1a79f",
+  "short_sha": "d5b6a49054",
+  "subject": "feat: platform bits in build archive name + related cleanup",
+  "zig_target": {}
+}

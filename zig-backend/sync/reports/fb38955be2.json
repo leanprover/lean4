@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-05",
+  "needs_port": false,
+  "sha": "fb38955be2189fbdc59d3b4c602f1b94b7ff29ac",
+  "short_sha": "fb38955be2",
+  "subject": "feat: improve command parser error recovery",
+  "zig_target": {}
+}

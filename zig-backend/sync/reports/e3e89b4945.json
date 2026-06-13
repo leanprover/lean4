@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2020-10-16",
+  "needs_port": true,
+  "sha": "e3e89b4945db2032e2976945cb9cf831dcd3784e",
+  "short_sha": "e3e89b4945",
+  "subject": "chore: add coercion for new frontend",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

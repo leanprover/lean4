@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-20",
+  "needs_port": false,
+  "sha": "8d8e8f75563142bfd9429a41136c24cf3e033eb8",
+  "short_sha": "8d8e8f7556",
+  "subject": "chore: move to new frontend",
+  "zig_target": {}
+}

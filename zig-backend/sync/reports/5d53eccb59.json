@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean_obj.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.cpp"
+    },
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    },
+    {
+      "path": "src/runtime/utf8.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.cpp"
+    },
+    {
+      "path": "src/runtime/utf8.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.h"
+    }
+  ],
+  "date": "2018-05-17",
+  "needs_port": true,
+  "sha": "5d53eccb5945f1a9106dadd37b1b06adb1aa1a94",
+  "short_sha": "5d53eccb59",
+  "subject": "feat(runtime): string support",
+  "zig_target": {
+    "src/runtime/lean_obj.cpp": "zig-backend/src/runtime/lean_obj.cpp",
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h",
+    "src/runtime/utf8.cpp": "zig-backend/src/runtime/utf8.cpp",
+    "src/runtime/utf8.h": "zig-backend/src/runtime/utf8.h"
+  }
+}

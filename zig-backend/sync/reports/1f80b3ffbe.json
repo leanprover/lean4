@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-12",
+  "needs_port": false,
+  "sha": "1f80b3ffbe177c867ef3c2363f066568063331c0",
+  "short_sha": "1f80b3ffbe",
+  "subject": "feat: module system is no longer experimental (#11637)",
+  "zig_target": {}
+}

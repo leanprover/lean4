@@ -1,0 +1,78 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ExplicitBoxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExplicitBoxing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ExtractClosed.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExtractClosed.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/FVarUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/FloatLetIn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/InferBorrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PushProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PushProj.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/StructProjCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/StructProjCases.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    }
+  ],
+  "date": "2026-02-20",
+  "needs_port": true,
+  "sha": "78df48bdf4095e4a3b1dfda416bb3318aa0abfd7",
+  "short_sha": "78df48bdf4",
+  "subject": "perf: put mapMonoM where sensible in the compiler (#12610)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean",
+    "src/Lean/Compiler/LCNF/ExplicitBoxing.lean": "zig-backend/src/lean/compiler/lcnf/ExplicitBoxing.lean",
+    "src/Lean/Compiler/LCNF/ExtractClosed.lean": "zig-backend/src/lean/compiler/lcnf/ExtractClosed.lean",
+    "src/Lean/Compiler/LCNF/FVarUtil.lean": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean",
+    "src/Lean/Compiler/LCNF/FloatLetIn.lean": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean",
+    "src/Lean/Compiler/LCNF/InferBorrow.lean": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean",
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean",
+    "src/Lean/Compiler/LCNF/PushProj.lean": "zig-backend/src/lean/compiler/lcnf/PushProj.lean",
+    "src/Lean/Compiler/LCNF/ResetReuse.lean": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean",
+    "src/Lean/Compiler/LCNF/StructProjCases.lean": "zig-backend/src/lean/compiler/lcnf/StructProjCases.lean",
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+  }
+}

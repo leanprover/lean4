@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-03-06",
+  "needs_port": true,
+  "sha": "1b5ace4c39eca48fadef3f150cd6129fb6d44fb8",
+  "short_sha": "1b5ace4c39",
+  "subject": "chore: profile C code generation time",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    }
+  ],
+  "date": "2025-07-25",
+  "needs_port": true,
+  "sha": "0ab69a32cbc59aafdc9a143672974c299e040452",
+  "short_sha": "0ab69a32cb",
+  "subject": "chore: parameterize NoNatZeroDivisors by NatModule instead of HMul (#9527)",
+  "zig_target": {
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean"
+  }
+}

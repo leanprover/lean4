@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-23",
+  "needs_port": false,
+  "sha": "506602c6502d33d3ce4d2025e68efd70874d435b",
+  "short_sha": "506602c650",
+  "subject": "chore: remove unnecessary `let`",
+  "zig_target": {}
+}

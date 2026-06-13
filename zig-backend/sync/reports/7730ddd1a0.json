@@ -1,0 +1,24 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-11-01",
+  "needs_port": true,
+  "sha": "7730ddd1a0809e0b8f79d907566e49c2599bfe4c",
+  "short_sha": "7730ddd1a0",
+  "subject": "feat: add `BitVec.(msb, getMsbD, getLsbD)_(neg, abs)` (#5721)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/QSort/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/QSort/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-24",
+  "needs_port": true,
+  "sha": "acdef6e04b6e9c5799591009811d155227f2af56",
+  "short_sha": "acdef6e04b",
+  "subject": "feat: verification of `qsort` via `grind` (#7995)",
+  "zig_target": {
+    "src/Init/Data/Array/QSort/Basic.lean": "zig-backend/src/init/Data/Array/QSort/Basic.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

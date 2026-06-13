@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "9deab00941769077385fd9be3149ed6b2b47dd8f",
+  "short_sha": "9deab00941",
+  "subject": "feat: add `toDepElimPattern`",
+  "zig_target": {}
+}

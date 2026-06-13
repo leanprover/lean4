@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-08-11",
+  "needs_port": true,
+  "sha": "f1c7665a93db0d0b0a131b439fa821db23d8fc9d",
+  "short_sha": "f1c7665a93",
+  "subject": "feat: validate patterns, and collect pattern variables",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

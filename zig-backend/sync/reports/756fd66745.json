@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "756fd6674596562d65ba2301a482d26de3a99947",
+  "short_sha": "756fd66745",
+  "subject": "chore: CI: relax check-stage0 check",
+  "zig_target": {}
+}

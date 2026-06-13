@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+    }
+  ],
+  "date": "2022-09-30",
+  "needs_port": true,
+  "sha": "0e18b4318c5a1ee021fd6c39310653c3cff259f1",
+  "short_sha": "0e18b4318c",
+  "subject": "feat: online inline recursive functions if they are tagged with `[inlineIfReduce]`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+  }
+}

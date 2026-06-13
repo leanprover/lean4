@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-14",
+  "needs_port": false,
+  "sha": "ac51d3e6213fd7ec39cfb7e0119ac3041d153cf7",
+  "short_sha": "ac51d3e621",
+  "subject": "feat: eager `coe` expansion",
+  "zig_target": {}
+}

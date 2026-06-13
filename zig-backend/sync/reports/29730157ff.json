@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "29730157ff16d7e0bd686d7bdfae88565d6893e4",
+  "short_sha": "29730157ff",
+  "subject": "feat: support for `_` and `?hole` at all `induction/cases` variants",
+  "zig_target": {}
+}

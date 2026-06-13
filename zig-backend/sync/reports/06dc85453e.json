@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-11-23",
+  "needs_port": false,
+  "sha": "06dc85453ed1e98a46b52124c997a8cc78a0a024",
+  "short_sha": "06dc85453e",
+  "subject": "chore: CI: allow releases not starting with v",
+  "zig_target": {}
+}

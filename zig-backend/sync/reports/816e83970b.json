@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-15",
+  "needs_port": false,
+  "sha": "816e83970be214acf691753a12bb0591bf97e8f2",
+  "short_sha": "816e83970b",
+  "subject": "refactor(util/object_ref, kernel/environment): move `to_optional`",
+  "zig_target": {}
+}

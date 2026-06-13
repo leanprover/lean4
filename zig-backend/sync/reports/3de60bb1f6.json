@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-05-21",
+  "needs_port": false,
+  "sha": "3de60bb1f63efe9bb56380f911f86980b9f3332c",
+  "short_sha": "3de60bb1f6",
+  "subject": "chore: Lake details & improve formatting in changelog (#4239)",
+  "zig_target": {}
+}

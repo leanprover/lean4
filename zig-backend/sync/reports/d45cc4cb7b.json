@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-26",
+  "needs_port": false,
+  "sha": "d45cc4cb7bf95adf983d4976845e976beb840ce0",
+  "short_sha": "d45cc4cb7b",
+  "subject": "fix(kernel): manually align unboxed fields",
+  "zig_target": {}
+}

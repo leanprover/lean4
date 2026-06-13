@@ -1,0 +1,18 @@
+{
+  "author": "F. G. Dorais",
+  "backend_changes": [
+    {
+      "path": "src/Init/SizeOfLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOfLemmas.lean"
+    }
+  ],
+  "date": "2023-07-19",
+  "needs_port": true,
+  "sha": "d10e3da6738dfd9435e571fa9526360611bef582",
+  "short_sha": "d10e3da673",
+  "subject": "fix: protect sizeOf lemmas",
+  "zig_target": {
+    "src/Init/SizeOfLemmas.lean": "zig-backend/src/init/SizeOfLemmas.lean"
+  }
+}

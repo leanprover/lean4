@@ -1,0 +1,18 @@
+{
+  "author": "zygi",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2022-03-17",
+  "needs_port": true,
+  "sha": "ac793ce196dd792f796fe8c3445e5671bdeea6a5",
+  "short_sha": "ac793ce196",
+  "subject": "fix: forward start and stop in Array.allM",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "TomasPuverle",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Repr.lean"
+    }
+  ],
+  "date": "2024-09-22",
+  "needs_port": true,
+  "sha": "1883c9b7ebb68c18980f5b17b59f6d77bc401b99",
+  "short_sha": "1883c9b7eb",
+  "subject": "feat: implement `Repr Empty` (#5415)",
+  "zig_target": {
+    "src/Init/Data/Repr.lean": "zig-backend/src/init/Data/Repr.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-01",
+  "needs_port": true,
+  "sha": "90499abd94c5e23905324f83022ea64844f7e5fa",
+  "short_sha": "90499abd94",
+  "subject": "fix(library/compiler/llnf): `inc` is only needed if variable has type `_obj`",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

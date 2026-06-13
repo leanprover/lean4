@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-19",
+  "needs_port": false,
+  "sha": "efbecf272dc2c12610efd825e8672cee380b4c24",
+  "short_sha": "efbecf272d",
+  "subject": "feat: explain `reduce` steps in `trace.Debug.Meta.Tactic.simp` (#5054)",
+  "zig_target": {}
+}

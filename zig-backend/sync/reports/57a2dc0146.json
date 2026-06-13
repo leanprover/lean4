@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "57a2dc0146a23d88d9d815ed0deb36a06e614f59",
+  "short_sha": "57a2dc0146",
+  "subject": "fix: handle heterogeneous equality in `closeGoalWithValuesEq` (#12477)",
+  "zig_target": {}
+}

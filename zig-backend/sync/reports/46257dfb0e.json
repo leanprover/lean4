@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise.lean"
+    }
+  ],
+  "date": "2022-06-12",
+  "needs_port": true,
+  "sha": "46257dfb0e3a2aeb1e87fbe70428e16d4056d9e6",
+  "short_sha": "46257dfb0e",
+  "subject": "feat: show bitwise terminates",
+  "zig_target": {
+    "src/Init/Data/Nat/Bitwise.lean": "zig-backend/src/init/Data/Nat/Bitwise.lean"
+  }
+}

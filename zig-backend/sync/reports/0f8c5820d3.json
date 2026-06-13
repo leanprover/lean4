@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-19",
+  "needs_port": false,
+  "sha": "0f8c5820d31f4ffb392a65d3c264c0683a280a08",
+  "short_sha": "0f8c5820d3",
+  "subject": "feat(library/init/lean/compiler/ir/livevars): helper functions for managing the set of live variables",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2023-12-29",
+  "needs_port": true,
+  "sha": "ab721c64b3b327769ced107c3754b10393c17398",
+  "short_sha": "ab721c64b3",
+  "subject": "feat: add option `simprocs`",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

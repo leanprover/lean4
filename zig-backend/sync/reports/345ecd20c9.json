@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-06",
+  "needs_port": false,
+  "sha": "345ecd20c9d8c435fd1ac05d4a239af170f76f7a",
+  "short_sha": "345ecd20c9",
+  "subject": "chore: tag prerelease builds with `-pre` (#5943)",
+  "zig_target": {}
+}

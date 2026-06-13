@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+    }
+  ],
+  "date": "2020-01-03",
+  "needs_port": true,
+  "sha": "2f3c6a8185c1c2253172578fce528bbfcc92ee09",
+  "short_sha": "2f3c6a8185",
+  "subject": "feat: check attribute name",
+  "zig_target": {
+    "src/Init/Lean/Elab/Declaration.lean": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+  }
+}

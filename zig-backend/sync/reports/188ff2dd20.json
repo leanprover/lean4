@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-30",
+  "needs_port": false,
+  "sha": "188ff2dd2026bcdea384f54f519d32567cd4df98",
+  "short_sha": "188ff2dd20",
+  "subject": "chore: remove bogus `registerSimproc`",
+  "zig_target": {}
+}

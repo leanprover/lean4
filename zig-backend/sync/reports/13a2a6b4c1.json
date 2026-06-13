@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-20",
+  "needs_port": false,
+  "sha": "13a2a6b4c122e35d187cf2c023378e8ec4022828",
+  "short_sha": "13a2a6b4c1",
+  "subject": "chore: update CLAUDE.md PR body formatting guidelines (#12629)",
+  "zig_target": {}
+}

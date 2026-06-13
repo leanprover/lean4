@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-08-25",
+  "needs_port": false,
+  "sha": "5651192fa257c3c2835c0417468c6b7d28245f1d",
+  "short_sha": "5651192fa2",
+  "subject": "chore: fix error in Grind/Arith/Linear/StructId (#10096)",
+  "zig_target": {}
+}

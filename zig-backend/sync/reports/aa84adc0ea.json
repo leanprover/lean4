@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Data/Name.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Name.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "aa84adc0ea86eca99e06df5398a38814966104d9",
+  "short_sha": "aa84adc0ea",
+  "subject": "feat: add `isSuffixOf`",
+  "zig_target": {
+    "src/Init/Lean/Data/Name.lean": "zig-backend/src/init/Lean/Data/Name.lean"
+  }
+}

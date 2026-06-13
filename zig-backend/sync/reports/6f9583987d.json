@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-03-14",
+  "needs_port": true,
+  "sha": "6f9583987d2a4b59a01f7e9df4ac69a7bdf3de08",
+  "short_sha": "6f9583987d",
+  "subject": "feat: add `reduceBool` and `reduceNat` \"hints\"",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-19",
+  "needs_port": false,
+  "sha": "c5dfe7f86e714fa4d892cdf708987df2fb46f4ef",
+  "short_sha": "c5dfe7f86e",
+  "subject": "refactor(frontends/lean/decl_cmds): factor out and expose elaboration of variables and constants",
+  "zig_target": {}
+}

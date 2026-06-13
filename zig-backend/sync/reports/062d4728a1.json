@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/CSE.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CSE.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDead.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDead.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2022-08-28",
+  "needs_port": true,
+  "sha": "062d4728a169a5b6420e286aedf147d4e1b1c0ce",
+  "short_sha": "062d4728a1",
+  "subject": "feat: more LCNF update functions",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/CSE.lean": "zig-backend/src/lean/compiler/lcnf/CSE.lean",
+    "src/Lean/Compiler/LCNF/ElimDead.lean": "zig-backend/src/lean/compiler/lcnf/ElimDead.lean",
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

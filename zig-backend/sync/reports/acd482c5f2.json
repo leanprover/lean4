@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2022-01-14",
+  "needs_port": true,
+  "sha": "acd482c5f252af13072f520bf31f6ef93aa6cf45",
+  "short_sha": "acd482c5f2",
+  "subject": "feat: define `Array.modify` without using `Inhabited`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

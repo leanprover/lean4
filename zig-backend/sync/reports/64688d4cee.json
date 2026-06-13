@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-02-06",
+  "needs_port": false,
+  "sha": "64688d4cee82212395bd7cdcf2a5e8377c8ebedf",
+  "short_sha": "64688d4cee",
+  "subject": "fix: let induction handle parameters (#3256)",
+  "zig_target": {}
+}

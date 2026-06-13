@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-23",
+  "needs_port": false,
+  "sha": "1b7f7e9d39444c574a923898d3c5952328197eb7",
+  "short_sha": "1b7f7e9d39",
+  "subject": "chore: remove unnecessary annotations",
+  "zig_target": {}
+}

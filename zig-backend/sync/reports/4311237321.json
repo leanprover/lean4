@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-23",
+  "needs_port": false,
+  "sha": "4311237321a16755a535bb552d7e4aa84a6f843d",
+  "short_sha": "4311237321",
+  "subject": "chore: add CoreM.toIO' (#11325)",
+  "zig_target": {}
+}

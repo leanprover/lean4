@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-13",
+  "needs_port": false,
+  "sha": "f973e855e0f6a63a5d9feca250cad919e9bbf653",
+  "short_sha": "f973e855e0",
+  "subject": "feat: Make `mrefine` reduce applications of `SPred.and` (#9887)",
+  "zig_target": {}
+}

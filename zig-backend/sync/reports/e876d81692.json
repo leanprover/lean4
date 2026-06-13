@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-16",
+  "needs_port": false,
+  "sha": "e876d8169236600739e5ff27dd9ecc92e363ec11",
+  "short_sha": "e876d81692",
+  "subject": "fix: missing `withRoot true`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2022-11-18",
+  "needs_port": true,
+  "sha": "f74fee07e6f09d6d2799d44474d4cf9b5203e5b6",
+  "short_sha": "f74fee07e6",
+  "subject": "doc: document Init.Data.List.Basic (#1828)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

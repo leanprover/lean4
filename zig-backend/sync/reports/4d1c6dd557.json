@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2022-06-22",
+  "needs_port": true,
+  "sha": "4d1c6dd557531b3e290274770cdaca8f646fd54d",
+  "short_sha": "4d1c6dd557",
+  "subject": "feat: add `zeta` conv tactic",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

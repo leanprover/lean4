@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-11-05",
+  "needs_port": false,
+  "sha": "d9eddc9652051bb2baa978859bb2731f03c464c8",
+  "short_sha": "d9eddc9652",
+  "subject": "feat: ensure nested proofs having been abstracted in equation and unfold auxiliary theorems",
+  "zig_target": {}
+}

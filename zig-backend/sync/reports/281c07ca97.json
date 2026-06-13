@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-11",
+  "needs_port": false,
+  "sha": "281c07ca979093cc923c489c488673e92ba6618f",
+  "short_sha": "281c07ca97",
+  "subject": "fix: bv_decide embedded constraint substitution changes models (#6037)",
+  "zig_target": {}
+}

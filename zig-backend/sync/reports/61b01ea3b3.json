@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-09",
+  "needs_port": false,
+  "sha": "61b01ea3b3b626b1e37c61d88555783d0f4db616",
+  "short_sha": "61b01ea3b3",
+  "subject": "Revert \"chore: work around `for` type inference\"",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-10",
+  "needs_port": false,
+  "sha": "c8ab63ea757a520a85528abb36341a46428bf7e3",
+  "short_sha": "c8ab63ea75",
+  "subject": "feat: mark auxiliary eliminators as `[inline]`",
+  "zig_target": {}
+}

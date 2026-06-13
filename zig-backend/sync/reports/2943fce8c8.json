@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-28",
+  "needs_port": false,
+  "sha": "2943fce8c8e3bbdd2eda47962e2a3e9d8ba89121",
+  "short_sha": "2943fce8c8",
+  "subject": "chore(library/init/core): add `strictAnd` and `strictOr`",
+  "zig_target": {}
+}

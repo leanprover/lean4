@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-21",
+  "needs_port": false,
+  "sha": "fd121f03bd2d9a8d4bc88c9225e3c9d81c326953",
+  "short_sha": "fd121f03bd",
+  "subject": "feat(library/init/lean/expander): make set of transformers configurable",
+  "zig_target": {}
+}

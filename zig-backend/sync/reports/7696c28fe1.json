@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "7696c28fe16873a91f8072fe36dcfc826a1eb8a3",
+  "short_sha": "7696c28fe1",
+  "subject": "feat(library/module): module manager in Lean is alive",
+  "zig_target": {}
+}

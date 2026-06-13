@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-09-13",
+  "needs_port": false,
+  "sha": "09b9fdbdc34333b6f55da0785920afdaec7ed9b1",
+  "short_sha": "09b9fdbdc3",
+  "subject": "chore: Do not hide stage0/src/stdlib_flags.h from diffs",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-12-30",
+  "needs_port": true,
+  "sha": "91dac6ccff15a6e196a4fe45b4499457c1c9b381",
+  "short_sha": "91dac6ccff",
+  "subject": "fix: race condition in `Task.bind`",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

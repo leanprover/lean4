@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2025-05-02",
+  "needs_port": true,
+  "sha": "afab374305fb2327036e4fe1ab799fc8928425b7",
+  "short_sha": "afab374305",
+  "subject": "feat: LCNF -> IR translation (#8211)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean",
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

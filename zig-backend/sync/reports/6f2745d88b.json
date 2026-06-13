@@ -1,0 +1,120 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Lemmas/FindPos.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/FindPos.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/IsEmpty.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/IsEmpty.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Find/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Split/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/TakeDrop/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Splits.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Pred.lean"
+    }
+  ],
+  "date": "2026-03-26",
+  "needs_port": true,
+  "sha": "6f2745d88b3c92394d857d56a53d65d961255356",
+  "short_sha": "6f2745d88b",
+  "subject": "feat: verification of backwards string patterns (#13129)",
+  "zig_target": {
+    "src/Init/Data/String/Lemmas/FindPos.lean": "zig-backend/src/init/Data/String/Lemmas/FindPos.lean",
+    "src/Init/Data/String/Lemmas/IsEmpty.lean": "zig-backend/src/init/Data/String/Lemmas/IsEmpty.lean",
+    "src/Init/Data/String/Lemmas/Order.lean": "zig-backend/src/init/Data/String/Lemmas/Order.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Find/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Split/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean",
+    "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean",
+    "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Pred.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Pred.lean",
+    "src/Init/Data/String/Lemmas/Pattern/TakeDrop/String.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/String.lean",
+    "src/Init/Data/String/Lemmas/Splits.lean": "zig-backend/src/init/Data/String/Lemmas/Splits.lean",
+    "src/Init/Data/String/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Pattern/Basic.lean",
+    "src/Init/Data/String/Pattern/Char.lean": "zig-backend/src/init/Data/String/Pattern/Char.lean",
+    "src/Init/Data/String/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Pattern/Pred.lean"
+  }
+}

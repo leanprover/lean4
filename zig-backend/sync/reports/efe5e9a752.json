@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-09",
+  "needs_port": false,
+  "sha": "efe5e9a7523d896ec80df7c62942529e46e077bd",
+  "short_sha": "efe5e9a752",
+  "subject": "refactor: remove unnecessary export attributes (#9281)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-04",
+  "needs_port": false,
+  "sha": "2be159515420f5c30c4a3f0ae5c71507ae42ef56",
+  "short_sha": "2be1595154",
+  "subject": "fix: preserve `by` toke position information during macro expansion",
+  "zig_target": {}
+}

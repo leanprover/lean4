@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Injection.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Injection.lean"
+    }
+  ],
+  "date": "2020-03-08",
+  "needs_port": true,
+  "sha": "c493ac1e1e0e8ef4eab39fb44627954c7c1f12b2",
+  "short_sha": "c493ac1e1e",
+  "subject": "feat: injectionCore tactic",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Injection.lean": "zig-backend/src/init/Lean/Meta/Tactic/Injection.lean"
+  }
+}

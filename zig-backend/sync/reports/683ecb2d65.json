@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-29",
+  "needs_port": false,
+  "sha": "683ecb2d656d5a85a53ccaf8c6b4ad57b16d23d5",
+  "short_sha": "683ecb2d65",
+  "subject": "feat: ignore unquoted identifiers in prechecked quotations",
+  "zig_target": {}
+}

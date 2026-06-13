@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-01-10",
+  "needs_port": true,
+  "sha": "dae3489fe2308821528770634e90c81253546d18",
+  "short_sha": "dae3489fe2",
+  "subject": "feat: remove `partial`s from `Init/Data/Array/Basic.lean`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

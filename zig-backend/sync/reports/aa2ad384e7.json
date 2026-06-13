@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-04-24",
+  "needs_port": false,
+  "sha": "aa2ad384e71dce579ea3c9c0f0df1853a60440f7",
+  "short_sha": "aa2ad384e7",
+  "subject": "chore: remove old InfoTree ctor",
+  "zig_target": {}
+}

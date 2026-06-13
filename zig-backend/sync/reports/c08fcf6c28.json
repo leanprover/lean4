@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-11-10",
+  "needs_port": false,
+  "sha": "c08fcf6c28aa6b8d500b4ee6fe85c76b658bd13a",
+  "short_sha": "c08fcf6c28",
+  "subject": "feat: add union on ExtDHashMap/ExtHashMap/ExtHashSet (#10946)",
+  "zig_target": {}
+}

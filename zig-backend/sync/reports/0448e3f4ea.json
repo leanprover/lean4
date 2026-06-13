@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-05-24",
+  "needs_port": false,
+  "sha": "0448e3f4ea1b2c476fc79aeee5d407971a1cd9e2",
+  "short_sha": "0448e3f4ea",
+  "subject": "feat:  `lake test` improvements & `lake lint` (#4261)",
+  "zig_target": {}
+}

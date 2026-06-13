@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-05",
+  "needs_port": false,
+  "sha": "41cb6dac1d44a2d9784a68ae5ba91b07db8c331a",
+  "short_sha": "41cb6dac1d",
+  "subject": "chore: fix verso sub-manifest subverso sync in release_steps (#12787)",
+  "zig_target": {}
+}

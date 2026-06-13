@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-06-08",
+  "needs_port": false,
+  "sha": "2d05ff8a488f4f1f24b70e0291a306ba3a029a57",
+  "short_sha": "2d05ff8a48",
+  "subject": "perf: linearity in HashMap.(insert|erase) (#4372)",
+  "zig_target": {}
+}

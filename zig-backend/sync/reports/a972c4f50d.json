@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-31",
+  "needs_port": false,
+  "sha": "a972c4f50dfc335559be8445c739e46d1df57b3a",
+  "short_sha": "a972c4f50d",
+  "subject": "fix: include local variable dot notation params in `grind?` suggestions (#12224)",
+  "zig_target": {}
+}

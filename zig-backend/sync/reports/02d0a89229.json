@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-04-26",
+  "needs_port": true,
+  "sha": "02d0a8922941ac86a61d3241d04f63efd607ffdf",
+  "short_sha": "02d0a89229",
+  "subject": "chore: `simpStar` does not make sense for `dsimp`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

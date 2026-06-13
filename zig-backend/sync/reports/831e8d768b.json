@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-02-25",
+  "needs_port": false,
+  "sha": "831e8d768bea16406b6148611a091678d4656271",
+  "short_sha": "831e8d768b",
+  "subject": "feat: tree map lemmas for get, get! and getD (#7207)",
+  "zig_target": {}
+}

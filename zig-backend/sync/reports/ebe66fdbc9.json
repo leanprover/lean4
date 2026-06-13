@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-16",
+  "needs_port": false,
+  "sha": "ebe66fdbc9c7f3a98f0a85bccf76960da35b77af",
+  "short_sha": "ebe66fdbc9",
+  "subject": "feat: add `Elab/Structure.lean`",
+  "zig_target": {}
+}

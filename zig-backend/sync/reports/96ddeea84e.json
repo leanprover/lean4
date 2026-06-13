@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-30",
+  "needs_port": false,
+  "sha": "96ddeea84e0f2762b3abab437c68a153a3c57d27",
+  "short_sha": "96ddeea84e",
+  "subject": "fix: fix FieldInfo for structure instance notation (#7745)",
+  "zig_target": {}
+}

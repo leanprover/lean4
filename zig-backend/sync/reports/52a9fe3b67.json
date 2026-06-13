@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Module/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Envelope.lean"
+    }
+  ],
+  "date": "2025-09-06",
+  "needs_port": true,
+  "sha": "52a9fe3b6753399decb685ed4e4ef819ded95a3e",
+  "short_sha": "52a9fe3b67",
+  "subject": "feat: missing `NatModule` instances (#10277)",
+  "zig_target": {
+    "src/Init/Grind/Module/Envelope.lean": "zig-backend/src/init/Grind/Module/Envelope.lean"
+  }
+}

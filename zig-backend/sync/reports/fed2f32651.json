@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Linter.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/init/Linter.lean"
+    }
+  ],
+  "date": "2026-04-15",
+  "needs_port": true,
+  "sha": "fed2f32651e1e24a507c12aae234ac59e4d9916a",
+  "short_sha": "fed2f32651",
+  "subject": "chore: revert \"feat: add `lake builtin-lint` (#13422)",
+  "zig_target": {
+    "src/Init/Linter.lean": "zig-backend/src/init/Linter.lean"
+  }
+}

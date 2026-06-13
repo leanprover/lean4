@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "4ff44fb0506348cc9a6da5c4ad3828bf58588aa6",
+  "short_sha": "4ff44fb050",
+  "subject": "fix: don't require know expected type for `__dir__`/`__args__`",
+  "zig_target": {}
+}

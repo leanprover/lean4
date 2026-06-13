@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-22",
+  "needs_port": false,
+  "sha": "b87d2c0fb9c16d73571a208a08af1967450e7b87",
+  "short_sha": "b87d2c0fb9",
+  "subject": "feat: add lean-bisect script for bisecting toolchain regressions (#11727)",
+  "zig_target": {}
+}

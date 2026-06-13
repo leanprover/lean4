@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-29",
+  "needs_port": false,
+  "sha": "a99393483949dc56d692f3a37dbcfc51db568341",
+  "short_sha": "a993934839",
+  "subject": "feat: generate `f.eq_unfold` lemmas (#5141)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-10-08",
+  "needs_port": false,
+  "sha": "c1bd666bc27c85b093aa72b5df8e1281247d3e78",
+  "short_sha": "c1bd666bc2",
+  "subject": "feat: stack wrapper around array",
+  "zig_target": {}
+}

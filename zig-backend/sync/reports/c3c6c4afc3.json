@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-12",
+  "needs_port": false,
+  "sha": "c3c6c4afc3ba6e9361bcc296fcef11f95a26a51c",
+  "short_sha": "c3c6c4afc3",
+  "subject": "feat(kernel/inductive): add check_inductive_types",
+  "zig_target": {}
+}

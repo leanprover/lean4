@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-21",
+  "needs_port": false,
+  "sha": "4c0765fc071b1b6bf6fd46ce4f67f4fda9690b4e",
+  "short_sha": "4c0765fc07",
+  "subject": "fix: grind using congr equation of private imported matcher (#11756)",
+  "zig_target": {}
+}

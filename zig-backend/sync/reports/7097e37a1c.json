@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-03-20",
+  "needs_port": false,
+  "sha": "7097e37a1c1055510749c37d5e4a53058c5c97e0",
+  "short_sha": "7097e37a1c",
+  "subject": "feat: lake: improve artifact transfer errors (#13014)",
+  "zig_target": {}
+}

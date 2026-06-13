@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    }
+  ],
+  "date": "2025-06-14",
+  "needs_port": true,
+  "sha": "cc3dafe67a67549726100d36608252b45dcf7409",
+  "short_sha": "cc3dafe67a",
+  "subject": "fix: `grind linarith` internalization and `HSMul` support (#8796)",
+  "zig_target": {
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean"
+  }
+}

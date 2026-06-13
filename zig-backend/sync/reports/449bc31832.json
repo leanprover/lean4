@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Int.lean"
+    }
+  ],
+  "date": "2025-06-24",
+  "needs_port": true,
+  "sha": "449bc31832604562dc46c203e110077eff8598a9",
+  "short_sha": "449bc31832",
+  "subject": "chore: adds (failing) grind algebra tests (#8961)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Int.lean": "zig-backend/src/init/Grind/Ordered/Int.lean"
+  }
+}

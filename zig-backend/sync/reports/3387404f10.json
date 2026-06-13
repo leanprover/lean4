@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-21",
+  "needs_port": false,
+  "sha": "3387404f1013c613779cbad0f60aae73dfce8db3",
+  "short_sha": "3387404f10",
+  "subject": "chore: lake: rm `autoParam` in `Lake.Load.Resolve` (#13495)",
+  "zig_target": {}
+}

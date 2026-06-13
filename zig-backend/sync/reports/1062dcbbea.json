@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    }
+  ],
+  "date": "2019-09-11",
+  "needs_port": true,
+  "sha": "1062dcbbea0a82eea365594660d17cd25ff34701",
+  "short_sha": "1062dcbbea",
+  "subject": "refactor(src/library/compiler/erase_irrelevant): move `has_trivial_structure` to `util`",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h"
+  }
+}

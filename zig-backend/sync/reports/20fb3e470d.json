@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "20fb3e470d168388d99efaca3a31514bbaac8b58",
+  "short_sha": "20fb3e470d",
+  "subject": "doc: add dependent de Bruijn indices",
+  "zig_target": {}
+}

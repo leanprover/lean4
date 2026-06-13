@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    }
+  ],
+  "date": "2019-12-03",
+  "needs_port": true,
+  "sha": "5adce9fa205cde6878428c4684e82aa55b237319",
+  "short_sha": "5adce9fa20",
+  "subject": "fix: use eta reduction at `DiscrTree`",
+  "zig_target": {
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+  }
+}

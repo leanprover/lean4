@@ -1,0 +1,60 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Basic.lean"
+    },
+    {
+      "path": "src/Init/Control/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Option.lean"
+    },
+    {
+      "path": "src/Init/Control/Reader.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Reader.lean"
+    },
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2021-09-07",
+  "needs_port": true,
+  "sha": "3714cf16ec8170d8f41a526d7dc0b37a7b176f62",
+  "short_sha": "3714cf16ec",
+  "subject": "refactor: lazy evaluation for `<|>`",
+  "zig_target": {
+    "src/Init/Control/Basic.lean": "zig-backend/src/init/Control/Basic.lean",
+    "src/Init/Control/Option.lean": "zig-backend/src/init/Control/Option.lean",
+    "src/Init/Control/Reader.lean": "zig-backend/src/init/Control/Reader.lean",
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

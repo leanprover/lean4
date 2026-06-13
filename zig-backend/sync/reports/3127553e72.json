@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-30",
+  "needs_port": false,
+  "sha": "3127553e726abc04a9d6a85d27f93c63e158c461",
+  "short_sha": "3127553e72",
+  "subject": "chore(script/prepare-commit-msg): filter out .expected.out files",
+  "zig_target": {}
+}

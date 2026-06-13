@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-07-18",
+  "needs_port": false,
+  "sha": "8deee553bbea7fe0b83b72a9ed26bd518deaf31b",
+  "short_sha": "8deee553bb",
+  "subject": "fix: local instances",
+  "zig_target": {}
+}

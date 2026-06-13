@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/reduce_arity.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/reduce_arity.cpp"
+    },
+    {
+      "path": "src/library/compiler/reduce_arity.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/reduce_arity.h"
+    }
+  ],
+  "date": "2018-11-09",
+  "needs_port": true,
+  "sha": "7c86a4dae748e17e207cf4ca45efcf6decba1a04",
+  "short_sha": "7c86a4dae7",
+  "subject": "feat(library/compiler): add `reduce_arity` compilation step",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/reduce_arity.cpp": "zig-backend/src/library/compiler/reduce_arity.cpp",
+    "src/library/compiler/reduce_arity.h": "zig-backend/src/library/compiler/reduce_arity.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-19",
+  "needs_port": false,
+  "sha": "204d4839fadf099347b255f95916759bbd8d90dc",
+  "short_sha": "204d4839fa",
+  "subject": "refactor: add numFixed to Structural.EqnInfo (#4788)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-10-17",
+  "needs_port": false,
+  "sha": "fc5e3cc66e3f317a03a17d9b19cc8d6476cf31cd",
+  "short_sha": "fc5e3cc66e",
+  "subject": "fix: do not force snapshot tree too early (#5752)",
+  "zig_target": {}
+}

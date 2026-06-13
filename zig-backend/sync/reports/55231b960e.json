@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    }
+  ],
+  "date": "2020-02-11",
+  "needs_port": true,
+  "sha": "55231b960e7dcb4ded912487b91e8b97ade63268",
+  "short_sha": "55231b960e",
+  "subject": "feat: simplify and improve `processAssignmentFOApproxAux`",
+  "zig_target": {
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+  }
+}

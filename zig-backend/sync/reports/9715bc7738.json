@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    }
+  ],
+  "date": "2019-12-05",
+  "needs_port": true,
+  "sha": "9715bc773803d3e02f4fda0e6ec7acff78fb0315",
+  "short_sha": "9715bc7738",
+  "subject": "fix: missing `instantiateMVars`",
+  "zig_target": {
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+  }
+}

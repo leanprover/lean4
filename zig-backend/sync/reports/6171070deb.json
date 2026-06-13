@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-05-19",
+  "needs_port": false,
+  "sha": "6171070deb982201d4adbaf25e3b1c0bb938bace",
+  "short_sha": "6171070deb",
+  "subject": "chore: lake: cloud release build output fixes & related touchups (#4220)",
+  "zig_target": {}
+}

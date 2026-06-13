@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "8c46d7439acdedec157122d42f42a7af40b8f2e0",
+  "short_sha": "8c46d7439a",
+  "subject": "chore: remove some deprecated features + deprecate `extraDepTarget`",
+  "zig_target": {}
+}

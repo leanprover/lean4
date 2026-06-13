@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "63ad42ba47f1f385ed47d41a0e6e15120a06b147",
+  "short_sha": "63ad42ba47",
+  "subject": "refactor: move and generalize `reduceProj?`",
+  "zig_target": {}
+}

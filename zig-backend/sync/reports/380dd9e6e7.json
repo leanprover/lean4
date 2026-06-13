@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2023-12-22",
+  "needs_port": true,
+  "sha": "380dd9e6e768815a90700d1bd5ef511e44e2b2dd",
+  "short_sha": "380dd9e6e7",
+  "subject": "fix: free threadpool threads before process exit",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

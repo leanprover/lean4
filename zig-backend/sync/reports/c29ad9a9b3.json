@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-09",
+  "needs_port": false,
+  "sha": "c29ad9a9b3adc38bc535b777f829335db7c66be2",
+  "short_sha": "c29ad9a9b3",
+  "subject": "doc: ubuntu: specify fewer versions that will become outdated anyway",
+  "zig_target": {}
+}

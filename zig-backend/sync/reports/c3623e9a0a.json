@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-13",
+  "needs_port": false,
+  "sha": "c3623e9a0a88c468e2e9329700667a879b0de22e",
+  "short_sha": "c3623e9a0a",
+  "subject": "chore: reduce default max steps",
+  "zig_target": {}
+}

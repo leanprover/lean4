@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-02-29",
+  "needs_port": true,
+  "sha": "796fff26d2043c577a2aba3b8f3332d6aff87b78",
+  "short_sha": "796fff26d2",
+  "subject": "fix: `check_optarg`",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

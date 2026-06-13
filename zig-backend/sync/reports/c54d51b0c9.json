@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-09-23",
+  "needs_port": true,
+  "sha": "c54d51b0c91f77a1e4493934a45c34dbccdd3db7",
+  "short_sha": "c54d51b0c9",
+  "subject": "chore: go back to previous bootstrapping scheme where the stage N+1 stdlib is created using the stage N compiler",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

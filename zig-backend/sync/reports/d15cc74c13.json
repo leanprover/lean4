@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-28",
+  "needs_port": false,
+  "sha": "d15cc74c13244a0a4044907f522d499bf1613ef1",
+  "short_sha": "d15cc74c13",
+  "subject": "chore(tests/playground/temci): update temci settings",
+  "zig_target": {}
+}

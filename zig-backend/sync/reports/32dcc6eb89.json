@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-10",
+  "needs_port": false,
+  "sha": "32dcc6eb895b58df3d3241a2521963e64995b621",
+  "short_sha": "32dcc6eb89",
+  "subject": "feat: GuessLex: avoid writing `sizeOf` in termination argument when not needed (#3630)",
+  "zig_target": {}
+}

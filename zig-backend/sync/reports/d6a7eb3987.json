@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    }
+  ],
+  "date": "2024-10-17",
+  "needs_port": true,
+  "sha": "d6a7eb3987c612fed2df8a986883a079f7cefcfe",
+  "short_sha": "d6a7eb3987",
+  "subject": "feat: add Hashable instance for Char (#5747)",
+  "zig_target": {
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean"
+  }
+}

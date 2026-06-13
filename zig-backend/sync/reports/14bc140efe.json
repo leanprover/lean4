@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-12",
+  "needs_port": false,
+  "sha": "14bc140efe6a7988005052c8ea643f7ac1842fd4",
+  "short_sha": "14bc140efe",
+  "subject": "fix: server: do not show parent node on synthetic sorry",
+  "zig_target": {}
+}

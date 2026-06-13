@@ -1,0 +1,10 @@
+{
+  "author": "arthur-adjedj",
+  "backend_changes": [],
+  "date": "2024-03-27",
+  "needs_port": false,
+  "sha": "7253ef8751f76bcbe0e6f46dcfa8069699a2bac7",
+  "short_sha": "7253ef8751",
+  "subject": "chore: inverse rhs construction order in `BEq`'s handler",
+  "zig_target": {}
+}

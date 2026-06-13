@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Intro.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "0092c40ce4108a2724df7dd4e4fa3404a7313166",
+  "short_sha": "0092c40ce4",
+  "subject": "refactor: make it clear the result are free variables",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Intro.lean": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean"
+  }
+}

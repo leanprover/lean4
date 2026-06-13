@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-22",
+  "needs_port": false,
+  "sha": "fc323b5aaae1a813c3735bdd9d39294bc427f84b",
+  "short_sha": "fc323b5aaa",
+  "subject": "chore: remove workaround",
+  "zig_target": {}
+}

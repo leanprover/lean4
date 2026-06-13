@@ -1,0 +1,61 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/export_attribute.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/export_attribute.cpp"
+    },
+    {
+      "old_path": "src/library/compiler/export_name.h",
+      "path": "src/library/compiler/export_attribute.h",
+      "status": "R",
+      "zig_target": "zig-backend/src/library/compiler/export_attribute.h"
+    },
+    {
+      "path": "src/library/compiler/export_name.cpp",
+      "status": "D",
+      "zig_target": "zig-backend/src/library/compiler/export_name.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/reduce_arity.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/reduce_arity.cpp"
+    }
+  ],
+  "date": "2019-02-09",
+  "needs_port": true,
+  "sha": "bf15ee48fd9f0c34fdc92fc6c5f13a39a9731c9c",
+  "short_sha": "bf15ee48fd",
+  "subject": "refactor(library/compiler): `export_name` ==> `export_attribute`",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/export_attribute.cpp": "zig-backend/src/library/compiler/export_attribute.cpp",
+    "src/library/compiler/export_attribute.h": "zig-backend/src/library/compiler/export_attribute.h",
+    "src/library/compiler/export_name.cpp": "zig-backend/src/library/compiler/export_name.cpp",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/reduce_arity.cpp": "zig-backend/src/library/compiler/reduce_arity.cpp"
+  }
+}

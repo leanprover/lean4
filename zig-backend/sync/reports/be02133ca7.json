@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-31",
+  "needs_port": false,
+  "sha": "be02133ca79f667abdc2764ce827faaa4b1867cc",
+  "short_sha": "be02133ca7",
+  "subject": "feat: pp.analyze default transparency",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-20",
+  "needs_port": false,
+  "sha": "03a361edf415264820eff62e8f650fa903831f4b",
+  "short_sha": "03a361edf4",
+  "subject": "feat: add `initialize` command parser",
+  "zig_target": {}
+}

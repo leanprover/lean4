@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-19",
+  "needs_port": false,
+  "sha": "75570f327fd481cc3ce60a9f833e7c7b0abd8f71",
+  "short_sha": "75570f327f",
+  "subject": "refactor: thunk field-less alternatives of casesOnSameCtor (#11254)",
+  "zig_target": {}
+}

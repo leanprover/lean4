@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-02",
+  "needs_port": false,
+  "sha": "8d9d81453bd28aa9799e6bf2ad52def1d75549cb",
+  "short_sha": "8d9d81453b",
+  "subject": "feat: `grind` simple strategy (#6503)",
+  "zig_target": {}
+}

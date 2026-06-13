@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-02-14",
+  "needs_port": false,
+  "sha": "22d1d040592608ae15eff00123f16f6f01eef8f7",
+  "short_sha": "22d1d04059",
+  "subject": "fix: incremental goal state requests select incomplete snapshot (#6887)",
+  "zig_target": {}
+}

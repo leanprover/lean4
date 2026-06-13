@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-03-30",
+  "needs_port": false,
+  "sha": "54c02d75b29affaf215a0d2ced1d131610fd47c1",
+  "short_sha": "54c02d75b2",
+  "subject": "chore: let consumeTypeAnnotations remove semiOutParam",
+  "zig_target": {}
+}

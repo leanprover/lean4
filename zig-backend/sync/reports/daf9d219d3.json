@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-07",
+  "needs_port": false,
+  "sha": "daf9d219d3d224e2da3f3e02e674f02899dfb9f9",
+  "short_sha": "daf9d219d3",
+  "subject": "fix: must reset assignments before each iteration",
+  "zig_target": {}
+}

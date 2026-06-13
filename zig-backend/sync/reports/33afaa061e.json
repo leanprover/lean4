@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-08",
+  "needs_port": false,
+  "sha": "33afaa061eda5c70803e228d4a282a6e1b9c7d8a",
+  "short_sha": "33afaa061e",
+  "subject": "feat: improve 'apply' unification error message (#8261)",
+  "zig_target": {}
+}

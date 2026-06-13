@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-17",
+  "needs_port": false,
+  "sha": "9d05b5f081c2d675c427a5f5eaf01cb255d6f7ce",
+  "short_sha": "9d05b5f081",
+  "subject": "feat: warn rather than error if `lake.lock` disappears",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Delaborator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Delaborator.lean"
+    }
+  ],
+  "date": "2020-03-26",
+  "needs_port": true,
+  "sha": "0c5a08a16ee0d70c851a44130c16b0cf3b382e7f",
+  "short_sha": "0c5a08a16e",
+  "subject": "chore: make sure `Delaborator.lean` still compiles",
+  "zig_target": {
+    "src/Init/Lean/Delaborator.lean": "zig-backend/src/init/Lean/Delaborator.lean"
+  }
+}

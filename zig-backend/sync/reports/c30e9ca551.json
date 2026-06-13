@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "c30e9ca551a85fa8f7a0ce080bcc93ce0eb9ccd1",
+  "short_sha": "c30e9ca551",
+  "subject": "chore: add `TypeContext.lean` file",
+  "zig_target": {}
+}

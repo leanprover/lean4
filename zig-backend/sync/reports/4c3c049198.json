@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-26",
+  "needs_port": false,
+  "sha": "4c3c0491980d69bdce05e218d50f8bd8a243682e",
+  "short_sha": "4c3c049198",
+  "subject": "chore: use `builtin_initialize`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-04",
+  "needs_port": false,
+  "sha": "0f7fb1ea4d6a820abb225e3e322e828b997b6410",
+  "short_sha": "0f7fb1ea4d",
+  "subject": "feat: add ExceptConds.and_elim_left/right (#12760)",
+  "zig_target": {}
+}

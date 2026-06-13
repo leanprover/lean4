@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-30",
+  "needs_port": false,
+  "sha": "ef9976ccdaa7c19fe1208cf64b1f43b3c0811d1b",
+  "short_sha": "ef9976ccda",
+  "subject": "fix: do not discard macro exceptions in `expandMacro?`",
+  "zig_target": {}
+}

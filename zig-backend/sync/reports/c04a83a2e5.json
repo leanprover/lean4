@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-05-12",
+  "needs_port": false,
+  "sha": "c04a83a2e5d5718032819f2d124f2c949fab292f",
+  "short_sha": "c04a83a2e5",
+  "subject": "refactor: turn `dupNamespace` into a `Lean.Linter` (#13708)",
+  "zig_target": {}
+}

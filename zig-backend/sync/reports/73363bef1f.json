@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-03",
+  "needs_port": false,
+  "sha": "73363bef1fb5f25d8c7727173bef192b61274fcc",
+  "short_sha": "73363bef1f",
+  "subject": "fix: delab structure field annotations",
+  "zig_target": {}
+}

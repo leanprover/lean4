@@ -1,0 +1,66 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Config.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/JpCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+    }
+  ],
+  "date": "2022-09-27",
+  "needs_port": true,
+  "sha": "fd5f3a5bad48e48ecdfdea22d96c9a13753a9d78",
+  "short_sha": "fd5f3a5bad",
+  "subject": "feat: track recursively inlining",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean",
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean",
+    "src/Lean/Compiler/LCNF/Simp/Config.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Config.lean",
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean",
+    "src/Lean/Compiler/LCNF/Simp/JpCases.lean": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean",
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+  }
+}

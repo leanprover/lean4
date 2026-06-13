@@ -1,0 +1,10 @@
+{
+  "author": "Buster Copley",
+  "backend_changes": [],
+  "date": "2023-10-24",
+  "needs_port": false,
+  "sha": "bccbefdc1cb38af316e31d753ae85b076707479f",
+  "short_sha": "bccbefdc1c",
+  "subject": "fix: version numbers in code actions (#2721)",
+  "zig_target": {}
+}

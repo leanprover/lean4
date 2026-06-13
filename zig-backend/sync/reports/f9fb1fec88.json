@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-17",
+  "needs_port": true,
+  "sha": "f9fb1fec88fd58040dc45d42285cdb75545d6a6e",
+  "short_sha": "f9fb1fec88",
+  "subject": "fix(library/compiler/csimp): bug at `distrib_app_cases`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

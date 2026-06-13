@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-08",
+  "needs_port": false,
+  "sha": "41f4a34d4b6d39f9d19fcd50995dc5d4e795b895",
+  "short_sha": "41f4a34d4b",
+  "subject": "feat(library/init/lean/parser/token): cache hit statistics",
+  "zig_target": {}
+}

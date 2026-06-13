@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-17",
+  "needs_port": false,
+  "sha": "dc7c184ee287ed4ad8fd19165349965cd85d1977",
+  "short_sha": "dc7c184ee2",
+  "subject": "chore: CI: introduce `fast-ci` label",
+  "zig_target": {}
+}

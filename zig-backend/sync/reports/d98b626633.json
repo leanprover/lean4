@@ -1,0 +1,24 @@
+{
+  "author": "Copilot",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2025-09-09",
+  "needs_port": true,
+  "sha": "d98b6266339daad0fae61097e6eee0a95e985dad",
+  "short_sha": "d98b626633",
+  "subject": "doc: improve docstrings for `simp!`, `simp_all!`, `dsimp!` and `autoUnfold` (#9991)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-14",
+  "needs_port": true,
+  "sha": "24de0e95f13b1e584787db9e0c21871ca82c93a4",
+  "short_sha": "24de0e95f1",
+  "subject": "feat(library/compiler/lcnf): make test complete",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

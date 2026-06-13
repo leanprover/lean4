@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Basic.lean"
+    }
+  ],
+  "date": "2024-09-19",
+  "needs_port": true,
+  "sha": "590c725943a3b77a6de409e7cbbdddb79e75d51d",
+  "short_sha": "590c725943",
+  "subject": "feat: lemmas about List.maximum? (#5394)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean",
+    "src/Init/Data/List/Nat/Basic.lean": "zig-backend/src/init/Data/List/Nat/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-05",
+  "needs_port": false,
+  "sha": "d4ba70619865592207ee460972eda979c7890297",
+  "short_sha": "d4ba706198",
+  "subject": "refactor: purify `BuildBin.lean`",
+  "zig_target": {}
+}

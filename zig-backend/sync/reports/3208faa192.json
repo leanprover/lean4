@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-17",
+  "needs_port": false,
+  "sha": "3208faa192325b042bdde0cf04e81b9f425ee3a7",
+  "short_sha": "3208faa192",
+  "subject": "feat: add set of declarations to unfold at `SimpLemmas`",
+  "zig_target": {}
+}

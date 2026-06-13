@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "2e37582f315649022ee14eb3af49bd2b4273ce11",
+  "short_sha": "2e37582f31",
+  "subject": "feat: allow users to install their own `deriving` hanlders for builtin classes",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-25",
+  "needs_port": false,
+  "sha": "519b7801642761155aef4542740e19219fae9591",
+  "short_sha": "519b780164",
+  "subject": "doc: document `InfoTree` issue",
+  "zig_target": {}
+}

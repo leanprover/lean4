@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-02-26",
+  "needs_port": true,
+  "sha": "f7f886dcb278851f249f9c61ea143841042a1117",
+  "short_sha": "f7f886dcb2",
+  "subject": "feat: improve error message for `decreasing_tactic` failures",
+  "zig_target": {
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

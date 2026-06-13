@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2019-07-26",
+  "needs_port": false,
+  "sha": "a1138323424eefa6daccc375d058b9ecefafffcf",
+  "short_sha": "a113832342",
+  "subject": "chore(CMakeLists): Typo",
+  "zig_target": {}
+}

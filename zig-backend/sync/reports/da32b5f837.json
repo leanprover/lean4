@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-02",
+  "needs_port": false,
+  "sha": "da32b5f837e0953fd1424a642d04a130595a68b0",
+  "short_sha": "da32b5f837",
+  "subject": "feat: use `nightly-testing-YYYY-MM-DD` branches on Mathlib for testing PRs, and be more conservative about launching Mathlib CI (#2798)",
+  "zig_target": {}
+}

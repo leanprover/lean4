@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-10-31",
+  "needs_port": false,
+  "sha": "5d4be4fd3c1f672f1ba551e7582240eb3407659a",
+  "short_sha": "5d4be4fd3c",
+  "subject": "doc: elabissue for simple namespace issue",
+  "zig_target": {}
+}

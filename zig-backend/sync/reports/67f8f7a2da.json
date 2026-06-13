@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-09",
+  "needs_port": false,
+  "sha": "67f8f7a2dab942e9a438dd50b15511308d9cd185",
+  "short_sha": "67f8f7a2da",
+  "subject": "chore(tests/compiler/append): add expected output",
+  "zig_target": {}
+}

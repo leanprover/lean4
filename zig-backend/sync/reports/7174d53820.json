@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-14",
+  "needs_port": true,
+  "sha": "7174d5382097954365a1a64bfbbe2b874ad07a70",
+  "short_sha": "7174d53820",
+  "subject": "feat(library/compiler/csimp): distribute application over `cases`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

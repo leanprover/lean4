@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-02",
+  "needs_port": false,
+  "sha": "22526051e0719c11ea94f63037a60e7b6bf480fd",
+  "short_sha": "22526051e0",
+  "subject": "fix: install sources to src/lean/, not lib/lean",
+  "zig_target": {}
+}

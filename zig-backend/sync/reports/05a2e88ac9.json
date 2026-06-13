@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-06",
+  "needs_port": false,
+  "sha": "05a2e88ac9603c2f8cbf0509a3f876e50534bba2",
+  "short_sha": "05a2e88ac9",
+  "subject": "feat(library/init/lean/compiler/ir): add `FnBody.isLiveVar`",
+  "zig_target": {}
+}

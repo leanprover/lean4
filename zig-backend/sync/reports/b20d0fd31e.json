@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    }
+  ],
+  "date": "2020-10-16",
+  "needs_port": true,
+  "sha": "b20d0fd31ef9d589be9019c76c4836028a7da5a9",
+  "short_sha": "b20d0fd31e",
+  "subject": "chore: move to new frontend",
+  "zig_target": {
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+  }
+}

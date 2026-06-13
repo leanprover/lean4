@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-12",
+  "needs_port": true,
+  "sha": "87fdd7809fa4d2fe33283ced4f4aa9c12763e9bd",
+  "short_sha": "87fdd7809f",
+  "subject": "feat: List.tail lemma (#5316)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

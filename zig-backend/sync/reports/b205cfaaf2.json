@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2021-08-27",
+  "needs_port": true,
+  "sha": "b205cfaaf2443bbc37e772b3d91bdbbb4591a45f",
+  "short_sha": "b205cfaaf2",
+  "subject": "chore: missing annotations at `List.mapTR`",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-10",
+  "needs_port": false,
+  "sha": "17b8ac894a443e100c2da69d5cb0ac38160608b7",
+  "short_sha": "17b8ac894a",
+  "subject": "fix: parser error recovery should be silent and be able to skip more than one token",
+  "zig_target": {}
+}

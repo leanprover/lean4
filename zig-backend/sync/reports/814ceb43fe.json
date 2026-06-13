@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-21",
+  "needs_port": false,
+  "sha": "814ceb43fef140370b71fab79de9bc4b4f8065da",
+  "short_sha": "814ceb43fe",
+  "subject": "fix(library/init/lean/parser/declaration): axiom, constant, what's the difference",
+  "zig_target": {}
+}

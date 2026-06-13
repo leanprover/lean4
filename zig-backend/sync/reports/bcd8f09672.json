@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-20",
+  "needs_port": false,
+  "sha": "bcd8f09672acbf51ce2ab15bcb260b0225bb5926",
+  "short_sha": "bcd8f09672",
+  "subject": "feat: monad polymorphic `withSynthesize`",
+  "zig_target": {}
+}

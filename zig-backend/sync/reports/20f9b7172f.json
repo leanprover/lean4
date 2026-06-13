@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    }
+  ],
+  "date": "2022-08-16",
+  "needs_port": true,
+  "sha": "20f9b7172f4aa9f3e5e7c1d9bedd849f746e0326",
+  "short_sha": "20f9b7172f",
+  "subject": "doc: documentation for Init.SizeOf",
+  "zig_target": {
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean"
+  }
+}

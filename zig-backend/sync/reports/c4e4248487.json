@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    }
+  ],
+  "date": "2024-08-27",
+  "needs_port": true,
+  "sha": "c4e42484874d017119c579cd857c82eb9cd557ea",
+  "short_sha": "c4e4248487",
+  "subject": "chore: remove `@[simp]` from `List.getLast_eq_iff_getLast_eq_some` (#5178)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean",
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat/Range.lean": "zig-backend/src/init/Data/List/Nat/Range.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+  }
+}

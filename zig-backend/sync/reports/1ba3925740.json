@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-17",
+  "needs_port": false,
+  "sha": "1ba3925740eff17d89a076ffb706944d2015ebb0",
+  "short_sha": "1ba3925740",
+  "subject": "feat: new `let`-expression syntax",
+  "zig_target": {}
+}

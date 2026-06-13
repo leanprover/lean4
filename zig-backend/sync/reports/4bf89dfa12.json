@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-11-07",
+  "needs_port": false,
+  "sha": "4bf89dfa121f3f2b55ff1e4a94a96a00d8e7b58e",
+  "short_sha": "4bf89dfa12",
+  "subject": "feat: allow `doSeq` in `let x <- e | seq`",
+  "zig_target": {}
+}

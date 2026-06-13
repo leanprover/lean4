@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-01-26",
+  "needs_port": false,
+  "sha": "a6a3df8af0d42d98a1c0ea26a3ff613ee6ca1d14",
+  "short_sha": "a6a3df8af0",
+  "subject": "perf: use `.inj` in proof of `.injEq` (#12164)",
+  "zig_target": {}
+}

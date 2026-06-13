@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-12-14",
+  "needs_port": true,
+  "sha": "54e5ca0c7bc0ca7e3023995f60c554e3ea37eddd",
+  "short_sha": "54e5ca0c7b",
+  "subject": "fix: `lean_nat_abs`",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

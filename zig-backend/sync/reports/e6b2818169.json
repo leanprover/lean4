@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2021-06-15",
+  "needs_port": true,
+  "sha": "e6b281816910e400bc7bcf03c4ccfaebc7f7fcf0",
+  "short_sha": "e6b2818169",
+  "subject": "chore: fixes",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

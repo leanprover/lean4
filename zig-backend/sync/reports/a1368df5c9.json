@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-26",
+  "needs_port": false,
+  "sha": "a1368df5c975bc302f2635dd0f7500cf426556cc",
+  "short_sha": "a1368df5c9",
+  "subject": "chore: fix docstring formatting",
+  "zig_target": {}
+}

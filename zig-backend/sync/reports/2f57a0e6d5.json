@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-16",
+  "needs_port": false,
+  "sha": "2f57a0e6d5087c059fa32703a7ee4c5de38af8fe",
+  "short_sha": "2f57a0e6d5",
+  "subject": "refactor: cleaup compiler simplifier",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "972f00b0ffa36f57be79d9283a3be1102030502e",
+  "short_sha": "972f00b0ff",
+  "subject": "fix: pending metavariable issue",
+  "zig_target": {}
+}

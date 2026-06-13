@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-15",
+  "needs_port": true,
+  "sha": "611af5c1864089cf9d65baa672d068c730cdd72f",
+  "short_sha": "611af5c186",
+  "subject": "feat(library/compiler/csimp): improve heuristic for deciding whether we should apply `float_cases_on` or not.",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

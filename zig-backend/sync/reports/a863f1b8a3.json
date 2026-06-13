@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2021-08-07",
+  "needs_port": true,
+  "sha": "a863f1b8a30da2950269157973a667ec72ef2e1c",
+  "short_sha": "a863f1b8a3",
+  "subject": "fix: fixes #616",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2023-09-08",
+  "needs_port": false,
+  "sha": "74b92d9cde564cc26c02e7e81e3c9b41cab05407",
+  "short_sha": "74b92d9cde",
+  "subject": "chore: remove 'reproduces how often' field from bug template",
+  "zig_target": {}
+}

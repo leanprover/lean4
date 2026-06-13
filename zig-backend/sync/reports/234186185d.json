@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/tcp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.cpp"
+    },
+    {
+      "path": "src/runtime/uv/udp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/udp.cpp"
+    }
+  ],
+  "date": "2026-04-27",
+  "needs_port": true,
+  "sha": "234186185de150121bf36c2e6da2aff9b02cee3a",
+  "short_sha": "234186185d",
+  "subject": "chore: fix missing dec on rare error path (#13551)",
+  "zig_target": {
+    "src/runtime/uv/tcp.cpp": "zig-backend/src/runtime/uv/tcp.cpp",
+    "src/runtime/uv/udp.cpp": "zig-backend/src/runtime/uv/udp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-05-08",
+  "needs_port": false,
+  "sha": "ad4b822734adfd7800194eb574b31fe540923302",
+  "short_sha": "ad4b822734",
+  "subject": "fix: use snake case for `@[code_action_provider]`",
+  "zig_target": {}
+}

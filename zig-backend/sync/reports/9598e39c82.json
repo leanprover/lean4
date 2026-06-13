@@ -1,0 +1,18 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2022-04-13",
+  "needs_port": true,
+  "sha": "9598e39c82cb4ebda3b2bc7528854e12f3448748",
+  "short_sha": "9598e39c82",
+  "subject": "doc: InfoTree docstrings",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

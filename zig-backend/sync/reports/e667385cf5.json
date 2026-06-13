@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-10",
+  "needs_port": false,
+  "sha": "e667385cf5fa313d4f930797abce13517e97e588",
+  "short_sha": "e667385cf5",
+  "subject": "feat: `simpLet` when zeta reduction is disabled",
+  "zig_target": {}
+}

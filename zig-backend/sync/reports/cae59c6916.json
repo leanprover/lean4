@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/SOM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/SOM.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    }
+  ],
+  "date": "2022-04-26",
+  "needs_port": true,
+  "sha": "cae59c6916f032da91f54ae15e35804e7c9fe220",
+  "short_sha": "cae59c6916",
+  "subject": "chore: remove staging workarounds",
+  "zig_target": {
+    "src/Init/Data/Nat/SOM.lean": "zig-backend/src/init/Data/Nat/SOM.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean"
+  }
+}

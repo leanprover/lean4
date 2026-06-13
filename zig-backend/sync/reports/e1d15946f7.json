@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-14",
+  "needs_port": false,
+  "sha": "e1d15946f7862c02b2fa6325dada485abb7dc3da",
+  "short_sha": "e1d15946f7",
+  "subject": "feat: elaborate theorem bodies in parallel (#7084)",
+  "zig_target": {}
+}

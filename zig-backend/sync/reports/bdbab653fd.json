@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-11-28",
+  "needs_port": false,
+  "sha": "bdbab653fdccd1cf04a7af3ecb138a76daa914fb",
+  "short_sha": "bdbab653fd",
+  "subject": "fix: synthesize tc instances before propagating expected type",
+  "zig_target": {}
+}

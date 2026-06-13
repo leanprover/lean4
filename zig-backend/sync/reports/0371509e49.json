@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-26",
+  "needs_port": false,
+  "sha": "0371509e49d17127171d471e14a842c8cc5dcc82",
+  "short_sha": "0371509e49",
+  "subject": "refactor: remove `foreignTypes` leftover from `cutsat` (#9024)",
+  "zig_target": {}
+}

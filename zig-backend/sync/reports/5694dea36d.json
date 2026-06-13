@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-08-07",
+  "needs_port": true,
+  "sha": "5694dea36d26444a95c14dbffa6661ed4e6b8ad4",
+  "short_sha": "5694dea36d",
+  "subject": "chore: prepare bootstrap change",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

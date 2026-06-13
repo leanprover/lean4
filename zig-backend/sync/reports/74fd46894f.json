@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-23",
+  "needs_port": false,
+  "sha": "74fd46894f6c410de13c5108275226a12ab8ddf9",
+  "short_sha": "74fd46894f",
+  "subject": "fix: deprecation warning location with field notation (#10826)",
+  "zig_target": {}
+}

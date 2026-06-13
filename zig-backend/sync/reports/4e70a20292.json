@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2021-10-19",
+  "needs_port": true,
+  "sha": "4e70a20292bc0c3d210e26e5e0f9fd1ad594f4c2",
+  "short_sha": "4e70a20292",
+  "subject": "feat: add more Nat \"re-packing\" simp theorems",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

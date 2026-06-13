@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-30",
+  "needs_port": false,
+  "sha": "92b39e7161e46e7f48d8a9a6c374f2005b784180",
+  "short_sha": "92b39e7161",
+  "subject": "chore(library/init): add `findD` variants",
+  "zig_target": {}
+}

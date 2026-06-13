@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-30",
+  "needs_port": false,
+  "sha": "d3c71ce2ff44eb0aec1d74f65128a6cd3a60cbc6",
+  "short_sha": "d3c71ce2ff",
+  "subject": "refactor: remove `unfoldGround` and `cacheGround` workarounds from `simp`",
+  "zig_target": {}
+}

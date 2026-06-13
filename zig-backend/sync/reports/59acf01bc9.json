@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-08",
+  "needs_port": false,
+  "sha": "59acf01bc942a7bb0ccc986ae0ef7811d8e49110",
+  "short_sha": "59acf01bc9",
+  "subject": "feat: relax auto-implicit restrictions",
+  "zig_target": {}
+}

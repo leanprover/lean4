@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-27",
+  "needs_port": false,
+  "sha": "6c6f66b812e009d74a2021674bac842543b40ca0",
+  "short_sha": "6c6f66b812",
+  "subject": "feat: propagate actual file name in file worker",
+  "zig_target": {}
+}

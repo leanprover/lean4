@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-02-13",
+  "needs_port": true,
+  "sha": "c424d99cc99e17aefd06aedc58e0e16fe2f88fbf",
+  "short_sha": "c424d99cc9",
+  "subject": "chore: upstream left/right tactics (#3307)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

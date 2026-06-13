@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "fe0141918ad509e336bb6cbf992bac731ba592a0",
+  "short_sha": "fe0141918a",
+  "subject": "fix(library/init/lean/compiler/ir) bug at `addDecAfterFullApp`",
+  "zig_target": {}
+}

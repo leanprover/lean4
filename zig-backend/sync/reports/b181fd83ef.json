@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    }
+  ],
+  "date": "2024-03-29",
+  "needs_port": true,
+  "sha": "b181fd83efafcab4a64412ea8c797a0e8d6e235d",
+  "short_sha": "b181fd83ef",
+  "subject": "feat: in conv tactic, use `try with_reducibe rfl` (#3763)",
+  "zig_target": {
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean"
+  }
+}

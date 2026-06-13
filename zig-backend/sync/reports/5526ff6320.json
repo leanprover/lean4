@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2024-07-18",
+  "needs_port": true,
+  "sha": "5526ff632045b16ac56e861a21eb3c6ed8c7f636",
+  "short_sha": "5526ff6320",
+  "subject": "chore: `Simp.Config.implicitDefEqProofs := true` by default (#4784)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

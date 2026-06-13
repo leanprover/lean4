@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-14",
+  "needs_port": false,
+  "sha": "93d8431d0024e82aa73b2a18fbb14c426b302f03",
+  "short_sha": "93d8431d00",
+  "subject": "fix(frontends/lean/definition_cmds): fix build",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2021-01-01",
+  "needs_port": true,
+  "sha": "244b72befd870b151899ae228adb54c986245c1f",
+  "short_sha": "244b72befd",
+  "subject": "feat: `simpArrow`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

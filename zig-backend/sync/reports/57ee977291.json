@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Data/KVMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/KVMap.lean"
+    },
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    }
+  ],
+  "date": "2020-02-17",
+  "needs_port": true,
+  "sha": "57ee977291ca6ea533b05b83540c0b27014ec2ba",
+  "short_sha": "57ee977291",
+  "subject": "feat: add helper functions",
+  "zig_target": {
+    "src/Init/Lean/Data/KVMap.lean": "zig-backend/src/init/Lean/Data/KVMap.lean",
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean"
+  }
+}

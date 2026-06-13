@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Sort/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-18",
+  "needs_port": true,
+  "sha": "30e90a4dff80c68b6a45eda0a91ef1e9fcf397bc",
+  "short_sha": "30e90a4dff",
+  "subject": "chore: upstream map_mergeSort (#5377)",
+  "zig_target": {
+    "src/Init/Data/List/Sort/Lemmas.lean": "zig-backend/src/init/Data/List/Sort/Lemmas.lean"
+  }
+}

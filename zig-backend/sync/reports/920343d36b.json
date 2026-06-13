@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-13",
+  "needs_port": false,
+  "sha": "920343d36bdb5840f0157c0c20bf312279143120",
+  "short_sha": "920343d36b",
+  "subject": "fix: unspecified constructor resulting type is not allowed inductive families",
+  "zig_target": {}
+}

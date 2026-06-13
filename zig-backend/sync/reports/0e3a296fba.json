@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "0e3a296fba2b584f8277a764119c859d29732009",
+  "short_sha": "0e3a296fba",
+  "subject": "feat: use `is_inaccessible_user_name` in old pretty printer",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-30",
+  "needs_port": false,
+  "sha": "c347643361885cb1de43effd8d501cf745e42a6c",
+  "short_sha": "c347643361",
+  "subject": "test(tests/bench): add `deriv.swift`",
+  "zig_target": {}
+}

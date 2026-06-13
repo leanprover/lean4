@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "2c54386555f12af82f8fd89ba28d9f6590a90a22",
+  "short_sha": "2c54386555",
+  "subject": "fix: `Prop` `instance`s should be elaborated in the private scope (#10568)",
+  "zig_target": {}
+}

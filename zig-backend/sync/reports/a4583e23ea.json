@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.cpp"
+    }
+  ],
+  "date": "2018-05-17",
+  "needs_port": true,
+  "sha": "a4583e23ea74346197e55a58e1d88d259bb9be4e",
+  "short_sha": "a4583e23ea",
+  "subject": "chore(gen/apply): fix bogus style warning",
+  "zig_target": {
+    "src/runtime/apply.cpp": "zig-backend/src/runtime/apply.cpp"
+  }
+}

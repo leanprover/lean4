@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-24",
+  "needs_port": false,
+  "sha": "6be577b6349b11679997fea526b9ad74439bc2b7",
+  "short_sha": "6be577b634",
+  "subject": "fix: CI: Linux release job",
+  "zig_target": {}
+}

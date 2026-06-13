@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-11",
+  "needs_port": false,
+  "sha": "6352e549b58e9f6fd839c81439d4448bab84f9f8",
+  "short_sha": "6352e549b5",
+  "subject": "test: add classes up to `Field`",
+  "zig_target": {}
+}

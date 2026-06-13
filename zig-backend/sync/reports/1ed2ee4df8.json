@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-20",
+  "needs_port": false,
+  "sha": "1ed2ee4df88e4713c26968dc95539061be06fe85",
+  "short_sha": "1ed2ee4df8",
+  "subject": "fix: local `simp` lemmas with implicits",
+  "zig_target": {}
+}

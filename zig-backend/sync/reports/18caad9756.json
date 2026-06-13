@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-06-16",
+  "needs_port": true,
+  "sha": "18caad97567904ef16e12369f186e1c3e0e0e7c4",
+  "short_sha": "18caad9756",
+  "subject": "fix: cache scalar type info in toIR (#8831)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

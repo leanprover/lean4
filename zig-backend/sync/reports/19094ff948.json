@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-07",
+  "needs_port": false,
+  "sha": "19094ff9486514d35966cc483812337af82dcc48",
+  "short_sha": "19094ff948",
+  "subject": "chore: revert Windows workaround",
+  "zig_target": {}
+}

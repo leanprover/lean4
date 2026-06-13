@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-22",
+  "needs_port": false,
+  "sha": "881bf2a088ad36db66aaee4e497f6860a4c3164b",
+  "short_sha": "881bf2a088",
+  "subject": "fix: set `zeta` to true at `pattern` conv tactic",
+  "zig_target": {}
+}

@@ -1,0 +1,126 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/ULift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/ULift.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/ULift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/ULift.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Attach.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/ULift.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/ULift.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/ULift.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/ULift.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/ToIterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/ToIterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Slice/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Operations.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Operations.lean"
+    }
+  ],
+  "date": "2025-06-28",
+  "needs_port": true,
+  "sha": "d380919fa39aa3660ec58b0dd50015154a895eda",
+  "short_sha": "d380919fa3",
+  "subject": "feat: lemmas about `toList`, `toListRev` and `toArray` for slices (#9049)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Basic.lean": "zig-backend/src/init/Data/Iterators/Basic.lean",
+    "src/Init/Data/Iterators/Combinators/Attach.lean": "zig-backend/src/init/Data/Iterators/Combinators/Attach.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/Attach.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/Attach.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/ULift.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/ULift.lean",
+    "src/Init/Data/Iterators/Combinators/ULift.lean": "zig-backend/src/init/Data/Iterators/Combinators/ULift.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Attach.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Attach.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/ULift.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/ULift.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/ULift.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/ULift.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/ToIterator.lean": "zig-backend/src/init/Data/Iterators/ToIterator.lean",
+    "src/Init/Data/Slice.lean": "zig-backend/src/init/Data/Slice.lean",
+    "src/Init/Data/Slice/Array.lean": "zig-backend/src/init/Data/Slice/Array.lean",
+    "src/Init/Data/Slice/Array/Lemmas.lean": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean",
+    "src/Init/Data/Slice/Lemmas.lean": "zig-backend/src/init/Data/Slice/Lemmas.lean",
+    "src/Init/Data/Slice/Operations.lean": "zig-backend/src/init/Data/Slice/Operations.lean"
+  }
+}

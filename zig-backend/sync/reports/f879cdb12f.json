@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-14",
+  "needs_port": false,
+  "sha": "f879cdb12feea1b2587ca339dc96d0e3f41affb2",
+  "short_sha": "f879cdb12f",
+  "subject": "test(tests/playground): add new example in Lean and OCaml",
+  "zig_target": {}
+}

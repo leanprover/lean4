@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-07",
+  "needs_port": false,
+  "sha": "306da89551dc9fa06c1aee6f0b543b15a6d722be",
+  "short_sha": "306da89551",
+  "subject": "feat(library/init/lean/expander): expand `universe( variable)s` to multiple `universe( variable)` commands",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-16",
+  "needs_port": false,
+  "sha": "8444a7412e85849ca00e8a6ae1cafcbfc2a7d832",
+  "short_sha": "8444a7412e",
+  "subject": "feat(library/init/lean/parser/reader/basic): add a small monad transformer for managing recursion and use it to implement recursive section parsing",
+  "zig_target": {}
+}

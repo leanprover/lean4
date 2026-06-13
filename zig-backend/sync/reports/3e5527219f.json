@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-12-19",
+  "needs_port": false,
+  "sha": "3e5527219fb5602f8a04aaec06cfe075860fd344",
+  "short_sha": "3e5527219f",
+  "subject": "test: add foldl test",
+  "zig_target": {}
+}

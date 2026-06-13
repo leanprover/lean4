@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "10102bf3706be28197d76016c2f3de8ec2ecf5b9",
+  "short_sha": "10102bf370",
+  "subject": "chore: remove \"local\" before `attribute` command",
+  "zig_target": {}
+}

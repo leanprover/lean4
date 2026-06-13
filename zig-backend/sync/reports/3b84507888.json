@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    }
+  ],
+  "date": "2020-03-08",
+  "needs_port": true,
+  "sha": "3b8450788820ae3d5a7788ae94456a080c36dad3",
+  "short_sha": "3b84507888",
+  "subject": "fix: expand `show` and `have` using `let!`",
+  "zig_target": {
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+  }
+}

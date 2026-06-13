@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-14",
+  "needs_port": false,
+  "sha": "0f2ac0b09994e0a9f6d149f11b92f3f80b6b0a83",
+  "short_sha": "0f2ac0b099",
+  "subject": "feat: sparse sparse casesOn splitting in match equations (#11666)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/FinRange.lean"
+    },
+    {
+      "path": "src/Init/Data/List/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/FinRange.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/FinRange.lean"
+    }
+  ],
+  "date": "2025-06-13",
+  "needs_port": true,
+  "sha": "75fe50a33ed09fd7e846141a013ae54eaf0c3665",
+  "short_sha": "75fe50a33e",
+  "subject": "feat: grind annotations for List/Array/Vector.finRange theorems (#8747)",
+  "zig_target": {
+    "src/Init/Data/Array/FinRange.lean": "zig-backend/src/init/Data/Array/FinRange.lean",
+    "src/Init/Data/List/FinRange.lean": "zig-backend/src/init/Data/List/FinRange.lean",
+    "src/Init/Data/Vector/FinRange.lean": "zig-backend/src/init/Data/Vector/FinRange.lean"
+  }
+}

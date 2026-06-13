@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Definition.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Definition.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/FoldConsts.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/FoldConsts.lean"
+    }
+  ],
+  "date": "2020-03-16",
+  "needs_port": true,
+  "sha": "adf40096fc23140d443c3fb3e63251e9abec2178",
+  "short_sha": "adf40096fc",
+  "subject": "feat: compute `ReducibilityHints`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Declaration.lean": "zig-backend/src/init/Lean/Elab/Declaration.lean",
+    "src/Init/Lean/Elab/Definition.lean": "zig-backend/src/init/Lean/Elab/Definition.lean",
+    "src/Init/Lean/Util/FoldConsts.lean": "zig-backend/src/init/Lean/Util/FoldConsts.lean"
+  }
+}

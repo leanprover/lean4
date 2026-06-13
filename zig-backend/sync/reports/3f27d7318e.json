@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-23",
+  "needs_port": false,
+  "sha": "3f27d7318efc580ff8a74767c84b87a4893c15e1",
+  "short_sha": "3f27d7318e",
+  "subject": "chore: prepare to add `where` clause to declarations",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "1b7fab44977e1a0567f4f516e54b9162ab9126ef",
+  "short_sha": "1b7fab4497",
+  "subject": "chore: add binder types",
+  "zig_target": {}
+}

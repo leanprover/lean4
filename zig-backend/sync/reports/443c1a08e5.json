@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-20",
+  "needs_port": false,
+  "sha": "443c1a08e53c05d3963a353039893a5d42d96568",
+  "short_sha": "443c1a08e5",
+  "subject": "fix: lsp change debouncing",
+  "zig_target": {}
+}

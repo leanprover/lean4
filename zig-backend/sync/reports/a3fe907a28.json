@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-14",
+  "needs_port": false,
+  "sha": "a3fe907a283cbaad4b184e3df6bdfad271ccd928",
+  "short_sha": "a3fe907a28",
+  "subject": "feat: add `attrParam` syntax category",
+  "zig_target": {}
+}

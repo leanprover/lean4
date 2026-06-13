@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-06",
+  "needs_port": false,
+  "sha": "1ad545085395d7b20cfc582ba3d7182b44eab8be",
+  "short_sha": "1ad5450853",
+  "subject": "perf(library/init/control/coroutine): mark as [inline_as_reduce]",
+  "zig_target": {}
+}

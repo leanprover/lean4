@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-08-29",
+  "needs_port": false,
+  "sha": "aba37e37a50c9e58616a7a740d3d6f138ff721f2",
+  "short_sha": "aba37e37a5",
+  "subject": "chore: update CI to create official releases (#2472)",
+  "zig_target": {}
+}

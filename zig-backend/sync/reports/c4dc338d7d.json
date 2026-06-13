@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/eager_lambda_lifting.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/eager_lambda_lifting.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/eager_lambda_lifting.h"
+    }
+  ],
+  "date": "2019-04-17",
+  "needs_port": true,
+  "sha": "c4dc338d7d671c26b59daa5e09d243aa2d8bb4db",
+  "short_sha": "c4dc338d7d",
+  "subject": "feat(library/compiler): add eager_lambda_lifting skeleton",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/eager_lambda_lifting.cpp": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp",
+    "src/library/compiler/eager_lambda_lifting.h": "zig-backend/src/library/compiler/eager_lambda_lifting.h"
+  }
+}

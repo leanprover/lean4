@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-09-20",
+  "needs_port": false,
+  "sha": "4881c3042e8d205080b19779d8dedfc672da3cd0",
+  "short_sha": "4881c3042e",
+  "subject": "refactor: replace `Task` with `Async` and minor changes to some basic Async functions (#10366)",
+  "zig_target": {}
+}

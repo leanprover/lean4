@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-21",
+  "needs_port": false,
+  "sha": "23c83d7e06a0096e71ddb7e1841b8f8dbfeaabed",
+  "short_sha": "23c83d7e06",
+  "subject": "refactor(library/placeholder,library/init/lean/elaborator): encode pexpr placeholders as anonymous mvars",
+  "zig_target": {}
+}

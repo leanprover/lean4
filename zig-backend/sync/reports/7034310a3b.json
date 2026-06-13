@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-27",
+  "needs_port": false,
+  "sha": "7034310a3b44bb2cb129d72df2fb89986a3a1ce4",
+  "short_sha": "7034310a3b",
+  "subject": "fix: disequality proof construction in `grind` (#9578)",
+  "zig_target": {}
+}

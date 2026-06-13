@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "9df345e322fa694d9c3ebf03896c184b84f8b73b",
+  "short_sha": "9df345e322",
+  "subject": "fix: .congr_simp for non-defs (#10508)",
+  "zig_target": {}
+}

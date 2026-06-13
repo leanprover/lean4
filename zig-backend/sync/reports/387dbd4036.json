@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Level.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Level.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-30",
+  "needs_port": true,
+  "sha": "387dbd4036e63db2c3b54187563d5e89ab9f90a4",
+  "short_sha": "387dbd4036",
+  "subject": "feat: add `liftLevelM`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Level.lean": "zig-backend/src/init/Lean/Elab/Level.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

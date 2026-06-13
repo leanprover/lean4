@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-29",
+  "needs_port": false,
+  "sha": "1879a2bafc672a4a0ba7b1a866f49edc7f546327",
+  "short_sha": "1879a2bafc",
+  "subject": "fix: `SnapshotTree.waitAll` (#8532)",
+  "zig_target": {}
+}

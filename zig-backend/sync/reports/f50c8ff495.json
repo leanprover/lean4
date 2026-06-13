@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-09",
+  "needs_port": false,
+  "sha": "f50c8ff4952d4e3c92d256490b25d2e914ec4a9b",
+  "short_sha": "f50c8ff495",
+  "subject": "test: beginEndAsMacro: check error position",
+  "zig_target": {}
+}

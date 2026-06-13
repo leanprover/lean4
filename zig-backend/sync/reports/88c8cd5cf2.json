@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-08",
+  "needs_port": false,
+  "sha": "88c8cd5cf29a74a7cdb21db78791644e52401b95",
+  "short_sha": "88c8cd5cf2",
+  "subject": "fix: show correct goal state after an empty `by`",
+  "zig_target": {}
+}

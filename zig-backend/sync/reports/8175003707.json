@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-17",
+  "needs_port": false,
+  "sha": "81750037072f019296fcaa9dbad53d677accfa01",
+  "short_sha": "8175003707",
+  "subject": "doc: update links to elan",
+  "zig_target": {}
+}

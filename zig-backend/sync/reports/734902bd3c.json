@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-31",
+  "needs_port": false,
+  "sha": "734902bd3c30f7ae3198e23aa7cd94753eb34dc1",
+  "short_sha": "734902bd3c",
+  "subject": "test: add split list example from Zulip without `sorry`s",
+  "zig_target": {}
+}

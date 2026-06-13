@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-26",
+  "needs_port": false,
+  "sha": "ac5eaa4d7df4926bf664a821886dbfda63fef138",
+  "short_sha": "ac5eaa4d7d",
+  "subject": "test: overload builtin notation",
+  "zig_target": {}
+}

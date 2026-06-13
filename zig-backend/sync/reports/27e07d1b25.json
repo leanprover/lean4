@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-05",
+  "needs_port": false,
+  "sha": "27e07d1b25f23b639bbbfd05860c43bb1f26d495",
+  "short_sha": "27e07d1b25",
+  "subject": "fix: remove auxiliary discriminants before elaborating patterns",
+  "zig_target": {}
+}

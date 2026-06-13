@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Data/KVMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/KVMap.lean"
+    },
+    {
+      "path": "src/Init/Lean/Data/Options.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Options.lean"
+    }
+  ],
+  "date": "2019-12-09",
+  "needs_port": true,
+  "sha": "fb87a0715bb78335686630f5de00635219b0f542",
+  "short_sha": "fb87a0715b",
+  "subject": "chore: add missing instances",
+  "zig_target": {
+    "src/Init/Lean/Data/KVMap.lean": "zig-backend/src/init/Lean/Data/KVMap.lean",
+    "src/Init/Lean/Data/Options.lean": "zig-backend/src/init/Lean/Data/Options.lean"
+  }
+}

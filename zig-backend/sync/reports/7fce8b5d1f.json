@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-09",
+  "needs_port": false,
+  "sha": "7fce8b5d1ffc91ca8c75a413964ecf859b8bfc89",
+  "short_sha": "7fce8b5d1f",
+  "subject": "fix: `notation` command",
+  "zig_target": {}
+}

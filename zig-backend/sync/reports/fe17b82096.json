@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-05-24",
+  "needs_port": false,
+  "sha": "fe17b82096bf4825d83a36f220d79a6dadebf5c8",
+  "short_sha": "fe17b82096",
+  "subject": "refactor: lake: ensure job actions can be lifted to `FetchM` (#4273)",
+  "zig_target": {}
+}

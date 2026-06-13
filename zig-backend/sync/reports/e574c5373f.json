@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-09",
+  "needs_port": false,
+  "sha": "e574c5373f174f66e16bf45981f58f56554f0a76",
+  "short_sha": "e574c5373f",
+  "subject": "feat: improve `delta?` method",
+  "zig_target": {}
+}

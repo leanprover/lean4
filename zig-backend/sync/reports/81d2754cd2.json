@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-24",
+  "needs_port": false,
+  "sha": "81d2754cd244cc97efa686a93d66d5efed7aff5b",
+  "short_sha": "81d2754cd2",
+  "subject": "chore: add `headBeta` to avoid unnecessary applications introduced by metavariable management",
+  "zig_target": {}
+}

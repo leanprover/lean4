@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-18",
+  "needs_port": false,
+  "sha": "f6e580ccf8997d6ba65424377dc2f5e65d676153",
+  "short_sha": "f6e580ccf8",
+  "subject": "refactor: extract functionality from Match.MatchEqs (#11236)",
+  "zig_target": {}
+}

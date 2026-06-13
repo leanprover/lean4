@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-07-04",
+  "needs_port": false,
+  "sha": "f4fc8b3e15093b4d8c79a5286ea15aecc894e2c2",
+  "short_sha": "f4fc8b3e15",
+  "subject": "refactor: parser error setters",
+  "zig_target": {}
+}

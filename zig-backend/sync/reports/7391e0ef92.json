@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-30",
+  "needs_port": false,
+  "sha": "7391e0ef92bf3194c6801b98ff33881aab7414aa",
+  "short_sha": "7391e0ef92",
+  "subject": "fix: \"unknown goal\" on tactics nested in terms",
+  "zig_target": {}
+}

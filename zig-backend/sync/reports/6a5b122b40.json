@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    }
+  ],
+  "date": "2024-11-13",
+  "needs_port": true,
+  "sha": "6a5b122b40f5fe0d831e69701f5d4e474e690538",
+  "short_sha": "6a5b122b40",
+  "subject": "perf: use RArray in simp_arith meta code (#6068 part 2)",
+  "zig_target": {
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean"
+  }
+}

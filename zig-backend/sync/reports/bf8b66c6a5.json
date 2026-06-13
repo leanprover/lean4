@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-03-21",
+  "needs_port": false,
+  "sha": "bf8b66c6a52a268d647fa07466ac34a1dde64814",
+  "short_sha": "bf8b66c6a5",
+  "subject": "fix: ignore unused alternatives in `Ord` derive handler (#3725)",
+  "zig_target": {}
+}

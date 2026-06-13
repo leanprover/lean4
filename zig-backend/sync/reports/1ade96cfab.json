@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2021-12-02",
+  "needs_port": true,
+  "sha": "1ade96cfab7661a8c766a7a2de01b6d97e3177a4",
+  "short_sha": "1ade96cfab",
+  "subject": "fix: assertion with USE_GMP=OFF",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

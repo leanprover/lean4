@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-11-19",
+  "needs_port": false,
+  "sha": "7f0bdefb6ef6d84f1a09cd02def0c2ef6a2b6168",
+  "short_sha": "7f0bdefb6e",
+  "subject": "chore: fix apply? error reporting when out of heartbeats (#6121)",
+  "zig_target": {}
+}

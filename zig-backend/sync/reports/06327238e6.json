@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2019-09-16",
+  "needs_port": true,
+  "sha": "06327238e6e950f7f3e7766caf8de843e3afb286",
+  "short_sha": "06327238e6",
+  "subject": "fix(library/compiler/erase_irrelevant): assertion violation",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

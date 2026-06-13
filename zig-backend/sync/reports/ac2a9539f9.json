@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-20",
+  "needs_port": false,
+  "sha": "ac2a9539f9d6579cee7a1cf2e96be1ff4686e042",
+  "short_sha": "ac2a9539f9",
+  "subject": "fix: old&new frontend interference",
+  "zig_target": {}
+}

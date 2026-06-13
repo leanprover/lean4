@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    }
+  ],
+  "date": "2023-05-05",
+  "needs_port": true,
+  "sha": "ebcab266c6309a201ef342ebd466701075480bea",
+  "short_sha": "ebcab266c6",
+  "subject": "chore: remove empty line",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+  }
+}

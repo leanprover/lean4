@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-14",
+  "needs_port": false,
+  "sha": "b7e6862163b84a54a57c3960828fbb7d02eda13d",
+  "short_sha": "b7e6862163",
+  "subject": "fix: remove obsolete docs directory handling for cslib in release_steps.py (#11649)",
+  "zig_target": {}
+}

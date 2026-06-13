@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-05-02",
+  "needs_port": false,
+  "sha": "030397785c997509dad40e3c17e8793de04ef1ef",
+  "short_sha": "030397785c",
+  "subject": "fix: missing case in `processLevel` at `SymM` (#13612)",
+  "zig_target": {}
+}

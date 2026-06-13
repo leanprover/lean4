@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-12-14",
+  "needs_port": true,
+  "sha": "448bac5b3e7d3d12b180f595d8f75dc3d12808db",
+  "short_sha": "448bac5b3e",
+  "subject": "chore: one `add_test` per lake test",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

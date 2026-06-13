@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-09",
+  "needs_port": false,
+  "sha": "82d6dd2eb6760235424ada4edf458f6f0dbc0b4f",
+  "short_sha": "82d6dd2eb6",
+  "subject": "feat: improve `Structural.lean`",
+  "zig_target": {}
+}

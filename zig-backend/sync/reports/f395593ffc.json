@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-03-30",
+  "needs_port": false,
+  "sha": "f395593ffce1b94cdd025ba51c23aa5eeef7e353",
+  "short_sha": "f395593ffc",
+  "subject": "feat: `missingDocs` linter warns about empty doc strings (#13188)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/GrindInstances/ToInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/ToInt.lean"
+    }
+  ],
+  "date": "2025-11-21",
+  "needs_port": true,
+  "sha": "0818cf6483727b3106b978267c88dfde7c9b8db5",
+  "short_sha": "0818cf6483",
+  "subject": "feat: improves `Fin n` support in `grind` (#11319)",
+  "zig_target": {
+    "src/Init/GrindInstances/ToInt.lean": "zig-backend/src/init/GrindInstances/ToInt.lean"
+  }
+}

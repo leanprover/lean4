@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2021-05-26",
+  "needs_port": true,
+  "sha": "f81abe158c4dfb4b30733e31d6737309b9e47847",
+  "short_sha": "f81abe158c",
+  "subject": "fix: memleak in release build",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

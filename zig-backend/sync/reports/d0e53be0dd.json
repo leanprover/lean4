@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-05",
+  "needs_port": false,
+  "sha": "d0e53be0ddc563540cda05ad04b645421f9cafbf",
+  "short_sha": "d0e53be0dd",
+  "subject": "feat(library/init/lean/parser/parser_t): improve `str`'s error message and allow error messages without 'unexpected' part",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-07",
+  "needs_port": false,
+  "sha": "e2ee2d4bd9f0cfd9cba052165f4e850d52cff3b6",
+  "short_sha": "e2ee2d4bd9",
+  "subject": "chore(tests/compiler): add `deriv` test",
+  "zig_target": {}
+}

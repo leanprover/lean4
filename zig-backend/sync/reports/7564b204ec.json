@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-30",
+  "needs_port": false,
+  "sha": "7564b204ec2feacc31a8a1f2d8bb8c12a6162ebb",
+  "short_sha": "7564b204ec",
+  "subject": "feat: add basic simprocs for Nat",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-05-03",
+  "needs_port": false,
+  "sha": "1b23b051f369dfedddd5b255c7e9bedbf5953eff",
+  "short_sha": "1b23b051f3",
+  "subject": "fix: missing proof hints in `grind` propagators (#13623)",
+  "zig_target": {}
+}

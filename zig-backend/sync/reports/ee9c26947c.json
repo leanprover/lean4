@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-22",
+  "needs_port": false,
+  "sha": "ee9c26947c0c3da85a8262dcc7780a1e71117871",
+  "short_sha": "ee9c26947c",
+  "subject": "feat(library/init/lean/elaborator): structure instances",
+  "zig_target": {}
+}

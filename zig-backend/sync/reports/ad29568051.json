@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2020-01-25",
+  "needs_port": true,
+  "sha": "ad29568051a56040a122c307f6a2511681480de1",
+  "short_sha": "ad29568051",
+  "subject": "Revert \"fix: redirect\"",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

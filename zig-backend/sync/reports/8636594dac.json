@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2022-04-01",
+  "needs_port": true,
+  "sha": "8636594dac9a216b1e77d7705e8511406bafe6aa",
+  "short_sha": "8636594dac",
+  "subject": "chore: add `[simp]` to  `Nat.lt_irrefl`",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

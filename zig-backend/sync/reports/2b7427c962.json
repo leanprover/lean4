@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-04",
+  "needs_port": false,
+  "sha": "2b7427c962ddab1fc28c9b1f933947b5f7cd60cb",
+  "short_sha": "2b7427c962",
+  "subject": "chore: adjust changelog merge strategy config",
+  "zig_target": {}
+}

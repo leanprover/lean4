@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2021-06-25",
+  "needs_port": true,
+  "sha": "0d41fd03f794654bea99259ece9e1f6278bbb316",
+  "short_sha": "0d41fd03f7",
+  "subject": "feat: add xml parser.",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

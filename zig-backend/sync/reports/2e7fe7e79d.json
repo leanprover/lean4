@@ -1,0 +1,10 @@
+{
+  "author": "Lean stage0 autoupdater",
+  "backend_changes": [],
+  "date": "2026-02-21",
+  "needs_port": false,
+  "sha": "2e7fe7e79d151ee91039f086b8036252cdf9b725",
+  "short_sha": "2e7fe7e79d",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

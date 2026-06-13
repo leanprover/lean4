@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "326c22e75d9f4489418f1402bd0842c95db891e0",
+  "short_sha": "326c22e75d",
+  "subject": "feat(library/init/lean/parser/term): anonymous constructors and lambdas",
+  "zig_target": {}
+}

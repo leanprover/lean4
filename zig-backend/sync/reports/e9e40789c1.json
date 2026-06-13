@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2021-11-30",
+  "needs_port": true,
+  "sha": "e9e40789c14c170bc8da4ab72f335a2e3521f91c",
+  "short_sha": "e9e40789c1",
+  "subject": "fix: `mpz::power` for `USE_GMP=OFF`",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-11",
+  "needs_port": false,
+  "sha": "3fd225079956251ba036a8640f17e620bfee8e28",
+  "short_sha": "3fd2250799",
+  "subject": "feat: add `higherOrderOutParam` to `ParamInfo`",
+  "zig_target": {}
+}

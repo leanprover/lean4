@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-23",
+  "needs_port": false,
+  "sha": "2b0989ea2871155ec4cd0e698eb079062adaa1fd",
+  "short_sha": "2b0989ea28",
+  "subject": "refactor:: simplify/improve CLI API",
+  "zig_target": {}
+}

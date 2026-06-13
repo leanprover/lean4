@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-07",
+  "needs_port": false,
+  "sha": "5024c15a7a5e79790071bc30920ed16bf64f443d",
+  "short_sha": "5024c15a7a",
+  "subject": "feat: add getConstInfoDefn",
+  "zig_target": {}
+}

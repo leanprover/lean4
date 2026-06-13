@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-04",
+  "needs_port": false,
+  "sha": "1ed3ce20056c56a91d035b4a9fac7f9b49b40dbf",
+  "short_sha": "1ed3ce2005",
+  "subject": "chore: remove unused `Lean.Data.Xml` (#12302)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-17",
+  "needs_port": false,
+  "sha": "7da0dd2fcf68407d4cf066c1193908b24cb71124",
+  "short_sha": "7da0dd2fcf",
+  "subject": "fix: remove `` `(funBinder|``",
+  "zig_target": {}
+}

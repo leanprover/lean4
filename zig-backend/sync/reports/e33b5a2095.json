@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "e33b5a209570922d6282c710465daf2d69ec05f7",
+  "short_sha": "e33b5a2095",
+  "subject": "fix: properly update git packages specified by branch",
+  "zig_target": {}
+}

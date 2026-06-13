@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Set.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Set.lean"
+    },
+    {
+      "path": "src/Init/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Syntax.lean"
+    }
+  ],
+  "date": "2024-11-24",
+  "needs_port": true,
+  "sha": "4e885be96d82c522af4acb9ce9afe77e5aea7feb",
+  "short_sha": "4e885be96d",
+  "subject": "feat: rename Array.setD to setIfInBounds (#6195)",
+  "zig_target": {
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/Set.lean": "zig-backend/src/init/Data/Array/Set.lean",
+    "src/Init/Syntax.lean": "zig-backend/src/init/Syntax.lean"
+  }
+}

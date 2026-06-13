@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "7f18c734ebe1e37e7d9b4cf271884ec9500acd23",
+  "short_sha": "7f18c734eb",
+  "subject": "fix: simpHaveTelescope:  calculate used fvars transitiviely (#10536)",
+  "zig_target": {}
+}

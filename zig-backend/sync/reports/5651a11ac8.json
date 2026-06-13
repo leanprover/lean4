@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-22",
+  "needs_port": false,
+  "sha": "5651a11ac810215f2018da44093e419703cba109",
+  "short_sha": "5651a11ac8",
+  "subject": "feat: improve unused section variable warning (#5036)",
+  "zig_target": {}
+}

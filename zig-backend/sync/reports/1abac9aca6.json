@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-02",
+  "needs_port": false,
+  "sha": "1abac9aca687170a5897de63fbc8402ff0315035",
+  "short_sha": "1abac9aca6",
+  "subject": "chore: improve `grind` case-split trace (#6911)",
+  "zig_target": {}
+}

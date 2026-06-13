@@ -1,0 +1,54 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Repr.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Defs.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Modify.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Modify.lean"
+    }
+  ],
+  "date": "2025-10-31",
+  "needs_port": true,
+  "sha": "377f149862d100a1fccbb1e69ce2f1275908d3be",
+  "short_sha": "377f149862",
+  "subject": "refactor: use `String.ofList` and `String.toList`  for `String <-> List Char` conversion (#11017)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/Repr.lean": "zig-backend/src/init/Data/Repr.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Bootstrap.lean": "zig-backend/src/init/Data/String/Bootstrap.lean",
+    "src/Init/Data/String/Defs.lean": "zig-backend/src/init/Data/String/Defs.lean",
+    "src/Init/Data/String/Lemmas.lean": "zig-backend/src/init/Data/String/Lemmas.lean",
+    "src/Init/Data/String/Modify.lean": "zig-backend/src/init/Data/String/Modify.lean"
+  }
+}

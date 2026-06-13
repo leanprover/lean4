@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-19",
+  "needs_port": false,
+  "sha": "0911936502669398f6be6a55dce5b2fbb0dac54a",
+  "short_sha": "0911936502",
+  "subject": "feat: parallel `for` notation",
+  "zig_target": {}
+}

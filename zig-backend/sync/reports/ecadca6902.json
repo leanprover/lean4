@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-05",
+  "needs_port": false,
+  "sha": "ecadca6902e4dad472f8f5810d1d9a8e739ab299",
+  "short_sha": "ecadca6902",
+  "subject": "feat: make manifest file configurable",
+  "zig_target": {}
+}

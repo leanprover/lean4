@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-27",
+  "needs_port": false,
+  "sha": "d0391d07c2fb2e3962e16d4e3950d8da87ff675a",
+  "short_sha": "d0391d07c2",
+  "subject": "feat: use `PSigma.casesOn` instead of projections at `packDomain`",
+  "zig_target": {}
+}

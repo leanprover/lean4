@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-04-07",
+  "needs_port": true,
+  "sha": "ba1c1258d7adab47e57628753d6ad32a8ec8cca1",
+  "short_sha": "ba1c1258d7",
+  "subject": "feat: case split on implications in `grind` (#7864)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

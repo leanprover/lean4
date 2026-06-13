@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-08",
+  "needs_port": false,
+  "sha": "7e1d0cc125082b3b7014b6a24f8553556e50f4e4",
+  "short_sha": "7e1d0cc125",
+  "subject": "feat: use `CommRing` to normalize linarith expressions (#8682)",
+  "zig_target": {}
+}

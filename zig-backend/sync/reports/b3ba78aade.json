@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-23",
+  "needs_port": false,
+  "sha": "b3ba78aade428d5e8e9f5fa69882486774edcf60",
+  "short_sha": "b3ba78aade",
+  "subject": "feat: hovers & name resolution in registerCombinatorAttribute (part 2)",
+  "zig_target": {}
+}

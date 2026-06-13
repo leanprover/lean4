@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    }
+  ],
+  "date": "2019-12-03",
+  "needs_port": true,
+  "sha": "adddea33974e13a174c478ee18b15b1657991f93",
+  "short_sha": "adddea3397",
+  "subject": "feat: add `etaExpandedStrict?`",
+  "zig_target": {
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean"
+  }
+}

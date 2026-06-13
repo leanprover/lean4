@@ -1,0 +1,18 @@
+{
+  "author": "Austin Letson",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2024-05-07",
+  "needs_port": true,
+  "sha": "b8e67d87a8b41fa20dc629f9f63d9aff1855d2b2",
+  "short_sha": "b8e67d87a8",
+  "subject": "doc: add docstrings and usage examples in `Init.Data.String.Basic` (#4001)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

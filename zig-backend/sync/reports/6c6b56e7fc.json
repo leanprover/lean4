@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-05-10",
+  "needs_port": false,
+  "sha": "6c6b56e7fc99ebe0fbe67716d5322d853fc1c7d7",
+  "short_sha": "6c6b56e7fc",
+  "subject": "fix: revert \"monadic generalization of FindExpr\" (#4125)",
+  "zig_target": {}
+}

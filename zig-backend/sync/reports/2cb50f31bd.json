@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-05",
+  "needs_port": false,
+  "sha": "2cb50f31bd7375628359da4649c29a66c52b023e",
+  "short_sha": "2cb50f31bd",
+  "subject": "chore(library/init/lean/environment): error message consistency",
+  "zig_target": {}
+}

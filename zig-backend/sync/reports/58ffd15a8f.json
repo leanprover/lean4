@@ -1,0 +1,10 @@
+{
+  "author": "Alissa Tung",
+  "backend_changes": [],
+  "date": "2024-12-13",
+  "needs_port": false,
+  "sha": "58ffd15a8f4816473bda4c7b9b41e6c4eb2e00f1",
+  "short_sha": "58ffd15a8f",
+  "subject": "doc: fix typo reference in doc of lazy discrimination tree (#6377)",
+  "zig_target": {}
+}

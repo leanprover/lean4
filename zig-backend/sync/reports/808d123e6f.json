@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Attr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Attr.lean"
+    }
+  ],
+  "date": "2025-10-27",
+  "needs_port": true,
+  "sha": "808d123e6f8b8eb40015aea3219d89d97c0c3abe",
+  "short_sha": "808d123e6f",
+  "subject": "doc: typo in grindDef docstring (#10988)",
+  "zig_target": {
+    "src/Init/Grind/Attr.lean": "zig-backend/src/init/Grind/Attr.lean"
+  }
+}

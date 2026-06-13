@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-31",
+  "needs_port": false,
+  "sha": "f507b882e2e625bbe0c7f0879b3d0d2934f2838e",
+  "short_sha": "f507b882e2",
+  "subject": "chore(frontends/lean): remove support for user commands from old front end",
+  "zig_target": {}
+}

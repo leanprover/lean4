@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-01-29",
+  "needs_port": true,
+  "sha": "48b03672cc5ee0500eb9e2fdf7e2583d522a16d1",
+  "short_sha": "48b03672cc",
+  "subject": "feat(library/compiler/emit_cpp): emit terminals",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2019-11-22",
+  "needs_port": true,
+  "sha": "69723b48c3c6ea10d4af73e1048f0aeaff3f19a8",
+  "short_sha": "69723b48c3",
+  "subject": "feat: add `Array.insertAt`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

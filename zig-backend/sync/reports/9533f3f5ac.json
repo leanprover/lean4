@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-05-06",
+  "needs_port": false,
+  "sha": "9533f3f5acafae8d03a8a3426b9311eb15da7ad5",
+  "short_sha": "9533f3f5ac",
+  "subject": "doc: how to LLVM upgrade (#13656)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-08-05",
+  "needs_port": false,
+  "sha": "09e8079ea3a7dd9a57cae5b417c7f2d84c8fcb81",
+  "short_sha": "09e8079ea3",
+  "subject": "fix: U/SIntX BEq handling in bv_decide (#9728)",
+  "zig_target": {}
+}

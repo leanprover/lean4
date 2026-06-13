@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-29",
+  "needs_port": false,
+  "sha": "390eea37509c175c7b03a8e07fbbb4d95bbb9609",
+  "short_sha": "390eea3750",
+  "subject": "feat: use `One` and `Zero` classes when expanding numeric literals",
+  "zig_target": {}
+}

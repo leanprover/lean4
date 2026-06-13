@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-12",
+  "needs_port": false,
+  "sha": "e617ce7e4ff97bc0846db1877b166b618d735df6",
+  "short_sha": "e617ce7e4f",
+  "subject": "refactor: move `grind` offset constraint module to `Grind/Arith/Offset` (#7058)",
+  "zig_target": {}
+}

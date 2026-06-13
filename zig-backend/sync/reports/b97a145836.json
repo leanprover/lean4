@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-02-02",
+  "needs_port": true,
+  "sha": "b97a14583644be36d447f407a941b695b25a0829",
+  "short_sha": "b97a145836",
+  "subject": "fix: annotate all syntax nodes produced by quotations as synthetic",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

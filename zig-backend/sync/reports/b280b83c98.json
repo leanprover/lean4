@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-13",
+  "needs_port": false,
+  "sha": "b280b83c985ba00f8c4f299d7582841720ada7fb",
+  "short_sha": "b280b83c98",
+  "subject": "chore: add test case with bad grind pattern (#8757)",
+  "zig_target": {}
+}

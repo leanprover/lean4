@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-04",
+  "needs_port": false,
+  "sha": "81c93aeae8cc3b1b2303def73cad370225dd0948",
+  "short_sha": "81c93aeae8",
+  "subject": "perf: ensure `withTraceNodeBefore` message is created lazily (#11893)",
+  "zig_target": {}
+}

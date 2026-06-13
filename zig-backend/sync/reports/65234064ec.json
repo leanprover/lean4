@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-03-11",
+  "needs_port": false,
+  "sha": "65234064ecaf89610783dd7ca6e9a32cc4bacd02",
+  "short_sha": "65234064ec",
+  "subject": "doc: dep elim experiments",
+  "zig_target": {}
+}

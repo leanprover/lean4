@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-08-25",
+  "needs_port": false,
+  "sha": "2107f459912b1cba967e53734bb3c1ec80d62c33",
+  "short_sha": "2107f45991",
+  "subject": "chore: revert #10111 (#10118)",
+  "zig_target": {}
+}

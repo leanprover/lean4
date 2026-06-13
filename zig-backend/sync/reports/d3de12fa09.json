@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-09",
+  "needs_port": false,
+  "sha": "d3de12fa092afc1f2f7d658975e783f8cd490274",
+  "short_sha": "d3de12fa09",
+  "subject": "test: another dependent pattern matching test",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-04-15",
+  "needs_port": false,
+  "sha": "2dcd42f395fdf159c6c2b5532fedd066ad89c676",
+  "short_sha": "2dcd42f395",
+  "subject": "feat: trace.profiler export to Firefox Profiler (#3801)",
+  "zig_target": {}
+}

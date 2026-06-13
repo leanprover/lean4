@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/AddExtern.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2026-03-11",
+  "needs_port": true,
+  "sha": "d9ebd51c04bb543f2b23da30264d25ff46133bae",
+  "short_sha": "d9ebd51c04",
+  "subject": "feat: option to ignore borrowing annotations completely (#12886)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/AddExtern.lean": "zig-backend/src/lean/compiler/ir/AddExtern.lean",
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

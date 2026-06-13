@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-06-14",
+  "needs_port": false,
+  "sha": "ef6386b8a94e9b6813d31db415536495bb26c3c7",
+  "short_sha": "ef6386b8a9",
+  "subject": "feat: `Expr.collectLooseBVars` (#8794)",
+  "zig_target": {}
+}

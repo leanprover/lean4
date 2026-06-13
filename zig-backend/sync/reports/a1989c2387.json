@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-04-29",
+  "needs_port": true,
+  "sha": "a1989c2387f90c4cde9f07de6c7cc8f7525cab6f",
+  "short_sha": "a1989c2387",
+  "subject": "feat: infrastructure for creating stepwise proof terms in the commutative ring procedure in `grind` (#8170)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

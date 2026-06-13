@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-20",
+  "needs_port": true,
+  "sha": "ac9e37ed86b9cd90935a490253d1269d1f0be3ed",
+  "short_sha": "ac9e37ed86",
+  "subject": "feat(library/compiler/llnf): we postpone the simplification of 1-reachable and all-eq cases_on expressions",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-29",
+  "needs_port": false,
+  "sha": "03acc5ea1f860b5a32539dc05f0d04df200c3c8d",
+  "short_sha": "03acc5ea1f",
+  "subject": "feat: Nix: sanitized build",
+  "zig_target": {}
+}

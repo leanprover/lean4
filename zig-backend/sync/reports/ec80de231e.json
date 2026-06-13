@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-24",
+  "needs_port": false,
+  "sha": "ec80de231eb1d3d726ff7f390a293ccd81ab7886",
+  "short_sha": "ec80de231e",
+  "subject": "fix: `checkParents` in `grind` (#6442)",
+  "zig_target": {}
+}

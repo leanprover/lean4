@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-02",
+  "needs_port": false,
+  "sha": "1aca181fe296a8f90885dd9f08ea381a07303797",
+  "short_sha": "1aca181fe2",
+  "subject": "fix: lake: use `-O0` for debug builds (#11062)",
+  "zig_target": {}
+}

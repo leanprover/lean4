@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-11",
+  "needs_port": false,
+  "sha": "a8de3c51159c062ffeecee1a7128c2d91725f9ab",
+  "short_sha": "a8de3c5115",
+  "subject": "fix: isDefEq configuration in the elaborator",
+  "zig_target": {}
+}

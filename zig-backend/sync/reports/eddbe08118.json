@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-06-06",
+  "needs_port": false,
+  "sha": "eddbe0811842cd38186876ce637274f7edbb4d50",
+  "short_sha": "eddbe08118",
+  "subject": "refactor: AIG doesn't need to be modified for constants (#8663)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Name.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Name.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-10-22",
+  "needs_port": true,
+  "sha": "6a1cc7d6b8aa96c2e89da348df7f45a15224d84c",
+  "short_sha": "6a1cc7d6b8",
+  "subject": "chore: minor `String` improvements (#10891)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/ToString/Name.lean": "zig-backend/src/init/Data/ToString/Name.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

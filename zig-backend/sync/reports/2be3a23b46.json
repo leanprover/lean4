@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-11",
+  "needs_port": false,
+  "sha": "2be3a23b46c3777b2abd25e6240b86b1f1025ed2",
+  "short_sha": "2be3a23b46",
+  "subject": "feat: use `IO.appPath` for exe in `LakeInstall`",
+  "zig_target": {}
+}

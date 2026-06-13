@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-01-31",
+  "needs_port": true,
+  "sha": "e3afa47c9e6ab31644055265b684398e5c3b8d2b",
+  "short_sha": "e3afa47c9e",
+  "subject": "fix(runtime/object): fix some string primitives",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

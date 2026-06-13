@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    }
+  ],
+  "date": "2025-10-19",
+  "needs_port": true,
+  "sha": "823671f744c0226e59a04fa1e5d29527fbcb0fe9",
+  "short_sha": "823671f744",
+  "subject": "feat: `set_option` tactic in `grind` interactive mode (#10843)",
+  "zig_target": {
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean"
+  }
+}

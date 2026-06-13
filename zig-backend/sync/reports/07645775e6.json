@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-12-12",
+  "needs_port": false,
+  "sha": "07645775e6fa87d7e48ae5cb1a535d65a22d8f2b",
+  "short_sha": "07645775e6",
+  "subject": "feat: add decidable equality to `DHashMap`/`HashMap`/`HashSet` and their extensional variants (#11421)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "2226ec64261161404765cf4ec3a3611e74730d20",
+  "short_sha": "2226ec6426",
+  "subject": "chore: disable test until we implement \"smart unfolding\"",
+  "zig_target": {}
+}

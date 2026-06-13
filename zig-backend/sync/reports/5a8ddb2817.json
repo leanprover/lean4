@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-17",
+  "needs_port": false,
+  "sha": "5a8ddb2817c8ff20082e3f68abe4fce9684907d4",
+  "short_sha": "5a8ddb2817",
+  "subject": "fix(library/message_builder): compilation warning",
+  "zig_target": {}
+}

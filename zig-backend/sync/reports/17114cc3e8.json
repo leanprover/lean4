@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-24",
+  "needs_port": false,
+  "sha": "17114cc3e84640d8f968760b40a7539351a69cf1",
+  "short_sha": "17114cc3e8",
+  "subject": "feat: make sure kernel generates `KernelException.declHasMVars` instead of `KernelException.other`",
+  "zig_target": {}
+}

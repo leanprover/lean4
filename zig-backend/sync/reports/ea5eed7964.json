@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-23",
+  "needs_port": false,
+  "sha": "ea5eed796459b4eec7cf1b32f4e6c13d7b252d2d",
+  "short_sha": "ea5eed7964",
+  "subject": "fix: do not assume the constructor name prefix is the inductive type name",
+  "zig_target": {}
+}

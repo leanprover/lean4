@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-25",
+  "needs_port": false,
+  "sha": "3f534e115583d33c908ea29cf7d912c3b141483a",
+  "short_sha": "3f534e1155",
+  "subject": "refactor: use DSL in examples",
+  "zig_target": {}
+}

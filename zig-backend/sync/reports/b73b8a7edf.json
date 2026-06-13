@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Ring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+    }
+  ],
+  "date": "2025-09-23",
+  "needs_port": true,
+  "sha": "b73b8a7edfce18b2271609ebec3a21f52de27b20",
+  "short_sha": "b73b8a7edf",
+  "subject": "feat: helper ordered ring theorems (#10529)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Ring.lean": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Syntax.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/SyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Transform.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Transform.lean"
+    },
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    },
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-05-14",
+  "needs_port": true,
+  "sha": "b28eedbd982d065414671df0ee25cd67e232de1e",
+  "short_sha": "b28eedbd98",
+  "subject": "refactor: make all fields of SourceInfo optional",
+  "zig_target": {
+    "src/Init/Lean/Elab/Syntax.lean": "zig-backend/src/init/Lean/Elab/Syntax.lean",
+    "src/Init/Lean/Elab/SyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean",
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/Parser/Transform.lean": "zig-backend/src/init/Lean/Parser/Transform.lean",
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean",
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

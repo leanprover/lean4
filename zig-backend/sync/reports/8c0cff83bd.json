@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-07-02",
+  "needs_port": false,
+  "sha": "8c0cff83bde448fa5cc98b8104c7c6c3793df3a8",
+  "short_sha": "8c0cff83bd",
+  "subject": "doc: update obsolete docstring for `registerDerivingHandler` (#9152)",
+  "zig_target": {}
+}

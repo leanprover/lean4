@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PassManager.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PassManager.lean"
+    }
+  ],
+  "date": "2024-11-23",
+  "needs_port": true,
+  "sha": "c4b0b94c914df23c784653f2c28db6779f2cad25",
+  "short_sha": "c4b0b94c91",
+  "subject": "chore: use Array.findFinIdx? where it is better than findIdx? (#6184)",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean",
+    "src/Lean/Compiler/LCNF/PassManager.lean": "zig-backend/src/lean/compiler/lcnf/PassManager.lean"
+  }
+}

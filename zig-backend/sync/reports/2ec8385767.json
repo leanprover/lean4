@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-13",
+  "needs_port": false,
+  "sha": "2ec83857678cf1028080ea9cb1f8791aa00c87d0",
+  "short_sha": "2ec8385767",
+  "subject": "fix: `isDomainDefEq`",
+  "zig_target": {}
+}

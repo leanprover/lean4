@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-05",
+  "needs_port": false,
+  "sha": "583f38d1e569ec69a636ab2b64402119118bc3fb",
+  "short_sha": "583f38d1e5",
+  "subject": "feat(library/init/lean/attributes): attribute API for implementing the new frontend",
+  "zig_target": {}
+}

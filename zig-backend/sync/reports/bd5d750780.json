@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    }
+  ],
+  "date": "2025-12-16",
+  "needs_port": true,
+  "sha": "bd5d750780b81a70984cbd8eae151cb369c9b1c7",
+  "short_sha": "bd5d750780",
+  "subject": "chore: fix BitVec docstring typo (#11694)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean"
+  }
+}

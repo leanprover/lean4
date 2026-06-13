@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2020-03-02",
+  "needs_port": true,
+  "sha": "58ddeedced1d1a6b44baca06c62b1e4d01fa2233",
+  "short_sha": "58ddeedced",
+  "subject": "feat: add `List.replace`",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

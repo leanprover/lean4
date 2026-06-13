@@ -1,0 +1,24 @@
+{
+  "author": "Fran\u00e7ois G. Dorais",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-08-06",
+  "needs_port": true,
+  "sha": "358a129d78ea76cbbd58a7e904d2b96ba130890d",
+  "short_sha": "358a129d78",
+  "subject": "fix: protect `rfl`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

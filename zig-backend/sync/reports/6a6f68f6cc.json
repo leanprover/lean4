@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful.lean"
+    }
+  ],
+  "date": "2021-02-27",
+  "needs_port": true,
+  "sha": "6a6f68f6ccc8975cf751531308011db03cabfee1",
+  "short_sha": "6a6f68f6cc",
+  "subject": "feat: missing lemmas",
+  "zig_target": {
+    "src/Init/Control/Lawful.lean": "zig-backend/src/init/Control/Lawful.lean"
+  }
+}

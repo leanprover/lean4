@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Basic.lean"
+    }
+  ],
+  "date": "2025-05-07",
+  "needs_port": true,
+  "sha": "732471fddf1322ed8882a0af74317679dcce9d69",
+  "short_sha": "732471fddf",
+  "subject": "chore: fix typo in `Int/DivMod/Basic` (#8255)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod/Basic.lean": "zig-backend/src/init/Data/Int/DivMod/Basic.lean"
+  }
+}

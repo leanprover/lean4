@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-28",
+  "needs_port": false,
+  "sha": "101886ffae4cadc0a9131be2e841debfbc4d791f",
+  "short_sha": "101886ffae",
+  "subject": "feat(kernel): proper constant_info and declaration objects for `quot` type",
+  "zig_target": {}
+}

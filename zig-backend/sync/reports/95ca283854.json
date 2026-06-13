@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2019-04-02",
+  "needs_port": true,
+  "sha": "95ca283854b9c37d447626af4d64b7493ca7ef0d",
+  "short_sha": "95ca283854",
+  "subject": "chore(library/compiler/csimp): remove `m_proj2var`, we can use `m_var2ctor` instead",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

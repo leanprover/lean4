@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-05-23",
+  "needs_port": false,
+  "sha": "c1b4074d54079cda3a30531c5062fecb69c907c4",
+  "short_sha": "c1b4074d54",
+  "subject": "fix: only write manifest if a package was resolved",
+  "zig_target": {}
+}

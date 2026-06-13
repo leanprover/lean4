@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/extract_closed.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_app_args.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/simp_app_args.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    }
+  ],
+  "date": "2019-02-15",
+  "needs_port": true,
+  "sha": "0cb3ac683dbfe70b5dbb730f812a927453d350ea",
+  "short_sha": "0cb3ac683d",
+  "subject": "feat(library/compiler): connect new const_folding module implemented in Lean with `csimp`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp",
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/extract_closed.cpp": "zig-backend/src/library/compiler/extract_closed.cpp",
+    "src/library/compiler/simp_app_args.cpp": "zig-backend/src/library/compiler/simp_app_args.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-18",
+  "needs_port": false,
+  "sha": "ac6c2b7a8e770e8a24832ac9ae1fe0f0b447bf7b",
+  "short_sha": "ac6c2b7a8e",
+  "subject": "feat: formatter: interpret space after token as soft space",
+  "zig_target": {}
+}

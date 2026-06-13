@@ -1,0 +1,84 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Fold.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Range.lean"
+    }
+  ],
+  "date": "2025-03-19",
+  "needs_port": true,
+  "sha": "41a2e9af19b88b29070542bcd71ace95cd5d64ac",
+  "short_sha": "41a2e9af19",
+  "subject": "feat: well-founded recursion: opaque well-foundedness proofs (#5182)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Array/Attach.lean": "zig-backend/src/init/Data/Array/Attach.lean",
+    "src/Init/Data/Array/Erase.lean": "zig-backend/src/init/Data/Array/Erase.lean",
+    "src/Init/Data/Array/Find.lean": "zig-backend/src/init/Data/Array/Find.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/OfFn.lean": "zig-backend/src/init/Data/Array/OfFn.lean",
+    "src/Init/Data/Array/Range.lean": "zig-backend/src/init/Data/Array/Range.lean",
+    "src/Init/Data/Fin/Fold.lean": "zig-backend/src/init/Data/Fin/Fold.lean",
+    "src/Init/Data/Vector/Attach.lean": "zig-backend/src/init/Data/Vector/Attach.lean",
+    "src/Init/Data/Vector/Find.lean": "zig-backend/src/init/Data/Vector/Find.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/Range.lean": "zig-backend/src/init/Data/Vector/Range.lean"
+  }
+}

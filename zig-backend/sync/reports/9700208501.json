@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-07",
+  "needs_port": false,
+  "sha": "9700208501c9051fa32a85131efb2f85a9cdd8da",
+  "short_sha": "9700208501",
+  "subject": "feat: have `print-paths` exit silently with code 2 if config missing",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-03-12",
+  "needs_port": false,
+  "sha": "47833725eaded4cec8cc7944ab656eaf05208da7",
+  "short_sha": "47833725ea",
+  "subject": "feat: add `String` simprocs to `cbv` (#12888)",
+  "zig_target": {}
+}

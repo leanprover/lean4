@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-29",
+  "needs_port": false,
+  "sha": "f0960b7f89c61ba4e28ea8239076812255b078be",
+  "short_sha": "f0960b7f89",
+  "subject": "fix: ignore antiquotations outside quotations",
+  "zig_target": {}
+}

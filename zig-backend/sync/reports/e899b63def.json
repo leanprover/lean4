@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-09",
+  "needs_port": false,
+  "sha": "e899b63deffc721a1c71db5b9d278b78c79bea77",
+  "short_sha": "e899b63def",
+  "subject": "feat: suppress \"synthetic sorry\" at `#check`",
+  "zig_target": {}
+}

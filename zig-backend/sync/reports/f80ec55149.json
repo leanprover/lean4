@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Trace.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Trace.lean"
+    }
+  ],
+  "date": "2019-12-05",
+  "needs_port": true,
+  "sha": "f80ec5514952d15df5512240c31365b084dc13aa",
+  "short_sha": "f80ec55149",
+  "subject": "feat: improve tracing messages",
+  "zig_target": {
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean",
+    "src/Init/Lean/Util/Trace.lean": "zig-backend/src/init/Lean/Util/Trace.lean"
+  }
+}

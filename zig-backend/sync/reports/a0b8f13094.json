@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2020-10-22",
+  "needs_port": true,
+  "sha": "a0b8f1309441944b7a0e33defc71815305af8786",
+  "short_sha": "a0b8f13094",
+  "subject": "chore: remove temporary def",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

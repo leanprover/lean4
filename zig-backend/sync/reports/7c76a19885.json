@@ -1,0 +1,192 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/EmitC.lean"
+    },
+    {
+      "path": "src/include/lean/allocprof.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/allocprof.h"
+    },
+    {
+      "path": "src/include/lean/apply.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/apply.h"
+    },
+    {
+      "path": "src/include/lean/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/compact.h"
+    },
+    {
+      "path": "src/include/lean/debug.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/debug.h"
+    },
+    {
+      "path": "src/include/lean/extensible_object.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/extensible_object.h"
+    },
+    {
+      "path": "src/include/lean/hash.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/hash.h"
+    },
+    {
+      "path": "src/include/lean/interrupt.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/interrupt.h"
+    },
+    {
+      "path": "src/include/lean/io.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/io.h"
+    },
+    {
+      "path": "src/include/lean/mpq.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/mpq.h"
+    },
+    {
+      "path": "src/include/lean/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/mpz.h"
+    },
+    {
+      "path": "src/include/lean/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/object.h"
+    },
+    {
+      "path": "src/include/lean/optional.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/optional.h"
+    },
+    {
+      "path": "src/include/lean/serializer.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/serializer.h"
+    },
+    {
+      "path": "src/include/lean/utf8.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/utf8.h"
+    },
+    {
+      "path": "src/library/compiler/cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.cpp"
+    },
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    },
+    {
+      "path": "src/library/compiler/eager_lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extract_closed.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.h"
+    },
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    },
+    {
+      "path": "src/library/compiler/struct_cases_on.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/struct_cases_on.cpp"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-05-22",
+  "needs_port": true,
+  "sha": "7c76a19885393406e91997bfdd1a45e2be527b4f",
+  "short_sha": "7c76a19885",
+  "subject": "chore: fix includes",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/init/Lean/Compiler/IR/EmitC.lean",
+    "src/include/lean/allocprof.h": "zig-backend/include/lean/allocprof.h",
+    "src/include/lean/apply.h": "zig-backend/include/lean/apply.h",
+    "src/include/lean/compact.h": "zig-backend/include/lean/compact.h",
+    "src/include/lean/debug.h": "zig-backend/include/lean/debug.h",
+    "src/include/lean/extensible_object.h": "zig-backend/include/lean/extensible_object.h",
+    "src/include/lean/hash.h": "zig-backend/include/lean/hash.h",
+    "src/include/lean/interrupt.h": "zig-backend/include/lean/interrupt.h",
+    "src/include/lean/io.h": "zig-backend/include/lean/io.h",
+    "src/include/lean/mpq.h": "zig-backend/include/lean/mpq.h",
+    "src/include/lean/mpz.h": "zig-backend/include/lean/mpz.h",
+    "src/include/lean/object.h": "zig-backend/include/lean/object.h",
+    "src/include/lean/optional.h": "zig-backend/include/lean/optional.h",
+    "src/include/lean/serializer.h": "zig-backend/include/lean/serializer.h",
+    "src/include/lean/utf8.h": "zig-backend/include/lean/utf8.h",
+    "src/library/compiler/cse.cpp": "zig-backend/src/library/compiler/cse.cpp",
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp",
+    "src/library/compiler/eager_lambda_lifting.cpp": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp",
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp",
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/extract_closed.cpp": "zig-backend/src/library/compiler/extract_closed.cpp",
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp",
+    "src/library/compiler/ir_interpreter.h": "zig-backend/src/library/compiler/ir_interpreter.h",
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp",
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp",
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp",
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp",
+    "src/library/compiler/struct_cases_on.cpp": "zig-backend/src/library/compiler/struct_cases_on.cpp",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

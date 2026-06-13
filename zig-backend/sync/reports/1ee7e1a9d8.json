@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-02",
+  "needs_port": false,
+  "sha": "1ee7e1a9d8a67d1d8dcf6a17ac5c92bc2c7e0fac",
+  "short_sha": "1ee7e1a9d8",
+  "subject": "chore: normalize URLs to the language reference in test results (#7782)",
+  "zig_target": {}
+}

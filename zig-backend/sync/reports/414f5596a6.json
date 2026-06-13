@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-01",
+  "needs_port": false,
+  "sha": "414f5596a6fbc455a69fd8c0295d8663e3186837",
+  "short_sha": "414f5596a6",
+  "subject": "test: `Nat.binrec` example",
+  "zig_target": {}
+}

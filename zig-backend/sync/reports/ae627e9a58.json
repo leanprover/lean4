@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-16",
+  "needs_port": false,
+  "sha": "ae627e9a58c963abf9fae80c67a420e1babbc57b",
+  "short_sha": "ae627e9a58",
+  "subject": "chore: remove leftover from old frontend",
+  "zig_target": {}
+}

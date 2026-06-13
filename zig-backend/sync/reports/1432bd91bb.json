@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-19",
+  "needs_port": false,
+  "sha": "1432bd91bbebf2a659869e8ba11590899ce868ac",
+  "short_sha": "1432bd91bb",
+  "subject": "chore: fix `ffi-dep` shell script permissions",
+  "zig_target": {}
+}

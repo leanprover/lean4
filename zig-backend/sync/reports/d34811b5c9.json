@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-05-06",
+  "needs_port": false,
+  "sha": "d34811b5c98952662340fc2e30913deb8d7f7763",
+  "short_sha": "d34811b5c9",
+  "subject": "test: tidy `Util.lean` in the `mvcgen'` prototype (#13667)",
+  "zig_target": {}
+}

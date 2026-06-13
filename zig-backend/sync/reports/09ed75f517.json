@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-27",
+  "needs_port": false,
+  "sha": "09ed75f5179c9942b7023cb902616b2d0d07b57a",
+  "short_sha": "09ed75f517",
+  "subject": "feat: remove restriction from `propagateExpectedType`",
+  "zig_target": {}
+}

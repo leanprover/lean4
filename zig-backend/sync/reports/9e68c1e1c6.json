@@ -1,0 +1,60 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AppBuilder.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/LevelDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Generalize.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Generalize.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Intro.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/LocalDecl.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/LocalDecl.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Rewrite.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Rewrite.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Util.lean"
+    }
+  ],
+  "date": "2020-02-14",
+  "needs_port": true,
+  "sha": "9e68c1e1c6daf90aeb813d06175d4305870a01ac",
+  "short_sha": "9e68c1e1c6",
+  "subject": "feat: add `generalize` and `replaceLocalDecl`",
+  "zig_target": {
+    "src/Init/Lean/Meta/AppBuilder.lean": "zig-backend/src/init/Lean/Meta/AppBuilder.lean",
+    "src/Init/Lean/Meta/LevelDefEq.lean": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean",
+    "src/Init/Lean/Meta/Tactic.lean": "zig-backend/src/init/Lean/Meta/Tactic.lean",
+    "src/Init/Lean/Meta/Tactic/Generalize.lean": "zig-backend/src/init/Lean/Meta/Tactic/Generalize.lean",
+    "src/Init/Lean/Meta/Tactic/Intro.lean": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean",
+    "src/Init/Lean/Meta/Tactic/LocalDecl.lean": "zig-backend/src/init/Lean/Meta/Tactic/LocalDecl.lean",
+    "src/Init/Lean/Meta/Tactic/Rewrite.lean": "zig-backend/src/init/Lean/Meta/Tactic/Rewrite.lean",
+    "src/Init/Lean/Meta/Tactic/Util.lean": "zig-backend/src/init/Lean/Meta/Tactic/Util.lean"
+  }
+}

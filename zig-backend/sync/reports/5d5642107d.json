@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-05-07",
+  "needs_port": false,
+  "sha": "5d5642107d0433519265f155ddbfbfb98007a80b",
+  "short_sha": "5d5642107d",
+  "subject": "fix: elaborate and render blockquotes in Verso docstrings (#13670)",
+  "zig_target": {}
+}

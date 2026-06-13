@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-14",
+  "needs_port": false,
+  "sha": "105843519cee8d4322dfe44b3b7a535f846f4438",
+  "short_sha": "105843519c",
+  "subject": "doc: expand `elab_as_elim` docstring and fix typo (#9359)",
+  "zig_target": {}
+}

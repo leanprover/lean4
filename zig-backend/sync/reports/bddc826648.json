@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-26",
+  "needs_port": false,
+  "sha": "bddc826648be4c67878ea2b73af1de3295d87dfb",
+  "short_sha": "bddc826648",
+  "subject": "chore: remove unnecessary `liftM`s",
+  "zig_target": {}
+}

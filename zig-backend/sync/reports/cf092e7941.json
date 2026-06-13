@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-04",
+  "needs_port": false,
+  "sha": "cf092e79416c959a8238d89841963a8eb89c2a77",
+  "short_sha": "cf092e7941",
+  "subject": "refactor: add helper function `evalPropStep` (#3252)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-08",
+  "needs_port": false,
+  "sha": "749158c8c1a7a32361c4fbc1dfc53e7ce08a6d49",
+  "short_sha": "749158c8c1",
+  "subject": "perf: strip LLVM binaries",
+  "zig_target": {}
+}

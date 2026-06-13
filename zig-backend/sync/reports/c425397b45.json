@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    }
+  ],
+  "date": "2021-10-18",
+  "needs_port": true,
+  "sha": "c425397b45e9f2eeec1c4313ca3bc1861cc00c62",
+  "short_sha": "c425397b45",
+  "subject": "feat: `Hashable` instances for `UInt8` and `UInt16`",
+  "zig_target": {
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean"
+  }
+}

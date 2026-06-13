@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-14",
+  "needs_port": false,
+  "sha": "debb82bc201b9d1c4f7fca5e6254df7c0520201a",
+  "short_sha": "debb82bc20",
+  "subject": "perf: make andFlattening work on deeply nested hyps in one pass (#6075)",
+  "zig_target": {}
+}

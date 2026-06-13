@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-12",
+  "needs_port": false,
+  "sha": "a16d3f09cf5e0ac051a4198f8a86c33088f5c07d",
+  "short_sha": "a16d3f09cf",
+  "subject": "feat(library/init/lean/compiler/ir): store scrutinee type at `FnBody.case`",
+  "zig_target": {}
+}

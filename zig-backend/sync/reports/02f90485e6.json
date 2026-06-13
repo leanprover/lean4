@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-13",
+  "needs_port": false,
+  "sha": "02f90485e60efd1fb28bc8bea06dbec78a63efd6",
+  "short_sha": "02f90485e6",
+  "subject": "feat(library/init/lean): use `Environment` in the new frontend",
+  "zig_target": {}
+}

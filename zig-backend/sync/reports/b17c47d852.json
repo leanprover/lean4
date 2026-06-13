@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2024-03-26",
+  "needs_port": false,
+  "sha": "b17c47d8526208db27105eafdf96a0668621c740",
+  "short_sha": "b17c47d852",
+  "subject": "fix: lemma selection improvements to to rw? and lazy discriminator tree (#3769)",
+  "zig_target": {}
+}

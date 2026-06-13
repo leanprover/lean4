@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-10",
+  "needs_port": false,
+  "sha": "0985326b2e41970f6fb3f3bbadf3cb8f687064fe",
+  "short_sha": "0985326b2e",
+  "subject": "chore: remove unnecessary `withoutExporting` use (#9821)",
+  "zig_target": {}
+}

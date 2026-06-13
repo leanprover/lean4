@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-13",
+  "needs_port": false,
+  "sha": "b3ba6d4bf78c86fb0fdddd5f1c97a5f165b1c1d4",
+  "short_sha": "b3ba6d4bf7",
+  "subject": "fix: use resolveGlobalConstNoOverloadWithInfo more",
+  "zig_target": {}
+}

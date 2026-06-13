@@ -1,0 +1,72 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Mod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Mod.lean"
+    },
+    {
+      "path": "src/Init/Omega.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega.lean"
+    },
+    {
+      "path": "src/Init/Omega/Coeffs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Coeffs.lean"
+    },
+    {
+      "path": "src/Init/Omega/Constraint.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Constraint.lean"
+    },
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    },
+    {
+      "path": "src/Init/Omega/IntList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/IntList.lean"
+    },
+    {
+      "path": "src/Init/Omega/LinearCombo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/LinearCombo.lean"
+    },
+    {
+      "path": "src/Init/Omega/Logic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Logic.lean"
+    }
+  ],
+  "date": "2024-09-24",
+  "needs_port": true,
+  "sha": "b6124039804445a0b8c921edc12533e7bbb73b89",
+  "short_sha": "b612403980",
+  "subject": "chore: update copyrights (#5449)",
+  "zig_target": {
+    "src/Init/Data/BitVec.lean": "zig-backend/src/init/Data/BitVec.lean",
+    "src/Init/Data/Nat/Bitwise.lean": "zig-backend/src/init/Data/Nat/Bitwise.lean",
+    "src/Init/Data/Nat/Mod.lean": "zig-backend/src/init/Data/Nat/Mod.lean",
+    "src/Init/Omega.lean": "zig-backend/src/init/Omega.lean",
+    "src/Init/Omega/Coeffs.lean": "zig-backend/src/init/Omega/Coeffs.lean",
+    "src/Init/Omega/Constraint.lean": "zig-backend/src/init/Omega/Constraint.lean",
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean",
+    "src/Init/Omega/IntList.lean": "zig-backend/src/init/Omega/IntList.lean",
+    "src/Init/Omega/LinearCombo.lean": "zig-backend/src/init/Omega/LinearCombo.lean",
+    "src/Init/Omega/Logic.lean": "zig-backend/src/init/Omega/Logic.lean"
+  }
+}

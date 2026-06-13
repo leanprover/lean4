@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-24",
+  "needs_port": false,
+  "sha": "3f0cc1d2ecca9a614ae009adce8f3fcf8a59417a",
+  "short_sha": "3f0cc1d2ec",
+  "subject": "fix: `library/constructions` primitives crash at `kernel_exception`",
+  "zig_target": {}
+}

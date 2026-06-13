@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-17",
+  "needs_port": false,
+  "sha": "a13c0361818d6e9af11aef7b69dcbd991fe72645",
+  "short_sha": "a13c036181",
+  "subject": "chore: remove tactic builtin parsers",
+  "zig_target": {}
+}

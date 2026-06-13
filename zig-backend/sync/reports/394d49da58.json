@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-10",
+  "needs_port": false,
+  "sha": "394d49da58b1d896c8fdf5cfb098a30da2f0cba6",
+  "short_sha": "394d49da58",
+  "subject": "perf: `Expr.hasSorry` and similar functions",
+  "zig_target": {}
+}

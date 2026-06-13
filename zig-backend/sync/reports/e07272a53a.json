@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-24",
+  "needs_port": false,
+  "sha": "e07272a53a951bfa3cb5fdbbcd3dbba1f7c163f8",
+  "short_sha": "e07272a53a",
+  "subject": "chore: review delaborators, make sure they respond to `pp.explicit` (#5830)",
+  "zig_target": {}
+}

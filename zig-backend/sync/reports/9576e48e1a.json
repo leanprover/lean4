@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-05",
+  "needs_port": false,
+  "sha": "9576e48e1aa0a613e9abf0878a6de32468616bcf",
+  "short_sha": "9576e48e1a",
+  "subject": "chore: update release_checklist.py to check new release notes page (#8235)",
+  "zig_target": {}
+}

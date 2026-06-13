@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-06",
+  "needs_port": false,
+  "sha": "e24483d6d36cba7b03f9366ff1ec14c628057bec",
+  "short_sha": "e24483d6d3",
+  "subject": "doc: expand `isGenDiseq` comment",
+  "zig_target": {}
+}

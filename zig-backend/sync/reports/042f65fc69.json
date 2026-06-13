@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-04",
+  "needs_port": true,
+  "sha": "042f65fc693960d50a38938e04296351661d2419",
+  "short_sha": "042f65fc69",
+  "subject": "feat: track macro scopes in CommandElab and synchronize them with TermElab",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

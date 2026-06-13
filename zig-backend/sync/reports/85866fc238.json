@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-24",
+  "needs_port": false,
+  "sha": "85866fc23883ea86dab67a3e98602cd48b0b8764",
+  "short_sha": "85866fc238",
+  "subject": "chore: fix and disable some LCNF tests",
+  "zig_target": {}
+}

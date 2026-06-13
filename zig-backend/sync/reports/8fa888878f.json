@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-07",
+  "needs_port": false,
+  "sha": "8fa888878f281f8cf00cbb6a3b6d7ecc12202ac9",
+  "short_sha": "8fa888878f",
+  "subject": "chore(frontends/lean/parser): remove support for `\u2983` binders",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-08-21",
+  "needs_port": false,
+  "sha": "e9f6033467f9457391ed2a0a42533ad08fae1172",
+  "short_sha": "e9f6033467",
+  "subject": "chore: benchmark for deriving BEq on large inductive (#10028)",
+  "zig_target": {}
+}

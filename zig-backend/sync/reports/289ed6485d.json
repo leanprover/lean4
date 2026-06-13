@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-22",
+  "needs_port": false,
+  "sha": "289ed6485df7a2421bd4424227498e0e39770a8c",
+  "short_sha": "289ed6485d",
+  "subject": "feat: eval `allGoals`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-21",
+  "needs_port": false,
+  "sha": "ff7a0db0994072d9494b6f7185ab4ecb106a03ce",
+  "short_sha": "ff7a0db099",
+  "subject": "feat: add `pp_using_anonymous_constructor` attribute (#3640)",
+  "zig_target": {}
+}

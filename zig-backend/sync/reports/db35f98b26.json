@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-09-02",
+  "needs_port": false,
+  "sha": "db35f98b26ffd044727d518fb2f260071eff6956",
+  "short_sha": "db35f98b26",
+  "subject": "fix: make csimp equivalence criteria more strict (#10214)",
+  "zig_target": {}
+}

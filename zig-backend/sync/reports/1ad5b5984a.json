@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-26",
+  "needs_port": false,
+  "sha": "1ad5b5984a8ed066db0791eae496e664e3460b33",
+  "short_sha": "1ad5b5984a",
+  "subject": "feat: add `Inductive.lean`",
+  "zig_target": {}
+}

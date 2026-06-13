@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-04",
+  "needs_port": false,
+  "sha": "de0a569781a7e33dfe94ddbe51d66a3c308d5bd8",
+  "short_sha": "de0a569781",
+  "subject": "perf: avoid duplicate computation in syntax match elaborator",
+  "zig_target": {}
+}

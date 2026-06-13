@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-20",
+  "needs_port": false,
+  "sha": "0d7ea62f9af7a98dc46fd5061b8b195d1bb907c1",
+  "short_sha": "0d7ea62f9a",
+  "subject": "perf(frontends/lean/elaborator,library/init/lean): put `out_param`s first to benefit from instance pre-filtering",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-09-02",
+  "needs_port": false,
+  "sha": "c5f2c192d62adec96c6d266f9e2d8083ea69d44a",
+  "short_sha": "c5f2c192d6",
+  "subject": "fix: Selectable.one does not panic on empty array (#10216)",
+  "zig_target": {}
+}

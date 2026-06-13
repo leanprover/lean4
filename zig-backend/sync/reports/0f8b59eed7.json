@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2020-02-29",
+  "needs_port": true,
+  "sha": "0f8b59eed710e032fc7bccdca3225203449086ad",
+  "short_sha": "0f8b59eed7",
+  "subject": "fix: typo `Prop` => `Type`",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

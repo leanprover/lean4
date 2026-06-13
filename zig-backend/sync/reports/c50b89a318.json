@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-04",
+  "needs_port": false,
+  "sha": "c50b89a31801535f14ec191e03a3476244543d2f",
+  "short_sha": "c50b89a318",
+  "subject": "fix(frontends/lean/elaborator): node!/node_choice!: use constant options for printing-parsing",
+  "zig_target": {}
+}

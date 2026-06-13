@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-07",
+  "needs_port": false,
+  "sha": "b02c1c56abf03509339200b0adef56fcdc8b604d",
+  "short_sha": "b02c1c56ab",
+  "subject": "fix: improve `split` discriminant generalization strategy (#4401)",
+  "zig_target": {}
+}

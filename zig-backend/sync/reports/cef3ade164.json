@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-22",
+  "needs_port": false,
+  "sha": "cef3ade164f1160d95518285951b75dde8c50ab4",
+  "short_sha": "cef3ade164",
+  "subject": "fix: info on non-atomic simp args",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-04",
+  "needs_port": false,
+  "sha": "8c9ccb069a48e37ec1bfb08649c55d7b8804fb28",
+  "short_sha": "8c9ccb069a",
+  "subject": "fix: `processVariable`",
+  "zig_target": {}
+}

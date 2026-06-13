@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-22",
+  "needs_port": false,
+  "sha": "417336ad2f037a674b98873b8713590607ba4764",
+  "short_sha": "417336ad2f",
+  "subject": "feat: allow `..` in non-pattern applications",
+  "zig_target": {}
+}

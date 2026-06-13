@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-04-01",
+  "needs_port": false,
+  "sha": "fc0cf68539ad3b481a1802414c22c44506519c9d",
+  "short_sha": "fc0cf68539",
+  "subject": "fix: make -DLEAN_VERSION_* CMake overrides actually work (#13226)",
+  "zig_target": {}
+}

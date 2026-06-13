@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-24",
+  "needs_port": false,
+  "sha": "0b28f059f6e8be4052aa8da12c3339db550b94c4",
+  "short_sha": "0b28f059f6",
+  "subject": "chore: work around \"unknown free variable\" bug",
+  "zig_target": {}
+}

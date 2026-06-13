@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-04-17",
+  "needs_port": false,
+  "sha": "89558a007bb0c591ded14c59234375c572c4aea7",
+  "short_sha": "89558a007b",
+  "subject": "doc: docstrings on binder types, make sure hovers work (#3917)",
+  "zig_target": {}
+}

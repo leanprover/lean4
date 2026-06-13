@@ -1,0 +1,24 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2024-11-27",
+  "needs_port": true,
+  "sha": "597ef8cfee46b87d573f58d3ae28db7c5b71d983",
+  "short_sha": "597ef8cfee",
+  "subject": "feat: add `Nat.mod_eq_sub` and fix dependencies from `Nat.sub_mul_eq_mod_of_lt_of_le` (#6160)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

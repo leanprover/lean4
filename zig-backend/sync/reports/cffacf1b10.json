@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-22",
+  "needs_port": false,
+  "sha": "cffacf1b10db65a76be1f8e92bdc2e1f7d79def9",
+  "short_sha": "cffacf1b10",
+  "subject": "feat: support local hypotheses in `simp [h]` for `sym =>` mode (#13042)",
+  "zig_target": {}
+}

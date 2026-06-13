@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-01",
+  "needs_port": false,
+  "sha": "00efb7eaca75e396e9884cf5262a97644ad5eb6a",
+  "short_sha": "00efb7eaca",
+  "subject": "test: add reconfigure benchmark",
+  "zig_target": {}
+}

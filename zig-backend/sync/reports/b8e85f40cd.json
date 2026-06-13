@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-01",
+  "needs_port": false,
+  "sha": "b8e85f40cdfe923ac257e27ee789ceddf08754b0",
+  "short_sha": "b8e85f40cd",
+  "subject": "refactor: move `afterTarget*` into `ActiveBuildTarget`",
+  "zig_target": {}
+}

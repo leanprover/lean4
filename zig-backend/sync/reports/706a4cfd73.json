@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-04-24",
+  "needs_port": false,
+  "sha": "706a4cfd73a23ab85c71691587c77b40ddbf149c",
+  "short_sha": "706a4cfd73",
+  "subject": "feat: monadic generalization of FindExpr (#3970)",
+  "zig_target": {}
+}

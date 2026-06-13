@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Order.lean"
+    }
+  ],
+  "date": "2025-09-27",
+  "needs_port": true,
+  "sha": "69b8b0098c58bdee470b891f22592d3c885e8374",
+  "short_sha": "69b8b0098c",
+  "subject": "feat: proofs for theory propagation in `grind order` (#10594)",
+  "zig_target": {
+    "src/Init/Grind/Order.lean": "zig-backend/src/init/Grind/Order.lean"
+  }
+}

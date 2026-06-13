@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-22",
+  "needs_port": false,
+  "sha": "80a9685164c636e8ed44d516ab7bb87286e02c9b",
+  "short_sha": "80a9685164",
+  "subject": "refactor add `ModuleTargetMap` abbreviation",
+  "zig_target": {}
+}

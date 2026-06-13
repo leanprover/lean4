@@ -1,0 +1,10 @@
+{
+  "author": "Matthias Hetzenberger",
+  "backend_changes": [],
+  "date": "2022-09-20",
+  "needs_port": false,
+  "sha": "278c9bb0e409fdfcda9bc91b0b1a10174f71ffc8",
+  "short_sha": "278c9bb0e4",
+  "subject": "fix: a grammatically incorrect sentence in monads/intro.md",
+  "zig_target": {}
+}

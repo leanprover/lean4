@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-21",
+  "needs_port": false,
+  "sha": "64b7b857f13ea5fd59f6fd5490582f53ff7e676b",
+  "short_sha": "64b7b857f1",
+  "subject": "chore: ICERM attribute demo",
+  "zig_target": {}
+}

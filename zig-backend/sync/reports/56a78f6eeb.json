@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-20",
+  "needs_port": false,
+  "sha": "56a78f6eeb0c45a8c2ab1e7020dc65f690052d2c",
+  "short_sha": "56a78f6eeb",
+  "subject": "feat: use deps' extra lib targets when  building parent bin",
+  "zig_target": {}
+}

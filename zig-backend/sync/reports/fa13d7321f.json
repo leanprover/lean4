@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2022-09-21",
+  "needs_port": true,
+  "sha": "fa13d7321f711b9ea44a240cb36ca6a647aba5a1",
+  "short_sha": "fa13d7321f",
+  "subject": "feat: `generalize e = x at h`",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

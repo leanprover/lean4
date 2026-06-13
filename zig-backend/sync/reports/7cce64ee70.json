@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-28",
+  "needs_port": false,
+  "sha": "7cce64ee70b299c8ed774be7ce666f26b1edf478",
+  "short_sha": "7cce64ee70",
+  "subject": "feat: omega doesn't check for defeq atoms (#3525)",
+  "zig_target": {}
+}

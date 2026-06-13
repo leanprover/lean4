@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "e579dfdb145337e213c42b01781ac0664f48c635",
+  "short_sha": "e579dfdb14",
+  "subject": "fix: assertion violation in `mkEqProofImpl` (#12473)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-25",
+  "needs_port": false,
+  "sha": "975271e1a3e75a39ee1284e051536f3f83f20c6c",
+  "short_sha": "975271e1a3",
+  "subject": "feat: hide inaccessible names and add `pp.inaccessibleNames`",
+  "zig_target": {}
+}

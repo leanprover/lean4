@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-05-20",
+  "needs_port": false,
+  "sha": "f512826b9aa9f14f5d21aa6e2e2006ef9ece3d53",
+  "short_sha": "f512826b9a",
+  "subject": "chore: lake: spinner icon for computing step (#4236)",
+  "zig_target": {}
+}

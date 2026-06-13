@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-21",
+  "needs_port": false,
+  "sha": "0bce549d92626b23364f50948ad3522c108dc9a0",
+  "short_sha": "0bce549d92",
+  "subject": "test: remove code that is being generated automatically",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    }
+  ],
+  "date": "2020-01-30",
+  "needs_port": true,
+  "sha": "fe6502493b3e97c3a96845f4e8f69e1617fb6fcc",
+  "short_sha": "fe6502493b",
+  "subject": "chore: use macros instead of elab",
+  "zig_target": {
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+  }
+}

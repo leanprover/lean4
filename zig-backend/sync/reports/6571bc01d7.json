@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-14",
+  "needs_port": false,
+  "sha": "6571bc01d7ff2a14272ace87fe96ae519c4e3110",
+  "short_sha": "6571bc01d7",
+  "subject": "fix: `withTrackingZetaDelta` must reset cache (#6381)",
+  "zig_target": {}
+}

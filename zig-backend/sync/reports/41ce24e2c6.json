@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2021-09-02",
+  "needs_port": true,
+  "sha": "41ce24e2c6a029bf1accb525eb232d7171a5af58",
+  "short_sha": "41ce24e2c6",
+  "subject": "feat: add `done` and `traceState` conv tactics",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

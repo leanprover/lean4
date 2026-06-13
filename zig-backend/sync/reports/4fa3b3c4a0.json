@@ -1,0 +1,30 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    }
+  ],
+  "date": "2024-05-23",
+  "needs_port": true,
+  "sha": "4fa3b3c4a0b6973527b8c622ea258fc4baac2570",
+  "short_sha": "4fa3b3c4a0",
+  "subject": "feat: bitblasting theorems for signed comparisons (#4201)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean"
+  }
+}

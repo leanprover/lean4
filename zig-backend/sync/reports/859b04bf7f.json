@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-05",
+  "needs_port": false,
+  "sha": "859b04bf7fd7f2d9bb1e3e8c0906fd1336d204a7",
+  "short_sha": "859b04bf7f",
+  "subject": "refactor: generalize Target/ActiveTarget beyond IO",
+  "zig_target": {}
+}

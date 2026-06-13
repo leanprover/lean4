@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-24",
+  "needs_port": false,
+  "sha": "b6e9d5853756738fddb26f194b1b5c6433a4341b",
+  "short_sha": "b6e9d58537",
+  "subject": "feat: add `[deprecated]` attribute",
+  "zig_target": {}
+}

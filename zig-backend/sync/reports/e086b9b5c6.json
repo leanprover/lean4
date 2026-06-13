@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-30",
+  "needs_port": false,
+  "sha": "e086b9b5c69bb3f8bf3b142a0af9d6339c9f04c6",
+  "short_sha": "e086b9b5c6",
+  "subject": "fix: zetaDelta at `Sym/Pattern.lean` (#11849)",
+  "zig_target": {}
+}

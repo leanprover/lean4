@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-01-28",
+  "needs_port": false,
+  "sha": "9247206c0e5caafc7c5c2c22d812440338fad83b",
+  "short_sha": "9247206c0e",
+  "subject": "doc: clarify that `lean_initialize_runtime_module` is implied by `lean_initialize` (#6677)",
+  "zig_target": {}
+}

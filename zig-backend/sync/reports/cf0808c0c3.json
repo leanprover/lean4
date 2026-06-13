@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-25",
+  "needs_port": false,
+  "sha": "cf0808c0c34cfd7905b6593141dc196b14823073",
+  "short_sha": "cf0808c0c3",
+  "subject": "doc: update ccache docs",
+  "zig_target": {}
+}

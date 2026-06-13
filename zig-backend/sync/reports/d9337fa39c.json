@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-22",
+  "needs_port": false,
+  "sha": "d9337fa39cd6282b9e33a43539e51ce80677dbb3",
+  "short_sha": "d9337fa39c",
+  "subject": "chore: fix multiple definitions on Windows",
+  "zig_target": {}
+}

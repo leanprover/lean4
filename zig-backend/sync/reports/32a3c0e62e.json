@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-20",
+  "needs_port": false,
+  "sha": "32a3c0e62e8c10cde92d261f361337c5036a7c72",
+  "short_sha": "32a3c0e62e",
+  "subject": "feat(library/init/lean/frontend,bin/lean-bootstrapped): expose new frontend as executable",
+  "zig_target": {}
+}

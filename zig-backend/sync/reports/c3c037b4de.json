@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2020-10-10",
+  "needs_port": true,
+  "sha": "c3c037b4de0184c31a9bb2fac1e670d913dc4ba7",
+  "short_sha": "c3c037b4de",
+  "subject": "fix: fixup a few automatic fixes",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

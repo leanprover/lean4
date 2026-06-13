@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-07",
+  "needs_port": false,
+  "sha": "ec727859274c18a82f26dd66028e36f380fdd35c",
+  "short_sha": "ec72785927",
+  "subject": "chore: git ignore .claude/worktrees (#13299)",
+  "zig_target": {}
+}

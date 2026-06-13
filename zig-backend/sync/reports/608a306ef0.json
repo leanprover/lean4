@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-06",
+  "needs_port": false,
+  "sha": "608a306ef094875d69f92a9cb6a3afb03fa1547a",
+  "short_sha": "608a306ef0",
+  "subject": "refactor: simplify/cleanup `DelayedMetavarAssignment`",
+  "zig_target": {}
+}

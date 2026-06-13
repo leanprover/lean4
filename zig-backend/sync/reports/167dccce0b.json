@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-12-18",
+  "needs_port": true,
+  "sha": "167dccce0b104c60725a4c068d8633f4a0b98564",
+  "short_sha": "167dccce0b",
+  "subject": "chore: move `Leanpkg.leanVersionString` to `Init`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

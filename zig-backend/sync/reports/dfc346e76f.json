@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    },
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2020-11-02",
+  "needs_port": true,
+  "sha": "dfc346e76f0878f822ab6332bc5b4192c2159f2f",
+  "short_sha": "dfc346e76f",
+  "subject": "chore: remove obsolete attribute",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean",
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

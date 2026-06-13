@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-08",
+  "needs_port": false,
+  "sha": "1b51bab4a180f0b360a85af8f01a75aa795208e0",
+  "short_sha": "1b51bab4a1",
+  "subject": "feat: turn on info trees by default",
+  "zig_target": {}
+}

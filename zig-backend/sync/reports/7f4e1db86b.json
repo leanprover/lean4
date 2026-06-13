@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/TermBinders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermBinders.lean"
+    }
+  ],
+  "date": "2020-01-19",
+  "needs_port": true,
+  "sha": "7f4e1db86b188f8ce0f248c14ae6d86cd761038e",
+  "short_sha": "7f4e1db86b",
+  "subject": "refactor: replace mkTermIdFromIdent with antiquotation kind where possible",
+  "zig_target": {
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean",
+    "src/Init/Lean/Elab/TermBinders.lean": "zig-backend/src/init/Lean/Elab/TermBinders.lean"
+  }
+}

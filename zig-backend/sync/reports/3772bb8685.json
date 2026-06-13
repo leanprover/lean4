@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/debug.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/debug.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/thread.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/thread.cpp"
+    }
+  ],
+  "date": "2025-11-26",
+  "needs_port": true,
+  "sha": "3772bb8685f2fdf414e8aa4af6f1d2964b2f64af",
+  "short_sha": "3772bb8685",
+  "subject": "chore: revert \"refactor: port shell option processing to Lean\" (#11378)",
+  "zig_target": {
+    "src/runtime/debug.cpp": "zig-backend/src/runtime/debug.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/thread.cpp": "zig-backend/src/runtime/thread.cpp"
+  }
+}

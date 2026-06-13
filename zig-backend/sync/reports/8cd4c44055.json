@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ExplicitRC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2026-02-20",
+  "needs_port": true,
+  "sha": "8cd4c44055a3d2a7a54b8367af7c820945ccb08f",
+  "short_sha": "8cd4c44055",
+  "subject": "feat: derived value analysis for Array.uget (#12604)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Lean/Compiler/LCNF/ExplicitRC.lean": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

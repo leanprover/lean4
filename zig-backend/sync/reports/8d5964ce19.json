@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-06",
+  "needs_port": false,
+  "sha": "8d5964ce1994cae8117997bbd7fd31a3c5f042c0",
+  "short_sha": "8d5964ce19",
+  "subject": "feat: add module doc parser",
+  "zig_target": {}
+}

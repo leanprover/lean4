@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-23",
+  "needs_port": false,
+  "sha": "6a51ec8427f7d5a1f7d0bf882ba373d4a16887b5",
+  "short_sha": "6a51ec8427",
+  "subject": "fix: missing case (kernel projection) at `isExprDefEqAuxImpl`",
+  "zig_target": {}
+}

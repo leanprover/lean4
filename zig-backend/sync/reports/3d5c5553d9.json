@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-06-30",
+  "needs_port": true,
+  "sha": "3d5c5553d995a88441d915dd9ef8298c986d152a",
+  "short_sha": "3d5c5553d9",
+  "subject": "fix: add missing coercion instance for CoeHead+CoeTail",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-10",
+  "needs_port": false,
+  "sha": "fd3786b585fa37d32678406818fcf05717813180",
+  "short_sha": "fd3786b585",
+  "subject": "chore: simplify `FunInfo` cache",
+  "zig_target": {}
+}

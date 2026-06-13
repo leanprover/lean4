@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-08-21",
+  "needs_port": false,
+  "sha": "890722f571c0f16a5d42c9afcab144aec6e15885",
+  "short_sha": "890722f571",
+  "subject": "refactor: factor out mkNatLookupTable (#10006)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-08",
+  "needs_port": false,
+  "sha": "88af639346f6b274e35793798e8860c5e0698b34",
+  "short_sha": "88af639346",
+  "subject": "feat: Formatter: default to `Format.fill` instead of `Format.group`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-22",
+  "needs_port": false,
+  "sha": "d36027d2fa910ae470226bf6dcf020ab0f558000",
+  "short_sha": "d36027d2fa",
+  "subject": "test: add `Certificate.of_combine_isUnsat`",
+  "zig_target": {}
+}

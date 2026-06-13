@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-12-30",
+  "needs_port": false,
+  "sha": "d2a992adf7372afba8ac4799af4200fa184a5aeb",
+  "short_sha": "d2a992adf7",
+  "subject": "feat: filter server request cancellations",
+  "zig_target": {}
+}

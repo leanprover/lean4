@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2022-09-01",
+  "needs_port": true,
+  "sha": "29eddad3257cefbb3a5d7645adaeef2f74ba3ad3",
+  "short_sha": "29eddad325",
+  "subject": "chore: only check if `compiler.check` is set to true",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

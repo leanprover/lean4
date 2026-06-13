@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/LevelDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean"
+    }
+  ],
+  "date": "2019-12-16",
+  "needs_port": true,
+  "sha": "c5d2b060377ea8cb1b95abc0f4bdc1d0b3b290a5",
+  "short_sha": "c5d2b06037",
+  "subject": "feat: add `decLevel?`",
+  "zig_target": {
+    "src/Init/Lean/Meta/LevelDefEq.lean": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean"
+  }
+}

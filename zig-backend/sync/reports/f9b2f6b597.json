@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-08",
+  "needs_port": false,
+  "sha": "f9b2f6b597ecd8ff257f08021d9972823bd31f93",
+  "short_sha": "f9b2f6b597",
+  "subject": "fix: use `getDecLevel`/`isLevelDefEq` for `for` loop mut var universe constraints (#13332)",
+  "zig_target": {}
+}

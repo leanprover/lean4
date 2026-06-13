@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-15",
+  "needs_port": false,
+  "sha": "b54fe2e17aa64023f5346a09e85e06f62dd93789",
+  "short_sha": "b54fe2e17a",
+  "subject": "feat: hide `optParam`s and `autoParam`s by default",
+  "zig_target": {}
+}

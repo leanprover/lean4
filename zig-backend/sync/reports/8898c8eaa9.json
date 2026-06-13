@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    }
+  ],
+  "date": "2024-08-25",
+  "needs_port": true,
+  "sha": "8898c8eaa9a13355c50d047d1f551d64c0e20774",
+  "short_sha": "8898c8eaa9",
+  "subject": "feat: Bool lemmas improving confluence (#5155)",
+  "zig_target": {
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean"
+  }
+}

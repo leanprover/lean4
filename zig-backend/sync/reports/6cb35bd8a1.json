@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-25",
+  "needs_port": false,
+  "sha": "6cb35bd8a191d2f53a1e6501d4e8095ee6e2389e",
+  "short_sha": "6cb35bd8a1",
+  "subject": "chore(frontends/lean/elaborator): replace C++ elaborator attributes with new ones implemented in Lean",
+  "zig_target": {}
+}

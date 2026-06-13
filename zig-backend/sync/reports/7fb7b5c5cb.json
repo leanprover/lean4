@@ -1,0 +1,10 @@
+{
+  "author": "Alexander Bentkamp",
+  "backend_changes": [],
+  "date": "2023-11-15",
+  "needs_port": false,
+  "sha": "7fb7b5c5cbe678bb1babf0dec2b70cfead46bde5",
+  "short_sha": "7fb7b5c5cb",
+  "subject": "chore: releases for web assembly and x86 Linux (#2855)",
+  "zig_target": {}
+}

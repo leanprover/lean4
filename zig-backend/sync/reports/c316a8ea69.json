@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-12",
+  "needs_port": false,
+  "sha": "c316a8ea6901f2cd0dc7e73b2943a8f9e6002916",
+  "short_sha": "c316a8ea69",
+  "subject": "fix: syntax not updating in header snapshots",
+  "zig_target": {}
+}

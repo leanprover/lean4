@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-02",
+  "needs_port": false,
+  "sha": "3ccc9ca7ac86504e100a39066e0c83443a57d047",
+  "short_sha": "3ccc9ca7ac",
+  "subject": "fix: remove incorrect strictOr/strictAnd optimizations (#8594)",
+  "zig_target": {}
+}

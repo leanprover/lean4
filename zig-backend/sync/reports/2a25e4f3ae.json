@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-22",
+  "needs_port": false,
+  "sha": "2a25e4f3aef22c87c049a45496b69852bdd15b95",
+  "short_sha": "2a25e4f3ae",
+  "subject": "fix: nightly dispatch creates today's tag when retrying a failed nightly (#13035)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/StructInst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2020-02-02",
+  "needs_port": true,
+  "sha": "2ad065eb93511cb2bf78562dac0fe638b6099002",
+  "short_sha": "2ad065eb93",
+  "subject": "feat: add `expandNonAtomicExplicitSource` and `getStructName`",
+  "zig_target": {
+    "src/Init/Lean/Elab/StructInst.lean": "zig-backend/src/init/Lean/Elab/StructInst.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

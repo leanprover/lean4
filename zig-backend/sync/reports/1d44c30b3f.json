@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Log2.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Log2.lean"
+    }
+  ],
+  "date": "2022-05-18",
+  "needs_port": true,
+  "sha": "1d44c30b3f0634aef317f499961ee6def26da7aa",
+  "short_sha": "1d44c30b3f",
+  "subject": "refactor: simplify `log2` termination proof",
+  "zig_target": {
+    "src/Init/Data/Nat/Log2.lean": "zig-backend/src/init/Data/Nat/Log2.lean"
+  }
+}

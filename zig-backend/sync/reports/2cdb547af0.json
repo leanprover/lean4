@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Vector/Algebra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Algebra.lean"
+    }
+  ],
+  "date": "2025-07-28",
+  "needs_port": true,
+  "sha": "2cdb547af0e153beb4ca0c01be8dc1662a17d408",
+  "short_sha": "2cdb547af0",
+  "subject": "chore: add 'public section' in Data/Vector/Algebra (#9588)",
+  "zig_target": {
+    "src/Init/Data/Vector/Algebra.lean": "zig-backend/src/init/Data/Vector/Algebra.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-07",
+  "needs_port": false,
+  "sha": "e5e577865fe74ad17182346a225f8f209fa6e2e4",
+  "short_sha": "e5e577865f",
+  "subject": "doc: mention that `inferType` does not ensure type correctness (#5087)",
+  "zig_target": {}
+}

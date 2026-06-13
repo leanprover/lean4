@@ -1,0 +1,66 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Gcd.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Gcd.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/Random.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Random.lean"
+    }
+  ],
+  "date": "2024-02-15",
+  "needs_port": true,
+  "sha": "06e21faecd2798ab54e9c89616c52a2ea10f4a54",
+  "short_sha": "06e21faecd",
+  "subject": "chore: upstream Std.Data.Int.Init modules (#3364)",
+  "zig_target": {
+    "src/Init/Data/Int.lean": "zig-backend/src/init/Data/Int.lean",
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/Data/Int/Bitwise.lean": "zig-backend/src/init/Data/Int/Bitwise.lean",
+    "src/Init/Data/Int/DivMod.lean": "zig-backend/src/init/Data/Int/DivMod.lean",
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean",
+    "src/Init/Data/Int/Gcd.lean": "zig-backend/src/init/Data/Int/Gcd.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Data/Random.lean": "zig-backend/src/init/Data/Random.lean"
+  }
+}

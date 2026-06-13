@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-08",
+  "needs_port": false,
+  "sha": "7ef2d2fea25a52d47aafd9da66ac4e52e27374fb",
+  "short_sha": "7ef2d2fea2",
+  "subject": "chore: CI: remove rebase command",
+  "zig_target": {}
+}

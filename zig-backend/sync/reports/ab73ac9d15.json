@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-12",
+  "needs_port": false,
+  "sha": "ab73ac9d15834c229171fd1ad0c9fbcabf5964cf",
+  "short_sha": "ab73ac9d15",
+  "subject": "fix: missing `simproc` for `BitVec` equality (#4428)",
+  "zig_target": {}
+}

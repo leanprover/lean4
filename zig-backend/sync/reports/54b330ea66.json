@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-12",
+  "needs_port": false,
+  "sha": "54b330ea660086b26f142a0000fa5748b1578a96",
+  "short_sha": "54b330ea66",
+  "subject": "feat(library/init/lean/expander): recursive, hygienic expansion",
+  "zig_target": {}
+}

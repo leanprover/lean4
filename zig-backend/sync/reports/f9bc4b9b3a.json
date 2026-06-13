@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/include/lean/lean_gmp.h",
+      "status": "A",
+      "zig_target": "zig-backend/include/lean/lean_gmp.h"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/io.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.h"
+    },
+    {
+      "path": "src/runtime/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/utf8.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.cpp"
+    }
+  ],
+  "date": "2021-09-11",
+  "needs_port": true,
+  "sha": "f9bc4b9b3a3c6f1416e45b57c31dce6fb2f1f376",
+  "short_sha": "f9bc4b9b3a",
+  "subject": "feat: add missing APIs",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/include/lean/lean_gmp.h": "zig-backend/include/lean/lean_gmp.h",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/io.h": "zig-backend/src/runtime/io.h",
+    "src/runtime/mpz.h": "zig-backend/src/runtime/mpz.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/utf8.cpp": "zig-backend/src/runtime/utf8.cpp"
+  }
+}

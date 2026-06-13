@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-11-16",
+  "needs_port": false,
+  "sha": "0b93b3f1826cd8ab7cd61d8119854d32b59b54d6",
+  "short_sha": "0b93b3f182",
+  "subject": "chore: record uses of user-defined attributes as `shake` dependencies (#11202)",
+  "zig_target": {}
+}

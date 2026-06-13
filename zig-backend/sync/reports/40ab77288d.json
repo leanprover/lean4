@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "40ab77288d44b5cc8374c6b32da17108efab4a32",
+  "short_sha": "40ab77288d",
+  "subject": "fix: namespaces.md",
+  "zig_target": {}
+}

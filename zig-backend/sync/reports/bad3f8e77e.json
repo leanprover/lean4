@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-06",
+  "needs_port": false,
+  "sha": "bad3f8e77e61738c7fded53ced4046115b9f889c",
+  "short_sha": "bad3f8e77e",
+  "subject": "chore(kernel/local_ctx): use new representation defined at `localcontext.lean`",
+  "zig_target": {}
+}

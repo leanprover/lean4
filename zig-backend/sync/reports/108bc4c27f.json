@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-22",
+  "needs_port": false,
+  "sha": "108bc4c27f75c13752cc48f3188484b735c1acd8",
+  "short_sha": "108bc4c27f",
+  "subject": "fix: `extCore`",
+  "zig_target": {}
+}

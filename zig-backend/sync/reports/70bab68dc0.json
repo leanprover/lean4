@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    }
+  ],
+  "date": "2020-02-08",
+  "needs_port": true,
+  "sha": "70bab68dc06491060d7a27baed80e2d76a881bbd",
+  "short_sha": "70bab68dc0",
+  "subject": "feat: add `setMVarKind`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean"
+  }
+}

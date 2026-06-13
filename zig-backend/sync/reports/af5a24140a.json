@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-12",
+  "needs_port": false,
+  "sha": "af5a24140afff2d39e2e97b0a6f514f321489da4",
+  "short_sha": "af5a24140a",
+  "subject": "test: simple type checker at CPDT",
+  "zig_target": {}
+}

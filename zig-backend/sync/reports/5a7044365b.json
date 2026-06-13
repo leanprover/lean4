@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-22",
+  "needs_port": false,
+  "sha": "5a7044365b70a434d59d34f0d302c88ce83f9715",
+  "short_sha": "5a7044365b",
+  "subject": "feat: add instances `Alternative MetaM` and `Alternative TacticM`",
+  "zig_target": {}
+}

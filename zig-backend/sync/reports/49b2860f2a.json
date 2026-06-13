@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-12",
+  "needs_port": false,
+  "sha": "49b2860f2a654539a44a3537648b831b46c55499",
+  "short_sha": "49b2860f2a",
+  "subject": "feat: add `Meta.rename` tactic",
+  "zig_target": {}
+}

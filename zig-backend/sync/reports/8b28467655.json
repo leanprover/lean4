@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DiscrM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+    }
+  ],
+  "date": "2025-10-30",
+  "needs_port": true,
+  "sha": "8b28467655f636faa798528ea30a3d464cca489f",
+  "short_sha": "8b28467655",
+  "subject": "perf: better detection of repeated branching on same value (#11020)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/DiscrM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+  }
+}

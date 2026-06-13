@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-09-11",
+  "needs_port": false,
+  "sha": "fdc30e3097ce811ddf7bf8d4e672842476b8e030",
+  "short_sha": "fdc30e3097",
+  "subject": "chore(library/type_context): revert \"simple instance pre-filtering\"",
+  "zig_target": {}
+}

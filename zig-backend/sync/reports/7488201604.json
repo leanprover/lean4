@@ -1,0 +1,36 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/AlphaEqv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/AlphaEqv.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/SimpCase.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SimpCase.lean"
+    }
+  ],
+  "date": "2026-02-10",
+  "needs_port": true,
+  "sha": "74882016046f5c42f53e6fc6fe0a87da4922f9bb",
+  "short_sha": "7488201604",
+  "subject": "refactor: port IR.SimpCase to LCNF (#12384)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/SimpCase.lean": "zig-backend/src/lean/compiler/ir/SimpCase.lean",
+    "src/Lean/Compiler/LCNF/AlphaEqv.lean": "zig-backend/src/lean/compiler/lcnf/AlphaEqv.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/SimpCase.lean": "zig-backend/src/lean/compiler/lcnf/SimpCase.lean"
+  }
+}

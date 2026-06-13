@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-12-08",
+  "needs_port": false,
+  "sha": "1d0d3915ca79d0875a757fc5061121ae9cd58543",
+  "short_sha": "1d0d3915ca",
+  "subject": "refactor: lake: disambiguate packages by workspace index (#11500)",
+  "zig_target": {}
+}

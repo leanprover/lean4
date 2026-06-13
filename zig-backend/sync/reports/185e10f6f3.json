@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-07",
+  "needs_port": false,
+  "sha": "185e10f6f33a1f11adf8731e9fb9f824c74c8a8b",
+  "short_sha": "185e10f6f3",
+  "subject": "misc: hoist facet name check to load + related bugfixes/refactors",
+  "zig_target": {}
+}

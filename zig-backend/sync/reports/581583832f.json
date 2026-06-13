@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-17",
+  "needs_port": false,
+  "sha": "581583832f075ecc55bd16c4d00eb5e457a4541d",
+  "short_sha": "581583832f",
+  "subject": "chore(tests/lean/parser1): fix test",
+  "zig_target": {}
+}

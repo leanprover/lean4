@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-23",
+  "needs_port": false,
+  "sha": "c70f4064b4041dee70925bddbef095ebb2b36d7d",
+  "short_sha": "c70f4064b4",
+  "subject": "fix: heterogenenous equality support in match conditions within `grind` (#6761)",
+  "zig_target": {}
+}

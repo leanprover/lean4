@@ -1,0 +1,48 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    }
+  ],
+  "date": "2024-02-29",
+  "needs_port": true,
+  "sha": "c0dfe2e439a4fa772f59743f019430826d9cc3f5",
+  "short_sha": "c0dfe2e439",
+  "subject": "feat: `BitVec` int lemmas (#3474)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/DivMod.lean": "zig-backend/src/init/Data/Int/DivMod.lean",
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean"
+  }
+}

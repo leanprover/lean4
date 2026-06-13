@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "d8dd61ae5a1c9344fef0e44376c35ad44cdea213",
+  "short_sha": "d8dd61ae5a",
+  "subject": "chore: remove optimization",
+  "zig_target": {}
+}

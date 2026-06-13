@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "02fa9641fdbc9882907e92676a56342921977bbd",
+  "short_sha": "02fa9641fd",
+  "subject": "feat: Add delaborator for `Std.Range` (#9831)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-25",
+  "needs_port": false,
+  "sha": "375e6232e08663ca6b77f1a31af5d2ebed53e311",
+  "short_sha": "375e6232e0",
+  "subject": "chore: introduce `doSeqItem` kind",
+  "zig_target": {}
+}

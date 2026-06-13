@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-30",
+  "needs_port": false,
+  "sha": "bcfad6e3813732db8391b7e22a387ad9d9f9a9f0",
+  "short_sha": "bcfad6e381",
+  "subject": "feat: report diagnostic information for `simp` at exception",
+  "zig_target": {}
+}

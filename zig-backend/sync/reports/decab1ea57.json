@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    }
+  ],
+  "date": "2020-06-25",
+  "needs_port": true,
+  "sha": "decab1ea57bf506b8275f07d1979389a0e92a030",
+  "short_sha": "decab1ea57",
+  "subject": "fix: missing import",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean"
+  }
+}

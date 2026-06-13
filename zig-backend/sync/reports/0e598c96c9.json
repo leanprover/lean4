@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Cases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Cases.lean"
+    }
+  ],
+  "date": "2025-03-17",
+  "needs_port": true,
+  "sha": "0e598c96c9e143a083cf6d6341859854205b8e0e",
+  "short_sha": "0e598c96c9",
+  "subject": "feat: add `[grind cases eager] Subtype` (#7540)",
+  "zig_target": {
+    "src/Init/Grind/Cases.lean": "zig-backend/src/init/Grind/Cases.lean"
+  }
+}

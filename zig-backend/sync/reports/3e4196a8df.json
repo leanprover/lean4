@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-03-14",
+  "needs_port": false,
+  "sha": "3e4196a8df93b66d6b9f853f524e44dac386741d",
+  "short_sha": "3e4196a8df",
+  "subject": "feat: expose kernel is_def_eq",
+  "zig_target": {}
+}

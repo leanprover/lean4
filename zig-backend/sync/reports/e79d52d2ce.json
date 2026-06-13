@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-06",
+  "needs_port": false,
+  "sha": "e79d52d2ce12145cd6fd0784a8720e95a9196368",
+  "short_sha": "e79d52d2ce",
+  "subject": "chore: Nix: reduce doc/doc-test sources",
+  "zig_target": {}
+}

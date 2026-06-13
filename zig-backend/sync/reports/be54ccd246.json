@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-01",
+  "needs_port": false,
+  "sha": "be54ccd2468a65400e157615916d52b5770a40a0",
+  "short_sha": "be54ccd246",
+  "subject": "chore: pr-release: adjust to new lakefile.lean syntax (#4598)",
+  "zig_target": {}
+}

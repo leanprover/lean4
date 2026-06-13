@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-09",
+  "needs_port": false,
+  "sha": "42e8011320e3698598ab6957b329a6d7f29200c3",
+  "short_sha": "42e8011320",
+  "subject": "feat: make `noConfusion` even more heterogeneous",
+  "zig_target": {}
+}

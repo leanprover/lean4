@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-03-17",
+  "needs_port": false,
+  "sha": "811bedfa76bab519b1ba948b656128103c1fbe7d",
+  "short_sha": "811bedfa76",
+  "subject": "chore: fix combined CI for mathlib (#3700)",
+  "zig_target": {}
+}

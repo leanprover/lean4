@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-05-16",
+  "needs_port": false,
+  "sha": "43ef70db63e2c1c1720b84fd153125c96a00c5d2",
+  "short_sha": "43ef70db63",
+  "subject": "fix: pp.universes should not affect constants with no universe levels (#13761)",
+  "zig_target": {}
+}

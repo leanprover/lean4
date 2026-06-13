@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "f7e9ba76dd69a09e0423a9c502ccfbd6d13bd72d",
+  "short_sha": "f7e9ba76dd",
+  "subject": "perf: cache diagnostics in server",
+  "zig_target": {}
+}

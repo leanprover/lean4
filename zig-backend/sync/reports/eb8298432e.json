@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-28",
+  "needs_port": false,
+  "sha": "eb8298432e369a2b541f1ab467affa36581cf8ce",
+  "short_sha": "eb8298432e",
+  "subject": "doc: clarify how to trigger automatic stage0 updates (#11413)",
+  "zig_target": {}
+}

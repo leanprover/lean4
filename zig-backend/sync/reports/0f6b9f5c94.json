@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-07-03",
+  "needs_port": true,
+  "sha": "0f6b9f5c947103d17ad335394ba1644bf843e1af",
+  "short_sha": "0f6b9f5c94",
+  "subject": "chore: clean up stage 0 executable build",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

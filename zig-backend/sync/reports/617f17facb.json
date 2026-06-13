@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-07-03",
+  "needs_port": true,
+  "sha": "617f17facbc4822ebdbe698b9bb26e5bcfee4383",
+  "short_sha": "617f17facb",
+  "subject": "feat: reintroduce libleanshared, link lean & leanpkg against it",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

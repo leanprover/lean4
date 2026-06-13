@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-12",
+  "needs_port": false,
+  "sha": "f512a9a9341228f0967915c24d54586ae1a5a0b2",
+  "short_sha": "f512a9a934",
+  "subject": "Auto link dep libs for bin (+ more pkg path helpers)",
+  "zig_target": {}
+}

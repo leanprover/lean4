@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2025-07-01",
+  "needs_port": true,
+  "sha": "8c1e5c5c07c249b0a06cc558f2dfb554f8a86e80",
+  "short_sha": "8c1e5c5c07",
+  "subject": "chore: allow grind to unfold Array ifInBounds operations (#9120)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

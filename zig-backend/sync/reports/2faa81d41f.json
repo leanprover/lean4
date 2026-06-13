@@ -1,0 +1,18 @@
+{
+  "author": "Austin Letson",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2024-05-21",
+  "needs_port": true,
+  "sha": "2faa81d41f5499a5538841441827a69ea9fee8b6",
+  "short_sha": "2faa81d41f",
+  "subject": "doc: add docstrings and examples for String functions (#4166)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

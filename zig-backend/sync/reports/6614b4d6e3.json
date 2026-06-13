@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-28",
+  "needs_port": false,
+  "sha": "6614b4d6e32c93260fcde4a5ab48e2d41daf43d6",
+  "short_sha": "6614b4d6e3",
+  "subject": "fix: use exact instead of prefix token match when inheriting precedence",
+  "zig_target": {}
+}

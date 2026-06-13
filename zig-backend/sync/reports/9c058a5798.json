@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-18",
+  "needs_port": false,
+  "sha": "9c058a57985007388ce814d5037b910c123657ed",
+  "short_sha": "9c058a5798",
+  "subject": "chore: remove some unnecessary partial",
+  "zig_target": {}
+}

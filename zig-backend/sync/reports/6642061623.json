@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-02",
+  "needs_port": false,
+  "sha": "6642061623282d4ac79835f885d5b6b95e0e67f0",
+  "short_sha": "6642061623",
+  "subject": "fix: make `mvcgen with tac` fail if `tac` fails on one of the VCs (#11871)",
+  "zig_target": {}
+}

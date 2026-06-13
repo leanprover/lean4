@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-04-24",
+  "needs_port": false,
+  "sha": "b2ed6ac9397682a719d6cfe67e216570cb12c95a",
+  "short_sha": "b2ed6ac939",
+  "subject": "refactor: WF: add eq_def theorem for `._unary` (#8063)",
+  "zig_target": {}
+}

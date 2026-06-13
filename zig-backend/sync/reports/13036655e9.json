@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-25",
+  "needs_port": false,
+  "sha": "13036655e9128ae725c174c2752c160d7f117ef7",
+  "short_sha": "13036655e9",
+  "subject": "fix: reduce types when constructing default values in structure instance notation (#5844)",
+  "zig_target": {}
+}

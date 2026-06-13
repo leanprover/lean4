@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/FloatLetIn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Probing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Probing.lean"
+    }
+  ],
+  "date": "2025-03-13",
+  "needs_port": true,
+  "sha": "a2cb435aa17455587f79312595f12c60d44e4312",
+  "short_sha": "a2cb435aa1",
+  "subject": "chore: rename `HashMap.empty` to `HashMap.emptyWithCapacity` (#7447)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FloatLetIn.lean": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean",
+    "src/Lean/Compiler/LCNF/Probing.lean": "zig-backend/src/lean/compiler/lcnf/Probing.lean"
+  }
+}

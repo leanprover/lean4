@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/serializer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.cpp"
+    },
+    {
+      "path": "src/runtime/serializer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.h"
+    }
+  ],
+  "date": "2018-08-18",
+  "needs_port": true,
+  "sha": "ce504b4c215729a546e8b7da0bf5b6bf5e2abf8a",
+  "short_sha": "ce504b4c21",
+  "subject": "feat(runtime/serializer): support for tasks",
+  "zig_target": {
+    "src/runtime/serializer.cpp": "zig-backend/src/runtime/serializer.cpp",
+    "src/runtime/serializer.h": "zig-backend/src/runtime/serializer.h"
+  }
+}

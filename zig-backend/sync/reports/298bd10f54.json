@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Visibility.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+    }
+  ],
+  "date": "2025-08-26",
+  "needs_port": true,
+  "sha": "298bd10f54f657c592483d6de2aebff185207878",
+  "short_sha": "298bd10f54",
+  "subject": "perf: do not cause `compiler.small` to export IR bodies unless the `Expr` body is already being exported (#10002)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Visibility.lean": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-11",
+  "needs_port": false,
+  "sha": "6f0192581aadddb8031dbe3b73a3d885f63f7328",
+  "short_sha": "6f0192581a",
+  "subject": "feat: change precedence for `fun` and `do` parsing rules to `maxPrec`",
+  "zig_target": {}
+}

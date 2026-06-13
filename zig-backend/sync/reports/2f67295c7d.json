@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-03",
+  "needs_port": false,
+  "sha": "2f67295c7d6d8a3d13c6cf8ec92de58aa94089b6",
+  "short_sha": "2f67295c7d",
+  "subject": "feat: strengthen `pp*` signatures",
+  "zig_target": {}
+}

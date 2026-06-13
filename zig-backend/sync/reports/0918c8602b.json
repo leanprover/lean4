@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-15",
+  "needs_port": false,
+  "sha": "0918c8602bb6cf8812553a91734d93cda7633f94",
+  "short_sha": "0918c8602b",
+  "subject": "fix: avoid sed, which doesn't always like \\r",
+  "zig_target": {}
+}

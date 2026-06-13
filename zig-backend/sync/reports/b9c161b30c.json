@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Syntax.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    }
+  ],
+  "date": "2020-01-15",
+  "needs_port": true,
+  "sha": "b9c161b30c121a2cdc1582e1b26e5148b0e7516a",
+  "short_sha": "b9c161b30c",
+  "subject": "feat: elaborate `macro` command",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Syntax.lean": "zig-backend/src/init/Lean/Elab/Syntax.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "346c9cb16ae88fcfd22e6fe9111e6385bed7563d",
+  "short_sha": "346c9cb16a",
+  "subject": "chore: CI: bump git cache to 5GB (#13053)",
+  "zig_target": {}
+}

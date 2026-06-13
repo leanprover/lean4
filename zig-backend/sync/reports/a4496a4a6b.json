@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-08-17",
+  "needs_port": true,
+  "sha": "a4496a4a6b3cd26c37b1bca787df00cf77520880",
+  "short_sha": "a4496a4a6b",
+  "subject": "chore: remove `grind +ringNull` option (#9954)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

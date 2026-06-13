@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-14",
+  "needs_port": true,
+  "sha": "57aadf8af9f2cc632c97bcb0d34476388ec9cb1d",
+  "short_sha": "57aadf8af9",
+  "subject": "feat: add helper theorems for normalizing divisibility constraints  (#7091)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

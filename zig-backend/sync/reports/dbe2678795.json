@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2018-10-20",
+  "needs_port": true,
+  "sha": "dbe267879590ec76fe6aee07838f4539191d3f20",
+  "short_sha": "dbe2678795",
+  "subject": "fix(library/compiler/specialize): we should specialize even if only a few \"specialization arguments\" have been provided",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

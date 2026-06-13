@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-09-25",
+  "needs_port": true,
+  "sha": "28fb4bb1b25692496adf32b7c825e6bb88fc0aa0",
+  "short_sha": "28fb4bb1b2",
+  "subject": "feat: `lake cache` (& remote cache support) (#10188)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

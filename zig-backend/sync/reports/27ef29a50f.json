@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-27",
+  "needs_port": false,
+  "sha": "27ef29a50febbd6c674350d8b7be9ae5f02b3248",
+  "short_sha": "27ef29a50f",
+  "subject": "refactor(kernel/declaration): continue constant_info/declaration refactoring",
+  "zig_target": {}
+}

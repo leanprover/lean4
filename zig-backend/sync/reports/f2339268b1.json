@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-12-08",
+  "needs_port": true,
+  "sha": "f2339268b18eff1aff1e2376abe8f9ebafc9aedd",
+  "short_sha": "f2339268b1",
+  "subject": "fix: adjust code to new `match`-compiler",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

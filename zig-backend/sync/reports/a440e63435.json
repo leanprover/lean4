@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-01",
+  "needs_port": false,
+  "sha": "a440e63435606c4bf693c5a5ec6d67096e47aa4d",
+  "short_sha": "a440e63435",
+  "subject": "fix: loose bound variables at ACLt  (#3819)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-01",
+  "needs_port": false,
+  "sha": "3282ac6f96cc43a1060dcf558f9689717d673f02",
+  "short_sha": "3282ac6f96",
+  "subject": "chore: CI: exclude additional slow test (#11440)",
+  "zig_target": {}
+}

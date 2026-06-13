@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-06-14",
+  "needs_port": false,
+  "sha": "b096e7d5f2f4d2da31ae80c3925c5d0e1e5e4967",
+  "short_sha": "b096e7d5f2",
+  "subject": "chore: make `Name.isInternalDetail` public, to remove duplication downstream (#4454)",
+  "zig_target": {}
+}

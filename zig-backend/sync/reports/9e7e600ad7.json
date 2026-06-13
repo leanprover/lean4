@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.cpp"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-06-19",
+  "needs_port": true,
+  "sha": "9e7e600ad7b3def979e17c0a7322cb2fee477e14",
+  "short_sha": "9e7e600ad7",
+  "subject": "feat(kernel): add expr.proj constructor",
+  "zig_target": {
+    "src/library/compiler/cse.cpp": "zig-backend/src/library/compiler/cse.cpp",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

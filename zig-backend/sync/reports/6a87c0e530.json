@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Sym.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Sym.lean"
+    },
+    {
+      "path": "src/Init/Sym/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Sym/Lemmas.lean"
+    }
+  ],
+  "date": "2026-01-16",
+  "needs_port": true,
+  "sha": "6a87c0e530953d97ec2d8331d59794e16d67c6c1",
+  "short_sha": "6a87c0e530",
+  "subject": "feat: add `Sym.Simp.evalGround` simproc (#12031)",
+  "zig_target": {
+    "src/Init/Sym.lean": "zig-backend/src/init/Sym.lean",
+    "src/Init/Sym/Lemmas.lean": "zig-backend/src/init/Sym/Lemmas.lean"
+  }
+}

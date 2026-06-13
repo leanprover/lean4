@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-31",
+  "needs_port": false,
+  "sha": "6faab78384a3bc92a6702fcdc2e18e7c040a0c06",
+  "short_sha": "6faab78384",
+  "subject": "chore: delete unused invariant (#7759)",
+  "zig_target": {}
+}

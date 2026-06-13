@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-26",
+  "needs_port": false,
+  "sha": "e68e448070d07461a6eb5df34613d8aff8a804e3",
+  "short_sha": "e68e448070",
+  "subject": "fix: convert inductive type instance implicit parameters to implicit when building `SizeOf` instance",
+  "zig_target": {}
+}

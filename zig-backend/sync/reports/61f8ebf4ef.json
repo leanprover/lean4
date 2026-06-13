@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "61f8ebf4ef4ac5bc35223adc72c37b12f2d9f201",
+  "short_sha": "61f8ebf4ef",
+  "subject": "refactor(library/init/lean/parser/reader): destructure `reader` into monad and `has_tokens` typeclass",
+  "zig_target": {}
+}

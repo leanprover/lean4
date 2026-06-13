@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "5df753f3381dca714d0e81727d38feba765d6234",
+  "short_sha": "5df753f338",
+  "subject": "feat: server: support ranged semantic tokens (keywords only for now)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-07-22",
+  "needs_port": false,
+  "sha": "67bbc947afd6cf4dcaaf719f08fb1045b6f2049d",
+  "short_sha": "67bbc947af",
+  "subject": "feat: lake: `meta import` support (#9478)",
+  "zig_target": {}
+}

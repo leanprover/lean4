@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "c017686f70e581a37dc3579233eedbb4714db34d",
+  "short_sha": "c017686f70",
+  "subject": "fix(frontends/lean/lean_elaborator): `pre_equations` => `preEquations`",
+  "zig_target": {}
+}

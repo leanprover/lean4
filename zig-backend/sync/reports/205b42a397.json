@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-03-17",
+  "needs_port": true,
+  "sha": "205b42a397bf80bbfad5632ea7749f9b6e6ccbdc",
+  "short_sha": "205b42a397",
+  "subject": "feat: proper syntax for configuring `simp`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

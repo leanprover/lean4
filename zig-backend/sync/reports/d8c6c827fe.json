@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2022-08-11",
+  "needs_port": true,
+  "sha": "d8c6c827fefc8dfcc83ae7c5793a5d1bc808ec0a",
+  "short_sha": "d8c6c827fe",
+  "subject": "fix: use saturating casts in `lean_float_to_uint8` to avoid UB",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

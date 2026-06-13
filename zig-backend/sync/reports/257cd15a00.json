@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-06-06",
+  "needs_port": false,
+  "sha": "257cd15a00c587543371ad447e446e02a80b8638",
+  "short_sha": "257cd15a00",
+  "subject": "fix: wrong signature help after map/filter/etc (#8655)",
+  "zig_target": {}
+}

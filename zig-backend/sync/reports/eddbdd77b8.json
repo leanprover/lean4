@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-10-22",
+  "needs_port": true,
+  "sha": "eddbdd77b85c44728e0a749fd224d3ce31770976",
+  "short_sha": "eddbdd77b8",
+  "subject": "doc: refine rwa docstring (#5811)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

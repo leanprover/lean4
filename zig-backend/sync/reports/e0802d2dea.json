@@ -1,0 +1,10 @@
+{
+  "author": "SADIK KUZU",
+  "backend_changes": [],
+  "date": "2023-10-17",
+  "needs_port": false,
+  "sha": "e0802d2deab819ec534fa2c59206135fd7be39af",
+  "short_sha": "e0802d2dea",
+  "subject": "fix: typos in specialize.cpp (#2702)",
+  "zig_target": {}
+}

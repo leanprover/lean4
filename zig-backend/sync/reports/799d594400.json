@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-11-27",
+  "needs_port": false,
+  "sha": "799d5944007085768dcc8b8558c6dae485d4ae22",
+  "short_sha": "799d594400",
+  "subject": "feat: add difference on `DHashMap`/`HashMap`/`HashSet` (#11212)",
+  "zig_target": {}
+}

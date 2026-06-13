@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-04",
+  "needs_port": false,
+  "sha": "ed4cd39d593a680885471080efc0722334022baf",
+  "short_sha": "ed4cd39d59",
+  "subject": "feat(library/init/lean/compiler/ir): new IR for Lean",
+  "zig_target": {}
+}

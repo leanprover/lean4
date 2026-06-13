@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2022-10-26",
+  "needs_port": true,
+  "sha": "39249f0c1dabb661c5eccf8ed9a2cef12beaa1dc",
+  "short_sha": "39249f0c1d",
+  "subject": "perf: zero startup time function summaries",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+  }
+}

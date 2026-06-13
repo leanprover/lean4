@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-01-03",
+  "needs_port": false,
+  "sha": "75252d2b85df8cb9231020a556a70f6d736e7ee5",
+  "short_sha": "75252d2b85",
+  "subject": "perf: whnf projections during defeq",
+  "zig_target": {}
+}

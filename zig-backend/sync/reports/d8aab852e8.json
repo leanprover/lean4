@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-31",
+  "needs_port": false,
+  "sha": "d8aab852e8d95e589cd61078ea2ae6597a9c1545",
+  "short_sha": "d8aab852e8",
+  "subject": "feat: add `usedLetOnly` parameter to `Meta.transform`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-09",
+  "needs_port": false,
+  "sha": "265c18accd055c59e00afa837ab3469141b5ebd9",
+  "short_sha": "265c18accd",
+  "subject": "doc: faq: bullet points look weird and are not anchors",
+  "zig_target": {}
+}

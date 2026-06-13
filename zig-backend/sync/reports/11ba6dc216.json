@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2021-11-30",
+  "needs_port": false,
+  "sha": "11ba6dc21624d8c103cbb9b153db765a1d2f6d6a",
+  "short_sha": "11ba6dc216",
+  "subject": "test: add simple \"find references\" test",
+  "zig_target": {}
+}

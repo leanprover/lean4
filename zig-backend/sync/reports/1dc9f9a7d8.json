@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    }
+  ],
+  "date": "2020-02-28",
+  "needs_port": true,
+  "sha": "1dc9f9a7d8c31a0dbbac7cf089d97dae8c8cbcf2",
+  "short_sha": "1dc9f9a7d8",
+  "subject": "chore: remove old names",
+  "zig_target": {
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp"
+  }
+}

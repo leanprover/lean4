@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-06-07",
+  "needs_port": false,
+  "sha": "b1aff14650435d1a8d11509184f6e0a7645b3265",
+  "short_sha": "b1aff14650",
+  "subject": "feat(library/init/lean/parser/syntax.lean): simplify syntax debug output",
+  "zig_target": {}
+}

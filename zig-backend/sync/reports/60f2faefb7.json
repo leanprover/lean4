@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-17",
+  "needs_port": false,
+  "sha": "60f2faefb7799abb238f18e2b81b76de9072ce35",
+  "short_sha": "60f2faefb7",
+  "subject": "feat: display placeholder & goal errors even on parse error",
+  "zig_target": {}
+}

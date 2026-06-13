@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-06-23",
+  "needs_port": true,
+  "sha": "9f7af2b77b395872f397306a651a7fc5ddbbaecc",
+  "short_sha": "9f7af2b77b",
+  "subject": "doc: document a few tactics",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

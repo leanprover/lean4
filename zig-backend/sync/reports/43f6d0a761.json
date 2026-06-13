@@ -1,0 +1,24 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2023-05-30",
+  "needs_port": true,
+  "sha": "43f6d0a76152a78df120ea03e079eb892064987b",
+  "short_sha": "43f6d0a761",
+  "subject": "feat: implement `have this` (part 1)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

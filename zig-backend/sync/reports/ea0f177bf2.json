@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-05",
+  "needs_port": false,
+  "sha": "ea0f177bf29b94f70d75842565cb4422662b16a0",
+  "short_sha": "ea0f177bf2",
+  "subject": "feat: add unused/deprecation diagnostic tags",
+  "zig_target": {}
+}

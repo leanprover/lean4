@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-18",
+  "needs_port": false,
+  "sha": "f2d91617803db9bf6a2d17e756a9955237bdec7e",
+  "short_sha": "f2d9161780",
+  "subject": "chore: make doc-gen4 release depend on mathlib4 (#12516)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    }
+  ],
+  "date": "2024-02-22",
+  "needs_port": true,
+  "sha": "815200eaad2a0fe31ef24df9ea37a2f3a054a4a1",
+  "short_sha": "815200eaad",
+  "subject": "refactor: make `BitVec.carry` take bitvector arguments (#3461)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+  }
+}

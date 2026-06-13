@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-15",
+  "needs_port": false,
+  "sha": "61813d60c6894c550e04d062851c76c7ff1ddad5",
+  "short_sha": "61813d60c6",
+  "subject": "test: for join point taking closure as parameter",
+  "zig_target": {}
+}

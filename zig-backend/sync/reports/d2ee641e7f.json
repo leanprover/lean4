@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-19",
+  "needs_port": false,
+  "sha": "d2ee641e7fc80918475d5100c92e8119d722e735",
+  "short_sha": "d2ee641e7f",
+  "subject": "chore: restore macro",
+  "zig_target": {}
+}

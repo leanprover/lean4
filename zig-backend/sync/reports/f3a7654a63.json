@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-03",
+  "needs_port": false,
+  "sha": "f3a7654a6306a5550fa298c571e52612bb47a25a",
+  "short_sha": "f3a7654a63",
+  "subject": "fix: unused variables linter: find nested uses in tactics",
+  "zig_target": {}
+}

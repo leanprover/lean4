@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-15",
+  "needs_port": false,
+  "sha": "db6b9db07ed630ecb13fac7c864e252f132afe75",
+  "short_sha": "db6b9db07e",
+  "subject": "fix(tests/lean/parser1): fix reprinting (`eoi node was missing)",
+  "zig_target": {}
+}

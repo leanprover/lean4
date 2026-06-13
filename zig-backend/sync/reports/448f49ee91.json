@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-02-09",
+  "needs_port": false,
+  "sha": "448f49ee913b3a1e5a9fc5df359da9ee14b4e69b",
+  "short_sha": "448f49ee91",
+  "subject": "Revert \"fix: reenable structure eta during tc search\"",
+  "zig_target": {}
+}

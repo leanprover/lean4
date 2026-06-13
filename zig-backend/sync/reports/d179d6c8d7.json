@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-23",
+  "needs_port": false,
+  "sha": "d179d6c8d792e7aaad30be8a64a29822d3de9e53",
+  "short_sha": "d179d6c8d7",
+  "subject": "perf: bitvector literals in match patterns (#3485)",
+  "zig_target": {}
+}

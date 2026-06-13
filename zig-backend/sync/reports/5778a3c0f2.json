@@ -1,0 +1,30 @@
+{
+  "author": "simon-dima",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/MonoTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Util.lean"
+    }
+  ],
+  "date": "2025-07-11",
+  "needs_port": true,
+  "sha": "5778a3c0f2dbe17fdac88902478362d66c43fd61",
+  "short_sha": "5778a3c0f2",
+  "subject": "chore: fix \"isRuntimeBultinType\" typo (#9307)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/MonoTypes.lean": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean",
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean",
+    "src/Lean/Compiler/LCNF/Util.lean": "zig-backend/src/lean/compiler/lcnf/Util.lean"
+  }
+}

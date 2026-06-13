@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-12",
+  "needs_port": false,
+  "sha": "84e9dd9b1a4ba90d9dbb57bc6602ec1a4c38f062",
+  "short_sha": "84e9dd9b1a",
+  "subject": "feat(library/init/lean/elaborator,frontends/lean/vm_elaborator): implement def/theorem/abbreviation",
+  "zig_target": {}
+}

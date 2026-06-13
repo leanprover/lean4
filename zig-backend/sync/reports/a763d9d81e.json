@@ -1,0 +1,18 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-08-15",
+  "needs_port": true,
+  "sha": "a763d9d81e629ef14c31f33ea298c859fccad5bc",
+  "short_sha": "a763d9d81e",
+  "subject": "fix: decodeScientificLitVal? parses 1.0e+1 correctly",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

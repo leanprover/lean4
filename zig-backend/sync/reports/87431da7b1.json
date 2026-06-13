@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-03",
+  "needs_port": false,
+  "sha": "87431da7b1e91ac4e36b84d0efb7053afadc9807",
+  "short_sha": "87431da7b1",
+  "subject": "doc: metaprogramming-arith: style",
+  "zig_target": {}
+}

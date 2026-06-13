@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-21",
+  "needs_port": false,
+  "sha": "0351c968319b2156d32730c9da5b823de98dafc4",
+  "short_sha": "0351c96831",
+  "subject": "feat: better error message for `induction` tactic on mutually inductives",
+  "zig_target": {}
+}

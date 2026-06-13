@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-07",
+  "needs_port": false,
+  "sha": "390a476caf5783cf0455b1f72ac067835ffa17d9",
+  "short_sha": "390a476caf",
+  "subject": "fix: incorrect use of `unreachable!`",
+  "zig_target": {}
+}

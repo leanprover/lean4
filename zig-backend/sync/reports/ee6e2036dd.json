@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-07-28",
+  "needs_port": true,
+  "sha": "ee6e2036ddef27ddea87d0abb8a83b92bd7c8857",
+  "short_sha": "ee6e2036dd",
+  "subject": "feat: allow relations in `Type` at `Trans`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

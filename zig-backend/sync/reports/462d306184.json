@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-06-08",
+  "needs_port": false,
+  "sha": "462d30618472548e42b10d39bca5152602fed935",
+  "short_sha": "462d306184",
+  "subject": "chore: fix test on non-Windows",
+  "zig_target": {}
+}

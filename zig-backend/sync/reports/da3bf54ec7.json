@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/App.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/App.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    },
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    },
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-02-13",
+  "needs_port": true,
+  "sha": "da3bf54ec74d8dd0d8f76a43c48ae3a6c826c023",
+  "short_sha": "da3bf54ec7",
+  "subject": "feat: elaborate `autoParam`s",
+  "zig_target": {
+    "src/Init/Lean/Elab/App.lean": "zig-backend/src/init/Lean/Elab/App.lean",
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean",
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean",
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean",
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean",
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

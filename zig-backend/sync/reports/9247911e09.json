@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/PrettyPrinter/Parenthesizer.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+    }
+  ],
+  "date": "2020-05-22",
+  "needs_port": true,
+  "sha": "9247911e09cb50d28a18a0fe124a49be39c46f23",
+  "short_sha": "9247911e09",
+  "subject": "fix: basic parenthesizer approach, document",
+  "zig_target": {
+    "src/Init/Lean/PrettyPrinter/Parenthesizer.lean": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+  }
+}

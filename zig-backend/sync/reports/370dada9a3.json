@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/AssocList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/AssocList.lean"
+    },
+    {
+      "path": "src/Init/Data/HashMap/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/HashMap/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/HashSet.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/HashSet.lean"
+    },
+    {
+      "path": "src/Init/Data/PersistentHashMap/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/PersistentHashMap/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/PersistentHashSet.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/PersistentHashSet.lean"
+    },
+    {
+      "path": "src/Init/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/Boxing.lean"
+    }
+  ],
+  "date": "2020-02-24",
+  "needs_port": true,
+  "sha": "370dada9a3b44ea45fb66cf7ac6427dad0431e40",
+  "short_sha": "370dada9a3",
+  "subject": "feat: add `findEntry?` functions",
+  "zig_target": {
+    "src/Init/Data/AssocList.lean": "zig-backend/src/init/Data/AssocList.lean",
+    "src/Init/Data/HashMap/Basic.lean": "zig-backend/src/init/Data/HashMap/Basic.lean",
+    "src/Init/Data/HashSet.lean": "zig-backend/src/init/Data/HashSet.lean",
+    "src/Init/Data/PersistentHashMap/Basic.lean": "zig-backend/src/init/Data/PersistentHashMap/Basic.lean",
+    "src/Init/Data/PersistentHashSet.lean": "zig-backend/src/init/Data/PersistentHashSet.lean",
+    "src/Init/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/init/Lean/Compiler/IR/Boxing.lean"
+  }
+}

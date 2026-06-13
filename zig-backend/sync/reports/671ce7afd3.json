@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-28",
+  "needs_port": false,
+  "sha": "671ce7afd3a2a6f638cbfea502ac65e33fd14bbd",
+  "short_sha": "671ce7afd3",
+  "subject": "fix: IndPred: track function's motive in a let binding, use withoutProofIrrelevance, no chaining (#4839)",
+  "zig_target": {}
+}

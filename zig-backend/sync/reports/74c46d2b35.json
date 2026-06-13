@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "74c46d2b354c19102d9ea6d150d9797c599071e9",
+  "short_sha": "74c46d2b35",
+  "subject": "fix(library/init/lean/parser/parser): `symbolNoWs` was not creating an atom",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/EmitC.lean"
+    }
+  ],
+  "date": "2020-05-01",
+  "needs_port": true,
+  "sha": "28350f46d85dc9bd14774541e0ff8cfbe210f2f8",
+  "short_sha": "28350f46d8",
+  "subject": "feat: prevent Windows error message boxes in all Lean programs",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/init/Lean/Compiler/IR/EmitC.lean"
+  }
+}

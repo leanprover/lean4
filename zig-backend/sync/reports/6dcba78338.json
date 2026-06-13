@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "6dcba783385400f0e8cd46b6b8cb747f401c9662",
+  "short_sha": "6dcba78338",
+  "subject": "refactor: improve `MVarId` method discoverability",
+  "zig_target": {}
+}

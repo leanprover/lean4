@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-22",
+  "needs_port": false,
+  "sha": "650c6df380ecc83740abf63108d70c7e71140b98",
+  "short_sha": "650c6df380",
+  "subject": "feat: try other variables after failure",
+  "zig_target": {}
+}

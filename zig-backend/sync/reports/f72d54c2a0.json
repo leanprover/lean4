@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-05-23",
+  "needs_port": true,
+  "sha": "f72d54c2a0dc6949084fa7f7e767c949a6726d16",
+  "short_sha": "f72d54c2a0",
+  "subject": "chore(shell/lean): set new IR compiler as the default",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

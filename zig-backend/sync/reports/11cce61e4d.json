@@ -1,0 +1,10 @@
+{
+  "author": "Jonathan Coates",
+  "backend_changes": [],
+  "date": "2022-02-12",
+  "needs_port": false,
+  "sha": "11cce61e4df3b8cd35de0d4d9197a36d602b885e",
+  "short_sha": "11cce61e4d",
+  "subject": "chore: Clean up LSP folding a little",
+  "zig_target": {}
+}

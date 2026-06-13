@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-11-25",
+  "needs_port": true,
+  "sha": "88b6ad4756ccf0f8136712e8c9682c7aad293cca",
+  "short_sha": "88b6ad4756",
+  "subject": "feat: add `etaStruct` to `Meta.Simp.Config`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

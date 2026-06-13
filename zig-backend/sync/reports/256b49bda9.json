@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    }
+  ],
+  "date": "2024-11-13",
+  "needs_port": true,
+  "sha": "256b49bda95591e5d0ad0274523149025e25ae90",
+  "short_sha": "256b49bda9",
+  "subject": "perf: optimize Nat.Linear.Poly.norm (#6064)",
+  "zig_target": {
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean"
+  }
+}

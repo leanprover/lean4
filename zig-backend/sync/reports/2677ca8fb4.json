@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "2677ca8fb4207e836dc7d87689d6cfd5ef3dc7d5",
+  "short_sha": "2677ca8fb4",
+  "subject": "fix: import-merging theorems under the module system (#10556)",
+  "zig_target": {}
+}

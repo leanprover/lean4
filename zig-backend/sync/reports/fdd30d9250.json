@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-01-19",
+  "needs_port": false,
+  "sha": "fdd30d925049195271c9c7c58c6a1b03a744cfaf",
+  "short_sha": "fdd30d9250",
+  "subject": "chore: lake: disable `import all` check (for now) (#12045)",
+  "zig_target": {}
+}

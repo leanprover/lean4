@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-03",
+  "needs_port": false,
+  "sha": "e6c9da0fccf762fdbe2b629fc428e29936654174",
+  "short_sha": "e6c9da0fcc",
+  "subject": "feat: add support for implication at `congr` conv tactic",
+  "zig_target": {}
+}

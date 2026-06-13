@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-07",
+  "needs_port": false,
+  "sha": "a24a8361f5339c67cea4998d0a93783d794b3a1b",
+  "short_sha": "a24a8361f5",
+  "subject": "feat(library/init/lean/compiler/ir/boxing): add some missing cases",
+  "zig_target": {}
+}

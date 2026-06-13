@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-05-04",
+  "needs_port": false,
+  "sha": "5f262d3b184e7aaf4b6fe1fab9b908677b9216b4",
+  "short_sha": "5f262d3b18",
+  "subject": "chore: update release tooling and docs (#13631)",
+  "zig_target": {}
+}

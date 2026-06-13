@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-05-30",
+  "needs_port": false,
+  "sha": "a12f89aefa10812fda01275d87bfc18d97914899",
+  "short_sha": "a12f89aefa",
+  "subject": "feat: introduce `take` iterator combinator (#8418)",
+  "zig_target": {}
+}

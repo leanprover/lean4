@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-03",
+  "needs_port": false,
+  "sha": "61ae72330f04037b53d64a682bee10f8ed7cde5a",
+  "short_sha": "61ae72330f",
+  "subject": "feat: improve universe level contraint checks in inductive datatype constructors",
+  "zig_target": {}
+}

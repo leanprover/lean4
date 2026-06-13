@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/ElabTerm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/ElabTerm.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    }
+  ],
+  "date": "2020-01-19",
+  "needs_port": true,
+  "sha": "655da9baefbee5460d0cc0d96eaf5ed847905d24",
+  "short_sha": "655da9baef",
+  "subject": "fix: tag `refine` subgoals",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean",
+    "src/Init/Lean/Elab/Tactic/ElabTerm.lean": "zig-backend/src/init/Lean/Elab/Tactic/ElabTerm.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean"
+  }
+}

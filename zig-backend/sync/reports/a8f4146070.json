@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-23",
+  "needs_port": false,
+  "sha": "a8f4146070ccc9603aae7445a49a00c67533c4b6",
+  "short_sha": "a8f4146070",
+  "subject": "feat: support eta struct recursively",
+  "zig_target": {}
+}

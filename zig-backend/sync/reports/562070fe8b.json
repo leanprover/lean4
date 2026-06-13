@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-05",
+  "needs_port": false,
+  "sha": "562070fe8b33e74e38773dc9a2a11ca7c087f21d",
+  "short_sha": "562070fe8b",
+  "subject": "refactor: more extract methods from transform",
+  "zig_target": {}
+}

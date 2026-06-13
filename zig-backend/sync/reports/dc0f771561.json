@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-02-29",
+  "needs_port": false,
+  "sha": "dc0f771561d988f8b48bc01e381aad52f19c9b46",
+  "short_sha": "dc0f771561",
+  "subject": "doc: fix markdown indentation in RELEASES.md (#3542)",
+  "zig_target": {}
+}

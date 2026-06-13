@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-27",
+  "needs_port": false,
+  "sha": "99161538f8c953e820f0b73a4bd95d03eab26c32",
+  "short_sha": "99161538f8",
+  "subject": "feat: add `Declaration.forExprM` and `Declaration.foldExprM`",
+  "zig_target": {}
+}

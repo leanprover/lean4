@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Poly.lean"
+    }
+  ],
+  "date": "2025-08-17",
+  "needs_port": true,
+  "sha": "973885d0870907a10848086e63331879fc903144",
+  "short_sha": "973885d087",
+  "subject": "chore: remove `NullCert` leftovers (#9955)",
+  "zig_target": {
+    "src/Init/Grind/Ring/Poly.lean": "zig-backend/src/init/Grind/Ring/Poly.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-09-23",
+  "needs_port": false,
+  "sha": "94e5b66dfe519994561016803cb021f06ef9aa10",
+  "short_sha": "94e5b66dfe",
+  "subject": "feat: add `AsyncStream`, `AsyncWrite` and `AsyncRead` type classes (#10370)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-19",
+  "needs_port": false,
+  "sha": "7d7d15f8f7a7daf7bc13be7f85cd3e29bd30baae",
+  "short_sha": "7d7d15f8f7",
+  "subject": "chore(frontends/lean/elaborator): improve error positions",
+  "zig_target": {}
+}

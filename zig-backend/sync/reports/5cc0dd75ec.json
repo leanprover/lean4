@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-03",
+  "needs_port": false,
+  "sha": "5cc0dd75ecc2ef7dca6cd6600ce41e17cdd7dc7b",
+  "short_sha": "5cc0dd75ec",
+  "subject": "refactor: remove unnecessary abstraction",
+  "zig_target": {}
+}

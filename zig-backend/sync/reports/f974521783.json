@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-10",
+  "needs_port": false,
+  "sha": "f9745217832568aa45aa8d2b055673770becf9bd",
+  "short_sha": "f974521783",
+  "subject": "fix: missing `node`",
+  "zig_target": {}
+}

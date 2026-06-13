@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-16",
+  "needs_port": false,
+  "sha": "a97f8cb8e45df383610a2dea724b41f3ab6577fe",
+  "short_sha": "a97f8cb8e4",
+  "subject": "fix: nontermination at `DepElim`",
+  "zig_target": {}
+}

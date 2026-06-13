@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Injection.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Injection.lean"
+    }
+  ],
+  "date": "2020-03-08",
+  "needs_port": true,
+  "sha": "74908bb9c7af439ee55ec3ff1c89cd7448e6bde6",
+  "short_sha": "74908bb9c7",
+  "subject": "fix: typo",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Injection.lean": "zig-backend/src/init/Lean/Meta/Tactic/Injection.lean"
+  }
+}

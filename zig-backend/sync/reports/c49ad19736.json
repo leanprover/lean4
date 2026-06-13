@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-12",
+  "needs_port": true,
+  "sha": "c49ad1973619c1d699214bd3566de5bcc18df7a0",
+  "short_sha": "c49ad19736",
+  "subject": "refactor(kernel/type_checker): `type_checker::cache` ==> `type_checker::context`",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

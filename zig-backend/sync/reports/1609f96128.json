@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-07",
+  "needs_port": false,
+  "sha": "1609f96128d34f5e9382a2879d375e2e9e8adbe6",
+  "short_sha": "1609f96128",
+  "subject": "refactor: simplify `PatternVar.lean` and `Match.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Format.lean"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2022-11-18",
+  "needs_port": true,
+  "sha": "a4abbf07b83c44e2bec33040ae9d425fc1c79daa",
+  "short_sha": "a4abbf07b8",
+  "subject": "chore: remove remnants of C++ `format`",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean",
+    "src/Lean/Compiler/IR/Format.lean": "zig-backend/src/lean/compiler/ir/Format.lean",
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

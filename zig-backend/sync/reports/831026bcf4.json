@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2025-05-18",
+  "needs_port": true,
+  "sha": "831026bcf467ad935c954f216913367d684e310b",
+  "short_sha": "831026bcf4",
+  "subject": "chore: remove redundant ToFormat/ToString debug printing instances (#8400)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+  }
+}

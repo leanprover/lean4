@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-16",
+  "needs_port": false,
+  "sha": "4380d4a9dad2c453da7d14533e6941be7eac1295",
+  "short_sha": "4380d4a9da",
+  "subject": "feat: parser: store options & pass to `evalConst`",
+  "zig_target": {}
+}

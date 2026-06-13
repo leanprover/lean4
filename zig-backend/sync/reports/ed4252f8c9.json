@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-05-30",
+  "needs_port": false,
+  "sha": "ed4252f8c93f591ae753cc963cfd69657ebd3e6a",
+  "short_sha": "ed4252f8c9",
+  "subject": "feat: array iterators, `repeat`/`unfold`, `ForM` for iterators (#8552)",
+  "zig_target": {}
+}

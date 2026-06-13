@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-17",
+  "needs_port": false,
+  "sha": "09001ecad62d1f1cc8b70d86200d0213baec6e23",
+  "short_sha": "09001ecad6",
+  "subject": "fix: let `realizeConst` run `withDeclNameForAuxNaming` (#11221)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "tydeu",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2023-08-04",
+  "needs_port": true,
+  "sha": "c79c7c89b34617fe7036f0e8e08fbc50c1422f52",
+  "short_sha": "c79c7c89b3",
+  "subject": "feat: `IO.Process.getPID` & `IO.FS.Mode.writeNew`",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

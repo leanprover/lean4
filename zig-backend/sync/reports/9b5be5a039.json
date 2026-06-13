@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-22",
+  "needs_port": false,
+  "sha": "9b5be5a0392bac77d21eaf47d09f80688a9907a8",
+  "short_sha": "9b5be5a039",
+  "subject": "chore: remove Json.syntax docstring",
+  "zig_target": {}
+}

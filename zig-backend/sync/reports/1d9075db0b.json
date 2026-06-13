@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-08-06",
+  "needs_port": true,
+  "sha": "1d9075db0ba5e3b8073618785831be03bcb05f67",
+  "short_sha": "1d9075db0b",
+  "subject": "chore: add more helper axioms for code generator",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-13",
+  "needs_port": false,
+  "sha": "3d561a3ab0dfc95aabc480d5456851913376e2a3",
+  "short_sha": "3d561a3ab0",
+  "subject": "doc: add docstrings for interactive",
+  "zig_target": {}
+}

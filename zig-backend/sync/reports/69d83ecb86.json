@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-22",
+  "needs_port": true,
+  "sha": "69d83ecb86475d7346fedfe7b90a9dfdb8d65cf2",
+  "short_sha": "69d83ecb86",
+  "subject": "chore: make sure term and tactic parsers have disjoint infix operators",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

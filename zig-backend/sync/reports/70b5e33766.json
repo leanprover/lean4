@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-26",
+  "needs_port": false,
+  "sha": "70b5e33766dc746824c2911a11b794df87f0271d",
+  "short_sha": "70b5e33766",
+  "subject": "chore(CMakeLists.txt): add link to cmake documentation",
+  "zig_target": {}
+}

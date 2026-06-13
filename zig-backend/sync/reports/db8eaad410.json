@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/TermApp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+    }
+  ],
+  "date": "2020-01-29",
+  "needs_port": true,
+  "sha": "db8eaad410074b0bd2967c69012312948e84d37f",
+  "short_sha": "db8eaad410",
+  "subject": "fix: propagate only",
+  "zig_target": {
+    "src/Init/Lean/Elab/TermApp.lean": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+  }
+}

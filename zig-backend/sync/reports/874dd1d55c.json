@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-02",
+  "needs_port": false,
+  "sha": "874dd1d55c653abf5dc6e645c8efa8c250e48c36",
+  "short_sha": "874dd1d55c",
+  "subject": "chore(library/init/lean/compiler/ir/basic): remove unnecessary function",
+  "zig_target": {}
+}

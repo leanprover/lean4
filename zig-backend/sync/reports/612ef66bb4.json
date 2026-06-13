@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-10",
+  "needs_port": false,
+  "sha": "612ef66bb48c3faccf7a3fbd15f807001d9f5f45",
+  "short_sha": "612ef66bb4",
+  "subject": "feat: store whether inductive type is nested or not",
+  "zig_target": {}
+}

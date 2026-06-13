@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "104196e599b3f7ff00ceffec112dc4a705cc279d",
+  "short_sha": "104196e599",
+  "subject": "feat: add `profileitM` to compiler new entry point",
+  "zig_target": {}
+}

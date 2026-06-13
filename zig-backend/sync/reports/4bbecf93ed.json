@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/eager_lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+    }
+  ],
+  "date": "2019-04-17",
+  "needs_port": true,
+  "sha": "4bbecf93ed83fd08ccdb429f56c60e86683a1862",
+  "short_sha": "4bbecf93ed",
+  "subject": "fix(library/compiler/eager_lambda_lifting): assertion violation",
+  "zig_target": {
+    "src/library/compiler/eager_lambda_lifting.cpp": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+  }
+}

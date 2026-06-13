@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-17",
+  "needs_port": true,
+  "sha": "594587541c824bafbea650c4cfda74df2177b4be",
+  "short_sha": "594587541c",
+  "subject": "feat: add `Bitvec.[(toInt, toFin)_twoPow, toNat_twoPow_of_le, toNat_twoPow_of_lt, toNat_twoPow_eq_ite]` (#7225)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

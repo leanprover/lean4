@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-12-07",
+  "needs_port": false,
+  "sha": "7d0833e05a42c0adb1c95b71c47f3600f9eb2654",
+  "short_sha": "7d0833e05a",
+  "subject": "chore: extended CI checks",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Jonathan Coates",
+  "backend_changes": [],
+  "date": "2022-02-11",
+  "needs_port": false,
+  "sha": "04e60cebd12352a36f538bcff115984255233710",
+  "short_sha": "04e60cebd1",
+  "subject": "feat: LSP code folding support",
+  "zig_target": {}
+}

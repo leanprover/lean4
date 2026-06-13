@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-04",
+  "needs_port": false,
+  "sha": "612bdee68c1f68f3a171c0a86394964a933cb4e3",
+  "short_sha": "612bdee68c",
+  "subject": "test: lake: more robust `tests/serve` (#4346)",
+  "zig_target": {}
+}

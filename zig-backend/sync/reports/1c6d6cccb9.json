@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "1c6d6cccb95eea330cad7f08f44e1c594141b3ee",
+  "short_sha": "1c6d6cccb9",
+  "subject": "chore: style",
+  "zig_target": {
+    "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-11-13",
+  "needs_port": false,
+  "sha": "3f47871e7311da0331f974c01dd5970299460ea2",
+  "short_sha": "3f47871e73",
+  "subject": "perf: use RArray in simp_arith meta code (#6068 part 1)",
+  "zig_target": {}
+}

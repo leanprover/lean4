@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "d9fb5acb22d7ecc4316bcc73ba7b6e1fbd81ed16",
+  "short_sha": "d9fb5acb22",
+  "subject": "chore: use same approach we use for `HashMap`",
+  "zig_target": {}
+}

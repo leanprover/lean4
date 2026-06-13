@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-13",
+  "needs_port": false,
+  "sha": "c9ba846b03bba9983d611a114a32b0c66b0d601e",
+  "short_sha": "c9ba846b03",
+  "subject": "chore: try without import library",
+  "zig_target": {}
+}

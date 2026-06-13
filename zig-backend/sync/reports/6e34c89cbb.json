@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-14",
+  "needs_port": false,
+  "sha": "6e34c89cbb1db5ff1e099ef1d23171302510dca0",
+  "short_sha": "6e34c89cbb",
+  "subject": "chore: Nix: comment out rarely used `lean-stage0` input",
+  "zig_target": {}
+}

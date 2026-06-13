@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ReduceJpArity.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ReduceJpArity.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2022-10-07",
+  "needs_port": true,
+  "sha": "45974229d2c84f1f111a7a85f4118ee63bbcaafe",
+  "short_sha": "45974229d2",
+  "subject": "feat: reactivate `extendJoinPointContext` at mono phase",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/ReduceJpArity.lean": "zig-backend/src/lean/compiler/lcnf/ReduceJpArity.lean",
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2022-10-29",
+  "needs_port": true,
+  "sha": "00e3004ce5152c4182c9d046f59e3b72f714e4cd",
+  "short_sha": "00e3004ce5",
+  "subject": "feat: jp ctx extender after lambda lifting",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-27",
+  "needs_port": false,
+  "sha": "cf35e13c60ae2e44ff958ed24786ac3173393f46",
+  "short_sha": "cf35e13c60",
+  "subject": "feat: use fun_induction in if-normalization example (#8129)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-07-11",
+  "needs_port": false,
+  "sha": "123fd801cb9980d4f92295f901477b906d049d45",
+  "short_sha": "123fd801cb",
+  "subject": "doc: linter utils",
+  "zig_target": {}
+}

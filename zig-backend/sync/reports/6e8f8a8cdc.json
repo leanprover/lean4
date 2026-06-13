@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-01",
+  "needs_port": true,
+  "sha": "6e8f8a8cdc4fadd6c3dab251e8a30df824471616",
+  "short_sha": "6e8f8a8cdc",
+  "subject": "fix(library/compiler/emit_cpp): another bug in emit_quoted_string",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

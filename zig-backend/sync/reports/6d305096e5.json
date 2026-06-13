@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-01",
+  "needs_port": false,
+  "sha": "6d305096e5a48af555ffda912f2ccb44ab126706",
+  "short_sha": "6d305096e5",
+  "subject": "chore: fix profiler shebang and add profiling skill (#12519)",
+  "zig_target": {}
+}

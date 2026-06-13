@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    }
+  ],
+  "date": "2024-02-18",
+  "needs_port": true,
+  "sha": "55ce5d570c818f16f62eaa53e344db06e7f82d68",
+  "short_sha": "55ce5d570c",
+  "subject": "chore: add temporary workaround",
+  "zig_target": {
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+  }
+}

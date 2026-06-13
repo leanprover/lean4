@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-01-29",
+  "needs_port": false,
+  "sha": "30c8b39b239eb298900fa5edd84e4751367d04da",
+  "short_sha": "30c8b39b23",
+  "subject": "test: fix broken uri test (#12230)",
+  "zig_target": {}
+}

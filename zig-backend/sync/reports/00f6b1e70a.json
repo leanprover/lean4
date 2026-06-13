@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    }
+  ],
+  "date": "2025-06-09",
+  "needs_port": true,
+  "sha": "00f6b1e70aa4bc60206d442cec57b348593c6326",
+  "short_sha": "00f6b1e70a",
+  "subject": "fix: denotation functions for interfacing `CommRing` and linarith (#8693)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+  }
+}

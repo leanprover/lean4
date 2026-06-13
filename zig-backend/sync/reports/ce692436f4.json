@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-26",
+  "needs_port": false,
+  "sha": "ce692436f45e82acda8c6a49fe9c38b181f7a26a",
+  "short_sha": "ce692436f4",
+  "subject": "feat: expose diff at \"synthesized type class instance is not definitionally equal\" error (#6213)",
+  "zig_target": {}
+}

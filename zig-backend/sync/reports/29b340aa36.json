@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-25",
+  "needs_port": false,
+  "sha": "29b340aa36952348c9dfa39ce64dfa76023ac025",
+  "short_sha": "29b340aa36",
+  "subject": "fix: consume `Expr.mdata` at `congr` tactic",
+  "zig_target": {}
+}

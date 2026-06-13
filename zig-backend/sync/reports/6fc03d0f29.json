@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-12-08",
+  "needs_port": true,
+  "sha": "6fc03d0f298ff12e75a2ebf6a386f37d4de74bda",
+  "short_sha": "6fc03d0f29",
+  "subject": "feat: quotation scopes in `match_syntax`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

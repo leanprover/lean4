@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-02-20",
+  "needs_port": false,
+  "sha": "b598c0fea98494492e28bd99e078675d7349b7ba",
+  "short_sha": "b598c0fea9",
+  "subject": "doc: prelude convention in Lean (#3416)",
+  "zig_target": {}
+}

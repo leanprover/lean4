@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-11",
+  "needs_port": false,
+  "sha": "0649e5fa8ac706d864a47c90dd2e643353eb9579",
+  "short_sha": "0649e5fa8a",
+  "subject": "feat: Basic model-based solver for linear arithmetic",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-01-11",
+  "needs_port": false,
+  "sha": "9132b27e8057460c26094930efb700d1b38b9a5f",
+  "short_sha": "9132b27e80",
+  "subject": "fix: delabAppImplicit: strip mdata from function",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-01",
+  "needs_port": false,
+  "sha": "76b054bc1d77cb196e368dedcbad403222a5a418",
+  "short_sha": "76b054bc1d",
+  "subject": "test(tests/playground/lowtech_expander): expander experiment",
+  "zig_target": {}
+}

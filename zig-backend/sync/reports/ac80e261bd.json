@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-10-30",
+  "needs_port": false,
+  "sha": "ac80e261bd253e0d41de5027d5e8d25570b7f982",
+  "short_sha": "ac80e261bd",
+  "subject": "feat: add embedded constraint substitution to bv_decide (#5886)",
+  "zig_target": {}
+}

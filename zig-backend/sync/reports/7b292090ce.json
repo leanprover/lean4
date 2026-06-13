@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PullLetDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean"
+    }
+  ],
+  "date": "2025-04-17",
+  "needs_port": true,
+  "sha": "7b292090ceb97f67a648f2216f87d1f2186a1188",
+  "short_sha": "7b292090ce",
+  "subject": "fix: restrict lifting outside of cases expressions on Decidable (#8009)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PullLetDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean"
+  }
+}

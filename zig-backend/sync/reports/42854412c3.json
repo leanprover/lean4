@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "42854412c386aeed419a5d1627f4cdf9b8b756a2",
+  "short_sha": "42854412c3",
+  "subject": "refactor: use `simpTelescope` in `mvcgen' simplifying_assumptions` (#13159)",
+  "zig_target": {}
+}

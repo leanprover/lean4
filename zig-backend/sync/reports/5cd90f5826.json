@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-11",
+  "needs_port": false,
+  "sha": "5cd90f5826b4e04463cc6abd2a3997e487c18a86",
+  "short_sha": "5cd90f5826",
+  "subject": "feat: drop support for termination_by' (#3033)",
+  "zig_target": {}
+}

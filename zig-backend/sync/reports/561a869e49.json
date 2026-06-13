@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2022-01-17",
+  "needs_port": true,
+  "sha": "561a869e49c30faf129b069d59c0c8a0397c11d0",
+  "short_sha": "561a869e49",
+  "subject": "fix: provide reference implementation for `Array.modify`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

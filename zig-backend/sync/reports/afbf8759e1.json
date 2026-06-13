@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2024-03-20",
+  "needs_port": true,
+  "sha": "afbf8759e11acc1a224e42f92557f5697e4691f0",
+  "short_sha": "afbf8759e1",
+  "subject": "fix: deadlock in `IO.Promise.resolve` (#3693)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

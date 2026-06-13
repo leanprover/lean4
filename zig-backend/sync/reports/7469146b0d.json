@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-11",
+  "needs_port": false,
+  "sha": "7469146b0dd73dcfbe271004edc0bc2e9156350c",
+  "short_sha": "7469146b0d",
+  "subject": "test: add tests for MetaM",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-29",
+  "needs_port": false,
+  "sha": "17581a2628cea3d8d52e6b8b5c8f8f5c75bf9b91",
+  "short_sha": "17581a2628",
+  "subject": "feat: add backward chaining rule application to `Sym` (#11837)",
+  "zig_target": {}
+}

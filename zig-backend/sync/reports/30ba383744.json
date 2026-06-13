@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-01-13",
+  "needs_port": false,
+  "sha": "30ba3837444f7fc4de0c37e73d407df848b1583e",
+  "short_sha": "30ba383744",
+  "subject": "feat: `lean --src-deps` (#6427)",
+  "zig_target": {}
+}

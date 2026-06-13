@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-06-16",
+  "needs_port": true,
+  "sha": "46c3eaece9b8feee3f14cc5b8d9aaab66d091c63",
+  "short_sha": "46c3eaece9",
+  "subject": "fix: add a cache for constructor info in toIR (#8822)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

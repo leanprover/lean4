@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-24",
+  "needs_port": false,
+  "sha": "3de1cc54c537d816c7fc7f7bb930487b770f4a10",
+  "short_sha": "3de1cc54c5",
+  "subject": "test: compiler test with big meta closure (#12141)",
+  "zig_target": {}
+}

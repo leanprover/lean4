@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "9ffd1b1672dc9a7a6c9514f5cf258ed5cd321ed6",
+  "short_sha": "9ffd1b1672",
+  "subject": "feat: filter unused `variables` in mutually recursive definitions",
+  "zig_target": {}
+}

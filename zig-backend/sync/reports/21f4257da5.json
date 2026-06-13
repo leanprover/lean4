@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-12-03",
+  "needs_port": true,
+  "sha": "21f4257da5d9187412049aa7dc3ecd92cba25159",
+  "short_sha": "21f4257da5",
+  "subject": "feat: name resolution during parsing",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-25",
+  "needs_port": false,
+  "sha": "851ac3809e89002708ac2486c998c322d6635d4d",
+  "short_sha": "851ac3809e",
+  "subject": "feat: extend `isInductivePredicate`",
+  "zig_target": {}
+}

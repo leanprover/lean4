@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-04-22",
+  "needs_port": false,
+  "sha": "d95e74182413627ec88395f36d31f47ce4c189ad",
+  "short_sha": "d95e741824",
+  "subject": "feat: lean CLI option to print messages as JSON (#3939)",
+  "zig_target": {}
+}

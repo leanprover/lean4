@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2022-01-17",
+  "needs_port": true,
+  "sha": "999e125e3f7d1bc8207463244f1030b207edc0bb",
+  "short_sha": "999e125e3f",
+  "subject": "feat: mark arguments such as `{_ : BEq \u03b1}` as specialization target",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

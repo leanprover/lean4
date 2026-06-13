@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-18",
+  "needs_port": false,
+  "sha": "880137f0ed5f6a8db74d52bc509048bbcf6998d2",
+  "short_sha": "880137f0ed",
+  "subject": "feat(library/init/lean/parser/basic): mark `tokens` with `@[nospecialize]`",
+  "zig_target": {}
+}

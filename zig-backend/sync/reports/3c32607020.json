@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2026-03-17",
+  "needs_port": true,
+  "sha": "3c32607020c48cd58a3494007566e12f92fafd84",
+  "short_sha": "3c32607020",
+  "subject": "fix: incorrect borrow annotation on `demangleBtLinCStr` leading to segfault on panic (#12939)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "John Tristan",
+  "backend_changes": [],
+  "date": "2024-06-01",
+  "needs_port": false,
+  "sha": "0dff5701afcc6638f6b64e5a174625bfd75d1c97",
+  "short_sha": "0dff5701af",
+  "subject": "doc: updated build instructions for mac os X (#4317)",
+  "zig_target": {}
+}

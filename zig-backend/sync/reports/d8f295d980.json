@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "d8f295d980f02fda8aea0a574b25d165c07f048c",
+  "short_sha": "d8f295d980",
+  "subject": "feat(library/init/lean): helper functions for transforming Syntax objects",
+  "zig_target": {}
+}

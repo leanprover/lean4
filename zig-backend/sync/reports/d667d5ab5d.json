@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/AC.lean"
+    }
+  ],
+  "date": "2022-03-09",
+  "needs_port": true,
+  "sha": "d667d5ab5d4a23ec8ab74e376d8e100ee8925381",
+  "short_sha": "d667d5ab5d",
+  "subject": "feat: rewrite the tactic using `simp` as the basis.",
+  "zig_target": {
+    "src/Init/Data/AC.lean": "zig-backend/src/init/Data/AC.lean"
+  }
+}

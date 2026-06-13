@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-06",
+  "needs_port": false,
+  "sha": "def7641926be064a491e8409b6e1277c07522138",
+  "short_sha": "def7641926",
+  "subject": "feat: add helper methods for checking dependencies",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-04",
+  "needs_port": false,
+  "sha": "a541f2054e795a18913e1290d37d711c5061abe8",
+  "short_sha": "a541f2054e",
+  "subject": "refactor: IO `BuildTarget task`  / protect `pure`",
+  "zig_target": {}
+}

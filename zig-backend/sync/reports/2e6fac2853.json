@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-03-14",
+  "needs_port": true,
+  "sha": "2e6fac285362922b13c58b691a46c2883170485d",
+  "short_sha": "2e6fac2853",
+  "subject": "feat: add support for `reduceBool` and `reduceNat` in the kernel `type_checker`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

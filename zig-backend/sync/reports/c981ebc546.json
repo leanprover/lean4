@@ -1,0 +1,36 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    }
+  ],
+  "date": "2025-10-20",
+  "needs_port": true,
+  "sha": "c981ebc546fd66f95cb1f4861189d5c3d0276ced",
+  "short_sha": "c981ebc546",
+  "subject": "feat: `split` and `splitInclusive` iterators are finite (#10820)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Basic.lean": "zig-backend/src/init/Data/Iterators/Basic.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FilterMap.lean",
+    "src/Init/Data/String/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Pattern/Basic.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-09-15",
+  "needs_port": true,
+  "sha": "88fa4212d7a7296f337f911f8dd5047e744e05fd",
+  "short_sha": "88fa4212d7",
+  "subject": "feat: @[method_specs] to generate specification theorems from class instances (#10302)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

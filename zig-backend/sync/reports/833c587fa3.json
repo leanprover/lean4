@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AbstractMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Exception.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Exception.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Instances.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    }
+  ],
+  "date": "2019-12-02",
+  "needs_port": true,
+  "sha": "833c587fa30cd9dfcc0faa090b2cac5e8a16495f",
+  "short_sha": "833c587fa3",
+  "subject": "feat: add `generate`, `newSubgoal`, `tryResolve`, and simpler table",
+  "zig_target": {
+    "src/Init/Lean/Meta/AbstractMVars.lean": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean",
+    "src/Init/Lean/Meta/Exception.lean": "zig-backend/src/init/Lean/Meta/Exception.lean",
+    "src/Init/Lean/Meta/Instances.lean": "zig-backend/src/init/Lean/Meta/Instances.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+  }
+}

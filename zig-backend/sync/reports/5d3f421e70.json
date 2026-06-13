@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-07-26",
+  "needs_port": false,
+  "sha": "5d3f421e702a4038fbcbaff8c8ecdc4b1fba57d2",
+  "short_sha": "5d3f421e70",
+  "subject": "feat(library/init/lean/parser/parsec): avoid unnecessary `[alternative m]` dependencies",
+  "zig_target": {}
+}

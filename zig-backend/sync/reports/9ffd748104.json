@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/ToString.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/ToString.lean"
+    }
+  ],
+  "date": "2026-03-24",
+  "needs_port": true,
+  "sha": "9ffd74810487f75bef686b9b9e15da28bed44aac",
+  "short_sha": "9ffd748104",
+  "subject": "chore: generalize theorems about `Nat.ofDigitChars` (#13098)",
+  "zig_target": {
+    "src/Init/Data/Nat/ToString.lean": "zig-backend/src/init/Data/Nat/ToString.lean"
+  }
+}

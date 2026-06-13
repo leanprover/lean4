@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-04-03",
+  "needs_port": false,
+  "sha": "29303b37b8f8b7f2f92057cf07b1800d374c7487",
+  "short_sha": "29303b37b8",
+  "subject": "feat: have raw nat lits pretty print with `nat_lit` when `pp.explicit` is set (#7805)",
+  "zig_target": {}
+}

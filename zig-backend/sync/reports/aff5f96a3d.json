@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-17",
+  "needs_port": false,
+  "sha": "aff5f96a3dc31932f13bcec7dc962413259bf09b",
+  "short_sha": "aff5f96a3d",
+  "subject": "test(tests/playground): simple task benchmarks",
+  "zig_target": {}
+}

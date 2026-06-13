@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-19",
+  "needs_port": false,
+  "sha": "ee6d7235543a4ed9cb8989558be60d58ee3f2d3c",
+  "short_sha": "ee6d723554",
+  "subject": "feat: add `stx.quot`",
+  "zig_target": {}
+}

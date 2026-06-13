@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2026-01-23",
+  "needs_port": false,
+  "sha": "4526cdda5f48ef627ab77e948ca2566e65f29cc7",
+  "short_sha": "4526cdda5f",
+  "subject": "fix: fix verso's `+warning` hint (#12116)",
+  "zig_target": {}
+}

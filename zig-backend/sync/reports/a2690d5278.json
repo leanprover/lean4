@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-20",
+  "needs_port": false,
+  "sha": "a2690d5278abe747ae0dd753adaff971d0d7b20c",
+  "short_sha": "a2690d5278",
+  "subject": "feat: improve `#eval` command",
+  "zig_target": {}
+}

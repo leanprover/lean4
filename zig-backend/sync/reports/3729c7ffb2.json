@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-22",
+  "needs_port": false,
+  "sha": "3729c7ffb2edd6e9a5769be8e89dc051f4e298d0",
+  "short_sha": "3729c7ffb2",
+  "subject": "chore(kernel/expr): remove some old/legacy functions",
+  "zig_target": {}
+}

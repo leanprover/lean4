@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-08",
+  "needs_port": false,
+  "sha": "c7c5de38b3cd5dfb4d2b1528b704cd7e2804d3f2",
+  "short_sha": "c7c5de38b3",
+  "subject": "chore: clean up getDeclNamesForCodeGen (#9259)",
+  "zig_target": {}
+}

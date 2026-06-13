@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-19",
+  "needs_port": false,
+  "sha": "736d32c0262e8324135681f71917dceab85795ec",
+  "short_sha": "736d32c026",
+  "subject": "fix: hover on synthetic sorry",
+  "zig_target": {}
+}

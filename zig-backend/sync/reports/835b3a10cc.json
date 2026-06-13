@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2018-11-14",
+  "needs_port": true,
+  "sha": "835b3a10cce959079c61c59a5ae077855e9f13b8",
+  "short_sha": "835b3a10cc",
+  "subject": "chore(library/init): consistent names",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

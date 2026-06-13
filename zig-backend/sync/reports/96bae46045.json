@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-06",
+  "needs_port": false,
+  "sha": "96bae46045493c966eaea4ca0615eacaf6c5d147",
+  "short_sha": "96bae46045",
+  "subject": "refactor: `SimpLemma` => `SimpTheorem`",
+  "zig_target": {}
+}

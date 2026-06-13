@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-11",
+  "needs_port": false,
+  "sha": "5a6d45817dc7494e712ae743753f8b403330baec",
+  "short_sha": "5a6d45817d",
+  "subject": "fix: nontermination in `grind` (#7928)",
+  "zig_target": {}
+}

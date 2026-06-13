@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Induction.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/RecursorInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/RecursorInfo.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Clear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+    }
+  ],
+  "date": "2020-02-23",
+  "needs_port": true,
+  "sha": "6c34c3b14ad2e7eece0f7df5a6e72d8b6cba541b",
+  "short_sha": "6c34c3b14a",
+  "subject": "feat: add `induction` tactic",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Induction.lean": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean",
+    "src/Init/Lean/Meta/RecursorInfo.lean": "zig-backend/src/init/Lean/Meta/RecursorInfo.lean",
+    "src/Init/Lean/Meta/Tactic.lean": "zig-backend/src/init/Lean/Meta/Tactic.lean",
+    "src/Init/Lean/Meta/Tactic/Clear.lean": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-02-04",
+  "needs_port": false,
+  "sha": "800c60d77a387908ab914a51f2b10772db35fa30",
+  "short_sha": "800c60d77a",
+  "subject": "chore: report total commits by category in release notes (#6931)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-16",
+  "needs_port": false,
+  "sha": "44f9edff87b0c7935ee699a702eb152419faeaea",
+  "short_sha": "44f9edff87",
+  "subject": "feat: resolve symlinks in LEAN_SRC_PATH",
+  "zig_target": {}
+}

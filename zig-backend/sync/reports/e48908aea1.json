@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-15",
+  "needs_port": true,
+  "sha": "e48908aea1620a16d59ffb81ef67ab8607241dc4",
+  "short_sha": "e48908aea1",
+  "subject": "refactor: uniform `precedence` representation",
+  "zig_target": {
+    "src/Init/Lean/Parser/Command.lean": "zig-backend/src/init/Lean/Parser/Command.lean",
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+  }
+}

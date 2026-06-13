@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-05",
+  "needs_port": false,
+  "sha": "dc7358b4dfaabbc3b4613cce9cd220f7b2d825a8",
+  "short_sha": "dc7358b4df",
+  "subject": "feat: upgrade cadical to 2.1.2 (#7347)",
+  "zig_target": {}
+}

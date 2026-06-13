@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Alternative.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Alternative.lean"
+    }
+  ],
+  "date": "2020-09-30",
+  "needs_port": true,
+  "sha": "0911b9bc80eb915a8f29b8f25a91ebcfb32b2937",
+  "short_sha": "0911b9bc80",
+  "subject": "feat: add missing features to `do` notation parser",
+  "zig_target": {
+    "src/Init/Control/Alternative.lean": "zig-backend/src/init/Control/Alternative.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    }
+  ],
+  "date": "2022-10-16",
+  "needs_port": true,
+  "sha": "40f2247c610c688b10adad6349052b982c652e8b",
+  "short_sha": "40f2247c61",
+  "subject": "perf: zero cost IR extension startup cost",
+  "zig_target": {
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+  }
+}

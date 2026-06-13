@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-24",
+  "needs_port": false,
+  "sha": "bdefe91fbf6ab917ed3db848d925bd7a7301662c",
+  "short_sha": "bdefe91fbf",
+  "subject": "test: add old Lean3 tests",
+  "zig_target": {}
+}

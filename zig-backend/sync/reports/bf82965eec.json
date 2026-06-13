@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-08-07",
+  "needs_port": false,
+  "sha": "bf82965eec1d081fc8993910735068bcd6ec1edd",
+  "short_sha": "bf82965eec",
+  "subject": "chore: avoid builing Lake",
+  "zig_target": {}
+}

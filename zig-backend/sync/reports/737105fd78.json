@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-25",
+  "needs_port": false,
+  "sha": "737105fd78455d3d8290ea385c60d8b6d3edce55",
+  "short_sha": "737105fd78",
+  "subject": "chore: remove syntax for extern arity specifications (#9556)",
+  "zig_target": {}
+}

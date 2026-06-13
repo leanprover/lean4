@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-08",
+  "needs_port": false,
+  "sha": "ffc7ba0829b6ee2ca1f762dd66f706df992d8e9c",
+  "short_sha": "ffc7ba0829",
+  "subject": "chore: lake: revert builtin inits, elabs, & macros (#7399)",
+  "zig_target": {}
+}

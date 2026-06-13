@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-13",
+  "needs_port": false,
+  "sha": "d439160f31e9c478bd6ccbdb5af5a2b1b1b0057f",
+  "short_sha": "d439160f31",
+  "subject": "fix: missing cases at `compatibleTypes`",
+  "zig_target": {}
+}

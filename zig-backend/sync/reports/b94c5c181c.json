@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-20",
+  "needs_port": false,
+  "sha": "b94c5c181cfabe0285708aa4e6afa4a3f94407a2",
+  "short_sha": "b94c5c181c",
+  "subject": "chore: annotate syntheticness in info format",
+  "zig_target": {}
+}

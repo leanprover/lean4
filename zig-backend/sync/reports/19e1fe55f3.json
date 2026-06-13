@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-10",
+  "needs_port": false,
+  "sha": "19e1fe55f33a8aadc4243da32828b70a4b4677cc",
+  "short_sha": "19e1fe55f3",
+  "subject": "perf: do not consult isNoConfusion in whnf (#11571)",
+  "zig_target": {}
+}

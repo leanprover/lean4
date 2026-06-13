@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-17",
+  "needs_port": false,
+  "sha": "807182d63e323a6e201a28818976201e41e81a55",
+  "short_sha": "807182d63e",
+  "subject": "chore: allow `RArray` to be universe polymorphic (#8013)",
+  "zig_target": {}
+}

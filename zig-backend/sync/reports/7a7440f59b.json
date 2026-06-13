@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Checker.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Checker.lean"
+    }
+  ],
+  "date": "2024-09-07",
+  "needs_port": true,
+  "sha": "7a7440f59b729a86f8e168fcbd0cf5d5da2c5f2c",
+  "short_sha": "7a7440f59b",
+  "subject": "feat: have IR checker suggest `noncomputable` (#4729)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Checker.lean": "zig-backend/src/lean/compiler/ir/Checker.lean"
+  }
+}

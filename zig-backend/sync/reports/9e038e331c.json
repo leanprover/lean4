@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-01",
+  "needs_port": false,
+  "sha": "9e038e331ce02e922f18eae72420e6b693555c7f",
+  "short_sha": "9e038e331c",
+  "subject": "feat: add `forallTelescopeCompatible`",
+  "zig_target": {}
+}

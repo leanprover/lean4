@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "f5565d1d92fec9e09dde3685fa4cffb774d2d390",
+  "short_sha": "f5565d1d92",
+  "subject": "fix: mark a few more things as persistent",
+  "zig_target": {}
+}

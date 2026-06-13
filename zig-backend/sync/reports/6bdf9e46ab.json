@@ -1,0 +1,48 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Basic.lean"
+    },
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    },
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Cast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Cast.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-03-25",
+  "needs_port": true,
+  "sha": "6bdf9e46abdaf75b5853b9d0f7066a0e1bd323c6",
+  "short_sha": "6bdf9e46ab",
+  "subject": "doc: docstring review for IntCast, NatCast, and for loops (#7645)",
+  "zig_target": {
+    "src/Init/Control/Basic.lean": "zig-backend/src/init/Control/Basic.lean",
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean",
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Cast.lean": "zig-backend/src/init/Data/Cast.lean",
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

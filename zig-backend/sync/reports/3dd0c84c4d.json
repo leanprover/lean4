@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-30",
+  "needs_port": false,
+  "sha": "3dd0c84c4d6c2b9b4bfdc24d1a335f86d687c1f7",
+  "short_sha": "3dd0c84c4d",
+  "subject": "chore: enforce naming convetion for tactics",
+  "zig_target": {}
+}

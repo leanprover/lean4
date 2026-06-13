@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-29",
+  "needs_port": false,
+  "sha": "b450fb8243daa26fefd06b09586bdab896ae76a1",
+  "short_sha": "b450fb8243",
+  "subject": "chore: CI: use stable Nix",
+  "zig_target": {}
+}

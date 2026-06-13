@@ -1,0 +1,72 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ExpandResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/PushProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/PushProj.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2025-07-08",
+  "needs_port": true,
+  "sha": "b13b916b7efe14366b9720c554c88fff1a27b19d",
+  "short_sha": "b13b916b7e",
+  "subject": "chore: move compiler.ir trace class registration to Lean (#9273)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean",
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean",
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean",
+    "src/Lean/Compiler/IR/ElimDeadVars.lean": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean",
+    "src/Lean/Compiler/IR/ExpandResetReuse.lean": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean",
+    "src/Lean/Compiler/IR/PushProj.lean": "zig-backend/src/lean/compiler/ir/PushProj.lean",
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean",
+    "src/Lean/Compiler/IR/ResetReuse.lean": "zig-backend/src/lean/compiler/ir/ResetReuse.lean",
+    "src/Lean/Compiler/IR/SimpCase.lean": "zig-backend/src/lean/compiler/ir/SimpCase.lean",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

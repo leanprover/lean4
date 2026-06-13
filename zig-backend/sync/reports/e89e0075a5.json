@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-10-02",
+  "needs_port": true,
+  "sha": "e89e0075a591cf80ec5c7271a6ad9987d83f8245",
+  "short_sha": "e89e0075a5",
+  "subject": "fix(library/compiler/lcnf): do not expand projections of builtin types",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

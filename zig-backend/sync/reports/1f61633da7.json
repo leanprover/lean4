@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-02-10",
+  "needs_port": false,
+  "sha": "1f61633da72d781981dc6abd395095b914c346d2",
+  "short_sha": "1f61633da7",
+  "subject": "fix: typo in trace class name",
+  "zig_target": {}
+}

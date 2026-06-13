@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-08-17",
+  "needs_port": true,
+  "sha": "09a0347fdc5db39ff13de2a572feeb6414ec3135",
+  "short_sha": "09a0347fdc",
+  "subject": "chore: fix compilation of executables containing code to be interpreted",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

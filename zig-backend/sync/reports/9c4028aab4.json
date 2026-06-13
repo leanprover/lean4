@@ -1,0 +1,10 @@
+{
+  "author": "Clement Courbet",
+  "backend_changes": [],
+  "date": "2024-08-02",
+  "needs_port": false,
+  "sha": "9c4028aab485f8e1c83e400af94b753e638d126c",
+  "short_sha": "9c4028aab4",
+  "subject": "perf: avoid expr copies in replace_rec_fn::apply (#4702)",
+  "zig_target": {}
+}

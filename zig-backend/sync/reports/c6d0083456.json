@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-26",
+  "needs_port": false,
+  "sha": "c6d00834565cb570c5729b55541345acf764728d",
+  "short_sha": "c6d0083456",
+  "subject": "fear(library/init/data/array/basic): add `Array.modify`",
+  "zig_target": {}
+}

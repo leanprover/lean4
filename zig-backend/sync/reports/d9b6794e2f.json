@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-11",
+  "needs_port": false,
+  "sha": "d9b6794e2fa684a72b3ae369b05bec71305521b3",
+  "short_sha": "d9b6794e2f",
+  "subject": "refactor: termination_by parser to use binderIdent (#3652)",
+  "zig_target": {}
+}

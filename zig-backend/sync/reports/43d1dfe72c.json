@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-21",
+  "needs_port": false,
+  "sha": "43d1dfe72c089bf28fbd977a01a23a58baa4bf3d",
+  "short_sha": "43d1dfe72c",
+  "subject": "refactor: cleanup opaque target interfaces",
+  "zig_target": {}
+}

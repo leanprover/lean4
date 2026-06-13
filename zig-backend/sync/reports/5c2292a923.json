@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-04",
+  "needs_port": false,
+  "sha": "5c2292a9238a669a83442ff333bc93b529325291",
+  "short_sha": "5c2292a923",
+  "subject": "doc: In testing doc, suggest `make` to pick up new tests (#2815)",
+  "zig_target": {}
+}

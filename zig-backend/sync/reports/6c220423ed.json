@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-08-09",
+  "needs_port": true,
+  "sha": "6c220423ed8c7d605debe54973d88df98ed49cef",
+  "short_sha": "6c220423ed",
+  "subject": "chore: adjust `stx` precedences",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

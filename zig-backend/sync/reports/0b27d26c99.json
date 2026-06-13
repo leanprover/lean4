@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-30",
+  "needs_port": false,
+  "sha": "0b27d26c993c80823a46e312fca827e0da5c36d0",
+  "short_sha": "0b27d26c99",
+  "subject": "doc: add quick tour video",
+  "zig_target": {}
+}

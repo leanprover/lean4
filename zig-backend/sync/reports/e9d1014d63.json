@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    },
+    {
+      "path": "src/Init/LeanExt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanExt.lean"
+    }
+  ],
+  "date": "2020-01-13",
+  "needs_port": true,
+  "sha": "e9d1014d6397ba5ec3b8be03b81d7464f8221cde",
+  "short_sha": "e9d1014d63",
+  "subject": "feat: add `ParserDescrCore.tacticSymbol` constructor",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean",
+    "src/Init/LeanExt.lean": "zig-backend/src/init/LeanExt.lean"
+  }
+}

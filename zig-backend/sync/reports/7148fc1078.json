@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/Borrow.lean"
+    }
+  ],
+  "date": "2019-12-22",
+  "needs_port": true,
+  "sha": "7148fc1078c0d2957684d0a492212e331c66aa3d",
+  "short_sha": "7148fc1078",
+  "subject": "fix: `Borrow.lean`",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/init/Lean/Compiler/IR/Borrow.lean"
+  }
+}

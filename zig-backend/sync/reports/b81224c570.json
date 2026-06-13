@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-11",
+  "needs_port": false,
+  "sha": "b81224c57013d7fcb909f6c5edf204659687ae9e",
+  "short_sha": "b81224c570",
+  "subject": "feat: `lake update <pkg>` & related tweaks",
+  "zig_target": {}
+}

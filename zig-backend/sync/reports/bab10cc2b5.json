@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2024-12-02",
+  "needs_port": true,
+  "sha": "bab10cc2b5fb80ea2743b220a8993881b65edb34",
+  "short_sha": "bab10cc2b5",
+  "subject": "feat: asynchronous kernel checking",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

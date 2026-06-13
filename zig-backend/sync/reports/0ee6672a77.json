@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Data/Name.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Name.lean"
+    }
+  ],
+  "date": "2020-03-16",
+  "needs_port": true,
+  "sha": "0ee6672a7726f9655b76dc607a6b327900104a6a",
+  "short_sha": "0ee6672a77",
+  "subject": "feat: add `NameHashSet`",
+  "zig_target": {
+    "src/Init/Lean/Data/Name.lean": "zig-backend/src/init/Lean/Data/Name.lean"
+  }
+}

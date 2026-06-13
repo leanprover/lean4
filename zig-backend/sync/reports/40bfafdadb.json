@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Repr.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Basic.lean"
+    }
+  ],
+  "date": "2020-12-18",
+  "needs_port": true,
+  "sha": "40bfafdadb84a09718142e9fd3d9583aa75c5484",
+  "short_sha": "40bfafdadb",
+  "subject": "refactor: dependencies",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/Data/Repr.lean": "zig-backend/src/init/Data/Repr.lean",
+    "src/Init/Data/ToString/Basic.lean": "zig-backend/src/init/Data/ToString/Basic.lean"
+  }
+}

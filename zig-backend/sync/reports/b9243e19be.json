@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-06-04",
+  "needs_port": false,
+  "sha": "b9243e19bea83bfa12620e30bc79ef85d78a5c0a",
+  "short_sha": "b9243e19be",
+  "subject": "feat: make equational theorems of non-exposed defs private (#8519)",
+  "zig_target": {}
+}

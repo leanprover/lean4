@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-22",
+  "needs_port": false,
+  "sha": "16ceb4bf824d3318838796d1c8896f7ed8e296ec",
+  "short_sha": "16ceb4bf82",
+  "subject": "perf: lake: no `lean --githash` when collocated",
+  "zig_target": {}
+}

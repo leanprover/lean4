@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2025-10-14",
+  "needs_port": true,
+  "sha": "1dae353575e91e75301afa1ff0851fcd5547b6b4",
+  "short_sha": "1dae353575",
+  "subject": "chore: duplicate some `String` functions ahead of deprecation (#10768)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

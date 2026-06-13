@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-09-27",
+  "needs_port": false,
+  "sha": "2221296d3c41a774d2b8ae78b0c4d121ab5ebda1",
+  "short_sha": "2221296d3c",
+  "subject": "chore: delete unused code (#5493)",
+  "zig_target": {}
+}

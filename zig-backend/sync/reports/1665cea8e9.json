@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    }
+  ],
+  "date": "2020-01-20",
+  "needs_port": true,
+  "sha": "1665cea8e912ac4a02d678cb9e2a98fad6ebbd7b",
+  "short_sha": "1665cea8e9",
+  "subject": "fix: antiquotation ambiguity",
+  "zig_target": {
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+  }
+}

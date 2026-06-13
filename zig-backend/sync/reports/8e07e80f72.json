@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-22",
+  "needs_port": false,
+  "sha": "8e07e80f726478a80d20e270113c587b461a0a8e",
+  "short_sha": "8e07e80f72",
+  "subject": "feat: docComment parser alias",
+  "zig_target": {}
+}

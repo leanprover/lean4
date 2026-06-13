@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-20",
+  "needs_port": false,
+  "sha": "dbabee07118329095eef7caf05b7e936bec45077",
+  "short_sha": "dbabee0711",
+  "subject": "fix(library/init): missing \"extern c\"",
+  "zig_target": {}
+}

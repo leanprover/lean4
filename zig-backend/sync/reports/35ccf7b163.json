@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-02-01",
+  "needs_port": false,
+  "sha": "35ccf7b1637f758b36bfa90af1dbd135ac372946",
+  "short_sha": "35ccf7b163",
+  "subject": "chore: update CONTRIBUTING.md",
+  "zig_target": {}
+}

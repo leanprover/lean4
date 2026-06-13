@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-09",
+  "needs_port": false,
+  "sha": "5eafc080e1f9d1c67c0c4918a6db22b6e89aa7cb",
+  "short_sha": "5eafc080e1",
+  "subject": "feat: Simplify `Std.List.Zipper.pref` using `mleave` (#9807)",
+  "zig_target": {}
+}

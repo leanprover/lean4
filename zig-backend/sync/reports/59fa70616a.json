@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-03",
+  "needs_port": false,
+  "sha": "59fa70616ab7749a98c8dd3c486479b5bd15f5c6",
+  "short_sha": "59fa70616a",
+  "subject": "feat(kernel/inductive): add `reduce`",
+  "zig_target": {}
+}

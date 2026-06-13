@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-08",
+  "needs_port": false,
+  "sha": "0707e4d4420cd690d7d44f07e08ac4c7c9d87c86",
+  "short_sha": "0707e4d442",
+  "subject": "fix: traverseChildrenWithPos bug",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    }
+  ],
+  "date": "2025-06-10",
+  "needs_port": true,
+  "sha": "a92890ec84380bbba6981152ef585f6dff1dca3c",
+  "short_sha": "a92890ec84",
+  "subject": "fix: use the fvar subst for erased code in LCNF simp (#8717)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+  }
+}

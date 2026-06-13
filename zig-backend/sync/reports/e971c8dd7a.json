@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2020-04-05",
+  "needs_port": true,
+  "sha": "e971c8dd7a5feef3ec6f3f5f9af2623c722d27bf",
+  "short_sha": "e971c8dd7a",
+  "subject": "feat: support `Float` in the interpreter",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

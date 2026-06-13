@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/PrettyPrinter/Parenthesizer.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+    }
+  ],
+  "date": "2020-05-15",
+  "needs_port": true,
+  "sha": "a8a92d8e8ce0522e9fbd5a5878478d245bafc90a",
+  "short_sha": "a8a92d8e8c",
+  "subject": "feat: parenthesizer: preserve whitespace",
+  "zig_target": {
+    "src/Init/Lean/PrettyPrinter/Parenthesizer.lean": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+  }
+}

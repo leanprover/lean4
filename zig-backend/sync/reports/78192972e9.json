@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.cpp"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-06-14",
+  "needs_port": true,
+  "sha": "78192972e96688ae4ef971fb5005c53eb6466cda",
+  "short_sha": "78192972e9",
+  "subject": "chore(kernel): expr_kind::Meta ==> expr_kind::MVar",
+  "zig_target": {
+    "src/library/compiler/cse.cpp": "zig-backend/src/library/compiler/cse.cpp",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

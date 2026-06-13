@@ -1,0 +1,10 @@
+{
+  "author": "jcreedcmu",
+  "backend_changes": [],
+  "date": "2025-07-29",
+  "needs_port": false,
+  "sha": "e3517f1c86d84ff031f0590214f835106649aafb",
+  "short_sha": "e3517f1c86",
+  "subject": "doc: freshen up Mac OSX build instructions (#9618)",
+  "zig_target": {}
+}

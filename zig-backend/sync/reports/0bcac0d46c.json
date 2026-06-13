@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-26",
+  "needs_port": false,
+  "sha": "0bcac0d46cc76fd7410e0abec06dcda33fddf4d7",
+  "short_sha": "0bcac0d46c",
+  "subject": "feat: add `Option.of_wp_eq` and `Except.of_wp_eq` (#12161)",
+  "zig_target": {}
+}

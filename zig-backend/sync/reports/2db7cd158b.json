@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-29",
+  "needs_port": false,
+  "sha": "2db7cd158b49966c843a66061b312e893a702122",
+  "short_sha": "2db7cd158b",
+  "subject": "feat(library/init/lean/compiler/ir): export primitives to C++",
+  "zig_target": {}
+}

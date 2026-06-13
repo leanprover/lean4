@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-14",
+  "needs_port": false,
+  "sha": "59f9de720d7860e720d607dcf74219c2eb6e67e8",
+  "short_sha": "59f9de720d",
+  "subject": "feat(library/init/lean/ir/lirc): we should support only C external names without mangling",
+  "zig_target": {}
+}

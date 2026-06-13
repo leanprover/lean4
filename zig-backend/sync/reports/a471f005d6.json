@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Attr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Attr.lean"
+    }
+  ],
+  "date": "2025-12-22",
+  "needs_port": true,
+  "sha": "a471f005d61c05485a800a283f2f408890ac2f81",
+  "short_sha": "a471f005d6",
+  "subject": "feat: add `[grind norm]` and `[grind unfold]` attributes (#11776)",
+  "zig_target": {
+    "src/Init/Grind/Attr.lean": "zig-backend/src/init/Grind/Attr.lean"
+  }
+}

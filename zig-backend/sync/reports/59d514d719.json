@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/PropLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/PropLemmas.lean"
+    }
+  ],
+  "date": "2026-02-07",
+  "needs_port": true,
+  "sha": "59d514d719a458ff57d743c3e58318756c8e304b",
+  "short_sha": "59d514d719",
+  "subject": "feat: more lemmas relating `Bool` and `(d)ite` (#12371)",
+  "zig_target": {
+    "src/Init/PropLemmas.lean": "zig-backend/src/init/PropLemmas.lean"
+  }
+}

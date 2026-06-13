@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-01",
+  "needs_port": false,
+  "sha": "429f844fbee38f4197f1e2e1f1ceb6dee7a1e18e",
+  "short_sha": "429f844fbe",
+  "subject": "@chore(library/init/lean/parser/parsec): remove `@[inline]` annotations to reduce compilation time",
+  "zig_target": {}
+}

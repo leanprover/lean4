@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-06",
+  "needs_port": false,
+  "sha": "56e6b9b39832c8de12e7794c2d3dcab500e22333",
+  "short_sha": "56e6b9b398",
+  "subject": "feat: add Tarjan's SCC",
+  "zig_target": {}
+}

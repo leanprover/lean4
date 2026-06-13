@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-09",
+  "needs_port": false,
+  "sha": "f55a9a71cb13c7b2b002d36d0b6c3e3c3b01f60e",
+  "short_sha": "f55a9a71cb",
+  "subject": "chore: CI: do not run check-pr-body in merge group",
+  "zig_target": {}
+}

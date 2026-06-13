@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-04-30",
+  "needs_port": true,
+  "sha": "99e652ab1c05935ec7f02b2887558196dec66732",
+  "short_sha": "99e652ab1c",
+  "subject": "feat: mention `set_option diagnostics true` at `maximum recursion depth` error message",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

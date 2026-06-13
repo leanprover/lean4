@@ -1,0 +1,10 @@
+{
+  "author": "Hunter Monroe",
+  "backend_changes": [],
+  "date": "2021-07-03",
+  "needs_port": false,
+  "sha": "67bffa7de0add25b9e17e8ca13e2c4d202688012",
+  "short_sha": "67bffa7de0",
+  "subject": "doc: correct typo \u201ccommand instruct\u201d ->\u201dcommand instructs\u201d",
+  "zig_target": {}
+}

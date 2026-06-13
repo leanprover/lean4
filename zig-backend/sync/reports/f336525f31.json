@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-07",
+  "needs_port": false,
+  "sha": "f336525f3153e278a75876e1f1d3462302c1f23f",
+  "short_sha": "f336525f31",
+  "subject": "fix: make `delabConstWithSignature` avoid using inaccessible names (#3625)",
+  "zig_target": {}
+}

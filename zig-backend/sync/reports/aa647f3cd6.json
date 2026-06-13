@@ -1,0 +1,36 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    },
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-05-13",
+  "needs_port": true,
+  "sha": "aa647f3cd655890ccefeb3a181cad1a765ede745",
+  "short_sha": "aa647f3cd6",
+  "subject": "chore: cleaning up imports (#8314)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean",
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

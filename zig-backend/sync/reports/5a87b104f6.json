@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-15",
+  "needs_port": false,
+  "sha": "5a87b104f6f85898d0d8c344fcdc6d1a47e269c1",
+  "short_sha": "5a87b104f6",
+  "subject": "refactor: remove mkRecursorInfoForKernelRec (#5681)",
+  "zig_target": {}
+}

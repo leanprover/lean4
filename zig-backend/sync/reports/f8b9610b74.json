@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/While.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/While.lean"
+    }
+  ],
+  "date": "2026-04-17",
+  "needs_port": true,
+  "sha": "f8b9610b74a7843b2bc36fcb6dc15c7382b826cb",
+  "short_sha": "f8b9610b74",
+  "subject": "feat: add `Lean.doRepeat` elaborators for `repeat`/`while` loops (#13434)",
+  "zig_target": {
+    "src/Init/While.lean": "zig-backend/src/init/While.lean"
+  }
+}

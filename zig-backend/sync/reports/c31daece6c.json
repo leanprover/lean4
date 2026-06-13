@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "c31daece6c05e31fada3c6d0018f6bf484057225",
+  "short_sha": "c31daece6c",
+  "subject": "chore: fix `all_goals` test, simulate the max rec depth error (#5967)",
+  "zig_target": {}
+}

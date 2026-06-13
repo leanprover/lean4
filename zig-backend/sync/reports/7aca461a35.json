@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Syntax.lean"
+    }
+  ],
+  "date": "2021-07-14",
+  "needs_port": true,
+  "sha": "7aca461a35fc3f593cf407e0b589579a13998010",
+  "short_sha": "7aca461a35",
+  "subject": "fix: hovers on elabFieldName fields",
+  "zig_target": {
+    "src/Init/Data/Format/Syntax.lean": "zig-backend/src/init/Data/Format/Syntax.lean"
+  }
+}

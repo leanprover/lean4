@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-02",
+  "needs_port": false,
+  "sha": "1e449022431e032baf295120f49b0b9185319244",
+  "short_sha": "1e44902243",
+  "subject": "fix: add `withFreshMacroScope` at `expandMacroImpl?`",
+  "zig_target": {}
+}

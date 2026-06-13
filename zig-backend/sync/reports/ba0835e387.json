@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    }
+  ],
+  "date": "2022-08-31",
+  "needs_port": true,
+  "sha": "ba0835e387205c4ed6f847e476ce80c4033639c6",
+  "short_sha": "ba0835e387",
+  "subject": "feat: refresh binder names during internalization",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+  }
+}

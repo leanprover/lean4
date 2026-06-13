@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "2315bc4653ea0f6d4ca34b1f83f2ec7e6d83c7d2",
+  "short_sha": "2315bc4653",
+  "subject": "chore(library): remove `documentation` environment extension",
+  "zig_target": {}
+}

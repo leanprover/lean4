@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-12-03",
+  "needs_port": true,
+  "sha": "69340297be0ee23dc9e74cd2b9d1609e93b4da06",
+  "short_sha": "69340297be",
+  "subject": "chore: add simp configuration to norm_cast syntax",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

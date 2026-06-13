@@ -1,0 +1,18 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2024-03-18",
+  "needs_port": true,
+  "sha": "3c82f9ae1208dc842d59755d5674aec37eda5ba0",
+  "short_sha": "3c82f9ae12",
+  "subject": "feat: diagnostics for stale dependencies (#3247)",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/List/Lemmas.lean"
+    }
+  ],
+  "date": "2025-11-20",
+  "needs_port": true,
+  "sha": "fc6e0454c739313058b4eb209d64916023ced496",
+  "short_sha": "fc6e0454c7",
+  "subject": "feat: add more lemmas about `Array` and `List` slices, support subslices (#11178)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/Range/Polymorphic/Lemmas.lean": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean",
+    "src/Init/Data/Slice/Array/Basic.lean": "zig-backend/src/init/Data/Slice/Array/Basic.lean",
+    "src/Init/Data/Slice/Array/Lemmas.lean": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean",
+    "src/Init/Data/Slice/List/Basic.lean": "zig-backend/src/init/Data/Slice/List/Basic.lean",
+    "src/Init/Data/Slice/List/Lemmas.lean": "zig-backend/src/init/Data/Slice/List/Lemmas.lean"
+  }
+}

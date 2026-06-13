@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "8ae39633d171bbb1b4df79e27c8cabe3f17b8ee1",
+  "short_sha": "8ae39633d1",
+  "subject": "fix: mark auxiliary definitions from `normalizeInstance` as `meta` (#13043)",
+  "zig_target": {}
+}

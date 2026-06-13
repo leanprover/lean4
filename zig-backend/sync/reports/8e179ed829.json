@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-31",
+  "needs_port": false,
+  "sha": "8e179ed829b523d7905c4a5bbf0b04636775c7be",
+  "short_sha": "8e179ed829",
+  "subject": "feat: macros in `mutual` blocks and `elabMutualDef` entry point",
+  "zig_target": {}
+}

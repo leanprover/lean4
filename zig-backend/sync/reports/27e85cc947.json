@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    }
+  ],
+  "date": "2024-07-09",
+  "needs_port": true,
+  "sha": "27e85cc947b90bcdb0aabd4e1b1b5c3250f9d71c",
+  "short_sha": "27e85cc947",
+  "subject": "chore: adjust `List.replicate` simp lemmas (#4687)",
+  "zig_target": {
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean"
+  }
+}

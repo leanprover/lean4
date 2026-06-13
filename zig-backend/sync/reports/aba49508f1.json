@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Checker.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Checker.lean"
+    }
+  ],
+  "date": "2025-07-12",
+  "needs_port": true,
+  "sha": "aba49508f1c72b5e9b466fd0c83eb59a2093cd8c",
+  "short_sha": "aba49508f1",
+  "subject": "refactor: port IR Checker to CompilerM (and thus CoreM) (#9331)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Checker.lean": "zig-backend/src/lean/compiler/ir/Checker.lean"
+  }
+}

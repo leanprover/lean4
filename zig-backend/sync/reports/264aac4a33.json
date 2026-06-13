@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-07-04",
+  "needs_port": true,
+  "sha": "264aac4a33f8b22da5cc0c1cb5d23f05128cf254",
+  "short_sha": "264aac4a33",
+  "subject": "chore: convert local functions to use `where` instead (#9203)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

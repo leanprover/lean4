@@ -1,0 +1,18 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-10-14",
+  "needs_port": true,
+  "sha": "f57e61feade911552d1b0363e9376cfe9b390aec",
+  "short_sha": "f57e61fead",
+  "subject": "chore: remove manual shell scripting for compiling libleanrt",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

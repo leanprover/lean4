@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-06-06",
+  "needs_port": false,
+  "sha": "63739a42f31f310d11b18fa651a1f436378f80ea",
+  "short_sha": "63739a42f3",
+  "subject": "chore: clear releases_drafts for start of 4.10.0 (#4377)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-12",
+  "needs_port": false,
+  "sha": "5606b4e59ea1337d4487a38f388382a3fb2a1034",
+  "short_sha": "5606b4e59e",
+  "subject": "feat: add `[alwaysInline]` attribute",
+  "zig_target": {}
+}

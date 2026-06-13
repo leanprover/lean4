@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-19",
+  "needs_port": false,
+  "sha": "623a6603cbfa0368db20327136ba3d6a104b62dc",
+  "short_sha": "623a6603cb",
+  "subject": "feat(library/init/lean/parser/term): lambda, pi, arrow",
+  "zig_target": {}
+}

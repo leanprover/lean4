@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-04-01",
+  "needs_port": false,
+  "sha": "861bc19e0c1c45b5766cc5c9ef0488568368b236",
+  "short_sha": "861bc19e0c",
+  "subject": "feat: allow dotted function notation to use `@` and explicit universes (#13245)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BasicAux.lean"
+    }
+  ],
+  "date": "2022-08-28",
+  "needs_port": true,
+  "sha": "4f5a014170db36e10858ae42df59ab075304cadb",
+  "short_sha": "4f5a014170",
+  "subject": "feat: add `Array.mapMonoM`",
+  "zig_target": {
+    "src/Init/Data/Array/BasicAux.lean": "zig-backend/src/init/Data/Array/BasicAux.lean"
+  }
+}

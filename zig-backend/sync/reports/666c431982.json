@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-22",
+  "needs_port": false,
+  "sha": "666c431982b4fb822c10255a80076f70d84c6345",
+  "short_sha": "666c431982",
+  "subject": "chore(library/init/io): hide/remove io.put_str/put_str_ln",
+  "zig_target": {}
+}

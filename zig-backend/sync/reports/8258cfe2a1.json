@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-21",
+  "needs_port": false,
+  "sha": "8258cfe2a1111aa1d3304fadce6068950fe9e444",
+  "short_sha": "8258cfe2a1",
+  "subject": "fix: preprocessLCtx (#12081)",
+  "zig_target": {}
+}

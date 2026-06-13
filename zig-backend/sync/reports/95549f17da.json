@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2024-08-20",
+  "needs_port": true,
+  "sha": "95549f17daec446e42c2cff8a721be0ffe5dc6a1",
+  "short_sha": "95549f17da",
+  "subject": "feat: LeanSAT's LRAT parsers + SAT solver interface (#5100)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

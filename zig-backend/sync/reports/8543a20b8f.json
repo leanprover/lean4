@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "8543a20b8fe2dfcd0478a8fa95d7b37a5aae58c2",
+  "short_sha": "8543a20b8f",
+  "subject": "feat: add checkpoint using `withSynthesize`",
+  "zig_target": {}
+}

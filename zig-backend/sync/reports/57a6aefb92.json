@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-08",
+  "needs_port": false,
+  "sha": "57a6aefb924026d9a695dbf7fb53bf6603ad9733",
+  "short_sha": "57a6aefb92",
+  "subject": "chore: CI: also save core dumps for builds",
+  "zig_target": {}
+}

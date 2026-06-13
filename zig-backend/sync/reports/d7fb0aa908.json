@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-19",
+  "needs_port": false,
+  "sha": "d7fb0aa908f0a288ec4780ce84f1c4e7e3dc0c85",
+  "short_sha": "d7fb0aa908",
+  "subject": "feat(library/init/lean/parser/parser): simpler cache",
+  "zig_target": {}
+}

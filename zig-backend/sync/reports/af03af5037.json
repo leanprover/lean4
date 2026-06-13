@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-07-16",
+  "needs_port": false,
+  "sha": "af03af5037a4ba0cf4a2d6b0ee839b7c5e215dfc",
+  "short_sha": "af03af5037",
+  "subject": "feat: simprocs for #[1,2,3,4,5][2] (#4765)",
+  "zig_target": {}
+}

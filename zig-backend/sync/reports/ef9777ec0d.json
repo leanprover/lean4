@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-01",
+  "needs_port": false,
+  "sha": "ef9777ec0d03136128d5d998a2894a6ef38828b5",
+  "short_sha": "ef9777ec0d",
+  "subject": "feat: add `getCongrInfo` to `Sym` (#11860)",
+  "zig_target": {}
+}

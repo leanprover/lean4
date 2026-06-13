@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "d267b38a9180dba4a98978bf9dcc529f9d46a4a2",
+  "short_sha": "d267b38a91",
+  "subject": "fix: disable \"error to sorry\" and \"error recovery\" at `failIfSuccess`",
+  "zig_target": {}
+}

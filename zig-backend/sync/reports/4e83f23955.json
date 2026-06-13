@@ -1,0 +1,10 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [],
+  "date": "2025-03-18",
+  "needs_port": false,
+  "sha": "4e83f23955a0bd41a70d6dd427650f4bc62d5745",
+  "short_sha": "4e83f23955",
+  "subject": "feat: bv_normalize pass: AC normalization of multiplication (#7461)",
+  "zig_target": {}
+}

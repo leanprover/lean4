@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-24",
+  "needs_port": false,
+  "sha": "857013634ded2e48ebc962da26cc88bfdfb4a609",
+  "short_sha": "857013634d",
+  "subject": "fix: auxiliary `_default` declaration name for parent default field values set in substructures",
+  "zig_target": {}
+}

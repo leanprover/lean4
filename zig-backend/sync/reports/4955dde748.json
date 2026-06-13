@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-07-08",
+  "needs_port": true,
+  "sha": "4955dde748562a8fcdc0b1bcb01c1454749ca9f0",
+  "short_sha": "4955dde748",
+  "subject": "perf: grind normalizer (#9271)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

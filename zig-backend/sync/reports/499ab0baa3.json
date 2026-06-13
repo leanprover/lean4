@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lc_util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lc_util.h"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.h"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-09-16",
+  "needs_port": true,
+  "sha": "499ab0baa3cb80a78a840bf4c1f7d0bb890f8dd5",
+  "short_sha": "499ab0baa3",
+  "subject": "feat(library/compiler/preprocess): save declarations after `csimp`",
+  "zig_target": {
+    "src/library/compiler/lc_util.h": "zig-backend/src/library/compiler/lc_util.h",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/preprocess.h": "zig-backend/src/library/compiler/preprocess.h",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

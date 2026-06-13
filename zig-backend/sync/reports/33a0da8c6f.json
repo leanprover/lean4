@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2021-08-19",
+  "needs_port": true,
+  "sha": "33a0da8c6f7c84d128b044c2a7aba013a3c526f3",
+  "short_sha": "33a0da8c6f",
+  "subject": "chore: remove `simp` annotation from `PUnit.eq_punit`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

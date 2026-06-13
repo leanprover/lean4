@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-10",
+  "needs_port": false,
+  "sha": "a02421185c4a317011bc332e109f2d15f02ff6d6",
+  "short_sha": "a02421185c",
+  "subject": "fix: add support for `BinderInfo.auxDecl` at `delabLam`",
+  "zig_target": {}
+}

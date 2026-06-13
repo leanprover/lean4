@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-21",
+  "needs_port": false,
+  "sha": "1d5df4f28ba8ef93d9b5635acb64e2a18aaecec6",
+  "short_sha": "1d5df4f28b",
+  "subject": "test: matrix notation example",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-05",
+  "needs_port": false,
+  "sha": "c2194c2bc1bdb446a737a23341951663ce06ed17",
+  "short_sha": "c2194c2bc1",
+  "subject": "chore: update to LLVM 13",
+  "zig_target": {}
+}

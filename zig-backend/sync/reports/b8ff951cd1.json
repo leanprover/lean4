@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-03-06",
+  "needs_port": false,
+  "sha": "b8ff951cd18b62a2759433c9de89a0ee20869dcb",
+  "short_sha": "b8ff951cd1",
+  "subject": "feat: restore Bool.and_xor_distrib_(left|right) (#3604)",
+  "zig_target": {}
+}

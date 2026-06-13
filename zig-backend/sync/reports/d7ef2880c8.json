@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-16",
+  "needs_port": false,
+  "sha": "d7ef2880c89f2779e39c1b7c0cd5f1f2f97883c4",
+  "short_sha": "d7ef2880c8",
+  "subject": "perf: avoid \"dependent implications\" as local E-matching theorems in `grind` (#9408)",
+  "zig_target": {}
+}

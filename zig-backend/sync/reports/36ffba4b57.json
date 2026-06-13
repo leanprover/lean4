@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-02-27",
+  "needs_port": false,
+  "sha": "36ffba4b5768a69dd99c98383bcddc163b0da429",
+  "short_sha": "36ffba4b57",
+  "subject": "chore: ensure test names differ by more than just case (#12729)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "da5b900cbd7c2964a12ef17eef7dade9e64cd8c3",
+  "short_sha": "da5b900cbd",
+  "subject": "feat(library/init/lean): add `protected` extension",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-04",
+  "needs_port": false,
+  "sha": "3c34d534504f377b59b8b052405ae39ea8730255",
+  "short_sha": "3c34d53450",
+  "subject": "chore: update mdBook to mitigate CVE-2020-26297",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    }
+  ],
+  "date": "2025-11-15",
+  "needs_port": true,
+  "sha": "ef1dc21f1c016793fc168db23d4096e482a92c5a",
+  "short_sha": "ef1dc21f1c",
+  "subject": "feat: use new `grind?` infrastructure to implement `try?` (#11197)",
+  "zig_target": {
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean"
+  }
+}

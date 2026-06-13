@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-27",
+  "needs_port": false,
+  "sha": "ae0308fc048da958f8dc6e001cbc35b829c2e486",
+  "short_sha": "ae0308fc04",
+  "subject": "chore: leanc: do not pass linking flags when not linking, again",
+  "zig_target": {}
+}

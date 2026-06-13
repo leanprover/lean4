@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-05-22",
+  "needs_port": false,
+  "sha": "d984030c6a683a80313917b6fd3e77abdf497809",
+  "short_sha": "d984030c6a",
+  "subject": "chore: set up procedure for preparing release notes (#4247)",
+  "zig_target": {}
+}

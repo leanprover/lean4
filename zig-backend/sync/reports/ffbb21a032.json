@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-16",
+  "needs_port": false,
+  "sha": "ffbb21a032afba60ad281c5137b602b40ba8f0b7",
+  "short_sha": "ffbb21a032",
+  "subject": "fix: order of `@[expose] public section`",
+  "zig_target": {}
+}

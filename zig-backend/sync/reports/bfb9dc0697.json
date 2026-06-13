@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-16",
+  "needs_port": false,
+  "sha": "bfb9dc06973d98a692f3dfab8178322d7754b171",
+  "short_sha": "bfb9dc0697",
+  "subject": "chore: CI: really do not build nightlies on forks",
+  "zig_target": {}
+}

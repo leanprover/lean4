@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2025-08-22",
+  "needs_port": true,
+  "sha": "82932ec86a865b7c9468e39472d36b346f422995",
+  "short_sha": "82932ec86a",
+  "subject": "feat: add stop position to parser (#10057)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

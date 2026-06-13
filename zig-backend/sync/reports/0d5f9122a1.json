@@ -1,0 +1,10 @@
+{
+  "author": "Henrik",
+  "backend_changes": [],
+  "date": "2023-08-31",
+  "needs_port": false,
+  "sha": "0d5f9122a1fc0cc1751a55eec8368a0d6592722a",
+  "short_sha": "0d5f9122a1",
+  "subject": "perf: reduce allocations in unused variable linter",
+  "zig_target": {}
+}

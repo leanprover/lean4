@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-11-04",
+  "needs_port": false,
+  "sha": "7cddeaa0d37f2263d9cabf4f6bbdfa08c1d4159d",
+  "short_sha": "7cddeaa0d3",
+  "subject": "doc: tc triggers nested tc, potentially with tmp metavar leak",
+  "zig_target": {}
+}

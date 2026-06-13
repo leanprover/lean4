@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-23",
+  "needs_port": false,
+  "sha": "c6c46df28540220104ea340b60d677eeac1971b4",
+  "short_sha": "c6c46df285",
+  "subject": "feat(library/init/lean/compiler/ir): develop expandresetreuse",
+  "zig_target": {}
+}

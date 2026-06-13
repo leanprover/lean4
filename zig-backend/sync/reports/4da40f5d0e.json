@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-04",
+  "needs_port": false,
+  "sha": "4da40f5d0e974d52fa1120d5565de484c7ee80e2",
+  "short_sha": "4da40f5d0e",
+  "subject": "chore(kernel/quot): remove unnecessary include",
+  "zig_target": {}
+}

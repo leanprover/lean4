@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "d43a65aed0fe24652675a74f4d1498f89d4ef3a1",
+  "short_sha": "d43a65aed0",
+  "subject": "feat: elaboarate `local` `syntax`, `infix` and `notation` commands",
+  "zig_target": {}
+}

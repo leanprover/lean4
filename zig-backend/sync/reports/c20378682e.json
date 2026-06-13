@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-14",
+  "needs_port": false,
+  "sha": "c20378682e699f30b18155919fc0ccb03fbc19b2",
+  "short_sha": "c20378682e",
+  "subject": "chore: add guidance to not merge PRs autonomously in release command (#11661)",
+  "zig_target": {}
+}

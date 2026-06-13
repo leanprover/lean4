@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "fdc2c9f281858a6d5adf993e040c70f01ed10dbf",
+  "short_sha": "fdc2c9f281",
+  "subject": "feat: process `local instance ...` and `scoped instance ...` commands",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-17",
+  "needs_port": false,
+  "sha": "2d9571563a8adc4ac89afa6f4e016c49af37bb94",
+  "short_sha": "2d9571563a",
+  "subject": "chore: add missing repositories to release_repos.yml (#11668)",
+  "zig_target": {}
+}

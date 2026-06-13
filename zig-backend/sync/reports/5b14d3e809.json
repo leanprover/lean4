@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    }
+  ],
+  "date": "2024-12-19",
+  "needs_port": true,
+  "sha": "5b14d3e809810830f6a86a504b7e6df7ef4f831a",
+  "short_sha": "5b14d3e809",
+  "subject": "fix: `sharecommon` bug (#6415)",
+  "zig_target": {
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp"
+  }
+}

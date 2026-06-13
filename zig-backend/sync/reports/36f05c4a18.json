@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-05",
+  "needs_port": false,
+  "sha": "36f05c4a18412c6a1699a98b283c5730eda904cb",
+  "short_sha": "36f05c4a18",
+  "subject": "fix: `deriving instance` should not require `noncomputable` for `Prop`-valued classes (#12789)",
+  "zig_target": {}
+}

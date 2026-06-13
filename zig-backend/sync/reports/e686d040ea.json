@@ -1,0 +1,30 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    },
+    {
+      "path": "src/Init/RCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/RCases.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-07-23",
+  "needs_port": true,
+  "sha": "e686d040ea183a5e9d5403648303cf8c30dbde64",
+  "short_sha": "e686d040ea",
+  "subject": "fix: add missing spaces for pretty printing (#9475)",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean",
+    "src/Init/RCases.lean": "zig-backend/src/init/RCases.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

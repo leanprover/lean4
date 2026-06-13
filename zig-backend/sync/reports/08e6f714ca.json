@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-21",
+  "needs_port": false,
+  "sha": "08e6f714caf50719bfbdee301dcc2d86e84fea81",
+  "short_sha": "08e6f714ca",
+  "subject": "chore: normalize `Sym` APIs (#12088)",
+  "zig_target": {}
+}

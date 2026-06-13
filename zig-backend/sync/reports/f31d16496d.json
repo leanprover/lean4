@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "f31d16496db69d8e952b6adef8f979b7668059a2",
+  "short_sha": "f31d16496d",
+  "subject": "feat: generate `AltLHS`",
+  "zig_target": {}
+}

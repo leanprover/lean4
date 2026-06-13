@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-19",
+  "needs_port": false,
+  "sha": "1c0c5a84a4c693f6548a5a3dc716b970a592e3bf",
+  "short_sha": "1c0c5a84a4",
+  "subject": "refactor: merge `rootDir` into `srcDir`",
+  "zig_target": {}
+}

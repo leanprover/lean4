@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2026-01-19",
+  "needs_port": true,
+  "sha": "aac353c6b943358d8140f3c8c57cc0bd726cd9c9",
+  "short_sha": "aac353c6b9",
+  "subject": "chore: minor fixups in `String.ofList` (#12043)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

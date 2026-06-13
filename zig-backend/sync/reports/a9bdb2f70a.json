@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-14",
+  "needs_port": false,
+  "sha": "a9bdb2f70a99d3590d4e99a83f8a52ea82fcd52e",
+  "short_sha": "a9bdb2f70a",
+  "subject": "feat: prefer interpreter for running builtin parsers in quotations",
+  "zig_target": {}
+}

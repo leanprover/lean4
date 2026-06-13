@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "78317c5062bf78c430464e519e27b72ef46582fd",
+  "short_sha": "78317c5062",
+  "subject": "chore(library/init/control/combinators): remove dead notation",
+  "zig_target": {}
+}

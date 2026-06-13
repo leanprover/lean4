@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-31",
+  "needs_port": true,
+  "sha": "157ca5a4f32035f9cdcc5291966d3ca105903f1a",
+  "short_sha": "157ca5a4f3",
+  "subject": "feat: ematch generalized patterns (#8569)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

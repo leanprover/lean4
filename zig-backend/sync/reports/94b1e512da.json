@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-15",
+  "needs_port": false,
+  "sha": "94b1e512da9df1394350ab81a28deca934271f65",
+  "short_sha": "94b1e512da",
+  "subject": "fix: simpproc to reduce Fin literals consistently (#5632)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-07",
+  "needs_port": false,
+  "sha": "8d7f0ea2f250e7adaece1636b8ec5272b95d2ccd",
+  "short_sha": "8d7f0ea2f2",
+  "subject": "feat: add `removeUnnecessaryCasts`",
+  "zig_target": {}
+}

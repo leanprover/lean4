@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "02e558d7816a3766036711017b9d9c3594583bda",
+  "short_sha": "02e558d781",
+  "subject": "feat(library/init/lean/environment): export module I/O in Lean",
+  "zig_target": {}
+}

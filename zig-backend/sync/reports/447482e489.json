@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "447482e489172afddac99afa94343b493f712e5a",
+  "short_sha": "447482e489",
+  "subject": "refactor: use `Array` instead of `List` at `mkApp` and `getAppArgs`",
+  "zig_target": {}
+}

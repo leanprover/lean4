@@ -1,0 +1,10 @@
+{
+  "author": "pcpthm",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "cbe9adbe9e53e7112f5e35dfe6ac15000e4e0884",
+  "short_sha": "cbe9adbe9e",
+  "subject": "fix: ac_rfl in subgoal",
+  "zig_target": {}
+}

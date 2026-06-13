@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-31",
+  "needs_port": false,
+  "sha": "a84291641bf910e7e7ffeb563e6b6e407b92b0b1",
+  "short_sha": "a84291641b",
+  "subject": "fix: pp.analyze restriction on _",
+  "zig_target": {}
+}

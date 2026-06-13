@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-17",
+  "needs_port": false,
+  "sha": "642bcdf55ab0234d3a12c409ba6803d03051d318",
+  "short_sha": "642bcdf55a",
+  "subject": "fix: handle universe polymorphism in ground grind theorems (#12226)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-08",
+  "needs_port": false,
+  "sha": "ea7c740ad485c26423a1c31bcc6cee40b3c3422c",
+  "short_sha": "ea7c740ad4",
+  "subject": "fix: ctor visibility in mutual public inductives (#11940)",
+  "zig_target": {}
+}

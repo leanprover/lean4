@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-25",
+  "needs_port": false,
+  "sha": "813a9647674b46d71911b6f07d232300766ffaa7",
+  "short_sha": "813a964767",
+  "subject": "refactor: move polymorphic `Meta` methods back to `Meta` namespace",
+  "zig_target": {}
+}

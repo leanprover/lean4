@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-24",
+  "needs_port": false,
+  "sha": "370e9c421f03ff93820909a30c602380725f1394",
+  "short_sha": "370e9c421f",
+  "subject": "fix: bug at `deriving Hashable`",
+  "zig_target": {}
+}

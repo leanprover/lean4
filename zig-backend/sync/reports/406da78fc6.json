@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "406da78fc6092c2aae1f4feeebb87c81375c7ea0",
+  "short_sha": "406da78fc6",
+  "subject": "fix: `arg` conv tactic misreported number of arguments on error (#5968)",
+  "zig_target": {}
+}

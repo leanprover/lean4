@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    }
+  ],
+  "date": "2020-05-15",
+  "needs_port": true,
+  "sha": "3caf6e83f81befd8dc7c3920aca9630a64da8ff2",
+  "short_sha": "3caf6e83f8",
+  "subject": "feat: IO.runMeta: print traces (by default)",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean"
+  }
+}

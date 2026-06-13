@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-19",
+  "needs_port": false,
+  "sha": "47d8861b72476c4effdb74675125f538a746e4f1",
+  "short_sha": "47d8861b72",
+  "subject": "chore: document `unfoldComparingHeads` join point",
+  "zig_target": {}
+}

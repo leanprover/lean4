@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-16",
+  "needs_port": false,
+  "sha": "fdd8978bfeb75af6462cf7c5cbf61548a4b8db69",
+  "short_sha": "fdd8978bfe",
+  "subject": "fix: structure instance in patterns",
+  "zig_target": {}
+}

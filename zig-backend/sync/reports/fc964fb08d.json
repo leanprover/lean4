@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-12-16",
+  "needs_port": false,
+  "sha": "fc964fb08da5dcbd479191706f322397fa1f3814",
+  "short_sha": "fc964fb08d",
+  "subject": "chore: do not remove stage0 build on clean-olean",
+  "zig_target": {}
+}

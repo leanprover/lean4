@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2020-12-14",
+  "needs_port": true,
+  "sha": "abe7481453db02da73d8b792518a4a125d01938f",
+  "short_sha": "abe7481453",
+  "subject": "feat: elaborate `prio` DSL",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

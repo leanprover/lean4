@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-18",
+  "needs_port": false,
+  "sha": "9101c9d5da2c1cef2511c96c45dd684078dfa0bb",
+  "short_sha": "9101c9d5da",
+  "subject": "feat: support docstrings on syntax/macro/...",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-09",
+  "needs_port": false,
+  "sha": "7a8e011603ee17fe822a4d9e880a0c9c0f58db68",
+  "short_sha": "7a8e011603",
+  "subject": "test: support ite splitting and lifting through ExceptT to Sym mvcgen (#12392)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-11",
+  "needs_port": false,
+  "sha": "e57117a9b33a635d06c0840ad73ec25c4c548cbf",
+  "short_sha": "e57117a9b3",
+  "subject": "chore(library/init/lean/parser/parser_t): revert introduction of `parser_t`",
+  "zig_target": {}
+}

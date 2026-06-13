@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-12",
+  "needs_port": false,
+  "sha": "891824bc51726cb99e6229be078d6757111b9b57",
+  "short_sha": "891824bc51",
+  "subject": "feat: .below and .brecOn for nested inductive (#4658)",
+  "zig_target": {}
+}

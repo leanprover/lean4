@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-01",
+  "needs_port": false,
+  "sha": "1e205d635e996f628dee4f772276a4b6b8c9d746",
+  "short_sha": "1e205d635e",
+  "subject": "fix: bug at `wfRecursion`",
+  "zig_target": {}
+}

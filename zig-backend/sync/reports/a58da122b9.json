@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-21",
+  "needs_port": true,
+  "sha": "a58da122b9e1a345ea7b4976a315285dd156d0d1",
+  "short_sha": "a58da122b9",
+  "subject": "feat: change statement of List.getLast?_cons (#5106)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

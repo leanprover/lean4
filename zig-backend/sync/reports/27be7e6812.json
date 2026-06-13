@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-25",
+  "needs_port": false,
+  "sha": "27be7e681247a0806ba8ac6224b03bf32e955fcf",
+  "short_sha": "27be7e6812",
+  "subject": "fix: leaking `isDefEqStuckExceptionId`",
+  "zig_target": {}
+}

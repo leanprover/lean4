@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-09",
+  "needs_port": false,
+  "sha": "9e246b365ea2e2241279577d2002ed2081b8aa7a",
+  "short_sha": "9e246b365e",
+  "subject": "feat(library/init/lean): add `SMap` for implementing `Environment`",
+  "zig_target": {}
+}

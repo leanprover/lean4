@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-06",
+  "needs_port": false,
+  "sha": "2c203ac68106d74bfa0d4dc9df074b8d14bf0fc5",
+  "short_sha": "2c203ac681",
+  "subject": "chore: fix sandebug preset overriding sanitize options",
+  "zig_target": {}
+}

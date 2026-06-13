@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2022-09-29",
+  "needs_port": true,
+  "sha": "fb1a603e60c2661e1e98b37e00d84dc1a9294e92",
+  "short_sha": "fb1a603e60",
+  "subject": "feat: add another CSE pass before `saveBase`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

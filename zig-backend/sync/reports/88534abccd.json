@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-20",
+  "needs_port": false,
+  "sha": "88534abccd49062a7cd3bdc1d00b868d87743146",
+  "short_sha": "88534abccd",
+  "subject": "fix(library/init/lean/expander): tuple element order",
+  "zig_target": {}
+}

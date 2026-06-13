@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-10-03",
+  "needs_port": false,
+  "sha": "710b115885f8b410758ee94ae238c26d162de698",
+  "short_sha": "710b115885",
+  "subject": "chore(library/init): macro version of panic",
+  "zig_target": {}
+}

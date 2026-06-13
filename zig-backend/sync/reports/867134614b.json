@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-16",
+  "needs_port": false,
+  "sha": "867134614b32a0e5b98a857a1ced2429a80c7c1b",
+  "short_sha": "867134614b",
+  "subject": "feat: add constructor `DataValue.ofSyntax`",
+  "zig_target": {}
+}

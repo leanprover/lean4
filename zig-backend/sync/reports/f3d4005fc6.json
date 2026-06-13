@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    }
+  ],
+  "date": "2020-01-09",
+  "needs_port": true,
+  "sha": "f3d4005fc6c2b2b4b165143736bd9b0017624c56",
+  "short_sha": "f3d4005fc6",
+  "subject": "fix: `outParam` support",
+  "zig_target": {
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+  }
+}

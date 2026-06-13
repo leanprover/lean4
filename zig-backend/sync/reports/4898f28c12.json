@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-10-06",
+  "needs_port": false,
+  "sha": "4898f28c12edb6c1d16f00bb985141ca80f780ab",
+  "short_sha": "4898f28c12",
+  "subject": "feat: add `Std.Broadcast` type (#10369)",
+  "zig_target": {}
+}

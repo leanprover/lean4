@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    }
+  ],
+  "date": "2021-08-02",
+  "needs_port": true,
+  "sha": "528283bc7db14cd6d4d056f25c0e39eee7cc6e4d",
+  "short_sha": "528283bc7d",
+  "subject": "feat: MonadPrettyFormat",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean"
+  }
+}

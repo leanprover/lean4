@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-23",
+  "needs_port": false,
+  "sha": "99cd4fa72085597c05fb2587b323b37a91b35a98",
+  "short_sha": "99cd4fa720",
+  "subject": "feat: refine auto bound implicit locals",
+  "zig_target": {}
+}

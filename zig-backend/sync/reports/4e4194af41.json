@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-06",
+  "needs_port": false,
+  "sha": "4e4194af41140571e5f7c2e1b3b606ffb67376b7",
+  "short_sha": "4e4194af41",
+  "subject": "feat: add `autoBoundImplicit` support for structure fields",
+  "zig_target": {}
+}

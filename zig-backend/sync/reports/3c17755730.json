@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-01-20",
+  "needs_port": true,
+  "sha": "3c1775573092f5ceee548120318071f9b4404610",
+  "short_sha": "3c17755730",
+  "subject": "chore: prepare to remove `coe` definitions",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

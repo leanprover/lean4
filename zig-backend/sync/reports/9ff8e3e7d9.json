@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-22",
+  "needs_port": false,
+  "sha": "9ff8e3e7d9bbbfe43a4a5b5aa69d88456ab21f1e",
+  "short_sha": "9ff8e3e7d9",
+  "subject": "chore: remove obsolete C++ tests",
+  "zig_target": {}
+}

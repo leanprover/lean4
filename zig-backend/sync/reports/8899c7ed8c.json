@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-31",
+  "needs_port": false,
+  "sha": "8899c7ed8c2a6d364b88b9457fef32866a6e7a74",
+  "short_sha": "8899c7ed8c",
+  "subject": "feat: instantiate ematch theorems in `grind` (#6485)",
+  "zig_target": {}
+}

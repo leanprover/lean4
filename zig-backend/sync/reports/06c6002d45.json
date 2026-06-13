@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "06c6002d454bc61a2c4686ee97feebd09e8e83e2",
+  "short_sha": "06c6002d45",
+  "subject": "feat: lift nested 'let-rec's",
+  "zig_target": {}
+}

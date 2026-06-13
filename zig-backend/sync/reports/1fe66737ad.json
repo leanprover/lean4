@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-11-21",
+  "needs_port": true,
+  "sha": "1fe66737ad094f2d7012f171657d2a53074f6855",
+  "short_sha": "1fe66737ad",
+  "subject": "feat: BitVec.toInt_[or|and|xor|not] (#6151)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

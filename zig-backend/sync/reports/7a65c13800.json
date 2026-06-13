@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    }
+  ],
+  "date": "2020-01-16",
+  "needs_port": true,
+  "sha": "7a65c13800a03b90200de45cb611d9bbb0e1dfc6",
+  "short_sha": "7a65c13800",
+  "subject": "feat: add `TacticElab` boilerplate",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic.lean": "zig-backend/src/init/Lean/Elab/Tactic.lean",
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+  }
+}

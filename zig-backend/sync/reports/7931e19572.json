@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    }
+  ],
+  "date": "2025-07-29",
+  "needs_port": true,
+  "sha": "7931e19572482f8a43ed11573d5c7e712ec9ddab",
+  "short_sha": "7931e19572",
+  "subject": "perf: use xType field rather than conservatively recomputing it (#9345)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+  }
+}

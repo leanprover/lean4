@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Simproc.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Simproc.lean"
+    }
+  ],
+  "date": "2024-01-29",
+  "needs_port": true,
+  "sha": "9cfca512574a130e90460dee256538d987f6714a",
+  "short_sha": "9cfca51257",
+  "subject": "chore: register `seval` simp set",
+  "zig_target": {
+    "src/Init/Simproc.lean": "zig-backend/src/init/Simproc.lean"
+  }
+}

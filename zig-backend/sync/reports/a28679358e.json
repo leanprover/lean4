@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-18",
+  "needs_port": false,
+  "sha": "a28679358e517d576e90ce0d77f607ceff878837",
+  "short_sha": "a28679358e",
+  "subject": "refactor: remove `MonadError`",
+  "zig_target": {}
+}

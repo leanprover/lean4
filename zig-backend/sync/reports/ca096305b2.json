@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-23",
+  "needs_port": false,
+  "sha": "ca096305b2b068f72df9eb73e7d246c4707e8e8a",
+  "short_sha": "ca096305b2",
+  "subject": "feat: make structure constructor",
+  "zig_target": {}
+}

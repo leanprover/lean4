@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-09-19",
+  "needs_port": false,
+  "sha": "3ef1baae4a21c5e284ba8011d0c003f5c7162d90",
+  "short_sha": "3ef1baae4a",
+  "subject": "doc: refine mdbook docs",
+  "zig_target": {}
+}

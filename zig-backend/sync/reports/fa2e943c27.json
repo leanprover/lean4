@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-04",
+  "needs_port": false,
+  "sha": "fa2e943c27903250efbaac8e6798f185434263ef",
+  "short_sha": "fa2e943c27",
+  "subject": "fix `tokenFnAux`",
+  "zig_target": {}
+}

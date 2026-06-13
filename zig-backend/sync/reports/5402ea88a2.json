@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-18",
+  "needs_port": false,
+  "sha": "5402ea88a21543b0140bdf93aba4337ce21ad6fb",
+  "short_sha": "5402ea88a2",
+  "subject": "feat: add `withNestedTraces`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-20",
+  "needs_port": false,
+  "sha": "f49d05bd764f3d58c72a3d4635a74e57fb8473bc",
+  "short_sha": "f49d05bd76",
+  "subject": "chore: Nix: remove Leanpkg from stage 0",
+  "zig_target": {}
+}

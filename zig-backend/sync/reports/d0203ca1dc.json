@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-15",
+  "needs_port": false,
+  "sha": "d0203ca1dc27a2ccd4015b1382f255029bbf45b1",
+  "short_sha": "d0203ca1dc",
+  "subject": "feat: add `Decl.ensureUniqueLetVarNames`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-27",
+  "needs_port": false,
+  "sha": "714cadfb318923c733b06521aa3b5445d3818be3",
+  "short_sha": "714cadfb31",
+  "subject": "fix: bug at structure instance notation",
+  "zig_target": {}
+}

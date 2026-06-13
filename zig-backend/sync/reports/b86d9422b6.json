@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/borrowed_annotation.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/borrowed_annotation.cpp"
+    },
+    {
+      "path": "src/library/compiler/borrowed_annotation.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/borrowed_annotation.h"
+    }
+  ],
+  "date": "2019-05-27",
+  "needs_port": true,
+  "sha": "b86d9422b615ddae0a03e516546cea21e21218b9",
+  "short_sha": "b86d9422b6",
+  "subject": "chore(library/compiler/borrowed_annotation): remove old borrow inference code",
+  "zig_target": {
+    "src/library/compiler/borrowed_annotation.cpp": "zig-backend/src/library/compiler/borrowed_annotation.cpp",
+    "src/library/compiler/borrowed_annotation.h": "zig-backend/src/library/compiler/borrowed_annotation.h"
+  }
+}

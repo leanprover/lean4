@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Instances.lean"
+    },
+    {
+      "path": "src/Init/HasCoe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/HasCoe.lean"
+    }
+  ],
+  "date": "2020-01-28",
+  "needs_port": true,
+  "sha": "6a046a11c2674e8b1d24d140dcce8aba9ba88a3d",
+  "short_sha": "6a046a11c2",
+  "subject": "chore: remove `coeSortBool`",
+  "zig_target": {
+    "src/Init/Data/Option/Instances.lean": "zig-backend/src/init/Data/Option/Instances.lean",
+    "src/Init/HasCoe.lean": "zig-backend/src/init/HasCoe.lean"
+  }
+}

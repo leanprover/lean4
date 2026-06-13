@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Delaborator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Delaborator.lean"
+    },
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    }
+  ],
+  "date": "2020-03-19",
+  "needs_port": true,
+  "sha": "7f09973d43897d30feec7460bcd0f6be8e522da4",
+  "short_sha": "7f09973d43",
+  "subject": "feat: basic delaborator",
+  "zig_target": {
+    "src/Init/Lean/Delaborator.lean": "zig-backend/src/init/Lean/Delaborator.lean",
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-19",
+  "needs_port": false,
+  "sha": "817375525123ad2a4616e309f9e1d43f4208793e",
+  "short_sha": "8173755251",
+  "subject": "feat: add support for unifying offset terms",
+  "zig_target": {}
+}

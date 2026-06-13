@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-09",
+  "needs_port": false,
+  "sha": "d54880b6d193efef9df1fda962a24b5a3f229136",
+  "short_sha": "d54880b6d1",
+  "subject": "feat: helper functions for debugging, handling metavars, creating telescopes, extract universe level from types, checking whether type is a class, and declaring locals",
+  "zig_target": {}
+}

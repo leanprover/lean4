@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Gcd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Gcd.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-07-27",
+  "needs_port": true,
+  "sha": "ea43ebd54a0848bf99b9a080daaf31e4025d2552",
+  "short_sha": "ea43ebd54a",
+  "subject": "chore: cleanups for Mathlib.Init (#4852)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Nat/Gcd.lean": "zig-backend/src/init/Data/Nat/Gcd.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-20",
+  "needs_port": false,
+  "sha": "9e73d92e422c31531d4c6dcfbbdc932e43a714a3",
+  "short_sha": "9e73d92e42",
+  "subject": "chore(library/init): remove instances of `scoped` notation",
+  "zig_target": {}
+}

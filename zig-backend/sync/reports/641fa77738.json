@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-16",
+  "needs_port": false,
+  "sha": "641fa777389da4d63a269cfd42312a023d9633f7",
+  "short_sha": "641fa77738",
+  "subject": "chore: minimize the number of red-black insert specializations",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-18",
+  "needs_port": true,
+  "sha": "d0dab47877116269b98b467d203e192871389e78",
+  "short_sha": "d0dab47877",
+  "subject": "feat(runtime/lean): array of objects API",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

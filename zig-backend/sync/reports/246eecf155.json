@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-16",
+  "needs_port": false,
+  "sha": "246eecf1553baac9ff1152cf0d1c17b6b6c00f32",
+  "short_sha": "246eecf155",
+  "subject": "fix(library/init/lean/elaborator): do not mangle attribute names (since they are not environment identifiers)",
+  "zig_target": {}
+}

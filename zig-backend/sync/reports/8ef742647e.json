@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-16",
+  "needs_port": false,
+  "sha": "8ef742647e6996011ba2f34de7459ce86fc54cf9",
+  "short_sha": "8ef742647e",
+  "subject": "test: benchmark for large partial match (#11199)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2021-04-02",
+  "needs_port": true,
+  "sha": "334320fd40e52a76ae95a6cdbcaf399572841b52",
+  "short_sha": "334320fd40",
+  "subject": "fix: lean --run",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

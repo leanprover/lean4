@@ -1,0 +1,10 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [],
+  "date": "2021-10-02",
+  "needs_port": false,
+  "sha": "4b1b76ae51f602b41a607f5bc1b36063b7f23985",
+  "short_sha": "4b1b76ae51",
+  "subject": "doc: add metaprogramming docs of Dyck grammar parsing.",
+  "zig_target": {}
+}

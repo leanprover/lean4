@@ -1,0 +1,30 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/runtime/debug.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/debug.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/thread.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/thread.cpp"
+    }
+  ],
+  "date": "2025-12-02",
+  "needs_port": true,
+  "sha": "79838834c17edc1e7efee609b7d360521bc5daee",
+  "short_sha": "79838834c1",
+  "subject": "refactor: port shell option processing to Lean (v2) (#11434)",
+  "zig_target": {
+    "src/runtime/debug.cpp": "zig-backend/src/runtime/debug.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/thread.cpp": "zig-backend/src/runtime/thread.cpp"
+  }
+}

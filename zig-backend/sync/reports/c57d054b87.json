@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-28",
+  "needs_port": true,
+  "sha": "c57d054b876c7ef4d54b59344bc4698d927a603f",
+  "short_sha": "c57d054b87",
+  "subject": "feat: support all the SMTLIB BitVec divison/remainder operations in bv_decide (#5869)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

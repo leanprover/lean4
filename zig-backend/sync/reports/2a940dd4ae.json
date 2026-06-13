@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-22",
+  "needs_port": false,
+  "sha": "2a940dd4ae82d21bd8cdc0e5427b71a9f38556ed",
+  "short_sha": "2a940dd4ae",
+  "subject": "feat: add `Expr.collectFVars`, `LocalDecl.collectFVars`, `Pattern.collectFVars`, and `AltLHS.collectFVars`",
+  "zig_target": {}
+}

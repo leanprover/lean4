@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extract_closed.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_closed.cpp"
+    }
+  ],
+  "date": "2021-09-30",
+  "needs_port": true,
+  "sha": "28d81ee4566a7eca855ae241435cd992cc71df95",
+  "short_sha": "28d81ee456",
+  "subject": "fix: do not extract closed terms containing constants being defined",
+  "zig_target": {
+    "src/library/compiler/extract_closed.cpp": "zig-backend/src/library/compiler/extract_closed.cpp"
+  }
+}

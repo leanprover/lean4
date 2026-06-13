@@ -1,0 +1,24 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Level.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Level.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    }
+  ],
+  "date": "2025-06-14",
+  "needs_port": true,
+  "sha": "cdc923167ec01b0071b1284b31c7d379362a4ddf",
+  "short_sha": "cdc923167e",
+  "subject": "feat: add the `nondep` field of `Expr.letE` to the C++ data model (#8751)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Level.lean": "zig-backend/src/lean/compiler/lcnf/Level.lean",
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+  }
+}

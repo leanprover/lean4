@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-04",
+  "needs_port": false,
+  "sha": "4bd347de3a9fffe14e7dfc17460585d13f4188ae",
+  "short_sha": "4bd347de3a",
+  "subject": "feat(library/init/data/persistentarray/basic): `PersistentArray.pop`",
+  "zig_target": {}
+}

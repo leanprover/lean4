@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-03",
+  "needs_port": false,
+  "sha": "d1d7ce18395c9d3613d9a42ee53a01405fb0c501",
+  "short_sha": "d1d7ce1839",
+  "subject": "feat: start support for strict implicit binder annotation",
+  "zig_target": {}
+}

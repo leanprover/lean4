@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-27",
+  "needs_port": true,
+  "sha": "8c7f7484f99b8f38a0d7c4dc7f6b48c0bed4fd7b",
+  "short_sha": "8c7f7484f9",
+  "subject": "feat: if support and more in bv_decide (#5855)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

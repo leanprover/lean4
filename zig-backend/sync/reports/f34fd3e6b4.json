@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-03",
+  "needs_port": false,
+  "sha": "f34fd3e6b4952d5c03c69efbee4ffe90306e92a1",
+  "short_sha": "f34fd3e6b4",
+  "subject": "refactor: move `Closure.lean` to `Meta`",
+  "zig_target": {}
+}

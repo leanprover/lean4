@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "541d77da8ba46bf4d4a6dbd299aafd0d2fc1b7fb",
+  "short_sha": "541d77da8b",
+  "subject": "refactor: custom implementation for `[combinatorParenthesizer]`, revert `KeyedDeclsAttribute` changes",
+  "zig_target": {}
+}

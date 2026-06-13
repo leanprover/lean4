@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-10",
+  "needs_port": false,
+  "sha": "b1980ef8717aef252dabc6f296084a29a7bfc0dc",
+  "short_sha": "b1980ef871",
+  "subject": "chore: cleanup notes about grind in LRAT (#8623)",
+  "zig_target": {}
+}

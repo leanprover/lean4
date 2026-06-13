@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-27",
+  "needs_port": false,
+  "sha": "1b6572726fe2418266c5205bda4f0d5573e20229",
+  "short_sha": "1b6572726f",
+  "subject": "feat: have autoparams report parameter/field on failure (#5474)",
+  "zig_target": {}
+}

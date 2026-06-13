@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-03",
+  "needs_port": false,
+  "sha": "4bcb7051a83a38354d33d4a2e244234a6d61a994",
+  "short_sha": "4bcb7051a8",
+  "subject": "chore(library/init/data/nat/basic): missing `@[inline]`",
+  "zig_target": {}
+}

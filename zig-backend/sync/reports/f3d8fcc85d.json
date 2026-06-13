@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-01-15",
+  "needs_port": false,
+  "sha": "f3d8fcc85dfaa147287e7cf155e7df4f1ebe78e7",
+  "short_sha": "f3d8fcc85d",
+  "subject": "test: don't check for lean-toolchain generation in init example",
+  "zig_target": {}
+}

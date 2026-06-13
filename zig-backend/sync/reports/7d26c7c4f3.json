@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-04-15",
+  "needs_port": false,
+  "sha": "7d26c7c4f38e67985fb38c0d1c9dddf7a922007f",
+  "short_sha": "7d26c7c4f3",
+  "subject": "feat: lake: build by source path (#7909)",
+  "zig_target": {}
+}

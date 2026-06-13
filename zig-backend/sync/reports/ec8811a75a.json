@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-07",
+  "needs_port": false,
+  "sha": "ec8811a75aef92b88728f44130cc35c7252ce007",
+  "short_sha": "ec8811a75a",
+  "subject": "fix: WF.Fix: deduplicate subsumed goals before running tactic (#3024)",
+  "zig_target": {}
+}

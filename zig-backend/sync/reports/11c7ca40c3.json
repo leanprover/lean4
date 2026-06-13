@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-07",
+  "needs_port": false,
+  "sha": "11c7ca40c3728db4451e49e45ca408aeaf51bca2",
+  "short_sha": "11c7ca40c3",
+  "subject": "fix: missing case at `Match.lean`",
+  "zig_target": {}
+}

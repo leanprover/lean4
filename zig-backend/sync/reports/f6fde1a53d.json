@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-15",
+  "needs_port": false,
+  "sha": "f6fde1a53dc6aae3a8824b53461df32c856cec3f",
+  "short_sha": "f6fde1a53d",
+  "subject": "fix(frontends/lean/vm_elaborator): correctly set up `declaration_info_scope`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-10-19",
+  "needs_port": false,
+  "sha": "18d972097589ed62933f859a289ef5c32202335a",
+  "short_sha": "18d9720975",
+  "subject": "chore: CI: fix Update changelog action",
+  "zig_target": {}
+}

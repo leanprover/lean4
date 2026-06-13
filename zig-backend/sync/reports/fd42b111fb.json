@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-17",
+  "needs_port": false,
+  "sha": "fd42b111fbd0d6b62ad4179aae1275912214454a",
+  "short_sha": "fd42b111fb",
+  "subject": "chore: always push `missing` on a parser error",
+  "zig_target": {}
+}

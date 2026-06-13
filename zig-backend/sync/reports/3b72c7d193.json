@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-05-29",
+  "needs_port": false,
+  "sha": "3b72c7d1930197c07f35ea770ea13ff2ae4ddceb",
+  "short_sha": "3b72c7d193",
+  "subject": "fix: lake: better library plugin heuristic (#8528)",
+  "zig_target": {}
+}

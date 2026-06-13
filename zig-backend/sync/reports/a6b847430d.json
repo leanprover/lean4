@@ -1,0 +1,10 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [],
+  "date": "2022-10-12",
+  "needs_port": false,
+  "sha": "a6b847430db0ce6f0110dc25af8617af91441c5d",
+  "short_sha": "a6b847430d",
+  "subject": "fix: highlight of `deriving instance` (#1717)",
+  "zig_target": {}
+}

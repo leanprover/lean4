@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-11",
+  "needs_port": false,
+  "sha": "430b641e81410dca77db6067c49946923cdfa18c",
+  "short_sha": "430b641e81",
+  "subject": "feat: use `decreasing_tactic`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2018-11-07",
+  "needs_port": true,
+  "sha": "e2bf92ec2110a3aed1a16a3d8b6178bcc7403b8b",
+  "short_sha": "e2bf92ec21",
+  "subject": "feat(library/module_mgr,shell/lean): identify correct file on error in transitive import",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

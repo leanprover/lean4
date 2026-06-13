@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-06-14",
+  "needs_port": false,
+  "sha": "021c21a2734467fb79986c4e082956bdad6ac0ce",
+  "short_sha": "021c21a273",
+  "subject": "fix: add terminfo for structure fields (#8568)",
+  "zig_target": {}
+}

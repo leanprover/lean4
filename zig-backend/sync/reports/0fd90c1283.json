@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "0fd90c128359965caab18f8fe03d624b8d662205",
+  "short_sha": "0fd90c1283",
+  "subject": "chore: CI: check for GitHub Actions updates once per month (#5954)",
+  "zig_target": {}
+}

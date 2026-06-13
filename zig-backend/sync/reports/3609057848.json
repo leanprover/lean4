@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-22",
+  "needs_port": false,
+  "sha": "360905784884cef77c3fbaa2221d73938c072495",
+  "short_sha": "3609057848",
+  "subject": "feat(library/init/lean/elaborator/basic): add `OpenDecl`",
+  "zig_target": {}
+}

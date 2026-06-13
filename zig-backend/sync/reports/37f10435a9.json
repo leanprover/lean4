@@ -1,0 +1,10 @@
+{
+  "author": "fiforeach",
+  "backend_changes": [],
+  "date": "2026-03-09",
+  "needs_port": false,
+  "sha": "37f10435a93de79922503ea5506a8c414601ba7d",
+  "short_sha": "37f10435a9",
+  "subject": "fix: make option `linter.unusedSimpArgs` respect `linter.all` (#12560)",
+  "zig_target": {}
+}

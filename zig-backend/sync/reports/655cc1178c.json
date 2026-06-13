@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-11",
+  "needs_port": false,
+  "sha": "655cc1178c3d229980f03193a96c4e174178c715",
+  "short_sha": "655cc1178c",
+  "subject": "fix: make mvcgen suggest `-trivial` on recursion depth error (#12427)",
+  "zig_target": {}
+}

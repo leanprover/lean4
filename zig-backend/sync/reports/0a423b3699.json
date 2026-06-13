@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-13",
+  "needs_port": false,
+  "sha": "0a423b36990fa69c34a4aea4f587f8d63f9e40f3",
+  "short_sha": "0a423b3699",
+  "subject": "fix: ensure the the terminal expression in `let`-declaration block is not a lambda",
+  "zig_target": {}
+}

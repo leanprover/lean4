@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-03-15",
+  "needs_port": true,
+  "sha": "6cbb8876d6b9a143a16236019c3bd6c8f21ddbd5",
+  "short_sha": "6cbb8876d6",
+  "subject": "feat: `Nat.sub` in cutsat (#7503)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-15",
+  "needs_port": true,
+  "sha": "0bfe1a8c1a2e2eb6da0dad270d7b2bbdd5b97c3d",
+  "short_sha": "0bfe1a8c1a",
+  "subject": "chore: better default value for Array.swapAt! (#5705)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean"
+  }
+}

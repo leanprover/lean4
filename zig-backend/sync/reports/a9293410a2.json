@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-06-04",
+  "needs_port": false,
+  "sha": "a9293410a26994a25afa80b98d4b785e66e4442d",
+  "short_sha": "a9293410a2",
+  "subject": "fix: unused variables linter: ignore structure, class and inductive signatures",
+  "zig_target": {}
+}

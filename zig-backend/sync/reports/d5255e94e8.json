@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-09",
+  "needs_port": false,
+  "sha": "d5255e94e800ee096c3d90f0d97dce86c0b17407",
+  "short_sha": "d5255e94e8",
+  "subject": "perf: improve dynamicQuot caching",
+  "zig_target": {}
+}

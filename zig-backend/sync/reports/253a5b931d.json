@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2023-10-12",
+  "needs_port": false,
+  "sha": "253a5b931d16155930f4bd7775feaee836504728",
+  "short_sha": "253a5b931d",
+  "subject": "fix: correct handling of FileWorker restarts",
+  "zig_target": {}
+}

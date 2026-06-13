@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-02",
+  "needs_port": false,
+  "sha": "47b353f1552f41db13014e0ec7ac8016dbab9595",
+  "short_sha": "47b353f155",
+  "subject": "chore: adjust HashMap grind lemmas (#8587)",
+  "zig_target": {}
+}

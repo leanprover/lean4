@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-03-10",
+  "needs_port": false,
+  "sha": "2ac0e4c061fc23b0dc88b53e5c620bf5e5ca6672",
+  "short_sha": "2ac0e4c061",
+  "subject": "fix: use getElem instead of get in the statements of hash map lemmas (#7418)",
+  "zig_target": {}
+}

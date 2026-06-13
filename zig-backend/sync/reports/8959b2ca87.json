@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-07-02",
+  "needs_port": false,
+  "sha": "8959b2ca87a67cb88ab0828db3672384ad7302fe",
+  "short_sha": "8959b2ca87",
+  "subject": "chore: make constructor-as-variable test more robust (#4625)",
+  "zig_target": {}
+}

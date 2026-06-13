@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-20",
+  "needs_port": false,
+  "sha": "ff74b9f44aa545c9c4bc39b065dede0dd0356d18",
+  "short_sha": "ff74b9f44a",
+  "subject": "feat(library/init/lean/compiler/ir): add `emitutil.lean` and `emitcpp.lean` files",
+  "zig_target": {}
+}

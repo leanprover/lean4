@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-10",
+  "needs_port": false,
+  "sha": "a5c99b760102c11eaa119422b562af029be84230",
+  "short_sha": "a5c99b7601",
+  "subject": "fix: bug at `getInstances`",
+  "zig_target": {}
+}

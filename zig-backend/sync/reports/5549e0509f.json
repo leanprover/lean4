@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-01",
+  "needs_port": false,
+  "sha": "5549e0509f9997b898797599aedb6140b0aed0f6",
+  "short_sha": "5549e0509f",
+  "subject": "feat: on \"type mismatch\" errors, expose differences in functions and pi types (#5922)",
+  "zig_target": {}
+}

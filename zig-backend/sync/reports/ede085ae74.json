@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-28",
+  "needs_port": false,
+  "sha": "ede085ae74213f3d7aefb818292857690fa9c44c",
+  "short_sha": "ede085ae74",
+  "subject": "chore: add failing grind test (#8509)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Order.lean"
+    }
+  ],
+  "date": "2026-02-25",
+  "needs_port": true,
+  "sha": "1e0bfe931f28f0d73d40554aac2662815fac27ca",
+  "short_sha": "1e0bfe931f",
+  "subject": "feat: more lemmas about `String.Slice.Pos.ofSlice(From|To)?` (#12685)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Order.lean": "zig-backend/src/init/Data/String/Lemmas/Order.lean"
+  }
+}

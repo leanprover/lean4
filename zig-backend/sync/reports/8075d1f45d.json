@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-04-10",
+  "needs_port": false,
+  "sha": "8075d1f45d6c81bc8742e746b322f9b93238d02d",
+  "short_sha": "8075d1f45d",
+  "subject": "fix: reset local context in mkInjectiveTheorems",
+  "zig_target": {}
+}

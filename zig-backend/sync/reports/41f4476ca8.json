@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Sorry.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Util/Sorry.lean"
+    }
+  ],
+  "date": "2019-12-12",
+  "needs_port": true,
+  "sha": "41f4476ca8f87dd7b92dcd60d4e4915a1acabbda",
+  "short_sha": "41f4476ca8",
+  "subject": "feat: add synthetic sorry",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Util/Sorry.lean": "zig-backend/src/init/Lean/Util/Sorry.lean"
+  }
+}

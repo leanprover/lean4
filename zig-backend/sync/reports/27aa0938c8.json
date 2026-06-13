@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-29",
+  "needs_port": false,
+  "sha": "27aa0938c8f0ad01b4668928773ff6a5f6bbaa11",
+  "short_sha": "27aa0938c8",
+  "subject": "chore: update .gitignores",
+  "zig_target": {}
+}

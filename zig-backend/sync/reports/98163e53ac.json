@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "98163e53ac7790a7edef330180caa7787c4e1d35",
+  "short_sha": "98163e53ac",
+  "subject": "chore(library/init/data/string/basic): simplify UTF8 API names",
+  "zig_target": {}
+}

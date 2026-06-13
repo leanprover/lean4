@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-29",
+  "needs_port": false,
+  "sha": "6a34b20540e0e000f1d6f68666bd428fa4003797",
+  "short_sha": "6a34b20540",
+  "subject": "chore: call ctest with -V",
+  "zig_target": {}
+}

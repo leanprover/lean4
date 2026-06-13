@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-14",
+  "needs_port": true,
+  "sha": "8380035a6cc49c12db57bb342c72bb3894bf0cd1",
+  "short_sha": "8380035a6c",
+  "subject": "fix(library/compiler/csimp): bug at `find`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

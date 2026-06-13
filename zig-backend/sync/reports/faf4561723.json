@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/lcnf.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.h"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    }
+  ],
+  "date": "2018-09-17",
+  "needs_port": true,
+  "sha": "faf4561723f247cc7b7b3c3c601d285d3b8c2c36",
+  "short_sha": "faf4561723",
+  "subject": "feat(library/compiler/lcnf): expand nested `f._match_<idx>` applications at `to_lcnf`",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp",
+    "src/library/compiler/lcnf.h": "zig-backend/src/library/compiler/lcnf.h",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp"
+  }
+}

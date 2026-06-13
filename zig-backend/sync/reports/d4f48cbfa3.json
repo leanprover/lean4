@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-09",
+  "needs_port": false,
+  "sha": "d4f48cbfa3016b277495d9880e903fdf117808d1",
+  "short_sha": "d4f48cbfa3",
+  "subject": "feat: improve error message \"don't know how to synthesize implicit argument\"",
+  "zig_target": {}
+}

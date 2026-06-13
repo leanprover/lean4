@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-08-26",
+  "needs_port": false,
+  "sha": "c9c2c8720a02ce442ed0cd4d59c39092cb70792d",
+  "short_sha": "c9c2c8720a",
+  "subject": "fix: PANIC at `Fin.isValue` (#5159)",
+  "zig_target": {}
+}

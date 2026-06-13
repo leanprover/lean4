@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-05",
+  "needs_port": false,
+  "sha": "ab481d7e7b3bb5d3805222e441bb523bde9a3d25",
+  "short_sha": "ab481d7e7b",
+  "subject": "chore(library/init/meta): remove unnecessary primitives",
+  "zig_target": {}
+}

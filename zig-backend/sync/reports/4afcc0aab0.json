@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-25",
+  "needs_port": false,
+  "sha": "4afcc0aab0ce0939bca30fd3329f8d94844a7df4",
+  "short_sha": "4afcc0aab0",
+  "subject": "fix(library/init/lean/parser/term): do not allow mixing bracketed and unbracketed binders",
+  "zig_target": {}
+}

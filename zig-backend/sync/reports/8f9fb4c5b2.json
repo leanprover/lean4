@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-01-16",
+  "needs_port": false,
+  "sha": "8f9fb4c5b22487b9ba58fb3e99aab5d968b656e4",
+  "short_sha": "8f9fb4c5b2",
+  "subject": "fix: closed term cache (#12024)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-07-21",
+  "needs_port": true,
+  "sha": "bdfaa00b1e9c886971a9ebdc45fd5ed6c455daf1",
+  "short_sha": "bdfaa00b1e",
+  "subject": "doc: remove reference to HashMap.find? from Option docstring (#4782)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

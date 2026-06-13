@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-04",
+  "needs_port": false,
+  "sha": "988e43d2b4a25ca17c12db2a780dad1e74987c78",
+  "short_sha": "988e43d2b4",
+  "subject": "fix: WF should reject definitions that do not take any arguments",
+  "zig_target": {}
+}

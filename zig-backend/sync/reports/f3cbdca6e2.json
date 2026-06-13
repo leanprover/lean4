@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-18",
+  "needs_port": false,
+  "sha": "f3cbdca6e2f218150f134a414b5ae26f3167a059",
+  "short_sha": "f3cbdca6e2",
+  "subject": "chore: add module/prelude guidance to CLAUDE.md (#12542)",
+  "zig_target": {}
+}

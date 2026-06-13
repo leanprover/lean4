@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-09",
+  "needs_port": false,
+  "sha": "185829d089080b290c012adb380beddfd49a4712",
+  "short_sha": "185829d089",
+  "subject": "chore: update mdBook",
+  "zig_target": {}
+}

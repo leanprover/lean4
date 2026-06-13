@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-03",
+  "needs_port": false,
+  "sha": "ccb8568756c19158356d744826ac5eba949cc849",
+  "short_sha": "ccb8568756",
+  "subject": "feat: linear-size DecidableEq instance (#10152)",
+  "zig_target": {}
+}

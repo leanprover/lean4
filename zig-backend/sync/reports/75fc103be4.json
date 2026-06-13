@@ -1,0 +1,18 @@
+{
+  "author": "Fran\u00e7ois G. Dorais",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-12-18",
+  "needs_port": true,
+  "sha": "75fc103be49e44822339b6b749bcad53453e39ce",
+  "short_sha": "75fc103be4",
+  "subject": "chore: fix some docstrings (#6410)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

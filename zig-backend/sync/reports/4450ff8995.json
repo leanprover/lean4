@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-11",
+  "needs_port": false,
+  "sha": "4450ff89958bd479af79da62fa1949931b81351b",
+  "short_sha": "4450ff8995",
+  "subject": "chore: fix shlib rebuild detection under `LAKE_USE_CACHE` (#12879)",
+  "zig_target": {}
+}

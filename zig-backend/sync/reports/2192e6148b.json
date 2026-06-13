@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-01-20",
+  "needs_port": true,
+  "sha": "2192e6148babe0aec470a3a0110a636ae4ea4bfc",
+  "short_sha": "2192e6148b",
+  "subject": "chore: remove `coe`, `coeSort`, and `coeFun` abbreviations",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

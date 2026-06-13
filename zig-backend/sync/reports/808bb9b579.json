@@ -1,0 +1,10 @@
+{
+  "author": "Alex J Best",
+  "backend_changes": [],
+  "date": "2023-07-24",
+  "needs_port": false,
+  "sha": "808bb9b579513b47d0e87cb7ff7aade705a71d79",
+  "short_sha": "808bb9b579",
+  "subject": "perf: dont repeatedly elab term in rw at multiple locations #2317",
+  "zig_target": {}
+}

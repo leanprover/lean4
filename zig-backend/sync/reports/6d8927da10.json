@@ -1,0 +1,48 @@
+{
+  "author": "Simon Hudon",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Char/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2020-01-11",
+  "needs_port": true,
+  "sha": "6d8927da1010610f3c513c9cac8a331883dae8af",
+  "short_sha": "6d8927da10",
+  "subject": "fix: little details",
+  "zig_target": {
+    "src/Init/Data/Char/Basic.lean": "zig-backend/src/init/Data/Char/Basic.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

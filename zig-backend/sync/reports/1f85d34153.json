@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-27",
+  "needs_port": false,
+  "sha": "1f85d341533f8c9193741ef15eabfbb859170188",
+  "short_sha": "1f85d34153",
+  "subject": "chore(library/init/lean/parser/notation): remove old `notation <numeric-literal> := ...` syntax",
+  "zig_target": {}
+}

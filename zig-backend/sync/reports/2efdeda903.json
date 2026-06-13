@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    }
+  ],
+  "date": "2020-01-28",
+  "needs_port": true,
+  "sha": "2efdeda9030870a3c1f7bbeb3ed6f9c36bd286c5",
+  "short_sha": "2efdeda903",
+  "subject": "fix: bug at `preprocessArgs`",
+  "zig_target": {
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+  }
+}

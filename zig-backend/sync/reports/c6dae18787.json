@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    }
+  ],
+  "date": "2022-03-14",
+  "needs_port": true,
+  "sha": "c6dae18787efbfb5cd7abfb76a0581038e5e95a7",
+  "short_sha": "c6dae18787",
+  "subject": "chore: add helper theorems",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.h"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-01-23",
+  "needs_port": true,
+  "sha": "320917cca5a421c5a50cf8099315f580cc689525",
+  "short_sha": "320917cca5",
+  "subject": "feat(library/compiler): add `emit_cpp` skeleton",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/emit_cpp.h": "zig-backend/src/library/compiler/emit_cpp.h",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

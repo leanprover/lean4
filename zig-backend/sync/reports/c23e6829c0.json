@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-08",
+  "needs_port": true,
+  "sha": "c23e6829c02ae2cb57756f0dde7f081582ea98ed",
+  "short_sha": "c23e6829c0",
+  "subject": "refactor(library/compiler/ir_interpreter): move constant caching into `load`",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "aa2be22df71c92145b52af490253bd335c49e6da",
+  "short_sha": "aa2be22df7",
+  "subject": "fix: group trace messages into one diagnostic",
+  "zig_target": {}
+}

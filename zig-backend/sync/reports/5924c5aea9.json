@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-05",
+  "needs_port": false,
+  "sha": "5924c5aea919176a28788ecea4c4a2182c7dc670",
+  "short_sha": "5924c5aea9",
+  "subject": "fix: `simp` must not use the forward version of an user-specified backward theorem (#4345)",
+  "zig_target": {}
+}

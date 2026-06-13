@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-27",
+  "needs_port": false,
+  "sha": "e2383729a6e6be7c8db300564b8d166ed500fe92",
+  "short_sha": "e2383729a6",
+  "subject": "doc: clarify current release process",
+  "zig_target": {}
+}

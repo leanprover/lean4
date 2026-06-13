@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-05-16",
+  "needs_port": true,
+  "sha": "7a19f246e6fe2aae21b2f336c435f56712926a33",
+  "short_sha": "7a19f246e6",
+  "subject": "fix(shell/lean): re-add missing short-only option",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

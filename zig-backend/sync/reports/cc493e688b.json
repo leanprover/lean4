@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Module.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Envelope.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Module/Envelope.lean"
+    }
+  ],
+  "date": "2025-06-24",
+  "needs_port": true,
+  "sha": "cc493e688b1e1a41c655158798c1fdae8c7f2b92",
+  "short_sha": "cc493e688b",
+  "subject": "feat: embed a NatModule in its IntModule completion (#8963)",
+  "zig_target": {
+    "src/Init/Grind/Module.lean": "zig-backend/src/init/Grind/Module.lean",
+    "src/Init/Grind/Module/Envelope.lean": "zig-backend/src/init/Grind/Module/Envelope.lean"
+  }
+}

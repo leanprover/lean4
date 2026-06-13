@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/EState.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/EState.lean"
+    },
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/Control/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Option.lean"
+    },
+    {
+      "path": "src/Init/Data/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Basic.lean"
+    }
+  ],
+  "date": "2020-12-18",
+  "needs_port": true,
+  "sha": "2e11c3bdff2d142d68cb7e80ba3229f6e51c8be0",
+  "short_sha": "2e11c3bdff",
+  "subject": "feat: dependencies",
+  "zig_target": {
+    "src/Init/Control/EState.lean": "zig-backend/src/init/Control/EState.lean",
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/Control/Option.lean": "zig-backend/src/init/Control/Option.lean",
+    "src/Init/Data/Format.lean": "zig-backend/src/init/Data/Format.lean",
+    "src/Init/Data/ToString/Basic.lean": "zig-backend/src/init/Data/ToString/Basic.lean"
+  }
+}

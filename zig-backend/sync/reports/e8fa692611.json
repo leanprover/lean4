@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2018-09-11",
+  "needs_port": true,
+  "sha": "e8fa692611bb6e7134b58000698531af2acb80af",
+  "short_sha": "e8fa692611",
+  "subject": "chore(runtime/object): change default `object_memory_kind` to `STHeap`",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

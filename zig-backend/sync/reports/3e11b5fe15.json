@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-02",
+  "needs_port": false,
+  "sha": "3e11b5fe154d6b4fede92ff16cf1f0c4af2d6cfd",
+  "short_sha": "3e11b5fe15",
+  "subject": "fix: trace used builtin `simproc`s even if they are not in the environment",
+  "zig_target": {}
+}

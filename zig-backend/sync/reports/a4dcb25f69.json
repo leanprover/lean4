@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-22",
+  "needs_port": false,
+  "sha": "a4dcb25f69e020bcd0328ff189cad5be40159edc",
+  "short_sha": "a4dcb25f69",
+  "subject": "chore: add limited public API for builtinRpcProcedures (#10499)",
+  "zig_target": {}
+}

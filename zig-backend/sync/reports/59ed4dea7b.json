@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-21",
+  "needs_port": false,
+  "sha": "59ed4dea7b0d826e03defb3810f533346ced2b0b",
+  "short_sha": "59ed4dea7b",
+  "subject": "feat: add `runTactic` for running `tactic` `Syntax` in `MetaM`",
+  "zig_target": {}
+}

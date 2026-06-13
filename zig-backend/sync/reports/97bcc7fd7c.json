@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    }
+  ],
+  "date": "2022-09-21",
+  "needs_port": true,
+  "sha": "97bcc7fd7c17d6348d4ee32cbf8c66a89ec27e89",
+  "short_sha": "97bcc7fd7c",
+  "subject": "feat: add ForM -> ForIn adapter",
+  "zig_target": {
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean"
+  }
+}

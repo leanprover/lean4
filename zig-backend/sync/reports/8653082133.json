@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-10",
+  "needs_port": false,
+  "sha": "8653082133d2c6b24e7706308e17c73144557732",
+  "short_sha": "8653082133",
+  "subject": "fix: must take `BinderInfo` into account in the elaborator",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-29",
+  "needs_port": false,
+  "sha": "5ce9ca81daba1522d41caa95dbed9001c1596250",
+  "short_sha": "5ce9ca81da",
+  "subject": "chore: revert \"test: capture stderr as well\"",
+  "zig_target": {}
+}

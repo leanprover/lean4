@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-28",
+  "needs_port": false,
+  "sha": "adc4c6a7cf27f6440a1fe9293dcf851f2a4ddc9b",
+  "short_sha": "adc4c6a7cf",
+  "subject": "chore: add backward compatibility flags for recent `isDefEq` changes (#4012)",
+  "zig_target": {}
+}

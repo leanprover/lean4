@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "02a6b4d12603597b60c5f9c6ecae39423dafec34",
+  "short_sha": "02a6b4d126",
+  "subject": "chore: remove obsolete code",
+  "zig_target": {}
+}

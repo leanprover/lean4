@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-28",
+  "needs_port": false,
+  "sha": "85f6d1a402b31a8380a77611cb1a8487e05abe24",
+  "short_sha": "85f6d1a402",
+  "subject": "feat: preliminary custom module facets",
+  "zig_target": {}
+}

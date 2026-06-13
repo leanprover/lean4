@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-25",
+  "needs_port": false,
+  "sha": "5679a17603b2b6a8b80da73e9bec70eb0bab2a15",
+  "short_sha": "5679a17603",
+  "subject": "doc(doc/make/index): add instructions for invoking makefile manually",
+  "zig_target": {}
+}

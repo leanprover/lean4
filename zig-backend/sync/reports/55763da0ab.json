@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Apply.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Apply.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Assert.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Assert.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Clear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Intro.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Subst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Subst.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Target.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Target.lean"
+    }
+  ],
+  "date": "2020-02-10",
+  "needs_port": true,
+  "sha": "55763da0ab7f075dee97aeea404bd58c090fa01b",
+  "short_sha": "55763da0ab",
+  "subject": "chore: cleanup",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Apply.lean": "zig-backend/src/init/Lean/Meta/Tactic/Apply.lean",
+    "src/Init/Lean/Meta/Tactic/Assert.lean": "zig-backend/src/init/Lean/Meta/Tactic/Assert.lean",
+    "src/Init/Lean/Meta/Tactic/Clear.lean": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean",
+    "src/Init/Lean/Meta/Tactic/Intro.lean": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean",
+    "src/Init/Lean/Meta/Tactic/Subst.lean": "zig-backend/src/init/Lean/Meta/Tactic/Subst.lean",
+    "src/Init/Lean/Meta/Tactic/Target.lean": "zig-backend/src/init/Lean/Meta/Tactic/Target.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "7dbfaf9b751917a7fe020485bf57f41fdddcaafa",
+  "short_sha": "7dbfaf9b75",
+  "subject": "fix: bug at `mkSizeOfSpecLemmaInstance`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    }
+  ],
+  "date": "2024-08-26",
+  "needs_port": true,
+  "sha": "2d9cbdb4504fda54f83903a0150cd0eda3cf70a1",
+  "short_sha": "2d9cbdb450",
+  "subject": "feat: more List.findSome? lemmas (#5161)",
+  "zig_target": {
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean"
+  }
+}

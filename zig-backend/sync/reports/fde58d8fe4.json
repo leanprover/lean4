@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean.lean"
+    },
+    {
+      "path": "src/Init/Lean/Eval.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Eval.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2019-12-04",
+  "needs_port": true,
+  "sha": "fde58d8fe4a1b803e3238c97d4a995fc6472b804",
+  "short_sha": "fde58d8fe4",
+  "subject": "feat: add Lean.MetaHasEval, rename HasEval to Lean.HasEval",
+  "zig_target": {
+    "src/Init/Lean.lean": "zig-backend/src/init/Lean.lean",
+    "src/Init/Lean/Eval.lean": "zig-backend/src/init/Lean/Eval.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

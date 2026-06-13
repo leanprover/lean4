@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-27",
+  "needs_port": false,
+  "sha": "f3cb8a6c2d19c9325f3e5154c66b0a2c884860f2",
+  "short_sha": "f3cb8a6c2d",
+  "subject": "fix: interrupt exception was swallowed by some `tryCatchRuntimeEx` uses (#4569)",
+  "zig_target": {}
+}

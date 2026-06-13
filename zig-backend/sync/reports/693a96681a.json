@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-26",
+  "needs_port": false,
+  "sha": "693a96681add8d05b8dae55d6dc6be468b01091f",
+  "short_sha": "693a96681a",
+  "subject": "doc: fix eta struct comment",
+  "zig_target": {}
+}

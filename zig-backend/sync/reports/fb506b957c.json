@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-05",
+  "needs_port": false,
+  "sha": "fb506b957c377134ee90bbb144598aa7a782b72d",
+  "short_sha": "fb506b957c",
+  "subject": "fix: allow projections in E-matching patterns (#6534)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-27",
+  "needs_port": false,
+  "sha": "2ab2265d2299116ed468b0c7fe273cdd86303ead",
+  "short_sha": "2ab2265d22",
+  "subject": "chore(library/module): remove dead APIs",
+  "zig_target": {}
+}

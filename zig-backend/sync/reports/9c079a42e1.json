@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-05",
+  "needs_port": false,
+  "sha": "9c079a42e1a0d45940c7b39768a12e77800fa45d",
+  "short_sha": "9c079a42e1",
+  "subject": "chore: lake: add build log file path to warning (#4356)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-09",
+  "needs_port": false,
+  "sha": "fd371ea8129e31725dc1503702bb88aca89d516b",
+  "short_sha": "fd371ea812",
+  "subject": "chore: remove `getOp` builtin support",
+  "zig_target": {}
+}

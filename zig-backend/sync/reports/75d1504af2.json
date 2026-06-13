@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-11-19",
+  "needs_port": false,
+  "sha": "75d1504af21ce147652870e27b77af1f1375e247",
+  "short_sha": "75d1504af2",
+  "subject": "fix: `isDefEq` for constants with different universe parameters (#6131)",
+  "zig_target": {}
+}

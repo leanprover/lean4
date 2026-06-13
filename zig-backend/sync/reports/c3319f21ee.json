@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-06-27",
+  "needs_port": false,
+  "sha": "c3319f21ee597b524bccea2278396a06edbd02c1",
+  "short_sha": "c3319f21ee",
+  "subject": "chore: Grove: start on associative containers (#9039)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-06",
+  "needs_port": false,
+  "sha": "ff0d338dd2781740d738a765331063f8dc831830",
+  "short_sha": "ff0d338dd2",
+  "subject": "feat: improve error messages for numerals  (#4368)",
+  "zig_target": {}
+}

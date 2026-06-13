@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lift.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-02-03",
+  "needs_port": true,
+  "sha": "31bb6a1decbd9cc2ae5491d93f77030d1df14f63",
+  "short_sha": "31bb6a1dec",
+  "subject": "feat: extend `tryCoeAndLift`",
+  "zig_target": {
+    "src/Init/Control/Lift.lean": "zig-backend/src/init/Control/Lift.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

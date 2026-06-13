@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "03551487ad0029c15f62a8b133e38a4dd961fbc1",
+  "short_sha": "03551487ad",
+  "subject": "chore: simplify test",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-18",
+  "needs_port": false,
+  "sha": "d5180ffa17f40eec693ee5cc5216ed8637cd0f28",
+  "short_sha": "d5180ffa17",
+  "subject": "fix(library/init/lean/elaborator): make sure new frontend can parse the latest core.lean",
+  "zig_target": {}
+}

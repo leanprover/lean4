@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-22",
+  "needs_port": false,
+  "sha": "85c955d77fdab36938e3fb4f5f26a157d160f33c",
+  "short_sha": "85c955d77f",
+  "subject": "feat: improve `\u25b8` notation",
+  "zig_target": {}
+}

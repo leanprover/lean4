@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "854b154a5f39bedfe54ec015f4a60068e6418b29",
+  "short_sha": "854b154a5f",
+  "subject": "fix:  `lake serve` fallback regression",
+  "zig_target": {}
+}

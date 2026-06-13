@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mutex.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mutex.cpp"
+    },
+    {
+      "path": "src/runtime/thread.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/thread.h"
+    }
+  ],
+  "date": "2026-02-11",
+  "needs_port": true,
+  "sha": "818a0ec6a74d6b9db984e197a1a959e5c540b682",
+  "short_sha": "818a0ec6a7",
+  "subject": "refactor: don't use shared_timed_mutex when not required anymore (#12434)",
+  "zig_target": {
+    "src/runtime/mutex.cpp": "zig-backend/src/runtime/mutex.cpp",
+    "src/runtime/thread.h": "zig-backend/src/runtime/thread.h"
+  }
+}

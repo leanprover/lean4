@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-16",
+  "needs_port": false,
+  "sha": "50435417ac9c0e2314141d3b3375970ec87a39b2",
+  "short_sha": "50435417ac",
+  "subject": "chore: remove comment from src/stdlib_flags.h (#10409)",
+  "zig_target": {}
+}

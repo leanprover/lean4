@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-10-14",
+  "needs_port": true,
+  "sha": "4f78142ed692ef5d5d1ce4d2f47c2a61b67f3f94",
+  "short_sha": "4f78142ed6",
+  "subject": "fix: add temporary hack",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

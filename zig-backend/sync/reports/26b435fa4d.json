@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-11-22",
+  "needs_port": true,
+  "sha": "26b435fa4d46dab0b2e7004f2b7468792db522d0",
+  "short_sha": "26b435fa4d",
+  "subject": "feat: `grind_pattern` for `Subtype.property` (#11317)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

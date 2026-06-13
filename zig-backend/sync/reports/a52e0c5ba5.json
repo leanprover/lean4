@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-18",
+  "needs_port": false,
+  "sha": "a52e0c5ba571570bf02576d898343226bb823574",
+  "short_sha": "a52e0c5ba5",
+  "subject": "chore: CI: bring back Lake build job (#8020)",
+  "zig_target": {}
+}

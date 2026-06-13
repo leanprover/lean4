@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    }
+  ],
+  "date": "2024-04-15",
+  "needs_port": true,
+  "sha": "3b0c1017925fd7e96e5a1a1c648cfc8533f06843",
+  "short_sha": "3b0c101792",
+  "subject": "doc: docstrings for List.head/tail/getLast variants (#3864)",
+  "zig_target": {
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean"
+  }
+}

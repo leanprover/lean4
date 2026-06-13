@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "37af11ae20d0aec80907e94822aff35607a9431f",
+  "short_sha": "37af11ae20",
+  "subject": "fix: unused `match`-syntax alternatives are silently ignored",
+  "zig_target": {}
+}

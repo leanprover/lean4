@@ -1,0 +1,10 @@
+{
+  "author": "Henrik",
+  "backend_changes": [],
+  "date": "2023-05-11",
+  "needs_port": false,
+  "sha": "28538fc74889ea2dedbc30e236ce26492e5823ca",
+  "short_sha": "28538fc748",
+  "subject": "feat: trace nodes for kernel type checking",
+  "zig_target": {}
+}

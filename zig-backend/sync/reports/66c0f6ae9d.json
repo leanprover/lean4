@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-05",
+  "needs_port": false,
+  "sha": "66c0f6ae9d5f5a563de18664b905b6ed7cb2e560",
+  "short_sha": "66c0f6ae9d",
+  "subject": "fix: goal state at `induction/cases e with`",
+  "zig_target": {}
+}

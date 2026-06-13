@@ -1,0 +1,10 @@
+{
+  "author": "Jakob von Raumer",
+  "backend_changes": [],
+  "date": "2025-05-15",
+  "needs_port": false,
+  "sha": "436221986abb52eae9440246c925917e95051a3c",
+  "short_sha": "436221986a",
+  "subject": "fix: fix typo in inhabited instance for ExtDHashMap (#8349)",
+  "zig_target": {}
+}

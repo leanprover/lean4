@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/export_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/export_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2019-06-26",
+  "needs_port": true,
+  "sha": "34ca44cca14b8a7c9558bb85fd622532ef93c713",
+  "short_sha": "34ca44cca1",
+  "subject": "chore(frontends/lean,library): remove unnecessary `#include`s and dead code",
+  "zig_target": {
+    "src/library/compiler/export_attribute.cpp": "zig-backend/src/library/compiler/export_attribute.cpp",
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

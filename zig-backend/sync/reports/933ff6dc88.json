@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-02-06",
+  "needs_port": true,
+  "sha": "933ff6dc88795cf9df9bd8bf49545919b4219053",
+  "short_sha": "933ff6dc88",
+  "subject": "perf: short-circuit all antiquotation parsers",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

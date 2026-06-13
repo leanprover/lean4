@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-20",
+  "needs_port": false,
+  "sha": "db647139a287d79f8edb452b48609652b348ad4f",
+  "short_sha": "db647139a2",
+  "subject": "feat(kernel): use `cheap_beta_reduce` at `infer_lambda` too",
+  "zig_target": {}
+}

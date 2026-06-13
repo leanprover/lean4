@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-03-29",
+  "needs_port": true,
+  "sha": "229e4a25b39e8e9cc3f4f31fc4d2c0b9d5d209f3",
+  "short_sha": "229e4a25b3",
+  "subject": "refactor(library/init/array): implement `mkArray` in Lean, add allow `mkEmpty` to set initial capacity",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

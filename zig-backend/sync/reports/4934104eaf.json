@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-13",
+  "needs_port": false,
+  "sha": "4934104eaf879d56cdfbf14c50eaca4cf7539371",
+  "short_sha": "4934104eaf",
+  "subject": "chore: update script/reformat.lean",
+  "zig_target": {}
+}

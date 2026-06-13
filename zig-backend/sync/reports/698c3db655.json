@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "698c3db6559da8e2475199c3bd595cfb162c1923",
+  "short_sha": "698c3db655",
+  "subject": "chore: take `doSeq` at `initialize`",
+  "zig_target": {}
+}

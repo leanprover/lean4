@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    }
+  ],
+  "date": "2020-10-17",
+  "needs_port": true,
+  "sha": "880cbbb6dce9cfe6aa08770a15e8739914eb2410",
+  "short_sha": "880cbbb6dc",
+  "subject": "chore: cleanup",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+  }
+}

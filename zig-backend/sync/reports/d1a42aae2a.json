@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-04-19",
+  "needs_port": false,
+  "sha": "d1a42aae2ae28b23ba7ee56802a9a9f80548cfd6",
+  "short_sha": "d1a42aae2a",
+  "subject": "chore: remove @ from rw? suggestions, and enable hover on constants in #check (#3911)",
+  "zig_target": {}
+}

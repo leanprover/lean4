@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-10-01",
+  "needs_port": false,
+  "sha": "ddd7581ee42cb8a7b0e0dfe69803bbe8b9e3a28e",
+  "short_sha": "ddd7581ee4",
+  "subject": "refactor: `lean_packages` -> `lake-packages` + cleanup",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    }
+  ],
+  "date": "2019-05-08",
+  "needs_port": true,
+  "sha": "74fb8e627a9119ef015b773547ce2e0a5801dca7",
+  "short_sha": "74fb8e627a",
+  "subject": "feat(library/init/lean/compiler/ir/checker): improve IR checker",
+  "zig_target": {
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp"
+  }
+}

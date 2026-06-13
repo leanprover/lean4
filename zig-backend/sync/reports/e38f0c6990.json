@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Pairwise.lean"
+    }
+  ],
+  "date": "2025-07-28",
+  "needs_port": true,
+  "sha": "e38f0c699014515ab0c40a9c5d794029177ecec4",
+  "short_sha": "e38f0c6990",
+  "subject": "chore: remove bad grind annotation from pairwise_iff_forall_sublist (#9584)",
+  "zig_target": {
+    "src/Init/Data/List/Pairwise.lean": "zig-backend/src/init/Data/List/Pairwise.lean"
+  }
+}

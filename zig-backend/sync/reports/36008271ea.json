@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-11",
+  "needs_port": false,
+  "sha": "36008271eacc7af3c22828c3d3238650349017d4",
+  "short_sha": "36008271ea",
+  "subject": "feat: ensure no unassigned metavariables in the declaration header when type is explicitly provided",
+  "zig_target": {}
+}

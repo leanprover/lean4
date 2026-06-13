@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-03",
+  "needs_port": false,
+  "sha": "483f1efc4d431c3014c6374e8424277fc64fbd56",
+  "short_sha": "483f1efc4d",
+  "subject": "refactor(library/init/lean/environment): move fields that are rarely used to a separate structure, add `setMainModuleName`",
+  "zig_target": {}
+}

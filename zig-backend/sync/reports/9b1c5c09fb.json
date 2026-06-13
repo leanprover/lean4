@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-03-18",
+  "needs_port": true,
+  "sha": "9b1c5c09fb51c2f6d23fde76d817723e62eed4be",
+  "short_sha": "9b1c5c09fb",
+  "subject": "feat(library/compiler/emit_cpp): thread io state",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

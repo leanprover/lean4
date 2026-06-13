@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-18",
+  "needs_port": false,
+  "sha": "e9535e5792f5ede72532b7fa9ec6a7365a04a3ea",
+  "short_sha": "e9535e5792",
+  "subject": "feat(library/init/lean/parser/parser): add `longestMatch` combinator",
+  "zig_target": {}
+}

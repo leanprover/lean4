@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Try.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Try.lean"
+    }
+  ],
+  "date": "2025-02-05",
+  "needs_port": true,
+  "sha": "13b1f56f886f401fb47471bec042a7fb72ed8ecb",
+  "short_sha": "13b1f56f88",
+  "subject": "feat: `evalAndSuggest` helper tactic (#6961)",
+  "zig_target": {
+    "src/Init/Try.lean": "zig-backend/src/init/Try.lean"
+  }
+}

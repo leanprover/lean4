@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-30",
+  "needs_port": false,
+  "sha": "faebe15a7f9c0177ced2064169ac061b560e168f",
+  "short_sha": "faebe15a7f",
+  "subject": "feat(library/init/lean/expr): add efficient `instantiate1`",
+  "zig_target": {}
+}

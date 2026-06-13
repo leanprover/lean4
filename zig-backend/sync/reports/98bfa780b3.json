@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-22",
+  "needs_port": false,
+  "sha": "98bfa780b3c222d1fe0e3df6088ca83d072a81e9",
+  "short_sha": "98bfa780b3",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

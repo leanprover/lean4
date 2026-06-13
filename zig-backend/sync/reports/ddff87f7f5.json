@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "ddff87f7f5fd3800ee9a9f0b6381f8a9613edbfa",
+  "short_sha": "ddff87f7f5",
+  "subject": "feat: server: also implement full semantic token requests",
+  "zig_target": {}
+}

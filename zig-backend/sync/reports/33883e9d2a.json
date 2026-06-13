@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-10",
+  "needs_port": false,
+  "sha": "33883e9d2a78d7cb8e2f532a8b33e8a7a48e024c",
+  "short_sha": "33883e9d2a",
+  "subject": "fix: resulting type of projection functions should not include auxiliary type annotations (e.g., `autoParam`)",
+  "zig_target": {}
+}

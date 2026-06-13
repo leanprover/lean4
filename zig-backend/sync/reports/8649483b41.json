@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-02",
+  "needs_port": false,
+  "sha": "8649483b416ec9d919c380d657ceedf8184ed527",
+  "short_sha": "8649483b41",
+  "subject": "feat: produces an error if the declaration body contains a universe parameter that does not occur in the declaration type nor is explicitly provided",
+  "zig_target": {}
+}

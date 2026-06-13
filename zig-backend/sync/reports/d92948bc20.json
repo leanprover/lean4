@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "d92948bc20b12f53542814c79469711ceff19fbf",
+  "short_sha": "d92948bc20",
+  "subject": "chore: prune ancient keywords",
+  "zig_target": {}
+}

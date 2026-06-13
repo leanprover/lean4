@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Guard.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Guard.lean"
+    }
+  ],
+  "date": "2024-02-12",
+  "needs_port": true,
+  "sha": "90b08ef22e0285a5bc92d4eb807b8f3084b963cf",
+  "short_sha": "90b08ef22e",
+  "subject": "feat: upstream guard_expr (#3297)",
+  "zig_target": {
+    "src/Init/Guard.lean": "zig-backend/src/init/Guard.lean"
+  }
+}

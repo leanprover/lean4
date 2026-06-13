@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-06",
+  "needs_port": false,
+  "sha": "37f5be1b264c02a235293af78e4fb7e402c4b30b",
+  "short_sha": "37f5be1b26",
+  "subject": "chore: fix servertest_init_exit",
+  "zig_target": {}
+}

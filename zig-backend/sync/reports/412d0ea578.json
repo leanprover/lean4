@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "412d0ea5783c69545ba048d7935773b0fd8027df",
+  "short_sha": "412d0ea578",
+  "subject": "feat(library/init/lean/options): add `setOptionFromString`",
+  "zig_target": {}
+}

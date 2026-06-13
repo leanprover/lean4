@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-15",
+  "needs_port": false,
+  "sha": "df898a5c87d7031c5687cfcdf79b29e576306439",
+  "short_sha": "df898a5c87",
+  "subject": "chore: make test `mvcgenUsingWith` deterministic (#9933)",
+  "zig_target": {}
+}

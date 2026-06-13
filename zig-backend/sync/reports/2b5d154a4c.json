@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-04-29",
+  "needs_port": false,
+  "sha": "2b5d154a4cfbd4ab1a01a2c74a95172a2c1969a4",
+  "short_sha": "2b5d154a4c",
+  "subject": "feat: upstream `unnecessarySeqFocus` linter (#13540)",
+  "zig_target": {}
+}

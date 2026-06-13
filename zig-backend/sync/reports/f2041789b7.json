@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-02",
+  "needs_port": false,
+  "sha": "f2041789b7383a260948bdd8085c19c6bd0ee796",
+  "short_sha": "f2041789b7",
+  "subject": "Renamed `Manifest.lean` to `Pakcage.lean`",
+  "zig_target": {}
+}

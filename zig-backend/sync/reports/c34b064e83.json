@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-03",
+  "needs_port": false,
+  "sha": "c34b064e832136e06ba176e5f79717f94d2e63eb",
+  "short_sha": "c34b064e83",
+  "subject": "feat(library/init/lean/compiler/ir): add `insertResetReuse`",
+  "zig_target": {}
+}

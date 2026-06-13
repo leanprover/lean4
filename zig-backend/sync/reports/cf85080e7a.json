@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "cf85080e7a97496ac6dd7da1867f93ccbe53985d",
+  "short_sha": "cf85080e7a",
+  "subject": "feat: proper support for `nullKind` at `evalTactic`",
+  "zig_target": {}
+}

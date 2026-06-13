@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DiscrM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+    }
+  ],
+  "date": "2022-10-13",
+  "needs_port": true,
+  "sha": "407c744ae55dc4e547e4eb41da646d7ec6fa3221",
+  "short_sha": "407c744ae5",
+  "subject": "chore: add workarounds for old code generator",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/DiscrM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+  }
+}

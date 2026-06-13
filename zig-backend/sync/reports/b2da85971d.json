@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-03-26",
+  "needs_port": false,
+  "sha": "b2da85971d7e6c8f71da817bf4289b4990215bf6",
+  "short_sha": "b2da85971d",
+  "subject": "fix: fix `maxKey`/`maxEntry` tree map functions and add lemmas for `maxKey` (#7664)",
+  "zig_target": {}
+}

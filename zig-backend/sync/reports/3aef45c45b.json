@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-02-21",
+  "needs_port": false,
+  "sha": "3aef45c45b4bb1aec16853be47c3e013a36bd980",
+  "short_sha": "3aef45c45b",
+  "subject": "fix: lake: `setup-file` on an invalid Lean config (#7182)",
+  "zig_target": {}
+}

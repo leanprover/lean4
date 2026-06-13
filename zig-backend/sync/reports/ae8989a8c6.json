@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-15",
+  "needs_port": false,
+  "sha": "ae8989a8c681dd1e960874d5daa07773f3e53e44",
+  "short_sha": "ae8989a8c6",
+  "subject": "feat: add `mkAppOptM'` and `mkAppM'`",
+  "zig_target": {}
+}

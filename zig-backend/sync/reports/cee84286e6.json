@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sublist.lean"
+    }
+  ],
+  "date": "2024-08-25",
+  "needs_port": true,
+  "sha": "cee84286e6a6c2716aac8ddcdb552e830f760033",
+  "short_sha": "cee84286e6",
+  "subject": "feat: improving confluence of List simp lemmas (#5151)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/Sublist.lean": "zig-backend/src/init/Data/List/Sublist.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PullFunDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean"
+    }
+  ],
+  "date": "2025-06-13",
+  "needs_port": true,
+  "sha": "27080dca352dcd739d7cbed32e8a0949e2a2cb3b",
+  "short_sha": "27080dca35",
+  "subject": "chore: use FVarIdHashSet in LCNF collectUsed (#8778)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/PullFunDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean"
+  }
+}

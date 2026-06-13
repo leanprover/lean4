@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-13",
+  "needs_port": false,
+  "sha": "f1be9844d12e56e699435dd3b489652db327c48a",
+  "short_sha": "f1be9844d1",
+  "subject": "chore: remove -fno-semantic-interposition again",
+  "zig_target": {}
+}

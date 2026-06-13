@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2022-10-08",
+  "needs_port": true,
+  "sha": "d4219c9d705259b79c99f51628e155b6aa30ccf6",
+  "short_sha": "d4219c9d70",
+  "subject": "fix: `List.Mem` should have two parameters",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

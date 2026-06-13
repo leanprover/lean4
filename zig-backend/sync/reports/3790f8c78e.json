@@ -1,0 +1,36 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Fin.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Fin.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Int.lean"
+    }
+  ],
+  "date": "2025-05-20",
+  "needs_port": true,
+  "sha": "3790f8c78eb8d960cde287593f477d196f157c01",
+  "short_sha": "3790f8c78e",
+  "subject": "chore: deduplicate Grind.RatModule and Grind.NoNatZeroDivisors (#8416)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Grind/CommRing/Fin.lean": "zig-backend/src/init/Grind/CommRing/Fin.lean",
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Module/Int.lean": "zig-backend/src/init/Grind/Module/Int.lean"
+  }
+}

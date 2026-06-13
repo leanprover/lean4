@@ -1,0 +1,10 @@
+{
+  "author": "David Renshaw",
+  "backend_changes": [],
+  "date": "2024-01-22",
+  "needs_port": false,
+  "sha": "feda615ed52f1973b0f93734be8de00a53eb8673",
+  "short_sha": "feda615ed5",
+  "subject": "doc: add missing 'not' in simprocs example in RELEASES.md (#3206)",
+  "zig_target": {}
+}

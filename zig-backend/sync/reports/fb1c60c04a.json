@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/StructInst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+    }
+  ],
+  "date": "2020-02-05",
+  "needs_port": true,
+  "sha": "fb1c60c04ae6a9e64dba4f261e8afe3d181e2d8f",
+  "short_sha": "fb1c60c04a",
+  "subject": "feat: add `mkCtorHeader`",
+  "zig_target": {
+    "src/Init/Lean/Elab/StructInst.lean": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+  }
+}

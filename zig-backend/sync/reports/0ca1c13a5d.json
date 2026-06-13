@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "0ca1c13a5daf3e4edb6bdc9e1f60a5a2e57182fa",
+  "short_sha": "0ca1c13a5d",
+  "subject": "fix: bugs at `ExprDefEq`",
+  "zig_target": {}
+}

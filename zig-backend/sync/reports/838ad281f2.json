@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-01-15",
+  "needs_port": false,
+  "sha": "838ad281f2198839c35f58a0ef2b3cf9dae39838",
+  "short_sha": "838ad281f2",
+  "subject": "feat: add the int_toBitVec simpset",
+  "zig_target": {}
+}

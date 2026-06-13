@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-20",
+  "needs_port": false,
+  "sha": "83c2e8bf754c78e6893a43ff566c6c5bf6ab39ef",
+  "short_sha": "83c2e8bf75",
+  "subject": "feat: expose `many(1)Indent` as parser aliases",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-06",
+  "needs_port": false,
+  "sha": "023d7605fb4718b0ba9195706d7a5e647717e331",
+  "short_sha": "023d7605fb",
+  "subject": "feat: add \"transitivity\" to \"has_loose_bvars_in_domain\"",
+  "zig_target": {}
+}

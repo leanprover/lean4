@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    }
+  ],
+  "date": "2021-01-15",
+  "needs_port": true,
+  "sha": "0672247ce8d93ff384f00f0b44bdd102581cc73c",
+  "short_sha": "0672247ce8",
+  "subject": "chore: make comments VS Code friendly",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+  }
+}

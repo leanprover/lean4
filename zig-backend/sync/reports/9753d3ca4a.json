@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-03-31",
+  "needs_port": false,
+  "sha": "9753d3ca4a7a3fffefd31925d9ef705aaaac2173",
+  "short_sha": "9753d3ca4a",
+  "subject": "chore: enable build-specific documentation roots (#7455)",
+  "zig_target": {}
+}

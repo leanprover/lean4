@@ -1,0 +1,120 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Format/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    },
+    {
+      "path": "src/Init/Data/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Repr.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Decode.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Decode.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Basic.lean"
+    },
+    {
+      "path": "src/Init/Meta/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta/Defs.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    },
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    }
+  ],
+  "date": "2025-10-01",
+  "needs_port": true,
+  "sha": "81ea9220252d8840d4085c1326344b466401d0e0",
+  "short_sha": "81ea922025",
+  "subject": "chore: rename `String.Pos` to `String.Pos.Raw` (#10624)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Format/Instances.lean": "zig-backend/src/init/Data/Format/Instances.lean",
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean",
+    "src/Init/Data/Repr.lean": "zig-backend/src/init/Data/Repr.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Bootstrap.lean": "zig-backend/src/init/Data/String/Bootstrap.lean",
+    "src/Init/Data/String/Decode.lean": "zig-backend/src/init/Data/String/Decode.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean",
+    "src/Init/Data/String/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Pattern/Basic.lean",
+    "src/Init/Data/String/Pattern/Char.lean": "zig-backend/src/init/Data/String/Pattern/Char.lean",
+    "src/Init/Data/String/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Pattern/Pred.lean",
+    "src/Init/Data/String/Pattern/String.lean": "zig-backend/src/init/Data/String/Pattern/String.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean",
+    "src/Init/Data/ToString/Basic.lean": "zig-backend/src/init/Data/ToString/Basic.lean",
+    "src/Init/Meta/Defs.lean": "zig-backend/src/init/Meta/Defs.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean",
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean"
+  }
+}

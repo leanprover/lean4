@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-18",
+  "needs_port": false,
+  "sha": "a9d2620a6c110ea3bb823a1befc3e4553b5ed23a",
+  "short_sha": "a9d2620a6c",
+  "subject": "feat: add `ToMessageData (Option ...)` instance",
+  "zig_target": {}
+}

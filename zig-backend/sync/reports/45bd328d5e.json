@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-01-12",
+  "needs_port": true,
+  "sha": "45bd328d5e7f36fc1a8078e6120c4f1c4e48a4df",
+  "short_sha": "45bd328d5e",
+  "subject": "fix: tests and add `WellFoundedRelation.rel` to list of definitions to unfold at `decreasing_tactic`",
+  "zig_target": {
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/System/Platform.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Platform.lean"
+    }
+  ],
+  "date": "2025-03-10",
+  "needs_port": true,
+  "sha": "7bfa8f6296ebfebc497d5b30d34f494bcc9782a2",
+  "short_sha": "7bfa8f6296",
+  "subject": "feat: finite type conversions (`Nat`/`Int`/`Fin`/`BitVec` -> `IntX` -> *) (#7368)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/SInt/Lemmas.lean": "zig-backend/src/init/Data/SInt/Lemmas.lean",
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean",
+    "src/Init/System/Platform.lean": "zig-backend/src/init/System/Platform.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-11-23",
+  "needs_port": true,
+  "sha": "107a2e8b2e53ef438a5f79f77755a78ec4c90cc6",
+  "short_sha": "107a2e8b2e",
+  "subject": "feat: BitVec.toInt BitVec.signExtend (#6157)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

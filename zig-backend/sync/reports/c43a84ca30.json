@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-20",
+  "needs_port": false,
+  "sha": "c43a84ca30bbf5e5df06b166a83346b949c6557b",
+  "short_sha": "c43a84ca30",
+  "subject": "fix: `unsafe initialize`",
+  "zig_target": {}
+}

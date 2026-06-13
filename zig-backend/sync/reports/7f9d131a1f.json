@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2018-08-20",
+  "needs_port": true,
+  "sha": "7f9d131a1f154a05590c1303a7a19ece353c0af9",
+  "short_sha": "7f9d131a1f",
+  "subject": "chore(runtime/compact): one `alloc` per object",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

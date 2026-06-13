@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-18",
+  "needs_port": false,
+  "sha": "2f9618f76b543da6f2fb2bdbf1c1a1df3e890f3e",
+  "short_sha": "2f9618f76b",
+  "subject": "chore: make def used by proofwidgets public again (#10437)",
+  "zig_target": {}
+}

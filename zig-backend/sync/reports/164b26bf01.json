@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-04",
+  "needs_port": false,
+  "sha": "164b26bf019fe8e7f6312111c8fcd1bea1fa6751",
+  "short_sha": "164b26bf01",
+  "subject": "fix: make sure the resulting array size is equal to the number of binders",
+  "zig_target": {}
+}

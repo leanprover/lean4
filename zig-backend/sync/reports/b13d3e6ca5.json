@@ -1,0 +1,72 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    },
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/init_module.cpp"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/platform.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/platform.cpp"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    },
+    {
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    },
+    {
+      "path": "src/runtime/stack_overflow.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/stack_overflow.cpp"
+    }
+  ],
+  "date": "2021-09-17",
+  "needs_port": true,
+  "sha": "b13d3e6ca5bbfda7791a8e46f566ae437c111204",
+  "short_sha": "b13d3e6ca5",
+  "subject": "fix: dllexport functions not already annotated in header",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp",
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp",
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/init_module.cpp": "zig-backend/src/runtime/init_module.cpp",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/platform.cpp": "zig-backend/src/runtime/platform.cpp",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp",
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp",
+    "src/runtime/stack_overflow.cpp": "zig-backend/src/runtime/stack_overflow.cpp"
+  }
+}

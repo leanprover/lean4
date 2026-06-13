@@ -1,0 +1,48 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/ByteArray/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/ByteArray/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Extra.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Decode.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Decode.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-10-02",
+  "needs_port": true,
+  "sha": "0b2193c7715a55246d0596a4db548c1b5b81562a",
+  "short_sha": "0b2193c771",
+  "subject": "chore: docstring review for ByteArray (#10632)",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean",
+    "src/Init/Data/ByteArray/Bootstrap.lean": "zig-backend/src/init/Data/ByteArray/Bootstrap.lean",
+    "src/Init/Data/ByteArray/Extra.lean": "zig-backend/src/init/Data/ByteArray/Extra.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Decode.lean": "zig-backend/src/init/Data/String/Decode.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

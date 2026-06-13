@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-20",
+  "needs_port": false,
+  "sha": "38bd089a457e1137218c896ef79c262eb6213093",
+  "short_sha": "38bd089a45",
+  "subject": "feat: introduce custom `leanSorryLike` semantic token type for `sorry`, `admit`, `stop`",
+  "zig_target": {}
+}

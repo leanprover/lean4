@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-10-29",
+  "needs_port": true,
+  "sha": "697e34e229f47d8579e91b070c3ce95b9a925aa5",
+  "short_sha": "697e34e229",
+  "subject": "test: --load-dynlib",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

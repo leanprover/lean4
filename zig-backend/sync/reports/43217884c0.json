@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-25",
+  "needs_port": false,
+  "sha": "43217884c07aebb9574133709e8dc3d8b1162f1b",
+  "short_sha": "43217884c0",
+  "subject": "feat: add `Meta.Config.etaStruct`",
+  "zig_target": {}
+}

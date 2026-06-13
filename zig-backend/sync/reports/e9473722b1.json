@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-14",
+  "needs_port": false,
+  "sha": "e9473722b1dfe873dfd9e8aa22b49f0efbacb998",
+  "short_sha": "e9473722b1",
+  "subject": "feat: elaborate new quotation kinds, make macro_rules elaborator work with them",
+  "zig_target": {}
+}

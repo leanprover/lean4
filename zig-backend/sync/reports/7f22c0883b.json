@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Poly.lean"
+    }
+  ],
+  "date": "2025-08-04",
+  "needs_port": true,
+  "sha": "7f22c0883b00bd8691b3cd1e3f01ad08bc52a784",
+  "short_sha": "7f22c0883b",
+  "subject": "perf: `Expr.toPoly` in `grind` (#9714)",
+  "zig_target": {
+    "src/Init/Grind/Ring/Poly.lean": "zig-backend/src/init/Grind/Ring/Poly.lean"
+  }
+}

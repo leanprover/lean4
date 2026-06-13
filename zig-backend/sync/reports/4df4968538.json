@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "4df496853894b64c5bfac0d1b747e1a7652938f8",
+  "short_sha": "4df4968538",
+  "subject": "fix: `grind` theorem activation (#9860)",
+  "zig_target": {}
+}

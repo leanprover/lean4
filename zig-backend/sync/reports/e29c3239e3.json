@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-11-16",
+  "needs_port": false,
+  "sha": "e29c3239e35d6d1bb5b3a12b818a54626d6aa4ec",
+  "short_sha": "e29c3239e3",
+  "subject": "fix: lake: whitelist loaded config olean env exts",
+  "zig_target": {}
+}

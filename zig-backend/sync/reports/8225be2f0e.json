@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-15",
+  "needs_port": false,
+  "sha": "8225be2f0ee9acc743fd04cec37ecc141d1efa15",
+  "short_sha": "8225be2f0e",
+  "subject": "feat: ensure projections are not reducing at `DiscrTree V (simpleReduce := true)`",
+  "zig_target": {}
+}

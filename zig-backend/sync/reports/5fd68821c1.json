@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-30",
+  "needs_port": false,
+  "sha": "5fd68821c10a2536c25528314054d8632fadfbf5",
+  "short_sha": "5fd68821c1",
+  "subject": "feat: flag for omitted 'bad' max annotations",
+  "zig_target": {}
+}

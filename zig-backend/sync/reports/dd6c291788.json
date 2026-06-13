@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-02",
+  "needs_port": false,
+  "sha": "dd6c291788ca61db69cee1877d1848bf49ce82a2",
+  "short_sha": "dd6c291788",
+  "subject": "fix: relax eager mvar instantiation during constructor elaboration",
+  "zig_target": {}
+}

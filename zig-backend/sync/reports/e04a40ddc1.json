@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-30",
+  "needs_port": false,
+  "sha": "e04a40ddc1ff598ea91f41b3e0ec62ccd6293a9d",
+  "short_sha": "e04a40ddc1",
+  "subject": "doc: include: currently applies to theorems only (#5206)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-27",
+  "needs_port": false,
+  "sha": "4cd7a85334c4c9829e28f75462eea6c8e3c26bbd",
+  "short_sha": "4cd7a85334",
+  "subject": "test: speed up Sym mvcgen by doing fewer redundant program matches (#12712)",
+  "zig_target": {}
+}

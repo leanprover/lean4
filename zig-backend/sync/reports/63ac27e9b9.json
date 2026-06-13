@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-02-04",
+  "needs_port": false,
+  "sha": "63ac27e9b9b5f621074027ee962d01cb25774f93",
+  "short_sha": "63ac27e9b9",
+  "subject": "chore: restore example after stage0 update (#6942)",
+  "zig_target": {}
+}

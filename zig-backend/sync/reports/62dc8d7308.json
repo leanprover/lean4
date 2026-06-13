@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2023-11-07",
+  "needs_port": true,
+  "sha": "62dc8d73080baba7f199d0238246d04a717c2411",
+  "short_sha": "62dc8d7308",
+  "subject": "feat: Runtime.markMultiThreaded/Persistent",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

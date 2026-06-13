@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2019-07-29",
+  "needs_port": true,
+  "sha": "20b6502aaf9075a7d0a8c0c3fe86b53cfb7df411",
+  "short_sha": "20b6502aaf",
+  "subject": "fix(runtime/compact): badly aligned \"field\" in terminator",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

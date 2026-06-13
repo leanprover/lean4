@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-09",
+  "needs_port": false,
+  "sha": "3318c75beda25e283a1ec769f64a67c22816d6f7",
+  "short_sha": "3318c75bed",
+  "subject": "fix: make sure borrow annotations do not affect auto-completion",
+  "zig_target": {}
+}

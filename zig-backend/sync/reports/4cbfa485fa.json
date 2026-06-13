@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-23",
+  "needs_port": false,
+  "sha": "4cbfa485fa3976f7d2d7885a8be9f512cb00cdfa",
+  "short_sha": "4cbfa485fa",
+  "subject": "chore: fix test on macOS (#9483)",
+  "zig_target": {}
+}

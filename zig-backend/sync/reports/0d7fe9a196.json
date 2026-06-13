@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-06-26",
+  "needs_port": true,
+  "sha": "0d7fe9a1964bdcb00fa1e260f96ce633187f2252",
+  "short_sha": "0d7fe9a196",
+  "subject": "feat: Upstream `MPL.SPred.*` from `mpl` (#8928)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

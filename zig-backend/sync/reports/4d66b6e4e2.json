@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-18",
+  "needs_port": false,
+  "sha": "4d66b6e4e263c5f1cebeb9302b510fa0865736df",
+  "short_sha": "4d66b6e4e2",
+  "subject": "fix: ci: don't use hombrew for MacOS (for now)",
+  "zig_target": {}
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/FunDeclInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/FunDeclInfo.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    }
+  ],
+  "date": "2022-11-07",
+  "needs_port": true,
+  "sha": "92faeec832d3e253bd761efa08c74bd206732e06",
+  "short_sha": "92faeec832",
+  "subject": "fix: add `Simp.findFunDecl'?`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Basic.lean",
+    "src/Lean/Compiler/LCNF/Simp/FunDeclInfo.lean": "zig-backend/src/lean/compiler/lcnf/Simp/FunDeclInfo.lean",
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean",
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+  }
+}

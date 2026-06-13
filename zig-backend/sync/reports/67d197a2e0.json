@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-02-24",
+  "needs_port": true,
+  "sha": "67d197a2e0407d8af2406356cdc15ec819d747ed",
+  "short_sha": "67d197a2e0",
+  "subject": "fix(runtime/object): correct support for objects without RC",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

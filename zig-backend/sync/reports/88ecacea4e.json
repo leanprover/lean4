@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "88ecacea4e70162616a2c334e6e0488bfb78f73a",
+  "short_sha": "88ecacea4e",
+  "subject": "feat: make computed_fields respect inline (#12580)",
+  "zig_target": {}
+}

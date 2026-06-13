@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    },
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2023-10-29",
+  "needs_port": true,
+  "sha": "175a6ab6068f8726d36c58d8f0e681c3ea42e4c3",
+  "short_sha": "175a6ab606",
+  "subject": "refactor: add `Init/MetaTypes` to workaround bootstrapping issues",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean",
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

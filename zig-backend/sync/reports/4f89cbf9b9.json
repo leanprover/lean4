@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-24",
+  "needs_port": false,
+  "sha": "4f89cbf9b9a3b077ca58257c118555b019efefe5",
+  "short_sha": "4f89cbf9b9",
+  "subject": "doc: Nix: explain some warnings",
+  "zig_target": {}
+}

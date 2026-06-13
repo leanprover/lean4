@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2021-08-30",
+  "needs_port": true,
+  "sha": "f4c72025ee93ef2a1c20c7981209c7cbe061c749",
+  "short_sha": "f4c72025ee",
+  "subject": "feat: add `calc` tactic macro",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

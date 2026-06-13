@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2019-03-07",
+  "needs_port": true,
+  "sha": "1e248013f7b1bbbd56c5e2d449405b6aaeaeaf3e",
+  "short_sha": "1e248013f7",
+  "subject": "chore(runtime/alloc): don't init heap if LEAN_SMALL_ALLOCATOR is off",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

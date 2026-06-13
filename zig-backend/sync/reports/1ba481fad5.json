@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2019-08-23",
+  "needs_port": true,
+  "sha": "1ba481fad56b8f2db388a7b5ca97de24d7cbe90e",
+  "short_sha": "1ba481fad5",
+  "subject": "chore(runtime/compact): minor",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

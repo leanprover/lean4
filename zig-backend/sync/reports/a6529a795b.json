@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-19",
+  "needs_port": false,
+  "sha": "a6529a795bdcdd03ed76ea288cfea162693c3647",
+  "short_sha": "a6529a795b",
+  "subject": "feat: add `casesOnStuckLHS`",
+  "zig_target": {}
+}

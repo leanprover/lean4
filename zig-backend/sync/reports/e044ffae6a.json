@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Id.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Id.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    }
+  ],
+  "date": "2026-03-04",
+  "needs_port": true,
+  "sha": "e044ffae6ab470080a00df92274449a46a4a6a98",
+  "short_sha": "e044ffae6a",
+  "subject": "fix: mark `Id.run` as `[implicit_reducible]` (#12757)",
+  "zig_target": {
+    "src/Init/Control/Id.lean": "zig-backend/src/init/Control/Id.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+  }
+}

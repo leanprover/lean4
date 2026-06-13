@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-15",
+  "needs_port": false,
+  "sha": "61274c7d357ea5bd5de9428095b5cea4739770ae",
+  "short_sha": "61274c7d35",
+  "subject": "feat(library/init/data/char): use `uint32` instead of `nat` for defining `char`",
+  "zig_target": {}
+}

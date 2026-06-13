@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2025-04-28",
+  "needs_port": true,
+  "sha": "747ea853b5936166b59b82d2e3057395544114aa",
+  "short_sha": "747ea853b5",
+  "subject": "feat: extensional hash maps (#8004)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

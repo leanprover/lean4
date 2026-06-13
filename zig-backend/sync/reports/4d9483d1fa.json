@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    }
+  ],
+  "date": "2022-10-15",
+  "needs_port": true,
+  "sha": "4d9483d1fa0ee06ad34a4dec0eb7b309baec3fa7",
+  "short_sha": "4d9483d1fa",
+  "subject": "fix: if inlined code returns a function and has more than one exit point, create an auxiliary function instead of a join point that takes a closure as argument",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+  }
+}

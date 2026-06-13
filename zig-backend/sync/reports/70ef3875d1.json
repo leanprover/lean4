@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2022-08-17",
+  "needs_port": false,
+  "sha": "70ef3875d10110864b8e89fa2fdb2fe627529cf0",
+  "short_sha": "70ef3875d1",
+  "subject": "feat: add join point detector",
+  "zig_target": {}
+}

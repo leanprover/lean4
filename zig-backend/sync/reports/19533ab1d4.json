@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-10-28",
+  "needs_port": false,
+  "sha": "19533ab1d4312903f98ff0429a5962db24ce402b",
+  "short_sha": "19533ab1d4",
+  "subject": "feat: revamp server logging (#10787)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-23",
+  "needs_port": false,
+  "sha": "ddc4cf0a979d91b8d6be85bc55d46675a4a8fad1",
+  "short_sha": "ddc4cf0a97",
+  "subject": "refactor: private field use in `Meta.Context` (#9468)",
+  "zig_target": {}
+}

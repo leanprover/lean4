@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-20",
+  "needs_port": false,
+  "sha": "d428c388cfc2de81eb90a3a15890f9cbfeb8c897",
+  "short_sha": "d428c388cf",
+  "subject": "feat: generater minor premises for `sizeOf` function `rec` application",
+  "zig_target": {}
+}

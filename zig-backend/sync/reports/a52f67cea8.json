@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-16",
+  "needs_port": false,
+  "sha": "a52f67cea80536ddfbc117a9d45bb3ff08375c8b",
+  "short_sha": "a52f67cea8",
+  "subject": "chore(library/init/lean/parser/parser): missing space",
+  "zig_target": {}
+}

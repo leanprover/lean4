@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-01",
+  "needs_port": false,
+  "sha": "be014b1fc9931277fc4535e504ad1ced721118fb",
+  "short_sha": "be014b1fc9",
+  "subject": "fix: dotted notation corner case",
+  "zig_target": {}
+}

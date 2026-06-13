@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-01",
+  "needs_port": false,
+  "sha": "8ff05f976026b13c6251bfcdb37b4602c0ca6ba2",
+  "short_sha": "8ff05f9760",
+  "subject": "feat: improve `grind` equality proof discharger (#7776)",
+  "zig_target": {}
+}

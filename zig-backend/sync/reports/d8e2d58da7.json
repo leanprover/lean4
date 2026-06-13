@@ -1,0 +1,18 @@
+{
+  "author": "Ed Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2022-04-14",
+  "needs_port": true,
+  "sha": "d8e2d58da76e09003a4d3756f65d67537521fafa",
+  "short_sha": "d8e2d58da7",
+  "subject": "doc: InfoTree code review",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

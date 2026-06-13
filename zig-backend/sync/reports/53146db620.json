@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-22",
+  "needs_port": false,
+  "sha": "53146db6207ba41eccd122a1388ec7b84f665fe2",
+  "short_sha": "53146db620",
+  "subject": "fix: `zetaDelta := false` regression (#3459)",
+  "zig_target": {}
+}

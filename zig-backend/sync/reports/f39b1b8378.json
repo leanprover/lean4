@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-14",
+  "needs_port": false,
+  "sha": "f39b1b837852a4cd5bdafc1fe5f58a608d17dcc6",
+  "short_sha": "f39b1b8378",
+  "subject": "chore: remove unused `MonadLiftT Id` instance",
+  "zig_target": {}
+}

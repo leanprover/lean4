@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/io.h",
+      "status": "D",
+      "zig_target": "zig-backend/src/runtime/io.h"
+    }
+  ],
+  "date": "2019-03-16",
+  "needs_port": true,
+  "sha": "dcdeff17940ba9b61e74e63e28cf722dd661b6c8",
+  "short_sha": "dcdeff1794",
+  "subject": "chore(runtime): remove dead file",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/io.h": "zig-backend/src/runtime/io.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-07",
+  "needs_port": false,
+  "sha": "b6bce412a90b7b4590b5a8c77cc3e86f1019c35f",
+  "short_sha": "b6bce412a9",
+  "subject": "refactor: split lib and exe config from package",
+  "zig_target": {}
+}

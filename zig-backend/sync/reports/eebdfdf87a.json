@@ -1,0 +1,72 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Dvd.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/Dvd.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Gcd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Gcd.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/MinMax.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/MinMax.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Power2.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Power2.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/PropLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/PropLemmas.lean"
+    }
+  ],
+  "date": "2024-02-14",
+  "needs_port": true,
+  "sha": "eebdfdf87ae09188d857b4928df89e40a3034047",
+  "short_sha": "eebdfdf87a",
+  "subject": "chore: upstream of Std.Data.Nat.Init (#3331)",
+  "zig_target": {
+    "src/Init/Data/Nat.lean": "zig-backend/src/init/Data/Nat.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean",
+    "src/Init/Data/Nat/Dvd.lean": "zig-backend/src/init/Data/Nat/Dvd.lean",
+    "src/Init/Data/Nat/Gcd.lean": "zig-backend/src/init/Data/Nat/Gcd.lean",
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean",
+    "src/Init/Data/Nat/MinMax.lean": "zig-backend/src/init/Data/Nat/MinMax.lean",
+    "src/Init/Data/Nat/Power2.lean": "zig-backend/src/init/Data/Nat/Power2.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/PropLemmas.lean": "zig-backend/src/init/PropLemmas.lean"
+  }
+}

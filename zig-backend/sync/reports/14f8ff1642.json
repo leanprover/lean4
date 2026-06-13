@@ -1,0 +1,42 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Init/System/Mutex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Mutex.lean"
+    }
+  ],
+  "date": "2022-12-14",
+  "needs_port": true,
+  "sha": "14f8ff1642f4adba5a1bd3b0d8f9ed67d1ea0920",
+  "short_sha": "14f8ff1642",
+  "subject": "feat: add `CoeOut` class",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean",
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Init/System/Mutex.lean": "zig-backend/src/init/System/Mutex.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-01-17",
+  "needs_port": true,
+  "sha": "874aadd7e3cd4d0177cbde367c6a5fbf2db611a1",
+  "short_sha": "874aadd7e3",
+  "subject": "chore: update `namedPattern` signature",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

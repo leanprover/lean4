@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/LocalContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/LocalContext.lean"
+    }
+  ],
+  "date": "2019-12-13",
+  "needs_port": true,
+  "sha": "1b701dae2ffe1e8b231a1649134584f385d9bed3",
+  "short_sha": "1b701dae2f",
+  "subject": "feat: add `resolveField`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/LocalContext.lean": "zig-backend/src/init/Lean/LocalContext.lean"
+  }
+}

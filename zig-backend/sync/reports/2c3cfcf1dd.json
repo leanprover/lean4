@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-09",
+  "needs_port": false,
+  "sha": "2c3cfcf1dded6ab16fe020341de7d17109d48c9c",
+  "short_sha": "2c3cfcf1dd",
+  "subject": "feat(library/init/data/char/basic): add char.utf8_size",
+  "zig_target": {}
+}

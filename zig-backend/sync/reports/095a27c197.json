@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-15",
+  "needs_port": false,
+  "sha": "095a27c197c1c8929fce77c8f3755bc16127eb86",
+  "short_sha": "095a27c197",
+  "subject": "feat: add missing `attribute` parsers",
+  "zig_target": {}
+}

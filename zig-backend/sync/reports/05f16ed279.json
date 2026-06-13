@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    }
+  ],
+  "date": "2025-04-10",
+  "needs_port": true,
+  "sha": "05f16ed279ff89b2051548f0c9025f346fed87a3",
+  "short_sha": "05f16ed279",
+  "subject": "feat: UIntX.ofInt (#7880)",
+  "zig_target": {
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean",
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+  }
+}

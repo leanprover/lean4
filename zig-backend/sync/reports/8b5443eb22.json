@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-10-26",
+  "needs_port": false,
+  "sha": "8b5443eb22252c9982c23e8fd15eb67d902da65d",
+  "short_sha": "8b5443eb22",
+  "subject": "feat: support BitVec.ofBool in bv_decide (#5852)",
+  "zig_target": {}
+}

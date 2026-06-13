@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-02",
+  "needs_port": false,
+  "sha": "e29bf35d15cb89445e074e94f5bc902daf0c8f1d",
+  "short_sha": "e29bf35d15",
+  "subject": "chore(frontends/lean/builtin_exprs): remove hard coded `(::)` notation",
+  "zig_target": {}
+}

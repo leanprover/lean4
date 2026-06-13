@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-19",
+  "needs_port": true,
+  "sha": "38c9a2d28a9299330311205aa51a9ed77959e9bb",
+  "short_sha": "38c9a2d28a",
+  "subject": "feat(library/compiler/csimp): do not invoke reduce_cases_cases until we implement it",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

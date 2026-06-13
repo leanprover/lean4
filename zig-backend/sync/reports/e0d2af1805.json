@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-10-25",
+  "needs_port": false,
+  "sha": "e0d2af180557bb5f47ea999b4f0a164365f4d2c1",
+  "short_sha": "e0d2af1805",
+  "subject": "chore: move to new frontend",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-06",
+  "needs_port": false,
+  "sha": "7fdfdb1784df4b42701dc3b6ccdcd404fa5a14f9",
+  "short_sha": "7fdfdb1784",
+  "subject": "chore(library/init/lean/parser): remove unnecessary class constraints",
+  "zig_target": {}
+}

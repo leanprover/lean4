@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-26",
+  "needs_port": false,
+  "sha": "9724491dc2cb05753dcca3e0b55de80d2201ae22",
+  "short_sha": "9724491dc2",
+  "subject": "test(tests/playground/binarytrees.lean): parallelize",
+  "zig_target": {}
+}

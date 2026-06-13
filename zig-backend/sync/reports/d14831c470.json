@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.cpp"
+    }
+  ],
+  "date": "2018-08-15",
+  "needs_port": true,
+  "sha": "d14831c470f8bcc712aea1973d8458681174ddb6",
+  "short_sha": "d14831c470",
+  "subject": "fix(runtime/apply): `apply` should use the standard calling convention",
+  "zig_target": {
+    "src/runtime/apply.cpp": "zig-backend/src/runtime/apply.cpp"
+  }
+}

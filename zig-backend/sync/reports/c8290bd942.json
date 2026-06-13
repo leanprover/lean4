@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-05-16",
+  "needs_port": false,
+  "sha": "c8290bd94221f41ae49899f0f7de71b52724ad7e",
+  "short_sha": "c8290bd942",
+  "subject": "fix: lake: `import Lake` w/ precompiled modules on MacOS (#8383)",
+  "zig_target": {}
+}

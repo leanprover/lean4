@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-15",
+  "needs_port": false,
+  "sha": "abef59ddbba8ba9368e64c242d2d524f2c182084",
+  "short_sha": "abef59ddbb",
+  "subject": "chore: remove LICENSE header that confused GitHub",
+  "zig_target": {}
+}

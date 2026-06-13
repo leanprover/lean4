@@ -1,0 +1,10 @@
+{
+  "author": "Enrico Borba",
+  "backend_changes": [],
+  "date": "2023-03-31",
+  "needs_port": false,
+  "sha": "6d583284df4593912d4fe88d34ddccc4f61308a4",
+  "short_sha": "6d583284df",
+  "subject": "chore: Nix: fix `depRoot` with huge number of deps (#2179)",
+  "zig_target": {}
+}

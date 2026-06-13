@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    }
+  ],
+  "date": "2025-08-01",
+  "needs_port": true,
+  "sha": "2ea6b5068c90151bec6e334cdec25c79d37cbf89",
+  "short_sha": "2ea6b5068c",
+  "subject": "chore: make Compiler.findJoinPoints trace messages more useful (#9668)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+  }
+}

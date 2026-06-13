@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Closure.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Util/Closure.lean"
+    }
+  ],
+  "date": "2020-03-20",
+  "needs_port": true,
+  "sha": "b2901a9225f1be40637f4310a8e4598034eb9ea2",
+  "short_sha": "b2901a9225",
+  "subject": "feat: add `Closure.lean`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Util/Closure.lean": "zig-backend/src/init/Lean/Util/Closure.lean"
+  }
+}

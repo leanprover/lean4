@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-10-17",
+  "needs_port": false,
+  "sha": "68b0471de95f296a52ed83f3220e06df6fd3e83d",
+  "short_sha": "68b0471de9",
+  "subject": "chore: remove `SplitIf.ext` cache (#5571)",
+  "zig_target": {}
+}

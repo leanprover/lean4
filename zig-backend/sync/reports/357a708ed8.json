@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/KeyedDeclsAttribute.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/KeyedDeclsAttribute.lean"
+    }
+  ],
+  "date": "2020-03-11",
+  "needs_port": true,
+  "sha": "357a708ed830262b9c642b3e220878065f34b442",
+  "short_sha": "357a708ed8",
+  "subject": "chore: avoid `variable`, enforce naming convention",
+  "zig_target": {
+    "src/Init/Lean/KeyedDeclsAttribute.lean": "zig-backend/src/init/Lean/KeyedDeclsAttribute.lean"
+  }
+}

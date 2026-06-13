@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-14",
+  "needs_port": true,
+  "sha": "17811a92864b5a2e23ea9200b928338866eb9283",
+  "short_sha": "17811a9286",
+  "subject": "feat: add `syntax` parsers",
+  "zig_target": {
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+  }
+}

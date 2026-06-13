@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    }
+  ],
+  "date": "2020-02-13",
+  "needs_port": true,
+  "sha": "cc2f84aa5dfef8a374c76cba70be836969058af4",
+  "short_sha": "cc2f84aa5d",
+  "subject": "fix: allow empty sequence at `seq`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+  }
+}

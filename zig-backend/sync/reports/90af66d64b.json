@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-23",
+  "needs_port": false,
+  "sha": "90af66d64b4070a9adb1cf52fc06b3dc3c34662e",
+  "short_sha": "90af66d64b",
+  "subject": "chore: minor changes to MePo (#10917)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-12-26",
+  "needs_port": false,
+  "sha": "f483c6c10f6122657fe6ca5ca79708567b0d6686",
+  "short_sha": "f483c6c10f",
+  "subject": "refactor: move error explanation text to the manual (#11688)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-04-16",
+  "needs_port": false,
+  "sha": "c0fbcc76c43b196c366eb29d43d2d26887a55cb4",
+  "short_sha": "c0fbcc76c4",
+  "subject": "feat: FunInd: reserve name `.mutual_induct` (#3898)",
+  "zig_target": {}
+}

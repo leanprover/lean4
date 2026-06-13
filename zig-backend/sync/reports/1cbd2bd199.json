@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-18",
+  "needs_port": false,
+  "sha": "1cbd2bd199d509987f3cf3d0b0c5ae7d87d36c41",
+  "short_sha": "1cbd2bd199",
+  "subject": "feat: create a `let`-expression for storing the context in `cutsat` proofs (#7139)",
+  "zig_target": {}
+}

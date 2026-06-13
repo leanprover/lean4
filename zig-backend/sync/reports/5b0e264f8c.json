@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-03",
+  "needs_port": false,
+  "sha": "5b0e264f8c36383e02318b7967b7066407e88336",
+  "short_sha": "5b0e264f8c",
+  "subject": "feat: promote scripts from `PackageConifg` to  top level commands",
+  "zig_target": {}
+}

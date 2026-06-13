@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-19",
+  "needs_port": false,
+  "sha": "78146190e57e45e32fe4168f51afcb1228b60b10",
+  "short_sha": "78146190e5",
+  "subject": "feat: mutual recursion: allow common prefix up to alpha-equivalence (#5041)",
+  "zig_target": {}
+}

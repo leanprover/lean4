@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-20",
+  "needs_port": false,
+  "sha": "5053cb02b7216f18f48ac55a582b7b1928205adb",
+  "short_sha": "5053cb02b7",
+  "subject": "chore: don't copy .lean files to stage0",
+  "zig_target": {}
+}

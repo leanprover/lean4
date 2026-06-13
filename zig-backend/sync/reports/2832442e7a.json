@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-06",
+  "needs_port": false,
+  "sha": "2832442e7afad582175def1b40d1828342ce3488",
+  "short_sha": "2832442e7a",
+  "subject": "fix: unfold declarations tagged with `[matchPattern]` at `reduceMatcher?` even if transparency setting is not the default one",
+  "zig_target": {}
+}

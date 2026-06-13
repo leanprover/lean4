@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "3fe5cf1528bed7bb9d9085d6dcff94fac7c8fe1e",
+  "short_sha": "3fe5cf1528",
+  "subject": "chore(library/init/core): remove another weirdness: the `b`s at `bnot`, `band` and `bor`",
+  "zig_target": {}
+}

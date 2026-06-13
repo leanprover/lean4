@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-20",
+  "needs_port": true,
+  "sha": "ce558b6a9ed87cc12f3c373d8e4739b02ab7e8ce",
+  "short_sha": "ce558b6a9e",
+  "subject": "doc(library/compiler/ir_interpreter): update docs",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

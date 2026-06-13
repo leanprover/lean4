@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Meta/Defs.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Meta/Defs.lean"
+    }
+  ],
+  "date": "2025-09-11",
+  "needs_port": true,
+  "sha": "73c85b177e0db344aeb68bc8884c7e029cb609ce",
+  "short_sha": "73c85b177e",
+  "subject": "refactor: split `Init.Meta` in preparation for `meta` semantics restrictions (#10343)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Meta/Defs.lean": "zig-backend/src/init/Meta/Defs.lean"
+  }
+}

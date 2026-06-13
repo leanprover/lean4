@@ -1,0 +1,24 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/runtime/interrupt.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.cpp"
+    },
+    {
+      "path": "src/runtime/interrupt.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.h"
+    }
+  ],
+  "date": "2023-10-17",
+  "needs_port": true,
+  "sha": "fb0d0245db9bcb9ff649794f57522c52cb80c993",
+  "short_sha": "fb0d0245db",
+  "subject": "Revert \"Cancel outstanding tasks on document edit in the language server\" (#2703)",
+  "zig_target": {
+    "src/runtime/interrupt.cpp": "zig-backend/src/runtime/interrupt.cpp",
+    "src/runtime/interrupt.h": "zig-backend/src/runtime/interrupt.h"
+  }
+}

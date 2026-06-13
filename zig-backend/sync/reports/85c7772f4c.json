@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-26",
+  "needs_port": false,
+  "sha": "85c7772f4c499d22f5aa8707d5245c5dd8f61cbb",
+  "short_sha": "85c7772f4c",
+  "subject": "doc: fix ReST markup",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-02-15",
+  "needs_port": true,
+  "sha": "00b177ad54ad8b6d6aac27e1d78bb61cd383afe0",
+  "short_sha": "00b177ad54",
+  "subject": "chore(runtime/object): enable Lazy RC by default",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

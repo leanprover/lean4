@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-01-31",
+  "needs_port": false,
+  "sha": "456e435fe0f6fe2939c469745bfb272f940008bf",
+  "short_sha": "456e435fe0",
+  "subject": "chore: remove unused GH Pages deployment (#3217)",
+  "zig_target": {}
+}

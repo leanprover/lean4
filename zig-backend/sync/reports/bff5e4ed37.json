@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-11-09",
+  "needs_port": false,
+  "sha": "bff5e4ed3775af1887c0dba88ed79d256d6b2fe6",
+  "short_sha": "bff5e4ed37",
+  "subject": "feat: solves mvars in reverse order during tabled tc",
+  "zig_target": {}
+}

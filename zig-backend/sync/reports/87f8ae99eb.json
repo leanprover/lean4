@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-03-14",
+  "needs_port": false,
+  "sha": "87f8ae99ebf83245dcfeee38bb2c4ccb93b47121",
+  "short_sha": "87f8ae99eb",
+  "subject": "test: `reduceBool` test",
+  "zig_target": {}
+}

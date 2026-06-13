@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    }
+  ],
+  "date": "2020-01-27",
+  "needs_port": true,
+  "sha": "c805eb87e6138f6df13b07892de7b88c527c6835",
+  "short_sha": "c805eb87e6",
+  "subject": "refactor: elabAnoymousCtor: align more closely to the paper",
+  "zig_target": {
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+  }
+}

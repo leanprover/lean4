@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-08-26",
+  "needs_port": true,
+  "sha": "5d84aebeb9c7bf683c16bf46f28fa526fed7bb0b",
+  "short_sha": "5d84aebeb9",
+  "subject": "feat: lemmas about `Function.comp` that help confluence (#5162)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2025-11-18",
+  "needs_port": true,
+  "sha": "f6a90597096322c2b14dfc7dc7f1783b0c586070",
+  "short_sha": "f6a9059709",
+  "subject": "chore: rename `String.offsetOfPos` to `String.Pos.Raw.offsetOfPos` (#11218)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

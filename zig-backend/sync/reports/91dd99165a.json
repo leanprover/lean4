@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-04-08",
+  "needs_port": false,
+  "sha": "91dd99165aeae6e68d4e1ec634fdfd380a13d6d0",
+  "short_sha": "91dd99165a",
+  "subject": "feat: add warning when applying global `attribute` using `in` (#13223)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-04",
+  "needs_port": false,
+  "sha": "c61ced3f15fad68fbeaf0158c2bc9fe0af5d2e4d",
+  "short_sha": "c61ced3f15",
+  "subject": "feat: introduce synthetic atoms in bv_decide (#5942)",
+  "zig_target": {}
+}

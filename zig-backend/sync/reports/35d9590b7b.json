@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-30",
+  "needs_port": false,
+  "sha": "35d9590b7b866c1330028ccdecfb5c95a458c7fa",
+  "short_sha": "35d9590b7b",
+  "subject": "chore: rename `let_tmp` elaborator",
+  "zig_target": {}
+}

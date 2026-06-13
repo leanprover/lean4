@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-12",
+  "needs_port": false,
+  "sha": "e498ff1aa8fbc9f21da54ab22dc2bde28d0d52b5",
+  "short_sha": "e498ff1aa8",
+  "subject": "doc: add glossary of Lake terminology to README",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Clear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "164cd4395a992adc2ff572c389e5ef025b53bd7e",
+  "short_sha": "164cd4395a",
+  "subject": "refactor: improve `dependsOn` API",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Clear.lean": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean"
+  }
+}

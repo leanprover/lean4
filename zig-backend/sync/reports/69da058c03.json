@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-15",
+  "needs_port": false,
+  "sha": "69da058c03d3eb507d364105fde210618f457801",
+  "short_sha": "69da058c03",
+  "subject": "fix: tests/lean/625.lean",
+  "zig_target": {}
+}

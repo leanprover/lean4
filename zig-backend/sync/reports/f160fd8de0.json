@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-18",
+  "needs_port": false,
+  "sha": "f160fd8de0c0438c38929cdf80114414e66b2780",
+  "short_sha": "f160fd8de0",
+  "subject": "chore(tests): compile tests using -O3 again",
+  "zig_target": {}
+}

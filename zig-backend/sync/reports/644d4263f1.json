@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-13",
+  "needs_port": false,
+  "sha": "644d4263f13f68fb34b95d91713b9a9a6b487297",
+  "short_sha": "644d4263f1",
+  "subject": "fix: `#eval` command was leaking auxiliary declarations into the environment (#3323)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-17",
+  "needs_port": false,
+  "sha": "ed5e0f098cc62ce8092d0b3a7ef2cf9c2f529457",
+  "short_sha": "ed5e0f098c",
+  "subject": "fix: support non-type params in RpcEncoding",
+  "zig_target": {}
+}

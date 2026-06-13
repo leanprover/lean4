@@ -1,0 +1,18 @@
+{
+  "author": "Bhavik Mehta",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    }
+  ],
+  "date": "2025-11-25",
+  "needs_port": true,
+  "sha": "aeddc0d22ef2ca248c4aa059a3bd8d260f571119",
+  "short_sha": "aeddc0d22e",
+  "subject": "feat: add lemmas for `a / c < b / c` on `Int` (#11327)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+  }
+}

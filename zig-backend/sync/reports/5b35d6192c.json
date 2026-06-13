@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-10-16",
+  "needs_port": false,
+  "sha": "5b35d6192cd010f49262adbe602fc6ded742fa30",
+  "short_sha": "5b35d6192c",
+  "subject": "feat: redefine HashSet.union and add lemmas (#10611)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-29",
+  "needs_port": false,
+  "sha": "9cb114eb8389d104fd69da2d289f768979b543f5",
+  "short_sha": "9cb114eb83",
+  "subject": "feat: add `pp.mvars` and `pp.mvars.withType` (#3798)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-02-05",
+  "needs_port": true,
+  "sha": "255d931e0c08195bfb6f32b3ffa50129612e7dae",
+  "short_sha": "255d931e0c",
+  "subject": "feat: add `auto_attach` simp set (no functionality yet) (#6956)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

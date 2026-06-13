@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-09",
+  "needs_port": false,
+  "sha": "121b956bb479806af428ecfdbb8b5e7434f05630",
+  "short_sha": "121b956bb4",
+  "subject": "refactor: make more internal `Format` stuff private",
+  "zig_target": {}
+}

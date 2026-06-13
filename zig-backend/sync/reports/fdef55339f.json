@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-07-12",
+  "needs_port": true,
+  "sha": "fdef55339fa6925a363de6c3dece1e16ae60ced9",
+  "short_sha": "fdef55339f",
+  "subject": "fix: use `binop%` for elaborating `^`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

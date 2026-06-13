@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-06-18",
+  "needs_port": false,
+  "sha": "6a8cb7ffa00f4a93efb3b86928e45ab5a995189f",
+  "short_sha": "6a8cb7ffa0",
+  "subject": "chore: nix shell: add gdb (#4476)",
+  "zig_target": {}
+}

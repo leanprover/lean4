@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    }
+  ],
+  "date": "2025-04-15",
+  "needs_port": true,
+  "sha": "525fd2697c879c0144e5668c51aee11d1970346c",
+  "short_sha": "525fd2697c",
+  "subject": "fix: reduce priorities of `CommRing` parent projections (#7975)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-08-01",
+  "needs_port": false,
+  "sha": "4cd917aa6570fdab20a3ad618cb91a3c2b01c67e",
+  "short_sha": "4cd917aa65",
+  "subject": "chore: make datokrat code owner for iterators, ranges and slices (#9667)",
+  "zig_target": {}
+}

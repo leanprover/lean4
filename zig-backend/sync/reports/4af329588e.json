@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2023-04-03",
+  "needs_port": true,
+  "sha": "4af329588ece9deb909ee0d5dea52d25f2a81c12",
+  "short_sha": "4af329588e",
+  "subject": "doc: clarify semi-out params",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-16",
+  "needs_port": false,
+  "sha": "c37d961fc3e69fe2a1364766474a853f341a9a0e",
+  "short_sha": "c37d961fc3",
+  "subject": "chore: make sure both alternatives use `throwError`",
+  "zig_target": {}
+}

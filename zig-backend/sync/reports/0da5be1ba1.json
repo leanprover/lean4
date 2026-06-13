@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-07",
+  "needs_port": false,
+  "sha": "0da5be1ba18c4d5ff7dd471903d9ee9d59b1b622",
+  "short_sha": "0da5be1ba1",
+  "subject": "feat: add support for erasing the `[grind]` attribute (#6566)",
+  "zig_target": {}
+}

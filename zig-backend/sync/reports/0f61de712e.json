@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-28",
+  "needs_port": false,
+  "sha": "0f61de712e45b982d5e510a308d3f207e5c27a1a",
+  "short_sha": "0f61de712e",
+  "subject": "chore: add helper functions",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-02-21",
+  "needs_port": true,
+  "sha": "d42d6c52468565896eef3a77a50d70454e1425c6",
+  "short_sha": "d42d6c5246",
+  "subject": "fix: do not cancel async elaboration tasks (#7175)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

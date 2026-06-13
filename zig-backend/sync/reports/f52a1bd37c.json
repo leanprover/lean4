@@ -1,0 +1,18 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2022-08-26",
+  "needs_port": true,
+  "sha": "f52a1bd37c652e045b848e7f9d2a9e6d851de6b2",
+  "short_sha": "f52a1bd37c",
+  "subject": "doc: JSON-RPC",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

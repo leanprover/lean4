@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-12",
+  "needs_port": false,
+  "sha": "e1b2816745d6e8879f50ee123016a8e23371b13f",
+  "short_sha": "e1b2816745",
+  "subject": "feat: add `try` combinator",
+  "zig_target": {}
+}

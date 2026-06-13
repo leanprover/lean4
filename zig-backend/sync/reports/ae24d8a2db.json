@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-02",
+  "needs_port": false,
+  "sha": "ae24d8a2db48685bf5419d2bc6a8c2b512bb85bd",
+  "short_sha": "ae24d8a2db",
+  "subject": "feat: interactive diagnostics take 1",
+  "zig_target": {}
+}

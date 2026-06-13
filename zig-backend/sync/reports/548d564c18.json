@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-07-22",
+  "needs_port": true,
+  "sha": "548d564c184687015dde1efb545c79038b8ea24e",
+  "short_sha": "548d564c18",
+  "subject": "feat: Introduce `mleave` tactic that leaves the `SPred` proof mode (#9363) (#9454)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

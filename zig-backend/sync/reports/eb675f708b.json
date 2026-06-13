@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Try.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Try.lean"
+    }
+  ],
+  "date": "2025-11-13",
+  "needs_port": true,
+  "sha": "eb675f708b82079b412388dfc2ce03d0aadc4daa",
+  "short_sha": "eb675f708b",
+  "subject": "feat: user extensibility in `try?` (#11149)",
+  "zig_target": {
+    "src/Init/Try.lean": "zig-backend/src/init/Try.lean"
+  }
+}

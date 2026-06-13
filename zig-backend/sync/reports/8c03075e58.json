@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-23",
+  "needs_port": false,
+  "sha": "8c03075e585c4668bca05e90929e6b2683cc8e02",
+  "short_sha": "8c03075e58",
+  "subject": "feat: improve function expected error message",
+  "zig_target": {}
+}

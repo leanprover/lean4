@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-11-09",
+  "needs_port": true,
+  "sha": "3e74159e01fc33b64df1bb9345c8db5a4226b0b2",
+  "short_sha": "3e74159e01",
+  "subject": "fix: import errors using --json",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

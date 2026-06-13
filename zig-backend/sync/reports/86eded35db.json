@@ -1,0 +1,177 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Basic.lean",
+      "path": "src/Init/Data/Iterators/Basic.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Access.lean",
+      "path": "src/Init/Data/Iterators/Consumers/Access.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Access.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Collect.lean",
+      "path": "src/Init/Data/Iterators/Consumers/Collect.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Collect.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Loop.lean",
+      "path": "src/Init/Data/Iterators/Consumers/Loop.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Monadic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Monadic/Collect.lean",
+      "path": "src/Init/Data/Iterators/Consumers/Monadic/Collect.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Collect.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Monadic/Loop.lean",
+      "path": "src/Init/Data/Iterators/Consumers/Monadic/Loop.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Monadic/Partial.lean",
+      "path": "src/Init/Data/Iterators/Consumers/Monadic/Partial.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Partial.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Partial.lean",
+      "path": "src/Init/Data/Iterators/Consumers/Partial.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Partial.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Internal.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Internal.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Internal/LawfulMonadLiftFunction.lean",
+      "path": "src/Init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Internal/Termination.lean",
+      "path": "src/Init/Data/Iterators/Internal/Termination.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Internal/Termination.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Internal.lean",
+      "path": "src/Init/Data/Iterators/Lemmas.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Lemmas/Basic.lean",
+      "path": "src/Init/Data/Iterators/Lemmas/Basic.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Consumers/Monadic.lean",
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/Lemmas/Monadic/Basic.lean",
+      "path": "src/Init/Data/Iterators/Lemmas/Monadic/Basic.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Monadic/Basic.lean"
+    },
+    {
+      "old_path": "src/Std/Data/Iterators/PostConditionMonad.lean",
+      "path": "src/Init/Data/Iterators/PostconditionMonad.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Data/Iterators/PostconditionMonad.lean"
+    }
+  ],
+  "date": "2025-06-18",
+  "needs_port": true,
+  "sha": "86eded35db40fadcd718eed738e0860b942841b1",
+  "short_sha": "86eded35db",
+  "subject": "refactor: partially move iterators to Init (#8767)",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Iterators.lean": "zig-backend/src/init/Data/Iterators.lean",
+    "src/Init/Data/Iterators/Basic.lean": "zig-backend/src/init/Data/Iterators/Basic.lean",
+    "src/Init/Data/Iterators/Consumers.lean": "zig-backend/src/init/Data/Iterators/Consumers.lean",
+    "src/Init/Data/Iterators/Consumers/Access.lean": "zig-backend/src/init/Data/Iterators/Consumers/Access.lean",
+    "src/Init/Data/Iterators/Consumers/Collect.lean": "zig-backend/src/init/Data/Iterators/Consumers/Collect.lean",
+    "src/Init/Data/Iterators/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic/Collect.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Collect.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic/Partial.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Partial.lean",
+    "src/Init/Data/Iterators/Consumers/Partial.lean": "zig-backend/src/init/Data/Iterators/Consumers/Partial.lean",
+    "src/Init/Data/Iterators/Internal.lean": "zig-backend/src/init/Data/Iterators/Internal.lean",
+    "src/Init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean": "zig-backend/src/init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean",
+    "src/Init/Data/Iterators/Internal/Termination.lean": "zig-backend/src/init/Data/Iterators/Internal/Termination.lean",
+    "src/Init/Data/Iterators/Lemmas.lean": "zig-backend/src/init/Data/Iterators/Lemmas.lean",
+    "src/Init/Data/Iterators/Lemmas/Basic.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Basic.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Monadic/Basic.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Monadic/Basic.lean",
+    "src/Init/Data/Iterators/PostconditionMonad.lean": "zig-backend/src/init/Data/Iterators/PostconditionMonad.lean"
+  }
+}

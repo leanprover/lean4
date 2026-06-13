@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "172c5c3ba888555e73a7beb5a9d1f6a0630be510",
+  "short_sha": "172c5c3ba8",
+  "subject": "test: flag to use Sym.simp in Sym mvcgen benchmark driver (#12578)",
+  "zig_target": {}
+}

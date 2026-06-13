@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-21",
+  "needs_port": false,
+  "sha": "dbfd0d35f24a85e4860358a441b74a0a41f7e0b1",
+  "short_sha": "dbfd0d35f2",
+  "subject": "fix: `simp +arith` and `grind` loop on normalized Int equalities (#13033)",
+  "zig_target": {}
+}

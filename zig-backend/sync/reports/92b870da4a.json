@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-24",
+  "needs_port": false,
+  "sha": "92b870da4a04682e123ee1bdf1b8d0b96e274859",
+  "short_sha": "92b870da4a",
+  "subject": "fix: kernel deep recursion with normalizer (#9522)",
+  "zig_target": {}
+}

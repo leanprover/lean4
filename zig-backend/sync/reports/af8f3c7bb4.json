@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-03",
+  "needs_port": false,
+  "sha": "af8f3c7bb457486f691d9458bb6cba9e385f4d40",
+  "short_sha": "af8f3c7bb4",
+  "subject": "chore(library/constructions): remove `injective`",
+  "zig_target": {}
+}

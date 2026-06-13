@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-10-12",
+  "needs_port": false,
+  "sha": "275af93904a17e6310550372bfb6feab22aafeb4",
+  "short_sha": "275af93904",
+  "subject": "test: lake: show module with failed import",
+  "zig_target": {}
+}

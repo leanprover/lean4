@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-02",
+  "needs_port": false,
+  "sha": "94abfdba6c75b6efee68c1838f05fa26efee9a2d",
+  "short_sha": "94abfdba6c",
+  "subject": "feat: improve `implementedBy` errors, and relax type matching test",
+  "zig_target": {}
+}

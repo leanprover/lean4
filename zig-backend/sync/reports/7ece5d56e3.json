@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-05-20",
+  "needs_port": false,
+  "sha": "7ece5d56e37bbc7561174c842b05910ba4cc7533",
+  "short_sha": "7ece5d56e3",
+  "subject": "feat: lake: ANSI monitor: only display progress + running job info (#4232)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-31",
+  "needs_port": false,
+  "sha": "64c36fffda85b9402ef5f1ebc669a41034c204f6",
+  "short_sha": "64c36fffda",
+  "subject": "feat: generate warning message if declaration has a non-synthetic sorry",
+  "zig_target": {}
+}

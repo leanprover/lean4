@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/BinSearch.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BinSearch.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PassManager.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PassManager.lean"
+    }
+  ],
+  "date": "2024-11-20",
+  "needs_port": true,
+  "sha": "f85c66789d794589ae172b60206e860fdad92040",
+  "short_sha": "f85c66789d",
+  "subject": "feat: Array.insertIdx/eraseIdx take a tactic-provided proof (#6133)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/BinSearch.lean": "zig-backend/src/init/Data/Array/BinSearch.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/PassManager.lean": "zig-backend/src/lean/compiler/lcnf/PassManager.lean"
+  }
+}

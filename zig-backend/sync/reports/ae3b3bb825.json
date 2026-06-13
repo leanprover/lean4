@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/debug.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/debug.cpp"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2019-11-12",
+  "needs_port": true,
+  "sha": "ae3b3bb825e3a2b43986e710c700b02601ed50c0",
+  "short_sha": "ae3b3bb825",
+  "subject": "chore: remove cygwin support",
+  "zig_target": {
+    "src/runtime/debug.cpp": "zig-backend/src/runtime/debug.cpp",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

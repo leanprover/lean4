@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-26",
+  "needs_port": false,
+  "sha": "0e3f031660f8054cb120d0c01ff10696968f806d",
+  "short_sha": "0e3f031660",
+  "subject": "fix: position information for `with_annotate_term` when coercions are used",
+  "zig_target": {}
+}

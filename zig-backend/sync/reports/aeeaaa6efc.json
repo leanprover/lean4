@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2022-07-19",
+  "needs_port": false,
+  "sha": "aeeaaa6efc6a2ee118f77044f09d18bea5a7fc50",
+  "short_sha": "aeeaaa6efc",
+  "subject": "feat: size of a LocalContext",
+  "zig_target": {}
+}

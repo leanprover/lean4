@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-01",
+  "needs_port": false,
+  "sha": "a36209373058118745e7660ce09b7e408da10978",
+  "short_sha": "a362093730",
+  "subject": "chore: update grind IndexMap example (#12264)",
+  "zig_target": {}
+}

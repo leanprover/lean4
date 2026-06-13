@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-03",
+  "needs_port": false,
+  "sha": "cc748c0b17271f1943b6b9c8312fd19327b4371d",
+  "short_sha": "cc748c0b17",
+  "subject": "chore(library/constructions): remove `drec` (dead code)",
+  "zig_target": {}
+}

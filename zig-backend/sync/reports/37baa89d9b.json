@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-10-01",
+  "needs_port": true,
+  "sha": "37baa89d9b9dbdddc6299fdb95c8664b54b3e293",
+  "short_sha": "37baa89d9b",
+  "subject": "feat: add ac_nf and test [ac_nf|ac_rfl] for BitVec (#5524)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

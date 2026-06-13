@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    }
+  ],
+  "date": "2025-04-20",
+  "needs_port": true,
+  "sha": "a49ad77754eba24965a57c508d7f7afd850053fd",
+  "short_sha": "a49ad77754",
+  "subject": "feat: unsat comm ring equations in `grind` (#8032)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+  }
+}

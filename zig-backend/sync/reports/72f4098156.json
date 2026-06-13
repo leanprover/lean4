@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-03-05",
+  "needs_port": false,
+  "sha": "72f409815617178178d1400fef83985aaa5aa0b9",
+  "short_sha": "72f4098156",
+  "subject": "feat: combined auto-implicit inlay hint tooltip (#7344)",
+  "zig_target": {}
+}

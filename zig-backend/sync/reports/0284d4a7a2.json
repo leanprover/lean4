@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    }
+  ],
+  "date": "2019-09-12",
+  "needs_port": true,
+  "sha": "0284d4a7a2f6509cc31b8fe2d07d87b7068d563e",
+  "short_sha": "0284d4a7a2",
+  "subject": "chore(library/compiler/ir): use new `mkCase`",
+  "zig_target": {
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp"
+  }
+}

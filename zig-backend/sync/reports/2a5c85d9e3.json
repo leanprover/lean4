@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Format.lean"
+    }
+  ],
+  "date": "2020-11-28",
+  "needs_port": true,
+  "sha": "2a5c85d9e33032f5c70d8c70b69069639afcea14",
+  "short_sha": "2a5c85d9e3",
+  "subject": "refactor: inline FormatMacro",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Format.lean": "zig-backend/src/lean/compiler/ir/Format.lean"
+  }
+}

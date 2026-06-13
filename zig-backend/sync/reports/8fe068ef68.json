@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-24",
+  "needs_port": false,
+  "sha": "8fe068ef6834373f4b4739f325121c1e487fafe2",
+  "short_sha": "8fe068ef68",
+  "subject": "feat: move lean-pr-testing-NNNN branches to a fork (#8933)",
+  "zig_target": {}
+}

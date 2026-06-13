@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-11-24",
+  "needs_port": true,
+  "sha": "bd711e3a7ad60e6bcdd41942e1d991377da784f1",
+  "short_sha": "bd711e3a7a",
+  "subject": "feat: rename `cutsat` to `lia` with deprecation warning (#11330)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

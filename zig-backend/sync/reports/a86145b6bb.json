@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-03-01",
+  "needs_port": true,
+  "sha": "a86145b6bb2669e8864b04ef3f286dc57a4aaef0",
+  "short_sha": "a86145b6bb",
+  "subject": "feat: non-chronological backtracking for cutsat (#7284)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

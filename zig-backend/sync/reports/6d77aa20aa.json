@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Message.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/RecDepth.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Util/RecDepth.lean"
+    }
+  ],
+  "date": "2020-01-11",
+  "needs_port": true,
+  "sha": "6d77aa20aa0b3af04a1d4c0f5e09522fecd22397",
+  "short_sha": "6d77aa20aa",
+  "subject": "feat: catch deep recursion at `MetaM`, `TermElabM` and `CommandElabM`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/Message.lean": "zig-backend/src/init/Lean/Meta/Message.lean",
+    "src/Init/Lean/Util/RecDepth.lean": "zig-backend/src/init/Lean/Util/RecDepth.lean"
+  }
+}

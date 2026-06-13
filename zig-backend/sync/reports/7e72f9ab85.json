@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-08-15",
+  "needs_port": false,
+  "sha": "7e72f9ab8500ff6c2fa92dcd1abff86b5f2d09e2",
+  "short_sha": "7e72f9ab85",
+  "subject": "chore: add libuv to the required packages heading in macos docs (#5045)",
+  "zig_target": {}
+}

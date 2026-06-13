@@ -1,0 +1,10 @@
+{
+  "author": "Copilot",
+  "backend_changes": [],
+  "date": "2026-02-17",
+  "needs_port": false,
+  "sha": "63675d29d107c2fddf5e50b057e0ebb83b553d59",
+  "short_sha": "63675d29d1",
+  "subject": "feat: add declaration name to leanchecker error messages (#12525)",
+  "zig_target": {}
+}

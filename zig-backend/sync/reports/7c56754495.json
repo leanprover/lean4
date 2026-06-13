@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-18",
+  "needs_port": false,
+  "sha": "7c567544957c9426b91b5c7423906d4addc24aff",
+  "short_sha": "7c56754495",
+  "subject": "feat: profile #synth calls",
+  "zig_target": {}
+}

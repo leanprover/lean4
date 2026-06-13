@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2022-08-23",
+  "needs_port": true,
+  "sha": "a69d7fb018980fd5c4f3c5fa26f0ba6935ea033e",
+  "short_sha": "a69d7fb018",
+  "subject": "fix: remove broken `Handle.isEof`",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

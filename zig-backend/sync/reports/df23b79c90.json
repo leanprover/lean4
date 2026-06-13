@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-04-15",
+  "needs_port": false,
+  "sha": "df23b79c9014259602832fd2a5acba357e713f9c",
+  "short_sha": "df23b79c90",
+  "subject": "fix: tactic completion in empty `by` blocks (#13348)",
+  "zig_target": {}
+}

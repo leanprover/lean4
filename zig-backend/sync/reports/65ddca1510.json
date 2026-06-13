@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-20",
+  "needs_port": false,
+  "sha": "65ddca1510859296675c1500b191d94d791c399c",
+  "short_sha": "65ddca1510",
+  "subject": "perf(library/init/lean/parser/syntax): avoid quadratic behavior in `update_leading`",
+  "zig_target": {}
+}

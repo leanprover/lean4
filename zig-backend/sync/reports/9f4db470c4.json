@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-22",
+  "needs_port": false,
+  "sha": "9f4db470c4f6c85e932fadd37b5e7913a98a4cf1",
+  "short_sha": "9f4db470c4",
+  "subject": "feat: add permutation theorem support to `Sym.simp` (#13046)",
+  "zig_target": {}
+}

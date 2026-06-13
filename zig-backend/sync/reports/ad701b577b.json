@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-10-06",
+  "needs_port": false,
+  "sha": "ad701b577bae3d37c38b4a228f5442dac55b79fb",
+  "short_sha": "ad701b577b",
+  "subject": "feat: add `StreamMap` (#10400)",
+  "zig_target": {}
+}

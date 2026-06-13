@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-03",
+  "needs_port": false,
+  "sha": "d48c5b99e937da8c96574adbca8aa1c224efa5c9",
+  "short_sha": "d48c5b99e9",
+  "subject": "perf: eliminate `MProd` allocations in `iterateLookaround`",
+  "zig_target": {}
+}

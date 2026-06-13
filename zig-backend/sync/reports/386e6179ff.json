@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Option.lean"
+    }
+  ],
+  "date": "2020-02-17",
+  "needs_port": true,
+  "sha": "386e6179ff18e19c2750a830929ecf5e6ec22116",
+  "short_sha": "386e6179ff",
+  "subject": "fix: missing `[inline]` and code idioms that produce low performance code",
+  "zig_target": {
+    "src/Init/Control/Option.lean": "zig-backend/src/init/Control/Option.lean"
+  }
+}

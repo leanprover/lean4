@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-05",
+  "needs_port": false,
+  "sha": "1bae8f8eab6492122df81dc3fa7c2e19f8ad6ea5",
+  "short_sha": "1bae8f8eab",
+  "subject": "refactor(library/init/lean/ir/parser): parser.lean => parser_t.lean",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "8ca3e146516d30b7d93d67aed6f43b7c06103727",
+  "short_sha": "8ca3e14651",
+  "subject": "feat: change `namespace` resolution procedure",
+  "zig_target": {}
+}

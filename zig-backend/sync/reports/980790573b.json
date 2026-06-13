@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-20",
+  "needs_port": false,
+  "sha": "980790573b4b4110741eb6f65d8cf697e835e436",
+  "short_sha": "980790573b",
+  "subject": "fix(library/print): bug at `print_let`",
+  "zig_target": {}
+}

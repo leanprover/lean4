@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-30",
+  "needs_port": true,
+  "sha": "b818994bbe44e04363a24d6ff2f65ee1fc1b959e",
+  "short_sha": "b818994bbe",
+  "subject": "fix: do not swallow errors from parser interpreter",
+  "zig_target": {
+    "src/Init/Lean/Elab/Syntax.lean": "zig-backend/src/init/Lean/Elab/Syntax.lean"
+  }
+}

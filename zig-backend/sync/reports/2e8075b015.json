@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "2e8075b015a643dc2ec36aba543d46d93f077019",
+  "short_sha": "2e8075b015",
+  "subject": "chore: raise default `profiler.threshold` to 100ms",
+  "zig_target": {}
+}

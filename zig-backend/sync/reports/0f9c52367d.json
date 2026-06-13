@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-24",
+  "needs_port": false,
+  "sha": "0f9c52367d83768879bc8ef8c97605b48ef88435",
+  "short_sha": "0f9c52367d",
+  "subject": "feat(library/equations_compiler/elim_match): prune equations occurring after equation that contains only pattern variables",
+  "zig_target": {}
+}

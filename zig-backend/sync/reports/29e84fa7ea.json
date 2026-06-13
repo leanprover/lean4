@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-12-02",
+  "needs_port": false,
+  "sha": "29e84fa7eaacddaa42df27494cccb6ab1e89f3fd",
+  "short_sha": "29e84fa7ea",
+  "subject": "feat: omega doesn't get stuck on bare Int.negSucc (#6276)",
+  "zig_target": {}
+}

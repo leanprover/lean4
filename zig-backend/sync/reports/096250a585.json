@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-12",
+  "needs_port": false,
+  "sha": "096250a585f655d3120d50f043cccb4193dc3f40",
+  "short_sha": "096250a585",
+  "subject": "feat: Nix: simple, opt-in precompilation scheme",
+  "zig_target": {}
+}

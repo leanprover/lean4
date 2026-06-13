@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-06-05",
+  "needs_port": true,
+  "sha": "fbb3055f82ff9a4bc82f6722f6e73225617342fd",
+  "short_sha": "fbb3055f82",
+  "subject": "feat: getLsb_signExtend (#4187)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

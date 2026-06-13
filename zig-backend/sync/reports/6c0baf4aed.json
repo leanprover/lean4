@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-07-31",
+  "needs_port": false,
+  "sha": "6c0baf4aed3c788486beb95867c28577ba30e84b",
+  "short_sha": "6c0baf4aed",
+  "subject": "feat: support reporting range for parser errors, report ranges for expected token errors",
+  "zig_target": {}
+}

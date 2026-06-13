@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-13",
+  "needs_port": false,
+  "sha": "74a93315711c1f2143409793baa21f6bb4d5ff8c",
+  "short_sha": "74a9331571",
+  "subject": "feat: use left-to-right resolution",
+  "zig_target": {}
+}

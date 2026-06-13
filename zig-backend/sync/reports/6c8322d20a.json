@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-19",
+  "needs_port": false,
+  "sha": "6c8322d20a1eab39a8f2e6012657f9e97323b1e6",
+  "short_sha": "6c8322d20a",
+  "subject": "test: use builtin `Char.isDigit` and `Char.toNat`",
+  "zig_target": {}
+}

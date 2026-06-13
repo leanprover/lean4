@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-22",
+  "needs_port": false,
+  "sha": "661548a2fe0be5dfc2956a5b6e52bc15b0cc5511",
+  "short_sha": "661548a2fe",
+  "subject": "refactor: move `mkArrow` to `MetaM`",
+  "zig_target": {}
+}

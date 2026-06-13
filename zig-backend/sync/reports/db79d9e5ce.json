@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float.lean"
+    }
+  ],
+  "date": "2024-09-30",
+  "needs_port": true,
+  "sha": "db79d9e5ce753b98d5000b825a1bef46431f42b7",
+  "short_sha": "db79d9e5ce",
+  "subject": "doc: backticks around Lean code in docstrings (#5538)",
+  "zig_target": {
+    "src/Init/Data/Float.lean": "zig-backend/src/init/Data/Float.lean"
+  }
+}

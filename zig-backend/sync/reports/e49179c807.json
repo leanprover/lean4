@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-11",
+  "needs_port": false,
+  "sha": "e49179c807e8c1bed2a6beb2589f6da4a6611900",
+  "short_sha": "e49179c807",
+  "subject": "fix: `simp` at local declaration should not create an auxiliary declaration when result is definitionally equal",
+  "zig_target": {}
+}

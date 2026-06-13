@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-11",
+  "needs_port": false,
+  "sha": "a087b21bc01cfcaf425135a10906b26e8f67df06",
+  "short_sha": "a087b21bc0",
+  "subject": "fix: bug at `WF/Fix.lean`",
+  "zig_target": {}
+}

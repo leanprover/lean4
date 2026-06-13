@@ -1,0 +1,24 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/runtime/interrupt.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.cpp"
+    },
+    {
+      "path": "src/runtime/memory.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/memory.cpp"
+    }
+  ],
+  "date": "2025-08-26",
+  "needs_port": true,
+  "sha": "db3fb47109de07fcfbb3e493d387086b0b8c01ae",
+  "short_sha": "db3fb47109",
+  "subject": "refactor: port more of `shell.cpp` to Lean (#10086)",
+  "zig_target": {
+    "src/runtime/interrupt.cpp": "zig-backend/src/runtime/interrupt.cpp",
+    "src/runtime/memory.cpp": "zig-backend/src/runtime/memory.cpp"
+  }
+}

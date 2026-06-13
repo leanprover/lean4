@@ -1,0 +1,10 @@
+{
+  "author": "euprunin",
+  "backend_changes": [],
+  "date": "2024-09-24",
+  "needs_port": false,
+  "sha": "4b47a10bef8f995868558b9b7c9e09ac872a8578",
+  "short_sha": "4b47a10bef",
+  "subject": "chore: fix spelling mistakes in tests (#5439)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-14",
+  "needs_port": false,
+  "sha": "e1588c3fe710fa18afb30ef5ba7ae6267f4a91b4",
+  "short_sha": "e1588c3fe7",
+  "subject": "feat(library/init/lean/elaborator): add expected type",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-10-29",
+  "needs_port": true,
+  "sha": "6514385bb96b6df8e7a78d9153a5bfb4cccdecaf",
+  "short_sha": "6514385bb9",
+  "subject": "feat: attribute [simp \u2190] (#5870)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

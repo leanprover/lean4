@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-21",
+  "needs_port": false,
+  "sha": "e620cf3c8033ef9f10151137f62b7b8a40a70427",
+  "short_sha": "e620cf3c80",
+  "subject": "fix: count let-bound variables in `induction \u2026 with` correctly (#5117)",
+  "zig_target": {}
+}

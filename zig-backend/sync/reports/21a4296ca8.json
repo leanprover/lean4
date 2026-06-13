@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-08-26",
+  "needs_port": true,
+  "sha": "21a4296ca889a279477c01db7f2412d0eba69f7e",
+  "short_sha": "21a4296ca8",
+  "subject": "feat: add `anyGoals` tatic for tutorial",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-09-16",
+  "needs_port": false,
+  "sha": "445c8f2ee02ec75cdd8b2811bd56f4fb16adb655",
+  "short_sha": "445c8f2ee0",
+  "subject": "feat: FunInd: more equalities in context, more careful cleanup (#5364)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-02",
+  "needs_port": false,
+  "sha": "41a87f685647e04b99ded141a5a9ce7dce91df94",
+  "short_sha": "41a87f6856",
+  "subject": "feat(kernel/inductive): normalize parameter names",
+  "zig_target": {}
+}

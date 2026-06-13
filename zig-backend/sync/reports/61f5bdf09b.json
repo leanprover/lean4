@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Default.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Default.lean"
+    },
+    {
+      "path": "src/Init/MutQuot.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/MutQuot.lean"
+    }
+  ],
+  "date": "2020-01-31",
+  "needs_port": true,
+  "sha": "61f5bdf09b52502c9e2bc840200bca138d8687ab",
+  "short_sha": "61f5bdf09b",
+  "subject": "feat: `MutQuot` basic definition",
+  "zig_target": {
+    "src/Init/Default.lean": "zig-backend/src/init/Default.lean",
+    "src/Init/MutQuot.lean": "zig-backend/src/init/MutQuot.lean"
+  }
+}

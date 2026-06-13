@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.cpp"
+    }
+  ],
+  "date": "2018-08-22",
+  "needs_port": true,
+  "sha": "6009279ab3c85d7e1099acdbe3d53c1607aebc15",
+  "short_sha": "6009279ab3",
+  "subject": "fix(library/compiler/cse): deactivate CSE for constructor applications",
+  "zig_target": {
+    "src/library/compiler/cse.cpp": "zig-backend/src/library/compiler/cse.cpp"
+  }
+}

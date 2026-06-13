@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.cpp"
+    },
+    {
+      "path": "src/library/compiler/cse.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/cse.h"
+    },
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    }
+  ],
+  "date": "2018-09-20",
+  "needs_port": true,
+  "sha": "ff2e28e5574fc037b277cae81806d43d9c4527ec",
+  "short_sha": "ff2e28e557",
+  "subject": "feat(library/compiler): add `cce`: common case elimination",
+  "zig_target": {
+    "src/library/compiler/cse.cpp": "zig-backend/src/library/compiler/cse.cpp",
+    "src/library/compiler/cse.h": "zig-backend/src/library/compiler/cse.h",
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h"
+  }
+}

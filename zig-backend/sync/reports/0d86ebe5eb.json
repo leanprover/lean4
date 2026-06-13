@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-17",
+  "needs_port": false,
+  "sha": "0d86ebe5eb8b654bd2501ed4f636deea88161bf4",
+  "short_sha": "0d86ebe5eb",
+  "subject": "chore: remove volatile cases from test",
+  "zig_target": {}
+}

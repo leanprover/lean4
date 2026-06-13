@@ -1,0 +1,10 @@
+{
+  "author": "Yuri de Wit",
+  "backend_changes": [],
+  "date": "2022-09-19",
+  "needs_port": false,
+  "sha": "88fc24c58c72aab019ed7a6e2513d0e5ef94de08",
+  "short_sha": "88fc24c58c",
+  "subject": "chore: fixed typos",
+  "zig_target": {}
+}

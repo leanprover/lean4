@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-23",
+  "needs_port": false,
+  "sha": "5a68ad9ef47b1f1487b71052ce764dac34c48acb",
+  "short_sha": "5a68ad9ef4",
+  "subject": "chore: Run CI on all PRs, even base \u2260 master (#2955)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-22",
+  "needs_port": false,
+  "sha": "64219ac91e2930d3950637317c7dc4f7b45568d1",
+  "short_sha": "64219ac91e",
+  "subject": "fix: `assertNatCast` in `grind` (#9476)",
+  "zig_target": {}
+}

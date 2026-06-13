@@ -1,0 +1,10 @@
+{
+  "author": "Johannes Tantow",
+  "backend_changes": [],
+  "date": "2025-11-15",
+  "needs_port": false,
+  "sha": "100006fdd09188cf47ac15c8f4274b62ebc0a045",
+  "short_sha": "100006fdd0",
+  "subject": "feat: verify `all` and `any` for hash maps (#10765)",
+  "zig_target": {}
+}

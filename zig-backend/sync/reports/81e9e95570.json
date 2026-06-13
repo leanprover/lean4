@@ -1,0 +1,86 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/old_cse.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/old_cse.cpp"
+    },
+    {
+      "old_path": "src/library/compiler/erase_irrelevant.cpp",
+      "path": "src/library/compiler/old_erase_irrelevant.cpp",
+      "status": "R",
+      "zig_target": "zig-backend/src/library/compiler/old_erase_irrelevant.cpp"
+    },
+    {
+      "old_path": "src/library/compiler/erase_irrelevant.h",
+      "path": "src/library/compiler/old_erase_irrelevant.h",
+      "status": "R",
+      "zig_target": "zig-backend/src/library/compiler/old_erase_irrelevant.h"
+    },
+    {
+      "path": "src/library/compiler/old_util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/old_util.h"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_inductive.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.h"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-10-01",
+  "needs_port": true,
+  "sha": "81e9e95570170eacaa1e9979194690de92f9d052",
+  "short_sha": "81e9e95570",
+  "subject": "chore(library/compiler): `erase_irrelevant` ==> `old_erase_irrelevant`",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/old_cse.cpp": "zig-backend/src/library/compiler/old_cse.cpp",
+    "src/library/compiler/old_erase_irrelevant.cpp": "zig-backend/src/library/compiler/old_erase_irrelevant.cpp",
+    "src/library/compiler/old_erase_irrelevant.h": "zig-backend/src/library/compiler/old_erase_irrelevant.h",
+    "src/library/compiler/old_util.h": "zig-backend/src/library/compiler/old_util.h",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/simp_inductive.cpp": "zig-backend/src/library/compiler/simp_inductive.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/util.h": "zig-backend/src/library/compiler/util.h",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-17",
+  "needs_port": false,
+  "sha": "9e5ff3db0e68ad2518984f47c7cd3abd00c7659d",
+  "short_sha": "9e5ff3db0e",
+  "subject": "feat: `setMainModule` in worker",
+  "zig_target": {}
+}

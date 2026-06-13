@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-04",
+  "needs_port": false,
+  "sha": "22714b9b1032fe62db971fb77fa438419e4fb3fe",
+  "short_sha": "22714b9b10",
+  "subject": "perf(library/init/lean/parser/combinators): `node`: no need to fill up with `syntax.missing` anymore",
+  "zig_target": {}
+}

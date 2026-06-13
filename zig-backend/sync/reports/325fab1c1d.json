@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2023-09-21",
+  "needs_port": false,
+  "sha": "325fab1c1db791101a71610160d1359dced5719e",
+  "short_sha": "325fab1c1d",
+  "subject": "fix: don't try to generate `below` for nested predicates. (#2390)",
+  "zig_target": {}
+}

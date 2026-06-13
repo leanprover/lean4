@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-14",
+  "needs_port": false,
+  "sha": "1a18bb265d0d87582a8410ad701c8b8d91eebe71",
+  "short_sha": "1a18bb265d",
+  "subject": "chore(frontends/lean): remove a few old_type_checker occurrences",
+  "zig_target": {}
+}

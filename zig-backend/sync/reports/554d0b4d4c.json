@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-12",
+  "needs_port": true,
+  "sha": "554d0b4d4c79c1520e56276366e3c845bb7b035e",
+  "short_sha": "554d0b4d4c",
+  "subject": "chore: adapt stdlib to new antiquotation splices",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

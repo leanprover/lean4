@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Class.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Class.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Instances.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Instances.lean"
+    }
+  ],
+  "date": "2019-11-26",
+  "needs_port": true,
+  "sha": "81278c1509b538b1f52de4342383adb407bd228a",
+  "short_sha": "81278c1509",
+  "subject": "feat: add `instanceExtension`",
+  "zig_target": {
+    "src/Init/Lean/Class.lean": "zig-backend/src/init/Lean/Class.lean",
+    "src/Init/Lean/Meta.lean": "zig-backend/src/init/Lean/Meta.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/Instances.lean": "zig-backend/src/init/Lean/Meta/Instances.lean"
+  }
+}

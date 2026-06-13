@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2024-05-17",
+  "needs_port": true,
+  "sha": "ee0bcc83218db1b4bec707afa0f0d17362ec5bd5",
+  "short_sha": "ee0bcc8321",
+  "subject": "feat: add `Simp.Config.index` (#4202)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

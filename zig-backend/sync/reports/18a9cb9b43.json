@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-07",
+  "needs_port": false,
+  "sha": "18a9cb9b437c0ccd6a2bb958fa2fe63e88c0701f",
+  "short_sha": "18a9cb9b43",
+  "subject": "feat: improve error message position for binders with implicit types",
+  "zig_target": {}
+}

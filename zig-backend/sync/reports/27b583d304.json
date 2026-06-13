@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-03-08",
+  "needs_port": false,
+  "sha": "27b583d304f5fedff8e79e0a34e59e2265a1f068",
+  "short_sha": "27b583d304",
+  "subject": "feat: mutually dependent `structure` default values, and avoiding self-dependence (#12841)",
+  "zig_target": {}
+}

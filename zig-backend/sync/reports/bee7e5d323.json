@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-04",
+  "needs_port": false,
+  "sha": "bee7e5d3236e6814c97e54767fa50263418a457f",
+  "short_sha": "bee7e5d323",
+  "subject": "chore: start next Lake version",
+  "zig_target": {}
+}

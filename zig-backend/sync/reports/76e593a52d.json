@@ -1,0 +1,18 @@
+{
+  "author": "Bhavik Mehta",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Pow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Pow.lean"
+    }
+  ],
+  "date": "2026-03-16",
+  "needs_port": true,
+  "sha": "76e593a52dc38f8c7d9881db25d0e917be81b8f0",
+  "short_sha": "76e593a52d",
+  "subject": "fix: rename `Int.sq_nonnneg` to `Int.sq_nonneg` (#12909)",
+  "zig_target": {
+    "src/Init/Data/Int/Pow.lean": "zig-backend/src/init/Data/Int/Pow.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-13",
+  "needs_port": false,
+  "sha": "1add44916cf8ca3f3b5eafbb66bc8d9b868fb1b3",
+  "short_sha": "1add44916c",
+  "subject": "chore: remove broken & redundant \"new parser Core.lean\" benchmark",
+  "zig_target": {}
+}

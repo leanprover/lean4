@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-17",
+  "needs_port": false,
+  "sha": "4a0ae8326ca3162ddf160ab3980a6fcdb9980f32",
+  "short_sha": "4a0ae8326c",
+  "subject": "feat: compute the fixed prefix size for mutually recursive definitions",
+  "zig_target": {}
+}

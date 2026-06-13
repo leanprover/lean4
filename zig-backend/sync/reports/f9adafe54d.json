@@ -1,0 +1,42 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/signal.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/signal.cpp"
+    },
+    {
+      "path": "src/runtime/uv/signal.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/signal.h"
+    },
+    {
+      "path": "src/runtime/uv/tcp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.cpp"
+    },
+    {
+      "path": "src/runtime/uv/tcp.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.h"
+    },
+    {
+      "path": "src/runtime/uv/timer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/timer.cpp"
+    }
+  ],
+  "date": "2025-10-17",
+  "needs_port": true,
+  "sha": "f9adafe54d5070acbd270643f71b8455ca8c8d68",
+  "short_sha": "f9adafe54d",
+  "subject": "feat: adds `acceptSelector` and modified selectors (#10667)",
+  "zig_target": {
+    "src/runtime/uv/signal.cpp": "zig-backend/src/runtime/uv/signal.cpp",
+    "src/runtime/uv/signal.h": "zig-backend/src/runtime/uv/signal.h",
+    "src/runtime/uv/tcp.cpp": "zig-backend/src/runtime/uv/tcp.cpp",
+    "src/runtime/uv/tcp.h": "zig-backend/src/runtime/uv/tcp.h",
+    "src/runtime/uv/timer.cpp": "zig-backend/src/runtime/uv/timer.cpp"
+  }
+}

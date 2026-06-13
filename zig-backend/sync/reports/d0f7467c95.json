@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-15",
+  "needs_port": false,
+  "sha": "d0f7467c951f74745705b9ef75b4a66622f60eca",
+  "short_sha": "d0f7467c95",
+  "subject": "test: add trailing parser",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-15",
+  "needs_port": false,
+  "sha": "7979d0338614baafb8c6ec2873478e67e8b6777c",
+  "short_sha": "7979d03386",
+  "subject": "fix: bug at `CSE.lean`",
+  "zig_target": {}
+}

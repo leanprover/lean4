@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-07",
+  "needs_port": false,
+  "sha": "80409a9ceb803bdfa695687de3aca2008c5aaf6d",
+  "short_sha": "80409a9ceb",
+  "subject": "feat: lake: `Job.sync` & other touchups (#11118)",
+  "zig_target": {}
+}

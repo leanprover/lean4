@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-12-21",
+  "needs_port": true,
+  "sha": "05401776f2e90785364aaaf19cf85cf5003aa1b3",
+  "short_sha": "05401776f2",
+  "subject": "fix: add reflexivity instances to coercions",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-04-08",
+  "needs_port": false,
+  "sha": "0a6ee838df85d175e62c4eb00316c2210b9630c6",
+  "short_sha": "0a6ee838df",
+  "subject": "fix: update lean-toolchain in verso test-projects during release (#13309)",
+  "zig_target": {}
+}

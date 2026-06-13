@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "2d501ea9803532648573260916fd5ebfa9631eb9",
+  "short_sha": "2d501ea980",
+  "subject": "chore: temporarily ignore regions leaks until we fix the server design",
+  "zig_target": {}
+}

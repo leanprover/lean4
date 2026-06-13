@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-24",
+  "needs_port": false,
+  "sha": "ac565de96ce80e58971b68adba419f5357dbcead",
+  "short_sha": "ac565de96c",
+  "subject": "refactor: add `MonadMetaM` class",
+  "zig_target": {}
+}

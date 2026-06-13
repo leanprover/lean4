@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-01",
+  "needs_port": false,
+  "sha": "af4c693030f0491645bbaa5bbf7d75bb549e105e",
+  "short_sha": "af4c693030",
+  "subject": "feat: improve E-matching pattern inference in `grind` (#8196)",
+  "zig_target": {}
+}

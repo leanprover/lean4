@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2021-02-15",
+  "needs_port": true,
+  "sha": "51bdf670fa8ef46f66c47e08c61dda85de90d079",
+  "short_sha": "51bdf670fa",
+  "subject": "chore: add `simp` helper lemmas",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

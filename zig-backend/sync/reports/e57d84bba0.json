@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-03",
+  "needs_port": false,
+  "sha": "e57d84bba015aae7d3d1809d7a34a1403b61d56b",
+  "short_sha": "e57d84bba0",
+  "subject": "fix: show missing match cases in declaration order (#13266)",
+  "zig_target": {}
+}

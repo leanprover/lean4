@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-30",
+  "needs_port": false,
+  "sha": "f356d8830e05e440048df0b8301766f2f599e617",
+  "short_sha": "f356d8830e",
+  "subject": "chore: CI: in quick mode, only Nix build runs the tests (#2998)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-30",
+  "needs_port": false,
+  "sha": "531ef5d700335b280376fa4747f77537f69e77a9",
+  "short_sha": "531ef5d700",
+  "subject": "feat(library/init/lean/parser): universe level parser and bug fixes",
+  "zig_target": {}
+}

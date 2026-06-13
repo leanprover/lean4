@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "252a01744513fdcc4dfb06b724a1bc726fe14086",
+  "short_sha": "252a017445",
+  "subject": "chore(library/inductive_compiler): remove `nested.cpp`",
+  "zig_target": {}
+}

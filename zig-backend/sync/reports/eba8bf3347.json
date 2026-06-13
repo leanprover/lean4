@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    }
+  ],
+  "date": "2025-09-28",
+  "needs_port": true,
+  "sha": "eba8bf3347e326be6551c423938de28e035990c9",
+  "short_sha": "eba8bf3347",
+  "subject": "feat: infrastructure for `grind` interactive mode (#10607)",
+  "zig_target": {
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean"
+  }
+}

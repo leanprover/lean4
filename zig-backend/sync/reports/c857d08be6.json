@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2024-03-27",
+  "needs_port": true,
+  "sha": "c857d08be6f408954fc39b6cae852eabdf4125a8",
+  "short_sha": "c857d08be6",
+  "subject": "fix: remove derive_functional_induction (#3788)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

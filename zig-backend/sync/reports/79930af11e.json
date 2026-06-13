@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-09",
+  "needs_port": false,
+  "sha": "79930af11e5b6e78e77534d7670169ea5f5924c5",
+  "short_sha": "79930af11e",
+  "subject": "feat: allow explicit mode with field notation (#5528)",
+  "zig_target": {}
+}

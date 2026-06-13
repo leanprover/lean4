@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-13",
+  "needs_port": false,
+  "sha": "a4b788c332fc0a9f54d8a8ac17d1c15cb88bc07e",
+  "short_sha": "a4b788c332",
+  "subject": "feat: add `Grind/Action.lean` (#10767)",
+  "zig_target": {}
+}

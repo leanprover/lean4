@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-05",
+  "needs_port": false,
+  "sha": "06fe9d3afa1fd9b573ba5c7632b2c91fbad6ca17",
+  "short_sha": "06fe9d3afa",
+  "subject": "refactor: `EState` ==> `EStateM`",
+  "zig_target": {}
+}

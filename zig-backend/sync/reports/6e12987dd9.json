@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-13",
+  "needs_port": false,
+  "sha": "6e12987dd90b1ddcf5fc04cef0f5dea0b72009be",
+  "short_sha": "6e12987dd9",
+  "subject": "feat: add `declModifiers` to constructor declarations",
+  "zig_target": {}
+}

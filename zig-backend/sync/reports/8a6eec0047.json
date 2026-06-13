@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-08-15",
+  "needs_port": false,
+  "sha": "8a6eec0047aa810577dd54ec7cd0eea3d4ca149b",
+  "short_sha": "8a6eec0047",
+  "subject": "doc: add release note drafts for LibUV and hash map deprecation (#5049)",
+  "zig_target": {}
+}

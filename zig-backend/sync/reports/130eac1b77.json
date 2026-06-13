@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2021-09-16",
+  "needs_port": true,
+  "sha": "130eac1b776248685af0590dcd6792f2d463ba67",
+  "short_sha": "130eac1b77",
+  "subject": "chore: reintroduce lean.cpp in separate commit so Git doesn't freak out",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-12-08",
+  "needs_port": false,
+  "sha": "e1b2c945e3aeec1d91ec7a1d7de0d68aeca58f4b",
+  "short_sha": "e1b2c945e3",
+  "subject": "fix: suppress extra spaces in formatter",
+  "zig_target": {}
+}

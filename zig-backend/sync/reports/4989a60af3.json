@@ -1,0 +1,10 @@
+{
+  "author": "Bolton Bailey",
+  "backend_changes": [],
+  "date": "2025-02-08",
+  "needs_port": false,
+  "sha": "4989a60af3f0a31a412c419619e648271e4e8afc",
+  "short_sha": "4989a60af3",
+  "subject": "chore: change Lake configuration error message (#6829)",
+  "zig_target": {}
+}

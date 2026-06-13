@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-05-18",
+  "needs_port": false,
+  "sha": "cf030a16348481c18f6c09fcd77c851bf7dff443",
+  "short_sha": "cf030a1634",
+  "subject": "refactor: Add `MkMatcherInput`.",
+  "zig_target": {}
+}

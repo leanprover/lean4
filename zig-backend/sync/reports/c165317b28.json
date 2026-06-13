@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-23",
+  "needs_port": false,
+  "sha": "c165317b28c3d1ec808f2073f366db44cac0bf21",
+  "short_sha": "c165317b28",
+  "subject": "feat: add `ImportM.runCoreM`",
+  "zig_target": {}
+}

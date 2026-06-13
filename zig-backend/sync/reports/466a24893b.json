@@ -1,0 +1,30 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    },
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-12-10",
+  "needs_port": true,
+  "sha": "466a24893bcdee0a6132e8e1444f6db939d2f4d2",
+  "short_sha": "466a24893b",
+  "subject": "chore: add `ReaderT.mk` and `StateT.mk` (#11470)",
+  "zig_target": {
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean",
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

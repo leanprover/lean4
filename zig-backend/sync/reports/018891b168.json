@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lift.lean"
+    }
+  ],
+  "date": "2020-01-30",
+  "needs_port": true,
+  "sha": "018891b16865330973a9f69373b104c31e36051c",
+  "short_sha": "018891b168",
+  "subject": "fix: subgoal order at `hasMonadLiftTTrans`",
+  "zig_target": {
+    "src/Init/Control/Lift.lean": "zig-backend/src/init/Control/Lift.lean"
+  }
+}

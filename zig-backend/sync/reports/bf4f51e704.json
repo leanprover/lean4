@@ -1,0 +1,18 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/signal.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/signal.cpp"
+    }
+  ],
+  "date": "2026-03-17",
+  "needs_port": true,
+  "sha": "bf4f51e70471a4828855f69967345c27869ad2ad",
+  "short_sha": "bf4f51e704",
+  "subject": "fix: windows build for signal handlers (#12955)",
+  "zig_target": {
+    "src/runtime/uv/signal.cpp": "zig-backend/src/runtime/uv/signal.cpp"
+  }
+}

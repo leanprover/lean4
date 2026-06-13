@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "bc26a9b5274a57ca1eac35a43a4271937c2c78f0",
+  "short_sha": "bc26a9b527",
+  "subject": "feat: improve `copyNewFieldsFrom`",
+  "zig_target": {}
+}

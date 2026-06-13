@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-11",
+  "needs_port": false,
+  "sha": "93d3ab3f8c6f8ddece05cdd8cd4352777546cfca",
+  "short_sha": "93d3ab3f8c",
+  "subject": "chore: add aux fixpoint",
+  "zig_target": {}
+}

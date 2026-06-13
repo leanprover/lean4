@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-03",
+  "needs_port": false,
+  "sha": "23b0e6ca5b30a8c3a02248f1f526a5646c37deb0",
+  "short_sha": "23b0e6ca5b",
+  "subject": "fix: Nix: use stage 1 outside of src/",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-02",
+  "needs_port": false,
+  "sha": "d4a5306d82b5fc00d690dbf49ddb993d28ac34fa",
+  "short_sha": "d4a5306d82",
+  "subject": "feat(library/init/lean/parser/term): explicit universe notation in the new parser",
+  "zig_target": {}
+}

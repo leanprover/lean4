@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-02-15",
+  "needs_port": false,
+  "sha": "8aab74e65d21b7a2d783ea99d27d0fe47ab01c54",
+  "short_sha": "8aab74e65d",
+  "subject": "fix: make `withOverApp` annotate the expression position and register `TermInfo` (#3327)",
+  "zig_target": {}
+}

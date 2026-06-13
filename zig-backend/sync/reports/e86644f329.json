@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-07",
+  "needs_port": false,
+  "sha": "e86644f329c97ad55dbdef8fab4954f53b7855af",
+  "short_sha": "e86644f329",
+  "subject": "chore: remove not very useful `reportIssue` (#7866)",
+  "zig_target": {}
+}

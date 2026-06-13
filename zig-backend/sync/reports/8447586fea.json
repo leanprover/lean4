@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-01-22",
+  "needs_port": false,
+  "sha": "8447586fea56978d981732a9c85911b56b547375",
+  "short_sha": "8447586fea",
+  "subject": "chore: make bench suite more similar to mathlib's (#12091)",
+  "zig_target": {}
+}

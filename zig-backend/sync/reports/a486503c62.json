@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-18",
+  "needs_port": false,
+  "sha": "a486503c624cbb71cbea0954c8f0deedc0c0613d",
+  "short_sha": "a486503c62",
+  "subject": "chore: fold `Nat` literals at reduce",
+  "zig_target": {}
+}

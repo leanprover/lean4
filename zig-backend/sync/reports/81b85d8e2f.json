@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-27",
+  "needs_port": false,
+  "sha": "81b85d8e2f2c90fcfeaa6c8212196c68ce58a7b8",
+  "short_sha": "81b85d8e2f",
+  "subject": "fix: reparsing may need to backtrack two commands (#6236)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Adrien Champion",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2023-03-28",
+  "needs_port": true,
+  "sha": "39f0fa670a35bd3cde79f8dee718083da25dad4f",
+  "short_sha": "39f0fa670a",
+  "subject": "doc: document `Int` and its basic operations (#2167)",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-17",
+  "needs_port": false,
+  "sha": "e985eb2b8a2199136a4d67f3a5805ffb1daa51f4",
+  "short_sha": "e985eb2b8a",
+  "subject": "fix: refine `resolveNamespace`",
+  "zig_target": {}
+}

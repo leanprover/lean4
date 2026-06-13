@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/platform.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/platform.cpp"
+    }
+  ],
+  "date": "2019-07-28",
+  "needs_port": true,
+  "sha": "6cf8571e370a0baad7f8f77b1bb3993bf35dd532",
+  "short_sha": "6cf8571e37",
+  "subject": "feat(library/init/system/platform): add `System.Platform.isOSX`",
+  "zig_target": {
+    "src/runtime/platform.cpp": "zig-backend/src/runtime/platform.cpp"
+  }
+}

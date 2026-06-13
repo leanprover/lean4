@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-10",
+  "needs_port": false,
+  "sha": "7580ad8fe8f0df02c221a8e672eea067e5e2f54b",
+  "short_sha": "7580ad8fe8",
+  "subject": "feat(library/init/lean/environment): add auxiliary functions for refactoring `environment.cpp`",
+  "zig_target": {}
+}

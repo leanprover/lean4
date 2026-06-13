@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-05-14",
+  "needs_port": false,
+  "sha": "a28c1da70482adf2cdbc073cad65f8dd5bf18d42",
+  "short_sha": "a28c1da704",
+  "subject": "fix: do not call git checkout unless necessary",
+  "zig_target": {}
+}

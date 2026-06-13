@@ -1,0 +1,42 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float.lean"
+    },
+    {
+      "path": "src/Init/Data/Float32.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float32.lean"
+    },
+    {
+      "path": "src/Init/Data/OfScientific.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/OfScientific.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Float.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Float32.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Float32.lean"
+    }
+  ],
+  "date": "2025-03-26",
+  "needs_port": true,
+  "sha": "0d1d8b69445161ead759c6aa642d689320cb7327",
+  "short_sha": "0d1d8b6944",
+  "subject": "doc: review docstrings for Float and Float32 (#7642)",
+  "zig_target": {
+    "src/Init/Data/Float.lean": "zig-backend/src/init/Data/Float.lean",
+    "src/Init/Data/Float32.lean": "zig-backend/src/init/Data/Float32.lean",
+    "src/Init/Data/OfScientific.lean": "zig-backend/src/init/Data/OfScientific.lean",
+    "src/Init/Data/SInt/Float.lean": "zig-backend/src/init/Data/SInt/Float.lean",
+    "src/Init/Data/SInt/Float32.lean": "zig-backend/src/init/Data/SInt/Float32.lean"
+  }
+}

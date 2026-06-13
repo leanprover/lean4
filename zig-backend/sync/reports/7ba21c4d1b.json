@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-12-16",
+  "needs_port": true,
+  "sha": "7ba21c4d1bca70637a9aaa78fef6424588a1d0f6",
+  "short_sha": "7ba21c4d1b",
+  "subject": "fix: incorrect `inherit_doc` (#11704)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

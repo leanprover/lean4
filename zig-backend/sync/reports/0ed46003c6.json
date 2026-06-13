@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    }
+  ],
+  "date": "2022-09-01",
+  "needs_port": true,
+  "sha": "0ed46003c6d871e8b4c4b7cec0136cc8dd9cedb4",
+  "short_sha": "0ed46003c6",
+  "subject": "feat: add `CodeDecl` helper type",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+  }
+}

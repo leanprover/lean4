@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "7720b843bb159d468a057fef69add0ceba42e882",
+  "short_sha": "7720b843bb",
+  "subject": "feat: allow users to use binders when setting default value for parent fields",
+  "zig_target": {}
+}

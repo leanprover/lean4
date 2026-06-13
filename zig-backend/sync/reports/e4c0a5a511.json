@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2026-05-05",
+  "needs_port": false,
+  "sha": "e4c0a5a511c5ddc0c7499bfb9021d4aaf96eb95b",
+  "short_sha": "e4c0a5a511",
+  "subject": "fix: perform severity overrides before counting errors (#13589)",
+  "zig_target": {}
+}

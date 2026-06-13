@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Try.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Try.lean"
+    }
+  ],
+  "date": "2026-01-10",
+  "needs_port": true,
+  "sha": "5bb7f37645c1bcd822993543b32b95c78107b33a",
+  "short_sha": "5bb7f37645",
+  "subject": "feat: add `first_par` combinator for `try?` with `grind +locals` (#11949)",
+  "zig_target": {
+    "src/Init/Try.lean": "zig-backend/src/init/Try.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-08-18",
+  "needs_port": false,
+  "sha": "e4be2b2cadc1371f51d35ebf5f1b17d288286dcb",
+  "short_sha": "e4be2b2cad",
+  "subject": "chore: make perf tests more independent of external factors (#9960)",
+  "zig_target": {}
+}

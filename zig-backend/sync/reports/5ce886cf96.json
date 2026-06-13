@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-05",
+  "needs_port": false,
+  "sha": "5ce886cf965cf2bac144bb0cb9b2dfe93ca103fd",
+  "short_sha": "5ce886cf96",
+  "subject": "refactor: Split Constructions module (#4656)",
+  "zig_target": {}
+}

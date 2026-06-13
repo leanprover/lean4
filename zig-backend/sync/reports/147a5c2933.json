@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-14",
+  "needs_port": false,
+  "sha": "147a5c293396c006e4984c3fe08d6e5efe74ce45",
+  "short_sha": "147a5c2933",
+  "subject": "chore: prefer `LEAN_SRC_PATH`",
+  "zig_target": {}
+}

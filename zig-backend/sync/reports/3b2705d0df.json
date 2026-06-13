@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "3b2705d0dfa05094c430e06dfeae861439da5794",
+  "short_sha": "3b2705d0df",
+  "subject": "feat: helper functions for premise selection API (#10512)",
+  "zig_target": {}
+}

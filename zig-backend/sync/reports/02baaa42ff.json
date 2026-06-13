@@ -1,0 +1,18 @@
+{
+  "author": "Violeta Hern\u00e1ndez",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2024-11-04",
+  "needs_port": true,
+  "sha": "02baaa42ffb66adf6e1ee1c2faed6dfd9fb3ff26",
+  "short_sha": "02baaa42ff",
+  "subject": "feat: add `Option.or_some'` (#5926)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

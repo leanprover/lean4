@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "d002e550bbc276d606fa7828a3ce9e179524deed",
+  "short_sha": "d002e550bb",
+  "subject": "chore(library/init/lean): `filename` ==> `fileName`",
+  "zig_target": {}
+}

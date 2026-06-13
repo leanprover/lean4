@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-02-12",
+  "needs_port": true,
+  "sha": "888252b5db18ec7863dc6ce80ed478bf718ca8f8",
+  "short_sha": "888252b5db",
+  "subject": "feat(library/private): more deterministic private names",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-01-23",
+  "needs_port": true,
+  "sha": "02849a3cf6766898319434e718b2dc6a486af5af",
+  "short_sha": "02849a3cf6",
+  "subject": "feat(library/compiler/emit_cpp): add name mangling functions",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

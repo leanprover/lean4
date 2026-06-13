@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2023-08-22",
+  "needs_port": false,
+  "sha": "8a536d0246d1245b1c94a1c3e07b3d447e7c1ed1",
+  "short_sha": "8a536d0246",
+  "subject": "feat: `lake env` w/o configuration + more (#2428)",
+  "zig_target": {}
+}

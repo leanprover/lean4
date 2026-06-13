@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-31",
+  "needs_port": false,
+  "sha": "caa79ca04f94c41dc4fb74fce62b6d2ecddb8b6b",
+  "short_sha": "caa79ca04f",
+  "subject": "refactor: move `MonadLog`",
+  "zig_target": {}
+}

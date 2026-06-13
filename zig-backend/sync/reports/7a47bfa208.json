@@ -1,0 +1,72 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Combinators.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/FlatMap.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/FlatMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/FlatMap.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FlatMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/FlatMap.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FlatMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FlatMap.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FlatMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/PostconditionMonad.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/PostconditionMonad.lean"
+    }
+  ],
+  "date": "2025-10-14",
+  "needs_port": true,
+  "sha": "7a47bfa2084eec2ec6dbc292d703e6297c2ccee8",
+  "short_sha": "7a47bfa208",
+  "subject": "feat: `flatMap` iterator combinator (#10728)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Combinators.lean": "zig-backend/src/init/Data/Iterators/Combinators.lean",
+    "src/Init/Data/Iterators/Combinators/FlatMap.lean": "zig-backend/src/init/Data/Iterators/Combinators/FlatMap.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/FlatMap.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FlatMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/FlatMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FlatMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FlatMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FlatMap.lean",
+    "src/Init/Data/Iterators/PostconditionMonad.lean": "zig-backend/src/init/Data/Iterators/PostconditionMonad.lean"
+  }
+}

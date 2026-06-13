@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Attributes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Attributes.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-11",
+  "needs_port": true,
+  "sha": "82a36fbfe2158767828fdc9593ec2ca774ba4849",
+  "short_sha": "82a36fbfe2",
+  "subject": "feat: `declare_syntax_cat` without importing `Init.Lean`",
+  "zig_target": {
+    "src/Init/Lean/Attributes.lean": "zig-backend/src/init/Lean/Attributes.lean",
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean"
+  }
+}

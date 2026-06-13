@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-03",
+  "needs_port": false,
+  "sha": "e09374afa654cea3c22bb8c6b4109e10343bc768",
+  "short_sha": "e09374afa6",
+  "subject": "perf(library/init/data/hashmap/basic): reuse AssocList memory cells when expanding hashtable",
+  "zig_target": {}
+}

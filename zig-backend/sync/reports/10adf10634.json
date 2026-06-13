@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-02",
+  "needs_port": false,
+  "sha": "10adf1063466a181a9c29797080d42d1a08018df",
+  "short_sha": "10adf10634",
+  "subject": "fix(library/derive_attribute): prevent infinite loop during parsing",
+  "zig_target": {}
+}

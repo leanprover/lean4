@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-06",
+  "needs_port": false,
+  "sha": "398c131620372a7164bdf80d313e4f6d38c16607",
+  "short_sha": "398c131620",
+  "subject": "test: lake: merge `tests/102` into `globs`",
+  "zig_target": {}
+}

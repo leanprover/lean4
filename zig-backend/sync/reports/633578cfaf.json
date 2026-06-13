@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/StateRef.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateRef.lean"
+    }
+  ],
+  "date": "2020-10-27",
+  "needs_port": true,
+  "sha": "633578cfafacd4fd192827d52bc3596633d7f8fa",
+  "short_sha": "633578cfaf",
+  "subject": "chore: use `StateRefT` macro",
+  "zig_target": {
+    "src/Init/Control/StateRef.lean": "zig-backend/src/init/Control/StateRef.lean"
+  }
+}

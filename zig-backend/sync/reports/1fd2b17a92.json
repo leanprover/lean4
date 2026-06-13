@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-24",
+  "needs_port": false,
+  "sha": "1fd2b17a923d66572d0a5dba338a9fe25b901e1a",
+  "short_sha": "1fd2b17a92",
+  "subject": "fix: bug at `addDependencies`",
+  "zig_target": {}
+}

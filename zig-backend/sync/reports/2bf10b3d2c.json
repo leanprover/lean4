@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-13",
+  "needs_port": false,
+  "sha": "2bf10b3d2c75b8a693469e858d2582d016df6402",
+  "short_sha": "2bf10b3d2c",
+  "subject": "feat: add `inferMod` field to `CtorView`",
+  "zig_target": {}
+}

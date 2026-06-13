@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-21",
+  "needs_port": false,
+  "sha": "c932d9d33ceab299dc91d032bfea320097ca7aa9",
+  "short_sha": "c932d9d33c",
+  "subject": "test: combine two inequalities",
+  "zig_target": {}
+}

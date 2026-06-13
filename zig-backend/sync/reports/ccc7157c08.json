@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Util.lean"
+    }
+  ],
+  "date": "2026-03-29",
+  "needs_port": true,
+  "sha": "ccc7157c08310f38ca67c49d5f8bbf8201ef6d68",
+  "short_sha": "ccc7157c08",
+  "subject": "fix: expose grind gadgets `abstractFn` and `simpMatchDiscrsOnly` (#13177)",
+  "zig_target": {
+    "src/Init/Grind/Util.lean": "zig-backend/src/init/Grind/Util.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [],
+  "date": "2021-12-01",
+  "needs_port": false,
+  "sha": "10649baf8df77aad2d9a638315845552e64c6ee4",
+  "short_sha": "10649baf8d",
+  "subject": "fix: potential buffer override on command line args (#839)",
+  "zig_target": {}
+}

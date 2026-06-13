@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "d2ff2de4f632d64730da7f0db8385074d072d3bd",
+  "short_sha": "d2ff2de4f6",
+  "subject": "feat: add @ to consts/locals with pi {..} type",
+  "zig_target": {}
+}

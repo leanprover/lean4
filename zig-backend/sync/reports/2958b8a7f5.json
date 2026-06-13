@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    }
+  ],
+  "date": "2022-09-27",
+  "needs_port": true,
+  "sha": "2958b8a7f53d752762ceaec8b963037d5d82f8a2",
+  "short_sha": "2958b8a7f5",
+  "subject": "feat: basic constant folder",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean",
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+  }
+}

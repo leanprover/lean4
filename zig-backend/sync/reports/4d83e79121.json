@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-12",
+  "needs_port": false,
+  "sha": "4d83e79121498413f62ac8294f9a8e7e324d0842",
+  "short_sha": "4d83e79121",
+  "subject": "feat: more RPC handlers",
+  "zig_target": {}
+}

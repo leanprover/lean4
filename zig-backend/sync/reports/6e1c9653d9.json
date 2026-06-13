@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-05-27",
+  "needs_port": false,
+  "sha": "6e1c9653d9e0f95d9606366fa98bb8cea78ce951",
+  "short_sha": "6e1c9653d9",
+  "subject": "feat: Add a key field to InteractiveGoal",
+  "zig_target": {}
+}

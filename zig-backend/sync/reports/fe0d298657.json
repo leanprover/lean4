@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-31",
+  "needs_port": false,
+  "sha": "fe0d298657858e0bebbd46e47c6075efb5ded783",
+  "short_sha": "fe0d298657",
+  "subject": "fix: `mkAuxDefinition` was not correctly handling delayed metavar assignments",
+  "zig_target": {}
+}

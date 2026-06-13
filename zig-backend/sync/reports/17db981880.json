@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "17db981880656d0ce0be94cb9e0cad07e564adfa",
+  "short_sha": "17db981880",
+  "subject": "fix: equation theorem for `match` with more than one \"as\" pattern",
+  "zig_target": {}
+}

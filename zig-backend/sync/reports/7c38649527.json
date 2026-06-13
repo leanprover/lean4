@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2023-12-22",
+  "needs_port": false,
+  "sha": "7c38649527c85116345df831254985afa2680dd0",
+  "short_sha": "7c38649527",
+  "subject": "chore: remove workaround in widgets (#3105)",
+  "zig_target": {}
+}

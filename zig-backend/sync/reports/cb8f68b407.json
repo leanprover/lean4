@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/ConstFolding.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/ConstFolding.lean"
+    }
+  ],
+  "date": "2020-01-21",
+  "needs_port": true,
+  "sha": "cb8f68b40721ffedb9235be1f5ec95904cc8c11d",
+  "short_sha": "cb8f68b407",
+  "subject": "fix: put limit on `Nat.pow` constant folding",
+  "zig_target": {
+    "src/Init/Lean/Compiler/ConstFolding.lean": "zig-backend/src/init/Lean/Compiler/ConstFolding.lean"
+  }
+}

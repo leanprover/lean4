@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "2740a8c012e855c5e025f01ab7e9e44d1c14449b",
+  "short_sha": "2740a8c012",
+  "subject": "chore: adapt server to upstream",
+  "zig_target": {}
+}

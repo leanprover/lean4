@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-02-04",
+  "needs_port": true,
+  "sha": "579ac58b62c89be3b08e6a452d614e521291a0e0",
+  "short_sha": "579ac58b62",
+  "subject": "chore(runtime/object): expose `thunk_map` and `thunk_bind`",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-13",
+  "needs_port": false,
+  "sha": "18ab2be51c380072f30ff2633e9fb9e7205c1f25",
+  "short_sha": "18ab2be51c",
+  "subject": "feat(library/init/lean/environment): use `Thunk` to store environment extension initial state",
+  "zig_target": {}
+}

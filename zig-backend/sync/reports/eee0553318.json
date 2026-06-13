@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-09-24",
+  "needs_port": true,
+  "sha": "eee05533187b54c61709f3db3c84d18680465a44",
+  "short_sha": "eee0553318",
+  "subject": "chore: make some instance arguments implicit (#5454)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

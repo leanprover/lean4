@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-03-18",
+  "needs_port": true,
+  "sha": "eaaaaabc60812e29d54681be9d31ae787540639e",
+  "short_sha": "eaaaaabc60",
+  "subject": "feat: allow `Lean.Parser.Term.id` to be used in binders",
+  "zig_target": {
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

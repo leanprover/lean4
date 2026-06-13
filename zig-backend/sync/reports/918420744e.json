@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-19",
+  "needs_port": false,
+  "sha": "918420744e0477f84b0d42fb8c81380df133de06",
+  "short_sha": "918420744e",
+  "subject": "feat: add `whatIsLean.md`",
+  "zig_target": {}
+}

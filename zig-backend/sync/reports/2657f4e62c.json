@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-11",
+  "needs_port": false,
+  "sha": "2657f4e62c556bb637c893aa8b842a79041079a4",
+  "short_sha": "2657f4e62c",
+  "subject": "chore: move test to correct directory (#7932)",
+  "zig_target": {}
+}

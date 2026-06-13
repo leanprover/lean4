@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/PrettyPrinter/Parenthesizer.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+    }
+  ],
+  "date": "2020-05-24",
+  "needs_port": true,
+  "sha": "48246c8e4a49ab7e9109e4eaba1ca567df3ab1f3",
+  "short_sha": "48246c8e4a",
+  "subject": "feat: parenthesizer: support antiquotations",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/PrettyPrinter/Parenthesizer.lean": "zig-backend/src/init/Lean/PrettyPrinter/Parenthesizer.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Patrick Massot",
+  "backend_changes": [],
+  "date": "2022-07-29",
+  "needs_port": false,
+  "sha": "435017231d52d350a98f76dbebc4d95763a1b5ce",
+  "short_sha": "435017231d",
+  "subject": "doc: add some docstrings and docstrings details",
+  "zig_target": {}
+}

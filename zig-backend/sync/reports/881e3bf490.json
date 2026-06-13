@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2019-12-30",
+  "needs_port": true,
+  "sha": "881e3bf4900d004cb0647cd78423454b6b097a1a",
+  "short_sha": "881e3bf490",
+  "subject": "fix: raise precedence inside antiquotation parser",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

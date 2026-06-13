@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-07",
+  "needs_port": false,
+  "sha": "3967496ac996d503ae871e6101b8cf989f71ba97",
+  "short_sha": "3967496ac9",
+  "subject": "chore(library/init/lean/default): make sure new modules are initialized",
+  "zig_target": {}
+}

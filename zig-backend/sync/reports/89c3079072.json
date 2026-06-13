@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-08-12",
+  "needs_port": false,
+  "sha": "89c3079072e93b1a212304e4eaf691d853b4ef5d",
+  "short_sha": "89c3079072",
+  "subject": "chore: fix typo in hash code for `Expr` equality test (#4990)",
+  "zig_target": {}
+}

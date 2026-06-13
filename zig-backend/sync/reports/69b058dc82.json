@@ -1,0 +1,84 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/Char/Ordinal.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Char/Ordinal.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/OverflowAware.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Fin/OverflowAware.lean"
+    },
+    {
+      "path": "src/Init/Data/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Function.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Option/Function.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Char.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Fin.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Fin.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Map.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Map.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2026-01-22",
+  "needs_port": true,
+  "sha": "69b058dc82edfff0cf2787eb5aa0cdd42c12ab2c",
+  "short_sha": "69b058dc82",
+  "subject": "feat: `Fin` and `Char` ranges (#12058)",
+  "zig_target": {
+    "src/Init/Data/Char.lean": "zig-backend/src/init/Data/Char.lean",
+    "src/Init/Data/Char/Ordinal.lean": "zig-backend/src/init/Data/Char/Ordinal.lean",
+    "src/Init/Data/Fin.lean": "zig-backend/src/init/Data/Fin.lean",
+    "src/Init/Data/Fin/OverflowAware.lean": "zig-backend/src/init/Data/Fin/OverflowAware.lean",
+    "src/Init/Data/Option.lean": "zig-backend/src/init/Data/Option.lean",
+    "src/Init/Data/Option/Function.lean": "zig-backend/src/init/Data/Option/Function.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Data/Range/Polymorphic.lean": "zig-backend/src/init/Data/Range/Polymorphic.lean",
+    "src/Init/Data/Range/Polymorphic/Char.lean": "zig-backend/src/init/Data/Range/Polymorphic/Char.lean",
+    "src/Init/Data/Range/Polymorphic/Fin.lean": "zig-backend/src/init/Data/Range/Polymorphic/Fin.lean",
+    "src/Init/Data/Range/Polymorphic/Map.lean": "zig-backend/src/init/Data/Range/Polymorphic/Map.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

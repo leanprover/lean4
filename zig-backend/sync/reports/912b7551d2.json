@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-16",
+  "needs_port": false,
+  "sha": "912b7551d2ab9b7dc0fbc4696c697e7a4c5aa901",
+  "short_sha": "912b7551d2",
+  "subject": "chore(library/init/lean/parser/module): interrupt test parser at `#exit`",
+  "zig_target": {}
+}

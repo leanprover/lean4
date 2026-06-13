@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "022a130b867c7ec5c3169fbe74fa3f1a2c0180a5",
+  "short_sha": "022a130b86",
+  "subject": "feat(tests/playground/patch): path equation syntax",
+  "zig_target": {}
+}

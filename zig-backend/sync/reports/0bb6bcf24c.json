@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-11",
+  "needs_port": false,
+  "sha": "0bb6bcf24cfafaad564a3dbacd1a5f9fc19cbb4b",
+  "short_sha": "0bb6bcf24c",
+  "subject": "feat: lake: add `upgrade` and `exec` CLI aliases",
+  "zig_target": {}
+}

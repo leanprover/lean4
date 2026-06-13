@@ -1,0 +1,10 @@
+{
+  "author": "Parth Shastri",
+  "backend_changes": [],
+  "date": "2023-01-23",
+  "needs_port": false,
+  "sha": "555f5f390c746596ca4c0ea7462d71a21e0c1643",
+  "short_sha": "555f5f390c",
+  "subject": "fix: stop iterating over visited mvars in `collectUnassignedMVars`",
+  "zig_target": {}
+}

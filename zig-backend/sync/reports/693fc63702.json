@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-09",
+  "needs_port": true,
+  "sha": "693fc63702ec5d738df59768299425e725f83275",
+  "short_sha": "693fc63702",
+  "subject": "fix(library/compiler/ir_interpreter): constants do not have to be persistent anymore, so stop leaking them",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

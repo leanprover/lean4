@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-03-19",
+  "needs_port": false,
+  "sha": "c1bbc6abaa47bc43804a62e1c533d17ad9c958cf",
+  "short_sha": "c1bbc6abaa",
+  "subject": "feat: lake: parallel cache artifact transfers (#12974)",
+  "zig_target": {}
+}

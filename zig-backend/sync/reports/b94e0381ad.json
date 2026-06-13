@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    }
+  ],
+  "date": "2020-01-19",
+  "needs_port": true,
+  "sha": "b94e0381ad8aa834c404572c41e12ed28be3931f",
+  "short_sha": "b94e0381ad",
+  "subject": "feat: add `evalSkip` and `evalTraceState`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+  }
+}

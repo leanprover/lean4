@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-26",
+  "needs_port": false,
+  "sha": "7ca4607ef3652591ec693e8659a76d2645947f8f",
+  "short_sha": "7ca4607ef3",
+  "subject": "chore(library/init/lean): move `name_mangling.lean` to compiler directory",
+  "zig_target": {}
+}

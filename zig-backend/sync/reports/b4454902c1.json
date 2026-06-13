@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ForEachExpr.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ForEachExpr.lean"
+    }
+  ],
+  "date": "2022-09-29",
+  "needs_port": true,
+  "sha": "b4454902c10bcc1b9c91ad54425175b670a54677",
+  "short_sha": "b4454902c1",
+  "subject": "feat: LCNF `Code.forEachExpr` and `Decl.forEachExpr`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ForEachExpr.lean": "zig-backend/src/lean/compiler/lcnf/ForEachExpr.lean"
+  }
+}

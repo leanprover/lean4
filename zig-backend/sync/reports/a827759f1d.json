@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    }
+  ],
+  "date": "2024-07-30",
+  "needs_port": true,
+  "sha": "a827759f1dd331f064aba4b57d295a34f5e16639",
+  "short_sha": "a827759f1d",
+  "subject": "fix: mistake in statement of `List.take_takeWhile` (#4875)",
+  "zig_target": {
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean"
+  }
+}

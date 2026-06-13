@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-17",
+  "needs_port": false,
+  "sha": "4dd6a99fec2472cde752e5f5bde9252e4118c0fb",
+  "short_sha": "4dd6a99fec",
+  "subject": "feat: improve `decide_cbv` error reporting (#12500)",
+  "zig_target": {}
+}

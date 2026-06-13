@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-23",
+  "needs_port": false,
+  "sha": "8c8df274cf399e864a7d2cc67d1fd1b7420a8fce",
+  "short_sha": "8c8df274cf",
+  "subject": "chore: fix enabling module system (#8057)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-19",
+  "needs_port": false,
+  "sha": "278f884406f4eaa64c1b9d4659a5da81d953c3ff",
+  "short_sha": "278f884406",
+  "subject": "chore: use array for hypothesis names",
+  "zig_target": {}
+}

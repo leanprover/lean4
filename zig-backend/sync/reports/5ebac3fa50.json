@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-03-31",
+  "needs_port": true,
+  "sha": "5ebac3fa5005f17c45d924ac090ba53c1e017441",
+  "short_sha": "5ebac3fa50",
+  "subject": "perf: use mimalloc by default (#7710)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

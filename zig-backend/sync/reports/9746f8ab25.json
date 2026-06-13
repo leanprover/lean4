@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-03",
+  "needs_port": false,
+  "sha": "9746f8ab254c592c37823897344c3f1fb7b3b1cd",
+  "short_sha": "9746f8ab25",
+  "subject": "feat: apply variable substitution to Alts",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+    }
+  ],
+  "date": "2022-09-20",
+  "needs_port": true,
+  "sha": "111f6a319c509637517a1e2c03913a2fefaa73ad",
+  "short_sha": "111f6a319c",
+  "subject": "feat: add `ppDecl'`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PrettyPrinter.lean": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+  }
+}

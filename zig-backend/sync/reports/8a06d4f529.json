@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-08",
+  "needs_port": false,
+  "sha": "8a06d4f5295e397bea7712ae8fe831d442cdc361",
+  "short_sha": "8a06d4f529",
+  "subject": "feat: introduce `Workspace` which is shared across a pkg and its deps",
+  "zig_target": {}
+}

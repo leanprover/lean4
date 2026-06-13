@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-07-16",
+  "needs_port": false,
+  "sha": "e9607d3095dedf8d7393c8b8f5765deba1dd2105",
+  "short_sha": "e9607d3095",
+  "subject": "chore: rename Structured and Structure",
+  "zig_target": {}
+}

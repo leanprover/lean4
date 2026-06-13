@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/elim_recursors.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/elim_recursors.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/rec_fn_macro.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/rec_fn_macro.cpp"
+    },
+    {
+      "path": "src/shell/leandoc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/leandoc.cpp"
+    }
+  ],
+  "date": "2018-05-31",
+  "needs_port": true,
+  "sha": "3c1ccc9b743316b27c3fdac6303a84e84b7ced56",
+  "short_sha": "3c1ccc9b74",
+  "subject": "refactor(kernel): use `m_meta` instead of `m_trusted`",
+  "zig_target": {
+    "src/library/compiler/elim_recursors.cpp": "zig-backend/src/library/compiler/elim_recursors.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/rec_fn_macro.cpp": "zig-backend/src/library/compiler/rec_fn_macro.cpp",
+    "src/shell/leandoc.cpp": "zig-backend/src/shell/leandoc.cpp"
+  }
+}

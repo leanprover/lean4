@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-07-23",
+  "needs_port": false,
+  "sha": "5d632a97b838b0e701006903c51edc94aa579007",
+  "short_sha": "5d632a97b8",
+  "subject": "feat: more hash map lemmas (#4803)",
+  "zig_target": {}
+}

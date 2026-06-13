@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-13",
+  "needs_port": false,
+  "sha": "c8a045d69fac152fd5e3a577f718615cecb9c53d",
+  "short_sha": "c8a045d69f",
+  "subject": "test(tests/playground/parser/parser): add `HasAndthen` and `HasOrelse` instances",
+  "zig_target": {}
+}

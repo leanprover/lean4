@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Mem.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/Mem.lean"
+    }
+  ],
+  "date": "2022-03-03",
+  "needs_port": true,
+  "sha": "aeb9b2fb8c17595689c6057680a24ea49d00bbf7",
+  "short_sha": "aeb9b2fb8c",
+  "subject": "chore: add `Membership` instance for `Array`",
+  "zig_target": {
+    "src/Init/Data/Array/Mem.lean": "zig-backend/src/init/Data/Array/Mem.lean"
+  }
+}

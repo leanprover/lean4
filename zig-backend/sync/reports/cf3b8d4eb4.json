@@ -1,0 +1,108 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitUtil.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ExpandResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/FreeVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/FreeVars.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/NormIds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/NormIds.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/PushProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/PushProj.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/UnboxResult.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/UnboxResult.lean"
+    }
+  ],
+  "date": "2022-01-26",
+  "needs_port": true,
+  "sha": "cf3b8d4eb4f1af25b789731d58091f3a59687daf",
+  "short_sha": "cf3b8d4eb4",
+  "subject": "chore: cleanup",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean",
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean",
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean",
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean",
+    "src/Lean/Compiler/IR/ElimDeadVars.lean": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitUtil.lean": "zig-backend/src/lean/compiler/ir/EmitUtil.lean",
+    "src/Lean/Compiler/IR/ExpandResetReuse.lean": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean",
+    "src/Lean/Compiler/IR/FreeVars.lean": "zig-backend/src/lean/compiler/ir/FreeVars.lean",
+    "src/Lean/Compiler/IR/NormIds.lean": "zig-backend/src/lean/compiler/ir/NormIds.lean",
+    "src/Lean/Compiler/IR/PushProj.lean": "zig-backend/src/lean/compiler/ir/PushProj.lean",
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean",
+    "src/Lean/Compiler/IR/ResetReuse.lean": "zig-backend/src/lean/compiler/ir/ResetReuse.lean",
+    "src/Lean/Compiler/IR/SimpCase.lean": "zig-backend/src/lean/compiler/ir/SimpCase.lean",
+    "src/Lean/Compiler/IR/UnboxResult.lean": "zig-backend/src/lean/compiler/ir/UnboxResult.lean"
+  }
+}

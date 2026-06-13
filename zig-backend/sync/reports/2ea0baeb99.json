@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "2ea0baeb99f9eb9ffe0da16bf0dba8de93a94036",
+  "short_sha": "2ea0baeb99",
+  "subject": "chore(library): use lowercase in imports",
+  "zig_target": {}
+}

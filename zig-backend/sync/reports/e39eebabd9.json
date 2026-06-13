@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "e39eebabd93262e65d1fc44f6b904e84e23280b5",
+  "short_sha": "e39eebabd9",
+  "subject": "fix: move doc string to parser that sets the `SyntaxNodeKind` for the `{ tac }` notation",
+  "zig_target": {}
+}

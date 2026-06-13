@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-12",
+  "needs_port": false,
+  "sha": "3743f877f4c2eaf2ab18d656eb03eeeb20d86e47",
+  "short_sha": "3743f877f4",
+  "subject": "feat: add `deriving` parsers",
+  "zig_target": {}
+}

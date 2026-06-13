@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "25414a1f8dcf838fb08b2fefb6a5972e3d5a7783",
+  "short_sha": "25414a1f8d",
+  "subject": "fix(util/rb_tree.h): make sure it compiles with g++",
+  "zig_target": {}
+}

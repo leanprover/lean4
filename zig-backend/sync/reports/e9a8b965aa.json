@@ -1,0 +1,24 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Iter/Intercalate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Iter/Intercalate.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Iter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Iter.lean"
+    }
+  ],
+  "date": "2026-03-24",
+  "needs_port": true,
+  "sha": "e9a8b965aa310f2600e7586885cc91168d7ee90c",
+  "short_sha": "e9a8b965aa",
+  "subject": "fix: remove extra universe parameter from`Std.Iter.intercalateString` (#13092)",
+  "zig_target": {
+    "src/Init/Data/String/Iter/Intercalate.lean": "zig-backend/src/init/Data/String/Iter/Intercalate.lean",
+    "src/Init/Data/String/Lemmas/Iter.lean": "zig-backend/src/init/Data/String/Lemmas/Iter.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-14",
+  "needs_port": false,
+  "sha": "c49ccda46ac3e968edd5f8e1633d54e26ba20072",
+  "short_sha": "c49ccda46a",
+  "subject": "feat: add antiquotation for `indentedNonEmptySeq`",
+  "zig_target": {}
+}

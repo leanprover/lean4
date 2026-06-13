@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-07",
+  "needs_port": false,
+  "sha": "18b6bf3cf8f377b2f084ed7b3551b5c831e17bb1",
+  "short_sha": "18b6bf3cf8",
+  "subject": "fix: exe link args & targets test",
+  "zig_target": {}
+}

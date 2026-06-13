@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-21",
+  "needs_port": false,
+  "sha": "d12c4241bf3174f74e0dd4a60e1f6f50d266d63e",
+  "short_sha": "d12c4241bf",
+  "subject": "fix: use `BuildM` in `PackageConfig`",
+  "zig_target": {}
+}

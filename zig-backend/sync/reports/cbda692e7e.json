@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-13",
+  "needs_port": false,
+  "sha": "cbda692e7e68e40ed7aed699a96cdc85d91635a7",
+  "short_sha": "cbda692e7e",
+  "subject": "fix: free variable in `do` bind when continuation type depends on bvar (#13396)",
+  "zig_target": {}
+}

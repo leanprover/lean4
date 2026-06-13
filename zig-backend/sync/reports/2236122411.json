@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-19",
+  "needs_port": false,
+  "sha": "2236122411353cc376529f84c77da3cb3f847c62",
+  "short_sha": "2236122411",
+  "subject": "feat: add build_artifact.py for downloading CI artifacts (#11735)",
+  "zig_target": {}
+}

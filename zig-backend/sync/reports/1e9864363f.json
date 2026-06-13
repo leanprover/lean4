@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-01",
+  "needs_port": false,
+  "sha": "1e9864363f605ff842a659aefbdab5e20b9f0044",
+  "short_sha": "1e9864363f",
+  "subject": "chore: fix statement of Std.HashMap.Equiv.getElem?_eq (#8185)",
+  "zig_target": {}
+}

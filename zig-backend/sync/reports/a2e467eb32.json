@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-25",
+  "needs_port": false,
+  "sha": "a2e467eb32e35768771b63b300577181820a8103",
+  "short_sha": "a2e467eb32",
+  "subject": "fix: `mkEqnTypes`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-09-02",
+  "needs_port": false,
+  "sha": "2117b89cd501dba8e78b1152d7a830af7819f95f",
+  "short_sha": "2117b89cd5",
+  "subject": "feat: `pp.exprSizes` debugging option (#5218)",
+  "zig_target": {}
+}

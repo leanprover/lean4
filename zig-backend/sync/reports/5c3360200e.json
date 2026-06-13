@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-07-19",
+  "needs_port": false,
+  "sha": "5c3360200ec57ae8530cf12ee92287d821da8fbc",
+  "short_sha": "5c3360200e",
+  "subject": "fix: add term elaborator for `Lean.Parser.Term.namedPattern` (#4792)",
+  "zig_target": {}
+}

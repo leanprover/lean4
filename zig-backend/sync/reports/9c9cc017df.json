@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-08",
+  "needs_port": false,
+  "sha": "9c9cc017df27e4bb185287a671cfbb479fd01a7a",
+  "short_sha": "9c9cc017df",
+  "subject": "fix: ignore empty character literals",
+  "zig_target": {}
+}

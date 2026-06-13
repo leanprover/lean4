@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "05300f7b51307aede43365c54e4a07ea07b1e366",
+  "short_sha": "05300f7b51",
+  "subject": "chore: `restoreAllArtifacts = true` for core (#10582)",
+  "zig_target": {}
+}

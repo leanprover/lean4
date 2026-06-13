@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-03-05",
+  "needs_port": false,
+  "sha": "06f49630691279a8df60a9967bbd69e8b7444f7e",
+  "short_sha": "06f4963069",
+  "subject": "feat: partial words import completion (#3602)",
+  "zig_target": {}
+}

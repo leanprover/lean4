@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2021-02-01",
+  "needs_port": true,
+  "sha": "fba719ff02c2e4ee0df827f9c638a83a6cff0408",
+  "short_sha": "fba719ff02",
+  "subject": "chore: adjust `WF.lean`",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

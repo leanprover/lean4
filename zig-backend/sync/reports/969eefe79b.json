@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-18",
+  "needs_port": false,
+  "sha": "969eefe79b3d87361016d900eee94c7581720032",
+  "short_sha": "969eefe79b",
+  "subject": "fix: `let _ :=` should not introduce a variable called \"_\"",
+  "zig_target": {}
+}

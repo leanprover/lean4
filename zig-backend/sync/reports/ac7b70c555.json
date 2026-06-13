@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-25",
+  "needs_port": false,
+  "sha": "ac7b70c555985f84cc9792c1402ca72b4ef10cc0",
+  "short_sha": "ac7b70c555",
+  "subject": "fix(frontends/lean/token_table): add missing built-in token",
+  "zig_target": {}
+}

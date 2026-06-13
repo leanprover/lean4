@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-03-21",
+  "needs_port": true,
+  "sha": "beae045ebcb88d6c39d78183f3b207fadca86949",
+  "short_sha": "beae045ebc",
+  "subject": "fix(CMakeLists): complete move of stage1 from src/ to build dir",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/SOM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/SOM.lean"
+    }
+  ],
+  "date": "2025-04-17",
+  "needs_port": true,
+  "sha": "5823d0328329ba483862bf1eb90ae03f4ce55b39",
+  "short_sha": "5823d03283",
+  "subject": "feat: add `IsCharP` support to multivariate polynomial library (#8011)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/SOM.lean": "zig-backend/src/init/Grind/CommRing/SOM.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-18",
+  "needs_port": true,
+  "sha": "16e67dc7380fb88441bd55453fba485e5786b763",
+  "short_sha": "16e67dc738",
+  "subject": "feat: grind annotations for `Nat.Bitwise` (#8852)",
+  "zig_target": {
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+  }
+}

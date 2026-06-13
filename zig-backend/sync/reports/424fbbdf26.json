@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2026-02-17",
+  "needs_port": true,
+  "sha": "424fbbdf269b836439fb42fe83e7ac4e8fca645e",
+  "short_sha": "424fbbdf26",
+  "subject": "feat: add `\u2190` support to `cbv_eval` attribute (#12506)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

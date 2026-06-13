@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    },
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-22",
+  "needs_port": true,
+  "sha": "1ff7950a779d85935fecadd880596f177e96a975",
+  "short_sha": "1ff7950a77",
+  "subject": "feat: use `truncateTrailing` at error messages",
+  "zig_target": {
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean",
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-06-02",
+  "needs_port": false,
+  "sha": "c47fff1b92b619dc74373fd8c1d67a44ddafaa24",
+  "short_sha": "c47fff1b92",
+  "subject": "fix: cancel queued messages, not pending requests",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-11",
+  "needs_port": false,
+  "sha": "09c2b668e65717bc462080ac8ae4e2de3a0ebe73",
+  "short_sha": "09c2b668e6",
+  "subject": "feat: allow multiple sources in the structure instance parser",
+  "zig_target": {}
+}

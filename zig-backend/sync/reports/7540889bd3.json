@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-19",
+  "needs_port": false,
+  "sha": "7540889bd3ce64e525cf1aa7b8b31a9411576715",
+  "short_sha": "7540889bd3",
+  "subject": "feat: implement LSP workspace symbol request",
+  "zig_target": {}
+}

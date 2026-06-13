@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-04-04",
+  "needs_port": false,
+  "sha": "485baa1b8cf4620c49c37aa69723ad75ac6f601f",
+  "short_sha": "485baa1b8c",
+  "subject": "chore: `update-stage0-commit` cmake target (#3692)",
+  "zig_target": {}
+}

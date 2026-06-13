@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-09",
+  "needs_port": false,
+  "sha": "3e37eef9eaa834f0252985edce66b93a653ac0c4",
+  "short_sha": "3e37eef9ea",
+  "subject": "refactor: remove unused addBoxedVersion variants (#9289)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    }
+  ],
+  "date": "2020-02-08",
+  "needs_port": true,
+  "sha": "7c7c4edf38db1044bc47acb7b2838e3e64c64b26",
+  "short_sha": "7c7c4edf38",
+  "subject": "feat: add `evalRevert`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+  }
+}

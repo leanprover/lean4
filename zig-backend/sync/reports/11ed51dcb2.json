@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-26",
+  "needs_port": false,
+  "sha": "11ed51dcb2a2ff80273708f297e055d823826964",
+  "short_sha": "11ed51dcb2",
+  "subject": "doc: example for the tutorial",
+  "zig_target": {}
+}

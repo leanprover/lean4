@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    }
+  ],
+  "date": "2021-05-01",
+  "needs_port": true,
+  "sha": "ba5d622e5961232949e88834e19f574a7d73ec49",
+  "short_sha": "ba5d622e59",
+  "subject": "chore: avoid `case` tactic",
+  "zig_target": {
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean"
+  }
+}

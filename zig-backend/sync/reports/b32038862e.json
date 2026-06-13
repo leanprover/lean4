@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2019-12-23",
+  "needs_port": true,
+  "sha": "b32038862ea7dfecbcc3f5c3daf92de886566be0",
+  "short_sha": "b32038862e",
+  "subject": "feat: allow antiquotation kinds to be optional, where unambiguous",
+  "zig_target": {
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

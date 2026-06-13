@@ -1,0 +1,30 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    }
+  ],
+  "date": "2024-02-20",
+  "needs_port": true,
+  "sha": "28a02a8688edad2c9b0599725f24a96a69a6c380",
+  "short_sha": "28a02a8688",
+  "subject": "chore: upstream norm_cast attributes and tests",
+  "zig_target": {
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean"
+  }
+}

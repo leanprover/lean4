@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-26",
+  "needs_port": false,
+  "sha": "98bd162ad46bdcb9bb63e7c77f70fc98cd9851eb",
+  "short_sha": "98bd162ad4",
+  "subject": "feat: close goals using `match`-expression conditions in `grind` (#6783)",
+  "zig_target": {}
+}

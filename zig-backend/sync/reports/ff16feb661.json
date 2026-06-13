@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-28",
+  "needs_port": false,
+  "sha": "ff16feb661caae1149f7c2ef15540bd8f8bdf8a9",
+  "short_sha": "ff16feb661",
+  "subject": "chore(tests/playground): fix frontend benchmark",
+  "zig_target": {}
+}

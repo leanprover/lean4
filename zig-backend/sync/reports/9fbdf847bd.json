@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-04-24",
+  "needs_port": false,
+  "sha": "9fbdf847bd94f79bcce71782c556071004a52165",
+  "short_sha": "9fbdf847bd",
+  "subject": "fix: FunInd: properly split mutual structural recursion with extra parameters (#8086)",
+  "zig_target": {}
+}

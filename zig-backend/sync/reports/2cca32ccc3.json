@@ -1,0 +1,60 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Decode.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Decode.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    },
+    {
+      "path": "src/Init/Data/ToString/Name.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Name.lean"
+    },
+    {
+      "path": "src/Init/Meta/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta/Defs.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-10-01",
+  "needs_port": true,
+  "sha": "2cca32ccc3d18351baa43e7e4600871e8a2dafda",
+  "short_sha": "2cca32ccc3",
+  "subject": "chore: use `UTF8` instead of `Utf8` in identifiers (#10636)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Decode.lean": "zig-backend/src/init/Data/String/Decode.lean",
+    "src/Init/Data/String/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Pattern/Basic.lean",
+    "src/Init/Data/String/Pattern/String.lean": "zig-backend/src/init/Data/String/Pattern/String.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean",
+    "src/Init/Data/ToString/Name.lean": "zig-backend/src/init/Data/ToString/Name.lean",
+    "src/Init/Meta/Defs.lean": "zig-backend/src/init/Meta/Defs.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

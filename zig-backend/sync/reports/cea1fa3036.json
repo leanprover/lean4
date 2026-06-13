@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-11",
+  "needs_port": false,
+  "sha": "cea1fa303685cf7e5ff68e4ce3f643680a288418",
+  "short_sha": "cea1fa3036",
+  "subject": "feat(library/init/lean/elaborator/command): display position information at `#resolve_name`",
+  "zig_target": {}
+}

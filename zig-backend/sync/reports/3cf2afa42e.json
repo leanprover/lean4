@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-31",
+  "needs_port": false,
+  "sha": "3cf2afa42ef524719a600526ff109476736c0596",
+  "short_sha": "3cf2afa42e",
+  "subject": "refactor: clean up parsers using `withAnonymousAntiquot := false`",
+  "zig_target": {}
+}

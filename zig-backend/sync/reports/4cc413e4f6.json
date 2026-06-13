@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-12",
+  "needs_port": false,
+  "sha": "4cc413e4f6b991116a8f04fb8f1b80caf617576d",
+  "short_sha": "4cc413e4f6",
+  "subject": "feat: import `HasToString` instances for `Option` and `Sum`",
+  "zig_target": {}
+}

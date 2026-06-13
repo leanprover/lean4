@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-24",
+  "needs_port": false,
+  "sha": "7f00149338cead1434ac747500a3ac26e454bd98",
+  "short_sha": "7f00149338",
+  "subject": "chore(tests/lean/parser1): fix test after rebase",
+  "zig_target": {}
+}

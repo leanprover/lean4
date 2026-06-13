@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-20",
+  "needs_port": false,
+  "sha": "50a34bc1fe2ae2b129dc61299340ed1f2f4a3090",
+  "short_sha": "50a34bc1fe",
+  "subject": "fix: synthesize pending metavariables before `expectedType.hasMVar` test",
+  "zig_target": {}
+}

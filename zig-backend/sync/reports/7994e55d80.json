@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-16",
+  "needs_port": false,
+  "sha": "7994e55d8067de8ec4b52c105df7c71341e9c190",
+  "short_sha": "7994e55d80",
+  "subject": "chore: try refining some benchmark settings (#8377)",
+  "zig_target": {}
+}

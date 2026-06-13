@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-21",
+  "needs_port": false,
+  "sha": "9b4911f8f6c943e4f37da0732789b5cf5b520aff",
+  "short_sha": "9b4911f8f6",
+  "subject": "chore: CI: fix `Linux Lake` on PR half-merge (#10029)",
+  "zig_target": {}
+}

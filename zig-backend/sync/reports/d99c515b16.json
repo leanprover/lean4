@@ -1,0 +1,36 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Search.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Search.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Substring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Substring.lean"
+    }
+  ],
+  "date": "2025-11-25",
+  "needs_port": true,
+  "sha": "d99c515b16c927bfc4eb3c9aa9f4c71fb834217b",
+  "short_sha": "d99c515b16",
+  "subject": "refactor: `String` functions `foldr`, `all`, `any`, `contains` to go trough `String.Slice` (#11357)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Search.lean": "zig-backend/src/init/Data/String/Search.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean",
+    "src/Init/Data/String/Substring.lean": "zig-backend/src/init/Data/String/Substring.lean"
+  }
+}

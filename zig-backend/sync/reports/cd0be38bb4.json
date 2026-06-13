@@ -1,0 +1,18 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2024-01-31",
+  "needs_port": true,
+  "sha": "cd0be38bb4a78b8ec5619e6cf51feaf85725c70f",
+  "short_sha": "cd0be38bb4",
+  "subject": "feat: elidible subterms (#3201)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-30",
+  "needs_port": false,
+  "sha": "7b8504cf06e831d80546dd7a7fb537e8d0cb60fd",
+  "short_sha": "7b8504cf06",
+  "subject": "chore: post-stage0 cleanup for #6165 (#6268)",
+  "zig_target": {}
+}

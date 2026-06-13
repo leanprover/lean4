@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "1523e2d729b8d5c4c6b03dc14289965cc47adc0a",
+  "short_sha": "1523e2d729",
+  "subject": "feat: extend DSL syntax and improve docs",
+  "zig_target": {}
+}

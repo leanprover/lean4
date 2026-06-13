@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-05",
+  "needs_port": false,
+  "sha": "436d7befa5f138e56cd3118f9fb9d1247eba4a65",
+  "short_sha": "436d7befa5",
+  "subject": "fix: `dsimp` should reduce kernel projections (#3607)",
+  "zig_target": {}
+}

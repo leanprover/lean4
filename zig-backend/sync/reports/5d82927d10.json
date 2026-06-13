@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-04-22",
+  "needs_port": false,
+  "sha": "5d82927d10206617ff33412bf37b1211554e83b8",
+  "short_sha": "5d82927d10",
+  "subject": "chore: move Lake DSL syntax into dedicated module (#8048)",
+  "zig_target": {}
+}

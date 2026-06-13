@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-28",
+  "needs_port": false,
+  "sha": "279c34ff4675b81f2ec412164beed46f1633cff3",
+  "short_sha": "279c34ff46",
+  "subject": "feat: add `MVarId.eqOfHEq` tactic",
+  "zig_target": {}
+}

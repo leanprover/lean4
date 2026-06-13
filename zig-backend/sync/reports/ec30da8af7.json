@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    }
+  ],
+  "date": "2024-01-18",
+  "needs_port": true,
+  "sha": "ec30da8af76889dab12b57dd449c098c73a0f453",
+  "short_sha": "ec30da8af7",
+  "subject": "feat: new implementation for `simp (config := { ground := true })` (#3187)",
+  "zig_target": {
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean"
+  }
+}

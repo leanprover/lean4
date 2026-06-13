@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-25",
+  "needs_port": false,
+  "sha": "1945ebd27569f78e79d280a720725f084e95f5f7",
+  "short_sha": "1945ebd275",
+  "subject": "feat: delaborate `sorryAx`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-17",
+  "needs_port": true,
+  "sha": "a82731fb232b32b0687fb9230242f73a227c9649",
+  "short_sha": "a82731fb23",
+  "subject": "fix(library/compiler/llnf): literals are created with RC = 1",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-05-05",
+  "needs_port": false,
+  "sha": "a43972c856b0e1a2c92104fcd650fe2f204391d5",
+  "short_sha": "a43972c856",
+  "subject": "chore: don't use grind in HTTP (#13639)",
+  "zig_target": {}
+}

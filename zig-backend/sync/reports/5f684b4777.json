@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    }
+  ],
+  "date": "2025-04-06",
+  "needs_port": true,
+  "sha": "5f684b4777b482ea35e25ff787c078754373e9fa",
+  "short_sha": "5f684b4777",
+  "subject": "feat: support `mpz` in the `shareCommon` APIs (#7838)",
+  "zig_target": {
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp"
+  }
+}

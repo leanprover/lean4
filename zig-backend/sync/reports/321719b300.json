@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/EState.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/EState.lean"
+    },
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/Control/Reader.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Reader.lean"
+    },
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    },
+    {
+      "path": "src/Init/Control/StateRef.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateRef.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2020-08-25",
+  "needs_port": true,
+  "sha": "321719b300de2a6336c0e0c38c3072fd8ba4b57c",
+  "short_sha": "321719b300",
+  "subject": "feat: add `MonadFinally`",
+  "zig_target": {
+    "src/Init/Control/EState.lean": "zig-backend/src/init/Control/EState.lean",
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/Control/Reader.lean": "zig-backend/src/init/Control/Reader.lean",
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean",
+    "src/Init/Control/StateRef.lean": "zig-backend/src/init/Control/StateRef.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

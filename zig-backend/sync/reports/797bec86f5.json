@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-02",
+  "needs_port": false,
+  "sha": "797bec86f506821f9f186a0b34f85cd53b44c8d8",
+  "short_sha": "797bec86f5",
+  "subject": "chore: Nix: overhaul nix-dev, lift technical restrictions",
+  "zig_target": {}
+}

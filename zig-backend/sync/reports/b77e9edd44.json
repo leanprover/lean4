@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-27",
+  "needs_port": false,
+  "sha": "b77e9edd4457c416985cadab3fd3e332721e80f3",
+  "short_sha": "b77e9edd44",
+  "subject": "feat: add `checkInvariants` to `CommRing` (#8135)",
+  "zig_target": {}
+}

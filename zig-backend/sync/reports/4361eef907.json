@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "4361eef9070a8ab411139ba3ddbe41affb12563e",
+  "short_sha": "4361eef907",
+  "subject": "fix: improve `compatibleTypes` and `Compiler.check`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-04",
+  "needs_port": false,
+  "sha": "c747230e28ab23f337afc867fb00b2c4e99e6ead",
+  "short_sha": "c747230e28",
+  "subject": "refactor: move `isMonad?` to `AppBuilder.lean`",
+  "zig_target": {}
+}

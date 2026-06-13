@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-27",
+  "needs_port": false,
+  "sha": "4562fcfbd7e5899ddb483deadba20c8629f515e7",
+  "short_sha": "4562fcfbd7",
+  "subject": "chore: Nix: include orphan modules like lean.mk does",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-28",
+  "needs_port": false,
+  "sha": "b714a32d27e05166d28be22f2a7467fc3ffad399",
+  "short_sha": "b714a32d27",
+  "subject": "fix: revert \"fix: show single final state after tactic combinator\"",
+  "zig_target": {}
+}

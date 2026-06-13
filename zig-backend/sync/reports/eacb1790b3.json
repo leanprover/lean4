@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2024-04-02",
+  "needs_port": false,
+  "sha": "eacb1790b3ab54bcbb45db08c981551babd1cdca",
+  "short_sha": "eacb1790b3",
+  "subject": "feat: weight lazy discriminator tree results early matches (#3818)",
+  "zig_target": {}
+}

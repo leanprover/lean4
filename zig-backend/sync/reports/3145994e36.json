@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-24",
+  "needs_port": false,
+  "sha": "3145994e360c0db40d0fd80e0ecfe60652d6e221",
+  "short_sha": "3145994e36",
+  "subject": "feat(library/init/lean/elaborator/basic): register declaration name prefixes as namespaces at `Environment.add`",
+  "zig_target": {}
+}

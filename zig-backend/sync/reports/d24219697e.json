@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Vector/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Basic.lean"
+    }
+  ],
+  "date": "2025-07-23",
+  "needs_port": true,
+  "sha": "d24219697e6d923d524fbda00f41df8889d263c2",
+  "short_sha": "d24219697e",
+  "subject": "feat: unexpand `Vector.mk #[...] _` to `#v[...]` (#8391)",
+  "zig_target": {
+    "src/Init/Data/Vector/Basic.lean": "zig-backend/src/init/Data/Vector/Basic.lean"
+  }
+}

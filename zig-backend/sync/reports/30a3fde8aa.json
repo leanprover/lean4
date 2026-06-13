@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-22",
+  "needs_port": false,
+  "sha": "30a3fde8aa2968acce441fa37436e51acf55f376",
+  "short_sha": "30a3fde8aa",
+  "subject": "feat: lake: empty build detection & `--allow-empty` (#13500)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-07-11",
+  "needs_port": false,
+  "sha": "998012329155af0360bd7b403f3b51aea2ba9401",
+  "short_sha": "9980123291",
+  "subject": "fix: check if variables are used first",
+  "zig_target": {}
+}

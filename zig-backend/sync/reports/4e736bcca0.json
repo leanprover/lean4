@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2020-08-20",
+  "needs_port": true,
+  "sha": "4e736bcca0ea00243c813ade42f71dee1d9ab0b1",
+  "short_sha": "4e736bcca0",
+  "subject": "feat: use trick to inform compiler that a builtin doesn't throw exceptions",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

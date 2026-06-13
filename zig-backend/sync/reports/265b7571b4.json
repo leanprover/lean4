@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-06",
+  "needs_port": false,
+  "sha": "265b7571b4c791c6e03f984cd3b3d1d48f44ec49",
+  "short_sha": "265b7571b4",
+  "subject": "chore: change `checkCache` type",
+  "zig_target": {}
+}

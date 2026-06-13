@@ -1,0 +1,30 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Search.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Search.lean"
+    }
+  ],
+  "date": "2025-11-25",
+  "needs_port": true,
+  "sha": "29ac158fcf42010a6fff6471e0f494c777139822",
+  "short_sha": "29ac158fcf",
+  "subject": "feat: `String.Pos.le_find` (#11354)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Lemmas.lean": "zig-backend/src/init/Data/String/Lemmas.lean",
+    "src/Init/Data/String/Lemmas/Search.lean": "zig-backend/src/init/Data/String/Lemmas/Search.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-15",
+  "needs_port": false,
+  "sha": "49e90642022f41461fac575bfb663e161dd2505f",
+  "short_sha": "49e9064202",
+  "subject": "refactor: add `MatcherInfo.lean`",
+  "zig_target": {}
+}

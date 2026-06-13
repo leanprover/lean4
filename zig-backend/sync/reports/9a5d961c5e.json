@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-27",
+  "needs_port": false,
+  "sha": "9a5d961c5e5dd25ae46603e21e1cb7f74326d185",
+  "short_sha": "9a5d961c5e",
+  "subject": "fix: `grind.debug true` when using `grind +ring` (#8134)",
+  "zig_target": {}
+}

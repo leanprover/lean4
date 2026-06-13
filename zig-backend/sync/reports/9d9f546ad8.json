@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-05-16",
+  "needs_port": true,
+  "sha": "9d9f546ad8cdd58d63cff6553adb63dda2564a7b",
+  "short_sha": "9d9f546ad8",
+  "subject": "refactor(util/sexpr): move `options` and `option_declarations` to `util`",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

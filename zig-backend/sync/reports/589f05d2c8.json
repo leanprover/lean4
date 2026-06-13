@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-11",
+  "needs_port": false,
+  "sha": "589f05d2c8b9338abb91120df4de2071bae98d7b",
+  "short_sha": "589f05d2c8",
+  "subject": "chore: CI: do not delete nightly artifacts before uploading them",
+  "zig_target": {}
+}

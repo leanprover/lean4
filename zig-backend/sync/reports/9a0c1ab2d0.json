@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "9a0c1ab2d02140eb537dcb407c52b0dcbf404c28",
+  "short_sha": "9a0c1ab2d0",
+  "subject": "feat: Simpler first-order implementation for pure `SPred`s (#9841)",
+  "zig_target": {}
+}

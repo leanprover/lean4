@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-07-28",
+  "needs_port": true,
+  "sha": "87c92a3f879a42eb1f4169e1dd22f73b0dc1d586",
+  "short_sha": "87c92a3f87",
+  "subject": "feat: upstream more List operations (#4855)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

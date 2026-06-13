@@ -1,0 +1,18 @@
+{
+  "author": "Bulhwi Cha",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    }
+  ],
+  "date": "2025-02-13",
+  "needs_port": true,
+  "sha": "cc76c462449167040906b3c87929aeb765ac0a0a",
+  "short_sha": "cc76c46244",
+  "subject": "doc: fix typo (#7067)",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean"
+  }
+}

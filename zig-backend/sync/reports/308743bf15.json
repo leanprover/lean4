@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-25",
+  "needs_port": false,
+  "sha": "308743bf15f74e25d421ad004e889604b7e03e0e",
+  "short_sha": "308743bf15",
+  "subject": "feat: finish `Expr.app` case at `instantiateExprMVars`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-21",
+  "needs_port": false,
+  "sha": "66c82dadc96e021965d953f1b7a1edc372561005",
+  "short_sha": "66c82dadc9",
+  "subject": "fix: the default value for structure fields may now depend on the structure parameters",
+  "zig_target": {}
+}

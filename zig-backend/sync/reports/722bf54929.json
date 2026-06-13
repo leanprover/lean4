@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-24",
+  "needs_port": false,
+  "sha": "722bf54929a9a8d2a84ab5b67e0ebae508bfdd56",
+  "short_sha": "722bf54929",
+  "subject": "fix: trace message with incorrect `MetavarContext`",
+  "zig_target": {}
+}

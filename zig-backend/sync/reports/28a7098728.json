@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-01-04",
+  "needs_port": false,
+  "sha": "28a70987284f403fd2d17812d39ee3fbecaa5418",
+  "short_sha": "28a7098728",
+  "subject": "feat: add script for generating release notes (#6519)",
+  "zig_target": {}
+}

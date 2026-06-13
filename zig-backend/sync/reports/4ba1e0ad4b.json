@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-16",
+  "needs_port": false,
+  "sha": "4ba1e0ad4beed1660959ceb1ca981be47699fce5",
+  "short_sha": "4ba1e0ad4b",
+  "subject": "feat: add `isNoncomputable` function for querying whether a given declaration has been marked as \"noncomputable\" by users",
+  "zig_target": {}
+}

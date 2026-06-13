@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Paulino",
+  "backend_changes": [],
+  "date": "2022-03-24",
+  "needs_port": false,
+  "sha": "53faa9c8ca179bbdc9d58702f875113321e1f652",
+  "short_sha": "53faa9c8ca",
+  "subject": "doc: restriction of partial functions",
+  "zig_target": {}
+}

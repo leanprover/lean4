@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-08",
+  "needs_port": false,
+  "sha": "1311e36a988b23d86fb667443d0965f18a0f2dd3",
+  "short_sha": "1311e36a98",
+  "subject": "feat: structural mutual recursion (#4575)",
+  "zig_target": {}
+}

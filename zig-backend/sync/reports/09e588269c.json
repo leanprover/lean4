@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-18",
+  "needs_port": false,
+  "sha": "09e588269cb569ecd0ff6d1b8981a821a487dfc3",
+  "short_sha": "09e588269c",
+  "subject": "feat: add `MonadIO` instance for `CoreM`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Pim Otte",
+  "backend_changes": [],
+  "date": "2025-03-12",
+  "needs_port": false,
+  "sha": "2363d2fa873a6e5f6e48505b3f1387583c5ef14c",
+  "short_sha": "2363d2fa87",
+  "subject": "chore: readd \"(kernel)\" to kernel error message (#7453)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-30",
+  "needs_port": false,
+  "sha": "069fb4351cd6146af1f185b1feda4fcfb9dc7aff",
+  "short_sha": "069fb4351c",
+  "subject": "fix: inappropriate `whnfD` uses in `grind` (#8542)",
+  "zig_target": {}
+}

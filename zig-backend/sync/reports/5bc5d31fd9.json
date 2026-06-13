@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-14",
+  "needs_port": false,
+  "sha": "5bc5d31fd9002cd617d274909f265574d0be66a3",
+  "short_sha": "5bc5d31fd9",
+  "subject": "fix: `grind` ring + linarith internalization (#8795)",
+  "zig_target": {}
+}

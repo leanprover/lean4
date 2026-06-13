@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-02",
+  "needs_port": false,
+  "sha": "9fe54580778c7bccc49a668981d48583199c2b2c",
+  "short_sha": "9fe5458077",
+  "subject": "feat: do not display inaccessible proposition names if they do not have forward dependencies",
+  "zig_target": {}
+}

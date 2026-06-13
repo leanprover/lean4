@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/compact.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/compact.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    },
+    {
+      "path": "src/runtime/serializer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.cpp"
+    }
+  ],
+  "date": "2018-08-19",
+  "needs_port": true,
+  "sha": "db98397cc0d2dfa66b46759c5b7c62ce73f98cf0",
+  "short_sha": "db98397cc0",
+  "subject": "feat(runtime): object compactor",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/compact.h": "zig-backend/src/runtime/compact.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h",
+    "src/runtime/serializer.cpp": "zig-backend/src/runtime/serializer.cpp"
+  }
+}

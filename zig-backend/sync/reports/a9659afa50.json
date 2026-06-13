@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-01-20",
+  "needs_port": true,
+  "sha": "a9659afa5097322591678c5b340cb23d19f5ee36",
+  "short_sha": "a9659afa50",
+  "subject": "chore: remove old decls",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

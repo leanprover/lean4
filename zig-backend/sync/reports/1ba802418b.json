@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-07",
+  "needs_port": false,
+  "sha": "1ba802418b3b21a768559ed8fb70a0d8f23e5254",
+  "short_sha": "1ba802418b",
+  "subject": "fix: ToJson for single-field constructors",
+  "zig_target": {}
+}

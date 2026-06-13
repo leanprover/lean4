@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-12-08",
+  "needs_port": false,
+  "sha": "459e9f702fd54ce947dc00cb1a260eab6f6a9810",
+  "short_sha": "459e9f702f",
+  "subject": "feat: `ToJson` and `FromJson` for `String.Slice` (#11548)",
+  "zig_target": {}
+}

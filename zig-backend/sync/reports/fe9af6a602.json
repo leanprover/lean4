@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-13",
+  "needs_port": false,
+  "sha": "fe9af6a602c353b3fcf45933874fe1423c20ec96",
+  "short_sha": "fe9af6a602",
+  "subject": "chore: refactor old compiler bug hack fix",
+  "zig_target": {}
+}

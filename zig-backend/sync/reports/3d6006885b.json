@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-01",
+  "needs_port": false,
+  "sha": "3d6006885b2c20cf4f1cb504b6b1e74f6b8296b6",
+  "short_sha": "3d6006885b",
+  "subject": "feat: use widget source from first snapshot",
+  "zig_target": {}
+}

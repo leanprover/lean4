@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    }
+  ],
+  "date": "2021-05-27",
+  "needs_port": true,
+  "sha": "619873c842738d5ecd4bdad50db7470176b831c0",
+  "short_sha": "619873c842",
+  "subject": "feat: make System.FilePath opaque",
+  "zig_target": {
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean"
+  }
+}

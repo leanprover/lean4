@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/implemented_by_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/implemented_by_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.h"
+    },
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2019-08-16",
+  "needs_port": true,
+  "sha": "ec0e74f5f8fd2228a05daa2d136fd48f37345128",
+  "short_sha": "ec0e74f5f8",
+  "subject": "chore(library/init/lean): export as C functions",
+  "zig_target": {
+    "src/library/compiler/implemented_by_attribute.cpp": "zig-backend/src/library/compiler/implemented_by_attribute.cpp",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp",
+    "src/library/compiler/ir.h": "zig-backend/src/library/compiler/ir.h",
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

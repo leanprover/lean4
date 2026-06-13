@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "3418eb7e1f26a9ff2e9228c69fea9a4c5e3874f2",
+  "short_sha": "3418eb7e1f",
+  "subject": "fix: check whether `CoeHTCT` has already been defined or not at `hasCoe`",
+  "zig_target": {}
+}

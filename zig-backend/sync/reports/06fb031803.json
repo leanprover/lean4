@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "06fb031803f3bcf7fa0696d5388c9490272a2fca",
+  "short_sha": "06fb031803",
+  "subject": "feat: basic progress structures",
+  "zig_target": {}
+}

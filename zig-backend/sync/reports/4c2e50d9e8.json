@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-12-22",
+  "needs_port": false,
+  "sha": "4c2e50d9e886f09cc36193a992e567de14278344",
+  "short_sha": "4c2e50d9e8",
+  "subject": "feat: encode/decode JSON null more permissively",
+  "zig_target": {}
+}

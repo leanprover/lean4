@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Types.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+    }
+  ],
+  "date": "2025-11-14",
+  "needs_port": true,
+  "sha": "5011b7bd89b4e42a21bdc793ac982b6b0c259160",
+  "short_sha": "5011b7bd89",
+  "subject": "chore: make compilation type mismatch error message from non-exposed defs a lot less mysterious (#11177)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Types.lean": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-17",
+  "needs_port": false,
+  "sha": "9b71fbb4614c908066ce58b83d180641e66c3738",
+  "short_sha": "9b71fbb461",
+  "subject": "chore: default `pp.rawOnError` to true for stage 0",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-04",
+  "needs_port": false,
+  "sha": "58def30036800e9e29a89adcd37f9803c2b9e150",
+  "short_sha": "58def30036",
+  "subject": "chore(tests/lean/parser1): clearly delimit components in profiler output",
+  "zig_target": {}
+}

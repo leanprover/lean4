@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-22",
+  "needs_port": false,
+  "sha": "1256fc3cbc2be7067a38b7e6f10c18e3500c3c73",
+  "short_sha": "1256fc3cbc",
+  "subject": "refactor: move `MatcherInfo` methods to `Meta` namespace",
+  "zig_target": {}
+}

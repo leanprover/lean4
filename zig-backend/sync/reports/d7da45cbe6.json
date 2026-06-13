@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-06-22",
+  "needs_port": true,
+  "sha": "d7da45cbe6b743a633ae2168e0394c7cd1759cfe",
+  "short_sha": "d7da45cbe6",
+  "subject": "chore: fix explicitness of Prod.map lemmas (#4533)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

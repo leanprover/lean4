@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/buffer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/buffer.h"
+    },
+    {
+      "path": "src/runtime/interrupt.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.cpp"
+    }
+  ],
+  "date": "2026-02-11",
+  "needs_port": true,
+  "sha": "e5f0d6283a6ee93cd2616776ee0f55ea60d38c6d",
+  "short_sha": "e5f0d6283a",
+  "subject": "chore: update to c++20 (#12117)",
+  "zig_target": {
+    "src/runtime/buffer.h": "zig-backend/src/runtime/buffer.h",
+    "src/runtime/interrupt.cpp": "zig-backend/src/runtime/interrupt.cpp"
+  }
+}

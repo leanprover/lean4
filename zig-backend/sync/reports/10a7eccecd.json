@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-04",
+  "needs_port": false,
+  "sha": "10a7eccecdce4b02037d480047cbdad6b5e34e80",
+  "short_sha": "10a7eccecd",
+  "subject": "feat(library/constructions/cases_on): add `cases_on` for new inductive datatype module",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-16",
+  "needs_port": false,
+  "sha": "51955bd94520e480fa40a3ccf1c53ecca131030d",
+  "short_sha": "51955bd945",
+  "subject": "chore(kernel/instantiate): remove obsolete optimization",
+  "zig_target": {}
+}

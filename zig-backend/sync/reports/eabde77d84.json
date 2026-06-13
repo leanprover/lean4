@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-09",
+  "needs_port": false,
+  "sha": "eabde77d84f9cb065f62e81e057e03792d97f966",
+  "short_sha": "eabde77d84",
+  "subject": "fix: improve type-as-hole error message (#8262)",
+  "zig_target": {}
+}

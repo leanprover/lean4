@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-17",
+  "needs_port": false,
+  "sha": "a2cafbf56f495fee46747a4f6fedc0549c7a9e18",
+  "short_sha": "a2cafbf56f",
+  "subject": "test: for tactic state visualization bug",
+  "zig_target": {}
+}

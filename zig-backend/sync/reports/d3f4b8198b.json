@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-19",
+  "needs_port": true,
+  "sha": "d3f4b8198b9d69471ed1dc110c545bc394e07f78",
+  "short_sha": "d3f4b8198b",
+  "subject": "fix(library/compiler/csimp): disable problematic optimization",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-19",
+  "needs_port": false,
+  "sha": "efc2b79aba68b591c20ee0f26b3a9d8a783b1e18",
+  "short_sha": "efc2b79aba",
+  "subject": "feat: `as` patterns in syntax `match`",
+  "zig_target": {}
+}

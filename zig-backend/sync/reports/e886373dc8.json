@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-06-27",
+  "needs_port": false,
+  "sha": "e886373dc845e572d00c30c301d31e340efc4d70",
+  "short_sha": "e886373dc8",
+  "subject": "fix: Avoid a type error in `mvcgen` and turn fewer natural goals into synthetic opaque ones (#9045)",
+  "zig_target": {}
+}

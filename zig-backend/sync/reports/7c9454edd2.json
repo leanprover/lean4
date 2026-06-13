@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    }
+  ],
+  "date": "2025-02-13",
+  "needs_port": true,
+  "sha": "7c9454edd245c41c58137e7a5a751db730212f4f",
+  "short_sha": "7c9454edd2",
+  "subject": "feat: `UIntX.ofFin` (#7056)",
+  "zig_target": {
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean"
+  }
+}

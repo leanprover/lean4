@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-06-02",
+  "needs_port": false,
+  "sha": "501c31da4dd2168ecb3ef8c75fcf49764f0c7d19",
+  "short_sha": "501c31da4d",
+  "subject": "feat: send $/lean/fileProgress notification",
+  "zig_target": {}
+}

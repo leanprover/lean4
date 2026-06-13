@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-10-02",
+  "needs_port": false,
+  "sha": "952c086a92e2bf7d9f20f908793b4a00afe5d8d5",
+  "short_sha": "952c086a92",
+  "subject": "fix: rm new shared libs before build for Windows (#5541)",
+  "zig_target": {}
+}

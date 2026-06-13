@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-06-28",
+  "needs_port": false,
+  "sha": "8f9fa8d04cecee324120ed73818cb63bf8056894",
+  "short_sha": "8f9fa8d04c",
+  "subject": "refactor: add `BuiltinTactic.lean`",
+  "zig_target": {}
+}

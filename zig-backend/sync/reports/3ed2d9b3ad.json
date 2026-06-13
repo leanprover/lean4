@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-04-11",
+  "needs_port": false,
+  "sha": "3ed2d9b3ad47c2562896f786236a7585ff94a600",
+  "short_sha": "3ed2d9b3ad",
+  "subject": "perf: fix linearity issue in insertIfNew (#3881)",
+  "zig_target": {}
+}

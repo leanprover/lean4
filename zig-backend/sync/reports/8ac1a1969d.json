@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-02-17",
+  "needs_port": true,
+  "sha": "8ac1a1969d37515630c5d9b6cf712c893987d221",
+  "short_sha": "8ac1a1969d",
+  "subject": "fix(runtime/object): `task.bind` and `task.map` should also invoke `to_mt`",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

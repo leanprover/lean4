@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-22",
+  "needs_port": true,
+  "sha": "57af24ee8273e7122eb7b227a0d098705088edde",
+  "short_sha": "57af24ee82",
+  "subject": "fix(library/compiler/csimp): bugs when using beta_reduce, and `is_let_val` propagation",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "thorimur",
+  "backend_changes": [],
+  "date": "2023-08-25",
+  "needs_port": false,
+  "sha": "0b64c1e3301f04b7b36fed76ee1593962f6c34e5",
+  "short_sha": "0b64c1e330",
+  "subject": "fix: make sure `refine` preserves pre-existing natural mvars (#2435)",
+  "zig_target": {}
+}

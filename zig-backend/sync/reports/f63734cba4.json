@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2022-10-04",
+  "needs_port": true,
+  "sha": "f63734cba490b80cbb14284fab4e0b680c8cfaa5",
+  "short_sha": "f63734cba4",
+  "subject": "chore: unexpanders for `Name.mkStr*` and `Array.mkArray*`",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

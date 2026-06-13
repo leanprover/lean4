@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-10-20",
+  "needs_port": true,
+  "sha": "f01a124f187793cdf09788b0cc102eba156b1c60",
+  "short_sha": "f01a124f18",
+  "subject": "fix: builtin attribute initialization",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

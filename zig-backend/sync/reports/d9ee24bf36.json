@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-10-10",
+  "needs_port": false,
+  "sha": "d9ee24bf36885f925ee2905b306d9824f16762e6",
+  "short_sha": "d9ee24bf36",
+  "subject": "fix: lake: local cache w/ `--old` (#10741)",
+  "zig_target": {}
+}

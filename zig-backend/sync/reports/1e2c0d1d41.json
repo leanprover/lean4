@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "1e2c0d1d41bda92b9217522ec370a95167bfaab0",
+  "short_sha": "1e2c0d1d41",
+  "subject": "doc: remove \"section\" keywords, which aren't highlighted",
+  "zig_target": {}
+}

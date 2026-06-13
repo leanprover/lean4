@@ -1,0 +1,18 @@
+{
+  "author": "pcpthm",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt.lean"
+    }
+  ],
+  "date": "2021-03-17",
+  "needs_port": true,
+  "sha": "f645429df4bd981ab6e57911eb3fd02eaa2e0b41",
+  "short_sha": "f645429df4",
+  "subject": "chore: slightly nicer UInt shift definition",
+  "zig_target": {
+    "src/Init/Data/UInt.lean": "zig-backend/src/init/Data/UInt.lean"
+  }
+}

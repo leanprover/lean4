@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "a20e0297183c14965c2ac782a1d37a840f0be0f2",
+  "short_sha": "a20e029718",
+  "subject": "chore: make auto param decls of private decls private (#11581)",
+  "zig_target": {}
+}

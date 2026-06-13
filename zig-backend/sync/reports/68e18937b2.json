@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elaborator/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elaborator/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Command.lean"
+    }
+  ],
+  "date": "2019-12-05",
+  "needs_port": true,
+  "sha": "68e18937b224e67e58be151409f54f8eed43154c",
+  "short_sha": "68e18937b2",
+  "subject": "chore: remove `#preterm`",
+  "zig_target": {
+    "src/Init/Lean/Elaborator/Command.lean": "zig-backend/src/init/Lean/Elaborator/Command.lean",
+    "src/Init/Lean/Parser/Command.lean": "zig-backend/src/init/Lean/Parser/Command.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2026-01-31",
+  "needs_port": true,
+  "sha": "ce980895b25535d654e194008b57cdbb2cae9961",
+  "short_sha": "ce980895b2",
+  "subject": "fix: `IO.Process.spawn` empty env var on Windows (#12220)",
+  "zig_target": {
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

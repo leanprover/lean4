@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    }
+  ],
+  "date": "2021-03-12",
+  "needs_port": true,
+  "sha": "091fadbf6445be59ff57b36a80794e16adfdd945",
+  "short_sha": "091fadbf64",
+  "subject": "feat: add `List.rotateLeft` and `List.rotateRight`",
+  "zig_target": {
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean"
+  }
+}

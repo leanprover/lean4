@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-15",
+  "needs_port": false,
+  "sha": "884aa03584837a27a1b656fe72ad451a6c5a4a13",
+  "short_sha": "884aa03584",
+  "subject": "fix: implement overlooked `have` syntax",
+  "zig_target": {}
+}

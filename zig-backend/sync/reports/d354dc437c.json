@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-11",
+  "needs_port": false,
+  "sha": "d354dc437c368ba0779e3fa4c31bd5573ee99755",
+  "short_sha": "d354dc437c",
+  "subject": "feat(library/init/lean/parser/command): add `declaration` draft",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-21",
+  "needs_port": false,
+  "sha": "c78a06d9a5553e8ffc5ffeeb7ba75fd271bc272e",
+  "short_sha": "c78a06d9a5",
+  "subject": "test: add Kyle's experiment to test suite",
+  "zig_target": {}
+}

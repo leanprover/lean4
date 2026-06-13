@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-14",
+  "needs_port": false,
+  "sha": "36c2511b27c13b95597af90e80edf4bcf4f3a1b1",
+  "short_sha": "36c2511b27",
+  "subject": "feat: options `pp.mvars.anonymous` and `pp.mvars.levels` (#5711)",
+  "zig_target": {}
+}

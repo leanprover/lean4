@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-27",
+  "needs_port": false,
+  "sha": "e0e3de5c626eb0bb88b0ff5f6ffa1c193e181843",
+  "short_sha": "e0e3de5c62",
+  "subject": "feat: allow (decidable) propositions at #eval",
+  "zig_target": {}
+}

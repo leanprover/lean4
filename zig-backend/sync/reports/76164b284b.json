@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-21",
+  "needs_port": false,
+  "sha": "76164b284b0769672d8a643c4396356a6f053fba",
+  "short_sha": "76164b284b",
+  "subject": "fix: RecursorVal.getInduct to return name of major argument\u2019s type (#5679)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-02-04",
+  "needs_port": true,
+  "sha": "98edae152ad55ef1aad15e276ffeb9d62f848e8a",
+  "short_sha": "98edae152a",
+  "subject": "fix(runtime): replace `lean::alloca` with macro",
+  "zig_target": {
+    "src/runtime/apply.cpp": "zig-backend/src/runtime/apply.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

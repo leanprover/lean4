@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-08-09",
+  "needs_port": false,
+  "sha": "f3d640a7cf599d1ea1b59cb4f036e89ab64999bf",
+  "short_sha": "f3d640a7cf",
+  "subject": "feat: report parser errors in server",
+  "zig_target": {}
+}

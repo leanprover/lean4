@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "8babf3fc7081f51646417ab6806fbc751456fd43",
+  "short_sha": "8babf3fc70",
+  "subject": "doc: nclude `--help` option info in scripts docs",
+  "zig_target": {}
+}

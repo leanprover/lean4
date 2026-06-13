@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-28",
+  "needs_port": false,
+  "sha": "556358e84c6beee9c670e02ef9aa2603d7df743d",
+  "short_sha": "556358e84c",
+  "subject": "chore: Nix: better solution for filtering test output",
+  "zig_target": {}
+}

@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float.lean"
+    },
+    {
+      "path": "src/Init/Data/OfDecimal.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/OfDecimal.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-12-03",
+  "needs_port": true,
+  "sha": "d1f4d4f57ece3e6adac80366e0d8efb203a2fbb9",
+  "short_sha": "d1f4d4f57e",
+  "subject": "feat: scientific notation",
+  "zig_target": {
+    "src/Init/Data/Float.lean": "zig-backend/src/init/Data/Float.lean",
+    "src/Init/Data/OfDecimal.lean": "zig-backend/src/init/Data/OfDecimal.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2024-06-18",
+  "needs_port": true,
+  "sha": "d768f46ba611c41467222f4ed5181eec6266b933",
+  "short_sha": "d768f46ba6",
+  "subject": "chore: @[simp] Nat.min_assoc (#4486)",
+  "zig_target": {
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

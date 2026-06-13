@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Cooper.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Cooper.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-03-02",
+  "needs_port": true,
+  "sha": "4877e8403133097a5c199a8d84ad52d0fcd1c200",
+  "short_sha": "4877e84031",
+  "subject": "feat: `cooper_left` helper theorem for cutsat (#7290)",
+  "zig_target": {
+    "src/Init/Data/Int/Cooper.lean": "zig-backend/src/init/Data/Int/Cooper.lean",
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

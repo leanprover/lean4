@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Data/Name.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Name.lean"
+    },
+    {
+      "path": "src/Init/LeanExt.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/LeanExt.lean"
+    }
+  ],
+  "date": "2019-12-30",
+  "needs_port": true,
+  "sha": "fb86f2e421e64820aa918d3528bc6c91311b2c90",
+  "short_sha": "fb86f2e421",
+  "subject": "feat: add `LeanExt.lean` and `ParserDescr` type",
+  "zig_target": {
+    "src/Init/Lean/Data/Name.lean": "zig-backend/src/init/Lean/Data/Name.lean",
+    "src/Init/LeanExt.lean": "zig-backend/src/init/LeanExt.lean"
+  }
+}

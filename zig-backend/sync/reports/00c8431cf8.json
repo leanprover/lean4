@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-29",
+  "needs_port": false,
+  "sha": "00c8431cf810da70225b9f6c4a0c7c156b68736a",
+  "short_sha": "00c8431cf8",
+  "subject": "doc: add changelog label instructions to CLAUDE.md (#12227)",
+  "zig_target": {}
+}

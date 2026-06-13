@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-24",
+  "needs_port": false,
+  "sha": "9d7875ca05abf3bb0481d7b8a77b11c69f12275f",
+  "short_sha": "9d7875ca05",
+  "subject": "feat(tests/playground/report): reimplement normalizing by first column",
+  "zig_target": {}
+}

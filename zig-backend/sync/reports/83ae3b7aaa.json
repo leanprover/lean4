@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-21",
+  "needs_port": false,
+  "sha": "83ae3b7aaa5dd66b9929afa29ab99367a0d233f4",
+  "short_sha": "83ae3b7aaa",
+  "subject": "fix: bug introduced when moving to new frontend",
+  "zig_target": {}
+}

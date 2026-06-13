@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-13",
+  "needs_port": false,
+  "sha": "69102b181203048d963bcbe3b3849aa18d3c5d43",
+  "short_sha": "69102b1812",
+  "subject": "feat: add `Hash`/`MTime` -> `BuildTrace` `Coe` instances",
+  "zig_target": {}
+}

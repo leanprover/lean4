@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-12-02",
+  "needs_port": false,
+  "sha": "0d89f0194b4e7c949fea28626891d81a31d5625c",
+  "short_sha": "0d89f0194b",
+  "subject": "perf: bv_decide uses rfl in reflection if possible (#6286)",
+  "zig_target": {}
+}

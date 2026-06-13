@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-02",
+  "needs_port": false,
+  "sha": "bda39b9a724e50daf86b95f3f71dc67d1be97675",
+  "short_sha": "bda39b9a72",
+  "subject": "feat: extend set of valid characters that can occur in an auto bound implicit local name suffix",
+  "zig_target": {}
+}

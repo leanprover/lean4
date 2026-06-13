@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-15",
+  "needs_port": false,
+  "sha": "56cdacfc288cef477455c49921854943d8ad0ef1",
+  "short_sha": "56cdacfc28",
+  "subject": "feat: allow synthetic holes to be used as patterns",
+  "zig_target": {}
+}

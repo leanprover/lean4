@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-11-11",
+  "needs_port": true,
+  "sha": "bf7660ff5afbe7fd9253e035263f1d17fbeb5b46",
+  "short_sha": "bf7660ff5a",
+  "subject": "chore: avoid infix operators at `Prelude.lean`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

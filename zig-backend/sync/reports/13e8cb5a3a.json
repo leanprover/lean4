@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-08-25",
+  "needs_port": false,
+  "sha": "13e8cb5a3a270ae3a6ffc565eb7747749ed4e8d9",
+  "short_sha": "13e8cb5a3a",
+  "subject": "perf: reorder DiscrTree.Key constructors (#10110)",
+  "zig_target": {}
+}

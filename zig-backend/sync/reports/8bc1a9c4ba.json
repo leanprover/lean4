@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-01-10",
+  "needs_port": false,
+  "sha": "8bc1a9c4baa65afcff5d7dbfed53db90d741b6b4",
+  "short_sha": "8bc1a9c4ba",
+  "subject": "chore: actually include full build in benchmark (#3158)",
+  "zig_target": {}
+}

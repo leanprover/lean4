@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-08",
+  "needs_port": false,
+  "sha": "65370e932253c02431124bf8b76d497de4401c0c",
+  "short_sha": "65370e9322",
+  "subject": "chore: restore disabled tests",
+  "zig_target": {}
+}

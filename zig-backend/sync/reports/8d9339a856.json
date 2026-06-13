@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-13",
+  "needs_port": false,
+  "sha": "8d9339a85663467a6dfade2e438881172167be68",
+  "short_sha": "8d9339a856",
+  "subject": "feat: improve error message position for termination check failures",
+  "zig_target": {}
+}

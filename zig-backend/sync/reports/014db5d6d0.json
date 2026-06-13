@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-12",
+  "needs_port": false,
+  "sha": "014db5d6d00cb9456eff1911adba6a5af17c3737",
+  "short_sha": "014db5d6d0",
+  "subject": "doc: relocate doc strings from elab to syntax",
+  "zig_target": {}
+}

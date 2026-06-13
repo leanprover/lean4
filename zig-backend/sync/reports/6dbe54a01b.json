@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-17",
+  "needs_port": false,
+  "sha": "6dbe54a01bb6f89c88a24e0e4a884b61ed6f64ee",
+  "short_sha": "6dbe54a01b",
+  "subject": "chore(library/init/io): rename `io.print_ln` to `io.println`",
+  "zig_target": {}
+}

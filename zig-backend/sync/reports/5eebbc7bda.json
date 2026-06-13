@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Level.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Level.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-14",
+  "needs_port": true,
+  "sha": "5eebbc7bdadfa0ba853e9de8055a4e68f9aaa0d2",
+  "short_sha": "5eebbc7bda",
+  "subject": "chore: remove unnecessary attributes",
+  "zig_target": {
+    "src/Init/Lean/Parser/Level.lean": "zig-backend/src/init/Lean/Parser/Level.lean",
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+  }
+}

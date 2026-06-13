@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-10",
+  "needs_port": false,
+  "sha": "3614d8e388ceea3065ec7a215a2ea18830bcca63",
+  "short_sha": "3614d8e388",
+  "subject": "doc: typo",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    },
+    {
+      "path": "src/Init/PropLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/PropLemmas.lean"
+    }
+  ],
+  "date": "2024-08-27",
+  "needs_port": true,
+  "sha": "30fa18816cf150a8bf9f4ad99dae1fadc3720849",
+  "short_sha": "30fa18816c",
+  "subject": "feat: activate and use boolToPropSimps",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean",
+    "src/Init/PropLemmas.lean": "zig-backend/src/init/PropLemmas.lean"
+  }
+}

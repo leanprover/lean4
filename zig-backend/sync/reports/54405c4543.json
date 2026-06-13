@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-18",
+  "needs_port": false,
+  "sha": "54405c4543dab3d3c537d0c26965e186e9ce42c4",
+  "short_sha": "54405c4543",
+  "subject": "fix: automatically wrap `many/sepBy` items in null nodes where necessary",
+  "zig_target": {}
+}

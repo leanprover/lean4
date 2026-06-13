@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-20",
+  "needs_port": false,
+  "sha": "7d9118d2e25da6735e911063c70943983a71ba71",
+  "short_sha": "7d9118d2e2",
+  "subject": "feat: add `resolveGlobalConst` and `resolveGlobalConstNoOverload`",
+  "zig_target": {}
+}

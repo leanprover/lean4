@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-07",
+  "needs_port": false,
+  "sha": "c9a644604119c326f195504e3a2fce8672800d45",
+  "short_sha": "c9a6446041",
+  "subject": "chore: CI: include tests in rebootstrap check (#9788)",
+  "zig_target": {}
+}

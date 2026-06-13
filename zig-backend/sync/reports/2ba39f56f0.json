@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-06",
+  "needs_port": false,
+  "sha": "2ba39f56f0e8067ed7d4d26303e477fd4922942e",
+  "short_sha": "2ba39f56f0",
+  "subject": "The solved dependency list no longer includes the root package",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Li Xuanji",
+  "backend_changes": [],
+  "date": "2025-05-20",
+  "needs_port": false,
+  "sha": "a9a069a0efb9cedce192ed50fcd9158e778232e9",
+  "short_sha": "a9a069a0ef",
+  "subject": "doc: Fix doc bug in Resolve.lean (#8411)",
+  "zig_target": {}
+}

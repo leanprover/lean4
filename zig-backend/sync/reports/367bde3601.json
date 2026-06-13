@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-13",
+  "needs_port": false,
+  "sha": "367bde3601503fa9ade577b7f6d0747d2040acd8",
+  "short_sha": "367bde3601",
+  "subject": "chore: revert  \"refactor: replace InfoWithCtx with ExprWithCtx\"",
+  "zig_target": {}
+}

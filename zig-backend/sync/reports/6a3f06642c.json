@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Message.lean"
+    }
+  ],
+  "date": "2019-12-22",
+  "needs_port": true,
+  "sha": "6a3f06642c8bca5e2146f69125aac8222b53765d",
+  "short_sha": "6a3f06642c",
+  "subject": "feat: add option for controlling sytax max depth in trace messages",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Util/Message.lean": "zig-backend/src/init/Lean/Util/Message.lean"
+  }
+}

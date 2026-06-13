@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-22",
+  "needs_port": false,
+  "sha": "7385cbfe2d8b20b0e55f24820eea141af3f864ce",
+  "short_sha": "7385cbfe2d",
+  "subject": "test: add `mapTR` test",
+  "zig_target": {}
+}

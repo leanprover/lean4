@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "bf5c89352d447400c7d7dd5b692d3ef47bc4bf74",
+  "short_sha": "bf5c89352d",
+  "subject": "release: 3.1.0",
+  "zig_target": {}
+}

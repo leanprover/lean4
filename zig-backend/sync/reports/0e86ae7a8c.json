@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-26",
+  "needs_port": false,
+  "sha": "0e86ae7a8c3f2ff46256d4a7b028748d12d7759f",
+  "short_sha": "0e86ae7a8c",
+  "subject": "feat(library/init/lean): projection info in Lean",
+  "zig_target": {}
+}

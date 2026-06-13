@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "f84ea289234e40c26f482b8715e72d7ad31e3ac4",
+  "short_sha": "f84ea28923",
+  "subject": "fix(library/init/lean/compiler/ir/emitutil): missing `FnBody.case`",
+  "zig_target": {}
+}

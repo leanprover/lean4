@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-07-30",
+  "needs_port": false,
+  "sha": "2eaa400b8e641e88c3f97038c56390f98a818e23",
+  "short_sha": "2eaa400b8e",
+  "subject": "fix: do not unnecessarily wait on additional snapshot in server request handlers (#2370)",
+  "zig_target": {}
+}

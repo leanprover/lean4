@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-09",
+  "needs_port": false,
+  "sha": "02d1ebb564f13bdf9ba28174d0012c487bd1dc86",
+  "short_sha": "02d1ebb564",
+  "subject": "fix: extended `coe` notation and delaborator (#3295)",
+  "zig_target": {}
+}

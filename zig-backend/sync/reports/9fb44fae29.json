@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-01-25",
+  "needs_port": false,
+  "sha": "9fb44fae2932224e5bb278cb7c07deadfca2550a",
+  "short_sha": "9fb44fae29",
+  "subject": "doc: remove nightly and other outdated references (#3027)",
+  "zig_target": {}
+}

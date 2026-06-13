@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-03",
+  "needs_port": true,
+  "sha": "a5162ca7489bfdbf1a2851cffd8fdcca9d2b9b56",
+  "short_sha": "a5162ca748",
+  "subject": "feat: add @[simp] to Nat.add_eq_zero_iff (#5241)",
+  "zig_target": {
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Lemmas.lean"
+    }
+  ],
+  "date": "2026-05-16",
+  "needs_port": true,
+  "sha": "1b8f1f140c56d214b2171abe8675fb8582670fef",
+  "short_sha": "1b8f1f140c",
+  "subject": "feat: add ByteArray indexing and set! lemmas (#13457)",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Lemmas.lean": "zig-backend/src/init/Data/ByteArray/Lemmas.lean"
+  }
+}

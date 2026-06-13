@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-03-11",
+  "needs_port": false,
+  "sha": "276bf837e284a4cf26522e6b232e59235d120f1b",
+  "short_sha": "276bf837e2",
+  "subject": "feat: show stdout by default",
+  "zig_target": {}
+}

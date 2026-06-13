@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-30",
+  "needs_port": false,
+  "sha": "261c0b9c24f664f2625b80954afcb8c7d8c490d2",
+  "short_sha": "261c0b9c24",
+  "subject": "feat(frontends/lean): add `panic!` macro",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-06-21",
+  "needs_port": false,
+  "sha": "abdbc39403616d7bd41034c31daeff06c9be7e16",
+  "short_sha": "abdbc39403",
+  "subject": "test: add test for leanprover/lake#174",
+  "zig_target": {}
+}

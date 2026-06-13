@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-01",
+  "needs_port": false,
+  "sha": "32db3161666325b704ef9d4876f9ee9718e03bb2",
+  "short_sha": "32db316166",
+  "subject": "fix: enumeration type `noConfusion` was not registered",
+  "zig_target": {}
+}

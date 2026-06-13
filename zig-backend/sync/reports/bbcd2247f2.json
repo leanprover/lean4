@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2020-12-19",
+  "needs_port": true,
+  "sha": "bbcd2247f295bc879e74071bf320db8a0ba924be",
+  "short_sha": "bbcd2247f2",
+  "subject": "feat: extend valid set of valid auto bound names",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

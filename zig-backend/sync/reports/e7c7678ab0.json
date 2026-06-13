@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-23",
+  "needs_port": false,
+  "sha": "e7c7678ab0058f0a2dcd8789852de87516bf93e1",
+  "short_sha": "e7c7678ab0",
+  "subject": "refactor: line wrapping in parser code",
+  "zig_target": {}
+}

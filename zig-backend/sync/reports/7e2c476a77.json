@@ -1,0 +1,162 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/FloatLetIn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Internalize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Internalize.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/LambdaLifting.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Probing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Probing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PullLetDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ReduceArity.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DefaultAlt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DefaultAlt.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DiscrM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/JpCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpValue.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpValue.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Used.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Used.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Testing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Testing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2022-10-31",
+  "needs_port": true,
+  "sha": "7e2c476a7793d76f92ef955c1abc6b6c30d0d259",
+  "short_sha": "7e2c476a77",
+  "subject": "chore: port more files to new LCNF",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean",
+    "src/Lean/Compiler/LCNF/FloatLetIn.lean": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean",
+    "src/Lean/Compiler/LCNF/Internalize.lean": "zig-backend/src/lean/compiler/lcnf/Internalize.lean",
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean",
+    "src/Lean/Compiler/LCNF/LambdaLifting.lean": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/PrettyPrinter.lean": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean",
+    "src/Lean/Compiler/LCNF/Probing.lean": "zig-backend/src/lean/compiler/lcnf/Probing.lean",
+    "src/Lean/Compiler/LCNF/PullLetDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean",
+    "src/Lean/Compiler/LCNF/ReduceArity.lean": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean",
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean",
+    "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean",
+    "src/Lean/Compiler/LCNF/Simp/DefaultAlt.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DefaultAlt.lean",
+    "src/Lean/Compiler/LCNF/Simp/DiscrM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean",
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean",
+    "src/Lean/Compiler/LCNF/Simp/InlineProj.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean",
+    "src/Lean/Compiler/LCNF/Simp/JpCases.lean": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean",
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpValue.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpValue.lean",
+    "src/Lean/Compiler/LCNF/Simp/Used.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Used.lean",
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean",
+    "src/Lean/Compiler/LCNF/Testing.lean": "zig-backend/src/lean/compiler/lcnf/Testing.lean",
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

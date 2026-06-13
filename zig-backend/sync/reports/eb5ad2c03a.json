@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-25",
+  "needs_port": false,
+  "sha": "eb5ad2c03a1ec4bb4d2fecb63a3cef1076d62a2a",
+  "short_sha": "eb5ad2c03a",
+  "subject": "feat: disequality propagation from `grind` core module to cutsat (#7234)",
+  "zig_target": {}
+}

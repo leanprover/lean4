@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-27",
+  "needs_port": false,
+  "sha": "bdf89b4d856c3e8edf85668c375dd631d2caaf82",
+  "short_sha": "bdf89b4d85",
+  "subject": "chore: add `{crossEmoji}` at failure",
+  "zig_target": {}
+}

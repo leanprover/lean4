@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-02",
+  "needs_port": false,
+  "sha": "cc18c0ef91a186f3b5088d9eef402d1a471957af",
+  "short_sha": "cc18c0ef91",
+  "subject": "feat(library/init/lean/expr): add `Expr.hasFVar` and `Expr.hasMVar`",
+  "zig_target": {}
+}

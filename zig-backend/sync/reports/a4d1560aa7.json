@@ -1,0 +1,30 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/MinMax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MinMax.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MinMaxOn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MinMaxOn.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/MinMaxOn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/MinMaxOn.lean"
+    }
+  ],
+  "date": "2026-02-23",
+  "needs_port": true,
+  "sha": "a4d1560aa78ac4a8e098881a3fa98640101e98f1",
+  "short_sha": "a4d1560aa7",
+  "subject": "feat: additional lemmas about `min`/`minOn` on single elements and lists (#12651)",
+  "zig_target": {
+    "src/Init/Data/List/MinMax.lean": "zig-backend/src/init/Data/List/MinMax.lean",
+    "src/Init/Data/List/MinMaxOn.lean": "zig-backend/src/init/Data/List/MinMaxOn.lean",
+    "src/Init/Data/Order/MinMaxOn.lean": "zig-backend/src/init/Data/Order/MinMaxOn.lean"
+  }
+}

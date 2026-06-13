@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-02",
+  "needs_port": true,
+  "sha": "a3675b99e62a3e2d7b510ebec4ef07408363499e",
+  "short_sha": "a3675b99e6",
+  "subject": "feat: add parameter `postponeOnError : Bool` to `synthesizeSyntheticMVarsStep`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

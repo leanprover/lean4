@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-18",
+  "needs_port": true,
+  "sha": "70f832727f471ce74d81c0960b42c02d6c154028",
+  "short_sha": "70f832727f",
+  "subject": "feat(runtime/lean): string API",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

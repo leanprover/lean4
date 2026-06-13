@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-01-17",
+  "needs_port": false,
+  "sha": "628633d02e7274429c247dcef7d093b72931860c",
+  "short_sha": "628633d02e",
+  "subject": "test: failed to infer implicit target (#3189)",
+  "zig_target": {}
+}

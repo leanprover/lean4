@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2018-11-07",
+  "needs_port": true,
+  "sha": "f9236592cc75058aab8582ef39990da8ad296e9c",
+  "short_sha": "f9236592cc",
+  "subject": "chore(library/compiler/llnf): remove dead code",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

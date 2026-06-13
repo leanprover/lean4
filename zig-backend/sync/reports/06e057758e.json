@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2023-09-24",
+  "needs_port": true,
+  "sha": "06e057758e3d63f286b023e3f6ef0468d7b0441e",
+  "short_sha": "06e057758e",
+  "subject": "chore: Remove unused variables from kernel",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "e2bcf179acc94a452002408179fa98978c228e8a",
+  "short_sha": "e2bcf179ac",
+  "subject": "fix(library/init/lean/parser/parser): missing `trim`",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sublist.lean"
+    }
+  ],
+  "date": "2024-08-26",
+  "needs_port": true,
+  "sha": "f0b0c60e0f33d0d9aed22ee3dd5d2294a00273a4",
+  "short_sha": "f0b0c60e0f",
+  "subject": "chore: running simpNF linter (#5168)",
+  "zig_target": {
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Sublist.lean": "zig-backend/src/init/Data/List/Sublist.lean"
+  }
+}

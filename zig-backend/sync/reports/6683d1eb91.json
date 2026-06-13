@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    },
+    {
+      "path": "src/Init/Grind/ToInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/ToInt.lean"
+    }
+  ],
+  "date": "2025-08-21",
+  "needs_port": true,
+  "sha": "6683d1eb911291fe52333cba05abae2f6578c314",
+  "short_sha": "6683d1eb91",
+  "subject": "chore: add `module` keyword to `grind` tests (#10036)",
+  "zig_target": {
+    "src/Init/Data/Ord/Basic.lean": "zig-backend/src/init/Data/Ord/Basic.lean",
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean",
+    "src/Init/Grind/ToInt.lean": "zig-backend/src/init/Grind/ToInt.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-10-15",
+  "needs_port": false,
+  "sha": "4077bf2c05b74a2eaaf1db9be957236f29614f63",
+  "short_sha": "4077bf2c05",
+  "subject": "feat: implement `mvcgen?`, expanding to `mvcgen invariants?` (#10782)",
+  "zig_target": {}
+}

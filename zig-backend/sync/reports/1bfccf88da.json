@@ -1,0 +1,42 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-03-08",
+  "needs_port": true,
+  "sha": "1bfccf88da6633000ec7db8c1739401e5917b3a3",
+  "short_sha": "1bfccf88da",
+  "subject": "doc: add missing Bool docstrings and review existing ones (#7246)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean",
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean",
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

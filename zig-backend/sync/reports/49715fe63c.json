@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-03-16",
+  "needs_port": false,
+  "sha": "49715fe63cf9181114c3dafc94f1b8490af41276",
+  "short_sha": "49715fe63c",
+  "subject": "chore: improve how test suite interacts with stages (#12913)",
+  "zig_target": {}
+}

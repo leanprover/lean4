@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "fa96fb8deb49c7de8a22705ff5c2749508e86c8e",
+  "short_sha": "fa96fb8deb",
+  "subject": "feat(library/init/lean/position): `HasToString` instance",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-15",
+  "needs_port": false,
+  "sha": "506d16a60386f8d23b81e25ddcb5be1c238b5a68",
+  "short_sha": "506d16a603",
+  "subject": "chore: complete `riscv_ast` benchmark  (#9928)",
+  "zig_target": {}
+}

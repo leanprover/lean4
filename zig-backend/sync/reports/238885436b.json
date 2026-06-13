@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-09",
+  "needs_port": false,
+  "sha": "238885436b89b0b58caa2f5430a7a5fefffc4003",
+  "short_sha": "238885436b",
+  "subject": "fix: resolve parser promise before starting elaboration (#4974)",
+  "zig_target": {}
+}

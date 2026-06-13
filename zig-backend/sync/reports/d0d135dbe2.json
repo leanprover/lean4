@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "d0d135dbe2c7869a8705e98991a455611f49e310",
+  "short_sha": "d0d135dbe2",
+  "subject": "refactor: lake: log process output as info on errors (#13151)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-24",
+  "needs_port": true,
+  "sha": "017261960ceead33a420b7da87c842ac243ddd07",
+  "short_sha": "017261960c",
+  "subject": "feat(library/compiler/csimp): add `float_cases_on`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

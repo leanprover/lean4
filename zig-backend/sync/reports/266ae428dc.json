@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-25",
+  "needs_port": false,
+  "sha": "266ae428dc3c174318c667818e66bc6dbfb7c243",
+  "short_sha": "266ae428dc",
+  "subject": "feat: preliminary work for parent projections in `StructureInfo` (#5841)",
+  "zig_target": {}
+}

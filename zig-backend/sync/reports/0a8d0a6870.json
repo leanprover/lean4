@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-20",
+  "needs_port": false,
+  "sha": "0a8d0a68704b572b1c74e4b7fdec6ea616d983bc",
+  "short_sha": "0a8d0a6870",
+  "subject": "feat(library/init/lean/parser/term): projection notation",
+  "zig_target": {}
+}

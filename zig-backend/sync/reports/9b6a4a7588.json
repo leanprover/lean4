@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Order/PackageFactories.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/PackageFactories.lean"
+    }
+  ],
+  "date": "2025-09-04",
+  "needs_port": true,
+  "sha": "9b6a4a7588945f6994530616b45272250bb9af71",
+  "short_sha": "9b6a4a7588",
+  "subject": "fix: solve two problems with `LinearOrderPackage` factories (#10250)",
+  "zig_target": {
+    "src/Init/Data/Order/PackageFactories.lean": "zig-backend/src/init/Data/Order/PackageFactories.lean"
+  }
+}

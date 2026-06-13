@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    }
+  ],
+  "date": "2025-01-09",
+  "needs_port": true,
+  "sha": "1b4272821d034a2721893171f5c0d0294861753a",
+  "short_sha": "1b4272821d",
+  "subject": "feat: add UInt32.{lt, le} (#6591)",
+  "zig_target": {
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean"
+  }
+}

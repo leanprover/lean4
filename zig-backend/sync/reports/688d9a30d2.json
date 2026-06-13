@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2025-07-01",
+  "needs_port": true,
+  "sha": "688d9a30d27d3c2db5f7c8f3259262de778d0f0f",
+  "short_sha": "688d9a30d2",
+  "subject": "fix: incorrectly parenthesized `Bool.not`s (#9129)",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

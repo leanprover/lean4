@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-13",
+  "needs_port": false,
+  "sha": "048d592fe84b3b59e1ea057221a7c42ff8d001a9",
+  "short_sha": "048d592fe8",
+  "subject": "fix: FileMap out of bounds",
+  "zig_target": {}
+}

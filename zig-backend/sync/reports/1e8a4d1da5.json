@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-23",
+  "needs_port": false,
+  "sha": "1e8a4d1da520987f223592f0389fa10abb2e18b1",
+  "short_sha": "1e8a4d1da5",
+  "subject": "chore: avoid useless `failed to synthesize CoeFun ...` tail message",
+  "zig_target": {}
+}

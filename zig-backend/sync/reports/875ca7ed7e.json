@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-04",
+  "needs_port": false,
+  "sha": "875ca7ed7e4a905cec9b133a6f325cad28df73dc",
+  "short_sha": "875ca7ed7e",
+  "subject": "chore: Nix: new stages & other tweaks",
+  "zig_target": {}
+}

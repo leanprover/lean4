@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "40b890f2200b85fba0804c755562b065e560e04a",
+  "short_sha": "40b890f220",
+  "subject": "fix(library/init/lean/compiler/ir/emitcpp): typo",
+  "zig_target": {}
+}

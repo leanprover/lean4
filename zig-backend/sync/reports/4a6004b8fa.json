@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-16",
+  "needs_port": false,
+  "sha": "4a6004b8fa05a68f0aeee6580c9ddd77d5c364a1",
+  "short_sha": "4a6004b8fa",
+  "subject": "perf: use `Lean.realizeValue` in `getFunInfo` (#9810)",
+  "zig_target": {}
+}

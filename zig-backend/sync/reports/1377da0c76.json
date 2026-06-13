@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-02",
+  "needs_port": false,
+  "sha": "1377da0c762deb0a42c880e38606018c2ea561cc",
+  "short_sha": "1377da0c76",
+  "subject": "feat: heterogeneous constructor injectivity theorems (#11487)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-12",
+  "needs_port": false,
+  "sha": "cc520d422cac299217acfe5e7cc7cebf63d96663",
+  "short_sha": "cc520d422c",
+  "subject": "fix: ensure no unassigned mvars at #eval",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-29",
+  "needs_port": false,
+  "sha": "acc175287446c97837a7b8016ba072659151f2fe",
+  "short_sha": "acc1752874",
+  "subject": "chore: remove old speedcenter config",
+  "zig_target": {}
+}

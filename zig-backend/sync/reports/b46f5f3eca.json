@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/reduce_arity.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/reduce_arity.cpp"
+    }
+  ],
+  "date": "2019-04-11",
+  "needs_port": true,
+  "sha": "b46f5f3ecad0f828d1d826eaf258ddba520f99ac",
+  "short_sha": "b46f5f3eca",
+  "subject": "fix(library/compiler/reduce_arity): bug at `arity_was_reduced`",
+  "zig_target": {
+    "src/library/compiler/reduce_arity.cpp": "zig-backend/src/library/compiler/reduce_arity.cpp"
+  }
+}

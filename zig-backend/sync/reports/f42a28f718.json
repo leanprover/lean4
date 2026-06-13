@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-03-20",
+  "needs_port": true,
+  "sha": "f42a28f7182141ebd7646e23dc0f391b669ebed2",
+  "short_sha": "f42a28f718",
+  "subject": "chore: revert \"perf: avoid taking mutex on task deactivation\" (#7590)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

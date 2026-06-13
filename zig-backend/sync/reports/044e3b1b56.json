@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    },
+    {
+      "path": "src/runtime/alloc.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.h"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2025-03-13",
+  "needs_port": true,
+  "sha": "044e3b1b564d427796c7cb64434054f78662980e",
+  "short_sha": "044e3b1b56",
+  "subject": "fix: heartbeats from `realizeConst` should be ignored (#7473)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp",
+    "src/runtime/alloc.h": "zig-backend/src/runtime/alloc.h",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

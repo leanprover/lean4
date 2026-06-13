@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-15",
+  "needs_port": false,
+  "sha": "7212fbab6e83aaaa3ac4f7874d30dbda44922941",
+  "short_sha": "7212fbab6e",
+  "subject": "perf(library/init/lean/environment): search hashmap first",
+  "zig_target": {}
+}

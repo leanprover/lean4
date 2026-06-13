@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-04-24",
+  "needs_port": false,
+  "sha": "41697dcf6cab7ec82723ba404f2bda7a4526bb2b",
+  "short_sha": "41697dcf6c",
+  "subject": "feat: improvements to test_extern command (#3075)",
+  "zig_target": {}
+}

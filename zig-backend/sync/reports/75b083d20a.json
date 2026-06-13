@@ -1,0 +1,48 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Split.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Split/Basic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Basic.lean"
+    }
+  ],
+  "date": "2026-02-24",
+  "needs_port": true,
+  "sha": "75b083d20a5eba350762b5f66448d3adb0fa90ac",
+  "short_sha": "75b083d20a",
+  "subject": "chore: API to prepare for `String.split` API (#12668)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Order.lean": "zig-backend/src/init/Data/String/Lemmas/Order.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Split.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Split/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Basic.lean"
+  }
+}

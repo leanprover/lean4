@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-27",
+  "needs_port": false,
+  "sha": "b32b542a85cbe2c20e111e344016f23a5ede2456",
+  "short_sha": "b32b542a85",
+  "subject": "chore: fix `mkForbiddenSet`",
+  "zig_target": {}
+}

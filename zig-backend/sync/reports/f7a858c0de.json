@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-14",
+  "needs_port": false,
+  "sha": "f7a858c0decdd6d1b0506c1be45e9bee08f3fcdb",
+  "short_sha": "f7a858c0de",
+  "subject": "Add search path heading to README",
+  "zig_target": {}
+}

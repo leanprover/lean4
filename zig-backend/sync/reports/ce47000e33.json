@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-30",
+  "needs_port": false,
+  "sha": "ce47000e337824afa366ae858d7395ae480e9f1c",
+  "short_sha": "ce47000e33",
+  "subject": "fix: missing `whnf` at `tryLemma?`",
+  "zig_target": {}
+}

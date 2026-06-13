@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2022-01-10",
+  "needs_port": true,
+  "sha": "16b4aa81e598cfabb93bc203e94a003898d2efe9",
+  "short_sha": "16b4aa81e5",
+  "subject": "chore: add helper lemmas for well-founded recursion",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

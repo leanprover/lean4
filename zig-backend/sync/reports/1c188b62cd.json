@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2022-09-08",
+  "needs_port": true,
+  "sha": "1c188b62cdb688efd9b07ef0315e162076d8683f",
+  "short_sha": "1c188b62cd",
+  "subject": "chore: typo",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

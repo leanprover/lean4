@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-16",
+  "needs_port": false,
+  "sha": "ad77e7e7629bca30bad63eb511720f20e34e418b",
+  "short_sha": "ad77e7e762",
+  "subject": "chore: Issue template: Suggest `#eval Lean.versionString` (#2884)",
+  "zig_target": {}
+}

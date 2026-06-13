@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    }
+  ],
+  "date": "2024-09-04",
+  "needs_port": true,
+  "sha": "318e455d96c5f7532ed6df5ca38d4e9c336aec98",
+  "short_sha": "318e455d96",
+  "subject": "chore: avoid importing List.Basic without List.Impl (#5245)",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean"
+  }
+}

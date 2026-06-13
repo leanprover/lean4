@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    }
+  ],
+  "date": "2019-12-02",
+  "needs_port": true,
+  "sha": "798001af75780e730ce74e5a70422ce05aa857a5",
+  "short_sha": "798001af75",
+  "subject": "refactor: do not save/restore cache at `withNewMCtxDepth`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean"
+  }
+}

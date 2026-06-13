@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-01",
+  "needs_port": false,
+  "sha": "861f7228445dd92c38e08ba33842030a53cc7bca",
+  "short_sha": "861f722844",
+  "subject": "fix: handle multi-discriminant casesOn in WF unfold equation generation (#13232)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "93c0b4462357330ff7e44b99b1f39377be7fd8e3",
+  "short_sha": "93c0b44623",
+  "subject": "doc: correct `require` syntax docs",
+  "zig_target": {}
+}

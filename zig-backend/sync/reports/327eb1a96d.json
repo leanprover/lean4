@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-13",
+  "needs_port": false,
+  "sha": "327eb1a96d6d6daf378b33700327e0b230b4c3bb",
+  "short_sha": "327eb1a96d",
+  "subject": "fix: ensure ill-formed `if` do-statements do not trigger non termination",
+  "zig_target": {}
+}

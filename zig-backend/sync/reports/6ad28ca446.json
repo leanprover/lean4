@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-04-22",
+  "needs_port": false,
+  "sha": "6ad28ca446d0793cda742631aa85c00584c5e313",
+  "short_sha": "6ad28ca446",
+  "subject": "feat: add `inductive.autoPromoteIndices` option (#3590)",
+  "zig_target": {}
+}

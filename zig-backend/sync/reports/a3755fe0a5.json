@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2026-01-24",
+  "needs_port": true,
+  "sha": "a3755fe0a52cfbadcc92b52ed89a87bdd6b57e76",
+  "short_sha": "a3755fe0a5",
+  "subject": "fix: add syntax to recommended_spelling for inv (#12139)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

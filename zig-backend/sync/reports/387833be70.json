@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-26",
+  "needs_port": false,
+  "sha": "387833be70626afc23899ddfdabfccee6eb68c5c",
+  "short_sha": "387833be70",
+  "subject": "chore: update Claude prompting (#11370)",
+  "zig_target": {}
+}

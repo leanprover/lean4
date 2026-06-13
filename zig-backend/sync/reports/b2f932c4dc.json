@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-04",
+  "needs_port": false,
+  "sha": "b2f932c4dc897f3ace8acd1830404cb62cf07a19",
+  "short_sha": "b2f932c4dc",
+  "subject": "feat: lift `let rec` expressions nested in a mutual block",
+  "zig_target": {}
+}

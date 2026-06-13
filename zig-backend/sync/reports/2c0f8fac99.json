@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-18",
+  "needs_port": false,
+  "sha": "2c0f8fac99237b093272d6350f376c6304fe6695",
+  "short_sha": "2c0f8fac99",
+  "subject": "feat: support unused params in RpcEncoding deriver",
+  "zig_target": {}
+}

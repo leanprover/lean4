@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Util.lean"
+    }
+  ],
+  "date": "2025-01-25",
+  "needs_port": true,
+  "sha": "ca56c5ecc02bdd139666fb516760fb69b825e8fd",
+  "short_sha": "ca56c5ecc0",
+  "subject": "feat: improve support for `match`-expressions in `grind` (#6779)",
+  "zig_target": {
+    "src/Init/Grind/Util.lean": "zig-backend/src/init/Grind/Util.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-23",
+  "needs_port": true,
+  "sha": "0cae7165aa99537c454d01e0d14b215000c67984",
+  "short_sha": "0cae7165aa",
+  "subject": "feat: BitVec.toNat_{add,sub,mul_of_lt} for BitVector non-overflow reasoning (#5411)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

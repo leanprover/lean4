@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-03",
+  "needs_port": false,
+  "sha": "eaa7582e60d4af5aad622ce3f80fa391c413dd4a",
+  "short_sha": "eaa7582e60",
+  "subject": "feat: add `toPattern`",
+  "zig_target": {}
+}

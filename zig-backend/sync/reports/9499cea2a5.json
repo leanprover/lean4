@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    }
+  ],
+  "date": "2022-01-14",
+  "needs_port": true,
+  "sha": "9499cea2a57080e5150ce641f43ba3d0f0bafeea",
+  "short_sha": "9499cea2a5",
+  "subject": "fix: bug at `skip_code_generation`",
+  "zig_target": {
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp"
+  }
+}

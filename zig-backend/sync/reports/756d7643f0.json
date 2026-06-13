@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-21",
+  "needs_port": false,
+  "sha": "756d7643f076665302d623c24143336e52081987",
+  "short_sha": "756d7643f0",
+  "subject": "chore: rename `syntaxMaxDepth` option for consistency and discoverability",
+  "zig_target": {}
+}

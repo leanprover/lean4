@@ -1,0 +1,42 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Folds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Folds.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-03-31",
+  "needs_port": true,
+  "sha": "35894b119ce661b9c4a0dd6a4d33b2edd34c2c12",
+  "short_sha": "35894b119c",
+  "subject": "doc: docstring review for bitvectors (#7713)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/BasicAux.lean": "zig-backend/src/init/Data/BitVec/BasicAux.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Folds.lean": "zig-backend/src/init/Data/BitVec/Folds.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

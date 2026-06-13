@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2020-08-25",
+  "needs_port": false,
+  "sha": "21d176c1eac9460a2f89bc733e0171f8f245333a",
+  "short_sha": "21d176c1ea",
+  "subject": "doc: correct msys2 build instructions",
+  "zig_target": {}
+}

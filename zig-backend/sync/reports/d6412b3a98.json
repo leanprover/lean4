@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "d6412b3a98c81de41ec15e31ba1923bd24157bb6",
+  "short_sha": "d6412b3a98",
+  "subject": "fix: pp.analyze was still printing inaccessibles",
+  "zig_target": {}
+}

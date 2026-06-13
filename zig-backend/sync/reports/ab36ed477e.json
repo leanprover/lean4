@@ -1,0 +1,30 @@
+{
+  "author": "Leni Aniva",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2023-11-17",
+  "needs_port": true,
+  "sha": "ab36ed477e1ab985e7b5eb0bfed03ec9789b5de5",
+  "short_sha": "ab36ed477e",
+  "subject": "feat: allow trailing comma in tuples, lists, and tactics (#2643)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

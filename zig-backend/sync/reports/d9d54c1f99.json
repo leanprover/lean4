@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-12-02",
+  "needs_port": false,
+  "sha": "d9d54c1f99363f42d1485f6b67f281a5985f684e",
+  "short_sha": "d9d54c1f99",
+  "subject": "chore: lake: use & check `prelude` (#6289)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-22",
+  "needs_port": false,
+  "sha": "5145030ff4bed884213f584f8b2402be82e96d45",
+  "short_sha": "5145030ff4",
+  "subject": "chore: refactor Elab.StructInst to use `mutual` for its `structure`s/`inductive`s (#6174)",
+  "zig_target": {}
+}

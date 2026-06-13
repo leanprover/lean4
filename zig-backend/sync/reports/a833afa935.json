@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/BinderNameHint.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/BinderNameHint.lean"
+    }
+  ],
+  "date": "2025-02-13",
+  "needs_port": true,
+  "sha": "a833afa93518adb0c2a341822b2e7edebde3f10c",
+  "short_sha": "a833afa935",
+  "subject": "feat: binderNameHint in congr (#7053)",
+  "zig_target": {
+    "src/Init/BinderNameHint.lean": "zig-backend/src/init/BinderNameHint.lean"
+  }
+}

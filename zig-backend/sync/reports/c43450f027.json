@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-19",
+  "needs_port": false,
+  "sha": "c43450f027a0b26727dec29651392f37051fd7eb",
+  "short_sha": "c43450f027",
+  "subject": "feat: macros for the syntax category",
+  "zig_target": {}
+}

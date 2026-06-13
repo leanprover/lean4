@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-25",
+  "needs_port": false,
+  "sha": "675bebb446295263cf706d430204e136a04d0d75",
+  "short_sha": "675bebb446",
+  "subject": "fix: `isLevelDefEq` missing case",
+  "zig_target": {}
+}

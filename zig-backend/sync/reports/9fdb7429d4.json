@@ -1,0 +1,18 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Basic.lean"
+    }
+  ],
+  "date": "2022-03-31",
+  "needs_port": true,
+  "sha": "9fdb7429d4d73a77caa846a66cd8bf98548bae13",
+  "short_sha": "9fdb7429d4",
+  "subject": "doc: edits to MonadControl",
+  "zig_target": {
+    "src/Init/Control/Basic.lean": "zig-backend/src/init/Control/Basic.lean"
+  }
+}

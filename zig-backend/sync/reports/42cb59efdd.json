@@ -1,0 +1,10 @@
+{
+  "author": "Denis Gorbachev",
+  "backend_changes": [],
+  "date": "2023-10-05",
+  "needs_port": false,
+  "sha": "42cb59efdd9099cb6e1891fa58b21dfcc5eef702",
+  "short_sha": "42cb59efdd",
+  "subject": "doc: fix the link to contribution guidelines (#2623)",
+  "zig_target": {}
+}

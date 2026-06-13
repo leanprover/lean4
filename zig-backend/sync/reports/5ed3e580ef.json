@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2022-08-01",
+  "needs_port": true,
+  "sha": "5ed3e580efe355cefbe86b115d6d75aeaea4280e",
+  "short_sha": "5ed3e580ef",
+  "subject": "fix: allow `{}` as conv",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

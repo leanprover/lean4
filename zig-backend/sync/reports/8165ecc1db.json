@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-03",
+  "needs_port": false,
+  "sha": "8165ecc1db80dd7c8d6909c734eec69bfe1bc7e9",
+  "short_sha": "8165ecc1db",
+  "subject": "fix: bug in the equality resolution procedure in `grind` (#8621)",
+  "zig_target": {}
+}

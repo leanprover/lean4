@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-09",
+  "needs_port": false,
+  "sha": "fdce7a99e13f938d1b56ba13da5e2dd78bd4bf34",
+  "short_sha": "fdce7a99e1",
+  "subject": "feat: structure diamonds basic support",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-10",
+  "needs_port": false,
+  "sha": "f2ea45e68a908528e9c7348921a84cc00c737b76",
+  "short_sha": "f2ea45e68a",
+  "subject": "feat: expose `doSeq` and `termBeforeDo` parsers",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-07",
+  "needs_port": false,
+  "sha": "bfe75833565910e006914e18f59e9ae7faa47d7f",
+  "short_sha": "bfe7583356",
+  "subject": "chore: install license",
+  "zig_target": {}
+}

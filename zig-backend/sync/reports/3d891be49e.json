@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Delaborator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Delaborator.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    },
+    {
+      "path": "src/Init/Lean/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Syntax.lean"
+    }
+  ],
+  "date": "2020-05-14",
+  "needs_port": true,
+  "sha": "3d891be49e0d5f55141cb402100bb760c5317d6f",
+  "short_sha": "3d891be49e",
+  "subject": "feat: delaborator: do not set whitespace information",
+  "zig_target": {
+    "src/Init/Lean/Delaborator.lean": "zig-backend/src/init/Lean/Delaborator.lean",
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean",
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean",
+    "src/Init/Lean/Syntax.lean": "zig-backend/src/init/Lean/Syntax.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-23",
+  "needs_port": false,
+  "sha": "24380fc9009783fe2629143a9ab36dd534be8430",
+  "short_sha": "24380fc900",
+  "subject": "feat: unfold nullary constants in `cbv` (#12646)",
+  "zig_target": {}
+}

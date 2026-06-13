@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-17",
+  "needs_port": false,
+  "sha": "06bb3a82d341930b8748f68eafbb82189dc87ca5",
+  "short_sha": "06bb3a82d3",
+  "subject": "feat(library/init/lean/localcontext): add `LocalContext.mkLambda` and `LocalContext.mkForall`",
+  "zig_target": {}
+}

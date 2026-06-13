@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-14",
+  "needs_port": false,
+  "sha": "ae6335f1150a5a2cb72bf60c9b15e3ce3039e5b4",
+  "short_sha": "ae6335f115",
+  "subject": "chore: demote Intel macOS to Tier 2 platform (#10770)",
+  "zig_target": {}
+}

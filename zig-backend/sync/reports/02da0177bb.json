@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-02",
+  "needs_port": false,
+  "sha": "02da0177bb12c7b7027f17c856929fc64fcd46bd",
+  "short_sha": "02da0177bb",
+  "subject": "feat(library/init/lean/compiler/ir): add `updtHeader` field",
+  "zig_target": {}
+}

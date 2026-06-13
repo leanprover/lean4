@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-08",
+  "needs_port": false,
+  "sha": "4734e55f6dc8f9ce4705a62c5a6a951d071ceffd",
+  "short_sha": "4734e55f6d",
+  "subject": "feat(library/init/data): tail recursive append",
+  "zig_target": {}
+}

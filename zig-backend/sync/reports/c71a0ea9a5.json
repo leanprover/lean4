@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CoalesceRC.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CoalesceRC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2026-03-27",
+  "needs_port": true,
+  "sha": "c71a0ea9a51a90bfad5f1c53192e3736742617f4",
+  "short_sha": "c71a0ea9a5",
+  "subject": "perf: coalescing of RC ops within one basic block (#13136)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CoalesceRC.lean": "zig-backend/src/lean/compiler/lcnf/CoalesceRC.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

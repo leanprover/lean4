@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-30",
+  "needs_port": false,
+  "sha": "8a2c2ffe84250f82f02255f982a3df87dffa0e6e",
+  "short_sha": "8a2c2ffe84",
+  "subject": "chore(tests/bench/Makefile): reduce rbmap input sizes",
+  "zig_target": {}
+}

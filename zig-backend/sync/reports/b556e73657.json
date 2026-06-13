@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-05-23",
+  "needs_port": false,
+  "sha": "b556e73657458cf11083e2f2cbad33cb9522cfd9",
+  "short_sha": "b556e73657",
+  "subject": "refactor: extend Lsp.ModuleRefs in Server.References",
+  "zig_target": {}
+}

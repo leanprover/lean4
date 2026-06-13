@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    }
+  ],
+  "date": "2020-11-03",
+  "needs_port": true,
+  "sha": "fa7fd4687c518f25f86cea4c711ea0f3bc81d984",
+  "short_sha": "fa7fd4687c",
+  "subject": "feat: `induction` with multiple targets",
+  "zig_target": {
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean"
+  }
+}

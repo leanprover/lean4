@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-05",
+  "needs_port": false,
+  "sha": "3ff10c6cdd378d93c1c89eb629e58d6bc01f13d1",
+  "short_sha": "3ff10c6cdd",
+  "subject": "test: cutsat cooper resolution (#7354)",
+  "zig_target": {}
+}

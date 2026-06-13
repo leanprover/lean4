@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-19",
+  "needs_port": false,
+  "sha": "c8eaee74b44fb37fab80f2b43822baaf6c2fb70d",
+  "short_sha": "c8eaee74b4",
+  "subject": "feat(frontends/lean,library/init/lean/parser/combinators): add `node_longest_choice!` macro",
+  "zig_target": {}
+}

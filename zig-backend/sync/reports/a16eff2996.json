@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-28",
+  "needs_port": false,
+  "sha": "a16eff2996ce45a2ed47c9376eb64755387d7eea",
+  "short_sha": "a16eff2996",
+  "subject": "chore: Nix: implement roots",
+  "zig_target": {}
+}

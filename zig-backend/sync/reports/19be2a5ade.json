@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2020-03-26",
+  "needs_port": true,
+  "sha": "19be2a5ade3fd734d7050b1ba0ac3b5095a2dbe1",
+  "short_sha": "19be2a5ade",
+  "subject": "chore: remove `{}` and `[]` from `funBinder`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

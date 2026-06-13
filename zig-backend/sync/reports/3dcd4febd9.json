@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    },
+    {
+      "path": "src/shell/test_standard.sh",
+      "status": "D",
+      "zig_target": "zig-backend/src/shell/test_standard.sh"
+    }
+  ],
+  "date": "2019-11-20",
+  "needs_port": true,
+  "sha": "3dcd4febd9966cddf14318d0cdb0a5a07cd889a0",
+  "short_sha": "3dcd4febd9",
+  "subject": "feat: make LEAN_PATH a mapping from package names to root dirs, remove C++ impl",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp",
+    "src/shell/test_standard.sh": "zig-backend/src/shell/test_standard.sh"
+  }
+}

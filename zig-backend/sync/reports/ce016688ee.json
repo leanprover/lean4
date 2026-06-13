@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-24",
+  "needs_port": false,
+  "sha": "ce016688ee3eea0fe849cdd6ed3e35b2ba9f56c9",
+  "short_sha": "ce016688ee",
+  "subject": "chore(frontends/lean/builtin_cmds): remove `local` notation from old parser",
+  "zig_target": {}
+}

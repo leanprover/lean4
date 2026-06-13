@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-06-12",
+  "needs_port": false,
+  "sha": "42d58580e6dc4a38ed60ee61b98f16ec40f041f1",
+  "short_sha": "42d58580e6",
+  "subject": "chore(script/prepare-commit-msg): remove file extension, guess change type",
+  "zig_target": {}
+}

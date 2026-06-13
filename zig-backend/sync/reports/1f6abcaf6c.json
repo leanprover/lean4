@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-02-02",
+  "needs_port": false,
+  "sha": "1f6abcaf6cfa3b1fa249a8120901b9e51b6fd816",
+  "short_sha": "1f6abcaf6c",
+  "subject": "feat: make all app unexpanders respond to `pp.tagAppFns` (#6730)",
+  "zig_target": {}
+}

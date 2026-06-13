@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-01",
+  "needs_port": false,
+  "sha": "2d78f4db36ce4bf345513746444b4d09831a4513",
+  "short_sha": "2d78f4db36",
+  "subject": "feat: add non-activve targets",
+  "zig_target": {}
+}

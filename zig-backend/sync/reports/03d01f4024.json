@@ -1,0 +1,90 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Notation.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/Notation.lean"
+    },
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-06-17",
+  "needs_port": true,
+  "sha": "03d01f40245b4cd4f21ef0a13c3a45a3494b04f6",
+  "short_sha": "03d01f4024",
+  "subject": "chore: reorganisation of `List` API (#4469)",
+  "zig_target": {
+    "src/Init/Data/Array/BasicAux.lean": "zig-backend/src/init/Data/Array/BasicAux.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean",
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean",
+    "src/Init/Data/List.lean": "zig-backend/src/init/Data/List.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Notation.lean": "zig-backend/src/init/Data/List/Notation.lean",
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

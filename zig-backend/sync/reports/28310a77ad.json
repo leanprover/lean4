@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    }
+  ],
+  "date": "2025-10-28",
+  "needs_port": true,
+  "sha": "28310a77ad5cb1052476e8c7821c49c74cc2e722",
+  "short_sha": "28310a77ad",
+  "subject": "feat: config options at `finish` (#10997)",
+  "zig_target": {
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean"
+  }
+}

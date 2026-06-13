@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "ac2fb7e149b4e1bfea06e1fe215377789b24e77b",
+  "short_sha": "ac2fb7e149",
+  "subject": "feat: allow `ident`, `num` (numeric literals) and `str` (string literals) as macro argument types",
+  "zig_target": {
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+  }
+}

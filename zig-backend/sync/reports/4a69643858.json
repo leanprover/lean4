@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-11-23",
+  "needs_port": false,
+  "sha": "4a69643858daddcd495a6c335ae806f06f7ce960",
+  "short_sha": "4a69643858",
+  "subject": "fix: nontermination while generating equation lemmas for `match`-expressions (#6180)",
+  "zig_target": {}
+}

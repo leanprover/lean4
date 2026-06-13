@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-02-27",
+  "needs_port": false,
+  "sha": "60a9f8e49267a7b6988a6538cdff4ebcd26c24c2",
+  "short_sha": "60a9f8e492",
+  "subject": "feat: well-formedness lemmas for raw tree map operations (#7237)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-30",
+  "needs_port": false,
+  "sha": "3abf53d1964a38bac31980f9ac8b7509e1bb8854",
+  "short_sha": "3abf53d196",
+  "subject": "chore: just build bin in `examples/bootstrap`",
+  "zig_target": {}
+}

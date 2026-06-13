@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "c595413fccaa47ebdc399d9b817c17425687fc26",
+  "short_sha": "c595413fcc",
+  "subject": "test: robustify but also CI-disable idbg test for now (#12667)",
+  "zig_target": {}
+}

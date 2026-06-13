@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-07-26",
+  "needs_port": false,
+  "sha": "95f758d240a08fe56ab4260e76ceec32c8ab6fc9",
+  "short_sha": "95f758d240",
+  "subject": "feat(library/system/io_interface): improve `iterate` interface",
+  "zig_target": {}
+}

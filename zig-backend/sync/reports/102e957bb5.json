@@ -1,0 +1,10 @@
+{
+  "author": "ammkrn",
+  "backend_changes": [],
+  "date": "2022-05-28",
+  "needs_port": false,
+  "sha": "102e957bb53c47dea7dd398335e04661cbb9bb0e",
+  "short_sha": "102e957bb5",
+  "subject": "feat: support proofs in deriving DecidableEq",
+  "zig_target": {}
+}

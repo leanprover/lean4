@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    }
+  ],
+  "date": "2022-05-07",
+  "needs_port": true,
+  "sha": "73cb952275ea0ddc58701db1e50cb0bfbaf42d16",
+  "short_sha": "73cb952275",
+  "subject": "feat: add `Hashable (Array \u03b1)` instance",
+  "zig_target": {
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean"
+  }
+}

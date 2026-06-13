@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-09-17",
+  "needs_port": true,
+  "sha": "2abe11ce63366792111598ce93008a1c884c8280",
+  "short_sha": "2abe11ce63",
+  "subject": "chore(library): `_meta_aux` ==> `_meta_rec`",
+  "zig_target": {
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

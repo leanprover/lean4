@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Meta.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Visibility.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+    }
+  ],
+  "date": "2026-02-19",
+  "needs_port": true,
+  "sha": "423671a6c03c14597a90ee4e7d5c56dbd34b8130",
+  "short_sha": "423671a6c0",
+  "subject": "feat: strengthen `evalConst` meta check",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Meta.lean": "zig-backend/src/lean/compiler/ir/Meta.lean",
+    "src/Lean/Compiler/LCNF/Visibility.lean": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-19",
+  "needs_port": false,
+  "sha": "86072873f48ed7bd17f89ea05343243d3981d75b",
+  "short_sha": "86072873f4",
+  "subject": "feat: server: allow more than one ContextInfo",
+  "zig_target": {}
+}

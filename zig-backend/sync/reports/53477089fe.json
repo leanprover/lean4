@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-07-25",
+  "needs_port": false,
+  "sha": "53477089fe255280d7a816371ec315c6e2e94220",
+  "short_sha": "53477089fe",
+  "subject": "chore: remove unused macOS dependencies",
+  "zig_target": {}
+}

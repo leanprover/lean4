@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-01-31",
+  "needs_port": true,
+  "sha": "94d7b4e0941a6abc18d131095ff3e56e817a2252",
+  "short_sha": "94d7b4e094",
+  "subject": "fix(library/compiler/emit_cpp): support for `_unreachable`",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

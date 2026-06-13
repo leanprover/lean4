@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-04-24",
+  "needs_port": false,
+  "sha": "371504e9cf2391cb0907ca26ac79c545ea2c7a4e",
+  "short_sha": "371504e9cf",
+  "subject": "feat: add ProofBelow construction for inductive predicates.",
+  "zig_target": {}
+}

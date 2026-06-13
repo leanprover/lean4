@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-11-26",
+  "needs_port": false,
+  "sha": "0a22f8fa6fef34a6798785785237c66cab173197",
+  "short_sha": "0a22f8fa6f",
+  "subject": "chore: improve consistency & documentation for hash table `insert` and `insertMany` (#6222)",
+  "zig_target": {}
+}

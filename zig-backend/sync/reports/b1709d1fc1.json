@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    }
+  ],
+  "date": "2025-06-04",
+  "needs_port": true,
+  "sha": "b1709d1fc11d710d6535b4e09034c4403f0d5769",
+  "short_sha": "b1709d1fc1",
+  "subject": "feat: background theorems for `IntModule` (#8637)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Ordered.lean": "zig-backend/src/init/Grind/Ordered.lean",
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+  }
+}

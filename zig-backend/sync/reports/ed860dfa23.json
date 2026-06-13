@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-05",
+  "needs_port": true,
+  "sha": "ed860dfa23acab2178686d85f463101f5adbddf1",
+  "short_sha": "ed860dfa23",
+  "subject": "chore: use better struct literal syntax (#9731)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

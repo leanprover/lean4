@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-15",
+  "needs_port": false,
+  "sha": "c8a13a9adaa747be479e2b4bec92f5042d7b4c37",
+  "short_sha": "c8a13a9ada",
+  "subject": "refactor(*): name convention obj_list => list_ref",
+  "zig_target": {}
+}

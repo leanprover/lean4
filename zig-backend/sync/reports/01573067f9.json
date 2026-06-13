@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2024-04-30",
+  "needs_port": true,
+  "sha": "01573067f9e4ba1a48d22457c9abe5ac8413cc4d",
+  "short_sha": "01573067f9",
+  "subject": "chore: typos (#4026)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-13",
+  "needs_port": false,
+  "sha": "340c331da908cb77f7a82b927921a510e40de5fa",
+  "short_sha": "340c331da9",
+  "subject": "chore: CI: ignore `diff` exit code",
+  "zig_target": {}
+}

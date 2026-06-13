@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2022-03-19",
+  "needs_port": true,
+  "sha": "64bd82dddd50cd66eb1712fa81b27a22c83c5d01",
+  "short_sha": "64bd82dddd",
+  "subject": "feat: custom `SizeOf` instance for `String.Iterator`",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

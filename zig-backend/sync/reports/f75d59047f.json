@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-28",
+  "needs_port": false,
+  "sha": "f75d59047f524a04ec4e68366d4ca903fa466a89",
+  "short_sha": "f75d59047f",
+  "subject": "feat: add `commitWhenSomeNoEx?`",
+  "zig_target": {}
+}

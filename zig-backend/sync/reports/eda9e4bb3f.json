@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-01",
+  "needs_port": false,
+  "sha": "eda9e4bb3feeaa2391043d3f2672ac84b2c97141",
+  "short_sha": "eda9e4bb3f",
+  "subject": "feat(library/derive_attribute): temporary, hacky C++ implementation of @[derive]",
+  "zig_target": {}
+}

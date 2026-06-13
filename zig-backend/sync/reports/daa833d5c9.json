@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-16",
+  "needs_port": false,
+  "sha": "daa833d5c9a0001f1fc6a16e7fb43bac985ed7a0",
+  "short_sha": "daa833d5c9",
+  "subject": "feat: preserve internal let-declaration binder names",
+  "zig_target": {}
+}

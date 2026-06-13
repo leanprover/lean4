@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-08-12",
+  "needs_port": false,
+  "sha": "9c7d91c67fcf8acc6670f199e66d26ed2726469c",
+  "short_sha": "9c7d91c67f",
+  "subject": "fix: don't normalize line endings but still diff",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "zygi",
+  "backend_changes": [],
+  "date": "2021-03-06",
+  "needs_port": false,
+  "sha": "6a0a4fd71c6478e7f017ae5c24ed66c6e43e6b0f",
+  "short_sha": "6a0a4fd71c",
+  "subject": "feat: Nix: depend on static libraries and plugins (#322)",
+  "zig_target": {}
+}

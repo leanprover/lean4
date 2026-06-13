@@ -1,0 +1,18 @@
+{
+  "author": "James Sully",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-01",
+  "needs_port": true,
+  "sha": "2b80f801f6e537a419e298184f2d5941c331773c",
+  "short_sha": "2b80f801f6",
+  "subject": "doc: Fix typo in Tactics.lean: fun_cass -> fun_cases (#8191)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

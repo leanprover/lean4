@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-09-02",
+  "needs_port": false,
+  "sha": "4f04112446a10ef996fdfed10e3991f2cafadc4a",
+  "short_sha": "4f04112446",
+  "subject": "chore: remove unused lemmas from a non-terminal simp (#5229)",
+  "zig_target": {}
+}

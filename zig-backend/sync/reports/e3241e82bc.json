@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/System/ST.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/ST.lean"
+    }
+  ],
+  "date": "2022-01-14",
+  "needs_port": true,
+  "sha": "e3241e82bce83048accbbb2eac3f281a7e74b5d7",
+  "short_sha": "e3241e82bc",
+  "subject": "feat: define `PointedType` as `{ \u03b1 : Type u // Nonempty \u03b1 }`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/System/ST.lean": "zig-backend/src/init/System/ST.lean"
+  }
+}

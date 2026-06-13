@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-08-15",
+  "needs_port": false,
+  "sha": "35a753dc9886b758fc0f51b6206eafd8cb55915a",
+  "short_sha": "35a753dc98",
+  "subject": "fix: panic in ProofMode/Delab (#9923)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-27",
+  "needs_port": false,
+  "sha": "453ce9b3b8bcceb7666378a524197631b3d37e73",
+  "short_sha": "453ce9b3b8",
+  "subject": "feat: add `eoi` parser",
+  "zig_target": {}
+}

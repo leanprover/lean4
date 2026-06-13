@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-09",
+  "needs_port": false,
+  "sha": "e63ab75cb925ca21ccdc067973b6b5081ef893c9",
+  "short_sha": "e63ab75cb9",
+  "subject": "fix: Nix: executable",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [],
+  "date": "2024-11-08",
+  "needs_port": false,
+  "sha": "fc0529b020009f43814f898604810d159799a41b",
+  "short_sha": "fc0529b020",
+  "subject": "fix: ensure `instantiateMVarsProfiling` adds a trace node (#5501)",
+  "zig_target": {}
+}

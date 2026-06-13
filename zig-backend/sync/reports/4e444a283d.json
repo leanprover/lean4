@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-27",
+  "needs_port": false,
+  "sha": "4e444a283d189f6c6e34e6cb782e45c62e02453c",
+  "short_sha": "4e444a283d",
+  "subject": "feat(library/class): switch to Lean implementation",
+  "zig_target": {}
+}

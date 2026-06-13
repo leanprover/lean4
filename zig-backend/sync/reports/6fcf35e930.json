@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-12-02",
+  "needs_port": false,
+  "sha": "6fcf35e930d44038e63105a4fadd42d2a756b461",
+  "short_sha": "6fcf35e930",
+  "subject": "chore: `script/mathlib-bench` (#6280)",
+  "zig_target": {}
+}

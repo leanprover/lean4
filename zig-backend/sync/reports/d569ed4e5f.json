@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "d569ed4e5f796bbabbe17302a7c5a7060a4c7de7",
+  "short_sha": "d569ed4e5f",
+  "subject": "feat: make loose fvars pretty print as `_fvar.123` instead of `_uniq.123` (#3380)",
+  "zig_target": {}
+}

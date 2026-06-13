@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-11-26",
+  "needs_port": true,
+  "sha": "98b83e96cbb08b6f53bcd8b8c5dbfe9e31330d0f",
+  "short_sha": "98b83e96cb",
+  "subject": "chore: do not build bin_lean_stage2 by default",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

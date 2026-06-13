@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Slice/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Notation.lean"
+    }
+  ],
+  "date": "2025-12-02",
+  "needs_port": true,
+  "sha": "0e83422fb6337985c3354c263a9510cbcb4b1e05",
+  "short_sha": "0e83422fb6",
+  "subject": "doc: add missing docstrings for Rxy.Sliceable (#11472)",
+  "zig_target": {
+    "src/Init/Data/Slice/Notation.lean": "zig-backend/src/init/Data/Slice/Notation.lean"
+  }
+}

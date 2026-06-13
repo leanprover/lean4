@@ -1,0 +1,18 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-29",
+  "needs_port": true,
+  "sha": "b5bbc57059937041e4dfc7cd0b22436a6565c4ac",
+  "short_sha": "b5bbc57059",
+  "subject": "feat: prove that `intMin` is indeed the smallest signed bitvector (#5778)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

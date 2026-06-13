@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Data/Position.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Position.lean"
+    }
+  ],
+  "date": "2020-03-19",
+  "needs_port": true,
+  "sha": "3e7bc07f19b368804fb4607d8ea708ad457f38db",
+  "short_sha": "3e7bc07f19",
+  "subject": "fix: FileMap.toPosition: terminate if position is out of bounds",
+  "zig_target": {
+    "src/Init/Lean/Data/Position.lean": "zig-backend/src/init/Lean/Data/Position.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "d8219a37ef229e7360af4d2893fc660244925136",
+  "short_sha": "d8219a37ef",
+  "subject": "feat: grind linarith synthesis issues explain changes in behaviour (#10448)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-04",
+  "needs_port": false,
+  "sha": "5f4d991a1747bb576af8d7da47396c00d8048ce6",
+  "short_sha": "5f4d991a17",
+  "subject": "fix: formatter: backtracking on identifiers",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-11",
+  "needs_port": false,
+  "sha": "97373b5a2064b93f0a0837d6efa128aa15d6897e",
+  "short_sha": "97373b5a20",
+  "subject": "feat: add struct/union constructors to IRType",
+  "zig_target": {}
+}

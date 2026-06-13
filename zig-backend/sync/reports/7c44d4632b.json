@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-02",
+  "needs_port": false,
+  "sha": "7c44d4632bca5876b108378da62b9ef474eb03af",
+  "short_sha": "7c44d4632b",
+  "subject": "fix: `induction ... generalizing`",
+  "zig_target": {}
+}

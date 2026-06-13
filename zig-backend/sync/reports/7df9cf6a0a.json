@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-17",
+  "needs_port": false,
+  "sha": "7df9cf6a0aedea9b80ff3f10e3291f9ab0166e83",
+  "short_sha": "7df9cf6a0a",
+  "subject": "feat: eliminate \"recAppSyntax\" information during structural recursion",
+  "zig_target": {}
+}

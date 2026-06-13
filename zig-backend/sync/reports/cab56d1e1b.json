@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-21",
+  "needs_port": false,
+  "sha": "cab56d1e1be5e45bfde7dacf6efeab2248dd1cdd",
+  "short_sha": "cab56d1e1b",
+  "subject": "chore: do not invoke the hooks from `addImported`",
+  "zig_target": {}
+}

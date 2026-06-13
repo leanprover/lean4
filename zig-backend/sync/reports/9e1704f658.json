@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-25",
+  "needs_port": false,
+  "sha": "9e1704f658e4f7cb795add4583be3bd7fce25440",
+  "short_sha": "9e1704f658",
+  "subject": "chore: simplify `toCtorWhenK`",
+  "zig_target": {}
+}

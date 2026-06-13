@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-21",
+  "needs_port": false,
+  "sha": "a535d348de16fe1b70ee3d87d25d165539d647fa",
+  "short_sha": "a535d348de",
+  "subject": "feat(library/init/lean/elaborator): use `SyntaxNode` to define `TermElab` and `CommandElab`",
+  "zig_target": {}
+}

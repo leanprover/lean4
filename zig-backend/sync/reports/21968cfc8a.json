@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-12",
+  "needs_port": false,
+  "sha": "21968cfc8af35de1123c5a046ee7e353714c2462",
+  "short_sha": "21968cfc8a",
+  "subject": "chore: split `DefEq.lean`",
+  "zig_target": {}
+}

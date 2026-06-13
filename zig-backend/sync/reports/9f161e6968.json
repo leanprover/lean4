@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-03",
+  "needs_port": false,
+  "sha": "9f161e6968fdd7eb6d208ed81a6f37f1491992e9",
+  "short_sha": "9f161e6968",
+  "subject": "fix(library,kernel): the new `proj_sname` field must be taken into account during comparisons",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2019-02-16",
+  "needs_port": true,
+  "sha": "54985b5a0e1736fb457048ff65cf029d141d307f",
+  "short_sha": "54985b5a0e",
+  "subject": "fix(library/compiler/csimp): accidentally removed `nat.succ x` ==> `x + 1` transformation from csimp",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

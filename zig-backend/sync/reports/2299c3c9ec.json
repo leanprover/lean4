@@ -1,0 +1,24 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    }
+  ],
+  "date": "2025-05-13",
+  "needs_port": true,
+  "sha": "2299c3c9ec373e26330798d3689935fe7c7a9c27",
+  "short_sha": "2299c3c9ec",
+  "subject": "chore: post-stage0 adaptions for #8104 (#8317)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+  }
+}

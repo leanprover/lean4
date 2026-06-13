@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-08",
+  "needs_port": false,
+  "sha": "85efdb159a1ac7d16186cdd0d8554be9cce265bd",
+  "short_sha": "85efdb159a",
+  "subject": "test: expand `examples/ffi` to use `getLeanIncludeDir`",
+  "zig_target": {}
+}

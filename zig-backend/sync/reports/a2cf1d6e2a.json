@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-04-27",
+  "needs_port": false,
+  "sha": "a2cf1d6e2a2a600d1a08cb3eca996b6031f08403",
+  "short_sha": "a2cf1d6e2a",
+  "subject": "chore: remove namespace repo caching logic (#13539)",
+  "zig_target": {}
+}

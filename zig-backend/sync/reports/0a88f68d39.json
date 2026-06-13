@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-04-29",
+  "needs_port": true,
+  "sha": "0a88f68d39027b31c036de5f055cf7f444affdf2",
+  "short_sha": "0a88f68d39",
+  "subject": "chore: finish `with_annotate_state` implementation",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

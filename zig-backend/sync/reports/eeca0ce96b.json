@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-14",
+  "needs_port": false,
+  "sha": "eeca0ce96be9066e8170a972bb2488b6bd863f50",
+  "short_sha": "eeca0ce96b",
+  "subject": "perf: Environment blocker removals from `async-proofs` branch (#7483)",
+  "zig_target": {}
+}

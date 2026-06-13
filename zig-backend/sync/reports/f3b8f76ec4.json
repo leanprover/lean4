@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "f3b8f76ec4515495cda311a619e231a70ea36c08",
+  "short_sha": "f3b8f76ec4",
+  "subject": "test: add `cbv` benchmark for evaluating `Decidable.decide` (#12467)",
+  "zig_target": {}
+}

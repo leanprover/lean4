@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-26",
+  "needs_port": false,
+  "sha": "814f61436901597a60ea47385ca164cf5d2ef687",
+  "short_sha": "814f614369",
+  "subject": "fix: simp attributes and macro scopes",
+  "zig_target": {}
+}

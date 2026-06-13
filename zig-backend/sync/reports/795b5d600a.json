@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-17",
+  "needs_port": false,
+  "sha": "795b5d600ab9cae4fd943636b38658d8b8b50660",
+  "short_sha": "795b5d600a",
+  "subject": "feat: add `expandFields`",
+  "zig_target": {}
+}

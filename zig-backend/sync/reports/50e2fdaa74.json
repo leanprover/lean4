@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    },
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-10-26",
+  "needs_port": true,
+  "sha": "50e2fdaa74163bb6804bef76f5129e0908acd934",
+  "short_sha": "50e2fdaa74",
+  "subject": "feat: add cdot combinator in `grind` tactic mode (#10975)",
+  "zig_target": {
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean",
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

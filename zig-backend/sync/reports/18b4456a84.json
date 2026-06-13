@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-25",
+  "needs_port": false,
+  "sha": "18b4456a84bbca3f6856282efdb99ac01d9609c9",
+  "short_sha": "18b4456a84",
+  "subject": "Revert \"refactor(library/init/lean/parser/parsec): monad_parsec: move from monad_lift/monad_map to direct primitives\"",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-21",
+  "needs_port": false,
+  "sha": "8eceb07caf566ee53a29e85c8318e930cf8f2ad5",
+  "short_sha": "8eceb07caf",
+  "subject": "feat: new discriminant refinement procedure",
+  "zig_target": {}
+}

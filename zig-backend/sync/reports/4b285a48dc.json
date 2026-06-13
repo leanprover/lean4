@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    }
+  ],
+  "date": "2019-12-11",
+  "needs_port": true,
+  "sha": "4b285a48dcd9af84275f0a8344c155ddb379a074",
+  "short_sha": "4b285a48dc",
+  "subject": "fix: forallMetaTelescopeReducing",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean"
+  }
+}

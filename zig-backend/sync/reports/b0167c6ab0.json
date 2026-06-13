@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-09",
+  "needs_port": false,
+  "sha": "b0167c6ab0416b8176e0f0d97dc841442615257c",
+  "short_sha": "b0167c6ab0",
+  "subject": "fix: leanpkg rpath",
+  "zig_target": {}
+}

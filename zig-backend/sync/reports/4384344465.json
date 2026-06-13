@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-03-04",
+  "needs_port": false,
+  "sha": "4384344465511764a9cf70aff0cdf5dd98e9a12c",
+  "short_sha": "4384344465",
+  "subject": "feat: lake: use trace mtime for arts when possible (#12799)",
+  "zig_target": {}
+}

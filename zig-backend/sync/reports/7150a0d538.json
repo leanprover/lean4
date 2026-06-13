@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-10-25",
+  "needs_port": false,
+  "sha": "7150a0d5389788e0985705f163e335c7442a2aba",
+  "short_sha": "7150a0d538",
+  "subject": "fix: reduce let-bodies correctly in `StructInst` (#3152)",
+  "zig_target": {}
+}

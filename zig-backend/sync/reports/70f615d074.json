@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Stage1.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Stage1.lean"
+    }
+  ],
+  "date": "2022-09-18",
+  "needs_port": true,
+  "sha": "70f615d074f5382ffbebf3ce03846a8ac5d2e7e3",
+  "short_sha": "70f615d074",
+  "subject": "fix: avoid \"unknown constant\" error message for auxiliary declarations",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean",
+    "src/Lean/Compiler/LCNF/Stage1.lean": "zig-backend/src/lean/compiler/lcnf/Stage1.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-04-18",
+  "needs_port": false,
+  "sha": "11ff00439ed5ebb5559640aafd888961c8a113e4",
+  "short_sha": "11ff00439e",
+  "subject": "feat: make linter options more explicitly discoverable (#3938)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-25",
+  "needs_port": false,
+  "sha": "2e5b4d2221f16de088f31953d0b0ae2c34eaa699",
+  "short_sha": "2e5b4d2221",
+  "subject": "feat: add simple DSL for package configurations",
+  "zig_target": {}
+}

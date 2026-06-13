@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2020-12-08",
+  "needs_port": true,
+  "sha": "2ebee8d00ccdccde22ee3d5ee07cb5527aed72e5",
+  "short_sha": "2ebee8d00c",
+  "subject": "fix: missing `addJP`",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

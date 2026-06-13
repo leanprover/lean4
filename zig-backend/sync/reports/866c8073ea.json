@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/InsertIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Range.lean"
+    }
+  ],
+  "date": "2025-03-31",
+  "needs_port": true,
+  "sha": "866c8073ea8dccf87a7b47033c1414265a2ccb11",
+  "short_sha": "866c8073ea",
+  "subject": "chore: List/Array/Vector implicitness changes (#7739)",
+  "zig_target": {
+    "src/Init/Data/Array/Range.lean": "zig-backend/src/init/Data/Array/Range.lean",
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean",
+    "src/Init/Data/List/Nat/InsertIdx.lean": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean",
+    "src/Init/Data/List/Nat/Range.lean": "zig-backend/src/init/Data/List/Nat/Range.lean",
+    "src/Init/Data/Vector/Range.lean": "zig-backend/src/init/Data/Vector/Range.lean"
+  }
+}

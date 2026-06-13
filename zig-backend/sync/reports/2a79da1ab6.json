@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/procedure.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/procedure.h"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    },
+    {
+      "path": "src/shell/server.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/server.h"
+    },
+    {
+      "path": "src/shell/simple_pos_info_provider.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/simple_pos_info_provider.h"
+    }
+  ],
+  "date": "2018-06-07",
+  "needs_port": true,
+  "sha": "2a79da1ab667ef4c468a3c2cf0a4c690f08d2ac8",
+  "short_sha": "2a79da1ab6",
+  "subject": "refactor(kernel): move formatting stuff out of the kernel",
+  "zig_target": {
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/procedure.h": "zig-backend/src/library/compiler/procedure.h",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp",
+    "src/shell/server.h": "zig-backend/src/shell/server.h",
+    "src/shell/simple_pos_info_provider.h": "zig-backend/src/shell/simple_pos_info_provider.h"
+  }
+}

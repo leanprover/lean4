@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    }
+  ],
+  "date": "2025-11-20",
+  "needs_port": true,
+  "sha": "cf0e4441e898b753bff6a70320e2d072f0886b22",
+  "short_sha": "cf0e4441e8",
+  "subject": "chore: create alias `String.Slice.any` for `String.Slice.contains` (#11282)",
+  "zig_target": {
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean"
+  }
+}

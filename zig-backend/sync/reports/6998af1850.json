@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-05",
+  "needs_port": false,
+  "sha": "6998af1850c34dc9699505caeeed620c84f09a3a",
+  "short_sha": "6998af1850",
+  "subject": "fix: record instances unfolded by `wrapInstance` as shake dependencies (#13579)",
+  "zig_target": {}
+}

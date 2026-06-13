@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-15",
+  "needs_port": false,
+  "sha": "be74e3f974820d71ef5b737b972cd36e0ecb8d92",
+  "short_sha": "be74e3f974",
+  "subject": "refactor(library/init/lean/ir): add `init/lean/ir/instances.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-19",
+  "needs_port": false,
+  "sha": "f9459f6e93c1aad2d0313335d83f67eabae0e969",
+  "short_sha": "f9459f6e93",
+  "subject": "feat(library/init/lean/syntax): add `Syntax.other`",
+  "zig_target": {}
+}

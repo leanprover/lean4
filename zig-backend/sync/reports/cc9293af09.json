@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-24",
+  "needs_port": false,
+  "sha": "cc9293af096fadda86cc8356f4d2be1b0e3fd79b",
+  "short_sha": "cc9293af09",
+  "subject": "doc: isDefEq explain mvar levels",
+  "zig_target": {}
+}

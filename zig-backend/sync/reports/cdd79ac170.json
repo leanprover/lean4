@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "cdd79ac170d64a8ef1f51c5105a667155bdaad74",
+  "short_sha": "cdd79ac170",
+  "subject": "feat: add `evalCasesUsing`",
+  "zig_target": {}
+}

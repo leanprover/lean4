@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-03-06",
+  "needs_port": false,
+  "sha": "35944c367b9468fc49ac57aa321e9dd69fa9b586",
+  "short_sha": "35944c367b",
+  "subject": "feat: leading whitespace on first token (#12662)",
+  "zig_target": {}
+}

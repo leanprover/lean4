@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-16",
+  "needs_port": false,
+  "sha": "e38fab1b4e89945de22125c8248e3354ad4d74ea",
+  "short_sha": "e38fab1b4e",
+  "subject": "fix: ignore `Expr.MData` at `deltaRHS?`",
+  "zig_target": {}
+}

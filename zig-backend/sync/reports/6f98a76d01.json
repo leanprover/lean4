@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-20",
+  "needs_port": false,
+  "sha": "6f98a76d01470ff9aa1d0895cfd2827eaa24ec89",
+  "short_sha": "6f98a76d01",
+  "subject": "feat: stricter meta check for temporary programs in `native_decide` etc (#13005)",
+  "zig_target": {}
+}

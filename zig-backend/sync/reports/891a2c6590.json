@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2024-12-04",
+  "needs_port": false,
+  "sha": "891a2c6590ccf7d294ebfcbe97ed8c293018fd90",
+  "short_sha": "891a2c6590",
+  "subject": "chore: reenable subset of new-compiler tests and delete others",
+  "zig_target": {}
+}

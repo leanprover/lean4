@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-31",
+  "needs_port": false,
+  "sha": "fb9c1913d79e4b3512f4f4d8cd4553baf05919a0",
+  "short_sha": "fb9c1913d7",
+  "subject": "feat: prototype for equality theorem generator for auxiliary `match` functions",
+  "zig_target": {}
+}

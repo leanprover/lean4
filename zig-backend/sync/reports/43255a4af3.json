@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-21",
+  "needs_port": false,
+  "sha": "43255a4af3dee320ef16dc4b7b0ffa6a7c515b17",
+  "short_sha": "43255a4af3",
+  "subject": "feat: local and scoped macros",
+  "zig_target": {}
+}

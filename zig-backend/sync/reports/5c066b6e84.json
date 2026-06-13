@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "5c066b6e84fbb7f967e29924e674ccb6ef6cbdea",
+  "short_sha": "5c066b6e84",
+  "subject": "fix(library/derive_attribute): pass options to type_context",
+  "zig_target": {}
+}

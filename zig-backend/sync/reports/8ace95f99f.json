@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Rat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/FieldNormNum.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/FieldNormNum.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Field.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Field.lean"
+    }
+  ],
+  "date": "2025-11-25",
+  "needs_port": true,
+  "sha": "8ace95f99f5e21ffe9e6912be9e58bfc965c3111",
+  "short_sha": "8ace95f99f",
+  "subject": "feat: `Field` norm num (#11350)",
+  "zig_target": {
+    "src/Init/Data/Rat/Lemmas.lean": "zig-backend/src/init/Data/Rat/Lemmas.lean",
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/FieldNormNum.lean": "zig-backend/src/init/Grind/FieldNormNum.lean",
+    "src/Init/Grind/Ring/Field.lean": "zig-backend/src/init/Grind/Ring/Field.lean"
+  }
+}

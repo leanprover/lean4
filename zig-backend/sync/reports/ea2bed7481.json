@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-29",
+  "needs_port": false,
+  "sha": "ea2bed7481e1434f058e10891ea3ed5f3307c5b8",
+  "short_sha": "ea2bed7481",
+  "subject": "feat(library/init/control/combinators): make more universe polymorphic (for e.g. `io`)",
+  "zig_target": {}
+}

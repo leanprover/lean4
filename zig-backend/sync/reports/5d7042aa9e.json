@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-21",
+  "needs_port": false,
+  "sha": "5d7042aa9e166111f549e3f43ded77ed2c3991be",
+  "short_sha": "5d7042aa9e",
+  "subject": "test: add example on how to disable type checking trace messages",
+  "zig_target": {}
+}

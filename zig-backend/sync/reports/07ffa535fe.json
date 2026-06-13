@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-03-26",
+  "needs_port": true,
+  "sha": "07ffa535feae7147af62659e1633079ce493bbf9",
+  "short_sha": "07ffa535fe",
+  "subject": "refactor: decide whether to insert implicit lambdas AFTER macro expansion",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

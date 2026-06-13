@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/StructInst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+    }
+  ],
+  "date": "2020-02-05",
+  "needs_port": true,
+  "sha": "93cfdf264fc214b71aeb3baaabb9fc86fad1c333",
+  "short_sha": "93cfdf264f",
+  "subject": "feat: add `expandCompositeFields`",
+  "zig_target": {
+    "src/Init/Lean/Elab/StructInst.lean": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+  }
+}

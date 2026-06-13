@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-14",
+  "needs_port": false,
+  "sha": "46a2e6f311397dafff721eab0bc23477901858dc",
+  "short_sha": "46a2e6f311",
+  "subject": "feat(library/init/lean/elaborator): add skeletons",
+  "zig_target": {}
+}

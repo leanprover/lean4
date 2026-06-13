@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-10-10",
+  "needs_port": false,
+  "sha": "14c640c15e30c19c3c196afe38347b278ff34b13",
+  "short_sha": "14c640c15e",
+  "subject": "feat: translate `interrupted` kernel exception",
+  "zig_target": {}
+}

@@ -1,0 +1,78 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Vector/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Extract.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Extract.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/InsertIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/InsertIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/MapIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/MapIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Zip.lean"
+    }
+  ],
+  "date": "2025-05-13",
+  "needs_port": true,
+  "sha": "f75e36dcdbe63f4201d060d16d07eb8cb58e7c82",
+  "short_sha": "f75e36dcdb",
+  "subject": "chore: `Vector` doesn't extend `Array` (#8313)",
+  "zig_target": {
+    "src/Init/Data/Vector/Attach.lean": "zig-backend/src/init/Data/Vector/Attach.lean",
+    "src/Init/Data/Vector/Basic.lean": "zig-backend/src/init/Data/Vector/Basic.lean",
+    "src/Init/Data/Vector/Count.lean": "zig-backend/src/init/Data/Vector/Count.lean",
+    "src/Init/Data/Vector/Extract.lean": "zig-backend/src/init/Data/Vector/Extract.lean",
+    "src/Init/Data/Vector/Find.lean": "zig-backend/src/init/Data/Vector/Find.lean",
+    "src/Init/Data/Vector/InsertIdx.lean": "zig-backend/src/init/Data/Vector/InsertIdx.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/MapIdx.lean": "zig-backend/src/init/Data/Vector/MapIdx.lean",
+    "src/Init/Data/Vector/Monadic.lean": "zig-backend/src/init/Data/Vector/Monadic.lean",
+    "src/Init/Data/Vector/Range.lean": "zig-backend/src/init/Data/Vector/Range.lean",
+    "src/Init/Data/Vector/Zip.lean": "zig-backend/src/init/Data/Vector/Zip.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    }
+  ],
+  "date": "2024-07-24",
+  "needs_port": true,
+  "sha": "1758b37a7195fa7f33b3600d6660d1581562a772",
+  "short_sha": "1758b37a71",
+  "subject": "chore: List.filterMapM runs and returns left-to-right (#4820)",
+  "zig_target": {
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean"
+  }
+}

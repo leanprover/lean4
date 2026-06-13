@@ -1,0 +1,42 @@
+{
+  "author": "George Rennie",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Power2.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Power2.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Power2/Basic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/Power2/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Power2/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/Power2/Lemmas.lean"
+    }
+  ],
+  "date": "2026-01-09",
+  "needs_port": true,
+  "sha": "b771d12072345257ef934c47a2d9e6ab0fe72f30",
+  "short_sha": "b771d12072",
+  "subject": "feat: `Decidable` instance for `Nat.isPowerOfTwo` (#11905)",
+  "zig_target": {
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean",
+    "src/Init/Data/Nat/Power2.lean": "zig-backend/src/init/Data/Nat/Power2.lean",
+    "src/Init/Data/Nat/Power2/Basic.lean": "zig-backend/src/init/Data/Nat/Power2/Basic.lean",
+    "src/Init/Data/Nat/Power2/Lemmas.lean": "zig-backend/src/init/Data/Nat/Power2/Lemmas.lean"
+  }
+}

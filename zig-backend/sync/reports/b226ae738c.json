@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "b226ae738cb3fe44b9d3ab62b0204ab5b81ad415",
+  "short_sha": "b226ae738c",
+  "subject": "test: add `CommGroup` diamond",
+  "zig_target": {}
+}

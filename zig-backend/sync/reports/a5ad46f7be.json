@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-23",
+  "needs_port": false,
+  "sha": "a5ad46f7becef9976152fdd50ac250ea53f96314",
+  "short_sha": "a5ad46f7be",
+  "subject": "feat: Nix: mdbook",
+  "zig_target": {}
+}

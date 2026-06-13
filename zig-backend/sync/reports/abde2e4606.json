@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "abde2e460642285171556163cd9ba68660db4d99",
+  "short_sha": "abde2e4606",
+  "subject": "fix: unused variables in foreign definition",
+  "zig_target": {}
+}

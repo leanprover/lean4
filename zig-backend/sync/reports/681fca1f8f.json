@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2023-11-24",
+  "needs_port": false,
+  "sha": "681fca1f8f9dd40bdc334341c2b3b3ca915b388f",
+  "short_sha": "681fca1f8f",
+  "subject": "feat: import auto-completion (#2904)",
+  "zig_target": {}
+}

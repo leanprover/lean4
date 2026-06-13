@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-10-10",
+  "needs_port": true,
+  "sha": "be0b4c998ff489b7d717395b139d86145cdfefb4",
+  "short_sha": "be0b4c998f",
+  "subject": "fix(library/compiler/lcnf): avoid unnecessary let-decl",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-12-01",
+  "needs_port": false,
+  "sha": "5937f4208ae9afce5e68459cd3b163fc994ba1d8",
+  "short_sha": "5937f4208a",
+  "subject": "chore: CI: update github-script (#3002)",
+  "zig_target": {}
+}

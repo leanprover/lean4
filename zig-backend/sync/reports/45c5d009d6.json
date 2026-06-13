@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-20",
+  "needs_port": false,
+  "sha": "45c5d009d634414bb93aa9c75e769f3ea4daecf0",
+  "short_sha": "45c5d009d6",
+  "subject": "fix: `dsimp` missing theorems for literals (#4467)",
+  "zig_target": {}
+}

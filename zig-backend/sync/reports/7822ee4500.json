@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/ULift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/ULift.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Iterator.lean"
+    },
+    {
+      "path": "src/Init/System/Promise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Promise.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Types.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+    }
+  ],
+  "date": "2025-09-19",
+  "needs_port": true,
+  "sha": "7822ee4500ee63c8ac8398a159d140dbf347d36e",
+  "short_sha": "7822ee4500",
+  "subject": "fix: check that compiler does not infer inconsistent types between modules (#10418)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Combinators/Monadic/ULift.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/ULift.lean",
+    "src/Init/Data/Slice/Array/Iterator.lean": "zig-backend/src/init/Data/Slice/Array/Iterator.lean",
+    "src/Init/System/Promise.lean": "zig-backend/src/init/System/Promise.lean",
+    "src/Lean/Compiler/LCNF/Types.lean": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-10-08",
+  "needs_port": false,
+  "sha": "e9ea99f6c6847b9d3d4dc7bd4692a104382c32bf",
+  "short_sha": "e9ea99f6c6",
+  "subject": "feat: support udiv in bv_decide (#5628)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-11",
+  "needs_port": false,
+  "sha": "40b6ca82b36b52ddce8c18cf7c8a4ae4c431ce87",
+  "short_sha": "40b6ca82b3",
+  "subject": "fix: include `libleanshared` in Lean trace",
+  "zig_target": {}
+}

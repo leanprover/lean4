@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-13",
+  "needs_port": false,
+  "sha": "7535c12bc53ec0a30fabe5f9c34e68cd3084cf47",
+  "short_sha": "7535c12bc5",
+  "subject": "test: add frontend meeting examples to test suite",
+  "zig_target": {}
+}

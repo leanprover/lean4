@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2024-03-26",
+  "needs_port": true,
+  "sha": "e8a2786d6d4defa29f8991eb03e1dd975311e5ae",
+  "short_sha": "e8a2786d6d",
+  "subject": "fix: actually catch the error code from MoveFileEx (#3753)",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

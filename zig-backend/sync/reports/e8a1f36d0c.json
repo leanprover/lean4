@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-09-04",
+  "needs_port": true,
+  "sha": "e8a1f36d0c842762ae01b076779e1a20383e8d0c",
+  "short_sha": "e8a1f36d0c",
+  "subject": "fix: prevent storing ST closure in MT task",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

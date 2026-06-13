@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-10",
+  "needs_port": false,
+  "sha": "a74960a4abf36cf2b23218c5e4401e956b005f94",
+  "short_sha": "a74960a4ab",
+  "subject": "fix: delaborator: `match` with shadowing",
+  "zig_target": {}
+}

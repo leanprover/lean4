@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-19",
+  "needs_port": false,
+  "sha": "df8ff255cb06156fd7d7e78ee35bfce398829c37",
+  "short_sha": "df8ff255cb",
+  "subject": "test: benchmark from Lean Hackathon (#12051)",
+  "zig_target": {}
+}

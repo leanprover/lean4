@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-30",
+  "needs_port": false,
+  "sha": "737e872ee03c058b613b31a11d15f20d12de44c5",
+  "short_sha": "737e872ee0",
+  "subject": "feat: set tagAppFns in explicit exprToInteractive",
+  "zig_target": {}
+}

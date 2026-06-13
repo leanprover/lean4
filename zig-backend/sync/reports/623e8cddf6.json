@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ReduceArity.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean"
+    }
+  ],
+  "date": "2022-11-06",
+  "needs_port": true,
+  "sha": "623e8cddf6ee9a6bd19e2d2c6c0ca657bdfbb4af",
+  "short_sha": "623e8cddf6",
+  "subject": "fix: `ReduceArity.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ReduceArity.lean": "zig-backend/src/lean/compiler/lcnf/ReduceArity.lean"
+  }
+}

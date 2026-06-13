@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-27",
+  "needs_port": false,
+  "sha": "6f8e861158322182edc4db0c740320d0ce332af6",
+  "short_sha": "6f8e861158",
+  "subject": "fix: case names in `congr` conv",
+  "zig_target": {}
+}

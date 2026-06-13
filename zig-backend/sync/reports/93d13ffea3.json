@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-30",
+  "needs_port": false,
+  "sha": "93d13ffea3acb03968871af3f9b59317770f2044",
+  "short_sha": "93d13ffea3",
+  "subject": "chore(library/init/lean): `lean.parser.reader` ~> `lean.parser`",
+  "zig_target": {}
+}

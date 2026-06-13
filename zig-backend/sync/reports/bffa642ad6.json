@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/BitVec.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/BitVec.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Int.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/SInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/SInt.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/UInt.lean"
+    }
+  ],
+  "date": "2025-04-10",
+  "needs_port": true,
+  "sha": "bffa642ad656812099abd9ded8d90a79ac35180f",
+  "short_sha": "bffa642ad6",
+  "subject": "feat: Lean.Grind.IsCharP (#7870)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Grind/CommRing/BitVec.lean": "zig-backend/src/init/Grind/CommRing/BitVec.lean",
+    "src/Init/Grind/CommRing/Int.lean": "zig-backend/src/init/Grind/CommRing/Int.lean",
+    "src/Init/Grind/CommRing/SInt.lean": "zig-backend/src/init/Grind/CommRing/SInt.lean",
+    "src/Init/Grind/CommRing/UInt.lean": "zig-backend/src/init/Grind/CommRing/UInt.lean"
+  }
+}

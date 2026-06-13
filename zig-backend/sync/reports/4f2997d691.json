@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    }
+  ],
+  "date": "2018-11-15",
+  "needs_port": true,
+  "sha": "4f2997d691e993bc542a5afc04d5412a2fe0773b",
+  "short_sha": "4f2997d691",
+  "subject": "feat(library/compiler/builtin): use `std::unordered_map`",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-03",
+  "needs_port": false,
+  "sha": "98b3251fd3e40090201bb4893210f6670a7df404",
+  "short_sha": "98b3251fd3",
+  "subject": "feat: Format.pretty: support hard line breaks",
+  "zig_target": {}
+}

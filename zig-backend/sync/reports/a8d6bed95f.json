@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-20",
+  "needs_port": true,
+  "sha": "a8d6bed95f3e24a56250232faf293287b8adf258",
+  "short_sha": "a8d6bed95f",
+  "subject": "feat(runtime/lean): add `lean_apply_*`",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

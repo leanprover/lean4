@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/memory.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/memory.h"
+    },
+    {
+      "path": "src/runtime/memory.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/memory.cpp"
+    }
+  ],
+  "date": "2020-10-12",
+  "needs_port": true,
+  "sha": "32b98a1d4aa32f92ce7381ea2bcbd944c95ca775",
+  "short_sha": "32b98a1d4a",
+  "subject": "chore: remove obsolete build options & other stuff",
+  "zig_target": {
+    "src/include/lean/memory.h": "zig-backend/include/lean/memory.h",
+    "src/runtime/memory.cpp": "zig-backend/src/runtime/memory.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Hints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Hints.lean"
+    }
+  ],
+  "date": "2026-02-08",
+  "needs_port": true,
+  "sha": "6f4e7111716e5f52d8eb9b25fd469d1b8c038a6f",
+  "short_sha": "6f4e711171",
+  "subject": "feat: some unification hints (#12341)",
+  "zig_target": {
+    "src/Init/Hints.lean": "zig-backend/src/init/Hints.lean"
+  }
+}

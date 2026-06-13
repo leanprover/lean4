@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-03-08",
+  "needs_port": true,
+  "sha": "7b1d15ec43e358f1138a7380fcaf758b1c32f771",
+  "short_sha": "7b1d15ec43",
+  "subject": "fix(library/compiler/specialize): avoid work duplication in the specializer",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

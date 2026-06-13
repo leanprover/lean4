@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-19",
+  "needs_port": false,
+  "sha": "ce7f7c8a140f27710fe4188761009ec5b1518b71",
+  "short_sha": "ce7f7c8a14",
+  "subject": "feat(library,src/CMakeLists): use simple Makefile by Simon Hudon to bring back some degree of parallel compilation",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-12-30",
+  "needs_port": false,
+  "sha": "2333a3fbabcbc2be1affe3bb54013edb28f4eda2",
+  "short_sha": "2333a3fbab",
+  "subject": "fix: error responses in tests",
+  "zig_target": {}
+}

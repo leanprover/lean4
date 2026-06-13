@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/name_mangling.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/name_mangling.cpp"
+    }
+  ],
+  "date": "2019-03-28",
+  "needs_port": true,
+  "sha": "0161ef84871107165156d40329a06a60d35de5e7",
+  "short_sha": "0161ef8487",
+  "subject": "fix(library/compiler/name_mangling): bug",
+  "zig_target": {
+    "src/library/compiler/name_mangling.cpp": "zig-backend/src/library/compiler/name_mangling.cpp"
+  }
+}

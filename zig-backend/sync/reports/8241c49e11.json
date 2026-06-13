@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "8241c49e11144656c107dc5321bce618aa858947",
+  "short_sha": "8241c49e11",
+  "subject": "fix: variable binder update commands",
+  "zig_target": {}
+}

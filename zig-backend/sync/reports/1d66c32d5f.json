@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-19",
+  "needs_port": false,
+  "sha": "1d66c32d5fef161fbcb354da1725d1f7e3457ca6",
+  "short_sha": "1d66c32d5f",
+  "subject": "fix: weaken builtin widget collision check",
+  "zig_target": {}
+}

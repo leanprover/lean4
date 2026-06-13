@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-23",
+  "needs_port": false,
+  "sha": "1ec535d5237e3eb8725285b07e26d686ace28090",
+  "short_sha": "1ec535d523",
+  "subject": "test: alternative encoding experiment for `decEq` and `noConfusion`",
+  "zig_target": {}
+}

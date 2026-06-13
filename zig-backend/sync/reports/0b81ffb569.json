@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-10-09",
+  "needs_port": true,
+  "sha": "0b81ffb5699ea333c7f204ef0a15ff1cb9d25c4c",
+  "short_sha": "0b81ffb569",
+  "subject": "refactor: factor out nested `do` term support and document code",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

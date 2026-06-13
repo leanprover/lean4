@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-27",
+  "needs_port": false,
+  "sha": "7049f4a889677c7223f95ee38f7531b9e9490422",
+  "short_sha": "7049f4a889",
+  "subject": "feat(library/init/lean/class): register attributes and export functions",
+  "zig_target": {}
+}

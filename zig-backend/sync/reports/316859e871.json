@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-12",
+  "needs_port": false,
+  "sha": "316859e87167dcb8a7f7ada18b241ab7c0135f43",
+  "short_sha": "316859e871",
+  "subject": "perf: reset `InfoState.lazyAssignment` before each command (#10744)",
+  "zig_target": {}
+}

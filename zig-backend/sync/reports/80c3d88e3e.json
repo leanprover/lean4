@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-06",
+  "needs_port": false,
+  "sha": "80c3d88e3ecc5be1e835c05ac974c1a9adf38faa",
+  "short_sha": "80c3d88e3e",
+  "subject": "refactor: optimize critical import path",
+  "zig_target": {}
+}

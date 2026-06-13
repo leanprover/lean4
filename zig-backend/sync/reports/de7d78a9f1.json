@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-12",
+  "needs_port": false,
+  "sha": "de7d78a9f12fe6727d1679c02d78245abc2bcf53",
+  "short_sha": "de7d78a9f1",
+  "subject": "chore: do not use actions-ecosystem/action-add-labels (#3055)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-02-04",
+  "needs_port": false,
+  "sha": "5668e2644a949185f79b810f8ad3cab5404afc5e",
+  "short_sha": "5668e2644a",
+  "subject": "fix: typo",
+  "zig_target": {}
+}

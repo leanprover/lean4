@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-11-29",
+  "needs_port": false,
+  "sha": "25ab266a2e2e0f2347218fa1ec166dede56e4076",
+  "short_sha": "25ab266a2e",
+  "subject": "fix: escape names from new/init",
+  "zig_target": {}
+}

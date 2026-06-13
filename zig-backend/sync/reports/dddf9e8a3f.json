@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-20",
+  "needs_port": false,
+  "sha": "dddf9e8a3fb9bdaa56d8d9c36b29048999b404bc",
+  "short_sha": "dddf9e8a3f",
+  "subject": "chore: remove leftover comment",
+  "zig_target": {}
+}

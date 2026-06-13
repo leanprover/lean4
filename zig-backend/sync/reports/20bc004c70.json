@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-09",
+  "needs_port": false,
+  "sha": "20bc004c705f5f034a34c6e6dabbbd57658ef5cd",
+  "short_sha": "20bc004c70",
+  "subject": "feat: improve `subst` tactic",
+  "zig_target": {}
+}

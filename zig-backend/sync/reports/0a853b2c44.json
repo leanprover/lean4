@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-08",
+  "needs_port": false,
+  "sha": "0a853b2c449fdcb3c913d6540dbdf3b4a26f762b",
+  "short_sha": "0a853b2c44",
+  "subject": "feat: abstract nested proofs in definitions",
+  "zig_target": {}
+}

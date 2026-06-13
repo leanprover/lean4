@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-30",
+  "needs_port": false,
+  "sha": "6cef5f17b721fc6f5ba9483bd89be73475c243fa",
+  "short_sha": "6cef5f17b7",
+  "subject": "chore: prepare moving Lean.Delaborator into Lean.PrettyPrinter",
+  "zig_target": {}
+}

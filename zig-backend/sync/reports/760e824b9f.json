@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-06",
+  "needs_port": false,
+  "sha": "760e824b9ff333a9ec18ff1805055f2f812f8375",
+  "short_sha": "760e824b9f",
+  "subject": "fix: we should not crash when `simp` loops (#3269)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2021-12-22",
+  "needs_port": true,
+  "sha": "0d03c6e3198c7c01f222be567b401e594cdedbd6",
+  "short_sha": "0d03c6e319",
+  "subject": "chore: revise non-GMP interface",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-07",
+  "needs_port": false,
+  "sha": "bca57afae77ec2489f9d372dcc722aaaa5367ad4",
+  "short_sha": "bca57afae7",
+  "subject": "fix(library/init/io): `RefPointed` must \"depend\" on \\alpha",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    }
+  ],
+  "date": "2019-11-26",
+  "needs_port": true,
+  "sha": "f9376fe04b9b77c841f7cf5f9d9c01d23bc6f4cc",
+  "short_sha": "f9376fe04b",
+  "subject": "feat: add `withNewMCtxDepth`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean"
+  }
+}

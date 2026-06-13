@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-30",
+  "needs_port": false,
+  "sha": "b99f1c698b5d53019cabe54f03567c546ca9faab",
+  "short_sha": "b99f1c698b",
+  "subject": "feat: use `if-then-else` notation at `Do.lean`",
+  "zig_target": {}
+}

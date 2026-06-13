@@ -1,0 +1,60 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Zip.lean"
+    }
+  ],
+  "date": "2024-09-16",
+  "needs_port": true,
+  "sha": "45af92fcd1846d7ec61125ab0fbd939f38ca68fe",
+  "short_sha": "45af92fcd1",
+  "subject": "feat: lemmas about List.tail (#5360)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean",
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat/Basic.lean": "zig-backend/src/init/Data/List/Nat/Basic.lean",
+    "src/Init/Data/List/Nat/Count.lean": "zig-backend/src/init/Data/List/Nat/Count.lean",
+    "src/Init/Data/List/Nat/Range.lean": "zig-backend/src/init/Data/List/Nat/Range.lean",
+    "src/Init/Data/List/Range.lean": "zig-backend/src/init/Data/List/Range.lean",
+    "src/Init/Data/List/Zip.lean": "zig-backend/src/init/Data/List/Zip.lean"
+  }
+}

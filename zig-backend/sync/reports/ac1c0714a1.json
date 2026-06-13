@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-07",
+  "needs_port": false,
+  "sha": "ac1c0714a1bfde1dc3790f5411740edd718a3de2",
+  "short_sha": "ac1c0714a1",
+  "subject": "fix: expand macros in patterns before retrieving pattern variables",
+  "zig_target": {}
+}

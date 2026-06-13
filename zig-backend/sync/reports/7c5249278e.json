@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-05-20",
+  "needs_port": false,
+  "sha": "7c5249278e396740b858b138864eb9d40360b476",
+  "short_sha": "7c5249278e",
+  "subject": "chore: move release notes about MessageData to v4.9.0 (#4222)",
+  "zig_target": {}
+}

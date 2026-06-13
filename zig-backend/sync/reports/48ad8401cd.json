@@ -1,0 +1,10 @@
+{
+  "author": "Thomas R. Murrills",
+  "backend_changes": [],
+  "date": "2026-05-11",
+  "needs_port": false,
+  "sha": "48ad8401cd5624c944890893a38057ae4920e8ef",
+  "short_sha": "48ad8401cd",
+  "subject": "fix: do not modify infotrees in `withSetOptionIn` (#11313)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Class.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Class.lean"
+    }
+  ],
+  "date": "2019-12-01",
+  "needs_port": true,
+  "sha": "ef43a08b91b08b017a2174cb3c0509162412f5de",
+  "short_sha": "ef43a08b91",
+  "subject": "feat: add `checkOutParam` validation",
+  "zig_target": {
+    "src/Init/Lean/Class.lean": "zig-backend/src/init/Lean/Class.lean"
+  }
+}

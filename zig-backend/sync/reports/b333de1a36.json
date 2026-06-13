@@ -1,0 +1,10 @@
+{
+  "author": "Jerry Wu",
+  "backend_changes": [],
+  "date": "2024-10-16",
+  "needs_port": false,
+  "sha": "b333de1a36df296b434d14132ffc736dfac4a420",
+  "short_sha": "b333de1a36",
+  "subject": "fix: make applyEdit optional in WorkspaceClientCapabilities of LSP (#5224)",
+  "zig_target": {}
+}

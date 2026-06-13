@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-06",
+  "needs_port": false,
+  "sha": "1450a86c4dafab6be6f802fa731699d8285d6383",
+  "short_sha": "1450a86c4d",
+  "subject": "feat: include types in the \"ambiguous, possible interpretations\" error message",
+  "zig_target": {}
+}

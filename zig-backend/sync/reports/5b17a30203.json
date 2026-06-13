@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/extensible_object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/extensible_object.h"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    },
+    {
+      "path": "src/runtime/serializer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.cpp"
+    },
+    {
+      "path": "src/runtime/serializer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.h"
+    }
+  ],
+  "date": "2018-05-22",
+  "needs_port": true,
+  "sha": "5b17a3020328f54641ae4fecda28ad2621de9e55",
+  "short_sha": "5b17a30203",
+  "subject": "feat(runtime): add object serializer",
+  "zig_target": {
+    "src/runtime/extensible_object.h": "zig-backend/src/runtime/extensible_object.h",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h",
+    "src/runtime/serializer.cpp": "zig-backend/src/runtime/serializer.cpp",
+    "src/runtime/serializer.h": "zig-backend/src/runtime/serializer.h"
+  }
+}

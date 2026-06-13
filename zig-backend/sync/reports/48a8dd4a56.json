@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-08-18",
+  "needs_port": false,
+  "sha": "48a8dd4a56708e8ad97eec5e8c2e33933a943fca",
+  "short_sha": "48a8dd4a56",
+  "subject": "fix: print mathlib toolchain URL properly (#9962)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "d1c3ab37974bd60c8068f52afaaeefac89bc18bb",
+  "short_sha": "d1c3ab3797",
+  "subject": "feat: `many1Unbox` and `nodeSepBy1Unbox` parser combinators",
+  "zig_target": {}
+}

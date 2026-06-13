@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-11",
+  "needs_port": false,
+  "sha": "076908d13b92ce8a9052aae20ca4cd09dc4115ee",
+  "short_sha": "076908d13b",
+  "subject": "feat: replay constants into an Environment (#2617)",
+  "zig_target": {}
+}

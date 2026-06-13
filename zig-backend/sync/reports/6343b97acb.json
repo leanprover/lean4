@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2022-09-24",
+  "needs_port": true,
+  "sha": "6343b97acb9108ea06d140474cbbe3e03af8a059",
+  "short_sha": "6343b97acb",
+  "subject": "feat: display inlining stack when maximum recursion depth has been reached",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

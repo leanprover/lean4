@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-06",
+  "needs_port": false,
+  "sha": "71e340eb97c3415764089415c2a4cddc8177aa00",
+  "short_sha": "71e340eb97",
+  "subject": "feat: allow Verso syntax for module docs to be controlled separately (#12329)",
+  "zig_target": {}
+}

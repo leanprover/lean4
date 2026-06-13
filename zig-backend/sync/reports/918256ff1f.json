@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    }
+  ],
+  "date": "2020-03-23",
+  "needs_port": true,
+  "sha": "918256ff1f55cd60a4c4dab5518b6d004a899fec",
+  "short_sha": "918256ff1f",
+  "subject": "fix: we cannot export constants",
+  "zig_target": {
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean"
+  }
+}

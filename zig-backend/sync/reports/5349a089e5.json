@@ -1,0 +1,30 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/LLVMBindings.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean"
+    },
+    {
+      "path": "src/library/compiler/llvm.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llvm.cpp"
+    }
+  ],
+  "date": "2023-01-15",
+  "needs_port": true,
+  "sha": "5349a089e5bb6905eaca1a09e2b587488f8e4715",
+  "short_sha": "5349a089e5",
+  "subject": "feat: add --target flag for LLVM backend to build objects of a different architecture (#2034)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/LLVMBindings.lean": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean",
+    "src/library/compiler/llvm.cpp": "zig-backend/src/library/compiler/llvm.cpp"
+  }
+}

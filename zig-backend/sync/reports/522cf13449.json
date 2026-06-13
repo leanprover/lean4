@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-09-25",
+  "needs_port": false,
+  "sha": "522cf13449c2672512d013b51bd625dc8a51081d",
+  "short_sha": "522cf13449",
+  "subject": "chore(tests/bench): update GHC and ocaml",
+  "zig_target": {}
+}

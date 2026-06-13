@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-06-05",
+  "needs_port": true,
+  "sha": "fd29b7e45d00acbfe42b1ee95fefef9f956e6dfe",
+  "short_sha": "fd29b7e45d",
+  "subject": "feat(util/io): add helper functions for consuming IO results in C++",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

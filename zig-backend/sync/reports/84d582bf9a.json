@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    }
+  ],
+  "date": "2019-11-23",
+  "needs_port": true,
+  "sha": "84d582bf9aa0b08f237bd64b7184c7a367e210b7",
+  "short_sha": "84d582bf9a",
+  "subject": "feat: add `DiscrTree.insert`",
+  "zig_target": {
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean",
+    "src/Init/Lean/Meta.lean": "zig-backend/src/init/Lean/Meta.lean",
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+  }
+}

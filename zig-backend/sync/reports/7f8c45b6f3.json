@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-09-28",
+  "needs_port": false,
+  "sha": "7f8c45b6f36ee9c52b4d0a0c79f19ca2e362c8df",
+  "short_sha": "7f8c45b6f3",
+  "subject": "feat: make CustomInfo use Dynamic instead of Json",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-17",
+  "needs_port": false,
+  "sha": "360fa1638f70ebeb2b3d0824893e8050f440852e",
+  "short_sha": "360fa1638f",
+  "subject": "chore: rename `Parser.try` to `Parser.atomic`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-19",
+  "needs_port": false,
+  "sha": "ed7c8904a9bc91ae973e77d089f9e659b098a397",
+  "short_sha": "ed7c8904a9",
+  "subject": "fix: propagate `local` and `scope` modifiers at `elab_rules`",
+  "zig_target": {}
+}

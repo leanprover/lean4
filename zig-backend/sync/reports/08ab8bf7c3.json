@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-02-28",
+  "needs_port": false,
+  "sha": "08ab8bf7c3db2b8c806c15b5af22e2bb5873c3c3",
+  "short_sha": "08ab8bf7c3",
+  "subject": "chore: fix ci for new test suite (#12704)",
+  "zig_target": {}
+}

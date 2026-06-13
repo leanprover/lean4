@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-01",
+  "needs_port": false,
+  "sha": "d629c76f9ecfd8665af7a1d6855c02b8dd0042ac",
+  "short_sha": "d629c76f9e",
+  "subject": "chore: more heterogeneous operators support",
+  "zig_target": {}
+}

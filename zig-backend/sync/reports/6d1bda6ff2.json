@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-05",
+  "needs_port": true,
+  "sha": "6d1bda6ff2fcd3935b745458e1d0b21175c1712d",
+  "short_sha": "6d1bda6ff2",
+  "subject": "feat: add @[simp] to Int.neg_inj (#7338)",
+  "zig_target": {
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean"
+  }
+}

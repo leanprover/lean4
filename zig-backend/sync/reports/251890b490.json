@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-10",
+  "needs_port": false,
+  "sha": "251890b490d83d1aa3808c4c7c52873d0d093a11",
+  "short_sha": "251890b490",
+  "subject": "feat(library/init/control/combinators): add `Nat.mfold` and rename `Nat.for` => `Nat.fold`",
+  "zig_target": {}
+}

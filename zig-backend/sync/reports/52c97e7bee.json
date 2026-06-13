@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    }
+  ],
+  "date": "2019-12-10",
+  "needs_port": true,
+  "sha": "52c97e7beebd4b24f3c44422019cc6b87975aa8b",
+  "short_sha": "52c97e7bee",
+  "subject": "feat: integrate quotation terms into old parser",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+  }
+}

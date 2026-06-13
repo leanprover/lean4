@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "17a36f89aa8ebf8e79d1a2b88eb2be9da3779fc3",
+  "short_sha": "17a36f89aa",
+  "subject": "fix: use Lake install's olean files over LEAN_PATH",
+  "zig_target": {}
+}

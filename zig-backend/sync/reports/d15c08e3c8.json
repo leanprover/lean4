@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-24",
+  "needs_port": false,
+  "sha": "d15c08e3c8bf87bd5596c268ec2209043020b22b",
+  "short_sha": "d15c08e3c8",
+  "subject": "fix: lean4-mode: void-variable",
+  "zig_target": {}
+}

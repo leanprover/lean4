@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-13",
+  "needs_port": false,
+  "sha": "1d90eac631564daf96c89aab447212f402b6182d",
+  "short_sha": "1d90eac631",
+  "subject": "test: more fundind unfolding test for #8293 (#8320)",
+  "zig_target": {}
+}

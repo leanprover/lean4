@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    }
+  ],
+  "date": "2020-04-09",
+  "needs_port": true,
+  "sha": "539bb4a2828204a2ae14b1b30b2c51cdfb33e2b0",
+  "short_sha": "539bb4a282",
+  "subject": "feat: add `failIfSuccess` tactic parser",
+  "zig_target": {
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+  }
+}

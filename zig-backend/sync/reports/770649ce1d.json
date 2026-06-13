@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    }
+  ],
+  "date": "2019-12-02",
+  "needs_port": true,
+  "sha": "770649ce1d3ba48b226e81240be7eeb6b2c037eb",
+  "short_sha": "770649ce1d",
+  "subject": "refactor: do not save/restore cache at \"telescope\" methods",
+  "zig_target": {
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean"
+  }
+}

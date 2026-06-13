@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "3abcd0c9e866afe5c9589c3b981383c28c15328c",
+  "short_sha": "3abcd0c9e8",
+  "subject": "chore(frontends/lean/elaborator): remove invoke_tactic",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Try.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Try.lean"
+    }
+  ],
+  "date": "2025-11-14",
+  "needs_port": true,
+  "sha": "f7ead9667b2308cfcd91e434e526848d3f2aa8f8",
+  "short_sha": "f7ead9667b",
+  "subject": "feat: `\u220e` macro for `try?` (#11170)",
+  "zig_target": {
+    "src/Init/Try.lean": "zig-backend/src/init/Try.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2026-01-09",
+  "needs_port": false,
+  "sha": "f65fe51630b11123ef955a6a7067f5c365598c39",
+  "short_sha": "f65fe51630",
+  "subject": "chore: CI: bump namespacelabs/nscloud-checkout-action from 7 to 8 (#11457)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-22",
+  "needs_port": false,
+  "sha": "087f0b4a69ef2e4f30eeccabb43e836d56989685",
+  "short_sha": "087f0b4a69",
+  "subject": "perf: optimize `sorry` detection in unused variables linter (#7129)",
+  "zig_target": {}
+}

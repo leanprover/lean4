@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "f2a6562eed6c2e181d5351b8ef5b8e34a79fd099",
+  "short_sha": "f2a6562eed",
+  "subject": "feat: validate 'let rec' types",
+  "zig_target": {}
+}

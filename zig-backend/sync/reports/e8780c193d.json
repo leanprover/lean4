@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-30",
+  "needs_port": false,
+  "sha": "e8780c193df82e07a5011cf6c22857a2a386e8a6",
+  "short_sha": "e8780c193d",
+  "subject": "test(tests/playground/parser): remove `eps` field, and make sure `bind` \"preserves tail recursion\"",
+  "zig_target": {}
+}

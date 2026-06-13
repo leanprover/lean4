@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-11-13",
+  "needs_port": false,
+  "sha": "73a8dc9738c586a77d38ef7129def0b75ef9e47a",
+  "short_sha": "73a8dc9738",
+  "subject": "feat: add decl links for `Quot` via `add_decl_doc`",
+  "zig_target": {}
+}

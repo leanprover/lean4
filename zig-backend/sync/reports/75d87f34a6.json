@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "75d87f34a6388bf3c24fa53887b031699c99e068",
+  "short_sha": "75d87f34a6",
+  "subject": "chore: lean4-mode: do not re-request goal on each flycheck change",
+  "zig_target": {}
+}

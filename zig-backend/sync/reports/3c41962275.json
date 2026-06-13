@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-05",
+  "needs_port": false,
+  "sha": "3c4196227573ed7bf56c602d9ad7a65daa00ec57",
+  "short_sha": "3c41962275",
+  "subject": "refactor: Expr.forEach' use in unused variables linter",
+  "zig_target": {}
+}

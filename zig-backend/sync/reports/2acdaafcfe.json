@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-15",
+  "needs_port": false,
+  "sha": "2acdaafcfe34015fba2490e68600d5c4585f5a47",
+  "short_sha": "2acdaafcfe",
+  "subject": "chore: CI: fix jira-sync (#13739)",
+  "zig_target": {}
+}

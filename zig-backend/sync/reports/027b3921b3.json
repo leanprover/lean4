@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    }
+  ],
+  "date": "2019-12-11",
+  "needs_port": true,
+  "sha": "027b3921b3dcacff6344fff5d56d188618b41f2f",
+  "short_sha": "027b3921b3",
+  "subject": "fix: don't panic on unsupported antiquotation content",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+  }
+}

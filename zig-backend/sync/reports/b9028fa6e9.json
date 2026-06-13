@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "b9028fa6e930fccdce814f9f1b2cc69e97275d70",
+  "short_sha": "b9028fa6e9",
+  "subject": "fix: handle lean4-nightly toolchain prefix in release checklist (#12865)",
+  "zig_target": {}
+}

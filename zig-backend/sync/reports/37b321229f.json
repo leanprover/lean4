@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-07",
+  "needs_port": false,
+  "sha": "37b321229fc2e3f0a3948afddebe61ce38f0b6c2",
+  "short_sha": "37b321229f",
+  "subject": "feat: make sure hover information does not include `@` for constants",
+  "zig_target": {}
+}

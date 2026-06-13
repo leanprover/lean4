@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-04",
+  "needs_port": false,
+  "sha": "f58e893e632ee954a6153a99184650ed80cb10ff",
+  "short_sha": "f58e893e63",
+  "subject": "chore: Mathlib fixes (#7327)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-23",
+  "needs_port": false,
+  "sha": "f2c9fcc0b23e9ae3c3b0fd35891180b998c0f200",
+  "short_sha": "f2c9fcc0b2",
+  "subject": "feat: add optional `start` position to `PersistentArray.forM` (#11784)",
+  "zig_target": {}
+}

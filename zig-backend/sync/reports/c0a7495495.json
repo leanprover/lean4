@@ -1,0 +1,18 @@
+{
+  "author": "Simon Hudon",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2020-01-13",
+  "needs_port": true,
+  "sha": "c0a7495495254cab1757ea1a90ab6dc6ba31af32",
+  "short_sha": "c0a7495495",
+  "subject": "feat: `MonadIO` now extends `MonadExcept IO.Error`",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

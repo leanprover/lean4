@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-17",
+  "needs_port": false,
+  "sha": "8cc35b854b6206e7b8134f5192512f7f39782ee4",
+  "short_sha": "8cc35b854b",
+  "subject": "feat(library/init/lean/{expander,elaborator}): `variable(s)`",
+  "zig_target": {}
+}

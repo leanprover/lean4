@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-09-19",
+  "needs_port": false,
+  "sha": "8cb387e59959e8fd150973b131fb24464e939e2e",
+  "short_sha": "8cb387e599",
+  "subject": "chore(tests/lean/extract): reactivate some `#eval` tests",
+  "zig_target": {}
+}

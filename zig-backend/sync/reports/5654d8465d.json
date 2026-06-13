@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean"
+    }
+  ],
+  "date": "2022-11-13",
+  "needs_port": true,
+  "sha": "5654d8465d12dfa8fc9ef6345acf711790654450",
+  "short_sha": "5654d8465d",
+  "subject": "fix: fixes #1822",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/Simp/InlineProj.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean"
+  }
+}

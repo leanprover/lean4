@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-22",
+  "needs_port": false,
+  "sha": "dede354e775c28fa9272cf145295207e550be9d1",
+  "short_sha": "dede354e77",
+  "subject": "fix: Float RecApp out of applications (#2818)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2026-03-22",
+  "needs_port": true,
+  "sha": "ae0d4e3ac4257edfe752dd9efdb202f5c93e5e57",
+  "short_sha": "ae0d4e3ac4",
+  "subject": "chore: remove `change ... with` tactic syntax (#13029)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

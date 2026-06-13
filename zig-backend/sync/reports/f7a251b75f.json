@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-08-21",
+  "needs_port": false,
+  "sha": "f7a251b75f60b0237425a7e7fb98a68f20521a8a",
+  "short_sha": "f7a251b75f",
+  "subject": "chore: set `experimental.module=true` when running `grind` benchmarks (#10041)",
+  "zig_target": {}
+}

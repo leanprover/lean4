@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-14",
+  "needs_port": false,
+  "sha": "b7ff4633583566c27103d38c6e08fa8f38c3a9ef",
+  "short_sha": "b7ff463358",
+  "subject": "chore: begin development cycle for v4.28.0 (#11667)",
+  "zig_target": {}
+}

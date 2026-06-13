@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-05",
+  "needs_port": false,
+  "sha": "3ecf8ac8ecfd9c7de8a514b144e4d0711dc98660",
+  "short_sha": "3ecf8ac8ec",
+  "subject": "feat(library/init/data/persistentarray/basic): add `mfoldlFrom` and `foldlFrom`",
+  "zig_target": {}
+}

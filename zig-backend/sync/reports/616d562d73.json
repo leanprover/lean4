@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-10-14",
+  "needs_port": false,
+  "sha": "616d562d738dd550314e3b59d6c4bacae6f3f5fb",
+  "short_sha": "616d562d73",
+  "subject": "feat: lean --deps-json --stdin",
+  "zig_target": {}
+}

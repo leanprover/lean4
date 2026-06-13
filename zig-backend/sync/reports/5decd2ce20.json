@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-07",
+  "needs_port": false,
+  "sha": "5decd2ce201e47e43f2ff4b5f78f27370c265df2",
+  "short_sha": "5decd2ce20",
+  "subject": "feat: trace messages for working and closing goals in the `grind` tactic (#6567)",
+  "zig_target": {}
+}

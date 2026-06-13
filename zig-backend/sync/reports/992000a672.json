@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-26",
+  "needs_port": false,
+  "sha": "992000a6727bc72083d5ef93577953975d4096ff",
+  "short_sha": "992000a672",
+  "subject": "fix: C++ exceptions across shared libraries on Linux (#3500)",
+  "zig_target": {}
+}

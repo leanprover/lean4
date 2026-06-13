@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-10",
+  "needs_port": false,
+  "sha": "e0fa6a1792458af81c8f421f5e75bfbc4117f617",
+  "short_sha": "e0fa6a1792",
+  "subject": "feat: bv_decide support enum inductive matches with default branches (#7417)",
+  "zig_target": {}
+}

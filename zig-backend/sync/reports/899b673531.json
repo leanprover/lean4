@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-17",
+  "needs_port": false,
+  "sha": "899b673531015d8b27cc7a33f7ebaaf906cad365",
+  "short_sha": "899b673531",
+  "subject": "test: add binarytrees.st benchmark",
+  "zig_target": {}
+}

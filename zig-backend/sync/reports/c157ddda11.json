@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "c157ddda11c052c6bf061a2cec38a72b17de2661",
+  "short_sha": "c157ddda11",
+  "subject": "fix: do not link statically against pthread/dl/rt (#5966)",
+  "zig_target": {}
+}

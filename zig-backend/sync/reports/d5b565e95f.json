@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-12-10",
+  "needs_port": false,
+  "sha": "d5b565e95ff5600bb9f15c7cffad8815b44e59f8",
+  "short_sha": "d5b565e95f",
+  "subject": "refactor: make `mkInhabitantFor` error message configurable (#6356)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "72032980ffca584a3dadca42306e9a430794ec91",
+  "short_sha": "72032980ff",
+  "subject": "feat: support for `unboundImplicitLocals` at `variable` and `variables` commands",
+  "zig_target": {}
+}

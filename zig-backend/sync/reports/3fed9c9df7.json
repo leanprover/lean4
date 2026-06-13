@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-28",
+  "needs_port": false,
+  "sha": "3fed9c9df7d391fe79bedac03491981f60469fd1",
+  "short_sha": "3fed9c9df7",
+  "subject": "feat: reject `partial` when if constant is not a function",
+  "zig_target": {}
+}

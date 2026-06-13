@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "4f80e305749b49d23095873675455459bd45a4bd",
+  "short_sha": "4f80e30574",
+  "subject": "feat(library/init/data/string/basic): add `String.split`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-17",
+  "needs_port": false,
+  "sha": "1127eefdcab2e585b9477c6aa5e534ff6a2d8195",
+  "short_sha": "1127eefdca",
+  "subject": "chore: consistent build flags between `USE_LAKE` `ON` and `OFF` (#12941)",
+  "zig_target": {}
+}

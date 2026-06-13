@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-27",
+  "needs_port": false,
+  "sha": "c1ba216bcce1fcff716c13b0bbdebc58ad1c233d",
+  "short_sha": "c1ba216bcc",
+  "subject": "feat(tests/playground): Lean variant benchmarks",
+  "zig_target": {}
+}

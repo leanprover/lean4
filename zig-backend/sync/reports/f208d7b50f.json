@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-12-14",
+  "needs_port": false,
+  "sha": "f208d7b50fd25f70e0d628cd8847df26d62259b0",
+  "short_sha": "f208d7b50f",
+  "subject": "chore: refactor pr-release.yml to avoid 'await' (#3070)",
+  "zig_target": {}
+}

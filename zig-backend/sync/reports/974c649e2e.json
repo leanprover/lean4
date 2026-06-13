@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-05",
+  "needs_port": false,
+  "sha": "974c649e2eca4d63e8d1a9606322175220b91702",
+  "short_sha": "974c649e2e",
+  "subject": "fix: `meta structure/inductive` should create `meta` ctor (#10263)",
+  "zig_target": {}
+}

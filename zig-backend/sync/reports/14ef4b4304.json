@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-02",
+  "needs_port": false,
+  "sha": "14ef4b4304267945097eff84fe879060fe749a77",
+  "short_sha": "14ef4b4304",
+  "subject": "test: add WF test that exposes the need for better error messages",
+  "zig_target": {}
+}

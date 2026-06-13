@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    }
+  ],
+  "date": "2022-02-28",
+  "needs_port": true,
+  "sha": "b5f28239af0a255fb7a18a4f3ade40945dba5a9e",
+  "short_sha": "b5f28239af",
+  "subject": "feat: add `List` helper theorems",
+  "zig_target": {
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean"
+  }
+}

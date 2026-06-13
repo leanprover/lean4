@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+    }
+  ],
+  "date": "2022-09-12",
+  "needs_port": true,
+  "sha": "b2d6caca0a2ce02ec210f6f47c9ff1e8d6b31c1e",
+  "short_sha": "b2d6caca0a",
+  "subject": "fix: `inferProjType` at LCNF",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/InferType.lean": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+  }
+}

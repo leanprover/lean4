@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Dyadic/Inv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Dyadic/Inv.lean"
+    }
+  ],
+  "date": "2026-05-16",
+  "needs_port": true,
+  "sha": "c993d3f23746e385688b05ed4ca33cf481ae7fa1",
+  "short_sha": "c993d3f237",
+  "subject": "feat: add Dyadic.divAtPrec for round-down dyadic division at given precision (#13654)",
+  "zig_target": {
+    "src/Init/Data/Dyadic/Inv.lean": "zig-backend/src/init/Data/Dyadic/Inv.lean"
+  }
+}

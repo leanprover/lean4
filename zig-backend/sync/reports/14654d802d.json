@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-03-15",
+  "needs_port": false,
+  "sha": "14654d802d8950f75a6a2113a7d6288dd2f6cb19",
+  "short_sha": "14654d802d",
+  "subject": "chore: revert periodically refresh semantic tokens (#3619) (#3689)",
+  "zig_target": {}
+}

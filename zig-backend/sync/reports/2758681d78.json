@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-16",
+  "needs_port": true,
+  "sha": "2758681d7879ff54a50f5334814bed86ae3d1155",
+  "short_sha": "2758681d78",
+  "subject": "feat(runtime/lean): closures",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

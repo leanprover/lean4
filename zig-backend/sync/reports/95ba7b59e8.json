@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-28",
+  "needs_port": false,
+  "sha": "95ba7b59e87b2bed76fd2037c3e9e5f4c76dbd4c",
+  "short_sha": "95ba7b59e8",
+  "subject": "fix: construct key before `validateHint`",
+  "zig_target": {}
+}

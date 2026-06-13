@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2021-02-13",
+  "needs_port": true,
+  "sha": "2944da2a0b0ad5a24e87a4033f0c384232be9e33",
+  "short_sha": "2944da2a0b",
+  "subject": "feat: use `simp` itself as default method for discharging hypotheses of conditional rewriting rules",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

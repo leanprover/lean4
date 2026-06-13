@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "65f112a165d54aa43766d72ad9e91fd07f142b72",
+  "short_sha": "65f112a165",
+  "subject": "chore: rename prime filter benchmark and fix the merge sort benchmark (#12669)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-09",
+  "needs_port": false,
+  "sha": "4e6748b55b60ea6502ffa1f60a7dc1ce76b6e704",
+  "short_sha": "4e6748b55b",
+  "subject": "feat(library/init/data/rbmap/basic): add `rbmap_core` low level functions",
+  "zig_target": {}
+}

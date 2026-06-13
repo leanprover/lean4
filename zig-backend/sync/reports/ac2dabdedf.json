@@ -1,0 +1,24 @@
+{
+  "author": "Jeremy Tan Jie Rui",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-08-14",
+  "needs_port": true,
+  "sha": "ac2dabdedf318d7ec9b41163c314f44fab501787",
+  "short_sha": "ac2dabdedf",
+  "subject": "chore: use `\u2260` in `Fin.ne_of_val_ne` (#5011)",
+  "zig_target": {
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

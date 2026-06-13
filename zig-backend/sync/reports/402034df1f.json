@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-09",
+  "needs_port": false,
+  "sha": "402034df1f43808858285038b0fa46466a266883",
+  "short_sha": "402034df1f",
+  "subject": "chore(library/init/data): move `usize` to `uint`",
+  "zig_target": {}
+}

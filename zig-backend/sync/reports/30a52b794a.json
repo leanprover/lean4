@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Ext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Ext.lean"
+    }
+  ],
+  "date": "2024-08-09",
+  "needs_port": true,
+  "sha": "30a52b794a39256361050c52fe0e41bbff91bc8d",
+  "short_sha": "30a52b794a",
+  "subject": "feat: add [ext] attribute to Array.ext (#4970)",
+  "zig_target": {
+    "src/Init/Ext.lean": "zig-backend/src/init/Ext.lean"
+  }
+}

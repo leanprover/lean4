@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-04-21",
+  "needs_port": false,
+  "sha": "25bab8bcc4ec90ad369e0c4bdea471d9fe73636b",
+  "short_sha": "25bab8bcc4",
+  "subject": "feat: server-side support for incremental diagnostics  (#13260)",
+  "zig_target": {}
+}

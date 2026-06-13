@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-07",
+  "needs_port": false,
+  "sha": "a07e9df66e16609e8bdc1dffba317dfdae412152",
+  "short_sha": "a07e9df66e",
+  "subject": "fix: use goal prefix in plain goal response",
+  "zig_target": {}
+}

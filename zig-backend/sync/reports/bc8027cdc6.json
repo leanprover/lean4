@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2021-08-02",
+  "needs_port": true,
+  "sha": "bc8027cdc632838c15e3be2757e9a203c70ce4cc",
+  "short_sha": "bc8027cdc6",
+  "subject": "perf: speed up String.intercalate",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

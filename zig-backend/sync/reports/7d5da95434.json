@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-11",
+  "needs_port": false,
+  "sha": "7d5da95434560971cf71388eca584526f7739831",
+  "short_sha": "7d5da95434",
+  "subject": "fix: remove unused hypotheses from conditional equation theorems",
+  "zig_target": {}
+}

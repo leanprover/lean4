@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Message.lean"
+    }
+  ],
+  "date": "2019-12-18",
+  "needs_port": true,
+  "sha": "6cc928d180126c4633486562e6d62fa1eff37ac0",
+  "short_sha": "6cc928d180",
+  "subject": "test: add postpone test",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Util/Message.lean": "zig-backend/src/init/Lean/Util/Message.lean"
+  }
+}

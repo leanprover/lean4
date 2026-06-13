@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-07-22",
+  "needs_port": true,
+  "sha": "7d2a7dba81866b6f6fdf094d6b0b7647f1080466",
+  "short_sha": "7d2a7dba81",
+  "subject": "fix: improve `evalInt?` (#9479)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-03-16",
+  "needs_port": true,
+  "sha": "318c782ea7be6380a8d37dd39f750d36d4212248",
+  "short_sha": "318c782ea7",
+  "subject": "feat: missing normalization rules for `div` and `mod` in `grind` (#7514)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

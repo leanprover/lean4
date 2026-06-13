@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-10-09",
+  "needs_port": true,
+  "sha": "6f1e9325427e78ec53124ae0596e57375285ccb4",
+  "short_sha": "6f1e932542",
+  "subject": "fix: make `IO.sleep` opaque (#10718)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

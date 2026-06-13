@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/CtorLayout.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/CtorLayout.lean"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-12-22",
+  "needs_port": true,
+  "sha": "a2d668ec991ad2e1ada14e8d7dbedd3c2ede852b",
+  "short_sha": "a2d668ec99",
+  "subject": "fix: leaks",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/CtorLayout.lean": "zig-backend/src/init/Lean/Compiler/IR/CtorLayout.lean",
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

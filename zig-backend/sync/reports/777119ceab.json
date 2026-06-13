@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2018-10-15",
+  "needs_port": true,
+  "sha": "777119ceabe33ac06f731a382a0fdee9d2ca3969",
+  "short_sha": "777119ceab",
+  "subject": "feat(library/compiler/specialize): collect dependencies",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

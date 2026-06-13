@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/inliner.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/inliner.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2018-10-02",
+  "needs_port": true,
+  "sha": "c9aab6ef5070a8394a5e30ec63255d223a257e16",
+  "short_sha": "c9aab6ef50",
+  "subject": "feat(library/compiler): register `noinline` attribute",
+  "zig_target": {
+    "src/library/compiler/inliner.cpp": "zig-backend/src/library/compiler/inliner.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

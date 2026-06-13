@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2023-07-05",
+  "needs_port": true,
+  "sha": "32d5def5b81ebd44776e927e3f9d74aed105a6a1",
+  "short_sha": "32d5def5b8",
+  "subject": "feat: add `bne_iff_ne`",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

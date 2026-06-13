@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-26",
+  "needs_port": false,
+  "sha": "7f64033111836ce254988239277c5f6c44efe1c8",
+  "short_sha": "7f64033111",
+  "subject": "chore(library/init): remove all occurrences of `parameter` command",
+  "zig_target": {}
+}

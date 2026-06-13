@@ -1,0 +1,18 @@
+{
+  "author": "Harun Khan",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-07",
+  "needs_port": true,
+  "sha": "91cbd7c80e66fabbbc9cff20818129bbc27b9e00",
+  "short_sha": "91cbd7c80e",
+  "subject": "feat: `BitVec.toInt_shiftLeft` theorem (#6346)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

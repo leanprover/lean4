@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-14",
+  "needs_port": false,
+  "sha": "cfa8c5a036d6990635c6ec50b02d0e806995cec3",
+  "short_sha": "cfa8c5a036",
+  "subject": "fix: handle universe level commutativity in sym pattern matching (#12923)",
+  "zig_target": {}
+}

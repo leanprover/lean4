@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-24",
+  "needs_port": false,
+  "sha": "e71d0abc7ddb2c9da37e91b88fd2be2a903601c7",
+  "short_sha": "e71d0abc7d",
+  "subject": "test: test case for #10775 (#10943)",
+  "zig_target": {}
+}

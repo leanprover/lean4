@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-31",
+  "needs_port": false,
+  "sha": "37d890b95097f78a9030cd608fa7adde3caec148",
+  "short_sha": "37d890b950",
+  "subject": "fix: atoms might need backtracking as well, e.g. in `fieldIdx <|> ident`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-08",
+  "needs_port": false,
+  "sha": "290e1cf15fd713933349a5b5ddd173c379e11a09",
+  "short_sha": "290e1cf15f",
+  "subject": "feat: syntax_match: check arity only for nullKind nodes",
+  "zig_target": {}
+}

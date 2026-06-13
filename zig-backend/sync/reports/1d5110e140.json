@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-01",
+  "needs_port": false,
+  "sha": "1d5110e1400522d80deb1a28d9caffd180fd28d1",
+  "short_sha": "1d5110e140",
+  "subject": "feat: insertMany_append lemmas for map variants (#8184)",
+  "zig_target": {}
+}

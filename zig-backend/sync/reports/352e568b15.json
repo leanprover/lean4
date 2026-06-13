@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-18",
+  "needs_port": false,
+  "sha": "352e568b157e83b14ee0ce8b49a74ac04a1821f2",
+  "short_sha": "352e568b15",
+  "subject": "doc: zmod example",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-26",
+  "needs_port": false,
+  "sha": "b8be3664b1dc82df1b298fce3d17554087aeae49",
+  "short_sha": "b8be3664b1",
+  "subject": "chore: Nix: fix `leanpkg` wrapper error message",
+  "zig_target": {}
+}

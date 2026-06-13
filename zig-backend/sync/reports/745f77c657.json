@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-13",
+  "needs_port": false,
+  "sha": "745f77c657445c707de6e72e6bc42a2dbe6d6082",
+  "short_sha": "745f77c657",
+  "subject": "chore: `let x := lcUnreachable ..` should not occur in LCNF",
+  "zig_target": {}
+}

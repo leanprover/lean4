@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-03-25",
+  "needs_port": false,
+  "sha": "44365811cc0e9b079fe273e8e4ddcc07469fd3b8",
+  "short_sha": "44365811cc",
+  "subject": "feat: add missing treemap lemmas (#7674)",
+  "zig_target": {}
+}

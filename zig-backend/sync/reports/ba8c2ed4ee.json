@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2026-01-25",
+  "needs_port": true,
+  "sha": "ba8c2ed4ee14763f40fbcd986a3454b5bf0bfca8",
+  "short_sha": "ba8c2ed4ee",
+  "subject": "feat: add `simpArrowTelescope` for compact proofs of arrow simplification (#12152)",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "95efa3dcd262d859ee34f6aed7c694cb8d2acf9a",
+  "short_sha": "95efa3dcd2",
+  "subject": "fix: `withPosition` case at `MacroArgUtil`",
+  "zig_target": {}
+}

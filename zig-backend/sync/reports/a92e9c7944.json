@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2024-06-23",
+  "needs_port": true,
+  "sha": "a92e9c7944182bbf3085472b1854039d3ad2d581",
+  "short_sha": "a92e9c7944",
+  "subject": "chore: move @[simp] from pred_le to sub_one_le (#4522)",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

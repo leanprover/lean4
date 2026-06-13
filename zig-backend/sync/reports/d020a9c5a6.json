@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2024-06-21",
+  "needs_port": true,
+  "sha": "d020a9c5a694726b40ac86da353592eda4122ffe",
+  "short_sha": "d020a9c5a6",
+  "subject": "feat: introduce `Std` (#4499)",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

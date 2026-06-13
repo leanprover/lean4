@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-14",
+  "needs_port": false,
+  "sha": "05147fd3520adb35aa1d0df86bb2273373e4b5e2",
+  "short_sha": "05147fd352",
+  "subject": "fix: do not generate injectivity theorems for unsafe inductive datatypes",
+  "zig_target": {}
+}

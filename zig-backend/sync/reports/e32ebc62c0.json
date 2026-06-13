@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-15",
+  "needs_port": false,
+  "sha": "e32ebc62c0efab20d03d3bc23ce48edbee09fd51",
+  "short_sha": "e32ebc62c0",
+  "subject": "fix: `tryPostponeIfMVar`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-07",
+  "needs_port": false,
+  "sha": "bfe2d28c501afa6625482b1d9f2a2cc183eb19d1",
+  "short_sha": "bfe2d28c50",
+  "subject": "chore: re-enable `Elab.async` in the server (#6990)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-20",
+  "needs_port": false,
+  "sha": "4a18679c922d928c82e04251b90abb40d82e7b99",
+  "short_sha": "4a18679c92",
+  "subject": "chore: include problematic `match` auxiliary declaration name in the error message",
+  "zig_target": {}
+}

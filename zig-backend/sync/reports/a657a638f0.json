@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "a657a638f0943eb19d2f207a11970a5c34f92193",
+  "short_sha": "a657a638f0",
+  "subject": "feat: sub-info tree level hover",
+  "zig_target": {}
+}

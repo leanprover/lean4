@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-27",
+  "needs_port": false,
+  "sha": "aefe49d575ae64f3ed0264362c4eb0110cef39cc",
+  "short_sha": "aefe49d575",
+  "subject": "test(tests/playground): add new rbmap experiment",
+  "zig_target": {}
+}

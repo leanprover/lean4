@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-03-29",
+  "needs_port": false,
+  "sha": "f9dcc9ca1bdf79a67220119daeda74ce3e821520",
+  "short_sha": "f9dcc9ca1b",
+  "subject": "fix: trim syntax in messages",
+  "zig_target": {}
+}

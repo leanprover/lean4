@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-17",
+  "needs_port": false,
+  "sha": "9ee529e5ce8c0bc44896291bb6de4fd02828e7f6",
+  "short_sha": "9ee529e5ce",
+  "subject": "fix: use `PSum` instead of `Sum` when using well-founded recursion",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-06",
+  "needs_port": false,
+  "sha": "b1eb0220277a1fb00335e83fd6799f7332d59b51",
+  "short_sha": "b1eb022027",
+  "subject": "feat: computed fields",
+  "zig_target": {}
+}

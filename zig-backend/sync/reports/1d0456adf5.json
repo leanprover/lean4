@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-16",
+  "needs_port": false,
+  "sha": "1d0456adf515495632b7aa10a9f7ba4b76b7b22a",
+  "short_sha": "1d0456adf5",
+  "subject": "fix(library/init/lean/parser/term): revert refactoring that broke `sort_app`s of `Type`",
+  "zig_target": {}
+}

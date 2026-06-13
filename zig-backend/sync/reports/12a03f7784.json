@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-30",
+  "needs_port": false,
+  "sha": "12a03f77848b1a92495b0301297c328d9495e538",
+  "short_sha": "12a03f7784",
+  "subject": "chore(frontends/lean/definition_cmds): remove dependency",
+  "zig_target": {}
+}

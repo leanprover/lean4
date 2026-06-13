@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2023-03-07",
+  "needs_port": true,
+  "sha": "15c146b3824786fc9888b686f219f14df582e3fe",
+  "short_sha": "15c146b382",
+  "subject": "feat: proper I/O errors from `getLine`",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

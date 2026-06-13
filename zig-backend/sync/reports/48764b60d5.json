@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-03",
+  "needs_port": false,
+  "sha": "48764b60d5bac337eaff4bf8a3d63a216e1d9e03",
+  "short_sha": "48764b60d5",
+  "subject": "chore: CI: retry tests on Windows",
+  "zig_target": {}
+}

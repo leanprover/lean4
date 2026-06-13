@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-24",
+  "needs_port": false,
+  "sha": "fa04f46d55907a63860cf96e5f5abb35dc802e9c",
+  "short_sha": "fa04f46d55",
+  "subject": "doc: simplify `begin..end` macro",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-31",
+  "needs_port": false,
+  "sha": "8a918a2a14852c79984f1c2028e4fc32e1a35d9c",
+  "short_sha": "8a918a2a14",
+  "subject": "fix(checker/text_import): commit 3c1ccc9 broke it",
+  "zig_target": {}
+}

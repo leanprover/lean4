@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-03-04",
+  "needs_port": false,
+  "sha": "957beb02bc66e8aa448f739df95b9ddc9af56e5c",
+  "short_sha": "957beb02bc",
+  "subject": "chore: deprecate Environment.replay; use lean4checker (#7311)",
+  "zig_target": {}
+}

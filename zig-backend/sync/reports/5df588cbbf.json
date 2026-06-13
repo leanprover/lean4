@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2022-08-02",
+  "needs_port": true,
+  "sha": "5df588cbbf93b84ae9df2e451a3cc61e9a8ab96e",
+  "short_sha": "5df588cbbf",
+  "subject": "chore: remove unnecessary annotations",
+  "zig_target": {
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2021-09-15",
+  "needs_port": true,
+  "sha": "35ffae6f54c59674def1ac62de23d713ff9c79eb",
+  "short_sha": "35ffae6f54",
+  "subject": "feat: Windows: explicitly export Lean functions only",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

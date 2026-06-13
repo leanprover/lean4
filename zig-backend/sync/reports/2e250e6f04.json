@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-27",
+  "needs_port": false,
+  "sha": "2e250e6f04c0c2eee1020aad308239e8b632e8ea",
+  "short_sha": "2e250e6f04",
+  "subject": "refactor: `paren` as a (partial) macro",
+  "zig_target": {}
+}

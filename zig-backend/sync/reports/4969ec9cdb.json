@@ -1,0 +1,30 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2024-11-28",
+  "needs_port": true,
+  "sha": "4969ec9cdb9a4a6d148b46df3850cdabae3f70ae",
+  "short_sha": "4969ec9cdb",
+  "subject": "feat: more UInt lemmas (#6205)",
+  "zig_target": {
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean",
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

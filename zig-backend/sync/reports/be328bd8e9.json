@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-10",
+  "needs_port": false,
+  "sha": "be328bd8e9e815ce66303acf53cdee0f295e7ffd",
+  "short_sha": "be328bd8e9",
+  "subject": "test(tests/playground/parser/parser2): add `symbol` `BasicParser`",
+  "zig_target": {}
+}

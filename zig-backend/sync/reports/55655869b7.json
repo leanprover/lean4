@@ -1,0 +1,24 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2020-08-12",
+  "needs_port": true,
+  "sha": "55655869b7d5663cb8f0199f464d2d358ee898e0",
+  "short_sha": "55655869b7",
+  "subject": "feat: default to binary file mode on Windows",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

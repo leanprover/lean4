@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-29",
+  "needs_port": true,
+  "sha": "28c21b4340038a3e1664e8685302c9dd42eac10d",
+  "short_sha": "28c21b4340",
+  "subject": "fix(library/compiler/csimp): make sure constants (of arity 0) marked with `[inline]` or `[inline_if_reduce]` are inlined",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-03",
+  "needs_port": false,
+  "sha": "cae5ee075e5f9bc7393687a5eeca563c2f24293a",
+  "short_sha": "cae5ee075e",
+  "subject": "test(tests/playground/badreset): add test that exposes a bad `reset/reuse` placement",
+  "zig_target": {}
+}

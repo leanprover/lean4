@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-01-30",
+  "needs_port": true,
+  "sha": "d63bbb3728f24aa5ee9db23814067479c75da950",
+  "short_sha": "d63bbb3728",
+  "subject": "feat(library/compiler/emit_cpp): `emit_cnstr`",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

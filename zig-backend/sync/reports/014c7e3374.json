@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-24",
+  "needs_port": false,
+  "sha": "014c7e3374303b3c6aeefd8c9a929a9d7a1ee8ea",
+  "short_sha": "014c7e3374",
+  "subject": "test(tests/playground/parser/parser): \"liftable\" longestMatch",
+  "zig_target": {}
+}

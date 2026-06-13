@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-11",
+  "needs_port": true,
+  "sha": "7ea5504af26b8382ab9bd6d96508c7765f9c55b3",
+  "short_sha": "7ea5504af2",
+  "subject": "feat: add support for splitting on `<->` to `grind` (#6607)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

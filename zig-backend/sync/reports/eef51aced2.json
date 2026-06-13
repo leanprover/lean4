@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-03",
+  "needs_port": false,
+  "sha": "eef51aced2b28807c987b43ac9fac6f42cdcbefa",
+  "short_sha": "eef51aced2",
+  "subject": "feat: make MissingDocs extensible (part 1)",
+  "zig_target": {}
+}

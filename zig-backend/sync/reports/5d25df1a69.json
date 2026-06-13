@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-12-09",
+  "needs_port": false,
+  "sha": "5d25df1a69ebbeaefe4616ccb813613c715308aa",
+  "short_sha": "5d25df1a69",
+  "subject": "fix: indenting of match arms in declValEqns",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/DependsOn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/DependsOn.lean"
+    }
+  ],
+  "date": "2022-10-03",
+  "needs_port": true,
+  "sha": "b3aff375f0724228221194d355c535aa55c8d8ea",
+  "short_sha": "b3aff375f0",
+  "subject": "feat: add `CodeDecl.dependsOn`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/DependsOn.lean": "zig-backend/src/lean/compiler/lcnf/DependsOn.lean"
+  }
+}

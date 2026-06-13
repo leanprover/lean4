@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-13",
+  "needs_port": false,
+  "sha": "7283e2c14e951af219c91ef19ad1515935d27f8c",
+  "short_sha": "7283e2c14e",
+  "subject": "chore: pr-release: pass `--retry` to `curl` (#5025)",
+  "zig_target": {}
+}

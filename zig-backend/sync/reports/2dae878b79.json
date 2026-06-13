@@ -1,0 +1,10 @@
+{
+  "author": "Jannis Limperg",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "2dae878b79d9d78c6c049a74fab63cfba148c3b9",
+  "short_sha": "2dae878b79",
+  "subject": "refactor: optimise BinomialHeap.head?",
+  "zig_target": {}
+}

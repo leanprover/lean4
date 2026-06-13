@@ -1,0 +1,10 @@
+{
+  "author": "Connor Baker",
+  "backend_changes": [],
+  "date": "2022-06-23",
+  "needs_port": false,
+  "sha": "c213e0e880627bdf96ba549ed792285e62280c24",
+  "short_sha": "c213e0e880",
+  "subject": "doc: fix overwide view when using Alectryon",
+  "zig_target": {}
+}

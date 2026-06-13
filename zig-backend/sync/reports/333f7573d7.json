@@ -1,0 +1,36 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    },
+    {
+      "path": "src/library/compiler/noncomputable_attribute.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/noncomputable_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/noncomputable_attribute.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/noncomputable_attribute.h"
+    }
+  ],
+  "date": "2025-04-06",
+  "needs_port": true,
+  "sha": "333f7573d7438bd02d0d07bf23076bec05508e33",
+  "short_sha": "333f7573d7",
+  "subject": "fix: perform an earlier 'noncomputable' check to avoid misoptimizations (#7824)",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp",
+    "src/library/compiler/noncomputable_attribute.cpp": "zig-backend/src/library/compiler/noncomputable_attribute.cpp",
+    "src/library/compiler/noncomputable_attribute.h": "zig-backend/src/library/compiler/noncomputable_attribute.h"
+  }
+}

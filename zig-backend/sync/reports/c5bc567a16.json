@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "c5bc567a166fd91b283927bce7bc3864bef48f65",
+  "short_sha": "c5bc567a16",
+  "subject": "chore(library/module_mgr): fix warning",
+  "zig_target": {}
+}

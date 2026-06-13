@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-02",
+  "needs_port": false,
+  "sha": "08c3f3c2366db7000fd20267e84aeb6e06487323",
+  "short_sha": "08c3f3c236",
+  "subject": "feat: warn `grind` redundant parameters (#9679)",
+  "zig_target": {}
+}

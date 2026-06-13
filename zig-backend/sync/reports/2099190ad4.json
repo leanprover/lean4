@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-11-05",
+  "needs_port": false,
+  "sha": "2099190ad4862e5e362870af2a945cb6c8561c57",
+  "short_sha": "2099190ad4",
+  "subject": "chore: do not abstract nested proofs in a proof",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-19",
+  "needs_port": false,
+  "sha": "2b9eea3c86f55b8ca2acae077ee05eed93e098e3",
+  "short_sha": "2b9eea3c86",
+  "subject": "chore(kernel/old_type_checker): copy&paste reduce_proj and infer_proj to `old_type_checker`",
+  "zig_target": {}
+}

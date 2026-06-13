@@ -1,0 +1,10 @@
+{
+  "author": "Siddharth Bhat",
+  "backend_changes": [],
+  "date": "2023-09-20",
+  "needs_port": false,
+  "sha": "b8d81e10816454de56c269bf85e783de347e63c1",
+  "short_sha": "b8d81e1081",
+  "subject": "fix: option parsing for bitcode, needs to be -b",
+  "zig_target": {}
+}

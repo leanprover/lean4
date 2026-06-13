@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-22",
+  "needs_port": false,
+  "sha": "0553b5936e4629f10561354dbb158412ce671722",
+  "short_sha": "0553b5936e",
+  "subject": "perf: avoid lifting \u2190 over an if",
+  "zig_target": {}
+}

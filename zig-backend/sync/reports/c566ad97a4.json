@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-06-02",
+  "needs_port": true,
+  "sha": "c566ad97a4ffe5af0c538f724175e5abd145937a",
+  "short_sha": "c566ad97a4",
+  "subject": "chore: prepare to use `UInt64` hash codes",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

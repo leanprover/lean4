@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-26",
+  "needs_port": false,
+  "sha": "b899447817100a4b33d2202f833d7f6f0127054d",
+  "short_sha": "b899447817",
+  "subject": "refactor: move `collectFVars` to `Meta`",
+  "zig_target": {}
+}

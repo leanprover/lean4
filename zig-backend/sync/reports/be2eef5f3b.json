@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-11",
+  "needs_port": false,
+  "sha": "be2eef5f3beaabf10964b5630cb06d290cc41559",
+  "short_sha": "be2eef5f3b",
+  "subject": "feat: lake: better cloud release management",
+  "zig_target": {}
+}

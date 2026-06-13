@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-17",
+  "needs_port": false,
+  "sha": "2ce8479303994e2a5b073df97fd93427712aa68c",
+  "short_sha": "2ce8479303",
+  "subject": "refactor: `DepElim.lean` ==> `Match.lean`",
+  "zig_target": {}
+}

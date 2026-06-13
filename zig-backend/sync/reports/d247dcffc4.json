@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-09",
+  "needs_port": false,
+  "sha": "d247dcffc4cc8412f9d59fbf0ccb6520ede0fc32",
+  "short_sha": "d247dcffc4",
+  "subject": "chore: delete obsolete C++ file (#11561)",
+  "zig_target": {}
+}

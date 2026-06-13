@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/serializer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.cpp"
+    },
+    {
+      "path": "src/runtime/serializer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.h"
+    }
+  ],
+  "date": "2018-05-22",
+  "needs_port": true,
+  "sha": "7afa418e139c07503a5e90ee77efe30426591fe6",
+  "short_sha": "7afa418e13",
+  "subject": "chore(runtime/serializer): style",
+  "zig_target": {
+    "src/runtime/serializer.cpp": "zig-backend/src/runtime/serializer.cpp",
+    "src/runtime/serializer.h": "zig-backend/src/runtime/serializer.h"
+  }
+}

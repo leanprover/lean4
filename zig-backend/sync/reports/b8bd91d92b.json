@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2025-11-03",
+  "needs_port": true,
+  "sha": "b8bd91d92b4f0ec99e5ee08701ac18f956d2c316",
+  "short_sha": "b8bd91d92b",
+  "subject": "feat: `simp? +suggestions` (#11032)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "870db93c8e6f75ce3a1facbb0c494b1afad7c1f5",
+  "short_sha": "870db93c8e",
+  "subject": "feat: add `EState.Backtrackable` class",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-09-13",
+  "needs_port": false,
+  "sha": "438061a924d4fd082d7d819609181568e1f66242",
+  "short_sha": "438061a924",
+  "subject": "fix: inaccessible pattern vars reported as binders (#5337)",
+  "zig_target": {}
+}

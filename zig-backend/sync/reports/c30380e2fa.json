@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-02",
+  "needs_port": false,
+  "sha": "c30380e2fa0fcaed60ef79c97e6724b8763633a0",
+  "short_sha": "c30380e2fa",
+  "subject": "feat: lift the restriction in `congr` theorems that all function arguments on the lhs must be free variables",
+  "zig_target": {}
+}

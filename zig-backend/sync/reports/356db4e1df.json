@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2022-09-19",
+  "needs_port": true,
+  "sha": "356db4e1df9ace14ed70fd8831663f12a2a0de8d",
+  "short_sha": "356db4e1df",
+  "subject": "fix: simplify termination_by clause",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

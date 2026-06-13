@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-03-17",
+  "needs_port": true,
+  "sha": "798da804597435617bf2ee6cc02a1dfb0e99a085",
+  "short_sha": "798da80459",
+  "subject": "fix: `grind` push new fact (#7532)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

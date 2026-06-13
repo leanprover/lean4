@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-10",
+  "needs_port": false,
+  "sha": "3ce794c58ac013265eb717bec26f974e5e3ad444",
+  "short_sha": "3ce794c58a",
+  "subject": "feat: allow `h :` annotation on `match` discriminants",
+  "zig_target": {}
+}

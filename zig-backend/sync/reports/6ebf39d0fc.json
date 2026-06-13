@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+    }
+  ],
+  "date": "2025-06-04",
+  "needs_port": true,
+  "sha": "6ebf39d0fc9549207c5b832755f6d82f0c89816b",
+  "short_sha": "6ebf39d0fc",
+  "subject": "chore: fix formatting (#8635)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+  }
+}

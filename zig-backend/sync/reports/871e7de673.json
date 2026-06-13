@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-16",
+  "needs_port": false,
+  "sha": "871e7de6734635970c2ee05e2da089ef0c931962",
+  "short_sha": "871e7de673",
+  "subject": "chore(library/init/core): move auxiliary constants to beginning of the file",
+  "zig_target": {}
+}

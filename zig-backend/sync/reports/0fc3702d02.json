@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2021-11-16",
+  "needs_port": false,
+  "sha": "0fc3702d0229f8eb5d8ebb605f23f40c95a1e46b",
+  "short_sha": "0fc3702d02",
+  "subject": "chore: remove superfluous abbrev",
+  "zig_target": {}
+}

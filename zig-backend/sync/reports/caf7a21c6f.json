@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-12-23",
+  "needs_port": false,
+  "sha": "caf7a21c6fa07f13f3820ea6216f8f7e9561e60f",
+  "short_sha": "caf7a21c6f",
+  "subject": "chore: include full build in stdlib benchmark (#3104)",
+  "zig_target": {}
+}

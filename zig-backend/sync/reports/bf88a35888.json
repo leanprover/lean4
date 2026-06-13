@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-16",
+  "needs_port": false,
+  "sha": "bf88a3588806126f9647a51a044b052a805be23c",
+  "short_sha": "bf88a35888",
+  "subject": "feat: add views for structure command",
+  "zig_target": {}
+}

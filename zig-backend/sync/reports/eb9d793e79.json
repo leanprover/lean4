@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+    }
+  ],
+  "date": "2020-01-04",
+  "needs_port": true,
+  "sha": "eb9d793e79e694674e8b704f6a163c4fc2feacf6",
+  "short_sha": "eb9d793e79",
+  "subject": "feat: def-like elaboration skeleton",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Declaration.lean": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+  }
+}

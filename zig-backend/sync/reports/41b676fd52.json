@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-16",
+  "needs_port": false,
+  "sha": "41b676fd524da1a4480637955cf166a9c8d97607",
+  "short_sha": "41b676fd52",
+  "subject": "chore: CI: fix sanitized build",
+  "zig_target": {}
+}

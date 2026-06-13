@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "0fc9aa24bc94852c23d19d76ba68966c79e68f48",
+  "short_sha": "0fc9aa24bc",
+  "subject": "chore(frontends/lean/parser): remove \"binder collection\" support",
+  "zig_target": {}
+}

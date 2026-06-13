@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-05-27",
+  "needs_port": false,
+  "sha": "bf907d7b8cd219512ec60cf9f1a556b06b105724",
+  "short_sha": "bf907d7b8c",
+  "subject": "fix: ignore exposed function arguments in unused variables linter",
+  "zig_target": {}
+}

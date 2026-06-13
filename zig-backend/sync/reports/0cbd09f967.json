@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/GeneralizeTelescope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/GeneralizeTelescope.lean"
+    }
+  ],
+  "date": "2020-03-30",
+  "needs_port": true,
+  "sha": "0cbd09f9670d20c202e1ed4ec54e504d87e5bd0c",
+  "short_sha": "0cbd09f967",
+  "subject": "chore: make sure `generalizeTelescope` signature is similar to other telescope methods",
+  "zig_target": {
+    "src/Init/Lean/Meta/GeneralizeTelescope.lean": "zig-backend/src/init/Lean/Meta/GeneralizeTelescope.lean"
+  }
+}

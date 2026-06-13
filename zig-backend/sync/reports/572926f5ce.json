@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-08-27",
+  "needs_port": true,
+  "sha": "572926f5ce147017a322e64628691aca36a76474",
+  "short_sha": "572926f5ce",
+  "subject": "perf(shell/CMakeLists.txt, tests/): define NDEBUG in leanc release builds",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

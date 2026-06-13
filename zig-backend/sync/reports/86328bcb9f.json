@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2022-02-16",
+  "needs_port": true,
+  "sha": "86328bcb9f587b7c54db8ecb61eb00d025469dd2",
+  "short_sha": "86328bcb9f",
+  "subject": "feat: tail recursive `List.iota` and `[csimp]` theorem",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-09",
+  "needs_port": false,
+  "sha": "e66575d4fcd2d0013d73707fa8f8cac0bd76c123",
+  "short_sha": "e66575d4fc",
+  "subject": "refactor: move and generalize `ensureNoRecFn`",
+  "zig_target": {}
+}

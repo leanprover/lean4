@@ -1,0 +1,36 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Checker.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Checker.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Sorry.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Sorry.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2025-07-09",
+  "needs_port": true,
+  "sha": "7845154a3dc73bc36a744724704c6dfb670c9640",
+  "short_sha": "7845154a3d",
+  "subject": "refactor: base the IR phase of the compiler on CoreM (#9291)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Checker.lean": "zig-backend/src/lean/compiler/ir/Checker.lean",
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean",
+    "src/Lean/Compiler/IR/Sorry.lean": "zig-backend/src/lean/compiler/ir/Sorry.lean",
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

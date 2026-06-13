@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2025-04-01",
+  "needs_port": true,
+  "sha": "fcb0ab84904e54108bcbff53b189c759c746ff0b",
+  "short_sha": "fcb0ab8490",
+  "subject": "chore: add List.head_singleton theorem (#7768)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-19",
+  "needs_port": false,
+  "sha": "ab42cffad20361d8f69e59db2bd3f9f34b84ed9d",
+  "short_sha": "ab42cffad2",
+  "subject": "refactor: rename all Default.lean files except for Init/Default.lean",
+  "zig_target": {}
+}

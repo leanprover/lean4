@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-18",
+  "needs_port": false,
+  "sha": "1dca9d18d4b303b4fc6c57ff1c44444d92870f5f",
+  "short_sha": "1dca9d18d4",
+  "subject": "fix: missing tactic state info on broken proofs",
+  "zig_target": {}
+}

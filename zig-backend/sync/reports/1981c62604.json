@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-28",
+  "needs_port": false,
+  "sha": "1981c626048bb5b9e8e519c67079dc9522530f49",
+  "short_sha": "1981c62604",
+  "subject": "feat: make `grind +premises` more robust to bad suggestions (#10992)",
+  "zig_target": {}
+}

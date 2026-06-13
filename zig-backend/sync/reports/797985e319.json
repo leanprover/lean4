@@ -1,0 +1,60 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Rat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Rat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Rat.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Rat.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Rat.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/init/GrindInstances/Rat.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/Rat.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/Rat.lean"
+    }
+  ],
+  "date": "2025-08-25",
+  "needs_port": true,
+  "sha": "797985e3197ad2cf805310911854565996e72c48",
+  "short_sha": "797985e319",
+  "subject": "feat: upstream several `Rat` lemmas from mathlib (#10077)",
+  "zig_target": {
+    "src/Init/Data/Rat/Basic.lean": "zig-backend/src/init/Data/Rat/Basic.lean",
+    "src/Init/Data/Rat/Lemmas.lean": "zig-backend/src/init/Data/Rat/Lemmas.lean",
+    "src/Init/Grind/Ordered.lean": "zig-backend/src/init/Grind/Ordered.lean",
+    "src/Init/Grind/Ordered/Rat.lean": "zig-backend/src/init/Grind/Ordered/Rat.lean",
+    "src/Init/GrindInstances.lean": "zig-backend/src/init/GrindInstances.lean",
+    "src/Init/GrindInstances/Rat.lean": "zig-backend/src/init/GrindInstances/Rat.lean",
+    "src/Init/GrindInstances/Ring.lean": "zig-backend/src/init/GrindInstances/Ring.lean",
+    "src/Init/GrindInstances/Ring/Rat.lean": "zig-backend/src/init/GrindInstances/Ring/Rat.lean"
+  }
+}

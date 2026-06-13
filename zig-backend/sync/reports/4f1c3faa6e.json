@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-30",
+  "needs_port": false,
+  "sha": "4f1c3faa6e771d234a37151016e833b5547507d7",
+  "short_sha": "4f1c3faa6e",
+  "subject": "chore: Nix: re-enable `nix develop` on bare derivations",
+  "zig_target": {}
+}

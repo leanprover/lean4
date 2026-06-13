@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-13",
+  "needs_port": false,
+  "sha": "77ad630c8007b3ee54ee46b653e4bdbe1d720d7e",
+  "short_sha": "77ad630c80",
+  "subject": "test: inductive command",
+  "zig_target": {}
+}

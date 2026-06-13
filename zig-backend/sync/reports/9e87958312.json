@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-05",
+  "needs_port": false,
+  "sha": "9e8795831258b853d1b4a1aaae914a734516520e",
+  "short_sha": "9e87958312",
+  "subject": "fix: linking libraries on Unix",
+  "zig_target": {}
+}

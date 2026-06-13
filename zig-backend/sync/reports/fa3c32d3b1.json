@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/EState.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/EState.lean"
+    },
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2020-10-22",
+  "needs_port": true,
+  "sha": "fa3c32d3b1d6a940f04e076bcb007906f285b44b",
+  "short_sha": "fa3c32d3b1",
+  "subject": "chore: remove `adaptExcept`",
+  "zig_target": {
+    "src/Init/Control/EState.lean": "zig-backend/src/init/Control/EState.lean",
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

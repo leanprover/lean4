@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-17",
+  "needs_port": false,
+  "sha": "51771d5d07d370272f839a3a803766eef8895807",
+  "short_sha": "51771d5d07",
+  "subject": "feat: erase `_discr` auxiliary variables",
+  "zig_target": {}
+}

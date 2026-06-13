@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "6bd6fb0c25ede1364821a49ff21917a76e265de0",
+  "short_sha": "6bd6fb0c25",
+  "subject": "chore: simplify code to workaround bug at `csimp.cpp`",
+  "zig_target": {}
+}

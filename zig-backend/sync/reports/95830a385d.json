@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/reduce_arity.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/reduce_arity.cpp"
+    }
+  ],
+  "date": "2018-11-09",
+  "needs_port": true,
+  "sha": "95830a385d20a976f2627cd56d7a4b654fbfc92c",
+  "short_sha": "95830a385d",
+  "subject": "feat(src/library/compiler/reduce_arity): add temporary workaround",
+  "zig_target": {
+    "src/library/compiler/reduce_arity.cpp": "zig-backend/src/library/compiler/reduce_arity.cpp"
+  }
+}

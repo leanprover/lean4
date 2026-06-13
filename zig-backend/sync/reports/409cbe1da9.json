@@ -1,0 +1,36 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Fold.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    }
+  ],
+  "date": "2025-09-13",
+  "needs_port": true,
+  "sha": "409cbe1da9584df23486ef057f609372d6ae9843",
+  "short_sha": "409cbe1da9",
+  "subject": "fix: make `rw` collect only new goals, occurs check (#10306)",
+  "zig_target": {
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Fin/Fold.lean": "zig-backend/src/init/Data/Fin/Fold.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+  }
+}

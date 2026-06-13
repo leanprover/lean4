@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-31",
+  "needs_port": false,
+  "sha": "a31802d5e2a2866b4a3191b4d1312dd2ebdc6f5b",
+  "short_sha": "a31802d5e2",
+  "subject": "chore: Nix: use lld to speed up linking by ~1s",
+  "zig_target": {}
+}

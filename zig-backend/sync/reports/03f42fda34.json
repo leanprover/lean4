@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-27",
+  "needs_port": false,
+  "sha": "03f42fda34eab2c1dea29afcf089c27a8aee71e2",
+  "short_sha": "03f42fda34",
+  "subject": "refactor(library/init/data/rbmap/basic): use `[inline]` instead of auxiliary \"corpse\"",
+  "zig_target": {}
+}

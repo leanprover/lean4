@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-15",
+  "needs_port": false,
+  "sha": "726b735c6df7b34bf99cfc434de5e688e84dc947",
+  "short_sha": "726b735c6d",
+  "subject": "fix: using invalid name generator at `ContextInfo.runMetaM`",
+  "zig_target": {}
+}

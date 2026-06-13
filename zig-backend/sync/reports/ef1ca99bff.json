@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-08-21",
+  "needs_port": false,
+  "sha": "ef1ca99bffd4f534a8c02dc32a657b957c01c495",
+  "short_sha": "ef1ca99bff",
+  "subject": "chore: simplify `require` config in lakefile.toml schema (#10001)",
+  "zig_target": {}
+}

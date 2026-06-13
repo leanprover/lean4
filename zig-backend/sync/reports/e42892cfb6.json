@@ -1,0 +1,24 @@
+{
+  "author": "Tom Levy",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-09-23",
+  "needs_port": true,
+  "sha": "e42892cfb6ce409503caa01665d77e6744edb06d",
+  "short_sha": "e42892cfb6",
+  "subject": "doc: fix comment about String.fromUTF8 replacing invalid chars (#10240)",
+  "zig_target": {
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

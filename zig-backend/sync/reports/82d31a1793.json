@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-10-21",
+  "needs_port": false,
+  "sha": "82d31a1793143c65ccb88f484de8d06001ccb3b3",
+  "short_sha": "82d31a1793",
+  "subject": "perf: `has_univ_mvar`, `has_univ_mvar`, and `has_fvar` in C++ (#5793)",
+  "zig_target": {}
+}

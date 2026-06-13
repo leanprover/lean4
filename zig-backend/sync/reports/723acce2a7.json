@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-24",
+  "needs_port": false,
+  "sha": "723acce2a7179cd0f3ebb7deb833528cb6226fef",
+  "short_sha": "723acce2a7",
+  "subject": "feat: add `AlphaShareBuilder` (#11793)",
+  "zig_target": {}
+}

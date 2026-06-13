@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-09",
+  "needs_port": false,
+  "sha": "0714a7150bd2d8cc3bc64700d51b336d7f3a806b",
+  "short_sha": "0714a7150b",
+  "subject": "feat: add more multiplication lemmas to bv_normalize (#7407)",
+  "zig_target": {}
+}

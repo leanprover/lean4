@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-06",
+  "needs_port": false,
+  "sha": "d3808089309b75004256514a371a90748b4699cf",
+  "short_sha": "d380808930",
+  "subject": "fix: generalize if target is a let-declaration",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Induction.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+    }
+  ],
+  "date": "2020-04-08",
+  "needs_port": true,
+  "sha": "40336131bbcde6d1bde622ee128811c49d76167a",
+  "short_sha": "40336131bb",
+  "subject": "feat: do not switch to term mode in the RHS of `induction` and `cases` tactics",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Induction.lean": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean",
+    "src/Init/Lean/Parser/Tactic.lean": "zig-backend/src/init/Lean/Parser/Tactic.lean"
+  }
+}

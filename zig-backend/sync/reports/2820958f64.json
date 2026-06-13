@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-17",
+  "needs_port": false,
+  "sha": "2820958f64e7f9441bef36ec06e0ffc339cfacc7",
+  "short_sha": "2820958f64",
+  "subject": "doc: `attachJp`",
+  "zig_target": {}
+}

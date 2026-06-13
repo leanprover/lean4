@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-27",
+  "needs_port": false,
+  "sha": "ab487ea4ac4a2e3aa3d6faeb020c726e3387da4a",
+  "short_sha": "ab487ea4ac",
+  "subject": "feat(frontends/lean): allow `;` instead of `in` in let-decls",
+  "zig_target": {}
+}

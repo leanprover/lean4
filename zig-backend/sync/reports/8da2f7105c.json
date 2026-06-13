@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-06-25",
+  "needs_port": false,
+  "sha": "8da2f7105cd454e809f4e961e157d5281a52215c",
+  "short_sha": "8da2f7105c",
+  "subject": "chore: reword redundant alternative error explanation (#9001)",
+  "zig_target": {}
+}

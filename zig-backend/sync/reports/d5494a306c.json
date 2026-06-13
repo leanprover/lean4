@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-24",
+  "needs_port": false,
+  "sha": "d5494a306c7af589e4eaf03ab1a09c11c7f5c477",
+  "short_sha": "d5494a306c",
+  "subject": "chore: CI: extend list of virtual merge checkout files",
+  "zig_target": {}
+}

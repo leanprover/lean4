@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-02",
+  "needs_port": false,
+  "sha": "0220af69b86ca79c5ba7724e9c5d756f6e46fd74",
+  "short_sha": "0220af69b8",
+  "subject": "feat(library/print): print mdata",
+  "zig_target": {}
+}

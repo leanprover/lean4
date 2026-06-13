@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-11-20",
+  "needs_port": false,
+  "sha": "2f1e258a5e7622aaac1900310b26ba7f9ddc6ae7",
+  "short_sha": "2f1e258a5e",
+  "subject": "test: re-enable re-elab benchmarks and add watchdog re-elab benchmark (#11284)",
+  "zig_target": {}
+}

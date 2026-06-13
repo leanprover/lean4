@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2022-09-20",
+  "needs_port": true,
+  "sha": "65a861da6896288d09cb049c28e773adcbc3230b",
+  "short_sha": "65a861da68",
+  "subject": "feat: multiple `case` (part 1)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-05",
+  "needs_port": false,
+  "sha": "b4a7d28cff39bdad32ff3045893e2c8a30026b29",
+  "short_sha": "b4a7d28cff",
+  "subject": "fix: inconsistent `inaccessible` annotations",
+  "zig_target": {}
+}

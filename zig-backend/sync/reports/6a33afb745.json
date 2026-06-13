@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2023-11-21",
+  "needs_port": false,
+  "sha": "6a33afb745212d01300d5cf78347c17d4924cda8",
+  "short_sha": "6a33afb745",
+  "subject": "feat: `Lean.MVarId.cleanup` configuration (#2919)",
+  "zig_target": {}
+}

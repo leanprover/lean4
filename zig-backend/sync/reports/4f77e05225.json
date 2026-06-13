@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-05-30",
+  "needs_port": false,
+  "sha": "4f77e0522523892e7a19fe1f12a30edd76c4bb0e",
+  "short_sha": "4f77e05225",
+  "subject": "feat: introduce `zip` iterator combinator (#8484)",
+  "zig_target": {}
+}

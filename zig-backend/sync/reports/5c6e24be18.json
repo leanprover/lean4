@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Definition.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Definition.lean"
+    }
+  ],
+  "date": "2020-01-29",
+  "needs_port": true,
+  "sha": "5c6e24be18c64fc0543c7d7a41f3b0800aa4aa1c",
+  "short_sha": "5c6e24be18",
+  "subject": "chore: better position for this kind of error",
+  "zig_target": {
+    "src/Init/Lean/Elab/Definition.lean": "zig-backend/src/init/Lean/Elab/Definition.lean"
+  }
+}

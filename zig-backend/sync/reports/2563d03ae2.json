@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-31",
+  "needs_port": false,
+  "sha": "2563d03ae2ccdf4ae76f28ccaf5dd246a0f9867f",
+  "short_sha": "2563d03ae2",
+  "subject": "feat: add `notFollowedBy`",
+  "zig_target": {}
+}

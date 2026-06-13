@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-08-30",
+  "needs_port": true,
+  "sha": "ad3b0b4a2c3865c9e0b8b8d0c05163666748a2ee",
+  "short_sha": "ad3b0b4a2c",
+  "subject": "feat: nary `generalize` tactic",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

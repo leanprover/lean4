@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "ffb57e661f7b3096f923edcea650c2724c7d0c2b",
+  "short_sha": "ffb57e661f",
+  "subject": "chore: remove old notation",
+  "zig_target": {}
+}

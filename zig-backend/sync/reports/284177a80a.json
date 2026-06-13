@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/FloatArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/FloatArray/Basic.lean"
+    }
+  ],
+  "date": "2021-10-18",
+  "needs_port": true,
+  "sha": "284177a80a06527e02f737c39952fd7725374c66",
+  "short_sha": "284177a80a",
+  "subject": "feat: missing instances and getOp for byte/float arrays",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean",
+    "src/Init/Data/FloatArray/Basic.lean": "zig-backend/src/init/Data/FloatArray/Basic.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2020-10-29",
+  "needs_port": true,
+  "sha": "0032578d5be0dda3b6a528f627319ecb58a27f37",
+  "short_sha": "0032578d5b",
+  "subject": "feat: add `have <ident> := <term>` tactic macro",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

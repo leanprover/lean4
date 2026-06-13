@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-15",
+  "needs_port": false,
+  "sha": "a788e6aa6730ea901e17391c765d0b2508586bc5",
+  "short_sha": "a788e6aa67",
+  "subject": "perf: remove more async blockers (#7497)",
+  "zig_target": {}
+}

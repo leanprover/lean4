@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/Basic.lean"
+    }
+  ],
+  "date": "2020-03-31",
+  "needs_port": true,
+  "sha": "af8bc28be00b81d16126b29029545989f5941d93",
+  "short_sha": "af8bc28be0",
+  "subject": "fix: typo at `IR.Expr.alphaEqv`",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/Basic.lean": "zig-backend/src/init/Lean/Compiler/IR/Basic.lean"
+  }
+}

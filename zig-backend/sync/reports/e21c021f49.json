@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-10-26",
+  "needs_port": false,
+  "sha": "e21c021f49d23038bf6be1f991b862aa2a0fde3d",
+  "short_sha": "e21c021f49",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

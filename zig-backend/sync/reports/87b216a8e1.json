@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-28",
+  "needs_port": false,
+  "sha": "87b216a8e1d7bce83e89931dc17819f4b4bad30a",
+  "short_sha": "87b216a8e1",
+  "subject": "fix: do not show states from tactics indented further than the cursor",
+  "zig_target": {}
+}

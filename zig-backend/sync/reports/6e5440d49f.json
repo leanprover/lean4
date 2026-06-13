@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-07-30",
+  "needs_port": false,
+  "sha": "6e5440d49fcabee438bd2eba9aeabad8e19c23d2",
+  "short_sha": "6e5440d49f",
+  "subject": "test(tests/library/phashtable): add std::unordered_map test",
+  "zig_target": {}
+}

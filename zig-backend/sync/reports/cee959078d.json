@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-17",
+  "needs_port": false,
+  "sha": "cee959078db44e7dbff46e1e98a3678888cf0ad4",
+  "short_sha": "cee959078d",
+  "subject": "fix: do not require Environment to be inhabited",
+  "zig_target": {}
+}

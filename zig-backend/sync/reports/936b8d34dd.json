@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-07",
+  "needs_port": false,
+  "sha": "936b8d34dd844af9c02cf26b26b7999b68033bcd",
+  "short_sha": "936b8d34dd",
+  "subject": "chore: add auxiliary declaration to stop specialization",
+  "zig_target": {}
+}

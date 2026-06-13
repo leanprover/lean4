@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-14",
+  "needs_port": false,
+  "sha": "d22d639fcb9777b0a3339eb57179eeb0dc47f1ab",
+  "short_sha": "d22d639fcb",
+  "subject": "refactor: rename \"antiquot scope\" ~> \"antiquot splice\"",
+  "zig_target": {}
+}

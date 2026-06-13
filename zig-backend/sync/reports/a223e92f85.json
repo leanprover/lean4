@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-24",
+  "needs_port": true,
+  "sha": "a223e92f850e26880b6d9cb982fc95101b24e058",
+  "short_sha": "a223e92f85",
+  "subject": "chore: remove use of deprecated API (#8970)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bootstrap.lean": "zig-backend/src/init/Data/BitVec/Bootstrap.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

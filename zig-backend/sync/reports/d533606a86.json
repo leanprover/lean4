@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-03",
+  "needs_port": false,
+  "sha": "d533606a86db48dac0d4a5e6adcff25c3f173efc",
+  "short_sha": "d533606a86",
+  "subject": "chore: update `examples/git` URL",
+  "zig_target": {}
+}

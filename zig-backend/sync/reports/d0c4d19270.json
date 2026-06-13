@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-05-12",
+  "needs_port": false,
+  "sha": "d0c4d19270fc1f130ddae17a9a86c0cc40ef36de",
+  "short_sha": "d0c4d19270",
+  "subject": "fix: bv_decide can handle universe polymorphic enums (#8270)",
+  "zig_target": {}
+}

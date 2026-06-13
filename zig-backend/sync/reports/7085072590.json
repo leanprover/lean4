@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2020-02-11",
+  "needs_port": true,
+  "sha": "70850725906b9db602af4659835a532b641aa1e2",
+  "short_sha": "7085072590",
+  "subject": "feat: allow `implicitBinder` and `instBinder` at `fun`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean",
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

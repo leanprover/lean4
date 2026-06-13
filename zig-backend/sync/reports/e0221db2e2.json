@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-14",
+  "needs_port": false,
+  "sha": "e0221db2e24132dcef2b83aeed4e0ae8e6df4a4a",
+  "short_sha": "e0221db2e2",
+  "subject": "feat: add `@[inheritDoc]` attribute",
+  "zig_target": {}
+}

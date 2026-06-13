@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2025-11-27",
+  "needs_port": true,
+  "sha": "b21cef37e4b6d7ee2a2f1778cfb9a7d1bbc2c1fe",
+  "short_sha": "b21cef37e4",
+  "subject": "perf: sort before elim dead branches (#11366)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+  }
+}

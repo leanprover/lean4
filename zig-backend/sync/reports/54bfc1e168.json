@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-06",
+  "needs_port": false,
+  "sha": "54bfc1e1684266927e7bce891c89fc15fe51c1fa",
+  "short_sha": "54bfc1e168",
+  "subject": "chore: add `elabTacticQuotSeq`",
+  "zig_target": {}
+}

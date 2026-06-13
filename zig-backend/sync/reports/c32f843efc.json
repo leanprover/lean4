@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-22",
+  "needs_port": false,
+  "sha": "c32f843efcc8d240a70b8d15435b3acc61f1124f",
+  "short_sha": "c32f843efc",
+  "subject": "fix: profiling from the new frontend; use trace out for the time being",
+  "zig_target": {}
+}

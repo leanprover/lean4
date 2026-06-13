@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-16",
+  "needs_port": false,
+  "sha": "8a5344ed17d68283f3babd56f07c2aed969159e6",
+  "short_sha": "8a5344ed17",
+  "subject": "fix: server: handle requests for closed files",
+  "zig_target": {}
+}

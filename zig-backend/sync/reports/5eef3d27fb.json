@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-19",
+  "needs_port": false,
+  "sha": "5eef3d27fb252f7a181c3d78ef4a57fa99b3b5a7",
+  "short_sha": "5eef3d27fb",
+  "subject": "feat: have `#print` show precise fields of structures (#6096)",
+  "zig_target": {}
+}

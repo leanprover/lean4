@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-13",
+  "needs_port": true,
+  "sha": "6ca31baa55e4b29c9667085736863f9ca840b16c",
+  "short_sha": "6ca31baa55",
+  "subject": "feat: structure extensionality in `grind` (#8330)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-20",
+  "needs_port": false,
+  "sha": "7b30214e54d1b834befafd5bc1edf79bdf335ff8",
+  "short_sha": "7b30214e54",
+  "subject": "chore: clean up stdlib.make.in (#12614)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-03",
+  "needs_port": false,
+  "sha": "1e101d35a8667fcb7ef3710240e1544df67bef4e",
+  "short_sha": "1e101d35a8",
+  "subject": "feat(library/init/lean/compiler/ir): add auxiliary functions",
+  "zig_target": {}
+}

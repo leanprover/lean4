@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-08-08",
+  "needs_port": false,
+  "sha": "70cf20c0abf87ba541194122d8b74e2d6aebb906",
+  "short_sha": "70cf20c0ab",
+  "subject": "feat: document Emacs setup",
+  "zig_target": {}
+}

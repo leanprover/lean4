@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-08",
+  "needs_port": false,
+  "sha": "ded043bd5381c2df3f4c2db7cf2f82f670247ea8",
+  "short_sha": "ded043bd53",
+  "subject": "test: old Lean3 `begin ... end` as a macro",
+  "zig_target": {}
+}

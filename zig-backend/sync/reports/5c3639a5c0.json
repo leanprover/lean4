@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2018-10-30",
+  "needs_port": true,
+  "sha": "5c3639a5c0bba35e7716e94fbadb1750234fa029",
+  "short_sha": "5c3639a5c0",
+  "subject": "feat(library/compiler/llnf): avoid unnecessary resets",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

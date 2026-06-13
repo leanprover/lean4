@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-13",
+  "needs_port": false,
+  "sha": "00a0db4231156fbdd0e316b9ce0b2d1c301aa74f",
+  "short_sha": "00a0db4231",
+  "subject": "fix: unexpanders should inherit scopedness",
+  "zig_target": {}
+}

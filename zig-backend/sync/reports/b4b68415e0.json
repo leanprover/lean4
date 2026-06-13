@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Rozowski",
+  "backend_changes": [],
+  "date": "2025-06-23",
+  "needs_port": false,
+  "sha": "b4b68415e0231ed85205d791c50fc338f985703b",
+  "short_sha": "b4b68415e0",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

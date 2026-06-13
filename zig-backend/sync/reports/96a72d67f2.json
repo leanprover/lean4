@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-23",
+  "needs_port": false,
+  "sha": "96a72d67f26b5e741afb86c5960ad8097d6169db",
+  "short_sha": "96a72d67f2",
+  "subject": "fix: avoid unnecessary dependencies at `mkMatcher`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "75602f7c29fb0b5ac333ab7e62b69f9f3eeec3b8",
+  "short_sha": "75602f7c29",
+  "subject": "chore: CI: adjust Dependabot prefix",
+  "zig_target": {}
+}

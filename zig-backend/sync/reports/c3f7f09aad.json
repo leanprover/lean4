@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "c3f7f09aad3a820e6fa297463ac1828fae453314",
+  "short_sha": "c3f7f09aad",
+  "subject": "fix: use old nixpkgs for glibc only",
+  "zig_target": {}
+}

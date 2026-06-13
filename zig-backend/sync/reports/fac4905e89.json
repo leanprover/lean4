@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-06",
+  "needs_port": true,
+  "sha": "fac4905e89d1bfc25f3919ab015e33e0c52f7aa3",
+  "short_sha": "fac4905e89",
+  "subject": "chore: fix function body indentation (#9773)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

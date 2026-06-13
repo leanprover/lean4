@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-13",
+  "needs_port": false,
+  "sha": "06bb9b7ea8cc168aaaaa582f2ffbd39aacff2ca6",
+  "short_sha": "06bb9b7ea8",
+  "subject": "test(tests/compiler): add simple test for `expr`",
+  "zig_target": {}
+}

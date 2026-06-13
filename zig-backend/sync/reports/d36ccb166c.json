@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Random.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Random.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2020-08-20",
+  "needs_port": true,
+  "sha": "d36ccb166c6b14e4a7cfc2049973b6f332d07c85",
+  "short_sha": "d36ccb166c",
+  "subject": "feat: use `EIO Empty` instead of `IO` at `IO.Ref` primitives",
+  "zig_target": {
+    "src/Init/Data/Random.lean": "zig-backend/src/init/Data/Random.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

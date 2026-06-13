@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-06",
+  "needs_port": false,
+  "sha": "7987b795bbd0153db9e389fd7c515120e3136778",
+  "short_sha": "7987b795bb",
+  "subject": "fix: workspace symbols",
+  "zig_target": {}
+}

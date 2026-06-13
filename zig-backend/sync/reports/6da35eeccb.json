@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-11-24",
+  "needs_port": false,
+  "sha": "6da35eeccb726b67d9b32ab7bbd67ac00ed93589",
+  "short_sha": "6da35eeccb",
+  "subject": "refactor: increase runtime of \"sigma iterator\" benchmark (#11336)",
+  "zig_target": {}
+}

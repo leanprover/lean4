@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-18",
+  "needs_port": false,
+  "sha": "6df66bf0acebcc41525d6e8e608452bc4eb02653",
+  "short_sha": "6df66bf0ac",
+  "subject": "feat: generalize `observing`",
+  "zig_target": {}
+}

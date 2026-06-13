@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_app_args.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/simp_app_args.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_app_args.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/simp_app_args.h"
+    }
+  ],
+  "date": "2018-11-07",
+  "needs_port": true,
+  "sha": "df39be927dc26c10ff4ea36fb26fe9cdda32a60c",
+  "short_sha": "df39be927d",
+  "subject": "feat(library/compiler): make sure application arguments are free variables or neutral terms in LLNF",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp",
+    "src/library/compiler/simp_app_args.cpp": "zig-backend/src/library/compiler/simp_app_args.cpp",
+    "src/library/compiler/simp_app_args.h": "zig-backend/src/library/compiler/simp_app_args.h"
+  }
+}

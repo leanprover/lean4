@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-07-24",
+  "needs_port": false,
+  "sha": "6d971827e253a4dc08cda3cf6524d7f37819eb47",
+  "short_sha": "6d971827e2",
+  "subject": "chore: CI: add back dropped check-stage3",
+  "zig_target": {}
+}

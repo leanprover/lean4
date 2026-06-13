@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Sym/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Sym/Lemmas.lean"
+    }
+  ],
+  "date": "2026-01-18",
+  "needs_port": true,
+  "sha": "ea9c7cf2ae2695284fcad4045c97abd26637a445",
+  "short_sha": "ea9c7cf2ae",
+  "subject": "feat: add simprocs for `cond` and dependent `if-then-else` in `Sym.simp` (#12040)",
+  "zig_target": {
+    "src/Init/Sym/Lemmas.lean": "zig-backend/src/init/Sym/Lemmas.lean"
+  }
+}

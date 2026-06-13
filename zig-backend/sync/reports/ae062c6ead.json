@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-04",
+  "needs_port": false,
+  "sha": "ae062c6ead2f012a36cc9af338392990fa251b2c",
+  "short_sha": "ae062c6ead",
+  "subject": "fix: `match` tactic should not trigger implicit lambdas",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-07",
+  "needs_port": false,
+  "sha": "db47664d4a8586b46923eb095398bc48975e6aaa",
+  "short_sha": "db47664d4a",
+  "subject": "fix: discrepancy between `isDefEq` and `whnf` for transparency mode `instances`",
+  "zig_target": {}
+}

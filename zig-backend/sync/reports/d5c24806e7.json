@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-09",
+  "needs_port": false,
+  "sha": "d5c24806e7902822e2e39225dda31c9577fc4671",
+  "short_sha": "d5c24806e7",
+  "subject": "feat(kernel/local_ctx): add methods for replacing legacy Pi/Fun",
+  "zig_target": {}
+}

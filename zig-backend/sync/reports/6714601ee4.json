@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Basic.lean"
+    }
+  ],
+  "date": "2026-03-16",
+  "needs_port": true,
+  "sha": "6714601ee4a123fef0f6ff3e44f01086ba78dfce",
+  "short_sha": "6714601ee4",
+  "subject": "fix: remove accidental type monomorphism in `Id.run_seqLeft` (#12936)",
+  "zig_target": {
+    "src/Init/Control/Lawful/Basic.lean": "zig-backend/src/init/Control/Lawful/Basic.lean"
+  }
+}

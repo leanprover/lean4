@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-11-08",
+  "needs_port": false,
+  "sha": "182812a278aae8e5fd495b57c541cdde5f422f2a",
+  "short_sha": "182812a278",
+  "subject": "chore(library/init/lean/parser/token): make sure generate code does contain partially applied `reader_t.or_else` and `reader_t.bind`",
+  "zig_target": {}
+}

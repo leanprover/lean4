@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-07",
+  "needs_port": false,
+  "sha": "05b12e2b612c3c7d5f41d87936142c0ba31948dc",
+  "short_sha": "05b12e2b61",
+  "subject": "chore: undo workaround",
+  "zig_target": {}
+}

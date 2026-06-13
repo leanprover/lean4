@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-15",
+  "needs_port": false,
+  "sha": "3834a89cdc95bb34c2ed6b47f4e45a73a5a70d56",
+  "short_sha": "3834a89cdc",
+  "subject": "feat: activate new pretty printer",
+  "zig_target": {}
+}

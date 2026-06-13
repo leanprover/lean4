@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-13",
+  "needs_port": false,
+  "sha": "1118978cbb344e6570729a70c74cd0d3121e8c35",
+  "short_sha": "1118978cbb",
+  "subject": "refactor: IndGroupInfo and IndGroupInst (#4738)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-13",
+  "needs_port": false,
+  "sha": "71f62fe5cb43037406cd90133d9425e543c6435e",
+  "short_sha": "71f62fe5cb",
+  "subject": "feat: use `ParserDescr.nodeWithAntiquot` at `syntaxAbbrev`",
+  "zig_target": {}
+}

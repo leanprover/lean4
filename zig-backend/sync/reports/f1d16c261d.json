@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2019-05-11",
+  "needs_port": true,
+  "sha": "f1d16c261d77276eb1ec714d9bfa1194b19f82db",
+  "short_sha": "f1d16c261d",
+  "subject": "fix(library/compiler/csimp): do not inline constants with `[init]` attribute",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

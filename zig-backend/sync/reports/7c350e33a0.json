@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-04",
+  "needs_port": false,
+  "sha": "7c350e33a05348068e55db40cd24780af39e9167",
+  "short_sha": "7c350e33a0",
+  "subject": "feat: improve `instantiateExtTheorem` in `grind` (#12319)",
+  "zig_target": {}
+}

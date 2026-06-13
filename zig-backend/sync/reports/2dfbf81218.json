@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-05",
+  "needs_port": false,
+  "sha": "2dfbf81218dec983a2ced442906916b62e025497",
+  "short_sha": "2dfbf81218",
+  "subject": "feat: shutting down all tasks on termination and file worker termination",
+  "zig_target": {}
+}

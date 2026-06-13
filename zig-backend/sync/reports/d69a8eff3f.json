@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2025-05-15",
+  "needs_port": false,
+  "sha": "d69a8eff3fa153c081485bdd093fa58e2792a696",
+  "short_sha": "d69a8eff3f",
+  "subject": "fix: deduplicate elaboration of constant argument to `rw` (#8232)",
+  "zig_target": {}
+}

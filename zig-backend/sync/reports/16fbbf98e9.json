@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2021-07-10",
+  "needs_port": true,
+  "sha": "16fbbf98e94f1d2df543d52a3f8f98fe6a3671f8",
+  "short_sha": "16fbbf98e9",
+  "subject": "perf: extract cold paths in lean_free_small and mark noinline",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

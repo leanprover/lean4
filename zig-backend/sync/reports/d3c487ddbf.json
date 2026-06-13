@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-05",
+  "needs_port": false,
+  "sha": "d3c487ddbf5be4083198c50465a331918b274052",
+  "short_sha": "d3c487ddbf",
+  "subject": "feat: change `lhs` and `rhs` conv tactic semantics",
+  "zig_target": {}
+}

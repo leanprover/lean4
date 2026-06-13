@@ -1,0 +1,10 @@
+{
+  "author": "Alex Meiburg",
+  "backend_changes": [],
+  "date": "2025-03-28",
+  "needs_port": false,
+  "sha": "5fb990fcbd8d56e61e4276adcbe6deb19b5d7c64",
+  "short_sha": "5fb990fcbd",
+  "subject": "doc: Rat.lean docstring: \"Mathlib\" -> \"Batteries\" (#7708)",
+  "zig_target": {}
+}

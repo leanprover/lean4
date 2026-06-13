@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "79a8d9aa6524f5c5a15135d8085ed34b00c1c380",
+  "short_sha": "79a8d9aa65",
+  "subject": "chore(*): `decidablePred/decidableRel` => `DecidablePred/DecidableRel`",
+  "zig_target": {}
+}

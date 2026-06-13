@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-30",
+  "needs_port": false,
+  "sha": "e32402513d66fe470317e52af10d375a616d0bd8",
+  "short_sha": "e32402513d",
+  "subject": "feat: add `hasAssignableLevelMVar`",
+  "zig_target": {}
+}

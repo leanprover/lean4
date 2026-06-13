@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-15",
+  "needs_port": false,
+  "sha": "9d73317d76a19e26353d863cee74e4aad7e076f4",
+  "short_sha": "9d73317d76",
+  "subject": "perf: faster `Expr.data`",
+  "zig_target": {}
+}

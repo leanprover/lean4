@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-07",
+  "needs_port": false,
+  "sha": "59ee47ad44e46b50f6c73567622476097b22ae9c",
+  "short_sha": "59ee47ad44",
+  "subject": "feat: BitVec.getMsbD in bv_decide (#5987)",
+  "zig_target": {}
+}

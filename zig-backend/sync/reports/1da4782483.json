@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.h"
+    },
+    {
+      "path": "src/runtime/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/init_module.cpp"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/io.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/io.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-03-16",
+  "needs_port": true,
+  "sha": "1da478248351998f6faa306a4fee1b85b1cad2c5",
+  "short_sha": "1da4782483",
+  "subject": "feat(runtime, library/init/io): add `io.ref`",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/compact.h": "zig-backend/src/runtime/compact.h",
+    "src/runtime/init_module.cpp": "zig-backend/src/runtime/init_module.cpp",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/io.h": "zig-backend/src/runtime/io.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-12",
+  "needs_port": false,
+  "sha": "54e7d31d0fc94b1d1ad7e4492fd9e2d2811c648a",
+  "short_sha": "54e7d31d0f",
+  "subject": "feat: allow empty whereStructInst",
+  "zig_target": {}
+}

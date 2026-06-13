@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-31",
+  "needs_port": false,
+  "sha": "dfc19755cbc24950f6306e989fcc21e62958b1f3",
+  "short_sha": "dfc19755cb",
+  "subject": "chore: CI: fsan-blacklist laketest_ffi as well",
+  "zig_target": {}
+}

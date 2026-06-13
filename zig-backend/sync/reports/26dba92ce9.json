@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-02-19",
+  "needs_port": false,
+  "sha": "26dba92ce98c14f0f8b8f5e58382e8e1570a756e",
+  "short_sha": "26dba92ce9",
+  "subject": "feat: faster auto-completion (#7134)",
+  "zig_target": {}
+}

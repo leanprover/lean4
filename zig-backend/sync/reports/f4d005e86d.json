@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2023-01-23",
+  "needs_port": true,
+  "sha": "f4d005e86d0ca248adf8119cfec0a4c0f6f79a89",
+  "short_sha": "f4d005e86d",
+  "subject": "chore: only build small allocator if enabled",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

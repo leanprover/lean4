@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "b2a1b88a4e98f0d447af070458e0e207f134693f",
+  "short_sha": "b2a1b88a4e",
+  "subject": "doc: a certified type checker",
+  "zig_target": {}
+}

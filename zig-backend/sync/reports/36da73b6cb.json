@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-12",
+  "needs_port": false,
+  "sha": "36da73b6cb47e45464fca2641913405bf83b767c",
+  "short_sha": "36da73b6cb",
+  "subject": "feat(library/init/lean/parser/command): add (some) notation commands",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2022-08-01",
+  "needs_port": true,
+  "sha": "5f39370d94c668a5b42116aeaf438ca5bcdc3667",
+  "short_sha": "5f39370d94",
+  "subject": "chore: rename `skip` conv to `rfl` and add no-op `skip`",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

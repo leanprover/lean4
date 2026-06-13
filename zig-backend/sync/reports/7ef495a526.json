@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-23",
+  "needs_port": false,
+  "sha": "7ef495a5268af441b5d7f46f6ab041895510d704",
+  "short_sha": "7ef495a526",
+  "subject": "fix(library/init/lean/compiler/ir): use `setTag` at expandresetreuse",
+  "zig_target": {}
+}

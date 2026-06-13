@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AppBuilder.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+    }
+  ],
+  "date": "2019-12-04",
+  "needs_port": true,
+  "sha": "5813fbb26a7f7ba90e4f53e73f0d979d77f31634",
+  "short_sha": "5813fbb26a",
+  "subject": "feat: add `AppBuilder` module",
+  "zig_target": {
+    "src/Init/Lean/Meta/AppBuilder.lean": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+  }
+}

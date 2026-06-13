@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-08",
+  "needs_port": false,
+  "sha": "aa8fa4732111ba10e597e4d14e9246286737be3b",
+  "short_sha": "aa8fa47321",
+  "subject": "chore: attributes do not have to be tracked as public uses (#11939)",
+  "zig_target": {}
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Subarray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Subarray.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2024-11-14",
+  "needs_port": true,
+  "sha": "1c30c76e72e3983fcd44fd8082ba12c4e0e38986",
+  "short_sha": "1c30c76e72",
+  "subject": "chore: remove >6 month old deprecations (#6057)",
+  "zig_target": {
+    "src/Init/Data/Array/Subarray.lean": "zig-backend/src/init/Data/Array/Subarray.lean",
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

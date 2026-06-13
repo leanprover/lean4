@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-04-05",
+  "needs_port": false,
+  "sha": "34385b8ee8708c6f6c4cc4079a4d331f84c32682",
+  "short_sha": "34385b8ee8",
+  "subject": "feat: lake: use absolute paths (#7822)",
+  "zig_target": {}
+}

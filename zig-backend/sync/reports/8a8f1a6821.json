@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2018-09-19",
+  "needs_port": true,
+  "sha": "8a8f1a6821c50d6776396d99c47d5667764e436d",
+  "short_sha": "8a8f1a6821",
+  "subject": "fix(library/compiler/util): `has_inline_attribute`",
+  "zig_target": {
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

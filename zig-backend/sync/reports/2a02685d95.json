@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-07",
+  "needs_port": false,
+  "sha": "2a02685d9518acb1e88bd87d8ad77215d75318b8",
+  "short_sha": "2a02685d95",
+  "subject": "fix: make classes appear as classes rather than structures in docs (#12373)",
+  "zig_target": {}
+}

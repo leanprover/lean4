@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-26",
+  "needs_port": false,
+  "sha": "c979d819342cd771e3607fe6b0de8f2de2db8032",
+  "short_sha": "c979d81934",
+  "subject": "refactor: add polymorphic methods for updating/querying reducibility status",
+  "zig_target": {}
+}

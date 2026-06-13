@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-26",
+  "needs_port": false,
+  "sha": "e6caee97ec0c36c2b02e61e102f07b512b4d5cab",
+  "short_sha": "e6caee97ec",
+  "subject": "feat: `unop%` elaborator",
+  "zig_target": {}
+}

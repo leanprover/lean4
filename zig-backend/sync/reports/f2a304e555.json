@@ -1,0 +1,24 @@
+{
+  "author": "FR",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2024-05-16",
+  "needs_port": true,
+  "sha": "f2a304e55561960464050292a530589685e0b9e6",
+  "short_sha": "f2a304e555",
+  "subject": "style: fix whitespace and remove duplicate docstring (#4189)",
+  "zig_target": {
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-07",
+  "needs_port": false,
+  "sha": "91363bae19f42bf6c23ed48d637c6f85cfae1bf7",
+  "short_sha": "91363bae19",
+  "subject": "feat: improve `resolveLVal`",
+  "zig_target": {}
+}

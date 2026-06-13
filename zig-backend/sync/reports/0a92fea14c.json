@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-30",
+  "needs_port": false,
+  "sha": "0a92fea14ce21db34f5ff7ed285a3b0b3a8a35de",
+  "short_sha": "0a92fea14c",
+  "subject": "feat(library/type_context): profile typeclass inference",
+  "zig_target": {}
+}

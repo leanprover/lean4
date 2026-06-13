@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-24",
+  "needs_port": false,
+  "sha": "ee6c60ddfee14bf36144b8297a89045721ce95a2",
+  "short_sha": "ee6c60ddfe",
+  "subject": "chore(tests/playground/bench): update Lean version",
+  "zig_target": {}
+}

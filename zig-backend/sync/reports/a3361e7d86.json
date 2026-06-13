@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-12",
+  "needs_port": false,
+  "sha": "a3361e7d8611af3279c01949d8e675bc8db1f54d",
+  "short_sha": "a3361e7d86",
+  "subject": "fix: missing universe assignments made during TC resolution",
+  "zig_target": {}
+}

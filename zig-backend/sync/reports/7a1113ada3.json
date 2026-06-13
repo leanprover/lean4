@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2025-06-27",
+  "needs_port": true,
+  "sha": "7a1113ada36a3ab59151651c6c79259e7ef1162c",
+  "short_sha": "7a1113ada3",
+  "subject": "feat: extend identifiers to french (#9035)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

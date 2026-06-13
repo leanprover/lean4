@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.h"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2018-08-20",
+  "needs_port": true,
+  "sha": "a27aa53e881f1f419da89ce404da675598bc3c67",
+  "short_sha": "a27aa53e88",
+  "subject": "refactor(runtime/compact): save task objects as thunks",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/compact.h": "zig-backend/src/runtime/compact.h",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-11-07",
+  "needs_port": false,
+  "sha": "19ec5cda132efbe3faab53d7107a6451cd3f2704",
+  "short_sha": "19ec5cda13",
+  "subject": "doc: typeclass loop issue and suggestions",
+  "zig_target": {}
+}

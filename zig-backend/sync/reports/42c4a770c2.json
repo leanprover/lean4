@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-17",
+  "needs_port": false,
+  "sha": "42c4a770c2d3ec8c170312747619da7ef6ec39af",
+  "short_sha": "42c4a770c2",
+  "subject": "chore: lake: fix `tests/init` cleanup (#4468)",
+  "zig_target": {}
+}

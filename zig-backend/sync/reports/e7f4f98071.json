@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-11-04",
+  "needs_port": true,
+  "sha": "e7f4f98071c001e11adfabbea1b277782c7bb3a4",
+  "short_sha": "e7f4f98071",
+  "subject": "fix: stackoverflow during proof construction in `grind` (#11084)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

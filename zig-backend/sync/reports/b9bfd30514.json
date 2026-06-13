@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-06-06",
+  "needs_port": false,
+  "sha": "b9bfd305143a4cca11760bb8b2fdf82bd50f2ae9",
+  "short_sha": "b9bfd30514",
+  "subject": "chore: remove partial TODO (#4380)",
+  "zig_target": {}
+}

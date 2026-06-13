@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-16",
+  "needs_port": false,
+  "sha": "fb462fdf9e91a5e5d650c091d25a26a2981d50f2",
+  "short_sha": "fb462fdf9e",
+  "subject": "feat: add named argument hints (#9315)",
+  "zig_target": {}
+}

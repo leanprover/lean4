@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    }
+  ],
+  "date": "2025-08-27",
+  "needs_port": true,
+  "sha": "2dda33ddb2d14afd4e949b96f488f14a9d9c0e7b",
+  "short_sha": "2dda33ddb2",
+  "subject": "chore: remove workaround (#10156)",
+  "zig_target": {
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean"
+  }
+}

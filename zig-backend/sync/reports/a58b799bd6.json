@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-28",
+  "needs_port": false,
+  "sha": "a58b799bd6cf712b54fd5ce0fae1c4f722c18279",
+  "short_sha": "a58b799bd6",
+  "subject": "chore: add instances for debugging purposes",
+  "zig_target": {}
+}

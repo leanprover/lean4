@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-01-31",
+  "needs_port": false,
+  "sha": "a9793b0a50c3bd2c26874c9c6c1ea31683a9fd18",
+  "short_sha": "a9793b0a50",
+  "subject": "feat: add root package to workspace + and use it",
+  "zig_target": {}
+}

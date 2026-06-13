@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-01-30",
+  "needs_port": true,
+  "sha": "efcc459c3b56e07c2d5c3e5a62b02179ea692897",
+  "short_sha": "efcc459c3b",
+  "subject": "fix(library/compiler/emit_cpp): emit_constant should handle neutral",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "ce7a4f50becf7cbb2562277d983d0fdddfafc7dc",
+  "short_sha": "ce7a4f50be",
+  "subject": "chore: add spec lemmas for `MonadControl` (#10544)",
+  "zig_target": {}
+}

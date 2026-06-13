@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "ef9a6bb839c9f3e8d301a5291d2e785f869735fc",
+  "short_sha": "ef9a6bb839",
+  "subject": "fix: an equation lemma with `autoParam` arguments fails to rewrite (#3316)",
+  "zig_target": {}
+}

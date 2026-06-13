@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-07-14",
+  "needs_port": true,
+  "sha": "cf94e1b162c298618db0aa3109fdde761f5f9c3e",
+  "short_sha": "cf94e1b162",
+  "subject": "refactor: get the type of a literal from lowerLitValue (#9373)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

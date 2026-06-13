@@ -1,0 +1,18 @@
+{
+  "author": "tydeu",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-12-18",
+  "needs_port": true,
+  "sha": "f4a73889e79f089cd2494a4005ed9856dd109a1d",
+  "short_sha": "f4a73889e7",
+  "subject": "feat: expose more version info (e..g., toolchain)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

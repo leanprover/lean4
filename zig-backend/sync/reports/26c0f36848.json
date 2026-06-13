@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-27",
+  "needs_port": false,
+  "sha": "26c0f368482539350b26b0cedc5e7d2701ff2aee",
+  "short_sha": "26c0f36848",
+  "subject": "doc(library/init/lean/parser/basic): expand comment",
+  "zig_target": {}
+}

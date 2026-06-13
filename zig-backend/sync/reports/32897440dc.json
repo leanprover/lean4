@@ -1,0 +1,18 @@
+{
+  "author": "Reijo Jaakkola",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2021-06-08",
+  "needs_port": true,
+  "sha": "32897440dcc5384f9b57ac1bc7ce3149c206bcd8",
+  "short_sha": "32897440dc",
+  "subject": "fix: change IO.FS.Handle.read to return empty array at EOF",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

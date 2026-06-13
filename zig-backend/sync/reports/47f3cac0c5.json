@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-06-10",
+  "needs_port": false,
+  "sha": "47f3cac0c54f331912de6e648871b1a3989cedc7",
+  "short_sha": "47f3cac0c5",
+  "subject": "fix: server: do not return duplicate response when worker crashes",
+  "zig_target": {}
+}

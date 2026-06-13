@@ -1,0 +1,18 @@
+{
+  "author": "Violeta Hern\u00e1ndez",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2024-09-15",
+  "needs_port": true,
+  "sha": "078e9b6d778932430adf9ecbbf02e1025e922ce1",
+  "short_sha": "078e9b6d77",
+  "subject": "doc: add documentation for `groupBy.loop` (#5349)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

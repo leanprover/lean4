@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2023-11-15",
+  "needs_port": false,
+  "sha": "0668544a35643f213413b66f850a28799a19046f",
+  "short_sha": "0668544a35",
+  "subject": "feat: add an `OfNat` instance for `Level` (#2880)",
+  "zig_target": {}
+}

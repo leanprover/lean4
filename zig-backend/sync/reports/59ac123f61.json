@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-04-04",
+  "needs_port": false,
+  "sha": "59ac123f617b13bf2b93dd27c6dc46b221572a3c",
+  "short_sha": "59ac123f61",
+  "subject": "chore: remove `with_trace` macro again",
+  "zig_target": {}
+}

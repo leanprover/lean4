@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-05-27",
+  "needs_port": false,
+  "sha": "5dffa0093aeb023d5b6e1a597cc1e4a189734953",
+  "short_sha": "5dffa0093a",
+  "subject": "feat: retrieve implicit `lbp` from `Environment` at `syntax` command",
+  "zig_target": {}
+}

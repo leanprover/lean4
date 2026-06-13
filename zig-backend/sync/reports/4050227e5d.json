@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "4050227e5d8c416a9f6e95a9407d609744cc0cc6",
+  "short_sha": "4050227e5d",
+  "subject": "chore: revert marking internal notes as parser/elab docstrings",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-12",
+  "needs_port": false,
+  "sha": "5c24906c6038a3a473aed5b0dce0d2023dc651a0",
+  "short_sha": "5c24906c60",
+  "subject": "fix: Delaborator for constants",
+  "zig_target": {}
+}

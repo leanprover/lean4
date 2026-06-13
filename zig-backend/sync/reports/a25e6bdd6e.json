@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-04",
+  "needs_port": false,
+  "sha": "a25e6bdd6e5622af09d6a8203ba7553ff0f4c725",
+  "short_sha": "a25e6bdd6e",
+  "subject": "refactor: try out antiquotation scopes",
+  "zig_target": {}
+}

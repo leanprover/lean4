@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-24",
+  "needs_port": false,
+  "sha": "32f4d52e1cf4c7d4d214e36c152438322e367fb5",
+  "short_sha": "32f4d52e1c",
+  "subject": "refactor(library/init/lean): revert introduction of `tysyntax`; push syntax.missing through views",
+  "zig_target": {}
+}

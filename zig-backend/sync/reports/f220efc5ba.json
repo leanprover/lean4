@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-08-28",
+  "needs_port": false,
+  "sha": "f220efc5ba787f117b407f2e6912e5ae8f0c3eb7",
+  "short_sha": "f220efc5ba",
+  "subject": "doc: update quickstart guide for new display name (#5193)",
+  "zig_target": {}
+}

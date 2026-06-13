@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    }
+  ],
+  "date": "2020-01-09",
+  "needs_port": true,
+  "sha": "8d021e0cec16cd7956475b4ba7b289281e395af2",
+  "short_sha": "8d021e0cec",
+  "subject": "fix: fresh macro scope per command",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean"
+  }
+}

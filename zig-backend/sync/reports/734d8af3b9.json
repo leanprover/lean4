@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-07",
+  "needs_port": false,
+  "sha": "734d8af3b961f6554f984b8c20f006eaa6386699",
+  "short_sha": "734d8af3b9",
+  "subject": "fix: Array `HasRepr` and `HasToString` instances",
+  "zig_target": {}
+}

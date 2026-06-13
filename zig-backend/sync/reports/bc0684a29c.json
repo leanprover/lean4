@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-29",
+  "needs_port": false,
+  "sha": "bc0684a29c72e40382d3b5b444c259acad057781",
+  "short_sha": "bc0684a29c",
+  "subject": "fix: work around VS Code completion bug",
+  "zig_target": {}
+}

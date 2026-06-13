@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2022-10-15",
+  "needs_port": true,
+  "sha": "48b6fee467821440af5a5744de419ddbc81e130b",
+  "short_sha": "48b6fee467",
+  "subject": "chore: remove stray `STATIC` in src/shell (#1736)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

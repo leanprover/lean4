@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2019-04-05",
+  "needs_port": true,
+  "sha": "50d2488946e2c3d0abba7efdfbc187a812074480",
+  "short_sha": "50d2488946",
+  "subject": "fix(library/compiler/csimp): cases-merging was failing when scrutinee was a constant",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

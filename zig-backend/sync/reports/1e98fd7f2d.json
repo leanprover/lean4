@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Range.lean"
+    }
+  ],
+  "date": "2024-11-06",
+  "needs_port": true,
+  "sha": "1e98fd7f2d965ab035dbf1099fb4a4ffde16b151",
+  "short_sha": "1e98fd7f2d",
+  "subject": "feat: add another List.find?_eq_some lemma (#5974)",
+  "zig_target": {
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean",
+    "src/Init/Data/List/Nat/Find.lean": "zig-backend/src/init/Data/List/Nat/Find.lean",
+    "src/Init/Data/List/Nat/Range.lean": "zig-backend/src/init/Data/List/Nat/Range.lean"
+  }
+}

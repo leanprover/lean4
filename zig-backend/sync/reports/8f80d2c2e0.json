@@ -1,0 +1,10 @@
+{
+  "author": "maxwell3025",
+  "backend_changes": [],
+  "date": "2025-12-16",
+  "needs_port": false,
+  "sha": "8f80d2c2e0441b7ead0fe9dd889375c1180b2c68",
+  "short_sha": "8f80d2c2e0",
+  "subject": "fix: add table variant for `require.git` field in `lakefile.toml` schema (#11536)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-23",
+  "needs_port": false,
+  "sha": "ad1e04c82697938afb1df0525d8207dafaf8e043",
+  "short_sha": "ad1e04c826",
+  "subject": "feat: `simp` diagnostics in `grind` (#6902)",
+  "zig_target": {}
+}

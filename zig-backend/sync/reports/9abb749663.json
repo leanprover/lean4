@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Generalize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Generalize.lean"
+    }
+  ],
+  "date": "2020-02-21",
+  "needs_port": true,
+  "sha": "9abb749663682d4daf3e70f74d576bcd8402fafa",
+  "short_sha": "9abb749663",
+  "subject": "fix: preserve tag",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Generalize.lean": "zig-backend/src/init/Lean/Elab/Tactic/Generalize.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-11",
+  "needs_port": false,
+  "sha": "d55f039a0731ef90b851dbc5fc8d39689f13b092",
+  "short_sha": "d55f039a07",
+  "subject": "chore: do not use `if-then-else` notation at `compileStxMatch`",
+  "zig_target": {}
+}

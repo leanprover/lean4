@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-05-29",
+  "needs_port": true,
+  "sha": "744423f25a7aaab965da4375f12bf70d567ad505",
+  "short_sha": "744423f25a",
+  "subject": "fix: leanpkg: `make` flags; extend test",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

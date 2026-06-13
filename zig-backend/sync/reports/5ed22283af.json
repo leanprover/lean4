@@ -1,0 +1,10 @@
+{
+  "author": "Elias Theis",
+  "backend_changes": [],
+  "date": "2021-01-06",
+  "needs_port": false,
+  "sha": "5ed22283af5eb29e1f0de7decf009ed2215101b1",
+  "short_sha": "5ed22283af",
+  "subject": "chore: fix typo (#234)",
+  "zig_target": {}
+}

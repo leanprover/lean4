@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-14",
+  "needs_port": false,
+  "sha": "c7d3401417b38172ff4bf157ce1804c776d04632",
+  "short_sha": "c7d3401417",
+  "subject": "fix: split `ngen` on async elab (#12000)",
+  "zig_target": {}
+}

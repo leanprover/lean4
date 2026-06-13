@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2021-08-18",
+  "needs_port": true,
+  "sha": "107712f8be389edbcde785d74d24d94991312d7a",
+  "short_sha": "107712f8be",
+  "subject": "feat: add instance from `CoeSort` to `CoeTail`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

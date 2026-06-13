@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-02-16",
+  "needs_port": false,
+  "sha": "496a8d578ed3f22dbfe8dce58a855202ccf7be3e",
+  "short_sha": "496a8d578e",
+  "subject": "fix: lake: open config trace as read-only first & avoid deadlock (#3254)",
+  "zig_target": {}
+}

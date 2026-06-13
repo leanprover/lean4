@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-15",
+  "needs_port": false,
+  "sha": "e2ecefb67b8920d5fd16bc28f2e1f863811ff7c5",
+  "short_sha": "e2ecefb67b",
+  "subject": "chore: add support for `error` parser in the pretty printer",
+  "zig_target": {}
+}

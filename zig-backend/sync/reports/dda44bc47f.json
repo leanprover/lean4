@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-03-25",
+  "needs_port": false,
+  "sha": "dda44bc47f3e5d024508060dac2bcb59fd12e4c0",
+  "short_sha": "dda44bc47f",
+  "subject": "doc: building Lean using Nix in WSL does work reasonably well",
+  "zig_target": {}
+}

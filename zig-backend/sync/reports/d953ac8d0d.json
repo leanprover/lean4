@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2022-01-11",
+  "needs_port": true,
+  "sha": "d953ac8d0d1514b3d84d724ef4a6042213253c80",
+  "short_sha": "d953ac8d0d",
+  "subject": "feat: allow users to use `initialize registerBuiltinDerivingHandler ...`",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

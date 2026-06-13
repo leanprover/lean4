@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-09",
+  "needs_port": false,
+  "sha": "dac6f273b597ee8a5d2edfd4374c66b8337043fd",
+  "short_sha": "dac6f273b5",
+  "subject": "feat: simplistic linter framework",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-26",
+  "needs_port": false,
+  "sha": "d3097d08c1691581da8e72b01d689750687d51fe",
+  "short_sha": "d3097d08c1",
+  "subject": "feat(tests/playground/report): polish cross benches",
+  "zig_target": {}
+}

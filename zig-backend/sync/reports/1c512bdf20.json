@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-02",
+  "needs_port": false,
+  "sha": "1c512bdf20c8828e9d055525f972e424ea3ef499",
+  "short_sha": "1c512bdf20",
+  "subject": "refactor: merge 'MonadLog` and `LogMethods`",
+  "zig_target": {}
+}

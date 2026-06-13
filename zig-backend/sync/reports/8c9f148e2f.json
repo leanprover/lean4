@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/NormIds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/NormIds.lean"
+    }
+  ],
+  "date": "2020-10-31",
+  "needs_port": true,
+  "sha": "8c9f148e2f2039918434f4482b91e2a254ba7d80",
+  "short_sha": "8c9f148e2f",
+  "subject": "chore: use new `termFor`, `termReturn`, `termTry`, and `tryUnless`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean",
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean",
+    "src/Lean/Compiler/IR/NormIds.lean": "zig-backend/src/lean/compiler/ir/NormIds.lean"
+  }
+}

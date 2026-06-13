@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-28",
+  "needs_port": false,
+  "sha": "bffc55219e1d8c9f3486f7b4c984ddd5bb4a40ac",
+  "short_sha": "bffc55219e",
+  "subject": "chore: switch back to clang 8",
+  "zig_target": {}
+}

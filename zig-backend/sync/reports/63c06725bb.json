@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-22",
+  "needs_port": false,
+  "sha": "63c06725bbe73c7316831c35e3e8d7c0e4e9be12",
+  "short_sha": "63c06725bb",
+  "subject": "feat: preserve instantiation order at `finish?` (#10899)",
+  "zig_target": {}
+}

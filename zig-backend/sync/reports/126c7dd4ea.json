@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-14",
+  "needs_port": false,
+  "sha": "126c7dd4ea23c59b86eb415a55544c1118f950b0",
+  "short_sha": "126c7dd4ea",
+  "subject": "chore: Nix: command for (one-time) linking .ileans",
+  "zig_target": {}
+}

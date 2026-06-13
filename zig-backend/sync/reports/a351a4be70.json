@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-16",
+  "needs_port": false,
+  "sha": "a351a4be70c4c129fe24cf9f82333ed61b06ae83",
+  "short_sha": "a351a4be70",
+  "subject": "feat: use colEq in sepByIndent",
+  "zig_target": {}
+}

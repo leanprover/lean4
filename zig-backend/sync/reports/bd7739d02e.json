@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-19",
+  "needs_port": false,
+  "sha": "bd7739d02e7fcac2be2eceac2f7b9c65e7fb6ad2",
+  "short_sha": "bd7739d02e",
+  "subject": "chore: add sanity check for `SemanticTokenType/Modifier.names`",
+  "zig_target": {}
+}

@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/elim_recursors.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/elim_recursors.cpp"
+    },
+    {
+      "path": "src/library/compiler/eta_expansion.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eta_expansion.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2018-06-06",
+  "needs_port": true,
+  "sha": "c0e1d05199f172b964ae8e1634ebbdff2a93d5d4",
+  "short_sha": "c0e1d05199",
+  "subject": "chore(kernel): type_checker ==> old_type_checker",
+  "zig_target": {
+    "src/library/compiler/elim_recursors.cpp": "zig-backend/src/library/compiler/elim_recursors.cpp",
+    "src/library/compiler/eta_expansion.cpp": "zig-backend/src/library/compiler/eta_expansion.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

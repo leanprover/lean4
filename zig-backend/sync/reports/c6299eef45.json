@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-22",
+  "needs_port": false,
+  "sha": "c6299eef458ddb31bb914c15e529f8f5b1493339",
+  "short_sha": "c6299eef45",
+  "subject": "refactor: lake: cleanup Build/Module/Trace code",
+  "zig_target": {}
+}

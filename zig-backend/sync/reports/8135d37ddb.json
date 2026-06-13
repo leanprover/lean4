@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-22",
+  "needs_port": false,
+  "sha": "8135d37ddbf7c31796726243705fe853fa125c85",
+  "short_sha": "8135d37ddb",
+  "subject": "feat: add `MatcherApp.addArg`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-03",
+  "needs_port": false,
+  "sha": "5274be8c3ec244c850d6386f31d2e2be17b02cc4",
+  "short_sha": "5274be8c3e",
+  "subject": "feat(library/init/lean/elaborator): local notation",
+  "zig_target": {}
+}

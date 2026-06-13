@@ -1,0 +1,18 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-10-17",
+  "needs_port": true,
+  "sha": "372f3441559d3493b08bd83a3f488ac75e127b7e",
+  "short_sha": "372f344155",
+  "subject": "fix: some goal state issues (#5677)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

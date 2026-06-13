@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-30",
+  "needs_port": false,
+  "sha": "d3f7ed434b1e9f6f2496f5208d1abd3bf3163013",
+  "short_sha": "d3f7ed434b",
+  "subject": "fix: automatic instance names about types with hygienic names should be hygienic (#5530)",
+  "zig_target": {}
+}

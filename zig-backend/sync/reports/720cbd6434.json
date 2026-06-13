@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "720cbd6434b92afb55a305103f9ab564423a2512",
+  "short_sha": "720cbd6434",
+  "subject": "feat: theorems are opaque (#12973)",
+  "zig_target": {}
+}

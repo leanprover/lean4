@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2018-10-15",
+  "needs_port": true,
+  "sha": "88de81077c979aeacdb98d3357e965f1c507cb51",
+  "short_sha": "88de81077c",
+  "subject": "feat(library/compiler/specialize): do not specialize instances unless they are marked with `[specialize]`",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

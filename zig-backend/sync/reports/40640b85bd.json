@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-02",
+  "needs_port": false,
+  "sha": "40640b85bda267f0e3328bb5310d4b5f9a102bd3",
+  "short_sha": "40640b85bd",
+  "subject": "fix: `doSeqBracketed` parser",
+  "zig_target": {}
+}

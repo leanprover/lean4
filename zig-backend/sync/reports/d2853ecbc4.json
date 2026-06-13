@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-12-06",
+  "needs_port": false,
+  "sha": "d2853ecbc44716217731a9e94f21421d600fb3a1",
+  "short_sha": "d2853ecbc4",
+  "subject": "feat: FunInd: omit unused parameters (#6330)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "6ae413a56ad6a1f2751136decff76b96c4154b44",
+  "short_sha": "6ae413a56a",
+  "subject": "perf: make proper use of deletes in bv_decide LRAT checking (#12406)",
+  "zig_target": {}
+}

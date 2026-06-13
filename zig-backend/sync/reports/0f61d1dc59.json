@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-05-30",
+  "needs_port": false,
+  "sha": "0f61d1dc5905b39c48a9a5d855ed69347b688cb3",
+  "short_sha": "0f61d1dc59",
+  "subject": "refactor: key fields are now f/mvarid fields",
+  "zig_target": {}
+}

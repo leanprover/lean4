@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-21",
+  "needs_port": false,
+  "sha": "93327e23241751cff098aa6f87f13706136e0948",
+  "short_sha": "93327e2324",
+  "subject": "fix: tactic state on `{`/`\u00b7`",
+  "zig_target": {}
+}

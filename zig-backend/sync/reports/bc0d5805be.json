@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/Path.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Path.lean"
+    }
+  ],
+  "date": "2020-05-23",
+  "needs_port": true,
+  "sha": "bc0d5805beea3c27e047ffe06dbbaa7bab4cad08",
+  "short_sha": "bc0d5805be",
+  "subject": "chore: delete dead code",
+  "zig_target": {
+    "src/Init/Lean/Util/Path.lean": "zig-backend/src/init/Lean/Util/Path.lean"
+  }
+}

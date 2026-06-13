@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-08",
+  "needs_port": false,
+  "sha": "4d6b80cd51a487005d425661d39f1d46a559c145",
+  "short_sha": "4d6b80cd51",
+  "subject": "doc: structures",
+  "zig_target": {}
+}

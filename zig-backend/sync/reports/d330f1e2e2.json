@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-03-12",
+  "needs_port": true,
+  "sha": "d330f1e2e25df8d42682a960ad0aa472d9085308",
+  "short_sha": "d330f1e2e2",
+  "subject": "feat: `rotateLeft` and `rotateRight` tactics",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

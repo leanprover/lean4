@@ -1,0 +1,78 @@
+{
+  "author": "Simon Hudon",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Char/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt.lean"
+    },
+    {
+      "path": "src/Init/Lean/Data/Options.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Options.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-12-17",
+  "needs_port": true,
+  "sha": "92c877313752fe3820339f895ca0df6952a01144",
+  "short_sha": "92c8773137",
+  "subject": "feat: file IO using handles",
+  "zig_target": {
+    "src/Init/Data/Char/Basic.lean": "zig-backend/src/init/Data/Char/Basic.lean",
+    "src/Init/Data/UInt.lean": "zig-backend/src/init/Data/UInt.lean",
+    "src/Init/Lean/Data/Options.lean": "zig-backend/src/init/Lean/Data/Options.lean",
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

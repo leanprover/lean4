@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-20",
+  "needs_port": false,
+  "sha": "41a58459d722a5ffb27630094aad73c57285a9b7",
+  "short_sha": "41a58459d7",
+  "subject": "test: equational theorem generation",
+  "zig_target": {}
+}

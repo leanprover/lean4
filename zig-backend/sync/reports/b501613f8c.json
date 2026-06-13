@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2018-11-15",
+  "needs_port": true,
+  "sha": "b501613f8c25a7bf3e4432dd6399f05bffd88b52",
+  "short_sha": "b501613f8c",
+  "subject": "feat(library/compiler/builtin): register `string` primitive functions",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

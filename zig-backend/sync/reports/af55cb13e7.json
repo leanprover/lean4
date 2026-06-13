@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2018-09-10",
+  "needs_port": true,
+  "sha": "af55cb13e79cc148f50ba9b7a8ff319c8db96d3e",
+  "short_sha": "af55cb13e7",
+  "subject": "fix(library/messages,library/init/lean/message): wrap `message_log` in structure, reverse in the end",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

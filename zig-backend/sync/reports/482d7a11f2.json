@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "482d7a11f27e2e7f3c120b89e08fc56215a1fe53",
+  "short_sha": "482d7a11f2",
+  "subject": "chore: handle empty dirs more gracefully (#13062)",
+  "zig_target": {}
+}

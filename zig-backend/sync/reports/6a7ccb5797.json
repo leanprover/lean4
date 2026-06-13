@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    }
+  ],
+  "date": "2022-08-29",
+  "needs_port": true,
+  "sha": "6a7ccb5797fc77a88994b1aca71071699e446ab4",
+  "short_sha": "6a7ccb5797",
+  "subject": "refactor: generalize ShareCommon to a typeclass (#1537)",
+  "zig_target": {
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp"
+  }
+}

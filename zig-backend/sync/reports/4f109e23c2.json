@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-10-21",
+  "needs_port": true,
+  "sha": "4f109e23c249a5721767f3b242db9bbb81f7ca3b",
+  "short_sha": "4f109e23c2",
+  "subject": "feat: return syntax object representing the whole file",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

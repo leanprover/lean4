@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-02-03",
+  "needs_port": true,
+  "sha": "6e7b76c097a3f8069899995a359ef28924311616",
+  "short_sha": "6e7b76c097",
+  "subject": "feat: builtin as_aux_lemma tactic and tree_tac simp attribute (#6823)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-14",
+  "needs_port": false,
+  "sha": "5b14caf32952bfd6207dc30710cadf9022392d11",
+  "short_sha": "5b14caf329",
+  "subject": "fix: missing `addTermInfo` at `elabAtomicDiscr`",
+  "zig_target": {}
+}

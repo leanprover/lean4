@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-06-27",
+  "needs_port": false,
+  "sha": "a0e425748ae1e549ce74d43b2de79d76a2ff6a94",
+  "short_sha": "a0e425748a",
+  "subject": "chore: enable error explanation widget (#9043)",
+  "zig_target": {}
+}

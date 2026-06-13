@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-13",
+  "needs_port": false,
+  "sha": "e335b2ac8adc4ca27b830b73b212c4bf92b460dc",
+  "short_sha": "e335b2ac8a",
+  "subject": "feat: add `noncomputable section`s",
+  "zig_target": {}
+}

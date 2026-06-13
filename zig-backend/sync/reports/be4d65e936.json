@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-21",
+  "needs_port": false,
+  "sha": "be4d65e936908a67ba5787bacf100040efa4eccf",
+  "short_sha": "be4d65e936",
+  "subject": "fix: must collect occurrences in the types",
+  "zig_target": {}
+}

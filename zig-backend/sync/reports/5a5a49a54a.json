@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2020-12-14",
+  "needs_port": true,
+  "sha": "5a5a49a54aa0705b499cb6ee0ae4e4a277561504",
+  "short_sha": "5a5a49a54a",
+  "subject": "feat: add `class abbrev` macro",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

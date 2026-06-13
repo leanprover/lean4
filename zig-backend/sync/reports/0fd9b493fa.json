@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-03-16",
+  "needs_port": true,
+  "sha": "0fd9b493fab3dd9219edd0c0f3d398d3746330ac",
+  "short_sha": "0fd9b493fa",
+  "subject": "chore: add helper congruence lemma",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

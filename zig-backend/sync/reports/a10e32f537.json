@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-26",
+  "needs_port": false,
+  "sha": "a10e32f537fbc94ae6b22d81424b8ce89c4fac04",
+  "short_sha": "a10e32f537",
+  "subject": "fix: check \"heartbeats\" at `simp`",
+  "zig_target": {}
+}

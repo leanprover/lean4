@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "1c916b755a99a14c5fefa4df6b434e05b9967972",
+  "short_sha": "1c916b755a",
+  "subject": "refactor: reduce use of targets + `IndexT` cleanup",
+  "zig_target": {}
+}

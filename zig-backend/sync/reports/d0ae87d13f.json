@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2023-10-12",
+  "needs_port": false,
+  "sha": "d0ae87d13f54c12fe225d957031f9f7dfa5a99f6",
+  "short_sha": "d0ae87d13f",
+  "subject": "chore: improve error",
+  "zig_target": {}
+}

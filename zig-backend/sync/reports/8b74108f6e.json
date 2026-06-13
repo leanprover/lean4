@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-19",
+  "needs_port": false,
+  "sha": "8b74108f6ed5152b46250112df71b46ea4fe4396",
+  "short_sha": "8b74108f6e",
+  "subject": "refactor: remove `FilesTarget`",
+  "zig_target": {}
+}

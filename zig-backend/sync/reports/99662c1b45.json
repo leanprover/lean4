@@ -1,0 +1,18 @@
+{
+  "author": "Bulhwi Cha",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2023-01-10",
+  "needs_port": true,
+  "sha": "99662c1b45721448557dfdea12caed8e4ac6c228",
+  "short_sha": "99662c1b45",
+  "subject": "chore: rename `le_or_eq_or_le_succ` (#2024)",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-05",
+  "needs_port": false,
+  "sha": "34d00cb50d68771c91b8a00a1cac24cfe8fc7f66",
+  "short_sha": "34d00cb50d",
+  "subject": "feat: add checkSystem calls to bv_decide for cancellation responsiveness (#13284)",
+  "zig_target": {}
+}

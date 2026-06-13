@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-01-27",
+  "needs_port": false,
+  "sha": "fb3aae75097f030b29e1dfabe7de77bb968e1988",
+  "short_sha": "fb3aae7509",
+  "subject": "refactor: remove redundant calls to `DocumentMeta.mod` (#12085)",
+  "zig_target": {}
+}

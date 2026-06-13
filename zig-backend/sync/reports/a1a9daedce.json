@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-08-15",
+  "needs_port": false,
+  "sha": "a1a9daedcea35d25315617bfec0fd9e2e757988d",
+  "short_sha": "a1a9daedce",
+  "subject": "chore(tests/bench/report.py): go back to normalized tables",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-20",
+  "needs_port": false,
+  "sha": "8fa1ecde490bce1054cc36a1ad467b9e38044dba",
+  "short_sha": "8fa1ecde49",
+  "subject": "fix: throw error when default value contains metavariables",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-12",
+  "needs_port": false,
+  "sha": "ebd8680de866e9ce4c7dbbfafe39b9dc9d511b5d",
+  "short_sha": "ebd8680de8",
+  "subject": "feat: add `Deriving/Inhabited.lean`",
+  "zig_target": {}
+}

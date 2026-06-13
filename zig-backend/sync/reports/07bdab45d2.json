@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2022-09-07",
+  "needs_port": true,
+  "sha": "07bdab45d2c456a7f324b5a745c911ed19365ce1",
+  "short_sha": "07bdab45d2",
+  "subject": "feat: apply `casesOn` `implementedBy` replacements",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

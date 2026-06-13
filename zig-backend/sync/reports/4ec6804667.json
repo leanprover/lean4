@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-30",
+  "needs_port": false,
+  "sha": "4ec68046679b718e6686a947e0dd422df4f6d9b7",
+  "short_sha": "4ec6804667",
+  "subject": "fix: issue at `expandMatchAlts`",
+  "zig_target": {}
+}

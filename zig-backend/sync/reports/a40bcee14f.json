@@ -1,0 +1,10 @@
+{
+  "author": "Violetta Sim",
+  "backend_changes": [],
+  "date": "2025-02-03",
+  "needs_port": false,
+  "sha": "a40bcee14f5d496aedc9d191bc9494dae7e0da2c",
+  "short_sha": "a40bcee14f",
+  "subject": "doc: add highlights section to v4.16.0 release notes (#6925)",
+  "zig_target": {}
+}

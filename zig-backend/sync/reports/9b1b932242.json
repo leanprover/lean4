@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-31",
+  "needs_port": false,
+  "sha": "9b1b932242309e0286882fc4ef2b5e02034aa405",
+  "short_sha": "9b1b932242",
+  "subject": "feat: add `shareCommonInc` (#11857)",
+  "zig_target": {}
+}

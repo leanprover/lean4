@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-25",
+  "needs_port": false,
+  "sha": "d4f2db95598b5d05bbd1b8f421d0fac5e17302da",
+  "short_sha": "d4f2db9559",
+  "subject": "chore: report github actions failure on zulip (#4830)",
+  "zig_target": {}
+}

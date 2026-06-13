@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-14",
+  "needs_port": true,
+  "sha": "911a4330104ae74c6e8d4e0cc776fe35994f20a4",
+  "short_sha": "911a433010",
+  "subject": "chore: remove temp comments",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

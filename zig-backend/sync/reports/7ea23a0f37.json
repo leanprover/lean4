@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-09-30",
+  "needs_port": true,
+  "sha": "7ea23a0f37f9eff4c63acad6c308acbb3d2fff87",
+  "short_sha": "7ea23a0f37",
+  "subject": "chore: reduce priority of old `if-then-else` parser",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

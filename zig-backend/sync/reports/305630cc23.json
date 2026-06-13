@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-09",
+  "needs_port": false,
+  "sha": "305630cc23e20549b0f6d20701115ee701910c8e",
+  "short_sha": "305630cc23",
+  "subject": "fix: `ElabAppArgs.finalize` bug",
+  "zig_target": {}
+}

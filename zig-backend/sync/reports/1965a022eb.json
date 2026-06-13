@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-02-12",
+  "needs_port": false,
+  "sha": "1965a022ebfac07a90df423fc6f26111bb207d82",
+  "short_sha": "1965a022eb",
+  "subject": "doc: fix typos around inductiveCheckResultingUniverse (#3309)",
+  "zig_target": {}
+}

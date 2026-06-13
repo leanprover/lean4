@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-05",
+  "needs_port": false,
+  "sha": "aea86eb828ebb16e7155eb95790c77c1a5063e1b",
+  "short_sha": "aea86eb828",
+  "subject": "feat(frontends/lean/elaborator): simple, accurate mvar error position tracking",
+  "zig_target": {}
+}

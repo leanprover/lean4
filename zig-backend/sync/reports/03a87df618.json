@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    }
+  ],
+  "date": "2020-02-13",
+  "needs_port": true,
+  "sha": "03a87df618e4775523f5e724e5e88ccddac8cd1f",
+  "short_sha": "03a87df618",
+  "subject": "doc: `elabFunBinders` support for implicit lambdas",
+  "zig_target": {
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean"
+  }
+}

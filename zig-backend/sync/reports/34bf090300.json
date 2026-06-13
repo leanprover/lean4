@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-16",
+  "needs_port": false,
+  "sha": "34bf09030083704e9882e45c865b34dee373e3b0",
+  "short_sha": "34bf090300",
+  "subject": "fix: build dep's `extraDepTarget` not root's for each dep",
+  "zig_target": {}
+}

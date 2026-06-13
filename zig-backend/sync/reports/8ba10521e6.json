@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2021-08-26",
+  "needs_port": true,
+  "sha": "8ba10521e6f3997e9912be0d4f99748cf59bf0d2",
+  "short_sha": "8ba10521e6",
+  "subject": "feat: add theorem for tutorial",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

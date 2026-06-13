@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2025-01-29",
+  "needs_port": true,
+  "sha": "312759e3690dbb1ffe348413d31f4747635172b1",
+  "short_sha": "312759e369",
+  "subject": "fix: injectivity theorems for more prelude inductives (#6826)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

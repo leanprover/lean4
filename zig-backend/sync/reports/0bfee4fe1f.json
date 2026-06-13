@@ -1,0 +1,18 @@
+{
+  "author": "Ed Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-07-19",
+  "needs_port": true,
+  "sha": "0bfee4fe1fb46fdcc01abc3bddcc47cbf617094c",
+  "short_sha": "0bfee4fe1f",
+  "subject": "doc: apply suggestions from code review",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

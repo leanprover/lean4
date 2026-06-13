@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-18",
+  "needs_port": false,
+  "sha": "4f7be93e873a6321248e21a8e9c162819ae18ec4",
+  "short_sha": "4f7be93e87",
+  "subject": "feat(library/init/lean): remove support for section aliases",
+  "zig_target": {}
+}

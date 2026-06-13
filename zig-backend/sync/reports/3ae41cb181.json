@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-22",
+  "needs_port": false,
+  "sha": "3ae41cb181740085b94e7d15df6b947371664dcd",
+  "short_sha": "3ae41cb181",
+  "subject": "feat: allow use of experimental module system in `Init` (#7919)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-28",
+  "needs_port": false,
+  "sha": "39d456cb09dc06ca3c1ae5dc7b38d33a80080ac3",
+  "short_sha": "39d456cb09",
+  "subject": "feat: add polymorphic `trace` and `logTrace`",
+  "zig_target": {}
+}

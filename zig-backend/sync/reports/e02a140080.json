@@ -1,0 +1,144 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    },
+    {
+      "path": "src/Init/Control/MonadAttach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/MonadAttach.lean"
+    },
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    },
+    {
+      "path": "src/Init/Data/Char/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Ord/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Factories.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Factories.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/FactoriesExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/FactoriesExtra.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/List/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/List/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Algebra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Algebra.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Envelope.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Field.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Field.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/SInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/SInt.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/UInt.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2026-02-02",
+  "needs_port": true,
+  "sha": "e02a140080b8d7d4b598bffa23fb8bdf6e95e8eb",
+  "short_sha": "e02a140080",
+  "subject": "feat: `@[instance_reducible]` part 2 (#12263)",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean",
+    "src/Init/Control/MonadAttach.lean": "zig-backend/src/init/Control/MonadAttach.lean",
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean",
+    "src/Init/Data/Char/Lemmas.lean": "zig-backend/src/init/Data/Char/Lemmas.lean",
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean",
+    "src/Init/Data/Ord/Basic.lean": "zig-backend/src/init/Data/Ord/Basic.lean",
+    "src/Init/Data/Order/Factories.lean": "zig-backend/src/init/Data/Order/Factories.lean",
+    "src/Init/Data/Order/FactoriesExtra.lean": "zig-backend/src/init/Data/Order/FactoriesExtra.lean",
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean",
+    "src/Init/Data/Slice/Array/Iterator.lean": "zig-backend/src/init/Data/Slice/Array/Iterator.lean",
+    "src/Init/Data/Slice/List/Iterator.lean": "zig-backend/src/init/Data/Slice/List/Iterator.lean",
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean",
+    "src/Init/Data/UInt/BasicAux.lean": "zig-backend/src/init/Data/UInt/BasicAux.lean",
+    "src/Init/Data/Vector/Algebra.lean": "zig-backend/src/init/Data/Vector/Algebra.lean",
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Module/Envelope.lean": "zig-backend/src/init/Grind/Module/Envelope.lean",
+    "src/Init/Grind/Ring/Basic.lean": "zig-backend/src/init/Grind/Ring/Basic.lean",
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean",
+    "src/Init/Grind/Ring/Field.lean": "zig-backend/src/init/Grind/Ring/Field.lean",
+    "src/Init/GrindInstances/Ring/SInt.lean": "zig-backend/src/init/GrindInstances/Ring/SInt.lean",
+    "src/Init/GrindInstances/Ring/UInt.lean": "zig-backend/src/init/GrindInstances/Ring/UInt.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

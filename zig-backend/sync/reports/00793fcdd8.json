@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-13",
+  "needs_port": false,
+  "sha": "00793fcdd8d76ed82e7bd03825ba7cd4d80b67ff",
+  "short_sha": "00793fcdd8",
+  "subject": "chore: remove old bootstrapping hack",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-15",
+  "needs_port": false,
+  "sha": "5433fe129dd5f97ed04b66dc9ac72597a6b0af0b",
+  "short_sha": "5433fe129d",
+  "subject": "chore: CI: disable more problematic fsanitize tests (#12018)",
+  "zig_target": {}
+}

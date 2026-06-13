@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/ToIntLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/ToIntLemmas.lean"
+    }
+  ],
+  "date": "2025-06-27",
+  "needs_port": true,
+  "sha": "422eb68f6fbc69d31e970b63d9f8a6363c4601a3",
+  "short_sha": "422eb68f6f",
+  "subject": "feat: assert `ToInt` bounds in `grind cutsat` (#9050)",
+  "zig_target": {
+    "src/Init/Grind/ToIntLemmas.lean": "zig-backend/src/init/Grind/ToIntLemmas.lean"
+  }
+}

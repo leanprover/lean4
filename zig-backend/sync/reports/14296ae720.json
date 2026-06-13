@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-12-03",
+  "needs_port": false,
+  "sha": "14296ae720a97985eb35db35818d66c5ec75d63a",
+  "short_sha": "14296ae720",
+  "subject": "chore: Nix CI: update setup (#3015)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-24",
+  "needs_port": false,
+  "sha": "54a10f0790d363c461c624c940a5ee0760a09ec6",
+  "short_sha": "54a10f0790",
+  "subject": "feat: remove the `group` field of an option description (#11305)",
+  "zig_target": {}
+}

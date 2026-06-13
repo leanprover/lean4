@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2021-10-06",
+  "needs_port": true,
+  "sha": "9d0fe5cbf92bc69d6a1833544965802b2209e5da",
+  "short_sha": "9d0fe5cbf9",
+  "subject": "chore: add simp rule `Nat.lt x y = (x < y)`",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

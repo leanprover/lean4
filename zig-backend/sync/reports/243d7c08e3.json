@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-17",
+  "needs_port": true,
+  "sha": "243d7c08e33a0a44f254d6353d52d60c52b08ff2",
+  "short_sha": "243d7c08e3",
+  "subject": "feat(library/compiler/llnf): avoid `inc` and `dec` operations on (boxed) small nat literals",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

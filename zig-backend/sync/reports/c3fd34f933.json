@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-09-22",
+  "needs_port": false,
+  "sha": "c3fd34f93359b28802b55d273192bb00759e2233",
+  "short_sha": "c3fd34f933",
+  "subject": "chore: disable \"lake build lean\" benchmark for now",
+  "zig_target": {}
+}

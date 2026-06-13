@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-16",
+  "needs_port": false,
+  "sha": "13781ed114242cf5ab21ed160f2f924bbb3495c1",
+  "short_sha": "13781ed114",
+  "subject": "feat(library/init/lean/parser/token): numeric literals of more exotic bases",
+  "zig_target": {}
+}

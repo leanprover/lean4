@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-03-10",
+  "needs_port": false,
+  "sha": "51794c384ab48a6dc7649a0a26d2e9d13ecd2887",
+  "short_sha": "51794c384a",
+  "subject": "feat: parallel watchdog requests (#7223)",
+  "zig_target": {}
+}

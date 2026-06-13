@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2025-05-01",
+  "needs_port": true,
+  "sha": "670158345a482c004726e5fadc704758bc0e046a",
+  "short_sha": "670158345a",
+  "subject": "feat: unconditional lemmas for HashMap/TreeMap.getElem?_insertMany_list (#8154)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

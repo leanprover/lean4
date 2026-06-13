@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+    }
+  ],
+  "date": "2026-02-25",
+  "needs_port": true,
+  "sha": "1bf43863e65abfeb0ac90ebdf2da93f7a55ba169",
+  "short_sha": "1bf43863e6",
+  "subject": "fix: better LCNF pretty printing (#12684)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PrettyPrinter.lean": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+  }
+}

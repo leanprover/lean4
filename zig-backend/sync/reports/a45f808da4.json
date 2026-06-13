@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-03-29",
+  "needs_port": false,
+  "sha": "a45f808da491573ed64148c528b248859bdcba13",
+  "short_sha": "a45f808da4",
+  "subject": "chore: don't rely on simp calling decide (leanprover/lake#168)",
+  "zig_target": {}
+}

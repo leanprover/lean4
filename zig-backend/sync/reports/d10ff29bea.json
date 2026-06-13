@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-15",
+  "needs_port": false,
+  "sha": "d10ff29bea134082bc056cd74d7b300b74f7abeb",
+  "short_sha": "d10ff29bea",
+  "subject": "fix(library/init/lean/parser/term): placeholder binder after bracketed binder",
+  "zig_target": {}
+}

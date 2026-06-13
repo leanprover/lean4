@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-29",
+  "needs_port": false,
+  "sha": "3c476b4278ccadf1c1c736d105393e7ee3d1a828",
+  "short_sha": "3c476b4278",
+  "subject": "chore: publish test artifacts to debug CI failures",
+  "zig_target": {}
+}

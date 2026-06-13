@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-03-22",
+  "needs_port": false,
+  "sha": "8a302e6135bc1b0f1f2901702664c56cd424ebc2",
+  "short_sha": "8a302e6135",
+  "subject": "fix: `match` discriminant reduction should not unfold irreducible defs",
+  "zig_target": {}
+}

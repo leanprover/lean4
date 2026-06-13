@@ -1,0 +1,24 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Format/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Syntax.lean"
+    }
+  ],
+  "date": "2022-08-16",
+  "needs_port": true,
+  "sha": "ff5b02622ce4929bd31bf009391cb22cf1e73b52",
+  "short_sha": "ff5b02622c",
+  "subject": "doc: Format",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean",
+    "src/Init/Data/Format/Syntax.lean": "zig-backend/src/init/Data/Format/Syntax.lean"
+  }
+}

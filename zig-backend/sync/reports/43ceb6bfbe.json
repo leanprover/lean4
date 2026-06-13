@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-24",
+  "needs_port": false,
+  "sha": "43ceb6bfbe6c44fa1ab5c408b8c86cd847dd85b4",
+  "short_sha": "43ceb6bfbe",
+  "subject": "refactor(kernel/local_ctx): simplify `local_ctx`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-24",
+  "needs_port": false,
+  "sha": "7272235241ffa4a94fa1e103f8efe93758005bd6",
+  "short_sha": "7272235241",
+  "subject": "fix: escaped `$$x*` antiquotation splices",
+  "zig_target": {}
+}

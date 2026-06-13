@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-02-04",
+  "needs_port": false,
+  "sha": "ec903f58d294cc7c57008a9cf754745fa7024f8c",
+  "short_sha": "ec903f58d2",
+  "subject": "feat: bare-bones goal request handler",
+  "zig_target": {}
+}

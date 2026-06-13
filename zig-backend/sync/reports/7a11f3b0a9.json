@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-11",
+  "needs_port": false,
+  "sha": "7a11f3b0a9aa22b775277a0739d367512f7ca534",
+  "short_sha": "7a11f3b0a9",
+  "subject": "test: add `getCtorLayout` test",
+  "zig_target": {}
+}

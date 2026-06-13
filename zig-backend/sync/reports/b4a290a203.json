@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-22",
+  "needs_port": false,
+  "sha": "b4a290a203e75f050aceea1a9a5b105d53397e82",
+  "short_sha": "b4a290a203",
+  "subject": "refactor: `simp` `Step` and `Simproc` types",
+  "zig_target": {}
+}

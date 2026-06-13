@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-14",
+  "needs_port": false,
+  "sha": "5e7308d22df9a6b253d8113b2bc688a2034ca161",
+  "short_sha": "5e7308d22d",
+  "subject": "chore(library/init/lean/expr): `get_app_fn`",
+  "zig_target": {}
+}

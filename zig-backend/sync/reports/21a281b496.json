@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-31",
+  "needs_port": false,
+  "sha": "21a281b4965f8cc6c447a23f841480b6767153ec",
+  "short_sha": "21a281b496",
+  "subject": "fix: bug in `instantiateRangeS'` (#12260)",
+  "zig_target": {}
+}

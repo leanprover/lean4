@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-29",
+  "needs_port": true,
+  "sha": "2dd6b2b9c88e7757d40c36811cba32e68e6e3d57",
+  "short_sha": "2dd6b2b9c8",
+  "subject": "chore: upstream Fin.le_antisymm (#5197)",
+  "zig_target": {
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

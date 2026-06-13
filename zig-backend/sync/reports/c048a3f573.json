@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Level.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Level.lean"
+    }
+  ],
+  "date": "2020-01-29",
+  "needs_port": true,
+  "sha": "c048a3f5738c13dcf639dc657af1a5a707563042",
+  "short_sha": "c048a3f573",
+  "subject": "fix: `Level.normalize`",
+  "zig_target": {
+    "src/Init/Lean/Level.lean": "zig-backend/src/init/Lean/Level.lean"
+  }
+}

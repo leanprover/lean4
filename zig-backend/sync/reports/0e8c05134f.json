@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "0e8c05134f1f6ada594fa36d121bdc871861b540",
+  "short_sha": "0e8c05134f",
+  "subject": "chore: improve pp.analyze traces",
+  "zig_target": {}
+}

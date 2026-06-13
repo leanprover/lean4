@@ -1,0 +1,18 @@
+{
+  "author": "Keith Seim",
+  "backend_changes": [
+    {
+      "path": "src/runtime/thread.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/thread.h"
+    }
+  ],
+  "date": "2026-04-07",
+  "needs_port": true,
+  "sha": "db1e2ac34ce5cfb23c736c30a3c44b613d7cacf8",
+  "short_sha": "db1e2ac34c",
+  "subject": "fix: add missing release() and adopt_lock_t to single-threaded unique_lock stub (#13233)",
+  "zig_target": {
+    "src/runtime/thread.h": "zig-backend/src/runtime/thread.h"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Joshua Seaton",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2021-11-28",
+  "needs_port": true,
+  "sha": "a9317760e7f2078eaded999794c58cf4a11d99c9",
+  "short_sha": "a9317760e7",
+  "subject": "chore: update IR interpreter enum hygiene",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

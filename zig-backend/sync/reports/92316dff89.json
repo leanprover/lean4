@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-13",
+  "needs_port": false,
+  "sha": "92316dff89f5524b2dcfbf1f98dbda400d591241",
+  "short_sha": "92316dff89",
+  "subject": "chore: remove unnecessary inline",
+  "zig_target": {}
+}

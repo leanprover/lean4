@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-06-04",
+  "needs_port": false,
+  "sha": "05ea3ac19f5f231d55331d914bad175f1d9f909e",
+  "short_sha": "05ea3ac19f",
+  "subject": "chore: update batteries in manifest when creating lean-pr-testing-NNNN at Mathlib (#4333)",
+  "zig_target": {}
+}

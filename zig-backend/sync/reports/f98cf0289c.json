@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-04",
+  "needs_port": false,
+  "sha": "f98cf0289c596cf941e44a72922c396843aa8fa6",
+  "short_sha": "f98cf0289c",
+  "subject": "feat: send references notification when file evaluation finishes",
+  "zig_target": {}
+}

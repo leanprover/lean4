@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-10",
+  "needs_port": false,
+  "sha": "8e88e8061a8b497d74f95e2232314c73b335b8a9",
+  "short_sha": "8e88e8061a",
+  "subject": "chore: deprecate `:=` variants of `inductive` and `structure` (#5542)",
+  "zig_target": {}
+}

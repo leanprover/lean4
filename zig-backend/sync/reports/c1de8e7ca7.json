@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-21",
+  "needs_port": false,
+  "sha": "c1de8e7ca74970a01bc8b625c9527dc3a929003a",
+  "short_sha": "c1de8e7ca7",
+  "subject": "chore(kernel/expr): make sure we can compile with g++ 4.9",
+  "zig_target": {}
+}

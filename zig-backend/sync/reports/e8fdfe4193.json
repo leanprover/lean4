@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-16",
+  "needs_port": false,
+  "sha": "e8fdfe4193efb27cfbf6d90ff7dcb5e33928aec7",
+  "short_sha": "e8fdfe4193",
+  "subject": "feat: eliminate trivial `let`-declarations",
+  "zig_target": {}
+}

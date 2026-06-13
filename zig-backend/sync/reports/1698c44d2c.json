@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-07",
+  "needs_port": false,
+  "sha": "1698c44d2c4d38807ae652f86f3051ad76a6081d",
+  "short_sha": "1698c44d2c",
+  "subject": "fix: some silly errors",
+  "zig_target": {}
+}

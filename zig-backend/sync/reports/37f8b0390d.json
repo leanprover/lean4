@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "37f8b0390dcbaee9e971884ac73ea525cbacd5da",
+  "short_sha": "37f8b0390d",
+  "subject": "chore: CI: fix workflow change breaking unrebased PRs (#4441)",
+  "zig_target": {}
+}

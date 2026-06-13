@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-15",
+  "needs_port": false,
+  "sha": "a498a64490904bf90050472712fe279d10a4888e",
+  "short_sha": "a498a64490",
+  "subject": "chore: disable injectivity theorems generation for big structure tests",
+  "zig_target": {}
+}

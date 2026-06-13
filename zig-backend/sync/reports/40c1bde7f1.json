@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-22",
+  "needs_port": false,
+  "sha": "40c1bde7f10c5793fbdb2fe973b87ffc6ae7703e",
+  "short_sha": "40c1bde7f1",
+  "subject": "feat: trace for backtracked tactic exceptions",
+  "zig_target": {}
+}

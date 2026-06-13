@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2018-09-12",
+  "needs_port": true,
+  "sha": "75b2b09c08be9206732bc7a9934c7c18b5f094b2",
+  "short_sha": "75b2b09c08",
+  "subject": "feat(library/module_mgr): 'trace.import' trace class",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "e5b77d4de86a0bfccd466a408c413fa1c12e57bb",
+  "short_sha": "e5b77d4de8",
+  "subject": "feat: combine `InferType` and `TypeUtil` into `Meta`",
+  "zig_target": {}
+}

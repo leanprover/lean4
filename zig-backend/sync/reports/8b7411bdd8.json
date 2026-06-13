@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-17",
+  "needs_port": false,
+  "sha": "8b7411bdd83efe456d4158e8265e66699ebc33af",
+  "short_sha": "8b7411bdd8",
+  "subject": "feat: improve error location at well-founded recursion",
+  "zig_target": {}
+}

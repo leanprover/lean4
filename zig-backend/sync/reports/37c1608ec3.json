@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-15",
+  "needs_port": false,
+  "sha": "37c1608ec3575c0b7c6afa17c871a62241a90603",
+  "short_sha": "37c1608ec3",
+  "subject": "feat: improve error handling in tactic blocks",
+  "zig_target": {}
+}

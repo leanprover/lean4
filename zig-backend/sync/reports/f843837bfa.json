@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-06",
+  "needs_port": false,
+  "sha": "f843837bfaf4fb64571ddced9fa4cdfde40c8610",
+  "short_sha": "f843837bfa",
+  "subject": "test: test missing cases error (#11107)",
+  "zig_target": {}
+}

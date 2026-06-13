@@ -1,0 +1,24 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.h"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2025-07-08",
+  "needs_port": true,
+  "sha": "a05311d1ec7bc1005a5d9565111a9e376e370f78",
+  "short_sha": "a05311d1ec",
+  "subject": "chore: split IR types out into their own header file (#9264)",
+  "zig_target": {
+    "src/library/compiler/ir.h": "zig-backend/src/library/compiler/ir.h",
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

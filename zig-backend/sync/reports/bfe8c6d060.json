@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/Checker.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/Checker.lean"
+    }
+  ],
+  "date": "2020-01-11",
+  "needs_port": true,
+  "sha": "bfe8c6d06039d684372366ff00d67351cdb0a4b2",
+  "short_sha": "bfe8c6d060",
+  "subject": "feat: prevent adversarial users from using `hugeFuel` in actual code",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/Checker.lean": "zig-backend/src/init/Lean/Compiler/IR/Checker.lean"
+  }
+}

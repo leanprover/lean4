@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    }
+  ],
+  "date": "2025-06-11",
+  "needs_port": true,
+  "sha": "aab65f595db6cbeaa4536272b330b48e27539529",
+  "short_sha": "aab65f595d",
+  "subject": "feat: infrastructure for disequality constraints in `grind linarith`  (#8715)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+  }
+}

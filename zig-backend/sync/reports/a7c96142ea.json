@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-19",
+  "needs_port": false,
+  "sha": "a7c96142ea0ec2fa02c808b5a126df818828dc8a",
+  "short_sha": "a7c96142ea",
+  "subject": "feat: improve code inliner",
+  "zig_target": {}
+}

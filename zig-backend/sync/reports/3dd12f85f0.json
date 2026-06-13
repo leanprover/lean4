@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/List.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Monadic.lean"
+    }
+  ],
+  "date": "2025-05-24",
+  "needs_port": true,
+  "sha": "3dd12f85f08383300b82cd245580ecfb2e419774",
+  "short_sha": "3dd12f85f0",
+  "subject": "feat: further `@[grind]` annotations for `Option` (#8460)",
+  "zig_target": {
+    "src/Init/Data/Option/Array.lean": "zig-backend/src/init/Data/Option/Array.lean",
+    "src/Init/Data/Option/Attach.lean": "zig-backend/src/init/Data/Option/Attach.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Data/Option/List.lean": "zig-backend/src/init/Data/Option/List.lean",
+    "src/Init/Data/Option/Monadic.lean": "zig-backend/src/init/Data/Option/Monadic.lean"
+  }
+}

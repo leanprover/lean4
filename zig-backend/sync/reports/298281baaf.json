@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-09",
+  "needs_port": false,
+  "sha": "298281baaf6b08641d7de9b23d3486e6e62c2431",
+  "short_sha": "298281baaf",
+  "subject": "perf: skip `logUnassignedUsingErrorInfos` if `pendingMVarIds` is empty",
+  "zig_target": {}
+}

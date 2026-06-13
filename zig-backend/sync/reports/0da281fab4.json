@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-02-28",
+  "needs_port": false,
+  "sha": "0da281fab48d353e9da080d81dc7d736836f84b6",
+  "short_sha": "0da281fab4",
+  "subject": "fix: reject occurrences of inductive type in index",
+  "zig_target": {}
+}

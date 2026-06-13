@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/StructInst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+    }
+  ],
+  "date": "2020-02-05",
+  "needs_port": true,
+  "sha": "86891a83e00002d7bf01da5752fbe0f6c7794e34",
+  "short_sha": "86891a83e0",
+  "subject": "feat: add `expandNumLitFields`",
+  "zig_target": {
+    "src/Init/Lean/Elab/StructInst.lean": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-20",
+  "needs_port": true,
+  "sha": "eeb0cad29eb394a1f1a6874dd35ae5e411d83111",
+  "short_sha": "eeb0cad29e",
+  "subject": "feat: `if let`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

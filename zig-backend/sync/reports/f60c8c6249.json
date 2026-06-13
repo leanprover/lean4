@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-10",
+  "needs_port": false,
+  "sha": "f60c8c6249a6225ccadfdd290cc05dccfe1f31d6",
+  "short_sha": "f60c8c6249",
+  "subject": "test: add `kabstract` tests",
+  "zig_target": {}
+}

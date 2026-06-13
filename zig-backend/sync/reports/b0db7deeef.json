@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-08-12",
+  "needs_port": true,
+  "sha": "b0db7deeef520203bfc68b4bed05d2226d469c18",
+  "short_sha": "b0db7deeef",
+  "subject": "doc: documentation for Init.Coe",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

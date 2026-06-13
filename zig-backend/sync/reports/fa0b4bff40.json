@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-30",
+  "needs_port": false,
+  "sha": "fa0b4bff403963cd4445cd72b568946d61b6471e",
+  "short_sha": "fa0b4bff40",
+  "subject": "chore(tests/playground/parser/syntax): fix experiment",
+  "zig_target": {}
+}

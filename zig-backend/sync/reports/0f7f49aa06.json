@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2020-07-30",
+  "needs_port": true,
+  "sha": "0f7f49aa0699e809f950219d6616ee9ee2a3b79c",
+  "short_sha": "0f7f49aa06",
+  "subject": "feat: dbgTraceVal",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

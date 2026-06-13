@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-30",
+  "needs_port": false,
+  "sha": "9d78e2268db285bd88280558d4079ed982bb99b4",
+  "short_sha": "9d78e2268d",
+  "subject": "doc: test & deploy on CI",
+  "zig_target": {}
+}

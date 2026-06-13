@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range.lean"
+    }
+  ],
+  "date": "2024-01-08",
+  "needs_port": true,
+  "sha": "684f32fabe06a33c77973af7e4f4f9acfa1fc087",
+  "short_sha": "684f32fabe",
+  "subject": "feat: let get_elem_tactic_trivial handle [a]'h.2 (#3132)",
+  "zig_target": {
+    "src/Init/Data/Range.lean": "zig-backend/src/init/Data/Range.lean"
+  }
+}

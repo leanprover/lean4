@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-07",
+  "needs_port": false,
+  "sha": "ca7e7c4279be7736ea4144e5e8f38726225c21ec",
+  "short_sha": "ca7e7c4279",
+  "subject": "fix: do not discard `mutual` members on macro use (#10695)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-17",
+  "needs_port": true,
+  "sha": "75f4eb2f84da04f51d41a455c3f4b5a9639fdcab",
+  "short_sha": "75f4eb2f84",
+  "subject": "feat(library/compiler/emit_cpp): initialize task_manager at generated `main` function",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

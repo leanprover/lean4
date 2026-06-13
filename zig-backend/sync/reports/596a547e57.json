@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-03-16",
+  "needs_port": true,
+  "sha": "596a547e57550058b050a655db79ac2d0851d0be",
+  "short_sha": "596a547e57",
+  "subject": "feat: add helper theorems",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

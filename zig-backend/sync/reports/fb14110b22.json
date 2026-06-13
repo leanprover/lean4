@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.h"
+    }
+  ],
+  "date": "2019-07-28",
+  "needs_port": true,
+  "sha": "fb14110b22c2c00759b29be71f004879e4b0c4be",
+  "short_sha": "fb14110b22",
+  "subject": "fix(library/compiler/llnf): sort scalar fields by size to avoid UB",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp",
+    "src/library/compiler/llnf.h": "zig-backend/src/library/compiler/llnf.h"
+  }
+}

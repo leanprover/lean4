@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-16",
+  "needs_port": false,
+  "sha": "aaa072cf219c5b070589249e9bd54d78a1563128",
+  "short_sha": "aaa072cf21",
+  "subject": "feat: add `withNewBinderInfos`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-06",
+  "needs_port": false,
+  "sha": "102d2ae57d38d956859d3dcdae26a96a28c27879",
+  "short_sha": "102d2ae57d",
+  "subject": "fix: avoid unnecessary reduction",
+  "zig_target": {}
+}

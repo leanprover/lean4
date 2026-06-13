@@ -1,0 +1,18 @@
+{
+  "author": "Malhar A. Patel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-07-15",
+  "needs_port": true,
+  "sha": "6cbdd6b815d78793f8b9b2463bbd020f8d74956d",
+  "short_sha": "6cbdd6b815",
+  "subject": "doc: correct the `Option.getD` docString example (#9190)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

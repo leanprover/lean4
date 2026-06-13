@@ -1,0 +1,10 @@
+{
+  "author": "grunweg",
+  "backend_changes": [],
+  "date": "2024-07-22",
+  "needs_port": false,
+  "sha": "852add3e55ed8c94bc496f35019674f046ab0d5e",
+  "short_sha": "852add3e55",
+  "subject": "doc: document `Command.Scope` (#4748)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-09-29",
+  "needs_port": false,
+  "sha": "6f60e3588f04de1083cbee9a71e5e2d825d39a0a",
+  "short_sha": "6f60e3588f",
+  "subject": "feat: file worker termination on header change or file closing",
+  "zig_target": {}
+}

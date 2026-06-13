@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-09",
+  "needs_port": false,
+  "sha": "ab08bffbec3f50bb80a1a781ffe75415d28eca4d",
+  "short_sha": "ab08bffbec",
+  "subject": "chore: Nix: fix stage0-from-input",
+  "zig_target": {}
+}

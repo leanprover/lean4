@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2024-02-26",
+  "needs_port": true,
+  "sha": "c5fd88f5e118738425dd55b7592de435b7db8483",
+  "short_sha": "c5fd88f5e1",
+  "subject": "feat: set literal unexpander (#3513)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

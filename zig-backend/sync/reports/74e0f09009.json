@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2023-07-28",
+  "needs_port": false,
+  "sha": "74e0f09009377d2e85ee2cc4fa704bad47383dd5",
+  "short_sha": "74e0f09009",
+  "subject": "fix: handle error in withTraceNode message action (#2364)",
+  "zig_target": {}
+}

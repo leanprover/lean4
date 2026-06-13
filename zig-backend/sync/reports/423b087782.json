@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-29",
+  "needs_port": false,
+  "sha": "423b087782065df77f6cdc36c0028e08c7cd3fcc",
+  "short_sha": "423b087782",
+  "subject": "chore(tests/playground/Makefile): build *.tex by default",
+  "zig_target": {}
+}

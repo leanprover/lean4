@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-07",
+  "needs_port": false,
+  "sha": "305866dba2eb609a81361a50ad21696d40831f5d",
+  "short_sha": "305866dba2",
+  "subject": "feat: \"linting\" profiler metric",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-24",
+  "needs_port": false,
+  "sha": "1aeb88cee59dba3b617ea433898ff02315d31c75",
+  "short_sha": "1aeb88cee5",
+  "subject": "feat: add `where` example in proofs",
+  "zig_target": {}
+}

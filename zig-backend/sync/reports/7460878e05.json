@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    },
+    {
+      "path": "src/runtime/load_dynlib.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/load_dynlib.cpp"
+    }
+  ],
+  "date": "2022-04-01",
+  "needs_port": true,
+  "sha": "7460878e05b97a32512303112e5329d1ba106df4",
+  "short_sha": "7460878e05",
+  "subject": "chore: define WIN32_LEAN_AND_MEAN",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp",
+    "src/runtime/load_dynlib.cpp": "zig-backend/src/runtime/load_dynlib.cpp"
+  }
+}

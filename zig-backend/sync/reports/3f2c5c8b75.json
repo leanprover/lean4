@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-15",
+  "needs_port": true,
+  "sha": "3f2c5c8b758265027d3e30b1a43b4bd7d4255fc0",
+  "short_sha": "3f2c5c8b75",
+  "subject": "chore(library/compiler/csimp): fix assertion",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

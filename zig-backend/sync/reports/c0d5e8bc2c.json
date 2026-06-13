@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-25",
+  "needs_port": false,
+  "sha": "c0d5e8bc2c925bc2b60f18c929acf7d73ea9ecec",
+  "short_sha": "c0d5e8bc2c",
+  "subject": "feat: `intro` tactic for `SymM` (#11803)",
+  "zig_target": {}
+}

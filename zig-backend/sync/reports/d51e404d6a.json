@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-03-30",
+  "needs_port": false,
+  "sha": "d51e404d6a00463f28a3852bf7685e9a117417bd",
+  "short_sha": "d51e404d6a",
+  "subject": "refactor: move profiling options to Lean",
+  "zig_target": {}
+}

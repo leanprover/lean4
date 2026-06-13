@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-22",
+  "needs_port": false,
+  "sha": "52ff8403210b6d6f5eec5ccfd3c03149c7ac7a4e",
+  "short_sha": "52ff840321",
+  "subject": "feat: support for `HEq` at `injection`",
+  "zig_target": {}
+}

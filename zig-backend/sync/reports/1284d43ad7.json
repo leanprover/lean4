@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-16",
+  "needs_port": false,
+  "sha": "1284d43ad71675b84e0399d3fa262aa0a0ef722e",
+  "short_sha": "1284d43ad7",
+  "subject": "fix: `simp +arith` (#7511)",
+  "zig_target": {}
+}

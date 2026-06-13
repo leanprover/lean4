@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-21",
+  "needs_port": false,
+  "sha": "3a75cf19206f8672b84e75e10115043f7fd11d7d",
+  "short_sha": "3a75cf1920",
+  "subject": "test: nested inductives",
+  "zig_target": {}
+}

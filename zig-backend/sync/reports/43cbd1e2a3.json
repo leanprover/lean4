@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-18",
+  "needs_port": false,
+  "sha": "43cbd1e2a330ebdece73a5fc257f2f4cd3aba02f",
+  "short_sha": "43cbd1e2a3",
+  "subject": "chore(bin/leanc.in): remove flags that do not exist on clang++ for OSX",
+  "zig_target": {}
+}

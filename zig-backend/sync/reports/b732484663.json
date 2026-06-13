@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-12-21",
+  "needs_port": true,
+  "sha": "b73248466329b8bcc9b3d34fb7e3bef3980ba7df",
+  "short_sha": "b732484663",
+  "subject": "fix: do not consider worker threads as idle during startup",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

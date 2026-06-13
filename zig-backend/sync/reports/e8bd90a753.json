@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Char/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Basic.lean"
+    }
+  ],
+  "date": "2019-11-27",
+  "needs_port": true,
+  "sha": "e8bd90a753048ab9d63d9cb6e26f0bf522b7b683",
+  "short_sha": "e8bd90a753",
+  "subject": "fix: performance issue introduced by 2809cea147636e",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Char/Basic.lean": "zig-backend/src/init/Data/Char/Basic.lean"
+  }
+}

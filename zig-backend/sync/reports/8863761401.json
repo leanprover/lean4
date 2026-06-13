@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-01",
+  "needs_port": false,
+  "sha": "8863761401845e8aa2be9e5cef7640d09e0cc3c1",
+  "short_sha": "8863761401",
+  "subject": "feat: show initial state for tactic combinators by default",
+  "zig_target": {}
+}

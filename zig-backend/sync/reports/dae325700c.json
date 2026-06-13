@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-05-03",
+  "needs_port": false,
+  "sha": "dae325700c89e23c453b1d6d5ed5432d87880062",
+  "short_sha": "dae325700c",
+  "subject": "fix: lake: await `needs` before processing module headers (#13601)",
+  "zig_target": {}
+}

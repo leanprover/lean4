@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-02-02",
+  "needs_port": false,
+  "sha": "d4b9a532d235a97e737a6bc1b0984d2334e1ab6c",
+  "short_sha": "d4b9a532d2",
+  "subject": "fix: calc: synthesize default instances",
+  "zig_target": {}
+}

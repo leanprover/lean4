@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-31",
+  "needs_port": false,
+  "sha": "7c2338546c348bce46af54b5d2272bfd54655e1c",
+  "short_sha": "7c2338546c",
+  "subject": "feat: add `pp.rawOnError`",
+  "zig_target": {}
+}

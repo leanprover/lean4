@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-10",
+  "needs_port": false,
+  "sha": "ac4961fa374d3ed443f3fdcd0a0ef540a21f91f2",
+  "short_sha": "ac4961fa37",
+  "subject": "test: check stdlib doc strings",
+  "zig_target": {}
+}

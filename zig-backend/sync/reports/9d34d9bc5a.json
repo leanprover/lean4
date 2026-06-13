@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-07",
+  "needs_port": false,
+  "sha": "9d34d9bc5a41bdbd7444bd325297656c8442e180",
+  "short_sha": "9d34d9bc5a",
+  "subject": "feat: cache and optimize `mkCongrSimp?` at `simp`",
+  "zig_target": {}
+}

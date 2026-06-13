@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-03-25",
+  "needs_port": false,
+  "sha": "1d245bcb82f67ed2d35ae1a9b31a943843abce35",
+  "short_sha": "1d245bcb82",
+  "subject": "chore: revert ToJson/FromJson Sum (#3759) (#3760)",
+  "zig_target": {}
+}

@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.h"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.h"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    }
+  ],
+  "date": "2019-02-12",
+  "needs_port": true,
+  "sha": "09d194d5b7d992da79e5f70af88262328ae875d7",
+  "short_sha": "09d194d5b7",
+  "subject": "feat(library/compiler): emit external declarations",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/emit_cpp.h": "zig-backend/src/library/compiler/emit_cpp.h",
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/extern_attribute.h": "zig-backend/src/library/compiler/extern_attribute.h",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp"
+  }
+}

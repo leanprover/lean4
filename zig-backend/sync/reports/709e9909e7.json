@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-08",
+  "needs_port": false,
+  "sha": "709e9909e787200ff4ad1dc82a6d51fb9917a6b5",
+  "short_sha": "709e9909e7",
+  "subject": "feat: add `nofun` term parser",
+  "zig_target": {}
+}

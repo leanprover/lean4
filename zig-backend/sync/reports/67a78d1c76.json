@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2018-10-31",
+  "needs_port": true,
+  "sha": "67a78d1c76bc5990cb2e1cc889160deb7c7db020",
+  "short_sha": "67a78d1c76",
+  "subject": "chore(library/compiler/llnf): cleanup",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

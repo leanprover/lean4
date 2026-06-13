@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-30",
+  "needs_port": false,
+  "sha": "87a6dd56b8d3d535f518a2e13a4005d0cd611e5d",
+  "short_sha": "87a6dd56b8",
+  "subject": "feat: use RPC method from first snapshot",
+  "zig_target": {}
+}

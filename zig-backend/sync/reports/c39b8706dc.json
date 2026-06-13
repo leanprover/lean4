@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-11",
+  "needs_port": false,
+  "sha": "c39b8706dc79ca298f392461d172673c6f1b30c8",
+  "short_sha": "c39b8706dc",
+  "subject": "fix: unfold only definitions/theorems",
+  "zig_target": {}
+}

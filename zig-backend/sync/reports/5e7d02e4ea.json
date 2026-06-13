@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    }
+  ],
+  "date": "2024-10-30",
+  "needs_port": true,
+  "sha": "5e7d02e4ea8048b22639c1e71f055237c90d7d64",
+  "short_sha": "5e7d02e4ea",
+  "subject": "feat: Hashable (BitVec n) (#5881)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "e760b8ddf57fe156db00dabfc11e4281d1258aa0",
+  "short_sha": "e760b8ddf5",
+  "subject": "doc: add IJCAR 2026 grind paper examples (#12462)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-09-10",
+  "needs_port": true,
+  "sha": "923c3d10a2457eb1413dc282b98cbdb50be5c5ee",
+  "short_sha": "923c3d10a2",
+  "subject": "feat: `cutsat` and `grobner` frontends for `grind` (#10322)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

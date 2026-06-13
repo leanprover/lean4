@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-22",
+  "needs_port": false,
+  "sha": "d234b78cc0acd231f713ef827b2c1f8f9ff0374f",
+  "short_sha": "d234b78cc0",
+  "subject": "chore: cutsat equality infrastructure (#7193)",
+  "zig_target": {}
+}

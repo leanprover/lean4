@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-20",
+  "needs_port": false,
+  "sha": "e442fbbf54cfad6eb65bfb5569795e84b41e137a",
+  "short_sha": "e442fbbf54",
+  "subject": "fix: remove `kabstractWithPred`",
+  "zig_target": {}
+}

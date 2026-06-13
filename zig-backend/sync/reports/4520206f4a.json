@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-09",
+  "needs_port": false,
+  "sha": "4520206f4a663776ace9088844fbedbb64adfc39",
+  "short_sha": "4520206f4a",
+  "subject": "chore: minor perf improvement (#9296)",
+  "zig_target": {}
+}

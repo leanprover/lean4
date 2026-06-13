@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-06",
+  "needs_port": false,
+  "sha": "d0fbc93143efa2ecf4771670a8b39f89ad2bd677",
+  "short_sha": "d0fbc93143",
+  "subject": "refactor: improve Hash traces",
+  "zig_target": {}
+}

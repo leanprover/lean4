@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "381c0f2b615a98a5efbe08b90a5e808e23d9b550",
+  "short_sha": "381c0f2b61",
+  "subject": "fix: proper error messages for `Std.Do` tactic invokations without arguments (#11509) (#11607)",
+  "zig_target": {}
+}

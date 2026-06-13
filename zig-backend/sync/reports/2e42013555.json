@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2025-04-23",
+  "needs_port": true,
+  "sha": "2e4201355579e29dd04ff7a8090fa6d673b2e997",
+  "short_sha": "2e42013555",
+  "subject": "chore: clarify `m_cs_sz` use with mimalloc (#8058)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

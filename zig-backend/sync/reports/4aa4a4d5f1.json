@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-09-03",
+  "needs_port": true,
+  "sha": "4aa4a4d5f19171ea12407990adc8031cc476bbd4",
+  "short_sha": "4aa4a4d5f1",
+  "subject": "chore(runtime/object,util/object_ref): missing assertions",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

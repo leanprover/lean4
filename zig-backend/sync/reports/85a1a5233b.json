@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+    }
+  ],
+  "date": "2022-03-01",
+  "needs_port": true,
+  "sha": "85a1a5233bfa69f418f6ca333c50f7e26fa368d8",
+  "short_sha": "85a1a5233b",
+  "subject": "chore: workaround for compiler closed term extraction issue",
+  "zig_target": {
+    "src/Lean/Compiler/IR/SimpCase.lean": "zig-backend/src/lean/compiler/ir/SimpCase.lean"
+  }
+}

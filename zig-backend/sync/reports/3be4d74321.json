@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-13",
+  "needs_port": false,
+  "sha": "3be4d743216ed2208b71f12d20ee696ff0835639",
+  "short_sha": "3be4d74321",
+  "subject": "fix: lake: lowercase template exe name to avoid clash with lib",
+  "zig_target": {}
+}

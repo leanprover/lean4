@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "68a93a358c95bd9038aa27b9f78b843d29c1b078",
+  "short_sha": "68a93a358c",
+  "subject": "fix(kernel/expr): initialization problem",
+  "zig_target": {}
+}

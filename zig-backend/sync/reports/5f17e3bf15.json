@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Pairwise.lean"
+    }
+  ],
+  "date": "2025-07-30",
+  "needs_port": true,
+  "sha": "5f17e3bf15b57764e54eadd157a36678ca42b414",
+  "short_sha": "5f17e3bf15",
+  "subject": "feat: tweaks to List.Pairwise API (#9620)",
+  "zig_target": {
+    "src/Init/Data/List/Pairwise.lean": "zig-backend/src/init/Data/List/Pairwise.lean"
+  }
+}

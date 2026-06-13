@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-21",
+  "needs_port": false,
+  "sha": "e094bdcd62201f0690c384bc4577ae8bede761d3",
+  "short_sha": "e094bdcd62",
+  "subject": "chore: Nix: print cumulative and per-line execution time on CI",
+  "zig_target": {}
+}

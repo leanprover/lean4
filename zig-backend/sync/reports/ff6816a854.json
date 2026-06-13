@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-11",
+  "needs_port": false,
+  "sha": "ff6816a854ef5cf2966519452d03933785f2fdeb",
+  "short_sha": "ff6816a854",
+  "subject": "fix: avoid duplicate lake test registration when LAKE_CI is on (#12877)",
+  "zig_target": {}
+}

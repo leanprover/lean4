@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-25",
+  "needs_port": false,
+  "sha": "94547b3d854ecd05f89c9dd53e4d8a1d50f9e0ca",
+  "short_sha": "94547b3d85",
+  "subject": "chore: CI: avoid deprecated `set-output`",
+  "zig_target": {}
+}

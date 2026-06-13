@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    }
+  ],
+  "date": "2025-09-02",
+  "needs_port": true,
+  "sha": "dac61c406f2a61e58d898df190e0586704d400dd",
+  "short_sha": "dac61c406f",
+  "subject": "feat: extra critical pairs for associative + idempotent operators in `grind ac` (#10221)",
+  "zig_target": {
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-08",
+  "needs_port": false,
+  "sha": "8f70c346fd2b176573b7d5b15d0b4bb7ccf3e703",
+  "short_sha": "8f70c346fd",
+  "subject": "chore: Nix: fix develop shell",
+  "zig_target": {}
+}

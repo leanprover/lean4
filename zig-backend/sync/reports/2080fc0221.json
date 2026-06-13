@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-09-13",
+  "needs_port": false,
+  "sha": "2080fc022187595020d519c1e08aa72340c4b5ff",
+  "short_sha": "2080fc0221",
+  "subject": "feat: (`DHashMap`|`HashMap`|`HashSet`).(`getKey?`|`getKey`|`getKey!`|`getKeyD`) (#5244)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    }
+  ],
+  "date": "2025-04-01",
+  "needs_port": true,
+  "sha": "55b0d390c6de93afd792cab0deef2d721c3a4fe8",
+  "short_sha": "55b0d390c6",
+  "subject": "feat: BitVec.append_add_append_eq_append (#7757)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+  }
+}

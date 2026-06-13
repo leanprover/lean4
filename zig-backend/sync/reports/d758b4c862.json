@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2025-04-10",
+  "needs_port": true,
+  "sha": "d758b4c862f0429113d5e21f028a98cb98c6fd35",
+  "short_sha": "d758b4c862",
+  "subject": "chore: `Fin.ofNat'_mul`, analogous to existing add lemmas (#7888)",
+  "zig_target": {
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

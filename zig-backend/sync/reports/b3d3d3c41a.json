@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Attributes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Attributes.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    },
+    {
+      "path": "src/Init/Lean/Environment.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Environment.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2019-12-31",
+  "needs_port": true,
+  "sha": "b3d3d3c41aa26ce18fb0e29045683e6524f52d66",
+  "short_sha": "b3d3d3c41a",
+  "subject": "fix: initialization issue",
+  "zig_target": {
+    "src/Init/Lean/Attributes.lean": "zig-backend/src/init/Lean/Attributes.lean",
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean",
+    "src/Init/Lean/Environment.lean": "zig-backend/src/init/Lean/Environment.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

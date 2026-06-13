@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-01-21",
+  "needs_port": false,
+  "sha": "bc65da2e836253462d96e9e83ee505fbde021803",
+  "short_sha": "bc65da2e83",
+  "subject": "feat: extend handleDocumentHighlight",
+  "zig_target": {}
+}

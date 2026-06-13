@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-04-21",
+  "needs_port": false,
+  "sha": "39f73806633d6950c636f49a1be75b6aee53bb4b",
+  "short_sha": "39f7380663",
+  "subject": "perf: fix linearity issue in bv_decide (#8036)",
+  "zig_target": {}
+}

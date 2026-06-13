@@ -1,0 +1,54 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitUtil.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Format.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-07-25",
+  "needs_port": true,
+  "sha": "1285a3c9a7bbf86883d2af9cee09cd0b2b0e28cb",
+  "short_sha": "1285a3c9a7",
+  "subject": "chore: clean up IR.Arg usage (#9557)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean",
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitUtil.lean": "zig-backend/src/lean/compiler/ir/EmitUtil.lean",
+    "src/Lean/Compiler/IR/Format.lean": "zig-backend/src/lean/compiler/ir/Format.lean",
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

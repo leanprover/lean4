@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Fold.lean"
+    }
+  ],
+  "date": "2025-06-06",
+  "needs_port": true,
+  "sha": "24cb133eb2884ca388c8fce69752911bcd98a2e0",
+  "short_sha": "24cb133eb2",
+  "subject": "feat: explicit `defeq` attribute (#8419)",
+  "zig_target": {
+    "src/Init/Data/Fin/Fold.lean": "zig-backend/src/init/Data/Fin/Fold.lean"
+  }
+}

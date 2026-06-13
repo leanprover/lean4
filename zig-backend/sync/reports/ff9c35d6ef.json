@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    },
+    {
+      "path": "src/Init/Grind/Lint.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Lint.lean"
+    }
+  ],
+  "date": "2025-11-12",
+  "needs_port": true,
+  "sha": "ff9c35d6efd198795f74b68d0f13e6c7a6755def",
+  "short_sha": "ff9c35d6ef",
+  "subject": "feat: `#grind_lint` command (#11157)",
+  "zig_target": {
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean",
+    "src/Init/Grind/Lint.lean": "zig-backend/src/init/Grind/Lint.lean"
+  }
+}

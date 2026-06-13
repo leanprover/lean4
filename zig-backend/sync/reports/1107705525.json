@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-06",
+  "needs_port": false,
+  "sha": "1107705525490377c069d0f9e3291a104fefbf46",
+  "short_sha": "1107705525",
+  "subject": "fix: jump to definition inside recursive definitions was not working on VS Code",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-08-22",
+  "needs_port": false,
+  "sha": "1523ed1cdb148305301137b136849bf6bcac0a6a",
+  "short_sha": "1523ed1cdb",
+  "subject": "chore: allow `module` in `LakeMain` (#10039)",
+  "zig_target": {}
+}

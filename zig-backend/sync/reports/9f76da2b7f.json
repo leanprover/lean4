@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PhaseExt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+    }
+  ],
+  "date": "2022-10-05",
+  "needs_port": true,
+  "sha": "9f76da2b7f1ae54ba1cd34b4607b7711900fb597",
+  "short_sha": "9f76da2b7f",
+  "subject": "feat: add env extension for the mono phase",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PhaseExt.lean": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+  }
+}

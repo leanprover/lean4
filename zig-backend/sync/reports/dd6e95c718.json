@@ -1,0 +1,18 @@
+{
+  "author": "Simon Hudon",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    }
+  ],
+  "date": "2020-01-12",
+  "needs_port": true,
+  "sha": "dd6e95c7189fbcc3a8a1edfc5e1bf5e40b406aca",
+  "short_sha": "dd6e95c718",
+  "subject": "fix: lowercase error messages",
+  "zig_target": {
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean"
+  }
+}

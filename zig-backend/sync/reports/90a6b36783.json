@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-27",
+  "needs_port": false,
+  "sha": "90a6b36783ec75edccbe325f5670179e39adae39",
+  "short_sha": "90a6b36783",
+  "subject": "refactor(library/init/data/string/basic): avoid artificial \"fuel\" using `partial`",
+  "zig_target": {}
+}

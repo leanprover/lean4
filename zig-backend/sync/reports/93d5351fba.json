@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-14",
+  "needs_port": false,
+  "sha": "93d5351fba415840186b90f1d16f97b0c1d0b27c",
+  "short_sha": "93d5351fba",
+  "subject": "feat: display reducibility status at `#print`",
+  "zig_target": {}
+}

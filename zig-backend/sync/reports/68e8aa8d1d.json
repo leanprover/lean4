@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-14",
+  "needs_port": false,
+  "sha": "68e8aa8d1d1ea3b2f246499c488a5e70e5acfe14",
+  "short_sha": "68e8aa8d1d",
+  "subject": "feat(library/init/lean/compiler): add constant folding helper functions",
+  "zig_target": {}
+}

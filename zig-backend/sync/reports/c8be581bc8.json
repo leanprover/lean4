@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-01-24",
+  "needs_port": false,
+  "sha": "c8be581bc8e5124de7b2c802ba943bd854d1304e",
+  "short_sha": "c8be581bc8",
+  "subject": "refactor: lake: use `Job` for all builtin facets (#6418)",
+  "zig_target": {}
+}

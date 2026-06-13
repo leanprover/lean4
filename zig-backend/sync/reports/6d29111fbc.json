@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-30",
+  "needs_port": false,
+  "sha": "6d29111fbc840fc2302c3c31f1ef3d0fa28bed70",
+  "short_sha": "6d29111fbc",
+  "subject": "doc: Lean syntax highlighting",
+  "zig_target": {}
+}

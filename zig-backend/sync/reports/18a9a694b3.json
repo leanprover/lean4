@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-04-30",
+  "needs_port": false,
+  "sha": "18a9a694b3108391ac1b4d0c45eab4e2356018ed",
+  "short_sha": "18a9a694b3",
+  "subject": "doc: lake: add `needs` and native library options to README (#8190)",
+  "zig_target": {}
+}

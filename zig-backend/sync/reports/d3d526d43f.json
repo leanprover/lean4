@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-22",
+  "needs_port": false,
+  "sha": "d3d526d43f55714505af62cc7da8ab9dfbff9bb4",
+  "short_sha": "d3d526d43f",
+  "subject": "test: make FFI example builds verbose",
+  "zig_target": {}
+}

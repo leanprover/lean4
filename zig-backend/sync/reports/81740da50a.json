@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    }
+  ],
+  "date": "2025-06-23",
+  "needs_port": true,
+  "sha": "81740da50af938a35620ae6d319ee1c63e29f164",
+  "short_sha": "81740da50a",
+  "subject": "fix: avoid caching uses of `never_extract` constants in toLCNF (#8956)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+  }
+}

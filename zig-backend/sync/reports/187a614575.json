@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2021-02-17",
+  "needs_port": true,
+  "sha": "187a6145759a3def24b5dc2a2569edba467b7249",
+  "short_sha": "187a614575",
+  "subject": "chore: make `tryFinally` a `def`",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

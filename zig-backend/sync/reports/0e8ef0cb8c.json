@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-30",
+  "needs_port": false,
+  "sha": "0e8ef0cb8c147f8241de40b42b6129473c2ed513",
+  "short_sha": "0e8ef0cb8c",
+  "subject": "chore: document Format fields",
+  "zig_target": {}
+}

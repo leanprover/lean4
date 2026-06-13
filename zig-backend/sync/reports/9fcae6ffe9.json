@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-07-07",
+  "needs_port": false,
+  "sha": "9fcae6ffe982c9d4f7a38bfef89caaf9e34e966f",
+  "short_sha": "9fcae6ffe9",
+  "subject": "fix: replace `constant` with `opaque`",
+  "zig_target": {}
+}

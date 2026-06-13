@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-11",
+  "needs_port": false,
+  "sha": "473d4c51ad66a671cc02e26b333249833a9e99e2",
+  "short_sha": "473d4c51ad",
+  "subject": "feat: lake: better native object tracing",
+  "zig_target": {}
+}

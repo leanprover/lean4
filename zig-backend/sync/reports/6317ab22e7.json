@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-06",
+  "needs_port": false,
+  "sha": "6317ab22e7a7be2c86565fd8bd4717a04a81f333",
+  "short_sha": "6317ab22e7",
+  "subject": "Only build dependency lib if bin is passed to `leanpkg buld`",
+  "zig_target": {}
+}

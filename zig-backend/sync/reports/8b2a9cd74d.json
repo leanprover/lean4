@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-02-04",
+  "needs_port": false,
+  "sha": "8b2a9cd74deace5348999d24ead1536ab6e86abf",
+  "short_sha": "8b2a9cd74d",
+  "subject": "chore: release_checklist.py checks if 'begin dev cycle' PR is needed (#6934)",
+  "zig_target": {}
+}

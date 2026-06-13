@@ -1,0 +1,18 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    }
+  ],
+  "date": "2024-05-16",
+  "needs_port": true,
+  "sha": "2a966b46f23ea2d151f91a2eb49a94f50a35255b",
+  "short_sha": "2a966b46f2",
+  "subject": "feat: bitblasting theorems about unsigned bitvector inequalities (#4178)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+  }
+}

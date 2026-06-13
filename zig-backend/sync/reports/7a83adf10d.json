@@ -1,0 +1,42 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ExpandResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/NormIds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/NormIds.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+    }
+  ],
+  "date": "2025-07-13",
+  "needs_port": true,
+  "sha": "7a83adf10d58107bff46c216cfc7287750984ce8",
+  "short_sha": "7a83adf10d",
+  "subject": "refactor: rename mmodifyBody functions to modifyBodyM (#9348)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean",
+    "src/Lean/Compiler/IR/ExpandResetReuse.lean": "zig-backend/src/lean/compiler/ir/ExpandResetReuse.lean",
+    "src/Lean/Compiler/IR/NormIds.lean": "zig-backend/src/lean/compiler/ir/NormIds.lean",
+    "src/Lean/Compiler/IR/ResetReuse.lean": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+  }
+}

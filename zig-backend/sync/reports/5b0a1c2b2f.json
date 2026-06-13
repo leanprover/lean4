@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-19",
+  "needs_port": false,
+  "sha": "5b0a1c2b2f93e7805baa25a2f161d79987f71281",
+  "short_sha": "5b0a1c2b2f",
+  "subject": "feat: smart unfolding support for nested match-expressions",
+  "zig_target": {}
+}

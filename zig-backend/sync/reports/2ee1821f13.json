@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-13",
+  "needs_port": false,
+  "sha": "2ee1821f13116a06d6ddc82667004f5b8e8d1bd1",
+  "short_sha": "2ee1821f13",
+  "subject": "fix: ensure `expectedType` at `fun` body",
+  "zig_target": {}
+}

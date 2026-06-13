@@ -1,0 +1,24 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-09-07",
+  "needs_port": true,
+  "sha": "c9239bfaa8f4afc7d309a4916d3b2808c97dfb57",
+  "short_sha": "c9239bfaa8",
+  "subject": "feat: let `unfold` do zeta-delta reduction of local definitions (#4834)",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

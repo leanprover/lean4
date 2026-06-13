@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-19",
+  "needs_port": false,
+  "sha": "8a8417f6e1e1e7ecc10b231a9a43906536a42626",
+  "short_sha": "8a8417f6e1",
+  "subject": "refactor: `getUnfoldableConst*?` (#5997)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2020-10-16",
+  "needs_port": true,
+  "sha": "a3e803df49ff3ff280645e0fb028bc086b0957be",
+  "short_sha": "a3e803df49",
+  "subject": "chore: move to new frontend",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+  }
+}

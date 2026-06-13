@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-27",
+  "needs_port": false,
+  "sha": "c77548c95ca71cb95a86e6352cd1a09bba3f9b1d",
+  "short_sha": "c77548c95c",
+  "subject": "fix: accidental truncation of `name::hash`",
+  "zig_target": {}
+}

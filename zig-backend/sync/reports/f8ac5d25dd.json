@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-30",
+  "needs_port": false,
+  "sha": "f8ac5d25dd7e22aaf59e5f9067db59ffebf52388",
+  "short_sha": "f8ac5d25dd",
+  "subject": "feat: add notation for helper elaboration function",
+  "zig_target": {}
+}

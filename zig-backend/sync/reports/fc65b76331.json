@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-30",
+  "needs_port": false,
+  "sha": "fc65b763317575bea523304d63f93ba6432aa545",
+  "short_sha": "fc65b76331",
+  "subject": "feat: lift useful binder term syntax to tactics",
+  "zig_target": {}
+}

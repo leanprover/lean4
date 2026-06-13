@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-09",
+  "needs_port": false,
+  "sha": "471ef75345eee9bcbe8563060382b323c99ddb57",
+  "short_sha": "471ef75345",
+  "subject": "feat: improve test at `packDomain`",
+  "zig_target": {}
+}

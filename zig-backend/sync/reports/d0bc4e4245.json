@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-07-20",
+  "needs_port": false,
+  "sha": "d0bc4e4245536fe6f9cc128c24981be775b9e1e8",
+  "short_sha": "d0bc4e4245",
+  "subject": "fix: `replace_fn.cpp` (#4798)",
+  "zig_target": {}
+}

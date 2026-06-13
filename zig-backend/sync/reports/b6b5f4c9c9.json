@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-30",
+  "needs_port": false,
+  "sha": "b6b5f4c9c969cde4789cf55542d520671904795e",
+  "short_sha": "b6b5f4c9c9",
+  "subject": "refactor: move whnf-eval functions into Lean.Meta.ReduceEval",
+  "zig_target": {}
+}

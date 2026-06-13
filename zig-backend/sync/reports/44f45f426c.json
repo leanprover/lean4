@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-04-30",
+  "needs_port": false,
+  "sha": "44f45f426c0306a9ec6f38459d852ba0fd069b03",
+  "short_sha": "44f45f426c",
+  "subject": "feat: add `scoped macro_rules` (#432)",
+  "zig_target": {}
+}

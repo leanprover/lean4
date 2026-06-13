@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Makefile.in",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Makefile.in"
+    }
+  ],
+  "date": "2019-12-11",
+  "needs_port": true,
+  "sha": "203bf76ff4fac04f1583bcbc45f4bc8ef5e85d69",
+  "short_sha": "203bf76ff4",
+  "subject": "chore: ignore stale .c file at update-stage0",
+  "zig_target": {
+    "src/Init/Makefile.in": "zig-backend/src/init/Makefile.in"
+  }
+}

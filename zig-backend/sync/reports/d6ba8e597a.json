@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-10-11",
+  "needs_port": false,
+  "sha": "d6ba8e597a3d2fc2b33e2cfa3bc7c39485adef97",
+  "short_sha": "d6ba8e597a",
+  "subject": "feat: add range parameter to getInteractiveDiagnostics",
+  "zig_target": {}
+}

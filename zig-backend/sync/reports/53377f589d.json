@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-21",
+  "needs_port": false,
+  "sha": "53377f589dd7ed1c5f12a3f8e519f74274ec3513",
+  "short_sha": "53377f589d",
+  "subject": "refactor: break `isDefEqDelta` into smaller pieces",
+  "zig_target": {}
+}

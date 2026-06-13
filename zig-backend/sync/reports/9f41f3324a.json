@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2025-09-25",
+  "needs_port": true,
+  "sha": "9f41f3324a95595b2126e16507f2e334299ddecd",
+  "short_sha": "9f41f3324a",
+  "subject": "fix: make Substring.beq reflexive (#10552)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

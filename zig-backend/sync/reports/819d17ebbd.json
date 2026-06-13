@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-07",
+  "needs_port": false,
+  "sha": "819d17ebbd1bb7908c5b5990eab2d07e816444a5",
+  "short_sha": "819d17ebbd",
+  "subject": "chore(library/init/lean/compiler/ir): use `has_beq`",
+  "zig_target": {}
+}

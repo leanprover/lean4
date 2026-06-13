@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-18",
+  "needs_port": false,
+  "sha": "1611cf63c3304e8c3152ae8afc326ea36c934102",
+  "short_sha": "1611cf63c3",
+  "subject": "fix: make document symbols request deterministic",
+  "zig_target": {}
+}

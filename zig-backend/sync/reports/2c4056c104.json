@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-27",
+  "needs_port": false,
+  "sha": "2c4056c104a1c273a634c9e01704e59b18e6b637",
+  "short_sha": "2c4056c104",
+  "subject": "chore: use `exit` during finalization",
+  "zig_target": {}
+}

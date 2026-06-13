@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "2498f197b8c37f370436eace9fc47488dcc4e868",
+  "short_sha": "2498f197b8",
+  "subject": "feat(library/init/lean/parser/term): declare some builtin infix operators",
+  "zig_target": {}
+}

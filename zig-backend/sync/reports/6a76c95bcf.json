@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-05",
+  "needs_port": false,
+  "sha": "6a76c95bcf2c7634e2e7b55eb5f2b03ff61158d0",
+  "short_sha": "6a76c95bcf",
+  "subject": "feat: lean4-mode: port fringe indicator from lean-mode",
+  "zig_target": {}
+}

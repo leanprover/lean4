@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-11-09",
+  "needs_port": true,
+  "sha": "a345a98ef7576564bfc1c7fdcaefaa1b571c9d89",
+  "short_sha": "a345a98ef7",
+  "subject": "chore: fix foreign test on macOS",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

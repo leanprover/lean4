@@ -1,0 +1,10 @@
+{
+  "author": "Alissa Tung",
+  "backend_changes": [],
+  "date": "2024-11-14",
+  "needs_port": false,
+  "sha": "d5adadc00ec0e1b36d691e3c124e133c096adcaa",
+  "short_sha": "d5adadc00e",
+  "subject": "chore: add newline at end of file for `lake new` templates (#6026)",
+  "zig_target": {}
+}

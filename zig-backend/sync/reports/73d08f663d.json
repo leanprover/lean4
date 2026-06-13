@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Util.lean"
+    }
+  ],
+  "date": "2025-04-01",
+  "needs_port": true,
+  "sha": "73d08f663d87ae0cd8573082cb49a776ec98e19d",
+  "short_sha": "73d08f663d",
+  "subject": "feat: `NatCast.natCast` unexpander (#7775)",
+  "zig_target": {
+    "src/Init/Grind/Util.lean": "zig-backend/src/init/Grind/Util.lean"
+  }
+}

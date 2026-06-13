@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-13",
+  "needs_port": false,
+  "sha": "c97eac1e8248de9c512c7826ea2c35926348fdff",
+  "short_sha": "c97eac1e82",
+  "subject": "release: 2.0.1",
+  "zig_target": {}
+}

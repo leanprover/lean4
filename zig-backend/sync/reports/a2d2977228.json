@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-16",
+  "needs_port": false,
+  "sha": "a2d29772280d48dc98505ddc61d14100ac99bc56",
+  "short_sha": "a2d2977228",
+  "subject": "fix: ac_nf0, simp_arith: don't tempt the kernel to reduce atoms (#5708)",
+  "zig_target": {}
+}

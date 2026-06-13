@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2020-01-28",
+  "needs_port": true,
+  "sha": "4aa710d4a64b3b16d728114bbaf74e88374ba283",
+  "short_sha": "4aa710d4a6",
+  "subject": "feat: add bridge `Coe` + `HasNat` transitivity instance",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-09",
+  "needs_port": false,
+  "sha": "e729b32b2b77800da2a93ad6eb3d794bee099705",
+  "short_sha": "e729b32b2b",
+  "subject": "feat: `unfold` should fail if it didn't unfold anything",
+  "zig_target": {}
+}

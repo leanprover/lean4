@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-29",
+  "needs_port": false,
+  "sha": "f765eec6267905e0a2f03e0bf31c0df5e260b6c0",
+  "short_sha": "f765eec626",
+  "subject": "fix(kernel/type_checker): typo in error message",
+  "zig_target": {}
+}

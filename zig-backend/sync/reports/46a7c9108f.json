@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    }
+  ],
+  "date": "2025-06-24",
+  "needs_port": true,
+  "sha": "46a7c9108f1e00f04c4675b68ae18432994499f1",
+  "short_sha": "46a7c9108f",
+  "subject": "feat: add `BitVec.(getElem, getLsbD, getMsbD)_(smod, sdiv, srem)` (#8941)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-05-22",
+  "needs_port": false,
+  "sha": "c8d245a08f709658fa5cc4863661987b2f29487f",
+  "short_sha": "c8d245a08f",
+  "subject": "fix: unknown identifier ranges (#8362)",
+  "zig_target": {}
+}

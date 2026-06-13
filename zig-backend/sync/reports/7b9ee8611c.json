@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-25",
+  "needs_port": false,
+  "sha": "7b9ee8611cce4bd446731aa9af3884eb0e9f7b57",
+  "short_sha": "7b9ee8611c",
+  "subject": "fix: trace.Elab.Info in the server",
+  "zig_target": {}
+}

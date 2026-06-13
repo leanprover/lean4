@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-17",
+  "needs_port": false,
+  "sha": "a3c0e2bb36cb9c58b801c87536d3cbea194b3649",
+  "short_sha": "a3c0e2bb36",
+  "subject": "chore(frontends/lean/builtin_exprs): ensure old `let` notation is not accepted",
+  "zig_target": {}
+}

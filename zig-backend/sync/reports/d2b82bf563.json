@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "d2b82bf5638dc60ae2d552d64c2a2a532547239f",
+  "short_sha": "d2b82bf563",
+  "subject": "doc: LSP setup using Nix",
+  "zig_target": {}
+}

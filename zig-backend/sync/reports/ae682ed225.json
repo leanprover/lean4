@@ -1,0 +1,108 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/ULift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/ULift.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Iterators.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Iterators.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/NatLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/NatLemmas.lean"
+    }
+  ],
+  "date": "2025-09-12",
+  "needs_port": true,
+  "sha": "ae682ed2257b4ddef3791e451da48955b29a4c0f",
+  "short_sha": "ae682ed225",
+  "subject": "feat: more iterator/range lemmas about `toList` and `toArray` (#10244)",
+  "zig_target": {
+    "src/Init/Data/Array/Attach.lean": "zig-backend/src/init/Data/Array/Attach.lean",
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Erase.lean": "zig-backend/src/init/Data/Array/Erase.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/Monadic.lean": "zig-backend/src/init/Data/Array/Monadic.lean",
+    "src/Init/Data/Array/Range.lean": "zig-backend/src/init/Data/Array/Range.lean",
+    "src/Init/Data/Iterators/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/Attach.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/ULift.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/ULift.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/Range/Polymorphic/Iterators.lean": "zig-backend/src/init/Data/Range/Polymorphic/Iterators.lean",
+    "src/Init/Data/Range/Polymorphic/Lemmas.lean": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean",
+    "src/Init/Data/Range/Polymorphic/NatLemmas.lean": "zig-backend/src/init/Data/Range/Polymorphic/NatLemmas.lean"
+  }
+}

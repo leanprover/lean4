@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-16",
+  "needs_port": false,
+  "sha": "392d078011976150d8d8a8b5040acf4aee1bf134",
+  "short_sha": "392d078011",
+  "subject": "feat: declare quotation parser for new parsing category",
+  "zig_target": {}
+}

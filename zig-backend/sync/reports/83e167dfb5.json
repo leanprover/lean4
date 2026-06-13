@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-01-04",
+  "needs_port": false,
+  "sha": "83e167dfb52551f431136ad7cc93ab2b1b21c4d6",
+  "short_sha": "83e167dfb5",
+  "subject": "feat: append filename to worker command-line",
+  "zig_target": {}
+}

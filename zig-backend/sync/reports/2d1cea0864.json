@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-01-29",
+  "needs_port": false,
+  "sha": "2d1cea0864714071a3f6b2053de14cf504639669",
+  "short_sha": "2d1cea0864",
+  "subject": "feat: inform server if widgets are available",
+  "zig_target": {}
+}

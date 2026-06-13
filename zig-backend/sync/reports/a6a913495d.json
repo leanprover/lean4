@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-24",
+  "needs_port": false,
+  "sha": "a6a913495d9a6ae2a1586012948d22f85d19b563",
+  "short_sha": "a6a913495d",
+  "subject": "feat: make `(_ : a = b)` hoverable in infoview",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2023-10-09",
+  "needs_port": true,
+  "sha": "57e23917b605d1f1e6b6ff70aa022065d55bb60c",
+  "short_sha": "57e23917b6",
+  "subject": "fix: implementation of Array.anyMUnsafe",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

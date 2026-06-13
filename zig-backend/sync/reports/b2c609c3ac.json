@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-20",
+  "needs_port": false,
+  "sha": "b2c609c3ac70b81e38f2afb346aa46fc36d0e251",
+  "short_sha": "b2c609c3ac",
+  "subject": "chore: Nix: set up LEAN_SYSROOT automatically in server",
+  "zig_target": {}
+}

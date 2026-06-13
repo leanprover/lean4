@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-07",
+  "needs_port": false,
+  "sha": "8ac58a66f8bb5868a0ec0a91b7d10d8576fcb1ec",
+  "short_sha": "8ac58a66f8",
+  "subject": "chore(library/abstract_type_context): remove unnecessary virtual method only used at old pp.cpp",
+  "zig_target": {}
+}

@@ -1,0 +1,54 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float.lean"
+    },
+    {
+      "path": "src/Init/Data/OfDecimal.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/init/Data/OfDecimal.lean"
+    },
+    {
+      "path": "src/Init/Data/OfScientific.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/OfScientific.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-12-03",
+  "needs_port": true,
+  "sha": "b95c4788c1f7372ade538ddf663fe1938caac6da",
+  "short_sha": "b95c4788c1",
+  "subject": "refactor: `OfDecimal` ==> `OfScientific`",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Float.lean": "zig-backend/src/init/Data/Float.lean",
+    "src/Init/Data/OfDecimal.lean": "zig-backend/src/init/Data/OfDecimal.lean",
+    "src/Init/Data/OfScientific.lean": "zig-backend/src/init/Data/OfScientific.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-05",
+  "needs_port": false,
+  "sha": "e081332ef8f6b7c69d31c628d198fec26903a341",
+  "short_sha": "e081332ef8",
+  "subject": "feat(library/scoped_ext): switch to new scope manager implemented in Lean",
+  "zig_target": {}
+}

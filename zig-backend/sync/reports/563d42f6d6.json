@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-21",
+  "needs_port": false,
+  "sha": "563d42f6d626868434bac584491e004059e6d9d0",
+  "short_sha": "563d42f6d6",
+  "subject": "fix: make foApprox mdata-invariant",
+  "zig_target": {}
+}

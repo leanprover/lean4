@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-14",
+  "needs_port": false,
+  "sha": "3eedc327c7e3cb1ae27c6bc9649fc09fec035e08",
+  "short_sha": "3eedc327c7",
+  "subject": "feat(tests/playground/flat_parser): tail recursive `many` combinator",
+  "zig_target": {}
+}

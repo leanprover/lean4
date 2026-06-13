@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-05",
+  "needs_port": false,
+  "sha": "15586e28a87de998b72a034ec67c9ff9fbe1e860",
+  "short_sha": "15586e28a8",
+  "subject": "feat: local and scoped `grind_pattern` (#9214)",
+  "zig_target": {}
+}

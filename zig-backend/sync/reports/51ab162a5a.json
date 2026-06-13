@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2024-10-18",
+  "needs_port": true,
+  "sha": "51ab162a5ab57fb841f49b32772dacdda73e4bcc",
+  "short_sha": "51ab162a5a",
+  "subject": "chore: upstream Array.reduceOption (#5758)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

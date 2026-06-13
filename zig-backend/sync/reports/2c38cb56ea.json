@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-26",
+  "needs_port": false,
+  "sha": "2c38cb56eacf53a66085f3cd026f773a38bb17e0",
+  "short_sha": "2c38cb56ea",
+  "subject": "test: unbundled `ConstantFunction`",
+  "zig_target": {}
+}

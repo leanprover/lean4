@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-05-22",
+  "needs_port": true,
+  "sha": "ae3a433f9cd293211d532a8504741bbc40683780",
+  "short_sha": "ae3a433f9c",
+  "subject": "chore: add `Std` to `CMakeLists.txt`",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

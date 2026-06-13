@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-03",
+  "needs_port": false,
+  "sha": "c913886938c4b3b83238a3f99673c6c5a9cec270",
+  "short_sha": "c913886938",
+  "subject": "chore: add `private` annotations",
+  "zig_target": {}
+}

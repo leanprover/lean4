@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/SpecInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean"
+    }
+  ],
+  "date": "2022-10-27",
+  "needs_port": true,
+  "sha": "99ea171e484d079bafa84bf0694a668f6c281987",
+  "short_sha": "99ea171e48",
+  "subject": "chore: zero startup time `specExtension`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/SpecInfo.lean": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean"
+  }
+}

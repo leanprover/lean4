@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-06",
+  "needs_port": false,
+  "sha": "21474b6d06a71b2165aa27cfd040a1ff893aa6e7",
+  "short_sha": "21474b6d06",
+  "subject": "feat: dedicated tasks for forwarding",
+  "zig_target": {}
+}

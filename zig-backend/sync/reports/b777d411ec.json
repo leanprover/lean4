@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-12",
+  "needs_port": false,
+  "sha": "b777d411ec134900eac00134d2f6d7a780dea73e",
+  "short_sha": "b777d411ec",
+  "subject": "feat: add `useRaw` parameter at `constructorApp?`",
+  "zig_target": {}
+}

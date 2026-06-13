@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    }
+  ],
+  "date": "2025-08-26",
+  "needs_port": true,
+  "sha": "aaec0f584c85c8c79fcad610394e017c4df1dd49",
+  "short_sha": "aaec0f584c",
+  "subject": "feat: ac normalization in `grind` (#10146)",
+  "zig_target": {
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-17",
+  "needs_port": false,
+  "sha": "dd6634544df8ac9e09a3241ccd1a02c647b1b967",
+  "short_sha": "dd6634544d",
+  "subject": "misc: add shell scripts for timing Lake builds",
+  "zig_target": {}
+}

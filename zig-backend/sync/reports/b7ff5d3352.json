@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-19",
+  "needs_port": false,
+  "sha": "b7ff5d3352d42068d025bd95c71ec109c25f4767",
+  "short_sha": "b7ff5d3352",
+  "subject": "fix: make sure unused 'let'-declarations are preserved in WF",
+  "zig_target": {}
+}

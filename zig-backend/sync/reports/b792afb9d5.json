@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-23",
+  "needs_port": false,
+  "sha": "b792afb9d5963d04758ae0d1e95d2f75597d2d39",
+  "short_sha": "b792afb9d5",
+  "subject": "feat(library/init/lean/elaborator): add `root` scope and `resolveNamespace`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-12-10",
+  "needs_port": false,
+  "sha": "938651121f3d8819109eee75722a1de087feff71",
+  "short_sha": "938651121f",
+  "subject": "refactor: elabWFRel to take names, not `PreDefinition` (#6358)",
+  "zig_target": {}
+}

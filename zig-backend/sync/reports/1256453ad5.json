@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-22",
+  "needs_port": false,
+  "sha": "1256453ad5c15273bff8cb9dbab59b43dabd5a3c",
+  "short_sha": "1256453ad5",
+  "subject": "refactor: move mod/pkg facets from pkg to ws",
+  "zig_target": {}
+}

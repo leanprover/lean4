@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-06-28",
+  "needs_port": false,
+  "sha": "b41f4a517c1c4a806ed9ec6129ae7026bbe2d4fe",
+  "short_sha": "b41f4a517c",
+  "subject": "chore(bin/leanc): set increased stack size on Windows",
+  "zig_target": {}
+}

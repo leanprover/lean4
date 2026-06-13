@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-31",
+  "needs_port": false,
+  "sha": "c8b6020bb3db38044da4f310ab6c67883a1e337f",
+  "short_sha": "c8b6020bb3",
+  "subject": "test: do not ignore whitespace in diff",
+  "zig_target": {}
+}

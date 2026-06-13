@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-26",
+  "needs_port": false,
+  "sha": "ee77afafa5a5bab6d02eceac4e7f7bdbdd37025f",
+  "short_sha": "ee77afafa5",
+  "subject": "doc: add `typeclass.md`",
+  "zig_target": {}
+}

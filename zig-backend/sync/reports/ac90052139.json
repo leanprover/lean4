@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-05-16",
+  "needs_port": true,
+  "sha": "ac900521393513fdc2b6c13373a7857cb36b4c68",
+  "short_sha": "ac90052139",
+  "subject": "feat: add option for controlling how deep we go when trying to discharge `simp` theorem hypotheses",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

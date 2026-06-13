@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-13",
+  "needs_port": false,
+  "sha": "3feb63231e71286d44eaaaa79dbe47eec7c893a4",
+  "short_sha": "3feb63231e",
+  "subject": "chore: merge-checkout test fixed and removed from exclusions on master",
+  "zig_target": {}
+}

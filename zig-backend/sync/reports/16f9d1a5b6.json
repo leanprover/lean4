@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-07",
+  "needs_port": false,
+  "sha": "16f9d1a5b679f53e62f218fd1b0b64a758ba8db6",
+  "short_sha": "16f9d1a5b6",
+  "subject": "test(tests/playground/parser/parser2): add `node` combinator",
+  "zig_target": {}
+}

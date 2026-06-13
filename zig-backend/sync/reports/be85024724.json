@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "be8502472422f90aa12084c3f212e7df76ec9e83",
+  "short_sha": "be85024724",
+  "subject": "fix: erase macro scopes on structure instance field names",
+  "zig_target": {}
+}

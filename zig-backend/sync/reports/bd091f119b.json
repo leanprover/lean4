@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-06-28",
+  "needs_port": true,
+  "sha": "bd091f119bc836e91d48c856307a3cfa271225af",
+  "short_sha": "bd091f119b",
+  "subject": "chore: fix `bv_omega` regression since v4.9.0 (#4579)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

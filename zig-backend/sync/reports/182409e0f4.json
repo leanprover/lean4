@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-02",
+  "needs_port": false,
+  "sha": "182409e0f4692387d37257074e54e59a545e5c62",
+  "short_sha": "182409e0f4",
+  "subject": "refactor: use `LogT` at `Resolve.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-28",
+  "needs_port": false,
+  "sha": "fe5e731064f730c052c76f1564353af192a7730f",
+  "short_sha": "fe5e731064",
+  "subject": "chore: gc libleanshared sections",
+  "zig_target": {}
+}

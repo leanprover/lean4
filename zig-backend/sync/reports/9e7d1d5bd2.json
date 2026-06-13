@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-11-09",
+  "needs_port": false,
+  "sha": "9e7d1d5bd2e374703ee1d6d74c94c2cd372bdef9",
+  "short_sha": "9e7d1d5bd2",
+  "subject": "chore(kernel/expr): remove leftover",
+  "zig_target": {}
+}

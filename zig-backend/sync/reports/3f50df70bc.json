@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-04",
+  "needs_port": false,
+  "sha": "3f50df70bcdb2f9d3a724a8b171883ccbd567d5b",
+  "short_sha": "3f50df70bc",
+  "subject": "perf(library/init/lean/name): use hash code to speedup name.quick_lt",
+  "zig_target": {}
+}

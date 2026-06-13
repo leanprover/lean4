@@ -1,0 +1,24 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2024-05-02",
+  "needs_port": true,
+  "sha": "e6160d7d4ab3e74e5baa95985e7322bd35cdd37e",
+  "short_sha": "e6160d7d4a",
+  "subject": "feat: `IO.Process.get/setCurrentDir` (#4036)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

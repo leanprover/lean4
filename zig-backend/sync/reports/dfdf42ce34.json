@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-11-14",
+  "needs_port": false,
+  "sha": "dfdf42ce3475dd59884653e539655d3ee37856e7",
+  "short_sha": "dfdf42ce34",
+  "subject": "chore(library/init/io): minimize `io` interface",
+  "zig_target": {}
+}

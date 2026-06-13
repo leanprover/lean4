@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-10",
+  "needs_port": false,
+  "sha": "fe5d95e7e3c9dcfef250b71138504d2e8be568e4",
+  "short_sha": "fe5d95e7e3",
+  "subject": "fix: flake.nix",
+  "zig_target": {}
+}

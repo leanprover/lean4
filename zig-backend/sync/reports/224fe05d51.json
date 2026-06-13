@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2020-02-06",
+  "needs_port": true,
+  "sha": "224fe05d518cb4ebdfff66acf609f573c6799a17",
+  "short_sha": "224fe05d51",
+  "subject": "feat: reset memory",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

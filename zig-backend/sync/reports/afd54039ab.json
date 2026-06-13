@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "afd54039abaa616e5292cc69a904e440b0e489a3",
+  "short_sha": "afd54039ab",
+  "subject": "chore(library): remove `>>`, we should use `*>`",
+  "zig_target": {}
+}

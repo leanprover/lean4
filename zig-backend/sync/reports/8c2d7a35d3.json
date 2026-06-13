@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-01-07",
+  "needs_port": false,
+  "sha": "8c2d7a35d3ad99268da3f0224bac03543997c933",
+  "short_sha": "8c2d7a35d3",
+  "subject": "fix: make set_option completion replace typed partial name",
+  "zig_target": {}
+}

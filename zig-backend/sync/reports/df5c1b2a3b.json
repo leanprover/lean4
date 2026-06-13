@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-21",
+  "needs_port": false,
+  "sha": "df5c1b2a3b06d166bd05c10373635ff458c0e404",
+  "short_sha": "df5c1b2a3b",
+  "subject": "chore: fix leanshared flags",
+  "zig_target": {}
+}

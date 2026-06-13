@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/LCtx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/LCtx.lean"
+    }
+  ],
+  "date": "2022-08-26",
+  "needs_port": true,
+  "sha": "969dce70db20053db82b9f4bb8017c99c0c07da1",
+  "short_sha": "969dce70db",
+  "subject": "perf: improve `FVarSubst` apply functions in the new compiler stack",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/LCtx.lean": "zig-backend/src/lean/compiler/lcnf/LCtx.lean"
+  }
+}

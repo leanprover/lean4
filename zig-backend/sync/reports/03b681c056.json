@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-02",
+  "needs_port": false,
+  "sha": "03b681c056532c03ba7a63b0b05efa76b20a2f08",
+  "short_sha": "03b681c056",
+  "subject": "doc: Add docstrings to `dbg_trace` and `assert!` in `do` blocks (#2787)",
+  "zig_target": {}
+}

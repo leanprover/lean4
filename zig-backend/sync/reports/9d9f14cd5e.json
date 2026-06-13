@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    }
+  ],
+  "date": "2021-02-28",
+  "needs_port": true,
+  "sha": "9d9f14cd5e4ba0aad806d02af253d9954c9972a4",
+  "short_sha": "9d9f14cd5e",
+  "subject": "chore: mark `List.foldlM` as protected",
+  "zig_target": {
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-12",
+  "needs_port": false,
+  "sha": "b5fdc5e3641130b42d0307fe814ffdf32aa25583",
+  "short_sha": "b5fdc5e364",
+  "subject": "fix: expand abbreviations at `isClass?`",
+  "zig_target": {}
+}

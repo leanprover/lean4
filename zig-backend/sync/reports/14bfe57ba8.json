@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-20",
+  "needs_port": false,
+  "sha": "14bfe57ba880392e7bd50052737422fc354cc0b7",
+  "short_sha": "14bfe57ba8",
+  "subject": "test: sum of monomials by reflection",
+  "zig_target": {}
+}

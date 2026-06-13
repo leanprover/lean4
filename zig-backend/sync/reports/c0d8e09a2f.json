@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-03-20",
+  "needs_port": false,
+  "sha": "c0d8e09a2f40be30f6d23454e830ab101245e19e",
+  "short_sha": "c0d8e09a2f",
+  "subject": "fix: bug in normLtAux",
+  "zig_target": {}
+}

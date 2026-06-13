@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-19",
+  "needs_port": false,
+  "sha": "e494329fb3198939ecfc9d54b97c783107e82cd8",
+  "short_sha": "e494329fb3",
+  "subject": "fix: `addNonRecPreDefs` at `WF/Main.lean`",
+  "zig_target": {}
+}

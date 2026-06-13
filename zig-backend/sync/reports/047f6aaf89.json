@@ -1,0 +1,30 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta/Defs.lean"
+    },
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2026-05-14",
+  "needs_port": true,
+  "sha": "047f6aaf89b7a92356f9718615555b8055826ec4",
+  "short_sha": "047f6aaf89",
+  "subject": "feat: efficient tactic configuration elaborators and configurability (#13651)",
+  "zig_target": {
+    "src/Init/Meta/Defs.lean": "zig-backend/src/init/Meta/Defs.lean",
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

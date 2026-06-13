@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-05-05",
+  "needs_port": false,
+  "sha": "03bd8847dc92d8af90c547677de1d34c731eaaa3",
+  "short_sha": "03bd8847dc",
+  "subject": "fix: distinguish recursive applications by source position (#13645)",
+  "zig_target": {}
+}

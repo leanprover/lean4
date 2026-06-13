@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-17",
+  "needs_port": false,
+  "sha": "55a506be846082c9ec3abe44f6ccf9554e787603",
+  "short_sha": "55a506be84",
+  "subject": "chore: adapt test",
+  "zig_target": {}
+}

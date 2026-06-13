@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Monad.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Monad.lean"
+    }
+  ],
+  "date": "2020-02-03",
+  "needs_port": true,
+  "sha": "a134db5e077af42f739b476e31d92c5da8774145",
+  "short_sha": "a134db5e07",
+  "subject": "feat: add `Coe` instances for monads",
+  "zig_target": {
+    "src/Init/Control/Monad.lean": "zig-backend/src/init/Control/Monad.lean"
+  }
+}

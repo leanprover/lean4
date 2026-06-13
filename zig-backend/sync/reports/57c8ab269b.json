@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-02-24",
+  "needs_port": false,
+  "sha": "57c8ab269b18395cb1f43843cc0efdeecd2ef82e",
+  "short_sha": "57c8ab269b",
+  "subject": "feat: allow line-wrapping when printing `DiscrTree.Key`s (#7200)",
+  "zig_target": {}
+}

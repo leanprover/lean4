@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-29",
+  "needs_port": false,
+  "sha": "1ad692eb77a503c355c8e59458f8dea24f30d722",
+  "short_sha": "1ad692eb77",
+  "subject": "chore(tests/playground/Makefile): retire unionfind1",
+  "zig_target": {}
+}

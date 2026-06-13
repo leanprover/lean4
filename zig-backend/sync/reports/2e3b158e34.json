@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-07",
+  "needs_port": false,
+  "sha": "2e3b158e34b2954932e9d685a3ddb6cc7847065f",
+  "short_sha": "2e3b158e34",
+  "subject": "chore: hack for testing array literals in patterns",
+  "zig_target": {}
+}

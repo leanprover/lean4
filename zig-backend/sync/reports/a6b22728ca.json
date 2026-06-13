@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "a6b22728ca4dbafe1d3ec9d4126dfd609e05139d",
+  "short_sha": "a6b22728ca",
+  "subject": "chore: reduce stack space requirements in test",
+  "zig_target": {}
+}

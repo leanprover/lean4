@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-19",
+  "needs_port": false,
+  "sha": "d1eb180aaeb1607f8179659d644e65dcd4ec3752",
+  "short_sha": "d1eb180aae",
+  "subject": "test: add non mutually recursive version",
+  "zig_target": {}
+}

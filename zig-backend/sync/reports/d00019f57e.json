@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-09",
+  "needs_port": false,
+  "sha": "d00019f57efbd64e38f9a847ad5c06240b0b9330",
+  "short_sha": "d00019f57e",
+  "subject": "chore(library/init): fix whitspaces before `=>`",
+  "zig_target": {}
+}

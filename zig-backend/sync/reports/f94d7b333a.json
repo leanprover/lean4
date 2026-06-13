@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-16",
+  "needs_port": false,
+  "sha": "f94d7b333a2ab986fe5c1163ff2cd19091fe7232",
+  "short_sha": "f94d7b333a",
+  "subject": "fix: do not export private instances (#9407)",
+  "zig_target": {}
+}

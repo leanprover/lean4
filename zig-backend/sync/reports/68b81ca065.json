@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-11",
+  "needs_port": false,
+  "sha": "68b81ca06580f5fad0ade4736d7262f8047c8f5d",
+  "short_sha": "68b81ca065",
+  "subject": "refactor: intro `Lake.Env` & add it to `Workspace`",
+  "zig_target": {}
+}

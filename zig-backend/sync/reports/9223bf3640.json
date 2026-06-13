@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-03-24",
+  "needs_port": false,
+  "sha": "9223bf36405dd20440e3cb7caced1f6a61345e98",
+  "short_sha": "9223bf3640",
+  "subject": "feat: environment extension for RPC procedures",
+  "zig_target": {}
+}

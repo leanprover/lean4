@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-03-06",
+  "needs_port": true,
+  "sha": "35459664ad524ebd27405e7a5cbf19c603af5f70",
+  "short_sha": "35459664ad",
+  "subject": "fix(library/compiler/emit_cpp): handle new unreachable terminal",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

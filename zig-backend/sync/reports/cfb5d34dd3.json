@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-21",
+  "needs_port": false,
+  "sha": "cfb5d34dd3f1da589b3bf83c49eb3d7aaaef0913",
+  "short_sha": "cfb5d34dd3",
+  "subject": "fix: parser arity",
+  "zig_target": {}
+}

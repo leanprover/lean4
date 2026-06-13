@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-04-23",
+  "needs_port": false,
+  "sha": "4b3c2b17900bf08121b568210f1f0eaa3821eb2c",
+  "short_sha": "4b3c2b1790",
+  "subject": "doc: document some meta utilities",
+  "zig_target": {}
+}

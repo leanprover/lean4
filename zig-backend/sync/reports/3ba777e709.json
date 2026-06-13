@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-11",
+  "needs_port": false,
+  "sha": "3ba777e70977f4bb8d275ce8a21f5dd6bffefe97",
+  "short_sha": "3ba777e709",
+  "subject": "fix(frontends/lean/pp): do not pp `let` type when `m_binder_types == false`",
+  "zig_target": {}
+}

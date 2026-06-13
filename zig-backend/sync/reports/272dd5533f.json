@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-11",
+  "needs_port": false,
+  "sha": "272dd5533f344fbe6685b1cc5be473cadd3e6d0a",
+  "short_sha": "272dd5533f",
+  "subject": "chore: style use `\u00b7` instead of `.` for lambda dot notation",
+  "zig_target": {}
+}

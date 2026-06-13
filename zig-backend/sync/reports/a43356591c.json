@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-15",
+  "needs_port": false,
+  "sha": "a43356591cb351dbbf8250651c2bc545c392143b",
+  "short_sha": "a43356591c",
+  "subject": "chore: CI: fix 32bit stage 0 builds (#5052)",
+  "zig_target": {}
+}

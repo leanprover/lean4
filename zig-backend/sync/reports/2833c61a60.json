@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-22",
+  "needs_port": false,
+  "sha": "2833c61a60319c90110152a2e320cfa51466f73f",
+  "short_sha": "2833c61a60",
+  "subject": "fix: respect preresolved names at `resolveConst*`",
+  "zig_target": {}
+}

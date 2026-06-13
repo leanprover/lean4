@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-14",
+  "needs_port": false,
+  "sha": "93b5b74b362fa3b87c501ebfdd872831697eef32",
+  "short_sha": "93b5b74b36",
+  "subject": "feat: modify notation for providing motive in \"match\" expressions",
+  "zig_target": {}
+}

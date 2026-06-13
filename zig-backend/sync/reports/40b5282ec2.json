@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-03-20",
+  "needs_port": false,
+  "sha": "40b5282ec21dc80fb9f10b7c2575a2957c0fdf53",
+  "short_sha": "40b5282ec2",
+  "subject": "fix: use correct module name in references (#3722)",
+  "zig_target": {}
+}

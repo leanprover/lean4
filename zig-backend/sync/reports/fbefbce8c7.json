@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-21",
+  "needs_port": false,
+  "sha": "fbefbce8c73f207a8d4c44a29f8f282c15acfa89",
+  "short_sha": "fbefbce8c7",
+  "subject": "doc: Adjust contributor's docs to squash merging (#2927)",
+  "zig_target": {}
+}

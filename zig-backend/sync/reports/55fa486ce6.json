@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-01-11",
+  "needs_port": false,
+  "sha": "55fa486ce66acb53e44c9cdcf6fdd96c514c2ef9",
+  "short_sha": "55fa486ce6",
+  "subject": "fix: packages dir path and repo url",
+  "zig_target": {}
+}

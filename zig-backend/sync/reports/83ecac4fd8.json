@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-09-22",
+  "needs_port": false,
+  "sha": "83ecac4fd8edc1428ff186cf775e87a04b364e90",
+  "short_sha": "83ecac4fd8",
+  "subject": "perf: lake: build lakefile environment incrementally",
+  "zig_target": {}
+}

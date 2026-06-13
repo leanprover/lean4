@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-04-22",
+  "needs_port": false,
+  "sha": "8e1b9abb7a707ac6080af2f29581dd7bcfd2fcc5",
+  "short_sha": "8e1b9abb7a",
+  "subject": "fix: missing wakeup in bounded channel try receive (#8052)",
+  "zig_target": {}
+}

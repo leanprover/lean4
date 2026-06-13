@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2023-12-19",
+  "needs_port": false,
+  "sha": "eb432cd3b71f0ffbc817e2e124a06df62d12fbbb",
+  "short_sha": "eb432cd3b7",
+  "subject": "fix: lake: save config trace before elab (#3069)",
+  "zig_target": {}
+}

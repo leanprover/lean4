@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/export_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/export_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    }
+  ],
+  "date": "2019-05-20",
+  "needs_port": true,
+  "sha": "f852cd774fed580be4beaadecf4303415aa8913d",
+  "short_sha": "f852cd774f",
+  "subject": "feat(library/init/lean/compiler/ir): expose C++ primitives for accessing `export` and `extern` attributes",
+  "zig_target": {
+    "src/library/compiler/export_attribute.cpp": "zig-backend/src/library/compiler/export_attribute.cpp",
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp"
+  }
+}

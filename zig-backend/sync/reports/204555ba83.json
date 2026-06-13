@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-11",
+  "needs_port": false,
+  "sha": "204555ba831c9eab61b0c1a449be2d391f3a8a31",
+  "short_sha": "204555ba83",
+  "subject": "test: add Sym vcgen benchmarks get_throw_set and deep_add_sub_cancel (#12447)",
+  "zig_target": {}
+}

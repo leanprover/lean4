@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-07-10",
+  "needs_port": true,
+  "sha": "4b543d5edde05553926aca15e1b556349b0ab708",
+  "short_sha": "4b543d5edd",
+  "subject": "feat: add option for disabling `dsimp` during `simp`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

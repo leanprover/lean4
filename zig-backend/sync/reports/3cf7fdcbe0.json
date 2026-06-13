@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-12",
+  "needs_port": false,
+  "sha": "3cf7fdcbe02e8065c9c9bef61d7d334d05f134f6",
+  "short_sha": "3cf7fdcbe0",
+  "subject": "feat: per-constructor noConfusion constructions (#10315)",
+  "zig_target": {}
+}

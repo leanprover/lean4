@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-02-26",
+  "needs_port": false,
+  "sha": "56a3ac1814cc99d53f308ded76058bd6c6b6edc5",
+  "short_sha": "56a3ac1814",
+  "subject": "feat: bv_decide structure projections and if (#7242)",
+  "zig_target": {}
+}

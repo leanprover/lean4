@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2023-11-15",
+  "needs_port": false,
+  "sha": "6f2eb3f6b4c8d59d0d08c47c781d3e15318fdf20",
+  "short_sha": "6f2eb3f6b4",
+  "subject": "doc: fix typo",
+  "zig_target": {}
+}

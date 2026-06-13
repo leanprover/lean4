@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-15",
+  "needs_port": false,
+  "sha": "b8d5193ecc8f0cceecd3e26e2fdcb3cf2db742a9",
+  "short_sha": "b8d5193ecc",
+  "subject": "chore: update Azure and Nix configs",
+  "zig_target": {}
+}

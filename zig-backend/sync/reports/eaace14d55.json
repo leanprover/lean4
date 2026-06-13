@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-20",
+  "needs_port": false,
+  "sha": "eaace14d553755875efb95aabd55349ed0a284c2",
+  "short_sha": "eaace14d55",
+  "subject": "feat: add helper functions for creating `+`, `*`, `-` applications",
+  "zig_target": {}
+}

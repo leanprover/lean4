@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-08-28",
+  "needs_port": false,
+  "sha": "f7bff16c9a36baa91847cfb2f609084a43bcc9a1",
+  "short_sha": "f7bff16c9a",
+  "subject": "fix: If src is a dir, assume the lean file has the full path (#2465)",
+  "zig_target": {}
+}

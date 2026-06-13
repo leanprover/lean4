@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2023-12-01",
+  "needs_port": false,
+  "sha": "e4eff3bc6ec3ac4078a788959467d8f205cf7b7a",
+  "short_sha": "e4eff3bc6e",
+  "subject": "doc: fix recent issue links in RELEASES.md (#3000)",
+  "zig_target": {}
+}

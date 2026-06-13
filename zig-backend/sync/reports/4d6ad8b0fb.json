@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-09",
+  "needs_port": false,
+  "sha": "4d6ad8b0fbec0bf764f1edbc01da41720a728212",
+  "short_sha": "4d6ad8b0fb",
+  "subject": "chore: remove stray test output file (#7881)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-06-19",
+  "needs_port": false,
+  "sha": "66c85c968a5f81c812711d28ddf9a0c956011388",
+  "short_sha": "66c85c968a",
+  "subject": "chore(azure-pipelines.yml): Azure Pipelines CI",
+  "zig_target": {}
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    },
+    {
+      "path": "src/runtime/serializer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.cpp"
+    }
+  ],
+  "date": "2019-02-16",
+  "needs_port": true,
+  "sha": "3c73c43ab2a5f9c6dd130013ba7923da5c20cbf3",
+  "short_sha": "3c73c43ab2",
+  "subject": "feat(runtime,library/init/data/array/basic): add builtin support for arrays",
+  "zig_target": {
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h",
+    "src/runtime/serializer.cpp": "zig-backend/src/runtime/serializer.cpp"
+  }
+}

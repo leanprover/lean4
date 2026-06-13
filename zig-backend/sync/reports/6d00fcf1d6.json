@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-02",
+  "needs_port": false,
+  "sha": "6d00fcf1d6d873e195f9220c668ef9c58e9c4a35",
+  "short_sha": "6d00fcf1d6",
+  "subject": "chore: revert release bit",
+  "zig_target": {}
+}

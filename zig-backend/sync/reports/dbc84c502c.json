@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-15",
+  "needs_port": false,
+  "sha": "dbc84c502cfd9950544451563dfe4dde26f577a1",
+  "short_sha": "dbc84c502c",
+  "subject": "chore: make sure we don't lift methods over binders",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-24",
+  "needs_port": true,
+  "sha": "2d103caa7641aeeb77584bba05eb5db764630b82",
+  "short_sha": "2d103caa76",
+  "subject": "perf(runtime/lean): use the low level hack we used in the previous runtime",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

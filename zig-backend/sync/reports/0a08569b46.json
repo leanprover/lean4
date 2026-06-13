@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-03",
+  "needs_port": false,
+  "sha": "0a08569b46bd65282f585cf85a959705e13db801",
+  "short_sha": "0a08569b46",
+  "subject": "feat(library/init/lean/environment): remove `lazy`, add `addImported` field to `PersistentEnvExtension`",
+  "zig_target": {}
+}

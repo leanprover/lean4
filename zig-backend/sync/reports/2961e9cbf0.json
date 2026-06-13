@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-24",
+  "needs_port": false,
+  "sha": "2961e9cbf009c85ca28e7ab337ea92a96abb0cc3",
+  "short_sha": "2961e9cbf0",
+  "subject": "fix: heuristic for deciding which additional propositions must be included in equality theorems",
+  "zig_target": {}
+}

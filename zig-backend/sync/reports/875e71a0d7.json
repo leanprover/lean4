@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-06",
+  "needs_port": false,
+  "sha": "875e71a0d704c7d7148e507a283484fc08c4431f",
+  "short_sha": "875e71a0d7",
+  "subject": "chore: unused variables at `Simp.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-21",
+  "needs_port": false,
+  "sha": "dedf7a8f44fc76dc4bd7360d23af2cd167ea8fe9",
+  "short_sha": "dedf7a8f44",
+  "subject": "feat: allow setting reducibilityCoreExt in async contexts (#11301)",
+  "zig_target": {}
+}

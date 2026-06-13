@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-22",
+  "needs_port": false,
+  "sha": "332af4c26256071292288512bb1cb260e1bd3afe",
+  "short_sha": "332af4c262",
+  "subject": "refactor: check hash after verifying module artifact exists",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-04",
+  "needs_port": false,
+  "sha": "5801e0e65a0648769427bf53c3e9236befbcb0c8",
+  "short_sha": "5801e0e65a",
+  "subject": "fix: print module name instead of file name",
+  "zig_target": {}
+}

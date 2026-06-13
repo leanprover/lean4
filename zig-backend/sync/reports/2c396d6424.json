@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Pairwise.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Pairwise.lean"
+    }
+  ],
+  "date": "2024-07-30",
+  "needs_port": true,
+  "sha": "2c396d6424db19f2462e52c9086c3977f01e821c",
+  "short_sha": "2c396d6424",
+  "subject": "chore: upstream List.pairwise_iff_getElem (#4866)",
+  "zig_target": {
+    "src/Init/Data/List/Nat.lean": "zig-backend/src/init/Data/List/Nat.lean",
+    "src/Init/Data/List/Nat/Pairwise.lean": "zig-backend/src/init/Data/List/Nat/Pairwise.lean"
+  }
+}

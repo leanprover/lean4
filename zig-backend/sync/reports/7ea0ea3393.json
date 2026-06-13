@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "7ea0ea3393b2d9e36594df66bca34ad62d6e21e1",
+  "short_sha": "7ea0ea3393",
+  "subject": "fix: use library, not package, for lean root dir",
+  "zig_target": {}
+}

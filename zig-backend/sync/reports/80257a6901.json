@@ -1,0 +1,10 @@
+{
+  "author": "crStiv",
+  "backend_changes": [],
+  "date": "2026-02-10",
+  "needs_port": false,
+  "sha": "80257a690114d8219e1984c8c6196f0853b6d7e2",
+  "short_sha": "80257a6901",
+  "subject": "doc: fix typos  (#12418)",
+  "zig_target": {}
+}

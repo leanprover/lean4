@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-29",
+  "needs_port": false,
+  "sha": "9c0ef2a282c4f5c369c23709499925f1cf2dc3b8",
+  "short_sha": "9c0ef2a282",
+  "subject": "feat: add `grind_pattern` command (#6470)",
+  "zig_target": {}
+}

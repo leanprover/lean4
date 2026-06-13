@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-08",
+  "needs_port": false,
+  "sha": "e36d1925f176881ca1d3d48e5df1cadc866e71ae",
+  "short_sha": "e36d1925f1",
+  "subject": "refactor: `grind cutsat` as solver extension (#10312)",
+  "zig_target": {}
+}

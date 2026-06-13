@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Util.lean"
+    }
+  ],
+  "date": "2025-01-30",
+  "needs_port": true,
+  "sha": "3331ed9bb1358a93fb75e3155aeb9ea12e89045c",
+  "short_sha": "3331ed9bb1",
+  "subject": "fix: add Float32 to LCNF.builtinRuntimeTypes list (#6837)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Util.lean": "zig-backend/src/lean/compiler/lcnf/Util.lean"
+  }
+}

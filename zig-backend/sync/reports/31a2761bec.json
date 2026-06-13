@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-30",
+  "needs_port": false,
+  "sha": "31a2761bec1acba737574c999b09228d9d77d1a5",
+  "short_sha": "31a2761bec",
+  "subject": "perf: make `Format.group` a constructor, flatten on the fly",
+  "zig_target": {}
+}

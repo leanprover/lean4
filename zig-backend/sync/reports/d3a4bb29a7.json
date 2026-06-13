@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-09",
+  "needs_port": false,
+  "sha": "d3a4bb29a7cd654dcc4faca146feb5b416f60777",
+  "short_sha": "d3a4bb29a7",
+  "subject": "chore: remove comment indicating that implicit conversion should be removed (#9284)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-15",
+  "needs_port": false,
+  "sha": "bc809643ec257c0ee9b37f9b09b366e696cd63cf",
+  "short_sha": "bc809643ec",
+  "subject": "feat(library/init/lean/expr): add `Expr.quickLt`, `Expr.eqv`",
+  "zig_target": {}
+}

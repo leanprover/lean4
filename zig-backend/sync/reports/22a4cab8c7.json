@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-15",
+  "needs_port": false,
+  "sha": "22a4cab8c72279f922d8f6fde22739244d5be90b",
+  "short_sha": "22a4cab8c7",
+  "subject": "feat: updates to release process for v4.23.0 (#10383)",
+  "zig_target": {}
+}

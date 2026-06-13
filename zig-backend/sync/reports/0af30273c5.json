@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-30",
+  "needs_port": false,
+  "sha": "0af30273c5bee4f0d88b338eae588d4f94548394",
+  "short_sha": "0af30273c5",
+  "subject": "feat: hide auxiliary metavariables used to compile let-rec",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Reader.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Reader.lean"
+    }
+  ],
+  "date": "2020-08-19",
+  "needs_port": true,
+  "sha": "61d18463346adca5baa20300725e3732224ee9ae",
+  "short_sha": "61d1846334",
+  "subject": "feat: add `adaptTheReader`",
+  "zig_target": {
+    "src/Init/Control/Reader.lean": "zig-backend/src/init/Control/Reader.lean"
+  }
+}

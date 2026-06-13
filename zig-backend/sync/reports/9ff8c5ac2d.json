@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-03",
+  "needs_port": false,
+  "sha": "9ff8c5ac2dc4252fe3b7781e6d4544e52b7c0361",
+  "short_sha": "9ff8c5ac2d",
+  "subject": "feat: cooper conflict resolution in cutsat (#7315)",
+  "zig_target": {}
+}

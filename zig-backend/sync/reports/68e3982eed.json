@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-04-11",
+  "needs_port": false,
+  "sha": "68e3982eed1e4f98b0a81318510a7717ec6ff3e3",
+  "short_sha": "68e3982eed",
+  "subject": "chore: update CODEOWNERS (#3878)",
+  "zig_target": {}
+}

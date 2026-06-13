@@ -1,0 +1,90 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MinMax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MinMax.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sublist.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/OfFn.lean"
+    }
+  ],
+  "date": "2026-02-01",
+  "needs_port": true,
+  "sha": "c25468f057f7247d08705e93c13daa7e3b910820",
+  "short_sha": "c25468f057",
+  "subject": "feat: various small list/array/vector API improvements (#12017)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Array/Count.lean": "zig-backend/src/init/Data/Array/Count.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/OfFn.lean": "zig-backend/src/init/Data/Array/OfFn.lean",
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/MinMax.lean": "zig-backend/src/init/Data/List/MinMax.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/OfFn.lean": "zig-backend/src/init/Data/List/OfFn.lean",
+    "src/Init/Data/List/Sublist.lean": "zig-backend/src/init/Data/List/Sublist.lean",
+    "src/Init/Data/Vector/Count.lean": "zig-backend/src/init/Data/Vector/Count.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/OfFn.lean": "zig-backend/src/init/Data/Vector/OfFn.lean"
+  }
+}

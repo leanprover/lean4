@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    }
+  ],
+  "date": "2026-01-29",
+  "needs_port": true,
+  "sha": "9b9ce0c2acda58b0b95c624534caef1a9fc58ca2",
+  "short_sha": "9b9ce0c2ac",
+  "subject": "feat: adjust `grind` annotations for `List.drop` (#12170)",
+  "zig_target": {
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+  }
+}

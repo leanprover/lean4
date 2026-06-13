@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    },
+    {
+      "path": "src/library/compiler/reduce_arity.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/reduce_arity.cpp"
+    }
+  ],
+  "date": "2019-02-04",
+  "needs_port": true,
+  "sha": "7eb9c46bc6d82e800d5df3e836b94852e662916f",
+  "short_sha": "7eb9c46bc6",
+  "subject": "fix(library/compiler): functions marked as `@[noinline]` were not being replaced by their reduced arity version",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp",
+    "src/library/compiler/reduce_arity.cpp": "zig-backend/src/library/compiler/reduce_arity.cpp"
+  }
+}

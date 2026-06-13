@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    }
+  ],
+  "date": "2022-09-24",
+  "needs_port": true,
+  "sha": "5969dc2694c6f143b6a99640dffdde1184d6508e",
+  "short_sha": "5969dc2694",
+  "subject": "feat: beta-reduce at `LCNF` `normExpr`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-10",
+  "needs_port": false,
+  "sha": "654017fb3c07cc677b667a9ebeacab6402639a91",
+  "short_sha": "654017fb3c",
+  "subject": "feat: serve `trace.profiler` data via local HTTP server (#13530)",
+  "zig_target": {}
+}

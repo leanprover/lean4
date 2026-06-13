@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-02",
+  "needs_port": false,
+  "sha": "1ca62e21fdf4b83fd32310dc42174bd42b409670",
+  "short_sha": "1ca62e21fd",
+  "subject": "feat: add environment extension for storing structure field information",
+  "zig_target": {}
+}

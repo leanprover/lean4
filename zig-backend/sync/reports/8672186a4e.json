@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-19",
+  "needs_port": true,
+  "sha": "8672186a4ea28dd6daf437ec901e0b034544a759",
+  "short_sha": "8672186a4e",
+  "subject": "refactor: use more fun_induction in Init.Data.Int.Linear (#7142)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

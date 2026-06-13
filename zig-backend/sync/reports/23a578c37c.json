@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-14",
+  "needs_port": false,
+  "sha": "23a578c37cf4c4fc2e416f9137709c0565713c0a",
+  "short_sha": "23a578c37c",
+  "subject": "refactor: add `LawfulCmpEq` + post-PR cleanup",
+  "zig_target": {}
+}

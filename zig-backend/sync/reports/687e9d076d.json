@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_bytecode.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_bytecode.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.h"
+    }
+  ],
+  "date": "2018-11-07",
+  "needs_port": true,
+  "sha": "687e9d076d50106edb85cc64926a30991f76c34c",
+  "short_sha": "687e9d076d",
+  "subject": "feat(library/compiler): add `_apply` and `_closure` instructions to LLNF",
+  "zig_target": {
+    "src/library/compiler/emit_bytecode.cpp": "zig-backend/src/library/compiler/emit_bytecode.cpp",
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp",
+    "src/library/compiler/llnf.h": "zig-backend/src/library/compiler/llnf.h"
+  }
+}

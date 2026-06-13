@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-08-30",
+  "needs_port": false,
+  "sha": "b8084d54e32caeb64670a9e42edaf7b01f072ce6",
+  "short_sha": "b8084d54e3",
+  "subject": "doc: update RELEASES.md for rename of `getConst?` (#2482)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-07",
+  "needs_port": false,
+  "sha": "daa9e03e78ac23c284d20681e522cccb012c63bd",
+  "short_sha": "daa9e03e78",
+  "subject": "fix: combineFvars",
+  "zig_target": {}
+}

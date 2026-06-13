@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-19",
+  "needs_port": false,
+  "sha": "36eaa6874463080426903a00727c04e39fa64732",
+  "short_sha": "36eaa68744",
+  "subject": "fix: make all VCs emitted by `mvcgen` synthetic opaque (#12048)",
+  "zig_target": {}
+}

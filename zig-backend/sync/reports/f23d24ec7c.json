@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-06",
+  "needs_port": true,
+  "sha": "f23d24ec7c7b917819d9b01454ea33a852c351a2",
+  "short_sha": "f23d24ec7c",
+  "subject": "perf: avoid computing liveness twice for cases in RC pass (#9770)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

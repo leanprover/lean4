@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-15",
+  "needs_port": false,
+  "sha": "821bdcdac0141892b6f810f7cc44c1fd1061303a",
+  "short_sha": "821bdcdac0",
+  "subject": "chore(tests/playground): add helper files",
+  "zig_target": {}
+}

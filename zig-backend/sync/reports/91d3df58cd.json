@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "91d3df58cd01ac481008a8f52a77053fd32f6e31",
+  "short_sha": "91d3df58cd",
+  "subject": "test: add git example",
+  "zig_target": {}
+}

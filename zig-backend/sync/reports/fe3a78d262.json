@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-01-31",
+  "needs_port": true,
+  "sha": "fe3a78d2622a31e5c62db01a7a34def5c37d80b2",
+  "short_sha": "fe3a78d262",
+  "subject": "fix: name of `Int.tdiv` in `HDiv.hDiv` docstring (#6885)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-09",
+  "needs_port": false,
+  "sha": "17782fba1ac1be78f2ba70555ec59a8c9fa8d9e6",
+  "short_sha": "17782fba1a",
+  "subject": "fix: replace broken ptrEq cache sanity checks with private ParserContext constructor",
+  "zig_target": {}
+}

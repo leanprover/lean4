@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-05",
+  "needs_port": false,
+  "sha": "5bb5ef629672b340e85c84869791db8676dc99ef",
+  "short_sha": "5bb5ef6296",
+  "subject": "refactor: `State` ==> `StateM`",
+  "zig_target": {}
+}

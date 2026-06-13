@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-08",
+  "needs_port": false,
+  "sha": "16429e393d866f5361adc640cb4dcf2e4973a8d0",
+  "short_sha": "16429e393d",
+  "subject": "test: add dep hd test",
+  "zig_target": {}
+}

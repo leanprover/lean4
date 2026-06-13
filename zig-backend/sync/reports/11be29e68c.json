@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-13",
+  "needs_port": false,
+  "sha": "11be29e68c8dea408f6bc74033d14181d015a526",
+  "short_sha": "11be29e68c",
+  "subject": "chore: pr-release: adjust lakefile editing sed to new `git` syntax (#5014)",
+  "zig_target": {}
+}

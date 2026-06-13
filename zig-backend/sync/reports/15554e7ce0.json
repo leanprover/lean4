@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Intro.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "15554e7ce01c967e5f0c83b9e3853a3205ff57ab",
+  "short_sha": "15554e7ce0",
+  "subject": "feat: add `useUnusedNames` option",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Intro.lean": "zig-backend/src/init/Lean/Meta/Tactic/Intro.lean"
+  }
+}

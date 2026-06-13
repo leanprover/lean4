@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-08",
+  "needs_port": false,
+  "sha": "427ad67d799403996dda550baba4a80f7d210d5b",
+  "short_sha": "427ad67d79",
+  "subject": "fix: include submodules at `hasModule` + test",
+  "zig_target": {}
+}

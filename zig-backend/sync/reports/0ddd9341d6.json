@@ -1,0 +1,90 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/ToInt.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ring/ToInt.lean"
+    },
+    {
+      "path": "src/Init/Grind/ToInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/ToInt.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/BitVec.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/BitVec.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/Fin.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/Fin.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/SInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/SInt.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Ring/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/Ring/UInt.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/ToInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances/ToInt.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-06-25",
+  "needs_port": true,
+  "sha": "0ddd9341d65b31f706b19142efa9e424492f34f6",
+  "short_sha": "0ddd9341d6",
+  "subject": "feat: refactor of Lean.Grind.ToInt and remaining instances (#8996)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/SInt/Lemmas.lean": "zig-backend/src/init/Data/SInt/Lemmas.lean",
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Ring.lean": "zig-backend/src/init/Grind/Ring.lean",
+    "src/Init/Grind/Ring/ToInt.lean": "zig-backend/src/init/Grind/Ring/ToInt.lean",
+    "src/Init/Grind/ToInt.lean": "zig-backend/src/init/Grind/ToInt.lean",
+    "src/Init/GrindInstances/Ring/BitVec.lean": "zig-backend/src/init/GrindInstances/Ring/BitVec.lean",
+    "src/Init/GrindInstances/Ring/Fin.lean": "zig-backend/src/init/GrindInstances/Ring/Fin.lean",
+    "src/Init/GrindInstances/Ring/SInt.lean": "zig-backend/src/init/GrindInstances/Ring/SInt.lean",
+    "src/Init/GrindInstances/Ring/UInt.lean": "zig-backend/src/init/GrindInstances/Ring/UInt.lean",
+    "src/Init/GrindInstances/ToInt.lean": "zig-backend/src/init/GrindInstances/ToInt.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

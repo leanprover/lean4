@@ -1,0 +1,10 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [],
+  "date": "2025-05-09",
+  "needs_port": false,
+  "sha": "5df77709770aecddacfda91b5c70ac33d9c7dcd4",
+  "short_sha": "5df7770977",
+  "subject": "feat: consider universes and projections in `addPPExplicitToExposeDiff` (#8271)",
+  "zig_target": {}
+}

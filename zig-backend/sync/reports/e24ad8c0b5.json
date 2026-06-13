@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "e24ad8c0b576c807d23d9a4e18c7508664c4b3ce",
+  "short_sha": "e24ad8c0b5",
+  "subject": "feat(library/init/core): add `HasBeq` default instances for types that implement `DecidableEq`",
+  "zig_target": {}
+}

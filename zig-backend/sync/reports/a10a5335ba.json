@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-22",
+  "needs_port": false,
+  "sha": "a10a5335baae0aa3d80cf71228f421fe4c9f77e8",
+  "short_sha": "a10a5335ba",
+  "subject": "fix: do not highlight module docstrings",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-18",
+  "needs_port": false,
+  "sha": "06695b5942f36a776b985d8d87a176d2067197d4",
+  "short_sha": "06695b5942",
+  "subject": "chore(CMakeLists.txt): update cmake min version",
+  "zig_target": {}
+}

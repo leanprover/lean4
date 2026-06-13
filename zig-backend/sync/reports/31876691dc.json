@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "31876691dca9865c077d8eb458fd83531ff5ebe3",
+  "short_sha": "31876691dc",
+  "subject": "chore: Nix: build thin static libraries",
+  "zig_target": {}
+}

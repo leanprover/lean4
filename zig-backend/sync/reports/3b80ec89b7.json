@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-09",
+  "needs_port": false,
+  "sha": "3b80ec89b7d9e24d6899da78fb80964f810cf241",
+  "short_sha": "3b80ec89b7",
+  "subject": "feat(library/init/lean/environment): add `Environment`",
+  "zig_target": {}
+}

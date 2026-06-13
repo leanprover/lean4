@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-23",
+  "needs_port": false,
+  "sha": "0d35cf3bb85991bbf75bb1b8a035a0531be6bf2a",
+  "short_sha": "0d35cf3bb8",
+  "subject": "feat: allow future additions to CodeWithInfos tags",
+  "zig_target": {}
+}

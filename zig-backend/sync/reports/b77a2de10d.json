@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2020-10-22",
+  "needs_port": true,
+  "sha": "b77a2de10d35778a51152db9f43a20c21a07fd70",
+  "short_sha": "b77a2de10d",
+  "subject": "perf: must inline basic coercions",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

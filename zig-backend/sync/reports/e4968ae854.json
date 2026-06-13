@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-03-28",
+  "needs_port": false,
+  "sha": "e4968ae8544e40ab4ea6a310769bfebad0de6151",
+  "short_sha": "e4968ae854",
+  "subject": "feat: add simp-friendly, `Ord`-based tree map lemmas (#7697)",
+  "zig_target": {}
+}

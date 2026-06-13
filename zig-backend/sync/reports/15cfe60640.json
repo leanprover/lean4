@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-28",
+  "needs_port": false,
+  "sha": "15cfe606404b623956aee5a76cb2550b56ecd46f",
+  "short_sha": "15cfe60640",
+  "subject": "test: for flexible reducibility attributes",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-02-08",
+  "needs_port": false,
+  "sha": "dd293d1fbda7b8695875f435ca78d58a3e4f7278",
+  "short_sha": "dd293d1fbd",
+  "subject": "doc: mention `Prop`s are equal to `True` or `False` (#6998)",
+  "zig_target": {}
+}

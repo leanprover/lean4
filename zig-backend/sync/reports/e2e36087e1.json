@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-07-11",
+  "needs_port": true,
+  "sha": "e2e36087e1ff1c29043ded4949862d5da7a8cf4a",
+  "short_sha": "e2e36087e1",
+  "subject": "refactor: split noncomputable error into its own helper (#9314)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

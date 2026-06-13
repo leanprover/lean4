@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "833434cd56a5fab011bc3380236c239d92c0d178",
+  "short_sha": "833434cd56",
+  "subject": "feat: add warning for `cbv` and `decide_cbv` tactics (#12601)",
+  "zig_target": {}
+}

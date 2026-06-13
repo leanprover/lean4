@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-06",
+  "needs_port": true,
+  "sha": "3ee59aa17f6322df8d2e928244ec4f4113e0276e",
+  "short_sha": "3ee59aa17f",
+  "subject": "feat(library/compiler/ir_interpreter): add Windows support",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

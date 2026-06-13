@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2024-01-13",
+  "needs_port": false,
+  "sha": "42e6214a42569a687f417b02ffde310652c97eca",
+  "short_sha": "42e6214a42",
+  "subject": "feat: lake: GNU/BSD OS detection in test scripts (#3180)",
+  "zig_target": {}
+}

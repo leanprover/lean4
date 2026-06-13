@@ -1,0 +1,36 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/LemmasAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/LemmasAux.lean"
+    }
+  ],
+  "date": "2025-02-05",
+  "needs_port": true,
+  "sha": "0ed493e7482e7ab0cb2da34f5053e27f08643389",
+  "short_sha": "0ed493e748",
+  "subject": "feat: add SMT-LIB overflow on addition for bitvectors `BitVec.(uadd_overflow, sadd_overflow, uadd_overflow_eq, sadd_overflow_eq)` and support theorems (#6628)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/LemmasAux.lean": "zig-backend/src/init/Data/Int/LemmasAux.lean"
+  }
+}

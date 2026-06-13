@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-19",
+  "needs_port": false,
+  "sha": "675f477f38052aab10c437f248135b05a3bc07eb",
+  "short_sha": "675f477f38",
+  "subject": "chore: disable macOS Nix CI until I get around to updating it",
+  "zig_target": {}
+}

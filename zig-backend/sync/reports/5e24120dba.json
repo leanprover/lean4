@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-21",
+  "needs_port": false,
+  "sha": "5e24120dba12f135f158de27a501339ef8edce3b",
+  "short_sha": "5e24120dba",
+  "subject": "fix: nonstandard instances in `grind` and `simp +arith` (#11758)",
+  "zig_target": {}
+}

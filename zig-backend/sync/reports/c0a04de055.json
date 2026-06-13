@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-29",
+  "needs_port": false,
+  "sha": "c0a04de05598c87c551711acf2a680503ec175a8",
+  "short_sha": "c0a04de055",
+  "subject": "feat: store config rev in manifest and warn on change",
+  "zig_target": {}
+}

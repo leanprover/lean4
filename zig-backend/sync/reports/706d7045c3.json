@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-30",
+  "needs_port": false,
+  "sha": "706d7045c3cadd712ba86577be79054eae572d1e",
+  "short_sha": "706d7045c3",
+  "subject": "feat(kernel/inductive): add nested => mutual preprocessor",
+  "zig_target": {}
+}

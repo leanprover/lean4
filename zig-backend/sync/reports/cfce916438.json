@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-06",
+  "needs_port": false,
+  "sha": "cfce91643861c76c168bd6f5383ad736cdd7b84f",
+  "short_sha": "cfce916438",
+  "subject": "perf(library/init/lean/parser/module): make sure `commands_aux` is tail-recursive",
+  "zig_target": {}
+}

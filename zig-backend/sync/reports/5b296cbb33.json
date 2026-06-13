@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-08-09",
+  "needs_port": false,
+  "sha": "5b296cbb33ac156ab262f231acb4f6cccc432056",
+  "short_sha": "5b296cbb33",
+  "subject": "chore(tests/lean/ll_infer_type_bug): fix partial file manually",
+  "zig_target": {}
+}

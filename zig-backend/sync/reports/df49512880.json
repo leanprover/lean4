@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-05-17",
+  "needs_port": false,
+  "sha": "df49512880fdc6fc263bb83fefe4fe923047e9f0",
+  "short_sha": "df49512880",
+  "subject": "fix: use withoutPosition in anon constructor",
+  "zig_target": {}
+}

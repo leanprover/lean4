@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-25",
+  "needs_port": false,
+  "sha": "4068cf00ee67707d0f2aaf7a5f81bd2ec3c1efc7",
+  "short_sha": "4068cf00ee",
+  "subject": "chore: remove unnecessary private `Inhabited` instance (#5846)",
+  "zig_target": {}
+}

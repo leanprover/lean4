@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-12",
+  "needs_port": true,
+  "sha": "34e98c2efcd8f041a89fd3c330ecd55c7e69253b",
+  "short_sha": "34e98c2efc",
+  "subject": "feat: add Decidable (\u2203 i, P i) (#8734)",
+  "zig_target": {
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

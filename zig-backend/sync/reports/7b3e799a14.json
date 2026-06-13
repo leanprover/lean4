@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-02",
+  "needs_port": false,
+  "sha": "7b3e799a14015ca8691f713cace507d383109d94",
+  "short_sha": "7b3e799a14",
+  "subject": "fix: leanpkg: lean version string",
+  "zig_target": {}
+}

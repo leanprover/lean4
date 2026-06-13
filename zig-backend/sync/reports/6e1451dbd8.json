@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-14",
+  "needs_port": false,
+  "sha": "6e1451dbd8a2a5a6a38296dd87fe4acd008cf627",
+  "short_sha": "6e1451dbd8",
+  "subject": "fix: duplicate private instance name avoidance under the module system (#9914)",
+  "zig_target": {}
+}

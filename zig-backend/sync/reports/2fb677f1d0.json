@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-31",
+  "needs_port": false,
+  "sha": "2fb677f1d08e015eecab54bd514fd5b5d83c1d25",
+  "short_sha": "2fb677f1d0",
+  "subject": "feat(kernel/inductive): add positivity check to new inductive datatype module",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-07",
+  "needs_port": false,
+  "sha": "acf79036914893a25b0e7edcf2b92ba2882407e2",
+  "short_sha": "acf7903691",
+  "subject": "feat: upload .tar.zst and .zip for every platform",
+  "zig_target": {}
+}

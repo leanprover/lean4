@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-12-19",
+  "needs_port": false,
+  "sha": "f04f51a29534da933f5d9d96a79d576fd6365a26",
+  "short_sha": "f04f51a295",
+  "subject": "test: pattern confusion example",
+  "zig_target": {}
+}

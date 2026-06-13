@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-09",
+  "needs_port": false,
+  "sha": "69bd25af4ffacd3fd64d8ac789abe50cce72886b",
+  "short_sha": "69bd25af4f",
+  "subject": "chore: add `Repr` and `Inhabited` instances for `Import`",
+  "zig_target": {}
+}

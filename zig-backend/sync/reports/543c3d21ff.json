@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-19",
+  "needs_port": false,
+  "sha": "543c3d21ff2a4df879706f393f36c331e67c1d1f",
+  "short_sha": "543c3d21ff",
+  "subject": "fix(frontends/lean/vm_elaborator): match and equations, oof",
+  "zig_target": {}
+}

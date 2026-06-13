@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-22",
+  "needs_port": false,
+  "sha": "d0dc998873738bd642dcca0bd512d444eb0aafe5",
+  "short_sha": "d0dc998873",
+  "subject": "chore(library/init/core): remove `opaque` comments",
+  "zig_target": {}
+}

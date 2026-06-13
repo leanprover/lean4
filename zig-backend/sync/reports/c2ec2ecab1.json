@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-22",
+  "needs_port": false,
+  "sha": "c2ec2ecab1cb66fe97d7107a3cbd9d52eaa99290",
+  "short_sha": "c2ec2ecab1",
+  "subject": "fix: handle class projections in `isNonTrivialRegular` for `backward.whnf.reducibleClassField` (#12639)",
+  "zig_target": {}
+}

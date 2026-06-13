@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "f66f6fd45586b7c74925f1aadff36f729faa7603",
+  "short_sha": "f66f6fd455",
+  "subject": "fix(library/init/lean/parser/parser): The first tokens of `try p` are the first tokens of `p`",
+  "zig_target": {}
+}

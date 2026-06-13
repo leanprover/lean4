@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-24",
+  "needs_port": false,
+  "sha": "f9abcae4e4bbdf0864e99129558b3503ea4d8e53",
+  "short_sha": "f9abcae4e4",
+  "subject": "chore: simplify tactic macro",
+  "zig_target": {}
+}

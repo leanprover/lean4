@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-26",
+  "needs_port": false,
+  "sha": "4f158057871a1f6fc9ec5c010ea4b7b959dbd06a",
+  "short_sha": "4f15805787",
+  "subject": "feat: annotate declarations with term infos",
+  "zig_target": {}
+}

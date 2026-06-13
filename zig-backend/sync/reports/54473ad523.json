@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-09",
+  "needs_port": false,
+  "sha": "54473ad523eec77294427d1262bf6022a8664141",
+  "short_sha": "54473ad523",
+  "subject": "test: add missing test for issue #998",
+  "zig_target": {}
+}

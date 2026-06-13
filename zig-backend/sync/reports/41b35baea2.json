@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-10-18",
+  "needs_port": false,
+  "sha": "41b35baea28bd5bb2ea771ee0ed7d7b54a887f6c",
+  "short_sha": "41b35baea2",
+  "subject": "fix: duplicate info trees from `IO.processCommandsIncrementally` (#5763)",
+  "zig_target": {}
+}

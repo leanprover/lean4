@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-23",
+  "needs_port": false,
+  "sha": "501375f340038dfb736a0036254c124d432ba598",
+  "short_sha": "501375f340",
+  "subject": "feat: add `SymM` monad (#11788)",
+  "zig_target": {}
+}

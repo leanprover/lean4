@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Hygiene.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Hygiene.lean"
+    }
+  ],
+  "date": "2019-12-20",
+  "needs_port": true,
+  "sha": "dedb6c2e1372d5704edf866bf5b4bc3d6058596f",
+  "short_sha": "dedb6c2e13",
+  "subject": "refactor: simplify MacroHygiene implementations",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Hygiene.lean": "zig-backend/src/init/Lean/Hygiene.lean"
+  }
+}

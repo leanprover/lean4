@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-01-14",
+  "needs_port": false,
+  "sha": "821c9b7af9039947ba9def0efac9e653e855c108",
+  "short_sha": "821c9b7af9",
+  "subject": "feat: faster, linear HashMap.alter and modify (#6573)",
+  "zig_target": {}
+}

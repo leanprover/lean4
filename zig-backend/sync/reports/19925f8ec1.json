@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-24",
+  "needs_port": false,
+  "sha": "19925f8ec1c1fb845bda0b9425a4e2c198ad1645",
+  "short_sha": "19925f8ec1",
+  "subject": "chore: Nix: move docs build into sub-flake",
+  "zig_target": {}
+}

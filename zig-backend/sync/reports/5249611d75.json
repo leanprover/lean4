@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-03",
+  "needs_port": false,
+  "sha": "5249611d75c18e449c19cb8eaa071d00c3347e44",
+  "short_sha": "5249611d75",
+  "subject": "doc: fix `mkAntiquot` docstring",
+  "zig_target": {}
+}

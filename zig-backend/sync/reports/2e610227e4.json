@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/BinSearch.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BinSearch.lean"
+    }
+  ],
+  "date": "2019-11-22",
+  "needs_port": true,
+  "sha": "2e610227e456d978ecae56a4831a94288b7a99c4",
+  "short_sha": "2e610227e4",
+  "subject": "feat: add `Array.binInsert`",
+  "zig_target": {
+    "src/Init/Data/Array/BinSearch.lean": "zig-backend/src/init/Data/Array/BinSearch.lean"
+  }
+}

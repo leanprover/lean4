@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-05",
+  "needs_port": false,
+  "sha": "4583f4344a30ace611ecdf7689b21fe291609359",
+  "short_sha": "4583f4344a",
+  "subject": "fix: `SyntaxNodeKind` at `elab` and `macro` commands",
+  "zig_target": {}
+}

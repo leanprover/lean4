@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2021-12-23",
+  "needs_port": true,
+  "sha": "25714a8ee19b0aa88804bb945fb8eef40444c23a",
+  "short_sha": "25714a8ee1",
+  "subject": "fix: calc syntax roundtrip",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

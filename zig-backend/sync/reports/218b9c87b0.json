@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2021-09-11",
+  "needs_port": true,
+  "sha": "218b9c87b0e357b9506b48ad04fcad5721b9faf3",
+  "short_sha": "218b9c87b0",
+  "subject": "feat: expose APIs for creating `IO.Error` objects",
+  "zig_target": {
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

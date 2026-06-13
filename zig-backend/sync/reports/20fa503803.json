@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-22",
+  "needs_port": false,
+  "sha": "20fa5038039bcdd6b507e7c4d8e72522300c08cb",
+  "short_sha": "20fa503803",
+  "subject": "fix: move `elabCommand` parts that should happen only once into new function",
+  "zig_target": {}
+}

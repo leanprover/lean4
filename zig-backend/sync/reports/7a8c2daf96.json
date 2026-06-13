@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-26",
+  "needs_port": false,
+  "sha": "7a8c2daf96ecdf6b41950bea40f5f1b4e31ecb73",
+  "short_sha": "7a8c2daf96",
+  "subject": "feat: sine qua non premise selection",
+  "zig_target": {}
+}

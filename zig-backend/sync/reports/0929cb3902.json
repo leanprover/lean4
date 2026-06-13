@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-02-18",
+  "needs_port": false,
+  "sha": "0929cb3902de70332b7292694bd587bc248d89b1",
+  "short_sha": "0929cb3902",
+  "subject": "chore: remove semantic highlighting timeout (#7130)",
+  "zig_target": {}
+}

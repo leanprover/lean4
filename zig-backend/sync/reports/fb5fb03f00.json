@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-05",
+  "needs_port": false,
+  "sha": "fb5fb03f00694a69d2dcf3e424ee354ba3c2c6af",
+  "short_sha": "fb5fb03f00",
+  "subject": "feat(library/init/lean/localcontext): add `isSubPrefixOf`",
+  "zig_target": {}
+}

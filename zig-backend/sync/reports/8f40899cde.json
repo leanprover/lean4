@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-28",
+  "needs_port": false,
+  "sha": "8f40899cde2eb5fed6d78ad6b9b4a6846f5a9725",
+  "short_sha": "8f40899cde",
+  "subject": "feat: add `Expr.updateFVar!`",
+  "zig_target": {}
+}

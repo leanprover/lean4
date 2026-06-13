@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.cpp"
+    },
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    }
+  ],
+  "date": "2018-05-16",
+  "needs_port": true,
+  "sha": "53d459911fd9b4b3278eb8f2715df2d569ef4fc8",
+  "short_sha": "53d459911f",
+  "subject": "refactor(library/init/lean/ir): RC instructions",
+  "zig_target": {
+    "src/runtime/apply.cpp": "zig-backend/src/runtime/apply.cpp",
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h"
+  }
+}

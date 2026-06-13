@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-07",
+  "needs_port": false,
+  "sha": "ae97cfdd6877b2a5e433c6d5a88e1a24db449b14",
+  "short_sha": "ae97cfdd68",
+  "subject": "feat(kernel/local_ctx): use `LocalContext`",
+  "zig_target": {}
+}

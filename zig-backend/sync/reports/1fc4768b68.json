@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-01",
+  "needs_port": false,
+  "sha": "1fc4768b687e55148f947b64938a0bdfd3ec7537",
+  "short_sha": "1fc4768b68",
+  "subject": "fix: incorrect reducibility setting in `grind` interactive mode (#11471)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-26",
+  "needs_port": false,
+  "sha": "62815168c66393aba603c5f883cef7beebd8e53b",
+  "short_sha": "62815168c6",
+  "subject": "feat: library-level module configuration",
+  "zig_target": {}
+}

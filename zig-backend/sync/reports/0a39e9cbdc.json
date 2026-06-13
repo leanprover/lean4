@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-24",
+  "needs_port": false,
+  "sha": "0a39e9cbdc43d1debb360389d9107b8766127a44",
+  "short_sha": "0a39e9cbdc",
+  "subject": "fix: dynamic quotations should use previous stage by default",
+  "zig_target": {}
+}

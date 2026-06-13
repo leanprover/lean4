@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/thread.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/thread.cpp"
+    },
+    {
+      "path": "src/runtime/thread.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/thread.h"
+    }
+  ],
+  "date": "2024-03-07",
+  "needs_port": true,
+  "sha": "3921257ecef826177cf55ca1082ff76f100b10ca",
+  "short_sha": "3921257ece",
+  "subject": "feat: thread initialization for reverse FFI (#3632)",
+  "zig_target": {
+    "src/runtime/thread.cpp": "zig-backend/src/runtime/thread.cpp",
+    "src/runtime/thread.h": "zig-backend/src/runtime/thread.h"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/maxsharing.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/maxsharing.cpp"
+    }
+  ],
+  "date": "2020-02-25",
+  "needs_port": true,
+  "sha": "131f2d202e904a6b83a429edf23770fd6b05ee5b",
+  "short_sha": "131f2d202e",
+  "subject": "chore: ignore closures at maxsharing",
+  "zig_target": {
+    "src/runtime/maxsharing.cpp": "zig-backend/src/runtime/maxsharing.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-01",
+  "needs_port": false,
+  "sha": "50555e7db53de3bfe7ecd9bc3fb8047a5bfaeef3",
+  "short_sha": "50555e7db5",
+  "subject": "chore: Nix: make `buildMod` `nix develop`-friendly",
+  "zig_target": {}
+}

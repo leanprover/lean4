@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.h"
+    }
+  ],
+  "date": "2025-04-10",
+  "needs_port": true,
+  "sha": "69536808ca00e626554012ef83842219b0c1448c",
+  "short_sha": "69536808ca",
+  "subject": "feat: `read/writeModuleDataParts` API for serialization with cross-file sharing (#7854)",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/compact.h": "zig-backend/src/runtime/compact.h"
+  }
+}

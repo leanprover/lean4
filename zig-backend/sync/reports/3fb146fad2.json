@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-06-08",
+  "needs_port": false,
+  "sha": "3fb146fad21394edf4152f4c3983efac8b3cf59d",
+  "short_sha": "3fb146fad2",
+  "subject": "chore: fix test on MacOS",
+  "zig_target": {}
+}

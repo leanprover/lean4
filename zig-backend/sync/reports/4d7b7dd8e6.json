@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-27",
+  "needs_port": false,
+  "sha": "4d7b7dd8e66c366a2ba7bbc31a85cdf3e6ed15c8",
+  "short_sha": "4d7b7dd8e6",
+  "subject": "feat: support `while let` in `do` blocks via unified condition syntax (#13534)",
+  "zig_target": {}
+}

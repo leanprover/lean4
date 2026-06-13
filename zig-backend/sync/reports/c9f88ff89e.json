@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-11-29",
+  "needs_port": false,
+  "sha": "c9f88ff89e63a0adf4f16a8fe28a920cea3ce9e3",
+  "short_sha": "c9f88ff89e",
+  "subject": "fix: compare ASTs in the server",
+  "zig_target": {}
+}

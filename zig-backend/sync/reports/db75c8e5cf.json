@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-02",
+  "needs_port": false,
+  "sha": "db75c8e5cf227a89d8c3e6aa6167362defd5fef7",
+  "short_sha": "db75c8e5cf",
+  "subject": "chore(library/init/data/list): renamed `basic_aux` ==> `basicaux`",
+  "zig_target": {}
+}

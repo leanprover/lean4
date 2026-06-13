@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-09",
+  "needs_port": false,
+  "sha": "64adc4c798e576c556c550edf747b38764f88e61",
+  "short_sha": "64adc4c798",
+  "subject": "feat(library/metavar_context): use `MetavarContext` implemented in Lean",
+  "zig_target": {}
+}

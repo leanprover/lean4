@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-21",
+  "needs_port": false,
+  "sha": "941a68165aa53ddeb3faef5e2c5162e5b1491c88",
+  "short_sha": "941a68165a",
+  "subject": "fix: hover/definition for applications with only implicit arguments",
+  "zig_target": {}
+}

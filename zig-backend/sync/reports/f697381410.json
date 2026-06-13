@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-08-24",
+  "needs_port": true,
+  "sha": "f697381410c249ab9e50f7ed8050d5335e755370",
+  "short_sha": "f697381410",
+  "subject": "feat(shell/lean.cpp): use C backend for `--cpp` option",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

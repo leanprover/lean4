@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-07-11",
+  "needs_port": false,
+  "sha": "1b3d254dd0495b396376c91b21b059bcfe31150b",
+  "short_sha": "1b3d254dd0",
+  "subject": "feat: add emptyEnv and add initSearchPath temporarily so that server binary finds LEAN_PATH",
+  "zig_target": {}
+}

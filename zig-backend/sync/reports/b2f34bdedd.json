@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "b2f34bdedd131a68dfc547d51eac539ab785b7fe",
+  "short_sha": "b2f34bdedd",
+  "subject": "feat: improve `congr` conv tactic",
+  "zig_target": {}
+}

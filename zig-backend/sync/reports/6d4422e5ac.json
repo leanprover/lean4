@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-31",
+  "needs_port": false,
+  "sha": "6d4422e5acbdf3c88b8c67d91edb9ba166c8fc7e",
+  "short_sha": "6d4422e5ac",
+  "subject": "refactor: add `Simp.tryLemma?`",
+  "zig_target": {}
+}

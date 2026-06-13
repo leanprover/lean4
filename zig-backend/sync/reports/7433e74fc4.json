@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-29",
+  "needs_port": false,
+  "sha": "7433e74fc48a28aac049c14e0f87879fc373d69d",
+  "short_sha": "7433e74fc4",
+  "subject": "feat: theorem patterns for heuristic instantiation in `grind` (#6472)",
+  "zig_target": {}
+}

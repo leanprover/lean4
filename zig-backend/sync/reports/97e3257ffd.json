@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-29",
+  "needs_port": false,
+  "sha": "97e3257ffd5b4c17ede15f0abf9d271d185ebf2e",
+  "short_sha": "97e3257ffd",
+  "subject": "chore: un-qualify .induct lemmas in tests (#3804)",
+  "zig_target": {}
+}

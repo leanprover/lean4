@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "0272c30b4bebb5353ce89fb240fe990dc97df9de",
+  "short_sha": "0272c30b4b",
+  "subject": "fix: token antiquotations should create synthetic positions",
+  "zig_target": {}
+}

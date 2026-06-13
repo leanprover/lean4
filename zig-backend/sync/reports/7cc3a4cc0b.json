@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-19",
+  "needs_port": false,
+  "sha": "7cc3a4cc0bcd57e8fc68b0e6f721f671427a3870",
+  "short_sha": "7cc3a4cc0b",
+  "subject": "perf: use `.local` asyncMode for `eqnOptionsExt` (#13477)",
+  "zig_target": {}
+}

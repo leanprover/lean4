@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-04-28",
+  "needs_port": true,
+  "sha": "f75c9caf304a3b9e9e2a8c340d946664c4cca1f1",
+  "short_sha": "f75c9caf30",
+  "subject": "chore: disable check in the prelude `inferInstance` helper functions",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

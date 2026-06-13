@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-12-30",
+  "needs_port": false,
+  "sha": "19e395ded72e73a86f303c72ff32923d1229761b",
+  "short_sha": "19e395ded7",
+  "subject": "feat: begin work on mouse hovers in server",
+  "zig_target": {}
+}

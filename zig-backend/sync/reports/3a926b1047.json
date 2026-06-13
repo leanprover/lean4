@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-20",
+  "needs_port": false,
+  "sha": "3a926b1047d4b83790eb3983115d245cad462128",
+  "short_sha": "3a926b1047",
+  "subject": "fix: use user-facing private decl name in symbol query",
+  "zig_target": {}
+}

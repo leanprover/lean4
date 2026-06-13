@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "142ca241921600ce79820e7a2f2b641860df0b23",
+  "short_sha": "142ca24192",
+  "subject": "feat: support `#print axioms` under the module system (#13117)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-13",
+  "needs_port": false,
+  "sha": "ff6eb56f5c0ffff7b0c6b27add542e725767f37b",
+  "short_sha": "ff6eb56f5c",
+  "subject": "fix: `natCast` in grind cutsat (#8776)",
+  "zig_target": {}
+}

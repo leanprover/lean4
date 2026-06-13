@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    }
+  ],
+  "date": "2025-11-18",
+  "needs_port": true,
+  "sha": "61186629d69c600e3d08b5e785f6f5df5e3dc2b3",
+  "short_sha": "61186629d6",
+  "subject": "feat: `grind -revert` (#11248)",
+  "zig_target": {
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [],
+  "date": "2024-09-20",
+  "needs_port": false,
+  "sha": "d8e0fa425b3225fc0c35c07247ecb11b49bb00ed",
+  "short_sha": "d8e0fa425b",
+  "subject": "feat: instance for `Inhabited (TacticM \u03b1)` (#5401)",
+  "zig_target": {}
+}

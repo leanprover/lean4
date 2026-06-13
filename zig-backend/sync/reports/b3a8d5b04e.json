@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-31",
+  "needs_port": false,
+  "sha": "b3a8d5b04eb11cc3c0ed2d6334150694ac3000e2",
+  "short_sha": "b3a8d5b04e",
+  "subject": "feat: async modes for environment access (#6852)",
+  "zig_target": {}
+}

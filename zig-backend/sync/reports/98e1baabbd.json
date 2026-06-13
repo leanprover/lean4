@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-05",
+  "needs_port": false,
+  "sha": "98e1baabbdbd70bd80ac1d79fe2bd4aeeb655c33",
+  "short_sha": "98e1baabbd",
+  "subject": "refactor: make `trailingNode` clean up after itself",
+  "zig_target": {}
+}

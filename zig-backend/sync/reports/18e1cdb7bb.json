@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-01",
+  "needs_port": false,
+  "sha": "18e1cdb7bb69dbafcd5efdf2e9874e4e73b13c8c",
+  "short_sha": "18e1cdb7bb",
+  "subject": "fix: user provided `ToInt.toInt` applications (#9673)",
+  "zig_target": {}
+}

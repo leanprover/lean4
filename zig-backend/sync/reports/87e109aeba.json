@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-19",
+  "needs_port": false,
+  "sha": "87e109aebaa5e7bb6ec243af461bbab0f2749fac",
+  "short_sha": "87e109aeba",
+  "subject": "feat: add `isDefEqDelta`",
+  "zig_target": {}
+}

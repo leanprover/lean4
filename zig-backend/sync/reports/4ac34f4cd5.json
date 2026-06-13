@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-15",
+  "needs_port": false,
+  "sha": "4ac34f4cd5818c1fac8af438b415eeb7243ce2d8",
+  "short_sha": "4ac34f4cd5",
+  "subject": "chore: rename `PointedType` => `NonemptyType`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-14",
+  "needs_port": false,
+  "sha": "44cdb1fc5682551240640ab45eef980bbb2d8979",
+  "short_sha": "44cdb1fc56",
+  "subject": "chore(tests/playground/flat_parser): add new `file_map`",
+  "zig_target": {}
+}

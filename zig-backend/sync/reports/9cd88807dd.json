@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-11",
+  "needs_port": false,
+  "sha": "9cd88807dd6158ffdb1666f05250ea27cde42676",
+  "short_sha": "9cd88807dd",
+  "subject": "feat: add support for quoted literals in patterns",
+  "zig_target": {}
+}

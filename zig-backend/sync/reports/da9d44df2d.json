@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2024-08-12",
+  "needs_port": true,
+  "sha": "da9d44df2dfec2746ee9693f71137f4c69f31306",
+  "short_sha": "da9d44df2d",
+  "subject": "feat: handle \\r on all operating systems in IO.FS.lines (#4973)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

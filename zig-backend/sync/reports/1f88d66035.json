@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Hashable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Hashable.lean"
+    }
+  ],
+  "date": "2021-01-21",
+  "needs_port": true,
+  "sha": "1f88d66035d55f7741c9c5366a959a63b14a62b5",
+  "short_sha": "1f88d66035",
+  "subject": "feat: add missing instances",
+  "zig_target": {
+    "src/Init/Data/Hashable.lean": "zig-backend/src/init/Data/Hashable.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-11-11",
+  "needs_port": true,
+  "sha": "100670e3b543faed464a5cb095c3e65479a5102f",
+  "short_sha": "100670e3b5",
+  "subject": "feat: add `if-then-else` macros",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

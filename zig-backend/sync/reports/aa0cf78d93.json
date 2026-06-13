@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-08-26",
+  "needs_port": false,
+  "sha": "aa0cf78d9376818476f2d802eb7928f70e906566",
+  "short_sha": "aa0cf78d93",
+  "subject": "chore: create `.toCtorIdx` alias only for enumeration types (#10130)",
+  "zig_target": {}
+}

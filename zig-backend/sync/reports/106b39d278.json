@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2026-04-13",
+  "needs_port": false,
+  "sha": "106b39d2780a18fe4ae0e15ce0987edc0605feed",
+  "short_sha": "106b39d278",
+  "subject": "fix: remove private from private section (#13398)",
+  "zig_target": {}
+}

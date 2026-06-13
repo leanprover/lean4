@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "5a8ee410b150ea02da6a7ff07519051756816541",
+  "short_sha": "5a8ee410b1",
+  "subject": "chore: remove `infoTree.lean` test",
+  "zig_target": {}
+}

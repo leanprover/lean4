@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-17",
+  "needs_port": false,
+  "sha": "51adfa2e0ca426d2662074bd761946b397aad4af",
+  "short_sha": "51adfa2e0c",
+  "subject": "fix: do not call `lake print-paths` for `lakefile.lean`",
+  "zig_target": {}
+}

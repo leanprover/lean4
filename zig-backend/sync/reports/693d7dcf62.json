@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-09",
+  "needs_port": false,
+  "sha": "693d7dcf6221bee0b2e97b93559e707730c8acf7",
+  "short_sha": "693d7dcf62",
+  "subject": "test: add class projection test",
+  "zig_target": {}
+}

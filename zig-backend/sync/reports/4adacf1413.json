@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-11-22",
+  "needs_port": true,
+  "sha": "4adacf14136bd6c67c041b0ee418855676594948",
+  "short_sha": "4adacf1413",
+  "subject": "chore: `src/init` ==> `src/initialize`",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

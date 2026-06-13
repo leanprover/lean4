@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+    }
+  ],
+  "date": "2026-02-09",
+  "needs_port": true,
+  "sha": "892475dcacd75f3b409954f269fdba016d21e491",
+  "short_sha": "892475dcac",
+  "subject": "fix: LCNF casesOnCtor can only act if type correct (#12387)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/Main.lean": "zig-backend/src/lean/compiler/lcnf/Simp/Main.lean"
+  }
+}

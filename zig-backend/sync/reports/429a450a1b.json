@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-21",
+  "needs_port": false,
+  "sha": "429a450a1bb058ff8380909eaadaff9410ccd2e4",
+  "short_sha": "429a450a1b",
+  "subject": "chore: Nix: minimize closure size of .#lean",
+  "zig_target": {}
+}

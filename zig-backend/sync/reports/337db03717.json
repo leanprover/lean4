@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-14",
+  "needs_port": false,
+  "sha": "337db03717dd84a2c59e7cfcc8f74d53900d4684",
+  "short_sha": "337db03717",
+  "subject": "fix: report info trees on cmdline for .ileans (#5018)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-12-22",
+  "needs_port": false,
+  "sha": "f5741af39d7b4fc06a5374c1bdedb10985969c1f",
+  "short_sha": "f5741af39d",
+  "subject": "test: minimal repro for `Borrow.lean` bug",
+  "zig_target": {}
+}

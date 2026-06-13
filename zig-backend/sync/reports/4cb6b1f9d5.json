@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-23",
+  "needs_port": false,
+  "sha": "4cb6b1f9d5f1af92ceb38297bc7e488c37d2886b",
+  "short_sha": "4cb6b1f9d5",
+  "subject": "chore(library/tactic): reduce dependencies",
+  "zig_target": {}
+}

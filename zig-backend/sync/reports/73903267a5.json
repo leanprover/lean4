@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-02",
+  "needs_port": false,
+  "sha": "73903267a57df32292f2dd932d76c88334a956ee",
+  "short_sha": "73903267a5",
+  "subject": "feat: extend `cases` tactic syntax",
+  "zig_target": {}
+}

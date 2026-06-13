@@ -1,0 +1,60 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Data/Options.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/Options.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Frontend.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Frontend.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Import.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Import.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Module.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Module.lean"
+    }
+  ],
+  "date": "2020-05-20",
+  "needs_port": true,
+  "sha": "618d11307568286dccbbf562afe3d6ed987cd7ea",
+  "short_sha": "618d113075",
+  "subject": "chore: remove workaround for bug at new  `{ ... : <expected-type> }` syntax",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/Basic.lean": "zig-backend/src/init/Lean/Compiler/IR/Basic.lean",
+    "src/Init/Lean/Data/Options.lean": "zig-backend/src/init/Lean/Data/Options.lean",
+    "src/Init/Lean/Elab/Frontend.lean": "zig-backend/src/init/Lean/Elab/Frontend.lean",
+    "src/Init/Lean/Elab/Import.lean": "zig-backend/src/init/Lean/Elab/Import.lean",
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean",
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean",
+    "src/Init/Lean/Parser/Module.lean": "zig-backend/src/init/Lean/Parser/Module.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-03",
+  "needs_port": false,
+  "sha": "0594bc4e5a794ecd63cc5915f5266ef643ccf826",
+  "short_sha": "0594bc4e5a",
+  "subject": "refactor: lambdaBoundedTelescope (#4642)",
+  "zig_target": {}
+}

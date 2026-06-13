@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-13",
+  "needs_port": false,
+  "sha": "7b90f7d9567ed0e27bd2f24e299b6254fb069d4f",
+  "short_sha": "7b90f7d956",
+  "subject": "fix: synthesize pending mvars before trying coercions to Fun",
+  "zig_target": {}
+}

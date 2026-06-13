@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-09-10",
+  "needs_port": false,
+  "sha": "cb4a73a48761950ec8ad93f6c9bd10346313bf35",
+  "short_sha": "cb4a73a487",
+  "subject": "refactor: `Lean.Elab.Deriving.FromToJson` (#5292)",
+  "zig_target": {}
+}

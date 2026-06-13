@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "6a3d299378bc2c14aeae69733a8d0b061b2d9f94",
+  "short_sha": "6a3d299378",
+  "subject": "fix: log trace computation errors at `FileTarget`",
+  "zig_target": {}
+}

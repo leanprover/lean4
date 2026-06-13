@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-21",
+  "needs_port": false,
+  "sha": "227b26636c96ee28e91591a4bb280d2c1038e44d",
+  "short_sha": "227b26636c",
+  "subject": "chore: increase default depth to 32",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2021-08-11",
+  "needs_port": true,
+  "sha": "040141f1371aff5c3e4852e36a1d026165972f48",
+  "short_sha": "040141f137",
+  "subject": "feat: unexpander for Subtype",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

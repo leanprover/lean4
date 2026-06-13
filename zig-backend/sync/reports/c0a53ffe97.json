@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-04-18",
+  "needs_port": false,
+  "sha": "c0a53ffe9749ada0887cbb98c1bab5051029dbef",
+  "short_sha": "c0a53ffe97",
+  "subject": "chore: minor tweaks to `Sym.simp` test and benchmark (#13468)",
+  "zig_target": {}
+}

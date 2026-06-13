@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-17",
+  "needs_port": false,
+  "sha": "875b3c84b44c4d5c825b2995607c4ed828d893b9",
+  "short_sha": "875b3c84b4",
+  "subject": "fix: bug at `Match.lean`",
+  "zig_target": {}
+}

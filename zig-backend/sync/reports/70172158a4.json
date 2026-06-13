@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-05",
+  "needs_port": false,
+  "sha": "70172158a4951b5a7b74234702751430bf4d5101",
+  "short_sha": "70172158a4",
+  "subject": "fix: improve targets/facets UX (e.g., errors when type incorrect)",
+  "zig_target": {}
+}

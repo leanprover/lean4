@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-06-05",
+  "needs_port": false,
+  "sha": "37d60fd2ecf82bf1fd031d63b471893821d90f20",
+  "short_sha": "37d60fd2ec",
+  "subject": "chore: use match_expr in omega (#4358)",
+  "zig_target": {}
+}

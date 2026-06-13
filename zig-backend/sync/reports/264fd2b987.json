@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-04",
+  "needs_port": false,
+  "sha": "264fd2b9874814a4343d7dfe383f6fef2fb42ae0",
+  "short_sha": "264fd2b987",
+  "subject": "chore: remove obsolete `prepare-commit-msg` script",
+  "zig_target": {}
+}

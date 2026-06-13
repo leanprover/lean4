@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-09-04",
+  "needs_port": true,
+  "sha": "de38a16fa99a0e095a58d6149e3295bd66959ce0",
+  "short_sha": "de38a16fa9",
+  "subject": "fix: use IR decls in `toIR` for applications without mono decls (#10256)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

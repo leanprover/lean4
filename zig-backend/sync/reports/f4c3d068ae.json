@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-17",
+  "needs_port": false,
+  "sha": "f4c3d068aeabcd70040f72c0663c20b171061b7c",
+  "short_sha": "f4c3d068ae",
+  "subject": "feat: uniform \"unsolved case\" positions with fullRange",
+  "zig_target": {}
+}

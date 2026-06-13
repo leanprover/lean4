@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-11-18",
+  "needs_port": false,
+  "sha": "d5ecca995f3e43d9657995191e8feadd3b301afc",
+  "short_sha": "d5ecca995f",
+  "subject": "chore: update some error explanations (#11225)",
+  "zig_target": {}
+}

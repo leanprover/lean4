@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "0883f96da0e2afafda7fb81de61767c214ff343e",
+  "short_sha": "0883f96da0",
+  "subject": "chore: remove `optional partial` from 'let rec'",
+  "zig_target": {}
+}

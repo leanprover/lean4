@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-21",
+  "needs_port": false,
+  "sha": "e5d2cbceaa0e1b43487f17bfccbbdac9b003d0ac",
+  "short_sha": "e5d2cbceaa",
+  "subject": "fix: structural equation proof generator (#3444)",
+  "zig_target": {}
+}

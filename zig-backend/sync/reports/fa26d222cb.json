@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-12",
+  "needs_port": false,
+  "sha": "fa26d222cb16408e22272ae8178603925f406473",
+  "short_sha": "fa26d222cb",
+  "subject": "chore: refactor pr release workflow (#3020)",
+  "zig_target": {}
+}

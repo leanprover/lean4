@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-15",
+  "needs_port": false,
+  "sha": "3493d066e4638b6a02658c15a79a191d802d8024",
+  "short_sha": "3493d066e4",
+  "subject": "feat: add `MVarId.ensureNoMVar` (#4169)",
+  "zig_target": {}
+}

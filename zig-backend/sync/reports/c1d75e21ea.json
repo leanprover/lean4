@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-04",
+  "needs_port": false,
+  "sha": "c1d75e21ea019f2d3a207c70c04df47ac6ba2807",
+  "short_sha": "c1d75e21ea",
+  "subject": "fix: fix pretty printers for imported `ParserDescr`s",
+  "zig_target": {}
+}

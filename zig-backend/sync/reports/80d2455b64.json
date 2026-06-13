@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-24",
+  "needs_port": false,
+  "sha": "80d2455b6401acf6b0d107388b814c175e64c0d3",
+  "short_sha": "80d2455b64",
+  "subject": "fix: prune universe params in functional induction (#3754)",
+  "zig_target": {}
+}

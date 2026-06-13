@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-30",
+  "needs_port": false,
+  "sha": "d01fb5451c6ed51c89eea6ab29e335e693387860",
+  "short_sha": "d01fb5451c",
+  "subject": "feat: add support for `binop%` at `elabCDotFunctionAlias`",
+  "zig_target": {}
+}

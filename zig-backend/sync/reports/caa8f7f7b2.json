@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2021-07-18",
+  "needs_port": true,
+  "sha": "caa8f7f7b2b3c1456c8f73f83030746f4be9d1bf",
+  "short_sha": "caa8f7f7b2",
+  "subject": "chore: expose Substring.prev/next",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

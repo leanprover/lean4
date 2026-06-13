@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-20",
+  "needs_port": false,
+  "sha": "a8427702e852a7577dfad7558b6a2564e24c2449",
+  "short_sha": "a8427702e8",
+  "subject": "test: reverse direction for cancelation procedure",
+  "zig_target": {}
+}

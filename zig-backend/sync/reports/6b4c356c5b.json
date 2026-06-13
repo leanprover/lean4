@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-08-20",
+  "needs_port": false,
+  "sha": "6b4c356c5be767f6fe3c30d5524ce55d9d29830a",
+  "short_sha": "6b4c356c5b",
+  "subject": "chore: lake: fix `tests/module` (#10013)",
+  "zig_target": {}
+}

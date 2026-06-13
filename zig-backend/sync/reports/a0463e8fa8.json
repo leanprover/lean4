@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-14",
+  "needs_port": false,
+  "sha": "a0463e8fa898f74b8354d01804fa7cdc3a40190c",
+  "short_sha": "a0463e8fa8",
+  "subject": "feat: elaborate new stactic quotations",
+  "zig_target": {}
+}

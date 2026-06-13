@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-01-31",
+  "needs_port": false,
+  "sha": "31981090e4fedbb5c19dd3190d0e5230815e52c7",
+  "short_sha": "31981090e4",
+  "subject": "feat: make `intro` be aware of `let_fun` (#3115)",
+  "zig_target": {}
+}

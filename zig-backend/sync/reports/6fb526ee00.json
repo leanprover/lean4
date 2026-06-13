@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Cases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean"
+    }
+  ],
+  "date": "2020-03-05",
+  "needs_port": true,
+  "sha": "6fb526ee003774bcca8781b226935e19bbd8cd33",
+  "short_sha": "6fb526ee00",
+  "subject": "feat: add `elimAuxIndices`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Cases.lean": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean"
+  }
+}

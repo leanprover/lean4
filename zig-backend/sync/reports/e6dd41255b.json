@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "e6dd41255b128feaab2a85a295c062a736f262de",
+  "short_sha": "e6dd41255b",
+  "subject": "feat: upstream ReduceEval instances from quote4 (#10563)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-10-11",
+  "needs_port": true,
+  "sha": "7c6b10012b5bc45b6d797ce9429e7210f55aa912",
+  "short_sha": "7c6b10012b",
+  "subject": "chore: add helper function",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

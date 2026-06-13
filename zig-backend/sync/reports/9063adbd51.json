@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Util.lean"
+    },
+    {
+      "path": "src/Init/Sym/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Sym/Lemmas.lean"
+    }
+  ],
+  "date": "2026-01-20",
+  "needs_port": true,
+  "sha": "9063adbd51334f68608bad14cd298e6315e718d4",
+  "short_sha": "9063adbd51",
+  "subject": "feat: `String` and `Char` simprocs for `SymM` (#12077)",
+  "zig_target": {
+    "src/Init/Grind/Util.lean": "zig-backend/src/init/Grind/Util.lean",
+    "src/Init/Sym/Lemmas.lean": "zig-backend/src/init/Sym/Lemmas.lean"
+  }
+}

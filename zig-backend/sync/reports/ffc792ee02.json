@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "ffc792ee022360d58969b78e00a90681be1013e0",
+  "short_sha": "ffc792ee02",
+  "subject": "test: dep-elim `cases`",
+  "zig_target": {}
+}

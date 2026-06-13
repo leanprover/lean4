@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-04-03",
+  "needs_port": false,
+  "sha": "5fdeaf0d5a8d81aa3c931e9071e4d7f17293feab",
+  "short_sha": "5fdeaf0d5a",
+  "subject": "fix: handle propositional and decidable instances in sym canonicalizer (#13271)",
+  "zig_target": {}
+}

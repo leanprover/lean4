@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-08",
+  "needs_port": false,
+  "sha": "e924ef229c9b5d85a2093b7e505f49539db992de",
+  "short_sha": "e924ef229c",
+  "subject": "doc: add `simproc` release notes",
+  "zig_target": {}
+}

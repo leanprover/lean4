@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-08-11",
+  "needs_port": false,
+  "sha": "dce7f71126de2aa6460b338460505a63661116cb",
+  "short_sha": "dce7f71126",
+  "subject": "chore: clarify/fix contribution guidelines",
+  "zig_target": {}
+}

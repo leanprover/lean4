@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-04",
+  "needs_port": false,
+  "sha": "72e7bf49998e3a8314a4e180673be37f676f371c",
+  "short_sha": "72e7bf4999",
+  "subject": "fix: `synthPending` bug",
+  "zig_target": {}
+}

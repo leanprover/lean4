@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2020-11-14",
+  "needs_port": true,
+  "sha": "99fad9fc4de4b1a534fca9d5d000690d42fc4f2a",
+  "short_sha": "99fad9fc4d",
+  "subject": "feat: goodies for writing notation with binders",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

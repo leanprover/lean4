@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-03-16",
+  "needs_port": false,
+  "sha": "ef87f6b9acdf37dee0df371f2b68247adfb78dfb",
+  "short_sha": "ef87f6b9ac",
+  "subject": "chore: delete temp files before, not after tests (#12932)",
+  "zig_target": {}
+}

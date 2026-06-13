@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-01-26",
+  "needs_port": false,
+  "sha": "dd8319c3cd3f0fce7f2365f16f86d1624c251f8e",
+  "short_sha": "dd8319c3cd",
+  "subject": "fix: disable gmp on windows",
+  "zig_target": {}
+}

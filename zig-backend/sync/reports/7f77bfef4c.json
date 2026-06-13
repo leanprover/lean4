@@ -1,0 +1,18 @@
+{
+  "author": "Fran\u00e7ois G. Dorais",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/FinRange.lean"
+    }
+  ],
+  "date": "2025-11-10",
+  "needs_port": true,
+  "sha": "7f77bfef4c2d19c8a20ef387b2209158e003b4cd",
+  "short_sha": "7f77bfef4c",
+  "subject": "feat: add `List.mem_finRange` (#9515)",
+  "zig_target": {
+    "src/Init/Data/List/FinRange.lean": "zig-backend/src/init/Data/List/FinRange.lean"
+  }
+}

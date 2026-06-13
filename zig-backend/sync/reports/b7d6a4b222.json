@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-10-03",
+  "needs_port": false,
+  "sha": "b7d6a4b222ec2bee13c2e629e652df908217665a",
+  "short_sha": "b7d6a4b222",
+  "subject": "feat: adding Insert/Singleton/Union instances for HashMap/Set.Raw (#5590)",
+  "zig_target": {}
+}

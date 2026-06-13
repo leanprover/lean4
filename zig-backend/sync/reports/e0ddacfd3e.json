@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-20",
+  "needs_port": false,
+  "sha": "e0ddacfd3e4236dceed17effadc01c1ad8aef696",
+  "short_sha": "e0ddacfd3e",
+  "subject": "feat(library/init/lean/attributes,frontends/lean): allow attributes to specify when they should be applied",
+  "zig_target": {}
+}

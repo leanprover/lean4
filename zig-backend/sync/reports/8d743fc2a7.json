@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-05",
+  "needs_port": false,
+  "sha": "8d743fc2a788de213540e63fcf16106888225a69",
+  "short_sha": "8d743fc2a7",
+  "subject": "feat: add `MessageData.instantiateMVars`",
+  "zig_target": {}
+}

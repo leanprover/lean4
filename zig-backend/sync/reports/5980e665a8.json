@@ -1,0 +1,10 @@
+{
+  "author": "Siddharth Bhat",
+  "backend_changes": [],
+  "date": "2023-10-06",
+  "needs_port": false,
+  "sha": "5980e665a80cc256b1eddfca4afde15ee28675e7",
+  "short_sha": "5980e665a8",
+  "subject": "test: add test of LLVM integration into lake",
+  "zig_target": {}
+}

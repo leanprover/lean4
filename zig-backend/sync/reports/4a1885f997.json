@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-25",
+  "needs_port": false,
+  "sha": "4a1885f99725a88fb355a7296cbdb4989b1ab96a",
+  "short_sha": "4a1885f997",
+  "subject": "chore: update benchmark suite",
+  "zig_target": {}
+}

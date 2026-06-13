@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-17",
+  "needs_port": false,
+  "sha": "127fe785a3fc20b75d9e059eb67eb4cab14c30b0",
+  "short_sha": "127fe785a3",
+  "subject": "chore: add public modifiers in Lean.Elab.Tactic.Ext (#10809)",
+  "zig_target": {}
+}

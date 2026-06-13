@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-28",
+  "needs_port": false,
+  "sha": "b6bfc9733cd64053a229904104a90acb1535069d",
+  "short_sha": "b6bfc9733c",
+  "subject": "fix: lake: module artifact restoration for ir/bc (#10602)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-20",
+  "needs_port": false,
+  "sha": "218af640bbc243a4f9ddff45add862d396c85635",
+  "short_sha": "218af640bb",
+  "subject": "fix(library/init/lean/parser/reader/term): add missing file",
+  "zig_target": {}
+}

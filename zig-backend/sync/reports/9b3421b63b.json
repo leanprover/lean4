@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/closed_term_cache.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/closed_term_cache.cpp"
+    },
+    {
+      "path": "src/library/compiler/closed_term_cache.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/closed_term_cache.h"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    }
+  ],
+  "date": "2019-05-15",
+  "needs_port": true,
+  "sha": "9b3421b63bf12a823394df6ab38a6bd5e9a62e77",
+  "short_sha": "9b3421b63b",
+  "subject": "feat(library/compiler/closed_term_cache): remove C++ implementation and use Lean one",
+  "zig_target": {
+    "src/library/compiler/closed_term_cache.cpp": "zig-backend/src/library/compiler/closed_term_cache.cpp",
+    "src/library/compiler/closed_term_cache.h": "zig-backend/src/library/compiler/closed_term_cache.h",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp"
+  }
+}

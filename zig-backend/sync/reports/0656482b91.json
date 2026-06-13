@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-04-05",
+  "needs_port": false,
+  "sha": "0656482b91f9eca91e2b7a474ff5a834d6e37128",
+  "short_sha": "0656482b91",
+  "subject": "feat: show number of files to go when building",
+  "zig_target": {}
+}

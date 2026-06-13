@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2018-10-02",
+  "needs_port": true,
+  "sha": "20e7edd4ac0c520bef8cb776e6dc0edbcb55f7a5",
+  "short_sha": "20e7edd4ac",
+  "subject": "feat(library/compiler): erase trivial structures and flat cases on structures",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

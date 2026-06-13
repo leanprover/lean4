@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-09",
+  "needs_port": false,
+  "sha": "2b3218d35a6573a5465da822a4f9ed9369fff782",
+  "short_sha": "2b3218d35a",
+  "subject": "fix: ensure `expandResetReuse` does not produce decl with duplicate indices",
+  "zig_target": {}
+}

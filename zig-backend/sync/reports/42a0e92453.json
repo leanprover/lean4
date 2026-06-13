@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-27",
+  "needs_port": false,
+  "sha": "42a0e9245300da6b3d971fa0033d726bb8e11cc3",
+  "short_sha": "42a0e92453",
+  "subject": "doc: clarify release notes timing with reference-manual tags (#12171)",
+  "zig_target": {}
+}

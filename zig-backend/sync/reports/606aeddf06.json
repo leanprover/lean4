@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-25",
+  "needs_port": false,
+  "sha": "606aeddf067ca0b4bb110ee157ec4a6672d93373",
+  "short_sha": "606aeddf06",
+  "subject": "feat: make dot notation be affected by `export`/`open` (#6189)",
+  "zig_target": {}
+}

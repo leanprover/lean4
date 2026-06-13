@@ -1,0 +1,48 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/FloatArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/FloatArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Log2.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Log2.lean"
+    }
+  ],
+  "date": "2025-02-13",
+  "needs_port": true,
+  "sha": "1ecb4a43aeee6d24322f5cc03233d291fdf34a43",
+  "short_sha": "1ecb4a43ae",
+  "subject": "chore: rename `UIntX.val` -> `UIntX.toFin` (#7050)",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean",
+    "src/Init/Data/FloatArray/Basic.lean": "zig-backend/src/init/Data/FloatArray/Basic.lean",
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean",
+    "src/Init/Data/UInt/BasicAux.lean": "zig-backend/src/init/Data/UInt/BasicAux.lean",
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean",
+    "src/Init/Data/UInt/Log2.lean": "zig-backend/src/init/Data/UInt/Log2.lean"
+  }
+}

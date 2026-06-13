@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-22",
+  "needs_port": false,
+  "sha": "93518d4e4233bed367d166f443b9139a08fb3f71",
+  "short_sha": "93518d4e42",
+  "subject": "perf: let*-bind syntax `match` RHSs before duplicating them",
+  "zig_target": {}
+}

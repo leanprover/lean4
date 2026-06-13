@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-08",
+  "needs_port": true,
+  "sha": "f6c5aed7ef6758f8357d5cee9c509ebc64c4e45a",
+  "short_sha": "f6c5aed7ef",
+  "subject": "feat: add `Int.Linear` normalization support (#7000)",
+  "zig_target": {
+    "src/Init/Data/Int.lean": "zig-backend/src/init/Data/Int.lean",
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-31",
+  "needs_port": false,
+  "sha": "7fefa8660ecc9a5bc98823b4b3867a1cbd6ee31f",
+  "short_sha": "7fefa8660e",
+  "subject": "chore: lake: rm excess `-lstdcpp` from FFI example (#7758)",
+  "zig_target": {}
+}

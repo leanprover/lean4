@@ -1,0 +1,24 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/DecidableEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/DecidableEq.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2022-06-10",
+  "needs_port": true,
+  "sha": "ff15e31e85244c2afa92c3f0785c8bedcdb3e19e",
+  "short_sha": "ff15e31e85",
+  "subject": "refactor: remove redundant theorem",
+  "zig_target": {
+    "src/Init/Data/Array/DecidableEq.lean": "zig-backend/src/init/Data/Array/DecidableEq.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

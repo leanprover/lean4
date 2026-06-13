@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "bc8c809d66c33ff1b3dd9469e54ebdc0f26da6c7",
+  "short_sha": "bc8c809d66",
+  "subject": "refactor; replace `ActiveTarget` with `Job`",
+  "zig_target": {}
+}

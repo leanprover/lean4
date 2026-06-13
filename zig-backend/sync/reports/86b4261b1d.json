@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-11",
+  "needs_port": false,
+  "sha": "86b4261b1dbcb00a2100526b04bd4978be04985c",
+  "short_sha": "86b4261b1d",
+  "subject": "refactor(library/init/lean/elaborator): store locally scoped data in the elab state instead of config, manually reset at scope end",
+  "zig_target": {}
+}

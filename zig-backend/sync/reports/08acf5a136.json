@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-07-21",
+  "needs_port": true,
+  "sha": "08acf5a136b19a1a8a0c9870d8ef4e16fb7e4a78",
+  "short_sha": "08acf5a136",
+  "subject": "fix: remove typeclass assumptions for Nodup.eraseP (#4790)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

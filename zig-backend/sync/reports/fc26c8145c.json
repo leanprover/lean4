@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-12",
+  "needs_port": false,
+  "sha": "fc26c8145c730d24eb3946c7019d7cf83a9e3b51",
+  "short_sha": "fc26c8145c",
+  "subject": "chore: realization of private def should run in private scope (#11618)",
+  "zig_target": {}
+}

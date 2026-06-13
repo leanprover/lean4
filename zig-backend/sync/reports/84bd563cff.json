@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2024-02-16",
+  "needs_port": true,
+  "sha": "84bd563cffe12311b75ed8f9a167dec973120909",
+  "short_sha": "84bd563cff",
+  "subject": "chore: upstream Std's material on Ord and Ordering (#3365)",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

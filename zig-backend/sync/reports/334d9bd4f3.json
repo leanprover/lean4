@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-04-08",
+  "needs_port": false,
+  "sha": "334d9bd4f3dabe81738e74d455ffb4139f84c8e5",
+  "short_sha": "334d9bd4f3",
+  "subject": "feat: add `markMeta` parameter to `addAndCompile` (#13311)",
+  "zig_target": {}
+}

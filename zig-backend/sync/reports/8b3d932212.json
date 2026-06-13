@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "8b3d932212205da8c4cfd53e070ff8d298665754",
+  "short_sha": "8b3d932212",
+  "subject": "chore(library/init/lean/parser): `maxPrec` ==> `appPrec`",
+  "zig_target": {}
+}

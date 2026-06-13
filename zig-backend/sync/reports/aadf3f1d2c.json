@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-10-25",
+  "needs_port": false,
+  "sha": "aadf3f1d2c18fe7639cdac1b75c9220e6a9e4158",
+  "short_sha": "aadf3f1d2c",
+  "subject": "feat: use new `structInstFields` parser to tag structure instance fields",
+  "zig_target": {}
+}

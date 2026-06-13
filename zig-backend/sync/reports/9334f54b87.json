@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-07",
+  "needs_port": false,
+  "sha": "9334f54b87d4607f89065dc1211472fcceb336f9",
+  "short_sha": "9334f54b87",
+  "subject": "feat(library/init/lean/parser/parser): support for whitespace sensitive left binding power",
+  "zig_target": {}
+}

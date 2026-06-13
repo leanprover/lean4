@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-06-04",
+  "needs_port": false,
+  "sha": "4b7cb058d36432f4a2a5f652fb1c5de3d30477e4",
+  "short_sha": "4b7cb058d3",
+  "subject": "feat: Add support for inductive types to FromJson and ToJson handlers.",
+  "zig_target": {}
+}

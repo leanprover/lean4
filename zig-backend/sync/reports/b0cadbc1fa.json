@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-11-29",
+  "needs_port": false,
+  "sha": "b0cadbc1fa2e8080658f96f92595f034031ac984",
+  "short_sha": "b0cadbc1fa",
+  "subject": "fix: support escaped field names in deriving FromJson/ToJson",
+  "zig_target": {}
+}

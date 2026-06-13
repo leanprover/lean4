@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-03",
+  "needs_port": false,
+  "sha": "583b534e6cb535a4aae5902120f0b863ea3abfd2",
+  "short_sha": "583b534e6c",
+  "subject": "refactor: simplify / reorder `LeanConfig`",
+  "zig_target": {}
+}

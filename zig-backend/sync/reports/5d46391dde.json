@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-06",
+  "needs_port": false,
+  "sha": "5d46391dde280f817f7605a9f1568eefaaa03e91",
+  "short_sha": "5d46391dde",
+  "subject": "perf: generate `grind ring` instances on demand (#9228)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "09a375b5408780af46df80d0d507d6f5b1f4f8c2",
+  "short_sha": "09a375b540",
+  "subject": "feat: reject `_` where function is expected",
+  "zig_target": {}
+}

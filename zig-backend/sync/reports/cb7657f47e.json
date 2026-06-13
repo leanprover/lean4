@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2023-01-03",
+  "needs_port": true,
+  "sha": "cb7657f47e0a26526e707401f53c845f248c4178",
+  "short_sha": "cb7657f47e",
+  "subject": "fix: remove nonempty_list tactic",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

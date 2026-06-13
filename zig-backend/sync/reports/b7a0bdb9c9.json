@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-30",
+  "needs_port": false,
+  "sha": "b7a0bdb9c9ba6adade3650c560435031b5cdfa99",
+  "short_sha": "b7a0bdb9c9",
+  "subject": "fix: `Injection.lean`",
+  "zig_target": {}
+}

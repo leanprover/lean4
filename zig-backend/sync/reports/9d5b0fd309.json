@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "9d5b0fd3091b663e459fe3c44f4b5bb7f6af086b",
+  "short_sha": "9d5b0fd309",
+  "subject": "feat(library/init/data/array/basic): add `findRev`",
+  "zig_target": {}
+}

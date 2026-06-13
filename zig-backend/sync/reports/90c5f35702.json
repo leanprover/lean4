@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "90c5f35702b956eb969a96bd2130fe7fd15b8c32",
+  "short_sha": "90c5f35702",
+  "subject": "refactor: implement `decide` and `nativeDecide` as tactics",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "d18305297db4e3040f4367c640609b4bed18845a",
+  "short_sha": "d18305297d",
+  "subject": "feat: add `Expr.getAppRevArgs`",
+  "zig_target": {}
+}

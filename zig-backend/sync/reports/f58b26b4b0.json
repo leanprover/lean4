@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-11",
+  "needs_port": false,
+  "sha": "f58b26b4b0c8eb1821fe6330d4afa472bf720503",
+  "short_sha": "f58b26b4b0",
+  "subject": "chore: update LeanInk",
+  "zig_target": {}
+}

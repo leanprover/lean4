@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AppBuilder.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Exception.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Exception.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    }
+  ],
+  "date": "2019-12-04",
+  "needs_port": true,
+  "sha": "e3b8013c4e02992761356ef0cd6e06c0b8106860",
+  "short_sha": "e3b8013c4e",
+  "subject": "feat: add `mkAppM`",
+  "zig_target": {
+    "src/Init/Lean/Meta/AppBuilder.lean": "zig-backend/src/init/Lean/Meta/AppBuilder.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/Exception.lean": "zig-backend/src/init/Lean/Meta/Exception.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+  }
+}

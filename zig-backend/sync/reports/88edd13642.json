@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    }
+  ],
+  "date": "2025-03-04",
+  "needs_port": true,
+  "sha": "88edd13642c08adb5c3be416165da5c596c55924",
+  "short_sha": "88edd13642",
+  "subject": "feat: alignment of `Int.ediv/fdiv/tdiv` lemmas (#7319)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod/Bootstrap.lean": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean"
+  }
+}

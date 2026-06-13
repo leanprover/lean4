@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-11-05",
+  "needs_port": false,
+  "sha": "ea2b745e575232eb7c474801ded022a47c4eb5a4",
+  "short_sha": "ea2b745e57",
+  "subject": "chore: new module system adjustments for the Mathlib port (#11093)",
+  "zig_target": {}
+}

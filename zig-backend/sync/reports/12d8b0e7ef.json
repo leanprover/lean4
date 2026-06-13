@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-19",
+  "needs_port": false,
+  "sha": "12d8b0e7ef3e124318e25a1498b7b178c1042cdf",
+  "short_sha": "12d8b0e7ef",
+  "subject": "feat(library/init/data): annotate rbtree and rbmap functions",
+  "zig_target": {}
+}

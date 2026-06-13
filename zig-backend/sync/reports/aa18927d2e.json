@@ -1,0 +1,10 @@
+{
+  "author": "Robin Arnez",
+  "backend_changes": [],
+  "date": "2026-03-17",
+  "needs_port": false,
+  "sha": "aa18927d2e59003516552372687bb6779647f3c6",
+  "short_sha": "aa18927d2e",
+  "subject": "fix: segfault in `idbgClientLoop` (#12940)",
+  "zig_target": {}
+}

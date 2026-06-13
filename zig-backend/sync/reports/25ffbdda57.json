@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/name_mangling.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/name_mangling.cpp"
+    },
+    {
+      "path": "src/library/compiler/name_mangling.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/name_mangling.h"
+    }
+  ],
+  "date": "2019-02-07",
+  "needs_port": true,
+  "sha": "25ffbdda5745382dfc00db8e5e432532bc6ff3fd",
+  "short_sha": "25ffbdda57",
+  "subject": "chore(src/*): fix style",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/name_mangling.cpp": "zig-backend/src/library/compiler/name_mangling.cpp",
+    "src/library/compiler/name_mangling.h": "zig-backend/src/library/compiler/name_mangling.h"
+  }
+}

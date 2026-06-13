@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-01",
+  "needs_port": false,
+  "sha": "e213a7ecca22355d839dd18a4dfea19b1ab11d2e",
+  "short_sha": "e213a7ecca",
+  "subject": "feat: add support for heterogeneous operators at `Offset.lean`",
+  "zig_target": {}
+}

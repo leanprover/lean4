@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-28",
+  "needs_port": false,
+  "sha": "0644835a7bdcb463f94671d4f20a6684e0d89154",
+  "short_sha": "0644835a7b",
+  "subject": "chore(tests/playground/Makefile): disable broken benchmark",
+  "zig_target": {}
+}

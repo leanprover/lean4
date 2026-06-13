@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-11-14",
+  "needs_port": true,
+  "sha": "bed15828445d3c96f249cce9d55158c285fb5b35",
+  "short_sha": "bed1582844",
+  "subject": "chore: remove workaround of the workaround",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

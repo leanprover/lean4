@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-05-07",
+  "needs_port": true,
+  "sha": "73b4cf329de001769b3b4315ce4bbfbbb5ccdd7b",
+  "short_sha": "73b4cf329d",
+  "subject": "fix: Windows build",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-12-10",
+  "needs_port": true,
+  "sha": "4f81972996b88f1757e59b1c0166e7a78ce6a60c",
+  "short_sha": "4f81972996",
+  "subject": "fix: missing newline before inductionAlt",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

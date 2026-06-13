@@ -1,0 +1,18 @@
+{
+  "author": "Andr\u00e9s Goens",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2022-08-21",
+  "needs_port": true,
+  "sha": "fa22507e8e57c8c103dede533f6b14a972d0a0ec",
+  "short_sha": "fa22507e8e",
+  "subject": "feat: blocking behavior on EOF for `getLine` (#1479)",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

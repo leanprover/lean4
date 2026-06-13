@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    }
+  ],
+  "date": "2025-05-27",
+  "needs_port": true,
+  "sha": "eaa1bc14ed027463947f0b30779f5196379fef51",
+  "short_sha": "eaa1bc14ed",
+  "subject": "chore: more simp lemmas for LawfulGetElem (#8470)",
+  "zig_target": {
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean"
+  }
+}

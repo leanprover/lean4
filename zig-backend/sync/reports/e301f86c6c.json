@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2025-11-18",
+  "needs_port": true,
+  "sha": "e301f86c6cbded82d59294751c72114c183aed89",
+  "short_sha": "e301f86c6c",
+  "subject": "chore: add `String.Pos.next` (#11238)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

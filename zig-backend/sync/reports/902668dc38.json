@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-03-21",
+  "needs_port": false,
+  "sha": "902668dc3815f127511c3e359bf0ce3f2a1b50f4",
+  "short_sha": "902668dc38",
+  "subject": "fix: use correct positions for header errors (#3728)",
+  "zig_target": {}
+}

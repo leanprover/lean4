@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lex.lean"
+    },
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2026-01-28",
+  "needs_port": true,
+  "sha": "29545dcf104caab87901a4ae796e03cbb09a1958",
+  "short_sha": "29545dcf10",
+  "subject": "feat: do not `dsimp` instances (#12195)",
+  "zig_target": {
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean",
+    "src/Init/Data/List/Lex.lean": "zig-backend/src/init/Data/List/Lex.lean",
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-06",
+  "needs_port": false,
+  "sha": "37c154b6debabda28496ae3a8f111436643b297b",
+  "short_sha": "37c154b6de",
+  "subject": "chore: use flow control rather than exit codes in CI scripts (#2828)",
+  "zig_target": {}
+}

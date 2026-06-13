@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/Promise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Promise.lean"
+    }
+  ],
+  "date": "2025-03-05",
+  "needs_port": true,
+  "sha": "44a518b331d91a781b936b817907e163374965f8",
+  "short_sha": "44a518b331",
+  "subject": "fix: never transfer constants from checked environment into elab branches (#7306)",
+  "zig_target": {
+    "src/Init/System/Promise.lean": "zig-backend/src/init/System/Promise.lean"
+  }
+}

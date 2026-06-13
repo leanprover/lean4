@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-01",
+  "needs_port": false,
+  "sha": "732b266de03a8f0d2bf27f5e115fdaab64b6405d",
+  "short_sha": "732b266de0",
+  "subject": "chore: CI: do not fail on broken links (#3238)",
+  "zig_target": {}
+}

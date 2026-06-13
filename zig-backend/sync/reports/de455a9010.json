@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2021-09-03",
+  "needs_port": true,
+  "sha": "de455a90100e71fd3aba09f29b6284bd581ee197",
+  "short_sha": "de455a9010",
+  "subject": "chore: add `tactic' => ...` which preserves the conv goal annotation",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

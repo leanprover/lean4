@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-03-26",
+  "needs_port": false,
+  "sha": "e9fda1a3e4df006efb2f54fc18b42718eee1df25",
+  "short_sha": "e9fda1a3e4",
+  "subject": "feat: tree map lemmas for maxKey! (#7686)",
+  "zig_target": {}
+}

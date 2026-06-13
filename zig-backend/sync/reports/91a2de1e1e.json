@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIRType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+    }
+  ],
+  "date": "2025-08-22",
+  "needs_port": true,
+  "sha": "91a2de1e1e121aaf5570cbc3c461de985fe5880d",
+  "short_sha": "91a2de1e1e",
+  "subject": "chore: use `forallTelescope` rather than `forallTelescopeReducing` (#10073)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIRType.lean": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+  }
+}

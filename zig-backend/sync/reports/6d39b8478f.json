@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-03",
+  "needs_port": false,
+  "sha": "6d39b8478fbb937c8d0f6f442297d04e0b499506",
+  "short_sha": "6d39b8478f",
+  "subject": "chore(library/init/lean/environment): remove dead field",
+  "zig_target": {}
+}

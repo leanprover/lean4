@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2024-08-19",
+  "needs_port": true,
+  "sha": "51f01d8c8a25cc8ec7bcd4db1e618031a06dc972",
+  "short_sha": "51f01d8c8a",
+  "subject": "feat: expose `index` option to `dsimp` tactic (#5071)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

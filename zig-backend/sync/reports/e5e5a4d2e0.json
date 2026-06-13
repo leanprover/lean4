@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2024-05-24",
+  "needs_port": false,
+  "sha": "e5e5a4d2e0c758c1d207f21655c79d8b79561810",
+  "short_sha": "e5e5a4d2e0",
+  "subject": "chore: fix the `MonadStore` type classes, with semiOutParam (#4205)",
+  "zig_target": {}
+}

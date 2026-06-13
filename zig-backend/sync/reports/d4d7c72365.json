@@ -1,0 +1,10 @@
+{
+  "author": "Leni Aniva",
+  "backend_changes": [],
+  "date": "2024-06-29",
+  "needs_port": false,
+  "sha": "d4d7c72365f9278a384719b176a24cf2adb8e11e",
+  "short_sha": "d4d7c72365",
+  "subject": "fix: Add linking of `-lStd` back into nix build flags on darwin (#4587)",
+  "zig_target": {}
+}

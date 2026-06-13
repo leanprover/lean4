@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-26",
+  "needs_port": false,
+  "sha": "f2858671372c4012cabd575e2d8523d3ad74ea41",
+  "short_sha": "f285867137",
+  "subject": "perf: no need to register axioms outside of the module system (#8121)",
+  "zig_target": {}
+}

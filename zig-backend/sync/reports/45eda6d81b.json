@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "45eda6d81b4c20f0e429e885e3e2ac307a95b3c2",
+  "short_sha": "45eda6d81b",
+  "subject": "perf(library/init/lean/modifiers): add only local entries to state",
+  "zig_target": {}
+}

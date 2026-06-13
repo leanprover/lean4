@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2022-06-24",
+  "needs_port": true,
+  "sha": "6af00ff23ebf4f4a4061fa6d89238736ee910104",
+  "short_sha": "6af00ff23e",
+  "subject": "chore: changes to placate coercions",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

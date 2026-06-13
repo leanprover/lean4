@@ -1,0 +1,48 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Mem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Mem.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    },
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-10-17",
+  "needs_port": true,
+  "sha": "fb4d90a58b684f2cd50b503d7f3f246323d74068",
+  "short_sha": "fb4d90a58b",
+  "subject": "feat: dynamic quotations for categories",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean",
+    "src/Init/Data/Array/Mem.lean": "zig-backend/src/init/Data/Array/Mem.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean",
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

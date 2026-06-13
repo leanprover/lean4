@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-09",
+  "needs_port": false,
+  "sha": "1e1a085ab30caabd913b78b77a46aa3cf9a9b177",
+  "short_sha": "1e1a085ab3",
+  "subject": "test: eq theorem derivation",
+  "zig_target": {}
+}

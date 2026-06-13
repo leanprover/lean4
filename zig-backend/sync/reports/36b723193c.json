@@ -1,0 +1,37 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/FVarSubst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/FVarSubst.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Util.lean"
+    },
+    {
+      "old_path": "src/Init/Lean/ReplaceExpr.lean",
+      "path": "src/Init/Lean/Util/ReplaceExpr.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Lean/Util/ReplaceExpr.lean"
+    }
+  ],
+  "date": "2020-02-17",
+  "needs_port": true,
+  "sha": "36b723193c021125b05afe0106fc3ed8d674bea7",
+  "short_sha": "36b723193c",
+  "subject": "refactor: move `ReplaceExpr` to `Init/Lean/Util`",
+  "zig_target": {
+    "src/Init/Lean.lean": "zig-backend/src/init/Lean.lean",
+    "src/Init/Lean/Meta/Tactic/FVarSubst.lean": "zig-backend/src/init/Lean/Meta/Tactic/FVarSubst.lean",
+    "src/Init/Lean/Util.lean": "zig-backend/src/init/Lean/Util.lean",
+    "src/Init/Lean/Util/ReplaceExpr.lean": "zig-backend/src/init/Lean/Util/ReplaceExpr.lean"
+  }
+}

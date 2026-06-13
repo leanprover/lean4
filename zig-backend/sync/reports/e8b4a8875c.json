@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/FixedParams.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FixedParams.lean"
+    }
+  ],
+  "date": "2022-11-07",
+  "needs_port": true,
+  "sha": "e8b4a8875c0056551b8e9de8da474c45c73df05c",
+  "short_sha": "e8b4a8875c",
+  "subject": "fix: type argument that is a fvar at `FixedParams.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FixedParams.lean": "zig-backend/src/lean/compiler/lcnf/FixedParams.lean"
+  }
+}

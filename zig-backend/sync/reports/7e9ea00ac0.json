@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-09-13",
+  "needs_port": false,
+  "sha": "7e9ea00ac002761b3e040c593cc28a122861ff11",
+  "short_sha": "7e9ea00ac0",
+  "subject": "feat: add option `pp.piBinderNames` (#10374)",
+  "zig_target": {}
+}

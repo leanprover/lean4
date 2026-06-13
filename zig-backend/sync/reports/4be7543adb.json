@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-24",
+  "needs_port": false,
+  "sha": "4be7543adbfb4805b980761182bde945aa3c67ae",
+  "short_sha": "4be7543adb",
+  "subject": "feat: add APIs for issue #1878",
+  "zig_target": {}
+}

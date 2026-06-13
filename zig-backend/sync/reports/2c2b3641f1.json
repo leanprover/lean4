@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-19",
+  "needs_port": true,
+  "sha": "2c2b3641f1a3a8795a2455702db4035f760ac4fb",
+  "short_sha": "2c2b3641f1",
+  "subject": "feat: helper theorem for cutsat (#7156)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

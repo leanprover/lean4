@@ -1,0 +1,36 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Subarray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Subarray.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Operations.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Operations.lean"
+    }
+  ],
+  "date": "2026-02-20",
+  "needs_port": true,
+  "sha": "10770eda3e24cdc7a633079093de5344acfad17b",
+  "short_sha": "10770eda3e",
+  "subject": "refactor: remove Subarray.foldl and other slice operation aliases (#12441)",
+  "zig_target": {
+    "src/Init/Data/Array/Subarray.lean": "zig-backend/src/init/Data/Array/Subarray.lean",
+    "src/Init/Data/Slice/Array/Iterator.lean": "zig-backend/src/init/Data/Slice/Array/Iterator.lean",
+    "src/Init/Data/Slice/Array/Lemmas.lean": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean",
+    "src/Init/Data/Slice/Operations.lean": "zig-backend/src/init/Data/Slice/Operations.lean"
+  }
+}

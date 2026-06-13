@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-12-28",
+  "needs_port": true,
+  "sha": "3253231d59157e789004167f1ad8384e01c04627",
+  "short_sha": "3253231d59",
+  "subject": "feat: make `rw []` syntactically correct",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

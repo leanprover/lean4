@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "7359f950886997e16fcba470f6fb23ea6aa64365",
+  "short_sha": "7359f95088",
+  "subject": "refactor: treat `casesOn` and `matcher` applications uniformly",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-09",
+  "needs_port": false,
+  "sha": "1215333e0ff61fcde76d21514c9c9a039e7c2c70",
+  "short_sha": "1215333e0f",
+  "subject": "chore: use `simpMacroScopes` at `ppGoal`",
+  "zig_target": {}
+}

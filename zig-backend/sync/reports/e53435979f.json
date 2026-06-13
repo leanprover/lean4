@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-25",
+  "needs_port": false,
+  "sha": "e53435979ff8226e895dcde94ca72c47790e35c8",
+  "short_sha": "e53435979f",
+  "subject": "fix: remove hacky `addAutoBoundImplicitsOld`",
+  "zig_target": {}
+}

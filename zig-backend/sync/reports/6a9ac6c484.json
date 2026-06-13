@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-12",
+  "needs_port": false,
+  "sha": "6a9ac6c4846803d1abe98293320c1fbe8afdfa40",
+  "short_sha": "6a9ac6c484",
+  "subject": "test: `rw` without offset constraints modulo",
+  "zig_target": {}
+}

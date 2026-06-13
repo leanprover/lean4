@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-20",
+  "needs_port": false,
+  "sha": "973062e4e1a0e1d13a2d82e82e36232a20f80245",
+  "short_sha": "973062e4e1",
+  "subject": "feat: add Sym.simp theorem set attributes (#13018)",
+  "zig_target": {}
+}

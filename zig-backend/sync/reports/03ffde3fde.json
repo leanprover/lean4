@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range/Polymorphic/PRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/PRange.lean"
+    }
+  ],
+  "date": "2026-02-11",
+  "needs_port": true,
+  "sha": "03ffde3fde4a3c8c45b1f431e8711f5f250e808a",
+  "short_sha": "03ffde3fde",
+  "subject": "feat: `DecidableEq` instances for range types (#12442)",
+  "zig_target": {
+    "src/Init/Data/Range/Polymorphic/PRange.lean": "zig-backend/src/init/Data/Range/Polymorphic/PRange.lean"
+  }
+}

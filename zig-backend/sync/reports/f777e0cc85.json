@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-01",
+  "needs_port": false,
+  "sha": "f777e0cc85d54307c7af00adee430a75f2f34b22",
+  "short_sha": "f777e0cc85",
+  "subject": "feat: macro expander for `match_expr` terms",
+  "zig_target": {}
+}

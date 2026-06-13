@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-23",
+  "needs_port": true,
+  "sha": "1819dc88ff5b70a46e35280f4968b8b0d7c74041",
+  "short_sha": "1819dc88ff",
+  "subject": "feat: cutsat relevant-term internalization (#7202)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

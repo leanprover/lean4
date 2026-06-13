@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-15",
+  "needs_port": false,
+  "sha": "d2dc38fdb62e2018672601fa5d893f3bc41f5c7a",
+  "short_sha": "d2dc38fdb6",
+  "subject": "perf: use `HasConstCache` to minimize the number of visited terms at Structural and WF",
+  "zig_target": {}
+}

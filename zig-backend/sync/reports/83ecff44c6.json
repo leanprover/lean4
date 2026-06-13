@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-19",
+  "needs_port": false,
+  "sha": "83ecff44c6f74c56fb24c14518d0e9d74c18f67c",
+  "short_sha": "83ecff44c6",
+  "subject": "test: make infoTree an output test",
+  "zig_target": {}
+}

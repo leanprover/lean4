@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "f1f8c2482f382ab45a2c5c30ee9eff427b4557a9",
+  "short_sha": "f1f8c2482f",
+  "subject": "feat: prepare to change `attrKind` parser",
+  "zig_target": {}
+}

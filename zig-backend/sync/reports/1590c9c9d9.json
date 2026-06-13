@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-01-27",
+  "needs_port": false,
+  "sha": "1590c9c9d935e894daef733ca6737af5d72b8e20",
+  "short_sha": "1590c9c9d9",
+  "subject": "chore: lake: fix tests on non-Linux platforms (#11955)",
+  "zig_target": {}
+}

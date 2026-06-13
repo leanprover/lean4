@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-20",
+  "needs_port": false,
+  "sha": "96a9c7db788d79342d5e25dbf4e82953db25c008",
+  "short_sha": "96a9c7db78",
+  "subject": "feat(kernel/expr): add helper functions for computing scalar data offsets",
+  "zig_target": {}
+}

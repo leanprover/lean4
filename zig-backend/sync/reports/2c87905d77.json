@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-31",
+  "needs_port": false,
+  "sha": "2c87905d77b707c3283c1de759fd63269ac386a1",
+  "short_sha": "2c87905d77",
+  "subject": "feat: E-matching procedure for the `grind` tactic (#6481)",
+  "zig_target": {}
+}

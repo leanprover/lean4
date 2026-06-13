@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2024-06-01",
+  "needs_port": true,
+  "sha": "299cb9a80698f332565acc3a8ac23c74ad5be878",
+  "short_sha": "299cb9a806",
+  "subject": "chore: remove @[simp] from bind_eq_some (#4314)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

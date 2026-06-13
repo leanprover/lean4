@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-26",
+  "needs_port": false,
+  "sha": "669de39df8c6d15008abe1e562d6fa8681576873",
+  "short_sha": "669de39df8",
+  "subject": "refactor(library/init/lean/parser/reader/module): make `symbol` a local coercion",
+  "zig_target": {}
+}

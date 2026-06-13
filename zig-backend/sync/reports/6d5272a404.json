@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "6d5272a404cf12c508fc72f6bdb2fe4b230e221b",
+  "short_sha": "6d5272a404",
+  "subject": "fix: new compiler type checker",
+  "zig_target": {}
+}

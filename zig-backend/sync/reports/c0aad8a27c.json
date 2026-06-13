@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIRType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+    }
+  ],
+  "date": "2025-07-01",
+  "needs_port": true,
+  "sha": "c0aad8a27cf529e572929056ab676b482505a15e",
+  "short_sha": "c0aad8a27c",
+  "subject": "chore: remove unnecessary special case for Bool (#9136)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIRType.lean": "zig-backend/src/lean/compiler/ir/ToIRType.lean"
+  }
+}

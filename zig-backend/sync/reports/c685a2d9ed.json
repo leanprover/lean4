@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-09",
+  "needs_port": false,
+  "sha": "c685a2d9ed9030f914bb6986f008eb3371970147",
+  "short_sha": "c685a2d9ed",
+  "subject": "feat: add `splitIte` flag to `splitTarget?` tactic",
+  "zig_target": {}
+}

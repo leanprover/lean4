@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Pairwise.lean"
+    }
+  ],
+  "date": "2025-05-26",
+  "needs_port": true,
+  "sha": "e2fc9ba92efe6074ecc1b3f63b70368d1943522c",
+  "short_sha": "e2fc9ba92e",
+  "subject": "feat: grind annotations for List.Pairwise/Nodup (#8482)",
+  "zig_target": {
+    "src/Init/Data/List/Pairwise.lean": "zig-backend/src/init/Data/List/Pairwise.lean"
+  }
+}

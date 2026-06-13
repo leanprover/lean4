@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "a57573a5b7ec451da4d426cc4c0e293e27831fca",
+  "short_sha": "a57573a5b7",
+  "subject": "fix(library/init/lean/parser/command): keywords in notation actions are not actual keywords",
+  "zig_target": {}
+}

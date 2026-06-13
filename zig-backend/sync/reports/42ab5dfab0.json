@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-04-23",
+  "needs_port": false,
+  "sha": "42ab5dfab0785fb0ea601950c078d6087dadd0f4",
+  "short_sha": "42ab5dfab0",
+  "subject": "fix: have `runTermElabM` reset local context when types of autobound implicits contain metavariables (#7952)",
+  "zig_target": {}
+}

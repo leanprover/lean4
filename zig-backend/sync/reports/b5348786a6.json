@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2023-10-12",
+  "needs_port": false,
+  "sha": "b5348786a6b791e4f37f629f5e1a06398ec0f640",
+  "short_sha": "b5348786a6",
+  "subject": "fix: pre-dependency-build-mode compatibility",
+  "zig_target": {}
+}

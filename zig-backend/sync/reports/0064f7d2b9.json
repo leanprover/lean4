@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-16",
+  "needs_port": false,
+  "sha": "0064f7d2b9c68fcdaeb8023ba8c2c4470b481afb",
+  "short_sha": "0064f7d2b9",
+  "subject": "chore: add `let+patterns` case",
+  "zig_target": {}
+}

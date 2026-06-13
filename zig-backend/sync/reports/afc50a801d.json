@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/WHNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/WHNF.lean"
+    }
+  ],
+  "date": "2019-12-13",
+  "needs_port": true,
+  "sha": "afc50a801de4100e2dfa13e00be7b8b0f2f37134",
+  "short_sha": "afc50a801d",
+  "subject": "feat: add lazy unfolding to field name resolution",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean",
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean",
+    "src/Init/Lean/Meta/WHNF.lean": "zig-backend/src/init/Lean/Meta/WHNF.lean"
+  }
+}

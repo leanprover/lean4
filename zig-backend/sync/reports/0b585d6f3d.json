@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-12",
+  "needs_port": false,
+  "sha": "0b585d6f3d5b372b1bf0689ce4f0eaa5a596999e",
+  "short_sha": "0b585d6f3d",
+  "subject": "fix: bug at `Compiler/Check.lean`",
+  "zig_target": {}
+}

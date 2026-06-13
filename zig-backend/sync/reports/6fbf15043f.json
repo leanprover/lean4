@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-25",
+  "needs_port": false,
+  "sha": "6fbf15043f77751e9747e831f779703836524084",
+  "short_sha": "6fbf15043f",
+  "subject": "refactor: move `InfoState` to `CoreM`",
+  "zig_target": {}
+}

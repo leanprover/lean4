@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2024-10-08",
+  "needs_port": true,
+  "sha": "6cdede33fb7888cabd637a183e251f0a9a87bb4a",
+  "short_sha": "6cdede33fb",
+  "subject": "fix: make sure name literals use escaping when pretty printing (#5639)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

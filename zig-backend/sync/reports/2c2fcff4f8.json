@@ -1,0 +1,66 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Defs.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Repr.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Search.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Search.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    },
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    }
+  ],
+  "date": "2025-11-11",
+  "needs_port": true,
+  "sha": "2c2fcff4f8ce2048d8f2e5e4be4d966cf8f093d9",
+  "short_sha": "2c2fcff4f8",
+  "subject": "refactor: do not use `String.Iterator` (#11127)",
+  "zig_target": {
+    "src/Init/Data/String.lean": "zig-backend/src/init/Data/String.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Defs.lean": "zig-backend/src/init/Data/String/Defs.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean",
+    "src/Init/Data/String/Iterator.lean": "zig-backend/src/init/Data/String/Iterator.lean",
+    "src/Init/Data/String/Repr.lean": "zig-backend/src/init/Data/String/Repr.lean",
+    "src/Init/Data/String/Search.lean": "zig-backend/src/init/Data/String/Search.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean",
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean"
+  }
+}

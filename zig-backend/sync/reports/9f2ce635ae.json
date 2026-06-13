@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-09-29",
+  "needs_port": false,
+  "sha": "9f2ce635ae4012f6d180a95d53735c4534196929",
+  "short_sha": "9f2ce635ae",
+  "subject": "fix: unknown identifier code actions with nested `open` (#10619)",
+  "zig_target": {}
+}

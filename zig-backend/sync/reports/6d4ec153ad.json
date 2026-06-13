@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-23",
+  "needs_port": false,
+  "sha": "6d4ec153ad60f5ac3e4aee8b93dcd1f0cb4e414b",
+  "short_sha": "6d4ec153ad",
+  "subject": "feat: ship cadical (#4325)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-06-05",
+  "needs_port": true,
+  "sha": "8ae42417ebad4542a3add830a261ce8df1d3e77d",
+  "short_sha": "8ae42417eb",
+  "subject": "fix(library/compiler/vm_compiler): missing case",
+  "zig_target": {
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

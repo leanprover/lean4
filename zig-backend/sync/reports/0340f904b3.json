@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-16",
+  "needs_port": false,
+  "sha": "0340f904b35ac90edef7e64bc81b53df7ecd7e14",
+  "short_sha": "0340f904b3",
+  "subject": "fix: `check` must check projections (#6398)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-31",
+  "needs_port": false,
+  "sha": "4a317ae3f8d743e54e7bfbc0f030d3e4529f6572",
+  "short_sha": "4a317ae3f8",
+  "subject": "fix: `.yesWithDeltaI` behavior (#3816)",
+  "zig_target": {}
+}

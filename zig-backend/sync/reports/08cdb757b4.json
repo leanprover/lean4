@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2019-06-18",
+  "needs_port": true,
+  "sha": "08cdb757b4f09b8cafd4770ec302623a691542bd",
+  "short_sha": "08cdb757b4",
+  "subject": "feat(library/init/lean/environment): add `Environment.addAndCompile`",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "euprunin",
+  "backend_changes": [],
+  "date": "2024-09-23",
+  "needs_port": false,
+  "sha": "edf23272295667edbe4c3e24b717514fca766782",
+  "short_sha": "edf2327229",
+  "subject": "chore: fix spelling mistakes in examples (doc/examples/) (#5434)",
+  "zig_target": {}
+}

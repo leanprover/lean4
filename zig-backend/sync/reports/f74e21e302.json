@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-10",
+  "needs_port": false,
+  "sha": "f74e21e302bb5eaa372a406649e034ae055988e0",
+  "short_sha": "f74e21e302",
+  "subject": "fix: `grind` injection should not fail at `clear` (#11126)",
+  "zig_target": {}
+}

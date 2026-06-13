@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-02",
+  "needs_port": false,
+  "sha": "ca9b494e4dc3b8666732ed4bfd9ec92457a8c8e6",
+  "short_sha": "ca9b494e4d",
+  "subject": "chore: use `specialize` tactic",
+  "zig_target": {}
+}

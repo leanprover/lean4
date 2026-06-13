@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-07-20",
+  "needs_port": false,
+  "sha": "5bf5abe84f79d8a21740700406e4002fa18c1347",
+  "short_sha": "5bf5abe84f",
+  "subject": "test: update 533 test to include docstring",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-10-19",
+  "needs_port": false,
+  "sha": "23c68cfc5b59b0e6bc9023e25e6eceaac23f7137",
+  "short_sha": "23c68cfc5b",
+  "subject": "fix: remove unguarded `check_interrupted` call",
+  "zig_target": {}
+}

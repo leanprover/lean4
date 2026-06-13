@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-02",
+  "needs_port": false,
+  "sha": "e3605440015611667eb122763e2f9eb100df8df7",
+  "short_sha": "e360544001",
+  "subject": "chore: don't run irrelevant CI steps (#2807)",
+  "zig_target": {}
+}

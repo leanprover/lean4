@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2025-04-03",
+  "needs_port": true,
+  "sha": "092ece5d496df87db57b760da89eac7712c8edbd",
+  "short_sha": "092ece5d49",
+  "subject": "feat: let conv tactics `ext`/`intro`/`enter` take `_` (#7806)",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

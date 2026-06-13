@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-01",
+  "needs_port": false,
+  "sha": "32618b0398602a23b5fbec48c9d43e7ad1ee9cd8",
+  "short_sha": "32618b0398",
+  "subject": "chore: remove built-in prefix operators",
+  "zig_target": {}
+}

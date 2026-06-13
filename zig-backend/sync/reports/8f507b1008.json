@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-06-05",
+  "needs_port": false,
+  "sha": "8f507b100848a99f04396cc9b7476f6c89400e8e",
+  "short_sha": "8f507b1008",
+  "subject": "chore: simplify lean4checker step in release checklist (#4355)",
+  "zig_target": {}
+}

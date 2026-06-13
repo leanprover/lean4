@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-11-06",
+  "needs_port": false,
+  "sha": "f404c5c446781ba26607b443ba7fbec2ec2784d3",
+  "short_sha": "f404c5c446",
+  "subject": "refactor(library/init/data): make sure `uint*` and `usize` are irreducible",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-12",
+  "needs_port": true,
+  "sha": "ec1809de74f2a4e91fb5edcdef9bca2ef83d34f1",
+  "short_sha": "ec1809de74",
+  "subject": "fix(library/compiler/lcnf): restore cache",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

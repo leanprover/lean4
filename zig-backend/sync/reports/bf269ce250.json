@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2026-04-21",
+  "needs_port": false,
+  "sha": "bf269ce2501464b4e8587d9a704d66c111381b9f",
+  "short_sha": "bf269ce250",
+  "subject": "fix: preserve nesting level across empty doc snippet nesting (#13489)",
+  "zig_target": {}
+}

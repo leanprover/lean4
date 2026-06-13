@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-01-13",
+  "needs_port": false,
+  "sha": "8483ac7258b84b179f3ec369df533452afdeb758",
+  "short_sha": "8483ac7258",
+  "subject": "fix: adjustments to the datetime library (#6431)",
+  "zig_target": {}
+}

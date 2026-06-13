@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/runtime/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/init_module.cpp"
+    },
+    {
+      "path": "src/runtime/platform.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/platform.cpp"
+    },
+    {
+      "path": "src/runtime/platform.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/platform.h"
+    }
+  ],
+  "date": "2019-07-25",
+  "needs_port": true,
+  "sha": "f6d3fc881d2db7132bf5ab38a2f7f2db3915cb8e",
+  "short_sha": "f6d3fc881d",
+  "subject": "feat(library/init): add platform.cpp",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/init_module.cpp": "zig-backend/src/runtime/init_module.cpp",
+    "src/runtime/platform.cpp": "zig-backend/src/runtime/platform.cpp",
+    "src/runtime/platform.h": "zig-backend/src/runtime/platform.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-16",
+  "needs_port": false,
+  "sha": "2ef6605cdfb62f511c9791ac7b5e7acfcac31689",
+  "short_sha": "2ef6605cdf",
+  "subject": "feat: do not simplify proofs",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    }
+  ],
+  "date": "2018-05-17",
+  "needs_port": true,
+  "sha": "dede61b122a6f229db9180c9840a091f810c2c50",
+  "short_sha": "dede61b122",
+  "subject": "feat(library/init/lean/ir): add `tag` and `tag_ref` instructions",
+  "zig_target": {
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h"
+  }
+}

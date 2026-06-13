@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-09",
+  "needs_port": false,
+  "sha": "fa17ea27159e65ee76a5e72df917e603e528b765",
+  "short_sha": "fa17ea2715",
+  "subject": "chore: include generation in `grind.internalize` trace message (#9812)",
+  "zig_target": {}
+}

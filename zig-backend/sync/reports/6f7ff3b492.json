@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-24",
+  "needs_port": false,
+  "sha": "6f7ff3b492cfce24e28907fc52a5119b8504791b",
+  "short_sha": "6f7ff3b492",
+  "subject": "chore: remove unnecessary type annotations",
+  "zig_target": {}
+}

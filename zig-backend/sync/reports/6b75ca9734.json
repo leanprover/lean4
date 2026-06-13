@@ -1,0 +1,10 @@
+{
+  "author": "Mariana Alanis",
+  "backend_changes": [],
+  "date": "2022-06-09",
+  "needs_port": false,
+  "sha": "6b75ca97349692f8789bd88e898ab88e3c056bf8",
+  "short_sha": "6b75ca9734",
+  "subject": "fix: add a better handlng in case only worker crashes (and server stays available)",
+  "zig_target": {}
+}

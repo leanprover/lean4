@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    }
+  ],
+  "date": "2024-03-02",
+  "needs_port": true,
+  "sha": "18306db3969b451db2bee37629bdfb43fa95fca1",
+  "short_sha": "18306db396",
+  "subject": "chore: protect Int.add_right_inj et al (#3551)",
+  "zig_target": {
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-06",
+  "needs_port": false,
+  "sha": "a31eb94e5afcbb5cc5f3ad00b72ecca6119a5027",
+  "short_sha": "a31eb94e5a",
+  "subject": "feat: normalize `NatModule` equations (#10281)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-07",
+  "needs_port": false,
+  "sha": "443615f27e53a0fa96a3d09b1d2f3f72fbf7f003",
+  "short_sha": "443615f27e",
+  "subject": "test: remove `printDecls` test (#13677)",
+  "zig_target": {}
+}

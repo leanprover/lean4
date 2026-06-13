@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-20",
+  "needs_port": false,
+  "sha": "5f6bbe59ef05fcc5df33804a10515d75c04e176c",
+  "short_sha": "5f6bbe59ef",
+  "subject": "doc: fold sub-chapters by default",
+  "zig_target": {}
+}

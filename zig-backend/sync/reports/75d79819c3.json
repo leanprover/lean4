@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-11-25",
+  "needs_port": false,
+  "sha": "75d79819c316f37fba9db5b7bc18c1bd24387bdc",
+  "short_sha": "75d79819c3",
+  "subject": "feat: catch and provide context for misuse of NNG-style induction pattern (#11347)",
+  "zig_target": {}
+}

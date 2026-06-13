@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-05-16",
+  "needs_port": false,
+  "sha": "d64eaf4597546d7a9fe3d69124c7d8ed7b49c5b4",
+  "short_sha": "d64eaf4597",
+  "subject": "chore: CI: verify lake cache step (#13735)",
+  "zig_target": {}
+}

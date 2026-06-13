@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AbstractMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/SynthInstance.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+    }
+  ],
+  "date": "2019-12-03",
+  "needs_port": true,
+  "sha": "3c515dcd2159aecc5807fbe12fb232b4fefc8e7c",
+  "short_sha": "3c515dcd21",
+  "subject": "feat: missing methods",
+  "zig_target": {
+    "src/Init/Lean/Meta/AbstractMVars.lean": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean",
+    "src/Init/Lean/Meta/SynthInstance.lean": "zig-backend/src/init/Lean/Meta/SynthInstance.lean"
+  }
+}

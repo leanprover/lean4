@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-22",
+  "needs_port": false,
+  "sha": "9f90dbfd3d3583ac888fa8b684e531f33fe9d872",
+  "short_sha": "9f90dbfd3d",
+  "subject": "feat(library/init/lean/parser/syntax): improve `syntax.get_pos` for more error positions",
+  "zig_target": {}
+}

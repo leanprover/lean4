@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-23",
+  "needs_port": false,
+  "sha": "7d60d8b5639170dc893b07841892493bf0475af6",
+  "short_sha": "7d60d8b563",
+  "subject": "feat: safer #eval, and #eval! (#4810)",
+  "zig_target": {}
+}

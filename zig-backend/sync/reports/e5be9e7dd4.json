@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-04",
+  "needs_port": false,
+  "sha": "e5be9e7dd4ddbbc14992f0b8d55d971326b53101",
+  "short_sha": "e5be9e7dd4",
+  "subject": "chore: helpers for parser debugging",
+  "zig_target": {}
+}

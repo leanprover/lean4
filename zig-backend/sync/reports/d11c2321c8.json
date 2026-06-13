@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-30",
+  "needs_port": true,
+  "sha": "d11c2321c8e7db54ed0e03e3d7d92025651e9dcb",
+  "short_sha": "d11c2321c8",
+  "subject": "chore: precedence of nested parsers",
+  "zig_target": {
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+  }
+}

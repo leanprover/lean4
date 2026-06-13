@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-06-21",
+  "needs_port": false,
+  "sha": "84e46162b5d25581039cd575c40bc6bd347f0853",
+  "short_sha": "84e46162b5",
+  "subject": "feat: more infrastructure for tactic documentation (#4490)",
+  "zig_target": {}
+}

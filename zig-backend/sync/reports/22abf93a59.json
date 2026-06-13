@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-06",
+  "needs_port": false,
+  "sha": "22abf93a5999e55b3158ec74381bdb39cf943c86",
+  "short_sha": "22abf93a59",
+  "subject": "chore: CLAUDE.md: test moddocs (#13662)",
+  "zig_target": {}
+}

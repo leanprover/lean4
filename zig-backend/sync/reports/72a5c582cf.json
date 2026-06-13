@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "72a5c582cf89d00ef7631c944e01fb5aeee86182",
+  "short_sha": "72a5c582cf",
+  "subject": "chore: Nix: ignore build messages in test capture",
+  "zig_target": {}
+}

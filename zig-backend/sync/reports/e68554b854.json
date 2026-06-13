@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2023-05-17",
+  "needs_port": true,
+  "sha": "e68554b854c3ee95a359b90b7ae95476c2797ae6",
+  "short_sha": "e68554b854",
+  "subject": "fix: use empty string instead of mk",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

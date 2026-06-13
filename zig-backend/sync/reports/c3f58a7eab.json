@@ -1,0 +1,18 @@
+{
+  "author": "Ed Ayers",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2022-07-29",
+  "needs_port": true,
+  "sha": "c3f58a7eabc3110c28faa49cce17d47c3c747840",
+  "short_sha": "c3f58a7eab",
+  "subject": "feat: add a message if Lean 4 is called with the Lean 3 extension",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

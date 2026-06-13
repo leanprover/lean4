@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-01",
+  "needs_port": false,
+  "sha": "bb5cf966641bd098240afb250053542b923afe5a",
+  "short_sha": "bb5cf96664",
+  "subject": "fix: fetch target type signatures",
+  "zig_target": {}
+}

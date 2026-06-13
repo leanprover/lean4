@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-28",
+  "needs_port": false,
+  "sha": "157fbd08b450548849eed7e8b43d0f3105aa788f",
+  "short_sha": "157fbd08b4",
+  "subject": "feat: set_library_suggestions makes auxiliary def, rather than storing Syntax (#11396)",
+  "zig_target": {}
+}

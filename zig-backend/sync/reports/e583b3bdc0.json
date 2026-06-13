@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-02-01",
+  "needs_port": true,
+  "sha": "e583b3bdc05203ceb2686759e923c4d3929e1ff1",
+  "short_sha": "e583b3bdc0",
+  "subject": "feat: allow `@` modifier at `inductionAlt`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

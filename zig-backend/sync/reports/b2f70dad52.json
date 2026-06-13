@@ -1,0 +1,60 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Perm.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Perm.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Basic.lean"
+    }
+  ],
+  "date": "2024-12-01",
+  "needs_port": true,
+  "sha": "b2f70dad52dfd72975ab08c8b24d5d46f79e9d7b",
+  "short_sha": "b2f70dad52",
+  "subject": "feat: Array.swap_perm (#6272)",
+  "zig_target": {
+    "src/Init/Data/Array.lean": "zig-backend/src/init/Data/Array.lean",
+    "src/Init/Data/Array/Perm.lean": "zig-backend/src/init/Data/Array/Perm.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat.lean": "zig-backend/src/init/Data/List/Nat.lean",
+    "src/Init/Data/List/Nat/Perm.lean": "zig-backend/src/init/Data/List/Nat/Perm.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/Perm.lean": "zig-backend/src/init/Data/List/Perm.lean",
+    "src/Init/Data/Vector/Basic.lean": "zig-backend/src/init/Data/Vector/Basic.lean"
+  }
+}

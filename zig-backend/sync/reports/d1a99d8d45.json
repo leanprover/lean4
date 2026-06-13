@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-08",
+  "needs_port": false,
+  "sha": "d1a99d8d45a3460f9150997201345aadc398ab19",
+  "short_sha": "d1a99d8d45",
+  "subject": "fix: avoid delaborating with field notation if object is a metavariable (#6014)",
+  "zig_target": {}
+}

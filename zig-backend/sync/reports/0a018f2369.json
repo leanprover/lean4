@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-30",
+  "needs_port": false,
+  "sha": "0a018f2369fa8edbd3dd6c47819c643d5cb145fa",
+  "short_sha": "0a018f2369",
+  "subject": "chore: add support for `binop%` in patterns",
+  "zig_target": {}
+}

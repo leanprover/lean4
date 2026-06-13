@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-04-03",
+  "needs_port": false,
+  "sha": "11d21af15ebae127ff07e277518327a2697b6ce3",
+  "short_sha": "11d21af15e",
+  "subject": "test: add test for mixed autoParam/optParam for structure field defaults (#7815)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "82c35eb517a19739dd96a175275432db5a2148dd",
+  "short_sha": "82c35eb517",
+  "subject": "refactor: rename goalDotAlt/goalCaseAlt to invariantDotAlt/invariantCaseAlt (#13160)",
+  "zig_target": {}
+}

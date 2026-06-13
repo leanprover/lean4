@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-02-13",
+  "needs_port": true,
+  "sha": "4fe0104b528f23cb865d438aafb5ae615cdb175c",
+  "short_sha": "4fe0104b52",
+  "subject": "feat: add `autoParam`",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-04",
+  "needs_port": false,
+  "sha": "0f207380c7aff607a03b8b16d3f0bb4bad31dbf6",
+  "short_sha": "0f207380c7",
+  "subject": "test(tests/lean/run/new_inductive): add test for new inductive datatype module",
+  "zig_target": {}
+}

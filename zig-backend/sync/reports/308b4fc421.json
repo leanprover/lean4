@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-09-23",
+  "needs_port": true,
+  "sha": "308b4fc421df13c57a99267de8e7a8cf8de17adb",
+  "short_sha": "308b4fc421",
+  "subject": "chore: always remake `leanmake` tests",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

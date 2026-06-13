@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2023-10-03",
+  "needs_port": false,
+  "sha": "6b93f05cd172640253ad1ed27935167e5a3af981",
+  "short_sha": "6b93f05cd1",
+  "subject": "feat : derive `DecidableEq` for mutual inductives (#2591)",
+  "zig_target": {}
+}

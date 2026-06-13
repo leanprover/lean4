@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-10",
+  "needs_port": false,
+  "sha": "06813e81860c36945b175ac94f31e77fc4aab4ad",
+  "short_sha": "06813e8186",
+  "subject": "doc: new lean4-mode dependency",
+  "zig_target": {}
+}

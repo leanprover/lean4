@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2025-11-19",
+  "needs_port": true,
+  "sha": "59949f89ee75fbff8271546fc6c3ab1911d248ee",
+  "short_sha": "59949f89ee",
+  "subject": "chore: add function `String.Pos.extract` (#11251)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

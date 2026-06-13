@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-28",
+  "needs_port": false,
+  "sha": "eaf1c6b4e1ba8fd60356cdcd9a8ed5752ed10550",
+  "short_sha": "eaf1c6b4e1",
+  "subject": "fix: `replayConst` with `native_decide` (#8157)",
+  "zig_target": {}
+}

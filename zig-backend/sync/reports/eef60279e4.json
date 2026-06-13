@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-15",
+  "needs_port": false,
+  "sha": "eef60279e4b8c0ea43cbc12643a7bcc4985be57d",
+  "short_sha": "eef60279e4",
+  "subject": "tests(tests/playground/expr_const_folding): another example for the paper",
+  "zig_target": {}
+}

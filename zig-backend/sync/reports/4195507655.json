@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-10",
+  "needs_port": false,
+  "sha": "4195507655dbfaf4ad64c7a43509e3a3abfab75d",
+  "short_sha": "4195507655",
+  "subject": "feat: lean4-mode: nicer info view using magit sections",
+  "zig_target": {}
+}

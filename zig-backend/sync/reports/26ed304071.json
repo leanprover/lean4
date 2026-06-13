@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "26ed304071e67295f8a681988527e506f7d99cb2",
+  "short_sha": "26ed304071",
+  "subject": "fix: pretty print simplified macro scopes",
+  "zig_target": {}
+}

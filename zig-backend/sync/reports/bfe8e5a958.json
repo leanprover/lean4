@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-08",
+  "needs_port": false,
+  "sha": "bfe8e5a958f20cd3d1296fa8765c780719a91923",
+  "short_sha": "bfe8e5a958",
+  "subject": "fix: bug in cutsat model construction (#7396)",
+  "zig_target": {}
+}

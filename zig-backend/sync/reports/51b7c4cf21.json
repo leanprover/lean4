@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-07",
+  "needs_port": false,
+  "sha": "51b7c4cf2153a8bf17c055ef72668de861baa02c",
+  "short_sha": "51b7c4cf21",
+  "subject": "chore: remove `Nondet.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-07",
+  "needs_port": false,
+  "sha": "5b9936f38d15c5f7f5de0196e514599181c28eb5",
+  "short_sha": "5b9936f38d",
+  "subject": "chore(library/init/lean/compiler/ir/resetreuse): add namespace `ResetReuse`",
+  "zig_target": {}
+}

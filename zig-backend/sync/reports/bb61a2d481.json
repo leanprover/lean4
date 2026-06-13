@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-10",
+  "needs_port": false,
+  "sha": "bb61a2d4815fa00ccfae0cfc4d71d9483e037b73",
+  "short_sha": "bb61a2d481",
+  "subject": "chore: add grind test for numeral normalization (#10292)",
+  "zig_target": {}
+}

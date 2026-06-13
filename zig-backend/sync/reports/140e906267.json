@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-19",
+  "needs_port": false,
+  "sha": "140e906267fece5dcca0a1e996bf05b5408586dd",
+  "short_sha": "140e906267",
+  "subject": "chore(library/equations_compiler): remove `equation` and `no_equation` macros",
+  "zig_target": {}
+}

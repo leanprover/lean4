@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-10-23",
+  "needs_port": false,
+  "sha": "a3642bd8d9922b33f2224b39c7714911ec37cc6c",
+  "short_sha": "a3642bd8d9",
+  "subject": "feat: add support for expanding let-declarations to `simp`",
+  "zig_target": {}
+}

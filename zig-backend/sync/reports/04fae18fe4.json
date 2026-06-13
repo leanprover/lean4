@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-10",
+  "needs_port": false,
+  "sha": "04fae18fe43af47c7d74086adaefaf33f831c25d",
+  "short_sha": "04fae18fe4",
+  "subject": "fix: make sure stop conv pattern stop at first match",
+  "zig_target": {}
+}

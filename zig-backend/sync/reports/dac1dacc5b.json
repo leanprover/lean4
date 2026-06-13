@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2024-06-19",
+  "needs_port": true,
+  "sha": "dac1dacc5b39911827af68247d575569d9c399b5",
+  "short_sha": "dac1dacc5b",
+  "subject": "feat: add `Rewrite.Config.newGoals` field",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2020-01-13",
+  "needs_port": true,
+  "sha": "b8146cc235dfac8a64f6d1d9c10bac1eb84c2fd6",
+  "short_sha": "b8146cc235",
+  "subject": "feat: add `leadingIdentAsSymbol` to `ParserCategory`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

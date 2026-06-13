@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-31",
+  "needs_port": false,
+  "sha": "62f14514dad48c9f6670392819a05fdfb32766b5",
+  "short_sha": "62f14514da",
+  "subject": "refactor: update built-in tactic error messages (#9633)",
+  "zig_target": {}
+}

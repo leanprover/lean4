@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-16",
+  "needs_port": false,
+  "sha": "c855094ecbfd9a9ac0cf45bd4c1515241a7df499",
+  "short_sha": "c855094ecb",
+  "subject": "feat(library/init/data/char/basic): mark `char.of_nat` as noinline",
+  "zig_target": {}
+}

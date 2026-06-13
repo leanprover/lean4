@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-08",
+  "needs_port": false,
+  "sha": "a4e135790b247a00e243ef1bebb09abd45dec9bc",
+  "short_sha": "a4e135790b",
+  "subject": "feat(library/init/lean/compiler/ir/normids): add `Decl.uniqueIds` predicate",
+  "zig_target": {}
+}

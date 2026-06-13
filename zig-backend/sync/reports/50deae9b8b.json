@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "50deae9b8b70fd5aeb9c9d1e1378e01e788ffbe5",
+  "short_sha": "50deae9b8b",
+  "subject": "feat: copy `binderInfo` and `inferMod` from original field",
+  "zig_target": {}
+}

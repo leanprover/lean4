@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-28",
+  "needs_port": false,
+  "sha": "a06cd40e29a385c6939a4e120a3a7985a40ff042",
+  "short_sha": "a06cd40e29",
+  "subject": "feat: improve match expression support at `simp`",
+  "zig_target": {}
+}

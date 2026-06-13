@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-22",
+  "needs_port": false,
+  "sha": "4b8a8d241d6c078eb8532cff8b8a43d11dc62500",
+  "short_sha": "4b8a8d241d",
+  "subject": "chore: CI: no more need for binary patching",
+  "zig_target": {}
+}

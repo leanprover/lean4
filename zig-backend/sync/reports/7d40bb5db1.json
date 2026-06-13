@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-14",
+  "needs_port": false,
+  "sha": "7d40bb5db1a273f54d0646a77e4fa739eb10e459",
+  "short_sha": "7d40bb5db1",
+  "subject": "fix(kernel/expr): literal RC issue",
+  "zig_target": {}
+}

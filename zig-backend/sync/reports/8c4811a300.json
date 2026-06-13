@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-06",
+  "needs_port": false,
+  "sha": "8c4811a300e317188201aaa91605833b430b9d26",
+  "short_sha": "8c4811a300",
+  "subject": "test: lake: merge `49` and `116` into `tests/serve`",
+  "zig_target": {}
+}

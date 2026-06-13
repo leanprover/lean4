@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "82049c519c85dfbdcf1d6e62ae238421df452d7a",
+  "short_sha": "82049c519c",
+  "subject": "chore: CI: fix MinGW library root",
+  "zig_target": {}
+}

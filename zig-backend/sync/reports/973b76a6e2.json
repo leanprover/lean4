@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "973b76a6e2f0d64a9024b8ab369aef0065bf12d0",
+  "short_sha": "973b76a6e2",
+  "subject": "doc: add `Examples` section",
+  "zig_target": {}
+}

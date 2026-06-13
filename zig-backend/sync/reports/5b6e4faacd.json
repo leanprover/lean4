@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-11-30",
+  "needs_port": false,
+  "sha": "5b6e4faacd0566dccd2604e2587d697fc228d09c",
+  "short_sha": "5b6e4faacd",
+  "subject": "fix: find macOS system libraries in leanc (#2997)",
+  "zig_target": {}
+}

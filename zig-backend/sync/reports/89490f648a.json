@@ -1,0 +1,24 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-02-20",
+  "needs_port": true,
+  "sha": "89490f648a6f41c3f43724a52f6ac61c6072eb4a",
+  "short_sha": "89490f648a",
+  "subject": "fix: address symm and label bugs from #3408 (#3429)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

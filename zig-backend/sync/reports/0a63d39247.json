@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-14",
+  "needs_port": false,
+  "sha": "0a63d39247ff699a35f7e826bb8202ecc913227f",
+  "short_sha": "0a63d39247",
+  "subject": "refactor(library/init/lean): `syntax.mk_app'/mk_app` ~> `syntax.mk_app/mk_capp`",
+  "zig_target": {}
+}

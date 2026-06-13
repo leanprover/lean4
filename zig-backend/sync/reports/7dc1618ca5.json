@@ -1,0 +1,42 @@
+{
+  "author": "Alexander Bentkamp",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/stack_overflow.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/stack_overflow.cpp"
+    },
+    {
+      "path": "src/runtime/stackinfo.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/stackinfo.cpp"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2023-10-04",
+  "needs_port": true,
+  "sha": "7dc1618ca532bc57ee452c9a47eafb01afa75bc3",
+  "short_sha": "7dc1618ca5",
+  "subject": "feat: Web Assembly Build (#2599)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/stack_overflow.cpp": "zig-backend/src/runtime/stack_overflow.cpp",
+    "src/runtime/stackinfo.cpp": "zig-backend/src/runtime/stackinfo.cpp",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

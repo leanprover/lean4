@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-06-06",
+  "needs_port": false,
+  "sha": "5963bc8b8a969251d74a80ac5b65ef8e9d91c58c",
+  "short_sha": "5963bc8b8a",
+  "subject": "fix: remove `IteratorLoop` instances without associated `LawfulIteratorLoop` instances (#8629)",
+  "zig_target": {}
+}

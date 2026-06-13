@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-19",
+  "needs_port": false,
+  "sha": "d7d968cead615471e62e615d8e9c68a6931da50b",
+  "short_sha": "d7d968cead",
+  "subject": "feat(library/init/lean/parser/basic): merge explicit and default (0) token precedences",
+  "zig_target": {}
+}

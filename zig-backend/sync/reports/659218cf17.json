@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-09",
+  "needs_port": false,
+  "sha": "659218cf1702734f55f1601e37177ebc12e23e03",
+  "short_sha": "659218cf17",
+  "subject": "feat: add `[builtin_widget_module]` (#3288)",
+  "zig_target": {}
+}

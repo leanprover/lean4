@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-01-18",
+  "needs_port": false,
+  "sha": "a2ed4db562fda1455b850896c311c6c239a86827",
+  "short_sha": "a2ed4db562",
+  "subject": "fix: `derive BEq` on structure with `Prop`-fields (#3191)",
+  "zig_target": {}
+}

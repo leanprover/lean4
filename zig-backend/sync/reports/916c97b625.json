@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-27",
+  "needs_port": false,
+  "sha": "916c97b625a8221bcd46638e675cd4e064afad01",
+  "short_sha": "916c97b625",
+  "subject": "refactor: simplify `match`-expressions at `pre` simp method",
+  "zig_target": {}
+}

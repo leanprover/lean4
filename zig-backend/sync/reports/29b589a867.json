@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-02-21",
+  "needs_port": true,
+  "sha": "29b589a86738b74a5205f697707ba282b4106829",
+  "short_sha": "29b589a867",
+  "subject": "chore: add @[simp] to BitVec.toNat_mul (#3434)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

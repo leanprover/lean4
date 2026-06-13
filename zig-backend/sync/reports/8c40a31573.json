@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-03",
+  "needs_port": false,
+  "sha": "8c40a315732ff157f377d7abc2d6e3dffeb23d1a",
+  "short_sha": "8c40a31573",
+  "subject": "chore: auto pure was removed",
+  "zig_target": {}
+}

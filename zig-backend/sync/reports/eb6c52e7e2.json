@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-21",
+  "needs_port": false,
+  "sha": "eb6c52e7e2c7c2830f85e5d0dafbbe1da50a9acd",
+  "short_sha": "eb6c52e7e2",
+  "subject": "feat: canonicalizer for the `grind` tactic (#6433)",
+  "zig_target": {}
+}

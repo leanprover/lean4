@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-20",
+  "needs_port": false,
+  "sha": "7b1091770c7977143c6508f50ee8bcb46f022567",
+  "short_sha": "7b1091770c",
+  "subject": "test: `Repr` for `HList`",
+  "zig_target": {}
+}

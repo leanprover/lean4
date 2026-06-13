@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-17",
+  "needs_port": false,
+  "sha": "6263141f7bb7f64c6ec0c7cd98cbd28d1bc435f5",
+  "short_sha": "6263141f7b",
+  "subject": "fix: preserve `InfoTree` when tactics fail",
+  "zig_target": {}
+}

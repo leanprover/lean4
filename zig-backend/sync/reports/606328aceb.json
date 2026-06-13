@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-20",
+  "needs_port": false,
+  "sha": "606328aceb796b3fceb7e83b092ce5e4bbdc03ca",
+  "short_sha": "606328aceb",
+  "subject": "feat: improve simp theorem tracing",
+  "zig_target": {}
+}

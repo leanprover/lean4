@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2025-07-08",
+  "needs_port": true,
+  "sha": "6ad12525adc69fb402d488895e6d200424d49e4b",
+  "short_sha": "6ad12525ad",
+  "subject": "chore: make compileDecls and friends take an Array rather than a List (#9257)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

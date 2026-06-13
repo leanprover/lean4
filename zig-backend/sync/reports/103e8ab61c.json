@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-05",
+  "needs_port": false,
+  "sha": "103e8ab61c9bd1df32da9e14afe3fc20a5ad6e84",
+  "short_sha": "103e8ab61c",
+  "subject": "test: convert examples' main `test.sh` into a Makefile",
+  "zig_target": {}
+}

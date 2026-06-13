@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-25",
+  "needs_port": false,
+  "sha": "4f7067fe7fe1c71622bc7fbc044360d4f3366052",
+  "short_sha": "4f7067fe7f",
+  "subject": "fix: `substEqs` may close input goal",
+  "zig_target": {}
+}

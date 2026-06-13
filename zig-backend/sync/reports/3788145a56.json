@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-20",
+  "needs_port": false,
+  "sha": "3788145a56b457b20f7446ba2be344d97f7149d0",
+  "short_sha": "3788145a56",
+  "subject": "perf: minimize `instantiateRev` number of calls",
+  "zig_target": {}
+}

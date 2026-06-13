@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-11-07",
+  "needs_port": false,
+  "sha": "8a2054ca0908169ff3169233e0d080340fa67109",
+  "short_sha": "8a2054ca09",
+  "subject": "fix: stricter `lakefile.olean` compatibility check",
+  "zig_target": {}
+}

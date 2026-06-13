@@ -1,0 +1,42 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Splits.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Modify.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Modify.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Search.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Search.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    }
+  ],
+  "date": "2025-11-20",
+  "needs_port": true,
+  "sha": "51b67385cc0cd2613764ee4607957fef1f06128b",
+  "short_sha": "51b67385cc",
+  "subject": "refactor: better name for `String.replaceStart` and variants (#11290)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Splits.lean": "zig-backend/src/init/Data/String/Lemmas/Splits.lean",
+    "src/Init/Data/String/Modify.lean": "zig-backend/src/init/Data/String/Modify.lean",
+    "src/Init/Data/String/Search.lean": "zig-backend/src/init/Data/String/Search.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean"
+  }
+}

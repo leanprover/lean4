@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-23",
+  "needs_port": false,
+  "sha": "9f9531fa13c756752cc3559c51495083bed43cc4",
+  "short_sha": "9f9531fa13",
+  "subject": "fix: `getParentDeclName?` inside `where` inside `public def` (#12119)",
+  "zig_target": {}
+}

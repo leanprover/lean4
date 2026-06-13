@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-07-26",
+  "needs_port": false,
+  "sha": "5d54b0b13f5753fb55192a24c399803d6cea3ba8",
+  "short_sha": "5d54b0b13f",
+  "subject": "fix: erroneous \"no goals\" in empty tactic list in `induction`/`cases` and other tactic info improvements (#9553)",
+  "zig_target": {}
+}

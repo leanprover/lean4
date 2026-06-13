@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-05",
+  "needs_port": false,
+  "sha": "fea91abf88f762958c9ef67262161db7bcfe312c",
+  "short_sha": "fea91abf88",
+  "subject": "chore(tests/lean): add leanpkg file to make sure the same cwd is used in test runs and the interactive server",
+  "zig_target": {}
+}

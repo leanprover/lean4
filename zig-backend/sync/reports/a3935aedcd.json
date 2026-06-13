@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-05",
+  "needs_port": false,
+  "sha": "a3935aedcdb074728da2887d113847461b4e76d2",
+  "short_sha": "a3935aedcd",
+  "subject": "chore(CMakeLists): fix install",
+  "zig_target": {}
+}

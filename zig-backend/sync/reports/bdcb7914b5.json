@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-26",
+  "needs_port": false,
+  "sha": "bdcb7914b5e3f2b89498d9cdd8f923dd20633150",
+  "short_sha": "bdcb7914b5",
+  "subject": "chore: check whether pointer equality implies structural equality in `grind` (#6451)",
+  "zig_target": {}
+}

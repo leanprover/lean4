@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/elim_recursors.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/elim_recursors.cpp"
+    },
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    }
+  ],
+  "date": "2018-08-27",
+  "needs_port": true,
+  "sha": "ae18cee0eab32f2bcfc84988ebc29d86b3081aa6",
+  "short_sha": "ae18cee0ea",
+  "subject": "chore(library/module): remove pos_info tracking",
+  "zig_target": {
+    "src/library/compiler/elim_recursors.cpp": "zig-backend/src/library/compiler/elim_recursors.cpp",
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp"
+  }
+}

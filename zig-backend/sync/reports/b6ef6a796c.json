@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-18",
+  "needs_port": false,
+  "sha": "b6ef6a796c387f4b6d9df240ffdfbbbafd69b017",
+  "short_sha": "b6ef6a796c",
+  "subject": "fix(library/init/lean/compiler/ir/borrow): consider borrow annotation only for references",
+  "zig_target": {}
+}

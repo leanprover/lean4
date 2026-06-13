@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2026-01-13",
+  "needs_port": false,
+  "sha": "abed967ded244a582114e95a6052b8c8035b5f39",
+  "short_sha": "abed967ded",
+  "subject": "fix: add `OfNat` instance for `LeanOptionValue` (#11859)",
+  "zig_target": {}
+}

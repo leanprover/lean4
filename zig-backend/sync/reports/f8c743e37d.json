@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-13",
+  "needs_port": false,
+  "sha": "f8c743e37d993b3c95754e4865b88cab8fbea2ce",
+  "short_sha": "f8c743e37d",
+  "subject": "feat: consider all singleton patterns in local forall expressions in `grind` (#9896)",
+  "zig_target": {}
+}

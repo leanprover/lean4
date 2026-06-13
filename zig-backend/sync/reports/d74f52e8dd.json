@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-06",
+  "needs_port": false,
+  "sha": "d74f52e8dd3f210d9b13fb248a492a6a7c69bf0c",
+  "short_sha": "d74f52e8dd",
+  "subject": "feat(library/init/lean/parser/identifier): add `indentifier.lean` back",
+  "zig_target": {}
+}

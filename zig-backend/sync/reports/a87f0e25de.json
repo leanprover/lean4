@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/CompatibleTypes.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompatibleTypes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ConfigOptions.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ConfigOptions.lean"
+    }
+  ],
+  "date": "2022-11-13",
+  "needs_port": true,
+  "sha": "a87f0e25de96cb027b391616f5ad52827abb51e4",
+  "short_sha": "a87f0e25de",
+  "subject": "feat: add `compiler.checkTypes` for sanity checking",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean",
+    "src/Lean/Compiler/LCNF/CompatibleTypes.lean": "zig-backend/src/lean/compiler/lcnf/CompatibleTypes.lean",
+    "src/Lean/Compiler/LCNF/ConfigOptions.lean": "zig-backend/src/lean/compiler/lcnf/ConfigOptions.lean"
+  }
+}

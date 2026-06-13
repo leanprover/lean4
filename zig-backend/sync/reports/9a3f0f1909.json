@@ -1,0 +1,24 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    }
+  ],
+  "date": "2024-02-15",
+  "needs_port": true,
+  "sha": "9a3f0f1909da06fb42bf913884f8302f5accfebe",
+  "short_sha": "9a3f0f1909",
+  "subject": "chore: upstream Std.Data.Array.Init.Lemmas (#3343)",
+  "zig_target": {
+    "src/Init/Data/Array.lean": "zig-backend/src/init/Data/Array.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean"
+  }
+}

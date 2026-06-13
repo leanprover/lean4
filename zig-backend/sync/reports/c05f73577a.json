@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-19",
+  "needs_port": false,
+  "sha": "c05f73577a38e2e9f9af18ac005af39bd82c8626",
+  "short_sha": "c05f73577a",
+  "subject": "fix: expand `doElem` macros *before* lifting nested methods",
+  "zig_target": {}
+}

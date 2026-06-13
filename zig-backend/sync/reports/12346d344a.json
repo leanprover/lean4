@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-07-15",
+  "needs_port": true,
+  "sha": "12346d344a439b9085e7d0df898e6d141e46d770",
+  "short_sha": "12346d344a",
+  "subject": "feat(shell/lean): invoke new parser when `--new-frontend` is used",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

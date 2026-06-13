@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-08",
+  "needs_port": false,
+  "sha": "363f4449e4949d4548a1f884f3dcda56e172ff2a",
+  "short_sha": "363f4449e4",
+  "subject": "test(tests/playground/parser/parser2): add `optional` combinator",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PhaseExt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+    }
+  ],
+  "date": "2022-09-26",
+  "needs_port": true,
+  "sha": "73d5e12ac5fcbc6042bd52823c92290b89f7f328",
+  "short_sha": "73d5e12ac5",
+  "subject": "fix: `baseExt` must not use `SimplePersistentEnvExtension`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PhaseExt.lean": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+  }
+}

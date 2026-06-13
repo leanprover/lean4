@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-22",
+  "needs_port": false,
+  "sha": "6384d118a8505567509421a5e53a5efd0b8e7b11",
+  "short_sha": "6384d118a8",
+  "subject": "fix(frontends/lean/builtin_cmds,library/vm/vm): fix debug build",
+  "zig_target": {}
+}

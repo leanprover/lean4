@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2020-12-18",
+  "needs_port": true,
+  "sha": "68701b86e4032729ad36d655a809a2feb192d41e",
+  "short_sha": "68701b86e4",
+  "subject": "feat: add `Repr Name`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

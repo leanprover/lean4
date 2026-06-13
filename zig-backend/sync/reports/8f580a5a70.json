@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-09",
+  "needs_port": false,
+  "sha": "8f580a5a70369a33340af7c424d0786b8ce76506",
+  "short_sha": "8f580a5a70",
+  "subject": "refactor: remove `SimpLemmaKind`",
+  "zig_target": {}
+}

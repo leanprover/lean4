@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-16",
+  "needs_port": false,
+  "sha": "b247d4901c95eb373a474390bf8251b28ad09730",
+  "short_sha": "b247d4901c",
+  "subject": "feat: allow commands such as `variable` and `universe` in the preamble of a `mutual` command block",
+  "zig_target": {}
+}

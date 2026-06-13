@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-11",
+  "needs_port": false,
+  "sha": "72477f3cc6c81187ed7efda0d1ec8b33d46eff4a",
+  "short_sha": "72477f3cc6",
+  "subject": "feat(library/init/lean/parser/command): improve how `optional` affects `firstTokens` field",
+  "zig_target": {}
+}

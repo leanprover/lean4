@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2018-10-17",
+  "needs_port": true,
+  "sha": "72a6e64d8fa541b3f8040a9d8035bdc50c7dd830",
+  "short_sha": "72a6e64d8f",
+  "subject": "chore(library/compiler/specialize): leftovers",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

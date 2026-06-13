@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Module.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Module.lean"
+    }
+  ],
+  "date": "2025-06-18",
+  "needs_port": true,
+  "sha": "48a0e742d8489e9f63aded8b2ca37782e2e38e39",
+  "short_sha": "48a0e742d8",
+  "subject": "chore: Lean.Grind.IntModule instances (#8859)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Module.lean": "zig-backend/src/init/Grind/Ordered/Module.lean"
+  }
+}

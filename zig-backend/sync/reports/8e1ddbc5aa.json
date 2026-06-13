@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-11-14",
+  "needs_port": false,
+  "sha": "8e1ddbc5aaaa3388f02139d310684791e76ef0aa",
+  "short_sha": "8e1ddbc5aa",
+  "subject": "fix: validate atoms modulo leading and trailing whitespace (#6012)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-01",
+  "needs_port": false,
+  "sha": "91454854f8a62de4e182e50753bced58c148cdad",
+  "short_sha": "91454854f8",
+  "subject": "chore: de-Nixify leanpkg",
+  "zig_target": {}
+}

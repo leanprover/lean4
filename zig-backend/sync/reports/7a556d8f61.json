@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Util.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/PPGoal.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/PPGoal.lean"
+    }
+  ],
+  "date": "2020-02-08",
+  "needs_port": true,
+  "sha": "7a556d8f615a45f135873edbfc0a45bd3834ea12",
+  "short_sha": "7a556d8f61",
+  "subject": "fix: use metavariable local context",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Util.lean": "zig-backend/src/init/Lean/Meta/Tactic/Util.lean",
+    "src/Init/Lean/Util/PPGoal.lean": "zig-backend/src/init/Lean/Util/PPGoal.lean"
+  }
+}

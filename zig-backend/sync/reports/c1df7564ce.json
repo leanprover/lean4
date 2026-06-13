@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-07-17",
+  "needs_port": false,
+  "sha": "c1df7564ce70a8b3cec0200a62a858b727b62dba",
+  "short_sha": "c1df7564ce",
+  "subject": "fix: resolve instances for `HashMap` via unification (#4759)",
+  "zig_target": {}
+}

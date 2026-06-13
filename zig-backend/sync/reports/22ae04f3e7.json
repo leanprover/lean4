@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-21",
+  "needs_port": false,
+  "sha": "22ae04f3e7ea716c4af5cfbab587370d10cc06fa",
+  "short_sha": "22ae04f3e7",
+  "subject": "refactor: FunInd overhaul (#4789)",
+  "zig_target": {}
+}

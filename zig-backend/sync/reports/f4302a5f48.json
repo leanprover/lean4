@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-26",
+  "needs_port": false,
+  "sha": "f4302a5f4883f54b72899025876d581e2519787c",
+  "short_sha": "f4302a5f48",
+  "subject": "test(tests/playground): new versions of unionfind1",
+  "zig_target": {}
+}

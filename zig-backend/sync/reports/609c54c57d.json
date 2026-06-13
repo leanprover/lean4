@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-24",
+  "needs_port": false,
+  "sha": "609c54c57dff0c31bad77fb474e0def88bd74c91",
+  "short_sha": "609c54c57d",
+  "subject": "fix: allow structures to be in `Prop`",
+  "zig_target": {}
+}

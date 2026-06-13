@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/FloatArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/FloatArray/Basic.lean"
+    }
+  ],
+  "date": "2021-10-18",
+  "needs_port": true,
+  "sha": "d03aaec9442afb32d3961dd5fb6eb8afdc399d71",
+  "short_sha": "d03aaec944",
+  "subject": "feat: expose new float/byte array primitives",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean",
+    "src/Init/Data/FloatArray/Basic.lean": "zig-backend/src/init/Data/FloatArray/Basic.lean"
+  }
+}

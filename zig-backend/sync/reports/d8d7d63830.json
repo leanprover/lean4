@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-06",
+  "needs_port": false,
+  "sha": "d8d7d63830538ffb7564c19dd819b732f91ccb63",
+  "short_sha": "d8d7d63830",
+  "subject": "fix: registers eqns info before adding definition",
+  "zig_target": {}
+}

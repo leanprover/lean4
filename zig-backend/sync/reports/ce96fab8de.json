@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-22",
+  "needs_port": false,
+  "sha": "ce96fab8deb3ef5fe6b94755dab52c4d538fa789",
+  "short_sha": "ce96fab8de",
+  "subject": "chore: fix passing additional LEAN(C)_OPTS to `make`",
+  "zig_target": {}
+}

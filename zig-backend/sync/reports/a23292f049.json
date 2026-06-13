@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-27",
+  "needs_port": false,
+  "sha": "a23292f0491c7373bd6ec4ca44d030ded15d1719",
+  "short_sha": "a23292f049",
+  "subject": "feat: add option `tactic.skipAssignedInstances := true` for backward compatibilty (#3526)",
+  "zig_target": {}
+}

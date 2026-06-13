@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-12",
+  "needs_port": false,
+  "sha": "86579c8e246f530cee3c9fba79b2048e9ceddc25",
+  "short_sha": "86579c8e24",
+  "subject": "fix: generate `SizeOf` spec theorems for inductives with private constructors (#13374)",
+  "zig_target": {}
+}

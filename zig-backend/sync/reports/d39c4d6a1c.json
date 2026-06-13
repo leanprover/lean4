@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-02",
+  "needs_port": false,
+  "sha": "d39c4d6a1c7bf8d44739cad9236a767586d9c10f",
+  "short_sha": "d39c4d6a1c",
+  "subject": "chore: pr-release: use right tag name (#4632)",
+  "zig_target": {}
+}

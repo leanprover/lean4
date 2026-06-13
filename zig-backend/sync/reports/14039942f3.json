@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2026-01-10",
+  "needs_port": true,
+  "sha": "14039942f31fb0beebbd0bf336c2be62ff7e2812",
+  "short_sha": "14039942f3",
+  "subject": "refactor: derive BEq for Option earlier in import chain (#11960)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

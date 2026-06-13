@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-20",
+  "needs_port": false,
+  "sha": "54290d537b6c4da2240eae70a0e9beb96a1aaab6",
+  "short_sha": "54290d537b",
+  "subject": "fix: deterministic fvar alias printing",
+  "zig_target": {}
+}

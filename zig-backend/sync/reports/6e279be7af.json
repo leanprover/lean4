@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-20",
+  "needs_port": false,
+  "sha": "6e279be7af28f4d89c3e92c5cfb193bfe8714b58",
+  "short_sha": "6e279be7af",
+  "subject": "chore: add `Name.getString!`",
+  "zig_target": {}
+}

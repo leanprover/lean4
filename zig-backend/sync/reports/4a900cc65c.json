@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    }
+  ],
+  "date": "2025-02-13",
+  "needs_port": true,
+  "sha": "4a900cc65ce581dbca8cb67e58620a35023cdcac",
+  "short_sha": "4a900cc65c",
+  "subject": "chore: rename `IntX.toNat` -> `IntX.toNatClampNeg` (#7066)",
+  "zig_target": {
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-26",
+  "needs_port": false,
+  "sha": "b902dc3dacb4ee87f5dbdacdc72754d1d8e5b172",
+  "short_sha": "b902dc3dac",
+  "subject": "fix(tests/lean/run/inline_fn): pretty-printer segfaults, disable for now",
+  "zig_target": {}
+}

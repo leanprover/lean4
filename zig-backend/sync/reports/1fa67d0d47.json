@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+    }
+  ],
+  "date": "2025-11-01",
+  "needs_port": true,
+  "sha": "1fa67d0d47dae998a7839f6c78a4f446bf1c2d9f",
+  "short_sha": "1fa67d0d47",
+  "subject": "fix: overeager `Nat.sub` constant folding (#11043)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/ConstantFold.lean": "zig-backend/src/lean/compiler/lcnf/Simp/ConstantFold.lean"
+  }
+}

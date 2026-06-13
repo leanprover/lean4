@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    }
+  ],
+  "date": "2025-10-20",
+  "needs_port": true,
+  "sha": "2ead798d877e49794b4dca7bd88d301b24338523",
+  "short_sha": "2ead798d87",
+  "subject": "fix: `set_option` auto-completion in `grind` mode (#10859)",
+  "zig_target": {
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean"
+  }
+}

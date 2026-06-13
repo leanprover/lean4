@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "ffcf715f3060dd3640ad554cdabf2bf5f550f96e",
+  "short_sha": "ffcf715f30",
+  "subject": "refactor: allow `-h` between command and args",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-19",
+  "needs_port": false,
+  "sha": "27e0ad0d9e0492e12712de23d5c06d1a4d81898c",
+  "short_sha": "27e0ad0d9e",
+  "subject": "chore(library/init/lean/compiler/ir/emitcpp): remove constant registration",
+  "zig_target": {}
+}

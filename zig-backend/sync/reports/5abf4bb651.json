@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "5abf4bb651329452deb16496845f8937b1bbc270",
+  "short_sha": "5abf4bb651",
+  "subject": "fix: additional numeral normalization in `grind` (#9853)",
+  "zig_target": {}
+}

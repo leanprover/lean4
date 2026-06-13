@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Basic.lean"
+    }
+  ],
+  "date": "2025-06-19",
+  "needs_port": true,
+  "sha": "0077dd3d5569527f023865099890fa5aa9ffbe77",
+  "short_sha": "0077dd3d55",
+  "subject": "chore: remove redundant field from Lean.Grind.IntModule (#8879)",
+  "zig_target": {
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Ring/Basic.lean": "zig-backend/src/init/Grind/Ring/Basic.lean"
+  }
+}

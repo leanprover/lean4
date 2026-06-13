@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-20",
+  "needs_port": false,
+  "sha": "198be2c8a72a91139300ad22738e38d38dd4bf35",
+  "short_sha": "198be2c8a7",
+  "subject": "chore: no backticks in Name JSON",
+  "zig_target": {}
+}

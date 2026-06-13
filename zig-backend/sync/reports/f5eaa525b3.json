@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-08",
+  "needs_port": false,
+  "sha": "f5eaa525b343582786c1da9f9ceb105111e398a9",
+  "short_sha": "f5eaa525b3",
+  "subject": "chore: disable Nix macOS once more",
+  "zig_target": {}
+}

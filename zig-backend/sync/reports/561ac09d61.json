@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-09",
+  "needs_port": false,
+  "sha": "561ac09d61b729f4f44623ef7cea06f5e396e8c7",
+  "short_sha": "561ac09d61",
+  "subject": "chore: make mkAuxName private, add comment about alternatives",
+  "zig_target": {}
+}

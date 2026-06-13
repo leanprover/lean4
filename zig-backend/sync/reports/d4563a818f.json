@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-12-31",
+  "needs_port": true,
+  "sha": "d4563a818f6cd7d5040e5d85aaf7887f31acdd82",
+  "short_sha": "d4563a818f",
+  "subject": "feat: simplifier for `Sym` (#11856)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

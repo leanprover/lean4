@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-21",
+  "needs_port": false,
+  "sha": "0642a628484099d72744fd02051a6482287f2d0b",
+  "short_sha": "0642a62848",
+  "subject": "chore: prepare to add scoped `macro` and `elab` commands",
+  "zig_target": {}
+}

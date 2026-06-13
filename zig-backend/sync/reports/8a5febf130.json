@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-23",
+  "needs_port": false,
+  "sha": "8a5febf130e529734974f558f19bf0a6503db021",
+  "short_sha": "8a5febf130",
+  "subject": "chore: CI: fix release job",
+  "zig_target": {}
+}

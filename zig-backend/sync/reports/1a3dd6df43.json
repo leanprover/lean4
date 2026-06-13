@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-19",
+  "needs_port": false,
+  "sha": "1a3dd6df43d359ef80892e2bc00a4225c18bfa60",
+  "short_sha": "1a3dd6df43",
+  "subject": "feat(kernel): add reduce_proj and infer_proj",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-27",
+  "needs_port": false,
+  "sha": "a247249880039d8accf59c1b7887c83ddf021b28",
+  "short_sha": "a247249880",
+  "subject": "feat: add configuration option for disabling proof irrelevance at `MetaM`",
+  "zig_target": {}
+}

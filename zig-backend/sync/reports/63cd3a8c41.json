@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Offset.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Offset.lean"
+    }
+  ],
+  "date": "2020-01-10",
+  "needs_port": true,
+  "sha": "63cd3a8c41e9ed5604ccf642465e3c33c24b70d7",
+  "short_sha": "63cd3a8c41",
+  "subject": "fix: nontermination at `isDefEqOffset`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Offset.lean": "zig-backend/src/init/Lean/Meta/Offset.lean"
+  }
+}

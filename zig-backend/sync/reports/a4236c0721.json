@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-15",
+  "needs_port": false,
+  "sha": "a4236c07213c6206cfacf17872bd6b789499d144",
+  "short_sha": "a4236c0721",
+  "subject": "fix: ignore hygiened names in unused variables linter",
+  "zig_target": {}
+}

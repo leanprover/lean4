@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-01-10",
+  "needs_port": false,
+  "sha": "c394a834c38d5400efaa22989698e41451e4d40c",
+  "short_sha": "c394a834c3",
+  "subject": "feat: extract `delabAppCore`, define `withOverApp`, and make over-applied projections pretty print (#3083)",
+  "zig_target": {}
+}

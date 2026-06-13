@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-14",
+  "needs_port": false,
+  "sha": "7aa06338c9c02912a4b7cdcae8782171fc40b1a8",
+  "short_sha": "7aa06338c9",
+  "subject": "feat(frontends/lean/vm_elaborator): implement `inductive`",
+  "zig_target": {}
+}

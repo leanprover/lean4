@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-06",
+  "needs_port": false,
+  "sha": "611b1746896bbadf459c00cc218fa31cf51b4e08",
+  "short_sha": "611b174689",
+  "subject": "fix: `ofScientific` at `simp` (#3628)",
+  "zig_target": {}
+}

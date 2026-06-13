@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/Path.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Path.lean"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-02-05",
+  "needs_port": true,
+  "sha": "5ff62ebf0614ed70dd5eb5cd4ea97074b99fa73a",
+  "short_sha": "5ff62ebf06",
+  "subject": "feat: check user given path",
+  "zig_target": {
+    "src/Init/Lean/Util/Path.lean": "zig-backend/src/init/Lean/Util/Path.lean",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

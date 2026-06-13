@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-12-23",
+  "needs_port": false,
+  "sha": "b7218dad9d84093458a5c1a1e47e7de5b58f10fe",
+  "short_sha": "b7218dad9d",
+  "subject": "chore: CI: check for memory leaks in tests & stdlib",
+  "zig_target": {}
+}

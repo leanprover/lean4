@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "076d40f51c31868f75c95dcf579da0c796e6722a",
+  "short_sha": "076d40f51c",
+  "subject": "feat: use `implies_congr` at `congr` tactic, and cleanup",
+  "zig_target": {}
+}

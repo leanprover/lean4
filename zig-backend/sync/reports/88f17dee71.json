@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-12-23",
+  "needs_port": false,
+  "sha": "88f17dee7171486305701ce90766aff258e3e455",
+  "short_sha": "88f17dee71",
+  "subject": "perf: tune the behavior of and flattening in bv_decide (#11781)",
+  "zig_target": {}
+}

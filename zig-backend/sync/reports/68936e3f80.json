@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-16",
+  "needs_port": false,
+  "sha": "68936e3f80c50d9e1978ab76c1c27bdb6cb2a21a",
+  "short_sha": "68936e3f80",
+  "subject": "fix(library/init/lean/format): ensure `to_fmt (f : format) = f`",
+  "zig_target": {}
+}

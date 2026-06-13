@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-11",
+  "needs_port": false,
+  "sha": "a0e8c6183bd5cff61b44bbc66d63004c12a47e00",
+  "short_sha": "a0e8c6183b",
+  "subject": "fix: parser should create choice node even on error",
+  "zig_target": {}
+}

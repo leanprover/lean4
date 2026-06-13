@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-13",
+  "needs_port": false,
+  "sha": "9fc0cd0555d517b473aee7460dd150a9cabab797",
+  "short_sha": "9fc0cd0555",
+  "subject": "feat: make `CMAKE_` args for stage 0 overridable using `STAGE0_CMAKE_...`",
+  "zig_target": {}
+}

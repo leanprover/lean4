@@ -1,0 +1,30 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Cast.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Cast.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2024-02-15",
+  "needs_port": true,
+  "sha": "1d9074c524d65bde4d0471f5285756164f8b0a42",
+  "short_sha": "1d9074c524",
+  "subject": "chore: upstream NatCast and IntCast (#3347)",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Cast.lean": "zig-backend/src/init/Data/Cast.lean",
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

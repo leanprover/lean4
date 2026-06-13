@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-25",
+  "needs_port": false,
+  "sha": "c3c27f8dd36c7e33f290707e1d3cff5dabfb56a8",
+  "short_sha": "c3c27f8dd3",
+  "subject": "feat: lift restriction on number of antiquotations in splice",
+  "zig_target": {}
+}

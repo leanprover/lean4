@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-12-18",
+  "needs_port": true,
+  "sha": "be6bc67eb04b0c61d4edb1202ef7d39ad3ade437",
+  "short_sha": "be6bc67eb0",
+  "subject": "fix: ensure match-expressions compiled using `if-then-else` can be reduced with `TransparencyMode.reducible`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

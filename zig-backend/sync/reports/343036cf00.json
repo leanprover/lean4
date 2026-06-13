@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-14",
+  "needs_port": false,
+  "sha": "343036cf00e2944a7729f510f83755650f5b3613",
+  "short_sha": "343036cf00",
+  "subject": "feat: leanpkg: use per-package lock file to prevent concurrent redundant builds",
+  "zig_target": {}
+}

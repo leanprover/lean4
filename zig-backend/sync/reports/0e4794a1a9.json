@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-07",
+  "needs_port": false,
+  "sha": "0e4794a1a9ea86959bc37e10eee734f44ced0ea1",
+  "short_sha": "0e4794a1a9",
+  "subject": "test: benchmarks for `lambda`-telescopes (#11929)",
+  "zig_target": {}
+}

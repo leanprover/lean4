@@ -1,0 +1,156 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/FlatMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FlatMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/Take.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/Take.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/ULift.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/ULift.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Monadic/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Monadic/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Monadic/Total.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Total.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Total.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Total.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Producers/Monadic/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Producers/Monadic/List.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/RangeIterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Search.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Search.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    },
+    {
+      "path": "src/Init/WFExtrinsicFix.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/WFExtrinsicFix.lean"
+    }
+  ],
+  "date": "2025-12-08",
+  "needs_port": true,
+  "sha": "383c0caa91fb16ea900fc2e0d41fcda9f057f8f1",
+  "short_sha": "383c0caa91",
+  "subject": "feat: remove `Finite` conditions from iterator consumers relying on a new fixpoint combinator (#11038)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Basic.lean": "zig-backend/src/init/Data/Iterators/Basic.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/Attach.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/Attach.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FilterMap.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/FlatMap.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FlatMap.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/Take.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/Take.lean",
+    "src/Init/Data/Iterators/Combinators/Monadic/ULift.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/ULift.lean",
+    "src/Init/Data/Iterators/Consumers.lean": "zig-backend/src/init/Data/Iterators/Consumers.lean",
+    "src/Init/Data/Iterators/Consumers/Collect.lean": "zig-backend/src/init/Data/Iterators/Consumers/Collect.lean",
+    "src/Init/Data/Iterators/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic/Collect.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Collect.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/Iterators/Consumers/Monadic/Total.lean": "zig-backend/src/init/Data/Iterators/Consumers/Monadic/Total.lean",
+    "src/Init/Data/Iterators/Consumers/Total.lean": "zig-backend/src/init/Data/Iterators/Consumers/Total.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Collect.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Collect.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/Iterators/Producers/Monadic/List.lean": "zig-backend/src/init/Data/Iterators/Producers/Monadic/List.lean",
+    "src/Init/Data/Range/Polymorphic/RangeIterator.lean": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean",
+    "src/Init/Data/Slice/Array/Iterator.lean": "zig-backend/src/init/Data/Slice/Array/Iterator.lean",
+    "src/Init/Data/String/Lemmas/Search.lean": "zig-backend/src/init/Data/String/Lemmas/Search.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean",
+    "src/Init/WFExtrinsicFix.lean": "zig-backend/src/init/WFExtrinsicFix.lean"
+  }
+}

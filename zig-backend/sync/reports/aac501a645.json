@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-07-14",
+  "needs_port": true,
+  "sha": "aac501a645ce0da3628ba10c17206f6a21b8f795",
+  "short_sha": "aac501a645",
+  "subject": "refactor: split up mkExpr helper in lowerLet (#9374)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

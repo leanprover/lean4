@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-09",
+  "needs_port": false,
+  "sha": "0ac863b353e6ff91a7261848150c5ab74940c5ab",
+  "short_sha": "0ac863b353",
+  "subject": "chore: add link to the new book",
+  "zig_target": {}
+}

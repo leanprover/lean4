@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-13",
+  "needs_port": false,
+  "sha": "6f852cf7afc9f84cfc289c82792e1b5e627c503e",
+  "short_sha": "6f852cf7af",
+  "subject": "feat(tests/playground): add `run.sh` script for running tests",
+  "zig_target": {}
+}

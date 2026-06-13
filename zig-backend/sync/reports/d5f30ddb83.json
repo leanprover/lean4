@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Makefile.in",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Makefile.in"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-11-27",
+  "needs_port": true,
+  "sha": "d5f30ddb83b3a996435ca1a5e0161c6a6c076315",
+  "short_sha": "d5f30ddb83",
+  "subject": "fix: update-stage0",
+  "zig_target": {
+    "src/Init/Makefile.in": "zig-backend/src/init/Makefile.in",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

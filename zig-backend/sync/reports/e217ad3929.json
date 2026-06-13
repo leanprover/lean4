@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-03",
+  "needs_port": false,
+  "sha": "e217ad3929ed1c6f3dc71d5d47e18458b2357e39",
+  "short_sha": "e217ad3929",
+  "subject": "chore: more adjustments to new CI scripts (#2811)",
+  "zig_target": {}
+}

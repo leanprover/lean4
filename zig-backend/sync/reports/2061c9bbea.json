@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-04",
+  "needs_port": false,
+  "sha": "2061c9bbea847afd6cd301381c5fb239fb21062f",
+  "short_sha": "2061c9bbea",
+  "subject": "chore: reduce test size",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Marcus Rossel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2024-02-29",
+  "needs_port": true,
+  "sha": "0362fcea699e55b966c897b240c520f579da7a35",
+  "short_sha": "0362fcea69",
+  "subject": "chore: remove redundant 'generalizing' (#3544)",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

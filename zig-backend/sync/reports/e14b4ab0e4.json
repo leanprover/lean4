@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-19",
+  "needs_port": false,
+  "sha": "e14b4ab0e4f8bc6911633e81adf7ba6ac110bfef",
+  "short_sha": "e14b4ab0e4",
+  "subject": "feat: file worker: make header snapshot asynchronous",
+  "zig_target": {}
+}

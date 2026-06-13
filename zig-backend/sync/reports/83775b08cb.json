@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-05",
+  "needs_port": false,
+  "sha": "83775b08cbccb18b060d683d5297e8aff54048a8",
+  "short_sha": "83775b08cb",
+  "subject": "fix: `whnfCore` not expanding delayed assignments",
+  "zig_target": {}
+}

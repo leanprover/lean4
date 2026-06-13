@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-16",
+  "needs_port": false,
+  "sha": "4ce7ad19cea348506876685a19a7e0cca442c6d0",
+  "short_sha": "4ce7ad19ce",
+  "subject": "feat: `lia`, `linarith`, and `ac` actions (#10812)",
+  "zig_target": {}
+}

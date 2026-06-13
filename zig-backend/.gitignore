@@ -1,0 +1,10 @@
+.zig-cache/
+zig-out/
+sync/scan-info.json
+src/EmitZig/.lake/
+tests/bignum-smoke/reference/bignum_ref
+tests/bignum-smoke/zig/bignum_zig
+__pycache__/
+.DS_Store
+tests/scheduler-smoke/results.json
+tests/bignum-smoke/results.json

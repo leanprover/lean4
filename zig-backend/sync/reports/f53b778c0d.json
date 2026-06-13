@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2024-05-20",
+  "needs_port": true,
+  "sha": "f53b778c0d4a474383eab709d67db5e12357f39d",
+  "short_sha": "f53b778c0d",
+  "subject": "feat: improve `grind` preprocessor (#4221)",
+  "zig_target": {
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

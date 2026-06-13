@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-16",
+  "needs_port": false,
+  "sha": "6f7dba167aab2c9805ecb18ead747f673fbd9516",
+  "short_sha": "6f7dba167a",
+  "subject": "feat: trim `grind linarith` proof context  (#9947)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-04-29",
+  "needs_port": false,
+  "sha": "a969d2702f93e767b0b873bb96f3bdb7ee01330e",
+  "short_sha": "a969d2702f",
+  "subject": "chore: lake: error on package name mismatch + std special case (#3999)",
+  "zig_target": {}
+}

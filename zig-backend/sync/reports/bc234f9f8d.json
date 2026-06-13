@@ -1,0 +1,84 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Zip.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/Zip.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArray.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Zip.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Zip.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Vector/Zip.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/SpecInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean"
+    }
+  ],
+  "date": "2025-01-29",
+  "needs_port": true,
+  "sha": "bc234f9f8da5071bfaeec2453a6400b6f51681db",
+  "short_sha": "bc234f9f8d",
+  "subject": "feat: align List/Array/Vector.zip/zipWith/zipWithAll/unzip (#6840)",
+  "zig_target": {
+    "src/Init/Data/Array.lean": "zig-backend/src/init/Data/Array.lean",
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/Zip.lean": "zig-backend/src/init/Data/Array/Zip.lean",
+    "src/Init/Data/List/ToArray.lean": "zig-backend/src/init/Data/List/ToArray.lean",
+    "src/Init/Data/List/Zip.lean": "zig-backend/src/init/Data/List/Zip.lean",
+    "src/Init/Data/Vector.lean": "zig-backend/src/init/Data/Vector.lean",
+    "src/Init/Data/Vector/Basic.lean": "zig-backend/src/init/Data/Vector/Basic.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/Zip.lean": "zig-backend/src/init/Data/Vector/Zip.lean",
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean",
+    "src/Lean/Compiler/LCNF/SpecInfo.lean": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Zip.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Zip.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Zip.lean"
+    }
+  ],
+  "date": "2025-06-13",
+  "needs_port": true,
+  "sha": "6a698c1c22043cd4c3a1ef0eae4fcd4b334365ee",
+  "short_sha": "6a698c1c22",
+  "subject": "feat: grind annotations for List/Array/Vector.zip functions (#8750)",
+  "zig_target": {
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/Zip.lean": "zig-backend/src/init/Data/Array/Zip.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/Range.lean": "zig-backend/src/init/Data/List/Range.lean",
+    "src/Init/Data/List/Zip.lean": "zig-backend/src/init/Data/List/Zip.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/Zip.lean": "zig-backend/src/init/Data/Vector/Zip.lean"
+  }
+}

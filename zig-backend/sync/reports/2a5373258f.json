@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-17",
+  "needs_port": false,
+  "sha": "2a5373258f89a26c913f8860a15b163901071b0e",
+  "short_sha": "2a5373258f",
+  "subject": "chore: add grind non-determinism repro (#7978)",
+  "zig_target": {}
+}

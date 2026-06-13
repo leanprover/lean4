@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/LawfulBEqTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LawfulBEqTactics.lean"
+    }
+  ],
+  "date": "2025-09-16",
+  "needs_port": true,
+  "sha": "8d418201a646ee86987deb925d8c58c482aaba89",
+  "short_sha": "8d418201a6",
+  "subject": "fix: use with_reducible in deriving_LawfulEq_tactic_step (#10417)",
+  "zig_target": {
+    "src/Init/LawfulBEqTactics.lean": "zig-backend/src/init/LawfulBEqTactics.lean"
+  }
+}

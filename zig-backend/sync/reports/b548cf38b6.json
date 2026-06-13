@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/WFExtrinsicFix.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFExtrinsicFix.lean"
+    }
+  ],
+  "date": "2026-02-25",
+  "needs_port": true,
+  "sha": "b548cf38b623bff7c05359640512a8dbbb518f0f",
+  "short_sha": "b548cf38b6",
+  "subject": "feat: enable partial termination proofs about `WellFounded.extrinsicFix` (#12430)",
+  "zig_target": {
+    "src/Init/WFExtrinsicFix.lean": "zig-backend/src/init/WFExtrinsicFix.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-11-10",
+  "needs_port": true,
+  "sha": "ca0fb21df451ab9ddd6fe44b3b7cb5a9a6631919",
+  "short_sha": "ca0fb21df4",
+  "subject": "fix: fixes #1813",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

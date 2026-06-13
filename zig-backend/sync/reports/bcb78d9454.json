@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-03-21",
+  "needs_port": true,
+  "sha": "bcb78d94541c271d84c9a9564ce649fbf7f8e8a8",
+  "short_sha": "bcb78d9454",
+  "subject": "fix(library/compiler/emit_cpp): another assertion violation",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

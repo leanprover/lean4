@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-11",
+  "needs_port": true,
+  "sha": "e9df183e872779dd12b7ef0861e72e08be70acca",
+  "short_sha": "e9df183e87",
+  "subject": "perf: avoid ref count increments for borrowed array accesses (#9866)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

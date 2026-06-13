@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-09",
+  "needs_port": false,
+  "sha": "4e7cb7628187c4e594c0234834f60a07737ea71b",
+  "short_sha": "4e7cb76281",
+  "subject": "chore: Nix: adjust local cache config",
+  "zig_target": {}
+}

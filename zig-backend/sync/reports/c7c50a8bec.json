@@ -1,0 +1,96 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Basic.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    },
+    {
+      "path": "src/Init/Control/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Option.lean"
+    },
+    {
+      "path": "src/Init/Control/Reader.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Reader.lean"
+    },
+    {
+      "path": "src/Init/Control/State.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/State.lean"
+    },
+    {
+      "path": "src/Init/Control/StateCps.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateCps.lean"
+    },
+    {
+      "path": "src/Init/Control/StateRef.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateRef.lean"
+    },
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2024-06-19",
+  "needs_port": true,
+  "sha": "c7c50a8bec119f63e94f3530d26bc8687da1c097",
+  "short_sha": "c7c50a8bec",
+  "subject": "chore: fix linter errors (#4502)",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/Control/Lawful/Basic.lean": "zig-backend/src/init/Control/Lawful/Basic.lean",
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean",
+    "src/Init/Control/Option.lean": "zig-backend/src/init/Control/Option.lean",
+    "src/Init/Control/Reader.lean": "zig-backend/src/init/Control/Reader.lean",
+    "src/Init/Control/State.lean": "zig-backend/src/init/Control/State.lean",
+    "src/Init/Control/StateCps.lean": "zig-backend/src/init/Control/StateCps.lean",
+    "src/Init/Control/StateRef.lean": "zig-backend/src/init/Control/StateRef.lean",
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean",
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

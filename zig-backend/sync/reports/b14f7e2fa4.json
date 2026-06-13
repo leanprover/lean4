@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-17",
+  "needs_port": false,
+  "sha": "b14f7e2fa4a2fac1550e88c0e5086093dae8a4ee",
+  "short_sha": "b14f7e2fa4",
+  "subject": "chore(library/init/lean/ir/reserved): update list of reserved words",
+  "zig_target": {}
+}

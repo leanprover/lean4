@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-03",
+  "needs_port": false,
+  "sha": "37be918c50557523d3542bb387dda6de6a8576eb",
+  "short_sha": "37be918c50",
+  "subject": "perf: do not export `EqnInfo` for non-exposed defs  (#10229)",
+  "zig_target": {}
+}

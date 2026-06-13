@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-20",
+  "needs_port": false,
+  "sha": "2cf56f5e1010b021c28d81c29b4ffabc3a5bebfd",
+  "short_sha": "2cf56f5e10",
+  "subject": "fix: `synthesizeSyntheticMVars` at `liftTacticElabM`",
+  "zig_target": {}
+}

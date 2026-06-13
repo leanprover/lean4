@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-07",
+  "needs_port": false,
+  "sha": "3176943750e6d6f853644fbe9fc097664aade7ca",
+  "short_sha": "3176943750",
+  "subject": "refactor: use computed fields for Level",
+  "zig_target": {}
+}

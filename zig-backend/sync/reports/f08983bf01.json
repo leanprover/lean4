@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-30",
+  "needs_port": false,
+  "sha": "f08983bf013cbbf54075bfceea463d19628e782e",
+  "short_sha": "f08983bf01",
+  "subject": "chore: support jj workspaces in cmake git hash detection (#13190)",
+  "zig_target": {}
+}

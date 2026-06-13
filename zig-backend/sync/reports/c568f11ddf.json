@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-11",
+  "needs_port": false,
+  "sha": "c568f11ddfab891fe43edcb0f9399579906fdbd7",
+  "short_sha": "c568f11ddf",
+  "subject": "feat: use default transparency at `isDefEqProofIrrel`",
+  "zig_target": {}
+}

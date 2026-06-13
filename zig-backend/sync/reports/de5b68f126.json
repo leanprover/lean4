@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-05-12",
+  "needs_port": true,
+  "sha": "de5b68f1262214eecf3d59d7540ed0e9447edf7b",
+  "short_sha": "de5b68f126",
+  "subject": "fix(CMakeLists,bin/leanc.in): fix installed leanc",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

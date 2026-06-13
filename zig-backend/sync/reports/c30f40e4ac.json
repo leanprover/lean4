@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-22",
+  "needs_port": false,
+  "sha": "c30f40e4ac1ea1870d4e2e97177a41de252b3b9e",
+  "short_sha": "c30f40e4ac",
+  "subject": "feat(library/init/meta/level): use `lean.level`",
+  "zig_target": {}
+}

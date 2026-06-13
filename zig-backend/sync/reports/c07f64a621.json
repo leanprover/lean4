@@ -1,0 +1,18 @@
+{
+  "author": "Vlad Tsyrklevich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod.lean"
+    }
+  ],
+  "date": "2025-01-20",
+  "needs_port": true,
+  "sha": "c07f64a6212247ef789d4cef39e237b4a4b61696",
+  "short_sha": "c07f64a621",
+  "subject": "doc: Fix (and expand) docstrings for `bmod`/`bdiv` (#6713)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod.lean": "zig-backend/src/init/Data/Int/DivMod.lean"
+  }
+}

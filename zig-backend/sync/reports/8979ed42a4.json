@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-23",
+  "needs_port": false,
+  "sha": "8979ed42a416b380b1261d0cee4b6bcd552e7a2d",
+  "short_sha": "8979ed42a4",
+  "subject": "refactor: file worker: wait on header task before dispatching requests",
+  "zig_target": {}
+}

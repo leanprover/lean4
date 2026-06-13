@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "8fef03d1cc4a6c07cd7a91a8cd241040b901bd76",
+  "short_sha": "8fef03d1cc",
+  "subject": "feat: support Lake for building Lean core oleans (#3886)",
+  "zig_target": {}
+}

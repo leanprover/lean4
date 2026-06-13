@@ -1,0 +1,42 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Random.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Random.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    },
+    {
+      "path": "src/Init/System/ST.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/ST.lean"
+    }
+  ],
+  "date": "2025-03-17",
+  "needs_port": true,
+  "sha": "1a3614616d9f77b0e4b1ecf46c159bf6adc38ca1",
+  "short_sha": "1a3614616d",
+  "subject": "doc: review docstrings for IO (#7476)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Random.lean": "zig-backend/src/init/Data/Random.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean",
+    "src/Init/System/ST.lean": "zig-backend/src/init/System/ST.lean"
+  }
+}

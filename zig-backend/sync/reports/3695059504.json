@@ -1,0 +1,36 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Id.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Id.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/MonadLift/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/MonadLift/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    }
+  ],
+  "date": "2025-06-26",
+  "needs_port": true,
+  "sha": "369505950410c58122ec16f26b4881b175ac6617",
+  "short_sha": "3695059504",
+  "subject": "feat: introduce `MonadLiftT Id m` (#8977)",
+  "zig_target": {
+    "src/Init/Control/Id.lean": "zig-backend/src/init/Control/Id.lean",
+    "src/Init/Control/Lawful/MonadLift/Instances.lean": "zig-backend/src/init/Control/Lawful/MonadLift/Instances.lean",
+    "src/Init/Data/Iterators/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+  }
+}

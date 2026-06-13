@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-21",
+  "needs_port": false,
+  "sha": "ee4e0d03d05cc2053486c7fec1d877527c036599",
+  "short_sha": "ee4e0d03d0",
+  "subject": "chore(frontends/lean/structure_cmd): fix bogus g++ 4.9 warning",
+  "zig_target": {}
+}

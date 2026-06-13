@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-29",
+  "needs_port": false,
+  "sha": "5a5a77dd44367ef2aa6a6144c41a59b2c0d5a34e",
+  "short_sha": "5a5a77dd44",
+  "subject": "feat: `set_option diag true` tracks recursor reduction (#4020)",
+  "zig_target": {}
+}

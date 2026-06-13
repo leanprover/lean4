@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    }
+  ],
+  "date": "2024-08-12",
+  "needs_port": true,
+  "sha": "12ca422d868d81761d79f5fc8c2deebfa990cfa8",
+  "short_sha": "12ca422d86",
+  "subject": "chore: upstream `List.findIdx` lemmas (#4995)",
+  "zig_target": {
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean"
+  }
+}

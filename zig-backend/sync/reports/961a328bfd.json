@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-24",
+  "needs_port": false,
+  "sha": "961a328bfdf306f566fea514091dc4b8783233bd",
+  "short_sha": "961a328bfd",
+  "subject": "fix: report precompiled dynlibs to server",
+  "zig_target": {}
+}

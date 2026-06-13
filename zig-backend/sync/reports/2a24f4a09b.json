@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-09",
+  "needs_port": false,
+  "sha": "2a24f4a09b61e001733fb182aca1d1592004f933",
+  "short_sha": "2a24f4a09b",
+  "subject": "test(tests/util/object): add `parray` test",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-17",
+  "needs_port": false,
+  "sha": "f374ef154e352cedd60d19d9c8fb233a873c16c2",
+  "short_sha": "f374ef154e",
+  "subject": "refactor: move `ext` environment extension to `Lean.Meta.Tactic`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-20",
+  "needs_port": false,
+  "sha": "ea665de4536061cb8b6a1b32f5b69f09d50ac335",
+  "short_sha": "ea665de453",
+  "subject": "chore: CI checks for copyright headers (#3412)",
+  "zig_target": {}
+}

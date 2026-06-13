@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-17",
+  "needs_port": false,
+  "sha": "e532ce95ce82f41374c8c1780b85fbdae97460b3",
+  "short_sha": "e532ce95ce",
+  "subject": "refactor: change how equations for structural recursion are proved (#10415)",
+  "zig_target": {}
+}

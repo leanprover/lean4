@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-07-17",
+  "needs_port": true,
+  "sha": "86372209272e371f5acef1d93846784c5d0ed343",
+  "short_sha": "8637220927",
+  "subject": "fix: make precedence mandatory for mixfix commands",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

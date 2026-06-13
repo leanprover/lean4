@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    }
+  ],
+  "date": "2022-09-22",
+  "needs_port": true,
+  "sha": "412a05d0d6f2b1f083a0eb9d6c77c937a1bd891c",
+  "short_sha": "412a05d0d6",
+  "subject": "fix: ensure `cases` field parameters do not occur in types",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+  }
+}

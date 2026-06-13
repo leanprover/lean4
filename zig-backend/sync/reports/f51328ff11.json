@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-05",
+  "needs_port": false,
+  "sha": "f51328ff112916d5ddc7aed90825b7154656671f",
+  "short_sha": "f51328ff11",
+  "subject": "feat: custom elaborator for `forIn`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "bb8d8da1afa0f67db2eb10a34f323d72abdb0a8e",
+  "short_sha": "bb8d8da1af",
+  "subject": "test: add benchmark vcgen_reader_state (#12671)",
+  "zig_target": {}
+}

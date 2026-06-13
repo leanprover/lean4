@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-03-31",
+  "needs_port": false,
+  "sha": "e00dd3b25a9541e6993f8588d124e9a53f8394cd",
+  "short_sha": "e00dd3b25a",
+  "subject": "chore: fix typos (#7743)",
+  "zig_target": {}
+}

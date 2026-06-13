@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-19",
+  "needs_port": false,
+  "sha": "15f0e26368e2252b9497f9b545843f80dd507b32",
+  "short_sha": "15f0e26368",
+  "subject": "feat: replace `cases` alternative with unreachable if one of the fields is the empty type",
+  "zig_target": {}
+}

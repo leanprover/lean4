@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-02",
+  "needs_port": false,
+  "sha": "f7ec39d6a164820200fc971fe675eb02e6b30591",
+  "short_sha": "f7ec39d6a1",
+  "subject": "test: add empty-by completion tests and column-0 test marker (#13257)",
+  "zig_target": {}
+}

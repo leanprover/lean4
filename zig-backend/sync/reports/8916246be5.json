@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-24",
+  "needs_port": false,
+  "sha": "8916246be5266d01bc1f27095699d39d8f646cd4",
+  "short_sha": "8916246be5",
+  "subject": "test: speed up vcgen_get_throw_set.lean by partially evaluating specs (#12670)",
+  "zig_target": {}
+}

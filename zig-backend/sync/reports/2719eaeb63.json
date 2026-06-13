@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/EmitC.lean"
+    },
+    {
+      "path": "src/Init/Lean/Compiler/IR/EmitUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Compiler/IR/EmitUtil.lean"
+    },
+    {
+      "path": "src/Init/Lean/Environment.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Environment.lean"
+    }
+  ],
+  "date": "2020-02-27",
+  "needs_port": true,
+  "sha": "2719eaeb6323ede3b03d16dadec42d1c2614797d",
+  "short_sha": "2719eaeb63",
+  "subject": "fix: closes #119",
+  "zig_target": {
+    "src/Init/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/init/Lean/Compiler/IR/EmitC.lean",
+    "src/Init/Lean/Compiler/IR/EmitUtil.lean": "zig-backend/src/init/Lean/Compiler/IR/EmitUtil.lean",
+    "src/Init/Lean/Environment.lean": "zig-backend/src/init/Lean/Environment.lean"
+  }
+}

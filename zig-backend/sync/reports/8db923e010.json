@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-26",
+  "needs_port": false,
+  "sha": "8db923e01094693530cc578a931fbd9f773a00f6",
+  "short_sha": "8db923e010",
+  "subject": "feat: generate error message for `simp` theorems that are equivalent to `x = x`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-17",
+  "needs_port": false,
+  "sha": "8fc6a2a85686a5486f02a5b9660942c7b9988d23",
+  "short_sha": "8fc6a2a856",
+  "subject": "fix: `dbg_trace` tactic",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Basic.lean"
+    }
+  ],
+  "date": "2020-10-23",
+  "needs_port": true,
+  "sha": "8bc90bc48d2657c95d38a3c2d9f682c4ecf5fbe8",
+  "short_sha": "8bc90bc48d",
+  "subject": "chore: move to new frontend",
+  "zig_target": {
+    "src/Init/Data/Int/Basic.lean": "zig-backend/src/init/Data/Int/Basic.lean"
+  }
+}

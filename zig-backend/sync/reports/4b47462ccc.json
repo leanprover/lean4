@@ -1,0 +1,10 @@
+{
+  "author": "Denis Gorbachev",
+  "backend_changes": [],
+  "date": "2023-10-02",
+  "needs_port": false,
+  "sha": "4b47462ccc1af725add7c157adb8101e3c6b4c92",
+  "short_sha": "4b47462ccc",
+  "subject": "refactor: remove redundant let",
+  "zig_target": {}
+}

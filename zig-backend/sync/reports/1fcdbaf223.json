@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-28",
+  "needs_port": false,
+  "sha": "1fcdbaf223ca594f48e7bc8742d8efe47e267a5a",
+  "short_sha": "1fcdbaf223",
+  "subject": "feat: add `withoutPosition` combinator",
+  "zig_target": {}
+}

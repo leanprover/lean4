@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-04-01",
+  "needs_port": true,
+  "sha": "85f94abe19022c2e7e3fdd3b8e49f4e11d8e8f6a",
+  "short_sha": "85f94abe19",
+  "subject": "feat: helper theorems (#7783)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

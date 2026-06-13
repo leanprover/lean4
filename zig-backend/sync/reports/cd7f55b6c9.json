@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-02-23",
+  "needs_port": false,
+  "sha": "cd7f55b6c92b6d20fb2a0428abc097fa8be421b3",
+  "short_sha": "cd7f55b6c9",
+  "subject": "feat: `pp.mdata` (#12606)",
+  "zig_target": {}
+}

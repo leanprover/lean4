@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-05",
+  "needs_port": false,
+  "sha": "eb51b9ef26201424945526400a6a8c830ead40bc",
+  "short_sha": "eb51b9ef26",
+  "subject": "chore(library/init/core): avoid `.` as end-of-command and empty equations",
+  "zig_target": {}
+}

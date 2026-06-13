@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-06",
+  "needs_port": false,
+  "sha": "c5b5a1c6f9d4eea1ec0cd4e94b92679a96b8c6d9",
+  "short_sha": "c5b5a1c6f9",
+  "subject": "chore: generate auxiliary variable names manually at `LCNF.lean`",
+  "zig_target": {}
+}

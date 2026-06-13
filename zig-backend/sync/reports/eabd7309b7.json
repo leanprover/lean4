@@ -1,0 +1,36 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/tcp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.cpp"
+    },
+    {
+      "path": "src/runtime/uv/tcp.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/tcp.h"
+    },
+    {
+      "path": "src/runtime/uv/udp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/udp.cpp"
+    },
+    {
+      "path": "src/runtime/uv/udp.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/udp.h"
+    }
+  ],
+  "date": "2025-09-22",
+  "needs_port": true,
+  "sha": "eabd7309b74f13cc12d0ab03d4826f34e3e49c0d",
+  "short_sha": "eabd7309b7",
+  "subject": "feat: add vectored write and fix rc issue in tcp and udp cancel function (#10487)",
+  "zig_target": {
+    "src/runtime/uv/tcp.cpp": "zig-backend/src/runtime/uv/tcp.cpp",
+    "src/runtime/uv/tcp.h": "zig-backend/src/runtime/uv/tcp.h",
+    "src/runtime/uv/udp.cpp": "zig-backend/src/runtime/uv/udp.cpp",
+    "src/runtime/uv/udp.h": "zig-backend/src/runtime/uv/udp.h"
+  }
+}

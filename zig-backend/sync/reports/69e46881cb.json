@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-13",
+  "needs_port": false,
+  "sha": "69e46881cb1c8085e52c34a2f66c515bc036d712",
+  "short_sha": "69e46881cb",
+  "subject": "feat(library/init/control/alternative): more general `HasOrelse` class",
+  "zig_target": {}
+}

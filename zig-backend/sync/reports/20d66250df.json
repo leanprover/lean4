@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-24",
+  "needs_port": false,
+  "sha": "20d66250dfada8ed1a5e6cb431b4a5fa88adc418",
+  "short_sha": "20d66250df",
+  "subject": "feat: optional `@[expose]` specifier on deriving classes (#10060)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-02-14",
+  "needs_port": true,
+  "sha": "232b2b63005ea741805608c9e9ea19b93ef06f56",
+  "short_sha": "232b2b6300",
+  "subject": "chore: upstream replace tactic (#3321)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

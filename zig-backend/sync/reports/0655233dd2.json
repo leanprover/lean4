@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-23",
+  "needs_port": false,
+  "sha": "0655233dd2e62d1e762ee9eedc16c96b7ad8d82b",
+  "short_sha": "0655233dd2",
+  "subject": "fix: precompile mods if they want not if their importer wants",
+  "zig_target": {}
+}

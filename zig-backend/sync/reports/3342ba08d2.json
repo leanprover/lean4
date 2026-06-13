@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-08-17",
+  "needs_port": true,
+  "sha": "3342ba08d2d1fdbe579bbd43369d4bd450a80eb9",
+  "short_sha": "3342ba08d2",
+  "subject": "feat: implement `let` elaborators without using `match_syntax`",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-24",
+  "needs_port": false,
+  "sha": "9deb9ab59d33eee741a4deb46d68bf4c67c626d2",
+  "short_sha": "9deb9ab59d",
+  "subject": "refactor: move commonly shared expressions to `SymM`  (#12145)",
+  "zig_target": {}
+}

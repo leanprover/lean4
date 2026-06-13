@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-07-08",
+  "needs_port": true,
+  "sha": "a006558bb3a9b95a2ac377594533298d9b1f3a4d",
+  "short_sha": "a006558bb3",
+  "subject": "chore: search for `llvm-config` in PATH instead of LLVM_TOOLS_BINARY_DIR",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

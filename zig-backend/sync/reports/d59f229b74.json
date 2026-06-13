@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-01",
+  "needs_port": false,
+  "sha": "d59f229b74c69284663388c39bd7f17ca64b886a",
+  "short_sha": "d59f229b74",
+  "subject": "fix: mark `levelZero`, `levelOne`, and `Level.ofNat` as `implicit_reducible` (#12719)",
+  "zig_target": {}
+}

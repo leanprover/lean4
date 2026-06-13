@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2019-08-19",
+  "needs_port": true,
+  "sha": "750748440ef2b100375aa2ffd7c5c53075cb638c",
+  "short_sha": "750748440e",
+  "subject": "feat(runtime/lean): Thunk API",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

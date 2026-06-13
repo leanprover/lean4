@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-06-23",
+  "needs_port": false,
+  "sha": "dd64678f0799c09e336a4e55a7f3310ce276174b",
+  "short_sha": "dd64678f07",
+  "subject": "feat: server support for new module setup (#8699)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-10",
+  "needs_port": false,
+  "sha": "be33ca69cddf21f2475cb7394e0d8a7aca54dc0a",
+  "short_sha": "be33ca69cd",
+  "subject": "feat: environment extension for storing declaration ranges",
+  "zig_target": {}
+}

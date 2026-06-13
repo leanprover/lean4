@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-24",
+  "needs_port": false,
+  "sha": "0d288b9bd33903271ec4b5123b482ceea711e3ea",
+  "short_sha": "0d288b9bd3",
+  "subject": "feat: add `MTimeBuildTarget` -> `LeanTarget` function",
+  "zig_target": {}
+}

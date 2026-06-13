@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-13",
+  "needs_port": false,
+  "sha": "deb2310b6d2668f0888ae35874c16df43e50df67",
+  "short_sha": "deb2310b6d",
+  "subject": "feat(util/map_foreach): add helper functions for traversing Lean maps",
+  "zig_target": {}
+}

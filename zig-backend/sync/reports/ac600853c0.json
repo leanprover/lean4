@@ -1,0 +1,24 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/FinRange.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    }
+  ],
+  "date": "2025-07-08",
+  "needs_port": true,
+  "sha": "ac600853c0912deed8c33fa7d0f84c18f98d648b",
+  "short_sha": "ac600853c0",
+  "subject": "fix: let the `congr` tactic handle \"under-applied\" applications (#9225)",
+  "zig_target": {
+    "src/Init/Data/List/FinRange.lean": "zig-backend/src/init/Data/List/FinRange.lean",
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean"
+  }
+}

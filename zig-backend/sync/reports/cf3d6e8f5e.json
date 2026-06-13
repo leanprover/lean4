@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-09-22",
+  "needs_port": false,
+  "sha": "cf3d6e8f5e521c13cc5ac2ace2cfc0da6e5efeac",
+  "short_sha": "cf3d6e8f5e",
+  "subject": "feat: use MonadIO in LSP communication",
+  "zig_target": {}
+}

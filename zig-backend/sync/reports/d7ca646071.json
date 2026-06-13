@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-28",
+  "needs_port": false,
+  "sha": "d7ca646071440261f7c255ae41a637b1ea95e0d4",
+  "short_sha": "d7ca646071",
+  "subject": "fix: make sure `mkUnit` return `Syntax` that is a valid term and pattern",
+  "zig_target": {}
+}

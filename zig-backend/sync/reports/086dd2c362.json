@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "086dd2c3625550ba829d696b74c10a311b566706",
+  "short_sha": "086dd2c362",
+  "subject": "chore: remove `transparency_mode::Instances`",
+  "zig_target": {}
+}

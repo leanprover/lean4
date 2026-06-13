@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-06-22",
+  "needs_port": false,
+  "sha": "6092561f930d70f4b4d1eeac27fa4fea3207c6cf",
+  "short_sha": "6092561f93",
+  "subject": "refactor: SimpM.run (#8843)",
+  "zig_target": {}
+}

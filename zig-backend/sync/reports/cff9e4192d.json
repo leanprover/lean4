@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-09",
+  "needs_port": false,
+  "sha": "cff9e4192d2d4a91505fdeb8808d6ba52fde0ae9",
+  "short_sha": "cff9e4192d",
+  "subject": "feat: add `inferLambdaType`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-26",
+  "needs_port": false,
+  "sha": "e4b478ee6a36c8274aeaf4685b9729fd46d4b93f",
+  "short_sha": "e4b478ee6a",
+  "subject": "chore: remove support for quotations in the old frontend",
+  "zig_target": {}
+}

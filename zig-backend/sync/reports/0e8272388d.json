@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "0e8272388df01c9c976ec19e5872f457ba977df7",
+  "short_sha": "0e8272388d",
+  "subject": "fix: server: semantic highlighting with multiple tokens in a line",
+  "zig_target": {}
+}

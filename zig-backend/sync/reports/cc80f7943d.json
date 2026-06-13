@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-12",
+  "needs_port": false,
+  "sha": "cc80f7943d18dcde846b8002d0cfb82c73495158",
+  "short_sha": "cc80f7943d",
+  "subject": "fix: cases to fail gracefully when motive has complex argument of dependent type (#8302)",
+  "zig_target": {}
+}

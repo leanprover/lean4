@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-22",
+  "needs_port": false,
+  "sha": "14841ad1ed110145c89f448857e28b02bd698dc3",
+  "short_sha": "14841ad1ed",
+  "subject": "fix: bugs in `grind` (#6748)",
+  "zig_target": {}
+}

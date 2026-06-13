@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-07",
+  "needs_port": false,
+  "sha": "c93982d10c7053672ee1db6dfc073de6e11058f4",
+  "short_sha": "c93982d10c",
+  "subject": "chore: disable `pp.analyze` for now",
+  "zig_target": {}
+}

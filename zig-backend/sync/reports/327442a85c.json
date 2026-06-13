@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-15",
+  "needs_port": false,
+  "sha": "327442a85c15585ce70942d73d81815f17cb578a",
+  "short_sha": "327442a85c",
+  "subject": "feat: add `mkFreshBinderName` and use it to normalize internal names",
+  "zig_target": {}
+}

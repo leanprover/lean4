@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-14",
+  "needs_port": false,
+  "sha": "537477671b1041a8e255d3a22471d87577528dbc",
+  "short_sha": "537477671b",
+  "subject": "feat: request cancellation in file worker",
+  "zig_target": {}
+}

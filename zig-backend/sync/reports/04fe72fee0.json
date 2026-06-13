@@ -1,0 +1,24 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2025-02-13",
+  "needs_port": true,
+  "sha": "04fe72fee00722191ff259f557de2ad5b2321a10",
+  "short_sha": "04fe72fee0",
+  "subject": "feat: missing conversion functions for `ISize` (#7063)",
+  "zig_target": {
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

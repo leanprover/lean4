@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-16",
+  "needs_port": false,
+  "sha": "ddd5c213c65ef969ec5e15dc9bb96b58265145b1",
+  "short_sha": "ddd5c213c6",
+  "subject": "chore: CLAUDE.md: stage 2 build instructions (#12929)",
+  "zig_target": {}
+}

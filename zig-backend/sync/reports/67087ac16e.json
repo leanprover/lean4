@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "67087ac16edc8b8d25964e1a489e2824b8efec2c",
+  "short_sha": "67087ac16e",
+  "subject": "fix: bad reassignment",
+  "zig_target": {}
+}

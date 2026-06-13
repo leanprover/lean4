@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-09-29",
+  "needs_port": false,
+  "sha": "324235c9fbb9aac3a6a416c52231a3ef8521fb68",
+  "short_sha": "324235c9fb",
+  "subject": "chore: adjust field naming of WorkerEvent",
+  "zig_target": {}
+}

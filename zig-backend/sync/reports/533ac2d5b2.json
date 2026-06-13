@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-02",
+  "needs_port": false,
+  "sha": "533ac2d5b292916b365efcf2ec5bd447c689823e",
+  "short_sha": "533ac2d5b2",
+  "subject": "fix(library/init/lean/parser/declaration): attributes before visibility modifiers",
+  "zig_target": {}
+}

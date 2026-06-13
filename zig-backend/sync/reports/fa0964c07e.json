@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-13",
+  "needs_port": false,
+  "sha": "fa0964c07e70bd3ad546a18d9c450c9c27d29920",
+  "short_sha": "fa0964c07e",
+  "subject": "fix: preserve variable name at `WF` decreasing goals when function has only one non fixed argument",
+  "zig_target": {}
+}

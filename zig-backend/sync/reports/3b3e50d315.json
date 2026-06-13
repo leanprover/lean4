@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/borrowed_annotation.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/borrowed_annotation.cpp"
+    },
+    {
+      "path": "src/library/compiler/closed_term_cache.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/closed_term_cache.cpp"
+    },
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-05-13",
+  "needs_port": true,
+  "sha": "3b3e50d3153646c8a24c02f47d0567436ef8f462",
+  "short_sha": "3b3e50d315",
+  "subject": "chore(library/module): `std::shared_ptr<modification>` ==> `modification*`",
+  "zig_target": {
+    "src/library/compiler/borrowed_annotation.cpp": "zig-backend/src/library/compiler/borrowed_annotation.cpp",
+    "src/library/compiler/closed_term_cache.cpp": "zig-backend/src/library/compiler/closed_term_cache.cpp",
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

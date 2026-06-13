@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-02",
+  "needs_port": false,
+  "sha": "17d67bb24c1d86eac3285078bbad0d620d39fd46",
+  "short_sha": "17d67bb24c",
+  "subject": "chore: revert \"fix: revert LLVM 15 bump on MacOS aarch64\"",
+  "zig_target": {}
+}

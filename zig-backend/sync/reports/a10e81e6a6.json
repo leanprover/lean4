@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "a10e81e6a611f19f99189a7e2fc0e4e5d3e6013b",
+  "short_sha": "a10e81e6a6",
+  "subject": "chore(frontends/lean/elaborator): remove `unfold` tactic dependency",
+  "zig_target": {}
+}

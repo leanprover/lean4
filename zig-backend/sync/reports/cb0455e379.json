@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/ToString.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/ToString.lean"
+    }
+  ],
+  "date": "2026-03-18",
+  "needs_port": true,
+  "sha": "cb0455e37923f762621356fb98f309d7e3a6f6be",
+  "short_sha": "cb0455e379",
+  "subject": "feat: simprocs for `n.digitChar = c` (#12966)",
+  "zig_target": {
+    "src/Init/Data/Nat/ToString.lean": "zig-backend/src/init/Data/Nat/ToString.lean"
+  }
+}

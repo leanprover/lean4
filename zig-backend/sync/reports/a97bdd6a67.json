@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-11",
+  "needs_port": false,
+  "sha": "a97bdd6a670ae09c58ce43fdb8e0b73f81b61751",
+  "short_sha": "a97bdd6a67",
+  "subject": "chore: add `let_delayed` and `let_fun` notation",
+  "zig_target": {}
+}

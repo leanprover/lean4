@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-01-07",
+  "needs_port": false,
+  "sha": "f146d456ce493da872dd05015dec1367324af205",
+  "short_sha": "f146d456ce",
+  "subject": "fix: only enable InsertReplaceEdit if supported",
+  "zig_target": {}
+}

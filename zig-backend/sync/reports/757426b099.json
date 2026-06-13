@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2025-09-09",
+  "needs_port": false,
+  "sha": "757426b09970c6bfb317eef27ca826909e83015f",
+  "short_sha": "757426b099",
+  "subject": "chore: CI: bump actions/checkout from 4 to 5 (#10219)",
+  "zig_target": {}
+}

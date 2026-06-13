@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-13",
+  "needs_port": false,
+  "sha": "4c370e45581c228b220097c8a1a3aa5bed70c82f",
+  "short_sha": "4c370e4558",
+  "subject": "refactor(kernel/expr): fix binder_info",
+  "zig_target": {}
+}

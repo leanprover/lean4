@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2026-04-20",
+  "needs_port": false,
+  "sha": "a0b2e1f3021b89acb33e2e65488c2f8e1993a52c",
+  "short_sha": "a0b2e1f302",
+  "subject": "feat: introduce HTTP/1.1 server (#12151)",
+  "zig_target": {}
+}

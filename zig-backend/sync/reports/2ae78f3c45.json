@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2023-05-17",
+  "needs_port": true,
+  "sha": "2ae78f3c45b15cc517ec4c2daf5f32d5841dbf81",
+  "short_sha": "2ae78f3c45",
+  "subject": "fix: tail-recursive `String.foldr`",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

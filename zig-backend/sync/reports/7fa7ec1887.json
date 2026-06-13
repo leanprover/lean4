@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-02-18",
+  "needs_port": false,
+  "sha": "7fa7ec188763de14a73c266fdc8f3d1b8c79873e",
+  "short_sha": "7fa7ec1887",
+  "subject": "fix: instantiate mvars after synthesizing inductive type header (#12558)",
+  "zig_target": {}
+}

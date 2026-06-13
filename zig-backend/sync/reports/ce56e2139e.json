@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-23",
+  "needs_port": false,
+  "sha": "ce56e2139e5c45847d3b5f58d9afcdc28b3b90e8",
+  "short_sha": "ce56e2139e",
+  "subject": "feat: support for incrementally processing hypotheses in `grind` (#11787)",
+  "zig_target": {}
+}

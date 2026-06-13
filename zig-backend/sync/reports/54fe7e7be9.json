@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-15",
+  "needs_port": true,
+  "sha": "54fe7e7be93d623426c7ddbc77590cc69f4a1f1d",
+  "short_sha": "54fe7e7be9",
+  "subject": "feat(library/compiler/llnf): explicit_rc_fn",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

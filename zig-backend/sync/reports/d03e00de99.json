@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-17",
+  "needs_port": false,
+  "sha": "d03e00de99096689a1504312c01fe6af06b2fda9",
+  "short_sha": "d03e00de99",
+  "subject": "chore(frontends/lean/builtin_exprs): remove obsolete notation from old parser",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-13",
+  "needs_port": false,
+  "sha": "dbf5366704d153b57107f64b317889254cd926ed",
+  "short_sha": "dbf5366704",
+  "subject": "feat: ignore `{}` annotation at constructors",
+  "zig_target": {}
+}

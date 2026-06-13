@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-10",
+  "needs_port": false,
+  "sha": "c7652413db4673ae400a6f7e08617f592a9dd0e7",
+  "short_sha": "c7652413db",
+  "subject": "feat: link docstrings for diamond inheritance (#11122)",
+  "zig_target": {}
+}

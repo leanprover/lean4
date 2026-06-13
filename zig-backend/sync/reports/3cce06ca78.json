@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-12-05",
+  "needs_port": false,
+  "sha": "3cce06ca7879fa32d8ce73a0f69f96112ca90e13",
+  "short_sha": "3cce06ca78",
+  "subject": "chore: add tests/plugin/.gitignore",
+  "zig_target": {}
+}

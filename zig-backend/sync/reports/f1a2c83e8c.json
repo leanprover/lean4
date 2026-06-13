@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/eager_lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+    }
+  ],
+  "date": "2019-07-09",
+  "needs_port": true,
+  "sha": "f1a2c83e8c331cdd16328953abd20131ab5a08ef",
+  "short_sha": "f1a2c83e8c",
+  "subject": "feat(library/compiler/eager_lambda_lifting): do not pass closed terms as arguments to lifted decl",
+  "zig_target": {
+    "src/library/compiler/eager_lambda_lifting.cpp": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-06",
+  "needs_port": false,
+  "sha": "97ebe4603b75d9fe7cc28be9bc1b6e33d0785a40",
+  "short_sha": "97ebe4603b",
+  "subject": "test(tests/playground/parser): add `syntax.lean` with flat nodes and arrays",
+  "zig_target": {}
+}

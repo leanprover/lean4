@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    },
+    {
+      "path": "src/runtime/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.h"
+    }
+  ],
+  "date": "2019-07-05",
+  "needs_port": true,
+  "sha": "9707672cc80d82d35bb9c132aafff8bc9a9360a6",
+  "short_sha": "9707672cc8",
+  "subject": "fix(runtime/mpz): fix and document size_t functions",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp",
+    "src/runtime/mpz.h": "zig-backend/src/runtime/mpz.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-07-14",
+  "needs_port": false,
+  "sha": "0405fde21ffa667451461fb8a10277ca46667745",
+  "short_sha": "0405fde21f",
+  "subject": "feat: handle hovers with null replies",
+  "zig_target": {}
+}

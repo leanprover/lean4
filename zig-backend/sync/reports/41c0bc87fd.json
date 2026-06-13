@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-22",
+  "needs_port": false,
+  "sha": "41c0bc87fd22d821032a88e369bd37c78151fc50",
+  "short_sha": "41c0bc87fd",
+  "subject": "refactor(library/init/lean/parser): make views shallow via `tysyntax`",
+  "zig_target": {}
+}

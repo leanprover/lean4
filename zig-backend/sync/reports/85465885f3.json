@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler_step_visitor.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler_step_visitor.cpp"
+    }
+  ],
+  "date": "2018-09-07",
+  "needs_port": true,
+  "sha": "85465885f365cbe7e40b157f7bb5268e63bf1b53",
+  "short_sha": "85465885f3",
+  "subject": "chore(library/type_context): remove \"frozen local instances\"",
+  "zig_target": {
+    "src/library/compiler/compiler_step_visitor.cpp": "zig-backend/src/library/compiler/compiler_step_visitor.cpp"
+  }
+}

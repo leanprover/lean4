@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-10",
+  "needs_port": false,
+  "sha": "a6ba7312cc7c8a95b258353325d34ff36b24babe",
+  "short_sha": "a6ba7312cc",
+  "subject": "chore: make `toBetaApp` public (#12416)",
+  "zig_target": {}
+}

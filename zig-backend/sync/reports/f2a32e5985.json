@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2020-01-28",
+  "needs_port": true,
+  "sha": "f2a32e5985c0a7f94b829b666ca691a9aa1dfc0e",
+  "short_sha": "f2a32e5985",
+  "subject": "feat: tag `coeFunTrans` and `coeSortTrans` with `[inferTCGoalsLR]`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

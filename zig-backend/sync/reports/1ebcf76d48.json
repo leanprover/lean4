@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2021-06-09",
+  "needs_port": true,
+  "sha": "1ebcf76d48685baf93d227c004b92c5adb6102aa",
+  "short_sha": "1ebcf76d48",
+  "subject": "refactor: remove explicitly lifted IO functions and move more things into `IO.FS`",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

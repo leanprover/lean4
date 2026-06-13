@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-09-03",
+  "needs_port": true,
+  "sha": "d5737d07133d119e04a5a0904ce0b4a63ab9f3b3",
+  "short_sha": "d5737d0713",
+  "subject": "test(shell/CMakeLists.txt): add compiler tests as interpreter tests",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-01-11",
+  "needs_port": false,
+  "sha": "bdc80ce50d63634c8e549549f76d62a59720fda5",
+  "short_sha": "bdc80ce50d",
+  "subject": "fix: potential nontermination in delabFor",
+  "zig_target": {}
+}

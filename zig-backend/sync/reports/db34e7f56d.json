@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-08",
+  "needs_port": false,
+  "sha": "db34e7f56d02190b70859f40881a08bca72a0cc7",
+  "short_sha": "db34e7f56d",
+  "subject": "feat: lean4-mode: never hide all messages",
+  "zig_target": {}
+}

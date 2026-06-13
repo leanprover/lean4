@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-11",
+  "needs_port": false,
+  "sha": "a5f5d793d73a7816218c6c324eec1f966c24fe63",
+  "short_sha": "a5f5d793d7",
+  "subject": "perf: implement jumping to native `[export]` decls in the interpreter (#10345)",
+  "zig_target": {}
+}

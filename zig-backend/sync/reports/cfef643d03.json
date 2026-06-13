@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-12-09",
+  "needs_port": false,
+  "sha": "cfef643d0359a1139600913aaa2058954883ae7d",
+  "short_sha": "cfef643d03",
+  "subject": "chore: ci: bump `grove-action` to v0.5 (#11559)",
+  "zig_target": {}
+}

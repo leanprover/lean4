@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/eta_expansion.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eta_expansion.cpp"
+    },
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-06-18",
+  "needs_port": true,
+  "sha": "b84090aacaaa4bbeeb5b8d78a0c2e1bc771c9ba7",
+  "short_sha": "b84090aaca",
+  "subject": "feat(library/annotation): remove annonation macro",
+  "zig_target": {
+    "src/library/compiler/eta_expansion.cpp": "zig-backend/src/library/compiler/eta_expansion.cpp",
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

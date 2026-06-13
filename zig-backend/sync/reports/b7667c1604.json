@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-11-19",
+  "needs_port": false,
+  "sha": "b7667c1604750f69459d024ba2002b7d570fed88",
+  "short_sha": "b7667c1604",
+  "subject": "fix: don't issue atomic id completions when there is a dangling dot (#5837)",
+  "zig_target": {}
+}

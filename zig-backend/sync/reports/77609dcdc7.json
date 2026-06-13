@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-10",
+  "needs_port": false,
+  "sha": "77609dcdc724033daf403d05b81494bb588b05fa",
+  "short_sha": "77609dcdc7",
+  "subject": "feat: lake: config field autocomplete in whitespace (#7393)",
+  "zig_target": {}
+}

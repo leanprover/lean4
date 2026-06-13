@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-11-30",
+  "needs_port": true,
+  "sha": "607d22ae58f82754de190b49b3df3aa6ce643f48",
+  "short_sha": "607d22ae58",
+  "subject": "fix(library/compiler/csimp): bug at `float_cases_on_core`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

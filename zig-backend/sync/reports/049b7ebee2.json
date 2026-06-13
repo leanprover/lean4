@@ -1,0 +1,42 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control.lean"
+    },
+    {
+      "path": "src/Init/Control/Ensures.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Control/Ensures.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Basic.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/MonadAttach/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/MonadAttach/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/While.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/While.lean"
+    }
+  ],
+  "date": "2026-05-07",
+  "needs_port": true,
+  "sha": "049b7ebee256e2f482c4d59f9214e637c330b136",
+  "short_sha": "049b7ebee2",
+  "subject": "feat: verifiable `repeat`/`while` loops (#13209)",
+  "zig_target": {
+    "src/Init/Control.lean": "zig-backend/src/init/Control.lean",
+    "src/Init/Control/Ensures.lean": "zig-backend/src/init/Control/Ensures.lean",
+    "src/Init/Control/Lawful/Basic.lean": "zig-backend/src/init/Control/Lawful/Basic.lean",
+    "src/Init/Control/Lawful/MonadAttach/Lemmas.lean": "zig-backend/src/init/Control/Lawful/MonadAttach/Lemmas.lean",
+    "src/Init/While.lean": "zig-backend/src/init/While.lean"
+  }
+}

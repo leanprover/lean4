@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.cpp"
+    }
+  ],
+  "date": "2019-10-29",
+  "needs_port": true,
+  "sha": "a1f352b4b1033b276a549aff2080c7251c8493bc",
+  "short_sha": "a1f352b4b1",
+  "subject": "fix: undefined pointer arithmetic in `apply`",
+  "zig_target": {
+    "src/runtime/apply.cpp": "zig-backend/src/runtime/apply.cpp"
+  }
+}

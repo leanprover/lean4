@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "3221ca1704037e8743c97040b6e551d87898ebe8",
+  "short_sha": "3221ca1704",
+  "subject": "fix: interaction of enums and fixedInt in bv_decide (#7596)",
+  "zig_target": {}
+}

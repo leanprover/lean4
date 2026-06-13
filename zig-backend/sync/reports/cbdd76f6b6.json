@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-19",
+  "needs_port": false,
+  "sha": "cbdd76f6b608a3791cdc5df0c49f2200f2170f1f",
+  "short_sha": "cbdd76f6b6",
+  "subject": "test: retire .perf benchmarks, cache misses are not very enlightening",
+  "zig_target": {}
+}

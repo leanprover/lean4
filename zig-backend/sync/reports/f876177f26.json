@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-19",
+  "needs_port": false,
+  "sha": "f876177f26e4940ffe4c577df5ec776ff5d77272",
+  "short_sha": "f876177f26",
+  "subject": "feat: expand macros in `syntax` declaration",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-24",
+  "needs_port": false,
+  "sha": "2a1354b3cc1eb05e1b67c656d2172ada8f54a937",
+  "short_sha": "2a1354b3cc",
+  "subject": "chore: add `seal` to workaround performance issue (#8469)",
+  "zig_target": {}
+}

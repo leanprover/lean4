@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-15",
+  "needs_port": false,
+  "sha": "31588a1013b40b52362e18dd2095202d078d65fb",
+  "short_sha": "31588a1013",
+  "subject": "fix(library/init/lean/elaborator): do not attach position to `app`, nodes without pos data",
+  "zig_target": {}
+}

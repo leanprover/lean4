@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-15",
+  "needs_port": false,
+  "sha": "bb554930f8ffc97abcbc15db6edbb38cbbb2c48c",
+  "short_sha": "bb554930f8",
+  "subject": "doc: elaborate on elan setup",
+  "zig_target": {}
+}

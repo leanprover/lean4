@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-01",
+  "needs_port": false,
+  "sha": "63b96f62e70f62813fe12f56433703279b352753",
+  "short_sha": "63b96f62e7",
+  "subject": "feat: server: auto completion skeleton",
+  "zig_target": {}
+}

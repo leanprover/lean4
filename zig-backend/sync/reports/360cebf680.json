@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Induction.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Induction.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/WHNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/WHNF.lean"
+    }
+  ],
+  "date": "2020-04-09",
+  "needs_port": true,
+  "sha": "360cebf68002c0c56902cefe658401851e64b59e",
+  "short_sha": "360cebf680",
+  "subject": "fix: `induction` tactic must check expected major premise type",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Induction.lean": "zig-backend/src/init/Lean/Meta/Tactic/Induction.lean",
+    "src/Init/Lean/Meta/WHNF.lean": "zig-backend/src/init/Lean/Meta/WHNF.lean"
+  }
+}

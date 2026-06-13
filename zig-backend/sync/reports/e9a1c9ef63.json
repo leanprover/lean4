@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-19",
+  "needs_port": false,
+  "sha": "e9a1c9ef63d8e53803c16077f03e2dacd4a890bd",
+  "short_sha": "e9a1c9ef63",
+  "subject": "feat: offset terms in `Sym` (#12053)",
+  "zig_target": {}
+}

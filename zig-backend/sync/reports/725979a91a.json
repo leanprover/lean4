@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-03-27",
+  "needs_port": false,
+  "sha": "725979a91afaea2855f4af57c1cc4b440aee81e0",
+  "short_sha": "725979a91a",
+  "subject": "fix: remove bad simp lemmas about the tree maps (#7695)",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/SOM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/SOM.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-04-26",
+  "needs_port": true,
+  "sha": "6af1da450e9cc84de6d37e4f2b420ab362e5a26b",
+  "short_sha": "6af1da450e",
+  "subject": "feat: disable only eta for classes during TC resolution",
+  "zig_target": {
+    "src/Init/Data/Nat/SOM.lean": "zig-backend/src/init/Data/Nat/SOM.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "44d0fe993a9d992f2ce8842589fa76472b5659e7",
+  "short_sha": "44d0fe993a",
+  "subject": "feat: ensure scoped instances cannot be used outside namespaces",
+  "zig_target": {}
+}

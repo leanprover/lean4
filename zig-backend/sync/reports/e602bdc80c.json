@@ -1,0 +1,10 @@
+{
+  "author": "plp127",
+  "backend_changes": [],
+  "date": "2025-05-07",
+  "needs_port": false,
+  "sha": "e602bdc80c2e883e6b900f8111e0521e7dc490bc",
+  "short_sha": "e602bdc80c",
+  "subject": "fix: have `rename` ignore implementation detail hypotheses (#8241)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-03",
+  "needs_port": false,
+  "sha": "8f2f6bc17d11bfaac8fae7448dff4d047a187568",
+  "short_sha": "8f2f6bc17d",
+  "subject": "doc: adjust alectryon.css a little",
+  "zig_target": {}
+}

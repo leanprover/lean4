@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "759a7d771fc494377c53d8f26caaa98ff2d3722c",
+  "short_sha": "759a7d771f",
+  "subject": "fix: do not show inferred type on attribute application",
+  "zig_target": {}
+}

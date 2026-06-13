@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-16",
+  "needs_port": false,
+  "sha": "90c442da768dd8f44b69ebb1759284aa02a47ad6",
+  "short_sha": "90c442da76",
+  "subject": "feat: add internal option for communicating to the delaborator that input term is a pattern",
+  "zig_target": {}
+}

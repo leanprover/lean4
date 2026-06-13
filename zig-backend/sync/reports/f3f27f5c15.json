@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-31",
+  "needs_port": false,
+  "sha": "f3f27f5c1561022952102164feef6c88061af8e0",
+  "short_sha": "f3f27f5c15",
+  "subject": "doc: titling consistency",
+  "zig_target": {}
+}

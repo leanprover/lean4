@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-30",
+  "needs_port": false,
+  "sha": "3a3c816a27c0bd454711e2f9e4e20cbbde47ba85",
+  "short_sha": "3a3c816a27",
+  "subject": "chore: break up universe level error message (#9637)",
+  "zig_target": {}
+}

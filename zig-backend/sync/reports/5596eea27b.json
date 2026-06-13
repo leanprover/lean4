@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-01",
+  "needs_port": false,
+  "sha": "5596eea27b928a16a5cc5baabb46c67e5572c6e6",
+  "short_sha": "5596eea27b",
+  "subject": "test(tests/lean/parser1): deactivate core.lean test",
+  "zig_target": {}
+}

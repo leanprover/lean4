@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-13",
+  "needs_port": false,
+  "sha": "3786ad6d0c323fb68dbd655971f4ef6c093d1fdb",
+  "short_sha": "3786ad6d0c",
+  "subject": "chore: reset stdlib_flags (#7469)",
+  "zig_target": {}
+}

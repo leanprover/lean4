@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2024-11-17",
+  "needs_port": true,
+  "sha": "405593ea28846014c59d73ae1fd0c438a0660811",
+  "short_sha": "405593ea28",
+  "subject": "chore: avoid stack overflow in debug tests (#6103)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

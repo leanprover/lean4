@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-06",
+  "needs_port": false,
+  "sha": "645c3e777d2e1d3728b17da6b1c869bf7b998aa4",
+  "short_sha": "645c3e777d",
+  "subject": "feat: disable `coeAtOutParam` when `@` (aka `explicit = true`) is used",
+  "zig_target": {}
+}

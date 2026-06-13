@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-10",
+  "needs_port": false,
+  "sha": "4c918a236360a3506eaaa17f6cc77e1f45843d83",
+  "short_sha": "4c918a2363",
+  "subject": "feat: use `default_decreasing_tactic` at `WF/Fix.lean`",
+  "zig_target": {}
+}

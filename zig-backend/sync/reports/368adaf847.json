@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-05-10",
+  "needs_port": true,
+  "sha": "368adaf84787c42823d2e4cdef7e3d1f7247817d",
+  "short_sha": "368adaf847",
+  "subject": "feat: add BitVec.[toInt_inj|toInt_ne] (#4075)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

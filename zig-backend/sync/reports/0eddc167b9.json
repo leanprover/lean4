@@ -1,0 +1,24 @@
+{
+  "author": "Siddharth Bhat",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/LLVMBindings.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean"
+    },
+    {
+      "path": "src/library/compiler/llvm.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llvm.cpp"
+    }
+  ],
+  "date": "2023-08-01",
+  "needs_port": true,
+  "sha": "0eddc167b91bc4671f93acb4a61cc4bed322c28a",
+  "short_sha": "0eddc167b9",
+  "subject": "feat: LLVM linkage bindings",
+  "zig_target": {
+    "src/Lean/Compiler/IR/LLVMBindings.lean": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean",
+    "src/library/compiler/llvm.cpp": "zig-backend/src/library/compiler/llvm.cpp"
+  }
+}

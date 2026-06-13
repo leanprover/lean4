@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-05-02",
+  "needs_port": false,
+  "sha": "092ca8530a6f272b7cb19235750479cdffab11de",
+  "short_sha": "092ca8530a",
+  "subject": "chore: CI: disable large runner again",
+  "zig_target": {}
+}

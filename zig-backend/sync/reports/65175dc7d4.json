@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-15",
+  "needs_port": false,
+  "sha": "65175dc7d483fc8a65bb4851fb3bbdd2cc6f6ea6",
+  "short_sha": "65175dc7d4",
+  "subject": "feat: improve`grind` diagnostic information  (#6656)",
+  "zig_target": {}
+}

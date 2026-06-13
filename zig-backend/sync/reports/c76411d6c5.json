@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    }
+  ],
+  "date": "2025-10-17",
+  "needs_port": true,
+  "sha": "c76411d6c55dfc292934d80914dfa6e5f77598f3",
+  "short_sha": "c76411d6c5",
+  "subject": "feat: compact notation for inspecting `grind` state (#10828)",
+  "zig_target": {
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean"
+  }
+}

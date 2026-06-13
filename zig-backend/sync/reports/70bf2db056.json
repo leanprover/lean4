@@ -1,0 +1,24 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Perm.lean"
+    }
+  ],
+  "date": "2025-04-23",
+  "needs_port": true,
+  "sha": "70bf2db056339f819b22fc649e10d926028444c9",
+  "short_sha": "70bf2db056",
+  "subject": "fix: use one-field structures for Array.Perm and Vector.Perm (#7999)",
+  "zig_target": {
+    "src/Init/Data/Array/Perm.lean": "zig-backend/src/init/Data/Array/Perm.lean",
+    "src/Init/Data/Vector/Perm.lean": "zig-backend/src/init/Data/Vector/Perm.lean"
+  }
+}

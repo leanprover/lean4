@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-06-22",
+  "needs_port": false,
+  "sha": "3cff5ceb997520a709eaa023ab2abc1d74604256",
+  "short_sha": "3cff5ceb99",
+  "subject": "perf: make trace[...] ... notation lazy",
+  "zig_target": {}
+}

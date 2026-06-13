@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-23",
+  "needs_port": false,
+  "sha": "40578d6d24faad4399ab16ee0cf3f5c36a2e83d5",
+  "short_sha": "40578d6d24",
+  "subject": "test: add explicit motive test",
+  "zig_target": {}
+}

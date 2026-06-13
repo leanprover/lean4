@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-23",
+  "needs_port": false,
+  "sha": "1f137297562deabc114feef05f0f3e09eeb83b3a",
+  "short_sha": "1f13729756",
+  "subject": "feat: show term goal at end of term as well",
+  "zig_target": {}
+}

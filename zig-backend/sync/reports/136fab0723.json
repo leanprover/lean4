@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-14",
+  "needs_port": false,
+  "sha": "136fab07238b508c59a43d9b3cc68cbec7dc35e7",
+  "short_sha": "136fab0723",
+  "subject": "feat: improve error message for `let ... \u2190 ...` outside of a `do`",
+  "zig_target": {}
+}

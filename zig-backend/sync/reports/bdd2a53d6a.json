@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-01",
+  "needs_port": false,
+  "sha": "bdd2a53d6a76dba40d4f200316ef94971d0c16f8",
+  "short_sha": "bdd2a53d6a",
+  "subject": "chore(tests/library/rewriter): remove dead tests",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-21",
+  "needs_port": false,
+  "sha": "01335863e6736231eca33e7fb9066710f037b69d",
+  "short_sha": "01335863e6",
+  "subject": "chore: add #grint_lint exception for sizeOf_spec lemmas (#11300)",
+  "zig_target": {}
+}

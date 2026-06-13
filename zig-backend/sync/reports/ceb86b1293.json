@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-11-13",
+  "needs_port": false,
+  "sha": "ceb86b1293ba318d759e6f85816398a613541f5c",
+  "short_sha": "ceb86b1293",
+  "subject": "fix: details in Markdown rendering of Verso docstrings (#11151)",
+  "zig_target": {}
+}

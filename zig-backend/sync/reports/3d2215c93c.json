@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-26",
+  "needs_port": false,
+  "sha": "3d2215c93c4aaeee45fec2cf57ac9257fa3e79b1",
+  "short_sha": "3d2215c93c",
+  "subject": "doc: clean up syntax ToC",
+  "zig_target": {}
+}

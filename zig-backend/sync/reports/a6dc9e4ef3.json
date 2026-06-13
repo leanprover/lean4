@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2021-05-17",
+  "needs_port": true,
+  "sha": "a6dc9e4ef3edb6956dfeb4b61ef6a532ed3d836d",
+  "short_sha": "a6dc9e4ef3",
+  "subject": "feat: `class abbrev` now supports a type spec (+ test)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "295cae8afda0aaab381ce2f60a4e73da04454945",
+  "short_sha": "295cae8afd",
+  "subject": "feat: copy field default values",
+  "zig_target": {}
+}

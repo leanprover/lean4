@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2025-10-27",
+  "needs_port": true,
+  "sha": "7e1be2031720f6e45316994ee3f2b1f2b95c9d36",
+  "short_sha": "7e1be20317",
+  "subject": "perf: widen more in ElimDeadBranches (#10856)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+  }
+}

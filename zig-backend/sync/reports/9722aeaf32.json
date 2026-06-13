@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    }
+  ],
+  "date": "2022-03-19",
+  "needs_port": true,
+  "sha": "9722aeaf3265c4fbbe33cbe26521ab1851882184",
+  "short_sha": "9722aeaf32",
+  "subject": "feat: use `String.Iterator.sizeOf_next_lt` in the builtin `decreasing_tactic`",
+  "zig_target": {
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean"
+  }
+}

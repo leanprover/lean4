@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-23",
+  "needs_port": false,
+  "sha": "f0a983fe30b6b0be51a3e161a586c72f8899af09",
+  "short_sha": "f0a983fe30",
+  "subject": "fix(frontends/lean/pp): function with implicits in structure instance",
+  "zig_target": {}
+}

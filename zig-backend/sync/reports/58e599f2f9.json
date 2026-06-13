@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-11",
+  "needs_port": false,
+  "sha": "58e599f2f936cd521d074aee599740e746c36425",
+  "short_sha": "58e599f2f9",
+  "subject": "perf: optimize congruence proof construction in `Sym.simp` (#11974)",
+  "zig_target": {}
+}

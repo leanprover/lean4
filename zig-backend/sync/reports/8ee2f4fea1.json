@@ -1,0 +1,44 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/runtime/lean_obj.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.cpp"
+    },
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    },
+    {
+      "old_path": "src/util/utf8.cpp",
+      "path": "src/runtime/utf8.cpp",
+      "status": "R",
+      "zig_target": "zig-backend/src/runtime/utf8.cpp"
+    },
+    {
+      "old_path": "src/util/utf8.h",
+      "path": "src/runtime/utf8.h",
+      "status": "R",
+      "zig_target": "zig-backend/src/runtime/utf8.h"
+    }
+  ],
+  "date": "2018-05-14",
+  "needs_port": true,
+  "sha": "8ee2f4fea16c0ae4cc0627a3e54a1cd9e79f1ff8",
+  "short_sha": "8ee2f4fea1",
+  "subject": "feat(*): basic runtime string support",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/lean_obj.cpp": "zig-backend/src/runtime/lean_obj.cpp",
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h",
+    "src/runtime/utf8.cpp": "zig-backend/src/runtime/utf8.cpp",
+    "src/runtime/utf8.h": "zig-backend/src/runtime/utf8.h"
+  }
+}

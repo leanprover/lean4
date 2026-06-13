@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2022-10-04",
+  "needs_port": true,
+  "sha": "8ed831101eafe3f7207615a8ecc4048c1db8f0be",
+  "short_sha": "8ed831101e",
+  "subject": "chore: benchmark new compiler",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

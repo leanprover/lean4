@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-12-12",
+  "needs_port": false,
+  "sha": "59045c62276809a8b9cbc2a5f6904aeecf29dea7",
+  "short_sha": "59045c6227",
+  "subject": "chore: make workspaceSymbols benchmark independent of sorry search (#11642)",
+  "zig_target": {}
+}

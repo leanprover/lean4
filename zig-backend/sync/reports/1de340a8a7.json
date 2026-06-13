@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-09",
+  "needs_port": false,
+  "sha": "1de340a8a730af078a3cec2fa900623032ef5730",
+  "short_sha": "1de340a8a7",
+  "subject": "chore: restore old `lean4-diff-test-file` behavior",
+  "zig_target": {}
+}

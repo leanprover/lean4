@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-13",
+  "needs_port": false,
+  "sha": "945abe00654d97e27ef5b77bc8e48a394ee016c9",
+  "short_sha": "945abe0065",
+  "subject": "fix: unused `let_fun` elimination in `simp` (#6375)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-31",
+  "needs_port": false,
+  "sha": "34142685a9bb94f8ee75941d17da6366c76b23b8",
+  "short_sha": "34142685a9",
+  "subject": "fix: use more reduction when computing parent types (#7764)",
+  "zig_target": {}
+}

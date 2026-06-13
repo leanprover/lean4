@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-11-18",
+  "needs_port": false,
+  "sha": "59d2d001324e19ec6082e9f56cfbbb76828ee4a8",
+  "short_sha": "59d2d00132",
+  "subject": "feat: turn a term elaborator into a syntax object with `elabToSyntax` (#11222)",
+  "zig_target": {}
+}

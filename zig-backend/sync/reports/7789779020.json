@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-01-10",
+  "needs_port": true,
+  "sha": "778977902040a590a12815ae3f4926b8adcd4a6b",
+  "short_sha": "7789779020",
+  "subject": "feat: add simple default tactic for well-founded recursion",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

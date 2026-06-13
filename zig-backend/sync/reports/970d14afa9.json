@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-18",
+  "needs_port": false,
+  "sha": "970d14afa9c1880a4922b4add9b4ed5641a29a93",
+  "short_sha": "970d14afa9",
+  "subject": "refactor(frontends/lean/structure_instance): implement structure instances using `mdata`",
+  "zig_target": {}
+}

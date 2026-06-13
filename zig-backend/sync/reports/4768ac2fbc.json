@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-08-19",
+  "needs_port": true,
+  "sha": "4768ac2fbcda11ce6237ed226af9c1d0ff5b7aa7",
+  "short_sha": "4768ac2fbc",
+  "subject": "chore: make `Syntax.getArg(s)` panic",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

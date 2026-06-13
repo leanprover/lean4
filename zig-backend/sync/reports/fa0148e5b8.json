@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-17",
+  "needs_port": false,
+  "sha": "fa0148e5b84fcc61e3ee670af79126c27aa43cb3",
+  "short_sha": "fa0148e5b8",
+  "subject": "feat(library/init/lean/parser): declarations and binders",
+  "zig_target": {}
+}

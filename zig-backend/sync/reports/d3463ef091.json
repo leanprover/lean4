@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-13",
+  "needs_port": false,
+  "sha": "d3463ef091aa2bcd15b7fc4c9758a53287613726",
+  "short_sha": "d3463ef091",
+  "subject": "fix: break grouped `fill` items containing hard line breaks",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-23",
+  "needs_port": false,
+  "sha": "49c64040a210cc71b200ae47ba500098cbd4b389",
+  "short_sha": "49c64040a2",
+  "subject": "feat: add support for `HEq` at `injections` tactic",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-29",
+  "needs_port": false,
+  "sha": "39e374e7cd6877ad6f6a6480fa76c67bdffaa1fe",
+  "short_sha": "39e374e7cd",
+  "subject": "fix: improve error message at invalid match-expr",
+  "zig_target": {}
+}

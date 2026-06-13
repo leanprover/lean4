@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-09",
+  "needs_port": false,
+  "sha": "854cc3418e56fa71e2ca4bb002e7c1c6d50e2552",
+  "short_sha": "854cc3418e",
+  "subject": "feat: improve error message for dependent-match elimination failures",
+  "zig_target": {}
+}

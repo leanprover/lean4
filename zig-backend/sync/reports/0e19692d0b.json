@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-06",
+  "needs_port": false,
+  "sha": "0e19692d0b536d72b2450792a7d14d32635edd32",
+  "short_sha": "0e19692d0b",
+  "subject": "fix: handle Verso docstrings that don't consume all the docstring (#12362)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-07-21",
+  "needs_port": true,
+  "sha": "b7f433c5b91959945d9c9f0932370bbf8b1d1fd0",
+  "short_sha": "b7f433c5b9",
+  "subject": "fix: behavior of `String.prev` (#9441)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

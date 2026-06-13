@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-29",
+  "needs_port": false,
+  "sha": "68653297d16392f72aaf54024e06a95d355b6120",
+  "short_sha": "68653297d1",
+  "subject": "chore: re-enable Lake",
+  "zig_target": {}
+}

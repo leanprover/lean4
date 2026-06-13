@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-02",
+  "needs_port": false,
+  "sha": "4934f5c56d5796a19d8669cbe90fd5f238d9810c",
+  "short_sha": "4934f5c56d",
+  "subject": "chore: force push to nightly branch when making nightly-YYYY-MM-DD tags (#2808)",
+  "zig_target": {}
+}

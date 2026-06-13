@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-26",
+  "needs_port": false,
+  "sha": "4323507b9105c2e0eb0ed4e2b47a6771eefcfe9e",
+  "short_sha": "4323507b91",
+  "subject": "fix: linter should have access to complete command message log (#8101)",
+  "zig_target": {}
+}

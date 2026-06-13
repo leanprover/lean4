@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-05-21",
+  "needs_port": true,
+  "sha": "4d2837430acde4e2e6fa3634da1581126e8eabad",
+  "short_sha": "4d2837430a",
+  "subject": "fix(library/compiler/emit_cpp): tail call",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    },
+    {
+      "path": "src/Init/TacticsExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/TacticsExtra.lean"
+    }
+  ],
+  "date": "2024-10-31",
+  "needs_port": true,
+  "sha": "3b80d1eb1f19b6de9e0d8ac8ea574306a264c7ad",
+  "short_sha": "3b80d1eb1f",
+  "subject": "feat: activate new tactic configuration syntax for most tactics (#5898)",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean",
+    "src/Init/TacticsExtra.lean": "zig-backend/src/init/TacticsExtra.lean"
+  }
+}

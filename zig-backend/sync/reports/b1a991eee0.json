@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitUtil.lean"
+    }
+  ],
+  "date": "2026-02-26",
+  "needs_port": true,
+  "sha": "b1a991eee04c4f84587287fcf7a3e0521e194ce8",
+  "short_sha": "b1a991eee0",
+  "subject": "perf: separate meta and non-meta initializers (#12016)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitUtil.lean": "zig-backend/src/lean/compiler/ir/EmitUtil.lean"
+  }
+}

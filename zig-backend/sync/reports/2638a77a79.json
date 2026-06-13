@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-14",
+  "needs_port": true,
+  "sha": "2638a77a7998b18e8f77dab5b4ce42c4c6dc2177",
+  "short_sha": "2638a77a79",
+  "subject": "feat(library/compiler/csimp): reduce cases of constructor",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

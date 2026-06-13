@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-14",
+  "needs_port": false,
+  "sha": "fde43e071d7c1bde5ef1edda2b03d36c2c4a21b3",
+  "short_sha": "fde43e071d",
+  "subject": "feat: improve matchType inference",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2022-09-24",
+  "needs_port": true,
+  "sha": "7d583f9543657b4d773650ecb3947b5554f77fc7",
+  "short_sha": "7d583f9543",
+  "subject": "fix: convert `_unsafe_rec` to original name",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

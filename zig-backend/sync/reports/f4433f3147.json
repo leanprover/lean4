@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/StateRef.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateRef.lean"
+    }
+  ],
+  "date": "2021-08-10",
+  "needs_port": true,
+  "sha": "f4433f3147aea7608d33ae75da2efb33657e157c",
+  "short_sha": "f4433f3147",
+  "subject": "feat: add `Alternative (StateRefT' \u03c9 \u03c3 m)`",
+  "zig_target": {
+    "src/Init/Control/StateRef.lean": "zig-backend/src/init/Control/StateRef.lean"
+  }
+}

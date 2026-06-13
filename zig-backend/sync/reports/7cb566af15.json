@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/include/lean/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/object.h"
+    }
+  ],
+  "date": "2021-01-30",
+  "needs_port": true,
+  "sha": "7cb566af15e96a8babd287d1b52b11a726c80d7a",
+  "short_sha": "7cb566af15",
+  "subject": "chore: remove `lean_alloc_ctor_big`",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/include/lean/object.h": "zig-backend/include/lean/object.h"
+  }
+}

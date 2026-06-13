@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-08",
+  "needs_port": false,
+  "sha": "9a4626c495981e0b6476d02784850932310f610e",
+  "short_sha": "9a4626c495",
+  "subject": "fix: must cache stack of parser evals",
+  "zig_target": {}
+}

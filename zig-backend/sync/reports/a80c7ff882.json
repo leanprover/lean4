@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-14",
+  "needs_port": false,
+  "sha": "a80c7ff882a2cb231739b01ec4852a2434a394b6",
+  "short_sha": "a80c7ff882",
+  "subject": "feat: add `mkLevelMax'` and `mkLevelIMax'`",
+  "zig_target": {}
+}

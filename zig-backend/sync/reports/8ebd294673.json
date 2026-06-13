@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-05-04",
+  "needs_port": false,
+  "sha": "8ebd294673e9e0397c5ccf2ab9a65b0f3e937918",
+  "short_sha": "8ebd294673",
+  "subject": "fix: kernel projection panic in `Sym.simp` match reduction (#13635)",
+  "zig_target": {}
+}

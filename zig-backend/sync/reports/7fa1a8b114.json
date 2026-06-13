@@ -1,0 +1,102 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Pairwise.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/OfSemiring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/OfSemiring.lean"
+    },
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    },
+    {
+      "path": "src/Init/Internal/Order/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-08-18",
+  "needs_port": true,
+  "sha": "7fa1a8b114e762cc3c19a6feb804e777e98476c7",
+  "short_sha": "7fa1a8b114",
+  "subject": "chore: eliminate uses of `intros x y z` (#9983)",
+  "zig_target": {
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean",
+    "src/Init/Data/List/Erase.lean": "zig-backend/src/init/Data/List/Erase.lean",
+    "src/Init/Data/List/Nat/Pairwise.lean": "zig-backend/src/init/Data/List/Nat/Pairwise.lean",
+    "src/Init/Data/List/Nat/Range.lean": "zig-backend/src/init/Data/List/Nat/Range.lean",
+    "src/Init/Data/List/Sort/Lemmas.lean": "zig-backend/src/init/Data/List/Sort/Lemmas.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean",
+    "src/Init/Grind/Ring/OfSemiring.lean": "zig-backend/src/init/Grind/Ring/OfSemiring.lean",
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean",
+    "src/Init/Internal/Order/Lemmas.lean": "zig-backend/src/init/Internal/Order/Lemmas.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

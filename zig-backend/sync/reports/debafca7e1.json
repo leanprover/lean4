@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2025-11-25",
+  "needs_port": false,
+  "sha": "debafca7e1206e1c8da10bfcf7c2902e69311dbe",
+  "short_sha": "debafca7e1",
+  "subject": "chore: add radar-based bench suite for stdlib (#11264)",
+  "zig_target": {}
+}

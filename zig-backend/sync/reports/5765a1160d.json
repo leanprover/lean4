@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-04",
+  "needs_port": false,
+  "sha": "5765a1160df4b0aac32d5b59594ec11ea9ed49ce",
+  "short_sha": "5765a1160d",
+  "subject": "fix: `Parser` ==> `TrailingParser`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-25",
+  "needs_port": false,
+  "sha": "03e905d994a7922f7793fa8a7811c14bf4f32c2e",
+  "short_sha": "03e905d994",
+  "subject": "feat: hash consing  with alpha equivalence in `grind` (#8479)",
+  "zig_target": {}
+}

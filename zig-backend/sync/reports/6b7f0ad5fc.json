@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-03-17",
+  "needs_port": false,
+  "sha": "6b7f0ad5fc95d2e13688525fe87e1dd459e5b541",
+  "short_sha": "6b7f0ad5fc",
+  "subject": "chore: check test output before exit code in piles (#12947)",
+  "zig_target": {}
+}

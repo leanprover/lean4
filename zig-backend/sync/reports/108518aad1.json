@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-26",
+  "needs_port": false,
+  "sha": "108518aad173bef1e84236c508d01bf7f889fe6e",
+  "short_sha": "108518aad1",
+  "subject": "feat: use `simp` at `mkDecreasingProof`",
+  "zig_target": {}
+}

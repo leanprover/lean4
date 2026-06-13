@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-21",
+  "needs_port": false,
+  "sha": "980e73c368f8f3274cad32f35154be0d1b8c255f",
+  "short_sha": "980e73c368",
+  "subject": "feat: make `\u22ef` in Infoview hovers show docstring (#3663)",
+  "zig_target": {}
+}

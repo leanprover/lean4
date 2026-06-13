@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2025-08-12",
+  "needs_port": true,
+  "sha": "6e18afac8c3eda3b3a53006c67e6842cab2ac681",
+  "short_sha": "6e18afac8c",
+  "subject": "feat: kernel hint for proof-by-reflection (#9865)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

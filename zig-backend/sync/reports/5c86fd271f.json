@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2025-07-01",
+  "needs_port": false,
+  "sha": "5c86fd271fa733a05ea54e7ef47b8c0910411aa8",
+  "short_sha": "5c86fd271f",
+  "subject": "chore: CI: bump dawidd6/action-download-artifact from 10 to 11 (#9137)",
+  "zig_target": {}
+}

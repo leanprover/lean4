@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2024-06-14",
+  "needs_port": false,
+  "sha": "4798c8418cbe3b00679e0dc37d8f7a1d3d51d479",
+  "short_sha": "4798c8418c",
+  "subject": "perf: replace `hasMVar` by `hasExprMVar` in `CollectMVars`, `FindMVar` (#4451)",
+  "zig_target": {}
+}

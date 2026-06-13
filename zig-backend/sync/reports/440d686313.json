@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-16",
+  "needs_port": false,
+  "sha": "440d6863134e8096111cd10761f91d5ee30c1e0b",
+  "short_sha": "440d686313",
+  "subject": "perf: do not export environment extensions without entries (#12508)",
+  "zig_target": {}
+}

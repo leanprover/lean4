@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+    }
+  ],
+  "date": "2026-03-02",
+  "needs_port": true,
+  "sha": "584d92d302b72ce8f310aaf95042d6566289ab49",
+  "short_sha": "584d92d302",
+  "subject": "refactor: replace `isImplicitReducible` with `Meta.isInstance` in `shouldInline` (#12759)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/InlineCandidate.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineCandidate.lean"
+  }
+}

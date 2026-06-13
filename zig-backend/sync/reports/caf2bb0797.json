@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-15",
+  "needs_port": false,
+  "sha": "caf2bb0797ddf8cfd7214ee7ef2c2eb35ede6b4b",
+  "short_sha": "caf2bb0797",
+  "subject": "feat: inline auxiliary matcher applications",
+  "zig_target": {}
+}

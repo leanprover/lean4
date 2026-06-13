@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-18",
+  "needs_port": false,
+  "sha": "f732afed0a0f1a5aa7cad70bf7b0d06756bcdee0",
+  "short_sha": "f732afed0a",
+  "subject": "fix: dynamic linking of Lean programs",
+  "zig_target": {}
+}

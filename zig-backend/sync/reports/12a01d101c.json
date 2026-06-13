@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_bytecode.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_bytecode.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.h"
+    }
+  ],
+  "date": "2018-10-31",
+  "needs_port": true,
+  "sha": "12a01d101c20f747da4d443c3191d9d5adfc433c",
+  "short_sha": "12a01d101c",
+  "subject": "refactor(library/compiler/llnf): memory cell reuse instruction set",
+  "zig_target": {
+    "src/library/compiler/emit_bytecode.cpp": "zig-backend/src/library/compiler/emit_bytecode.cpp",
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp",
+    "src/library/compiler/llnf.h": "zig-backend/src/library/compiler/llnf.h"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2024-04-12",
+  "needs_port": true,
+  "sha": "e59fad2955c6c8ed7d3fec8492c12087e12d1c7d",
+  "short_sha": "e59fad2955",
+  "subject": "doc: describe all `simp` configuration options (#3870)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

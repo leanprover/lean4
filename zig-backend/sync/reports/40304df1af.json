@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean.lean"
+    },
+    {
+      "path": "src/Init/Lean/Structure.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Structure.lean"
+    }
+  ],
+  "date": "2019-12-12",
+  "needs_port": true,
+  "sha": "40304df1afea4dfcc9097a25c08a1384ffdf144a",
+  "short_sha": "40304df1af",
+  "subject": "feat: add helper functions for accessing structures",
+  "zig_target": {
+    "src/Init/Lean.lean": "zig-backend/src/init/Lean.lean",
+    "src/Init/Lean/Structure.lean": "zig-backend/src/init/Lean/Structure.lean"
+  }
+}

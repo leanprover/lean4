@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-11",
+  "needs_port": false,
+  "sha": "758d258210f1bf587becc145f18e433c30d78a16",
+  "short_sha": "758d258210",
+  "subject": "fix(library/init/lean/parser/term): rename `term.ident` to `ident_univs` to remove confusion with `ident`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-16",
+  "needs_port": false,
+  "sha": "a08ef5ffa2339db1993a52ec44402eea01e15665",
+  "short_sha": "a08ef5ffa2",
+  "subject": "fix: remove partially copied code comment (#5070)",
+  "zig_target": {}
+}

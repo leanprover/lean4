@@ -1,0 +1,24 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2026-01-28",
+  "needs_port": true,
+  "sha": "6dcd6c8f08aeeada967470b3571934c85fac0bb3",
+  "short_sha": "6dcd6c8f08",
+  "subject": "chore: reformat all cmake files (#12218)",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

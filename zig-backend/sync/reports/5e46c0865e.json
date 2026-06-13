@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-03",
+  "needs_port": false,
+  "sha": "5e46c0865e38b31490b17534c2b1435266f0f995",
+  "short_sha": "5e46c0865e",
+  "subject": "doc: update LeanInk",
+  "zig_target": {}
+}

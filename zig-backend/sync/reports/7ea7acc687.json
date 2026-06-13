@@ -1,0 +1,10 @@
+{
+  "author": "thorimur",
+  "backend_changes": [],
+  "date": "2025-09-23",
+  "needs_port": false,
+  "sha": "7ea7acc687487543243c9f4dbc21a6b61cdb928e",
+  "short_sha": "7ea7acc687",
+  "subject": "chore: lower monad of `addSuggestion`(`s`) to `CoreM` (#10526)",
+  "zig_target": {}
+}

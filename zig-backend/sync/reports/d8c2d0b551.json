@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-04",
+  "needs_port": false,
+  "sha": "d8c2d0b5510803b193a382445dedef756928d31b",
+  "short_sha": "d8c2d0b551",
+  "subject": "fix: `CodeBlock` concatenation",
+  "zig_target": {}
+}

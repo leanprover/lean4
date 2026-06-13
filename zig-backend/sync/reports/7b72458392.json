@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-05-24",
+  "needs_port": false,
+  "sha": "7b72458392a17d1d2bf8f302eb50d24e9f98de39",
+  "short_sha": "7b72458392",
+  "subject": "chore: build Lake again",
+  "zig_target": {}
+}

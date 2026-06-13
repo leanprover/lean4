@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Poly.lean"
+    }
+  ],
+  "date": "2025-08-01",
+  "needs_port": true,
+  "sha": "f8cdb03352b81bf18c0200d821b0fb7e6061974f",
+  "short_sha": "f8cdb03352",
+  "subject": "fix: add `CommRing.Expr.intCast k` and `CommRing.Expr.natCast k` (#9670)",
+  "zig_target": {
+    "src/Init/Grind/Ring/Poly.lean": "zig-backend/src/init/Grind/Ring/Poly.lean"
+  }
+}

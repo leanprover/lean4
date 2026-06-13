@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "fda47932154de6126f800a3cf42fb7db15b31a9a",
+  "short_sha": "fda4793215",
+  "subject": "test: copy `ver_clash` test data to temp dir before modifying (#13134)",
+  "zig_target": {}
+}

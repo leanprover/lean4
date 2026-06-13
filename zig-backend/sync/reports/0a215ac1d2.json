@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-30",
+  "needs_port": false,
+  "sha": "0a215ac1d2be00cd317e90116446519bbfb9e553",
+  "short_sha": "0a215ac1d2",
+  "subject": "feat: store the number of parameters in each `match` `splitter` alternative",
+  "zig_target": {}
+}

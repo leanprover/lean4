@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-11-13",
+  "needs_port": false,
+  "sha": "f18d9e04bc65c7f28b0fc8a9db1cd97718c4de4b",
+  "short_sha": "f18d9e04bc",
+  "subject": "refactor: omega: avoid MVar machinery (#5991)",
+  "zig_target": {}
+}

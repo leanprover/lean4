@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-20",
+  "needs_port": false,
+  "sha": "4de9b8c177d920d44b8bfdf311d5a711fe88adc5",
+  "short_sha": "4de9b8c177",
+  "subject": "chore(library/vm): rename constants",
+  "zig_target": {}
+}

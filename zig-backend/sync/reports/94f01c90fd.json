@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-19",
+  "needs_port": true,
+  "sha": "94f01c90fd1c040031b17483541977548efaab55",
+  "short_sha": "94f01c90fd",
+  "subject": "feat(library/compiler/csimp): process lambda's lazily and combine dead-let-elimination",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

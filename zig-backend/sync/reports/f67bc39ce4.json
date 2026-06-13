@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.h"
+    }
+  ],
+  "date": "2019-05-27",
+  "needs_port": true,
+  "sha": "f67bc39ce4a6b5802459b23fa617a7b3d11c108b",
+  "short_sha": "f67bc39ce4",
+  "subject": "chore(library/compiler/llnf): remove old IR compiler",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp",
+    "src/library/compiler/llnf.h": "zig-backend/src/library/compiler/llnf.h"
+  }
+}

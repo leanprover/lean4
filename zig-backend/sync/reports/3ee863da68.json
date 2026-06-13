@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2018-10-23",
+  "needs_port": true,
+  "sha": "3ee863da6857a77f1c956326a964b86a6ce461bf",
+  "short_sha": "3ee863da68",
+  "subject": "feat(library/compiler/erase_irrelevant): eliminate `cases_on` for builtin types",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-06",
+  "needs_port": false,
+  "sha": "85bc52b9f210c8d573a379949d358b4be63374a8",
+  "short_sha": "85bc52b9f2",
+  "subject": "feat(library/init/lean/frontend): profile frontend",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-06-02",
+  "needs_port": false,
+  "sha": "caa8804a1d7030037ff64c8036e029c7d82d4013",
+  "short_sha": "caa8804a1d",
+  "subject": "feat: add nolint options for function arguments and pattern variables",
+  "zig_target": {}
+}

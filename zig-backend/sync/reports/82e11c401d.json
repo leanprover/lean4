@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2020-10-05",
+  "needs_port": true,
+  "sha": "82e11c401dc95cc17d9d35cf58a8868752e25718",
+  "short_sha": "82e11c401d",
+  "subject": "fix: `#eval` was not capturing `dbgTrace!` output in pure code",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

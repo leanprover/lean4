@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2022-03-09",
+  "needs_port": false,
+  "sha": "8e0763f502d2687c882cdac1310d874ddce62edc",
+  "short_sha": "8e0763f502",
+  "subject": "fix: binder case.",
+  "zig_target": {}
+}

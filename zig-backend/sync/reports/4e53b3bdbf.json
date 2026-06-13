@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-05-27",
+  "needs_port": false,
+  "sha": "4e53b3bdbffcfacb7d6f1b24fb0102b1a97d2b21",
+  "short_sha": "4e53b3bdbf",
+  "subject": "fix: use motive from `brecOn` in structural recursion for predicates.",
+  "zig_target": {}
+}

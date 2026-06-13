@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-19",
+  "needs_port": false,
+  "sha": "d34ef570a78a91c9c48fe7c1da77489049374b64",
+  "short_sha": "d34ef570a7",
+  "subject": "chore: print unexpected internal frontend errors",
+  "zig_target": {}
+}

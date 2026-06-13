@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2025-04-28",
+  "needs_port": true,
+  "sha": "2929d547dcc7ad3e947fc0a5ec8e79d07e0bcb2e",
+  "short_sha": "2929d547dc",
+  "subject": "fix: make the lcnf expr cache depend on the value of `root`, not just\u2026 (#8156)",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

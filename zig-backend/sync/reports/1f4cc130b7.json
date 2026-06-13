@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-11",
+  "needs_port": false,
+  "sha": "1f4cc130b7a444da3eef3888e8d8b746a3c499bb",
+  "short_sha": "1f4cc130b7",
+  "subject": "feat: precompile parenthesizers instead of interpreting them",
+  "zig_target": {}
+}

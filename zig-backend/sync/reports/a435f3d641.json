@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-06-11",
+  "needs_port": false,
+  "sha": "a435f3d6411765a732f9851ad1cfa1e752d948da",
+  "short_sha": "a435f3d641",
+  "subject": "feat: reduce `s.1 =?= v` to `s =?= \u27e8v\u27e9` if structure has a single field",
+  "zig_target": {}
+}

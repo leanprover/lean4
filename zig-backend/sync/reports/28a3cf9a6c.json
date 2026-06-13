@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Prod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Prod.lean"
+    }
+  ],
+  "date": "2025-11-06",
+  "needs_port": true,
+  "sha": "28a3cf9a6cc394316b79bbbdd868e605ee9d8784",
+  "short_sha": "28a3cf9a6c",
+  "subject": "chore: grind attributes for `Prod` (#11085)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Prod.lean": "zig-backend/src/init/Data/Prod.lean"
+  }
+}

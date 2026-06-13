@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-11-18",
+  "needs_port": true,
+  "sha": "6475e3d5ccaf1a2bff20d33f2c9dc334a3fa66c4",
+  "short_sha": "6475e3d5cc",
+  "subject": "fix: add missing LEAN_EXPORT",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

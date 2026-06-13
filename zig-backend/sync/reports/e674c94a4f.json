@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-29",
+  "needs_port": false,
+  "sha": "e674c94a4f4423ae82bc7f791ae6a540d226422e",
+  "short_sha": "e674c94a4f",
+  "subject": "chore: fix Windows CI job",
+  "zig_target": {}
+}

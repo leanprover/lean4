@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-03",
+  "needs_port": false,
+  "sha": "f5e72d09626e93b7e3908f089115accaa74b91aa",
+  "short_sha": "f5e72d0962",
+  "subject": "feat: make guard_msgs.diff=true the default (#8596)",
+  "zig_target": {}
+}

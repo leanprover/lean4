@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-07-07",
+  "needs_port": true,
+  "sha": "64eeba726a63212aff0c89e067030b2425e8122f",
+  "short_sha": "64eeba726a",
+  "subject": "chore: make Antisymm a Prop (#4666)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

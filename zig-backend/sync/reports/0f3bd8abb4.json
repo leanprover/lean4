@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2020-10-29",
+  "needs_port": true,
+  "sha": "0f3bd8abb49c23c24e34680dd0afe6899246c7e5",
+  "short_sha": "0f3bd8abb4",
+  "subject": "feat: add `rfl` and `decide!` tactic macros",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

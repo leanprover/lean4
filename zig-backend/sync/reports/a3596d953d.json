@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-24",
+  "needs_port": false,
+  "sha": "a3596d953d84b3493daccdc38bd2889e817efe19",
+  "short_sha": "a3596d953d",
+  "subject": "fix: clean build after update-stage0 (#3491)",
+  "zig_target": {}
+}

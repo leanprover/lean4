@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-17",
+  "needs_port": false,
+  "sha": "696ba77b53fe1d40b8564c58507eb0af6beb41cb",
+  "short_sha": "696ba77b53",
+  "subject": "feat(frontends/lean/elaborator): anonymous constructor notation for ginductives",
+  "zig_target": {}
+}

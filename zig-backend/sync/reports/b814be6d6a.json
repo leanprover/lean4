@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-10-09",
+  "needs_port": false,
+  "sha": "b814be6d6a5334784b172db15fd7fea39b4e3233",
+  "short_sha": "b814be6d6a",
+  "subject": "fix: use `MessageData.tagged` to mark maxHeartbeat exceptions (#5566)",
+  "zig_target": {}
+}

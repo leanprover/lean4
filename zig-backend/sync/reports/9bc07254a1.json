@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-01-29",
+  "needs_port": true,
+  "sha": "9bc07254a1da87d03497302e44fcf714a45d19df",
+  "short_sha": "9bc07254a1",
+  "subject": "feat: add support for `CoeSort`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

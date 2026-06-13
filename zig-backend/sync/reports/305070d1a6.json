@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    }
+  ],
+  "date": "2019-12-09",
+  "needs_port": true,
+  "sha": "305070d1a66428fd441d00c608a50cb33b4accee",
+  "short_sha": "305070d1a6",
+  "subject": "feat: register `trace.Elab`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean"
+  }
+}

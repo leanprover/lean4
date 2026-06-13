@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-08",
+  "needs_port": false,
+  "sha": "e7a1512da8d6f9339766f3a269de56e546757fde",
+  "short_sha": "e7a1512da8",
+  "subject": "doc: lake: update README target signatures",
+  "zig_target": {}
+}

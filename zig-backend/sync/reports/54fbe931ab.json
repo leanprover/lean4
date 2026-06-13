@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-03",
+  "needs_port": false,
+  "sha": "54fbe931ab77351ccba28aa7c03f22c717ba0681",
+  "short_sha": "54fbe931ab",
+  "subject": "refactor: make MatchEqs a leaf module (#11493)",
+  "zig_target": {}
+}

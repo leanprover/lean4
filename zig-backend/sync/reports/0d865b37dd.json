@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "0d865b37ddc7d9aa0568ac0afd216ed2966c7521",
+  "short_sha": "0d865b37dd",
+  "subject": "feat(library/init/lean/{message,parser}): enhance `lean.message`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-07",
+  "needs_port": false,
+  "sha": "badfcdc49f677500d6c3b718204966911617007d",
+  "short_sha": "badfcdc49f",
+  "subject": "fix: missing info tree on elab failure",
+  "zig_target": {}
+}

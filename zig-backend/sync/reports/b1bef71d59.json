@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-15",
+  "needs_port": false,
+  "sha": "b1bef71d59ec2e72353309838f340a24619fec7c",
+  "short_sha": "b1bef71d59",
+  "subject": "feat: colEq parser",
+  "zig_target": {}
+}

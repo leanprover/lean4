@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-26",
+  "needs_port": false,
+  "sha": "9466c5db25fe9e44199d2a9e837ab461716c89ec",
+  "short_sha": "9466c5db25",
+  "subject": "fix: constant patterns in `grind` (#7689)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-20",
+  "needs_port": false,
+  "sha": "776a9b0dcb95e6aa5f69748df579f5704cfdfa92",
+  "short_sha": "776a9b0dcb",
+  "subject": "feat: don't eagerly simplify local functions that will be inlined",
+  "zig_target": {}
+}

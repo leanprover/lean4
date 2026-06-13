@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2022-10-30",
+  "needs_port": false,
+  "sha": "8b9fe9b6c2714b51dc8b25c3f90304e488ec29a6",
+  "short_sha": "8b9fe9b6c2",
+  "subject": "doc: fix typo in manual ToC (#1790)",
+  "zig_target": {}
+}

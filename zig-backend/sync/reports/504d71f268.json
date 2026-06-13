@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-08-21",
+  "needs_port": true,
+  "sha": "504d71f268e9cfadf81c91b5f6777c0ed0b7cbfa",
+  "short_sha": "504d71f268",
+  "subject": "chore: remove unnecessary code handling `cases` of an erased value (#10035)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

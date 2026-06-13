@@ -1,0 +1,10 @@
+{
+  "author": "Xin Hao",
+  "backend_changes": [],
+  "date": "2024-10-29",
+  "needs_port": false,
+  "sha": "0d471513c5773e7aa16f74b2397d7978f9df0cfc",
+  "short_sha": "0d471513c5",
+  "subject": "fix: init git only not inside git work tree (#5789)",
+  "zig_target": {}
+}

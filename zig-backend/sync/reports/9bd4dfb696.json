@@ -1,0 +1,96 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/BEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/BEq.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Pairwise.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Pairwise.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sublist.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArray.lean"
+    },
+    {
+      "path": "src/Init/Omega/IntList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/IntList.lean"
+    }
+  ],
+  "date": "2026-02-27",
+  "needs_port": true,
+  "sha": "9bd4dfb6960e1706151f00665b056a7fa0eb894e",
+  "short_sha": "9bd4dfb696",
+  "subject": "chore: prefer `cons_cons` over `cons\u2082` in names (#12710)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Erase.lean": "zig-backend/src/init/Data/List/Erase.lean",
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat/BEq.lean": "zig-backend/src/init/Data/List/Nat/BEq.lean",
+    "src/Init/Data/List/Nat/Count.lean": "zig-backend/src/init/Data/List/Nat/Count.lean",
+    "src/Init/Data/List/Nat/Pairwise.lean": "zig-backend/src/init/Data/List/Nat/Pairwise.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/Pairwise.lean": "zig-backend/src/init/Data/List/Pairwise.lean",
+    "src/Init/Data/List/Perm.lean": "zig-backend/src/init/Data/List/Perm.lean",
+    "src/Init/Data/List/Sort/Lemmas.lean": "zig-backend/src/init/Data/List/Sort/Lemmas.lean",
+    "src/Init/Data/List/Sublist.lean": "zig-backend/src/init/Data/List/Sublist.lean",
+    "src/Init/Data/List/ToArray.lean": "zig-backend/src/init/Data/List/ToArray.lean",
+    "src/Init/Omega/IntList.lean": "zig-backend/src/init/Omega/IntList.lean"
+  }
+}

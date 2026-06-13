@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "2c1b0e3114372a9acb263857012db1404ca6931e",
+  "short_sha": "2c1b0e3114",
+  "subject": "chore: remove hanging stdlib bench test from CI",
+  "zig_target": {}
+}

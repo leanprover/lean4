@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-04-12",
+  "needs_port": true,
+  "sha": "bfbdddad1a66fd6c11d918819308e06c203b2db6",
+  "short_sha": "bfbdddad1a",
+  "subject": "fix(library/compiler/emit_cpp): initialization bug",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

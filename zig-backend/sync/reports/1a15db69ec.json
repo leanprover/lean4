@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-04-28",
+  "needs_port": false,
+  "sha": "1a15db69ecbbd58bbfb71d7c5d53d35d7061396e",
+  "short_sha": "1a15db69ec",
+  "subject": "feat: lake: add support for running text linters from `lake lint` (#13513)",
+  "zig_target": {}
+}

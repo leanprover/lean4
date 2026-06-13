@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-11",
+  "needs_port": false,
+  "sha": "1270353313ab500c6b1b3118e436165a6c0acd8d",
+  "short_sha": "1270353313",
+  "subject": "feat(library/init/lean/environment): add auxiliary functions",
+  "zig_target": {}
+}

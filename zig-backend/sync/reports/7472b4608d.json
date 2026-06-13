@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-04",
+  "needs_port": false,
+  "sha": "7472b4608d655b715b594e3c94d2b6fd651a8976",
+  "short_sha": "7472b4608d",
+  "subject": "chore(tests/bench/speedcenter.yaml): reduce max_runs to 10",
+  "zig_target": {}
+}

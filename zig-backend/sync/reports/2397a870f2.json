@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    }
+  ],
+  "date": "2024-04-17",
+  "needs_port": true,
+  "sha": "2397a870f22b8d95ba54673c263921a24db5b848",
+  "short_sha": "2397a870f2",
+  "subject": "feat: add lemma Int.add_bmod (#3890)",
+  "zig_target": {
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+  }
+}

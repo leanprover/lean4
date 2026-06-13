@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-27",
+  "needs_port": false,
+  "sha": "13d2398fb3d43aec4ebf1764ca2d27ab7e83cc92",
+  "short_sha": "13d2398fb3",
+  "subject": "feat(library/init/lean/compiler/ir): formatter",
+  "zig_target": {}
+}

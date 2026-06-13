@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-10",
+  "needs_port": false,
+  "sha": "8826330862a8397fbd9e0400b80104e6a0436e6a",
+  "short_sha": "8826330862",
+  "subject": "chore: add slightly different config for new speedcenter",
+  "zig_target": {}
+}

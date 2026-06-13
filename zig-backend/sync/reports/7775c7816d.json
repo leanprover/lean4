@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-14",
+  "needs_port": false,
+  "sha": "7775c7816d10dac7afdbd43f5a8d0b238998022d",
+  "short_sha": "7775c7816d",
+  "subject": "chore: add `UInt*` helper functions",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-03-21",
+  "needs_port": false,
+  "sha": "31767aa8358ce2b7f4f367a11df7c530e6534236",
+  "short_sha": "31767aa835",
+  "subject": "fix: use sticky diags in `getInteractiveDiagnostics` (#3730)",
+  "zig_target": {}
+}

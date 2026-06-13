@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PullLetDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean"
+    }
+  ],
+  "date": "2022-10-31",
+  "needs_port": true,
+  "sha": "c8eab4478dafa1202dc9e52a32c006a3765b91f5",
+  "short_sha": "c8eab4478d",
+  "subject": "chore: re-enable `pullInstances` and `cse` passes",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/PullLetDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean"
+  }
+}

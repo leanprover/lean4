@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "6b673d1ca9d36ff613c37922a422ca0642955063",
+  "short_sha": "6b673d1ca9",
+  "subject": "chore(util,kernel): consistent constructors for object_ref-like wrappers",
+  "zig_target": {}
+}

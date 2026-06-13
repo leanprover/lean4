@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-21",
+  "needs_port": false,
+  "sha": "85992757e71acdd5b007cc6555afce1fac94987c",
+  "short_sha": "85992757e7",
+  "subject": "fix: check guard_msgs.diff using .get rather than Options.getBool (#8918)",
+  "zig_target": {}
+}

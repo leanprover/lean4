@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-23",
+  "needs_port": false,
+  "sha": "8cc62940e0c233501f41003ed991e97bac4bb523",
+  "short_sha": "8cc62940e0",
+  "subject": "feat: localize universe metavariable errors at `let` bindings and `fun` binders (#5402)",
+  "zig_target": {}
+}

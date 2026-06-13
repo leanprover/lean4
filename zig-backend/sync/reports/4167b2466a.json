@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-06",
+  "needs_port": false,
+  "sha": "4167b2466a7dbad3cf489100d7d26559c3be7e21",
+  "short_sha": "4167b2466a",
+  "subject": "fix: improve heuristic for issue #1419",
+  "zig_target": {}
+}

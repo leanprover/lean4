@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-10",
+  "needs_port": false,
+  "sha": "002fb7f4462ac3775907ae86af494b01a45b2702",
+  "short_sha": "002fb7f446",
+  "subject": "fix: make sure pattern is tried on partial applications",
+  "zig_target": {}
+}

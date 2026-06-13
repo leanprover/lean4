@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-21",
+  "needs_port": false,
+  "sha": "2867b93d511212764453b0d7c8eef34daed93d9e",
+  "short_sha": "2867b93d51",
+  "subject": "chore: replace shell.nix with a devShell in flake.nix (#3717)",
+  "zig_target": {}
+}

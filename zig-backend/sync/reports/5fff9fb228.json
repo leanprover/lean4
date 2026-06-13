@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-12",
+  "needs_port": false,
+  "sha": "5fff9fb22869d358b73109dbd77795c123b0eb99",
+  "short_sha": "5fff9fb228",
+  "subject": "perf: remove obsolete old codegen workaround (#9311)",
+  "zig_target": {}
+}

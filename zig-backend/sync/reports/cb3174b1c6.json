@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-06-29",
+  "needs_port": false,
+  "sha": "cb3174b1c6add374c2eaaa2da45472ef8307df10",
+  "short_sha": "cb3174b1c6",
+  "subject": "feat: hovers when `pp.oneline` is true (#7954)",
+  "zig_target": {}
+}

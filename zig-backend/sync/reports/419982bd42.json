@@ -1,0 +1,36 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Fold.lean"
+    },
+    {
+      "path": "src/Init/Data/List/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/FinRange.lean"
+    },
+    {
+      "path": "src/Init/Data/List/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/OfFn.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    }
+  ],
+  "date": "2025-10-15",
+  "needs_port": true,
+  "sha": "419982bd42a29970a8fb76a5fcde8b6b58a3d76a",
+  "short_sha": "419982bd42",
+  "subject": "chore: even more module system fixes and refinements from Mathlib porting (#10726)",
+  "zig_target": {
+    "src/Init/Data/Fin/Fold.lean": "zig-backend/src/init/Data/Fin/Fold.lean",
+    "src/Init/Data/List/FinRange.lean": "zig-backend/src/init/Data/List/FinRange.lean",
+    "src/Init/Data/List/OfFn.lean": "zig-backend/src/init/Data/List/OfFn.lean",
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-17",
+  "needs_port": false,
+  "sha": "de6ff061edec2a75f3389744fab5e444f4d8b5a3",
+  "short_sha": "de6ff061ed",
+  "subject": "feat: `Sym.simp` dischargers (#12032)",
+  "zig_target": {}
+}

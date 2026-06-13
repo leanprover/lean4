@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-28",
+  "needs_port": true,
+  "sha": "d0b947bf52c09c430f643c69a8a2e91e8ef39e7f",
+  "short_sha": "d0b947bf52",
+  "subject": "chore: add @[simp] to Option.not_mem_none (#6804)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

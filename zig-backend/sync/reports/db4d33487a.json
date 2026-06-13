@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2021-07-30",
+  "needs_port": true,
+  "sha": "db4d33487a0655df03c28799a64f8493bfa9512a",
+  "short_sha": "db4d33487a",
+  "subject": "fix: unexpanders can't specify exact names",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

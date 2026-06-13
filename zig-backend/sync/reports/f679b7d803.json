@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-09-19",
+  "needs_port": true,
+  "sha": "f679b7d803c6c34a3ba8777e67e6724e8d362ea0",
+  "short_sha": "f679b7d803",
+  "subject": "feat: add `notFollowedBy` to `syntax`",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

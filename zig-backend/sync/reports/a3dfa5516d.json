@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2022-11-27",
+  "needs_port": false,
+  "sha": "a3dfa5516d3ba68358adcaf1063c35dd2764c75c",
+  "short_sha": "a3dfa5516d",
+  "subject": "feat: add HashSet.insertMany",
+  "zig_target": {}
+}

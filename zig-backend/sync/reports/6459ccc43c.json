@@ -1,0 +1,18 @@
+{
+  "author": "Jannis Limperg",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2022-04-08",
+  "needs_port": true,
+  "sha": "6459ccc43c89f4947126b078082551379a515154",
+  "short_sha": "6459ccc43c",
+  "subject": "fix: prevent overflow in lean_io_mono_ms_now",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

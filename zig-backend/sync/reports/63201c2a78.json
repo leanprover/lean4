@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-27",
+  "needs_port": false,
+  "sha": "63201c2a78bebbb7a2d646f3881c0c433b94ca70",
+  "short_sha": "63201c2a78",
+  "subject": "feat(library/init/lean/elaborator): add elaborator, elaborate `notation` and `reserve notation`",
+  "zig_target": {}
+}

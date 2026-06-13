@@ -1,0 +1,192 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/List/FinRange.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/FinRange.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lex.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MapIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MapIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MinMax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MinMax.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/BEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/BEq.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/InsertIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Modify.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Modify.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Pairwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Pairwise.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Sublist.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Impl.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArray.lean"
+    }
+  ],
+  "date": "2025-02-18",
+  "needs_port": true,
+  "sha": "f07e72fad77ddc989bc89c86c42ef732c813c397",
+  "short_sha": "f07e72fad7",
+  "subject": "chore: linting variable names for List (#7107)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean",
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean",
+    "src/Init/Data/List/Erase.lean": "zig-backend/src/init/Data/List/Erase.lean",
+    "src/Init/Data/List/FinRange.lean": "zig-backend/src/init/Data/List/FinRange.lean",
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Lex.lean": "zig-backend/src/init/Data/List/Lex.lean",
+    "src/Init/Data/List/MapIdx.lean": "zig-backend/src/init/Data/List/MapIdx.lean",
+    "src/Init/Data/List/MinMax.lean": "zig-backend/src/init/Data/List/MinMax.lean",
+    "src/Init/Data/List/Nat/BEq.lean": "zig-backend/src/init/Data/List/Nat/BEq.lean",
+    "src/Init/Data/List/Nat/Basic.lean": "zig-backend/src/init/Data/List/Nat/Basic.lean",
+    "src/Init/Data/List/Nat/Count.lean": "zig-backend/src/init/Data/List/Nat/Count.lean",
+    "src/Init/Data/List/Nat/Erase.lean": "zig-backend/src/init/Data/List/Nat/Erase.lean",
+    "src/Init/Data/List/Nat/Find.lean": "zig-backend/src/init/Data/List/Nat/Find.lean",
+    "src/Init/Data/List/Nat/InsertIdx.lean": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean",
+    "src/Init/Data/List/Nat/Modify.lean": "zig-backend/src/init/Data/List/Nat/Modify.lean",
+    "src/Init/Data/List/Nat/Pairwise.lean": "zig-backend/src/init/Data/List/Nat/Pairwise.lean",
+    "src/Init/Data/List/Nat/Perm.lean": "zig-backend/src/init/Data/List/Nat/Perm.lean",
+    "src/Init/Data/List/Nat/Range.lean": "zig-backend/src/init/Data/List/Nat/Range.lean",
+    "src/Init/Data/List/Nat/Sublist.lean": "zig-backend/src/init/Data/List/Nat/Sublist.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/Range.lean": "zig-backend/src/init/Data/List/Range.lean",
+    "src/Init/Data/List/Sort/Basic.lean": "zig-backend/src/init/Data/List/Sort/Basic.lean",
+    "src/Init/Data/List/Sort/Impl.lean": "zig-backend/src/init/Data/List/Sort/Impl.lean",
+    "src/Init/Data/List/Sort/Lemmas.lean": "zig-backend/src/init/Data/List/Sort/Lemmas.lean",
+    "src/Init/Data/List/ToArray.lean": "zig-backend/src/init/Data/List/ToArray.lean"
+  }
+}

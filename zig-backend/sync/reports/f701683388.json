@@ -1,0 +1,72 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    },
+    {
+      "path": "src/Init/Lean/LocalContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/LocalContext.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Exception.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Exception.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/InferType.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/LevelDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    },
+    {
+      "path": "src/Init/Lean/WHNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/WHNF.lean"
+    }
+  ],
+  "date": "2019-11-28",
+  "needs_port": true,
+  "sha": "f7016833885064698dd23e79c85e9d93cc233f25",
+  "short_sha": "f701683388",
+  "subject": "chore: add abbreviations `MVarId` and `FVarId`",
+  "zig_target": {
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean",
+    "src/Init/Lean/LocalContext.lean": "zig-backend/src/init/Lean/LocalContext.lean",
+    "src/Init/Lean/Meta/Basic.lean": "zig-backend/src/init/Lean/Meta/Basic.lean",
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean",
+    "src/Init/Lean/Meta/Exception.lean": "zig-backend/src/init/Lean/Meta/Exception.lean",
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean",
+    "src/Init/Lean/Meta/InferType.lean": "zig-backend/src/init/Lean/Meta/InferType.lean",
+    "src/Init/Lean/Meta/LevelDefEq.lean": "zig-backend/src/init/Lean/Meta/LevelDefEq.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean",
+    "src/Init/Lean/WHNF.lean": "zig-backend/src/init/Lean/WHNF.lean"
+  }
+}

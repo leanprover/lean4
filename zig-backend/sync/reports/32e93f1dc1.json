@@ -1,0 +1,18 @@
+{
+  "author": "Floris van Doorn",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2023-06-22",
+  "needs_port": true,
+  "sha": "32e93f1dc1b263883258884a1f7f85af6750cbad",
+  "short_sha": "32e93f1dc1",
+  "subject": "fix: delete Measure and SizeOfRef (#2275)",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

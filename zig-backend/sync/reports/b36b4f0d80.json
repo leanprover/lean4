@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/emit_cpp.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.h"
+    },
+    {
+      "path": "src/library/compiler/llnf.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.h"
+    }
+  ],
+  "date": "2019-01-25",
+  "needs_port": true,
+  "sha": "b36b4f0d80de25937a6db2e652a61c2ea803e4ce",
+  "short_sha": "b36b4f0d80",
+  "subject": "feat(library/compiler/emit_cpp): emit function headers",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/emit_cpp.h": "zig-backend/src/library/compiler/emit_cpp.h",
+    "src/library/compiler/llnf.h": "zig-backend/src/library/compiler/llnf.h"
+  }
+}

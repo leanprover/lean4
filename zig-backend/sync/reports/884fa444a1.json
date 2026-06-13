@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2025-03-24",
+  "needs_port": true,
+  "sha": "884fa444a13a0a8cfdc67535985a7fc94fccb2bd",
+  "short_sha": "884fa444a1",
+  "subject": "chore: fix fsanitize preset (#7651)",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

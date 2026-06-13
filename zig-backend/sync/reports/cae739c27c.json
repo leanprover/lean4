@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-10",
+  "needs_port": false,
+  "sha": "cae739c27c8cba8b4e726b64ffb537e60fdc5d5e",
+  "short_sha": "cae739c27c",
+  "subject": "test: `implies` vs `Arrow` `Sym.simp` benchmark (#11966)",
+  "zig_target": {}
+}

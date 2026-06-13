@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-17",
+  "needs_port": true,
+  "sha": "f6d9f4029e4878b523eb12c8fb5e4f1e129ad5bd",
+  "short_sha": "f6d9f4029e",
+  "subject": "feat: elaborate cdot",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

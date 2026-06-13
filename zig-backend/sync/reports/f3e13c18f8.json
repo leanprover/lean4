@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "f3e13c18f80ef0af7e0e8850c808254cad8eb2bb",
+  "short_sha": "f3e13c18f8",
+  "subject": "fix(library/init/lean/compiler/ir): `reset`",
+  "zig_target": {}
+}

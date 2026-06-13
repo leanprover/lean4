@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/RCases.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/RCases.lean"
+    }
+  ],
+  "date": "2024-02-10",
+  "needs_port": true,
+  "sha": "4718af54744ec297d51cd5ec40c3ec26c4623ead",
+  "short_sha": "4718af5474",
+  "subject": "chore: upstream rcases (#3292)",
+  "zig_target": {
+    "src/Init/RCases.lean": "zig-backend/src/init/RCases.lean"
+  }
+}

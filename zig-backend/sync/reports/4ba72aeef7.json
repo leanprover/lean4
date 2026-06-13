@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-05-19",
+  "needs_port": true,
+  "sha": "4ba72aeef761b7250b44a646351f59a0a66e7b53",
+  "short_sha": "4ba72aeef7",
+  "subject": "feat: missing normalization rules in `grind` (#8413)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

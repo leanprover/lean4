@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-04",
+  "needs_port": false,
+  "sha": "65643ee90bb727e2a31040c43ff9d429b36fb5d1",
+  "short_sha": "65643ee90b",
+  "subject": "chore(shell.nix): update temci once more",
+  "zig_target": {}
+}

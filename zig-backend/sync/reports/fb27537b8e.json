@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-09",
+  "needs_port": false,
+  "sha": "fb27537b8ee686251f5e51d7daf6c467731994c3",
+  "short_sha": "fb27537b8e",
+  "subject": "fix: `appUnexpander` name resolution",
+  "zig_target": {}
+}

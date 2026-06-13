@@ -1,0 +1,10 @@
+{
+  "author": "David Christiansen",
+  "backend_changes": [],
+  "date": "2023-10-05",
+  "needs_port": false,
+  "sha": "4c6d2b399869148d3ef80bcd0fe55858c6c89e8c",
+  "short_sha": "4c6d2b3998",
+  "subject": "doc: fix typo in comment",
+  "zig_target": {}
+}

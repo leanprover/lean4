@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-04-27",
+  "needs_port": false,
+  "sha": "7b0d4610b02cbf8430e399590415cc50f75854fd",
+  "short_sha": "7b0d4610b0",
+  "subject": "chore: CI: pin macos-13 (#3992)",
+  "zig_target": {}
+}

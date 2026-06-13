@@ -1,0 +1,18 @@
+{
+  "author": "jrr6",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-03-10",
+  "needs_port": true,
+  "sha": "aca1d54514913df86652bf4c072b8a7a380bad1c",
+  "short_sha": "aca1d54514",
+  "subject": "refactor: add definitions to allow turnstiles anywhere in locations (#7425)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

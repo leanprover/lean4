@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "c240172aff36065d77c7fc7fa82ae4b15fcf48f3",
+  "short_sha": "c240172aff",
+  "subject": "feat: add macro `expandMatchAltsIntoMatch`",
+  "zig_target": {}
+}

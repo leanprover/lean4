@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-21",
+  "needs_port": false,
+  "sha": "345cc22f7935e4b83ed59b1a8fdf98a9241253ae",
+  "short_sha": "345cc22f79",
+  "subject": "feat(frontends/lean/elaborator): do not create checkpoint at `let x := v;`",
+  "zig_target": {}
+}

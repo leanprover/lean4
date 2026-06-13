@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-11",
+  "needs_port": false,
+  "sha": "54868f26223a04567771001161128f5771c22700",
+  "short_sha": "54868f2622",
+  "subject": "chore: SubsingletonParamInfo is not used in MetaM",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-14",
+  "needs_port": false,
+  "sha": "6083bde3bc52a95da5f92351fe951d9f6db33c0c",
+  "short_sha": "6083bde3bc",
+  "subject": "chore(tests/playground/deriv): add example for testing in the playground",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-30",
+  "needs_port": false,
+  "sha": "107eb845847456ef554a763b16d579284b11ac53",
+  "short_sha": "107eb84584",
+  "subject": "feat: add declaration ranges for copied fields (#7746)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-24",
+  "needs_port": false,
+  "sha": "8f88b1f3f878dfbce39634a697813d61d8fadd79",
+  "short_sha": "8f88b1f3f8",
+  "subject": "feat: bundle `llvm-ar` with Lean",
+  "zig_target": {}
+}

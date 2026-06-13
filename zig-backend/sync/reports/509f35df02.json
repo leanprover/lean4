@@ -1,0 +1,18 @@
+{
+  "author": "Marcus Rossel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-02-01",
+  "needs_port": true,
+  "sha": "509f35df02c4f2f78581194453efbed67e53879f",
+  "short_sha": "509f35df02",
+  "subject": "doc: fix typos (#3236)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-18",
+  "needs_port": false,
+  "sha": "02b6fb3f41880209052bd024560b10f4122647ec",
+  "short_sha": "02b6fb3f41",
+  "subject": "fix: `canonInstances := true` issue (#4216)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/OfScientific.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/OfScientific.lean"
+    }
+  ],
+  "date": "2022-06-27",
+  "needs_port": true,
+  "sha": "34dc2572f36b35fce217d8d729167256175b3b08",
+  "short_sha": "34dc2572f3",
+  "subject": "fix: make sure `OfScientific Float` instance is never unfolded during type class resolution",
+  "zig_target": {
+    "src/Init/Data/OfScientific.lean": "zig-backend/src/init/Data/OfScientific.lean"
+  }
+}

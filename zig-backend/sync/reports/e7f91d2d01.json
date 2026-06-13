@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-07-28",
+  "needs_port": false,
+  "sha": "e7f91d2d01c5105c1ea1d9c797eecf511dbeab65",
+  "short_sha": "e7f91d2d01",
+  "subject": "feat: forward all args to server",
+  "zig_target": {}
+}

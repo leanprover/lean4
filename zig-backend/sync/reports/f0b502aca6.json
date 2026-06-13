@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-26",
+  "needs_port": false,
+  "sha": "f0b502aca691dce8fecf736022859511a77d74d7",
+  "short_sha": "f0b502aca6",
+  "subject": "fix: increase the number of heartbeats at `Expr.eqv`",
+  "zig_target": {}
+}

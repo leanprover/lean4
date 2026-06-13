@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-28",
+  "needs_port": false,
+  "sha": "2c5bafcbd8c2714db0ac40a1e3348c93606b42fc",
+  "short_sha": "2c5bafcbd8",
+  "subject": "fix: dead variables at match equation hypotheses",
+  "zig_target": {}
+}

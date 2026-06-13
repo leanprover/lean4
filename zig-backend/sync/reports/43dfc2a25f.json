@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Vector/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Basic.lean"
+    }
+  ],
+  "date": "2024-11-25",
+  "needs_port": true,
+  "sha": "43dfc2a25fc64095fb76d576802a70d88773fea8",
+  "short_sha": "43dfc2a25f",
+  "subject": "chore: fix Vector.indexOf? (#6208)",
+  "zig_target": {
+    "src/Init/Data/Vector/Basic.lean": "zig-backend/src/init/Data/Vector/Basic.lean"
+  }
+}

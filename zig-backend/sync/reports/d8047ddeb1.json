@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-03-25",
+  "needs_port": true,
+  "sha": "d8047ddeb1c969784150d1dee1bc41fe0f32c179",
+  "short_sha": "d8047ddeb1",
+  "subject": "fix: change `Quotient.sound` to a `theorem` (#3765)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

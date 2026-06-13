@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-02",
+  "needs_port": false,
+  "sha": "59d7b0055743032f21a6db0c416421e1503382a3",
+  "short_sha": "59d7b00557",
+  "subject": "feat: add mapping from mvar user name to MVarId",
+  "zig_target": {}
+}

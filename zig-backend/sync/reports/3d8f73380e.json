@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    }
+  ],
+  "date": "2024-02-21",
+  "needs_port": true,
+  "sha": "3d8f73380e270cfb5030bba2ce7e67b58ddce1ba",
+  "short_sha": "3d8f73380e",
+  "subject": "chore: simplify decide (b = true) and variants (#3426)",
+  "zig_target": {
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean"
+  }
+}

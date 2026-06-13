@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-02-05",
+  "needs_port": true,
+  "sha": "c4e8770342cb5b775e219466463f5e4d6b231494",
+  "short_sha": "c4e8770342",
+  "subject": "feat(runtime,boot): second part of the previous commit",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

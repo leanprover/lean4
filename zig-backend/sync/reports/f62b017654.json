@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "f62b0176546c61c73c1931f3f8dd37588153fad1",
+  "short_sha": "f62b017654",
+  "subject": "feat: user-specified native module facets for libraries",
+  "zig_target": {}
+}

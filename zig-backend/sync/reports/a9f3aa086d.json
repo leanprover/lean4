@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-30",
+  "needs_port": false,
+  "sha": "a9f3aa086d5c918a0b598eef237e63bf50c34a8a",
+  "short_sha": "a9f3aa086d",
+  "subject": "feat: add `Level.dec`",
+  "zig_target": {}
+}

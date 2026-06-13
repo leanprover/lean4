@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-01-31",
+  "needs_port": true,
+  "sha": "5f29b1003b79d4e365749c715f48ca71502eb0df",
+  "short_sha": "5f29b1003b",
+  "subject": "fix(library/compiler/emit_cpp): missing enf_unreachable case",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

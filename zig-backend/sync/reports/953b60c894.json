@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "953b60c89461071b454404776bc3b4c2e00997b4",
+  "short_sha": "953b60c894",
+  "subject": "fix: rendering of hygiene info nodes in Verso docstring code blocks (#12594)",
+  "zig_target": {}
+}

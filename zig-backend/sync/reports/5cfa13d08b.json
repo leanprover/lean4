@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "5cfa13d08bc35dddf2fb9c203f45c4587831bc39",
+  "short_sha": "5cfa13d08b",
+  "subject": "fix(library/init/lean/parser/parser): consume whitespace in the beginning of the input",
+  "zig_target": {}
+}

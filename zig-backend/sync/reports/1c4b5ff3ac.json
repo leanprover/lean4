@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-01-31",
+  "needs_port": false,
+  "sha": "1c4b5ff3ac93402b3cc6b6278bd7d13b7faf6cc3",
+  "short_sha": "1c4b5ff3ac",
+  "subject": "test: add package dependency diamond in `deps` example",
+  "zig_target": {}
+}

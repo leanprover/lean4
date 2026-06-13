@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2020-04-06",
+  "needs_port": true,
+  "sha": "f66039f7f0baabb99493f45b65cc5c5f2e58adfc",
+  "short_sha": "f66039f7f0",
+  "subject": "feat: generalize Array function universes",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

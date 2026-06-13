@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-21",
+  "needs_port": false,
+  "sha": "9085167872efc29bd31017351628b93725b0db11",
+  "short_sha": "9085167872",
+  "subject": "test: `Fin` match test that relies heavily on contradiction",
+  "zig_target": {}
+}

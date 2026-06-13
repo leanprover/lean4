@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-17",
+  "needs_port": false,
+  "sha": "bb2ca97df991b7d1b837ad6cf26934a7171d798d",
+  "short_sha": "bb2ca97df9",
+  "subject": "refactor: add options for controlling whether variables are included or not at `mkLambdaFVars` and `mkForallFVars`",
+  "zig_target": {}
+}

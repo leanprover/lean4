@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-12",
+  "needs_port": false,
+  "sha": "09244c73f4f6b6eac9b8cd1ef66ac11d7d2eadc5",
+  "short_sha": "09244c73f4",
+  "subject": "fix: lval resolution",
+  "zig_target": {}
+}

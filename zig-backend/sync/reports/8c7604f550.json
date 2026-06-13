@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-17",
+  "needs_port": false,
+  "sha": "8c7604f550dd462de54eb39c35e8ccabfcc888f0",
+  "short_sha": "8c7604f550",
+  "subject": "feat: `try?` runs tactics with separate heartbeats budgets (#11174)",
+  "zig_target": {}
+}

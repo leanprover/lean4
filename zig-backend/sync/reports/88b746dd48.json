@@ -1,0 +1,66 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/MonadAttach/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/MonadAttach/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MinMaxIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MinMaxIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MinMaxOn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MinMaxOn.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/MinMaxOn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/MinMaxOn.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Opposite.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Opposite.lean"
+    },
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/SimpM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+    }
+  ],
+  "date": "2026-03-22",
+  "needs_port": true,
+  "sha": "88b746dd48d902a0fddff65eedcf1a84c0a9c621",
+  "short_sha": "88b746dd48",
+  "subject": "feat: unfold and rewrap instances in `inferInstanceAs` and `deriving`",
+  "zig_target": {
+    "src/Init/Control/Lawful/MonadAttach/Instances.lean": "zig-backend/src/init/Control/Lawful/MonadAttach/Instances.lean",
+    "src/Init/Data/List/MinMaxIdx.lean": "zig-backend/src/init/Data/List/MinMaxIdx.lean",
+    "src/Init/Data/List/MinMaxOn.lean": "zig-backend/src/init/Data/List/MinMaxOn.lean",
+    "src/Init/Data/Order/MinMaxOn.lean": "zig-backend/src/init/Data/Order/MinMaxOn.lean",
+    "src/Init/Data/Order/Opposite.lean": "zig-backend/src/init/Data/Order/Opposite.lean",
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean",
+    "src/Lean/Compiler/LCNF/Simp/SimpM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/SimpM.lean"
+  }
+}

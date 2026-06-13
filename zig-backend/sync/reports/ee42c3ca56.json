@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-27",
+  "needs_port": false,
+  "sha": "ee42c3ca561992fce95445faaa5c5355141cf87b",
+  "short_sha": "ee42c3ca56",
+  "subject": "fix: discrepancy in the elaborators for `theorem`, `def`, and `example` (#4482)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Johan Commelin",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-01-31",
+  "needs_port": true,
+  "sha": "0a42a47ea84c5635c00a30f3a3042210bab82af0",
+  "short_sha": "0a42a47ea8",
+  "subject": "chore: mark Mul.mul and HMul.hMul as match_pattern (#6863)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

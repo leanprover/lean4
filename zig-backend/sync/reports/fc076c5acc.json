@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-08-10",
+  "needs_port": false,
+  "sha": "fc076c5acc427ab0e14c7bb340151c7d35c486b8",
+  "short_sha": "fc076c5acc",
+  "subject": "fix: get `DecidableEq` deriving handler to work for enumerations in higher universes (#9818)",
+  "zig_target": {}
+}

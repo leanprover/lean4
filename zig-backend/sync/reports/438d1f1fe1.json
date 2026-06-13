@@ -1,0 +1,36 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ExplicitRC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/InferBorrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PropagateBorrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PropagateBorrow.lean"
+    }
+  ],
+  "date": "2026-03-25",
+  "needs_port": true,
+  "sha": "438d1f1fe19382fd9a413a816c8925d419153b8b",
+  "short_sha": "438d1f1fe1",
+  "subject": "perf: reading from persistent values should count as borrowing (#13116)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/ExplicitRC.lean": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean",
+    "src/Lean/Compiler/LCNF/InferBorrow.lean": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean",
+    "src/Lean/Compiler/LCNF/PropagateBorrow.lean": "zig-backend/src/lean/compiler/lcnf/PropagateBorrow.lean"
+  }
+}

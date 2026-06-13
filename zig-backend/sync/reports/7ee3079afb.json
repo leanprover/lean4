@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "7ee3079afbdb893b124068078f654269be09a95b",
+  "short_sha": "7ee3079afb",
+  "subject": "feat: lake: CMake build types (#10578)",
+  "zig_target": {}
+}

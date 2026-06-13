@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-10-17",
+  "needs_port": false,
+  "sha": "ca6d1fd47ac8be9162a5afdd408a97e3224b7ef6",
+  "short_sha": "ca6d1fd47a",
+  "subject": "chore: lake: simplify config decl syntax",
+  "zig_target": {}
+}

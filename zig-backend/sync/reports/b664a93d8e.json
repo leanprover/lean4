@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-06",
+  "needs_port": false,
+  "sha": "b664a93d8e10d36e6c7b9a72d08cd355ec1ab32a",
+  "short_sha": "b664a93d8e",
+  "subject": "fix: a `match` application is stuck if one of the discriminants contain metavariables",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-18",
+  "needs_port": false,
+  "sha": "873a2ba8a696b8763acfd1e2b2b98971b5c8e04c",
+  "short_sha": "873a2ba8a6",
+  "subject": "feat: unfold `namedPattern` applications at equation theorems",
+  "zig_target": {}
+}

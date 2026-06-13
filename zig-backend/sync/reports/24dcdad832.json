@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-01",
+  "needs_port": false,
+  "sha": "24dcdad832a0827c23469bf4865d57323f159163",
+  "short_sha": "24dcdad832",
+  "subject": "feat: check prefix in option completion",
+  "zig_target": {}
+}

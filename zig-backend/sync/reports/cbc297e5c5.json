@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-19",
+  "needs_port": false,
+  "sha": "cbc297e5c5b3ddf42a106d1fd3f323dc39ae533b",
+  "short_sha": "cbc297e5c5",
+  "subject": "feat(frontends/lean/vm_elaborator): resolve names in constants' types",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-09",
+  "needs_port": false,
+  "sha": "b5d8bc1b8f1cfc3d51b2adbe8960b8655e5b06b9",
+  "short_sha": "b5d8bc1b8f",
+  "subject": "chore: Nix: pin LEAN_CXX for manual `leanc` calls",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-09-24",
+  "needs_port": false,
+  "sha": "eb9dd9a9e32905b70ce66748cb9a1ef92ad0aeb9",
+  "short_sha": "eb9dd9a9e3",
+  "subject": "chore: add some missing spec lemmas (#10540)",
+  "zig_target": {}
+}

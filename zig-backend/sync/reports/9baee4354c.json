@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-04",
+  "needs_port": false,
+  "sha": "9baee4354c581787421212a39e23ab1a13443303",
+  "short_sha": "9baee4354c",
+  "subject": "chore: add `trace.Debug.Meta.Tactic.simp`",
+  "zig_target": {}
+}

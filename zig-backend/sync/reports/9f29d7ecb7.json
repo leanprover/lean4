@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-04-02",
+  "needs_port": true,
+  "sha": "9f29d7ecb7dea6cf6bb9e07cd3677e9b8f2234ff",
+  "short_sha": "9f29d7ecb7",
+  "subject": "feat: add `stop` tactic macro",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

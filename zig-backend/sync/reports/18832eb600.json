@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "18832eb6004e1c37f4ad023b4956d6379564a197",
+  "short_sha": "18832eb600",
+  "subject": "fix: lake: ill-formed build output handling (#10586)",
+  "zig_target": {}
+}

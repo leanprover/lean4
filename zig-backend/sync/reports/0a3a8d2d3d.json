@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/runtime/mpn.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/mpn.cpp"
+    },
+    {
+      "path": "src/runtime/mpn.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/mpn.h"
+    }
+  ],
+  "date": "2021-10-25",
+  "needs_port": true,
+  "sha": "0a3a8d2d3dd2b21cfde468c7cd7bb5cd91d5da2a",
+  "short_sha": "0a3a8d2d3d",
+  "subject": "feat: add `mpn` module",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/mpn.cpp": "zig-backend/src/runtime/mpn.cpp",
+    "src/runtime/mpn.h": "zig-backend/src/runtime/mpn.h"
+  }
+}

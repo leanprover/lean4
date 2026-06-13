@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-08",
+  "needs_port": false,
+  "sha": "5a6f45a324d5661380001adcf9dcf03a471814dd",
+  "short_sha": "5a6f45a324",
+  "subject": "feat: improve cutsat `Nat` support (#7876)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    }
+  ],
+  "date": "2019-03-07",
+  "needs_port": true,
+  "sha": "2984d6838cad04d7703f538273b692de799e55ee",
+  "short_sha": "2984d6838c",
+  "subject": "chore(library/compiler/ll_infer_type): dead variable",
+  "zig_target": {
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+  }
+}

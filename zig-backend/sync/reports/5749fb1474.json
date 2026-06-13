@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-05-03",
+  "needs_port": false,
+  "sha": "5749fb14741b79a19c5d0253c7aef8eb6b490e03",
+  "short_sha": "5749fb1474",
+  "subject": "fix: search for local refs only in current file",
+  "zig_target": {}
+}

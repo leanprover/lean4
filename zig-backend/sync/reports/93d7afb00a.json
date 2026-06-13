@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2024-05-05",
+  "needs_port": false,
+  "sha": "93d7afb00a9acb6ef0648cc2aeef798ca08d6ea9",
+  "short_sha": "93d7afb00a",
+  "subject": "fix: bug in reduceLeDiff simproc proof term (#4065)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-26",
+  "needs_port": false,
+  "sha": "466ef74ccc024e334e9c78d9e008d3f7612f9ccf",
+  "short_sha": "466ef74ccc",
+  "subject": "feat: functional induction for structural recursion (#3738)",
+  "zig_target": {}
+}

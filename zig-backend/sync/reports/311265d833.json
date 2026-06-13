@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-10-22",
+  "needs_port": true,
+  "sha": "311265d83379629758e3b553a47cc221ed46fb19",
+  "short_sha": "311265d833",
+  "subject": "fix: `Name.beq` primitive name",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-29",
+  "needs_port": false,
+  "sha": "5e3063872523bb7393fb09f5f83969bd900207b3",
+  "short_sha": "5e30638725",
+  "subject": "feat: `set_option diag true` tracks how many times an instance is used (#4019)",
+  "zig_target": {}
+}

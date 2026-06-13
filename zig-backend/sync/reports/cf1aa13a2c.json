@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-05",
+  "needs_port": false,
+  "sha": "cf1aa13a2c1f34224f151f568849ed17430fdb74",
+  "short_sha": "cf1aa13a2c",
+  "subject": "feat(library/init/lean/elaborator): to_pexpr: translate `match` nodes to `pre_equations` pexpr",
+  "zig_target": {}
+}

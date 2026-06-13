@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-09",
+  "needs_port": false,
+  "sha": "5bf5c73f740e16148c105c1d52381e01bdfa6418",
+  "short_sha": "5bf5c73f74",
+  "subject": "chore: prune imports in Try.Collect (#11570)",
+  "zig_target": {}
+}

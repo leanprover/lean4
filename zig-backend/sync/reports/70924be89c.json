@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-27",
+  "needs_port": false,
+  "sha": "70924be89c3aa7eee7dd0e115bf3b9df2d96eb78",
+  "short_sha": "70924be89c",
+  "subject": "feat: hovering over omission term shows reason for omission (#3751)",
+  "zig_target": {}
+}

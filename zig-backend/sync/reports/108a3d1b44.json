@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-11-20",
+  "needs_port": false,
+  "sha": "108a3d1b44d2fee0d21024f6bcc7abee113da49e",
+  "short_sha": "108a3d1b44",
+  "subject": "feat: add intersection on `DTreeMap`/`TreeMap`/`TreeSet` (#11165)",
+  "zig_target": {}
+}

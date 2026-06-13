@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-01-22",
+  "needs_port": false,
+  "sha": "3bfeb0bc1f86dcbd738b4d07bd632216db27ef1e",
+  "short_sha": "3bfeb0bc1f",
+  "subject": "refactor: use `isRecursiveDefinition` when validating `macro_inline` (#12106)",
+  "zig_target": {}
+}

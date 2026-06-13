@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-31",
+  "needs_port": false,
+  "sha": "b192293b8a92a1242708bc860dc75b8814c7978e",
+  "short_sha": "b192293b8a",
+  "subject": "feat: allow arbitrary commands (except `end`) in a mutual block",
+  "zig_target": {}
+}

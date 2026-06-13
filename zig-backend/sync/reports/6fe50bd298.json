@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2018-10-29",
+  "needs_port": true,
+  "sha": "6fe50bd2982be92a4109e5276f9976642f51e255",
+  "short_sha": "6fe50bd298",
+  "subject": "fix(library/compiler/llnf): missing `mk_let`",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

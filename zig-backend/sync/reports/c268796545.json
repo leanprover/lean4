@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-01-15",
+  "needs_port": false,
+  "sha": "c2687965450a9748db74cadb1a5cb85e850cf3c3",
+  "short_sha": "c268796545",
+  "subject": "fix(frontends/lean): clang errors and warnings",
+  "zig_target": {}
+}

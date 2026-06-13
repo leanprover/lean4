@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2023-09-08",
+  "needs_port": false,
+  "sha": "3aa1cfcceabf7d091a3b2e5d4330df76767336ac",
+  "short_sha": "3aa1cfccea",
+  "subject": "doc: update quickstart doc for release",
+  "zig_target": {}
+}

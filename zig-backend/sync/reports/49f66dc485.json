@@ -1,0 +1,36 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/ByCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/ByCases.lean"
+    },
+    {
+      "path": "src/Init/Control/ExceptCps.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/ExceptCps.lean"
+    },
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    }
+  ],
+  "date": "2024-03-21",
+  "needs_port": true,
+  "sha": "49f66dc485ff1d4d6738a414c1fded19b4776393",
+  "short_sha": "49f66dc485",
+  "subject": "perf: rewrite UnusedVariables lint (#3186)",
+  "zig_target": {
+    "src/Init/ByCases.lean": "zig-backend/src/init/ByCases.lean",
+    "src/Init/Control/ExceptCps.lean": "zig-backend/src/init/Control/ExceptCps.lean",
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean",
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+  }
+}

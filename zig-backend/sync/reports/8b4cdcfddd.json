@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-22",
+  "needs_port": false,
+  "sha": "8b4cdcfddde9cbcdd0507601b2721aebf9f5e0fe",
+  "short_sha": "8b4cdcfddd",
+  "subject": "chore: fix mutable variable shadowing",
+  "zig_target": {}
+}

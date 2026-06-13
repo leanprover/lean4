@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-04",
+  "needs_port": false,
+  "sha": "6e7a883b21eaf62831e8111b251dc9b18f40e604",
+  "short_sha": "6e7a883b21",
+  "subject": "fix: make sure all joinpoints have at least 1 argument",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-26",
+  "needs_port": false,
+  "sha": "a4f9a793d9bdf3f3d4b69f3ebcfa7cd347df9d1a",
+  "short_sha": "a4f9a793d9",
+  "subject": "feat: new constraints in `grind_pattern` (#11391)",
+  "zig_target": {}
+}

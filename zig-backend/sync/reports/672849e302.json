@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-26",
+  "needs_port": false,
+  "sha": "672849e302ec4332c20a812c25d14d7ef6c1b3ea",
+  "short_sha": "672849e302",
+  "subject": "feat: improve error message for `constant a b c : Nat`",
+  "zig_target": {}
+}

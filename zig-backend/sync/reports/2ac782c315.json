@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-22",
+  "needs_port": false,
+  "sha": "2ac782c31593b0abc9ab84f3614895ef14b74e4f",
+  "short_sha": "2ac782c315",
+  "subject": "test: lake: add env & dep cfg benchmarks + cleanup",
+  "zig_target": {}
+}

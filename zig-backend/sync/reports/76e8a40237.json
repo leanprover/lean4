@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-17",
+  "needs_port": false,
+  "sha": "76e8a40237cd9844352fbd8548dba0f271c32db0",
+  "short_sha": "76e8a40237",
+  "subject": "chore: pick slightly nicer user-facing names",
+  "zig_target": {}
+}

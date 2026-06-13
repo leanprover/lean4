@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-01",
+  "needs_port": false,
+  "sha": "069c07fa39b09ab306d0eea8299f00b8f7a4b72d",
+  "short_sha": "069c07fa39",
+  "subject": "test(tests/playground/Makefile): update",
+  "zig_target": {}
+}

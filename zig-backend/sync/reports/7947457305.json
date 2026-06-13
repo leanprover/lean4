@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2025-04-04",
+  "needs_port": true,
+  "sha": "79474573052e9b370122b46f5456fc68139992e5",
+  "short_sha": "7947457305",
+  "subject": "perf: `Task.bind` short circuit (#7795)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

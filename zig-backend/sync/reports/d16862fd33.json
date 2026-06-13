@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-04-30",
+  "needs_port": false,
+  "sha": "d16862fd3394cff391b1ce5c6fde13a91975951d",
+  "short_sha": "d16862fd33",
+  "subject": "feat: induction: allow complex arguments to motive in conclusion of eliminator (#8096)",
+  "zig_target": {}
+}

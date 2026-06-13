@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-07",
+  "needs_port": false,
+  "sha": "590ff23e7146e6fc5e21c7b3a761065c8f79242c",
+  "short_sha": "590ff23e71",
+  "subject": "fix: lake: `moreLinkObjs|Libs` on a `lean_exe` (#11117)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-21",
+  "needs_port": false,
+  "sha": "c62c8bd64bda52ba638c54caa4fecfb28d0ce33e",
+  "short_sha": "c62c8bd64b",
+  "subject": "chore: reenable servertest_edit",
+  "zig_target": {}
+}

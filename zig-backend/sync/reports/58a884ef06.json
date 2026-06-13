@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-20",
+  "needs_port": false,
+  "sha": "58a884ef067b8b10f083621020127975e83cd1da",
+  "short_sha": "58a884ef06",
+  "subject": "chore: update actions/checkout action in lake new template (#10845)",
+  "zig_target": {}
+}

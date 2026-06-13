@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-15",
+  "needs_port": false,
+  "sha": "f98b6a3bb165d11f6802352bf15a28190d6a380d",
+  "short_sha": "f98b6a3bb1",
+  "subject": "fix: fall-out from syntax kind lookup change",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2021-01-04",
+  "needs_port": true,
+  "sha": "403699f5e4a0a91cc0fc3782bfd5210e13f4bdf6",
+  "short_sha": "403699f5e4",
+  "subject": "fix: `elim_array_cases`",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

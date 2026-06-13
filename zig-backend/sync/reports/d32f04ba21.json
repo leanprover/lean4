@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-08-21",
+  "needs_port": false,
+  "sha": "d32f04ba211739f2c352fda3281bd1f067fbbf72",
+  "short_sha": "d32f04ba21",
+  "subject": "refactor: split out an `isInductivePredicateVal` function (#10033)",
+  "zig_target": {}
+}

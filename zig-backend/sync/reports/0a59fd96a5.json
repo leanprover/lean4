@@ -1,0 +1,10 @@
+{
+  "author": "Patrick Massot",
+  "backend_changes": [],
+  "date": "2023-09-19",
+  "needs_port": false,
+  "sha": "0a59fd96a5189e92bfb7e9d58396d8bb6a9d1d8e",
+  "short_sha": "0a59fd96a5",
+  "subject": "chore: finer-grained ref in `getCalcFirstStep` (#2563)",
+  "zig_target": {}
+}

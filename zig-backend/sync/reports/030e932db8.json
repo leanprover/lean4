@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-05",
+  "needs_port": false,
+  "sha": "030e932db8575e533bc18ce2175e2b0e9c38e0d8",
+  "short_sha": "030e932db8",
+  "subject": "feat: use `getEqnsFor?` at `simp`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-08-11",
+  "needs_port": true,
+  "sha": "1ed329b3059f13de269d31ac41c353a33ea2e38a",
+  "short_sha": "1ed329b305",
+  "subject": "test: try reenabling plugin test on Windows",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

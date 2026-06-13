@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2024-02-08",
+  "needs_port": true,
+  "sha": "2ad3c6406eb4aa972de7ea44b060241125141c00",
+  "short_sha": "2ad3c6406e",
+  "subject": "feat: upstream TSyntax helper functions (#3261)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

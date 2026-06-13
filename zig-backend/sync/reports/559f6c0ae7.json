@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/QSort/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/QSort/Basic.lean"
+    }
+  ],
+  "date": "2026-04-14",
+  "needs_port": true,
+  "sha": "559f6c0ae72cee138cde3a4ebc59b96ff2d15794",
+  "short_sha": "559f6c0ae7",
+  "subject": "perf: specialize qsort properly onto the lt function (#13409)",
+  "zig_target": {
+    "src/Init/Data/Array/QSort/Basic.lean": "zig-backend/src/init/Data/Array/QSort/Basic.lean"
+  }
+}

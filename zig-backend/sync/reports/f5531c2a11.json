@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-12-18",
+  "needs_port": false,
+  "sha": "f5531c2a11b0a9a027cba43a6d46429e00fd1601",
+  "short_sha": "f5531c2a11",
+  "subject": "feat: add context and term data to goals",
+  "zig_target": {}
+}

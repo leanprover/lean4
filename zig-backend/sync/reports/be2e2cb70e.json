@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    }
+  ],
+  "date": "2022-02-24",
+  "needs_port": true,
+  "sha": "be2e2cb70e47abb9d3d39b5f4941ecaa50fd9444",
+  "short_sha": "be2e2cb70e",
+  "subject": "chore: adjust proofs affected by update stage0",
+  "zig_target": {
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean"
+  }
+}

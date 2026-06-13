@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-03",
+  "needs_port": false,
+  "sha": "ed3fa3734149f3375b2d15a8a544a7c55c2963dd",
+  "short_sha": "ed3fa37341",
+  "subject": "chore: Nix: add `overrideBuildModAttrs`",
+  "zig_target": {}
+}

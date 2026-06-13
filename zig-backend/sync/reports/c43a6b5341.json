@@ -1,0 +1,114 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Gcd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Gcd.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Pow.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Pow.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Dvd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Dvd.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Random.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Random.lean"
+    },
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    },
+    {
+      "path": "src/Init/Omega/IntList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/IntList.lean"
+    }
+  ],
+  "date": "2024-03-11",
+  "needs_port": true,
+  "sha": "c43a6b53413f1f597eb5144692730a9132c3e473",
+  "short_sha": "c43a6b5341",
+  "subject": "chore: upstream Std.Data.Int (#3635)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int.lean": "zig-backend/src/init/Data/Int.lean",
+    "src/Init/Data/Int/DivMod.lean": "zig-backend/src/init/Data/Int/DivMod.lean",
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean",
+    "src/Init/Data/Int/Gcd.lean": "zig-backend/src/init/Data/Int/Gcd.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Data/Int/Pow.lean": "zig-backend/src/init/Data/Int/Pow.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean",
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean",
+    "src/Init/Data/Nat/Dvd.lean": "zig-backend/src/init/Data/Nat/Dvd.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean",
+    "src/Init/Data/Random.lean": "zig-backend/src/init/Data/Random.lean",
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean",
+    "src/Init/Omega/IntList.lean": "zig-backend/src/init/Omega/IntList.lean"
+  }
+}

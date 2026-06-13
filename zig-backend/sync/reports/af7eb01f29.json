@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-16",
+  "needs_port": false,
+  "sha": "af7eb01f29d4d80b381065b4f787de72eafb2f97",
+  "short_sha": "af7eb01f29",
+  "subject": "chore: build `leanc` with Lake under `USE_LAKE` (#8336)",
+  "zig_target": {}
+}

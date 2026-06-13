@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-14",
+  "needs_port": false,
+  "sha": "0b146abeb1566ac730bbd0646c0646f782bb65d6",
+  "short_sha": "0b146abeb1",
+  "subject": "chore: CI: don't schedule nightlies on forks",
+  "zig_target": {}
+}

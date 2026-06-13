@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elaborator/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elaborator/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Offset.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Offset.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    },
+    {
+      "path": "src/Init/Lean/ToExpr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/ToExpr.lean"
+    }
+  ],
+  "date": "2019-12-04",
+  "needs_port": true,
+  "sha": "dacf69b2f0090074db0c9b496bfd4fba87ed1645",
+  "short_sha": "dacf69b2f0",
+  "subject": "chore: remove `mkCApp*` functions",
+  "zig_target": {
+    "src/Init/Lean/Elaborator/Basic.lean": "zig-backend/src/init/Lean/Elaborator/Basic.lean",
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean",
+    "src/Init/Lean/Meta/Offset.lean": "zig-backend/src/init/Lean/Meta/Offset.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean",
+    "src/Init/Lean/ToExpr.lean": "zig-backend/src/init/Lean/ToExpr.lean"
+  }
+}

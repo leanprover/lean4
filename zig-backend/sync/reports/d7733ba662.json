@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2021-01-12",
+  "needs_port": true,
+  "sha": "d7733ba66215c8c0676130814a657927f3a920c2",
+  "short_sha": "d7733ba662",
+  "subject": "feat: use `leanpkg print-path` for worker initialization",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

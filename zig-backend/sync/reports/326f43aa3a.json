@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-05-03",
+  "needs_port": false,
+  "sha": "326f43aa3a4f79d9e40e94e8ea051a7163f05c08",
+  "short_sha": "326f43aa3a",
+  "subject": "fix: lake: `meta import` transitive import artifacts (#13600)",
+  "zig_target": {}
+}

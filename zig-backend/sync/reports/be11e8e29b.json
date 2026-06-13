@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-18",
+  "needs_port": false,
+  "sha": "be11e8e29b01be9ecefe0440f3888b9b9d50c203",
+  "short_sha": "be11e8e29b",
+  "subject": "doc: missing linebreak",
+  "zig_target": {}
+}

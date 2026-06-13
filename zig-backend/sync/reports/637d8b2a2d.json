@@ -1,0 +1,24 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    }
+  ],
+  "date": "2025-03-20",
+  "needs_port": true,
+  "sha": "637d8b2a2de3e26c6233c90c9a03f9a889bd720e",
+  "short_sha": "637d8b2a2d",
+  "subject": "feat: add `BitVec.(negOverflow, negOverflow_eq)` (#7554)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+  }
+}

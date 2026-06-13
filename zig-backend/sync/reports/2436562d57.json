@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-08-12",
+  "needs_port": false,
+  "sha": "2436562d5743731aa0e1145cd8a52f212ece1e3d",
+  "short_sha": "2436562d57",
+  "subject": "fix: regular mvar assignments take precedence over delayed ones (#4987)",
+  "zig_target": {}
+}

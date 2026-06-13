@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    }
+  ],
+  "date": "2025-06-05",
+  "needs_port": true,
+  "sha": "c3d31cf24b5e385240ffd19753f0c06d7963160b",
+  "short_sha": "c3d31cf24b",
+  "subject": "feat: helper theorems for equality detection and coefficent normalization (#8650)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+  }
+}

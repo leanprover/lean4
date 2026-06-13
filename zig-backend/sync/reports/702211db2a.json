@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-31",
+  "needs_port": false,
+  "sha": "702211db2a917e73f9568ace3b6e47b27b81ebdc",
+  "short_sha": "702211db2a",
+  "subject": "feat: pp.analyze detect when struct-inst type needed",
+  "zig_target": {}
+}

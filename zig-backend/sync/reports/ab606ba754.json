@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-12-04",
+  "needs_port": false,
+  "sha": "ab606ba7541e65dc1e7ba695a50772de9891f3d0",
+  "short_sha": "ab606ba754",
+  "subject": "feat: hint when an autobound variable's type fails to be a function (#11518)",
+  "zig_target": {}
+}

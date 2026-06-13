@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-27",
+  "needs_port": false,
+  "sha": "3a4b61f8c73ce8f37c7048a371194f3e84b0a320",
+  "short_sha": "3a4b61f8c7",
+  "subject": "feat: Nix: debug builds",
+  "zig_target": {}
+}

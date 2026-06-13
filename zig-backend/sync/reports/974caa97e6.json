@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2021-07-19",
+  "needs_port": true,
+  "sha": "974caa97e60b9f7f8a15637815119cf8bc11a420",
+  "short_sha": "974caa97e6",
+  "subject": "chore: typo",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

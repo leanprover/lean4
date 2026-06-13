@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-06-04",
+  "needs_port": false,
+  "sha": "d92e4a7cf116669f016167babac1c84144f218d0",
+  "short_sha": "d92e4a7cf1",
+  "subject": "chore: restore LEANC_EXTRA_FLAGS",
+  "zig_target": {}
+}

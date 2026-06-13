@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-10",
+  "needs_port": true,
+  "sha": "c74f4c16ca1258c7f1ab371f716a4e60f283064c",
+  "short_sha": "c74f4c16ca",
+  "subject": "feat(library/kernel,library/compiler/csimp): make sure `nat.rec` and `nat.cases_on` reduce when major premise is a nat literal",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

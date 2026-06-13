@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-25",
+  "needs_port": false,
+  "sha": "30afb0dbec07bfcebbe2d178180d7037f2f89157",
+  "short_sha": "30afb0dbec",
+  "subject": "feat: improve `set_option` error messages (#9496)",
+  "zig_target": {}
+}

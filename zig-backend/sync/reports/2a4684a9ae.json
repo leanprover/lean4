@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-20",
+  "needs_port": false,
+  "sha": "2a4684a9ae1641007505f284c5325a2ebd44a8c7",
+  "short_sha": "2a4684a9ae",
+  "subject": "chore: `String.Pos` is opaque now",
+  "zig_target": {}
+}

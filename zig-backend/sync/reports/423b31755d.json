@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+    }
+  ],
+  "date": "2025-05-19",
+  "needs_port": true,
+  "sha": "423b31755ddc0039c5161cf8deb7d737d3886ba5",
+  "short_sha": "423b31755d",
+  "subject": "chore: remove dependency of pretty-printing LCNF.LitValue on toExpr (#8408)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PrettyPrinter.lean": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Prod.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Prod.lean"
+    }
+  ],
+  "date": "2022-02-25",
+  "needs_port": true,
+  "sha": "b8bed6fb5c413a66dd97c7f7acfd771b3ac006fa",
+  "short_sha": "b8bed6fb5c",
+  "subject": "feat: add `LawfulBEq` class",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/Prod.lean": "zig-backend/src/init/Data/Prod.lean"
+  }
+}

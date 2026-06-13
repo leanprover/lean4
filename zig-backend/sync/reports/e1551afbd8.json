@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2020-11-14",
+  "needs_port": true,
+  "sha": "e1551afbd8df960739acaba20f523f52196c8749",
+  "short_sha": "e1551afbd8",
+  "subject": "feat: add `macro \"exists\" xs:explicitBinders \", \" b:term : term`",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

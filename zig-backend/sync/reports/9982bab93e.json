@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-25",
+  "needs_port": false,
+  "sha": "9982bab93e0c749d3c4e20d0f8ce21e939a1e5e9",
+  "short_sha": "9982bab93e",
+  "subject": "perf: `Environment.find?` should not block on privacy mismatch (#8472)",
+  "zig_target": {}
+}

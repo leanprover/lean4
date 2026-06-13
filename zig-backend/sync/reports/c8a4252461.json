@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-15",
+  "needs_port": false,
+  "sha": "c8a42524615a463575ddfc59ef9f6e9fc89a9d43",
+  "short_sha": "c8a4252461",
+  "subject": "refactor: move `OpenDecl` to `Data`",
+  "zig_target": {}
+}

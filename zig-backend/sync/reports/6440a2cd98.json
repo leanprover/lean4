@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-13",
+  "needs_port": false,
+  "sha": "6440a2cd9897c0408ba143a97860d7067c1a7c82",
+  "short_sha": "6440a2cd98",
+  "subject": "fix: rpath on macOS",
+  "zig_target": {}
+}

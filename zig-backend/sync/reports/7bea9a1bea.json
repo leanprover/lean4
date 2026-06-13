@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-14",
+  "needs_port": false,
+  "sha": "7bea9a1bea9934e9d6ac0b6b8de3ccd7307756f8",
+  "short_sha": "7bea9a1bea",
+  "subject": "chore(frontends/lean/vm_elaborator): ignore [extern] for now",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IOError.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IOError.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2021-07-27",
+  "needs_port": true,
+  "sha": "b986bde639f91e6ef7ef3c65ef0c8e63022a8e74",
+  "short_sha": "b986bde639",
+  "subject": "fix: `IO.Error.alreadyExists` may have an optional file name",
+  "zig_target": {
+    "src/Init/System/IOError.lean": "zig-backend/src/init/System/IOError.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

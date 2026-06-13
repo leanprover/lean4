@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-21",
+  "needs_port": false,
+  "sha": "086e9e062a842f37c7b74a06c491e447c9cc94f0",
+  "short_sha": "086e9e062a",
+  "subject": "chore: measure maxrss in benchmarks",
+  "zig_target": {}
+}

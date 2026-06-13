@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-07",
+  "needs_port": false,
+  "sha": "b3b7aa02d1b22bec8fa840dabbdd362a79319e31",
+  "short_sha": "b3b7aa02d1",
+  "subject": "fix: wait for deps to build on a bare `print-paths`",
+  "zig_target": {}
+}

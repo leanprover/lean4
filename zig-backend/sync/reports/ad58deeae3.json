@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-02",
+  "needs_port": false,
+  "sha": "ad58deeae3f410b785150bd3b05a005413519a57",
+  "short_sha": "ad58deeae3",
+  "subject": "fix: allow builtin `simproc`s to be provided to `simp` even if they are not in the environment",
+  "zig_target": {}
+}

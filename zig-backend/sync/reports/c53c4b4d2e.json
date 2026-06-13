@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-02",
+  "needs_port": false,
+  "sha": "c53c4b4d2e6e2ff4ea1540b1c5fb848f82a33b33",
+  "short_sha": "c53c4b4d2e",
+  "subject": "fix: prevent private default instances from leaking into public scope (#13596)",
+  "zig_target": {}
+}

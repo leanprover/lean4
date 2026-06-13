@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-19",
+  "needs_port": false,
+  "sha": "a3a81653882fbab7371276c4a4fc60f6dfbec1e3",
+  "short_sha": "a3a8165388",
+  "subject": "feat(library/init/control/monad): provide `seq_right` default implementation for monad",
+  "zig_target": {}
+}

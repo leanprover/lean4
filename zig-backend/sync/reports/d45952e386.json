@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Syntax.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-06-04",
+  "needs_port": true,
+  "sha": "d45952e38658b5dd16bf3c125891948eb417e3b4",
+  "short_sha": "d45952e386",
+  "subject": "feat: incremental `have` (#4308)",
+  "zig_target": {
+    "src/Init/Data/Format/Syntax.lean": "zig-backend/src/init/Data/Format/Syntax.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

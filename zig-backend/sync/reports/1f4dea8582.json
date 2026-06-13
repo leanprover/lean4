@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-22",
+  "needs_port": false,
+  "sha": "1f4dea858243a6831463924562253a99a1a8cc9e",
+  "short_sha": "1f4dea8582",
+  "subject": "feat: add `pp.fieldNotation.generalized` for generalized field notation, add `@[pp_nodot]` attribute (#3737)",
+  "zig_target": {}
+}

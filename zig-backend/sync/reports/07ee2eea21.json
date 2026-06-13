@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-13",
+  "needs_port": false,
+  "sha": "07ee2eea21545fb055f1a8bdb848e2a419502c97",
+  "short_sha": "07ee2eea21",
+  "subject": "fix: report replay kernel errors as standard diagnostics (#7471)",
+  "zig_target": {}
+}

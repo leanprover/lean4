@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-07",
+  "needs_port": false,
+  "sha": "5baac1905fb1bb4628edfb2ee2820587f5d2b2f6",
+  "short_sha": "5baac1905f",
+  "subject": "fix: use private names for theorems that are created on demand",
+  "zig_target": {}
+}

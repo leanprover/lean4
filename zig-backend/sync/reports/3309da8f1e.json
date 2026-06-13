@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "3309da8f1e412110107e10b7e8aa233817a44c0e",
+  "short_sha": "3309da8f1e",
+  "subject": "fix: pp.analyze LocalInstances not in MessageData",
+  "zig_target": {}
+}

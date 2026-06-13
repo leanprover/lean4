@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-27",
+  "needs_port": false,
+  "sha": "895bf2c91d28a805ee21fe1cfb8bd7b580e11143",
+  "short_sha": "895bf2c91d",
+  "subject": "feat(library/equations_compiler/partial_rec): try assumption if inhabitant could not be found",
+  "zig_target": {}
+}

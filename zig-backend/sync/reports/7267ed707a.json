@@ -1,0 +1,54 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Search.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Search.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    },
+    {
+      "path": "src/Init/Data/String/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/TakeDrop.lean"
+    }
+  ],
+  "date": "2025-11-20",
+  "needs_port": true,
+  "sha": "7267ed707a7d03448648d773361955c1607a073a",
+  "short_sha": "7267ed707a",
+  "subject": "feat: string patterns for decidable predicates on `Char` (#11285)",
+  "zig_target": {
+    "src/Init/Data/String/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Pattern/Basic.lean",
+    "src/Init/Data/String/Pattern/Char.lean": "zig-backend/src/init/Data/String/Pattern/Char.lean",
+    "src/Init/Data/String/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Pattern/Pred.lean",
+    "src/Init/Data/String/Pattern/String.lean": "zig-backend/src/init/Data/String/Pattern/String.lean",
+    "src/Init/Data/String/Search.lean": "zig-backend/src/init/Data/String/Search.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean",
+    "src/Init/Data/String/TakeDrop.lean": "zig-backend/src/init/Data/String/TakeDrop.lean"
+  }
+}

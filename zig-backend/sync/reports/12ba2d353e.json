@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-17",
+  "needs_port": false,
+  "sha": "12ba2d353e0208ff32010473f9e21e2d23bf1c89",
+  "short_sha": "12ba2d353e",
+  "subject": "fix(stage0): missing file",
+  "zig_target": {}
+}

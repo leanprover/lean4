@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-27",
+  "needs_port": false,
+  "sha": "64b5e05a3eedfb82db9169a8536f14d88fcf1d6d",
+  "short_sha": "64b5e05a3e",
+  "subject": "feat(library/init/lean/parser/parsec): try to minimize the amount of inlined code",
+  "zig_target": {}
+}

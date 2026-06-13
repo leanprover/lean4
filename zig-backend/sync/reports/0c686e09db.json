@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-31",
+  "needs_port": false,
+  "sha": "0c686e09db9e6c91b9bd40e1f0d18332a225ff3c",
+  "short_sha": "0c686e09db",
+  "subject": "feat: add explanations for large elimination errors (#9653)",
+  "zig_target": {}
+}

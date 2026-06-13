@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-26",
+  "needs_port": false,
+  "sha": "b29fb57fcf709b36c97cc9a6a20b4f3b7a50b9ab",
+  "short_sha": "b29fb57fcf",
+  "subject": "refactor(library/init/data/string/basic): `String.Pos` as `Nat`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-04",
+  "needs_port": false,
+  "sha": "ae144112be1ec720066bfc93ca25b63149e46813",
+  "short_sha": "ae144112be",
+  "subject": "refactor: generalize  `checkModuleTrace`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-10",
+  "needs_port": false,
+  "sha": "fb941d082778b73f5c568ce67781ec92be145e4a",
+  "short_sha": "fb941d0827",
+  "subject": "fix: ensure parser caching is sound re. syntax stack accesses",
+  "zig_target": {}
+}

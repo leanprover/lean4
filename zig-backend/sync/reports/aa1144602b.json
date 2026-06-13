@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-02",
+  "needs_port": false,
+  "sha": "aa1144602bbf07aa8df4ffb9ce18df3c6499e689",
+  "short_sha": "aa1144602b",
+  "subject": "feat: add `letConfig` syntax to `do` block `let`/`have` parsers (#13250)",
+  "zig_target": {}
+}

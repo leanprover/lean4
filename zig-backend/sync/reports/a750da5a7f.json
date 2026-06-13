@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-20",
+  "needs_port": false,
+  "sha": "a750da5a7f7448aa49a330c7e9dbc606ab11a586",
+  "short_sha": "a750da5a7f",
+  "subject": "chore: convert `DHashMap` to a structure (#8761)",
+  "zig_target": {}
+}

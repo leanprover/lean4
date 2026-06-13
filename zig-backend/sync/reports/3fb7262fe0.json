@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-02-16",
+  "needs_port": false,
+  "sha": "3fb7262fe0cba5df2d1d96b68fb7502ad3563f86",
+  "short_sha": "3fb7262fe0",
+  "subject": "fix: cloud release trace & `lake build :release` errors (#3248)",
+  "zig_target": {}
+}

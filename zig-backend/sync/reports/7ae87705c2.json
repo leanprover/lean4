@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-06-15",
+  "needs_port": false,
+  "sha": "7ae87705c222b60471aaf93f097b0e29b7f32ee9",
+  "short_sha": "7ae87705c2",
+  "subject": "feat(library/init/lean/parser/parser_t): introduce `monad_parser`",
+  "zig_target": {}
+}

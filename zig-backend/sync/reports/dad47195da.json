@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "dad47195da2fc950f85a7778461aecececf3c1a8",
+  "short_sha": "dad47195da",
+  "subject": "chore: adapt to `where` syntax change",
+  "zig_target": {}
+}

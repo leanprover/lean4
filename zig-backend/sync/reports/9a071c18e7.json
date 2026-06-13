@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-27",
+  "needs_port": false,
+  "sha": "9a071c18e7b21183506113ec5750417143f94b92",
+  "short_sha": "9a071c18e7",
+  "subject": "feat(library/equations_compiler): add support for `partial` definitions",
+  "zig_target": {}
+}

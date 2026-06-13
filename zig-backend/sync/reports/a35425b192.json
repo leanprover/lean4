@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-29",
+  "needs_port": false,
+  "sha": "a35425b1927f81d006a2a3b222f7e91a99a1a4b6",
+  "short_sha": "a35425b192",
+  "subject": "feat: support for `ReflCmp` in `grind` (#9073)",
+  "zig_target": {}
+}

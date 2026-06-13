@@ -1,0 +1,10 @@
+{
+  "author": "Yuri de Wit",
+  "backend_changes": [],
+  "date": "2022-07-13",
+  "needs_port": false,
+  "sha": "dc8e404d155f245ec3dd3f507bb4a6611a12f8c6",
+  "short_sha": "dc8e404d15",
+  "subject": "chore: renamed constant to opaque",
+  "zig_target": {}
+}

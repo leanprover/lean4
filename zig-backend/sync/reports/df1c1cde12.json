@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-23",
+  "needs_port": false,
+  "sha": "df1c1cde12f25383ce528ec077dafb9ca5e1493a",
+  "short_sha": "df1c1cde12",
+  "subject": "refactor: make `LeanPaths` usage forward-compatible (leanprover/lake#48)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-21",
+  "needs_port": false,
+  "sha": "1f9f12975cfff093b2c7fac18c3845feaee815f9",
+  "short_sha": "1f9f12975c",
+  "subject": "chore: seal `EnvExtensionState` and `EnvExtensionEntry`",
+  "zig_target": {}
+}

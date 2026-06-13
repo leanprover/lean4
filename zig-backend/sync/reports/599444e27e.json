@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Id.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Id.lean"
+    }
+  ],
+  "date": "2025-03-08",
+  "needs_port": true,
+  "sha": "599444e27e96081ea8a99c62be8bc46bbdff24e6",
+  "short_sha": "599444e27e",
+  "subject": "doc: docstrings for Id (#7204)",
+  "zig_target": {
+    "src/Init/Control/Id.lean": "zig-backend/src/init/Control/Id.lean"
+  }
+}

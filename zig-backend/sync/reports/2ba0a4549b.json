@@ -1,0 +1,24 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    }
+  ],
+  "date": "2024-04-11",
+  "needs_port": true,
+  "sha": "2ba0a4549b0714966895ec53045b9f5843a56c5e",
+  "short_sha": "2ba0a4549b",
+  "subject": "feat: add BitVec Int add & mul lemmas (#3880)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+  }
+}

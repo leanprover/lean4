@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2026-03-11",
+  "needs_port": true,
+  "sha": "a32be44f909683a2f5dff4bb955dfa986bbc9b1c",
+  "short_sha": "a32be44f90",
+  "subject": "feat: add `@[mvcgen_witness_type]` attribute for extensible witness classification (#12882)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

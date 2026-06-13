@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-12",
+  "needs_port": false,
+  "sha": "01987dbc8e3552e07f74b80951dd8ef3670aaaf7",
+  "short_sha": "01987dbc8e",
+  "subject": "refactor: Nix: attach object drv to module drv",
+  "zig_target": {}
+}

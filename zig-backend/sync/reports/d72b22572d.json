@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-09",
+  "needs_port": false,
+  "sha": "d72b22572d8dcbeee92745a145ea1ff7d77cdbcc",
+  "short_sha": "d72b22572d",
+  "subject": "feat: update vector of local instances",
+  "zig_target": {}
+}

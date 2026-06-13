@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-08",
+  "needs_port": true,
+  "sha": "2d04ecc7041fff2ec0bc1017c3138d418a1955ad",
+  "short_sha": "2d04ecc704",
+  "subject": "refactor(util/object_ref): move and adjust `cnstr_get_ref_t`",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-11",
+  "needs_port": false,
+  "sha": "60ebecba156d715a08875e5f848ff880037fa41a",
+  "short_sha": "60ebecba15",
+  "subject": "chore: throw error if namedPattern notation is used in a non pattern",
+  "zig_target": {}
+}

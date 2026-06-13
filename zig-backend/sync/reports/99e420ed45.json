@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-27",
+  "needs_port": false,
+  "sha": "99e420ed4591332bee14f8c1f9dd2a931ea0cda3",
+  "short_sha": "99e420ed45",
+  "subject": "feat: add `ExprSet` and `PersistentExprSet`",
+  "zig_target": {}
+}

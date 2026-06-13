@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2023-11-02",
+  "needs_port": false,
+  "sha": "433c094e9513ff9b91cebef18839a91d37ef6fee",
+  "short_sha": "433c094e95",
+  "subject": "feat: LLVM bc separation for CMake",
+  "zig_target": {}
+}

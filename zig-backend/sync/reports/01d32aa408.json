@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-02",
+  "needs_port": false,
+  "sha": "01d32aa4083f444d4696434ec3cf5a5200c35556",
+  "short_sha": "01d32aa408",
+  "subject": "chore: add test for #9156 after stage0 update (#9166)",
+  "zig_target": {}
+}

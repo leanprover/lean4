@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-06",
+  "needs_port": false,
+  "sha": "317492d207c345cabdcb7317ca798a722b86b173",
+  "short_sha": "317492d207",
+  "subject": "test: add test for Lean 3 `refine` bug reported on Zulip",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-25",
+  "needs_port": false,
+  "sha": "40c8db7494adccfbc9fb35920b91b65dc1b6df3f",
+  "short_sha": "40c8db7494",
+  "subject": "feat: improve argument type mismatch error position, and do not stop at application type mismatch errors",
+  "zig_target": {}
+}

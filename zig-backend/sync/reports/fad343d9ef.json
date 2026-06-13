@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "fad343d9ef19d20dfd7b2a3dd2ccc6e6fc08072f",
+  "short_sha": "fad343d9ef",
+  "subject": "test: add `List.mergeSort` benchmark for `cbv` tactic (#12588)",
+  "zig_target": {}
+}

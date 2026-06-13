@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-09-15",
+  "needs_port": true,
+  "sha": "a7b044b80b1028b5ec9f67b3404c566dd2c2eeb9",
+  "short_sha": "a7b044b80b",
+  "subject": "chore: CI: build macOS without nix-shell",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt"
+  }
+}

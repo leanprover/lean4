@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-19",
+  "needs_port": false,
+  "sha": "8e39b825417aaf130b7eec83807317c176a38890",
+  "short_sha": "8e39b82541",
+  "subject": "feat: skeleton for `SizeOf` instance generator",
+  "zig_target": {}
+}

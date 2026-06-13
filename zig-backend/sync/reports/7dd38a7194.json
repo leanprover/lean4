@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-03-19",
+  "needs_port": true,
+  "sha": "7dd38a71949eb7840c088fb0b9afe841f3bf015e",
+  "short_sha": "7dd38a7194",
+  "subject": "feat: add `with_unfolding_all` and `rfl'` tactics",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-01",
+  "needs_port": false,
+  "sha": "c0027d3987a71f552a761d293944f6d8594bb33d",
+  "short_sha": "c0027d3987",
+  "subject": "fix: `simp only` should break `Char` literals (#3824)",
+  "zig_target": {}
+}

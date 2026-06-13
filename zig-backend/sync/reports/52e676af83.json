@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-19",
+  "needs_port": false,
+  "sha": "52e676af8355738c070d6b0194ac15511f5f0bd1",
+  "short_sha": "52e676af83",
+  "subject": "feat: add `builtin_initialize` command",
+  "zig_target": {}
+}

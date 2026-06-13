@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-05",
+  "needs_port": false,
+  "sha": "fc79b794bad2f717ea4298a2c92831cb88b6ebed",
+  "short_sha": "fc79b794ba",
+  "subject": "fix: missing error messages",
+  "zig_target": {}
+}

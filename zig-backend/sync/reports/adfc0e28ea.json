@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2018-10-03",
+  "needs_port": true,
+  "sha": "adfc0e28ea48a06bcd9f2a5cf02a6c78de311e4e",
+  "short_sha": "adfc0e28ea",
+  "subject": "feat(library/compiler/erase_irrelevant): missing is_irrelevant checks, missing terms being visited, mixing erased with non-erased terms",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

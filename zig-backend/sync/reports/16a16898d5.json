@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-09-28",
+  "needs_port": false,
+  "sha": "16a16898d5cab567152234edc877f66ad43ac39a",
+  "short_sha": "16a16898d5",
+  "subject": "feat: improve bv_normalize rules for Prop and == (#5506)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-24",
+  "needs_port": false,
+  "sha": "c202a2c013665688148697d198b6e7fc7f418450",
+  "short_sha": "c202a2c013",
+  "subject": "feat: more antiquotation kinds",
+  "zig_target": {}
+}

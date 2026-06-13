@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2025-11-19",
+  "needs_port": true,
+  "sha": "63bd0b5e77fbd68079b0b945b33cc776dbd3e4e5",
+  "short_sha": "63bd0b5e77",
+  "subject": "refactor: introduce Match.altInfos (#11256)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

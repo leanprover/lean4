@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-28",
+  "needs_port": false,
+  "sha": "4dbae58646d79d94120407e1cc5b4bffe1304191",
+  "short_sha": "4dbae58646",
+  "subject": "fix(library/equations_compiler): make sure `_unsafe_rec` auxiliary definitions contain all local constants used in the safe one",
+  "zig_target": {}
+}

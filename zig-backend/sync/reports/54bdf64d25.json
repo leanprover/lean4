@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-24",
+  "needs_port": false,
+  "sha": "54bdf64d2570ce082fe26cc830a86560c4ab2d36",
+  "short_sha": "54bdf64d25",
+  "subject": "test: add simple extension example",
+  "zig_target": {}
+}

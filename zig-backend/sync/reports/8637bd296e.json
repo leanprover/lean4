@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-27",
+  "needs_port": false,
+  "sha": "8637bd296ed32c7d35237f1ab22027ce4cf7da54",
+  "short_sha": "8637bd296e",
+  "subject": "fix: `isPartialOrder` in `grind order` (#10601)",
+  "zig_target": {}
+}

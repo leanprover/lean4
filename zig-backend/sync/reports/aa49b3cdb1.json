@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-05",
+  "needs_port": false,
+  "sha": "aa49b3cdb1e77884780a8d6acb45f9740944f7a1",
+  "short_sha": "aa49b3cdb1",
+  "subject": "feat: elaborate new `syntax` command",
+  "zig_target": {}
+}

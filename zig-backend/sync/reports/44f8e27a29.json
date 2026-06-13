@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-05",
+  "needs_port": false,
+  "sha": "44f8e27a29c4bf599a0081680b05697837f52ecb",
+  "short_sha": "44f8e27a29",
+  "subject": "refactor: `LeanExe.facet` -> `exeFacet`",
+  "zig_target": {}
+}

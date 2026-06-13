@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-13",
+  "needs_port": false,
+  "sha": "e386d5941ef54cbcca8d3b829ba3800797cb8455",
+  "short_sha": "e386d5941e",
+  "subject": "refactor: replace `ignoreLevelMVarDepth` by `levelAssignDepth`",
+  "zig_target": {}
+}

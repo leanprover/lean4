@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    }
+  ],
+  "date": "2019-02-11",
+  "needs_port": true,
+  "sha": "7b0227572f95bfe726b41fd3cc154afb61177c61",
+  "short_sha": "7b0227572f",
+  "subject": "fix(library/init/core): missing borrowed annotation",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp"
+  }
+}

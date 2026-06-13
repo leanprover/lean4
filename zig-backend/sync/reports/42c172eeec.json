@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-03-30",
+  "needs_port": false,
+  "sha": "42c172eeec1230c765777398c28c60e10040ce8b",
+  "short_sha": "42c172eeec",
+  "subject": "feat: simplify Hashable implementation, allowing mutual recursive calls",
+  "zig_target": {}
+}

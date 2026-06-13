@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-25",
+  "needs_port": false,
+  "sha": "5188eb2d3b626e2f4aea7ae1ef89dbfdd0119f3d",
+  "short_sha": "5188eb2d3b",
+  "subject": "feat(library/init/lean/compiler/externattr): decode `[extern ...]` parameters",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-01",
+  "needs_port": false,
+  "sha": "13b5747713125577e4d52b557f6b367b70f34ca6",
+  "short_sha": "13b5747713",
+  "subject": "fix(library/init/lean/parser/parser): `prattParser`",
+  "zig_target": {}
+}

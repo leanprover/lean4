@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "5ae125262bda132f67b8456020f7eb25984b9102",
+  "short_sha": "5ae125262b",
+  "subject": "chore: remove C++ coding style from manual",
+  "zig_target": {}
+}

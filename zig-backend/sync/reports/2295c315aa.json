@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-15",
+  "needs_port": false,
+  "sha": "2295c315aab589e21f9d9d5017f8e54560b7493a",
+  "short_sha": "2295c315aa",
+  "subject": "feat: add `elabTermEnsuringType`",
+  "zig_target": {}
+}

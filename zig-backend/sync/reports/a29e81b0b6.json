@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "a29e81b0b6eb305d47c6e8675187f254bf7d2e5c",
+  "short_sha": "a29e81b0b6",
+  "subject": "test: add `registerTraceClass` test",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-28",
+  "needs_port": false,
+  "sha": "54f95421c8c864ab2e0103ead1906ae83e569864",
+  "short_sha": "54f95421c8",
+  "subject": "test: Lean2 `obtain` is just a macro",
+  "zig_target": {}
+}

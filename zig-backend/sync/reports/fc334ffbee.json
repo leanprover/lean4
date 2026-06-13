@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2021-09-05",
+  "needs_port": true,
+  "sha": "fc334ffbee0ff00fa61faf71d890706e752da2aa",
+  "short_sha": "fc334ffbee",
+  "subject": "fix: pattern matching on `UInt`",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

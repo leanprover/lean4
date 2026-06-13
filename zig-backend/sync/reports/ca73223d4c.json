@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-11",
+  "needs_port": false,
+  "sha": "ca73223d4c9bbba5973b8f2c5332fe5e45478b82",
+  "short_sha": "ca73223d4c",
+  "subject": "fix: left-over free variables in splitter (#8285)",
+  "zig_target": {}
+}

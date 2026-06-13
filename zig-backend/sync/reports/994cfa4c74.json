@@ -1,0 +1,18 @@
+{
+  "author": "TomasPuverle",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float.lean"
+    }
+  ],
+  "date": "2024-09-29",
+  "needs_port": true,
+  "sha": "994cfa4c74a066df050ca889da912e71fa70cd85",
+  "short_sha": "994cfa4c74",
+  "subject": "doc: update documentation and tests for `toUIntX` functions (#5497)",
+  "zig_target": {
+    "src/Init/Data/Float.lean": "zig-backend/src/init/Data/Float.lean"
+  }
+}

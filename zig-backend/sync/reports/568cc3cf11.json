@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "568cc3cf116a6e1fcc525a9fd3124b5908dfb5f6",
+  "short_sha": "568cc3cf11",
+  "subject": "refactor: consistent naming of widget modules",
+  "zig_target": {}
+}

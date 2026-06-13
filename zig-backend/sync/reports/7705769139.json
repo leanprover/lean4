@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-08",
+  "needs_port": false,
+  "sha": "7705769139d23bcc3d7c7d41847a8bd12d3b571e",
+  "short_sha": "7705769139",
+  "subject": "doc: default instances and heterogeneous operators",
+  "zig_target": {}
+}

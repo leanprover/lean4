@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    }
+  ],
+  "date": "2024-09-16",
+  "needs_port": true,
+  "sha": "0aac83fe40ea162bbb2a170656d5342a24a15c3b",
+  "short_sha": "0aac83fe40",
+  "subject": "feat: List.attachWith lemmas (#5352)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean"
+  }
+}

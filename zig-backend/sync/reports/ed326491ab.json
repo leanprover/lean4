@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Term.lean"
+    }
+  ],
+  "date": "2020-05-15",
+  "needs_port": true,
+  "sha": "ed326491ab66c98fb6cfebaa5d502d7f5bfafa65",
+  "short_sha": "ed326491ab",
+  "subject": "fix: missing token precedence",
+  "zig_target": {
+    "src/Init/Lean/Parser/Term.lean": "zig-backend/src/init/Lean/Parser/Term.lean"
+  }
+}

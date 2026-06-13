@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-12-09",
+  "needs_port": false,
+  "sha": "45c18ad79c5cd28dcf8f29ba99e32720dc02ab45",
+  "short_sha": "45c18ad79c",
+  "subject": "chore: make sure we fail test if there are errors",
+  "zig_target": {}
+}

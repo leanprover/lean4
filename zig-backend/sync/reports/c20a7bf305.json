@@ -1,0 +1,24 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2023-05-30",
+  "needs_port": true,
+  "sha": "c20a7bf305d17576bd88bd8052ab7e89358d25cb",
+  "short_sha": "c20a7bf305",
+  "subject": "feat: `hygieneInfo` parser (aka `this` 2.0)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

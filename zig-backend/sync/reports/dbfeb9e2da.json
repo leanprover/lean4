@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-07-28",
+  "needs_port": false,
+  "sha": "dbfeb9e2daeec84e04cf6f2865ea91f455484cfd",
+  "short_sha": "dbfeb9e2da",
+  "subject": "chore: upload build directory as artifact in cache CI (#9600)",
+  "zig_target": {}
+}

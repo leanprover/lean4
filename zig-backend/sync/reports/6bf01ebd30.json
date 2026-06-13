@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-18",
+  "needs_port": false,
+  "sha": "6bf01ebd30791774d1c757fc07ede5523269f212",
+  "short_sha": "6bf01ebd30",
+  "subject": "feat: use `have` token span for implicit `this`",
+  "zig_target": {}
+}

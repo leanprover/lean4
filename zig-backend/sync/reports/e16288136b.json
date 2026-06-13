@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "e16288136b026f24eda7bfce2512f2dfc8003e32",
+  "short_sha": "e16288136b",
+  "subject": "fix(library/init/lean/elaborator/basic): `logErrorAndThrow` should not log error twice",
+  "zig_target": {}
+}

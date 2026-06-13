@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Clear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "a4a3f7d6a540ae456f1ef28f3c3294c651606414",
+  "short_sha": "a4a3f7d6a5",
+  "subject": "fix: typo",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Clear.lean": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+  }
+}

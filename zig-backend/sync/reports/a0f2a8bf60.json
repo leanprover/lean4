@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-13",
+  "needs_port": false,
+  "sha": "a0f2a8bf60e83938ad16b8e6479bde9705fa899b",
+  "short_sha": "a0f2a8bf60",
+  "subject": "fix: improve error for join point assignment failure in do elaborator (#13397)",
+  "zig_target": {}
+}

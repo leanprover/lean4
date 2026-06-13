@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-18",
+  "needs_port": false,
+  "sha": "30e23eae2be62356a8a3fb4fa4a60ba6a03975b2",
+  "short_sha": "30e23eae2b",
+  "subject": "perf: avoid allocation on `lean_trace` use in interpreter (#12036)",
+  "zig_target": {}
+}

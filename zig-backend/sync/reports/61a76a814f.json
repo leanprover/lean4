@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2024-02-17",
+  "needs_port": true,
+  "sha": "61a76a814f3868a7fca20e2db07527aae1250e94",
+  "short_sha": "61a76a814f",
+  "subject": "feat: delaborator for `Char` literals (#3381)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+    }
+  ],
+  "date": "2020-01-26",
+  "needs_port": true,
+  "sha": "02d31fb6198740cc991f680ca9d737da8876f737",
+  "short_sha": "02d31fb619",
+  "subject": "feat: allow user to specify intended syntax node kind at `macro_rules`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Syntax.lean": "zig-backend/src/init/Lean/Parser/Syntax.lean"
+  }
+}

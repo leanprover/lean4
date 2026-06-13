@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2025-05-21",
+  "needs_port": false,
+  "sha": "1138062a70016729489c5d62e812cf13d51949a1",
+  "short_sha": "1138062a70",
+  "subject": "fix: normalize `imax 1 u` to `u` (#7631)",
+  "zig_target": {}
+}

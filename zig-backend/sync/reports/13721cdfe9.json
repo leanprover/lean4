@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2020-02-13",
+  "needs_port": false,
+  "sha": "13721cdfe9059d8af0040396d05ba1b191a43658",
+  "short_sha": "13721cdfe9",
+  "subject": "doc: elabissue for structure same-name error msg",
+  "zig_target": {}
+}

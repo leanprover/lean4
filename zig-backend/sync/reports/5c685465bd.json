@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-03-16",
+  "needs_port": false,
+  "sha": "5c685465bd442d278f26997393464bcd8c87062b",
+  "short_sha": "5c685465bd",
+  "subject": "chore: handle absence of meld in fix_expected.py (#12934)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-05-07",
+  "needs_port": true,
+  "sha": "7b128b308b169bff0e49145744834bb7a6912711",
+  "short_sha": "7b128b308b",
+  "subject": "fix: leak in `lean_mk_array`",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

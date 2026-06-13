@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-07",
+  "needs_port": false,
+  "sha": "3f62957c8f3545dd2570eca73c6475d9dc920ee8",
+  "short_sha": "3f62957c8f",
+  "subject": "feat: add widening operator",
+  "zig_target": {}
+}

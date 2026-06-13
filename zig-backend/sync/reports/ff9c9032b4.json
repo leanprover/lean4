@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2022-08-13",
+  "needs_port": false,
+  "sha": "ff9c9032b48ac0e75b7c05b99644ab9992727583",
+  "short_sha": "ff9c9032b4",
+  "subject": "feat: join point validator",
+  "zig_target": {}
+}

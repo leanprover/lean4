@@ -1,0 +1,18 @@
+{
+  "author": "Parth Shastri",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2025-03-11",
+  "needs_port": true,
+  "sha": "7c0b72e2c587ed80f11eba59d88aafc38c6beef9",
+  "short_sha": "7c0b72e2c5",
+  "subject": "fix: make the `Subsingleton` instance for `Squash` work for an arbitrary `Sort` (#7406)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

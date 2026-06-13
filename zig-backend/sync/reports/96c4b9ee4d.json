@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Defs.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Defs.lean"
+    }
+  ],
+  "date": "2025-11-24",
+  "needs_port": true,
+  "sha": "96c4b9ee4d1aa12a07fc5cd44bef7e019feacc6c",
+  "short_sha": "96c4b9ee4d",
+  "subject": "feat: coercion from `String` to `String.Slice` (#11341)",
+  "zig_target": {
+    "src/Init/Data/String/Defs.lean": "zig-backend/src/init/Data/String/Defs.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-01-25",
+  "needs_port": true,
+  "sha": "2d9a16fd24b1df70c030e276de5669dcc817de5a",
+  "short_sha": "2d9a16fd24",
+  "subject": "refactor(library/module_mgr): remove",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

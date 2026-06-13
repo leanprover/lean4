@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-29",
+  "needs_port": false,
+  "sha": "b2f331f502975ccf2bd0dc16404fd386c47adc2a",
+  "short_sha": "b2f331f502",
+  "subject": "doc: --load-dynlib",
+  "zig_target": {}
+}

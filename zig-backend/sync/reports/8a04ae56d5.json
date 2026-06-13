@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-15",
+  "needs_port": false,
+  "sha": "8a04ae56d52d3fc937fdafd41d9c967693d52de9",
+  "short_sha": "8a04ae56d5",
+  "subject": "chore(library/Makefile.in): update stage1/CMakeLists.txt only when out of date",
+  "zig_target": {}
+}

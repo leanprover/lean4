@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-24",
+  "needs_port": false,
+  "sha": "025e9d32ef01e0e5d0a0ddaf052cbf48a1dd4bbd",
+  "short_sha": "025e9d32ef",
+  "subject": "feat: update functions for universe levels, use C version of `Level.hasParam` and `Level.hasMVar`",
+  "zig_target": {}
+}

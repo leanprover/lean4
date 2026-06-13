@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2023-06-02",
+  "needs_port": true,
+  "sha": "e826f5f42a52c9865bacd8b7dd2e89c2698d2d94",
+  "short_sha": "e826f5f42a",
+  "subject": "fix: spacing around `calc`",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-17",
+  "needs_port": false,
+  "sha": "861136d290d7f0f6d49c0a89ebef11ba695a04a1",
+  "short_sha": "861136d290",
+  "subject": "feat(frontends/lean/decl_cmds): `universe(s)` now behaves like `universe variable(s)`",
+  "zig_target": {}
+}

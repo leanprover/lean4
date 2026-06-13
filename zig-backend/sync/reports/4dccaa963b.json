@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2021-08-22",
+  "needs_port": true,
+  "sha": "4dccaa963b0df40d4d30f953553edceebf346ad8",
+  "short_sha": "4dccaa963b",
+  "subject": "feat: add `List.mapTR` and `csimp` lemma",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

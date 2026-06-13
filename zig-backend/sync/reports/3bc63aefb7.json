@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-01-21",
+  "needs_port": false,
+  "sha": "3bc63aefb75dba8a850a0de9148c71c09242a28f",
+  "short_sha": "3bc63aefb7",
+  "subject": "fix: lake: small cache issues (#12037)",
+  "zig_target": {}
+}

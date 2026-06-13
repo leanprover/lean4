@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-03",
+  "needs_port": false,
+  "sha": "f4e98be1636c4ca55b07ca584967bde1f5e47f61",
+  "short_sha": "f4e98be163",
+  "subject": "fix: use `whnfD` at `mkNoConfusion`",
+  "zig_target": {}
+}

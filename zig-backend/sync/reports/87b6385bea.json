@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2020-12-17",
+  "needs_port": true,
+  "sha": "87b6385bea3e7ea57e82ba778415c733ea5d958d",
+  "short_sha": "87b6385bea",
+  "subject": "feat: add `deriving DecidableEq`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

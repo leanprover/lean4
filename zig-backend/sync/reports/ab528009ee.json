@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-15",
+  "needs_port": false,
+  "sha": "ab528009eed81ac711a8cecd254a02ce7c23bae8",
+  "short_sha": "ab528009ee",
+  "subject": "refactor: move config loading code into its own directory",
+  "zig_target": {}
+}

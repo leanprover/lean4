@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "845c496a0766f24ca4b125cb73a2a4aec1bdccae",
+  "short_sha": "845c496a07",
+  "subject": "fix(lean4-mode/lean4-util): (lean4-setup-rootdir) returns the wrong path",
+  "zig_target": {}
+}

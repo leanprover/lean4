@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-18",
+  "needs_port": false,
+  "sha": "312944e7844c6ab69a056c73b6780f8a90e01661",
+  "short_sha": "312944e784",
+  "subject": "fix: hover etc. on complex declaration name",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-07-24",
+  "needs_port": false,
+  "sha": "eea7e50519884ccfb528f09f85b64a9935d39fb1",
+  "short_sha": "eea7e50519",
+  "subject": "chore: `script/release_steps.py` only merges nightly-testing on rc1 (#9498)",
+  "zig_target": {}
+}

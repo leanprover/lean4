@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-13",
+  "needs_port": true,
+  "sha": "300c22a4e6388fd75427294d2acdf387209d508d",
+  "short_sha": "300c22a4e6",
+  "subject": "feat: associativity lemmas for `BitVec.(umul, smul, uadd, sadd)Overflow` (#8740)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

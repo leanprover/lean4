@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-07-01",
+  "needs_port": false,
+  "sha": "cd60e3b8fd3efc5be0e94c78baa8d0ff8f9c65d1",
+  "short_sha": "cd60e3b8fd",
+  "subject": "feat: further release automation (#9114)",
+  "zig_target": {}
+}

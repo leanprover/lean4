@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-23",
+  "needs_port": false,
+  "sha": "d68029092ad809cb61d28de828afad9df2a9a1be",
+  "short_sha": "d68029092a",
+  "subject": "refactor: simplify `FacetConifg` and build monads ala leanprover/lake#107",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-06",
+  "needs_port": false,
+  "sha": "e6132d37a5dbc58871f24ca1c054b96098b2ae40",
+  "short_sha": "e6132d37a5",
+  "subject": "fix: induction/cases: accept wildcard alternative even if some (but not all) cases have been excluded",
+  "zig_target": {}
+}

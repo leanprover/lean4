@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-27",
+  "needs_port": false,
+  "sha": "bf1ea58deb2749601ef47d8022f1697641bbe678",
+  "short_sha": "bf1ea58deb",
+  "subject": "feat: add `HashSet`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-18",
+  "needs_port": false,
+  "sha": "a03c2363808ef185608f946ef624cda56388e93b",
+  "short_sha": "a03c236380",
+  "subject": "feat(library/init/lean/compiler/initattr): new `@[init]` attribute validation",
+  "zig_target": {}
+}

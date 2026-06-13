@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-22",
+  "needs_port": false,
+  "sha": "003966a9e99c8c40c03e4dfab16caf3f8f22bc5a",
+  "short_sha": "003966a9e9",
+  "subject": "refactor: simpler monad stack for FormatterM and ParenthesizerM",
+  "zig_target": {}
+}

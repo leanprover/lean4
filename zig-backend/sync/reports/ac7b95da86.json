@@ -1,0 +1,24 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    },
+    {
+      "path": "src/Init/WFComputable.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/WFComputable.lean"
+    }
+  ],
+  "date": "2025-12-12",
+  "needs_port": true,
+  "sha": "ac7b95da8662cbbc946d513283fb3d55a32fd78f",
+  "short_sha": "ac7b95da86",
+  "subject": "feat: port Batteries.WF for executable well-founded fixpoints (#11620)",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean",
+    "src/Init/WFComputable.lean": "zig-backend/src/init/WFComputable.lean"
+  }
+}

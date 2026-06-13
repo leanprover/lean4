@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-09",
+  "needs_port": true,
+  "sha": "d9246a8415ed7e5655cf48b3fcc4e0b40dc9f334",
+  "short_sha": "d9246a8415",
+  "subject": "chore: adapt to new syntax syntax and introduce a few `sepBy` shorthands",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

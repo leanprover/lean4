@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-17",
+  "needs_port": false,
+  "sha": "53b95fb455470172bfa34e8ba05b932acfb86e02",
+  "short_sha": "53b95fb455",
+  "subject": "fix: actually use lib name in the file name",
+  "zig_target": {}
+}

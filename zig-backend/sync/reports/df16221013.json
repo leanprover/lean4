@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-07",
+  "needs_port": false,
+  "sha": "df162210132e3d22e077a4dd3fafa71fc849421f",
+  "short_sha": "df16221013",
+  "subject": "fix: Format.be: properly re-evaluate flattening after hard line break",
+  "zig_target": {}
+}

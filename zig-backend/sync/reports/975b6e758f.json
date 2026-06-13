@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-06",
+  "needs_port": false,
+  "sha": "975b6e758f05df3dcb831ad655c2ef4c105a46c3",
+  "short_sha": "975b6e758f",
+  "subject": "feat: improve `grind linarith` counterexamples for `NatModule` (#10282)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-04-24",
+  "needs_port": false,
+  "sha": "f2a54ec0eb28df514ada009633f7dc2e84ddb1ba",
+  "short_sha": "f2a54ec0eb",
+  "subject": "feat: script to summarize issues (#3952)",
+  "zig_target": {}
+}

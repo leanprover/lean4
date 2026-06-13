@@ -1,0 +1,32 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "old_path": "src/Makefile.in",
+      "path": "src/Init/Makefile.in",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Makefile.in"
+    },
+    {
+      "old_path": "src/relative.py",
+      "path": "src/Init/relative.py",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/relative.py"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-11-22",
+  "needs_port": true,
+  "sha": "b21559b338cff1150c6661c86b5230662872000a",
+  "short_sha": "b21559b338",
+  "subject": "chore: move Makefile.in",
+  "zig_target": {
+    "src/Init/Makefile.in": "zig-backend/src/init/Makefile.in",
+    "src/Init/relative.py": "zig-backend/src/init/relative.py",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

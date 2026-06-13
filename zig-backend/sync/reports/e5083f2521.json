@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-02",
+  "needs_port": false,
+  "sha": "e5083f2521909191f3514cb3526c900b81fc0f3d",
+  "short_sha": "e5083f2521",
+  "subject": "fix: avoid unnecessary unfolding at `do`",
+  "zig_target": {}
+}

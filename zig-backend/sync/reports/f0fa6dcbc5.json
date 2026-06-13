@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-06",
+  "needs_port": false,
+  "sha": "f0fa6dcbc5fe9d469e6dd45c34ed3ba2efbaddbf",
+  "short_sha": "f0fa6dcbc5",
+  "subject": "refactor: remove unnecessary Lean.Elab.Term imports",
+  "zig_target": {}
+}

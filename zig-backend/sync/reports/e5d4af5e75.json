@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-06-28",
+  "needs_port": false,
+  "sha": "e5d4af5e75c97d920f14cc921b7526caa2b2fb5f",
+  "short_sha": "e5d4af5e75",
+  "subject": "refactor: split `Syntax.lean`",
+  "zig_target": {}
+}

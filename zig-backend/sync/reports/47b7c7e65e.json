@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    }
+  ],
+  "date": "2026-03-04",
+  "needs_port": true,
+  "sha": "47b7c7e65e20dddc4e73c8a43eda4113933270f3",
+  "short_sha": "47b7c7e65e",
+  "subject": "perf: add high priority to `OfSemiring.Q` instances (#12782)",
+  "zig_target": {
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+  }
+}

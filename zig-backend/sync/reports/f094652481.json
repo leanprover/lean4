@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-02",
+  "needs_port": false,
+  "sha": "f0946524818084ede60c3769f9df1c4adc02e842",
+  "short_sha": "f094652481",
+  "subject": "fix: `Rat.floor` and `Rat.ceil` (#7294)",
+  "zig_target": {}
+}

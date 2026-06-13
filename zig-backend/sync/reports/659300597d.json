@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-08-04",
+  "needs_port": true,
+  "sha": "659300597dcc17302e8a73fb4a162ecbb46c3d3a",
+  "short_sha": "659300597d",
+  "subject": "doc: some doc strings for `Prelude.lean`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

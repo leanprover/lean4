@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-26",
+  "needs_port": false,
+  "sha": "8d543cbcdcec6b04064ea3d4b3d12a61d7b015c4",
+  "short_sha": "8d543cbcdc",
+  "subject": "doc: using Nix with an external editor",
+  "zig_target": {}
+}

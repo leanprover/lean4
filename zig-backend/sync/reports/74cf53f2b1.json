@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-09-05",
+  "needs_port": false,
+  "sha": "74cf53f2b1cbe87882f3d8263c359e53a07d7a9b",
+  "short_sha": "74cf53f2b1",
+  "subject": "fix: preserve order of overapplied arguments in `elab_as_elim` procedure (#5266)",
+  "zig_target": {}
+}

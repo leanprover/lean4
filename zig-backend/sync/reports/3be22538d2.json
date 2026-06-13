@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-28",
+  "needs_port": false,
+  "sha": "3be22538d210bea69b8a8d1cd36ff29d7f89c634",
+  "short_sha": "3be22538d2",
+  "subject": "chore: add backward compatibility option for TC optimization (#4008)",
+  "zig_target": {}
+}

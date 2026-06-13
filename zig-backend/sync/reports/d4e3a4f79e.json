@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "d4e3a4f79e74bfcdf34837f4f1a027840036f5e8",
+  "short_sha": "d4e3a4f79e",
+  "subject": "fix: bin build now properly waits for dep libs",
+  "zig_target": {}
+}

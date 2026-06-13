@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-18",
+  "needs_port": false,
+  "sha": "8c5cebfb1199a5b6f662258ca6ac2a5bd4d6fd7d",
+  "short_sha": "8c5cebfb11",
+  "subject": "chore: default optional LSP fields",
+  "zig_target": {}
+}

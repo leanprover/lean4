@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PhaseExt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+    }
+  ],
+  "date": "2022-09-29",
+  "needs_port": true,
+  "sha": "13edf0e9ccc801a717cd9480468bff66a107cd7f",
+  "short_sha": "13edf0e9cc",
+  "subject": "feat: add `forEachModuleDecl` and `forEachMainModuleDecl`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PhaseExt.lean": "zig-backend/src/lean/compiler/lcnf/PhaseExt.lean"
+  }
+}

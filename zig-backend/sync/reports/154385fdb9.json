@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-08-14",
+  "needs_port": false,
+  "sha": "154385fdb9261e5a38d34840aa1c17dfc3a6dc56",
+  "short_sha": "154385fdb9",
+  "subject": "chore: remove dead code in Lake.Util.Compare (#5030)",
+  "zig_target": {}
+}

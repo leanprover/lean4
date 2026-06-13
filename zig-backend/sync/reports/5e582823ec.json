@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-28",
+  "needs_port": false,
+  "sha": "5e582823eca8edbb41fa458bbe9705be75a413e0",
+  "short_sha": "5e582823ec",
+  "subject": "feat: add `MonadLCtx` and `MonadMCtx` helper classes",
+  "zig_target": {}
+}

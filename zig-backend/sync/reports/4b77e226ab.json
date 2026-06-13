@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-05",
+  "needs_port": false,
+  "sha": "4b77e226abd1bbb80857dd80442b2d619a628562",
+  "short_sha": "4b77e226ab",
+  "subject": "perf: when matching on values, avoid generating hyps when not needed (#11508)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-09",
+  "needs_port": false,
+  "sha": "ff90459fd207268cf6b2c2a35ba1c031acb8c545",
+  "short_sha": "ff90459fd2",
+  "subject": "feat: add `Lean.Elab.Term.getMVarErrorInfo?`",
+  "zig_target": {}
+}

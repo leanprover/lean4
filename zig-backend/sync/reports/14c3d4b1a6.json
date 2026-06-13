@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-06",
+  "needs_port": false,
+  "sha": "14c3d4b1a6cd6b9a755c952a2fa8f4c205c4b3e4",
+  "short_sha": "14c3d4b1a6",
+  "subject": "chore: CI: remove link checker for old manual",
+  "zig_target": {}
+}

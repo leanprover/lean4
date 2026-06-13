@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-20",
+  "needs_port": false,
+  "sha": "4ccab418197ec5cbcc80d0e48ca4b35c2d70f3b4",
+  "short_sha": "4ccab41819",
+  "subject": "test: proof by reflection example",
+  "zig_target": {}
+}

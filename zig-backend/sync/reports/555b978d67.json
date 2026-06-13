@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-15",
+  "needs_port": false,
+  "sha": "555b978d67abbe1269786bcb68015f80cb9f5996",
+  "short_sha": "555b978d67",
+  "subject": "refactor: add `GeneralizeVars.lean`",
+  "zig_target": {}
+}

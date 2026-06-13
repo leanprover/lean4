@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "66772d77fc886566cf913883bc22b552a9e5df2c",
+  "short_sha": "66772d77fc",
+  "subject": "fix: Work around a DefEq bug in `mspec` involving delayed assignments (#9833)",
+  "zig_target": {}
+}

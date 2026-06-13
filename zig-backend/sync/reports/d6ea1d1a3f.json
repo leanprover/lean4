@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-24",
+  "needs_port": false,
+  "sha": "d6ea1d1a3f5500966c54020e88f74188d312613a",
+  "short_sha": "d6ea1d1a3f",
+  "subject": "feat(frontends/lean/builtin_cmds): add `#synth` command",
+  "zig_target": {}
+}

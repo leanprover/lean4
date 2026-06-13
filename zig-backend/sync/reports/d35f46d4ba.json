@@ -1,0 +1,10 @@
+{
+  "author": "Xavier Noria",
+  "backend_changes": [],
+  "date": "2021-05-11",
+  "needs_port": false,
+  "sha": "d35f46d4baf05388db59455b92762d5881d6f80f",
+  "short_sha": "d35f46d4ba",
+  "subject": "doc: fix spelling of GitHub in the FAQ (#454)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "3667b46d1e301009cf8776adb1d3ebbbae0b84af",
+  "short_sha": "3667b46d1e",
+  "subject": "chore: support goals embedded in messages",
+  "zig_target": {}
+}

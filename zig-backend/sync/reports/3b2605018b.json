@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-29",
+  "needs_port": false,
+  "sha": "3b2605018be0ffcd763a17dbab34f12e01dee6d2",
+  "short_sha": "3b2605018b",
+  "subject": "fix: propagate nested `LCtx` at `elimMVar`",
+  "zig_target": {}
+}

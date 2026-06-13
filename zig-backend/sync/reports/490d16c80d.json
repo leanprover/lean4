@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-07-17",
+  "needs_port": false,
+  "sha": "490d16c80d7bdf96a43345d9b307c21d8fbb6a16",
+  "short_sha": "490d16c80d",
+  "subject": "fix: have elabAsElim check inferred motive for type correctness (#4722)",
+  "zig_target": {}
+}

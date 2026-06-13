@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-26",
+  "needs_port": false,
+  "sha": "e369c3beb60270059bc7db2862782268d1d85a5d",
+  "short_sha": "e369c3beb6",
+  "subject": "fix: disallow `.` immediately after `..`",
+  "zig_target": {}
+}

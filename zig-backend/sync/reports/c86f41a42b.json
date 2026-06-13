@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-19",
+  "needs_port": false,
+  "sha": "c86f41a42b50747b2950ddabd0852e027bbf48f3",
+  "short_sha": "c86f41a42b",
+  "subject": "feat: command-level info trees",
+  "zig_target": {}
+}

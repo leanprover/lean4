@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/pair_ref.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/pair_ref.h"
+    }
+  ],
+  "date": "2025-07-01",
+  "needs_port": true,
+  "sha": "232443371bd7f4c1cef5c64aff6cbdd945afeef5",
+  "short_sha": "232443371b",
+  "subject": "perf: add missing `std::move`s (#9107)",
+  "zig_target": {
+    "src/runtime/pair_ref.h": "zig-backend/src/runtime/pair_ref.h"
+  }
+}

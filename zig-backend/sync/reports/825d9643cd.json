@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-30",
+  "needs_port": false,
+  "sha": "825d9643cd33bca74f774ebd57e27bef2ea5a379",
+  "short_sha": "825d9643cd",
+  "subject": "feat: allow structure instances as `fun` binder without `()`",
+  "zig_target": {}
+}

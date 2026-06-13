@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2019-06-19",
+  "needs_port": true,
+  "sha": "697f69020ff1666bb1b92425cb7c5b7ce2cd5ae3",
+  "short_sha": "697f69020f",
+  "subject": "fix(library/init/lean/parser/parser): new `registerBuiltinParserAttribute`",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

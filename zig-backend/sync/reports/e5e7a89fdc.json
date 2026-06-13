@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-11-20",
+  "needs_port": false,
+  "sha": "e5e7a89fdc6c8032c65cdcac543a02e8e993a579",
+  "short_sha": "e5e7a89fdc",
+  "subject": "fix: shake: only record used simp theorems as dependencies, plus simprocs (#11287)",
+  "zig_target": {}
+}

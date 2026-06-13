@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-17",
+  "needs_port": false,
+  "sha": "196435c73b56360da551e7b0dd28fd497d4b40f1",
+  "short_sha": "196435c73b",
+  "subject": "chore: use new `fun` syntax in old pretty printer",
+  "zig_target": {}
+}

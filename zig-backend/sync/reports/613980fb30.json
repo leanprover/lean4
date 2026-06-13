@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-08",
+  "needs_port": false,
+  "sha": "613980fb3005df92db61899c1bb2a2d7a7f9ca4a",
+  "short_sha": "613980fb30",
+  "subject": "fix(library/Makefile.in): add .olean as .cpp dependency",
+  "zig_target": {}
+}

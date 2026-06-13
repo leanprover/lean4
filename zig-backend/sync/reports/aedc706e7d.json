@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-04",
+  "needs_port": false,
+  "sha": "aedc706e7da3b6d6ea0bf37247d1318cb0592181",
+  "short_sha": "aedc706e7d",
+  "subject": "feat: `in` modifier at `conv` tactic",
+  "zig_target": {}
+}

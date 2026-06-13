@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-20",
+  "needs_port": false,
+  "sha": "4ffc2c93cd60ed06fbecd181e051b71a323bded9",
+  "short_sha": "4ffc2c93cd",
+  "subject": "feat: invoke `mkSizeOfInstances` from `structure` and `inductive` commands",
+  "zig_target": {}
+}

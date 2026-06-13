@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-31",
+  "needs_port": false,
+  "sha": "51ce321c7eaf3124a927abc2418c306ee76e5da5",
+  "short_sha": "51ce321c7e",
+  "subject": "feat: whnf skeleton",
+  "zig_target": {}
+}

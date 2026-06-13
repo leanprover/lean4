@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-03",
+  "needs_port": false,
+  "sha": "8aa375ba3e5c0e3eb4108d8f3e08be1122a2d189",
+  "short_sha": "8aa375ba3e",
+  "subject": "fix: bug at `FVarSubst` generation",
+  "zig_target": {}
+}

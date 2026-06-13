@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-19",
+  "needs_port": true,
+  "sha": "6276d1a7f17cb610c281e2e31f94479bf8dcc7c6",
+  "short_sha": "6276d1a7f1",
+  "subject": "feat(library/compiler/emit_cpp): avoid reset field instructions when reuse instruction is guaranteed to be executed",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

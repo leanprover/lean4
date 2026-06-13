@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2024-08-13",
+  "needs_port": true,
+  "sha": "861ef2750346c909a0dc6aaf5fd490622f0d3c9b",
+  "short_sha": "861ef27503",
+  "subject": "refactor: state `WellFoundedRelation Nat` using `<`, not `Nat.lt` (#5012)",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-21",
+  "needs_port": false,
+  "sha": "fbb1184f256c4e36fb87afe0122dc99c8993a1e1",
+  "short_sha": "fbb1184f25",
+  "subject": "feat: auto-add stdlib to LEAN_SRC_PATH for installed Lean",
+  "zig_target": {}
+}

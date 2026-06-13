@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-04-03",
+  "needs_port": false,
+  "sha": "608e0d06a86b7e805aeab4862539675d073a7bf5",
+  "short_sha": "608e0d06a8",
+  "subject": "fix: extend sym canonicalizer reductions to value positions (#13272)",
+  "zig_target": {}
+}

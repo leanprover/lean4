@@ -1,0 +1,18 @@
+{
+  "author": "jrr6",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-04-06",
+  "needs_port": true,
+  "sha": "23b23c1236676038bd974c6d7a15a0b8057bdb48",
+  "short_sha": "23b23c1236",
+  "subject": "feat: validate, expose names, and add hovers for all suggestion tactics (#7474)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

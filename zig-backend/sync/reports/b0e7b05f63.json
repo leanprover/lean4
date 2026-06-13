@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-20",
+  "needs_port": false,
+  "sha": "b0e7b05f63d41a4445947d942de86d9340df427f",
+  "short_sha": "b0e7b05f63",
+  "subject": "feat(library/init/lean/compiler/ir/emitcpp): add entry point",
+  "zig_target": {}
+}

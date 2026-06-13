@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-06-26",
+  "needs_port": true,
+  "sha": "14d77f820463e666baa923f529b2a118fcdac408",
+  "short_sha": "14d77f8204",
+  "subject": "feat(library/compiler/specialize): use new attribute manager",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

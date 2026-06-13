@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-05",
+  "needs_port": false,
+  "sha": "db391410341ac292e2055c42e126d432a79db079",
+  "short_sha": "db39141034",
+  "subject": "feat: replace `extraDepTarget` with `extraDepTargets`",
+  "zig_target": {}
+}

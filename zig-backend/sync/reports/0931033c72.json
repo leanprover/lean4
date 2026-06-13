@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-07-14",
+  "needs_port": false,
+  "sha": "0931033c72fea3544133ae5bd86ec9953ae77313",
+  "short_sha": "0931033c72",
+  "subject": "chore: Grove: add some data (#9354)",
+  "zig_target": {}
+}

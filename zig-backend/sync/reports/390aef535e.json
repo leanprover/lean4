@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2020-08-18",
+  "needs_port": true,
+  "sha": "390aef535e3e5e090a5c78412dce666b8ed538f2",
+  "short_sha": "390aef535e",
+  "subject": "chore: remove workaround",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

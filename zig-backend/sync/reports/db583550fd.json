@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-14",
+  "needs_port": false,
+  "sha": "db583550fd043ec81e05568ef78b58783bbac259",
+  "short_sha": "db583550fd",
+  "subject": "feat: add `Lean.Rat` for implementing decision procedures",
+  "zig_target": {}
+}

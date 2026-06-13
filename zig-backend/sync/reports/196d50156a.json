@@ -1,0 +1,36 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    }
+  ],
+  "date": "2025-10-21",
+  "needs_port": true,
+  "sha": "196d50156a4b4ed3645b99346f8864f48f3eb036",
+  "short_sha": "196d50156a",
+  "subject": "fix: logic error in `String.Slice.takeWhile` (#10868)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Pattern/Basic.lean",
+    "src/Init/Data/String/Pattern/String.lean": "zig-backend/src/init/Data/String/Pattern/String.lean",
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean"
+  }
+}

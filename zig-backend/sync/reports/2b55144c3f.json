@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "2b55144c3f28516a04f92a3fe6589fb7889a36b3",
+  "short_sha": "2b55144c3f",
+  "subject": "feat: add extensible state mechanism for SymM (#13080)",
+  "zig_target": {}
+}

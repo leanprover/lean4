@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "5a29922b6f12a7e949e5560a2893ad7bcae9a51a",
+  "short_sha": "5a29922b6f",
+  "subject": "chore: replace broken frontend benchmark with repeated parser benchmark on pinned Core.lean",
+  "zig_target": {}
+}

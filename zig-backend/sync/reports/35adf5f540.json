@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-20",
+  "needs_port": true,
+  "sha": "35adf5f540c985e2f5cf8f2523090355abb0476d",
+  "short_sha": "35adf5f540",
+  "subject": "feat(library/compiler/llnf): avoid unfruitful `reuse` instruction replacements",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

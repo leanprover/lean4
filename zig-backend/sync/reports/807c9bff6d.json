@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-28",
+  "needs_port": false,
+  "sha": "807c9bff6dbc06d42612c057d0375506c9cfcabb",
+  "short_sha": "807c9bff6d",
+  "subject": "refactor(library/init): `HasToFormat` ==> `HasFormat`, `toFormat` ==> `format`",
+  "zig_target": {}
+}

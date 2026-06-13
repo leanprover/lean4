@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-15",
+  "needs_port": false,
+  "sha": "223a5d5ded7c62c9e7ee79b553b0eadbe7196fc8",
+  "short_sha": "223a5d5ded",
+  "subject": "fix: bug at `isDefEqOffset`",
+  "zig_target": {}
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Attributes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Attributes.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Util.lean"
+    },
+    {
+      "path": "src/Init/Lean/Environment.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Environment.lean"
+    },
+    {
+      "path": "src/Init/Lean/Parser/Parser.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Parser.lean"
+    }
+  ],
+  "date": "2019-12-31",
+  "needs_port": true,
+  "sha": "88339be11061248e6c5c3d3bc4a9e757157899e0",
+  "short_sha": "88339be110",
+  "subject": "refactor: improve initialization",
+  "zig_target": {
+    "src/Init/Lean/Attributes.lean": "zig-backend/src/init/Lean/Attributes.lean",
+    "src/Init/Lean/Elab/Util.lean": "zig-backend/src/init/Lean/Elab/Util.lean",
+    "src/Init/Lean/Environment.lean": "zig-backend/src/init/Lean/Environment.lean",
+    "src/Init/Lean/Parser/Parser.lean": "zig-backend/src/init/Lean/Parser/Parser.lean"
+  }
+}

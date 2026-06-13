@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-21",
+  "needs_port": false,
+  "sha": "74d80444ffb90f77c9755757513b7232efc3a493",
+  "short_sha": "74d80444ff",
+  "subject": "fix(frontends/lean/vm_elaborator): elab_attribute_cmd",
+  "zig_target": {}
+}

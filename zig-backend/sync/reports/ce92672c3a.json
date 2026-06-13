@@ -1,0 +1,18 @@
+{
+  "author": "larsk21",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2022-01-31",
+  "needs_port": true,
+  "sha": "ce92672c3a5b56f006ec3d4122413e80bcf5aade",
+  "short_sha": "ce92672c3a",
+  "subject": "fix: remove explicit Ord Range",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

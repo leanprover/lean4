@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-28",
+  "needs_port": false,
+  "sha": "ba1da61dd05d6cab952443c44c2d165f7618516f",
+  "short_sha": "ba1da61dd0",
+  "subject": "chore(library/init/core): avoid unquoted notation symbol",
+  "zig_target": {}
+}

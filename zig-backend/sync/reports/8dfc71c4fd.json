@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-12",
+  "needs_port": false,
+  "sha": "8dfc71c4fdec9db05da080f45596fece57a241cd",
+  "short_sha": "8dfc71c4fd",
+  "subject": "chore: remove superfluous whitespace from error message (#9335)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-11",
+  "needs_port": false,
+  "sha": "5f9dedfe5ee9972acdebd669f228f487844a6156",
+  "short_sha": "5f9dedfe5e",
+  "subject": "chore: slightly more informative trace.Elab.snapshotTree",
+  "zig_target": {}
+}

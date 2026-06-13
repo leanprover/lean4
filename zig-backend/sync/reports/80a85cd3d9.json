@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-05-14",
+  "needs_port": false,
+  "sha": "80a85cd3d977792d064160d26faccb53067b275d",
+  "short_sha": "80a85cd3d9",
+  "subject": "fix: respect fixed-parameter permutation when reporting structural recursion failures (#13730)",
+  "zig_target": {}
+}

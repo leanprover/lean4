@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2019-04-05",
+  "needs_port": true,
+  "sha": "6c44a5d9977aac50ad1f82107c27ea34acbc0777",
+  "short_sha": "6c44a5d997",
+  "subject": "feat(library/compiler/csimp): add `Thunk.get (Thunk.mk f)` ==> `f ()` simplification",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

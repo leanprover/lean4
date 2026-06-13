@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-26",
+  "needs_port": false,
+  "sha": "b44c7e161c13f54e8cd3da3259aa659da8f6ab70",
+  "short_sha": "b44c7e161c",
+  "subject": "test: add two benchmarks for mvcgen in the style of SymM (#12163)",
+  "zig_target": {}
+}

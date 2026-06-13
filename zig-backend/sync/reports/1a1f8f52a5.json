@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-05-19",
+  "needs_port": false,
+  "sha": "1a1f8f52a546448a2c0603eda360ddb97dee94cd",
+  "short_sha": "1a1f8f52a5",
+  "subject": "fix: run linters after elaboration",
+  "zig_target": {}
+}

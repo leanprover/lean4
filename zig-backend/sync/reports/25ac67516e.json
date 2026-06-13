@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "25ac67516e2b252a88841e6d2fa375901779f91b",
+  "short_sha": "25ac67516e",
+  "subject": "chore(tests/playground/environment_ext): remove unused `attr` field",
+  "zig_target": {}
+}

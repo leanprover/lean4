@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-11-05",
+  "needs_port": false,
+  "sha": "8b43fc54b21760df67aed095c470e4e45d0d045f",
+  "short_sha": "8b43fc54b2",
+  "subject": "doc: clarify server protocol violations around `initialize` (#11091)",
+  "zig_target": {}
+}

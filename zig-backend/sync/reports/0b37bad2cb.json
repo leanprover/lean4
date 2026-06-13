@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth Bhat",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    }
+  ],
+  "date": "2023-09-12",
+  "needs_port": true,
+  "sha": "0b37bad2cb5bbe18901f8fdff56e1ebd4fbcbb94",
+  "short_sha": "0b37bad2cb",
+  "subject": "feat: split bitcode optimization and object file building to be outside lean",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+  }
+}

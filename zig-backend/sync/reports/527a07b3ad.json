@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ExplicitBoxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExplicitBoxing.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ExplicitRC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/InferBorrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean"
+    }
+  ],
+  "date": "2026-02-20",
+  "needs_port": true,
+  "sha": "527a07b3adbc0c087f75899a10278f4c19a83e31",
+  "short_sha": "527a07b3ad",
+  "subject": "refactor: remove SCC special casing for fetching signatures (#12619)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ExplicitBoxing.lean": "zig-backend/src/lean/compiler/lcnf/ExplicitBoxing.lean",
+    "src/Lean/Compiler/LCNF/ExplicitRC.lean": "zig-backend/src/lean/compiler/lcnf/ExplicitRC.lean",
+    "src/Lean/Compiler/LCNF/InferBorrow.lean": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean"
+  }
+}

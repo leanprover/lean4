@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "5f2b74df72c0202547bcb8b610d4825f3dc57fa0",
+  "short_sha": "5f2b74df72",
+  "subject": "fix(frontends/lean/util): another mismatch to naming convention change",
+  "zig_target": {}
+}

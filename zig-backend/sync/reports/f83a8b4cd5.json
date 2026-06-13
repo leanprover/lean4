@@ -1,0 +1,31 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "old_path": "src/Lean/Compiler/IR/SimpleGroundExpr.lean",
+      "path": "src/Lean/Compiler/LCNF/SimpleGroundExpr.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SimpleGroundExpr.lean"
+    }
+  ],
+  "date": "2026-02-26",
+  "needs_port": true,
+  "sha": "f83a8b4cd59914b6a877997b3036922c8fc9a222",
+  "short_sha": "f83a8b4cd5",
+  "subject": "refactor: port simple ground expr extraction from IR to LCNF (#12705)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/SimpleGroundExpr.lean": "zig-backend/src/lean/compiler/lcnf/SimpleGroundExpr.lean"
+  }
+}

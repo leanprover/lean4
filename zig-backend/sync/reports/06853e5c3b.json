@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-10",
+  "needs_port": false,
+  "sha": "06853e5c3be3e77fcda1908e5c1e7044e5e86389",
+  "short_sha": "06853e5c3b",
+  "subject": "fix: lake: lock test timeout + README typos",
+  "zig_target": {}
+}

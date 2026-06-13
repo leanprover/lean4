@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-01-14",
+  "needs_port": true,
+  "sha": "4752c56fe8bac5c54240c57ddcd394af86afaf55",
+  "short_sha": "4752c56fe8",
+  "subject": "feat: improve range of `missing cases: ...` error message",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

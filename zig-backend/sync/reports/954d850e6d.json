@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-11-19",
+  "needs_port": true,
+  "sha": "954d850e6d414dcc06a2535343cc123ccf26c1ab",
+  "short_sha": "954d850e6d",
+  "subject": "feat: add F# pipe notation",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

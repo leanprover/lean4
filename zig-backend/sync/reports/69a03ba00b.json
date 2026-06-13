@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-25",
+  "needs_port": true,
+  "sha": "69a03ba00be9c7bbaf1cdf29f177738b3e919c74",
+  "short_sha": "69a03ba00b",
+  "subject": "feat: add `BitVec.(toFin_signExtend_of_le, toFin_signExtend)` (#7658)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Violeta Hern\u00e1ndez",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2025-04-06",
+  "needs_port": true,
+  "sha": "8e4c38968f3ed8c25155bd2de591cab833994324",
+  "short_sha": "8e4c38968f",
+  "subject": "feat: two new lemmas on `List.head` / `List.getLast` (#7108)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

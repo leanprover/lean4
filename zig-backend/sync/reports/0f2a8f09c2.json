@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-15",
+  "needs_port": false,
+  "sha": "0f2a8f09c208f4b435feb4d31bd8ce082a6b0284",
+  "short_sha": "0f2a8f09c2",
+  "subject": "chore(library/init/lean/ir): cleanup",
+  "zig_target": {}
+}

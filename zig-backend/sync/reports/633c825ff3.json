@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Float32.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float32.lean"
+    },
+    {
+      "path": "src/Init/Data/OfScientific.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/OfScientific.lean"
+    },
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2024-12-11",
+  "needs_port": true,
+  "sha": "633c825ff3f5392bfbf5ffba862b4dbe098f1a53",
+  "short_sha": "633c825ff3",
+  "subject": "feat: add `Float32` support (#6366)",
+  "zig_target": {
+    "src/Init/Data/Float32.lean": "zig-backend/src/init/Data/Float32.lean",
+    "src/Init/Data/OfScientific.lean": "zig-backend/src/init/Data/OfScientific.lean",
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

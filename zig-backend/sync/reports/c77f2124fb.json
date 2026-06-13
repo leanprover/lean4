@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/CompilerM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+    }
+  ],
+  "date": "2026-03-25",
+  "needs_port": true,
+  "sha": "c77f2124fb32b626b506dd7bda79843d27b3d88d",
+  "short_sha": "c77f2124fb",
+  "subject": "fix: include `modPkgExt` in `.ir` file exports (#13118)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/CompilerM.lean": "zig-backend/src/lean/compiler/ir/CompilerM.lean"
+  }
+}

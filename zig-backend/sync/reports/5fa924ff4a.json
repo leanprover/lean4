@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "5fa924ff4a081d0043e1b71ad7beb6bac6e1a84d",
+  "short_sha": "5fa924ff4a",
+  "subject": "feat(library/init/lean/environment): improve registerPersistentEnvExtension signature",
+  "zig_target": {}
+}

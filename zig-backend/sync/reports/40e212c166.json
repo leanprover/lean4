@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-11-21",
+  "needs_port": false,
+  "sha": "40e212c166174d8cf81d874612c91c9e1d4023b2",
+  "short_sha": "40e212c166",
+  "subject": "feat: infer def/theorem DefKind for `let rec`",
+  "zig_target": {}
+}

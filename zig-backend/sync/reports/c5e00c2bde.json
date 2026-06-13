@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-06",
+  "needs_port": false,
+  "sha": "c5e00c2bde9f30152fd3618edaab682ee981035e",
+  "short_sha": "c5e00c2bde",
+  "subject": "fix: do not create coercion placeholder if function is partially applied",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/PushProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/PushProj.lean"
+    }
+  ],
+  "date": "2022-06-04",
+  "needs_port": true,
+  "sha": "f9e2a65f75d2f2b179840b62f8496331d84f90a6",
+  "short_sha": "f9e2a65f75",
+  "subject": "chore: further cleanup",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean",
+    "src/Lean/Compiler/IR/PushProj.lean": "zig-backend/src/lean/compiler/ir/PushProj.lean"
+  }
+}

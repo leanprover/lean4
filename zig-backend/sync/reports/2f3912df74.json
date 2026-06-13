@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-30",
+  "needs_port": false,
+  "sha": "2f3912df74fc89d2d52e832ee18179137aae45f5",
+  "short_sha": "2f3912df74",
+  "subject": "feat: define Triple.iff, Triple.iff_conseq etc. and use defeq less (#12250)",
+  "zig_target": {}
+}

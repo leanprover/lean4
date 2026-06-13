@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-05",
+  "needs_port": false,
+  "sha": "dc60739bd6232b5d82d594b418023d21d3bf84ed",
+  "short_sha": "dc60739bd6",
+  "subject": "feat: partition non recursive",
+  "zig_target": {}
+}

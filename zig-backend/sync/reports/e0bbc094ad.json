@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-08",
+  "needs_port": false,
+  "sha": "e0bbc094ad340871c3c89cd546b6e58c97eff050",
+  "short_sha": "e0bbc094ad",
+  "subject": "chore(library/init): remove coroutines from stdlib",
+  "zig_target": {}
+}

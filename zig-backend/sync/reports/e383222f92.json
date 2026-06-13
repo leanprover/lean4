@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-02-01",
+  "needs_port": false,
+  "sha": "e383222f92134d37aa175cb9305448d0a6bf91f2",
+  "short_sha": "e383222f92",
+  "subject": "feat: hovers for fields & refactor",
+  "zig_target": {}
+}

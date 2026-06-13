@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-15",
+  "needs_port": true,
+  "sha": "38c7ec133dd61238ed3c613342a621e50e00f0d7",
+  "short_sha": "38c7ec133d",
+  "subject": "fix(library/compiler/llnf): missing case",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

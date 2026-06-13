@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-14",
+  "needs_port": false,
+  "sha": "4e261b15e532a8af6f01795cd8370e528f088476",
+  "short_sha": "4e261b15e5",
+  "subject": "fix: smart unfolding bug in over applications",
+  "zig_target": {}
+}

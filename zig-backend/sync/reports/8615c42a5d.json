@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-04",
+  "needs_port": false,
+  "sha": "8615c42a5d0481c8e57e76b3f771319919c88a39",
+  "short_sha": "8615c42a5d",
+  "subject": "tests: projection defeq strategy",
+  "zig_target": {}
+}

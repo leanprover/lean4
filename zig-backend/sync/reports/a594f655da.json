@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-15",
+  "needs_port": false,
+  "sha": "a594f655da7104dd6be8e74725d801a691fba1ca",
+  "short_sha": "a594f655da",
+  "subject": "fix: use `withReducibleAndIntances` to match ground patterns (#8365)",
+  "zig_target": {}
+}

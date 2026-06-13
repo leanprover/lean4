@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-30",
+  "needs_port": false,
+  "sha": "79938056ad8e85e0aa5d3c99a78f97528add3245",
+  "short_sha": "79938056ad",
+  "subject": "chore: add `isIte` and `isDIte`",
+  "zig_target": {}
+}

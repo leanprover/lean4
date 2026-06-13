@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-02-19",
+  "needs_port": false,
+  "sha": "da24708ba58ff1fc9d49eca417a82b7b4e3206c3",
+  "short_sha": "da24708ba5",
+  "subject": "refactor: use isAppOfArity (#3394)",
+  "zig_target": {}
+}

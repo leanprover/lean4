@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-02",
+  "needs_port": false,
+  "sha": "bf9b5c21f8be13c65e7b5d86442ff5aee3e58e7a",
+  "short_sha": "bf9b5c21f8",
+  "subject": "fix(shell.nix): propagate arguments",
+  "zig_target": {}
+}

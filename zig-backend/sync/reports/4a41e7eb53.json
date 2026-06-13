@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-08-08",
+  "needs_port": false,
+  "sha": "4a41e7eb53689067e854e025cfcad4000e311182",
+  "short_sha": "4a41e7eb53",
+  "subject": "chore: basic tests exercising rw",
+  "zig_target": {}
+}

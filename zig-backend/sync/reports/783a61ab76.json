@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-21",
+  "needs_port": false,
+  "sha": "783a61ab7642ff98ea4cd9a1ace4ca6339325f0d",
+  "short_sha": "783a61ab76",
+  "subject": "chore: Min/Max typeclasses",
+  "zig_target": {}
+}

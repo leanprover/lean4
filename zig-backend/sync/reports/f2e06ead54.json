@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-28",
+  "needs_port": false,
+  "sha": "f2e06ead5436e01e585a15dcc795ccb96bf3d182",
+  "short_sha": "f2e06ead54",
+  "subject": "feat: support for `LawfulEqCmp` in `grind` (#9069)",
+  "zig_target": {}
+}

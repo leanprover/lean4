@@ -1,0 +1,18 @@
+{
+  "author": "Marcelo Lynch",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2026-02-02",
+  "needs_port": true,
+  "sha": "5d41b3bdce463d43f12b365d8e19ca1cef4b34d2",
+  "short_sha": "5d41b3bdce",
+  "subject": "fix: avoid deadlock by not throttling workers when the task manager is shutting down (#12052)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

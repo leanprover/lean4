@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-16",
+  "needs_port": false,
+  "sha": "ee4cbbeb142d072c1d432ec2d167a6c430733f94",
+  "short_sha": "ee4cbbeb14",
+  "subject": "fix: remove duplicate `mpure_intro` tactic definition (#9938)",
+  "zig_target": {}
+}

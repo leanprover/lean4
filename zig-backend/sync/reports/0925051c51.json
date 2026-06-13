@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Reader.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Reader.lean"
+    }
+  ],
+  "date": "2022-08-26",
+  "needs_port": true,
+  "sha": "0925051c51e183a0b8c504ae53f5cab0525d6cac",
+  "short_sha": "0925051c51",
+  "subject": "chore: rename `Reader` to `ReaderM`",
+  "zig_target": {
+    "src/Init/Control/Reader.lean": "zig-backend/src/init/Control/Reader.lean"
+  }
+}

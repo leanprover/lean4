@@ -1,0 +1,30 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Omega/Constraint.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Constraint.lean"
+    }
+  ],
+  "date": "2025-04-04",
+  "needs_port": true,
+  "sha": "258bb22f0a5c145ba4b9c87a4ae6d5841bc8261d",
+  "short_sha": "258bb22f0a",
+  "subject": "chore: deprecate `Option.merge` and `Option.liftOrGet` in favor of `Option.zipWith` (#7818)",
+  "zig_target": {
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Omega/Constraint.lean": "zig-backend/src/init/Omega/Constraint.lean"
+  }
+}

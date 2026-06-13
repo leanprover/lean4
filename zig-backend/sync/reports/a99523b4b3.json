@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Message.lean"
+    }
+  ],
+  "date": "2020-01-07",
+  "needs_port": true,
+  "sha": "a99523b4b3a970da88ad5215129232d4536df299",
+  "short_sha": "a99523b4b3",
+  "subject": "feat: add `set_option ppOld false` option for disabling `ppOld`",
+  "zig_target": {
+    "src/Init/Lean/Util/Message.lean": "zig-backend/src/init/Lean/Util/Message.lean"
+  }
+}

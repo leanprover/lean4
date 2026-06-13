@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcsimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcsimp.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    }
+  ],
+  "date": "2018-09-13",
+  "needs_port": true,
+  "sha": "960eab96b33cb6f0e0bf975c39b12f5ae81031c7",
+  "short_sha": "960eab96b3",
+  "subject": "chore(library/compiler): minor changes",
+  "zig_target": {
+    "src/library/compiler/lcsimp.cpp": "zig-backend/src/library/compiler/lcsimp.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp"
+  }
+}

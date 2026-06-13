@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-03-02",
+  "needs_port": false,
+  "sha": "46fe37290e5a05f917caf4c6767b4c360624c409",
+  "short_sha": "46fe37290e",
+  "subject": "feat: lake: download artifacts on demand (#12634)",
+  "zig_target": {}
+}

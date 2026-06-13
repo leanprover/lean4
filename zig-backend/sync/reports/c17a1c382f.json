@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-05",
+  "needs_port": false,
+  "sha": "c17a1c382f85c04fad7cd23cabaff6b2a0c214e5",
+  "short_sha": "c17a1c382f",
+  "subject": "fix: `isDeltaCandidate?`",
+  "zig_target": {}
+}

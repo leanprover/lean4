@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    }
+  ],
+  "date": "2025-12-10",
+  "needs_port": true,
+  "sha": "95e33d88a85526e9d33a065e3a463cef82e464fb",
+  "short_sha": "95e33d88a8",
+  "subject": "feat: add `MonadControl` lemmas for `ReaderT`, `OptionT`, `StateT`, and `ExceptT` (#11591)",
+  "zig_target": {
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean"
+  }
+}

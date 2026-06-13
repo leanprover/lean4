@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-10",
+  "needs_port": false,
+  "sha": "1cdadfd47a505ecc850ea0eecbfff1700a1c75d2",
+  "short_sha": "1cdadfd47a",
+  "subject": "chore: cleanup `grind` cutsat trace messages (#7908)",
+  "zig_target": {}
+}

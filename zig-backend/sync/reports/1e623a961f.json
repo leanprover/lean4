@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/object.h"
+    }
+  ],
+  "date": "2021-01-20",
+  "needs_port": true,
+  "sha": "1e623a961f97445ef865df4b99c029c6e7e8274c",
+  "short_sha": "1e623a961f",
+  "subject": "chore: debug assertion",
+  "zig_target": {
+    "src/include/lean/object.h": "zig-backend/include/lean/object.h"
+  }
+}

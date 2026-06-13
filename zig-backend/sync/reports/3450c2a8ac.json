@@ -1,0 +1,18 @@
+{
+  "author": "\u3048\u3073 (ebi_chan)",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-30",
+  "needs_port": true,
+  "sha": "3450c2a8ac3a8c193d4fcc28056d0725ca3b4a1f",
+  "short_sha": "3450c2a8ac",
+  "subject": "feat: add Nat.log2_two_pow (#5756)",
+  "zig_target": {
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+  }
+}

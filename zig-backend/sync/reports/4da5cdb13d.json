@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-11-17",
+  "needs_port": true,
+  "sha": "4da5cdb13d94f375fbf982559d5af90ee03dda45",
+  "short_sha": "4da5cdb13d",
+  "subject": "chore: declare tactic parsers using `syntax` command",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

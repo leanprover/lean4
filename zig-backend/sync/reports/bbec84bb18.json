@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-19",
+  "needs_port": false,
+  "sha": "bbec84bb18d7d978b0c4ea13841b5a4ee6f1c1b4",
+  "short_sha": "bbec84bb18",
+  "subject": "chore: more output on trace.Elab.info",
+  "zig_target": {}
+}

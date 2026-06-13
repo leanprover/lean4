@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2021-11-29",
+  "needs_port": true,
+  "sha": "68fc9a911548140b94b6bc17c0ec80b56edf5700",
+  "short_sha": "68fc9a9115",
+  "subject": "feat: add dummy `mpz` implementation for `LEAN_USE_GMP=OFF`",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-09-23",
+  "needs_port": false,
+  "sha": "9d583ab4ecdf8e52f36ca236fec5353c766b16a1",
+  "short_sha": "9d583ab4ec",
+  "subject": "fix: worker: make sure to always report some recent range as progress when waiting (#5428)",
+  "zig_target": {}
+}

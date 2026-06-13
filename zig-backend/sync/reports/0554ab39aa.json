@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-02-13",
+  "needs_port": false,
+  "sha": "0554ab39aaa56473fe0a0076f1d758fde3f08fe9",
+  "short_sha": "0554ab39aa",
+  "subject": "doc: Add a docstring to `Simp.Result` and its fields (#3319)",
+  "zig_target": {}
+}

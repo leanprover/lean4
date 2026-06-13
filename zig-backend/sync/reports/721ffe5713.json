@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-18",
+  "needs_port": false,
+  "sha": "721ffe57138a13c91ff252a49fab60ba1abf18fd",
+  "short_sha": "721ffe5713",
+  "subject": "chore: CI: disable tree-less clone on nightly release",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-11-12",
+  "needs_port": false,
+  "sha": "1315266dd3faeaf28d1263668cb88f2f3f5e530c",
+  "short_sha": "1315266dd3",
+  "subject": "refactor: mark the `Simp.Context` constructor as private",
+  "zig_target": {}
+}

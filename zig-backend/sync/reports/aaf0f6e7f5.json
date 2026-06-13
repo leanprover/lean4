@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-02",
+  "needs_port": false,
+  "sha": "aaf0f6e7f5b925d983c6893be62866232e28280d",
+  "short_sha": "aaf0f6e7f5",
+  "subject": "feat: add `letConfig` support to `do` block `let`/`have` (#13255)",
+  "zig_target": {}
+}

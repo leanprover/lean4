@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-18",
+  "needs_port": false,
+  "sha": "687698e79d9762033031f87b3ea59b2b65d34c85",
+  "short_sha": "687698e79d",
+  "subject": "test: module clash across packages (#11246)",
+  "zig_target": {}
+}

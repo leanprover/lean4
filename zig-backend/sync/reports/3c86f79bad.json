@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-25",
+  "needs_port": false,
+  "sha": "3c86f79bad9eba75d63b690be07cf50fcb340ea3",
+  "short_sha": "3c86f79bad",
+  "subject": "fix: one instance of parenthesizer \"visiting a syntax tree without precedences\"",
+  "zig_target": {}
+}

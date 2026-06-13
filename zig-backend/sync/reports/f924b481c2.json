@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-12",
+  "needs_port": false,
+  "sha": "f924b481c29d9b6a2bec95e71dc5cbfe575ef870",
+  "short_sha": "f924b481c2",
+  "subject": "chore: simplify `mkElim` interface",
+  "zig_target": {}
+}

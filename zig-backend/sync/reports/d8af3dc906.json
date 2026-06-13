@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/ctype_checker.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/ctype_checker.cpp"
+    },
+    {
+      "path": "src/library/compiler/ctype_checker.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/ctype_checker.h"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    }
+  ],
+  "date": "2018-09-28",
+  "needs_port": true,
+  "sha": "d8af3dc9063ec68de384882967acd692f0f4aeb9",
+  "short_sha": "d8af3dc906",
+  "subject": "feat(library/compiler): add `ctype_checker`",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/ctype_checker.cpp": "zig-backend/src/library/compiler/ctype_checker.cpp",
+    "src/library/compiler/ctype_checker.h": "zig-backend/src/library/compiler/ctype_checker.h",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp"
+  }
+}

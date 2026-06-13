@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-08",
+  "needs_port": false,
+  "sha": "63d303558db5d2305e28c9d8c53a580d7ef15329",
+  "short_sha": "63d303558d",
+  "subject": "test: `lake clean`",
+  "zig_target": {}
+}

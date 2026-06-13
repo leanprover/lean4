@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-25",
+  "needs_port": true,
+  "sha": "708c5f1d9a92d6b21d0f581bb45b8d486c66160b",
+  "short_sha": "708c5f1d9a",
+  "subject": "chore: cleanup of grind in BitVec/Lemmas (#8989)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

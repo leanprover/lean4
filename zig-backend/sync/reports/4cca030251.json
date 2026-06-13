@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-13",
+  "needs_port": true,
+  "sha": "4cca030251244608d51522d419c4807e3f9aa0f2",
+  "short_sha": "4cca030251",
+  "subject": "chore(library/compiler/lcnf): do not beta reduce at `to_lcnf`",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-10",
+  "needs_port": false,
+  "sha": "8d10197164830e3e8cbc6ed321e5fe920299c162",
+  "short_sha": "8d10197164",
+  "subject": "fix: `leanpkg print-paths` with longer output",
+  "zig_target": {}
+}

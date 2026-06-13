@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2025-05-27",
+  "needs_port": true,
+  "sha": "632d078a7074079892526009e785eb2d3dfc3888",
+  "short_sha": "632d078a70",
+  "subject": "fix: use kernel environment to find definitions in the new compiler (#8502)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

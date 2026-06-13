@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-27",
+  "needs_port": false,
+  "sha": "828c0b832f9184fd8651e7ef0199dd713587bb23",
+  "short_sha": "828c0b832f",
+  "subject": "chore: add `StateRefT` macro",
+  "zig_target": {}
+}

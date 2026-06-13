@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/maxsharing.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/maxsharing.cpp"
+    }
+  ],
+  "date": "2020-02-24",
+  "needs_port": true,
+  "sha": "fdc76934f5981c33b0567c05e507653346056271",
+  "short_sha": "fdc76934f5",
+  "subject": "feat: `max_sharing_fn` skeleton",
+  "zig_target": {
+    "src/runtime/maxsharing.cpp": "zig-backend/src/runtime/maxsharing.cpp"
+  }
+}

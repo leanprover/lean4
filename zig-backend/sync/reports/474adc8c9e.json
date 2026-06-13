@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range.lean"
+    }
+  ],
+  "date": "2024-12-15",
+  "needs_port": true,
+  "sha": "474adc8c9e1d8bfed9003acbc68ec143d0519433",
+  "short_sha": "474adc8c9e",
+  "subject": "feat: redefine Range.forIn' (#6390)",
+  "zig_target": {
+    "src/Init/Data/Range.lean": "zig-backend/src/init/Data/Range.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Erase.lean"
+    }
+  ],
+  "date": "2024-08-25",
+  "needs_port": true,
+  "sha": "92b271ee64021663269b6fd4ad170d2be1f72216",
+  "short_sha": "92b271ee64",
+  "subject": "feat: lemmas about List.erase(|P|Idx) (#5152)",
+  "zig_target": {
+    "src/Init/Data/List/Erase.lean": "zig-backend/src/init/Data/List/Erase.lean"
+  }
+}

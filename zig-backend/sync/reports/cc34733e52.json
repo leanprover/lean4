@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-22",
+  "needs_port": false,
+  "sha": "cc34733e520245b050259b8b800992fc5d5bdcc4",
+  "short_sha": "cc34733e52",
+  "subject": "fix: update builtin precedences for `|>.` and `macroDollarArg`",
+  "zig_target": {}
+}

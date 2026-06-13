@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/App.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/App.lean"
+    }
+  ],
+  "date": "2020-02-13",
+  "needs_port": true,
+  "sha": "d62aafdb94a740bfede81442294c269fba83f301",
+  "short_sha": "d62aafdb94",
+  "subject": "doc: `@` cases that are supported",
+  "zig_target": {
+    "src/Init/Lean/Elab/App.lean": "zig-backend/src/init/Lean/Elab/App.lean"
+  }
+}

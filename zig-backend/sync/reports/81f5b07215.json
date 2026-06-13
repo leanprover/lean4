@@ -1,0 +1,30 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivModLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+    }
+  ],
+  "date": "2024-06-01",
+  "needs_port": true,
+  "sha": "81f5b07215b077f9b5be677f8689617512d3322c",
+  "short_sha": "81f5b07215",
+  "subject": "feat: getLsb_sshiftRight (#4179)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean",
+    "src/Init/Data/Int/DivModLemmas.lean": "zig-backend/src/init/Data/Int/DivModLemmas.lean"
+  }
+}

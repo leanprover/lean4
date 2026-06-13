@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-03-29",
+  "needs_port": true,
+  "sha": "101f3f2c0f9d4b0f5ae55a86e6adc07aa5c8a1de",
+  "short_sha": "101f3f2c0f",
+  "subject": "feat: `zeta` and `zetaDelta` options in `grind` (#7723)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

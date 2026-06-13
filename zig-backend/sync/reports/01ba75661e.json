@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2023-05-24",
+  "needs_port": true,
+  "sha": "01ba75661e957a4725df52e2db4486e265dbe384",
+  "short_sha": "01ba75661e",
+  "subject": "fix: implement String.toName using decodeNameLit",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

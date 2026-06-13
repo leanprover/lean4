@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-22",
+  "needs_port": false,
+  "sha": "66e0a5440ba11260086bf2b53baced0150b10e20",
+  "short_sha": "66e0a5440b",
+  "subject": "refactor: lake: unified configuration (#7504)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-10-16",
+  "needs_port": true,
+  "sha": "3e09184a39aa7512c9adcf21edea0053070b42b9",
+  "short_sha": "3e09184a39",
+  "subject": "fix: String.mk, String.toList",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

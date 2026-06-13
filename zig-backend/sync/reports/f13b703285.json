@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-10-09",
+  "needs_port": false,
+  "sha": "f13b703285b39e64c1bee7c44377d146ce7df82c",
+  "short_sha": "f13b703285",
+  "subject": "chore: re-add 'runWithInputFile' to server",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-11-18",
+  "needs_port": false,
+  "sha": "f81e64936aa7d77d089bf6b6d82f360f67e094a6",
+  "short_sha": "f81e64936a",
+  "subject": "feat: improve error when an identifier is unbound because autoImplicit is off (#11119)",
+  "zig_target": {}
+}

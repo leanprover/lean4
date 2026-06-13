@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/init_attribute.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/init_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_attribute.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/init_attribute.h"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf_code.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf_code.cpp"
+    }
+  ],
+  "date": "2019-03-18",
+  "needs_port": true,
+  "sha": "15d89b24a3f6988e62497231a76e8a12ecf173dd",
+  "short_sha": "15d89b24a3",
+  "subject": "feat(library/compiler): `[init]` attribute",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/init_attribute.cpp": "zig-backend/src/library/compiler/init_attribute.cpp",
+    "src/library/compiler/init_attribute.h": "zig-backend/src/library/compiler/init_attribute.h",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp",
+    "src/library/compiler/llnf_code.cpp": "zig-backend/src/library/compiler/llnf_code.cpp"
+  }
+}

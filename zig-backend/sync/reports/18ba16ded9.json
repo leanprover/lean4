@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "18ba16ded9f9470b0632043b354444796d205f1e",
+  "short_sha": "18ba16ded9",
+  "subject": "feat: string representation of Pos",
+  "zig_target": {}
+}

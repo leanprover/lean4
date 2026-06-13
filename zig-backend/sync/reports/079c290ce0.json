@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-11",
+  "needs_port": false,
+  "sha": "079c290ce074670544607195150cd0afb26d600e",
+  "short_sha": "079c290ce0",
+  "subject": "feat: JSON serde for Name and USize",
+  "zig_target": {}
+}

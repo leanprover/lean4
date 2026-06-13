@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "cce6ce9577483f70956aa8884d4d153abd9423b8",
+  "short_sha": "cce6ce9577",
+  "subject": "fix: treat `outParam` arguments as support in e-matching patterns (#12476)",
+  "zig_target": {}
+}

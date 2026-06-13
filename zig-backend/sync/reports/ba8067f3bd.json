@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-24",
+  "needs_port": false,
+  "sha": "ba8067f3bd200a2c40ac2d7d694f510947ed0737",
+  "short_sha": "ba8067f3bd",
+  "subject": "refactor: don't use globs to determine local modules + cleanup",
+  "zig_target": {}
+}

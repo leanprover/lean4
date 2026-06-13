@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-18",
+  "needs_port": false,
+  "sha": "c2d33a1a582c4011f5334551b903df85aa32ddc7",
+  "short_sha": "c2d33a1a58",
+  "subject": "fix: bug at `addSmartUnfoldingDef`",
+  "zig_target": {}
+}

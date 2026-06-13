@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-02",
+  "needs_port": false,
+  "sha": "e3c6909ad593e5a966a449df5e92abb1f0dbc317",
+  "short_sha": "e3c6909ad5",
+  "subject": "chore: reimplement `mk_projections` in Lean (#7295)",
+  "zig_target": {}
+}

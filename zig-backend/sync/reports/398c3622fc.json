@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-05",
+  "needs_port": false,
+  "sha": "398c3622fc3050bbfc3744be5f82492b0c2804fc",
+  "short_sha": "398c3622fc",
+  "subject": "doc: improve comments around `asyncMayModify` (#12270)",
+  "zig_target": {}
+}

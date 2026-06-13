@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2021-06-09",
+  "needs_port": true,
+  "sha": "2091a09fa182eee6c97416d21d0aab86b2de65bb",
+  "short_sha": "2091a09fa1",
+  "subject": "feat: IO.Process.Child.takeStdin",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

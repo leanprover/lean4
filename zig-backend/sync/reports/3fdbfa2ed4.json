@@ -1,0 +1,10 @@
+{
+  "author": "github-actions[bot]",
+  "backend_changes": [],
+  "date": "2022-11-07",
+  "needs_port": false,
+  "sha": "3fdbfa2ed4ccc77a1c6c53b1b8ac727e15bcabc1",
+  "short_sha": "3fdbfa2ed4",
+  "subject": "doc: update changelog",
+  "zig_target": {}
+}

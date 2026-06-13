@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-01",
+  "needs_port": false,
+  "sha": "5b37913a51e809bad726f0882f6549799376fbd1",
+  "short_sha": "5b37913a51",
+  "subject": "chore(src/boot): add generated C++ files",
+  "zig_target": {}
+}

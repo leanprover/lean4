@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-29",
+  "needs_port": false,
+  "sha": "d9325ca53a132b62cf7e811c66f86002c1f66569",
+  "short_sha": "d9325ca53a",
+  "subject": "feat: improve redundant alternative error message",
+  "zig_target": {}
+}

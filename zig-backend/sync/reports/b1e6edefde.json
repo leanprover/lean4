@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2020-11-25",
+  "needs_port": true,
+  "sha": "b1e6edefdecd2532916cee4e55e039b6f15527cd",
+  "short_sha": "b1e6edefde",
+  "subject": "fix: redirect child I/O to null on Process.Stdio.null",
+  "zig_target": {
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

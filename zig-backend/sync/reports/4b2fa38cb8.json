@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-15",
+  "needs_port": false,
+  "sha": "4b2fa38cb8841fb9e50bfaa2402bddf40f49295e",
+  "short_sha": "4b2fa38cb8",
+  "subject": "fix: `#check_failure` command should succeed if there are stuck TC problems",
+  "zig_target": {}
+}

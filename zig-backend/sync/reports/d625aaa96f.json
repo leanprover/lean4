@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-09-17",
+  "needs_port": false,
+  "sha": "d625aaa96fa8557f8f137a6fead927cf98eabba0",
+  "short_sha": "d625aaa96f",
+  "subject": "feat: server-side for trace search (#10365)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-07-22",
+  "needs_port": false,
+  "sha": "ec13bb963f7b1bbbce883eac1e16d30fcff34694",
+  "short_sha": "ec13bb963f",
+  "subject": "fix: PProdN.reduceProjs to also look for projection functions (#9464)",
+  "zig_target": {}
+}

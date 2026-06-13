@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-29",
+  "needs_port": false,
+  "sha": "d4d538cad85ce5f8f971ae359e3d4d26d37435c2",
+  "short_sha": "d4d538cad8",
+  "subject": "fix: counterexample generation for new `match` encoding",
+  "zig_target": {}
+}

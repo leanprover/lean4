@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "58b0da222f94251ab97fb2792bc9e3d2010e285a",
+  "short_sha": "58b0da222f",
+  "subject": "feat: add coercion `A => Thunk A`",
+  "zig_target": {}
+}

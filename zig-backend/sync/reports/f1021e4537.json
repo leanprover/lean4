@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-25",
+  "needs_port": false,
+  "sha": "f1021e4537d1c97eb5e828f459bb396577bf2467",
+  "short_sha": "f1021e4537",
+  "subject": "fix: congruence proof for over-applied terms (#8983)",
+  "zig_target": {}
+}

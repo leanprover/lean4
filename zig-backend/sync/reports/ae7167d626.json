@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-12",
+  "needs_port": false,
+  "sha": "ae7167d626f26a9cafba872fb7655a738cb28747",
+  "short_sha": "ae7167d626",
+  "subject": "fix(library/equations_compiler): equation compiler bug reported by @dselsam on Zulip",
+  "zig_target": {}
+}

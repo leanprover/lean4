@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "ed754725e6caf035d819a5153105f64f2ca123c8",
+  "short_sha": "ed754725e6",
+  "subject": "fix: discriminant info tree term",
+  "zig_target": {}
+}

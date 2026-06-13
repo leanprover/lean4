@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-15",
+  "needs_port": false,
+  "sha": "fc3a0403abfc32c1afacdab20d82da03b1cd5d8f",
+  "short_sha": "fc3a0403ab",
+  "subject": "feat(library/init/lean/parser/declaration): implement structure field blocks that go beyond regular binder syntax",
+  "zig_target": {}
+}

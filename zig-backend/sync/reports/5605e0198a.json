@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-28",
+  "needs_port": true,
+  "sha": "5605e0198a0bd848bffc82cab19bf2e9bcab60db",
+  "short_sha": "5605e0198a",
+  "subject": "chore: BitVec.Lemmas - drop non-terminal simps (#5499)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

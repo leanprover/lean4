@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-11-02",
+  "needs_port": false,
+  "sha": "79428827b80255884d46fc422ed709e2f5427e57",
+  "short_sha": "79428827b8",
+  "subject": "feat: add `text` option for `buildFile*` utilities (#5924)",
+  "zig_target": {}
+}

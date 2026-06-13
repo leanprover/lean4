@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-09",
+  "needs_port": false,
+  "sha": "4d077214f9cfc52db875a98aa753ce49a7b395f8",
+  "short_sha": "4d077214f9",
+  "subject": "feat: jump to definition for `match` pattern variables",
+  "zig_target": {}
+}

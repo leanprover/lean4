@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-05",
+  "needs_port": false,
+  "sha": "72c4630aab259597df9f4c9c618a2c892f2b7af9",
+  "short_sha": "72c4630aab",
+  "subject": "feat: use `realizeConst` for all equation and unfold theorems (#7348)",
+  "zig_target": {}
+}

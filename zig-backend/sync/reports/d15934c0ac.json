@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-03",
+  "needs_port": false,
+  "sha": "d15934c0ac2fc7585038676a5c1982852f2267f1",
+  "short_sha": "d15934c0ac",
+  "subject": "chore: Nix: Bring-Your-Own-Emacs `.#emacs-path-dev`",
+  "zig_target": {}
+}

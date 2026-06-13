@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    }
+  ],
+  "date": "2025-06-17",
+  "needs_port": true,
+  "sha": "b3a53d5d013d705acf1c664495e74bd7cee32460",
+  "short_sha": "b3a53d5d01",
+  "subject": "feat: generalize embedding of CommSemiring into its CommRing envelope to the noncommutative case (#8836)",
+  "zig_target": {
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+  }
+}

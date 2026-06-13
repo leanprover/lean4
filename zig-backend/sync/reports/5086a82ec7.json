@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-06",
+  "needs_port": false,
+  "sha": "5086a82ec7fbed870eb8ee1cd5b67e7709b9f5c0",
+  "short_sha": "5086a82ec7",
+  "subject": "fix: resurrect the dead `Elab.resume` trace message (#12353)",
+  "zig_target": {}
+}

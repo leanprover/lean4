@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-07",
+  "needs_port": false,
+  "sha": "c9c794ee8a32467c9f2bd6c85ff1873bb9544921",
+  "short_sha": "c9c794ee8a",
+  "subject": "feat: reification and denotation for linarith module in `grind` (#8680)",
+  "zig_target": {}
+}

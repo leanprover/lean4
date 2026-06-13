@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-10-28",
+  "needs_port": true,
+  "sha": "6912053fccf29493327a54341adba10975d1e665",
+  "short_sha": "6912053fcc",
+  "subject": "chore: always build stage 0 Lean binary, copy it to `bin/lean_stage0`",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

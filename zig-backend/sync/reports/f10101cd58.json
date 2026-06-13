@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-06",
+  "needs_port": false,
+  "sha": "f10101cd583b0798e2f61a340e3d742c82ce87ec",
+  "short_sha": "f10101cd58",
+  "subject": "fix: preserve user variable names in decreasing goals",
+  "zig_target": {}
+}

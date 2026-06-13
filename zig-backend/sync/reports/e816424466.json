@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-08-04",
+  "needs_port": true,
+  "sha": "e816424466000fcef2a86f2b8a051f27fa285ef6",
+  "short_sha": "e816424466",
+  "subject": "chore: use Category declarations for builtin cats too (#1400)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

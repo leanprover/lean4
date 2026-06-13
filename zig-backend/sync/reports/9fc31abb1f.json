@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-17",
+  "needs_port": false,
+  "sha": "9fc31abb1f6f0c295409f0fb255fafec1fe8fc57",
+  "short_sha": "9fc31abb1f",
+  "subject": "chore: benchmark using `USE_LAKE` (#9361)",
+  "zig_target": {}
+}

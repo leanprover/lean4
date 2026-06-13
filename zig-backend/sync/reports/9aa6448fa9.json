@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-15",
+  "needs_port": false,
+  "sha": "9aa6448fa96d20462758152e69b7b7ebdbb3a6e6",
+  "short_sha": "9aa6448fa9",
+  "subject": "feat: use @[method_specs] when deriving BEq and Ord (#10346)",
+  "zig_target": {}
+}

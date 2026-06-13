@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-31",
+  "needs_port": false,
+  "sha": "704242f865ad4d6ab85484aaec88c901ad31fdc7",
+  "short_sha": "704242f865",
+  "subject": "feat: `zetaReduce` should expand nested let-expressions too",
+  "zig_target": {}
+}

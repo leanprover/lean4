@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-15",
+  "needs_port": false,
+  "sha": "aa68057c8581506a44f7eabc63725ea7f6fbbe40",
+  "short_sha": "aa68057c85",
+  "subject": "chore: more general type universes in example",
+  "zig_target": {}
+}

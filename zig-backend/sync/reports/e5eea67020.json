@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-06",
+  "needs_port": true,
+  "sha": "e5eea670206f99c622845d167c643a31ff3d424c",
+  "short_sha": "e5eea67020",
+  "subject": "chore: reverse direction of List.tail_map (#5275)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-29",
+  "needs_port": false,
+  "sha": "f30ff6ae798447b7a2caa018e24ea8431b7d8112",
+  "short_sha": "f30ff6ae79",
+  "subject": "refactor: put new eqns options into backward namespace (#5207)",
+  "zig_target": {}
+}

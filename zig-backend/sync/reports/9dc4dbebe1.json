@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-23",
+  "needs_port": false,
+  "sha": "9dc4dbebe136522a6226a0a4ff6552526cbce3bb",
+  "short_sha": "9dc4dbebe1",
+  "subject": "perf: do not try to mmap `.ir` to the same address as `.olean` (#9488)",
+  "zig_target": {}
+}

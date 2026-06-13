@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-22",
+  "needs_port": false,
+  "sha": "a5a153d1fbef9a0753b186d04ac1712bbb11d072",
+  "short_sha": "a5a153d1fb",
+  "subject": "refactor: remove `foldlFrom` from `PersistentArray` and `LocalContext`",
+  "zig_target": {}
+}

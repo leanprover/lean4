@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-02",
+  "needs_port": false,
+  "sha": "1e83f62d31ab723e41ffb266002d8a3e95e9dad2",
+  "short_sha": "1e83f62d31",
+  "subject": "perf: clarify and granularize access to async env ext state (#9587)",
+  "zig_target": {}
+}

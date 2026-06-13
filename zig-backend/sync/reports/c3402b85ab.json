@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-02-24",
+  "needs_port": false,
+  "sha": "c3402b85ab96b7ceec32e0b119837913da0051d0",
+  "short_sha": "c3402b85ab",
+  "subject": "fix: make the stage2 Leanc build use stage2 oleans rather than stage1 oleans (#7190)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-24",
+  "needs_port": false,
+  "sha": "1f9975d35dc5fe8c4569da5669358cf4bb98494a",
+  "short_sha": "1f9975d35d",
+  "subject": "feat: improve error message and include variables introduced by the implicit lambda notation",
+  "zig_target": {}
+}

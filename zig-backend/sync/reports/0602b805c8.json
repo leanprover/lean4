@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-09-11",
+  "needs_port": false,
+  "sha": "0602b805c8e7a8dfdfa714566e9eb118c4d7a2fc",
+  "short_sha": "0602b805c8",
+  "subject": "fix: changing whitespace after module header may break subsequent commands (#5312)",
+  "zig_target": {}
+}

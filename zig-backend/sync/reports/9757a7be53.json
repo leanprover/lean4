@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Dynamic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Dynamic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    }
+  ],
+  "date": "2025-08-27",
+  "needs_port": true,
+  "sha": "9757a7be53deb894e7a92c550689f93211ef7391",
+  "short_sha": "9757a7be53",
+  "subject": "perf: do not export `opaque` bodies (#10119)",
+  "zig_target": {
+    "src/Init/Dynamic.lean": "zig-backend/src/init/Dynamic.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+  }
+}

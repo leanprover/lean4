@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-08-10",
+  "needs_port": false,
+  "sha": "44d3cfb3dc00aa8931b0584df1dd0f90b064b1d1",
+  "short_sha": "44d3cfb3dc",
+  "subject": "chore: stabilize benchmark output (#9820)",
+  "zig_target": {}
+}

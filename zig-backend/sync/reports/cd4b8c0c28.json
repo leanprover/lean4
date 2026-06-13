@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-12",
+  "needs_port": false,
+  "sha": "cd4b8c0c28c4c105dd8b31f0690f9694b7d8106c",
+  "short_sha": "cd4b8c0c28",
+  "subject": "fix(library/equations_compiler/unbounded_rec): it was ignored `m_gen_code` flag",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-04-30",
+  "needs_port": false,
+  "sha": "c291a78b6a70f0f76fe791a0b04667b7a218d398",
+  "short_sha": "c291a78b6a",
+  "subject": "fix: repeated field types in RpcEncoding",
+  "zig_target": {}
+}

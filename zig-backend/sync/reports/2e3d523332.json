@@ -1,0 +1,18 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    }
+  ],
+  "date": "2024-04-12",
+  "needs_port": true,
+  "sha": "2e3d52333241e01dfd09fd921cb0e26fb61fd145",
+  "short_sha": "2e3d523332",
+  "subject": "chore: protect Std.BitVec (#3884)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean"
+  }
+}

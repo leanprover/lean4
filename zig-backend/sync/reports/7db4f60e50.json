@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/erase_irrelevant.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+    }
+  ],
+  "date": "2019-03-25",
+  "needs_port": true,
+  "sha": "7db4f60e505dd866d258adaa32fe394261d14bc3",
+  "short_sha": "7db4f60e50",
+  "subject": "feat(library/init/core): eagerly expanding `Decidable.toBool` seems to be a bad idea",
+  "zig_target": {
+    "src/library/compiler/erase_irrelevant.cpp": "zig-backend/src/library/compiler/erase_irrelevant.cpp"
+  }
+}

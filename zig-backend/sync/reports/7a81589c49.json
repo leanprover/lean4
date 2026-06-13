@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-19",
+  "needs_port": false,
+  "sha": "7a81589c491209881c8aa7cb200e9864135f778d",
+  "short_sha": "7a81589c49",
+  "subject": "feat: improve \"constant approximation\" heuristic used at `isDefEq`",
+  "zig_target": {}
+}

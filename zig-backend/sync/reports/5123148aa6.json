@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-28",
+  "needs_port": false,
+  "sha": "5123148aa688689a1b31243a9ba845e00c0bd7dc",
+  "short_sha": "5123148aa6",
+  "subject": "feat(library/init/data/string/basic): trim whitespace around symbols",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-13",
+  "needs_port": false,
+  "sha": "7b440040f84593a3109f94c73b5e38b4d787ecbc",
+  "short_sha": "7b440040f8",
+  "subject": "test: add Gabriel's examples",
+  "zig_target": {}
+}

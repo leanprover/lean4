@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-30",
+  "needs_port": false,
+  "sha": "77e16407e419f21957779483d7d846ce794ba43d",
+  "short_sha": "77e16407e4",
+  "subject": "chore: add test case where grind causes a PANIC (#8538)",
+  "zig_target": {}
+}

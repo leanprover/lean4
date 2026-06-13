@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "d145b9f8ee211d5f369c49065d7abd4bc6c9def8",
+  "short_sha": "d145b9f8ee",
+  "subject": "chore: lake: mv `targets` test to `tests` (#11592)",
+  "zig_target": {}
+}

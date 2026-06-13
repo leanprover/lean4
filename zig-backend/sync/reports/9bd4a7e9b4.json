@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-01-30",
+  "needs_port": false,
+  "sha": "9bd4a7e9b4d53b016d1e2d0f54786d2860566322",
+  "short_sha": "9bd4a7e9b4",
+  "subject": "chore(frontends/lean): fix clang++ warnings at C++",
+  "zig_target": {}
+}

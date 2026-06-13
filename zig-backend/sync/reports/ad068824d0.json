@@ -1,0 +1,18 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Gcd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Gcd.lean"
+    }
+  ],
+  "date": "2024-01-11",
+  "needs_port": true,
+  "sha": "ad068824d05878da799567f0ae56b4048eef9022",
+  "short_sha": "ad068824d0",
+  "subject": "chore: use termination_by in Nat.gcd (#3164)",
+  "zig_target": {
+    "src/Init/Data/Nat/Gcd.lean": "zig-backend/src/init/Data/Nat/Gcd.lean"
+  }
+}

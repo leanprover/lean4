@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "c6308a0f1f24bdd3fde597d60ef9ef4a26169d99",
+  "short_sha": "c6308a0f1f",
+  "subject": "feat: add support for kernel projections to `DiscrTree`",
+  "zig_target": {}
+}

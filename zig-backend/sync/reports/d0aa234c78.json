@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2022-08-18",
+  "needs_port": false,
+  "sha": "d0aa234c782f830eb747d5698aae86d0087195a4",
+  "short_sha": "d0aa234c78",
+  "subject": "feat: handle out of scope join points in join point finder",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-05-01",
+  "needs_port": true,
+  "sha": "4eb2cfec466bfebfdca7633fce24e6b0f5cba68c",
+  "short_sha": "4eb2cfec46",
+  "subject": "feat: make sure `case' ... => tac` does not use `done` after `tac`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

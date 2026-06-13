@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-24",
+  "needs_port": false,
+  "sha": "28fc2f9d3750a74030c2c09933f0c6c701194025",
+  "short_sha": "28fc2f9d37",
+  "subject": "fix: improve \"`{varName}` cannot be reassigned\" error message",
+  "zig_target": {}
+}

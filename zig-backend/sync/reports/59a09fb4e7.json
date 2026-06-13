@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-06-17",
+  "needs_port": true,
+  "sha": "59a09fb4e7321c7848c6559eab448a2e501f26a2",
+  "short_sha": "59a09fb4e7",
+  "subject": "feat: use priorities to ensure simp applies eqational lemmas in order (#4434)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

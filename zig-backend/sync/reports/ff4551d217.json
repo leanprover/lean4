@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "ff4551d21778c9728875d14eeb41d31adc1b6fb6",
+  "short_sha": "ff4551d217",
+  "subject": "fix: pp.analyze bottom up with fvar app-fns",
+  "zig_target": {}
+}

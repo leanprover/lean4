@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2023-11-27",
+  "needs_port": false,
+  "sha": "0249a8c15e3686ea67d304aaee0c36d93c527bbf",
+  "short_sha": "0249a8c15e",
+  "subject": "fix: untar cloud release if no build dir (#2928)",
+  "zig_target": {}
+}

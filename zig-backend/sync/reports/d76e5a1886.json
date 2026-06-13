@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-04-12",
+  "needs_port": false,
+  "sha": "d76e5a1886956bb38dc6bd2868260550dc66c309",
+  "short_sha": "d76e5a1886",
+  "subject": "chore: `cache-get` Make target (#13341)",
+  "zig_target": {}
+}

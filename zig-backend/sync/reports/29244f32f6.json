@@ -1,0 +1,54 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    },
+    {
+      "path": "src/Init/Data/Sum.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Sum.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/System/Uri.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Uri.lean"
+    },
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-02-20",
+  "needs_port": true,
+  "sha": "29244f32f6ad30479235f9e4827b06cd0d8ab352",
+  "short_sha": "29244f32f6",
+  "subject": "chore: upstream solve_by_elim (#3408)",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean",
+    "src/Init/Data/Sum.lean": "zig-backend/src/init/Data/Sum.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/System/Uri.lean": "zig-backend/src/init/System/Uri.lean",
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

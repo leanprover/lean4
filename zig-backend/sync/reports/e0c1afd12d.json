@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-05-06",
+  "needs_port": false,
+  "sha": "e0c1afd12d4fc6b0e520774959aed06bf122aba9",
+  "short_sha": "e0c1afd12d",
+  "subject": "fix: occurence check in `mkInjectiveTheoremTypeCore?` (#3398)",
+  "zig_target": {}
+}

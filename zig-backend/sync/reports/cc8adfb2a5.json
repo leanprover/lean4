@@ -1,0 +1,30 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    }
+  ],
+  "date": "2024-02-22",
+  "needs_port": true,
+  "sha": "cc8adfb2a5d812ab31488546c9e7df6f40ab8fa2",
+  "short_sha": "cc8adfb2a5",
+  "subject": "feat: support for Fin in omega (#3427)",
+  "zig_target": {
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean",
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean",
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean"
+  }
+}

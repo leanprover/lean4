@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "0db80c6ea80e669fd0d30a20390ce36b37815726",
+  "short_sha": "0db80c6ea8",
+  "subject": "chore: Nix: link with `gold` instead of `lld`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2022-09-29",
+  "needs_port": true,
+  "sha": "9e6814b09e7ca9cdfbce219d6181ce5cf19cc63a",
+  "short_sha": "9e6814b09e",
+  "subject": "doc: fix `inline` docs",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

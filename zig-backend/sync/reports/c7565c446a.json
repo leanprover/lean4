@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2021-12-02",
+  "needs_port": true,
+  "sha": "c7565c446aa7eca7dabb1c2847456f823ae54f1f",
+  "short_sha": "c7565c446a",
+  "subject": "fix: casts on big-endian",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

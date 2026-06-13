@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-11",
+  "needs_port": false,
+  "sha": "25879c97fa750c05c1b82500a77a204bcd5ecf72",
+  "short_sha": "25879c97fa",
+  "subject": "test(tests/playground/envtest): add small environment extension test",
+  "zig_target": {}
+}

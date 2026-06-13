@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2022-09-23",
+  "needs_port": true,
+  "sha": "0c82e8bd0de1aef3065eaafd6c8e8b775477f10b",
+  "short_sha": "0c82e8bd0d",
+  "subject": "feat: make sure base phase contains an entry for each declaration being compiled at `init",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

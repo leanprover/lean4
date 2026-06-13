@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-22",
+  "needs_port": false,
+  "sha": "aa5b392e35fc73f74a19146a3b056ced7296dc1f",
+  "short_sha": "aa5b392e35",
+  "subject": "fix: canonicalization of non-standard `OfNat.ofNat` terms (#9481)",
+  "zig_target": {}
+}

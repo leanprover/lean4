@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-09",
+  "needs_port": false,
+  "sha": "09eecc5c08080067dbebb56b3a10a20943e50dae",
+  "short_sha": "09eecc5c08",
+  "subject": "fix: `simp` was not applying rewrites to the function application prefixes",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-01-02",
+  "needs_port": true,
+  "sha": "5aab1cadc0f517243a2ee59874071fd6617303fb",
+  "short_sha": "5aab1cadc0",
+  "subject": "chore: remove debug print",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

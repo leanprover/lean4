@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-09",
+  "needs_port": false,
+  "sha": "914f181641aa03f1217b9d37b28979afe6135871",
+  "short_sha": "914f181641",
+  "subject": "feat: add `ForIn` instance for `MVarIdMap`",
+  "zig_target": {}
+}

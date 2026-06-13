@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-08",
+  "needs_port": false,
+  "sha": "e4e0f775d6c484fe4b821142b674a3cafc17dcae",
+  "short_sha": "e4e0f775d6",
+  "subject": "feat: improve `outParam` as result type support",
+  "zig_target": {}
+}

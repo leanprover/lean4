@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-03",
+  "needs_port": false,
+  "sha": "d116e2e923d251f991cdd7f666f4a77f4343848a",
+  "short_sha": "d116e2e923",
+  "subject": "feat: batch RPC release",
+  "zig_target": {}
+}

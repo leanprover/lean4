@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-20",
+  "needs_port": false,
+  "sha": "6e09dfae1ecfe6eb4ca9289788a04bba839af161",
+  "short_sha": "6e09dfae1e",
+  "subject": "test: simplify sum of monomials",
+  "zig_target": {}
+}

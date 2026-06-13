@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "c6ab0b4d2cb604c91d0faab613b999acbfa8317d",
+  "short_sha": "c6ab0b4d2c",
+  "subject": "feat: allow `local` modifier at `infix`, `notation`, and `syntax` commands",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-18",
+  "needs_port": false,
+  "sha": "74eab92c7ca4c7048c25b6315bdb3469adc1b1f7",
+  "short_sha": "74eab92c7c",
+  "subject": "doc(doc/make/index): add some bootstrapping docs",
+  "zig_target": {}
+}

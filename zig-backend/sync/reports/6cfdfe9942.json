@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2021-08-21",
+  "needs_port": true,
+  "sha": "6cfdfe99422b420281ddbfd8acc830e948aa0ac0",
+  "short_sha": "6cfdfe9942",
+  "subject": "feat: apply `csimp` attribute constant replacements",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

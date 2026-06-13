@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-17",
+  "needs_port": false,
+  "sha": "1dedafa1732a0d01043c6d08dcdc17b17fea79a3",
+  "short_sha": "1dedafa173",
+  "subject": "fix: Nix: use current stage for files outside of source root",
+  "zig_target": {}
+}

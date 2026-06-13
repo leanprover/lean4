@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Bootstrap.lean"
+    }
+  ],
+  "date": "2025-10-01",
+  "needs_port": true,
+  "sha": "9dc1faf3270b6646b1df36f1a590ac3b848a2c05",
+  "short_sha": "9dc1faf327",
+  "subject": "chore: add an internal String function (#10635)",
+  "zig_target": {
+    "src/Init/Data/String/Bootstrap.lean": "zig-backend/src/init/Data/String/Bootstrap.lean"
+  }
+}

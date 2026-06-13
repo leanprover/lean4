@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/PropLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/PropLemmas.lean"
+    }
+  ],
+  "date": "2024-07-09",
+  "needs_port": true,
+  "sha": "3b3901b824ce64f023930bd46c73ce7b2f1cd37d",
+  "short_sha": "3b3901b824",
+  "subject": "chore: forward and backward directions of not_exists (#4688)",
+  "zig_target": {
+    "src/Init/PropLemmas.lean": "zig-backend/src/init/PropLemmas.lean"
+  }
+}

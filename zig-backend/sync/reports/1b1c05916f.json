@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-27",
+  "needs_port": false,
+  "sha": "1b1c05916f24f635d7b0797553615bf82eb510af",
+  "short_sha": "1b1c05916f",
+  "subject": "chore: refine `module` imports (#8120)",
+  "zig_target": {}
+}

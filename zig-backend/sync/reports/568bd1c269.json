@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "568bd1c269cd61bd2099c9ffcdcf780de53dfab3",
+  "short_sha": "568bd1c269",
+  "subject": "fix(library/init/lean/compiler/ir/borrow): do not perform borrow inference for `@[export]` declarations",
+  "zig_target": {}
+}

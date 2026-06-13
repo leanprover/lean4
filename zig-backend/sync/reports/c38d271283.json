@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-21",
+  "needs_port": true,
+  "sha": "c38d2712835e952057f1cd9b7d8ed4e9890389fa",
+  "short_sha": "c38d271283",
+  "subject": "feat: lemmas about Option/if-then-else (#5101)",
+  "zig_target": {
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

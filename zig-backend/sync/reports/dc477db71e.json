@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-21",
+  "needs_port": false,
+  "sha": "dc477db71edae404b4cdb4cee9cae0ae64a0e6ae",
+  "short_sha": "dc477db71e",
+  "subject": "chore(kernel/environment): remove `environment::is_descendant`",
+  "zig_target": {}
+}

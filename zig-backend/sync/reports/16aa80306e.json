@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-30",
+  "needs_port": true,
+  "sha": "16aa80306ece730b0526cd27a0a72acd1da68246",
+  "short_sha": "16aa80306e",
+  "subject": "feat: Nat.bitwise lemmas (#5209)",
+  "zig_target": {
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+  }
+}

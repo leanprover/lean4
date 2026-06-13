@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-16",
+  "needs_port": false,
+  "sha": "c421151e610b88fede3eb5bafd483f4b6bb8d38b",
+  "short_sha": "c421151e61",
+  "subject": "feat: allow users to annotate structure constructor and projections with declaration modifiers (e.g., private, protected, doc string, ...)",
+  "zig_target": {}
+}

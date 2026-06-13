@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2020-01-01",
+  "needs_port": true,
+  "sha": "2791cdf326bb57590b5a47eb6a4cbbd231f25817",
+  "short_sha": "2791cdf326",
+  "subject": "fix: interpreter::call_boxed: support under-application",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

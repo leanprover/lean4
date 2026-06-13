@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-14",
+  "needs_port": false,
+  "sha": "22dc542445d0323b76f685d7833e690066fdf481",
+  "short_sha": "22dc542445",
+  "subject": "Release 1.0",
+  "zig_target": {}
+}

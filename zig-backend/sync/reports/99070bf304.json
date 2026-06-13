@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-11-04",
+  "needs_port": false,
+  "sha": "99070bf304931c4ff22e31d6943e72858af65800",
+  "short_sha": "99070bf304",
+  "subject": "feat: update toolchain on `lake update` (#5684)",
+  "zig_target": {}
+}

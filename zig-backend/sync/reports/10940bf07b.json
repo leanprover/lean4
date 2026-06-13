@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-24",
+  "needs_port": false,
+  "sha": "10940bf07b4b089f05ddfd2b0e544bd29f3236d0",
+  "short_sha": "10940bf07b",
+  "subject": "refactor: merge `IndexTargets` into `Index`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Paul Brinkmeier",
+  "backend_changes": [],
+  "date": "2021-04-15",
+  "needs_port": false,
+  "sha": "c1623add688b215cdfd5ddb574cf668bc5bc27e5",
+  "short_sha": "c1623add68",
+  "subject": "doc: add note about staging flake.nix (#411)",
+  "zig_target": {}
+}

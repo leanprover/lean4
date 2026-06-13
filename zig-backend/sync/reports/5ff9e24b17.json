@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-19",
+  "needs_port": false,
+  "sha": "5ff9e24b1781cbf37eb1ed3da660c579e9cccfe3",
+  "short_sha": "5ff9e24b17",
+  "subject": "feat(library/init/control): do not use unnecessary structures",
+  "zig_target": {}
+}

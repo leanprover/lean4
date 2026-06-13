@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/server.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/server.cpp"
+    },
+    {
+      "path": "src/shell/server.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/server.h"
+    }
+  ],
+  "date": "2018-09-04",
+  "needs_port": true,
+  "sha": "78f4edaf5778d2af5d86c5cde1a406146ef0254b",
+  "short_sha": "78f4edaf57",
+  "subject": "chore(frontends/lean): remove `info_manager` and `interactive` modules",
+  "zig_target": {
+    "src/shell/server.cpp": "zig-backend/src/shell/server.cpp",
+    "src/shell/server.h": "zig-backend/src/shell/server.h"
+  }
+}

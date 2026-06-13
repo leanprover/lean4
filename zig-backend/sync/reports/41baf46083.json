@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    }
+  ],
+  "date": "2020-02-11",
+  "needs_port": true,
+  "sha": "41baf46083e4e6b0307387924431aee092b604e8",
+  "short_sha": "41baf46083",
+  "subject": "feat: propagate expected type at `elabFunCore`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-17",
+  "needs_port": false,
+  "sha": "2a8650f9751f9196acdb584cc73da6f2a55648f7",
+  "short_sha": "2a8650f975",
+  "subject": "fix: gate reference-manual tagging on release notes title correctness (#12512)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    }
+  ],
+  "date": "2019-12-30",
+  "needs_port": true,
+  "sha": "30e795a84dfad84103c4d2f0b9a8fcc996e95dfa",
+  "short_sha": "30e795a84d",
+  "subject": "feat: allow `$(x)` in match_syntax patterns",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+  }
+}

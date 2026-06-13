@@ -1,0 +1,24 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Internal/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order.lean"
+    },
+    {
+      "path": "src/Init/Internal/Order/Tactic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Internal/Order/Tactic.lean"
+    }
+  ],
+  "date": "2025-01-02",
+  "needs_port": true,
+  "sha": "e9f069146c93bd3ba4b94863ff47e42b6d22b8b8",
+  "short_sha": "e9f069146c",
+  "subject": "feat: partial_fixpoint: monotonicity tactic (#6506)",
+  "zig_target": {
+    "src/Init/Internal/Order.lean": "zig-backend/src/init/Internal/Order.lean",
+    "src/Init/Internal/Order/Tactic.lean": "zig-backend/src/init/Internal/Order/Tactic.lean"
+  }
+}

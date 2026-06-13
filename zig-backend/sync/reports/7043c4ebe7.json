@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-24",
+  "needs_port": false,
+  "sha": "7043c4ebe7b4dded046b04a5d4d919deba534c3f",
+  "short_sha": "7043c4ebe7",
+  "subject": "refactor: mkSimpleDelab",
+  "zig_target": {}
+}

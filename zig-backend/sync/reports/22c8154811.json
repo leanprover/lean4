@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2023-12-26",
+  "needs_port": true,
+  "sha": "22c81548116e0829b6c335e91c247bed2bb06ac2",
+  "short_sha": "22c8154811",
+  "subject": "feat: add pre simp lemmas for if-then-else terms",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

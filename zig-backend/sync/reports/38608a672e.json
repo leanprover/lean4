@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-08-27",
+  "needs_port": true,
+  "sha": "38608a672e5460fe2038d777fb5d9190e5e5bc3e",
+  "short_sha": "38608a672e",
+  "subject": "feat: simplify equations in `grind` AC module (#10165)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

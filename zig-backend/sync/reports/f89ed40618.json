@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-03-14",
+  "needs_port": false,
+  "sha": "f89ed406189a79cd7a3a8fb746919db7bb5aae83",
+  "short_sha": "f89ed40618",
+  "subject": "refactor: ArgsPacker (#3621)",
+  "zig_target": {}
+}

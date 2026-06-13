@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-25",
+  "needs_port": false,
+  "sha": "333646bc41ef7bacb4984647e1d42df8e8550f47",
+  "short_sha": "333646bc41",
+  "subject": "fix: add `elabTermForApply`",
+  "zig_target": {}
+}

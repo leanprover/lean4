@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-21",
+  "needs_port": false,
+  "sha": "d6eb5a9ff2aad36453248966acc9672691ece9b7",
+  "short_sha": "d6eb5a9ff2",
+  "subject": "feat: generate `sizeOf` equality lemmas for constructors",
+  "zig_target": {}
+}

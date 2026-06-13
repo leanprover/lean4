@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "5a71a5b18a383ef18e05ff084a004ff48e130ed4",
+  "short_sha": "5a71a5b18a",
+  "subject": "chore: lean.mk: create .olean atomically",
+  "zig_target": {}
+}

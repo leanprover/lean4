@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-26",
+  "needs_port": false,
+  "sha": "040ec9767d66515f69fed7f2412772a54d42cc33",
+  "short_sha": "040ec9767d",
+  "subject": "fix(library/init/lean/parser/combinators): `(x) -> e` should not be a dependent function",
+  "zig_target": {}
+}

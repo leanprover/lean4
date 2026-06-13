@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-15",
+  "needs_port": false,
+  "sha": "367f28e90b4aa0c3b8e934754db3f5c13f64c3c8",
+  "short_sha": "367f28e90b",
+  "subject": "chore(library/init/lean/parser/module): export test function",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-02",
+  "needs_port": false,
+  "sha": "c873ad6ef3f32ae8ab51cbb41634f164cbe0d631",
+  "short_sha": "c873ad6ef3",
+  "subject": "test: recursive function on `Syntax` without `partial`",
+  "zig_target": {}
+}

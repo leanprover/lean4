@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "22ecda20c7e179b0d4ecbbc463867911194bf42e",
+  "short_sha": "22ecda20c7",
+  "subject": "feat:  `rev` opt in git dep + fix  `path` opt in `require`",
+  "zig_target": {}
+}

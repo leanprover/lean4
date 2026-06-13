@@ -1,0 +1,36 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Find/String.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean"
+    }
+  ],
+  "date": "2026-03-04",
+  "needs_port": true,
+  "sha": "59711e5cff9327526391097f7536587676e25b01",
+  "short_sha": "59711e5cff",
+  "subject": "feat: lemmas about `String.contains` (#12783)",
+  "zig_target": {
+    "src/Init/Data/String/Lemmas/Pattern/Find.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Find/String.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/String.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean"
+  }
+}

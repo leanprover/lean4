@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    }
+  ],
+  "date": "2025-06-09",
+  "needs_port": true,
+  "sha": "dd1d3e6a3ae071070bb2bff44c6a4654e3e38e52",
+  "short_sha": "dd1d3e6a3a",
+  "subject": "feat: model search procedure for grind linarith (#8690)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+  }
+}

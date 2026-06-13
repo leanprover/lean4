@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "ad1a2b3251f763732eb4e6c795129a012e1ff5b5",
+  "short_sha": "ad1a2b3251",
+  "subject": "feat(library/init/lean/elaborator/preterm): add `toLevel`",
+  "zig_target": {}
+}

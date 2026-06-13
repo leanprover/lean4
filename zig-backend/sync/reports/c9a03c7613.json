@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Util.lean"
+    }
+  ],
+  "date": "2025-01-21",
+  "needs_port": true,
+  "sha": "c9a03c7613eb77b5614ef65bd76021c61ec372ec",
+  "short_sha": "c9a03c7613",
+  "subject": "feat: overlapping match patterns in `grind` (#6733)",
+  "zig_target": {
+    "src/Init/Grind/Util.lean": "zig-backend/src/init/Grind/Util.lean"
+  }
+}

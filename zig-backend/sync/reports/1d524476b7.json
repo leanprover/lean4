@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-12",
+  "needs_port": false,
+  "sha": "1d524476b7ddfa391770e5b0caefe520f52bb980",
+  "short_sha": "1d524476b7",
+  "subject": "chore(tests/lean/parser1): restore `#exit`...",
+  "zig_target": {}
+}

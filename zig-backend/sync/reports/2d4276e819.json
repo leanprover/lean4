@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-09-05",
+  "needs_port": true,
+  "sha": "2d4276e81973ae7c6b51dff3929a1c6d1099999e",
+  "short_sha": "2d4276e819",
+  "subject": "feat(library/compiler/ir_interpreter): tail recursion",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

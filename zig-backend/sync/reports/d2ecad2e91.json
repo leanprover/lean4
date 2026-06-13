@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/InferBorrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PropagateBorrow.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PropagateBorrow.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean"
+    }
+  ],
+  "date": "2026-03-20",
+  "needs_port": true,
+  "sha": "d2ecad2e91b5a5202a5c92441384f2bbb857ed19",
+  "short_sha": "d2ecad2e91",
+  "subject": "perf: forward propagation of user defined borrrow annotations (#13001)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/InferBorrow.lean": "zig-backend/src/lean/compiler/lcnf/InferBorrow.lean",
+    "src/Lean/Compiler/LCNF/PropagateBorrow.lean": "zig-backend/src/lean/compiler/lcnf/PropagateBorrow.lean",
+    "src/Lean/Compiler/LCNF/ResetReuse.lean": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean"
+  }
+}

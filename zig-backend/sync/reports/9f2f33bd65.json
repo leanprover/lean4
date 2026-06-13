@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDead.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDead.lean"
+    }
+  ],
+  "date": "2026-02-06",
+  "needs_port": true,
+  "sha": "9f2f33bd659770a25df18a988e3df29f70fc7845",
+  "short_sha": "9f2f33bd65",
+  "subject": "perf: more brave dead variable elimination (#12365)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ElimDead.lean": "zig-backend/src/lean/compiler/lcnf/ElimDead.lean"
+  }
+}

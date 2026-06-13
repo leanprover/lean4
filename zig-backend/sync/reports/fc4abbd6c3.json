@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-06-06",
+  "needs_port": true,
+  "sha": "fc4abbd6c3ecf5e84707c1e48224d22bb7f17be7",
+  "short_sha": "fc4abbd6c3",
+  "subject": "chore(shell/lean): compilation warning",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

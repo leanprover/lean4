@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2024-08-23",
+  "needs_port": false,
+  "sha": "2bc87298d9fc5b1a63dd8c10c15e970d5df93fdf",
+  "short_sha": "2bc87298d9",
+  "subject": "doc: update user widget manual (#5006)",
+  "zig_target": {}
+}

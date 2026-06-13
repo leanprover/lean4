@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-27",
+  "needs_port": false,
+  "sha": "4bacd70b3f0af7e473902cf811377b8c0c55b6c0",
+  "short_sha": "4bacd70b3f",
+  "subject": "feat: add option `tactic.customEliminators` to be able to turn off custom eliminators for `induction` and `cases` (#3655)",
+  "zig_target": {}
+}

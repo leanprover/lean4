@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-20",
+  "needs_port": false,
+  "sha": "8decfcae74854b8df5863ab998590693688dbc1d",
+  "short_sha": "8decfcae74",
+  "subject": "test(tests/playground): manually optimized rbmap3",
+  "zig_target": {}
+}

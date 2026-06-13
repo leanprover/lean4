@@ -1,0 +1,42 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/hash.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/hash.cpp"
+    },
+    {
+      "path": "src/runtime/hash.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/hash.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    }
+  ],
+  "date": "2021-10-20",
+  "needs_port": true,
+  "sha": "ee2804d27899e5029c5158dcb5aa7b1f14e4bdc9",
+  "short_sha": "ee2804d278",
+  "subject": "fix: use unsigned char in hash_str",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/hash.cpp": "zig-backend/src/runtime/hash.cpp",
+    "src/runtime/hash.h": "zig-backend/src/runtime/hash.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp"
+  }
+}

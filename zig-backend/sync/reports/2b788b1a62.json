@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-02",
+  "needs_port": false,
+  "sha": "2b788b1a625c8849a904b779df0b5a2b3dd89927",
+  "short_sha": "2b788b1a62",
+  "subject": "chore: make tests/lean/run/2291.lean less sensitive (#9164)",
+  "zig_target": {}
+}

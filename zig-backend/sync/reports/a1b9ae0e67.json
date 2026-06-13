@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-23",
+  "needs_port": false,
+  "sha": "a1b9ae0e673a2c457e1886dcd7bf7a536d0a3188",
+  "short_sha": "a1b9ae0e67",
+  "subject": "feat(util/obj_list): add `map_reuse` and cleanup code",
+  "zig_target": {}
+}

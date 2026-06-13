@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-01-02",
+  "needs_port": false,
+  "sha": "9eb173e4440833e8e1f0a71d73a52986d61fd408",
+  "short_sha": "9eb173e444",
+  "subject": "fix: ignore `no_index` around `OfNat.ofNat` in `norm_cast` (#6438)",
+  "zig_target": {}
+}

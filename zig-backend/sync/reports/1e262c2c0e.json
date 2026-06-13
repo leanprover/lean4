@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-02-12",
+  "needs_port": true,
+  "sha": "1e262c2c0e340a907d4269a00ad0dfe2bf80c913",
+  "short_sha": "1e262c2c0e",
+  "subject": "chore: add `UIntX.ofNatLT` (#7057)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

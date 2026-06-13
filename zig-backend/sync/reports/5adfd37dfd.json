@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "5adfd37dfdbc12fbdd29bf12a0425af122ed4e38",
+  "short_sha": "5adfd37dfd",
+  "subject": "feat: add auxiliary `KVMap` for storing extra information at `Exception.internal`",
+  "zig_target": {}
+}

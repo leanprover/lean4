@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    }
+  ],
+  "date": "2019-11-24",
+  "needs_port": true,
+  "sha": "2afb60cc077be3215ba3f6f17977ffb48c2d97c8",
+  "short_sha": "2afb60cc07",
+  "subject": "fix: typo",
+  "zig_target": {
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+  }
+}

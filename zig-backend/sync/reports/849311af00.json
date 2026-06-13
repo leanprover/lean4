@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "849311af001dc42b2bc999e4d5c6698f5ab03f11",
+  "short_sha": "849311af00",
+  "subject": "test(tests/playground/patch): do-nothing transformer",
+  "zig_target": {}
+}

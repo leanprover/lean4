@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "ff2a2cd7a11c0c619bb4c120be83609e1f541c44",
+  "short_sha": "ff2a2cd7a1",
+  "subject": "chore: add Claude skill for extracting message content from Zulip threads (#12587)",
+  "zig_target": {}
+}

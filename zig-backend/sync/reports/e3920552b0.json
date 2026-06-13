@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-03-11",
+  "needs_port": false,
+  "sha": "e3920552b03f95128fde29f97c3f083d17f13090",
+  "short_sha": "e3920552b0",
+  "subject": "fix: updating binding info of `variable`s",
+  "zig_target": {}
+}

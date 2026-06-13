@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2020-09-08",
+  "needs_port": true,
+  "sha": "fc1e4cb533193d3f8de9f8af2ac1f28ec9526abe",
+  "short_sha": "fc1e4cb533",
+  "subject": "feat: add `Array.isPrefixOf`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

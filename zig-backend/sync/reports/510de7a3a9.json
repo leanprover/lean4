@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "510de7a3a9c5cd503bdfcd9b03258ff0bdb69667",
+  "short_sha": "510de7a3a9",
+  "subject": "feat(library/init/lean/compiler/ir/emitcpp): `emitBlock`",
+  "zig_target": {}
+}

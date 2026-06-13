@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range.lean"
+    }
+  ],
+  "date": "2021-12-25",
+  "needs_port": true,
+  "sha": "bbfcb1cfb2bb00bd8a24649fd8ea1474728b6019",
+  "short_sha": "bbfcb1cfb2",
+  "subject": "perf: allocation-free `for i in [n:m] do`",
+  "zig_target": {
+    "src/Init/Data/Range.lean": "zig-backend/src/init/Data/Range.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-03",
+  "needs_port": false,
+  "sha": "1aef9ac57652466fa3b27a3817ac648a71e62792",
+  "short_sha": "1aef9ac576",
+  "subject": "feat(frontends/lean/match_expr): terminate `match` on dedent between equations",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2021-12-15",
+  "needs_port": false,
+  "sha": "7e483d3a0a856423112e036935d70eff3d3d1cc8",
+  "short_sha": "7e483d3a0a",
+  "subject": "feat: support syntax abbreviations in dynamic quotations",
+  "zig_target": {}
+}

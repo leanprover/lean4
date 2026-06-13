@@ -1,0 +1,30 @@
+{
+  "author": "Harun Khan",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Folds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Folds.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-05-05",
+  "needs_port": true,
+  "sha": "b1bedbe0d2ba1dd3c654154897013e0399f5a53c",
+  "short_sha": "b1bedbe0d2",
+  "subject": "feat: equivalence of bit-vector negation and bitblasted negation (#3920)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Folds.lean": "zig-backend/src/init/Data/BitVec/Folds.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

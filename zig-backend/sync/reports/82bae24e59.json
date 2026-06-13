@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-02",
+  "needs_port": false,
+  "sha": "82bae24e59e2e4aafd12288c3f60d52a8eb1b0f5",
+  "short_sha": "82bae24e59",
+  "subject": "fix: another bug in theorem instantiation in `grind` (#6497)",
+  "zig_target": {}
+}

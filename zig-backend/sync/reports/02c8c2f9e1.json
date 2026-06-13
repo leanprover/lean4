@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-06-22",
+  "needs_port": false,
+  "sha": "02c8c2f9e11947d7980bdbb703a50d9b699686f2",
+  "short_sha": "02c8c2f9e1",
+  "subject": "feat: use `nondep` flag in `Expr.letE` and `LocalContext.ldecl` (#8804)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-02",
+  "needs_port": false,
+  "sha": "0a431679a405cbfb1a0b5a53e3dbeeee9647b0fd",
+  "short_sha": "0a431679a4",
+  "subject": "feat: implements `maxSuggestions` for `grind` and `simp`",
+  "zig_target": {}
+}

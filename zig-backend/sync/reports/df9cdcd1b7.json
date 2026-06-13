@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-09-02",
+  "needs_port": false,
+  "sha": "df9cdcd1b7cf7863680672d147ab09394104f827",
+  "short_sha": "df9cdcd1b7",
+  "subject": "feat: lake: Reservoir-related configuration for packages (#4770)",
+  "zig_target": {}
+}

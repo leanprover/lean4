@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-07",
+  "needs_port": false,
+  "sha": "f1847ef75fb9194ec650ab7d46d687b2a13b6400",
+  "short_sha": "f1847ef75f",
+  "subject": "feat: add `inferType` helper functions",
+  "zig_target": {}
+}

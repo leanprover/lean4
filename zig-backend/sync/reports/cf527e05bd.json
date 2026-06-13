@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-06-20",
+  "needs_port": false,
+  "sha": "cf527e05bdcbb1c0f98459cd7e18fb99cb3e4d86",
+  "short_sha": "cf527e05bd",
+  "subject": "feat: `where ... finally` section to assign leftover goals (#8723)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "9ac4cf927d7daecc0357e69ba3955f4f5b2f2525",
+  "short_sha": "9ac4cf927d",
+  "subject": "test: add negative number case",
+  "zig_target": {}
+}

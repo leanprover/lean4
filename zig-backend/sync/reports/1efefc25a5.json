@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    }
+  ],
+  "date": "2025-10-01",
+  "needs_port": true,
+  "sha": "1efefc25a588f120dd3fea4141e1d7963719f8df",
+  "short_sha": "1efefc25a5",
+  "subject": "fix: expose `Int*` definitions for simprocs and `decide` (fixes #10546) (#10631)",
+  "zig_target": {
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean"
+  }
+}

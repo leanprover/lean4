@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2026-03-19",
+  "needs_port": false,
+  "sha": "90125ed205680e611a2e4d2040d6dc8f1f98362d",
+  "short_sha": "90125ed205",
+  "subject": "feat: introduce `URI` data type for HTTP (#12128)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-29",
+  "needs_port": false,
+  "sha": "59de5342701c4b25e0536d1534c7d1182bd4d84b",
+  "short_sha": "59de534270",
+  "subject": "fix: actually link Formatter.lean...",
+  "zig_target": {}
+}

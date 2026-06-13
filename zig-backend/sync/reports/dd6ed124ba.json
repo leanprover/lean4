@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Ext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Ext.lean"
+    }
+  ],
+  "date": "2024-08-09",
+  "needs_port": true,
+  "sha": "dd6ed124baef64a26ef5860f49597fdcef371239",
+  "short_sha": "dd6ed124ba",
+  "subject": "chore: upstream Thunk.ext (#4969)",
+  "zig_target": {
+    "src/Init/Ext.lean": "zig-backend/src/init/Ext.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2022-03-07",
+  "needs_port": true,
+  "sha": "f2d5470f191daafe383c43e7310084c9f4b1e8fe",
+  "short_sha": "f2d5470f19",
+  "subject": "feat: allow interpretation of constants initialized by native code",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

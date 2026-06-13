@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PullFunDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean"
+    }
+  ],
+  "date": "2022-09-06",
+  "needs_port": true,
+  "sha": "85851d0c4353a5b7a5fe278e6f5140e14e9dd049",
+  "short_sha": "85851d0c43",
+  "subject": "fix: bug at `PullFunDecls`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean",
+    "src/Lean/Compiler/LCNF/PullFunDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean"
+  }
+}

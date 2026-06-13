@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Clear.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "fcca8a2a673168032cd36549a9f5234f98f8fd4a",
+  "short_sha": "fcca8a2a67",
+  "subject": "feat: add `clear` tactic",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic.lean": "zig-backend/src/init/Lean/Meta/Tactic.lean",
+    "src/Init/Lean/Meta/Tactic/Clear.lean": "zig-backend/src/init/Lean/Meta/Tactic/Clear.lean"
+  }
+}

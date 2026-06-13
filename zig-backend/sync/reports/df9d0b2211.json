@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "df9d0b221113bbe71aa6fb26c525169e55c98c45",
+  "short_sha": "df9d0b2211",
+  "subject": "fix(frontends/lean/elaborator): avoid internal identifiers leaking as \"user names\" in equations",
+  "zig_target": {}
+}

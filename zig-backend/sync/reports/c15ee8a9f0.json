@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-03",
+  "needs_port": false,
+  "sha": "c15ee8a9f098c5f60fe9f75f0c29eb428063316a",
+  "short_sha": "c15ee8a9f0",
+  "subject": "fix: universe polymorphic E-matching (#10239)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-09-09",
+  "needs_port": true,
+  "sha": "4087525cba7c3c4a7dd399c15f81a1744637f8b1",
+  "short_sha": "4087525cba",
+  "subject": "feat: add `delta` tactic",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

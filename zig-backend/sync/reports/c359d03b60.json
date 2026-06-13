@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-31",
+  "needs_port": false,
+  "sha": "c359d03b606e50cc4902ec54d1583e6cd70c8e38",
+  "short_sha": "c359d03b60",
+  "subject": "chore: begin development cycle for v4.4.0 (#2792)",
+  "zig_target": {}
+}

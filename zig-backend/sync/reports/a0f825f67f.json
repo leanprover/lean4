@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "a0f825f67fbd2ec0e8691c1efb0e35224c05dfb9",
+  "short_sha": "a0f825f67f",
+  "subject": "refactor: move Lean.PrettyPrinter.Parenthesizer in between Lean.Parser.Parser and Lean.Parser.Extension",
+  "zig_target": {}
+}

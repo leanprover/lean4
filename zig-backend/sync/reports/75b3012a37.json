@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-23",
+  "needs_port": false,
+  "sha": "75b3012a37a48ab88979cc98c6d4c99019b929f2",
+  "short_sha": "75b3012a37",
+  "subject": "chore: prepare-llvm-linux: stop relying on /usr",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-09-26",
+  "needs_port": false,
+  "sha": "e6fe3bee71f359c866a29766f774864577099778",
+  "short_sha": "e6fe3bee71",
+  "subject": "fix: hover term/tactic confusion",
+  "zig_target": {}
+}

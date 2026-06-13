@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "d8ac18a807a70c61e702bd2cef7e720a696076e7",
+  "short_sha": "d8ac18a807",
+  "subject": "refactor: add `buildDir` setting and make bin/lib/ir subdirs of it",
+  "zig_target": {}
+}

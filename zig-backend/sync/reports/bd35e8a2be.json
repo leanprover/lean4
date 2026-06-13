@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-13",
+  "needs_port": false,
+  "sha": "bd35e8a2be8f1e3009d1886c6812b3530f059995",
+  "short_sha": "bd35e8a2be",
+  "subject": "chore: remove `{}` from ctor parser",
+  "zig_target": {}
+}

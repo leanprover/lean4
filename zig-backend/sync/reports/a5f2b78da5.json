@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "a5f2b78da5844179e786b1129251fa384046c486",
+  "short_sha": "a5f2b78da5",
+  "subject": "perf: avoid synthesising `Decidable` instances in `ite`/ `dite` simprocs in `cbv` (#12585)",
+  "zig_target": {}
+}

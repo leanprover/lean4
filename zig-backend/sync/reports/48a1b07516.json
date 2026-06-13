@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-13",
+  "needs_port": false,
+  "sha": "48a1b07516a25147e7c9e3d870ca7ab133ffe263",
+  "short_sha": "48a1b07516",
+  "subject": "perf: improve `FromJson` construction for big inductives (#11981)",
+  "zig_target": {}
+}

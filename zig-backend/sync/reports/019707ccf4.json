@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-17",
+  "needs_port": false,
+  "sha": "019707ccf44601357fb9f9b22ba7f5075a327ccb",
+  "short_sha": "019707ccf4",
+  "subject": "fix: do method lifting across choice nodes",
+  "zig_target": {}
+}

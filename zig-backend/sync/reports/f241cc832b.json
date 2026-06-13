@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-23",
+  "needs_port": false,
+  "sha": "f241cc832b3750c464cac60a762463d88e25777a",
+  "short_sha": "f241cc832b",
+  "subject": "perf: bv_decide don't drop the expression level cache (#7636)",
+  "zig_target": {}
+}

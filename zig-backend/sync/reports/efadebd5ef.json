@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-25",
+  "needs_port": false,
+  "sha": "efadebd5ef94ca863cca5cb39feb3b1c4527140e",
+  "short_sha": "efadebd5ef",
+  "subject": "refactor: move `main` into `Lake.Main` which is not imported by `Lake`",
+  "zig_target": {}
+}

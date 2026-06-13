@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/AddExtern.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+    }
+  ],
+  "date": "2025-11-26",
+  "needs_port": true,
+  "sha": "17e8765bdc1e66430fd36cab6fb23c0189a5245d",
+  "short_sha": "17e8765bdc",
+  "subject": "fix: miscompilation resulting in minor memory leak on extern projections with unboxed arguments (#11383)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/AddExtern.lean": "zig-backend/src/lean/compiler/ir/AddExtern.lean"
+  }
+}

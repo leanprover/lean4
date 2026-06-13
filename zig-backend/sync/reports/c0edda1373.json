@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-06-07",
+  "needs_port": false,
+  "sha": "c0edda137315db281e37a4c872d67339331f3d1a",
+  "short_sha": "c0edda1373",
+  "subject": "doc: fix some README wording",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2023-10-29",
+  "needs_port": true,
+  "sha": "1abd5cc6651cc49548a57b6c8a6228bf83385265",
+  "short_sha": "1abd5cc665",
+  "subject": "chore: add `simp` option `unfoldPartialApp`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

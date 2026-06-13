@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-20",
+  "needs_port": false,
+  "sha": "12acbaf392a8926895e3eafd4c0df2fa87504b33",
+  "short_sha": "12acbaf392",
+  "subject": "doc: `resolveGlobalName`",
+  "zig_target": {}
+}

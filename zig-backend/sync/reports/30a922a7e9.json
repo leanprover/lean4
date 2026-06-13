@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-27",
+  "needs_port": false,
+  "sha": "30a922a7e914a37c98e2c4ab88440e347084172f",
+  "short_sha": "30a922a7e9",
+  "subject": "feat: add option `debug.byAsSorry true` (#4576)",
+  "zig_target": {}
+}

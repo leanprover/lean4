@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-06",
+  "needs_port": false,
+  "sha": "3d04899e42457278ab335d034923074dffd8adc3",
+  "short_sha": "3d04899e42",
+  "subject": "refactor: add `unifyEq?`",
+  "zig_target": {}
+}

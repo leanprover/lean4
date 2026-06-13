@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "f5126bc82a20010988e0be38bd09006fcf88c832",
+  "short_sha": "f5126bc82a",
+  "subject": "chore: remove `lean-toolchain` from version agnostic tests",
+  "zig_target": {}
+}

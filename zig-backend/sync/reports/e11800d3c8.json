@@ -1,0 +1,42 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/FloatArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/FloatArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-12-08",
+  "needs_port": true,
+  "sha": "e11800d3c8a29c7bfddd54e852c30eb1cef841eb",
+  "short_sha": "e11800d3c8",
+  "subject": "perf: annotate built-in functions with tagged_return (#11549)",
+  "zig_target": {
+    "src/Init/Data/FloatArray/Basic.lean": "zig-backend/src/init/Data/FloatArray/Basic.lean",
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/UInt/BasicAux.lean": "zig-backend/src/init/Data/UInt/BasicAux.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

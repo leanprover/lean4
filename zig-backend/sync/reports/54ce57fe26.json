@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-07",
+  "needs_port": false,
+  "sha": "54ce57fe265149275d6b763d6032c0c2cd4c0f79",
+  "short_sha": "54ce57fe26",
+  "subject": "feat: add `instantiateRevRange`",
+  "zig_target": {}
+}

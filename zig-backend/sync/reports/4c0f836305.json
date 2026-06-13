@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-01-25",
+  "needs_port": true,
+  "sha": "4c0f836305e5d5142e8e9cbfd65a3feb04dee253",
+  "short_sha": "4c0f836305",
+  "subject": "chore(shell/lean): reduce `lean` interface to taking a single file, assuming all dependencies have already been built",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-02-11",
+  "needs_port": false,
+  "sha": "17dfe3fb66804fe8c016d7da9a7c1599e6cd89dd",
+  "short_sha": "17dfe3fb66",
+  "subject": "test: implicit lambda tests",
+  "zig_target": {}
+}

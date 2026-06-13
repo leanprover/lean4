@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-21",
+  "needs_port": false,
+  "sha": "46a5f06121af3588f586dec725a8140af70f060b",
+  "short_sha": "46a5f06121",
+  "subject": "feat: do not consider dot notation when `isAuxDecl` is true",
+  "zig_target": {}
+}

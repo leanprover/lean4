@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-08",
+  "needs_port": false,
+  "sha": "78401f0eff8821a70ae50fe8cd33b6153cbad179",
+  "short_sha": "78401f0eff",
+  "subject": "chore(library/init/lean/compiler/ir/resetreuse): add comment",
+  "zig_target": {}
+}

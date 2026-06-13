@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-11",
+  "needs_port": false,
+  "sha": "5db5cf773430c0943a0b71473a1c53126104151b",
+  "short_sha": "5db5cf7734",
+  "subject": "fix: do not lift `(<- action)` nested in quotations",
+  "zig_target": {}
+}

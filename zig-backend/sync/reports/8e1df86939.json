@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-09-15",
+  "needs_port": false,
+  "sha": "8e1df869397c1ca8e3301e42f35fb34f8ab7ebe5",
+  "short_sha": "8e1df86939",
+  "subject": "feat: improvements to Verso docstrings (#10382)",
+  "zig_target": {}
+}

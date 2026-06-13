@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-15",
+  "needs_port": false,
+  "sha": "6e3a6ff40fd8064c60163f7367d6cbcfd0044dc6",
+  "short_sha": "6e3a6ff40f",
+  "subject": "feat(library/noncomputable): mark all VM builtins as computable",
+  "zig_target": {}
+}

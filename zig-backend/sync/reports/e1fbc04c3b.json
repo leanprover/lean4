@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-04-15",
+  "needs_port": true,
+  "sha": "e1fbc04c3b42852f3ed234a3f8728fd73bb9ce24",
+  "short_sha": "e1fbc04c3b",
+  "subject": "chore: accept unregistered syntax kinds in stage 1",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

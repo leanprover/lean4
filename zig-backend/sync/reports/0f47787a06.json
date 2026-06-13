@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-31",
+  "needs_port": true,
+  "sha": "0f47787a063c2974d2e5b059688eba22a3fcb83b",
+  "short_sha": "0f47787a06",
+  "subject": "fix(library/compiler/llnf): remove bad optimization",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

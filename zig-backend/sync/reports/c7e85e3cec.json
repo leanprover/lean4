@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-03-05",
+  "needs_port": false,
+  "sha": "c7e85e3cec929ac3e90e6126305e65200d6bfc06",
+  "short_sha": "c7e85e3cec",
+  "subject": "chore: update cross benchmark setup",
+  "zig_target": {}
+}

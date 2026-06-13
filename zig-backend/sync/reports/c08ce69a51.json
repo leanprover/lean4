@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "c08ce69a5109e609ac5e330cfeb554419a752064",
+  "short_sha": "c08ce69a51",
+  "subject": "refactor: break `DiscrTree` -> `WHNF` dependency",
+  "zig_target": {}
+}

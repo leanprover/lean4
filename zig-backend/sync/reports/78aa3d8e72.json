@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    }
+  ],
+  "date": "2020-12-22",
+  "needs_port": true,
+  "sha": "78aa3d8e729e5709d1e7c03214d5e48f6392fa92",
+  "short_sha": "78aa3d8e72",
+  "subject": "chore: use `deriving BEq`",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+  }
+}

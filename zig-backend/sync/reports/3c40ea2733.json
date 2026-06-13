@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-08-25",
+  "needs_port": true,
+  "sha": "3c40ea2733bc0a682df59609945a177a6b72fd85",
+  "short_sha": "3c40ea2733",
+  "subject": "chore: revert automatically exposing derived instances (#10101)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

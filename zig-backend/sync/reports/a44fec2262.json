@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "a44fec22626aff3a6505c63585d5f32b811e3e99",
+  "short_sha": "a44fec2262",
+  "subject": "chore: CI: exclude test harder",
+  "zig_target": {}
+}

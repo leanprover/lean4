@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-23",
+  "needs_port": false,
+  "sha": "6a767a66a13c588cce3829bf1de00a1830883843",
+  "short_sha": "6a767a66a1",
+  "subject": "perf: reduce Lean.Parser.Basic imports",
+  "zig_target": {}
+}

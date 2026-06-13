@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-20",
+  "needs_port": false,
+  "sha": "c3eed47cdb39bc9c415a3cc785751cdf798f5e64",
+  "short_sha": "c3eed47cdb",
+  "subject": "feat(tests/playground/Makefile): replace `bench` with `temci`",
+  "zig_target": {}
+}

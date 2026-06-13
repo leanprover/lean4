@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-04-13",
+  "needs_port": true,
+  "sha": "cd5b49557324cd8c82b058a8476282c9a8367672",
+  "short_sha": "cd5b495573",
+  "subject": "feat: add `[grind ext]` attribute (#7949)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

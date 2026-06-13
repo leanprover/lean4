@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-07-16",
+  "needs_port": false,
+  "sha": "94cc8eb863198badc00643454a31cb0a6a4208c4",
+  "short_sha": "94cc8eb863",
+  "subject": "chore: add comment for why anonymous constructor notation isn't flattened during pretty printing (#4764)",
+  "zig_target": {}
+}

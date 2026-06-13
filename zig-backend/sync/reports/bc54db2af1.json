@@ -1,0 +1,18 @@
+{
+  "author": "Vlad Tsyrklevich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-02-03",
+  "needs_port": true,
+  "sha": "bc54db2af1284a46ef400a2b2e347374c8b2f899",
+  "short_sha": "bc54db2af1",
+  "subject": "chore: undo small change (#6917)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

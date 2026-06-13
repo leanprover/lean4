@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-04-11",
+  "needs_port": false,
+  "sha": "41ab4921423e5b55fba786058a0318386de86ee4",
+  "short_sha": "41ab492142",
+  "subject": "chore: CI: ignore `compile_bench/channel` in Linux Reldebug",
+  "zig_target": {}
+}

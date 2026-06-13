@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-02-03",
+  "needs_port": true,
+  "sha": "b81dd3e7adb5252a89afb5d9abfc14ee54e59881",
+  "short_sha": "b81dd3e7ad",
+  "subject": "feat: `expose_names` tactic (#6935)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

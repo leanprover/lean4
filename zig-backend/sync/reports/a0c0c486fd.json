@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    }
+  ],
+  "date": "2023-08-13",
+  "needs_port": true,
+  "sha": "a0c0c486fdb83993e978d25d3c7f0a68c5ddd5b5",
+  "short_sha": "a0c0c486fd",
+  "subject": "chore: remove trailing whitespace in EmitLLVM",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+  }
+}

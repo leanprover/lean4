@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-01-03",
+  "needs_port": false,
+  "sha": "70a6c06eef060d8e14869e2848749287e5364742",
+  "short_sha": "70a6c06eef",
+  "subject": "fix: erase *dependent* local instances",
+  "zig_target": {}
+}

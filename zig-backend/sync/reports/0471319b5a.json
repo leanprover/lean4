@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-11-21",
+  "needs_port": true,
+  "sha": "0471319b5add780028aaf26a52e9b75985a813b0",
+  "short_sha": "0471319b5a",
+  "subject": "chore: tests: use filenames as test names (#11302)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

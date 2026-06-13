@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-06-07",
+  "needs_port": false,
+  "sha": "b4cf1dd943557188bc27bf7e51c86e79a47aabaa",
+  "short_sha": "b4cf1dd943",
+  "subject": "feat: binder info for generalize",
+  "zig_target": {}
+}

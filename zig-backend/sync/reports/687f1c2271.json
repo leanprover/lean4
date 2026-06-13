@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-19",
+  "needs_port": false,
+  "sha": "687f1c22718556f1c90dabf75656471387658945",
+  "short_sha": "687f1c2271",
+  "subject": "refactor: make simp lemma names mandatory",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Bind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Bind.lean"
+    }
+  ],
+  "date": "2022-09-05",
+  "needs_port": true,
+  "sha": "3e210d9f26601c3995e4a01b4823d4e1e489acc1",
+  "short_sha": "3e210d9f26",
+  "subject": "chore: helper functions, missing instance",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Basic.lean": "zig-backend/src/lean/compiler/lcnf/Basic.lean",
+    "src/Lean/Compiler/LCNF/Bind.lean": "zig-backend/src/lean/compiler/lcnf/Bind.lean"
+  }
+}

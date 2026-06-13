@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-03-22",
+  "needs_port": true,
+  "sha": "3d52298c69fa1a735e31623a1c0473c285f255f4",
+  "short_sha": "3d52298c69",
+  "subject": "chore(util/sexpr): preparing to port `options` to Lean",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

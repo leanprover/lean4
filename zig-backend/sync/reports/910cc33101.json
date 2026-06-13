@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/LocalContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/LocalContext.lean"
+    }
+  ],
+  "date": "2020-03-20",
+  "needs_port": true,
+  "sha": "910cc331010f5922abb14a771b32262f5c6f7f88",
+  "short_sha": "910cc33101",
+  "subject": "fix: missing `lowerLooseBVars`",
+  "zig_target": {
+    "src/Init/Lean/LocalContext.lean": "zig-backend/src/init/Lean/LocalContext.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-07-19",
+  "needs_port": false,
+  "sha": "d62fca4e9ca7f81c0a4eab5a90fb4e925d03ba0a",
+  "short_sha": "d62fca4e9c",
+  "subject": "chore: safer bench script",
+  "zig_target": {}
+}

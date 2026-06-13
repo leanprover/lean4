@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-19",
+  "needs_port": false,
+  "sha": "ecac90c5226c031bc00b49f1c8f881c88c56eae9",
+  "short_sha": "ecac90c522",
+  "subject": "fix: `optParam` default value does not count as dependency at `anyNamedArgDependsOnCurrent`",
+  "zig_target": {}
+}

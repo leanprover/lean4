@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/System/ST.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/ST.lean"
+    }
+  ],
+  "date": "2022-01-15",
+  "needs_port": true,
+  "sha": "b0d9c16c7a8c4525570027c694f030b54d53ffb8",
+  "short_sha": "b0d9c16c7a",
+  "subject": "chore: rename `PointedType` => `NonemptyType`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/System/ST.lean": "zig-backend/src/init/System/ST.lean"
+  }
+}

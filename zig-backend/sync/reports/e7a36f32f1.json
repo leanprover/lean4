@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/MonadScope.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/MonadScope.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    }
+  ],
+  "date": "2022-10-07",
+  "needs_port": true,
+  "sha": "e7a36f32f1644cb405fe2dc548bf630c7cbcaa3c",
+  "short_sha": "e7a36f32f1",
+  "subject": "refactor: add `MonadScope` class",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/MonadScope.lean": "zig-backend/src/lean/compiler/lcnf/MonadScope.lean",
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+  }
+}

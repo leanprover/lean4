@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.h"
+    },
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    }
+  ],
+  "date": "2019-06-26",
+  "needs_port": true,
+  "sha": "16d423dab697b03ce0d93e48fa90c2d502af3137",
+  "short_sha": "16d423dab6",
+  "subject": "feat(frontends/lean): switch to `[extern]` implemented in Lean",
+  "zig_target": {
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/extern_attribute.h": "zig-backend/src/library/compiler/extern_attribute.h",
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp"
+  }
+}

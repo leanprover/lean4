@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-09",
+  "needs_port": false,
+  "sha": "f6e1314fa08293dea66a329e05b6c196a0189163",
+  "short_sha": "f6e1314fa0",
+  "subject": "chore: LLVM=ON must be used with clang",
+  "zig_target": {}
+}

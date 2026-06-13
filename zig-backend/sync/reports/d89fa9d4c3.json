@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-28",
+  "needs_port": false,
+  "sha": "d89fa9d4c375d14291ee643c3248ce0a550df033",
+  "short_sha": "d89fa9d4c3",
+  "subject": "fix: `endPos` missing at trace messages",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-03-08",
+  "needs_port": false,
+  "sha": "123dcb964ce8fd5fade53626fd8daa88150fd470",
+  "short_sha": "123dcb964c",
+  "subject": "feat: lake: `LEAN_GITHASH` override (#3609)",
+  "zig_target": {}
+}

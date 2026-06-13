@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-05-12",
+  "needs_port": false,
+  "sha": "0eaa36b38d28aabf12465545fa476f2da9c707b5",
+  "short_sha": "0eaa36b38d",
+  "subject": "Update CONTRIBUTING.md",
+  "zig_target": {}
+}

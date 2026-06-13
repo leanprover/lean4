@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-12",
+  "needs_port": false,
+  "sha": "c08812e9e1a0c9bd3a6b7f279c79147306c78482",
+  "short_sha": "c08812e9e1",
+  "subject": "refactor: merge `fetchLeanTarget` into `fetchAfterDirectLocalImports`",
+  "zig_target": {}
+}

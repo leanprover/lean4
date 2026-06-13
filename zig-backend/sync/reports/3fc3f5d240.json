@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-24",
+  "needs_port": false,
+  "sha": "3fc3f5d240e98b6b96949e00d1d2b8e28c9c0ff8",
+  "short_sha": "3fc3f5d240",
+  "subject": "chore: CI: use Namespace.so checkout action for Linux Lake (#10100)",
+  "zig_target": {}
+}

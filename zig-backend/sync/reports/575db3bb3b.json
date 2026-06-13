@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-25",
+  "needs_port": false,
+  "sha": "575db3bb3b2d7e1b6a129ceac964d6ee0782ac40",
+  "short_sha": "575db3bb3b",
+  "subject": "fix: improve structure/inductive commands universe level inference and validation",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+    }
+  ],
+  "date": "2021-12-15",
+  "needs_port": true,
+  "sha": "5a307a93ac663627ec4992c6619ebf07bdb0e134",
+  "short_sha": "5a307a93ac",
+  "subject": "fix: bug at ByteArray.copySlice",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Basic.lean": "zig-backend/src/init/Data/ByteArray/Basic.lean"
+  }
+}

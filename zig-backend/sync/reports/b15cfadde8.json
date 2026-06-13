@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-06-25",
+  "needs_port": false,
+  "sha": "b15cfadde8a5263319c88d1262955224a074f5f3",
+  "short_sha": "b15cfadde8",
+  "subject": "feat: monadic interface for asynchronous operations in Std (#8003)",
+  "zig_target": {}
+}

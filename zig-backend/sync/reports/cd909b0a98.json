@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-12-10",
+  "needs_port": false,
+  "sha": "cd909b0a98a14b5fb08a6a85e01470ec65dbe5c5",
+  "short_sha": "cd909b0a98",
+  "subject": "fix: when pretty printing constant names, do not use aliases from \"non-API `export`s\" (#5689)",
+  "zig_target": {}
+}

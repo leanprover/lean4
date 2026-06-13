@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-16",
+  "needs_port": false,
+  "sha": "b3e9bb49977d1da70145cf67fadcc343dd686e6c",
+  "short_sha": "b3e9bb4997",
+  "subject": "chore: update release notes after v4.3.0-rc2",
+  "zig_target": {}
+}

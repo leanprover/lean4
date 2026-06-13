@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-08",
+  "needs_port": false,
+  "sha": "3367f0b06aefe4a30921cdfa8a9bef2abafaedce",
+  "short_sha": "3367f0b06a",
+  "subject": "feat: use `splitTarget?` when proving equation theorems for recursive definitions",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-07",
+  "needs_port": false,
+  "sha": "6c6595cd9ba0b73f200b5805cf33cd7507da6648",
+  "short_sha": "6c6595cd9b",
+  "subject": "feat: only allow variables declared with `mut` to be reassigned",
+  "zig_target": {}
+}

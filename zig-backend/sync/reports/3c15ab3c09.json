@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-02",
+  "needs_port": false,
+  "sha": "3c15ab3c0995841d807102184d59dc3e427915cf",
+  "short_sha": "3c15ab3c09",
+  "subject": "feat: make `MapDeclarationExtension` tolerate multiple insertions (#5911)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-15",
+  "needs_port": false,
+  "sha": "37c2ec10e93eaa84aed0fa85131043b6afc4e445",
+  "short_sha": "37c2ec10e9",
+  "subject": "chore: fix conditional syntax in pre-release.yml",
+  "zig_target": {}
+}

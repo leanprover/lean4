@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-05",
+  "needs_port": false,
+  "sha": "7d6048c79509556519a1e3f92c4d17f67575a70f",
+  "short_sha": "7d6048c795",
+  "subject": "fix(library/message_builder): fix output of nested kernel exceptions",
+  "zig_target": {}
+}

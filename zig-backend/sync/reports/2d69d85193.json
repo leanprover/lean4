@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-25",
+  "needs_port": false,
+  "sha": "2d69d85193e31f5dbd902dbf924a83fcb28eb270",
+  "short_sha": "2d69d85193",
+  "subject": "fix(library/init/lean/expander): fix mixfix.transform",
+  "zig_target": {}
+}

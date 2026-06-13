@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-14",
+  "needs_port": false,
+  "sha": "1dce4a8f70a9f24926091c2f71d4e0648a33cb0f",
+  "short_sha": "1dce4a8f70",
+  "subject": "feat(library/init/lean/parser/parser): add `symbolOrIdent`",
+  "zig_target": {}
+}

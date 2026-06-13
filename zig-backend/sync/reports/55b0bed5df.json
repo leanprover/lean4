@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-01-27",
+  "needs_port": false,
+  "sha": "55b0bed5df5a3d1bce782b1e8080b02836a596a5",
+  "short_sha": "55b0bed5df",
+  "subject": "doc: standard library vision and call for contributions (#6762)",
+  "zig_target": {}
+}

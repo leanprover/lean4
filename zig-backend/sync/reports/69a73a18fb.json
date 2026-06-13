@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-01-26",
+  "needs_port": true,
+  "sha": "69a73a18fbfa1fc045bfbf1c4cf93b155d4c9387",
+  "short_sha": "69a73a18fb",
+  "subject": "feat: `grind?` infrastructure  (#6785)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

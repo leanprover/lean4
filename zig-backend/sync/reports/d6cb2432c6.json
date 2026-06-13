@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-08-05",
+  "needs_port": false,
+  "sha": "d6cb2432c6cfb847cdb1921fdbb98bc698835ec4",
+  "short_sha": "d6cb2432c6",
+  "subject": "chore: remove unnecessary steps from release checklist (#4914)",
+  "zig_target": {}
+}

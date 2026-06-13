@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-18",
+  "needs_port": false,
+  "sha": "dbe7078e80fd2c7c28746983d95304ea3ce4cacf",
+  "short_sha": "dbe7078e80",
+  "subject": "feat(library/init/lean/attributes): add `ParametricAttribute.setParam`",
+  "zig_target": {}
+}

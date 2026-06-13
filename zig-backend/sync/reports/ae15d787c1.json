@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-02-19",
+  "needs_port": false,
+  "sha": "ae15d787c1182aeb1e6b3f8301723061dfa735ac",
+  "short_sha": "ae15d787c1",
+  "subject": "perf: use pointer equality in Name.quickCmp (#12582)",
+  "zig_target": {}
+}

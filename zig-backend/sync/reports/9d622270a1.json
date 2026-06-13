@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-02",
+  "needs_port": true,
+  "sha": "9d622270a16070d4a7a21f058c1a9ad91dce65e2",
+  "short_sha": "9d622270a1",
+  "subject": "feat: custom congruence rule for equality in `grind` (#6510)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

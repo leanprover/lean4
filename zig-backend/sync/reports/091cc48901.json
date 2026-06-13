@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Message.lean"
+    }
+  ],
+  "date": "2020-01-07",
+  "needs_port": true,
+  "sha": "091cc48901dcfc20cec17a6b47b50be8656bc634",
+  "short_sha": "091cc48901",
+  "subject": "feat: expose old pretty printer in Lean",
+  "zig_target": {
+    "src/Init/Lean/Util/Message.lean": "zig-backend/src/init/Lean/Util/Message.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-09-30",
+  "needs_port": false,
+  "sha": "a8b105e1e941dd83660367539ca7281a3c20e7e3",
+  "short_sha": "a8b105e1e9",
+  "subject": "fix: do not clear diagnostics on empty change packet and add note explaining assumptions about diagnostics",
+  "zig_target": {}
+}

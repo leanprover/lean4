@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-11",
+  "needs_port": false,
+  "sha": "a4f47adf9ed0ac58108b9250a69eca7d65c34d19",
+  "short_sha": "a4f47adf9e",
+  "subject": "fix: `normalize` method at `Match.lean`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-25",
+  "needs_port": false,
+  "sha": "bbe3d51c44eb5dd56113f29efa18180626524738",
+  "short_sha": "bbe3d51c44",
+  "subject": "chore: Nix: hide some Nix warnings in `lean-dev`",
+  "zig_target": {}
+}

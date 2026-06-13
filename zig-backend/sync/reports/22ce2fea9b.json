@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-04-22",
+  "needs_port": false,
+  "sha": "22ce2fea9b93b53a338114dde67c27e881aa1b24",
+  "short_sha": "22ce2fea9b",
+  "subject": "chore: fix Util.Heartbeats module-doc (#3954)",
+  "zig_target": {}
+}

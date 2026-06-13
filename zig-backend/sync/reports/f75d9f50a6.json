@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-03-29",
+  "needs_port": true,
+  "sha": "f75d9f50a61c577f9ac0ba8e36c7758a904274e2",
+  "short_sha": "f75d9f50a6",
+  "subject": "feat: (try to) improve `InfoTree.goalsAt?`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

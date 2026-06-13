@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-26",
+  "needs_port": false,
+  "sha": "7c73ff072fa00b36deb2b8c1800050b576eacd95",
+  "short_sha": "7c73ff072f",
+  "subject": "chore: print unhandled file worker errors to stderr",
+  "zig_target": {}
+}

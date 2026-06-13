@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-27",
+  "needs_port": false,
+  "sha": "520cd3f0d64732d8cd8d4acea69cdd7624ea5a2d",
+  "short_sha": "520cd3f0d6",
+  "subject": "fix: make generalized field notation for abbreviation types handle optional parameters (#3746)",
+  "zig_target": {}
+}

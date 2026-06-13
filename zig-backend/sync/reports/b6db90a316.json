@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-01-22",
+  "needs_port": false,
+  "sha": "b6db90a31601866d58a07e86aba3720991aa73c8",
+  "short_sha": "b6db90a316",
+  "subject": "doc: mention subscript j in the lexical structure (#6738)",
+  "zig_target": {}
+}

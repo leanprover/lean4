@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-17",
+  "needs_port": false,
+  "sha": "e43ff50e767cbf481bb6216a7490c43c5642a86f",
+  "short_sha": "e43ff50e76",
+  "subject": "chore: CI: revert macOS tests accidentally run on PRs",
+  "zig_target": {}
+}

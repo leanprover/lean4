@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-27",
+  "needs_port": false,
+  "sha": "d27a3609121c7055b6d3205ecf073575d805959c",
+  "short_sha": "d27a360912",
+  "subject": "chore(library/update_declaration): remove dead file",
+  "zig_target": {}
+}

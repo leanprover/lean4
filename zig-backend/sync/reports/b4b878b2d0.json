@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-02-25",
+  "needs_port": false,
+  "sha": "b4b878b2d0d7979977b36fa73c9d76f2ff805e12",
+  "short_sha": "b4b878b2d0",
+  "subject": "fix: prevent `exact?` and `apply?` from suggesting invalid tactics (#7192)",
+  "zig_target": {}
+}

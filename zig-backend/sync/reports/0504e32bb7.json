@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Order.lean"
+    }
+  ],
+  "date": "2025-09-27",
+  "needs_port": true,
+  "sha": "0504e32bb75524b0438e35c339af26e050178ff1",
+  "short_sha": "0504e32bb7",
+  "subject": "feat: add `addEdge` to `grind order` (#10596)",
+  "zig_target": {
+    "src/Init/Grind/Order.lean": "zig-backend/src/init/Grind/Order.lean"
+  }
+}

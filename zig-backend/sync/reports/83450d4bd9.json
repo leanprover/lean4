@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-17",
+  "needs_port": false,
+  "sha": "83450d4bd97e0d3099ec5fec9e349bcb559af5b0",
+  "short_sha": "83450d4bd9",
+  "subject": "test: clean up binarytrees.lean",
+  "zig_target": {}
+}

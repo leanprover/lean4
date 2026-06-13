@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-18",
+  "needs_port": false,
+  "sha": "ad10495afae46e43e5dc7e416dac1cc1426ef0f2",
+  "short_sha": "ad10495afa",
+  "subject": "chore: macOS: build with system c++",
+  "zig_target": {}
+}

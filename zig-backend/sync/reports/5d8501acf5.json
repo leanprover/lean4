@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean_obj.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.cpp"
+    },
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    }
+  ],
+  "date": "2018-05-17",
+  "needs_port": true,
+  "sha": "5d8501acf5f550caea025663f20c70b122f568d6",
+  "short_sha": "5d8501acf5",
+  "subject": "chore(runtime/lean_obj): consistent naming convention",
+  "zig_target": {
+    "src/runtime/lean_obj.cpp": "zig-backend/src/runtime/lean_obj.cpp",
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h"
+  }
+}

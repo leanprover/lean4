@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-05-08",
+  "needs_port": false,
+  "sha": "e9c302c17ec9f059d6ac6f528b8dac8712625088",
+  "short_sha": "e9c302c17e",
+  "subject": "chore: bug template: point to live.lean-lang.org (#4109)",
+  "zig_target": {}
+}

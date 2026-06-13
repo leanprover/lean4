@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-04",
+  "needs_port": false,
+  "sha": "05a28af429ddd7376d6f4297552228584a532206",
+  "short_sha": "05a28af429",
+  "subject": "fix: `skipDefEqCache`",
+  "zig_target": {}
+}

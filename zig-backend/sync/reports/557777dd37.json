@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-03-15",
+  "needs_port": false,
+  "sha": "557777dd3777a6ac90ccf1610824e57ca7183550",
+  "short_sha": "557777dd37",
+  "subject": "chore: CI: mark \"Build matrix complete\" as cancelled if builds cancelled (#3690)",
+  "zig_target": {}
+}

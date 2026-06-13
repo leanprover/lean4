@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-16",
+  "needs_port": false,
+  "sha": "a3a3c7c80cfb72f68e992f26f3f53574e48b2395",
+  "short_sha": "a3a3c7c80c",
+  "subject": "chore: add `LEAN_PATH_SEPARATOR` cmake variable",
+  "zig_target": {}
+}

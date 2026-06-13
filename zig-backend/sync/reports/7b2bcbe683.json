@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-19",
+  "needs_port": false,
+  "sha": "7b2bcbe68354641a8111b479905275efdcd848a3",
+  "short_sha": "7b2bcbe683",
+  "subject": "chore: disable inconsequential LLVM warning",
+  "zig_target": {}
+}

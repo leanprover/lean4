@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-11-30",
+  "needs_port": false,
+  "sha": "1c5706bcc0bb822b306665efb07dfa6cfb1864b8",
+  "short_sha": "1c5706bcc0",
+  "subject": "feat: add `Expr.forEachWhere`",
+  "zig_target": {}
+}

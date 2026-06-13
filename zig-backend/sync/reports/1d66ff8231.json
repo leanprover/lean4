@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2024-10-17",
+  "needs_port": true,
+  "sha": "1d66ff82318a8597f5203e8745d3e77b7f975f70",
+  "short_sha": "1d66ff8231",
+  "subject": "fix: app unexpander for `sorryAx` (#5759)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

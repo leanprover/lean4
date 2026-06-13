@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "bd3b466f2f4f6d9ff10c65fbf68f758ecaa071c3",
+  "short_sha": "bd3b466f2f",
+  "subject": "chore: CI: fix speedcenter tests (#4440)",
+  "zig_target": {}
+}

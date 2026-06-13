@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Omega/Constraint.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Constraint.lean"
+    },
+    {
+      "path": "src/Init/Omega/IntList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/IntList.lean"
+    }
+  ],
+  "date": "2024-08-25",
+  "needs_port": true,
+  "sha": "c3655b626e0ef954ada5d7c2a82c52603b61ad46",
+  "short_sha": "c3655b626e",
+  "subject": "chore: remove bad simp lemma in omega theory (#5156)",
+  "zig_target": {
+    "src/Init/Omega/Constraint.lean": "zig-backend/src/init/Omega/Constraint.lean",
+    "src/Init/Omega/IntList.lean": "zig-backend/src/init/Omega/IntList.lean"
+  }
+}

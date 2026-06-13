@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-22",
+  "needs_port": false,
+  "sha": "d3cb812fb6d8218670930e764f2e1bd6f147f168",
+  "short_sha": "d3cb812fb6",
+  "subject": "chore: add test for recursive structures (#6173)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-15",
+  "needs_port": false,
+  "sha": "7f1d7a595b23cc4226286d8f64fa226d14d8f28a",
+  "short_sha": "7f1d7a595b",
+  "subject": "fix: use `Expr.equal` instead of `==` in `MVarId.replaceTargetDefEq` and `MVarId.replaceLocalDeclDefEq` (#6098)",
+  "zig_target": {}
+}

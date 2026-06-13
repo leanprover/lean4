@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-01-27",
+  "needs_port": false,
+  "sha": "5f0fea60a69319ff64803e934e7a2dea466c6906",
+  "short_sha": "5f0fea60a6",
+  "subject": "refactor: lake: deprecate `-U` (#6798)",
+  "zig_target": {}
+}

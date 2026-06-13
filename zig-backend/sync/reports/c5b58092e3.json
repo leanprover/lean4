@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-17",
+  "needs_port": false,
+  "sha": "c5b58092e34d891009401172be439093a63c8b2d",
+  "short_sha": "c5b58092e3",
+  "subject": "fix: allow checked self-references in Verso docstring module role (#12523)",
+  "zig_target": {}
+}

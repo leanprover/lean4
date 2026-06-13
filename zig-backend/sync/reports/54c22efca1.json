@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-25",
+  "needs_port": false,
+  "sha": "54c22efca1cb6fdcea694b894ca9830d0b5c4b0e",
+  "short_sha": "54c22efca1",
+  "subject": "fix: structural recursion: do not check for brecOn too early (#4831)",
+  "zig_target": {}
+}

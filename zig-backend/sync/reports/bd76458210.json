@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-12",
+  "needs_port": false,
+  "sha": "bd76458210d9856f0e44d2f9e2a24572eaabd737",
+  "short_sha": "bd76458210",
+  "subject": "feat: add support for `nonReservedSymbol` at `syntax` command",
+  "zig_target": {}
+}

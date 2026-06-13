@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2024-08-27",
+  "needs_port": true,
+  "sha": "095c7b2bfcb52a602c1e2592a997e143e7df1404",
+  "short_sha": "095c7b2bfc",
+  "subject": "chore: deprecate Nat.strongInductionOn (#5179)",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

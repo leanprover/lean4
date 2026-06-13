@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-10",
+  "needs_port": false,
+  "sha": "7195244b04817e2ca12799023ce5d7063776ab39",
+  "short_sha": "7195244b04",
+  "subject": "feat(library/init/data/array/qsort): ensure `qsort` terminates even for bad `lt` relations",
+  "zig_target": {}
+}

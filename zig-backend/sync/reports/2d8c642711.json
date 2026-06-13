@@ -1,0 +1,10 @@
+{
+  "author": "George Rennie",
+  "backend_changes": [],
+  "date": "2025-04-08",
+  "needs_port": false,
+  "sha": "2d8c642711e50d36220e35a69598cecb91d98bdf",
+  "short_sha": "2d8c642711",
+  "subject": "feat: allow empty clause anywhere in LRAT proof (#7859)",
+  "zig_target": {}
+}

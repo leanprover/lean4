@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    }
+  ],
+  "date": "2025-04-22",
+  "needs_port": true,
+  "sha": "dfa72d6c0458a9893613175b14c00dd6147a23c2",
+  "short_sha": "dfa72d6c04",
+  "subject": "feat: infrastructure for computing Nullstellensatz certificates (#8059)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+  }
+}

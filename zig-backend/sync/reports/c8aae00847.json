@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/OfNat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/OfNat.lean"
+    }
+  ],
+  "date": "2025-03-14",
+  "needs_port": true,
+  "sha": "c8aae00847d34d63c123ef53bb3920ad31bd07e4",
+  "short_sha": "c8aae00847",
+  "subject": "feat: `Nat` inequalities in cutsat (#7494)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Data/Int/OfNat.lean": "zig-backend/src/init/Data/Int/OfNat.lean"
+  }
+}

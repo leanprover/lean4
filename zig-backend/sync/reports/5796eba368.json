@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/TermBinders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermBinders.lean"
+    }
+  ],
+  "date": "2020-01-25",
+  "needs_port": true,
+  "sha": "5796eba3687e392381cd5745ad45cc97e2b3ffc5",
+  "short_sha": "5796eba368",
+  "subject": "chore: add `elabLetDeclAux`",
+  "zig_target": {
+    "src/Init/Lean/Elab/TermBinders.lean": "zig-backend/src/init/Lean/Elab/TermBinders.lean"
+  }
+}

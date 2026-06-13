@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "425a1cea8b6e54f01da422c7d62e24e450b2e114",
+  "short_sha": "425a1cea8b",
+  "subject": "fix(CMakeLists): `clean-olean`",
+  "zig_target": {}
+}

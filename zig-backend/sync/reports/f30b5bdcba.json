@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-07",
+  "needs_port": false,
+  "sha": "f30b5bdcba8b8f7ab5353e8b376cde40c51d8aaf",
+  "short_sha": "f30b5bdcba",
+  "subject": "chore: control code size explosion",
+  "zig_target": {}
+}

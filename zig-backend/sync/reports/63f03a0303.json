@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-16",
+  "needs_port": false,
+  "sha": "63f03a030364076312942b67998e1c0d122caedd",
+  "short_sha": "63f03a0303",
+  "subject": "chore(library/init/lean/parser/parser): remove unnecessary variable",
+  "zig_target": {}
+}

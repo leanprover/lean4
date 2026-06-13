@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/KAbstract.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/KAbstract.lean"
+    }
+  ],
+  "date": "2020-01-10",
+  "needs_port": true,
+  "sha": "06b6beb9f71bf192af9bd3599274860360348542",
+  "short_sha": "06b6beb9f7",
+  "subject": "feat: add `kabstract`",
+  "zig_target": {
+    "src/Init/Lean/Meta.lean": "zig-backend/src/init/Lean/Meta.lean",
+    "src/Init/Lean/Meta/KAbstract.lean": "zig-backend/src/init/Lean/Meta/KAbstract.lean"
+  }
+}

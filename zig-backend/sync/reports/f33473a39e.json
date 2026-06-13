@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    }
+  ],
+  "date": "2020-12-05",
+  "needs_port": true,
+  "sha": "f33473a39eb3674505fb20335201966ffdd31586",
+  "short_sha": "f33473a39e",
+  "subject": "chore: use exists notation",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean"
+  }
+}

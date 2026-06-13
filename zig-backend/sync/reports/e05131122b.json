@@ -1,0 +1,54 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/OfFn.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/OfFn.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Vector/OfFn.lean"
+    }
+  ],
+  "date": "2025-01-29",
+  "needs_port": true,
+  "sha": "e05131122b5b7ee4ed08771d71fa49dec619150c",
+  "short_sha": "e05131122b",
+  "subject": "feat: finish aligning List/Array/Vector.ofFn lemmas (#6838)",
+  "zig_target": {
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/OfFn.lean": "zig-backend/src/init/Data/Array/OfFn.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/OfFn.lean": "zig-backend/src/init/Data/List/OfFn.lean",
+    "src/Init/Data/Vector.lean": "zig-backend/src/init/Data/Vector.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/OfFn.lean": "zig-backend/src/init/Data/Vector/OfFn.lean"
+  }
+}

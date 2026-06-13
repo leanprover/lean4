@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    }
+  ],
+  "date": "2022-07-24",
+  "needs_port": true,
+  "sha": "f1f5a4b39eb986d766c90f397cdeec9739d570be",
+  "short_sha": "f1f5a4b39e",
+  "subject": "chore: naming convention",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+  }
+}

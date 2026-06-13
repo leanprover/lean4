@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-02-18",
+  "needs_port": false,
+  "sha": "f3baff8dcefc8a12dd9d95de3f94b5c427bd50d4",
+  "short_sha": "f3baff8dce",
+  "subject": "fix: fun_induction to generalize like induction does (#7127)",
+  "zig_target": {}
+}

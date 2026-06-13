@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-24",
+  "needs_port": false,
+  "sha": "20210928da4b7fd9e79ae8aeeb86b81f5dd30fc2",
+  "short_sha": "20210928da",
+  "subject": "fix: missing line breaks",
+  "zig_target": {}
+}

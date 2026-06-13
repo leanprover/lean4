@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extname.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extname.cpp"
+    }
+  ],
+  "date": "2019-02-06",
+  "needs_port": true,
+  "sha": "b85f4aac88fa9d30bf3a2bd493701f4e3430e0de",
+  "short_sha": "b85f4aac88",
+  "subject": "feat(library/compiler/extname): add validation",
+  "zig_target": {
+    "src/library/compiler/extname.cpp": "zig-backend/src/library/compiler/extname.cpp"
+  }
+}

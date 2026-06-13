@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-17",
+  "needs_port": true,
+  "sha": "0f28d3187acdc272668d613a84daa974e4db4b88",
+  "short_sha": "0f28d3187a",
+  "subject": "fix(library/compiler/llnf): avoid unnecessary `_dec` instruction",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

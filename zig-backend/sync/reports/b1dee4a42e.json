@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/InsertIdx.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Modify.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Modify.lean"
+    }
+  ],
+  "date": "2024-11-07",
+  "needs_port": true,
+  "sha": "b1dee4a42e7965f17d184320353cbac281becd00",
+  "short_sha": "b1dee4a42e",
+  "subject": "chore: upstream List.insertIdx from Batteries, lemmas from Mathlib, and revise lemmas (#5969)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean",
+    "src/Init/Data/List/Nat.lean": "zig-backend/src/init/Data/List/Nat.lean",
+    "src/Init/Data/List/Nat/InsertIdx.lean": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean",
+    "src/Init/Data/List/Nat/Modify.lean": "zig-backend/src/init/Data/List/Nat/Modify.lean"
+  }
+}

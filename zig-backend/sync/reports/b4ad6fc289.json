@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-03",
+  "needs_port": false,
+  "sha": "b4ad6fc2891eacfb2d9cfacb81693bd11face3bd",
+  "short_sha": "b4ad6fc289",
+  "subject": "chore: do not generate \"redundant alternatives\" message when there are missing cases",
+  "zig_target": {}
+}

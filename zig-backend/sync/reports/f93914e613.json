@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2022-08-28",
+  "needs_port": true,
+  "sha": "f93914e6136fa15337e779b3deb683ebd997631a",
+  "short_sha": "f93914e613",
+  "subject": "fix: prove decidable_of_decidable_of_eq without cast",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

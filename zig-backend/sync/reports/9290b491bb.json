@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-04",
+  "needs_port": false,
+  "sha": "9290b491bb16ec897a5cb9ffd98c8416af30bfb2",
+  "short_sha": "9290b491bb",
+  "subject": "refactor: WF.Fix: gather subgoals (#3017)",
+  "zig_target": {}
+}

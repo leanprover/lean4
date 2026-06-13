@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-07-27",
+  "needs_port": true,
+  "sha": "95e753c6b42900cb727b726646d1f884df87c7db",
+  "short_sha": "95e753c6b4",
+  "subject": "feat: generalize Process.output/run to allow an input (#9532)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

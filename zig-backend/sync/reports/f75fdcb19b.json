@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-15",
+  "needs_port": false,
+  "sha": "f75fdcb19b99ebe3b3069d7f5653b16fb0608383",
+  "short_sha": "f75fdcb19b",
+  "subject": "feat: when Lean cannot prove termination, then report error and add definition as partial, and if it fails add as axiom",
+  "zig_target": {}
+}

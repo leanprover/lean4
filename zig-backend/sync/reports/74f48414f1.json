@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    },
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-12-19",
+  "needs_port": true,
+  "sha": "74f48414f1bf8ea1c3897db4bb4e86e27bb18e80",
+  "short_sha": "74f48414f1",
+  "subject": "feat: add option `--exitOnPanic` (short version `-e`)",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean",
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

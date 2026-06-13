@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/sharecommon.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.h"
+    }
+  ],
+  "date": "2024-08-01",
+  "needs_port": true,
+  "sha": "0ed1cf724445a859fa61c4297c291e33b3da46e3",
+  "short_sha": "0ed1cf7244",
+  "subject": "fix: `LEAN_EXPORT` in sharecommon (#4893)",
+  "zig_target": {
+    "src/runtime/sharecommon.h": "zig-backend/src/runtime/sharecommon.h"
+  }
+}

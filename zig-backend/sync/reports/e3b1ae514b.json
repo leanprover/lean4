@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2020-08-18",
+  "needs_port": true,
+  "sha": "e3b1ae514bddfc3c290b730a817cc33a30f630eb",
+  "short_sha": "e3b1ae514b",
+  "subject": "fix: nontermination",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

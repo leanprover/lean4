@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-08",
+  "needs_port": false,
+  "sha": "ea46bf2839ad1c98d3a0c3e5caad8a81f812934c",
+  "short_sha": "ea46bf2839",
+  "subject": "fix: non-incremental command blocking further incremental reporting in macro (#4407)",
+  "zig_target": {}
+}

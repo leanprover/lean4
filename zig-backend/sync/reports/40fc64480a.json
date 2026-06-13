@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2022-05-28",
+  "needs_port": true,
+  "sha": "40fc64480a15e551025f16218050bc83802c3463",
+  "short_sha": "40fc64480a",
+  "subject": "feat: add tactic `subst_vars`",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

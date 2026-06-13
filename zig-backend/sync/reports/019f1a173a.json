@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2022-10-13",
+  "needs_port": true,
+  "sha": "019f1a173ab6c372a1d53b95777d587010c64aaf",
+  "short_sha": "019f1a173a",
+  "subject": "feat: also unexpand Array.empty",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

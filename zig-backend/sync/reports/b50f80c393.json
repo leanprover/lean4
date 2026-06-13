@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-05-25",
+  "needs_port": false,
+  "sha": "b50f80c39360b057dc2cfab87f53a89c1895cda9",
+  "short_sha": "b50f80c393",
+  "subject": "perf: cache imported environment",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-08-29",
+  "needs_port": false,
+  "sha": "a5583d72bb89ba2c7454d1adcd129284b383268b",
+  "short_sha": "a5583d72bb",
+  "subject": "chore: use bash-compatible SemVer regex (#2475)",
+  "zig_target": {}
+}

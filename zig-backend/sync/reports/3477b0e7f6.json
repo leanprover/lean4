@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-07-20",
+  "needs_port": false,
+  "sha": "3477b0e7f62e5b38720fe8fae8853bf5b7085983",
+  "short_sha": "3477b0e7f6",
+  "subject": "fix: `for_each_fn.cpp` (#4797)",
+  "zig_target": {}
+}

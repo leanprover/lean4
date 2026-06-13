@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-05-29",
+  "needs_port": false,
+  "sha": "3fdaf24b49ccc1392c53afe50480a211a285e31f",
+  "short_sha": "3fdaf24b49",
+  "subject": "fix: lake: ensure valid use of `(sync := true)` (#8531)",
+  "zig_target": {}
+}

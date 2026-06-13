@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-27",
+  "needs_port": false,
+  "sha": "58f1f512f11b765dafcc3e759f8fcc7ce61ce420",
+  "short_sha": "58f1f512f1",
+  "subject": "feat: simplify heuristics at `propagateExpectedType`",
+  "zig_target": {}
+}

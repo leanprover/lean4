@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-02-25",
+  "needs_port": false,
+  "sha": "08eb78a5b22c93df6ef8c6da8ccc3eb6db90346b",
+  "short_sha": "08eb78a5b2",
+  "subject": "chore: switch to new test/bench suite (#12590)",
+  "zig_target": {}
+}

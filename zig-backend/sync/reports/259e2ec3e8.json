@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GrindInstances.lean"
+    },
+    {
+      "path": "src/Init/GrindInstances/Nat.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/GrindInstances/Nat.lean"
+    }
+  ],
+  "date": "2025-06-17",
+  "needs_port": true,
+  "sha": "259e2ec3e803941d67b87baa51001c4da797f976",
+  "short_sha": "259e2ec3e8",
+  "subject": "feat: define the `CommRing` envelope of a `CommSemiring` (#8835)",
+  "zig_target": {
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Ring.lean": "zig-backend/src/init/Grind/Ring.lean",
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean",
+    "src/Init/GrindInstances.lean": "zig-backend/src/init/GrindInstances.lean",
+    "src/Init/GrindInstances/Nat.lean": "zig-backend/src/init/GrindInstances/Nat.lean"
+  }
+}

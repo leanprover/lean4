@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-08",
+  "needs_port": false,
+  "sha": "a0a4b9faecbf15d5cd6315ed12ebdd5f6a661cd6",
+  "short_sha": "a0a4b9faec",
+  "subject": "fix: filter declarations that are not valid dot methods",
+  "zig_target": {}
+}

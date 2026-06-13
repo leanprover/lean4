@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-02",
+  "needs_port": false,
+  "sha": "bf15f7156813bc6fee26a70b0d4969d8b94cac21",
+  "short_sha": "bf15f71568",
+  "subject": "Removed `Manifest.path`",
+  "zig_target": {}
+}

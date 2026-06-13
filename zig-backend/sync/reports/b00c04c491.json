@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean"
+    }
+  ],
+  "date": "2020-01-29",
+  "needs_port": true,
+  "sha": "b00c04c4910f54341b46f8830d676b929b1fcc45",
+  "short_sha": "b00c04c491",
+  "subject": "fix: missing `ensureHasType`",
+  "zig_target": {
+    "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean"
+  }
+}

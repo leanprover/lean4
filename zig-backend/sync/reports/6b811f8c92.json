@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-11-13",
+  "needs_port": false,
+  "sha": "6b811f8c92aa8670fce0d8f4f3563d1536deb5c8",
+  "short_sha": "6b811f8c92",
+  "subject": "test: synthetic simp_arith benchmark (#6061)",
+  "zig_target": {}
+}

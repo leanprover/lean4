@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-01",
+  "needs_port": true,
+  "sha": "3e2bca73096f7490bb4a64280aed93c88d129f2a",
+  "short_sha": "3e2bca7309",
+  "subject": "feat: add `Bitvec.[add, sub, mul]_eq_xor` and `width_one_cases` (#5554)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

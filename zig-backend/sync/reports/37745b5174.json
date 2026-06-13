@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-09-01",
+  "needs_port": false,
+  "sha": "37745b5174d334cc0d139177a9de377e950d647c",
+  "short_sha": "37745b5174",
+  "subject": "feat: intersectBy",
+  "zig_target": {}
+}

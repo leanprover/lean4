@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mutex.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mutex.cpp"
+    }
+  ],
+  "date": "2025-04-01",
+  "needs_port": true,
+  "sha": "32cd701994e14b7305813a50183814ebcca8465f",
+  "short_sha": "32cd701994",
+  "subject": "feat: add `Std.RecursiveMutex` (#7755)",
+  "zig_target": {
+    "src/runtime/mutex.cpp": "zig-backend/src/runtime/mutex.cpp"
+  }
+}

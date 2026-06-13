@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-08",
+  "needs_port": false,
+  "sha": "dd6445515ddc71826c76b8020fe9e030579b432b",
+  "short_sha": "dd6445515d",
+  "subject": "feat: improve `grind` canonicalizer diagnostics (#6588)",
+  "zig_target": {}
+}

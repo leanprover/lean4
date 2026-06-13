@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-11-11",
+  "needs_port": false,
+  "sha": "e0af5122f76a9914be3d2a90ce95f546542d3400",
+  "short_sha": "e0af5122f7",
+  "subject": "feat: add union on ExtDTreeMap/ExtTreeMap/ExtTreeSet (#11070)",
+  "zig_target": {}
+}

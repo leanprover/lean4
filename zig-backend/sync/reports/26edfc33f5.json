@@ -1,0 +1,66 @@
+{
+  "author": "Siddharth Bhat",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Checker.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Checker.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/Format.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Format.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/FreeVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/FreeVars.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/LiveVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LiveVars.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/NormIds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/NormIds.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/PushProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/PushProj.lean"
+    }
+  ],
+  "date": "2023-01-09",
+  "needs_port": true,
+  "sha": "26edfc33f524fc4feb0bec30b1f2bf0f04ad3f67",
+  "short_sha": "26edfc33f5",
+  "subject": "chore: remove unused isTaggedPtr from IR.",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean",
+    "src/Lean/Compiler/IR/Checker.lean": "zig-backend/src/lean/compiler/ir/Checker.lean",
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean",
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/Format.lean": "zig-backend/src/lean/compiler/ir/Format.lean",
+    "src/Lean/Compiler/IR/FreeVars.lean": "zig-backend/src/lean/compiler/ir/FreeVars.lean",
+    "src/Lean/Compiler/IR/LiveVars.lean": "zig-backend/src/lean/compiler/ir/LiveVars.lean",
+    "src/Lean/Compiler/IR/NormIds.lean": "zig-backend/src/lean/compiler/ir/NormIds.lean",
+    "src/Lean/Compiler/IR/PushProj.lean": "zig-backend/src/lean/compiler/ir/PushProj.lean"
+  }
+}

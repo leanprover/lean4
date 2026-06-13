@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-07",
+  "needs_port": false,
+  "sha": "430fb81f69119875e8604b5f7fcd1d3777dff1a2",
+  "short_sha": "430fb81f69",
+  "subject": "fix(library/init/lean/parser/term,frontends/lean/builtin_exprs): @& should have higher rbp than ->",
+  "zig_target": {}
+}

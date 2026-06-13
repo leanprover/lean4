@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-21",
+  "needs_port": false,
+  "sha": "959ad988611db082ae4a97e9b8c4390fab53352e",
+  "short_sha": "959ad98861",
+  "subject": "fix: bug in omega's elimination selection (#3425)",
+  "zig_target": {}
+}

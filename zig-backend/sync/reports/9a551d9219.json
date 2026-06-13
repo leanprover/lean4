@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-05",
+  "needs_port": false,
+  "sha": "9a551d9219f4ca97ae572a77e9bd9b91aaf8a550",
+  "short_sha": "9a551d9219",
+  "subject": "feat: add `withForbidden` and `withoutForbidden` parser combinators",
+  "zig_target": {}
+}

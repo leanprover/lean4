@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-21",
+  "needs_port": false,
+  "sha": "7736c051ff2f2e725936fd5c68ec9688cfd3c9ed",
+  "short_sha": "7736c051ff",
+  "subject": "fix: assigned tc mvar check",
+  "zig_target": {}
+}

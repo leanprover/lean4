@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-17",
+  "needs_port": false,
+  "sha": "727816e7fd945455c9542a59c168ecea00d0741a",
+  "short_sha": "727816e7fd",
+  "subject": "test: bring back Reformat.lean on abbreviated copy of Prelude.lean",
+  "zig_target": {}
+}

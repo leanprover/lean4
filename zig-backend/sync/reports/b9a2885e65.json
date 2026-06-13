@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2020-11-03",
+  "needs_port": true,
+  "sha": "b9a2885e656b434cbfd04ce245f5993691080a38",
+  "short_sha": "b9a2885e65",
+  "subject": "feat: add `repeat` tactic",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

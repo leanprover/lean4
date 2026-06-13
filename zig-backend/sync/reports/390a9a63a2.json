@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-23",
+  "needs_port": false,
+  "sha": "390a9a63a24ca28306a60faa0381d4292d23af95",
+  "short_sha": "390a9a63a2",
+  "subject": "fix: mixing variable binder updates and declarations (#5142)",
+  "zig_target": {}
+}

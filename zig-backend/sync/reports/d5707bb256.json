@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-07",
+  "needs_port": false,
+  "sha": "d5707bb256df7b582b14f08a7f81f0cae25ba196",
+  "short_sha": "d5707bb256",
+  "subject": "fear(library/init/data/persistentarray/basic): add `PersistentArray.mfor`",
+  "zig_target": {}
+}

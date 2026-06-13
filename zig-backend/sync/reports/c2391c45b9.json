@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Sum/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Sum/Lemmas.lean"
+    }
+  ],
+  "date": "2024-11-01",
+  "needs_port": true,
+  "sha": "c2391c45b92b6463b73808a269319243f0a5c1b2",
+  "short_sha": "c2391c45b9",
+  "subject": "chore: remove @[simp] from Sum.forall and Sum.exists (#5900)",
+  "zig_target": {
+    "src/Init/Data/Sum/Lemmas.lean": "zig-backend/src/init/Data/Sum/Lemmas.lean"
+  }
+}

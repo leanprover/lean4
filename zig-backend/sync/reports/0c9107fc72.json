@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/LocalContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/LocalContext.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    }
+  ],
+  "date": "2020-01-16",
+  "needs_port": true,
+  "sha": "0c9107fc72aadbbff2d0caecc56cda2dd0605f2c",
+  "short_sha": "0c9107fc72",
+  "subject": "feat: add `instantiateLCtxMVars` and `instantiateMVarDeclMVars`",
+  "zig_target": {
+    "src/Init/Lean/LocalContext.lean": "zig-backend/src/init/Lean/LocalContext.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean"
+  }
+}

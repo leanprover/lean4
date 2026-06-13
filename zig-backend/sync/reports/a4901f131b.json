@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    }
+  ],
+  "date": "2020-12-16",
+  "needs_port": true,
+  "sha": "a4901f131b7b23cd4591d1c234a89c979fc4a34e",
+  "short_sha": "a4901f131b",
+  "subject": "feat: mark `propDecidable` as a scoped instance",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-03",
+  "needs_port": false,
+  "sha": "7df503c4e46e05f5264e0d32a495b2345e7cfa27",
+  "short_sha": "7df503c4e4",
+  "subject": "refactor: add `findLocalDeclWithType?`",
+  "zig_target": {}
+}

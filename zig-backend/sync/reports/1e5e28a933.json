@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-11-13",
+  "needs_port": true,
+  "sha": "1e5e28a9336d11d6dca7ad9f4a0563adb3c2b3b6",
+  "short_sha": "1e5e28a933",
+  "subject": "fix(library/compiler/csimp): apply `app-of-cases` eagerly before other floating `*-of-cases` variants",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-09",
+  "needs_port": false,
+  "sha": "d12df6c2ad83aa461e34bcb0ef60d27281eb9e87",
+  "short_sha": "d12df6c2ad",
+  "subject": "fix: bv_decide benchmarks (#6017)",
+  "zig_target": {}
+}

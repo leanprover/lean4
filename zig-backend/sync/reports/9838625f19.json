@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "9838625f192860ff316d12b1bc08cb5821f4d237",
+  "short_sha": "9838625f19",
+  "subject": "doc: comment out blockImplicitLambda check",
+  "zig_target": {}
+}

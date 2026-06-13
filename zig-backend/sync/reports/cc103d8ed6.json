@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-05-13",
+  "needs_port": false,
+  "sha": "cc103d8ed65a9fc6d52ab0fe1a1a43916b58a974",
+  "short_sha": "cc103d8ed6",
+  "subject": "chore: remove worker_crash test (#13720)",
+  "zig_target": {}
+}

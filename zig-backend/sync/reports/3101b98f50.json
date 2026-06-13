@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-02",
+  "needs_port": false,
+  "sha": "3101b98f50d05f50601aa0d58b1fc33890f65742",
+  "short_sha": "3101b98f50",
+  "subject": "feat: used nested tactic exception at `splitMatch`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-06",
+  "needs_port": false,
+  "sha": "d8855c267393efe1307ad967aa472cb0dab2becd",
+  "short_sha": "d8855c2673",
+  "subject": "feat: elaborate all definitions using `elabMutualDef`",
+  "zig_target": {}
+}

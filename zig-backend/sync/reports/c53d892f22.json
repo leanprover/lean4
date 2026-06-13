@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-27",
+  "needs_port": false,
+  "sha": "c53d892f22288cc00722605dd8eb3a9540a1178d",
+  "short_sha": "c53d892f22",
+  "subject": "feat: add `Expr.projExpr!`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-07",
+  "needs_port": false,
+  "sha": "7de11d2aa3d3f57232ef1790b882a28783c95227",
+  "short_sha": "7de11d2aa3",
+  "subject": "doc: quickstart: beware the Windows",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2021-03-03",
+  "needs_port": true,
+  "sha": "e841f167383ddff1c32ae9dadfce5263fd795645",
+  "short_sha": "e841f16738",
+  "subject": "fix: typo in theorem",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

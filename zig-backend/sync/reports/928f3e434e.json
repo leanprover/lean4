@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2024-02-20",
+  "needs_port": true,
+  "sha": "928f3e434e3c62ba6a2d22f5440bb1d93ff27699",
+  "short_sha": "928f3e434e",
+  "subject": "chore: add `norm_cast_add_elim ne_eq`",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

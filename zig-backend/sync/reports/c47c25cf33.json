@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-27",
+  "needs_port": false,
+  "sha": "c47c25cf334362ba2268c8f2679702bf76d7f0ad",
+  "short_sha": "c47c25cf33",
+  "subject": "feat: finish `sizeOf_spec` lemma generation",
+  "zig_target": {}
+}

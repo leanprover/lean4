@@ -1,0 +1,30 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Lemmas/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/FindPos.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/FindPos.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Splits.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+    }
+  ],
+  "date": "2026-03-24",
+  "needs_port": true,
+  "sha": "dec394d3a4c22c119e011fa2ac1b8d4029bfb419",
+  "short_sha": "dec394d3a4",
+  "subject": "feat: lemmas about `String.Pos.nextn` (#13106)",
+  "zig_target": {
+    "src/Init/Data/String/Lemmas/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Basic.lean",
+    "src/Init/Data/String/Lemmas/FindPos.lean": "zig-backend/src/init/Data/String/Lemmas/FindPos.lean",
+    "src/Init/Data/String/Lemmas/Splits.lean": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+  }
+}

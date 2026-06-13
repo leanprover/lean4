@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-23",
+  "needs_port": false,
+  "sha": "5644bd7a3faf1e8ddc4bf5b6060baefc431bf2e1",
+  "short_sha": "5644bd7a3f",
+  "subject": "feat: show decl module in hover",
+  "zig_target": {}
+}

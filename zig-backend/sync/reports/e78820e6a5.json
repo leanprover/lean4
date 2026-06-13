@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/FixedArgs.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FixedArgs.lean"
+    }
+  ],
+  "date": "2022-09-11",
+  "needs_port": true,
+  "sha": "e78820e6a510456a5c9d0bb1e757e100958e03b1",
+  "short_sha": "e78820e6a5",
+  "subject": "feat: add `mkFixedArgMap`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FixedArgs.lean": "zig-backend/src/lean/compiler/lcnf/FixedArgs.lean"
+  }
+}

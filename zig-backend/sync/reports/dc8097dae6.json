@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-24",
+  "needs_port": false,
+  "sha": "dc8097dae689b68e54b006c64cee4f8df59b4a14",
+  "short_sha": "dc8097dae6",
+  "subject": "feat: support `pkg/` to disambiguate packages",
+  "zig_target": {}
+}

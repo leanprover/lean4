@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-27",
+  "needs_port": false,
+  "sha": "8d26a9e8b57c0079ac46268c1d5a606f9b964f14",
+  "short_sha": "8d26a9e8b5",
+  "subject": "chore: revert public deriving workarounds (#10155)",
+  "zig_target": {}
+}

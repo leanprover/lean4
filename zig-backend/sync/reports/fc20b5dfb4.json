@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    }
+  ],
+  "date": "2024-09-23",
+  "needs_port": true,
+  "sha": "fc20b5dfb431dee10bce87717e69d17b8d0ab589",
+  "short_sha": "fc20b5dfb4",
+  "subject": "fix: must not reduce `ite` in the discriminant of match-expression when reducibility setting is `.reducible` (#5419)",
+  "zig_target": {
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean"
+  }
+}

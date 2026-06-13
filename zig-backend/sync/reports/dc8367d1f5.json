@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-07",
+  "needs_port": false,
+  "sha": "dc8367d1f5aa397c38e3293b71eda80416dec751",
+  "short_sha": "dc8367d1f5",
+  "subject": "chore: CI: adjust nightly release time",
+  "zig_target": {}
+}

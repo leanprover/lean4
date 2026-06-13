@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "e31c3fde560cc268002743600824b96210249ab3",
+  "short_sha": "e31c3fde56",
+  "subject": "chore(library/init): remove dead code, `lemma` => `theorem`",
+  "zig_target": {}
+}

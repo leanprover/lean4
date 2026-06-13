@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-11-21",
+  "needs_port": false,
+  "sha": "3a309ba4ebe6a66924a296403bb44032613ef9d7",
+  "short_sha": "3a309ba4eb",
+  "subject": "feat: improve error message in the case of type class synthesis failure (#11245)",
+  "zig_target": {}
+}

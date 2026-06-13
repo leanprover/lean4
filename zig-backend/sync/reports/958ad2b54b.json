@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-08-14",
+  "needs_port": false,
+  "sha": "958ad2b54bc7151dfc702e9a85a32584c2f49cca",
+  "short_sha": "958ad2b54b",
+  "subject": "feat: upstream LeanSAT's bitblaster (#5013)",
+  "zig_target": {}
+}

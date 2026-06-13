@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-25",
+  "needs_port": false,
+  "sha": "c768b83542ccef3229bc7521a02e06ebeff98876",
+  "short_sha": "c768b83542",
+  "subject": "chore: CI: exclude problematic Linux Lake test",
+  "zig_target": {}
+}

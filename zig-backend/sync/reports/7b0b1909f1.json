@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-12-20",
+  "needs_port": false,
+  "sha": "7b0b1909f1fa72f395badf4c907be03bb26bfa58",
+  "short_sha": "7b0b1909f1",
+  "subject": "feat: lake: local package overrides (#6411)",
+  "zig_target": {}
+}

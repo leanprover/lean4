@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    }
+  ],
+  "date": "2020-01-01",
+  "needs_port": true,
+  "sha": "d37d02b5124866e2c898432fb8d0bed2e5c4351d",
+  "short_sha": "d37d02b512",
+  "subject": "fix: more general instance",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean"
+  }
+}

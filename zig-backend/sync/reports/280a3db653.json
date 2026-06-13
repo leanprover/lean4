@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "280a3db6537cd0d760b39b90b9d8515131743bdd",
+  "short_sha": "280a3db653",
+  "subject": "fix: only print named patterns inside patterns",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Jakob von Raumer",
+  "backend_changes": [],
+  "date": "2022-06-09",
+  "needs_port": false,
+  "sha": "033618ad5e8cea2f989c2b6cb4ded31053e3b4f1",
+  "short_sha": "033618ad5e",
+  "subject": "fix: indices in conv arg now count arguments with forward dependencies",
+  "zig_target": {}
+}

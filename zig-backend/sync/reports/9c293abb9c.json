@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-25",
+  "needs_port": false,
+  "sha": "9c293abb9cb0d31e978d026ca68970271a78a853",
+  "short_sha": "9c293abb9c",
+  "subject": "chore: expose `heqToEq` tactic",
+  "zig_target": {}
+}

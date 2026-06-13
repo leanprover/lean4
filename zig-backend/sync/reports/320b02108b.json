@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-03",
+  "needs_port": false,
+  "sha": "320b02108ba75a187668f736ef32d62b5e734189",
+  "short_sha": "320b02108b",
+  "subject": "fix: `grind` canonicalizer (#10237)",
+  "zig_target": {}
+}

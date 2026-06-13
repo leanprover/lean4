@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-15",
+  "needs_port": false,
+  "sha": "5cfb442f2c7377d9093a6ae5443228037413551f",
+  "short_sha": "5cfb442f2c",
+  "subject": "feat(library/init/lean/ir): add compilation unit initializer/finalizer",
+  "zig_target": {}
+}

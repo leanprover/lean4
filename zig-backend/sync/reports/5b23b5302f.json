@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-24",
+  "needs_port": false,
+  "sha": "5b23b5302f1acff6729a96dd6def474f4402d2d4",
+  "short_sha": "5b23b5302f",
+  "subject": "refactor: move `TransparencyMode` to its own file",
+  "zig_target": {}
+}

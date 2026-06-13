@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2020-08-03",
+  "needs_port": true,
+  "sha": "c5d226ba369dbae556ec66c935837ff998357333",
+  "short_sha": "c5d226ba36",
+  "subject": "feat: HasBeq for Syntax, Substring",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

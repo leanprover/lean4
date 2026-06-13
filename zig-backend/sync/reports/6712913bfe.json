@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-04-15",
+  "needs_port": false,
+  "sha": "6712913bfee023080c2d22160996cc1f17a23699",
+  "short_sha": "6712913bfe",
+  "subject": "chore: update cross-bench setup",
+  "zig_target": {}
+}

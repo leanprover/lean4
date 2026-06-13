@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-06",
+  "needs_port": false,
+  "sha": "7ebe80ad2a3c2defe4d70a0b9ed239d6850ca3c4",
+  "short_sha": "7ebe80ad2a",
+  "subject": "chore: update Nix, Nixpkgs, vscode-lean4",
+  "zig_target": {}
+}

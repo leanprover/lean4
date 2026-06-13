@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-22",
+  "needs_port": false,
+  "sha": "53acd3e355c0067e0a16cc773850289a798080d1",
+  "short_sha": "53acd3e355",
+  "subject": "feat: allow `ext` conv tactic to go inside `let`-declarations",
+  "zig_target": {}
+}

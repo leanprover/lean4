@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/WHNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/WHNF.lean"
+    }
+  ],
+  "date": "2019-12-19",
+  "needs_port": true,
+  "sha": "ea2cebaf7415f7f6778eff778fbd489a5d0fab4b",
+  "short_sha": "ea2cebaf74",
+  "subject": "fix: typo",
+  "zig_target": {
+    "src/Init/Lean/Util/WHNF.lean": "zig-backend/src/init/Lean/Util/WHNF.lean"
+  }
+}

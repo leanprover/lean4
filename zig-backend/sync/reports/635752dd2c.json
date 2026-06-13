@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "635752dd2c7778cc9cca877e5ed5184ad0246f19",
+  "short_sha": "635752dd2c",
+  "subject": "feat: add info node from attributes to their parsers",
+  "zig_target": {}
+}

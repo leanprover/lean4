@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-07-29",
+  "needs_port": true,
+  "sha": "a845a007ac07350824c0b7773a03302373d8e8f1",
+  "short_sha": "a845a007ac",
+  "subject": "chore: fix universe in PSigma.exists (#4862)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

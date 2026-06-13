@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    }
+  ],
+  "date": "2018-11-15",
+  "needs_port": true,
+  "sha": "4a0a3f8d8590ac6e9e05f6f1460aec67cf25d16a",
+  "short_sha": "4a0a3f8d85",
+  "subject": "feat(library/compiler/builtin): register `int` primitives",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp"
+  }
+}

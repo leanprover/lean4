@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-18",
+  "needs_port": false,
+  "sha": "bba55aad47c2044282d1a332078264ed6e1128b9",
+  "short_sha": "bba55aad47",
+  "subject": "feat(library/init/lean/trace): implement conditional tracing via good old trace classes",
+  "zig_target": {}
+}

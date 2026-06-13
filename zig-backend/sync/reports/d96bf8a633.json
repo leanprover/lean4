@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-01",
+  "needs_port": false,
+  "sha": "d96bf8a633ab684773407f603ebac93d258d96e6",
+  "short_sha": "d96bf8a633",
+  "subject": "chore: restore accidentally deleted test",
+  "zig_target": {}
+}

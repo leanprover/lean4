@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-25",
+  "needs_port": false,
+  "sha": "083301e286bef6ee01fcbd2ad94bfeeac5710229",
+  "short_sha": "083301e286",
+  "subject": "fix: non-dependent arrow vs dependent arrow issue at `DiscrTree`",
+  "zig_target": {}
+}

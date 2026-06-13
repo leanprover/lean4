@@ -1,0 +1,18 @@
+{
+  "author": "Peiran Wu",
+  "backend_changes": [
+    {
+      "path": "src/Init/ByCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/ByCases.lean"
+    }
+  ],
+  "date": "2024-05-06",
+  "needs_port": true,
+  "sha": "07be352ea706b8080cebdb2b98d02769361a4ba4",
+  "short_sha": "07be352ea7",
+  "subject": "feat: lemmas to simplify equalities with `Option`-typed dependent if-then-else (#4037)",
+  "zig_target": {
+    "src/Init/ByCases.lean": "zig-backend/src/init/ByCases.lean"
+  }
+}

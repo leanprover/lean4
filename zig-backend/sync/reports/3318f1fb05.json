@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2021-12-21",
+  "needs_port": true,
+  "sha": "3318f1fb056a9ad7cd7f0d49a62f102be6df0ed6",
+  "short_sha": "3318f1fb05",
+  "subject": "feat: record declaration name in interpretation profile",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

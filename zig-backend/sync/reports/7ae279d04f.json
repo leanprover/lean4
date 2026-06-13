@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-11",
+  "needs_port": false,
+  "sha": "7ae279d04f206e234dedd3f71091b2e6a6e7d09c",
+  "short_sha": "7ae279d04f",
+  "subject": "fix: missing `commitWhenSome?` at `tryPureCoe?`",
+  "zig_target": {}
+}

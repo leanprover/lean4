@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-09",
+  "needs_port": false,
+  "sha": "61232e788ac3a02c8d0e7a124830fe7356a01506",
+  "short_sha": "61232e788a",
+  "subject": "fix: check types at do pattern reassignment",
+  "zig_target": {}
+}

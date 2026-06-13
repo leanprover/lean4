@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-05",
+  "needs_port": false,
+  "sha": "dc3b4a06f33321b92694e464e5ceb53ceb352dfe",
+  "short_sha": "dc3b4a06f3",
+  "subject": "fix: missing case",
+  "zig_target": {}
+}

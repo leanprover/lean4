@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-09",
+  "needs_port": false,
+  "sha": "86bd70ac62196add1febf024e4910b2f627771a3",
+  "short_sha": "86bd70ac62",
+  "subject": "test: `native_decide`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Denis Gorbachev",
+  "backend_changes": [],
+  "date": "2023-06-10",
+  "needs_port": false,
+  "sha": "1292819f642632c097f84caed9c0818477bbb28e",
+  "short_sha": "1292819f64",
+  "subject": "chore: update scripts example to new `GetElem` syntax (leanprover/lake#171)",
+  "zig_target": {}
+}

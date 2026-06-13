@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-26",
+  "needs_port": false,
+  "sha": "57050be3ab4d42c920555d906c110e750a70ce63",
+  "short_sha": "57050be3ab",
+  "subject": "fix: bug in `mkEqProof` within `grind` (#6455)",
+  "zig_target": {}
+}

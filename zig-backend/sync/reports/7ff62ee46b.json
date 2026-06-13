@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2021-01-24",
+  "needs_port": true,
+  "sha": "7ff62ee46b607aea362ec7d46915ca40f302e5e3",
+  "short_sha": "7ff62ee46b",
+  "subject": "feat: add `CoeHTCT`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

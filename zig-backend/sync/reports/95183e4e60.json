@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-13",
+  "needs_port": false,
+  "sha": "95183e4e6045371a3757afe109fae209293f350b",
+  "short_sha": "95183e4e60",
+  "subject": "chore: Nix: update vscode-lean4 to 0.0.6",
+  "zig_target": {}
+}

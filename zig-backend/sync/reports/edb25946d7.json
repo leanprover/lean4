@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-31",
+  "needs_port": false,
+  "sha": "edb25946d793fbc2284079c9e840b92028c8f87d",
+  "short_sha": "edb25946d7",
+  "subject": "fix: instantiate metavars",
+  "zig_target": {}
+}

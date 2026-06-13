@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-30",
+  "needs_port": false,
+  "sha": "2ccd41ac8210ccca08d752b3a4851ec8b3e537ea",
+  "short_sha": "2ccd41ac82",
+  "subject": "feat: preliminary custom targets",
+  "zig_target": {}
+}

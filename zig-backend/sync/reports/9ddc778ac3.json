@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-26",
+  "needs_port": false,
+  "sha": "9ddc778ac3828cb07d650e05bdfa29f4a4733bcf",
+  "short_sha": "9ddc778ac3",
+  "subject": "feat(library/equations_compiler/equations): add `m_is_partial` to equation header",
+  "zig_target": {}
+}

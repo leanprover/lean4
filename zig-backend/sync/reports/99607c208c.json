@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-15",
+  "needs_port": false,
+  "sha": "99607c208cc81bb31535a07f0cac230582656d5e",
+  "short_sha": "99607c208c",
+  "subject": "Revert \"fix: intro/intros: do not register `_` as binder in info tree\"",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-17",
+  "needs_port": false,
+  "sha": "d3e915b6b9bf76255b44279c15fc8b74089ad718",
+  "short_sha": "d3e915b6b9",
+  "subject": "refactor(tests/lean/macro1): move meta type adapters into library",
+  "zig_target": {}
+}

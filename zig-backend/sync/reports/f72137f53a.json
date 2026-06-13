@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2026-03-28",
+  "needs_port": false,
+  "sha": "f72137f53a4d5c874c1d1e293908119cef74361d",
+  "short_sha": "f72137f53a",
+  "subject": "feat: introduce `Body` type class and some Body types for HTTP (#12144)",
+  "zig_target": {}
+}

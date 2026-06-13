@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Erase.lean"
+    }
+  ],
+  "date": "2024-08-29",
+  "needs_port": true,
+  "sha": "6d0b00885ed79c0910080613f33e1189bb496ce8",
+  "short_sha": "6d0b00885e",
+  "subject": "feat: List.Pairwise_erase and related lemmas (#5196)",
+  "zig_target": {
+    "src/Init/Data/List/Erase.lean": "zig-backend/src/init/Data/List/Erase.lean"
+  }
+}

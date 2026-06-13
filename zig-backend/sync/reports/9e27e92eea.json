@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2024-02-19",
+  "needs_port": true,
+  "sha": "9e27e92eea74c64bd4ab3c334144313fd4fbe22c",
+  "short_sha": "9e27e92eea",
+  "subject": "chore: set literal notation (#3348)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

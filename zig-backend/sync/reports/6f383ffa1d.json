@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-06-01",
+  "needs_port": true,
+  "sha": "6f383ffa1d5d936181521f4a2682bde53ca95335",
+  "short_sha": "6f383ffa1d",
+  "subject": "fix(runtime/object): overflow at `lean::nat_mul`",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

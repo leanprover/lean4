@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-02",
+  "needs_port": false,
+  "sha": "95bd55bc218b8a0e96466e810c371c3cee0b132d",
+  "short_sha": "95bd55bc21",
+  "subject": "chore: fix typo and remove unnecessary discriminant",
+  "zig_target": {}
+}

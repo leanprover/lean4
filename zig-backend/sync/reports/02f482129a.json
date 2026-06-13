@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-09-23",
+  "needs_port": false,
+  "sha": "02f482129aabea8b422a67be08aaf6b15303c487",
+  "short_sha": "02f482129a",
+  "subject": "fix: Use `@[tactic_alt]` for `bv_decide`, `mvcgen` and similar tactics (#10506)",
+  "zig_target": {}
+}

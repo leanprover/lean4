@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-19",
+  "needs_port": false,
+  "sha": "9f3ddb0c4360e2bdcb9555ce8323c231a3e0969c",
+  "short_sha": "9f3ddb0c43",
+  "subject": "fix: do not store solved goals in info tree",
+  "zig_target": {}
+}

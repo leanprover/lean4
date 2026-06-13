@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-22",
+  "needs_port": false,
+  "sha": "bab6aff17318cb08ddebf7cba2ff734b0f990808",
+  "short_sha": "bab6aff173",
+  "subject": "chore: nix-ci.yml: fix test-results.xml path (#5804)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-11-23",
+  "needs_port": false,
+  "sha": "bf13b24692ce5b96cb8a9fd4a3d11c0e170dbccf",
+  "short_sha": "bf13b24692",
+  "subject": "doc: refine kernel code comments (#6150)",
+  "zig_target": {}
+}

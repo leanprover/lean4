@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-09-17",
+  "needs_port": true,
+  "sha": "6eca75ddbdaeb7347eeb6360afff43c0d10e3aac",
+  "short_sha": "6eca75ddbd",
+  "subject": "fix: include exported declarations in defining file",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

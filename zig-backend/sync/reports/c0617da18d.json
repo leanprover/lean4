@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-10-07",
+  "needs_port": true,
+  "sha": "c0617da18d065c3bdd741e58acd1966768b2aa9a",
+  "short_sha": "c0617da18d",
+  "subject": "feat: support `at` in `ac_nf` and use it in `bv_normalize` (#5618)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

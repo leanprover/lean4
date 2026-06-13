@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-13",
+  "needs_port": false,
+  "sha": "384389c84b1a1eec02c7cd24421852d2712dd1ec",
+  "short_sha": "384389c84b",
+  "subject": "refactor(library/init/lean/parser/basic): move out `rec_t` and `trie`",
+  "zig_target": {}
+}

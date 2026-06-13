@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-11-01",
+  "needs_port": false,
+  "sha": "1f8d7561fa73b6dc5710cbf7b76c2b63353296c8",
+  "short_sha": "1f8d7561fa",
+  "subject": "chore: remove unused deriving handler argument syntax (#5265)",
+  "zig_target": {}
+}

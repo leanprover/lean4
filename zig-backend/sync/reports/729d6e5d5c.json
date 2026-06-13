@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-29",
+  "needs_port": false,
+  "sha": "729d6e5d5c4f175197246f8ffa53c7a8ebb131c6",
+  "short_sha": "729d6e5d5c",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

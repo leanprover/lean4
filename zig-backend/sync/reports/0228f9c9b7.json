@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-01-23",
+  "needs_port": true,
+  "sha": "0228f9c9b703ee675cdbe792fdea85ebdb6ce387",
+  "short_sha": "0228f9c9b7",
+  "subject": "chore: remove `addMacroScopeExt`",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

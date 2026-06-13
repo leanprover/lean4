@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-25",
+  "needs_port": false,
+  "sha": "f843d29f7274f5a1341b0744206fb48f453e5ee9",
+  "short_sha": "f843d29f72",
+  "subject": "refactor: remove module facet special casing",
+  "zig_target": {}
+}

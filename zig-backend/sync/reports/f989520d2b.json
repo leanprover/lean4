@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-09-13",
+  "needs_port": false,
+  "sha": "f989520d2b17ec2fe987a69fee44a5272be1ff10",
+  "short_sha": "f989520d2b",
+  "subject": "fix: invalid namespace completions (#5322)",
+  "zig_target": {}
+}

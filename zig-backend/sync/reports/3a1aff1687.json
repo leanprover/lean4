@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-26",
+  "needs_port": false,
+  "sha": "3a1aff16878296128c8f98b23d0e009d735338a5",
+  "short_sha": "3a1aff1687",
+  "subject": "feat(library/init/lean/compiler): register `[specialize]` and `[nospecialize]` attributes using new attribute manager",
+  "zig_target": {}
+}

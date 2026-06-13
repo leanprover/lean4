@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-19",
+  "needs_port": true,
+  "sha": "fe1d17583ca114272871a77abaac083161b43f17",
+  "short_sha": "fe1d17583c",
+  "subject": "feat(library/compiler/emit_cpp): special support for `(proj|inc)*;reset` sequences",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

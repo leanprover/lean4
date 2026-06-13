@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-07",
+  "needs_port": false,
+  "sha": "fa64c072ab59a100c4596378a1d8e4a9e23abdf1",
+  "short_sha": "fa64c072ab",
+  "subject": "feat: `where` declarations at instances",
+  "zig_target": {}
+}

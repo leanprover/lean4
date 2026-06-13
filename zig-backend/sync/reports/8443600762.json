@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-23",
+  "needs_port": false,
+  "sha": "84436007626875b4e3b3c2e5c42e347642f5582b",
+  "short_sha": "8443600762",
+  "subject": "chore: assert hasLooseBVar before shifting (#10528)",
+  "zig_target": {}
+}

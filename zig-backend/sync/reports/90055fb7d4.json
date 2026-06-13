@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-02-26",
+  "needs_port": true,
+  "sha": "90055fb7d451a315f90cb2c445470e42a33a87b5",
+  "short_sha": "90055fb7d4",
+  "subject": "chore: clarify error message at `decreasing_tactic`",
+  "zig_target": {
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

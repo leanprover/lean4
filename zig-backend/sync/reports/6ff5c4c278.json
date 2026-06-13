@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-22",
+  "needs_port": false,
+  "sha": "6ff5c4c2784419733902e232ac3424f27f1304c0",
+  "short_sha": "6ff5c4c278",
+  "subject": "chore: don't forget about namespace reservation for async-unsupported constant kinds (#6987)",
+  "zig_target": {}
+}

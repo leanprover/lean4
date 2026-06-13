@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-26",
+  "needs_port": false,
+  "sha": "69160750f2bc5de70e16d733570a7d20e81907b6",
+  "short_sha": "69160750f2",
+  "subject": "perf: avoid `mkEqMP` and `mkEqMPR` in `simp` (#7690)",
+  "zig_target": {}
+}

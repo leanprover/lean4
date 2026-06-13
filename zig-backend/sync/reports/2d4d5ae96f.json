@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-16",
+  "needs_port": false,
+  "sha": "2d4d5ae96f5ca8ec6fd34ccbcbc0593974e39888",
+  "short_sha": "2d4d5ae96f",
+  "subject": "feat: save syntax around recursive applications",
+  "zig_target": {}
+}

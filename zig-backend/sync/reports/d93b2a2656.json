@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_inductive.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_inductive.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.h"
+    }
+  ],
+  "date": "2018-10-05",
+  "needs_port": true,
+  "sha": "d93b2a26564b6f92c114b281242386997d88e16c",
+  "short_sha": "d93b2a2656",
+  "subject": "chore(library/compiler): remove dead code",
+  "zig_target": {
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/simp_inductive.cpp": "zig-backend/src/library/compiler/simp_inductive.cpp",
+    "src/library/compiler/simp_inductive.h": "zig-backend/src/library/compiler/simp_inductive.h"
+  }
+}

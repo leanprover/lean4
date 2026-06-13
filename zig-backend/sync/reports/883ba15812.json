@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "883ba158120b6d64259c536260538c80683e8013",
+  "short_sha": "883ba15812",
+  "subject": "fix(library/Makefile): actually fix `clean`",
+  "zig_target": {}
+}

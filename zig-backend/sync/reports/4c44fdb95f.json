@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Zip.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Zip.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Zip.lean"
+    }
+  ],
+  "date": "2025-08-28",
+  "needs_port": true,
+  "sha": "4c44fdb95fcb57c3c2b2ce8c35f936a05e24ce88",
+  "short_sha": "4c44fdb95f",
+  "subject": "chore: remove grind annotations of List/Array/Vector.zip_map_left/right (#10163)",
+  "zig_target": {
+    "src/Init/Data/Array/Zip.lean": "zig-backend/src/init/Data/Array/Zip.lean",
+    "src/Init/Data/List/Zip.lean": "zig-backend/src/init/Data/List/Zip.lean",
+    "src/Init/Data/Vector/Zip.lean": "zig-backend/src/init/Data/Vector/Zip.lean"
+  }
+}

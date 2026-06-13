@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-15",
+  "needs_port": false,
+  "sha": "e08d35cea1893fac25c684036fead96b5ae47b10",
+  "short_sha": "e08d35cea1",
+  "subject": "fix: type incorrect term produced by `contradiction` (#6387)",
+  "zig_target": {}
+}

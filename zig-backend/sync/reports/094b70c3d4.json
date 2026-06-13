@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2021-09-25",
+  "needs_port": true,
+  "sha": "094b70c3d489409010d93e55c7a64575ddc090f9",
+  "short_sha": "094b70c3d4",
+  "subject": "feat: add notation for `Sum` and `PSum`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

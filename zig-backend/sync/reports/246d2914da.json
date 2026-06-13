@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-18",
+  "needs_port": false,
+  "sha": "246d2914da3ce19044b5e249c48ed3068eb02b31",
+  "short_sha": "246d2914da",
+  "subject": "chore(CMakeLists): remove dead code",
+  "zig_target": {}
+}

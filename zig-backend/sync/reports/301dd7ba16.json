@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-03-26",
+  "needs_port": true,
+  "sha": "301dd7ba164a4a98ecd548269a394229ab7c22bc",
+  "short_sha": "301dd7ba16",
+  "subject": "feat: failing macros to show error from first registered rule (#3771)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

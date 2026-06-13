@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-13",
+  "needs_port": false,
+  "sha": "50a84fcd55672badfa8bd5d2ba763789fc1414c9",
+  "short_sha": "50a84fcd55",
+  "subject": "test: add `print-paths` of dep modules check",
+  "zig_target": {}
+}

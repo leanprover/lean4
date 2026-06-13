@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-26",
+  "needs_port": false,
+  "sha": "b37fdea5bf2747744e7517cfac65c0edf98b974a",
+  "short_sha": "b37fdea5bf",
+  "subject": "feat: add `reduceStep`, and try `pre` simp steps again if term was reduced",
+  "zig_target": {}
+}

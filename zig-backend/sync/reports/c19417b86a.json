@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-01",
+  "needs_port": false,
+  "sha": "c19417b86afc95ba88ce8b0d1e2f4930bc070296",
+  "short_sha": "c19417b86a",
+  "subject": "feat: new `require` syntax for package deps",
+  "zig_target": {}
+}

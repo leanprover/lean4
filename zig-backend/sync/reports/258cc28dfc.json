@@ -1,0 +1,10 @@
+{
+  "author": "meow-sister",
+  "backend_changes": [],
+  "date": "2024-05-23",
+  "needs_port": false,
+  "sha": "258cc28dfc83e0f51635b52c12940b38550e8641",
+  "short_sha": "258cc28dfc",
+  "subject": "fix: docstring in `Attributes.lean` (#4238)",
+  "zig_target": {}
+}

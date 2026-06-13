@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-27",
+  "needs_port": false,
+  "sha": "8e81db0d2b2b71cd54b89df64229eec1b288d860",
+  "short_sha": "8e81db0d2b",
+  "subject": "chore: add temporary workaround to tests",
+  "zig_target": {}
+}

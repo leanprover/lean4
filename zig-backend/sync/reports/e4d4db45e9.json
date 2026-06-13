@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2021-03-24",
+  "needs_port": true,
+  "sha": "e4d4db45e9516e7a0fbb7068cd07198cdcaad2be",
+  "short_sha": "e4d4db45e9",
+  "subject": "feat: add missing `simp` lemmas for `->`",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Omega/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/Int.lean"
+    }
+  ],
+  "date": "2024-02-21",
+  "needs_port": true,
+  "sha": "f76bb2495bfa9fc187133d0e0ab47815dfe5b633",
+  "short_sha": "f76bb2495b",
+  "subject": "feat: omega handles shift operators, and normalises ground term exponentials (#3433)",
+  "zig_target": {
+    "src/Init/Omega/Int.lean": "zig-backend/src/init/Omega/Int.lean"
+  }
+}

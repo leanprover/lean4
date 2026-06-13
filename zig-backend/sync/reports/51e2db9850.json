@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-29",
+  "needs_port": false,
+  "sha": "51e2db9850af7eb782cb788af9ff6ae73c925952",
+  "short_sha": "51e2db9850",
+  "subject": "feat: elaborate `binrel!` macro",
+  "zig_target": {}
+}

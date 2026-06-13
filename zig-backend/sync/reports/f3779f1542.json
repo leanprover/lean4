@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2020-11-20",
+  "needs_port": true,
+  "sha": "f3779f15428783a64665b5c221acc29809a1eda1",
+  "short_sha": "f3779f1542",
+  "subject": "feat: add support for unbound implicit locals",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

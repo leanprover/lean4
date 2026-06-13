@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-02",
+  "needs_port": false,
+  "sha": "e90224b435ef5e46ed68a5c8594296d896edd6b7",
+  "short_sha": "e90224b435",
+  "subject": "fix(library/init/lean/compiler/simpcase): bugs at `simpCase`",
+  "zig_target": {}
+}

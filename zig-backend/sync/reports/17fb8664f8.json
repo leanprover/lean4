@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-26",
+  "needs_port": false,
+  "sha": "17fb8664f8f424a9f8c97c3208a1471f99e94fe1",
+  "short_sha": "17fb8664f8",
+  "subject": "fix: issue when matching `Int` literals (#3504)",
+  "zig_target": {}
+}

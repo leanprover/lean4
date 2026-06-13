@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/interrupt.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.cpp"
+    },
+    {
+      "path": "src/runtime/interrupt.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.h"
+    }
+  ],
+  "date": "2023-10-06",
+  "needs_port": true,
+  "sha": "5f37f7d86f08a2d97157ac9be022b84a8972caf7",
+  "short_sha": "5f37f7d86f",
+  "subject": "feat: move `check_interrupted` from unused thread class to `Task` cancellation",
+  "zig_target": {
+    "src/runtime/interrupt.cpp": "zig-backend/src/runtime/interrupt.cpp",
+    "src/runtime/interrupt.h": "zig-backend/src/runtime/interrupt.h"
+  }
+}

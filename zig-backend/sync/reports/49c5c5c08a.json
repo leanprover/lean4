@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-29",
+  "needs_port": false,
+  "sha": "49c5c5c08a148f53698d49cb9304bc7e1d8c1624",
+  "short_sha": "49c5c5c08a",
+  "subject": "fix: horrible error message due to `constApprox := true`",
+  "zig_target": {}
+}

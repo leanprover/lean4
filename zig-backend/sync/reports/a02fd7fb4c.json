@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-15",
+  "needs_port": false,
+  "sha": "a02fd7fb4cfac4c02d24a252352c8fdd85cfed4b",
+  "short_sha": "a02fd7fb4c",
+  "subject": "feat(library/noncomputable): sorts are computable",
+  "zig_target": {}
+}

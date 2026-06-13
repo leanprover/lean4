@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-01-11",
+  "needs_port": true,
+  "sha": "acad5879380bf1c113cf54cd6dbfc989fd224010",
+  "short_sha": "acad587938",
+  "subject": "fix: pattern selection for local lemmas (#6606)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

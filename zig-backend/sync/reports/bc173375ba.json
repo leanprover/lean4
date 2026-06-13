@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-01",
+  "needs_port": false,
+  "sha": "bc173375ba8e76598e5fcc4b09a30575bf97f47c",
+  "short_sha": "bc173375ba",
+  "subject": "fix: missing `resolveGlobalConstNoOverload`",
+  "zig_target": {}
+}

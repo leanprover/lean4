@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "b7c3f517a9545048c45619e46c741b16b4cd18f6",
+  "short_sha": "b7c3f517a9",
+  "subject": "feat(frontends/lean/builtin_exprs): support for precedence annotations in node!/node_choice!",
+  "zig_target": {}
+}

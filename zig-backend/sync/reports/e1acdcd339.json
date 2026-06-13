@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-02-28",
+  "needs_port": true,
+  "sha": "e1acdcd339ba238b6a7ab820b4188d12e89cd110",
+  "short_sha": "e1acdcd339",
+  "subject": "fix: `get_elem_tactic_trivial` regression (#3531)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

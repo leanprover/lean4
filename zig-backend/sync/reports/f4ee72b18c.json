@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-05-20",
+  "needs_port": false,
+  "sha": "f4ee72b18c4a8a8b0dede6d2bca6a4010074db1d",
+  "short_sha": "f4ee72b18c",
+  "subject": "feat: minimal iterator library (#8358)",
+  "zig_target": {}
+}

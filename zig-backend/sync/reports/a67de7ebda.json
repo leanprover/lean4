@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-19",
+  "needs_port": false,
+  "sha": "a67de7ebda6046f618454cb073f60a904db7e021",
+  "short_sha": "a67de7ebda",
+  "subject": "fix: lake: use response files on Windows to avoid CLI length limits (#7576)",
+  "zig_target": {}
+}

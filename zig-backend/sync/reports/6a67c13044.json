@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "6a67c13044e89ba8ae5ebfa9915b0af69d332392",
+  "short_sha": "6a67c13044",
+  "subject": "feat: generalize helper functions",
+  "zig_target": {}
+}

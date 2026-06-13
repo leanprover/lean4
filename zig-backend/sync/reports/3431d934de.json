@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/Path.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Path.lean"
+    }
+  ],
+  "date": "2020-05-22",
+  "needs_port": true,
+  "sha": "3431d934debac8a6ecc2f9e16f06291dc1ba55cb",
+  "short_sha": "3431d934de",
+  "subject": "fix: initSearchPath: use valid default value",
+  "zig_target": {
+    "src/Init/Lean/Util/Path.lean": "zig-backend/src/init/Lean/Util/Path.lean"
+  }
+}

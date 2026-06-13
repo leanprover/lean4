@@ -1,0 +1,10 @@
+{
+  "author": "Yuri de Wit",
+  "backend_changes": [],
+  "date": "2022-10-15",
+  "needs_port": false,
+  "sha": "c98b3a538890018a95989a484885a75be6cf36b6",
+  "short_sha": "c98b3a5388",
+  "subject": "fix: add local Hashable instance (fixes #1737)",
+  "zig_target": {}
+}

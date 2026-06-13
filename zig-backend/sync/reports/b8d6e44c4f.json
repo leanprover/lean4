@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-11-18",
+  "needs_port": false,
+  "sha": "b8d6e44c4f65c9a38f2ebc8e2d1691575b53e761",
+  "short_sha": "b8d6e44c4f",
+  "subject": "fix: liberalize rules for atoms by allowing leading '' (#6114)",
+  "zig_target": {}
+}

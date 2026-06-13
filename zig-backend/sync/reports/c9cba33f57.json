@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-16",
+  "needs_port": false,
+  "sha": "c9cba33f579fd27e07f9a24e5351851c9f02026b",
+  "short_sha": "c9cba33f57",
+  "subject": "chore: upstream Expr.nat? and int? for recognising 'normal form' numerals (#3360)",
+  "zig_target": {}
+}

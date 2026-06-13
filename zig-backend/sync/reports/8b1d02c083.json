@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-07",
+  "needs_port": false,
+  "sha": "8b1d02c083565d66158ef39dbc2e4156a88452a0",
+  "short_sha": "8b1d02c083",
+  "subject": "feat: lean4-mode: highlight inaccessible names in goal display using font-lock-comment-face",
+  "zig_target": {}
+}

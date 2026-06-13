@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-06",
+  "needs_port": false,
+  "sha": "691113ca7ca7d8ae263f9f6932365ad34452d910",
+  "short_sha": "691113ca7c",
+  "subject": "chore: add Mathlib CI comments using the mathlib bot (#2824)",
+  "zig_target": {}
+}

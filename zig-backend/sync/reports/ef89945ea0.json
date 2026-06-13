@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "ef89945ea0fd0ac2165cdbaa46c8d420d51e23b5",
+  "short_sha": "ef89945ea0",
+  "subject": "fix(library/init/lean/compiler/ir/emitcpp): tail call",
+  "zig_target": {}
+}

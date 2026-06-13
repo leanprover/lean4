@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-09-02",
+  "needs_port": false,
+  "sha": "1b40ec5366b8da3789114872352c53e78e63df95",
+  "short_sha": "1b40ec5366",
+  "subject": "perf: cache visited exprs at `CheckAssignmentQuick` (#5225)",
+  "zig_target": {}
+}

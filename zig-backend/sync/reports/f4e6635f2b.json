@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "f4e6635f2bb34e2bb0c7d3b427232d8b525b7987",
+  "short_sha": "f4e6635f2b",
+  "subject": "chore: getMessageStringEx: show exception",
+  "zig_target": {}
+}

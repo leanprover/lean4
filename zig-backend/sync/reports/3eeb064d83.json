@@ -1,0 +1,10 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [],
+  "date": "2022-10-07",
+  "needs_port": false,
+  "sha": "3eeb064d8333489757abe651e2972ab688696d70",
+  "short_sha": "3eeb064d83",
+  "subject": "fix: Clear Diagnostics when file is closed (#1591)",
+  "zig_target": {}
+}

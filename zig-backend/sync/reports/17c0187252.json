@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-16",
+  "needs_port": false,
+  "sha": "17c0187252971a65f889d78726917307ea3c0304",
+  "short_sha": "17c0187252",
+  "subject": "fix: add workaround for `MessageData` limitations (#6669)",
+  "zig_target": {}
+}

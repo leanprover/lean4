@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-13",
+  "needs_port": false,
+  "sha": "aae827cb4c06f7631807b6be791df659b7cb21a6",
+  "short_sha": "aae827cb4c",
+  "subject": "refactor: replace flat `Array Expr` with `TransformAltFVars` in `MatcherApp.transform` (#12902)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-04-17",
+  "needs_port": false,
+  "sha": "627a0f308b27081e12cc2537e8dde60edd3a34aa",
+  "short_sha": "627a0f308b",
+  "subject": "fix: add unused variables ignore function for `#guard_msgs` (#3931)",
+  "zig_target": {}
+}

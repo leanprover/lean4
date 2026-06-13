@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-19",
+  "needs_port": false,
+  "sha": "b1e292e2388a169b1aa8600363a3f81f344ce317",
+  "short_sha": "b1e292e238",
+  "subject": "feat: add option for disabling join point scope checking",
+  "zig_target": {}
+}

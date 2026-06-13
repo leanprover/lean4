@@ -1,0 +1,10 @@
+{
+  "author": "Varun Gandhi",
+  "backend_changes": [],
+  "date": "2021-11-22",
+  "needs_port": false,
+  "sha": "9ae6380b4332f49d5c4770a011e82de682cde624",
+  "short_sha": "9ae6380b43",
+  "subject": "fix: only check for ccache if variables aren't passed explicitly",
+  "zig_target": {}
+}

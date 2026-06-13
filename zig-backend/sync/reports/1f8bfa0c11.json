@@ -1,0 +1,25 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "old_path": "src/runtime/maxsharing.cpp",
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "R",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    }
+  ],
+  "date": "2020-02-28",
+  "needs_port": true,
+  "sha": "1f8bfa0c1116a9da38db88f62f0bcc9e47ac5f03",
+  "short_sha": "1f8bfa0c11",
+  "subject": "chore: rename maxsharing.cpp => sharecommon.cpp",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp"
+  }
+}

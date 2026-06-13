@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-14",
+  "needs_port": false,
+  "sha": "dbe0d2d706aa5af79587db14d962540c7bf7c115",
+  "short_sha": "dbe0d2d706",
+  "subject": "feat: automatically generate injectivity theorems",
+  "zig_target": {}
+}

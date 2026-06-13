@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2022-06-24",
+  "needs_port": true,
+  "sha": "aacfd115082906d5abfc64f763db930c2b395dc4",
+  "short_sha": "aacfd11508",
+  "subject": "feat: boolean inequality lemmas",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

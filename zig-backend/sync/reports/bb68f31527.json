@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2026-01-31",
+  "needs_port": true,
+  "sha": "bb68f3152715f2d5c604f3324d50ff71eefc9188",
+  "short_sha": "bb68f31527",
+  "subject": "doc: add pp.mvars advice to `#guard_msgs` docstring (#12253)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

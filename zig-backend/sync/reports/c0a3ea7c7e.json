@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-17",
+  "needs_port": false,
+  "sha": "c0a3ea7c7e43c3ab94f1c7aa178c2d000b405fab",
+  "short_sha": "c0a3ea7c7e",
+  "subject": "doc: theorem naming",
+  "zig_target": {}
+}

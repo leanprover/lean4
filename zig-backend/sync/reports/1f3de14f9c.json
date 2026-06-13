@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-02-25",
+  "needs_port": true,
+  "sha": "1f3de14f9cc4e30daff48f30eca91c59e59fcf16",
+  "short_sha": "1f3de14f9c",
+  "subject": "fix(runtime/object): embarrassing bug at `del_core`",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

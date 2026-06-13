@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-04-07",
+  "needs_port": true,
+  "sha": "4aed79a13e79c8e757fb0fcc32bf92ccd54438d4",
+  "short_sha": "4aed79a13e",
+  "subject": "feat: less strict, hopefully more helpful syntax ident matching semantics",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

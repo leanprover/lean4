@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-26",
+  "needs_port": false,
+  "sha": "214acc921ca43d109e566654e23ef700b2c9c55c",
+  "short_sha": "214acc921c",
+  "subject": "refactor: `Goal` in `grind` (#11806)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-03-07",
+  "needs_port": false,
+  "sha": "578175298514ecd4490652a854ad75928414dfbc",
+  "short_sha": "5781752985",
+  "subject": "fix: offset unification with a+a+1",
+  "zig_target": {}
+}

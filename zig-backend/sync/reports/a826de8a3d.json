@@ -1,0 +1,54 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Control.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range.lean"
+    }
+  ],
+  "date": "2024-10-31",
+  "needs_port": true,
+  "sha": "a826de8a3da5c405e46bd1656edef76ff20b2113",
+  "short_sha": "a826de8a3d",
+  "subject": "chore: remove duplicated ForIn instances (#5892)",
+  "zig_target": {
+    "src/Init/Control/Basic.lean": "zig-backend/src/init/Control/Basic.lean",
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/List/Control.lean": "zig-backend/src/init/Data/List/Control.lean",
+    "src/Init/Data/List/Monadic.lean": "zig-backend/src/init/Data/List/Monadic.lean",
+    "src/Init/Data/Option/Instances.lean": "zig-backend/src/init/Data/Option/Instances.lean",
+    "src/Init/Data/Range.lean": "zig-backend/src/init/Data/Range.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-15",
+  "needs_port": false,
+  "sha": "54a3fbf88fd077c2aafcdc68e151c0973c9a3f19",
+  "short_sha": "54a3fbf88f",
+  "subject": "fix: improve error message when `decide +kernel` fails (#10780)",
+  "zig_target": {}
+}

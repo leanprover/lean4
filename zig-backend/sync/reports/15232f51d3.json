@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-13",
+  "needs_port": false,
+  "sha": "15232f51d34304f53e53f3bd69b115ce6f824dac",
+  "short_sha": "15232f51d3",
+  "subject": "feat: add `Expr.constainsFVar`",
+  "zig_target": {}
+}

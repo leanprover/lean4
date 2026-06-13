@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-07",
+  "needs_port": false,
+  "sha": "e1be008516584d684900fbccedbf0ab25bdd1a79",
+  "short_sha": "e1be008516",
+  "subject": "feat: add `caseArraySizes`",
+  "zig_target": {}
+}

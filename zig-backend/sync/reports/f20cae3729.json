@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-02-11",
+  "needs_port": false,
+  "sha": "f20cae3729e4428c13883b906ec63e2c28dc4995",
+  "short_sha": "f20cae3729",
+  "subject": "fix: no defeq equations for irreducible definitions (#12429)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-18",
+  "needs_port": false,
+  "sha": "d9ca07fca8e2edd8916f6749564004a9115bb004",
+  "short_sha": "d9ca07fca8",
+  "subject": "chore: replace `DecidableEq Name` with `HasBeq Name`",
+  "zig_target": {}
+}

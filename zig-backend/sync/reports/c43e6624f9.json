@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-05",
+  "needs_port": false,
+  "sha": "c43e6624f954a0f1c68206f6e1806bb49ab84ca9",
+  "short_sha": "c43e6624f9",
+  "subject": "fix: Lean.Elab.Command with new parser",
+  "zig_target": {}
+}

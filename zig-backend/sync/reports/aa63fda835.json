@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-14",
+  "needs_port": false,
+  "sha": "aa63fda835eb974bffd7c2c192730866ffdd8c45",
+  "short_sha": "aa63fda835",
+  "subject": "fix: mark auxiliary `noConfusion` declarations for enumeration types as `[reducible]`",
+  "zig_target": {}
+}

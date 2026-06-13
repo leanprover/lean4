@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-02",
+  "needs_port": false,
+  "sha": "26dda3f63d885e8c22888926bdea0d99f58bf444",
+  "short_sha": "26dda3f63d",
+  "subject": "feat: release 4.0.0-m2",
+  "zig_target": {}
+}

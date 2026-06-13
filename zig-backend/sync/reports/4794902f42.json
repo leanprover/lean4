@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-21",
+  "needs_port": false,
+  "sha": "4794902f4299e73196c3d89fce218d47a3042116",
+  "short_sha": "4794902f42",
+  "subject": "chore: ensure dummy functions are inlined",
+  "zig_target": {}
+}

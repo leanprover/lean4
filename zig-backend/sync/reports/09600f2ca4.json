@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-06",
+  "needs_port": false,
+  "sha": "09600f2ca45b69682c24bdd576458cd4e3259822",
+  "short_sha": "09600f2ca4",
+  "subject": "chore: add `lakeprof` benchmarks  (#9709)",
+  "zig_target": {}
+}

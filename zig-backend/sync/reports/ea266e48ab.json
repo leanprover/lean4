@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-20",
+  "needs_port": false,
+  "sha": "ea266e48ab85e355a4d83aaddb1addd4aa9a7e95",
+  "short_sha": "ea266e48ab",
+  "subject": "feat: unicodeSymbol.formatter: prefer symbol used in syntax tree",
+  "zig_target": {}
+}

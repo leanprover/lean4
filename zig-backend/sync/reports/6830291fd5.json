@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "6830291fd5f326b83d29efc49515e696ea0fb903",
+  "short_sha": "6830291fd5",
+  "subject": "chore: remove dead code at `Class.lean` used by old frontend",
+  "zig_target": {}
+}

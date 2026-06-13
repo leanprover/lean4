@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-20",
+  "needs_port": false,
+  "sha": "fdbec9101fcd614aaf88a93d92f2dd0497384c3e",
+  "short_sha": "fdbec9101f",
+  "subject": "fix: pattern reordering in syntax `match`",
+  "zig_target": {}
+}

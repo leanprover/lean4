@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "7fec9587db2727e5fa84c7c7d02860f4187f0a7f",
+  "short_sha": "7fec9587db",
+  "subject": "fix: `dollarProj` notation bug",
+  "zig_target": {}
+}

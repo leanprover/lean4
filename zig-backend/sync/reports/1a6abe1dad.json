@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2022-01-12",
+  "needs_port": true,
+  "sha": "1a6abe1dadd80f18b94ae79b3978ab5f93fe5914",
+  "short_sha": "1a6abe1dad",
+  "subject": "feat: `WellFoundedRelation` as a class",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

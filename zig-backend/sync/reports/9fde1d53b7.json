@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful.lean"
+    }
+  ],
+  "date": "2021-11-23",
+  "needs_port": true,
+  "sha": "9fde1d53b7e1cf5845bc5415ce49a446733a295f",
+  "short_sha": "9fde1d53b7",
+  "subject": "chore: adjust proofs affected by struct eta",
+  "zig_target": {
+    "src/Init/Control/Lawful.lean": "zig-backend/src/init/Control/Lawful.lean"
+  }
+}

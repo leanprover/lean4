@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "c6433460fbfc3b590f8da76d019030a78eae5a0c",
+  "short_sha": "c6433460fb",
+  "subject": "chore(library/init/lean/compiler/ir/format): naming consistency",
+  "zig_target": {}
+}

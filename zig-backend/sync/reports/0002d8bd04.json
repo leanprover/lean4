@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean_gmp.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean_gmp.h"
+    },
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    },
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-11-29",
+  "needs_port": true,
+  "sha": "0002d8bd04f6b23e934c052db1468c844d342dfb",
+  "short_sha": "0002d8bd04",
+  "subject": "chore: missing `#ifdef LEAN_USE_GMP`",
+  "zig_target": {
+    "src/include/lean/lean_gmp.h": "zig-backend/include/lean/lean_gmp.h",
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp",
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

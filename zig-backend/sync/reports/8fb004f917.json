@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2019-07-26",
+  "needs_port": true,
+  "sha": "8fb004f917a6f0d7556417920a356acff9b28188",
+  "short_sha": "8fb004f917",
+  "subject": "fix(runtime/alloc): fix out-of-bounds pointer reported by ubsan",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

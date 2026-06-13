@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "433c4d22c26beab71c64a1399c8b566be68e24b9",
+  "short_sha": "433c4d22c2",
+  "subject": "fix: exposeRelevantUniverses was inserting the whole expression into itself",
+  "zig_target": {}
+}

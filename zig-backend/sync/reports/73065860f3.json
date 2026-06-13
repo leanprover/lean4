@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-16",
+  "needs_port": false,
+  "sha": "73065860f3f78e663fa45b69d0ba1964e7d497ff",
+  "short_sha": "73065860f3",
+  "subject": "fix: refuse to generate code for imported parsers to avoid duplicate declarations",
+  "zig_target": {}
+}

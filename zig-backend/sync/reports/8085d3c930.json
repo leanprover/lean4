@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-29",
+  "needs_port": false,
+  "sha": "8085d3c9306ca9ff9e16c3427cc06ab29932863a",
+  "short_sha": "8085d3c930",
+  "subject": "chore: allow use of the module system in all of core (#9078)",
+  "zig_target": {}
+}

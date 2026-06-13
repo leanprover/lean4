@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-12-19",
+  "needs_port": false,
+  "sha": "12cadda3bd398f426d8fa53eb8d61e58844dbacb",
+  "short_sha": "12cadda3bd",
+  "subject": "fix: process delayed assignment metavariables correctly in `Lean.Meta.Closure` (#6414)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-24",
+  "needs_port": false,
+  "sha": "cf0bb173ad67786ca4c924129df36318bde75a00",
+  "short_sha": "cf0bb173ad",
+  "subject": "fix: highlight.js",
+  "zig_target": {}
+}

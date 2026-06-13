@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-25",
+  "needs_port": false,
+  "sha": "d806344ee2389ddd5162b2d71421a208c47b52b6",
+  "short_sha": "d806344ee2",
+  "subject": "fix: set `etaStruct := false` at `MatchEqns`",
+  "zig_target": {}
+}

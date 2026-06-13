@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-03",
+  "needs_port": false,
+  "sha": "cb6ae247aaf6fa7da28255f1690b25947c30565e",
+  "short_sha": "cb6ae247aa",
+  "subject": "chore: remove `[specialize]` annotations from `fold` operations on `PersistentHashMap`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-27",
+  "needs_port": false,
+  "sha": "3fe7db1bbfce8c09f753c33440eb5d600c0181f5",
+  "short_sha": "3fe7db1bbf",
+  "subject": "chore: remove dead theorem",
+  "zig_target": {}
+}

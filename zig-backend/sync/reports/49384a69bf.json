@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "49384a69bfc209cbd85df7d80204e5d053f37dca",
+  "short_sha": "49384a69bf",
+  "subject": "fix: precompile imports of precompiled imports",
+  "zig_target": {}
+}

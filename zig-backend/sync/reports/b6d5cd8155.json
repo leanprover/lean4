@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-02",
+  "needs_port": false,
+  "sha": "b6d5cd81555f6f2c7c13df186058972acbfa6a45",
+  "short_sha": "b6d5cd8155",
+  "subject": "fix: forward `USE_GMP` to stage 0",
+  "zig_target": {}
+}

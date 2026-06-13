@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-23",
+  "needs_port": false,
+  "sha": "dd146d50cf2fdf002ab216cadff7a2cf46bdd855",
+  "short_sha": "dd146d50cf",
+  "subject": "fix: extra linker flags (e.g. `-ldl`) must come after stdlib linker flags",
+  "zig_target": {}
+}

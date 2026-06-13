@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-23",
+  "needs_port": false,
+  "sha": "44eee0c3a46e5ce1d4d41f35c0c6487c4ac00dcd",
+  "short_sha": "44eee0c3a4",
+  "subject": "feat: improve `replaceRecApps`",
+  "zig_target": {}
+}

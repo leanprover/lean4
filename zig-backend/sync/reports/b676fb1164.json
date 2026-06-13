@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2025-08-08",
+  "needs_port": true,
+  "sha": "b676fb1164d5fb2d92cf758b1d0c1e835857541d",
+  "short_sha": "b676fb1164",
+  "subject": "fix: `@[expose]` `String.firstDiffPos` and `String.extract` (#9792)",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

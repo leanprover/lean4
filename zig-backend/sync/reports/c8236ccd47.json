@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "c8236ccd4722e3a7951074de56369bf1f31616ec",
+  "short_sha": "c8236ccd47",
+  "subject": "chore: basic simprocs for `String`",
+  "zig_target": {}
+}

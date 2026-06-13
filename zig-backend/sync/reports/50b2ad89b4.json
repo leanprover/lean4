@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-01",
+  "needs_port": false,
+  "sha": "50b2ad89b4721b0d011832207a6f5a95cc2c1717",
+  "short_sha": "50b2ad89b4",
+  "subject": "test: limit maxRecDepth",
+  "zig_target": {}
+}

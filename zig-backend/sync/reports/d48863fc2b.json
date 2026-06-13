@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-04-06",
+  "needs_port": false,
+  "sha": "d48863fc2bb15ffbb9b393fba4b5b0bd767fe391",
+  "short_sha": "d48863fc2b",
+  "subject": "fix: add checkInterrupted to Core.withIncRecDepth (#13290)",
+  "zig_target": {}
+}

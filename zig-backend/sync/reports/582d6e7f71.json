@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-07-09",
+  "needs_port": false,
+  "sha": "582d6e7f7168e0dc0819099edaace27d913b893e",
+  "short_sha": "582d6e7f71",
+  "subject": "chore: CI: update download-artifact actions",
+  "zig_target": {}
+}

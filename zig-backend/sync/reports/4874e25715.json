@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-14",
+  "needs_port": false,
+  "sha": "4874e2571566ffc350989770ca4e0e87e6a68f4d",
+  "short_sha": "4874e25715",
+  "subject": "feat(kernel): save constructor idx and nfields at `constructor_val`",
+  "zig_target": {}
+}

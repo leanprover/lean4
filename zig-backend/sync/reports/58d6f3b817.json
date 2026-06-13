@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2021-08-04",
+  "needs_port": true,
+  "sha": "58d6f3b817562adb98e8450b35cdfd77fed9edce",
+  "short_sha": "58d6f3b817",
+  "subject": "fix: search all loaded modules for symbols on Windows",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

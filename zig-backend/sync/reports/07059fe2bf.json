@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-23",
+  "needs_port": false,
+  "sha": "07059fe2bf4ae82ab10476d10ecac494474ddb43",
+  "short_sha": "07059fe2bf",
+  "subject": "fix(library/init/lean/frontend): naming style misrenamings",
+  "zig_target": {}
+}

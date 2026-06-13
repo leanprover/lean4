@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-21",
+  "needs_port": false,
+  "sha": "e20f2e076e9091a6c2fea85c1cd9f70424e64ba0",
+  "short_sha": "e20f2e076e",
+  "subject": "chore: Nix: cache lean-bin-tools",
+  "zig_target": {}
+}

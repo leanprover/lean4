@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    }
+  ],
+  "date": "2018-09-18",
+  "needs_port": true,
+  "sha": "8e1a6dc81bae702820781e1243d9b9e006001e18",
+  "short_sha": "8e1a6dc81b",
+  "subject": "chore(library/compiler/preprocess): add `trace.compiler.state1` option",
+  "zig_target": {
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp"
+  }
+}

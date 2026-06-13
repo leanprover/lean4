@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-07",
+  "needs_port": false,
+  "sha": "5a849dee9b415eb2ddc96abae69c66c675ae8aaa",
+  "short_sha": "5a849dee9b",
+  "subject": "fix: `grind` ematch theorem activation issue (#7861)",
+  "zig_target": {}
+}

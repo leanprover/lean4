@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-26",
+  "needs_port": false,
+  "sha": "5e25d9148a8f0a17782453704ba779b827bc96da",
+  "short_sha": "5e25d9148a",
+  "subject": "feat: improve `apply` error message when root term elaboration is postponed",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    }
+  ],
+  "date": "2019-02-11",
+  "needs_port": true,
+  "sha": "5a5e9495781d8d14d876acb2a01d317cd571725a",
+  "short_sha": "5a5e949578",
+  "subject": "feat(library/init/lean/name): use `extern` attribute",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp"
+  }
+}

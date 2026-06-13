@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-08-05",
+  "needs_port": true,
+  "sha": "d8c7c9fdb535c3c92e67f58b7a3431720ecaec01",
+  "short_sha": "d8c7c9fdb5",
+  "subject": "refactor: reduce code duplication (#9753)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

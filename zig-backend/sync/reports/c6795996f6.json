@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "c6795996f69f95e3ea13cbb3b9e2d95c6174297f",
+  "short_sha": "c6795996f6",
+  "subject": "feat(library/init/lean/parser/term): allow match syntax to be used in `def`",
+  "zig_target": {}
+}

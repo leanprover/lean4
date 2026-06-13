@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-24",
+  "needs_port": false,
+  "sha": "a54872f5f64c9e8e0b89276384a2793b008b0078",
+  "short_sha": "a54872f5f6",
+  "subject": "fix: `preprocessLight` at `ensureInternalized` (#8466)",
+  "zig_target": {}
+}

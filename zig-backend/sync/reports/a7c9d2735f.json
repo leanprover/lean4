@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-03-01",
+  "needs_port": false,
+  "sha": "a7c9d2735f68cafcf4dca5debe665cd2c1f1771f",
+  "short_sha": "a7c9d2735f",
+  "subject": "fix: do not apply eta for structures in Prop",
+  "zig_target": {}
+}

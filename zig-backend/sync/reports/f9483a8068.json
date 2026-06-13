@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/ExceptCps.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/ExceptCps.lean"
+    }
+  ],
+  "date": "2021-02-27",
+  "needs_port": true,
+  "sha": "f9483a8068db676ba3a43e544e92ddeb4bff6fa3",
+  "short_sha": "f9483a8068",
+  "subject": "feat: add `ExceptCpsT.runCatch`",
+  "zig_target": {
+    "src/Init/Control/ExceptCps.lean": "zig-backend/src/init/Control/ExceptCps.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-19",
+  "needs_port": false,
+  "sha": "1fc058503dd0e2a7359833511f49be2b1a1fd815",
+  "short_sha": "1fc058503d",
+  "subject": "fix(tests/playground/rbmap3): bug",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-29",
+  "needs_port": false,
+  "sha": "ee5679c77c01507779b699064ef617b83f2bca00",
+  "short_sha": "ee5679c77c",
+  "subject": "chore: prepare to add optional priorities to the `notation` and `mixfix` commands",
+  "zig_target": {}
+}

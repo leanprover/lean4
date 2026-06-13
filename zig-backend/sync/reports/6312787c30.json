@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-07",
+  "needs_port": true,
+  "sha": "6312787c300ba7d3be36c1a2bd2b4d7c5263a3b8",
+  "short_sha": "6312787c30",
+  "subject": "feat: lemmas for Bitvector division when denominator is zero (#5609)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

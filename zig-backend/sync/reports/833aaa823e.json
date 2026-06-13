@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-14",
+  "needs_port": false,
+  "sha": "833aaa823e5c4de9262077de37a07d86e4c017ec",
+  "short_sha": "833aaa823e",
+  "subject": "chore: tactics using library suggestions set the caller field (#11171)",
+  "zig_target": {}
+}

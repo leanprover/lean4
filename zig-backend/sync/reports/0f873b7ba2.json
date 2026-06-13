@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/eager_lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+    }
+  ],
+  "date": "2019-07-09",
+  "needs_port": true,
+  "sha": "0f873b7ba229eb700e9d0c3fa229f1e2a4700d6b",
+  "short_sha": "0f873b7ba2",
+  "subject": "fix(library/compiler/eager_lambda_lifting): collect type dependencies",
+  "zig_target": {
+    "src/library/compiler/eager_lambda_lifting.cpp": "zig-backend/src/library/compiler/eager_lambda_lifting.cpp"
+  }
+}

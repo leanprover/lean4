@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "131b458236cdd1d2315b499ee67c801faa660953",
+  "short_sha": "131b458236",
+  "subject": "chore: lake: revert use of Lake plugin (#7608)",
+  "zig_target": {}
+}

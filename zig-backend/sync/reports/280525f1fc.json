@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-04-10",
+  "needs_port": false,
+  "sha": "280525f1fccbe2e08ef3032ac02af30ebdebf728",
+  "short_sha": "280525f1fc",
+  "subject": "fix: omega: ignore levels in canonicalizer (#3853)",
+  "zig_target": {}
+}

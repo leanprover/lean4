@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-05",
+  "needs_port": false,
+  "sha": "4046dd1e6162904ae9b812e253e8a81afcefed5e",
+  "short_sha": "4046dd1e61",
+  "subject": "fix: docstring code suggestions take shadowing into account (#12321)",
+  "zig_target": {}
+}

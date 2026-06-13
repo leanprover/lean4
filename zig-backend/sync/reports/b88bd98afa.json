@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Bind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Bind.lean"
+    }
+  ],
+  "date": "2022-09-24",
+  "needs_port": true,
+  "sha": "b88bd98afa4215645248c1c0d3ef664038c5bddb",
+  "short_sha": "b88bd98afa",
+  "subject": "fix: `unreach` case for `Code.bind`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Bind.lean": "zig-backend/src/lean/compiler/lcnf/Bind.lean"
+  }
+}

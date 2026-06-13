@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    }
+  ],
+  "date": "2025-02-14",
+  "needs_port": true,
+  "sha": "dd1a4188a0cb6995d2519765fc20f461a0f546ff",
+  "short_sha": "dd1a4188a0",
+  "subject": "feat: `Fin.toNat` (#7079)",
+  "zig_target": {
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean"
+  }
+}

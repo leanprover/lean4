@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-18",
+  "needs_port": false,
+  "sha": "19d9f6c450923ae597aea44c5ef8bd7d863af9a8",
+  "short_sha": "19d9f6c450",
+  "subject": "chore: remove brittle new compiler tests that depend on internal decls (#8875)",
+  "zig_target": {}
+}

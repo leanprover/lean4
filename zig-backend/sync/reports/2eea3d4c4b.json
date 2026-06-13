@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extract_values.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extract_values.cpp"
+    },
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    },
+    {
+      "path": "src/library/compiler/preprocess.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/preprocess.cpp"
+    },
+    {
+      "path": "src/library/compiler/procedure.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/procedure.h"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    }
+  ],
+  "date": "2018-10-05",
+  "needs_port": true,
+  "sha": "2eea3d4c4b71c9894e6129854aa2a673c39b06ae",
+  "short_sha": "2eea3d4c4b",
+  "subject": "chore(library/compiler): simplify `procedure` class",
+  "zig_target": {
+    "src/library/compiler/extract_values.cpp": "zig-backend/src/library/compiler/extract_values.cpp",
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp",
+    "src/library/compiler/preprocess.cpp": "zig-backend/src/library/compiler/preprocess.cpp",
+    "src/library/compiler/procedure.h": "zig-backend/src/library/compiler/procedure.h",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp"
+  }
+}

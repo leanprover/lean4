@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-03",
+  "needs_port": false,
+  "sha": "6e45685310f7df2f5ec7b7dea628c7627c26d6b8",
+  "short_sha": "6e45685310",
+  "subject": "fix: propositions should never be considered enum types",
+  "zig_target": {}
+}

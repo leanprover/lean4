@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-26",
+  "needs_port": false,
+  "sha": "642b30ab4781f10cddec37143d99dd47780519eb",
+  "short_sha": "642b30ab47",
+  "subject": "feat: add `withInstImplicitAsImplict`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-04-14",
+  "needs_port": false,
+  "sha": "cdb6401c65e8cf85af9fdcf72308aacf4759e1bb",
+  "short_sha": "cdb6401c65",
+  "subject": "chore: don't waste time building CMake mimalloc that we don't use (#13402)",
+  "zig_target": {}
+}

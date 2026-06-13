@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-09-27",
+  "needs_port": false,
+  "sha": "ae470e038eebb1b96d3bedbe78c2cd3b3a33503b",
+  "short_sha": "ae470e038e",
+  "subject": "docs: fix doc comment syntax in declModifiers doc comment (#2590)",
+  "zig_target": {}
+}

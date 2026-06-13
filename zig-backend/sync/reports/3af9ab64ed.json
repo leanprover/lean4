@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-05-26",
+  "needs_port": true,
+  "sha": "3af9ab64ed79a667fb8989f7a0c258b018aba371",
+  "short_sha": "3af9ab64ed",
+  "subject": "feat: `subst` tactic can substitute `let` values (#8450)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

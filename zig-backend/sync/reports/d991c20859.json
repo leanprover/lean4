@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-07",
+  "needs_port": false,
+  "sha": "d991c2085926731f6a68938dd46bc779f1e43242",
+  "short_sha": "d991c20859",
+  "subject": "chore: add `binop_lazy%`",
+  "zig_target": {}
+}

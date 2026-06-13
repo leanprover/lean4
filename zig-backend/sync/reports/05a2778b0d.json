@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-16",
+  "needs_port": false,
+  "sha": "05a2778b0db14fda956f1ff3fff9525217a5ab1e",
+  "short_sha": "05a2778b0d",
+  "subject": "fix: ensure explicit pattern variables provided by the uses are indeed pattern variables",
+  "zig_target": {}
+}

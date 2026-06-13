@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-08-18",
+  "needs_port": true,
+  "sha": "3af9cc3f6f6a656530acc8bc6e726ac506176618",
+  "short_sha": "3af9cc3f6f",
+  "subject": "doc: extend docstrings for `let`/`have` tactics (#9956)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

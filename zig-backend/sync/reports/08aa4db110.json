@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Exception.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Exception.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/GeneralizeTelescope.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/GeneralizeTelescope.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Message.lean"
+    }
+  ],
+  "date": "2020-03-25",
+  "needs_port": true,
+  "sha": "08aa4db110456af7130c8bd0dd3d3751155219d4",
+  "short_sha": "08aa4db110",
+  "subject": "feat: add `generalizeTelescope`",
+  "zig_target": {
+    "src/Init/Lean/Meta.lean": "zig-backend/src/init/Lean/Meta.lean",
+    "src/Init/Lean/Meta/Exception.lean": "zig-backend/src/init/Lean/Meta/Exception.lean",
+    "src/Init/Lean/Meta/GeneralizeTelescope.lean": "zig-backend/src/init/Lean/Meta/GeneralizeTelescope.lean",
+    "src/Init/Lean/Meta/Message.lean": "zig-backend/src/init/Lean/Meta/Message.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-27",
+  "needs_port": false,
+  "sha": "5167324cb894adf827af79f22fe7c5d72d4ccdcd",
+  "short_sha": "5167324cb8",
+  "subject": "doc: edit `Lean.MVarId.withReverted` (#3743)",
+  "zig_target": {}
+}

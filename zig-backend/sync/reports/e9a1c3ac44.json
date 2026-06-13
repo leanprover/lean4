@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-12",
+  "needs_port": false,
+  "sha": "e9a1c3ac44599f6d0c1f672d0be4e43cc364e9a4",
+  "short_sha": "e9a1c3ac44",
+  "subject": "test: `deriving` experiment",
+  "zig_target": {}
+}

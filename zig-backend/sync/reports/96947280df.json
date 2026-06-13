@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-03-11",
+  "needs_port": true,
+  "sha": "96947280df9cb23b2a87e8c125808e30e96ee58d",
+  "short_sha": "96947280df",
+  "subject": "doc: reference mkEmpty in Array doc-string (#7430)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

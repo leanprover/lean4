@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-29",
+  "needs_port": false,
+  "sha": "fa1da03d50a697fece646327902a90073c4a7938",
+  "short_sha": "fa1da03d50",
+  "subject": "feat: update structure/inductive error messages (#9592)",
+  "zig_target": {}
+}

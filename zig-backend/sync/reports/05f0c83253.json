@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-28",
+  "needs_port": false,
+  "sha": "05f0c8325366a65f7f94cf42484c85ffd9580e4d",
+  "short_sha": "05f0c83253",
+  "subject": "test: add new test for `MetavarContext.mkLambda`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-16",
+  "needs_port": false,
+  "sha": "ef2dc0f66aec683f6f1d18bc04cb7593687e5855",
+  "short_sha": "ef2dc0f66a",
+  "subject": "chore: CI: build everything with Lake (#13721)",
+  "zig_target": {}
+}

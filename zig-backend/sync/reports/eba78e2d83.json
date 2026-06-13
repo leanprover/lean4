@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-19",
+  "needs_port": false,
+  "sha": "eba78e2d83a772e92d91573e1fc51578a4df75e4",
+  "short_sha": "eba78e2d83",
+  "subject": "test: renaming for intrinsically typed lambda calculus",
+  "zig_target": {}
+}

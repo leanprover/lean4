@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-15",
+  "needs_port": false,
+  "sha": "42642a2890d5786a209f61b464dccc19ecb0dcd6",
+  "short_sha": "42642a2890",
+  "subject": "fix: `new_frontend` command issue",
+  "zig_target": {}
+}

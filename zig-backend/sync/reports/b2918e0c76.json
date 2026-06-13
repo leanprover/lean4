@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-04",
+  "needs_port": false,
+  "sha": "b2918e0c765f921b9e07511d7de88d99355f3e59",
+  "short_sha": "b2918e0c76",
+  "subject": "test: add tests for `WF.mkEqns`",
+  "zig_target": {}
+}

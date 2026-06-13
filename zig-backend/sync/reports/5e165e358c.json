@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Boxing.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+    }
+  ],
+  "date": "2025-12-01",
+  "needs_port": true,
+  "sha": "5e165e358c7a4dc0e8962dd8f4c283ab7a6baf0f",
+  "short_sha": "5e165e358c",
+  "subject": "fix: better types when creating boxed decls (#11445)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Boxing.lean": "zig-backend/src/lean/compiler/ir/Boxing.lean"
+  }
+}

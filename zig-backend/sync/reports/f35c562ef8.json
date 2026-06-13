@@ -1,0 +1,18 @@
+{
+  "author": "Matthew Robert Ballard",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2024-07-12",
+  "needs_port": true,
+  "sha": "f35c562ef8404c69aa758ddf9483a617de863870",
+  "short_sha": "f35c562ef8",
+  "subject": "feat: add `#discr_tree_key` command and `discr_tree_key` tactic (#4447)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

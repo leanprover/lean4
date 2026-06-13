@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-09-09",
+  "needs_port": true,
+  "sha": "c5940f0149398587921a2f8e44b30a0db761bf41",
+  "short_sha": "c5940f0149",
+  "subject": "fix: cmake/make dependencies",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

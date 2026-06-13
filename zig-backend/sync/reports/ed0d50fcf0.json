@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2026-05-12",
+  "needs_port": false,
+  "sha": "ed0d50fcf0efa8c9a32e1ccb3603ce43edce6926",
+  "short_sha": "ed0d50fcf0",
+  "subject": "fix: timing issues and race conditions in ContextAsync.race (#13718)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-01",
+  "needs_port": false,
+  "sha": "8cc6ec1cb78d1b19bcef828ade5fe822d2d4908f",
+  "short_sha": "8cc6ec1cb7",
+  "subject": "chore: Nix: Lean shell quoting",
+  "zig_target": {}
+}

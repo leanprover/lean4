@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-16",
+  "needs_port": false,
+  "sha": "a42fb533f41f62ddb92b8019177706056b64da6d",
+  "short_sha": "a42fb533f4",
+  "subject": "fix(library/vm/vm_io): move all primitives into `io`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-14",
+  "needs_port": false,
+  "sha": "3e846e1fc96d3f97bfe25337e55194613b7b16ad",
+  "short_sha": "3e846e1fc9",
+  "subject": "chore(library): remove unnecessary inaccessible annotations",
+  "zig_target": {}
+}

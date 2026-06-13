@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-28",
+  "needs_port": false,
+  "sha": "8c7aade7b675a0dbc3196e12b885362891adfe51",
+  "short_sha": "8c7aade7b6",
+  "subject": "feat: add coercion tests",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-27",
+  "needs_port": false,
+  "sha": "95acb5cf3aebd0687e0159ede5a1d0f0ccc35aa9",
+  "short_sha": "95acb5cf3a",
+  "subject": "chore: remove old `fun_info` module",
+  "zig_target": {}
+}

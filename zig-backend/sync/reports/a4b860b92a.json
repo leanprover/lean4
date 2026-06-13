@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-09-19",
+  "needs_port": true,
+  "sha": "a4b860b92a9c177ea53955f9ce9b574fdab11c7c",
+  "short_sha": "a4b860b92a",
+  "subject": "fix(runtime): missing `Array.data` primitive",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

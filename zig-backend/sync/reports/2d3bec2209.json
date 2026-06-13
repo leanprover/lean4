@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-08-22",
+  "needs_port": false,
+  "sha": "2d3bec2209521d6f482a6fd9f52f39e9ccccfa6a",
+  "short_sha": "2d3bec2209",
+  "subject": "feat: add proper CLI",
+  "zig_target": {}
+}

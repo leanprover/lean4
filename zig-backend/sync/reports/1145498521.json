@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/ST.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/ST.lean"
+    }
+  ],
+  "date": "2025-10-24",
+  "needs_port": true,
+  "sha": "11454985215b1c53f5d41c77b778c8c2cb498467",
+  "short_sha": "1145498521",
+  "subject": "fix: regression from ST redefinition (#10940)",
+  "zig_target": {
+    "src/Init/System/ST.lean": "zig-backend/src/init/System/ST.lean"
+  }
+}

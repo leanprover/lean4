@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-03",
+  "needs_port": false,
+  "sha": "088433dc577f56869e3c466a1dd7a0151e933c43",
+  "short_sha": "088433dc57",
+  "subject": "refactor: let AsyncList creation be stateful",
+  "zig_target": {}
+}

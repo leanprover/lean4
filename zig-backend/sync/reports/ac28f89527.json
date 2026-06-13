@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-12",
+  "needs_port": false,
+  "sha": "ac28f89527fefc5ba0d3236fc7f58629d8a1b984",
+  "short_sha": "ac28f89527",
+  "subject": "fix: Nix: link package's shared library dynamically against dependencies",
+  "zig_target": {}
+}

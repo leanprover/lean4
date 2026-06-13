@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-10-04",
+  "needs_port": false,
+  "sha": "7688919765627c33f244a71a152e8945801d7263",
+  "short_sha": "7688919765",
+  "subject": "test: temporarily disable all new tests that use `waitForILeans` (#10669)",
+  "zig_target": {}
+}

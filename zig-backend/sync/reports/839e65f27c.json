@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-15",
+  "needs_port": false,
+  "sha": "839e65f27cf222d94b4574458a975a7a1b541278",
+  "short_sha": "839e65f27c",
+  "subject": "test(tests/lean/run/handlers): add \"Handlers in Action\" example implementation",
+  "zig_target": {}
+}

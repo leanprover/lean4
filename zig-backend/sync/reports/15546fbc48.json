@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-23",
+  "needs_port": false,
+  "sha": "15546fbc4864b4c9ead21705cf6ea7ded57bb89d",
+  "short_sha": "15546fbc48",
+  "subject": "feat: add `Expr.findExt?`",
+  "zig_target": {}
+}

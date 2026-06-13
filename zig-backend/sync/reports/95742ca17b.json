@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-20",
+  "needs_port": false,
+  "sha": "95742ca17bfbb51eae5022582ee670de37119dab",
+  "short_sha": "95742ca17b",
+  "subject": "fix: parenthesizer: take minimum of successive precedence checks for `contPrec` as well",
+  "zig_target": {}
+}

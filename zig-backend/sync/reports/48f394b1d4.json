@@ -1,0 +1,10 @@
+{
+  "author": "Anne Baanen",
+  "backend_changes": [],
+  "date": "2025-06-10",
+  "needs_port": false,
+  "sha": "48f394b1d4d5b4c529bf14e5ac3f4cd01e841c23",
+  "short_sha": "48f394b1d4",
+  "subject": "chore: begin development cycle for v4.22.0 (#8642)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2023-11-19",
+  "needs_port": true,
+  "sha": "37362658ab3374ee0ac2f0f65379d183562c893a",
+  "short_sha": "37362658ab",
+  "subject": "fix: `eq_refl` tactic\u2019s name is `eqRefl`",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

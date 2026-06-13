@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-05",
+  "needs_port": false,
+  "sha": "3c521960c860305473b69b16fed60296baade4bc",
+  "short_sha": "3c521960c8",
+  "subject": "chore(library/class): remove attribute tracking symbols",
+  "zig_target": {}
+}

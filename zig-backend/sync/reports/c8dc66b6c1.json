@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-22",
+  "needs_port": true,
+  "sha": "c8dc66b6c1a392eaea5f46425729d68ee7f12a15",
+  "short_sha": "c8dc66b6c1",
+  "subject": "feat: helper theorems for solving equality in cutsat (#7194)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-07-21",
+  "needs_port": true,
+  "sha": "968a708a9f737740b9c585079791b707c4c9af64",
+  "short_sha": "968a708a9f",
+  "subject": "perf: update type information in cases arms for RC optimizations (#9457)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

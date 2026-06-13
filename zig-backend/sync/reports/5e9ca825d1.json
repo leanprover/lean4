@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-22",
+  "needs_port": false,
+  "sha": "5e9ca825d1d48808cbe98d0dbac1d9080bb19647",
+  "short_sha": "5e9ca825d1",
+  "subject": "refactor: simplify `evalTactic` backtracking",
+  "zig_target": {}
+}

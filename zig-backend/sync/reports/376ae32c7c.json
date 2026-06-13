@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-06-21",
+  "needs_port": true,
+  "sha": "376ae32c7c692b830bfc2afa82800d12aebfeab5",
+  "short_sha": "376ae32c7c",
+  "subject": "feat: fix pretty printing of grind attributes (#8892)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-04",
+  "needs_port": false,
+  "sha": "906e1b9d918808b14ece0005d7d18da734a3e6bc",
+  "short_sha": "906e1b9d91",
+  "subject": "fix: reset should only be performed at `trailingLoop`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-31",
+  "needs_port": false,
+  "sha": "49bdeb3c4641bc095e54b9f882c93b0c963c9e05",
+  "short_sha": "49bdeb3c46",
+  "subject": "doc: complete release notes for v4.3.0-rc1 (#2791)",
+  "zig_target": {}
+}

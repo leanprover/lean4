@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2025-07-25",
+  "needs_port": true,
+  "sha": "15f0cd9527de6e621b85798c7b6685d8846e92eb",
+  "short_sha": "15f0cd9527",
+  "subject": "fix: run `inferVisibility` after `saveMono` (#9545)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

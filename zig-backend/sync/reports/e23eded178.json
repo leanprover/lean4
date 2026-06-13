@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-09-04",
+  "needs_port": false,
+  "sha": "e23eded1787a8fca17c4f84e66a8d0f7f0b9ef62",
+  "short_sha": "e23eded178",
+  "subject": "fix(bin/leanc.in): use C compiler only when not linking",
+  "zig_target": {}
+}

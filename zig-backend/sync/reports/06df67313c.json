@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-30",
+  "needs_port": false,
+  "sha": "06df67313c7df958d662031095081caad5ea37a5",
+  "short_sha": "06df67313c",
+  "subject": "refactor: `goalsAt?`",
+  "zig_target": {}
+}

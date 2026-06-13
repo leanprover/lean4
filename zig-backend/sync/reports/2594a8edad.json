@@ -1,0 +1,10 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [],
+  "date": "2025-05-22",
+  "needs_port": false,
+  "sha": "2594a8edadd163ba579fc4a7b5a989650f65edda",
+  "short_sha": "2594a8edad",
+  "subject": "fix: namespace completion to only use the short name (#8350)",
+  "zig_target": {}
+}

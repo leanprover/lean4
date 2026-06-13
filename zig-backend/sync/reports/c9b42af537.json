@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2020-12-24",
+  "needs_port": true,
+  "sha": "c9b42af5372c7cadd84f10d42fff5cb7db4db0bf",
+  "short_sha": "c9b42af537",
+  "subject": "chore: (prepare to) rename if-then-else parsers",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

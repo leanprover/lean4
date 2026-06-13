@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Perm.lean"
+    }
+  ],
+  "date": "2025-12-10",
+  "needs_port": true,
+  "sha": "ec008ff55acd740f679969a41a91e177017147ff",
+  "short_sha": "ec008ff55a",
+  "subject": "feat: add `BEq` to `DHashMap`/`HashMap`/`HashSet` and their extensional variants (#11266)",
+  "zig_target": {
+    "src/Init/Data/List/Perm.lean": "zig-backend/src/init/Data/List/Perm.lean"
+  }
+}

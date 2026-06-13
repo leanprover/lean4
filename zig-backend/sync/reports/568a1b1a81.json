@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-20",
+  "needs_port": false,
+  "sha": "568a1b1a818499aa9f4211896e371684f1fc08fa",
+  "short_sha": "568a1b1a81",
+  "subject": "refactor: comm ring procedure in `grind` (#8034)",
+  "zig_target": {}
+}

@@ -1,0 +1,48 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/Platform.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Platform.lean"
+    },
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/platform.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/platform.cpp"
+    },
+    {
+      "path": "src/runtime/stack_overflow.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/stack_overflow.cpp"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    },
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2021-05-31",
+  "needs_port": true,
+  "sha": "8ada0ba0435dd4be93d24f3d39d578d49ab9f3bf",
+  "short_sha": "8ada0ba043",
+  "subject": "feat: initial Emscripten support",
+  "zig_target": {
+    "src/Init/System/Platform.lean": "zig-backend/src/init/System/Platform.lean",
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/platform.cpp": "zig-backend/src/runtime/platform.cpp",
+    "src/runtime/stack_overflow.cpp": "zig-backend/src/runtime/stack_overflow.cpp",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt",
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

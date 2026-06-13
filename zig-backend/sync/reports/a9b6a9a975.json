@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-12-10",
+  "needs_port": false,
+  "sha": "a9b6a9a975106a5ad154758952e650a2d138a302",
+  "short_sha": "a9b6a9a975",
+  "subject": "refactor: WF.EqnInfo.hasInduct (#6357)",
+  "zig_target": {}
+}

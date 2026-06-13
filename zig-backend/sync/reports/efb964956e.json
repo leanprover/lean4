@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2021-12-02",
+  "needs_port": false,
+  "sha": "efb964956eea472eb688721807ae6a424d822d55",
+  "short_sha": "efb964956e",
+  "subject": "feat: add FileRefMap and convert to/from JSON",
+  "zig_target": {}
+}

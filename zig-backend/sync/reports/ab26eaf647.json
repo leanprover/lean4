@@ -1,0 +1,247 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    },
+    {
+      "path": "src/Init/Control/MonadAttach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/MonadAttach.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Find.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/MapIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/MapIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    },
+    {
+      "path": "src/Init/Data/Char/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Fold.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Iterate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Iterate.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Producers/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Producers/List.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Producers/Monadic/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Producers/Monadic/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MapIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MapIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/OfFn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/OfFn.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArray.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Fold.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Ord/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Factories.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Factories.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/FactoriesExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/FactoriesExtra.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Opposite.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Opposite.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/PackageFactories.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/PackageFactories.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/RangeIterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/List/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/List/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Split.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Algebra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Algebra.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Extract.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Extract.lean"
+    }
+  ],
+  "date": "2026-02-19",
+  "needs_port": true,
+  "sha": "ab26eaf647c36df820450f3a1efdc414194c3be3",
+  "short_sha": "ab26eaf647",
+  "subject": "feat: enable implicit argument transparency bump (part 2) (#12572)",
+  "truncated": true,
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean",
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean",
+    "src/Init/Control/MonadAttach.lean": "zig-backend/src/init/Control/MonadAttach.lean",
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Find.lean": "zig-backend/src/init/Data/Array/Find.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/MapIdx.lean": "zig-backend/src/init/Data/Array/MapIdx.lean",
+    "src/Init/Data/Array/OfFn.lean": "zig-backend/src/init/Data/Array/OfFn.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean",
+    "src/Init/Data/Char/Lemmas.lean": "zig-backend/src/init/Data/Char/Lemmas.lean",
+    "src/Init/Data/Fin/Fold.lean": "zig-backend/src/init/Data/Fin/Fold.lean",
+    "src/Init/Data/Fin/Iterate.lean": "zig-backend/src/init/Data/Fin/Iterate.lean",
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FilterMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Producers/List.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Producers/List.lean",
+    "src/Init/Data/Iterators/Lemmas/Producers/Monadic/List.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Producers/Monadic/List.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/MapIdx.lean": "zig-backend/src/init/Data/List/MapIdx.lean",
+    "src/Init/Data/List/OfFn.lean": "zig-backend/src/init/Data/List/OfFn.lean",
+    "src/Init/Data/List/ToArray.lean": "zig-backend/src/init/Data/List/ToArray.lean",
+    "src/Init/Data/Nat/Fold.lean": "zig-backend/src/init/Data/Nat/Fold.lean",
+    "src/Init/Data/Option/Attach.lean": "zig-backend/src/init/Data/Option/Attach.lean",
+    "src/Init/Data/Ord/Basic.lean": "zig-backend/src/init/Data/Ord/Basic.lean",
+    "src/Init/Data/Order/Factories.lean": "zig-backend/src/init/Data/Order/Factories.lean",
+    "src/Init/Data/Order/FactoriesExtra.lean": "zig-backend/src/init/Data/Order/FactoriesExtra.lean",
+    "src/Init/Data/Order/Opposite.lean": "zig-backend/src/init/Data/Order/Opposite.lean",
+    "src/Init/Data/Order/PackageFactories.lean": "zig-backend/src/init/Data/Order/PackageFactories.lean",
+    "src/Init/Data/Range/Polymorphic/RangeIterator.lean": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean",
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean",
+    "src/Init/Data/Slice/Array/Iterator.lean": "zig-backend/src/init/Data/Slice/Array/Iterator.lean",
+    "src/Init/Data/Slice/Array/Lemmas.lean": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean",
+    "src/Init/Data/Slice/List/Iterator.lean": "zig-backend/src/init/Data/Slice/List/Iterator.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Split.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split.lean",
+    "src/Init/Data/UInt/Basic.lean": "zig-backend/src/init/Data/UInt/Basic.lean",
+    "src/Init/Data/UInt/BasicAux.lean": "zig-backend/src/init/Data/UInt/BasicAux.lean",
+    "src/Init/Data/Vector/Algebra.lean": "zig-backend/src/init/Data/Vector/Algebra.lean",
+    "src/Init/Data/Vector/Extract.lean": "zig-backend/src/init/Data/Vector/Extract.lean"
+  }
+}

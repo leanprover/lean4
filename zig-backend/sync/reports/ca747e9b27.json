@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-22",
+  "needs_port": false,
+  "sha": "ca747e9b271763b6beb5de58225e831e512c13eb",
+  "short_sha": "ca747e9b27",
+  "subject": "feat: use `contradiction` at leaves",
+  "zig_target": {}
+}

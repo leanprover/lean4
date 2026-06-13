@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2019-07-17",
+  "needs_port": true,
+  "sha": "f0899b381df0ac11475e1acf0ef8d1fd2c9784ec",
+  "short_sha": "f0899b381d",
+  "subject": "feat(library/init/lean/parser/module): add `displayStx` param",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

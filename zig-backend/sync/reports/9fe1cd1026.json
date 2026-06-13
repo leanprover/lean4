@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-10",
+  "needs_port": false,
+  "sha": "9fe1cd1026304b51df861f203c06f09b5f988de8",
+  "short_sha": "9fe1cd1026",
+  "subject": "chore: modify default value for option `structureDiamondWarning`",
+  "zig_target": {}
+}

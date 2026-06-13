@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-03",
+  "needs_port": false,
+  "sha": "4ca73459561b36203baed0b6347c377d970fe0c1",
+  "short_sha": "4ca7345956",
+  "subject": "refactor: remove old workaround",
+  "zig_target": {}
+}

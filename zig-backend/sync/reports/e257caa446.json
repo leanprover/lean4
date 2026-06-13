@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-05-21",
+  "needs_port": true,
+  "sha": "e257caa4463951c0cbd40f6d4f5c57b87fd5bac3",
+  "short_sha": "e257caa446",
+  "subject": "feat: move block tactic macro to `Init`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Monadic.lean"
+    }
+  ],
+  "date": "2025-03-09",
+  "needs_port": true,
+  "sha": "c797525d2a1353e8636ec63d68ccb4ad6591a815",
+  "short_sha": "c797525d2a",
+  "subject": "fix: WellFounded preprocessing: use dsimp (#7409)",
+  "zig_target": {
+    "src/Init/Data/Array/Monadic.lean": "zig-backend/src/init/Data/Array/Monadic.lean",
+    "src/Init/Data/List/Monadic.lean": "zig-backend/src/init/Data/List/Monadic.lean"
+  }
+}

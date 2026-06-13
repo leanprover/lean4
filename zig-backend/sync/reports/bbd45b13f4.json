@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-09-04",
+  "needs_port": false,
+  "sha": "bbd45b13f48decbefe858629e1a964f1ee805b37",
+  "short_sha": "bbd45b13f4",
+  "subject": "chore: move omega internals to a namespace (#10243)",
+  "zig_target": {}
+}

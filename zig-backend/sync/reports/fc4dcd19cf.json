@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-05",
+  "needs_port": false,
+  "sha": "fc4dcd19cf62ff60f853b28a2fdb4ba44730651f",
+  "short_sha": "fc4dcd19cf",
+  "subject": "refactor(library/init/lean/parser): use `ident.view` in `syntax.to_format`",
+  "zig_target": {}
+}

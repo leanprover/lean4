@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-11",
+  "needs_port": false,
+  "sha": "15e30a93f37c0b1e61bb725c49e8756aaed8dfb9",
+  "short_sha": "15e30a93f3",
+  "subject": "feat: update `RELEASES.md`",
+  "zig_target": {}
+}

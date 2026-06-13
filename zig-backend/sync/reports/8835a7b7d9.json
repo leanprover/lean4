@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-17",
+  "needs_port": false,
+  "sha": "8835a7b7d90d416c682fc3118a416713a520dbb0",
+  "short_sha": "8835a7b7d9",
+  "subject": "feat(frontends/lean/vm_elaborator): return new local context",
+  "zig_target": {}
+}

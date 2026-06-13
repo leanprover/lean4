@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-16",
+  "needs_port": false,
+  "sha": "2cf731c607596fa8cd5d2a8ed6e63e38f743fdd7",
+  "short_sha": "2cf731c607",
+  "subject": "feat(library/init/lean/trace.lean): add tracing structure and monad prototypes",
+  "zig_target": {}
+}

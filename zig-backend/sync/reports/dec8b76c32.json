@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-03-18",
+  "needs_port": true,
+  "sha": "dec8b76c32ecf8a627f4982d1aa1cc5b20413bbe",
+  "short_sha": "dec8b76c32",
+  "subject": "feat(src/CMakeLists): build stdlib using `leanc` instead of nested CMake run",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

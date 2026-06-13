@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-28",
+  "needs_port": false,
+  "sha": "e048bbc93a95533f2f0746cfcc9b948e5a2c1722",
+  "short_sha": "e048bbc93a",
+  "subject": "perf: unused variables linter: early cut-off",
+  "zig_target": {}
+}

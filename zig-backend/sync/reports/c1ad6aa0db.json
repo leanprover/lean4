@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2026-02-14",
+  "needs_port": true,
+  "sha": "c1ad6aa0db6ddf7b93fe992e8b19171eec1ac07c",
+  "short_sha": "c1ad6aa0db",
+  "subject": "fix: disable order and funCC modules in NoopConfig (#11744)",
+  "zig_target": {
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

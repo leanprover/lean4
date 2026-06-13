@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-02-08",
+  "needs_port": true,
+  "sha": "9c160b80301527d5d46818a56c5087f066d81420",
+  "short_sha": "9c160b8030",
+  "subject": "feat: `nofun` tactic and term",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

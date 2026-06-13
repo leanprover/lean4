@@ -1,0 +1,10 @@
+{
+  "author": "David Renshaw",
+  "backend_changes": [],
+  "date": "2022-10-07",
+  "needs_port": false,
+  "sha": "5c7cf765758044dd34f68c24c574ddd07175073e",
+  "short_sha": "5c7cf76575",
+  "subject": "doc: fix link to initialization section in ffi section",
+  "zig_target": {}
+}

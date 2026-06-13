@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2022-12-14",
+  "needs_port": true,
+  "sha": "8b0699cd3b8138e9770938b667f8ea7356153cf8",
+  "short_sha": "8b0699cd3b",
+  "subject": "fix: disable memoize in pattern conv",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

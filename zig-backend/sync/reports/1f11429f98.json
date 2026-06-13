@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-26",
+  "needs_port": false,
+  "sha": "1f11429f98bbf5a70509a165f467035462183bfb",
+  "short_sha": "1f11429f98",
+  "subject": "feat(frontends/lean): add `partial` keyword",
+  "zig_target": {}
+}

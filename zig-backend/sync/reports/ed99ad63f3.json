@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-08",
+  "needs_port": false,
+  "sha": "ed99ad63f3b8c8366eec10ceb660cdea30be5b4e",
+  "short_sha": "ed99ad63f3",
+  "subject": "refactor: `grind offset` as solver extension (#10311)",
+  "zig_target": {}
+}

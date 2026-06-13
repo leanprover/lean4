@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-10-07",
+  "needs_port": false,
+  "sha": "f1ff9cebf29edfc40fab70967274d3fb9b3cda1b",
+  "short_sha": "f1ff9cebf2",
+  "subject": "feat: more getLsbD bitblaster theory (#5637)",
+  "zig_target": {}
+}

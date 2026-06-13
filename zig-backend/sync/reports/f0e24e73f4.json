@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-16",
+  "needs_port": false,
+  "sha": "f0e24e73f43b3ba73c391acb3e9ab2ba258422fa",
+  "short_sha": "f0e24e73f4",
+  "subject": "feat(kernel/expr): missing constructor",
+  "zig_target": {}
+}

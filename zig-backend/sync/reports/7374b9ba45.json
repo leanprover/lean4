@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "7374b9ba45921140939fccadce6d1adf78da16a2",
+  "short_sha": "7374b9ba45",
+  "subject": "chore: update webserver demo",
+  "zig_target": {}
+}

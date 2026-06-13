@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-26",
+  "needs_port": false,
+  "sha": "868e95df1bbcf30722bcfc91762692b4c8a01725",
+  "short_sha": "868e95df1b",
+  "subject": "feat: add `Exception.isMaxRecDepth`",
+  "zig_target": {}
+}

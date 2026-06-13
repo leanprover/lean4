@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-10",
+  "needs_port": false,
+  "sha": "8be9a136794699c5e672f48b3a74af916f9cf056",
+  "short_sha": "8be9a13679",
+  "subject": "feat: support for `SimpLemma.Proof.abst`",
+  "zig_target": {}
+}

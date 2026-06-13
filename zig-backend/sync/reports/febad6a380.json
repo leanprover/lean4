@@ -1,0 +1,18 @@
+{
+  "author": "tonneaus",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-06-06",
+  "needs_port": true,
+  "sha": "febad6a38074dbd0055899109c1d89b40f8e4868",
+  "short_sha": "febad6a380",
+  "subject": "doc: typo in IO.lean (#8657)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

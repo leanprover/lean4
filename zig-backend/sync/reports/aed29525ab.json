@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-27",
+  "needs_port": false,
+  "sha": "aed29525ab71f23631074dafb2e1c01247520336",
+  "short_sha": "aed29525ab",
+  "subject": "fix: `simp` trace issues (#3522)",
+  "zig_target": {}
+}

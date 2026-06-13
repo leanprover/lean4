@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-25",
+  "needs_port": false,
+  "sha": "e74a97d5a8ceeac226baa10eaab0f0ea6d084083",
+  "short_sha": "e74a97d5a8",
+  "subject": "perf: do not even open `.olean.server` when not necessary (#9531)",
+  "zig_target": {}
+}

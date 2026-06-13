@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-13",
+  "needs_port": false,
+  "sha": "32d22075dc587338ce6cfeb67802865b8724baf5",
+  "short_sha": "32d22075dc",
+  "subject": "doc: fix docstring of `propagateForallPropUp` (#11645)",
+  "zig_target": {}
+}

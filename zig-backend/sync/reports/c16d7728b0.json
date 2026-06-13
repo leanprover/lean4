@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-27",
+  "needs_port": false,
+  "sha": "c16d7728b069e3c0f4bb3cee238ebc688b4d155a",
+  "short_sha": "c16d7728b0",
+  "subject": "feat: improve import duplicate definition error",
+  "zig_target": {}
+}

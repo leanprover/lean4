@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/LambdaLifting.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean"
+    }
+  ],
+  "date": "2025-12-02",
+  "needs_port": true,
+  "sha": "3dd99fc29ce29ffbebf7621e87ab3183a63653bd",
+  "short_sha": "3dd99fc29c",
+  "subject": "perf: eta contract instead of lambda lifting if possible (#11451)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/LambdaLifting.lean": "zig-backend/src/lean/compiler/lcnf/LambdaLifting.lean"
+  }
+}

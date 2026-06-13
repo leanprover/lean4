@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-23",
+  "needs_port": false,
+  "sha": "7c427c1ef27d65cec81c5b78e4737eaf312d21d4",
+  "short_sha": "7c427c1ef2",
+  "subject": "fix: make sure `let`-expressions do not affect the structural recursion module",
+  "zig_target": {}
+}

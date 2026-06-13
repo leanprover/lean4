@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-20",
+  "needs_port": false,
+  "sha": "15be8fc2a60285625c8371f0fc066e07e6a5e7ae",
+  "short_sha": "15be8fc2a6",
+  "subject": "fix: `builtin_initialize` at `pushCastExt`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2019-06-06",
+  "needs_port": true,
+  "sha": "0553d60dbf24b1d09c0ee43bf7bb40f25f5d2299",
+  "short_sha": "0553d60dbf",
+  "subject": "feat(library/compiler/util): switch to new attributes implemented in Lean",
+  "zig_target": {
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

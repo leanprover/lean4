@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-19",
+  "needs_port": false,
+  "sha": "a062eea204a9c982e318c0c98cd6af63e9f61050",
+  "short_sha": "a062eea204",
+  "subject": "feat: beta reduction in `grind` (#6700)",
+  "zig_target": {}
+}

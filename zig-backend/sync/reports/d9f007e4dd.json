@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-17",
+  "needs_port": false,
+  "sha": "d9f007e4ddeff9b194ba799ec6fbf9a87ef8e97e",
+  "short_sha": "d9f007e4dd",
+  "subject": "fix: tactic cache corruption",
+  "zig_target": {}
+}

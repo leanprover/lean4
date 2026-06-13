@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-04",
+  "needs_port": false,
+  "sha": "cb554d647321e51c9eb9b715d6e723f8ce929e42",
+  "short_sha": "cb554d6473",
+  "subject": "chore: remove unnecessary configuration option",
+  "zig_target": {}
+}

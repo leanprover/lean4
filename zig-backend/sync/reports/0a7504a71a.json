@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/InferType.lean"
+    }
+  ],
+  "date": "2019-11-25",
+  "needs_port": true,
+  "sha": "0a7504a71ae2658f4a487f97f1673380defdc641",
+  "short_sha": "0a7504a71a",
+  "subject": "feat: add `isType` and `isProof`",
+  "zig_target": {
+    "src/Init/Lean/Meta/InferType.lean": "zig-backend/src/init/Lean/Meta/InferType.lean"
+  }
+}

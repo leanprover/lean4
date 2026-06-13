@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-28",
+  "needs_port": false,
+  "sha": "9eded874620c40bcc103eaebb6070cdb230eecfb",
+  "short_sha": "9eded87462",
+  "subject": "fix: remove `withoutRecover` from `apply` elaboration (#5862)",
+  "zig_target": {}
+}

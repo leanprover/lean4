@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-01",
+  "needs_port": false,
+  "sha": "f2a874ebaab9b59fa5df067f11a4124aa9d5ef53",
+  "short_sha": "f2a874ebaa",
+  "subject": "fix: handle inaccessible fvar names correctly",
+  "zig_target": {}
+}

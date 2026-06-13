@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-04",
+  "needs_port": false,
+  "sha": "92a87ce3a4a500f8282fdd7a7fcedf8977405946",
+  "short_sha": "92a87ce3a4",
+  "subject": "perf: remove performace bottleneck",
+  "zig_target": {}
+}

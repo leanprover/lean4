@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-03",
+  "needs_port": false,
+  "sha": "19078655bcfdf30f8309541309456055326dea6c",
+  "short_sha": "19078655bc",
+  "subject": "perf: avoid unnecessary assert/intro pairs in `grind` (#6514)",
+  "zig_target": {}
+}

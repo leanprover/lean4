@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-25",
+  "needs_port": false,
+  "sha": "cf0bf911c8b1c6ffbdc9c177025884835395e13d",
+  "short_sha": "cf0bf911c8",
+  "subject": "test(tests/playground): binarytrees benchmarks game benchmark in Lean, OCaml & Haskell",
+  "zig_target": {}
+}

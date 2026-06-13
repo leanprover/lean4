@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "72f555dd5bc0382d7fcc627a1a06ac51e95330d2",
+  "short_sha": "72f555dd5b",
+  "subject": "fix: properly trace module imports",
+  "zig_target": {}
+}

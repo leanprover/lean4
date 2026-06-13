@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-20",
+  "needs_port": false,
+  "sha": "65ea26422ac828615bc574aba16d9d61c8f29bc3",
+  "short_sha": "65ea26422a",
+  "subject": "fix: use `Term.withSynthesize` at `rewrite`",
+  "zig_target": {}
+}

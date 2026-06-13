@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-26",
+  "needs_port": false,
+  "sha": "7b18bc94fd632d9d58a1adf688913598bc8d756c",
+  "short_sha": "7b18bc94fd",
+  "subject": "fix(library/module): make sure header length preserves alignment",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-23",
+  "needs_port": false,
+  "sha": "d43f9627c2d0ca5401998a74a17290676145f9b6",
+  "short_sha": "d43f9627c2",
+  "subject": "feat(library/init/core): use `[macro_inline]` to get shortcircuit semantics in new compiler stack",
+  "zig_target": {}
+}

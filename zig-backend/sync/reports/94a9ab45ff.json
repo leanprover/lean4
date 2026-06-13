@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-19",
+  "needs_port": false,
+  "sha": "94a9ab45ffeaa77876865119ab8a303222e687a6",
+  "short_sha": "94a9ab45ff",
+  "subject": "chore: Nix CI: stop pushing to cachix (#3402)",
+  "zig_target": {}
+}

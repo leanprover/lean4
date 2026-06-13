@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-27",
+  "needs_port": false,
+  "sha": "56e247763f2aeeb947f706a0c19d5d6055000c60",
+  "short_sha": "56e247763f",
+  "subject": "fix: scope of the auto param at fields",
+  "zig_target": {}
+}

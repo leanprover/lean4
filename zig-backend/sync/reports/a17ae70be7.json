@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Data/KVMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Data/KVMap.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    }
+  ],
+  "date": "2020-01-07",
+  "needs_port": true,
+  "sha": "a17ae70be7538d55aa219c80e4f6ec25f12d5192",
+  "short_sha": "a17ae70be7",
+  "subject": "feat: elaborate `set_option`",
+  "zig_target": {
+    "src/Init/Lean/Data/KVMap.lean": "zig-backend/src/init/Lean/Data/KVMap.lean",
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean"
+  }
+}

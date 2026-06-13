@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-26",
+  "needs_port": false,
+  "sha": "1216f5e6580ab1f79d1e1bd36eb3f7046f019593",
+  "short_sha": "1216f5e658",
+  "subject": "feat: support for `unop%` at `CollectPatternVars`",
+  "zig_target": {}
+}

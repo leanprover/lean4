@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-08-20",
+  "needs_port": false,
+  "sha": "6a7111ed0e1964faa3ca1c8a07853c863d01510b",
+  "short_sha": "6a7111ed0e",
+  "subject": "fix: lake: no `LEAN_GITHASH` for bootstrap (#10012)",
+  "zig_target": {}
+}

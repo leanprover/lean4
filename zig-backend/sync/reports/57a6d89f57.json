@@ -1,0 +1,48 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Memcmp.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Memcmp.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Slice.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Slice.lean"
+    }
+  ],
+  "date": "2026-02-06",
+  "needs_port": true,
+  "sha": "57a6d89f57f5aa8655d77136646d0f85808e26eb",
+  "short_sha": "57a6d89f57",
+  "subject": "feat: verification of `BEq String.Slice` (#12346)",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Lemmas.lean": "zig-backend/src/init/Data/ByteArray/Lemmas.lean",
+    "src/Init/Data/String/Lemmas.lean": "zig-backend/src/init/Data/String/Lemmas.lean",
+    "src/Init/Data/String/Lemmas/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Memcmp.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Memcmp.lean",
+    "src/Init/Data/String/Lemmas/Slice.lean": "zig-backend/src/init/Data/String/Lemmas/Slice.lean"
+  }
+}

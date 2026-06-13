@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-03-06",
+  "needs_port": false,
+  "sha": "d4caf1f92248f4fc13c4b9f75c94b8995344d847",
+  "short_sha": "d4caf1f922",
+  "subject": "fix: `$_*` anonymous suffix splice syntax pattern",
+  "zig_target": {}
+}

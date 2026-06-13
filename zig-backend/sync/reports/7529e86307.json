@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-17",
+  "needs_port": false,
+  "sha": "7529e86307a1bbfd9de7ce7f8f3260a1600bb5da",
+  "short_sha": "7529e86307",
+  "subject": "feat: implement `workspace/applyEdit` server request (#1846)",
+  "zig_target": {}
+}

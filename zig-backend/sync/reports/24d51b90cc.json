@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-21",
+  "needs_port": false,
+  "sha": "24d51b90cc4adbc68386671bba4587d6e47188d6",
+  "short_sha": "24d51b90cc",
+  "subject": "fix: lake: remove module dynlib from platform-independent trace (#4478)",
+  "zig_target": {}
+}

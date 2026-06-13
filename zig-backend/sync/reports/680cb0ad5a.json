@@ -1,0 +1,24 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    }
+  ],
+  "date": "2025-04-03",
+  "needs_port": true,
+  "sha": "680cb0ad5a75a7549e0d1e93dd93b21351f821a1",
+  "short_sha": "680cb0ad5a",
+  "subject": "chore: more failing test cases for grind (#7801)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean"
+  }
+}

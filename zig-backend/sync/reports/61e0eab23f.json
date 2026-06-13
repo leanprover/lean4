@@ -1,0 +1,48 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Log2.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Nat/Log2.lean"
+    },
+    {
+      "path": "src/Init/Data/OfScientific.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/OfScientific.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-10-26",
+  "needs_port": true,
+  "sha": "61e0eab23fe2194da8fa415cdb742667b3431857",
+  "short_sha": "61e0eab23f",
+  "subject": "refactor: reimplement ofScientific for floats",
+  "zig_target": {
+    "src/Init/Data/Float.lean": "zig-backend/src/init/Data/Float.lean",
+    "src/Init/Data/Nat.lean": "zig-backend/src/init/Data/Nat.lean",
+    "src/Init/Data/Nat/Log2.lean": "zig-backend/src/init/Data/Nat/Log2.lean",
+    "src/Init/Data/OfScientific.lean": "zig-backend/src/init/Data/OfScientific.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

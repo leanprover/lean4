@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2026-05-06",
+  "needs_port": true,
+  "sha": "8d2b5d08a12cb7571590ff664499e6c51c27d083",
+  "short_sha": "8d2b5d08a1",
+  "subject": "perf: upgrade to LLVM 22 (#13545)",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

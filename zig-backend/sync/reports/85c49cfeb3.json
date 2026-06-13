@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-03",
+  "needs_port": false,
+  "sha": "85c49cfeb3cade34cb877fd72dfbc23a1f36ee6d",
+  "short_sha": "85c49cfeb3",
+  "subject": "feat: apply termination tactic provided by user",
+  "zig_target": {}
+}

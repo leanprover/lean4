@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "1aaf7c077883ab58213f8a14ba73a80751559445",
+  "short_sha": "1aaf7c0778",
+  "subject": "feat: add `SimpleScopedEnvExtension`",
+  "zig_target": {}
+}

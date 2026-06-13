@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-11",
+  "needs_port": false,
+  "sha": "f39220ac013760aa77d610b703083ace700ebc0f",
+  "short_sha": "f39220ac01",
+  "subject": "feat(library/init/lean/compiler/ir/boxing): ignore \"cheap\" cases when caching boxing operations",
+  "zig_target": {}
+}

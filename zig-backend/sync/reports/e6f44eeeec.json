@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-29",
+  "needs_port": false,
+  "sha": "e6f44eeeec751c15273f83db9d7ecf995d68161a",
+  "short_sha": "e6f44eeeec",
+  "subject": "test: regression tests for `do` issues fixed by the new elaborator (#13541)",
+  "zig_target": {}
+}

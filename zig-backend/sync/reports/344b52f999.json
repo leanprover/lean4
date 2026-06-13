@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-03",
+  "needs_port": false,
+  "sha": "344b52f9991a81b6e2ee6601666ac4b271c2e1c3",
+  "short_sha": "344b52f999",
+  "subject": "fix: term internalization issue in `grind` (#8619)",
+  "zig_target": {}
+}

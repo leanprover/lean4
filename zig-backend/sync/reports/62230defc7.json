@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/PPGoal.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/PPGoal.lean"
+    }
+  ],
+  "date": "2020-02-08",
+  "needs_port": true,
+  "sha": "62230defc7b2ef27e40aafce8dd05d1e4ff09538",
+  "short_sha": "62230defc7",
+  "subject": "fix: `ppGoal` bug",
+  "zig_target": {
+    "src/Init/Lean/Util/PPGoal.lean": "zig-backend/src/init/Lean/Util/PPGoal.lean"
+  }
+}

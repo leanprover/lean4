@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-25",
+  "needs_port": false,
+  "sha": "4af81351726e1b97e516d8364f8b4f88dcb480df",
+  "short_sha": "4af8135172",
+  "subject": "refactor: remove the package `version` field",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Bitwise.lean"
+    }
+  ],
+  "date": "2024-12-01",
+  "needs_port": true,
+  "sha": "6bf8ff32f0c9c5bdbecd4bef5a7f49ef6700199e",
+  "short_sha": "6bf8ff32f0",
+  "subject": "feat: more UInt bitwise theorems (#6188)",
+  "zig_target": {
+    "src/Init/Data/UInt/Bitwise.lean": "zig-backend/src/init/Data/UInt/Bitwise.lean"
+  }
+}

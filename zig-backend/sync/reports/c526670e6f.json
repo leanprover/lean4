@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-12",
+  "needs_port": true,
+  "sha": "c526670e6fab0622bac9cf4faa1ac71e010743e2",
+  "short_sha": "c526670e6f",
+  "subject": "feat(library/compiler/lcnf): eliminate `id_rhs` even if it is partially applied",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

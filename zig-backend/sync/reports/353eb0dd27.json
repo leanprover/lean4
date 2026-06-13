@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-09",
+  "needs_port": false,
+  "sha": "353eb0dd2756f03dfa449b4876a7f0181fd17452",
+  "short_sha": "353eb0dd27",
+  "subject": "fix: disable auto implicit feature when running tactics",
+  "zig_target": {}
+}

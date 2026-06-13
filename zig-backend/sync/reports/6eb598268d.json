@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2018-08-10",
+  "needs_port": true,
+  "sha": "6eb598268d3c27b24a884e480911d433bfb8d1f9",
+  "short_sha": "6eb598268d",
+  "subject": "chore(runtime/object): naming convention",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-01-19",
+  "needs_port": false,
+  "sha": "5998ba545b637edff1cc52ea20c32cd887c71002",
+  "short_sha": "5998ba545b",
+  "subject": "feat: regression tests for `grind` adapted from `lean-egg` (#6688)",
+  "zig_target": {}
+}

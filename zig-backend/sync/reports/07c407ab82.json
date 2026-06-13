@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-06",
+  "needs_port": false,
+  "sha": "07c407ab8212e2d7ddcb24caa492f6943e7b7c92",
+  "short_sha": "07c407ab82",
+  "subject": "feat: collect kernel diagnostic information (#4082)",
+  "zig_target": {}
+}

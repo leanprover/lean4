@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-17",
+  "needs_port": false,
+  "sha": "1af02dcaca3ca0665a37254aaa30ea196ec77c90",
+  "short_sha": "1af02dcaca",
+  "subject": "feat: allow users to mark definitions with `[simp]`",
+  "zig_target": {}
+}

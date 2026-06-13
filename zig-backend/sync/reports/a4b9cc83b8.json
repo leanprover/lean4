@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-19",
+  "needs_port": false,
+  "sha": "a4b9cc83b899c073f322c9031bed7770cbbfb1ee",
+  "short_sha": "a4b9cc83b8",
+  "subject": "feat(library/init/lean/{expander,elaborator}): progress",
+  "zig_target": {}
+}

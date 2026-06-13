@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-10",
+  "needs_port": false,
+  "sha": "94d2a3ef86306ea79498482adeb3138f2ebd8328",
+  "short_sha": "94d2a3ef86",
+  "subject": "feat: improve error message when failing to infer resulting universe level for inductive datatypes and structures",
+  "zig_target": {}
+}

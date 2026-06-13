@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-27",
+  "needs_port": false,
+  "sha": "4eaaadf1c107c6f9fabe8b0dc2f98c2f495fbae6",
+  "short_sha": "4eaaadf1c1",
+  "subject": "feat: add pattern matching/unification for symbolic simulation (#11813)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Martin Dvo\u0159\u00e1k",
+  "backend_changes": [],
+  "date": "2023-02-23",
+  "needs_port": false,
+  "sha": "83dffbc2f8357dd679cf0e96cac21e05052e6b37",
+  "short_sha": "83dffbc2f8",
+  "subject": "doc: mention `lake clean` in README (leanprover/lake#156)",
+  "zig_target": {}
+}

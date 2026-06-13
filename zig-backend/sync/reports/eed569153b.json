@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    }
+  ],
+  "date": "2022-09-22",
+  "needs_port": true,
+  "sha": "eed569153b53f471658022c4dd4a42b033f620c5",
+  "short_sha": "eed569153b",
+  "subject": "fix: dependent field issue",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+  }
+}

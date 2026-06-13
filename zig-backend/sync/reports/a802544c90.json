@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-22",
+  "needs_port": false,
+  "sha": "a802544c9005a32ffff6a3bffb383598c4b534e2",
+  "short_sha": "a802544c90",
+  "subject": "fix: `intro` tactic at `let`-expr",
+  "zig_target": {}
+}

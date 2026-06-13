@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/library/compiler/builtin.h"
+    },
+    {
+      "path": "src/library/compiler/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_module.cpp"
+    }
+  ],
+  "date": "2018-11-15",
+  "needs_port": true,
+  "sha": "5acdd68ad5492225d76443dcedd6df0316684dc6",
+  "short_sha": "5acdd68ad5",
+  "subject": "feat(library/compiler/init_module): initialize `builtin` module",
+  "zig_target": {
+    "src/library/compiler/builtin.h": "zig-backend/src/library/compiler/builtin.h",
+    "src/library/compiler/init_module.cpp": "zig-backend/src/library/compiler/init_module.cpp"
+  }
+}

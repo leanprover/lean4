@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-01-15",
+  "needs_port": false,
+  "sha": "0050e9369c3f87c2bb60cf66d3524dffc326755b",
+  "short_sha": "0050e9369c",
+  "subject": "refactor: lake: use `StateRefT` for `BuildStore` (#6290)",
+  "zig_target": {}
+}

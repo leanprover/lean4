@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-29",
+  "needs_port": false,
+  "sha": "bf89c5a0f54909bad9348778a15edd6170483e36",
+  "short_sha": "bf89c5a0f5",
+  "subject": "chore: move Std -> Bootstrap",
+  "zig_target": {}
+}

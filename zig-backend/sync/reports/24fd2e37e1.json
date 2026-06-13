@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-30",
+  "needs_port": false,
+  "sha": "24fd2e37e128d428d9d7f3a7e85fc7fc383fbb20",
+  "short_sha": "24fd2e37e1",
+  "subject": "chore: update Lean version + adapt to `TSyntax`",
+  "zig_target": {}
+}

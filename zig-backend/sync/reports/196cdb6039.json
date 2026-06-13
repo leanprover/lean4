@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-15",
+  "needs_port": false,
+  "sha": "196cdb6039f61e40434bf7496e48f9e36fdb5423",
+  "short_sha": "196cdb6039",
+  "subject": "perf: garbage-collect dead sections (#1700)",
+  "zig_target": {}
+}

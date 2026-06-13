@@ -1,0 +1,24 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/uv/system.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/system.cpp"
+    }
+  ],
+  "date": "2025-07-31",
+  "needs_port": true,
+  "sha": "33eac4497b491ec32d2a8279d8f83d2e4004b5f0",
+  "short_sha": "33eac4497b",
+  "subject": "fix: build with libuv pre-1.45.0 (#9644)",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/uv/system.cpp": "zig-backend/src/runtime/uv/system.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-28",
+  "needs_port": false,
+  "sha": "ad5a746cdd6c29a47952fc38d6e256ad4071f57e",
+  "short_sha": "ad5a746cdd",
+  "subject": "fix: `realizeConst` fixes (#7272)",
+  "zig_target": {}
+}

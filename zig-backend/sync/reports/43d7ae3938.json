@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2019-12-02",
+  "needs_port": true,
+  "sha": "43d7ae3938445b33eb872b8cafac3da4f65fb95e",
+  "short_sha": "43d7ae3938",
+  "subject": "fix: missing annotation",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

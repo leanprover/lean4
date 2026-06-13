@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-04",
+  "needs_port": false,
+  "sha": "6c4072cd4a5d4def44a130fcc37c38d17c9214d0",
+  "short_sha": "6c4072cd4a",
+  "subject": "chore: add keyword \"scoped\"",
+  "zig_target": {}
+}

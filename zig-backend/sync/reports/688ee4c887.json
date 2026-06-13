@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2024-11-15",
+  "needs_port": true,
+  "sha": "688ee4c88722ca191981246f7732f25caed81cac",
+  "short_sha": "688ee4c887",
+  "subject": "fix: constant folding for Nat.ble and Nat.blt (#6087)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

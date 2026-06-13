@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-08",
+  "needs_port": false,
+  "sha": "c24d2186fc180615f3eed70235d4c774a4c62caa",
+  "short_sha": "c24d2186fc",
+  "subject": "doc: `stderrAsMessages` is now the default on the cmdline as well (#4955)",
+  "zig_target": {}
+}

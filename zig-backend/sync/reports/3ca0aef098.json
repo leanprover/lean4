@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-13",
+  "needs_port": false,
+  "sha": "3ca0aef098360340befe033b29dba4a682e40850",
+  "short_sha": "3ca0aef098",
+  "subject": "feat: generate warning when `sorry` is used",
+  "zig_target": {}
+}

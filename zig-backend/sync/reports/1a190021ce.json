@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-01",
+  "needs_port": false,
+  "sha": "1a190021ce63365b8e2d124cbdff750479ad74b5",
+  "short_sha": "1a190021ce",
+  "subject": "feat(library/Makefile.in): generate `src/boot`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-04",
+  "needs_port": false,
+  "sha": "7cce91acb4ef062e15473a1a0698631c1e2cbe43",
+  "short_sha": "7cce91acb4",
+  "subject": "refactor: move some reference-related types to Lean.Data",
+  "zig_target": {}
+}

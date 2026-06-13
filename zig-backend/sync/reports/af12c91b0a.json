@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-01",
+  "needs_port": false,
+  "sha": "af12c91b0a50db2e474a1e9e04960966eea85499",
+  "short_sha": "af12c91b0a",
+  "subject": "fix: rpath rewrite `leanc` as well",
+  "zig_target": {}
+}

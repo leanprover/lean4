@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/SyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean"
+    }
+  ],
+  "date": "2020-03-08",
+  "needs_port": true,
+  "sha": "502758b09c05aabb9c55e930e86c23c88eff7b36",
+  "short_sha": "502758b09c",
+  "subject": "fix: allow universe **level** metavariables",
+  "zig_target": {
+    "src/Init/Lean/Elab/SyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean"
+  }
+}

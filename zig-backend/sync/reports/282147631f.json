@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-24",
+  "needs_port": false,
+  "sha": "282147631f7a943aeb31d2aceb6ee9ce52296b71",
+  "short_sha": "282147631f",
+  "subject": "chore: Nix: add LeanInk + Alectyron to docs flake",
+  "zig_target": {}
+}

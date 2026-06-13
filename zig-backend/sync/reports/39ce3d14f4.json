@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-04-11",
+  "needs_port": false,
+  "sha": "39ce3d14f42bcccb5105883ad3160655f9873d8a",
+  "short_sha": "39ce3d14f4",
+  "subject": "test: make test deterministic (#7916)",
+  "zig_target": {}
+}

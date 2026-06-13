@@ -1,0 +1,30 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/extern_attribute.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.h"
+    },
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2019-02-14",
+  "needs_port": true,
+  "sha": "956a047d1e29c1de6c4de7ece919f1d675a5c3a3",
+  "short_sha": "956a047d1e",
+  "subject": "chore(library/compiler/extern_attribute): style",
+  "zig_target": {
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp",
+    "src/library/compiler/extern_attribute.h": "zig-backend/src/library/compiler/extern_attribute.h",
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

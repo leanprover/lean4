@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Offset.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Offset.lean"
+    }
+  ],
+  "date": "2025-01-14",
+  "needs_port": true,
+  "sha": "563d5e8bcf8dbfd0fe56e80bfe927b1bb6fc544b",
+  "short_sha": "563d5e8bcf",
+  "subject": "feat: offset equalities in `grind` (#6645)",
+  "zig_target": {
+    "src/Init/Grind/Offset.lean": "zig-backend/src/init/Grind/Offset.lean"
+  }
+}

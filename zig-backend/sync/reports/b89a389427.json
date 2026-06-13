@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "b89a389427068e6ac25fbad50bfa6f885fca78da",
+  "short_sha": "b89a389427",
+  "subject": "chore(library/init/lean/parser/parser): force eta-expansion",
+  "zig_target": {}
+}

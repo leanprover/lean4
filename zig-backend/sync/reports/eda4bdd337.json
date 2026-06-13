@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-04-24",
+  "needs_port": false,
+  "sha": "eda4bdd337fddd32b1dab73dec98dd0e09b67c30",
+  "short_sha": "eda4bdd337",
+  "subject": "test: extend inductive_pred.lean with tests using the new construction.",
+  "zig_target": {}
+}

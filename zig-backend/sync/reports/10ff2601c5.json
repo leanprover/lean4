@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-14",
+  "needs_port": false,
+  "sha": "10ff2601c5b013c730d10f61bf165a82d7465d36",
+  "short_sha": "10ff2601c5",
+  "subject": "fix: term info for inductive ctors",
+  "zig_target": {}
+}

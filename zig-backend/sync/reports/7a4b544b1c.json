@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-09",
+  "needs_port": false,
+  "sha": "7a4b544b1cf86ceb86a85824e385313b12394ab6",
+  "short_sha": "7a4b544b1c",
+  "subject": "feat: improve application type mismatch error message",
+  "zig_target": {}
+}

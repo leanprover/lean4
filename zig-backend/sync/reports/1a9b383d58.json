@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [],
+  "date": "2021-06-07",
+  "needs_port": false,
+  "sha": "1a9b383d586999c21fcdcb015dbf30d948829015",
+  "short_sha": "1a9b383d58",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

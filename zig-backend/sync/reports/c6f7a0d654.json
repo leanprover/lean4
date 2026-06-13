@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-29",
+  "needs_port": false,
+  "sha": "c6f7a0d654ec2e841040d465f7cd16f3f9a5f433",
+  "short_sha": "c6f7a0d654",
+  "subject": "fix: build o files again to enable incremental rebuilds",
+  "zig_target": {}
+}

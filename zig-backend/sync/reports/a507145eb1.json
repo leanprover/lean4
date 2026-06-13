@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-01",
+  "needs_port": false,
+  "sha": "a507145eb19770d1419c4a8fd34940f479b96c47",
+  "short_sha": "a507145eb1",
+  "subject": "feat(library/init/lean/level): add `instance : HasBeq Level`",
+  "zig_target": {}
+}

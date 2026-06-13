@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-14",
+  "needs_port": false,
+  "sha": "3a28761e86bc9bddf0501d7208a0e5c4216b068c",
+  "short_sha": "3a28761e86",
+  "subject": "chore: make sure `syntax` parsers' names and kinds coincide",
+  "zig_target": {}
+}

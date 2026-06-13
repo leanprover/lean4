@@ -1,0 +1,24 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2026-01-19",
+  "needs_port": true,
+  "sha": "9167b13afa3518556c1455172bf645e8216a197e",
+  "short_sha": "9167b13afa",
+  "subject": "refactor: move String.ofList to the Prelude (#12029)",
+  "zig_target": {
+    "src/Init/Data/String/Bootstrap.lean": "zig-backend/src/init/Data/String/Bootstrap.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-09-04",
+  "needs_port": false,
+  "sha": "d55f55d575b951a01195a873a40572eb60c99b59",
+  "short_sha": "d55f55d575",
+  "subject": "fix: include identifier before cursor in document highlight request (#5237)",
+  "zig_target": {}
+}

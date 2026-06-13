@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-03-25",
+  "needs_port": false,
+  "sha": "b73dd0c9aafb952ae53ba23225b5ba6dfe0da356",
+  "short_sha": "b73dd0c9aa",
+  "subject": "feat: run Emacs with lean4-mode directly from nix-shell",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-08",
+  "needs_port": false,
+  "sha": "099fba43d341d7df5e46a2b264dd872e592823e0",
+  "short_sha": "099fba43d3",
+  "subject": "chore: remove `trace[Meta.debug]` leftovers",
+  "zig_target": {}
+}

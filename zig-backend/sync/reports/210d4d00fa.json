@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "210d4d00fac392df87db457792d46a4b14152181",
+  "short_sha": "210d4d00fa",
+  "subject": "test: add `simplifying_assumptions` clause to `mvcgen'` tactic (#13156)",
+  "zig_target": {}
+}

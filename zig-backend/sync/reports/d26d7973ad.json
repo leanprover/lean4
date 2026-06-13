@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-01",
+  "needs_port": false,
+  "sha": "d26d7973ad39eab976ed351255ee30f038439944",
+  "short_sha": "d26d7973ad",
+  "subject": "fix: theory propagation in `grind` (#8198)",
+  "zig_target": {}
+}

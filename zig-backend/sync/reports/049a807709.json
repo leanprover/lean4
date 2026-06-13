@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-07-30",
+  "needs_port": false,
+  "sha": "049a807709b81c368aca352e949f2f3f84073722",
+  "short_sha": "049a807709",
+  "subject": "test(tests/library/phashtable): simple performance tests",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-16",
+  "needs_port": false,
+  "sha": "68154a6c690f22d195906b9ae6563dea3f2b5f0e",
+  "short_sha": "68154a6c69",
+  "subject": "test: add `Pos` view",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-04-07",
+  "needs_port": false,
+  "sha": "a35c62d0adca26c196774791870e14685e8537dd",
+  "short_sha": "a35c62d0ad",
+  "subject": "chore: lake: builtins for DSL & plugin for server (#7860)",
+  "zig_target": {}
+}

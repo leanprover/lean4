@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-13",
+  "needs_port": false,
+  "sha": "f232915cc045d090768dc0ecca7fa7aebbca2747",
+  "short_sha": "f232915cc0",
+  "subject": "fix: libleanshared.so needs rpath too",
+  "zig_target": {}
+}

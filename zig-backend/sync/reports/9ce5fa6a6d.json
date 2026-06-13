@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "9ce5fa6a6d85859e3207eb2cc8a75d06378e9d1a",
+  "short_sha": "9ce5fa6a6d",
+  "subject": "refactor: generalize build error catching",
+  "zig_target": {}
+}

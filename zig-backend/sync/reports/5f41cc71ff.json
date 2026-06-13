@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-13",
+  "needs_port": false,
+  "sha": "5f41cc71ffd489822989693bb7ff3d235408d838",
+  "short_sha": "5f41cc71ff",
+  "subject": "fix: trace indentation in info view (#6597)",
+  "zig_target": {}
+}

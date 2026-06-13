@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-06-09",
+  "needs_port": true,
+  "sha": "e62e30ad0f484105018984c067eb95e5e6541339",
+  "short_sha": "e62e30ad0f",
+  "subject": "chore: remove whitespace",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

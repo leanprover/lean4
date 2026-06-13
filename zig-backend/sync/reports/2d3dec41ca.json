@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "2d3dec41ca8c1fe670dba2afc2147904e4854409",
+  "short_sha": "2d3dec41ca",
+  "subject": "perf: avoid blocking on proof elaboration in `Environment.hasUnsafe` (#11606)",
+  "zig_target": {}
+}

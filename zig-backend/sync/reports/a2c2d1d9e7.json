@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-20",
+  "needs_port": false,
+  "sha": "a2c2d1d9e7dd4e5307286d57537da99928ab2963",
+  "short_sha": "a2c2d1d9e7",
+  "subject": "feat(util/object_ref): add ternary mk_cnstr",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-20",
+  "needs_port": false,
+  "sha": "35cf2f3d9faa73a9ad5d629729f7fa8b95625ef5",
+  "short_sha": "35cf2f3d9f",
+  "subject": "feat: use `withSynthesize` when elaborating the type of a type ascription",
+  "zig_target": {}
+}

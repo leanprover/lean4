@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-30",
+  "needs_port": false,
+  "sha": "a88f81bc28bc93561a48cb47a8d00dfd6d2599d0",
+  "short_sha": "a88f81bc28",
+  "subject": "test: use DFS ordering for subgoals in mvcgen (#13193)",
+  "zig_target": {}
+}

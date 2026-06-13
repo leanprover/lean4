@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-09",
+  "needs_port": false,
+  "sha": "575adbae18e0bda90553244a4ae7b4c0e22592f9",
+  "short_sha": "575adbae18",
+  "subject": "chore: remove now-unused Lean.Compiler.AtMostOnce (#9278)",
+  "zig_target": {}
+}

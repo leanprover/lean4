@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2025-04-08",
+  "needs_port": false,
+  "sha": "e6ce55ffd44e206cc5210f457694d8fef176945d",
+  "short_sha": "e6ce55ffd4",
+  "subject": "feat: make TryThis work in widget messages (#7610)",
+  "zig_target": {}
+}

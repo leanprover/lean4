@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-16",
+  "needs_port": false,
+  "sha": "07b2913969b7063c30ed1b6ec6282258eff25e1d",
+  "short_sha": "07b2913969",
+  "subject": "fix: global visibility attributes should be allowed on non-exposed definitions (#12026)",
+  "zig_target": {}
+}

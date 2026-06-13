@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-23",
+  "needs_port": false,
+  "sha": "0d9c5f5bb84f2cb9098d649fc81c9835df2a4412",
+  "short_sha": "0d9c5f5bb8",
+  "subject": "chore: use zeta expansion at `AbstractNestedProofs` module",
+  "zig_target": {}
+}

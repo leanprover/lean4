@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-06",
+  "needs_port": false,
+  "sha": "61ea403bfab759f59d087cb5c5f4135e20fbc8bf",
+  "short_sha": "61ea403bfa",
+  "subject": "fix: Make `mvcgen` `mintro` let/have bindings (#9474) (#9507)",
+  "zig_target": {}
+}

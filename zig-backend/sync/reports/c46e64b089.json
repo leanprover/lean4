@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2020-09-23",
+  "needs_port": true,
+  "sha": "c46e64b089497fc8f531c60c4c45cfdd90bc6f3e",
+  "short_sha": "c46e64b089",
+  "subject": "feat: add `Array.zipWith` and `Array.zip`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

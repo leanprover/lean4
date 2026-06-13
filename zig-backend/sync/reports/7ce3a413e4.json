@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-20",
+  "needs_port": false,
+  "sha": "7ce3a413e40c176d4160774071ceca16f4664871",
+  "short_sha": "7ce3a413e4",
+  "subject": "fix: CI: create portable tarballs",
+  "zig_target": {}
+}

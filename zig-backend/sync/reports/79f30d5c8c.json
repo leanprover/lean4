@@ -1,0 +1,76 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab.lean"
+    },
+    {
+      "old_path": "src/Init/Lean/Elab/TermApp.lean",
+      "path": "src/Init/Lean/Elab/App.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Lean/Elab/App.lean"
+    },
+    {
+      "old_path": "src/Init/Lean/Elab/TermBinders.lean",
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Definition.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Definition.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/DoNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/DoNotation.lean"
+    },
+    {
+      "old_path": "src/Init/Lean/Elab/ElabStrategyAttrs.lean",
+      "path": "src/Init/Lean/Elab/StrategyAttrs.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StrategyAttrs.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/StructInst.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/StructInst.lean"
+    },
+    {
+      "old_path": "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+      "path": "src/Init/Lean/Elab/SyntheticMVars.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/ElabTerm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/ElabTerm.lean"
+    }
+  ],
+  "date": "2020-02-08",
+  "needs_port": true,
+  "sha": "79f30d5c8c498337191dbaba4bd7f83c70e30558",
+  "short_sha": "79f30d5c8c",
+  "subject": "chore: file name convention",
+  "zig_target": {
+    "src/Init/Lean/Elab.lean": "zig-backend/src/init/Lean/Elab.lean",
+    "src/Init/Lean/Elab/App.lean": "zig-backend/src/init/Lean/Elab/App.lean",
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean",
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean",
+    "src/Init/Lean/Elab/Definition.lean": "zig-backend/src/init/Lean/Elab/Definition.lean",
+    "src/Init/Lean/Elab/DoNotation.lean": "zig-backend/src/init/Lean/Elab/DoNotation.lean",
+    "src/Init/Lean/Elab/StrategyAttrs.lean": "zig-backend/src/init/Lean/Elab/StrategyAttrs.lean",
+    "src/Init/Lean/Elab/StructInst.lean": "zig-backend/src/init/Lean/Elab/StructInst.lean",
+    "src/Init/Lean/Elab/SyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean",
+    "src/Init/Lean/Elab/Tactic/ElabTerm.lean": "zig-backend/src/init/Lean/Elab/Tactic/ElabTerm.lean"
+  }
+}

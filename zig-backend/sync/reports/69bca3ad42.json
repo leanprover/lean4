@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-02",
+  "needs_port": false,
+  "sha": "69bca3ad421f0a4038e8ea97a86818b63b319de7",
+  "short_sha": "69bca3ad42",
+  "subject": "feat(library/init/data/array/basic): add version of `Array.indexOf` with property about resulting size",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-10-12",
+  "needs_port": false,
+  "sha": "8db978bb104c25eb10172cda796b5fbf9e94f1d6",
+  "short_sha": "8db978bb10",
+  "subject": "chore: lake: fail if no error in `tests/serve`",
+  "zig_target": {}
+}

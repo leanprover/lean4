@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-05-26",
+  "needs_port": false,
+  "sha": "8d30f678231d5625bc74fe9a7152fc1a78ca2d94",
+  "short_sha": "8d30f67823",
+  "subject": "feat: add `Lean` package",
+  "zig_target": {}
+}

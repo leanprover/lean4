@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-26",
+  "needs_port": false,
+  "sha": "18f8a18bfcadfce98d4285deeaba97cdc53cfef1",
+  "short_sha": "18f8a18bfc",
+  "subject": "chore: fix TreeMap deprecations (#8100)",
+  "zig_target": {}
+}

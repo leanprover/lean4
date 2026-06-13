@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-15",
+  "needs_port": false,
+  "sha": "af4a7d7e984e275d2d7091908c7172d4414e2128",
+  "short_sha": "af4a7d7e98",
+  "subject": "fix: `grind` term preprocessor (#6659)",
+  "zig_target": {}
+}

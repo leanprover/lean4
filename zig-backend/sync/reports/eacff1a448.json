@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    },
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2020-02-04",
+  "needs_port": true,
+  "sha": "eacff1a4483f1b80c5b2e410854e03dc34cb12c8",
+  "short_sha": "eacff1a448",
+  "subject": "feat: implement `withPtrEq` and `withPtrAddr`",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean",
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

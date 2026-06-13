@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-26",
+  "needs_port": false,
+  "sha": "105ca4f76b46ab4a3737b4a3853b0907bc8c7133",
+  "short_sha": "105ca4f76b",
+  "subject": "feat(library/init/lean/compiler/inline): use `EnumAttributes` to declare inlining attributes",
+  "zig_target": {}
+}

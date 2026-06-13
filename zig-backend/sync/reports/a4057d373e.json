@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-01",
+  "needs_port": false,
+  "sha": "a4057d373eea185127caddc993cec9c2031fa94b",
+  "short_sha": "a4057d373e",
+  "subject": "fix: bv_normalize loose mvars (#5918)",
+  "zig_target": {}
+}

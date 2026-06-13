@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    }
+  ],
+  "date": "2025-07-28",
+  "needs_port": true,
+  "sha": "e5600afddc1ad48b4542616ffde06992f7fb4af8",
+  "short_sha": "e5600afddc",
+  "subject": "feat: missing pow lemmas for UInt (#9577)",
+  "zig_target": {
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+  }
+}

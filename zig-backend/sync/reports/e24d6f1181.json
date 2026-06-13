@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-05-19",
+  "needs_port": false,
+  "sha": "e24d6f11813a2b5c4a7f4e59d5b1e0d153b6462f",
+  "short_sha": "e24d6f1181",
+  "subject": "fix: include Lean version in binary trace",
+  "zig_target": {}
+}

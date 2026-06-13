@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-06-07",
+  "needs_port": false,
+  "sha": "894098dcc34edb7c349b01c4688610006408363d",
+  "short_sha": "894098dcc3",
+  "subject": "chore: de-Nix-ify macOS binary",
+  "zig_target": {}
+}

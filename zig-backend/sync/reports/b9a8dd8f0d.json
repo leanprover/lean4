@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-13",
+  "needs_port": false,
+  "sha": "b9a8dd8f0dd8a33d52a75e3af164d7da977f70d7",
+  "short_sha": "b9a8dd8f0d",
+  "subject": "feat: `simp` and `grind` rules for `ExceptCond`s (#9889)",
+  "zig_target": {}
+}

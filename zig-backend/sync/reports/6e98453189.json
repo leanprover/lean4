@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-10-19",
+  "needs_port": false,
+  "sha": "6e9845318966b6e2e10c0814587cc844f87b98e7",
+  "short_sha": "6e98453189",
+  "subject": "chore: lake: test auto-manifest & update cleaning",
+  "zig_target": {}
+}

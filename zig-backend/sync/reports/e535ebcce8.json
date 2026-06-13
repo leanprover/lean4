@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-02",
+  "needs_port": false,
+  "sha": "e535ebcce8d467f0372ef6ac4098ae643f7b256e",
+  "short_sha": "e535ebcce8",
+  "subject": "fix(frontends/lean/util): remove reference to obsolete match syntax",
+  "zig_target": {}
+}

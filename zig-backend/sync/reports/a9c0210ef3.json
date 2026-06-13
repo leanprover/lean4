@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-25",
+  "needs_port": false,
+  "sha": "a9c0210ef3a85019891abe0816abb5bc48908cbe",
+  "short_sha": "a9c0210ef3",
+  "subject": "refactor: use `import Lake` in package configurations",
+  "zig_target": {}
+}

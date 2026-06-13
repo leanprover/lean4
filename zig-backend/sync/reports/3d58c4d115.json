@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/ExceptCps.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/ExceptCps.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful.lean"
+    },
+    {
+      "path": "src/Init/Control/StateCps.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/StateCps.lean"
+    },
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-03-12",
+  "needs_port": true,
+  "sha": "3d58c4d115e3ec0d25b4a71bfce1972aced1a615",
+  "short_sha": "3d58c4d115",
+  "subject": "chore: remove old notation",
+  "zig_target": {
+    "src/Init/Control/ExceptCps.lean": "zig-backend/src/init/Control/ExceptCps.lean",
+    "src/Init/Control/Lawful.lean": "zig-backend/src/init/Control/Lawful.lean",
+    "src/Init/Control/StateCps.lean": "zig-backend/src/init/Control/StateCps.lean",
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

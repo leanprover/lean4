@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Order.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Ring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+    }
+  ],
+  "date": "2025-10-30",
+  "needs_port": true,
+  "sha": "40e1e097c171a6ef1addb607446950e10eedbb9d",
+  "short_sha": "40e1e097c1",
+  "subject": "fix: `grind order` nontermination and propagation issues (#11026)",
+  "zig_target": {
+    "src/Init/Grind/Order.lean": "zig-backend/src/init/Grind/Order.lean",
+    "src/Init/Grind/Ordered/Ring.lean": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-05",
+  "needs_port": false,
+  "sha": "7eec7b78429721f3ea5903407dd3647d311669ef",
+  "short_sha": "7eec7b7842",
+  "subject": "fix: only use `.( ... )` when delaborating patterns",
+  "zig_target": {}
+}

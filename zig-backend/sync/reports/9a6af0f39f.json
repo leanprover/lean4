@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-14",
+  "needs_port": false,
+  "sha": "9a6af0f39f651e18fb4b903a0b25c129cd046b34",
+  "short_sha": "9a6af0f39f",
+  "subject": "test: simplify beginEndAsMacro",
+  "zig_target": {}
+}

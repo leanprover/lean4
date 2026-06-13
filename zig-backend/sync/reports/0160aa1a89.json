@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-01-27",
+  "needs_port": false,
+  "sha": "0160aa1a895c85b136f8c0391791980a3a2e76fc",
+  "short_sha": "0160aa1a89",
+  "subject": "test: identifier completion benchmark (#6796)",
+  "zig_target": {}
+}

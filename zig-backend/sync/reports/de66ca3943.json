@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Char/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-10-23",
+  "needs_port": true,
+  "sha": "de66ca3943535492c84c35a9b5a4137c4395f288",
+  "short_sha": "de66ca3943",
+  "subject": "feat: add helper functions for writing macros",
+  "zig_target": {
+    "src/Init/Data/Char/Basic.lean": "zig-backend/src/init/Data/Char/Basic.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-24",
+  "needs_port": false,
+  "sha": "7762efc33439efdaff9c7d949f4cbd53790e1e25",
+  "short_sha": "7762efc334",
+  "subject": "chore(tests/playground/report): Lean: rename `GC` to `del`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-13",
+  "needs_port": false,
+  "sha": "032c0257c36220ef691ab7abbf19ba20190eb027",
+  "short_sha": "032c0257c3",
+  "subject": "feat: DiscrTree: index the domain of `\u2200`",
+  "zig_target": {}
+}

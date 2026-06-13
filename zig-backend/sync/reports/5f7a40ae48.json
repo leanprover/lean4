@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-07",
+  "needs_port": false,
+  "sha": "5f7a40ae48ede0b9e15e7c24d2d59dd214175297",
+  "short_sha": "5f7a40ae48",
+  "subject": "chore: fix test exclusion (#5990)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-08-22",
+  "needs_port": true,
+  "sha": "a63d4832580ebf8622142d31e14d07aa5bcf0d3c",
+  "short_sha": "a63d483258",
+  "subject": "feat: `pow` support in `grind cutsat` (#10071)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

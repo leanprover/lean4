@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-22",
+  "needs_port": false,
+  "sha": "f71a1fb4ae958fccb3ad4d48786a8f47ced05c15",
+  "short_sha": "f71a1fb4ae",
+  "subject": "test: add missing test",
+  "zig_target": {}
+}

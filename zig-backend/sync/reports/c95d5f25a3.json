@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-19",
+  "needs_port": false,
+  "sha": "c95d5f25a35d9e4a7d48d587cc0ecd6e4df59eec",
+  "short_sha": "c95d5f25a3",
+  "subject": "feat: convert `ite`s into `dite`s in the `WF` module",
+  "zig_target": {}
+}

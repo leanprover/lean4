@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-10-02",
+  "needs_port": false,
+  "sha": "a01166f045ce5d118a61d743af3b66e5a135af87",
+  "short_sha": "a01166f045",
+  "subject": "refactor: reduce Reservoir build fetch attempts & warnings (#5600)",
+  "zig_target": {}
+}

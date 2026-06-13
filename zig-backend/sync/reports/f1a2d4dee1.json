@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-09",
+  "needs_port": false,
+  "sha": "f1a2d4dee166eb9d5bcf76acbdb865e3deb84b6d",
+  "short_sha": "f1a2d4dee1",
+  "subject": "doc: fix and expand `lean3changes.md`",
+  "zig_target": {}
+}

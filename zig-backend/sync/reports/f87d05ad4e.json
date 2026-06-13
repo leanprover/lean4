@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-06-26",
+  "needs_port": true,
+  "sha": "f87d05ad4e55ce5126a67b990583d5e96a8b4e20",
+  "short_sha": "f87d05ad4e",
+  "subject": "feat: Hoare logic for monadic programs and verification condition generation (#8995)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

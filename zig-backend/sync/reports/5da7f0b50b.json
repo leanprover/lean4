@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-13",
+  "needs_port": false,
+  "sha": "5da7f0b50b6e3ca3a5af8d38b4ac4d12a58abaf3",
+  "short_sha": "5da7f0b50b",
+  "subject": "fix: set `constApprox := false` at `SynthInstance`",
+  "zig_target": {}
+}

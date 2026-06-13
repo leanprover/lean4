@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-04",
+  "needs_port": false,
+  "sha": "89ab3cadf987c7ad005f34b0b744066e2e9c2402",
+  "short_sha": "89ab3cadf9",
+  "subject": "doc: server: mention infoTree test",
+  "zig_target": {}
+}

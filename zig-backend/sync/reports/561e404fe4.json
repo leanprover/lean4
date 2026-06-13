@@ -1,0 +1,10 @@
+{
+  "author": "Rishikesh Vaishnav",
+  "backend_changes": [],
+  "date": "2023-01-19",
+  "needs_port": false,
+  "sha": "561e404fe4e73f6754e402d616dd2e1bf39ca6ae",
+  "short_sha": "561e404fe4",
+  "subject": "feat: make go-to-definition on a typeclass projection application go to the instance(s) (#1767)",
+  "zig_target": {}
+}

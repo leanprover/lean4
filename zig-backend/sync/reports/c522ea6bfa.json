@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-14",
+  "needs_port": false,
+  "sha": "c522ea6bfaf58a8c0451bbe1247fadccad4d2026",
+  "short_sha": "c522ea6bfa",
+  "subject": "chore: remove JSON code from old server",
+  "zig_target": {}
+}

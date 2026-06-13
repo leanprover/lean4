@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+    }
+  ],
+  "date": "2023-07-08",
+  "needs_port": true,
+  "sha": "76023a7c6fc52acad5734fde5816a3dedccc0def",
+  "short_sha": "76023a7c6f",
+  "subject": "fix: don't run [builtin_init] when builtin = false",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitC.lean": "zig-backend/src/lean/compiler/ir/EmitC.lean"
+  }
+}

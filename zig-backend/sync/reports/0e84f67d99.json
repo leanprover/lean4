@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-08",
+  "needs_port": false,
+  "sha": "0e84f67d9920575ccfd87a349651222349b764c3",
+  "short_sha": "0e84f67d99",
+  "subject": "feat: with pos expr traversal functions",
+  "zig_target": {}
+}

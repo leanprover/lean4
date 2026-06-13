@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2020-02-06",
+  "needs_port": true,
+  "sha": "47f3d54acb9d38f3c5ee613a84083081251ebf5a",
+  "short_sha": "47f3d54acb",
+  "subject": "fix: interpreter: do not consume values in explicit unbox instructions",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

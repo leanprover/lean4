@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-23",
+  "needs_port": false,
+  "sha": "74276dd0245ab5cebdd19d76b2d39bb98cf57742",
+  "short_sha": "74276dd024",
+  "subject": "refactor: update `ofByteArray` with new primitives",
+  "zig_target": {}
+}

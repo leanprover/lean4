@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-10",
+  "needs_port": false,
+  "sha": "1421b6145e6be03e0f69ab2ad8de4fb1387b8049",
+  "short_sha": "1421b6145e",
+  "subject": "fix: cancellation of synchronous part of previous elaboration (#7882)",
+  "zig_target": {}
+}

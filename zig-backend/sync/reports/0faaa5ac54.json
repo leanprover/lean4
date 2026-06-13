@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-03",
+  "needs_port": false,
+  "sha": "0faaa5ac54a332945ccb09edf21ddea883f05793",
+  "short_sha": "0faaa5ac54",
+  "subject": "fix: use `mkForallFVars` and `mkLambdaFVars`",
+  "zig_target": {}
+}

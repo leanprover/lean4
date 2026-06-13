@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "e04453a89e7fd404c0ff7b8afb4b83c6ad89b08d",
+  "short_sha": "e04453a89e",
+  "subject": "chore: improve `getMaxLetVarIdx`",
+  "zig_target": {}
+}

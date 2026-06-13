@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-10",
+  "needs_port": false,
+  "sha": "14b595e9529dcccc9d532f3a83d548f8441bc3a5",
+  "short_sha": "14b595e952",
+  "subject": "feat: better support for eta expanded terms in `grind` (#12415)",
+  "zig_target": {}
+}

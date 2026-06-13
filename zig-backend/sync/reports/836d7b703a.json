@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-05-07",
+  "needs_port": false,
+  "sha": "836d7b703ac6b6c74892339785c20940e17fcd7f",
+  "short_sha": "836d7b703a",
+  "subject": "feat: add labeled subcomponents and helper functions for error messages (#8225)",
+  "zig_target": {}
+}

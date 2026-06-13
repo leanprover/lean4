@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-08",
+  "needs_port": false,
+  "sha": "c75d37f76bd5eca701dc67c1a19c8b7c50207712",
+  "short_sha": "c75d37f76b",
+  "subject": "fix: no model-based theory combination on instances (#10314)",
+  "zig_target": {}
+}

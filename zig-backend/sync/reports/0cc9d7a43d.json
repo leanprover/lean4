@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-03-08",
+  "needs_port": false,
+  "sha": "0cc9d7a43de73af086597c48e2ff427f31fef4f3",
+  "short_sha": "0cc9d7a43d",
+  "subject": "fix: do not reverse subgoals of local instances",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-08",
+  "needs_port": false,
+  "sha": "a2956f5bd6f4080287cabe3db088122ef33d0e9c",
+  "short_sha": "a2956f5bd6",
+  "subject": "feat(library/init/lean/syntax): add `mrewriteBottomUp` and `rewriteBottomUp`",
+  "zig_target": {}
+}

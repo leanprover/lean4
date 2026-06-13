@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-03-11",
+  "needs_port": false,
+  "sha": "10f161353e361f20ac18a7383f46466b149fdfa5",
+  "short_sha": "10f161353e",
+  "subject": "chore: remove leanpkg script",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-10-13",
+  "needs_port": false,
+  "sha": "045a71ab335a9dfb12840e5b1d8803c7f0333606",
+  "short_sha": "045a71ab33",
+  "subject": "hack: ignore maxCoeSize for monad coercions",
+  "zig_target": {}
+}

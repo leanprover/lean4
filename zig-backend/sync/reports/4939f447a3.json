@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-11-01",
+  "needs_port": false,
+  "sha": "4939f447a39732b10ee93b6348d50545030299bc",
+  "short_sha": "4939f447a3",
+  "subject": "test: avoid testing colliding private inductives (#11041)",
+  "zig_target": {}
+}

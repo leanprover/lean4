@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-02",
+  "needs_port": false,
+  "sha": "2f16d5f121fd18bf8b6b84af2115cdebf1ef6acf",
+  "short_sha": "2f16d5f121",
+  "subject": "feat: expressions with bundled environments for RPC",
+  "zig_target": {}
+}

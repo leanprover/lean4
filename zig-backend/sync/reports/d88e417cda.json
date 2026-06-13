@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean"
+    }
+  ],
+  "date": "2025-09-30",
+  "needs_port": true,
+  "sha": "d88e417cda0f7afb1e15c806c6bfdbbb09ba7eef",
+  "short_sha": "d88e417cda",
+  "subject": "refactor: tame down dead let eliminator in lambda RC (#10626)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ElimDeadVars.lean": "zig-backend/src/lean/compiler/ir/ElimDeadVars.lean"
+  }
+}

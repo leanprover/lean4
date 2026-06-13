@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Induction.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Cases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean"
+    }
+  ],
+  "date": "2020-03-05",
+  "needs_port": true,
+  "sha": "b5ec4ef2bdb9661973519f5b6e93545fef89dc8a",
+  "short_sha": "b5ec4ef2bd",
+  "subject": "feat: add `evalCases`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Induction.lean": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean",
+    "src/Init/Lean/Meta/Tactic/Cases.lean": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean"
+  }
+}

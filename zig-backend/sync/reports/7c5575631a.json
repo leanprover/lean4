@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-05",
+  "needs_port": false,
+  "sha": "7c5575631ae3ae1cadd16a51d0ed33ecbc43b247",
+  "short_sha": "7c5575631a",
+  "subject": "feat: remove `_tmp_ind_univ_param` elaboration hack",
+  "zig_target": {}
+}

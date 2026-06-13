@@ -1,0 +1,18 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-02-23",
+  "needs_port": true,
+  "sha": "b9b4d8f41d93b9887d26a07746b283d582893c76",
+  "short_sha": "b9b4d8f41d",
+  "subject": "feat: add `BitVec.toNat_concat` (#3471)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

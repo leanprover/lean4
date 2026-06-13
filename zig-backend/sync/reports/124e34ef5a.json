@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Ring.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+    }
+  ],
+  "date": "2025-12-11",
+  "needs_port": true,
+  "sha": "124e34ef5abdeb29ca20ba9ee602568f7c789ff8",
+  "short_sha": "124e34ef5a",
+  "subject": "feat: `grind_pattern natCast_nonneg` (#11574)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Ring.lean": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+  }
+}

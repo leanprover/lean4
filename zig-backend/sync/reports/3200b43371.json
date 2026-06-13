@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-25",
+  "needs_port": false,
+  "sha": "3200b43371b36e622807c55b3d092a5a6dc3310a",
+  "short_sha": "3200b43371",
+  "subject": "feat: include external libraries in precompilation",
+  "zig_target": {}
+}

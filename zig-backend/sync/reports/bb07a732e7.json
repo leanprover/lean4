@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-31",
+  "needs_port": false,
+  "sha": "bb07a732e7967afffb074b37637ec37d91b9edf8",
+  "short_sha": "bb07a732e7",
+  "subject": "refactor: use `mkAuxLemma` in `mkAuxTheorem` (#7762)",
+  "zig_target": {}
+}

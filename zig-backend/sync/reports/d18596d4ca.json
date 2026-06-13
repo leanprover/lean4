@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-11-30",
+  "needs_port": true,
+  "sha": "d18596d4ca36ceb1028ac383a0111a7565199b0c",
+  "short_sha": "d18596d4ca",
+  "subject": "feat: add `Unexpander` for delaborating without importing `Lean`, use for simple notations",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

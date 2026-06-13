@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    }
+  ],
+  "date": "2018-10-02",
+  "needs_port": true,
+  "sha": "fa906c6bda3b865377948306d25179c58979a4b2",
+  "short_sha": "fa906c6bda",
+  "subject": "fix(library/compiler/lambda_lifting): use user_name",
+  "zig_target": {
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+  }
+}

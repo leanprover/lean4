@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2018-06-21",
+  "needs_port": true,
+  "sha": "9a46fb51cd75063a566fa6d878845768c1cd3586",
+  "short_sha": "9a46fb51cd",
+  "subject": "perf(runtime/object): use memcmp to implement string_lt",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-19",
+  "needs_port": false,
+  "sha": "8763e66f3054cef53e15d08ceeda25aef1f07b44",
+  "short_sha": "8763e66f30",
+  "subject": "feat(library/init/lean/expander): allow macros not to unfold",
+  "zig_target": {}
+}

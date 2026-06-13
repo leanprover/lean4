@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-06-03",
+  "needs_port": false,
+  "sha": "4d7ccc7c7298007b3bd0d7833ed87439239b27e5",
+  "short_sha": "4d7ccc7c72",
+  "subject": "feat: Lean.js can compile itself",
+  "zig_target": {}
+}

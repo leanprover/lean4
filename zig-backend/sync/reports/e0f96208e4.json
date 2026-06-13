@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-11-19",
+  "needs_port": false,
+  "sha": "e0f96208e49b2a233c4632833b761871258edbaf",
+  "short_sha": "e0f96208e4",
+  "subject": "chore: typo in error message (#11262)",
+  "zig_target": {}
+}

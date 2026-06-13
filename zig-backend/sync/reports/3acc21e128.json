@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-10",
+  "needs_port": false,
+  "sha": "3acc21e1283f43ec71b0e5e7c4d63d078952f573",
+  "short_sha": "3acc21e128",
+  "subject": "chore: CI: try to make lsan terminate",
+  "zig_target": {}
+}

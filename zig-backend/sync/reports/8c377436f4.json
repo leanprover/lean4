@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-09",
+  "needs_port": false,
+  "sha": "8c377436f47de7615e0dc479f73eb77cd332bf24",
+  "short_sha": "8c377436f4",
+  "subject": "fix: do not report unused variables in unfinished declarations",
+  "zig_target": {}
+}

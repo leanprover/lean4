@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-19",
+  "needs_port": false,
+  "sha": "00600806ad19f5b2094d9041eff33ad09e78b533",
+  "short_sha": "00600806ad",
+  "subject": "fix: proof construction in `grind ring` (#11273)",
+  "zig_target": {}
+}

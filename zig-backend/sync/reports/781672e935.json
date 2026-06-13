@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-27",
+  "needs_port": false,
+  "sha": "781672e935f70a435ebac56778c8985dff205a56",
+  "short_sha": "781672e935",
+  "subject": "refactor: generalize `Await` signature a little",
+  "zig_target": {}
+}

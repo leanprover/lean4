@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-07-08",
+  "needs_port": false,
+  "sha": "f6265e25f4565d14c4cddf18b5f21f0af0873170",
+  "short_sha": "f6265e25f4",
+  "subject": "chore: fix \"max dynamic symbols\" metric (#4669)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-03",
+  "needs_port": false,
+  "sha": "ba847d41f173d7b82dcea9689f61ed7439ebbfae",
+  "short_sha": "ba847d41f1",
+  "subject": "chore: revise environment constant addition details (#8610)",
+  "zig_target": {}
+}

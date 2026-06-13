@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-28",
+  "needs_port": false,
+  "sha": "10c49d00074c3a531175b096465dc5c6c07e8594",
+  "short_sha": "10c49d0007",
+  "subject": "fix: preserve user-facing names and `BinderInfo` when lifting `let-rec` declarations",
+  "zig_target": {}
+}

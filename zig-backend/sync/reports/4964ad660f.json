@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-05",
+  "needs_port": false,
+  "sha": "4964ad660f802a877523a4e3b0e0a44805899965",
+  "short_sha": "4964ad660f",
+  "subject": "feat(library/constructions/no_confusion): add `no_confusion` for new inductive datatype module",
+  "zig_target": {}
+}

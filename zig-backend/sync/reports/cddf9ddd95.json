@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-29",
+  "needs_port": false,
+  "sha": "cddf9ddd95726d9a9f77384749bebfeea807e69f",
+  "short_sha": "cddf9ddd95",
+  "subject": "fix: `forallAltTelescope` heterogeneous equality support",
+  "zig_target": {}
+}

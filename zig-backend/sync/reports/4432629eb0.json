@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-13",
+  "needs_port": false,
+  "sha": "4432629eb0bc8ebdf5a7a146caff867096504792",
+  "short_sha": "4432629eb0",
+  "subject": "feat(util/nat): add C++ wrapper for manipulating runtime nat values",
+  "zig_target": {}
+}

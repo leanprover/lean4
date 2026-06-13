@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-08",
+  "needs_port": false,
+  "sha": "c7e6c9d89c4d042deb6136de42f32e92b7347c5e",
+  "short_sha": "c7e6c9d89c",
+  "subject": "chore: Nix: allow importing Leanpkg by default",
+  "zig_target": {}
+}

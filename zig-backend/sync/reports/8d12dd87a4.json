@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-12",
+  "needs_port": false,
+  "sha": "8d12dd87a411822e6223f6a8256e8efcb6d3b49c",
+  "short_sha": "8d12dd87a4",
+  "subject": "fix: disable incremental body elaboration in presence of `where` (#5001)",
+  "zig_target": {}
+}

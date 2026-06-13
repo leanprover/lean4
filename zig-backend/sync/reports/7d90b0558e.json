@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-01-04",
+  "needs_port": false,
+  "sha": "7d90b0558e5b6ed409337f0686be8f306f739183",
+  "short_sha": "7d90b0558e",
+  "subject": "chore: Netlify deployment for manual (#3138)",
+  "zig_target": {}
+}

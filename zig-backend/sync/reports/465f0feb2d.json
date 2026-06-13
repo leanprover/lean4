@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-01",
+  "needs_port": false,
+  "sha": "465f0feb2dcce63dcffb831d02c654236f7e9ff0",
+  "short_sha": "465f0feb2d",
+  "subject": "test: expand tests/lean/issue2981.lean a bit (#3007)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/ShareCommon.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/ShareCommon.lean"
+    }
+  ],
+  "date": "2022-08-29",
+  "needs_port": true,
+  "sha": "b2b02295b008142168b86baa138369625c57552d",
+  "short_sha": "b2b02295b0",
+  "subject": "chore: move ShareCommon to Init / Lean",
+  "zig_target": {
+    "src/Init/ShareCommon.lean": "zig-backend/src/init/ShareCommon.lean"
+  }
+}

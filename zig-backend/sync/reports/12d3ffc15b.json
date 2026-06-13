@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-18",
+  "needs_port": false,
+  "sha": "12d3ffc15b22e3a2198e9368b432cfab7eec6156",
+  "short_sha": "12d3ffc15b",
+  "subject": "chore: add copyright header guidance to CLAUDE.md (#12541)",
+  "zig_target": {}
+}

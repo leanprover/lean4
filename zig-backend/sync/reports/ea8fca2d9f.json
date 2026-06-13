@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-03-15",
+  "needs_port": false,
+  "sha": "ea8fca2d9fa3bc5cd65aaf0b3e4f43e6a4cd81c0",
+  "short_sha": "ea8fca2d9f",
+  "subject": "refactor: lake: download arts by default in `cache get` (#12927)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2024-02-18",
+  "needs_port": true,
+  "sha": "9fe72c5f950411df687ab6a04e1b2c4ec12b7384",
+  "short_sha": "9fe72c5f95",
+  "subject": "chore: set `zetaDelta := false` by default in the simplifier",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

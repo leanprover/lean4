@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-23",
+  "needs_port": false,
+  "sha": "d24dfa10313b64968915745448f5ca15de2dcaaa",
+  "short_sha": "d24dfa1031",
+  "subject": "perf: add a cache to bv_decide's reflection procedure (#7644)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-22",
+  "needs_port": false,
+  "sha": "67b59a0a3cde4f5024931d86a19d020823914672",
+  "short_sha": "67b59a0a3c",
+  "subject": "fix(util): memory leaks",
+  "zig_target": {}
+}

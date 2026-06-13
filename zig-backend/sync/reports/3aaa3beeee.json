@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-07-19",
+  "needs_port": false,
+  "sha": "3aaa3beeee32834d3aa22cdc63581e6292b0b568",
+  "short_sha": "3aaa3beeee",
+  "subject": "feat: lake: job count in build success message (#9436)",
+  "zig_target": {}
+}

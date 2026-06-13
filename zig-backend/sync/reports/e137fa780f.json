@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-07-15",
+  "needs_port": false,
+  "sha": "e137fa780f0393259c9ebdcdcc4db183e4f3bcd1",
+  "short_sha": "e137fa780f",
+  "subject": "feat: WIP snapshots",
+  "zig_target": {}
+}

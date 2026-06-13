@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Order/LemmasExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/LemmasExtra.lean"
+    }
+  ],
+  "date": "2026-04-16",
+  "needs_port": true,
+  "sha": "3fc99eef102549c743c6c63547983319bfae6f01",
+  "short_sha": "3fc99eef10",
+  "subject": "feat: add instance validation checks in `addInstance` (#13389)",
+  "zig_target": {
+    "src/Init/Data/Order/LemmasExtra.lean": "zig-backend/src/init/Data/Order/LemmasExtra.lean"
+  }
+}

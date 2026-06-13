@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-25",
+  "needs_port": false,
+  "sha": "6547af988b66da32484ed203c2571bc05446e28f",
+  "short_sha": "6547af988b",
+  "subject": "feat: add `substVars`",
+  "zig_target": {}
+}

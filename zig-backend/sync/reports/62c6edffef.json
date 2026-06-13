@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2025-04-25",
+  "needs_port": true,
+  "sha": "62c6edffef8ad6039faae726d85a2588032e73ee",
+  "short_sha": "62c6edffef",
+  "subject": "feat: do not export theorem bodies (#8090)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

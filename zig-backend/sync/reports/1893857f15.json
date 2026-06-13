@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-10-24",
+  "needs_port": false,
+  "sha": "1893857f15f361b0af189a36f6500e8d54dcf08c",
+  "short_sha": "1893857f15",
+  "subject": "fix: `expandCDot?` should create canonical syntax",
+  "zig_target": {}
+}

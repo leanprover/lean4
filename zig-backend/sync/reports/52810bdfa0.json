@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/compiler_hints.h",
+      "status": "D",
+      "zig_target": "zig-backend/include/lean/compiler_hints.h"
+    }
+  ],
+  "date": "2021-07-10",
+  "needs_port": true,
+  "sha": "52810bdfa004d027cdd319fbe13f2c9ea787f67c",
+  "short_sha": "52810bdfa0",
+  "subject": "chore: remove dead header",
+  "zig_target": {
+    "src/include/lean/compiler_hints.h": "zig-backend/include/lean/compiler_hints.h"
+  }
+}

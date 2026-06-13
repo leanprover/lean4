@@ -1,0 +1,10 @@
+{
+  "author": "pandaman",
+  "backend_changes": [],
+  "date": "2026-05-13",
+  "needs_port": false,
+  "sha": "bba3868b3b1dfd7741d33b119f73b5d342b9f1d5",
+  "short_sha": "bba3868b3b",
+  "subject": "fix: omit empty moreLeancArgs when leanc flags are unset (#13723)",
+  "zig_target": {}
+}

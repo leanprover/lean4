@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-20",
+  "needs_port": true,
+  "sha": "0ecf2a030a8b907d94762686eab23ab72b7b5486",
+  "short_sha": "0ecf2a030a",
+  "subject": "feat: List.fold relators (#5393)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

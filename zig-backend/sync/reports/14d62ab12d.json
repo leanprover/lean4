@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/serializer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/serializer.h"
+    }
+  ],
+  "date": "2018-05-29",
+  "needs_port": true,
+  "sha": "14d62ab12d3912608de9251c61d3bca59f35c3ac",
+  "short_sha": "14d62ab12d",
+  "subject": "chore(runtime/serializer): compilation warning",
+  "zig_target": {
+    "src/runtime/serializer.h": "zig-backend/src/runtime/serializer.h"
+  }
+}

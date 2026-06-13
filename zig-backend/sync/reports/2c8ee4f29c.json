@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-31",
+  "needs_port": false,
+  "sha": "2c8ee4f29cd13ca5162b3956df9415858120a967",
+  "short_sha": "2c8ee4f29c",
+  "subject": "fix: simplify interface between `grind` core and cutsat (#8564)",
+  "zig_target": {}
+}

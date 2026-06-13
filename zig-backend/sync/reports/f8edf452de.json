@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-01-15",
+  "needs_port": false,
+  "sha": "f8edf452dec50d2d310737c266a1db112386ecda",
+  "short_sha": "f8edf452de",
+  "subject": "chore: CI: add actionlint action, fix actions (#3156)",
+  "zig_target": {}
+}

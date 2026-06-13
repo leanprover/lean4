@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    }
+  ],
+  "date": "2024-09-29",
+  "needs_port": true,
+  "sha": "3a46fd0fde0f6ae8093e3303061d312e502cee82",
+  "short_sha": "3a46fd0fde",
+  "subject": "chore: unsimp BitVec.divRec_succ' (#5505)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+  }
+}

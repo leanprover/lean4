@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-06-03",
+  "needs_port": false,
+  "sha": "a54fa7cae6ec1c69391aef8ede4fe8da868f5413",
+  "short_sha": "a54fa7cae6",
+  "subject": "fix: partial `calc` tactic would fail due to mdata or uninstantiated mvars (#4335)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-16",
+  "needs_port": false,
+  "sha": "e8c4540f87df17e4599fe054c8c90e2a725ae63b",
+  "short_sha": "e8c4540f87",
+  "subject": "feat: simprocs for reducing `x >>> i` and `x <<< i` where `i` is a bittvector literal (#4193)",
+  "zig_target": {}
+}

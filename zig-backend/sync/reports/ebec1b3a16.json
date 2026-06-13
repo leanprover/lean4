@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2026-01-29",
+  "needs_port": true,
+  "sha": "ebec1b3a16dfacaf65b8d712693025eb97bc0c53",
+  "short_sha": "ebec1b3a16",
+  "subject": "fix: typo in ExtractLetsConfig doc comment (#12174)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

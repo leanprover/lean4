@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2022-08-23",
+  "needs_port": true,
+  "sha": "b010805000e0096cada3574250c5ef09d0e9f3f3",
+  "short_sha": "b010805000",
+  "subject": "fix: `Handle.read` at EOF",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

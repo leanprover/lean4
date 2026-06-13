@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-02",
+  "needs_port": false,
+  "sha": "3056848819da54c8b5f88329eca08040af82c5e2",
+  "short_sha": "3056848819",
+  "subject": "fix: `unfoldReducible'` optimization regression in `grind` (#9682)",
+  "zig_target": {}
+}

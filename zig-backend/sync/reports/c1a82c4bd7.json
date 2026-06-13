@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-21",
+  "needs_port": false,
+  "sha": "c1a82c4bd72e8a0f0f08fcef3c8dfb53d3d503f7",
+  "short_sha": "c1a82c4bd7",
+  "subject": "chore: lake: update `tests/toml` (#11314)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-07",
+  "needs_port": false,
+  "sha": "deba610203120bd6c7cd2772c4ee4e4103009954",
+  "short_sha": "deba610203",
+  "subject": "test(tests/playground/parser/parser2): add `many` and `many1` combinators",
+  "zig_target": {}
+}

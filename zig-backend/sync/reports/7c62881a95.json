@@ -1,0 +1,10 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "7c62881a957ac72092e81f34847759f172c206dc",
+  "short_sha": "7c62881a95",
+  "subject": "feat: bv_decide short-circuit `a * x = b * x` (#6496)",
+  "zig_target": {}
+}

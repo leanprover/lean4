@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "ba9a10265effd371c39e6731b4dae2ca176abebd",
+  "short_sha": "ba9a10265e",
+  "subject": "feat(library/init/lean/compiler/ir/emitcpp): implement `emitVDecl` remaining cases",
+  "zig_target": {}
+}

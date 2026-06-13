@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-09",
+  "needs_port": false,
+  "sha": "b136c519e2a4c8dac84b9270e4975c08d94cf627",
+  "short_sha": "b136c519e2",
+  "subject": "fix: scope and improve error message",
+  "zig_target": {}
+}

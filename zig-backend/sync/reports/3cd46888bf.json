@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-08",
+  "needs_port": false,
+  "sha": "3cd46888bf58dcaadbe4782819de090e7bb574f8",
+  "short_sha": "3cd46888bf",
+  "subject": "fix: check types using default reducibility at `synthInstance?`",
+  "zig_target": {}
+}

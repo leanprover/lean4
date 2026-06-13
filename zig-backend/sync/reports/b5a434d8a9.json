@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-26",
+  "needs_port": false,
+  "sha": "b5a434d8a93ee9bbd0d8f14422189b43d8289420",
+  "short_sha": "b5a434d8a9",
+  "subject": "test: for `induction q with Quot.ind` issue",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-12-22",
+  "needs_port": false,
+  "sha": "bcc49d1c5fc3d07652bd3edd660502521c97bf61",
+  "short_sha": "bcc49d1c5f",
+  "subject": "chore: update tests for #2966 to use test_extern (#3092)",
+  "zig_target": {}
+}

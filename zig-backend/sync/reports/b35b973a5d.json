@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-24",
+  "needs_port": false,
+  "sha": "b35b973a5df37d11e44a404caeb7429180d20668",
+  "short_sha": "b35b973a5d",
+  "subject": "fix: precedence of `!` in old frontend",
+  "zig_target": {}
+}

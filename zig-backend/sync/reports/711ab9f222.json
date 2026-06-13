@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-11",
+  "needs_port": false,
+  "sha": "711ab9f222c51a0188e69de922a7e568b0e4cf1b",
+  "short_sha": "711ab9f222",
+  "subject": "feat(library/init/lean/parser/term): missing notation",
+  "zig_target": {}
+}

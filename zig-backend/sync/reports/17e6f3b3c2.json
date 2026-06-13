@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-07",
+  "needs_port": false,
+  "sha": "17e6f3b3c2b9a1dc75fc24b4d55592cc557a31e6",
+  "short_sha": "17e6f3b3c2",
+  "subject": "style: fix style in bv_decide normalizer (#5992)",
+  "zig_target": {}
+}

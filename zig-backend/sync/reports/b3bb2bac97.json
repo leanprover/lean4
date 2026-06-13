@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "b3bb2bac97d0a2f5da1b6b22650d2113205a0dac",
+  "short_sha": "b3bb2bac97",
+  "subject": "chore: move all C++ code into libleanshared, use C stub for `main`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-10",
+  "needs_port": false,
+  "sha": "40777c203b63d5c44b4b244a479cddff79a5011c",
+  "short_sha": "40777c203b",
+  "subject": "feat: add `MonadEnv` helper methods",
+  "zig_target": {}
+}

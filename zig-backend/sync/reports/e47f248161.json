@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-06-24",
+  "needs_port": true,
+  "sha": "e47f2481617abf0fba2d42022733d29cef3b38b2",
+  "short_sha": "e47f248161",
+  "subject": "doc: TSyntax",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-18",
+  "needs_port": false,
+  "sha": "0a849003b23f3fa69099da8b59b8eaec01fc13f8",
+  "short_sha": "0a849003b2",
+  "subject": "refactor: remove dead matcher code from Cbv/Main.lean (#12568)",
+  "zig_target": {}
+}

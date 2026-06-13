@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-17",
+  "needs_port": false,
+  "sha": "5457a227baa0e81f0efc2c1b50748af15dfaffd8",
+  "short_sha": "5457a227ba",
+  "subject": "feat: conditional rewriting in `Sym.simp` (#12033)",
+  "zig_target": {}
+}

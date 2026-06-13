@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-02",
+  "needs_port": false,
+  "sha": "d576827e60754fc0d37cc96d28607162d6f51fd8",
+  "short_sha": "d576827e60",
+  "subject": "fix: wait for imports on document symbols request",
+  "zig_target": {}
+}

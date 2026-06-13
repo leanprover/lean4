@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-02",
+  "needs_port": false,
+  "sha": "a02443d23d323b6079cf595f994dff1c535d65ae",
+  "short_sha": "a02443d23d",
+  "subject": "chore(frontends/lean): `fun x, e` ==> `fun x => e`",
+  "zig_target": {}
+}

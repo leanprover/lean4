@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Count.lean"
+    }
+  ],
+  "date": "2025-04-15",
+  "needs_port": true,
+  "sha": "c3996aadb8d70e9d2d99bd054dcb305ff03ccfd2",
+  "short_sha": "c3996aadb8",
+  "subject": "feat: Array.count_erase lemma (#7939)",
+  "zig_target": {
+    "src/Init/Data/Array/Count.lean": "zig-backend/src/init/Data/Array/Count.lean"
+  }
+}

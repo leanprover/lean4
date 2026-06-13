@@ -1,0 +1,10 @@
+{
+  "author": "TAKANO Mitsuhiro",
+  "backend_changes": [],
+  "date": "2023-11-01",
+  "needs_port": false,
+  "sha": "29b09b0900966e7ed2f5c57abba17ef178a47db9",
+  "short_sha": "29b09b0900",
+  "subject": "chore: CI: use `setup-emsdk@v12` (#2796)",
+  "zig_target": {}
+}

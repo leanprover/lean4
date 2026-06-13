@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-05",
+  "needs_port": false,
+  "sha": "215a3ac8fd132fd2154bb98ad78c09bdca500b48",
+  "short_sha": "215a3ac8fd",
+  "subject": "chore(library/tactic/clear_tactic): remove dead code",
+  "zig_target": {}
+}

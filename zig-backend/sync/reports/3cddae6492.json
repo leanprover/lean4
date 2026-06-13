@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/Propagator.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Propagator.lean"
+    }
+  ],
+  "date": "2024-12-25",
+  "needs_port": true,
+  "sha": "3cddae6492566426a6a1649c0be800d5046a0367",
+  "short_sha": "3cddae6492",
+  "subject": "feat: support for builtin `grind` propagators (#6448)",
+  "zig_target": {
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/Propagator.lean": "zig-backend/src/init/Grind/Propagator.lean"
+  }
+}

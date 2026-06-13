@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-12-14",
+  "needs_port": false,
+  "sha": "5db865ea2fb678a46a04010eb064d11b718e863f",
+  "short_sha": "5db865ea2f",
+  "subject": "fix: make grind support for ctorIdx debug.grind-safe (#11669)",
+  "zig_target": {}
+}

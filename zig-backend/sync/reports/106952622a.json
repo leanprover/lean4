@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-01",
+  "needs_port": false,
+  "sha": "106952622a9f12c20fcb77bc93da0db9c46f939f",
+  "short_sha": "106952622a",
+  "subject": "chore: modify induction hypotheses generated names",
+  "zig_target": {}
+}

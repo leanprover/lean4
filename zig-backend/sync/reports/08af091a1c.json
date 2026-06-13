@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-03-19",
+  "needs_port": true,
+  "sha": "08af091a1c0a4df9a16c87c24a3daf29ee9a9fff",
+  "short_sha": "08af091a1c",
+  "subject": "chore: missing normalization rules for cutsat (#7583)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

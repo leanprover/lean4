@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-27",
+  "needs_port": false,
+  "sha": "608be459e7cf44d1961658bdbbd281e02d282d74",
+  "short_sha": "608be459e7",
+  "subject": "feat: add `anyM`, `allM`, `any`, and `all`",
+  "zig_target": {}
+}

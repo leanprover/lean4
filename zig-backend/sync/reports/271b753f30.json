@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2020-02-27",
+  "needs_port": true,
+  "sha": "271b753f3042923021ed39b36e89d7253474f205",
+  "short_sha": "271b753f30",
+  "subject": "feat: optimization for Bool+Decidable code",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

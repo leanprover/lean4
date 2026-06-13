@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-27",
+  "needs_port": false,
+  "sha": "5982a6d2303d629d3c879afe4d00dd8b9fc6bcc6",
+  "short_sha": "5982a6d230",
+  "subject": "chore: default `parseQuotWithCurrentStage` to `true` in stage 0 (#6212)",
+  "zig_target": {}
+}

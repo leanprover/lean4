@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-02",
+  "needs_port": false,
+  "sha": "cf19cb0790a4efc1e6651b6aed31e67aab887e4d",
+  "short_sha": "cf19cb0790",
+  "subject": "chore(lean4-mode/lean4-input): fix `\\cdot`",
+  "zig_target": {}
+}

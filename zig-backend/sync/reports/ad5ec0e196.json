@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-05-05",
+  "needs_port": false,
+  "sha": "ad5ec0e196fb6d8423570400c80f26e9b0681823",
+  "short_sha": "ad5ec0e196",
+  "subject": "feat: user-specified init fn when loading plugins (#13510)",
+  "zig_target": {}
+}

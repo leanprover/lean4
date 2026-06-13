@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-10-26",
+  "needs_port": true,
+  "sha": "d7e732e88621bb3a7c9ae3bd17a7f4efcdcb45ad",
+  "short_sha": "d7e732e886",
+  "subject": "feat: use `unop%` to implement unary minus notation",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

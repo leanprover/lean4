@@ -1,0 +1,24 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Impl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Impl.lean"
+    }
+  ],
+  "date": "2025-03-17",
+  "needs_port": true,
+  "sha": "c53b0c99dec2ff8a05285e653e650c1d9f6e4d4f",
+  "short_sha": "c53b0c99de",
+  "subject": "fix: broken docstring examples (#7526)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Impl.lean": "zig-backend/src/init/Data/List/Impl.lean"
+  }
+}

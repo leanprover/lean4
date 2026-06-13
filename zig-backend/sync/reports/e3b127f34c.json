@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-07",
+  "needs_port": false,
+  "sha": "e3b127f34c9ad3fb2a5851825e9d0331884780ba",
+  "short_sha": "e3b127f34c",
+  "subject": "chore: lean4-mode: prefer cdot on \\.",
+  "zig_target": {}
+}

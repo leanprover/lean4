@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "907a202961019919230953acb38c26b2fd49c2e1",
+  "short_sha": "907a202961",
+  "subject": "feat: expand `in` command macro",
+  "zig_target": {}
+}

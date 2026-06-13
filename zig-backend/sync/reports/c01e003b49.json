@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-10",
+  "needs_port": false,
+  "sha": "c01e003b49c4b75da1eec88155430f6ce6310750",
+  "short_sha": "c01e003b49",
+  "subject": "fix: mutual structural recursion: check that datatype parameters agree (#4715)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-31",
+  "needs_port": false,
+  "sha": "465ed8af46e6a4491f9c81dd6d77ae37da11fd68",
+  "short_sha": "465ed8af46",
+  "subject": "feat: resolve generalized field notation using all parents (#5770)",
+  "zig_target": {}
+}

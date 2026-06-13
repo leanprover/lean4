@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-20",
+  "needs_port": false,
+  "sha": "21980658a5d10b567413639b2635ef5eaffa0f2c",
+  "short_sha": "21980658a5",
+  "subject": "fix: fieldBinders",
+  "zig_target": {}
+}

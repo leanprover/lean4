@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-28",
+  "needs_port": false,
+  "sha": "e455df9c95aa9e79e8c82f9d7127927581deee79",
+  "short_sha": "e455df9c95",
+  "subject": "fix: use a def-eq aware mapping at `toLinearExpr`",
+  "zig_target": {}
+}

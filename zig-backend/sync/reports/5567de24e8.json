@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-19",
+  "needs_port": false,
+  "sha": "5567de24e8e3d945042b23f8584e2373fdf1994d",
+  "short_sha": "5567de24e8",
+  "subject": "chore: improve `Exception.functionExpected`",
+  "zig_target": {}
+}

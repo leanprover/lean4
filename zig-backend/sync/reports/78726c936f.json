@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2024-03-01",
+  "needs_port": false,
+  "sha": "78726c936f9485d255875eaf29b864d5cd9189ab",
+  "short_sha": "78726c936f",
+  "subject": "chore: add library_search and #check_tactic to 4.7 RELEASES.md (#3549)",
+  "zig_target": {}
+}

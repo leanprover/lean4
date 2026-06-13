@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2025-03-06",
+  "needs_port": false,
+  "sha": "11aff52fb1c215c95ca8f03b880f17f176451acf",
+  "short_sha": "11aff52fb1",
+  "subject": "fix: `abstractNestedProofs` should see into the head of an application (#7353)",
+  "zig_target": {}
+}

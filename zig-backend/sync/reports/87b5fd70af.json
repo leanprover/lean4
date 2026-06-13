@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-01",
+  "needs_port": false,
+  "sha": "87b5fd70affc01e06911611ea835ee0071f9a276",
+  "short_sha": "87b5fd70af",
+  "subject": "chore(tests/frontends/lean): remove tests for old parser",
+  "zig_target": {}
+}

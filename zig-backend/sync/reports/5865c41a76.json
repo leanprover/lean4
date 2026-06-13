@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-13",
+  "needs_port": false,
+  "sha": "5865c41a769dc3242876a3ac83ad63a66f76714e",
+  "short_sha": "5865c41a76",
+  "subject": "chore: lean.code-workspace: always open terminal in root folder (#10745)",
+  "zig_target": {}
+}

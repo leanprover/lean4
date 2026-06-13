@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-11-11",
+  "needs_port": false,
+  "sha": "c2647cdbf504336c685bd68e2be7bbc9717e5258",
+  "short_sha": "c2647cdbf5",
+  "subject": "fix: pre-filter completion items mod ascii casing (#11140)",
+  "zig_target": {}
+}

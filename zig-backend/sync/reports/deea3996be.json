@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-13",
+  "needs_port": false,
+  "sha": "deea3996be0db026807d928a7805c833dd9b3654",
+  "short_sha": "deea3996be",
+  "subject": "fix: allow `renameI` to rename shadowed names",
+  "zig_target": {}
+}

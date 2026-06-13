@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-21",
+  "needs_port": false,
+  "sha": "027ce06f8935ac367c5d6dd4336b58359dbd931c",
+  "short_sha": "027ce06f89",
+  "subject": "chore(kernel/environment): remove `environment::replace`",
+  "zig_target": {}
+}

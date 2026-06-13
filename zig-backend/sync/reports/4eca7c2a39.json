@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2021-08-27",
+  "needs_port": false,
+  "sha": "4eca7c2a39971bd9520900da041abc37c9ee9ca4",
+  "short_sha": "4eca7c2a39",
+  "subject": "fix: add lsp-mode to the lean4-mode dependencies",
+  "zig_target": {}
+}

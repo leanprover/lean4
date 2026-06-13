@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-23",
+  "needs_port": false,
+  "sha": "b020ca3259923ad05a3c1ac8b22263b8ec1f5d89",
+  "short_sha": "b020ca3259",
+  "subject": "feat(library/init/lean/compiler/ir/emitcpp): allow C++ backend to use `@[extern c ...]` when `@[extern cpp ...]` is missing",
+  "zig_target": {}
+}

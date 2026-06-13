@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "38fc7192eda5b5ca96001c3feb5d7ada06b604b0",
+  "short_sha": "38fc7192ed",
+  "subject": "chore: fix new shell scripts' premissions",
+  "zig_target": {}
+}

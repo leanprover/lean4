@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-28",
+  "needs_port": false,
+  "sha": "8b17d4e2d689e4778bfe1a370b0438c871aeb02e",
+  "short_sha": "8b17d4e2d6",
+  "subject": "feat: cdot notation for tuples",
+  "zig_target": {}
+}

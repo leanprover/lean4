@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2024-04-28",
+  "needs_port": true,
+  "sha": "f817d5a706ed39a33bd63c4e701036dcb3510183",
+  "short_sha": "f817d5a706",
+  "subject": "feat: use structural recursion in Fin.induction (#4010)",
+  "zig_target": {
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

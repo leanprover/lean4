@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-10",
+  "needs_port": false,
+  "sha": "a96ae4bb12e8461eb1020a9193a548778dc17721",
+  "short_sha": "a96ae4bb12",
+  "subject": "chore: add CI log retrieval guidance to CLAUDE.md (#11964)",
+  "zig_target": {}
+}

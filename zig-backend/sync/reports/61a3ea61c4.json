@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-11",
+  "needs_port": false,
+  "sha": "61a3ea61c4429c912f0d9d0d47dde854c57f8bb5",
+  "short_sha": "61a3ea61c4",
+  "subject": "perf(library/init/lean/compiler/ir/boxing): create auxiliary constants for caching the value of boxed/unboxed literals and constants",
+  "zig_target": {}
+}

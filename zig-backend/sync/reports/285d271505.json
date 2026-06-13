@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/Promise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Promise.lean"
+    }
+  ],
+  "date": "2025-08-06",
+  "needs_port": true,
+  "sha": "285d27150582c3faf43232009ea7e9152e8baeb8",
+  "short_sha": "285d271505",
+  "subject": "doc: more careful `Promise.result!` docstring (#9734)",
+  "zig_target": {
+    "src/Init/System/Promise.lean": "zig-backend/src/init/System/Promise.lean"
+  }
+}

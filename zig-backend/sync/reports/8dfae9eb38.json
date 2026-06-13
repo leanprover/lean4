@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-11",
+  "needs_port": false,
+  "sha": "8dfae9eb38c6019e6ebb8d617e945a77edeb521d",
+  "short_sha": "8dfae9eb38",
+  "subject": "feat: `import` command stub",
+  "zig_target": {}
+}

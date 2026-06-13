@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-21",
+  "needs_port": false,
+  "sha": "0adca630ccf0603717bb4128efdb6c2130c6b48f",
+  "short_sha": "0adca630cc",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

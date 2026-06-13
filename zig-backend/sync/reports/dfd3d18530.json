@@ -1,0 +1,24 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    },
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-09-30",
+  "needs_port": true,
+  "sha": "dfd3d185300df044fa087d3fa166cb6fb3bd8269",
+  "short_sha": "dfd3d18530",
+  "subject": "test: improve language server test coverage (#10574)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean",
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2022-06-29",
+  "needs_port": true,
+  "sha": "a888b21bce4000322f1de4b975edf43840240896",
+  "short_sha": "a888b21bce",
+  "subject": "fix: compiler bug at `And.casesOn`",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

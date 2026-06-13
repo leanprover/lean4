@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-14",
+  "needs_port": false,
+  "sha": "2d0c62c767360a1b63d8777f9ed9bfae2c1fdf9f",
+  "short_sha": "2d0c62c767",
+  "subject": "fix: `grind` pattern validation (#11663)",
+  "zig_target": {}
+}

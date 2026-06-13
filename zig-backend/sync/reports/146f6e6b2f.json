@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-30",
+  "needs_port": false,
+  "sha": "146f6e6b2fc7a62de17c99b1543f7e52201f2179",
+  "short_sha": "146f6e6b2f",
+  "subject": "feat: use `profileitM` in grind (#6876)",
+  "zig_target": {}
+}

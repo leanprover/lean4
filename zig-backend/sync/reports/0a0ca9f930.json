@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-30",
+  "needs_port": false,
+  "sha": "0a0ca9f930edb89f18e562f14e2f6da1554edbbf",
+  "short_sha": "0a0ca9f930",
+  "subject": "fix: `funImplicitBinder`",
+  "zig_target": {}
+}

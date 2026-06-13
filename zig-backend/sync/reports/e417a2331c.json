@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-01",
+  "needs_port": false,
+  "sha": "e417a2331ce5a6e2eae956ea6e5fe5f50ef01ce4",
+  "short_sha": "e417a2331c",
+  "subject": "feat: expose Kernel.check for debugging purposes (#5412)",
+  "zig_target": {}
+}

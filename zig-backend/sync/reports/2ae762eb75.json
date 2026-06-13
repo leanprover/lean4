@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-04",
+  "needs_port": false,
+  "sha": "2ae762eb7515b1703e80d5144ef29d1f06e95571",
+  "short_sha": "2ae762eb75",
+  "subject": "fix: panic when applying `@[simp]` to malformed theorem syntax (#4341)",
+  "zig_target": {}
+}

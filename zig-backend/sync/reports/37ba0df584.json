@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-15",
+  "needs_port": false,
+  "sha": "37ba0df5841bde51dbc2329da81ac23d4f6a4de4",
+  "short_sha": "37ba0df584",
+  "subject": "feat: do not generate code for matcher auxiliary declarations",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Float.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Float.lean"
+    }
+  ],
+  "date": "2024-11-20",
+  "needs_port": true,
+  "sha": "7fbe8e3b36faabc9cfcc45e65a4b7ef042c0b068",
+  "short_sha": "7fbe8e3b36",
+  "subject": "fix: `Inhabited Float` produced a bogus run-time value (#6136)",
+  "zig_target": {
+    "src/Init/Data/Float.lean": "zig-backend/src/init/Data/Float.lean"
+  }
+}

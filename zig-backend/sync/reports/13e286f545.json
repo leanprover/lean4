@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-13",
+  "needs_port": false,
+  "sha": "13e286f54580165d16592ccab4538d302d2ed32c",
+  "short_sha": "13e286f545",
+  "subject": "doc: fix docstring for InteractiveGoal",
+  "zig_target": {}
+}

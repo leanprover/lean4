@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-07-24",
+  "needs_port": false,
+  "sha": "e84ce2e1f11ba9e3bbcd5e869f7e506a22c9d453",
+  "short_sha": "e84ce2e1f1",
+  "subject": "test: make completion tests less dependent on core",
+  "zig_target": {}
+}

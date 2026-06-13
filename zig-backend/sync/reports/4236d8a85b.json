@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-11",
+  "needs_port": true,
+  "sha": "4236d8a85b17fe1928613a1c300f89ace40a81f5",
+  "short_sha": "4236d8a85b",
+  "subject": "feat: add Std.[Associative|Commutative] instances for BitVec.[and|or|xor] (#4981)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

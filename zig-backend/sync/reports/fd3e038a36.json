@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-12",
+  "needs_port": false,
+  "sha": "fd3e038a360e6259fb4e1c3553af1950a713857f",
+  "short_sha": "fd3e038a36",
+  "subject": "feat: add `isDefEqBinding`",
+  "zig_target": {}
+}

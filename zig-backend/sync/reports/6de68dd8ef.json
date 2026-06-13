@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-07",
+  "needs_port": false,
+  "sha": "6de68dd8efb308e10f7e6ed112af76331b11216c",
+  "short_sha": "6de68dd8ef",
+  "subject": "chore: remove compiler.enableNew=true from a test and rename it (#9247)",
+  "zig_target": {}
+}

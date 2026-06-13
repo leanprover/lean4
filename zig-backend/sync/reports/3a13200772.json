@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-10-22",
+  "needs_port": false,
+  "sha": "3a13200772251c91e613156a05cab1c58cf6099c",
+  "short_sha": "3a13200772",
+  "subject": "refactor: add configuration options to control WHNF",
+  "zig_target": {}
+}

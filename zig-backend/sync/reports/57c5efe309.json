@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-09",
+  "needs_port": false,
+  "sha": "57c5efe309336d173bee324b28d7fefdd955f9df",
+  "short_sha": "57c5efe309",
+  "subject": "fix: handling of `ite`/`dite` expressions in `cbv` tactic  (#12361)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-01-03",
+  "needs_port": true,
+  "sha": "bc5bd5a671d7c452cbcf0650c3b5f60289c4bd1a",
+  "short_sha": "bc5bd5a671",
+  "subject": "feat: allow the compiler to optimize unsafeCast",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

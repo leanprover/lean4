@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-11",
+  "needs_port": false,
+  "sha": "fa3c85ee843bdee30b98bb8a6520ee6cbddf7be1",
+  "short_sha": "fa3c85ee84",
+  "subject": "fix: missing condition in `isMatchCondCandidate` (#11145)",
+  "zig_target": {}
+}

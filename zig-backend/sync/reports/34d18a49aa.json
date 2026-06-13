@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/DiscrM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+    }
+  ],
+  "date": "2022-10-31",
+  "needs_port": true,
+  "sha": "34d18a49aa6f3494ba6fb87a230139c3fe735f98",
+  "short_sha": "34d18a49aa",
+  "subject": "chroe: port `DiscrM`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/DiscrM.lean": "zig-backend/src/lean/compiler/lcnf/Simp/DiscrM.lean"
+  }
+}

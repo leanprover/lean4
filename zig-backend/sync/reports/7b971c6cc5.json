@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-08-08",
+  "needs_port": false,
+  "sha": "7b971c6cc5452061abac6592bbf58f470615664b",
+  "short_sha": "7b971c6cc5",
+  "subject": "fix: server test",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-08",
+  "needs_port": false,
+  "sha": "cf7779936419085093ab0ea20f4738dd08030f90",
+  "short_sha": "cf77799364",
+  "subject": "doc: add `lean3changes.md`",
+  "zig_target": {}
+}

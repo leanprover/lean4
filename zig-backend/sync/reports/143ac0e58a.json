@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-05",
+  "needs_port": false,
+  "sha": "143ac0e58ad4be63db4b4c197952fbea430b59f9",
+  "short_sha": "143ac0e58a",
+  "subject": "feat(library/init/lean/expander): also normalize bracketed binders in e.g. declarations",
+  "zig_target": {}
+}

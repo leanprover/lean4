@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-13",
+  "needs_port": false,
+  "sha": "24025b96c5a67420c46668f80859b0456a24d41a",
+  "short_sha": "24025b96c5",
+  "subject": "feat: elaborate equation RHS",
+  "zig_target": {}
+}

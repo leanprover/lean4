@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-17",
+  "needs_port": false,
+  "sha": "af8d616d5a334d3e362761393dba38272339377f",
+  "short_sha": "af8d616d5a",
+  "subject": "feath: improve `unary` and `binary` parsers",
+  "zig_target": {}
+}

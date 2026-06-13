@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-25",
+  "needs_port": false,
+  "sha": "ff1e63c7194ea9722d6e6d358ce5b922f953fd97",
+  "short_sha": "ff1e63c719",
+  "subject": "refactor: default `leancArgs`  to `-03`, `-DNDEBUG` (like `leanpkg`)",
+  "zig_target": {}
+}

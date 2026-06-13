@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-05-24",
+  "needs_port": false,
+  "sha": "55a2395db55bf69046d77ec0d2a1a1336a30b8cf",
+  "short_sha": "55a2395db5",
+  "subject": "feat: retool `configure` into `update`",
+  "zig_target": {}
+}

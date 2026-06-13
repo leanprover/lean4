@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-04-18",
+  "needs_port": false,
+  "sha": "3e9ed3c29dfa31db6bd7d701b45b152bea22f3e8",
+  "short_sha": "3e9ed3c29d",
+  "subject": "chore: add AGENTS.md symlink to CLAUDE.md (#13461)",
+  "zig_target": {}
+}

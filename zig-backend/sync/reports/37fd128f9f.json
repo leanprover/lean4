@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-02-27",
+  "needs_port": false,
+  "sha": "37fd128f9fea10f80f770ed4bc28d8afcd654c2c",
+  "short_sha": "37fd128f9f",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

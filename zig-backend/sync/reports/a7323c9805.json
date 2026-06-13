@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-10-21",
+  "needs_port": false,
+  "sha": "a7323c98053ea992210f11b03e8fbeddcde57cb2",
+  "short_sha": "a7323c9805",
+  "subject": "feat: use `forall_prop_domain_congr` in `simp` tactic",
+  "zig_target": {}
+}

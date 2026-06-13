@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-26",
+  "needs_port": false,
+  "sha": "97d427b32b9d0fa191c3fd590190a877ac984502",
+  "short_sha": "97d427b32b",
+  "subject": "doc: document release notes process and add guard check (#12158)",
+  "zig_target": {}
+}

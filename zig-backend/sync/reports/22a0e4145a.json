@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-13",
+  "needs_port": false,
+  "sha": "22a0e4145a1a28699a41b58356fa0d5a613eb650",
+  "short_sha": "22a0e4145a",
+  "subject": "chore: debug macOS build",
+  "zig_target": {}
+}

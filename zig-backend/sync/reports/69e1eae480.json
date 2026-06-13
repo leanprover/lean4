@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-10-23",
+  "needs_port": true,
+  "sha": "69e1eae4802128185b5c37ca3996def3da890938",
+  "short_sha": "69e1eae480",
+  "subject": "feat: `grind +lax` ignores bad parameters (#10890)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Compare.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Compare.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Gcd.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Gcd.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/LemmasAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/LemmasAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Pow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Pow.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Omega/IntList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Omega/IntList.lean"
+    }
+  ],
+  "date": "2025-04-16",
+  "needs_port": true,
+  "sha": "9d57ed83a97c36574b0834f9832892352151bcbe",
+  "short_sha": "9d57ed83a9",
+  "subject": "chore: upstream `Int` lemmas from mathlib (#7983)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Int.lean": "zig-backend/src/init/Data/Int.lean",
+    "src/Init/Data/Int/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Int/Bitwise/Lemmas.lean",
+    "src/Init/Data/Int/Compare.lean": "zig-backend/src/init/Data/Int/Compare.lean",
+    "src/Init/Data/Int/DivMod/Bootstrap.lean": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Int/Gcd.lean": "zig-backend/src/init/Data/Int/Gcd.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/LemmasAux.lean": "zig-backend/src/init/Data/Int/LemmasAux.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Data/Int/Pow.lean": "zig-backend/src/init/Data/Int/Pow.lean",
+    "src/Init/Data/SInt/Lemmas.lean": "zig-backend/src/init/Data/SInt/Lemmas.lean",
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Omega/IntList.lean": "zig-backend/src/init/Omega/IntList.lean"
+  }
+}

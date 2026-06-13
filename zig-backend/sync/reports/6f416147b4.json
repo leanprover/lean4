@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2022-01-20",
+  "needs_port": true,
+  "sha": "6f416147b45b9eb39b0662e635f6a7f3c0f38618",
+  "short_sha": "6f416147b4",
+  "subject": "chore: rename `coeM` and `liftCoeM`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-02-05",
+  "needs_port": false,
+  "sha": "60aeb79a75974c3197a8606f90dea18985307f8a",
+  "short_sha": "60aeb79a75",
+  "subject": "feat: allow updating binders to and from strict- and instance-implicit (#6634)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-12",
+  "needs_port": false,
+  "sha": "f891279957a65b7a7d2665e34fa9093de7b5d58b",
+  "short_sha": "f891279957",
+  "subject": "chore: drop one namespace",
+  "zig_target": {}
+}

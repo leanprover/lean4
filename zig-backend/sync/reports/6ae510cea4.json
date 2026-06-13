@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-12-14",
+  "needs_port": false,
+  "sha": "6ae510cea46bbdb318950f78f82e9455e15a5cd0",
+  "short_sha": "6ae510cea4",
+  "subject": "fix: reject inductive datatypes with duplicate constructor names",
+  "zig_target": {}
+}

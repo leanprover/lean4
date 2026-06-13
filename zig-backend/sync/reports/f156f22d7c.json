@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-12-02",
+  "needs_port": false,
+  "sha": "f156f22d7c4fcc3dd6c148e5cd8ae28ca1313925",
+  "short_sha": "f156f22d7c",
+  "subject": "feat: lake: build without `leanc` (#6176)",
+  "zig_target": {}
+}

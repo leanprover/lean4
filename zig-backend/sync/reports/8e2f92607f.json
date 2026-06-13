@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "8e2f92607fd20fc12b492504c4034e007ca3d927",
+  "short_sha": "8e2f92607f",
+  "subject": "chore: CI: bump actions/stale from 8 to 9 (#5958)",
+  "zig_target": {}
+}

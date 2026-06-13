@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-15",
+  "needs_port": false,
+  "sha": "166d1c0dab729868ff5f5af4c7a0f232cce39b96",
+  "short_sha": "166d1c0dab",
+  "subject": "perf: avoid `isDefEq` test at `simpEq` simproc used in `grind` (#9385)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-12-11",
+  "needs_port": false,
+  "sha": "b120080b85b20dacb2108424ca1c813d6389efdd",
+  "short_sha": "b120080b85",
+  "subject": "fix: move Lean.List.toSMap to List.toSMap (#3035)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "a9e7290e4bc80f2b2a694db33b81117f616c5c19",
+  "short_sha": "a9e7290e4b",
+  "subject": "refactor: use `isDefEq` instead of custom `unify` procedure",
+  "zig_target": {}
+}

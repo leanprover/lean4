@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-17",
+  "needs_port": false,
+  "sha": "eebb8e2e2789662db6e699f23bb9d3c01c233a82",
+  "short_sha": "eebb8e2e27",
+  "subject": "feat(library/init/lean/elaborator): add `Elab` monad",
+  "zig_target": {}
+}

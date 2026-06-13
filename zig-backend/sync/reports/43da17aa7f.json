@@ -1,0 +1,18 @@
+{
+  "author": "Fran\u00e7ois G. Dorais",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2025-10-07",
+  "needs_port": true,
+  "sha": "43da17aa7fd8f4febefd9d67da8e70815455fd5c",
+  "short_sha": "43da17aa7f",
+  "subject": "feat: add forall_fin_zero and exists_fin_zero (#10627)",
+  "zig_target": {
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

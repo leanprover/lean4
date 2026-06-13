@@ -1,0 +1,10 @@
+{
+  "author": "Parth Shastri",
+  "backend_changes": [],
+  "date": "2025-06-23",
+  "needs_port": false,
+  "sha": "8223a96bf5faeb2237a013b41f8ce8b62a87a561",
+  "short_sha": "8223a96bf5",
+  "subject": "fix: correct universe used in `below`/`brecOn` for non-reflexive inductive types (#8937)",
+  "zig_target": {}
+}

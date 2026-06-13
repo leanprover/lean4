@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "f80d6e7d387fe3c37974a8bcd8da788fbdd12af6",
+  "short_sha": "f80d6e7d38",
+  "subject": "refactor: lake: `libPrefixOnWindows`  on `libName` (#10579)",
+  "zig_target": {}
+}

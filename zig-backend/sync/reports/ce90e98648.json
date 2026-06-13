@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-23",
+  "needs_port": false,
+  "sha": "ce90e986483329c0128660813bc5cef12dc11f7a",
+  "short_sha": "ce90e98648",
+  "subject": "feat: activate new compiler first phase",
+  "zig_target": {}
+}

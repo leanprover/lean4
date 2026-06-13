@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-01",
+  "needs_port": false,
+  "sha": "0635b277ec0d28452d97640fc82bf4452539b5d1",
+  "short_sha": "0635b277ec",
+  "subject": "fix: diagnostics: show kernel diags even if it is the only section (#4611)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    }
+  ],
+  "date": "2019-11-14",
+  "needs_port": true,
+  "sha": "beac2a1af5cf3c7e0b9f15e0097c42c6e7650a60",
+  "short_sha": "beac2a1af5",
+  "subject": "fix: treat `panic` as `unreachable` at `ll_infer_type_fn`",
+  "zig_target": {
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-17",
+  "needs_port": false,
+  "sha": "4a303ec214931f701272058b2922709ed6729e82",
+  "short_sha": "4a303ec214",
+  "subject": "feat: include tactic position in the cache key",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Micha\u0142 Dobranowski",
+  "backend_changes": [],
+  "date": "2025-09-20",
+  "needs_port": false,
+  "sha": "8b3c82cce24f055128b6a63a7637cb52e3f71730",
+  "short_sha": "8b3c82cce2",
+  "subject": "fix: lake: GH action template condition (#10459)",
+  "zig_target": {}
+}

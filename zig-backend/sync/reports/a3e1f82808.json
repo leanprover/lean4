@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-20",
+  "needs_port": false,
+  "sha": "a3e1f82808956bd53dba7af69d133fbe38d39717",
+  "short_sha": "a3e1f82808",
+  "subject": "fix: `cbv` now unfolds nullary constant definitions (#12615)",
+  "zig_target": {}
+}

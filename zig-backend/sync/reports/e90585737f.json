@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/debug.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/debug.h"
+    },
+    {
+      "path": "src/runtime/exception.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/exception.h"
+    }
+  ],
+  "date": "2018-06-07",
+  "needs_port": true,
+  "sha": "e90585737fcfbf307effa7b6d76159423b8ed5bd",
+  "short_sha": "e90585737f",
+  "subject": "refactor(*): use C++11 `std::current_exception` and `std::rethrow_exception`",
+  "zig_target": {
+    "src/runtime/debug.h": "zig-backend/src/runtime/debug.h",
+    "src/runtime/exception.h": "zig-backend/src/runtime/exception.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-16",
+  "needs_port": false,
+  "sha": "0936d4d81e0da6fc6f42354b058123f89f82f83a",
+  "short_sha": "0936d4d81e",
+  "subject": "feat(library/init/io): introduce `has_eval` class to customize `#eval` output",
+  "zig_target": {}
+}

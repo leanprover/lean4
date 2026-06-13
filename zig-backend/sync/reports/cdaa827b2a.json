@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-25",
+  "needs_port": false,
+  "sha": "cdaa827b2aaa3467ed14b15a781795777fb8a4d6",
+  "short_sha": "cdaa827b2a",
+  "subject": "fix: `grind linarith` counterexample (#10960)",
+  "zig_target": {}
+}

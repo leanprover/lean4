@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-08",
+  "needs_port": false,
+  "sha": "680ac55506a7671e06e87edada026a518a3748b5",
+  "short_sha": "680ac55506",
+  "subject": "test: repro for `constant` compilation issue",
+  "zig_target": {}
+}

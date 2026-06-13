@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/UnboxResult.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/UnboxResult.lean"
+    }
+  ],
+  "date": "2025-06-11",
+  "needs_port": true,
+  "sha": "ee5b652136750074e743c93f958992059a463ad2",
+  "short_sha": "ee5b652136",
+  "subject": "doc: add documentation for builtin attributes (#8173)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/UnboxResult.lean": "zig-backend/src/lean/compiler/ir/UnboxResult.lean"
+  }
+}

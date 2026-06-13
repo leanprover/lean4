@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    },
+    {
+      "path": "src/library/compiler/ir.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.h"
+    }
+  ],
+  "date": "2019-09-07",
+  "needs_port": true,
+  "sha": "a188bb8497cecb218753ce756f4192118f8874bb",
+  "short_sha": "a188bb8497",
+  "subject": "chore(library/init/lean/compiler/ir): remove `emitcpp`",
+  "zig_target": {
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp",
+    "src/library/compiler/ir.h": "zig-backend/src/library/compiler/ir.h"
+  }
+}

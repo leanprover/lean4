@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-05",
+  "needs_port": false,
+  "sha": "b64e44fc44a2c98f410c707f8226475e07a103ce",
+  "short_sha": "b64e44fc44",
+  "subject": "fix: allow kernel projections to be used in inductive families containing only one constructor",
+  "zig_target": {}
+}

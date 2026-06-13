@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2021-07-13",
+  "needs_port": true,
+  "sha": "93a3fd14ad6275c49b362d16781a9be082921ebc",
+  "short_sha": "93a3fd14ad",
+  "subject": "refactor: do not use explicit instance, but use deriving instead.",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

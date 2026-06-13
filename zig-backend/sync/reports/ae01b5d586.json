@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-09",
+  "needs_port": false,
+  "sha": "ae01b5d5862c699ec51578b513c42b8dea8c21b7",
+  "short_sha": "ae01b5d586",
+  "subject": "chore: use `c++` not `cc` at `examples/fffi`",
+  "zig_target": {}
+}

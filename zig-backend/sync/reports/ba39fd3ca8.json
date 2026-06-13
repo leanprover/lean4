@@ -1,0 +1,30 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Int.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Module.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Module.lean"
+    }
+  ],
+  "date": "2025-06-17",
+  "needs_port": true,
+  "sha": "ba39fd3ca85d9aa45958e0b1f0b549687e90dde3",
+  "short_sha": "ba39fd3ca8",
+  "subject": "fix: correct Lean.Grind.NatModule (#8826)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Int.lean": "zig-backend/src/init/Grind/Ordered/Int.lean",
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean",
+    "src/Init/Grind/Ordered/Module.lean": "zig-backend/src/init/Grind/Ordered/Module.lean"
+  }
+}

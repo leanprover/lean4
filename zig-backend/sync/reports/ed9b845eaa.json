@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-15",
+  "needs_port": false,
+  "sha": "ed9b845eaab5ead5b2c128ead6f0fff6e33ce257",
+  "short_sha": "ed9b845eaa",
+  "subject": "chore: test/update-stage0 targets with default stage",
+  "zig_target": {}
+}

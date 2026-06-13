@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "de2df5955f110bf4bdbdf4d4b014b6b3b0b83e00",
+  "short_sha": "de2df5955f",
+  "subject": "refactor: polymorphic checkNotAlreadyDeclared",
+  "zig_target": {}
+}

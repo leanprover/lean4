@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-31",
+  "needs_port": false,
+  "sha": "821b1c2b6cf78a676810964879fecbc702e9999a",
+  "short_sha": "821b1c2b6c",
+  "subject": "chore: remove arity",
+  "zig_target": {}
+}

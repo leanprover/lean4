@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-02",
+  "needs_port": false,
+  "sha": "4fe56d2a9db64696a65e58b0b67dbc366fdec22b",
+  "short_sha": "4fe56d2a9d",
+  "subject": "fix: allow `mkElimApp` to assign new goals when solving typing constraints",
+  "zig_target": {}
+}

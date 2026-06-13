@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/CMakeLists.txt"
+    },
+    {
+      "path": "src/runtime/init_module.cpp",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/init_module.cpp"
+    },
+    {
+      "path": "src/runtime/init_module.h",
+      "status": "A",
+      "zig_target": "zig-backend/src/runtime/init_module.h"
+    }
+  ],
+  "date": "2018-05-14",
+  "needs_port": true,
+  "sha": "b1d8a17f1b38e4e4b308a9cbfb06e53884591809",
+  "short_sha": "b1d8a17f1b",
+  "subject": "fix(runtime): add init_module",
+  "zig_target": {
+    "src/runtime/CMakeLists.txt": "zig-backend/src/runtime/CMakeLists.txt",
+    "src/runtime/init_module.cpp": "zig-backend/src/runtime/init_module.cpp",
+    "src/runtime/init_module.h": "zig-backend/src/runtime/init_module.h"
+  }
+}

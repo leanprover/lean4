@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-06-19",
+  "needs_port": false,
+  "sha": "b6f251bcd33e3941cd653777068bd0bb2919a6a4",
+  "short_sha": "b6f251bcd3",
+  "subject": "fix: SubExpr.Pos.toString not terminating",
+  "zig_target": {}
+}

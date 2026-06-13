@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-08-15",
+  "needs_port": true,
+  "sha": "f1fa528dbe745a9b87d85bd1d0db8f15a9799e82",
+  "short_sha": "f1fa528dbe",
+  "subject": "chore(runtime/object): remove `alloc.h` dependency",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

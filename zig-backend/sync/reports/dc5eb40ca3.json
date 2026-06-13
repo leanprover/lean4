@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-03-07",
+  "needs_port": false,
+  "sha": "dc5eb40ca3176761e56cb7874c8a8efa7b18d1b5",
+  "short_sha": "dc5eb40ca3",
+  "subject": "feat: 'unsolved goals' & 'goals accomplished' diagnostics (#7366)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-02-28",
+  "needs_port": false,
+  "sha": "84b53a316c664ded48767b453c1f9dec6df71f06",
+  "short_sha": "84b53a316c",
+  "subject": "chore: cumulative interpreter benchmark",
+  "zig_target": {}
+}

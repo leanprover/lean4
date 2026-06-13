@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-13",
+  "needs_port": false,
+  "sha": "074dc60beac6c10490e810646031c58ae4bfc8a3",
+  "short_sha": "074dc60bea",
+  "subject": "chore: update release docs/scripts for lean-fro.org (#11648)",
+  "zig_target": {}
+}

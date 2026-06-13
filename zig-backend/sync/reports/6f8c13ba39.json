@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-02-03",
+  "needs_port": true,
+  "sha": "6f8c13ba39c1e9ae4785692973a7093eb18154e8",
+  "short_sha": "6f8c13ba39",
+  "subject": "feat: improve `grind` error messages (#6937)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

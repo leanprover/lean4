@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Closure.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Closure.lean"
+    }
+  ],
+  "date": "2025-07-28",
+  "needs_port": true,
+  "sha": "475bd65c90fcc876fb4847a21418012fe7741bc8",
+  "short_sha": "475bd65c90",
+  "subject": "perf: during specialization, don't abstract all local fun decls under binders (#9596)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Closure.lean": "zig-backend/src/lean/compiler/lcnf/Closure.lean"
+  }
+}

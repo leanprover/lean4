@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-04",
+  "needs_port": false,
+  "sha": "92d24e1c404fa8cabd52c5f585b30c18955c723b",
+  "short_sha": "92d24e1c40",
+  "subject": "fix: `Environment.realizeConst` to replay realization map (#10238)",
+  "zig_target": {}
+}

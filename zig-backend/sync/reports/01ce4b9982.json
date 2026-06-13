@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "01ce4b9982f9522aeb5cbd248107284eeabc6b03",
+  "short_sha": "01ce4b9982",
+  "subject": "feat: use `infer_instance` to close remaining goals at `conv` block",
+  "zig_target": {}
+}

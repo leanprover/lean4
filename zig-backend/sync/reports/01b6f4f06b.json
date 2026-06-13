@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-28",
+  "needs_port": false,
+  "sha": "01b6f4f06b714f08580fb0f68fe45145a42b7c14",
+  "short_sha": "01b6f4f06b",
+  "subject": "fix: incorrect shadowing of `let mut` variable",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2022-10-09",
+  "needs_port": true,
+  "sha": "9feb4d8ab709affc567b353d9d84e92a730c1e2f",
+  "short_sha": "9feb4d8ab7",
+  "subject": "fix: do not generate code for `[extern]` functions",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

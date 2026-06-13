@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-31",
+  "needs_port": false,
+  "sha": "23f3de50612c778edb645f7a9da888e583f40474",
+  "short_sha": "23f3de5061",
+  "subject": "chore: proper trace message class",
+  "zig_target": {}
+}

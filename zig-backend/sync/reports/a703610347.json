@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-21",
+  "needs_port": false,
+  "sha": "a703610347672d0545f061a28e481cb33b4bbc3a",
+  "short_sha": "a703610347",
+  "subject": "chore: reject `private` fields for now",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-27",
+  "needs_port": false,
+  "sha": "76bda91ff828f00f22ecafbafa9845872d0c6072",
+  "short_sha": "76bda91ff8",
+  "subject": "feat: add `evalMatch` for tactics",
+  "zig_target": {}
+}

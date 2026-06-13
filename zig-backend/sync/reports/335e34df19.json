@@ -1,0 +1,259 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Basic.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    },
+    {
+      "path": "src/Init/Control/Lawful/MonadLift/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/MonadLift/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/GetLit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/GetLit.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lex/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lex/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Folds.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Folds.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Char/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Dyadic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Dyadic/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/LemmasAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/LemmasAux.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Order.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lex.lean"
+    },
+    {
+      "path": "src/Init/Data/List/MapIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MapIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArray.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Zip.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Zip.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Div/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Ord.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean"
+    },
+    {
+      "path": "src/Init/Data/Rat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/PosRaw.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/PosRaw.lean"
+    }
+  ],
+  "date": "2025-10-29",
+  "needs_port": true,
+  "sha": "335e34df1965649be32952019bb824bfaf3ca4d1",
+  "short_sha": "335e34df19",
+  "subject": "chore: add deprecations for duplicated theorems (#10967)",
+  "truncated": true,
+  "zig_target": {
+    "src/Init/Control/Lawful/Basic.lean": "zig-backend/src/init/Control/Lawful/Basic.lean",
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean",
+    "src/Init/Control/Lawful/MonadLift/Lemmas.lean": "zig-backend/src/init/Control/Lawful/MonadLift/Lemmas.lean",
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Array/Bootstrap.lean": "zig-backend/src/init/Data/Array/Bootstrap.lean",
+    "src/Init/Data/Array/GetLit.lean": "zig-backend/src/init/Data/Array/GetLit.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/Lex/Lemmas.lean": "zig-backend/src/init/Data/Array/Lex/Lemmas.lean",
+    "src/Init/Data/Array/Perm.lean": "zig-backend/src/init/Data/Array/Perm.lean",
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Folds.lean": "zig-backend/src/init/Data/BitVec/Folds.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Char/Lemmas.lean": "zig-backend/src/init/Data/Char/Lemmas.lean",
+    "src/Init/Data/Dyadic/Basic.lean": "zig-backend/src/init/Data/Dyadic/Basic.lean",
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean",
+    "src/Init/Data/Int/DivMod/Bootstrap.lean": "zig-backend/src/init/Data/Int/DivMod/Bootstrap.lean",
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean",
+    "src/Init/Data/Int/Lemmas.lean": "zig-backend/src/init/Data/Int/Lemmas.lean",
+    "src/Init/Data/Int/LemmasAux.lean": "zig-backend/src/init/Data/Int/LemmasAux.lean",
+    "src/Init/Data/Int/Order.lean": "zig-backend/src/init/Data/Int/Order.lean",
+    "src/Init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean": "zig-backend/src/init/Data/Iterators/Internal/LawfulMonadLiftFunction.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Lex.lean": "zig-backend/src/init/Data/List/Lex.lean",
+    "src/Init/Data/List/MapIdx.lean": "zig-backend/src/init/Data/List/MapIdx.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/Range.lean": "zig-backend/src/init/Data/List/Range.lean",
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean",
+    "src/Init/Data/List/ToArray.lean": "zig-backend/src/init/Data/List/ToArray.lean",
+    "src/Init/Data/List/Zip.lean": "zig-backend/src/init/Data/List/Zip.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Div/Lemmas.lean": "zig-backend/src/init/Data/Nat/Div/Lemmas.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean",
+    "src/Init/Data/Order/Ord.lean": "zig-backend/src/init/Data/Order/Ord.lean",
+    "src/Init/Data/Range/Polymorphic/Int.lean": "zig-backend/src/init/Data/Range/Polymorphic/Int.lean",
+    "src/Init/Data/Range/Polymorphic/UInt.lean": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean",
+    "src/Init/Data/Rat/Lemmas.lean": "zig-backend/src/init/Data/Rat/Lemmas.lean",
+    "src/Init/Data/SInt/Bitwise.lean": "zig-backend/src/init/Data/SInt/Bitwise.lean",
+    "src/Init/Data/SInt/Lemmas.lean": "zig-backend/src/init/Data/SInt/Lemmas.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/PosRaw.lean": "zig-backend/src/init/Data/String/PosRaw.lean"
+  }
+}

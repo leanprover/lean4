@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-15",
+  "needs_port": false,
+  "sha": "60e4f4fee13ec6bc564e7331a34c24e9c99aa04f",
+  "short_sha": "60e4f4fee1",
+  "subject": "feat: improve `notFollowedBy` error messages",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2021-04-01",
+  "needs_port": true,
+  "sha": "a8914380dc90100317de8bd70161c91dc0feeb97",
+  "short_sha": "a8914380dc",
+  "subject": "feat: add `Ord` and deriving instance for it.",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

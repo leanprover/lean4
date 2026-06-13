@@ -1,0 +1,96 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/FlatMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FlatMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/PostconditionMonad.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/PostconditionMonad.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Factories.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Factories.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/Opposite.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/Opposite.lean"
+    },
+    {
+      "path": "src/Init/Data/Order/PackageFactories.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Order/PackageFactories.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/RangeIterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/SInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/SInt.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Iterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/List/Lemmas.lean"
+    }
+  ],
+  "date": "2026-03-15",
+  "needs_port": true,
+  "sha": "274997420a4a943511982fed1b3e9407d426019b",
+  "short_sha": "274997420a",
+  "subject": "refactor: remove backward compatibility options from iterator/slice/range modules (#12925)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Lemmas/Combinators/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FilterMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/FlatMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FlatMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Loop.lean",
+    "src/Init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Consumers/Monadic/Loop.lean",
+    "src/Init/Data/Iterators/PostconditionMonad.lean": "zig-backend/src/init/Data/Iterators/PostconditionMonad.lean",
+    "src/Init/Data/Order/Factories.lean": "zig-backend/src/init/Data/Order/Factories.lean",
+    "src/Init/Data/Order/Opposite.lean": "zig-backend/src/init/Data/Order/Opposite.lean",
+    "src/Init/Data/Order/PackageFactories.lean": "zig-backend/src/init/Data/Order/PackageFactories.lean",
+    "src/Init/Data/Range/Polymorphic/RangeIterator.lean": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean",
+    "src/Init/Data/Range/Polymorphic/SInt.lean": "zig-backend/src/init/Data/Range/Polymorphic/SInt.lean",
+    "src/Init/Data/Slice/Array/Iterator.lean": "zig-backend/src/init/Data/Slice/Array/Iterator.lean",
+    "src/Init/Data/Slice/Array/Lemmas.lean": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean",
+    "src/Init/Data/Slice/List/Lemmas.lean": "zig-backend/src/init/Data/Slice/List/Lemmas.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Char/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Basic.lean"
+    }
+  ],
+  "date": "2026-02-11",
+  "needs_port": true,
+  "sha": "964d6a3082bc359a0095dc0dcfce051ce5bb12d3",
+  "short_sha": "964d6a3082",
+  "subject": "chore: make proof for `Char.toUpper` easier to typecheck (#12431)",
+  "zig_target": {
+    "src/Init/Data/Char/Basic.lean": "zig-backend/src/init/Data/Char/Basic.lean"
+  }
+}

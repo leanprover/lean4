@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-06",
+  "needs_port": false,
+  "sha": "edcad9a14b98e6af134dc2afb276cb42e8a2417c",
+  "short_sha": "edcad9a14b",
+  "subject": "chore: post-stage0 fixes for #8171 (#8250)",
+  "zig_target": {}
+}

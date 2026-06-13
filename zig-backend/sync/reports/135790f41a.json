@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/InlineProj.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean"
+    }
+  ],
+  "date": "2022-09-27",
+  "needs_port": true,
+  "sha": "135790f41a4d937941acda0173760d2d70ca7d8a",
+  "short_sha": "135790f41a",
+  "subject": "fix: missing `eraseCode` at `inlineProjInst?`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/InlineProj.lean": "zig-backend/src/lean/compiler/lcnf/Simp/InlineProj.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-03",
+  "needs_port": false,
+  "sha": "af6c7cdbe0c706e190422f596e4d6ce01c7e0e74",
+  "short_sha": "af6c7cdbe0",
+  "subject": "doc: changelog",
+  "zig_target": {}
+}

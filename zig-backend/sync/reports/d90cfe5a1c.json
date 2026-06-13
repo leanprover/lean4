@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "d90cfe5a1c47bb2507701a52a98d79f9f3794ba1",
+  "short_sha": "d90cfe5a1c",
+  "subject": "feat(library/init/lean/compiler/ir/boxing): generate boxed version",
+  "zig_target": {}
+}

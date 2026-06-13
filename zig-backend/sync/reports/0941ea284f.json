@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-23",
+  "needs_port": false,
+  "sha": "0941ea284fafd493259b1d5aafff58a60ab2d2ba",
+  "short_sha": "0941ea284f",
+  "subject": "feat: suppress irrelevant arguments in extern calls",
+  "zig_target": {}
+}

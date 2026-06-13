@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2026-04-28",
+  "needs_port": true,
+  "sha": "2ad0f96d4856aced599f9722187604f3b468fc80",
+  "short_sha": "2ad0f96d48",
+  "subject": "fix: avoid duplicate buffered writes when `IO.Process.output` exec fails (#13464)",
+  "zig_target": {
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

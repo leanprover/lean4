@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "b4dcad59fad42c166d4e42b453fefc9257a9e944",
+  "short_sha": "b4dcad59fa",
+  "subject": "test: add alternate `binRoot` example (called `main`)",
+  "zig_target": {}
+}

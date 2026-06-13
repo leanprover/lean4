@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-11",
+  "needs_port": false,
+  "sha": "220a242f65448eb1007c1ccfd9f4ee1bb5027be7",
+  "short_sha": "220a242f65",
+  "subject": "feat: add `@[mvcgen_invariant_type]` attribute for extensible invariant classification (#12874)",
+  "zig_target": {}
+}

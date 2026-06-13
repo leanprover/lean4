@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-12",
+  "needs_port": false,
+  "sha": "2c81d7e91c8773a7b5cb10bd26361dec413488fd",
+  "short_sha": "2c81d7e91c",
+  "subject": "feat: add basic `deriving instance` elaborator",
+  "zig_target": {}
+}

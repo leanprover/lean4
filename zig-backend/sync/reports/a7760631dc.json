@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-24",
+  "needs_port": false,
+  "sha": "a7760631dc3688218478b77310c6c69e2387dd57",
+  "short_sha": "a7760631dc",
+  "subject": "chore(library/init/lean/macro): document macros in use",
+  "zig_target": {}
+}

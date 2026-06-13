@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-26",
+  "needs_port": false,
+  "sha": "2647cdf813147e45142a35cddf969cab9b1d764e",
+  "short_sha": "2647cdf813",
+  "subject": "chore: fix trace.Elab.info position & redundancy",
+  "zig_target": {}
+}

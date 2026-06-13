@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-13",
+  "needs_port": false,
+  "sha": "d93cdde938c3fd2648daa91f7643edfb3de40cde",
+  "short_sha": "d93cdde938",
+  "subject": "feat: Aggressively eta expand before applying a spec in `mvcgen` (#9888)",
+  "zig_target": {}
+}

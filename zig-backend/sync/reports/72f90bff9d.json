@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-23",
+  "needs_port": false,
+  "sha": "72f90bff9d228a78833bacac6a49542ae28b1608",
+  "short_sha": "72f90bff9d",
+  "subject": "feat: add `ToExpr` instance for `Fin`",
+  "zig_target": {}
+}

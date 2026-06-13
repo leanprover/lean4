@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2019-05-19",
+  "needs_port": true,
+  "sha": "83692eef6dba2b7c2b9e2374f7776524b7ff5394",
+  "short_sha": "83692eef6d",
+  "subject": "feat(library/init/lean/compiler/ir): explicit RC",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-08-14",
+  "needs_port": false,
+  "sha": "3efd0e4e1feae93e0fb5956492a2e32b2aa14821",
+  "short_sha": "3efd0e4e1f",
+  "subject": "chore: fix inconsistent style in internal hash map lemmas (#5033)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-08-05",
+  "needs_port": false,
+  "sha": "f62359acc71dbfab8b198e7419629eb57efb954d",
+  "short_sha": "f62359acc7",
+  "subject": "perf: use `lean_instantiate_level_mvars` (#4912)",
+  "zig_target": {}
+}

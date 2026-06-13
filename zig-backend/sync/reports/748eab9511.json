@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-07",
+  "needs_port": false,
+  "sha": "748eab95113febbf8fa062643d06af3db49e0a1f",
+  "short_sha": "748eab9511",
+  "subject": "refactor: lake:  `inputBinFile` / `inputTextFile` (#4384)",
+  "zig_target": {}
+}

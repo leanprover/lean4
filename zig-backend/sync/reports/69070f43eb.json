@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-17",
+  "needs_port": false,
+  "sha": "69070f43eb1339e1824cac77d676c5db88b4fec7",
+  "short_sha": "69070f43eb",
+  "subject": "chore(library/local_context): remove user_name indexing",
+  "zig_target": {}
+}

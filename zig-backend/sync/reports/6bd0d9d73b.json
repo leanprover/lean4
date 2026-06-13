@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/List.lean"
+    }
+  ],
+  "date": "2024-09-30",
+  "needs_port": true,
+  "sha": "6bd0d9d73b658c6ac0599f983c57e20eabd99d97",
+  "short_sha": "6bd0d9d73b",
+  "subject": "chore: fix explicitness of Option.mem_toList (#5539)",
+  "zig_target": {
+    "src/Init/Data/Option/List.lean": "zig-backend/src/init/Data/Option/List.lean"
+  }
+}

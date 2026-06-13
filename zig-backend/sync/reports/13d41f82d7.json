@@ -1,0 +1,10 @@
+{
+  "author": "Marcus Rossel",
+  "backend_changes": [],
+  "date": "2023-12-23",
+  "needs_port": false,
+  "sha": "13d41f82d7d8561d2b3d0c1b4aa5e09b9aa3cfa7",
+  "short_sha": "13d41f82d7",
+  "subject": "doc: fix typos (#3114)",
+  "zig_target": {}
+}

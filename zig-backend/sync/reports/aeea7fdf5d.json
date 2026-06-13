@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-05-15",
+  "needs_port": true,
+  "sha": "aeea7fdf5d888dd26099bcc8c8ead4991a4596a7",
+  "short_sha": "aeea7fdf5d",
+  "subject": "fix: List.length_pos no @[simp] (#4172)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

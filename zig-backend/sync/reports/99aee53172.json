@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-17",
+  "needs_port": false,
+  "sha": "99aee53172c6409b76f605753dd5a72d0cb4042b",
+  "short_sha": "99aee53172",
+  "subject": "fix: restore macOS compile flags",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-11",
+  "needs_port": false,
+  "sha": "4c80714b127f7e6b1bde5939a427d8fe5b4467f1",
+  "short_sha": "4c80714b12",
+  "subject": "chore: do not use infix operators at `Quotation.lean`",
+  "zig_target": {}
+}

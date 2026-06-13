@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "749bf9c2794ad0f5ec7c976e68a85ba7a380c425",
+  "short_sha": "749bf9c279",
+  "subject": "fix: bad 'unknown package' error message (#4424)",
+  "zig_target": {}
+}

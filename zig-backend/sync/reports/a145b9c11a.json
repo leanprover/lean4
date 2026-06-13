@@ -1,0 +1,10 @@
+{
+  "author": "Nadja Yang",
+  "backend_changes": [],
+  "date": "2026-03-31",
+  "needs_port": false,
+  "sha": "a145b9c11a0fe38fd4c921024a7376c99cc34bd2",
+  "short_sha": "a145b9c11a",
+  "subject": "chore: use FetchContent for mimalloc source acquisition (#13196)",
+  "zig_target": {}
+}

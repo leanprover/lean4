@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-04-02",
+  "needs_port": false,
+  "sha": "2bcbb676f56c207591f08bb235b07a0ad70a9fcb",
+  "short_sha": "2bcbb676f5",
+  "subject": "chore: disable flaky tests (#13253)",
+  "zig_target": {}
+}

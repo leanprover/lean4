@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-31",
+  "needs_port": false,
+  "sha": "4c9c62752eaa867883365cd5e6a1f61f359ae5b1",
+  "short_sha": "4c9c62752e",
+  "subject": "feat: improve `checkpoint` tactic",
+  "zig_target": {}
+}

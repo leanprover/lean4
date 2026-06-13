@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-20",
+  "needs_port": false,
+  "sha": "27e26998d2d2c3e39d75439867cb426496b17da4",
+  "short_sha": "27e26998d2",
+  "subject": "chore: prepare to change `structInst` syntax",
+  "zig_target": {}
+}

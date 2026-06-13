@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/stack_overflow.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/stack_overflow.cpp"
+    }
+  ],
+  "date": "2024-08-19",
+  "needs_port": true,
+  "sha": "f2573dc51ea2248a318b2f6863a79aa8d2fa79b0",
+  "short_sha": "f2573dc51e",
+  "subject": "fix: Do not overwrite existing signal handlers (#5062)",
+  "zig_target": {
+    "src/runtime/stack_overflow.cpp": "zig-backend/src/runtime/stack_overflow.cpp"
+  }
+}

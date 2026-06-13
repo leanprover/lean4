@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-27",
+  "needs_port": false,
+  "sha": "35c168cb13c0c7bcd3436175d8761db6bcbf24d4",
+  "short_sha": "35c168cb13",
+  "subject": "feat: allow access to private names through `import all` (#8828)",
+  "zig_target": {}
+}

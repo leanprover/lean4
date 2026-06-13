@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-09",
+  "needs_port": false,
+  "sha": "12ad957bd5ed29397278fa66e0400852de865786",
+  "short_sha": "12ad957bd5",
+  "subject": "chore: CI: avoid fetching full repo in PR Release (#12309)",
+  "zig_target": {}
+}

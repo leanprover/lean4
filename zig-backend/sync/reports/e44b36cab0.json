@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-15",
+  "needs_port": false,
+  "sha": "e44b36cab0970390b4b98109c38854de412755e6",
+  "short_sha": "e44b36cab0",
+  "subject": "chore: cleanup optimization using Lean bitwise operators",
+  "zig_target": {}
+}

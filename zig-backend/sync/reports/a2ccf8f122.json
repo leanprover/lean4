@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-28",
+  "needs_port": false,
+  "sha": "a2ccf8f122618d1d30916325a0488aca9ad5bf28",
+  "short_sha": "a2ccf8f122",
+  "subject": "feat: accept keywords as constructor names",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    }
+  ],
+  "date": "2025-11-05",
+  "needs_port": true,
+  "sha": "ccecac5a56e693a7b130f04cc55b62edd397dda0",
+  "short_sha": "ccecac5a56",
+  "subject": "chore: use `abbrev` in `denote` functions (#11092)",
+  "zig_target": {
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean"
+  }
+}

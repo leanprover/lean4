@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-29",
+  "needs_port": false,
+  "sha": "d1e47120381314bcde230ef4affc1e2d777bf66f",
+  "short_sha": "d1e4712038",
+  "subject": "fix: smart unfolding",
+  "zig_target": {}
+}

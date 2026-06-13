@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-02",
+  "needs_port": false,
+  "sha": "2437b1cea18f88c83ca5f89b88ff539f220e3ba0",
+  "short_sha": "2437b1cea1",
+  "subject": "fix: support single-file packages",
+  "zig_target": {}
+}

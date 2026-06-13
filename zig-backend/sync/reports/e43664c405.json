@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-09-20",
+  "needs_port": false,
+  "sha": "e43664c4055330edb6465952204c4f52e30f2955",
+  "short_sha": "e43664c405",
+  "subject": "doc: add Verso to release checklist process (#5372)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-26",
+  "needs_port": false,
+  "sha": "c1866a7b7e66fa23bbfa2098f9c75c0fc25a1ab3",
+  "short_sha": "c1866a7b7e",
+  "subject": "chore: fix awaiting-mathlib.yml (#8480)",
+  "zig_target": {}
+}

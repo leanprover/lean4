@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-01",
+  "needs_port": false,
+  "sha": "27292c4f604cd10bd8fcb4af8cdc9721c6c354af",
+  "short_sha": "27292c4f60",
+  "subject": "chore: prepare to change `OfNat` type class",
+  "zig_target": {}
+}

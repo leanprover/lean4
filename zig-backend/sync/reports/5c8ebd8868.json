@@ -1,0 +1,24 @@
+{
+  "author": "Aaron Liu",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Instances.lean"
+    }
+  ],
+  "date": "2025-11-19",
+  "needs_port": true,
+  "sha": "5c8ebd886873c3c476a4a6729bb850d5f571b8d7",
+  "short_sha": "5c8ebd8868",
+  "subject": "feat: make `Option.decidableEqNone` coherent with `Option.instDecidableEq` (#9302)",
+  "zig_target": {
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Data/Option/Instances.lean": "zig-backend/src/init/Data/Option/Instances.lean"
+  }
+}

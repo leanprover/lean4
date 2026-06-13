@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-20",
+  "needs_port": false,
+  "sha": "8a1e413d5ab877762e0360d93962d9e9e924c5bf",
+  "short_sha": "8a1e413d5a",
+  "subject": "doc: update README",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-09-19",
+  "needs_port": false,
+  "sha": "97c4fe32442f9993733de1f32a7edfe284dd67b7",
+  "short_sha": "97c4fe3244",
+  "subject": "chore: CI: label stale PRs",
+  "zig_target": {}
+}

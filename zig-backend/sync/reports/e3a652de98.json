@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-26",
+  "needs_port": false,
+  "sha": "e3a652de982081e77d9a6ce9a2e6e3a557fb79ca",
+  "short_sha": "e3a652de98",
+  "subject": "chore: CI: fix Linux/aarch64 tarball name, remove cpack config",
+  "zig_target": {}
+}

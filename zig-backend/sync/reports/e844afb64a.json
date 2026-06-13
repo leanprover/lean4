@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-19",
+  "needs_port": false,
+  "sha": "e844afb64ab97e070fc38b0f87b75f0cc2f50622",
+  "short_sha": "e844afb64a",
+  "subject": "test(tests/playground/parser/syntax): propagate lazy macro scopes",
+  "zig_target": {}
+}

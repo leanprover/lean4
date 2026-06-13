@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-25",
+  "needs_port": false,
+  "sha": "3b75a56160ee4d27616dbca3dfc449b32059881e",
+  "short_sha": "3b75a56160",
+  "subject": "chore: prepare to make `arbitrary` argument implicit",
+  "zig_target": {}
+}

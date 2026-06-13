@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-21",
+  "needs_port": false,
+  "sha": "53d9cb5358e18926d2c2b9ecee4e296c6b3b19bc",
+  "short_sha": "53d9cb5358",
+  "subject": "fix(library/init/lean/elaborator): resolve idents after 'attribute'",
+  "zig_target": {}
+}

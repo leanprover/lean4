@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "2e4f5951e3c4c549f30c29cae9ecd75a6524b1b5",
+  "short_sha": "2e4f5951e3",
+  "subject": "feat(library/init/data/array/qsort): simple quicksort",
+  "zig_target": {}
+}

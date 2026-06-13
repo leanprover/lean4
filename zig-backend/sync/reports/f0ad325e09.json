@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-10",
+  "needs_port": false,
+  "sha": "f0ad325e09c417c36f9a7561df469de3593ad0d2",
+  "short_sha": "f0ad325e09",
+  "subject": "feat: fallback to `ar` when `llvm-ar` is not bundled with Lean",
+  "zig_target": {}
+}

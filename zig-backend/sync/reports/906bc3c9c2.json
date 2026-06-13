@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "906bc3c9c2a18af8b1a5482228a9fcf5a9beb03b",
+  "short_sha": "906bc3c9c2",
+  "subject": "refactor: simplify custom target API (for now)",
+  "zig_target": {}
+}

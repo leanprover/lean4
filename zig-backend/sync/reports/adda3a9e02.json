@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-13",
+  "needs_port": false,
+  "sha": "adda3a9e0239cff80d7d0cd7f5acdaae7fe8d5da",
+  "short_sha": "adda3a9e02",
+  "subject": "fix: improve structural recursion",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-02-10",
+  "needs_port": false,
+  "sha": "7d1d76114843a48d537bc0d1acdf0a0659540dd7",
+  "short_sha": "7d1d761148",
+  "subject": "feat: bv_decide rewrite multiplication with power of two to shift (#7029)",
+  "zig_target": {}
+}

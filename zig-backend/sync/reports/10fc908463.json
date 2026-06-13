@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-06",
+  "needs_port": false,
+  "sha": "10fc908463cf1ae05fa3d0e1de5137d5ddb97edf",
+  "short_sha": "10fc908463",
+  "subject": "chore: use `Tactic.seq1` instead of `Tactic.tacticSeq1Indented`",
+  "zig_target": {}
+}

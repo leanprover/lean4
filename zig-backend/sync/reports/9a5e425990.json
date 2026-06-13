@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-13",
+  "needs_port": false,
+  "sha": "9a5e4259904ef518048694838e1a78fe0678de5e",
+  "short_sha": "9a5e425990",
+  "subject": "refactor: no public section in Elab.Induction  (#10699)",
+  "zig_target": {}
+}

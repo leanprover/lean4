@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2024-02-18",
+  "needs_port": true,
+  "sha": "602b1a0d15c0a8220527bfed5121cb3382e86f0c",
+  "short_sha": "602b1a0d15",
+  "subject": "feat: add `zetaDelta` configuration option",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

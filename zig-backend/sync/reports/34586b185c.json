@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-24",
+  "needs_port": false,
+  "sha": "34586b185ca211ac283ee07cb83fdf1f64babc24",
+  "short_sha": "34586b185c",
+  "subject": "feat(library/init/lean): implement reducibility attributes in Lean",
+  "zig_target": {}
+}

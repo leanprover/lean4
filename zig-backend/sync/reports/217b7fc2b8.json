@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/extern_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/extern_attribute.cpp"
+    }
+  ],
+  "date": "2020-08-31",
+  "needs_port": true,
+  "sha": "217b7fc2b84a69305880e80fd3668db19b94641a",
+  "short_sha": "217b7fc2b8",
+  "subject": "feat: improve `extern` arity calculation",
+  "zig_target": {
+    "src/library/compiler/extern_attribute.cpp": "zig-backend/src/library/compiler/extern_attribute.cpp"
+  }
+}

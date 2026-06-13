@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-29",
+  "needs_port": false,
+  "sha": "a96a043618c0a9b975c663a0e7f83ecdb32d2d17",
+  "short_sha": "a96a043618",
+  "subject": "feat: better coe support",
+  "zig_target": {}
+}

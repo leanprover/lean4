@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-09",
+  "needs_port": false,
+  "sha": "5e19c47710581f1c936d15f42f596a1ae03f181f",
+  "short_sha": "5e19c47710",
+  "subject": "chore: remove now-unused Lean.Compiler.ConstFolding (#9277)",
+  "zig_target": {}
+}

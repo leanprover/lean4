@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-23",
+  "needs_port": false,
+  "sha": "f7279ee4199b18e9fdb5e1659a821d240d5279dc",
+  "short_sha": "f7279ee419",
+  "subject": "test: add tests for some Lean3 issues",
+  "zig_target": {}
+}

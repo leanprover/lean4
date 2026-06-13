@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-10",
+  "needs_port": false,
+  "sha": "7790420cae7be500a1f8602a5623f6f3327a6f5e",
+  "short_sha": "7790420cae",
+  "subject": "chore: trivial changes from async-proofs branch (#7028)",
+  "zig_target": {}
+}

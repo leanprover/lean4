@@ -1,0 +1,10 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [],
+  "date": "2025-07-02",
+  "needs_port": false,
+  "sha": "a0bb5f4961b9b5326ac21d6f4cd8a8a88cf1024f",
+  "short_sha": "a0bb5f4961",
+  "subject": "chore: fixes for #9158 after stage0 update (#9161)",
+  "zig_target": {}
+}

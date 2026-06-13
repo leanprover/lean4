@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-28",
+  "needs_port": false,
+  "sha": "80217cfa90c0f229510546e9f1e5a5a75a4b266f",
+  "short_sha": "80217cfa90",
+  "subject": "fix: asynchronous head snapshot fallout",
+  "zig_target": {}
+}

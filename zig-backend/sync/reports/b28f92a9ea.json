@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "b28f92a9eaeec48a9b83c97f67d6e9d7bfbd051d",
+  "short_sha": "b28f92a9ea",
+  "subject": "feat: improve error message produced by `#eval` command when it fails to synthesize \"eval\" instance",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-22",
+  "needs_port": false,
+  "sha": "0948742da15dccc665c5e695e57a2892e8198030",
+  "short_sha": "0948742da1",
+  "subject": "perf: fix formatting info tree unconditionally",
+  "zig_target": {}
+}

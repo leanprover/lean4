@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-30",
+  "needs_port": false,
+  "sha": "1284616296053d99aa7d7a1a3a551be2cfb3984e",
+  "short_sha": "1284616296",
+  "subject": "refactor: revamp Async API",
+  "zig_target": {}
+}

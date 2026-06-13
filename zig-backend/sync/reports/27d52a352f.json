@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-06-12",
+  "needs_port": true,
+  "sha": "27d52a352fad12ef04026ebe4becbb4f30bac645",
+  "short_sha": "27d52a352f",
+  "subject": "fix: leanpkg: actually detect import cycles",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

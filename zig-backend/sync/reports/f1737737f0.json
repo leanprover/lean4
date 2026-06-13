@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-01",
+  "needs_port": false,
+  "sha": "f1737737f0699ac8417605dc0148f079b5c8dd53",
+  "short_sha": "f1737737f0",
+  "subject": "perf: use matcher as splitter (#10184)",
+  "zig_target": {}
+}

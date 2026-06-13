@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-09",
+  "needs_port": false,
+  "sha": "a6fca7bcedfbe061decc8adc355845ec6b8f20c3",
+  "short_sha": "a6fca7bced",
+  "subject": "test: fix beginEndAsMacro output",
+  "zig_target": {}
+}

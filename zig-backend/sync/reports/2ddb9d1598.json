@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-30",
+  "needs_port": false,
+  "sha": "2ddb9d1598619a7ebc480c0ee44dabf0eda18298",
+  "short_sha": "2ddb9d1598",
+  "subject": "refactor(library): remove `delayed_abstraction` macro",
+  "zig_target": {}
+}

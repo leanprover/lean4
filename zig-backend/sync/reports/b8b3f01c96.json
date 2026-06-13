@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-10",
+  "needs_port": false,
+  "sha": "b8b3f01c96e81618271fd06ae185502c0a296447",
+  "short_sha": "b8b3f01c96",
+  "subject": "feat: add option to specify the `lean` used by Lake",
+  "zig_target": {}
+}

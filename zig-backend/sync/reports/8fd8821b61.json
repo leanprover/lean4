@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-06",
+  "needs_port": false,
+  "sha": "8fd8821b6151a8c0ba7bae0f65b00e493b2b0b78",
+  "short_sha": "8fd8821b61",
+  "subject": "feat: `grind ac` module diagnostics (#10283)",
+  "zig_target": {}
+}

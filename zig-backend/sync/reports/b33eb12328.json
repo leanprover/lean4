@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-04-23",
+  "needs_port": false,
+  "sha": "b33eb123281b2f0892205a57a8746e53fee27cec",
+  "short_sha": "b33eb12328",
+  "subject": "chore: simplify evaluation and use macro scope instead of namespace",
+  "zig_target": {}
+}

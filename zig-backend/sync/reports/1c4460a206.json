@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "1c4460a2061d5914345a0828bc2eae1efcae6116",
+  "short_sha": "1c4460a206",
+  "subject": "chore: move lean4-lsp into lean4-mode",
+  "zig_target": {}
+}

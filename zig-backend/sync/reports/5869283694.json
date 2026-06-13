@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-02",
+  "needs_port": false,
+  "sha": "58692836940fc8f9a9ff41c1ffb674cbb89c700d",
+  "short_sha": "5869283694",
+  "subject": "test: new linear solver benchmark by Marc",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-30",
+  "needs_port": false,
+  "sha": "22308dbaaaf5763a2298a72c0f5d60a59f0fde01",
+  "short_sha": "22308dbaaa",
+  "subject": "chore: CLAUDE.md individual module build instructions (#13189)",
+  "zig_target": {}
+}

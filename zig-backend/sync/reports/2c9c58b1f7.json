@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-11",
+  "needs_port": false,
+  "sha": "2c9c58b1f7167be84fa146ac633f121b5595105c",
+  "short_sha": "2c9c58b1f7",
+  "subject": "fix: allow mixing `module`s and non-`modules` when root is not a `module` (#8724)",
+  "zig_target": {}
+}

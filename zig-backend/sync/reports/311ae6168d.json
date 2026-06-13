@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-06-24",
+  "needs_port": false,
+  "sha": "311ae6168d4da8548bdd32c827295fabf0db60b4",
+  "short_sha": "311ae6168d",
+  "subject": "feat: lake: avoid use of Lean root directories (#8981)",
+  "zig_target": {}
+}

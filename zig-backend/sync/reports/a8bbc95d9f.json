@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-03-26",
+  "needs_port": false,
+  "sha": "a8bbc95d9fe665255a5c98fb402546233e760636",
+  "short_sha": "a8bbc95d9f",
+  "subject": "chore: remove lean4checker from release repos (#13121)",
+  "zig_target": {}
+}

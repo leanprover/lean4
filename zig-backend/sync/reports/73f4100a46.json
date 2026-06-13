@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-03",
+  "needs_port": true,
+  "sha": "73f4100a460c9d05f491b44bc926e74067b1b203",
+  "short_sha": "73f4100a46",
+  "subject": "feat(library/compiler/emit_cpp): tail call optimization",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

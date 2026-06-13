@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-28",
+  "needs_port": true,
+  "sha": "c74865fbe2499e9170ee0c9631b7b0e7e3a6feb9",
+  "short_sha": "c74865fbe2",
+  "subject": "feat: helper theorems for `cooper_dvd_left` (#7279)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

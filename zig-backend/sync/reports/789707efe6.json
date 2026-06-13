@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-05-17",
+  "needs_port": false,
+  "sha": "789707efe6a1ea34469e88ab8299ffa427a095b0",
+  "short_sha": "789707efe6",
+  "subject": "refactor(library/init/lean/trace): avoid init.meta import",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-17",
+  "needs_port": false,
+  "sha": "af1a5fe87440778c969fb1a2bc6f64dc329466c5",
+  "short_sha": "af1a5fe874",
+  "subject": "feat(library/init/lean/ir): add `x : ty := y` instruction",
+  "zig_target": {}
+}

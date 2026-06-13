@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-03",
+  "needs_port": false,
+  "sha": "ac35b543bfa0421a964a683cb648c1bdfceb2003",
+  "short_sha": "ac35b543bf",
+  "subject": "feat: add addional `CompletionInfo`",
+  "zig_target": {}
+}

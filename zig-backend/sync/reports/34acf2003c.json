@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-25",
+  "needs_port": false,
+  "sha": "34acf2003c510ec06baf00a6a63a6d2c6cffd64d",
+  "short_sha": "34acf2003c",
+  "subject": "chore: rename `assign` delayed method",
+  "zig_target": {}
+}

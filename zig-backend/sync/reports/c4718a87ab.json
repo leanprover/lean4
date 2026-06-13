@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-06-19",
+  "needs_port": false,
+  "sha": "c4718a87ab37ebc6c0c6335cd6c7145c551a88fe",
+  "short_sha": "c4718a87ab",
+  "subject": "refactor: constructions: modify environment in lean world (#4474)",
+  "zig_target": {}
+}

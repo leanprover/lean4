@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-12-19",
+  "needs_port": false,
+  "sha": "c88ec35c0db43ab95e70eb829a62b287031e7959",
+  "short_sha": "c88ec35c0d",
+  "subject": "perf: turn more commonly used bv_decide theorems into simprocs (#11739)",
+  "zig_target": {}
+}

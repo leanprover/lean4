@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-22",
+  "needs_port": true,
+  "sha": "ddeb5ac5359f11012d7a3910a25918c96a88ad09",
+  "short_sha": "ddeb5ac535",
+  "subject": "refactor: cutsat (#7186)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-17",
+  "needs_port": false,
+  "sha": "e96a21631b57860cc794dcd996af25353d9974bb",
+  "short_sha": "e96a21631b",
+  "subject": "refactor: move elaboration error filtering into Elab.Command",
+  "zig_target": {}
+}

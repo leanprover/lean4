@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Basic.lean"
+    }
+  ],
+  "date": "2026-03-03",
+  "needs_port": true,
+  "sha": "dd710dd1bd8e34e0ffff7db3e1117e11039834d0",
+  "short_sha": "dd710dd1bd",
+  "subject": "feat: use StateT.run instead of function application (#5121)",
+  "zig_target": {
+    "src/Init/Data/Format/Basic.lean": "zig-backend/src/init/Data/Format/Basic.lean"
+  }
+}

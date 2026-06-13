@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Check.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+    }
+  ],
+  "date": "2022-09-04",
+  "needs_port": true,
+  "sha": "abd37d8fd1c9e2dffbad5e05758081efba922199",
+  "short_sha": "abd37d8fd1",
+  "subject": "feat: check binder names at `LCNF/Check.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Check.lean": "zig-backend/src/lean/compiler/lcnf/Check.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-21",
+  "needs_port": false,
+  "sha": "ef34cfd5131de43b3ab862cacc72468cdda373c6",
+  "short_sha": "ef34cfd513",
+  "subject": "chore: more extensive LspEncoding test",
+  "zig_target": {}
+}

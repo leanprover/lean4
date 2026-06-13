@@ -1,0 +1,24 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/runtime/process.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/process.cpp"
+    }
+  ],
+  "date": "2023-07-03",
+  "needs_port": true,
+  "sha": "9901804a49017b3b78f728ad8d7ec74d96e7f99c",
+  "short_sha": "9901804a49",
+  "subject": "feat: SpawnArgs.setsid, Child.kill",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/runtime/process.cpp": "zig-backend/src/runtime/process.cpp"
+  }
+}

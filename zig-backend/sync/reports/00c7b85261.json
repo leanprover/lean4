@@ -1,0 +1,48 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/List.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Monadic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Option/Monadic.lean"
+    }
+  ],
+  "date": "2024-12-05",
+  "needs_port": true,
+  "sha": "00c7b85261d4b4bfb3659361edbf5005460e7c60",
+  "short_sha": "00c7b85261",
+  "subject": "feat: lemmas about for loops over `Option` (#6316)",
+  "zig_target": {
+    "src/Init/Data/Option.lean": "zig-backend/src/init/Data/Option.lean",
+    "src/Init/Data/Option/Attach.lean": "zig-backend/src/init/Data/Option/Attach.lean",
+    "src/Init/Data/Option/Instances.lean": "zig-backend/src/init/Data/Option/Instances.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Data/Option/List.lean": "zig-backend/src/init/Data/Option/List.lean",
+    "src/Init/Data/Option/Monadic.lean": "zig-backend/src/init/Data/Option/Monadic.lean"
+  }
+}

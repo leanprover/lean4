@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    },
+    {
+      "path": "src/runtime/alloc.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.h"
+    }
+  ],
+  "date": "2019-08-15",
+  "needs_port": true,
+  "sha": "44bf885829f0b2d6b0b37785951b83866f04a7e3",
+  "short_sha": "44bf885829",
+  "subject": "chore(runtime/alloc): simplify header file",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp",
+    "src/runtime/alloc.h": "zig-backend/src/runtime/alloc.h"
+  }
+}

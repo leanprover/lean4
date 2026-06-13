@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-09",
+  "needs_port": false,
+  "sha": "23bae264fd1fb3e2de50a1af2c65b473ac25b514",
+  "short_sha": "23bae264fd",
+  "subject": "perf: add cache for `check (e : Expr) : MetaM Unit`",
+  "zig_target": {}
+}

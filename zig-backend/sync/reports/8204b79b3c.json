@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-16",
+  "needs_port": false,
+  "sha": "8204b79b3c5c77e004e8e768ec7afa9346b0e8a0",
+  "short_sha": "8204b79b3c",
+  "subject": "fix: cleanup type annotations in congruence theorems (#4185)",
+  "zig_target": {}
+}

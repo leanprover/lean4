@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-17",
+  "needs_port": false,
+  "sha": "73824790a3a87050d8d3d54a9b7613d4b5eddd9e",
+  "short_sha": "73824790a3",
+  "subject": "feat(library/init/lean/parser/parser): store `SyntaxNodeKind`s",
+  "zig_target": {}
+}

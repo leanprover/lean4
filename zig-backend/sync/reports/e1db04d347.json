@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-07-15",
+  "needs_port": false,
+  "sha": "e1db04d3479117e1c2416191480b4eb0eb39470f",
+  "short_sha": "e1db04d347",
+  "subject": "feat: more robust snapshot-based recompilation",
+  "zig_target": {}
+}

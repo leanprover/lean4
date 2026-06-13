@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-08",
+  "needs_port": false,
+  "sha": "98a6fa1ac7089719695f4537497a864470f05db9",
+  "short_sha": "98a6fa1ac7",
+  "subject": "feat: improve `grind` anchors computation (#10715)",
+  "zig_target": {}
+}

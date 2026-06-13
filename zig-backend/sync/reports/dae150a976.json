@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "dae150a9764992ff97ffc8d5a489142b3d93da09",
+  "short_sha": "dae150a976",
+  "subject": "fix: handle `AppBuilderException` in `cbv` tactic if the projection function is dependent (#12460)",
+  "zig_target": {}
+}

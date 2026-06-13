@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AppBuilder.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+    }
+  ],
+  "date": "2020-03-05",
+  "needs_port": true,
+  "sha": "35000ff4cd93aace7324999b8ef985fe6fe9369c",
+  "short_sha": "35000ff4cd",
+  "subject": "feat: add `mkNoConfusion`",
+  "zig_target": {
+    "src/Init/Lean/Meta/AppBuilder.lean": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+  }
+}

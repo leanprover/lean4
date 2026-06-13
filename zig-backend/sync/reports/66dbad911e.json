@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-22",
+  "needs_port": false,
+  "sha": "66dbad911eaaec4cd512662bd5cc67a2a16d2484",
+  "short_sha": "66dbad911e",
+  "subject": "fix: improve error message for `partial` inhabitation and add delta deriving (#5780)",
+  "zig_target": {}
+}

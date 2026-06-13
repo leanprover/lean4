@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2024-08-15",
+  "needs_port": true,
+  "sha": "4d4d485c19925cf8c4122e553328ce320ff02439",
+  "short_sha": "4d4d485c19",
+  "subject": "chore: avoid rebuilding `leanmanifest` in each build (#5057)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

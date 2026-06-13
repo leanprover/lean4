@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-23",
+  "needs_port": false,
+  "sha": "c0d40c6f86e63d1ec05178507378f6e84ccc92ff",
+  "short_sha": "c0d40c6f86",
+  "subject": "chore: always use release build for stage 0",
+  "zig_target": {}
+}

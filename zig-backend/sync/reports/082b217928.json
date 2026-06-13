@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-24",
+  "needs_port": false,
+  "sha": "082b2179287095eec82bc637675e75cfa0660684",
+  "short_sha": "082b217928",
+  "subject": "fix(util/kvmap): adjust to Lean definition",
+  "zig_target": {}
+}

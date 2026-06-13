@@ -1,0 +1,18 @@
+{
+  "author": "Bulhwi Cha",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2023-05-31",
+  "needs_port": true,
+  "sha": "c1a58b212a1232bcfaffce3c5824f08fdde7bd56",
+  "short_sha": "c1a58b212a",
+  "subject": "chore: remove whitespace (#2244)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

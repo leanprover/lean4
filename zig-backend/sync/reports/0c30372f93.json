@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-06",
+  "needs_port": false,
+  "sha": "0c30372f93199f7e021f5773c8fd824af2b3668c",
+  "short_sha": "0c30372f93",
+  "subject": "doc: add todo for `expandDelayedAssigned`",
+  "zig_target": {}
+}

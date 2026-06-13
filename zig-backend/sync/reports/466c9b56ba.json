@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-05",
+  "needs_port": false,
+  "sha": "466c9b56ba5d7ffe2a60b96c1890349a586abb1c",
+  "short_sha": "466c9b56ba",
+  "subject": "chore: add new tests for `noncomputable`",
+  "zig_target": {}
+}

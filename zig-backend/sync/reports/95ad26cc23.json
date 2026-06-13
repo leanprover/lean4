@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AppBuilder.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+    }
+  ],
+  "date": "2020-02-09",
+  "needs_port": true,
+  "sha": "95ad26cc23d116a03a2f7ed2a20ced5da5a7d898",
+  "short_sha": "95ad26cc23",
+  "subject": "feat: add `mkEqNDRec` and `mkEqRec`",
+  "zig_target": {
+    "src/Init/Lean/Meta/AppBuilder.lean": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+  }
+}

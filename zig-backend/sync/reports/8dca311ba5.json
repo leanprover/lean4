@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-09-17",
+  "needs_port": false,
+  "sha": "8dca311ba57f65675e6be737ae09e57989ce94b4",
+  "short_sha": "8dca311ba5",
+  "subject": "doc: update URLs that are currently pointing to redirects (#10397)",
+  "zig_target": {}
+}

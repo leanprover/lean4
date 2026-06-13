@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-18",
+  "needs_port": false,
+  "sha": "e2b5747f4bbca5803ade20939a4bd039f4c3ac2d",
+  "short_sha": "e2b5747f4b",
+  "subject": "feat: `evalTactic` in `GrindM` (#10833)",
+  "zig_target": {}
+}

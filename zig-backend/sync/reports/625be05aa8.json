@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-06-22",
+  "needs_port": false,
+  "sha": "625be05aa8ada032698452ae58a1a85dedb6d586",
+  "short_sha": "625be05aa8",
+  "subject": "chore: use invalidParams error code",
+  "zig_target": {}
+}

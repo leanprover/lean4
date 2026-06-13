@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-09-17",
+  "needs_port": false,
+  "sha": "b74f85accd0347383faeefd62c49d4f47d556084",
+  "short_sha": "b74f85accd",
+  "subject": "fix: do not ban `..` with a `.` on the next line (#4768)",
+  "zig_target": {}
+}

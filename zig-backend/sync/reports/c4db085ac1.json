@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp/JpCases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean"
+    }
+  ],
+  "date": "2022-10-03",
+  "needs_port": true,
+  "sha": "c4db085ac1457036f1ff20594967768ba7841d8b",
+  "short_sha": "c4db085ac1",
+  "subject": "fix: missing dependency check at `simpJpCases?`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp/JpCases.lean": "zig-backend/src/lean/compiler/lcnf/Simp/JpCases.lean"
+  }
+}

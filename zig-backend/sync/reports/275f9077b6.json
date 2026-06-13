@@ -1,0 +1,24 @@
+{
+  "author": "Wrenna Robson",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Sort/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sort/Lemmas.lean"
+    }
+  ],
+  "date": "2025-10-30",
+  "needs_port": true,
+  "sha": "275f9077b68e6a0a6af1636d6c7dd2609c349057",
+  "short_sha": "275f9077b6",
+  "subject": "fix: Rename theorems that use sorted instead of pairwise (#10743)",
+  "zig_target": {
+    "src/Init/Data/List/Perm.lean": "zig-backend/src/init/Data/List/Perm.lean",
+    "src/Init/Data/List/Sort/Lemmas.lean": "zig-backend/src/init/Data/List/Sort/Lemmas.lean"
+  }
+}

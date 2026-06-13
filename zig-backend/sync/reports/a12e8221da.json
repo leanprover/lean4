@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-30",
+  "needs_port": false,
+  "sha": "a12e8221da2645f6d4ebf2614e419b3e1404ca86",
+  "short_sha": "a12e8221da",
+  "subject": "feat: include counters for unfolded declarations at `simp` diagnostics",
+  "zig_target": {}
+}

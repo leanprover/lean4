@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-05",
+  "needs_port": false,
+  "sha": "d8a67095d6c33aada48d36d714851d39378f7c71",
+  "short_sha": "d8a67095d6",
+  "subject": "chore: make workspaceSymbol benchmarks modules (#11094)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-01-15",
+  "needs_port": false,
+  "sha": "40698ecc0721774f78c9b344f27bd9c02c74b68d",
+  "short_sha": "40698ecc07",
+  "subject": "feat: LSP scaffolding for go-to-definition",
+  "zig_target": {}
+}

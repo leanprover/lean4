@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    }
+  ],
+  "date": "2019-12-08",
+  "needs_port": true,
+  "sha": "a15a6967b3f7d9890e414d236cd14558d02ed8e3",
+  "short_sha": "a15a6967b3",
+  "subject": "feat: add `#check` command",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean"
+  }
+}

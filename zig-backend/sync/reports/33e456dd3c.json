@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-02",
+  "needs_port": false,
+  "sha": "33e456dd3cde9b8413c78e1b7ecc87b5cce42f46",
+  "short_sha": "33e456dd3c",
+  "subject": "chore: CI: improve ccache (#7643)",
+  "zig_target": {}
+}

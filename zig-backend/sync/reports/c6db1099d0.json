@@ -1,0 +1,66 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CSE.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CSE.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/JoinPoints.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PassManager.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PassManager.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PullFunDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/PullLetDecls.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ReduceJpArity.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ReduceJpArity.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2022-09-10",
+  "needs_port": true,
+  "sha": "c6db1099d0f403dc05468d743c9d45ed22efcf93",
+  "short_sha": "c6db1099d0",
+  "subject": "feat: add occurences and phases to PassManager",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CSE.lean": "zig-backend/src/lean/compiler/lcnf/CSE.lean",
+    "src/Lean/Compiler/LCNF/JoinPoints.lean": "zig-backend/src/lean/compiler/lcnf/JoinPoints.lean",
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean",
+    "src/Lean/Compiler/LCNF/PassManager.lean": "zig-backend/src/lean/compiler/lcnf/PassManager.lean",
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean",
+    "src/Lean/Compiler/LCNF/PullFunDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullFunDecls.lean",
+    "src/Lean/Compiler/LCNF/PullLetDecls.lean": "zig-backend/src/lean/compiler/lcnf/PullLetDecls.lean",
+    "src/Lean/Compiler/LCNF/ReduceJpArity.lean": "zig-backend/src/lean/compiler/lcnf/ReduceJpArity.lean",
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

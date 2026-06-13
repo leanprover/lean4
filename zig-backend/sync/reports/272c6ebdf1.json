@@ -1,0 +1,10 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [],
+  "date": "2022-08-02",
+  "needs_port": false,
+  "sha": "272c6ebdf1ea8f903e024c5f2d86a509cf86acb3",
+  "short_sha": "272c6ebdf1",
+  "subject": "chore: CI: remove TPIL trigger",
+  "zig_target": {}
+}

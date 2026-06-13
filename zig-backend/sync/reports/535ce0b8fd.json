@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-01",
+  "needs_port": false,
+  "sha": "535ce0b8fdf545a6e0c62ff3fd1634d4b07d32ef",
+  "short_sha": "535ce0b8fd",
+  "subject": "feat: `pow_add` normalization in `grind` (#9133)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-06",
+  "needs_port": false,
+  "sha": "090786f07c32b74d601c09936f2d4ebc1a53a79d",
+  "short_sha": "090786f07c",
+  "subject": "chore: Nix: fix doc sources",
+  "zig_target": {}
+}

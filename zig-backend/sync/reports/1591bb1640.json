@@ -1,0 +1,10 @@
+{
+  "author": "Chris Lovett",
+  "backend_changes": [],
+  "date": "2021-09-08",
+  "needs_port": false,
+  "sha": "1591bb164051850f18020f130933b159a2ca4ae8",
+  "short_sha": "1591bb1640",
+  "subject": "doc: fix msys text based on code review feedback",
+  "zig_target": {}
+}

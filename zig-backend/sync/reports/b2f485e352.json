@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-23",
+  "needs_port": false,
+  "sha": "b2f485e352f67675b2e8429bc58df5e12a57baf5",
+  "short_sha": "b2f485e352",
+  "subject": "chore: grind test file demonstrating interactive use (#12114)",
+  "zig_target": {}
+}

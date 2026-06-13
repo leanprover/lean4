@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    }
+  ],
+  "date": "2025-06-16",
+  "needs_port": true,
+  "sha": "4e96a4ff45e618cee03be052c0d1c127d2be20b3",
+  "short_sha": "4e96a4ff45",
+  "subject": "feat: eliminate equations in `grind linarith` (#8810)",
+  "zig_target": {
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+  }
+}

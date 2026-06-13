@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2022-02-28",
+  "needs_port": true,
+  "sha": "1114dfac6cfa006600ae4be27e63a795289dd3da",
+  "short_sha": "1114dfac6c",
+  "subject": "feat: add theory for ac normalization.",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

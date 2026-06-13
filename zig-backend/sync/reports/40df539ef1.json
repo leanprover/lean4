@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-04-13",
+  "needs_port": false,
+  "sha": "40df539ef15406b66cc43baf99d738b940010700",
+  "short_sha": "40df539ef1",
+  "subject": "doc: update RELEASES for `rcases` using the custom `Nat` eliminator (#3902)",
+  "zig_target": {}
+}

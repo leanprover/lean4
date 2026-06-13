@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-02-29",
+  "needs_port": false,
+  "sha": "970b6e59b1851e33f469df6569a655b8ca62c5cf",
+  "short_sha": "970b6e59b1",
+  "subject": "doc: update RELEASES.md for #3460 and #3482 (#3527)",
+  "zig_target": {}
+}

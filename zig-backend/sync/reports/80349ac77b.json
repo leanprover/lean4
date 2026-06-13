@@ -1,0 +1,48 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/List.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Monadic.lean"
+    }
+  ],
+  "date": "2025-05-04",
+  "needs_port": true,
+  "sha": "80349ac77b79fbe57f2ef6a32eca1d3be21fbb30",
+  "short_sha": "80349ac77b",
+  "subject": "feat: complete addition of `@[grind]` annotations for `Option` (#8216)",
+  "zig_target": {
+    "src/Init/Data/Option/Attach.lean": "zig-backend/src/init/Data/Option/Attach.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Data/Option/Instances.lean": "zig-backend/src/init/Data/Option/Instances.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Data/Option/List.lean": "zig-backend/src/init/Data/Option/List.lean",
+    "src/Init/Data/Option/Monadic.lean": "zig-backend/src/init/Data/Option/Monadic.lean"
+  }
+}

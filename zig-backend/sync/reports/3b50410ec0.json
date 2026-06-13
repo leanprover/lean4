@@ -1,0 +1,10 @@
+{
+  "author": "Martin Dvo\u0159\u00e1k",
+  "backend_changes": [],
+  "date": "2023-03-04",
+  "needs_port": false,
+  "sha": "3b50410ec0a8b83344d0f61df554a1024bdaf298",
+  "short_sha": "3b50410ec0",
+  "subject": "doc: typo",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-06",
+  "needs_port": false,
+  "sha": "f4ccb78014e990a05e72201b7472235b39c18f59",
+  "short_sha": "f4ccb78014",
+  "subject": "feat: improve `tryPureCoe?` and document its limitations",
+  "zig_target": {}
+}

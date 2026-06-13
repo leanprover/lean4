@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "b37d2ce2b90dedc837be47afb4592f54e959cb69",
+  "short_sha": "b37d2ce2b9",
+  "subject": "chore: use CMake build type in Lake core build (#10581)",
+  "zig_target": {}
+}

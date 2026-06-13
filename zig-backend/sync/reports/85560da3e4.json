@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-01-13",
+  "needs_port": false,
+  "sha": "85560da3e484d08a507683e3c7d2a49e3790df95",
+  "short_sha": "85560da3e4",
+  "subject": "chore: remove functions for compiling decls from Environment (#6600)",
+  "zig_target": {}
+}

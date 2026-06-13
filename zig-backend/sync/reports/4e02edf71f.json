@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-03-18",
+  "needs_port": true,
+  "sha": "4e02edf71fa30754289c4d5f02bc50aeb2bf39cb",
+  "short_sha": "4e02edf71f",
+  "subject": "fix(library/compiler/emit_cpp): emit code for invoking user provided initialization functions",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

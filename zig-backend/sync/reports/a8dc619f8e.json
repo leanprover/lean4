@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-12-15",
+  "needs_port": false,
+  "sha": "a8dc619f8e9677d1bd672e3cfc56a2498e7600a0",
+  "short_sha": "a8dc619f8e",
+  "subject": "doc: split the docstring of `LocalContext` (#6340)",
+  "zig_target": {}
+}

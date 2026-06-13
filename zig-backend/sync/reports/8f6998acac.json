@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2019-03-09",
+  "needs_port": true,
+  "sha": "8f6998acac8de13add1c4b4142be18695b14b3d2",
+  "short_sha": "8f6998acac",
+  "subject": "fix(runtime/alloc): we may deallocate in a new thread before we allocated anything",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

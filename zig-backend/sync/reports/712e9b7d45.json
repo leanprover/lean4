@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-11",
+  "needs_port": false,
+  "sha": "712e9b7d45e9093b6ae2e36c4582ecdc1cbd5990",
+  "short_sha": "712e9b7d45",
+  "subject": "chore: add custom induction principle for `LazyList`",
+  "zig_target": {}
+}

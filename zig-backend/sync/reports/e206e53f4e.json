@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2024-02-18",
+  "needs_port": true,
+  "sha": "e206e53f4e37ecd810b2de36b7544240d579c535",
+  "short_sha": "e206e53f4e",
+  "subject": "chore: add @[simp] to Nat.sub_add_cancel (#3378)",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

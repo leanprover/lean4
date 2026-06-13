@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2025-05-15",
+  "needs_port": true,
+  "sha": "c5335b6f9a69601d2bc5f667496501368523f7fd",
+  "short_sha": "c5335b6f9a",
+  "subject": "fix: give Ordering.then the `expose` attribute (#8366)",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-06-29",
+  "needs_port": false,
+  "sha": "5049a4893e5b51f5267056e1cdaffdc25dacdbf5",
+  "short_sha": "5049a4893e",
+  "subject": "refactor: lake: fix local artifact cache bugs, opt-in, & related cleanup (#9068)",
+  "zig_target": {}
+}

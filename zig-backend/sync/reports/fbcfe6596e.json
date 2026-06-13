@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2023-12-13",
+  "needs_port": false,
+  "sha": "fbcfe6596eed8bd9ca91b6b6b9cefe4918247cbb",
+  "short_sha": "fbcfe6596e",
+  "subject": "fix: lake: leave `run` options for script (#3064)",
+  "zig_target": {}
+}

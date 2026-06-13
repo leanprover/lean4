@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-04-05",
+  "needs_port": false,
+  "sha": "729c750003ed15fbce241fc11b5f2e602ca3799e",
+  "short_sha": "729c750003",
+  "subject": "doc: adjust commit convention",
+  "zig_target": {}
+}

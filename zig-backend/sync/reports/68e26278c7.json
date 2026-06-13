@@ -1,0 +1,10 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [],
+  "date": "2022-07-31",
+  "needs_port": false,
+  "sha": "68e26278c7276bfb9af9863b635b77587e102c98",
+  "short_sha": "68e26278c7",
+  "subject": "doc: Add explanations to MetavarContext (#1331)",
+  "zig_target": {}
+}

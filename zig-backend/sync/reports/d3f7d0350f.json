@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-09",
+  "needs_port": false,
+  "sha": "d3f7d0350f2cc34a9bf286eb71aa6f7096687ddd",
+  "short_sha": "d3f7d0350f",
+  "subject": "refactor: move parser types into separate file",
+  "zig_target": {}
+}

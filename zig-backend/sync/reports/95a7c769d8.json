@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-12-15",
+  "needs_port": false,
+  "sha": "95a7c769d8d1565fdafd32553bb44d7d53edf5c3",
+  "short_sha": "95a7c769d8",
+  "subject": "feat: introduce `CancellationContext` type for cancellation with context propagation (#11499)",
+  "zig_target": {}
+}

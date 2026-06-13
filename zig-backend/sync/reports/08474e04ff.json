@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-05",
+  "needs_port": false,
+  "sha": "08474e04ff49b28798d61a8710e66ed74eb4b70b",
+  "short_sha": "08474e04ff",
+  "subject": "fix(library/system/io): read_to_end: work around UTF-8 bug in `io.read`",
+  "zig_target": {}
+}

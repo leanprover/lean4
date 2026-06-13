@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2024-06-19",
+  "needs_port": false,
+  "sha": "74f137370604bdd80c7ef27a48cab67aa022b105",
+  "short_sha": "74f1373706",
+  "subject": "chore: remove redundant `if-else` in `isDefEqQuickOther` (#4388)",
+  "zig_target": {}
+}

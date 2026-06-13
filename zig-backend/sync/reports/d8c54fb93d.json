@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/MonoTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean"
+    }
+  ],
+  "date": "2025-06-10",
+  "needs_port": true,
+  "sha": "d8c54fb93d23b90f551e2d42c5fef2bc549d519c",
+  "short_sha": "d8c54fb93d",
+  "subject": "fix: consider any type application of an erased term to be erased (#8716)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/MonoTypes.lean": "zig-backend/src/lean/compiler/lcnf/MonoTypes.lean"
+  }
+}

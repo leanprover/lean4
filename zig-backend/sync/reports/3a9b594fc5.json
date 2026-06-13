@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-01-02",
+  "needs_port": false,
+  "sha": "3a9b594fc5630cff86410084bafd5b694b139372",
+  "short_sha": "3a9b594fc5",
+  "subject": "chore: remove staging workaround",
+  "zig_target": {}
+}

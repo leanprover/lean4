@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-26",
+  "needs_port": false,
+  "sha": "0ce97893de0140b3244ff1f051eb945317180ee1",
+  "short_sha": "0ce97893de",
+  "subject": "chore(tests/playground/parser): port test file to new String API",
+  "zig_target": {}
+}

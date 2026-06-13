@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-05",
+  "needs_port": false,
+  "sha": "17825bf81dfeb91a50606079274a7bf82ed69af2",
+  "short_sha": "17825bf81d",
+  "subject": "feat: GuessLex: if no measure is found, explain why (#2960)",
+  "zig_target": {}
+}

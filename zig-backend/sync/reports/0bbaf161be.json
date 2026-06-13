@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-24",
+  "needs_port": false,
+  "sha": "0bbaf161be552e1efe0cb2064f05e74e93e7d490",
+  "short_sha": "0bbaf161be",
+  "subject": "fix: metavariable assignments were being ignored",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2026-03-25",
+  "needs_port": true,
+  "sha": "4786e082dca22873d14d2a5b9b7c8843380c6e78",
+  "short_sha": "4786e082dc",
+  "subject": "doc: update `inferInstanceAs` docstring and rename `normalizeInstance` to `wrapInstance` (#13115)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

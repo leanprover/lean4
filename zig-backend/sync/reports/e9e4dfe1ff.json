@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/HasCoe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/HasCoe.lean"
+    }
+  ],
+  "date": "2020-01-28",
+  "needs_port": true,
+  "sha": "e9e4dfe1ffa95926272674fdfe48a5cca94e6d26",
+  "short_sha": "e9e4dfe1ff",
+  "subject": "feat: add new `Coe.lean`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean",
+    "src/Init/Data/Nat/Bitwise.lean": "zig-backend/src/init/Data/Nat/Bitwise.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/HasCoe.lean": "zig-backend/src/init/HasCoe.lean"
+  }
+}

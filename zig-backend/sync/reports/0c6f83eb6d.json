@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Char/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Char/Lemmas.lean"
+    }
+  ],
+  "date": "2024-07-02",
+  "needs_port": true,
+  "sha": "0c6f83eb6d39c28ff67e0a26413f1da1cbd22160",
+  "short_sha": "0c6f83eb6d",
+  "subject": "chore: satisfy duplicate namespace linter (#4616)",
+  "zig_target": {
+    "src/Init/Data/Char/Lemmas.lean": "zig-backend/src/init/Data/Char/Lemmas.lean"
+  }
+}

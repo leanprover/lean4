@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-01-29",
+  "needs_port": false,
+  "sha": "41fe7bc71ac5335ff9abbb82cbfd262a1b3854e9",
+  "short_sha": "41fe7bc71a",
+  "subject": "feat: bv_normalize rewrite shifts by BitVec const to shift by Nat const (#6851)",
+  "zig_target": {}
+}

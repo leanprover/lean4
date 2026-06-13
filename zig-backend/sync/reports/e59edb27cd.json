@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-16",
+  "needs_port": false,
+  "sha": "e59edb27cdae31c3a56cfad5166289c18b8bb20d",
+  "short_sha": "e59edb27cd",
+  "subject": "feat(library/init/lean/parser/term): allow type annotation after pattern",
+  "zig_target": {}
+}

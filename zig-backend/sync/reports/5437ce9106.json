@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-04-23",
+  "needs_port": false,
+  "sha": "5437ce9106b4d253b1cd48c08926f4b49ebfd8f2",
+  "short_sha": "5437ce9106",
+  "subject": "chore: workaround bugs exposed by previous commit",
+  "zig_target": {}
+}

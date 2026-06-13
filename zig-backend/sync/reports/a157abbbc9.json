@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "a157abbbc9913a4fef5c5e7de6a7b733c4651660",
+  "short_sha": "a157abbbc9",
+  "subject": "fix: E-matching patterns containing ground universe polymorphic patterns in `grind` (#9857)",
+  "zig_target": {}
+}

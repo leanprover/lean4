@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "bacc77efa1aeb196a971cb34607570e4e9dec0c9",
+  "short_sha": "bacc77efa1",
+  "subject": "feat: delaborate builtin operators",
+  "zig_target": {}
+}

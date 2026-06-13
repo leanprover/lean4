@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Attr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Attr.lean"
+    }
+  ],
+  "date": "2025-09-18",
+  "needs_port": true,
+  "sha": "545bd8a96c7fec86978798ef33a932d3d2f3b998",
+  "short_sha": "545bd8a96c",
+  "subject": "feat: add `[grind inj]` attribute (#10447)",
+  "zig_target": {
+    "src/Init/Grind/Attr.lean": "zig-backend/src/init/Grind/Attr.lean"
+  }
+}

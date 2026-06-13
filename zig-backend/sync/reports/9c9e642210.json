@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-06",
+  "needs_port": false,
+  "sha": "9c9e6422109844a097c7ff603dec3133edf861e0",
+  "short_sha": "9c9e642210",
+  "subject": "feat(library/init/lean/elaborator): universe operators, subtype",
+  "zig_target": {}
+}

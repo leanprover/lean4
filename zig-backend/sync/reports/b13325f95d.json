@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-03-18",
+  "needs_port": false,
+  "sha": "b13325f95d9e056d6761b67ed6f1c0b2bc1a1e9a",
+  "short_sha": "b13325f95d",
+  "subject": "fix: shake: avoid panic on header-only files without trailing newline (#12963)",
+  "zig_target": {}
+}

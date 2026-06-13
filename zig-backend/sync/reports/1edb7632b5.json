@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-06-27",
+  "needs_port": false,
+  "sha": "1edb7632b5ff76028669b26151b71ca919ee92db",
+  "short_sha": "1edb7632b5",
+  "subject": "fix: highlight keywords when keyword is actual identifier (#9019)",
+  "zig_target": {}
+}

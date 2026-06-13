@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/SyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean"
+    }
+  ],
+  "date": "2020-03-16",
+  "needs_port": true,
+  "sha": "c10230ec0a201096da6736d769f3066da0e4d5bf",
+  "short_sha": "c10230ec0a",
+  "subject": "feat: add `elabTermAndSynthesize` auxiliary method",
+  "zig_target": {
+    "src/Init/Lean/Elab/SyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SyntheticMVars.lean"
+  }
+}

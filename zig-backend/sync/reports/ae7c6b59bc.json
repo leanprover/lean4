@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-11-25",
+  "needs_port": true,
+  "sha": "ae7c6b59bcc2c9f7e3b612f3bc87c15bd2e0131a",
+  "short_sha": "ae7c6b59bc",
+  "subject": "feat: parallelism utilities for `MetaM`/`TacticM` (#11333)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ctype_checker.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ctype_checker.cpp"
+    },
+    {
+      "path": "src/library/compiler/ctype_checker.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ctype_checker.h"
+    }
+  ],
+  "date": "2018-09-28",
+  "needs_port": true,
+  "sha": "9bfb8a97823c09e89a58cbaf09ee54e5a93b6368",
+  "short_sha": "9bfb8a9782",
+  "subject": "chore(library/compiler/ctype_checker): refine comment",
+  "zig_target": {
+    "src/library/compiler/ctype_checker.cpp": "zig-backend/src/library/compiler/ctype_checker.cpp",
+    "src/library/compiler/ctype_checker.h": "zig-backend/src/library/compiler/ctype_checker.h"
+  }
+}

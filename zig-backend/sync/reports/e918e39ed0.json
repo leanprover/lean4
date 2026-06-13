@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-25",
+  "needs_port": false,
+  "sha": "e918e39ed07d65e7c084a2dca859567df6d8d67f",
+  "short_sha": "e918e39ed0",
+  "subject": "feat: `have`: remove unnecessary whitespace check and allow name- and type-less `have`",
+  "zig_target": {}
+}

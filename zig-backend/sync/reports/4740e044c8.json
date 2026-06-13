@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-11",
+  "needs_port": false,
+  "sha": "4740e044c8ab8e42b01b2dfe27538ffddeb1aa82",
+  "short_sha": "4740e044c8",
+  "subject": "test: add elab_bench for string literal simp performance (#12883)",
+  "zig_target": {}
+}

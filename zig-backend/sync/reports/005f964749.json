@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-06",
+  "needs_port": false,
+  "sha": "005f9647498b9091ce5f34da52e7014cfcd06281",
+  "short_sha": "005f964749",
+  "subject": "feat: save info at `renameInaccessibles`",
+  "zig_target": {}
+}

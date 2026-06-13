@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-11",
+  "needs_port": false,
+  "sha": "a91b8619196b6d5d94a5bc39457b67314fd78953",
+  "short_sha": "a91b861919",
+  "subject": "Revert \"chore: CI: propagate prepare-*.sh errors\"",
+  "zig_target": {}
+}

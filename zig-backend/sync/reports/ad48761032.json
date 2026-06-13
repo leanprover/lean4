@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2025-01-31",
+  "needs_port": true,
+  "sha": "ad48761032c5750e51289f3885967c1b6f8edde5",
+  "short_sha": "ad48761032",
+  "subject": "feat: add simple `Ordering` lemmas (#6821)",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

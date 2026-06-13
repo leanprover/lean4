@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Attributes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Attributes.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/DeclModifiers.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/DeclModifiers.lean"
+    }
+  ],
+  "date": "2020-01-10",
+  "needs_port": true,
+  "sha": "3c8d8c7434a2b7200ebe65cc598228f5231ad850",
+  "short_sha": "3c8d8c7434",
+  "subject": "feat: add `attributeExtension`",
+  "zig_target": {
+    "src/Init/Lean/Attributes.lean": "zig-backend/src/init/Lean/Attributes.lean",
+    "src/Init/Lean/Elab/DeclModifiers.lean": "zig-backend/src/init/Lean/Elab/DeclModifiers.lean"
+  }
+}

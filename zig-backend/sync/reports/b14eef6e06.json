@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-15",
+  "needs_port": false,
+  "sha": "b14eef6e06e096ed050fc7e3cd8a630c25e9eaa5",
+  "short_sha": "b14eef6e06",
+  "subject": "refactor: split out top / lib / bin build from `Build.lean`",
+  "zig_target": {}
+}

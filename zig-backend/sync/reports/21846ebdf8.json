@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2025-05-23",
+  "needs_port": true,
+  "sha": "21846ebdf81a53feb304f4f2097f512de704a0e0",
+  "short_sha": "21846ebdf8",
+  "subject": "feat: non-chronological backtracking for `grind` (WIP) (#8440)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-12",
+  "needs_port": false,
+  "sha": "eaafd3691818469aff8f7ef20e011a6899b75ef2",
+  "short_sha": "eaafd36918",
+  "subject": "feat: use signature pretty printer in `#check id`/`#check @id`",
+  "zig_target": {}
+}

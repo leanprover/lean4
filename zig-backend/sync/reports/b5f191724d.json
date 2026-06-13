@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-20",
+  "needs_port": false,
+  "sha": "b5f191724da3734dd2e9a1d59d9c8933619c3bae",
+  "short_sha": "b5f191724d",
+  "subject": "chore: stop taking constants from kernel env in synchronous case as well (#7915)",
+  "zig_target": {}
+}

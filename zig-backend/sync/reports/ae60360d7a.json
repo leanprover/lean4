@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-15",
+  "needs_port": false,
+  "sha": "ae60360d7abfa31c4a9ccdc9eb8e362d9a82ed7c",
+  "short_sha": "ae60360d7a",
+  "subject": "feat: add `resolveName'` which produces `Syntax` with position information for each field",
+  "zig_target": {}
+}

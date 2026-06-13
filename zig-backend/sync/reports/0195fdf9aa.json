@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-10-07",
+  "needs_port": false,
+  "sha": "0195fdf9aa94db60f6d353f4d755232501a26afb",
+  "short_sha": "0195fdf9aa",
+  "subject": "feat: add `coinductive` command to specify coinductive predicates (#10333)",
+  "zig_target": {}
+}

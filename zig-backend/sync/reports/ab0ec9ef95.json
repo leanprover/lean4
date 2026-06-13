@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-08",
+  "needs_port": false,
+  "sha": "ab0ec9ef95909f4adb0bd43b0a1c7bbea7dcfaad",
+  "short_sha": "ab0ec9ef95",
+  "subject": "chore: use `weakLeanArgs` for Lake plugin (#13335)",
+  "zig_target": {}
+}

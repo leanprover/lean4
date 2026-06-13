@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-09",
+  "needs_port": false,
+  "sha": "b6bd2dea350cbf7f81c4f13f90704b211be6901c",
+  "short_sha": "b6bd2dea35",
+  "subject": "feat: signature pretty printer for hovers",
+  "zig_target": {}
+}

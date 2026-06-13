@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-12-04",
+  "needs_port": true,
+  "sha": "b3753ba6db8921877279a0d7b7547421e21948e8",
+  "short_sha": "b3753ba6db",
+  "subject": "feat: `grind` propagators for `Nat` operators (#11522)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

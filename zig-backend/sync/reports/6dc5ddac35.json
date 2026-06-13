@@ -1,0 +1,10 @@
+{
+  "author": "Jannis Limperg",
+  "backend_changes": [],
+  "date": "2022-05-23",
+  "needs_port": false,
+  "sha": "6dc5ddac35b6154fd2186570ae4071379b837dee",
+  "short_sha": "6dc5ddac35",
+  "subject": "fix: apply after-compilation attributes to inductive/structure decls",
+  "zig_target": {}
+}

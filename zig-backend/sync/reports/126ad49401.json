@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-14",
+  "needs_port": false,
+  "sha": "126ad49401c75b80b18da682355331de28c8bc08",
+  "short_sha": "126ad49401",
+  "subject": "feat: add stage1 extension for storing LCNF declarations",
+  "zig_target": {}
+}

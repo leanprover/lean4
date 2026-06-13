@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-11",
+  "needs_port": false,
+  "sha": "1731962ea9026b52880d0ac97e47dd2cb50a946f",
+  "short_sha": "1731962ea9",
+  "subject": "feat: elaborate `emptyC` notation",
+  "zig_target": {}
+}

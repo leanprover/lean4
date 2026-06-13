@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2022-10-13",
+  "needs_port": true,
+  "sha": "1c561c39a809a19fc0adedc00eb82ddb9f76117c",
+  "short_sha": "1c561c39a8",
+  "subject": "feat: function coercions with unification",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

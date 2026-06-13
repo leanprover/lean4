@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-30",
+  "needs_port": false,
+  "sha": "f7ca057feabb400b099b26a33afad33cb7a7c93e",
+  "short_sha": "f7ca057fea",
+  "subject": "doc: add some doc strings at `Environment.lean`",
+  "zig_target": {}
+}

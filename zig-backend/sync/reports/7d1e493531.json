@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-22",
+  "needs_port": false,
+  "sha": "7d1e49353158b60bcecb858930d8df01e4a92603",
+  "short_sha": "7d1e493531",
+  "subject": "chore: reactivate tactic `match` and `introMatch`",
+  "zig_target": {}
+}

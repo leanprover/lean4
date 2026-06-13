@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    }
+  ],
+  "date": "2024-09-28",
+  "needs_port": true,
+  "sha": "ef71f0beabddd0dd272ea55e294d1f2535408195",
+  "short_sha": "ef71f0beab",
+  "subject": "chore: restore @[simp] to upstreamed Nat.lt_off_iff (#5503)",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean"
+  }
+}

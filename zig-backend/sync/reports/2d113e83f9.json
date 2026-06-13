@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-26",
+  "needs_port": false,
+  "sha": "2d113e83f90276d6a9ac5f9af35a63528a2edb51",
+  "short_sha": "2d113e83f9",
+  "subject": "feat: eta struct support for unit-like datatypes",
+  "zig_target": {}
+}

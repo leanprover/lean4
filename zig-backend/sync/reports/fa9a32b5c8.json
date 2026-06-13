@@ -1,0 +1,10 @@
+{
+  "author": "Jesse Alama",
+  "backend_changes": [],
+  "date": "2026-03-16",
+  "needs_port": false,
+  "sha": "fa9a32b5c8f5d3b8ca0db221709d3da77c9222ea",
+  "short_sha": "fa9a32b5c8",
+  "subject": "fix: correct swapped operands in Std.Time subtraction instances (#12919)",
+  "zig_target": {}
+}

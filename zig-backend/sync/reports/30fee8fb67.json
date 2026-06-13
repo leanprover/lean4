@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-30",
+  "needs_port": false,
+  "sha": "30fee8fb6749b1b0b783e1f41879ac5a59ca37df",
+  "short_sha": "30fee8fb67",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

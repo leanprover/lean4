@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-05-17",
+  "needs_port": false,
+  "sha": "ce5814043bb9a81be2e7407114d8b435dba1f2aa",
+  "short_sha": "ce5814043b",
+  "subject": "feat: add `MessageData.withExprHover` (#13763)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-10",
+  "needs_port": false,
+  "sha": "1b5fb2fa50942c77df3ef8686d7a2d7361a06511",
+  "short_sha": "1b5fb2fa50",
+  "subject": "fix: check exponent in `grind lia` and `grind ring` (#11135)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-15",
+  "needs_port": false,
+  "sha": "e97df2f61b127ef13a9bf9c9b7a1c17dd392f32b",
+  "short_sha": "e97df2f61b",
+  "subject": "feat: functions to unfold at `simp`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Jesse Wright",
+  "backend_changes": [],
+  "date": "2024-02-05",
+  "needs_port": false,
+  "sha": "0055baf73a00c913f08d9cbf7a076c936c029707",
+  "short_sha": "0055baf73a",
+  "subject": "doc: add links to folder references (#3249)",
+  "zig_target": {}
+}

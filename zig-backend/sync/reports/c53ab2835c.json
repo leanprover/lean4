@@ -1,0 +1,10 @@
+{
+  "author": "Johan Commelin",
+  "backend_changes": [],
+  "date": "2025-06-11",
+  "needs_port": false,
+  "sha": "c53ab2835c567db871456bad26cf30819d8810fa",
+  "short_sha": "c53ab2835c",
+  "subject": "fix: pin version of softprops/action-gh-release (#8710)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    }
+  ],
+  "date": "2024-04-22",
+  "needs_port": true,
+  "sha": "5e313e98d0f75d31d5b9da50112449ff74cec455",
+  "short_sha": "5e313e98d0",
+  "subject": "doc: Classical.choice (#3871)",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean"
+  }
+}

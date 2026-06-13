@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-11",
+  "needs_port": true,
+  "sha": "15a25d5aa9d2fe3ab89dbdc7df7cd9ea53fc0704",
+  "short_sha": "15a25d5aa9",
+  "subject": "chore(library/init/lean/parser): add a few comments",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

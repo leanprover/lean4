@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    }
+  ],
+  "date": "2026-02-17",
+  "needs_port": true,
+  "sha": "b491d868ed9e285aacc7b55cd10036c0f59115be",
+  "short_sha": "b491d868ed",
+  "subject": "chore: respect transparency in restoreM and Std.Do related proofs (#12529)",
+  "zig_target": {
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean"
+  }
+}

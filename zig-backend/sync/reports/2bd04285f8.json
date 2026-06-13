@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.cpp"
+    }
+  ],
+  "date": "2022-03-30",
+  "needs_port": true,
+  "sha": "2bd04285f86b22fc44ce69a1846f81a569fc438b",
+  "short_sha": "2bd04285f8",
+  "subject": "fix: #1087",
+  "zig_target": {
+    "src/runtime/apply.cpp": "zig-backend/src/runtime/apply.cpp"
+  }
+}

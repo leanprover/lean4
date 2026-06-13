@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Simp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+    }
+  ],
+  "date": "2022-09-13",
+  "needs_port": true,
+  "sha": "fccb60fb69bed956efe5a6ccf89fd30f00bbbbf0",
+  "short_sha": "fccb60fb69",
+  "subject": "feat: support for `[inlineIfReduce]` at new compiler",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Simp.lean": "zig-backend/src/lean/compiler/lcnf/Simp.lean"
+  }
+}

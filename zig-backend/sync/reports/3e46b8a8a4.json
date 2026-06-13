@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-12-04",
+  "needs_port": false,
+  "sha": "3e46b8a8a4be7a9c59255f6a4a2beb125bf2bc0f",
+  "short_sha": "3e46b8a8a4",
+  "subject": "test: simplify meta2.lean",
+  "zig_target": {}
+}

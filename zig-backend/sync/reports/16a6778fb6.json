@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2021-02-12",
+  "needs_port": true,
+  "sha": "16a6778fb6c58c8173197f549291a9bde64aa667",
+  "short_sha": "16a6778fb6",
+  "subject": "fix: avoid nonstandard instances at `ite` and `dite` congruence lemmas",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

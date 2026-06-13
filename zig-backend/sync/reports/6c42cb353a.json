@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-01",
+  "needs_port": false,
+  "sha": "6c42cb353a378c74f88a6f4c92b68924fc02e43d",
+  "short_sha": "6c42cb353a",
+  "subject": "fix: prop local instances in `grind` (#7777)",
+  "zig_target": {}
+}

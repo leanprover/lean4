@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-16",
+  "needs_port": false,
+  "sha": "dbdb92a411a64e1f7258ec19a1ae8de248451c48",
+  "short_sha": "dbdb92a411",
+  "subject": "doc: advise using Developer Mode on Windows",
+  "zig_target": {}
+}

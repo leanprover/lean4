@@ -1,0 +1,18 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    }
+  ],
+  "date": "2025-03-24",
+  "needs_port": true,
+  "sha": "1e40151e2c123e80bca74607f3fc5c179e351689",
+  "short_sha": "1e40151e2c",
+  "subject": "chore: swap `\u2260` in `count_cons_of_ne` (#7650)",
+  "zig_target": {
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean"
+  }
+}

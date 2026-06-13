@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "3d79581f6bf5f2b0fc046647e643d739ee6f1b2c",
+  "short_sha": "3d79581f6b",
+  "subject": "feat: basic LCNF conversion",
+  "zig_target": {}
+}

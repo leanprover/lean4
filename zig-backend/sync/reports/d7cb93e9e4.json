@@ -1,0 +1,18 @@
+{
+  "author": "Jakob von Raumer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2022-06-14",
+  "needs_port": true,
+  "sha": "d7cb93e9e49b506adc6616f4527d05f12a967acd",
+  "short_sha": "d7cb93e9e4",
+  "subject": "feat: allow conv mode's arg command to access implicit arguments",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

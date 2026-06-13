@@ -1,0 +1,18 @@
+{
+  "author": "Mohamed Al-Fahim",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2021-01-20",
+  "needs_port": true,
+  "sha": "53750ddae62bb3f30288ac061b3bbb7755768caa",
+  "short_sha": "53750ddae6",
+  "subject": "chore: fix typos",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

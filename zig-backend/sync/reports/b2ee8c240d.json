@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-07-23",
+  "needs_port": false,
+  "sha": "b2ee8c240d4c45ec3ef2d6880c6595d7a8fe7b82",
+  "short_sha": "b2ee8c240d",
+  "subject": "doc: update quickstart guide (#4806)",
+  "zig_target": {}
+}

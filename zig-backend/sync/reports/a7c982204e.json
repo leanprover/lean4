@@ -1,0 +1,18 @@
+{
+  "author": "grunweg",
+  "backend_changes": [
+    {
+      "path": "src/Init/MetaTypes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MetaTypes.lean"
+    }
+  ],
+  "date": "2025-07-03",
+  "needs_port": true,
+  "sha": "a7c982204e9b8808eec72909892e0ea5f35a391c",
+  "short_sha": "a7c982204e",
+  "subject": "doc: use modern configuration syntax in the Simp.Config documentation (#9174)",
+  "zig_target": {
+    "src/Init/MetaTypes.lean": "zig-backend/src/init/MetaTypes.lean"
+  }
+}

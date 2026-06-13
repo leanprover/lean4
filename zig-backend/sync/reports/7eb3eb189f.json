@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2023-09-07",
+  "needs_port": false,
+  "sha": "7eb3eb189fa2ac3ce124ffd9226e294cdf26e18b",
+  "short_sha": "7eb3eb189f",
+  "subject": "chore: add new issue templates",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-02-17",
+  "needs_port": true,
+  "sha": "221704900af0cbc2e7a63330b2c02f62a4fd4d30",
+  "short_sha": "221704900a",
+  "subject": "feat(library/compiler/llnf): avoid `inc x` and `dec x` instructions in branches where `x` is known to be a scalar value",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

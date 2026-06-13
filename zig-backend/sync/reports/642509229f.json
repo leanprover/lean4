@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-01-28",
+  "needs_port": false,
+  "sha": "642509229fe250615c4a609707b8549123134188",
+  "short_sha": "642509229f",
+  "subject": "feat: split `Coe` and `CoeDep`",
+  "zig_target": {}
+}

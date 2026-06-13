@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/AbstractMVars.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/MetavarContext.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/MetavarContext.lean"
+    }
+  ],
+  "date": "2019-11-27",
+  "needs_port": true,
+  "sha": "b1f9b7cd4dbc14b764dfd8d9a144ceb859d8cb5d",
+  "short_sha": "b1f9b7cd4d",
+  "subject": "feat: add `AbstractMVars`",
+  "zig_target": {
+    "src/Init/Lean/Meta.lean": "zig-backend/src/init/Lean/Meta.lean",
+    "src/Init/Lean/Meta/AbstractMVars.lean": "zig-backend/src/init/Lean/Meta/AbstractMVars.lean",
+    "src/Init/Lean/MetavarContext.lean": "zig-backend/src/init/Lean/MetavarContext.lean"
+  }
+}

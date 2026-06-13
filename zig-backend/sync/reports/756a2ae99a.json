@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-04",
+  "needs_port": false,
+  "sha": "756a2ae99afb325a0dd2ad893dd3c5560723afb1",
+  "short_sha": "756a2ae99a",
+  "subject": "doc: server: update & extend readme",
+  "zig_target": {}
+}

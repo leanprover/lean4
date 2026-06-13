@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-11-04",
+  "needs_port": false,
+  "sha": "999b61007cbae0cad15172fcad5cffba43c13488",
+  "short_sha": "999b61007c",
+  "subject": "feat: tweak behavior of `congrN` to match lean 3 (#1798)",
+  "zig_target": {}
+}

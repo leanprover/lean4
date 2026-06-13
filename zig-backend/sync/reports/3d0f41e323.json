@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2025-03-21",
+  "needs_port": true,
+  "sha": "3d0f41e32321147b19c5a26651e3f0a3c6c0ab6a",
+  "short_sha": "3d0f41e323",
+  "subject": "chore: fix interpreter `lean_assert`",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

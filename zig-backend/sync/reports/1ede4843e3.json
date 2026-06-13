@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-08-25",
+  "needs_port": true,
+  "sha": "1ede4843e37e397ef530929a219cb58ec6b1a8d5",
+  "short_sha": "1ede4843e3",
+  "subject": "feat: add `renameI` tactic",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

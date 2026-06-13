@@ -1,0 +1,10 @@
+{
+  "author": "Anne Baanen",
+  "backend_changes": [],
+  "date": "2025-06-11",
+  "needs_port": false,
+  "sha": "54dd7aae8ca0ed339b60e0c66b3043bc63aa73b8",
+  "short_sha": "54dd7aae8c",
+  "subject": "chore: improvements to release checklist and scripts (#8586)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-06",
+  "needs_port": false,
+  "sha": "d6dc077c8668bc314888cae45062525f4d138632",
+  "short_sha": "d6dc077c86",
+  "subject": "refactor: `CongrLemma` => `SimpCongrTheorem`",
+  "zig_target": {}
+}

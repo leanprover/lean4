@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-02",
+  "needs_port": false,
+  "sha": "d4364850ff1085ece9ece7d37aa94c34248685f3",
+  "short_sha": "d4364850ff",
+  "subject": "feat(library/derive_attribute): support out_params after main parameter",
+  "zig_target": {}
+}

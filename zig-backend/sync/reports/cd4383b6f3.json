@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-26",
+  "needs_port": true,
+  "sha": "cd4383b6f39e3db1242e58514bbad7f239e7af04",
+  "short_sha": "cd4383b6f3",
+  "subject": "feat: refine inequalites using disequalities in cutsat (#7252)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

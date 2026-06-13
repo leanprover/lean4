@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-09-22",
+  "needs_port": false,
+  "sha": "795d13ddcea89d6d2ce1e7d6568644deafa3aba5",
+  "short_sha": "795d13ddce",
+  "subject": "feat: account for `tactic_alt` in missing docs linter (#10507)",
+  "zig_target": {}
+}

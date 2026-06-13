@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-09",
+  "needs_port": true,
+  "sha": "e958f20874ed161748df66642f9d2d21f1210e9a",
+  "short_sha": "e958f20874",
+  "subject": "fix(library/compiler/csimp): `beta_reduce` was not preserving the \"join-point\" invariant",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

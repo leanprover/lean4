@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-31",
+  "needs_port": false,
+  "sha": "c4cfbceb710c72dacb525ce658b9a57922dea912",
+  "short_sha": "c4cfbceb71",
+  "subject": "test: div0 crash",
+  "zig_target": {}
+}

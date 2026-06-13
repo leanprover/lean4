@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-22",
+  "needs_port": true,
+  "sha": "5f3c0daf3d6c73c63df8dab159bce72b9699abb0",
+  "short_sha": "5f3c0daf3d",
+  "subject": "feat: BitVec.ushiftRight in terms of extractLsb' (#6745)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

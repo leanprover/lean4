@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/CompilerM.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+    }
+  ],
+  "date": "2022-08-22",
+  "needs_port": true,
+  "sha": "b2c2d49bae664a48663c04e9d9336a6b98d8f764",
+  "short_sha": "b2c2d49bae",
+  "subject": "feat: new `CompilerM` for LCNF",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/CompilerM.lean": "zig-backend/src/lean/compiler/lcnf/CompilerM.lean"
+  }
+}

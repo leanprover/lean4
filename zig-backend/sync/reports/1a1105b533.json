@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-26",
+  "needs_port": false,
+  "sha": "1a1105b5336f34a2003ce4c87ec005499f0c1461",
+  "short_sha": "1a1105b533",
+  "subject": "test(tests/playground/lazylist): perf tests",
+  "zig_target": {}
+}

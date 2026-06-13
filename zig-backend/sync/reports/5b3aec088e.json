@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/init_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_attribute.cpp"
+    }
+  ],
+  "date": "2019-05-21",
+  "needs_port": true,
+  "sha": "5b3aec088ee19e84bc001ea7d6c9a210860c0c87",
+  "short_sha": "5b3aec088e",
+  "subject": "feat(library/init/lean/compiler/ir/emitcpp): emit module initialization code",
+  "zig_target": {
+    "src/library/compiler/init_attribute.cpp": "zig-backend/src/library/compiler/init_attribute.cpp"
+  }
+}

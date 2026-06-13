@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-14",
+  "needs_port": false,
+  "sha": "98cc4639a05d68627b10dd9ddc582e10fdb4159a",
+  "short_sha": "98cc4639a0",
+  "subject": "fix: nested recursive applications",
+  "zig_target": {}
+}

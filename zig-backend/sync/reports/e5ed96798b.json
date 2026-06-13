@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "e5ed96798ba3984499527078bfebdcdf5bad87e4",
+  "short_sha": "e5ed96798b",
+  "subject": "fix(tests/playground/Makefile): actually compile Lean code with optimizations",
+  "zig_target": {}
+}

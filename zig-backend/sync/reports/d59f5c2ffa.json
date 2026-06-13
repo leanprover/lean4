@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-01",
+  "needs_port": false,
+  "sha": "d59f5c2ffadd599a2c24fda535d4364a61350ca5",
+  "short_sha": "d59f5c2ffa",
+  "subject": "fix: `binop%` info tree",
+  "zig_target": {}
+}

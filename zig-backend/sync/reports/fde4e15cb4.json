@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    }
+  ],
+  "date": "2018-05-20",
+  "needs_port": true,
+  "sha": "fde4e15cb421e69b18bb9eb3448f56866a968486",
+  "short_sha": "fde4e15cb4",
+  "subject": "fix(runtime/lean_obj): OSX issue",
+  "zig_target": {
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h"
+  }
+}

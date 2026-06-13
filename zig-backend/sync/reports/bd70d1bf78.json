@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-19",
+  "needs_port": false,
+  "sha": "bd70d1bf786aaaa582ef7c561fcabb4e9b16503b",
+  "short_sha": "bd70d1bf78",
+  "subject": "feat: Nix: add src/ to LEAN_SRC_PATH in Lean shell",
+  "zig_target": {}
+}

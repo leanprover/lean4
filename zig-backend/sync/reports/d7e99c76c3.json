@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-01",
+  "needs_port": false,
+  "sha": "d7e99c76c3b84c3bbb066f065f3b621392eaff2f",
+  "short_sha": "d7e99c76c3",
+  "subject": "feat: `mutual` + `namespace` macro",
+  "zig_target": {}
+}

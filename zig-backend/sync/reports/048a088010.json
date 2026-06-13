@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-31",
+  "needs_port": false,
+  "sha": "048a088010b561efc899597144b8de396b5dd528",
+  "short_sha": "048a088010",
+  "subject": "fix: render monad tutorials",
+  "zig_target": {}
+}

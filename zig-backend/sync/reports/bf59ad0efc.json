@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-06",
+  "needs_port": false,
+  "sha": "bf59ad0efcafa1df938c360861097d31449b8741",
+  "short_sha": "bf59ad0efc",
+  "subject": "feat: add new compiler entry point function",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-18",
+  "needs_port": false,
+  "sha": "1b0d83e7fc207fadda64bcf66f30635077709f92",
+  "short_sha": "1b0d83e7fc",
+  "subject": "fix: remove local `Triple` notation from SpecLemmas.lean to fix stage2 (#9967)",
+  "zig_target": {}
+}

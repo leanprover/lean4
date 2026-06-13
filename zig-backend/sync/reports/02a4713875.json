@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-09-14",
+  "needs_port": false,
+  "sha": "02a47138755aecf49f76c71f506826a113f7a54f",
+  "short_sha": "02a4713875",
+  "subject": "feat: enable notationItem in \"mixfix\" notation commands (#10378)",
+  "zig_target": {}
+}

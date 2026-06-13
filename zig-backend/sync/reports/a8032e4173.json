@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-12",
+  "needs_port": false,
+  "sha": "a8032e4173362721abb2dcdf33b829435405f522",
+  "short_sha": "a8032e4173",
+  "subject": "fix: another `mut` misbehaving example",
+  "zig_target": {}
+}

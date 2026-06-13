@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-10-01",
+  "needs_port": false,
+  "sha": "9dcd2ad2a33d41d2f3f8d42c1de5f1d864c80253",
+  "short_sha": "9dcd2ad2a3",
+  "subject": "fix:  `--no-cache` on server `DependencyBuildMode.never` (#5583)",
+  "zig_target": {}
+}

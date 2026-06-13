@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/ToArrayImpl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArrayImpl.lean"
+    }
+  ],
+  "date": "2026-02-16",
+  "needs_port": true,
+  "sha": "620ef3bb86dce4254469704d7b8f9fccbad07c23",
+  "short_sha": "620ef3bb86",
+  "subject": "fix: bring lengthTR lemma back into scope at toArray (#12502)",
+  "zig_target": {
+    "src/Init/Data/List/ToArrayImpl.lean": "zig-backend/src/init/Data/List/ToArrayImpl.lean"
+  }
+}

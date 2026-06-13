@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "fa6b7b63932df93cf29564644d0a000fce60c08f",
+  "short_sha": "fa6b7b6393",
+  "subject": "feat: add `MonadResolveName` type class",
+  "zig_target": {}
+}

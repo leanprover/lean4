@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-05",
+  "needs_port": true,
+  "sha": "a35a9513742ec9f7267b4d08da790315bc33cf06",
+  "short_sha": "a35a951374",
+  "subject": "chore(library/compiler/emit_cpp): add `uint*` aliases",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

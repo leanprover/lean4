@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-11",
+  "needs_port": false,
+  "sha": "582877d2d39c9a0401384f6a30389ee03f0e15ac",
+  "short_sha": "582877d2d3",
+  "subject": "feat: environment extension data can be split into `.olean.server` (#7914)",
+  "zig_target": {}
+}

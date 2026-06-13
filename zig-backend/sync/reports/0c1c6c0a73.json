@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-25",
+  "needs_port": false,
+  "sha": "0c1c6c0a73c9597a44818d903c6ec434bbc0eb84",
+  "short_sha": "0c1c6c0a73",
+  "subject": "feat: convert universe metavariables into parameters after elaborating theorem header",
+  "zig_target": {}
+}

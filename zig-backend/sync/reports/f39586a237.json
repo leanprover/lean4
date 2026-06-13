@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-02-10",
+  "needs_port": false,
+  "sha": "f39586a237d1e798a552e5cee99a1211c0fc3ac2",
+  "short_sha": "f39586a237",
+  "subject": "test: expose problem at `isDefEq`",
+  "zig_target": {}
+}

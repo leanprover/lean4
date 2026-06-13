@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-03",
+  "needs_port": false,
+  "sha": "d54b86d16b7c71ee5326e25ea270335b2819b00e",
+  "short_sha": "d54b86d16b",
+  "subject": "chore(library/type_context): remove `reduce_large_elim_recursor`",
+  "zig_target": {}
+}

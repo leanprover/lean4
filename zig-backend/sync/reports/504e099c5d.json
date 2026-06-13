@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-31",
+  "needs_port": false,
+  "sha": "504e099c5d61a1d5702a75a15485263e7617d1c9",
+  "short_sha": "504e099c5d",
+  "subject": "test: lazy let-binding unfolding in sym mvcgen (#13210)",
+  "zig_target": {}
+}

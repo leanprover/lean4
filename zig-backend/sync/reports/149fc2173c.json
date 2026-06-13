@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2025-07-05",
+  "needs_port": true,
+  "sha": "149fc2173c4f3392a9020246459b9bb02a760088",
+  "short_sha": "149fc2173c",
+  "subject": "fix: correctly handle constructor params in elimDeadBranches (#9209)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/lcnf/ElimDeadBranches.lean"
+  }
+}

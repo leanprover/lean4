@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-23",
+  "needs_port": false,
+  "sha": "7edc42fdfcfbf27580979a864521b3ec0740cd79",
+  "short_sha": "7edc42fdfc",
+  "subject": "fix: scoped command after `open` command",
+  "zig_target": {}
+}

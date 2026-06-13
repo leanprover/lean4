@@ -1,0 +1,30 @@
+{
+  "author": "Henrik",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/LLVMBindings.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean"
+    },
+    {
+      "path": "src/library/compiler/llvm.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llvm.cpp"
+    }
+  ],
+  "date": "2023-07-31",
+  "needs_port": true,
+  "sha": "35aa2c91a22d83bd619787e6108e536b23dadcda",
+  "short_sha": "35aa2c91a2",
+  "subject": "feat: LLVM backend: implement the equivalent of -fstack-clash-protection",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/LLVMBindings.lean": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean",
+    "src/library/compiler/llvm.cpp": "zig-backend/src/library/compiler/llvm.cpp"
+  }
+}

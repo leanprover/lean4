@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-15",
+  "needs_port": false,
+  "sha": "8df968de01f526d2f7aa113cc2d3231c5ee2c9db",
+  "short_sha": "8df968de01",
+  "subject": "feat: have `example` default to the private scope (#10168)",
+  "zig_target": {}
+}

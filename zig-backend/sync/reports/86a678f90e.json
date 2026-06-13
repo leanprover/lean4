@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-21",
+  "needs_port": false,
+  "sha": "86a678f90e07f1a3c11368056d9ee7e215590342",
+  "short_sha": "86a678f90e",
+  "subject": "chore: move clean-stdlib out of Makefile so that it can be executed even with broken .depend files",
+  "zig_target": {}
+}

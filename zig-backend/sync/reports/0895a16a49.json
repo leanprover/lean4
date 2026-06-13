@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-28",
+  "needs_port": false,
+  "sha": "0895a16a49d3449019d0d3a6c69cc36df39a38c8",
+  "short_sha": "0895a16a49",
+  "subject": "fead: add `MonadCache` helper class",
+  "zig_target": {}
+}

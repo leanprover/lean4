@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-06",
+  "needs_port": false,
+  "sha": "6a496844fd96dfa2ef9b8e5a893e04202f3beb29",
+  "short_sha": "6a496844fd",
+  "subject": "chore(library/init/lean/compiler/ir/freevars): simplify code using \"no shadowing\" assumption",
+  "zig_target": {}
+}

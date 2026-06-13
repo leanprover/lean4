@@ -1,0 +1,48 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Div/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/System/Platform.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Platform.lean"
+    }
+  ],
+  "date": "2025-03-18",
+  "needs_port": true,
+  "sha": "6a202f5acbac5818997e560c2d954e6d6c6a83f5",
+  "short_sha": "6a202f5acb",
+  "subject": "feat: `Nat`, `Fin` and `BitVec` theorems required for unsigned integers (#7522)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Fin/Bitwise.lean": "zig-backend/src/init/Data/Fin/Bitwise.lean",
+    "src/Init/Data/Nat/Div/Lemmas.lean": "zig-backend/src/init/Data/Nat/Div/Lemmas.lean",
+    "src/Init/Data/Nat/Lemmas.lean": "zig-backend/src/init/Data/Nat/Lemmas.lean",
+    "src/Init/System/Platform.lean": "zig-backend/src/init/System/Platform.lean"
+  }
+}

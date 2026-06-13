@@ -1,0 +1,10 @@
+{
+  "author": "Ed Ayers",
+  "backend_changes": [],
+  "date": "2022-09-28",
+  "needs_port": false,
+  "sha": "10971a413ac32f541f7fb9dbe9f54e7ad0cc8038",
+  "short_sha": "10971a413a",
+  "subject": "feat: fromJson? derivations now say where a parsing error occurred (#1656)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "beda5f5f439b4e868ed4b367f3c8c2724ac0dd5d",
+  "short_sha": "beda5f5f43",
+  "subject": "chore(library): capitalize types and namespaces",
+  "zig_target": {}
+}

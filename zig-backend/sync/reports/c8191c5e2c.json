@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-04",
+  "needs_port": false,
+  "sha": "c8191c5e2ca45fc5527e56a9d38cb7be3405df67",
+  "short_sha": "c8191c5e2c",
+  "subject": "refactor: align `ScopedEnvExtension.exportEntry?` with new `PersistentEnvExtension.exportEntriesFn` (#13628)",
+  "zig_target": {}
+}

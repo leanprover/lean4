@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/RArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/RArray.lean"
+    }
+  ],
+  "date": "2025-04-17",
+  "needs_port": true,
+  "sha": "32fe2391b9ec5cb5da6a1d141794be98e6753cea",
+  "short_sha": "32fe2391b9",
+  "subject": "feat: universe polymorphic `RArray` (#8014)",
+  "zig_target": {
+    "src/Init/Data/RArray.lean": "zig-backend/src/init/Data/RArray.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "7447cb444c69b4ef59d08d81a4689b733122d8d2",
+  "short_sha": "7447cb444c",
+  "subject": "ci: skip duplicate/unnecessary jobs",
+  "zig_target": {}
+}

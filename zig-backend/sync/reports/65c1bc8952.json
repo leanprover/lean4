@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-29",
+  "needs_port": false,
+  "sha": "65c1bc89521198741914df6a7064f3496b541bd3",
+  "short_sha": "65c1bc8952",
+  "subject": "fix: gen_constants_cpp.py: mark constants as persistent",
+  "zig_target": {}
+}

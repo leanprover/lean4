@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-29",
+  "needs_port": false,
+  "sha": "e2f5938e74276a12dbfe235b280e3ff38e4533c2",
+  "short_sha": "e2f5938e74",
+  "subject": "refactor: some Meta.Match.Match refactorings (#11011)",
+  "zig_target": {}
+}

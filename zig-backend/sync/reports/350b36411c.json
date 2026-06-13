@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-11-14",
+  "needs_port": false,
+  "sha": "350b36411c94a10fab03ce4e6beba502deb45bb1",
+  "short_sha": "350b36411c",
+  "subject": "chore: upstream some NameMap functions (#6056)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-06",
+  "needs_port": false,
+  "sha": "11e5d1a8a22368ca3f6b93d4010b0053edf546c1",
+  "short_sha": "11e5d1a8a2",
+  "subject": "chore(tests/lean/parser1): reintroduce `#exit` in front of core.lean test",
+  "zig_target": {}
+}

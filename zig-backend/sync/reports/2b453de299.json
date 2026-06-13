@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-18",
+  "needs_port": false,
+  "sha": "2b453de299c26217914feec70d1063ace3dd7c85",
+  "short_sha": "2b453de299",
+  "subject": "fix(frontends/lean/decl_attributes): remove mdata",
+  "zig_target": {}
+}

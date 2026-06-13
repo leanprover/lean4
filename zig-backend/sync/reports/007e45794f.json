@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-30",
+  "needs_port": false,
+  "sha": "007e45794f7045543eddef0bb69d92acdac108e2",
+  "short_sha": "007e45794f",
+  "subject": "chore(tests/bench/default): update MLKit",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-09-02",
+  "needs_port": false,
+  "sha": "5214154ea93548cd2998c4bdfb49201d6a682412",
+  "short_sha": "5214154ea9",
+  "subject": "perf: maximize term sharing at `instantiateMVarDeclMVars` (#5226)",
+  "zig_target": {}
+}

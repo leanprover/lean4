@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Find.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Find.lean"
+    }
+  ],
+  "date": "2025-11-10",
+  "needs_port": true,
+  "sha": "6fc48d14c02d177688c7de58051611b9a16a59e3",
+  "short_sha": "6fc48d14c0",
+  "subject": "feat: missing lemmas about `List.findIdx` (#11113)",
+  "zig_target": {
+    "src/Init/Data/List/Find.lean": "zig-backend/src/init/Data/List/Find.lean"
+  }
+}

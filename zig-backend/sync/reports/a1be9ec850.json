@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-05-10",
+  "needs_port": false,
+  "sha": "a1be9ec8505544801583a41fa3ac1640491958fa",
+  "short_sha": "a1be9ec850",
+  "subject": "chore: tidying up `Lean.unresolveNameGlobal` (#4091)",
+  "zig_target": {}
+}

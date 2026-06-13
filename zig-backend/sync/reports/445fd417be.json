@@ -1,0 +1,18 @@
+{
+  "author": "Bulhwi Cha",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2023-02-20",
+  "needs_port": true,
+  "sha": "445fd417be4df8f69f1b97b5426bd5ef97d28138",
+  "short_sha": "445fd417be",
+  "subject": "doc: add more explanations of quotients",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

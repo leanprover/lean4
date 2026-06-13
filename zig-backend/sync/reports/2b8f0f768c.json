@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-30",
+  "needs_port": false,
+  "sha": "2b8f0f768cbf7c4e085730c8c5a30bb618b17812",
+  "short_sha": "2b8f0f768c",
+  "subject": "chore: use `lake clean` for `examples/hello`",
+  "zig_target": {}
+}

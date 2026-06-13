@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-14",
+  "needs_port": false,
+  "sha": "e7fc90877e7d340bcb934627c68548344b5bcc98",
+  "short_sha": "e7fc90877e",
+  "subject": "feat: add `anyRange`, `allRange`, `anyRangeM`, `allRangeM`, and modify `anyFrom` parameter order",
+  "zig_target": {}
+}

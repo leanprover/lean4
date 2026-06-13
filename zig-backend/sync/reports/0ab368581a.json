@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-04",
+  "needs_port": false,
+  "sha": "0ab368581a0c6b59aa03f87829110782ce6c4e85",
+  "short_sha": "0ab368581a",
+  "subject": "refactor: `ScopedEnvExtension`",
+  "zig_target": {}
+}

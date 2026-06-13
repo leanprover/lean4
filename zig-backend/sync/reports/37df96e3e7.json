@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-11-09",
+  "needs_port": true,
+  "sha": "37df96e3e7addd964361e920f2d0f99c75d86feb",
+  "short_sha": "37df96e3e7",
+  "subject": "feat(library/compiler/csimp): inline recursive functions marked with `[inline_if_reduce]`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

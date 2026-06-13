@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Stream.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Stream.lean"
+    }
+  ],
+  "date": "2020-12-19",
+  "needs_port": true,
+  "sha": "074259201e30bcd554c134ad5359ed7e97885b37",
+  "short_sha": "074259201e",
+  "subject": "feat: add helper classes for implementing parallel `for`",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Stream.lean": "zig-backend/src/init/Data/Stream.lean"
+  }
+}

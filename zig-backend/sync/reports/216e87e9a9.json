@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-30",
+  "needs_port": false,
+  "sha": "216e87e9a968dce3598519343812846c33eb919b",
+  "short_sha": "216e87e9a9",
+  "subject": "feat: add `LBool`",
+  "zig_target": {}
+}

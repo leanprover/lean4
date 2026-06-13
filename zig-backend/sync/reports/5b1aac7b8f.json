@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2022-10-06",
+  "needs_port": true,
+  "sha": "5b1aac7b8fb88478bc7ab9c5f6ee06ac40f78fda",
+  "short_sha": "5b1aac7b8f",
+  "subject": "fix: avoid nontermination on non-utf8 input",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

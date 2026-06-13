@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "b343e45958ecf2221e8ad4f41034a61d644c2aed",
+  "short_sha": "b343e45958",
+  "subject": "chore(script/prepare-commit-msg): fix suffix pattern",
+  "zig_target": {}
+}

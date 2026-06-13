@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-28",
+  "needs_port": false,
+  "sha": "479da7b914b1d6773a5c9db674f8f78332c4d6d5",
+  "short_sha": "479da7b914",
+  "subject": "feat: elaborate `noindex!` annotation",
+  "zig_target": {}
+}

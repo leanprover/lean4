@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "1c00f290430e86e4b63083d5c64fe51657bd2568",
+  "short_sha": "1c00f29043",
+  "subject": "test: add `let_fun` pretty printing test",
+  "zig_target": {}
+}

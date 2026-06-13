@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-02",
+  "needs_port": false,
+  "sha": "e4ef665c5474e47d7520cd3f1a2678bd3589d690",
+  "short_sha": "e4ef665c54",
+  "subject": "feat: atomically (re-)create .olean files",
+  "zig_target": {}
+}

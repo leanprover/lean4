@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-05",
+  "needs_port": false,
+  "sha": "6ef56efb798756a0603ddeeb1b7b0082326e1aa6",
+  "short_sha": "6ef56efb79",
+  "subject": "fix: leanc: drop empty arguments",
+  "zig_target": {}
+}

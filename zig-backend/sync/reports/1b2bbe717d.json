@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-09",
+  "needs_port": false,
+  "sha": "1b2bbe717d1260e337e0cddabef10a6a7e8ff098",
+  "short_sha": "1b2bbe717d",
+  "subject": "chore: remove obsolete comment in test (#3044)",
+  "zig_target": {}
+}

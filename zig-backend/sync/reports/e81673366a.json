@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    }
+  ],
+  "date": "2022-10-09",
+  "needs_port": true,
+  "sha": "e81673366a6a6eeef98a2656423fd1173d7459bf",
+  "short_sha": "e81673366a",
+  "subject": "chore: remove leftover",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+  }
+}

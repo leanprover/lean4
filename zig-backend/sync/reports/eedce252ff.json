@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-01",
+  "needs_port": false,
+  "sha": "eedce252ff60b443cb2ac981c5cd235fcd533bfc",
+  "short_sha": "eedce252ff",
+  "subject": "chore: Nix: do not set extra cmake flags like fsanitize for stage 0",
+  "zig_target": {}
+}

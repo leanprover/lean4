@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-02",
+  "needs_port": false,
+  "sha": "158838bf63143573bcc314aedefff520a27d8fe0",
+  "short_sha": "158838bf63",
+  "subject": "Fix local depdir calculation",
+  "zig_target": {}
+}

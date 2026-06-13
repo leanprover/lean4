@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-28",
+  "needs_port": false,
+  "sha": "d4c1432574cc10bc9294b6a3fff887bda5dfe27b",
+  "short_sha": "d4c1432574",
+  "subject": "fix: `tacticSeqBracketed`",
+  "zig_target": {}
+}

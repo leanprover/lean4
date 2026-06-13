@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-05",
+  "needs_port": false,
+  "sha": "3229d5084c918b96cd8e0852f4c01c6d6649ec9c",
+  "short_sha": "3229d5084c",
+  "subject": "fix: properly update deps w/ no branch or dir but no manifest",
+  "zig_target": {}
+}

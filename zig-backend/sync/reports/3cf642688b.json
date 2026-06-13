@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-25",
+  "needs_port": false,
+  "sha": "3cf642688bcf12356292590822a8a372fbe04630",
+  "short_sha": "3cf642688b",
+  "subject": "fix: do not generate equation theorems while processing `dsimp` arguments",
+  "zig_target": {}
+}

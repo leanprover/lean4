@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "d27ef3d3b01fb0e4df4ad2c5521e53853a231fb4",
+  "short_sha": "d27ef3d3b0",
+  "subject": "chore(frontends/lean/builtin_cmds): remove `tactic` framework dependency",
+  "zig_target": {}
+}

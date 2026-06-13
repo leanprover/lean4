@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    }
+  ],
+  "date": "2025-04-27",
+  "needs_port": true,
+  "sha": "26138a536296ef5066f3f230831d817f24cd6764",
+  "short_sha": "26138a5362",
+  "subject": "feat: equality propagation for comm ring procedure in `grind` (#8128)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+  }
+}

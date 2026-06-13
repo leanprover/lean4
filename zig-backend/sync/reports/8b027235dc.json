@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-01",
+  "needs_port": false,
+  "sha": "8b027235dc6a0eaba95130f75d7c528b3afc9f98",
+  "short_sha": "8b027235dc",
+  "subject": "chore: Nix: split new.nix into more meaningful parts",
+  "zig_target": {}
+}

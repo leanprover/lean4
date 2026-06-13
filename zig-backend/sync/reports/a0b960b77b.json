@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-04-08",
+  "needs_port": false,
+  "sha": "a0b960b77bf48a7a4b604efe7155f0dabe59e7da",
+  "short_sha": "a0b960b77b",
+  "subject": "perf: `--profile` can use tracing fast path",
+  "zig_target": {}
+}

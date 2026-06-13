@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-13",
+  "needs_port": false,
+  "sha": "d97e1b91ea3ad39b058d2e830f3aea7e23538fee",
+  "short_sha": "d97e1b91ea",
+  "subject": "chore: drop RPC wrappers for now",
+  "zig_target": {}
+}

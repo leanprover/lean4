@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-27",
+  "needs_port": false,
+  "sha": "5f29cf1568360cebc6f8c70c91c629c3bf813f13",
+  "short_sha": "5f29cf1568",
+  "subject": "fix: update `ref` after macro expansion",
+  "zig_target": {}
+}

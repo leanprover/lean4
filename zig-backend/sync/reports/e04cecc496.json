@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-14",
+  "needs_port": false,
+  "sha": "e04cecc4966108d6c3ea88e29790997649530133",
+  "short_sha": "e04cecc496",
+  "subject": "chore: prepare for bootstrap",
+  "zig_target": {}
+}

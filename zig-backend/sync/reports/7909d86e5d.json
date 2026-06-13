@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-05",
+  "needs_port": false,
+  "sha": "7909d86e5dd6cf20afcc70abe62009d31744960b",
+  "short_sha": "7909d86e5d",
+  "subject": "feat(library/init/lean): Syntax objects with new `SyntaxNodeKind` and `Substring`, and arrays instead of lists",
+  "zig_target": {}
+}

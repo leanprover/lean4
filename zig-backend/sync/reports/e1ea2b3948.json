@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-22",
+  "needs_port": false,
+  "sha": "e1ea2b39481c46941fe48d4f444070c9e0d1ba40",
+  "short_sha": "e1ea2b3948",
+  "subject": "chore(library/init): fix names and add HasEmptyc instances",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-04-07",
+  "needs_port": true,
+  "sha": "7de9cfeac81399f34a529c254444581ed64eb83a",
+  "short_sha": "7de9cfeac8",
+  "subject": "chore: fix `StructInst` and add `mkGroupNode`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

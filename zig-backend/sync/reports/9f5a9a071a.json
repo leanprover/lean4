@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-01-28",
+  "needs_port": true,
+  "sha": "9f5a9a071a7dd8d81c590308f5cb036280beaf06",
+  "short_sha": "9f5a9a071a",
+  "subject": "feat: add `%reset_grind_attrs` (#6824)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

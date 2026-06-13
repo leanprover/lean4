@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-08",
+  "needs_port": false,
+  "sha": "90cab68332328b43c89f61162f3b6c3f8e70d07f",
+  "short_sha": "90cab68332",
+  "subject": "feat: keep going if there are missing alternatives at `induction/cases`",
+  "zig_target": {}
+}

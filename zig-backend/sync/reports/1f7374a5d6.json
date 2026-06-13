@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-10-07",
+  "needs_port": true,
+  "sha": "1f7374a5d6e3086588272a670d7c07098ac8d0c6",
+  "short_sha": "1f7374a5d6",
+  "subject": "fix: RC dec insertion for unused variables (#10689)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

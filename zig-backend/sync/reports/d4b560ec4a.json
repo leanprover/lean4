@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-25",
+  "needs_port": false,
+  "sha": "d4b560ec4ac4431e5439565f91e73eec1ce12c37",
+  "short_sha": "d4b560ec4a",
+  "subject": "test: add `cbv` tests adapted from LNSym (#12694)",
+  "zig_target": {}
+}

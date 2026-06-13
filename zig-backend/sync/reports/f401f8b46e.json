@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-05",
+  "needs_port": false,
+  "sha": "f401f8b46e7482ff0c4f4ff5e4f3a59d24885ec6",
+  "short_sha": "f401f8b46e",
+  "subject": "fix: universe meta-variable support in `grind` (#11099)",
+  "zig_target": {}
+}

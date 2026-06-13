@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-11",
+  "needs_port": false,
+  "sha": "bb47469d1a9debf5e451e1799b8a151b26914d04",
+  "short_sha": "bb47469d1a",
+  "subject": "feat: add simprocs for turning shifts by constants into extracts to bv_decide (#7436)",
+  "zig_target": {}
+}

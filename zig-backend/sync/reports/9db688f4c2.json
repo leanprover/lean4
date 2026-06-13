@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-16",
+  "needs_port": false,
+  "sha": "9db688f4c24324db0cecb63c252e85f2620acda7",
+  "short_sha": "9db688f4c2",
+  "subject": "fix(library/{vm/vm_io,init/io}): fix bugs and tests",
+  "zig_target": {}
+}

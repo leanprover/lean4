@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-10-08",
+  "needs_port": false,
+  "sha": "9f50f44eed0ea3b49490b77c303b7e4f6e54fc2a",
+  "short_sha": "9f50f44eed",
+  "subject": "perf: missing cache at `whnfImp`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-02-22",
+  "needs_port": false,
+  "sha": "e7e3588c973226e85d79ed0f3154cfca79b61c6f",
+  "short_sha": "e7e3588c97",
+  "subject": "fix: lake: use `--service` w/ `cache get <mappings>` (#12640)",
+  "zig_target": {}
+}

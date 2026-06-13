@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean_obj.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.cpp"
+    },
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    }
+  ],
+  "date": "2018-05-16",
+  "needs_port": true,
+  "sha": "8cb7511a91cdd50ed36323f940895f6a611dced5",
+  "short_sha": "8cb7511a91",
+  "subject": "feat(runtime/lean_obj): natural number support",
+  "zig_target": {
+    "src/runtime/lean_obj.cpp": "zig-backend/src/runtime/lean_obj.cpp",
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/System.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System.lean"
+    },
+    {
+      "old_path": "src/Bootstrap/System/Uri.lean",
+      "path": "src/Init/System/Uri.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/System/Uri.lean"
+    }
+  ],
+  "date": "2022-08-29",
+  "needs_port": true,
+  "sha": "850ee173464cf704c34dbd66501dd245db2e7372",
+  "short_sha": "850ee17346",
+  "subject": "chore: move Bootstrap.System.Uri to Init",
+  "zig_target": {
+    "src/Init/System.lean": "zig-backend/src/init/System.lean",
+    "src/Init/System/Uri.lean": "zig-backend/src/init/System/Uri.lean"
+  }
+}

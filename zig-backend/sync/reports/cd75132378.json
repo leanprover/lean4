@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-09",
+  "needs_port": false,
+  "sha": "cd7513237837f3f3a6dfdae72369cee462887bcc",
+  "short_sha": "cd75132378",
+  "subject": "refactor: add `withLocation` combinator",
+  "zig_target": {}
+}

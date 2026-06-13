@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-24",
+  "needs_port": true,
+  "sha": "a1798a2c246af14673b22374ed9212b860f960b6",
+  "short_sha": "a1798a2c24",
+  "subject": "feat(library/compiler/csimp): new joint point placement and preservation algorithm",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

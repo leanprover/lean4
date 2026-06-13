@@ -1,0 +1,24 @@
+{
+  "author": "Lukas Gerlach",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Perm.lean"
+    }
+  ],
+  "date": "2024-11-08",
+  "needs_port": true,
+  "sha": "9b167e20512640afbee5777462fa50ddb2e778d5",
+  "short_sha": "9b167e2051",
+  "subject": "feat: verify keys method on HashMaps (#5866)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Perm.lean": "zig-backend/src/init/Data/List/Perm.lean"
+  }
+}

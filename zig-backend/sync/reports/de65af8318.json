@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2026-02-24",
+  "needs_port": true,
+  "sha": "de65af831856ccc827ee7e8ebafb1ee6e1745a00",
+  "short_sha": "de65af8318",
+  "subject": "feat: overriding binder kinds of parameters in `inductive` constructors (#12603)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

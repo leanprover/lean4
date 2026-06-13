@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-10-10",
+  "needs_port": false,
+  "sha": "fdc06b39cd0f5afd18f1961d069bc560c3dc5b8f",
+  "short_sha": "fdc06b39cd",
+  "subject": "test(tests/lean/parser1): fix reprint check",
+  "zig_target": {}
+}

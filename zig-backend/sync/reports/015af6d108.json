@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Bitwise/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+    }
+  ],
+  "date": "2024-03-04",
+  "needs_port": true,
+  "sha": "015af6d108245cf5f6be9c297999c2b4143d1555",
+  "short_sha": "015af6d108",
+  "subject": "chore: use match_expr in omega (#3577)",
+  "zig_target": {
+    "src/Init/Data/Nat/Bitwise/Lemmas.lean": "zig-backend/src/init/Data/Nat/Bitwise/Lemmas.lean"
+  }
+}

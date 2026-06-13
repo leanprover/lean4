@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-01-10",
+  "needs_port": false,
+  "sha": "4e16eb04766921c3fa69d1650009a031335a7106",
+  "short_sha": "4e16eb0476",
+  "subject": "chore: fix typo from #3148 in pr-release bot (#3154)",
+  "zig_target": {}
+}

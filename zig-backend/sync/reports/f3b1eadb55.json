@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-10-26",
+  "needs_port": false,
+  "sha": "f3b1eadb55e883dc1f5f0e8767c25ab4278dd8dd",
+  "short_sha": "f3b1eadb55",
+  "subject": "feat: copy docstring when copying parent fields",
+  "zig_target": {}
+}

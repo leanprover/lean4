@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    },
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2020-11-10",
+  "needs_port": true,
+  "sha": "7e510206852bd02fdbe334e3148db470ff3cdd39",
+  "short_sha": "7e51020685",
+  "subject": "chore: move `SizeOf` to its own file",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean",
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

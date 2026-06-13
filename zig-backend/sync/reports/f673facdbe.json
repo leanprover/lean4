@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-21",
+  "needs_port": false,
+  "sha": "f673facdbe3818cd65d62d88e6c5cc98c1cbd715",
+  "short_sha": "f673facdbe",
+  "subject": "feat: add BV_EXTRACT_ADD to bv_decide (#7615)",
+  "zig_target": {}
+}

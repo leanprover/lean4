@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2021-01-30",
+  "needs_port": true,
+  "sha": "1ca916d9b4835db59007fdcf59a0e79111b603f9",
+  "short_sha": "1ca916d9b4",
+  "subject": "fix: assertion violation",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-25",
+  "needs_port": false,
+  "sha": "e22bffa94f942f21bce3783ad16673c4ed19959e",
+  "short_sha": "e22bffa94f",
+  "subject": "refactor: move `is_structure_like` to `inductive.cpp`",
+  "zig_target": {}
+}

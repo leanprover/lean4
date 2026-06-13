@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-12",
+  "needs_port": false,
+  "sha": "a199f35330da1e74373786690d5739cb9d5f054d",
+  "short_sha": "a199f35330",
+  "subject": "fix: leanpkg: do not rely on PATH",
+  "zig_target": {}
+}

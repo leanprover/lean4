@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-05",
+  "needs_port": false,
+  "sha": "6ebe573c197acc541f66e3006a6275727ef627c5",
+  "short_sha": "6ebe573c19",
+  "subject": "fix: kernel: move level parameter count and thm-is-prop checks for robustness (#12817)",
+  "zig_target": {}
+}

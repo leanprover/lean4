@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-11-14",
+  "needs_port": false,
+  "sha": "c599d786395bd6e7d6d354e713f7dea25cffae9b",
+  "short_sha": "c599d78639",
+  "subject": "feat(library/init/io): implement `io.iterate` in Lean",
+  "zig_target": {}
+}

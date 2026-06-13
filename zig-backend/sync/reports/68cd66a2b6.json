@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-03",
+  "needs_port": false,
+  "sha": "68cd66a2b644ae29e8f782ec8c6d29898f911f1d",
+  "short_sha": "68cd66a2b6",
+  "subject": "feat: elaborate visibility modifier at initialization commands",
+  "zig_target": {}
+}

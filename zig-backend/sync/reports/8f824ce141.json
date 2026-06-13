@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-13",
+  "needs_port": false,
+  "sha": "8f824ce14133230a7ec7cbcec6bc4babd68cb06b",
+  "short_sha": "8f824ce141",
+  "subject": "fix: KeyedDeclsAttribute: preserve scopedness",
+  "zig_target": {}
+}

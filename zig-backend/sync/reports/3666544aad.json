@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-01-27",
+  "needs_port": false,
+  "sha": "3666544aad6938bf00e7c548feb5231a66d7e7a3",
+  "short_sha": "3666544aad",
+  "subject": "refactor: eliminate `$/lean/ileanHeaderInfo` (#12107)",
+  "zig_target": {}
+}

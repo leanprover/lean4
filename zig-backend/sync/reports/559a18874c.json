@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "559a18874c8714bec34087340546bc1dac9764de",
+  "short_sha": "559a18874c",
+  "subject": "chore: simprocs for Eq",
+  "zig_target": {}
+}

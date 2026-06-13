@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-08-14",
+  "needs_port": false,
+  "sha": "37a12b635b61eba70ff2be9a29422ef3daaa6fc9",
+  "short_sha": "37a12b635b",
+  "subject": "feat: add declId hover for syntax/notation/mixfix",
+  "zig_target": {}
+}

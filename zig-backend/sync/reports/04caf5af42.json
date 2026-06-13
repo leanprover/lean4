@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-01",
+  "needs_port": false,
+  "sha": "04caf5af42ab0633e437e14443e81c275e7eb4a0",
+  "short_sha": "04caf5af42",
+  "subject": "chore(library/derive_attribute): remove unnecessary `#include`s",
+  "zig_target": {}
+}

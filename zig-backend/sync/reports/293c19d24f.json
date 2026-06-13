@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-31",
+  "needs_port": false,
+  "sha": "293c19d24ffad3a403a1689d6bcec48e0c472701",
+  "short_sha": "293c19d24f",
+  "subject": "feat: include Lean version in Lake usage header",
+  "zig_target": {}
+}

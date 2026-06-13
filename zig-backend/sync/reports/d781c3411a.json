@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-15",
+  "needs_port": false,
+  "sha": "d781c3411aed264425b9b201655b3efdd849e3f3",
+  "short_sha": "d781c3411a",
+  "subject": "feat: add `getLeanSysroot` and `getLeanLibDir`",
+  "zig_target": {}
+}

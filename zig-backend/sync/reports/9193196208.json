@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    }
+  ],
+  "date": "2024-09-19",
+  "needs_port": true,
+  "sha": "919319620897598512e06ef5232570f9200f01ec",
+  "short_sha": "9193196208",
+  "subject": "feat: List.fold / attach lemmas (#5392)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean"
+  }
+}

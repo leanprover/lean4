@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-10-11",
+  "needs_port": true,
+  "sha": "39e8499c7b47a8e6b57ca746bb42855efe117e6e",
+  "short_sha": "39e8499c7b",
+  "subject": "fix: new offset at `param_borrow`",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

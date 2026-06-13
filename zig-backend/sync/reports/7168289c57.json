@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "7168289c57053ae4dcf6ac0517afc38518561d36",
+  "short_sha": "7168289c57",
+  "subject": "refactor: make elabInvariants resilient to goalDotAlt/goalCaseAlt renames (#13137)",
+  "zig_target": {}
+}

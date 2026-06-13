@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-12-01",
+  "needs_port": false,
+  "sha": "ea5b55b8f29fb85fd8a9df10a7a93f869ceb358b",
+  "short_sha": "ea5b55b8f2",
+  "subject": "doc: remove Nix docs",
+  "zig_target": {}
+}

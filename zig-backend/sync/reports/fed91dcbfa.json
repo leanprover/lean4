@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic.lean"
+    }
+  ],
+  "date": "2020-01-18",
+  "needs_port": true,
+  "sha": "fed91dcbfaa14fc849ef5f6f59e6acfb19da162d",
+  "short_sha": "fed91dcbfa",
+  "subject": "chore: add line break between goals",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic.lean": "zig-backend/src/init/Lean/Elab/Tactic.lean"
+  }
+}

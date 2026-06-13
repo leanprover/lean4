@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-06-19",
+  "needs_port": false,
+  "sha": "f416143fbc7a27ac2778118e6423b7604f9a2221",
+  "short_sha": "f416143fbc",
+  "subject": "feat: improve error behavior of `end` command (#8387)",
+  "zig_target": {}
+}

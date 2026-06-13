@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-16",
+  "needs_port": false,
+  "sha": "aac711cf9226b88e7545d2484e00d6d5b66135c4",
+  "short_sha": "aac711cf92",
+  "subject": "feat: inlining statistics",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-04",
+  "needs_port": false,
+  "sha": "88fc0b2503348ceb2a7cba38ef9f0e65e4376483",
+  "short_sha": "88fc0b2503",
+  "subject": "fix: isAssigned-like functions should set `usedAssignment`",
+  "zig_target": {}
+}

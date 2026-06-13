@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-02-25",
+  "needs_port": false,
+  "sha": "bd0c6a42c89ad7dd650807f3a83b7bda3760da86",
+  "short_sha": "bd0c6a42c8",
+  "subject": "fix: copied 11940 fix for structure command (#12680)",
+  "zig_target": {}
+}

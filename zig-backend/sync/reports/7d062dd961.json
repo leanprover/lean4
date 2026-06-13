@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-15",
+  "needs_port": false,
+  "sha": "7d062dd961ae63095ab4ae56137146681cf0ee3a",
+  "short_sha": "7d062dd961",
+  "subject": "feat(frontends/lean): add new \"empty/no match\" syntax to old parser",
+  "zig_target": {}
+}

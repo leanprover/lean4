@@ -1,0 +1,18 @@
+{
+  "author": "Siddharth",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-11-11",
+  "needs_port": true,
+  "sha": "722cb73019f1166b31d40dde2c6fd89afe9d8289",
+  "short_sha": "722cb73019",
+  "subject": "feat: BitVec normalization rule for udiv by twoPow (#6029)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

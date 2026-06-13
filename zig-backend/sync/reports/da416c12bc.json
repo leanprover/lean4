@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-08",
+  "needs_port": false,
+  "sha": "da416c12bcf8b12fb4d34bbff4a137f8970d4a66",
+  "short_sha": "da416c12bc",
+  "subject": "chore: remove stray binary file",
+  "zig_target": {}
+}

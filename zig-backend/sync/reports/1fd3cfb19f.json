@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-11",
+  "needs_port": false,
+  "sha": "1fd3cfb19fef81cee3d06b1f975673c0df5c4607",
+  "short_sha": "1fd3cfb19f",
+  "subject": "feat: pretty print `let_fun`",
+  "zig_target": {}
+}

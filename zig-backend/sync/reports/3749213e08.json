@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-21",
+  "needs_port": false,
+  "sha": "3749213e08285d3a139da6cf04b30b5e38ed6179",
+  "short_sha": "3749213e08",
+  "subject": "fix: missing `whnf` at `Unify.unify`",
+  "zig_target": {}
+}

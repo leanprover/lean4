@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Lemmas/Splits.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+    }
+  ],
+  "date": "2026-02-19",
+  "needs_port": true,
+  "sha": "9aeec35a6a360b5a7f50082d7042ca38d1e7b10e",
+  "short_sha": "9aeec35a6a",
+  "subject": "feat: MPL spec lemma for loops over strings (#12596)",
+  "zig_target": {
+    "src/Init/Data/String/Lemmas/Splits.lean": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+  }
+}

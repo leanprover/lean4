@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-04-13",
+  "needs_port": false,
+  "sha": "7c9519e60c2ad4c1da86162e8f2efc5c017edbe3",
+  "short_sha": "7c9519e60c",
+  "subject": "fix: make sure `all_goals` restores state on failure (#7950)",
+  "zig_target": {}
+}

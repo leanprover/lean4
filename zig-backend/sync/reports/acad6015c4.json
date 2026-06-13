@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2020-04-03",
+  "needs_port": true,
+  "sha": "acad6015c41c6a88f30281e68888ddf0ee930d67",
+  "short_sha": "acad6015c4",
+  "subject": "chore: add new primitives to `object.h`",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

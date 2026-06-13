@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.h"
+    }
+  ],
+  "date": "2019-06-29",
+  "needs_port": true,
+  "sha": "4648be64517a5340a152b478f578ce19fe6b6ad8",
+  "short_sha": "4648be6451",
+  "subject": "feat(runtime/alloc): save memory using a smaller LEAN_OBJECT_SIZE_DELTA",
+  "zig_target": {
+    "src/runtime/alloc.h": "zig-backend/src/runtime/alloc.h"
+  }
+}

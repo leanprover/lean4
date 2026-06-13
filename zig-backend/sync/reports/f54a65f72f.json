@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-29",
+  "needs_port": false,
+  "sha": "f54a65f72f67eb32b65d222033fdc51f200aafa0",
+  "short_sha": "f54a65f72f",
+  "subject": "feat: nested proof propagation in `grind` (#8541)",
+  "zig_target": {}
+}

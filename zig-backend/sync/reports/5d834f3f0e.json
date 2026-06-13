@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2022-09-01",
+  "needs_port": false,
+  "sha": "5d834f3f0e1e2962b7130adcd63d2297be99dba0",
+  "short_sha": "5d834f3f0e",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

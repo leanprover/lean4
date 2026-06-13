@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-17",
+  "needs_port": false,
+  "sha": "a5b9306e04146169efc70d17df390a3bfd197ff2",
+  "short_sha": "a5b9306e04",
+  "subject": "fix: deep recursion at `contradiction`",
+  "zig_target": {}
+}

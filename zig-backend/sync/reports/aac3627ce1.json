@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-24",
+  "needs_port": false,
+  "sha": "aac3627ce10891f738eb8fbb5db3b69bf9b33b15",
+  "short_sha": "aac3627ce1",
+  "subject": "fix(frontends/lean/elaborator): restore better field notation error message",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-02-08",
+  "needs_port": false,
+  "sha": "ad80c69cba2c660b4a674727656fde2078c4e4ff",
+  "short_sha": "ad80c69cba",
+  "subject": "chore: CI: add RELEASES.md diff to nightly description",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2018-10-16",
+  "needs_port": true,
+  "sha": "2a4dc2cb5b4bbdc6a75a496b0f88484aabb1e26e",
+  "short_sha": "2a4dc2cb5b",
+  "subject": "fix(library/compiler/specialize): incorrect abstraction order",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

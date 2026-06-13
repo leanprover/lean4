@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-22",
+  "needs_port": false,
+  "sha": "20c857147c2496a806b3390012f99e08dfaa1741",
+  "short_sha": "20c857147c",
+  "subject": "feat: unnecessary termination_by clauses cause warnings, not errors (#4809)",
+  "zig_target": {}
+}

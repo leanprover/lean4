@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "eed0fb6635cf7543842e88f1c7aacfe241e28a1f",
+  "short_sha": "eed0fb6635",
+  "subject": "feat: special support for 'fun x => x'",
+  "zig_target": {}
+}

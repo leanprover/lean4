@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-22",
+  "needs_port": false,
+  "sha": "825c952f58b992a3ddb54f2b5225608314591259",
+  "short_sha": "825c952f58",
+  "subject": "chore(library/init/lean/scopes): add TODO",
+  "zig_target": {}
+}

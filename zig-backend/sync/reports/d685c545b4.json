@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-11-22",
+  "needs_port": false,
+  "sha": "d685c545b46b5d026475789d77be031bfb64f88d",
+  "short_sha": "d685c545b4",
+  "subject": "feat: eta for structures",
+  "zig_target": {}
+}

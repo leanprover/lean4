@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-08",
+  "needs_port": false,
+  "sha": "231b20c4fb32ca3517a98d3e9893c4370e561023",
+  "short_sha": "231b20c4fb",
+  "subject": "feat: add syntax parsers for `withPosition` and `checkCol`",
+  "zig_target": {}
+}

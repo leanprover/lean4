@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "8d854900fd72849e9c7bc2fda97719090c495005",
+  "short_sha": "8d854900fd",
+  "subject": "chore: replace `constant` with `opaque`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2018-11-15",
+  "needs_port": true,
+  "sha": "d0e96ee600b07851acd2535daf3fb9e96b39f3f9",
+  "short_sha": "d0e96ee600",
+  "subject": "feat(runtime/object): missing `int` builtins",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

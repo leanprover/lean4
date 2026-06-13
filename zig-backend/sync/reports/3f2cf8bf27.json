@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-07-02",
+  "needs_port": false,
+  "sha": "3f2cf8bf276deaebfefc9a5c21ee67d8e7cefff2",
+  "short_sha": "3f2cf8bf27",
+  "subject": "fix: set default value of `pp.instantiateMVars` to true and make the option be effective (#4558)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2021-02-13",
+  "needs_port": true,
+  "sha": "1a4eaa2418f5d387f6ef6700127cf87454b2dec1",
+  "short_sha": "1a4eaa2418",
+  "subject": "chore: arguments occurring in the lhs should be marked as implicit",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-09",
+  "needs_port": false,
+  "sha": "e9e46f4199990357654d76837f659975d13c0ee9",
+  "short_sha": "e9e46f4199",
+  "subject": "chore: fix two semantic merge errors in SymM mvcgen (#12845)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-05-05",
+  "needs_port": false,
+  "sha": "77b9e510fc5986278adf1b4fbfaa5e5eadd599ed",
+  "short_sha": "77b9e510fc",
+  "subject": "fix: `apply?` produces a non-synthetic sorry (#8231)",
+  "zig_target": {}
+}

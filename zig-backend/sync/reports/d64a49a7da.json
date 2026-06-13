@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-22",
+  "needs_port": false,
+  "sha": "d64a49a7da341cbc27b772fcb23bc204ecf3cc4a",
+  "short_sha": "d64a49a7da",
+  "subject": "feat(library/init/lean/declaration): use `task` at `theorem` and `definition` declaration objects",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-01-11",
+  "needs_port": true,
+  "sha": "5119528d202c174fe340200a4b96d9f8761bdb26",
+  "short_sha": "5119528d20",
+  "subject": "feat: improve case-split heuristic used in `grind` (#6609)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

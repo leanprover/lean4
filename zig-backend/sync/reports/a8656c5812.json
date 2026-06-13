@@ -1,0 +1,24 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2024-12-15",
+  "needs_port": true,
+  "sha": "a8656c58128f2e6f11c09b47025baa1ad406333c",
+  "short_sha": "a8656c5812",
+  "subject": "feat: generalize `panic` to `Sort` (#6333)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

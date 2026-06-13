@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-18",
+  "needs_port": false,
+  "sha": "baeea6997259b1175cc759987a83b66e4d3e25d0",
+  "short_sha": "baeea69972",
+  "subject": "chore: Nix: basic GitHub Actions setup",
+  "zig_target": {}
+}

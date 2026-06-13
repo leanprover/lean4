@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-04-23",
+  "needs_port": true,
+  "sha": "b2190da4687d461a90b0555c42908506aad823a6",
+  "short_sha": "b2190da468",
+  "subject": "feat: add `Macro.resolveGlobalName` and `Macro.resolveNamespace?`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

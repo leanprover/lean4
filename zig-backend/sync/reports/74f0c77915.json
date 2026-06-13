@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-25",
+  "needs_port": false,
+  "sha": "74f0c77915a125fcae180f83fe688dd7164b1e01",
+  "short_sha": "74f0c77915",
+  "subject": "feat(library/init/lean/elaborator): implement elaborator strategy attributes in Lean",
+  "zig_target": {}
+}

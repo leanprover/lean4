@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-02",
+  "needs_port": false,
+  "sha": "a8d09dad1bfd7eab0c39b1e72a5924065d618b58",
+  "short_sha": "a8d09dad1b",
+  "subject": "fix: proof canonicalizer in `grind` (#6499)",
+  "zig_target": {}
+}

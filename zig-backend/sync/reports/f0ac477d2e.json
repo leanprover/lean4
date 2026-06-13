@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2021-01-01",
+  "needs_port": true,
+  "sha": "f0ac477d2ede7c83fdea588dcfb2ca6336097de6",
+  "short_sha": "f0ac477d2e",
+  "subject": "feat: add sanity checks",
+  "zig_target": {
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

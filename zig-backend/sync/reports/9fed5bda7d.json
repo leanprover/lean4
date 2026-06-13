@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Log2.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Log2.lean"
+    }
+  ],
+  "date": "2022-03-19",
+  "needs_port": true,
+  "sha": "9fed5bda7d2048a5bd293bb660b5deb03ad1f33a",
+  "short_sha": "9fed5bda7d",
+  "subject": "chore: remove workarounds",
+  "zig_target": {
+    "src/Init/Data/Nat/Div.lean": "zig-backend/src/init/Data/Nat/Div.lean",
+    "src/Init/Data/Nat/Log2.lean": "zig-backend/src/init/Data/Nat/Log2.lean"
+  }
+}

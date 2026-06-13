@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-08-01",
+  "needs_port": false,
+  "sha": "2abfd7d90ba2598d231e7763f0578ff900dd9b52",
+  "short_sha": "2abfd7d90b",
+  "subject": "chore(shell.nix): use clang 7 by default (latest release in stable Nix)",
+  "zig_target": {}
+}

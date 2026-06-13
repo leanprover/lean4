@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-20",
+  "needs_port": false,
+  "sha": "29975edb0e929ffb0153c0c1be8dacee9ad06229",
+  "short_sha": "29975edb0e",
+  "subject": "ci: use matrix OS for build artifact name",
+  "zig_target": {}
+}

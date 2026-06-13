@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "7e853621eb3d5cbd4d8178884d95b126f803a077",
+  "short_sha": "7e853621eb",
+  "subject": "feat: CI: build linux_aarch64",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-21",
+  "needs_port": false,
+  "sha": "3fb49fa7654c9117311e0e1e7293247534ac687c",
+  "short_sha": "3fb49fa765",
+  "subject": "chore: remove broken assertion",
+  "zig_target": {}
+}

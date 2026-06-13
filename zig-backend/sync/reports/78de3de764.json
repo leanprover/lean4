@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-27",
+  "needs_port": false,
+  "sha": "78de3de764510994ce43c792874b047a62750927",
+  "short_sha": "78de3de764",
+  "subject": "chore(script/lib_perf): adapt to change in `lean` command line behavior",
+  "zig_target": {}
+}

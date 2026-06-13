@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/FloatLetIn.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean"
+    }
+  ],
+  "date": "2025-06-15",
+  "needs_port": true,
+  "sha": "db414957a0402da9cd44773d37186b1c9220d359",
+  "short_sha": "db414957a0",
+  "subject": "chore: fix if/else indentation (#8803)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FloatLetIn.lean": "zig-backend/src/lean/compiler/lcnf/FloatLetIn.lean"
+  }
+}

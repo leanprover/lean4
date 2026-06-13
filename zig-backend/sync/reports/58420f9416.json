@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-25",
+  "needs_port": false,
+  "sha": "58420f94169023dd90fdf682353efa44e78c7f3a",
+  "short_sha": "58420f9416",
+  "subject": "refactor: simplify `AlphaShareCommon.State` (#11797)",
+  "zig_target": {}
+}

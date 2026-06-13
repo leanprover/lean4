@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-03-14",
+  "needs_port": true,
+  "sha": "65441a79cab1fe205ed5b4dba4786ea5f8e69808",
+  "short_sha": "65441a79ca",
+  "subject": "fix(library/compiler/llnf): neutral element",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

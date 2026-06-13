@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-20",
+  "needs_port": false,
+  "sha": "e99036251c8b1842c4afed920f0ac8a88faef3ce",
+  "short_sha": "e99036251c",
+  "subject": "feat(library/init/meta/expr): remove more occurrences of local_const",
+  "zig_target": {}
+}

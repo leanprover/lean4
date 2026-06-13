@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-10-05",
+  "needs_port": false,
+  "sha": "e420d101f9a3e6bfa4c9e4696aedae59c4761665",
+  "short_sha": "e420d101f9",
+  "subject": "feat: request cancellation",
+  "zig_target": {}
+}

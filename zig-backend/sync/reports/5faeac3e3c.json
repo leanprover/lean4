@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "5faeac3e3c778d988122c8e0144d7118b9a995ee",
+  "short_sha": "5faeac3e3c",
+  "subject": "chore(library/init/Lean/Parser/basic): field `.FileMap` => `.fileMap`",
+  "zig_target": {}
+}

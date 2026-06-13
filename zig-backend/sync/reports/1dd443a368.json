@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-08-24",
+  "needs_port": false,
+  "sha": "1dd443a368db461e218147d06e006251342d4159",
+  "short_sha": "1dd443a368",
+  "subject": "doc: improve doc-string for Meta.getConst?",
+  "zig_target": {}
+}

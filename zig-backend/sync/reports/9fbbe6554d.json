@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2026-01-20",
+  "needs_port": true,
+  "sha": "9fbbe6554d8aab46cd42a98353b664b63b019b92",
+  "short_sha": "9fbbe6554d",
+  "subject": "fix: make first token detection work in modules (#12047)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

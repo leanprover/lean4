@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-06",
+  "needs_port": false,
+  "sha": "f4fbf923136dd768cd277c1fe5be173161bd24d8",
+  "short_sha": "f4fbf92313",
+  "subject": "fix: make `privateToUserNameAux` more robust",
+  "zig_target": {}
+}

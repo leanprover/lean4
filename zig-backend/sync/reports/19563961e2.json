@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-03",
+  "needs_port": false,
+  "sha": "19563961e2ba8885778153d78a69c3766ff22812",
+  "short_sha": "19563961e2",
+  "subject": "feat: more whitespace in term parsers",
+  "zig_target": {}
+}

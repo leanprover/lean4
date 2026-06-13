@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2024-10-30",
+  "needs_port": true,
+  "sha": "0d126185394a852a786758529b50744f9e8ee297",
+  "short_sha": "0d12618539",
+  "subject": "fix: declareSimpLikeTactic macro to use mkSynthetic (#5838)",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-07-06",
+  "needs_port": false,
+  "sha": "55d09a39b431d2f2ba948ba1cd76388a9c68a221",
+  "short_sha": "55d09a39b4",
+  "subject": "fix: move Std from libleanshared to much smaller libInit_shared (#4661)",
+  "zig_target": {}
+}

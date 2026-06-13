@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "69c8f13bf21a4a86000ca9f3f7288fad579de45b",
+  "short_sha": "69c8f13bf2",
+  "subject": "feat: proof construction for `grind order` (#10590)",
+  "zig_target": {}
+}

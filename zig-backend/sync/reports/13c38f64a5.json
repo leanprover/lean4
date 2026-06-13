@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2025-10-07",
+  "needs_port": false,
+  "sha": "13c38f64a502e85242ed792c28dc667211e94a23",
+  "short_sha": "13c38f64a5",
+  "subject": "chore: CI: bump softprops/action-gh-release from 2.3.2 to 2.3.3 (#10646)",
+  "zig_target": {}
+}

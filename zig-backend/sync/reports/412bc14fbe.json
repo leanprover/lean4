@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-22",
+  "needs_port": false,
+  "sha": "412bc14fbeb4a2df8fbb120e0008e3e718986cd1",
+  "short_sha": "412bc14fbe",
+  "subject": "doc: add well-typed interpreter as an example",
+  "zig_target": {}
+}

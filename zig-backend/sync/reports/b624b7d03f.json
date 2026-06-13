@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2020-08-31",
+  "needs_port": true,
+  "sha": "b624b7d03f85d81abec9c42008b6fddb3cec0c4c",
+  "short_sha": "b624b7d03f",
+  "subject": "chore: remove obsolete header",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

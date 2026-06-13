@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-25",
+  "needs_port": false,
+  "sha": "05022cc80b7f061df1d1f7ca6d08d167a7b328ca",
+  "short_sha": "05022cc80b",
+  "subject": "fix: disable implicit lambda insertion at `_`, `?h`, and `by ...`",
+  "zig_target": {}
+}

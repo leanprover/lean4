@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-03",
+  "needs_port": false,
+  "sha": "9a841125e75eab3c61e0b6affed684692312b668",
+  "short_sha": "9a841125e7",
+  "subject": "chore: add HACK banner to isNonTrivialRegular transparency check (#12769)",
+  "zig_target": {}
+}

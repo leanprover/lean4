@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-01-23",
+  "needs_port": false,
+  "sha": "56733b953eee491cbd1a95018bdb6a76506f5e61",
+  "short_sha": "56733b953e",
+  "subject": "refactor: TerminationArgument \u2192 TerminationMeasure (#6727)",
+  "zig_target": {}
+}

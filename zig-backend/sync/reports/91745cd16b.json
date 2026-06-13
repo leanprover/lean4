@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "91745cd16b826d35d4203715af22bb915f835451",
+  "short_sha": "91745cd16b",
+  "subject": "fix(library/init/lean): remove hard coded file",
+  "zig_target": {}
+}

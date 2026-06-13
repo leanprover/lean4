@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2025-08-15",
+  "needs_port": true,
+  "sha": "415a58f9fbcc18908ace03ad660ddb1c65ccdc4d",
+  "short_sha": "415a58f9fb",
+  "subject": "chore: warn on `[expose]` on private definition (#9917)",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

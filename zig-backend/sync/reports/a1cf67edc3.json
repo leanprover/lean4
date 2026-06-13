@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-08-19",
+  "needs_port": false,
+  "sha": "a1cf67edc333175e9c116301bb50eb6ba2d76943",
+  "short_sha": "a1cf67edc3",
+  "subject": "feat: parser alias for `visibility` (#9974)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-18",
+  "needs_port": false,
+  "sha": "e3afe0278621038f804daa3ba4803779f69022f8",
+  "short_sha": "e3afe02786",
+  "subject": "feat(library/init/lean/parser/declaration): doc comments and axioms",
+  "zig_target": {}
+}

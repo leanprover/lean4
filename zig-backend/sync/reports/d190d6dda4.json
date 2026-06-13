@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-20",
+  "needs_port": false,
+  "sha": "d190d6dda40354a6228f08b584591c4674af406a",
+  "short_sha": "d190d6dda4",
+  "subject": "fix: use default reducibility when proving equation theorems for definition",
+  "zig_target": {}
+}

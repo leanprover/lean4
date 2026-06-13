@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-28",
+  "needs_port": false,
+  "sha": "881238cc0d45522e72fb76e197f1e92cfa5f3c0f",
+  "short_sha": "881238cc0d",
+  "subject": "chore: append licenses of LLVM & glibc",
+  "zig_target": {}
+}

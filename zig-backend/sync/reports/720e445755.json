@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-23",
+  "needs_port": false,
+  "sha": "720e445755809e5d789b504b71b008369205f916",
+  "short_sha": "720e445755",
+  "subject": "chore: Nix: update inputs",
+  "zig_target": {}
+}

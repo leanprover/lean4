@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-01-31",
+  "needs_port": true,
+  "sha": "5900f39638b24312bb6c32703a565c3e0b7b0644",
+  "short_sha": "5900f39638",
+  "subject": "feat: add `[grind intro]` attribute (#6888)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2024-02-21",
+  "needs_port": false,
+  "sha": "6e821de11abd3c16dbbeb15cbfe315e2abbef10a",
+  "short_sha": "6e821de11a",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

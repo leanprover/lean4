@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-31",
+  "needs_port": false,
+  "sha": "6652d2665da1505f37beb66a6c100f0bcd931a7f",
+  "short_sha": "6652d2665d",
+  "subject": "chore: remove old comment",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-12",
+  "needs_port": false,
+  "sha": "5e4c90c3d1cfe95ef8094e114ac8d42676d65966",
+  "short_sha": "5e4c90c3d1",
+  "subject": "feat: bitvec literal internalization in `grind` (#11638)",
+  "zig_target": {}
+}

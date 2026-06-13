@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2018-09-10",
+  "needs_port": true,
+  "sha": "716de48078850b840d6eecfea9be5572281f8056",
+  "short_sha": "716de48078",
+  "subject": "chore(library/module): remove `loaded_module.m_env`",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

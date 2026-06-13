@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-18",
+  "needs_port": false,
+  "sha": "bb2df569bcc4caeee991a54ea696c026b0518a51",
+  "short_sha": "bb2df569bc",
+  "subject": "fix: bug at `declare_config_elab`",
+  "zig_target": {}
+}

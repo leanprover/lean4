@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/AC.lean"
+    }
+  ],
+  "date": "2022-03-28",
+  "needs_port": true,
+  "sha": "2a37f53fca5ab1739cf3422606323bcca5f2f86a",
+  "short_sha": "2a37f53fca",
+  "subject": "chore: fix core library",
+  "zig_target": {
+    "src/Init/Data/AC.lean": "zig-backend/src/init/Data/AC.lean"
+  }
+}

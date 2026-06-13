@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-21",
+  "needs_port": false,
+  "sha": "d6709eb1576c5d40fc80462637dc041f970e4d9f",
+  "short_sha": "d6709eb157",
+  "subject": "feat: add `[grind_cases]` attribute",
+  "zig_target": {}
+}

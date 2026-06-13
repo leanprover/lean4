@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/HashMap/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/HashMap/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/PersistentArray/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/PersistentArray/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/PersistentHashMap/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/PersistentHashMap/Basic.lean"
+    }
+  ],
+  "date": "2019-12-15",
+  "needs_port": true,
+  "sha": "d551ff653d9046fe9970b238751ac259db1b2de1",
+  "short_sha": "d551ff653d",
+  "subject": "feat: add `getOp` for `a[i]` notation",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/HashMap/Basic.lean": "zig-backend/src/init/Data/HashMap/Basic.lean",
+    "src/Init/Data/PersistentArray/Basic.lean": "zig-backend/src/init/Data/PersistentArray/Basic.lean",
+    "src/Init/Data/PersistentHashMap/Basic.lean": "zig-backend/src/init/Data/PersistentHashMap/Basic.lean"
+  }
+}

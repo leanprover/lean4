@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-15",
+  "needs_port": false,
+  "sha": "7d7c6d8be5559be10f979598365214e7ee30055c",
+  "short_sha": "7d7c6d8be5",
+  "subject": "feat: add `CompletionItemKind`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2021-12-10",
+  "needs_port": false,
+  "sha": "efa2ded2249ed53ac8b96d3a70cf5e8329d53a45",
+  "short_sha": "efa2ded224",
+  "subject": "chore: bump server version to 0.1.1",
+  "zig_target": {}
+}

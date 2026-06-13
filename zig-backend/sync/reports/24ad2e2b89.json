@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-26",
+  "needs_port": false,
+  "sha": "24ad2e2b8958169272d2280b9e4fa483c4de4277",
+  "short_sha": "24ad2e2b89",
+  "subject": "test(tests/playground/binarytrees.lean): optimize",
+  "zig_target": {}
+}

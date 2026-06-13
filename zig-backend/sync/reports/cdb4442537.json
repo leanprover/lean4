@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-20",
+  "needs_port": false,
+  "sha": "cdb444253744883cbca7e2cd01a82609a330b6c5",
+  "short_sha": "cdb4442537",
+  "subject": "fix: update bump branch toolchain to nightly for all repos (#12586)",
+  "zig_target": {}
+}

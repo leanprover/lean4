@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-31",
+  "needs_port": false,
+  "sha": "2418d851fcc4e93d61bb05ff091c5d833e9b5ae8",
+  "short_sha": "2418d851fc",
+  "subject": "feat: declarative module parser",
+  "zig_target": {}
+}

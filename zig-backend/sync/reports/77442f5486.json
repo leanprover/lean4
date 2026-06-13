@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-07-08",
+  "needs_port": false,
+  "sha": "77442f5486d86c6a58968824de9ca81a85f53f02",
+  "short_sha": "77442f5486",
+  "subject": "chore: revert DefEq changes until it has passed proper review (#9254)",
+  "zig_target": {}
+}

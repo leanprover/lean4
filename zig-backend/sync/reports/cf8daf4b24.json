@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-24",
+  "needs_port": false,
+  "sha": "cf8daf4b24674fa072820b5019824938843fd8dd",
+  "short_sha": "cf8daf4b24",
+  "subject": "feat(library/init/lean/elaborator): process header",
+  "zig_target": {}
+}

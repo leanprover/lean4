@@ -1,0 +1,10 @@
+{
+  "author": "Alok Singh",
+  "backend_changes": [],
+  "date": "2026-01-08",
+  "needs_port": false,
+  "sha": "821218aabd16db66c17cda0de17cf64c179869b5",
+  "short_sha": "821218aabd",
+  "subject": "style: fix typos in Lake docstrings (#11867)",
+  "zig_target": {}
+}

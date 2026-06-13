@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-23",
+  "needs_port": false,
+  "sha": "521311292deedba7ba14be6d84f2a9ecea1c2dbf",
+  "short_sha": "521311292d",
+  "subject": "chore: bump Lean version",
+  "zig_target": {}
+}

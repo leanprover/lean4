@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-21",
+  "needs_port": false,
+  "sha": "9550db0e3b41b3634884f3b59a66f73fddfe6d60",
+  "short_sha": "9550db0e3b",
+  "subject": "chore: remove `fvarIdToLemmaId`",
+  "zig_target": {}
+}

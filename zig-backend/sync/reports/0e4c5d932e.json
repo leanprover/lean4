@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-29",
+  "needs_port": false,
+  "sha": "0e4c5d932ec535c618b54a40fb81b451e5611d5f",
+  "short_sha": "0e4c5d932e",
+  "subject": "feat(library/init/core): missing `@[macro_inline]`",
+  "zig_target": {}
+}

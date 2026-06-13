@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-05-02",
+  "needs_port": false,
+  "sha": "b470eb522bfd68ca96938c23f6a1bce79da8a99f",
+  "short_sha": "b470eb522b",
+  "subject": "refactor: do not try rfl in mkEqnTypes in WF.mkEqns (#4047)",
+  "zig_target": {}
+}

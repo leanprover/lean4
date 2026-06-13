@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-15",
+  "needs_port": false,
+  "sha": "3fa7e61b268847e50254f8c53ef81f0b7148af57",
+  "short_sha": "3fa7e61b26",
+  "subject": "feat: add `done` and `admit` syntax",
+  "zig_target": {}
+}

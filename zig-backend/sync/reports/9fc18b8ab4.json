@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Attr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Attr.lean"
+    },
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-09-21",
+  "needs_port": true,
+  "sha": "9fc18b8ab462cb9100d37a23814ebbac330e8577",
+  "short_sha": "9fc18b8ab4",
+  "subject": "doc: extra `grind` docstrings (#10486)",
+  "zig_target": {
+    "src/Init/Grind/Attr.lean": "zig-backend/src/init/Grind/Attr.lean",
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

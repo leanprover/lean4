@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-06-05",
+  "needs_port": false,
+  "sha": "c8ee21747b1c44b80ba31626677295c02847b87f",
+  "short_sha": "c8ee21747b",
+  "subject": "chore: remove obsolete `symbolAux`, `symbolNoWsAux`",
+  "zig_target": {}
+}

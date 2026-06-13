@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-13",
+  "needs_port": false,
+  "sha": "857e452281da7b8b8f44c0fc9d6b370cd3313a0f",
+  "short_sha": "857e452281",
+  "subject": "feat: optional doc comment for `register_simp_attr`",
+  "zig_target": {}
+}

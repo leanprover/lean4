@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-04",
+  "needs_port": false,
+  "sha": "cbee80d92c37dbbb9c98fe6f7ee4aeb16bb34ff0",
+  "short_sha": "cbee80d92c",
+  "subject": "chore: improve CI failure reporting in release checklist (#12786)",
+  "zig_target": {}
+}

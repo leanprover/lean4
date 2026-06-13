@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-07-10",
+  "needs_port": true,
+  "sha": "4a4b4c1ef4a0120034588b0fc342f41689bf785b",
+  "short_sha": "4a4b4c1ef4",
+  "subject": "fix: mkAtomFrom: generate synthetic position like other `*From` functions",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

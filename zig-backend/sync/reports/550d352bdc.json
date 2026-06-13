@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-27",
+  "needs_port": false,
+  "sha": "550d352bdcf84daa5e12a7c693a1a87f6edd8d44",
+  "short_sha": "550d352bdc",
+  "subject": "feat: log output of `#...` auxiliary commands at command token",
+  "zig_target": {}
+}

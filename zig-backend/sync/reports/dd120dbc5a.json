@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-13",
+  "needs_port": false,
+  "sha": "dd120dbc5a3b1c76ecabdc10ed9226d515c6b4d7",
+  "short_sha": "dd120dbc5a",
+  "subject": "feat: use `lean-toolchain` file to specify Lean version for package",
+  "zig_target": {}
+}

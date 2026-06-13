@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-02",
+  "needs_port": false,
+  "sha": "39cdae50ee47e5d81e2c1d422e2481403f92ded7",
+  "short_sha": "39cdae50ee",
+  "subject": "feat(library,frontends/lean): use mdata instead of hacky cache for position information in preterms",
+  "zig_target": {}
+}

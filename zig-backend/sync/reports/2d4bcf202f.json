@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-08-18",
+  "needs_port": false,
+  "sha": "2d4bcf202f02aa7b01dac5c0aae08cf3c1afa985",
+  "short_sha": "2d4bcf202f",
+  "subject": "chore: even more independent benchmarks (#9970)",
+  "zig_target": {}
+}

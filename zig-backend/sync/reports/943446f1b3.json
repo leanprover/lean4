@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-04",
+  "needs_port": false,
+  "sha": "943446f1b30597c2db14bbb684a6558c47d44a84",
+  "short_sha": "943446f1b3",
+  "subject": "fix: `FVarSubst` must be a mapping from `FVarId` to `Expr`",
+  "zig_target": {}
+}

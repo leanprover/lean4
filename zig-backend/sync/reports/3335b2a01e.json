@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-12-18",
+  "needs_port": false,
+  "sha": "3335b2a01e9ca40a5d9851eaa0780c93781c1e7d",
+  "short_sha": "3335b2a01e",
+  "subject": "perf: improve avoidance of repeated Expr visits in unused variables linter (#3076)",
+  "zig_target": {}
+}

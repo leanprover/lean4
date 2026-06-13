@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-21",
+  "needs_port": false,
+  "sha": "682cfa14e8f0c31fde7bf0f03f43916b5b540775",
+  "short_sha": "682cfa14e8",
+  "subject": "chore(library/init/lean/declaration): add new declaration type",
+  "zig_target": {}
+}

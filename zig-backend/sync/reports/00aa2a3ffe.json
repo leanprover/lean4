@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-20",
+  "needs_port": false,
+  "sha": "00aa2a3ffeae57c72d0d3628d438052068c64243",
+  "short_sha": "00aa2a3ffe",
+  "subject": "chore(library/user_recursors): remove `[recursor]` attribute and environment extension",
+  "zig_target": {}
+}

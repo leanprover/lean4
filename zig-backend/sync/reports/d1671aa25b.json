@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful/Instances.lean"
+    }
+  ],
+  "date": "2026-02-03",
+  "needs_port": true,
+  "sha": "d1671aa25b57e056d20fcd68b9ce338dc28c2af9",
+  "short_sha": "d1671aa25b",
+  "subject": "fix: make PredTrans.apply semi-reducible (#12290)",
+  "zig_target": {
+    "src/Init/Control/Lawful/Instances.lean": "zig-backend/src/init/Control/Lawful/Instances.lean"
+  }
+}

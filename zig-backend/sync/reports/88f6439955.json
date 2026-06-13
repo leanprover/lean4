@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-19",
+  "needs_port": false,
+  "sha": "88f643995590d3d299ca62967316d9b23cb010f7",
+  "short_sha": "88f6439955",
+  "subject": "fix: case-splitting in `grind` (#8410)",
+  "zig_target": {}
+}

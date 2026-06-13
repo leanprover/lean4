@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-28",
+  "needs_port": false,
+  "sha": "db304448de8decdd5dad112b9e32a795b2594713",
+  "short_sha": "db304448de",
+  "subject": "fix: leanpkg: rebuild if dependencies or `leanpkg.toml` (e.g. `lean_version`) changed",
+  "zig_target": {}
+}

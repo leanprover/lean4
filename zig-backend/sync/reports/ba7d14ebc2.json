@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Path.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Path.lean"
+    }
+  ],
+  "date": "2019-11-22",
+  "needs_port": true,
+  "sha": "ba7d14ebc265ca024fe1ab3f34b132dcb8e5cb13",
+  "short_sha": "ba7d14ebc2",
+  "subject": "fix: default path",
+  "zig_target": {
+    "src/Init/Lean/Path.lean": "zig-backend/src/init/Lean/Path.lean"
+  }
+}

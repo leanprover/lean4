@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-12-11",
+  "needs_port": false,
+  "sha": "b862e2d25163584322bcca54e5e56d671da1f258",
+  "short_sha": "b862e2d251",
+  "subject": "chore: preserve reported messages in `MessageLog` (#6307)",
+  "zig_target": {}
+}

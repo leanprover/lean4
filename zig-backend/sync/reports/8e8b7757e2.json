@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-08",
+  "needs_port": false,
+  "sha": "8e8b7757e217da81f2a72e2ecc636a48ebccc5b8",
+  "short_sha": "8e8b7757e2",
+  "subject": "fix(library/Makefile): recreate libleanstdlib.a from scratch to avoid conflicts when moving files",
+  "zig_target": {}
+}

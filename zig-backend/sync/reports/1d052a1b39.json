@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-25",
+  "needs_port": false,
+  "sha": "1d052a1b395336ac5c708edf5fa74498c654d9bd",
+  "short_sha": "1d052a1b39",
+  "subject": "fix: update `examples/git` commit hash",
+  "zig_target": {}
+}

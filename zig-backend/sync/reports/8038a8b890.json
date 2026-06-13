@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-02-20",
+  "needs_port": false,
+  "sha": "8038a8b8904f89ad9542c8eda11379f8f006eab1",
+  "short_sha": "8038a8b890",
+  "subject": "feat: lake: system-wide cache configuration (#12490)",
+  "zig_target": {}
+}

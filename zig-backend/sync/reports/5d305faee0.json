@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-15",
+  "needs_port": false,
+  "sha": "5d305faee0db4bd28095a172e332eaf28571a781",
+  "short_sha": "5d305faee0",
+  "subject": "chore: increase threshold for Windows workaround in the previous commit",
+  "zig_target": {}
+}

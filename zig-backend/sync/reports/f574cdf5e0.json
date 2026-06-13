@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-11-08",
+  "needs_port": false,
+  "sha": "f574cdf5e0b0b00c5dcd7b595f4805b4e0cb380c",
+  "short_sha": "f574cdf5e0",
+  "subject": "feat: fresh contexts for each new subgoal",
+  "zig_target": {}
+}

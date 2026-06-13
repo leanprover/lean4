@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    },
+    {
+      "path": "src/library/compiler/lc_util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lc_util.h"
+    }
+  ],
+  "date": "2018-09-14",
+  "needs_port": true,
+  "sha": "ef21f069bdad527de19cbae78fe79e4967446a5d",
+  "short_sha": "ef21f069bd",
+  "subject": "refactor(library/compiler): add `is_cases_on_app` helper function",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp",
+    "src/library/compiler/lc_util.h": "zig-backend/src/library/compiler/lc_util.h"
+  }
+}

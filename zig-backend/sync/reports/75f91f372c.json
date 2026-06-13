@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-09-27",
+  "needs_port": false,
+  "sha": "75f91f372c19522a645dc3e5abb8455c2edcff22",
+  "short_sha": "75f91f372c",
+  "subject": "chore: add release note about lake startup time (#2597)",
+  "zig_target": {}
+}

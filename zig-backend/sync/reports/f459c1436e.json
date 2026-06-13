@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-05-14",
+  "needs_port": false,
+  "sha": "f459c1436e4a3f84b907c8d1b4eeef0c50ac4948",
+  "short_sha": "f459c1436e",
+  "subject": "feat: upstream `unusedDecidableInType` linter (#13688)",
+  "zig_target": {}
+}

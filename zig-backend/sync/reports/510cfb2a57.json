@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-21",
+  "needs_port": false,
+  "sha": "510cfb2a5711fb006181221b66313adaa57bc0a2",
+  "short_sha": "510cfb2a57",
+  "subject": "refactor: simplify `Elab.Exception`",
+  "zig_target": {}
+}

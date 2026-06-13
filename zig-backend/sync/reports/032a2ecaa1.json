@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-19",
+  "needs_port": false,
+  "sha": "032a2ecaa1574de87560dc72b3e5f7b4458fc152",
+  "short_sha": "032a2ecaa1",
+  "subject": "chore: update `builtin_widget_module` registration code",
+  "zig_target": {}
+}

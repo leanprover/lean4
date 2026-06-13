@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-20",
+  "needs_port": false,
+  "sha": "37547ed88744e57f51783ac965549cd321a4c8ad",
+  "short_sha": "37547ed887",
+  "subject": "feat: RpcEncodable derive handler",
+  "zig_target": {}
+}

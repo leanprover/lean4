@@ -1,0 +1,36 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Sort.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/Sort.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Sort/Basic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/Sort/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Sort/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Array/Sort/Lemmas.lean"
+    }
+  ],
+  "date": "2026-03-06",
+  "needs_port": true,
+  "sha": "68ea28c24f9ce74272a8f6aa88ad5bbc70f4034f",
+  "short_sha": "68ea28c24f",
+  "subject": "feat: `Array.mergeSort` (#12385)",
+  "zig_target": {
+    "src/Init/Data/Array.lean": "zig-backend/src/init/Data/Array.lean",
+    "src/Init/Data/Array/Sort.lean": "zig-backend/src/init/Data/Array/Sort.lean",
+    "src/Init/Data/Array/Sort/Basic.lean": "zig-backend/src/init/Data/Array/Sort/Basic.lean",
+    "src/Init/Data/Array/Sort/Lemmas.lean": "zig-backend/src/init/Data/Array/Sort/Lemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2023-12-12",
+  "needs_port": false,
+  "sha": "f74516a032e0be5a78e2b67a64c4fcc8203560c2",
+  "short_sha": "f74516a032",
+  "subject": "doc: update quickstart guide to reference vs code setup guide (#2968)",
+  "zig_target": {}
+}

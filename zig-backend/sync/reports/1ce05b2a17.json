@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-31",
+  "needs_port": false,
+  "sha": "1ce05b2a179eac8a902995c0caddc609c0169c49",
+  "short_sha": "1ce05b2a17",
+  "subject": "feat: library suggestion engine for local theorems (#11030)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Attr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Attr.lean"
+    }
+  ],
+  "date": "2025-08-30",
+  "needs_port": true,
+  "sha": "8e7e55f2d5c9564e138519cef329179e94ec9e96",
+  "short_sha": "8e7e55f2d5",
+  "subject": "doc: `grind` attribute modifiers (#10185)",
+  "zig_target": {
+    "src/Init/Grind/Attr.lean": "zig-backend/src/init/Grind/Attr.lean"
+  }
+}

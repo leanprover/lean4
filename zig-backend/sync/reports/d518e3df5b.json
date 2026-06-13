@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-28",
+  "needs_port": false,
+  "sha": "d518e3df5b9a9598cbda3a4a4fa69a6cd699541c",
+  "short_sha": "d518e3df5b",
+  "subject": "refactor: properly manage errors in the build monad",
+  "zig_target": {}
+}

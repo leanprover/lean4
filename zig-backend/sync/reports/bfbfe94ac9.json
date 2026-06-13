@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-07",
+  "needs_port": false,
+  "sha": "bfbfe94ac97fe8a562f54e6981b6e5a911683250",
+  "short_sha": "bfbfe94ac9",
+  "subject": "chore(library/init/control/default): add `init.control.combinators`",
+  "zig_target": {}
+}

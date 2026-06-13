@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-05-01",
+  "needs_port": false,
+  "sha": "09e4c00c681a6e4fd822bd5a5c213af943a8c009",
+  "short_sha": "09e4c00c68",
+  "subject": "fix: lexical references through `x := e` and similar macros",
+  "zig_target": {}
+}

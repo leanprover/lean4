@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2023-12-31",
+  "needs_port": true,
+  "sha": "25baf7300501f9d918fe64cb0c9397bd9ba3bcf5",
+  "short_sha": "25baf73005",
+  "subject": "feat: replace `ite` and `dite` shortcircuit theorems with simproc",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

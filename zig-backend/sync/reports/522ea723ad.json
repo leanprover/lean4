@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-09-06",
+  "needs_port": false,
+  "sha": "522ea723ada441d6fa9ed0ce194ba2e635046d25",
+  "short_sha": "522ea723ad",
+  "subject": "fix: lake: dep URL match check in `updateGitRepo`",
+  "zig_target": {}
+}

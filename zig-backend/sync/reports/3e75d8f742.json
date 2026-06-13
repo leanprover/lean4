@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-07",
+  "needs_port": false,
+  "sha": "3e75d8f74297bc258352f8d89f71496aacefe7ae",
+  "short_sha": "3e75d8f742",
+  "subject": "fix: FunInd: avoid over-eta-expanding in preprocessing step (#5619)",
+  "zig_target": {}
+}

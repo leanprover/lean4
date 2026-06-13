@@ -1,0 +1,10 @@
+{
+  "author": "WojciechKarpiel",
+  "backend_changes": [],
+  "date": "2021-07-10",
+  "needs_port": false,
+  "sha": "deb9c9410d9f51cb5003e3df07230fd5abdb614e",
+  "short_sha": "deb9c9410d",
+  "subject": "doc: fix typo in the manual",
+  "zig_target": {}
+}

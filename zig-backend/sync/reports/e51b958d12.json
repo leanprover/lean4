@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-20",
+  "needs_port": false,
+  "sha": "e51b958d12cadef726cce2618c747b31a413b42d",
+  "short_sha": "e51b958d12",
+  "subject": "fix: ensure `Meta` environment extensions are initialized by the Lean binary",
+  "zig_target": {}
+}

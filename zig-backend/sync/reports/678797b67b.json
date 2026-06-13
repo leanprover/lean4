@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "678797b67b92bc884e805cc0177d3e48065dd425",
+  "short_sha": "678797b67b",
+  "subject": "fix: `simp` fails to discharge `autoParam` premises even when it can reduce them to `True` (#3314)",
+  "zig_target": {}
+}

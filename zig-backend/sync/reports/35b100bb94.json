@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-07-26",
+  "needs_port": false,
+  "sha": "35b100bb944c4dded2997755b02c092b6cbec7f6",
+  "short_sha": "35b100bb94",
+  "subject": "feat(library/init/lean/parser/parsec): implement `not_followed_by` using `catch`",
+  "zig_target": {}
+}

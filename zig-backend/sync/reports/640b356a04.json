@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-12-31",
+  "needs_port": false,
+  "sha": "640b356a04307b649b1465bc35b753794ddb736c",
+  "short_sha": "640b356a04",
+  "subject": "chore: add missing diff-exposing in type/value mismatch errors (#6484)",
+  "zig_target": {}
+}

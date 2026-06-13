@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-07-31",
+  "needs_port": false,
+  "sha": "c89dff56c435d3e1e26d8435a2c09634b17d122f",
+  "short_sha": "c89dff56c4",
+  "subject": "fix: pp.analyze missing structure instance types",
+  "zig_target": {}
+}

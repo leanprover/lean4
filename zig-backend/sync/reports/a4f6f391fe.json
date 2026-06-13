@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    }
+  ],
+  "date": "2025-09-02",
+  "needs_port": true,
+  "sha": "a4f6f391fe27ff9a776aaf5f481b18a21e39e358",
+  "short_sha": "a4f6f391fe",
+  "subject": "feat: equality propagation from AC module to grind core (#10223)",
+  "zig_target": {
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean"
+  }
+}

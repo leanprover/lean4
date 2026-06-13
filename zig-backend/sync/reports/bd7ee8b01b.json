@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-14",
+  "needs_port": false,
+  "sha": "bd7ee8b01b4e13abf46a7deca150bfe9e933aff1",
+  "short_sha": "bd7ee8b01b",
+  "subject": "feat(library/init/lean/elaborator/term): add `elabList`, and fix `elabTermAux`",
+  "zig_target": {}
+}

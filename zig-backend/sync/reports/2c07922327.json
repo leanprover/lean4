@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-26",
+  "needs_port": false,
+  "sha": "2c079223272fc82671c1a46cd2db9ef2ffb651c4",
+  "short_sha": "2c07922327",
+  "subject": "refactor(library/init/lean/parser): minimize `parser_state`, have the module coroutine take and return `parser_config`",
+  "zig_target": {}
+}

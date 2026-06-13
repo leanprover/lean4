@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-09-30",
+  "needs_port": false,
+  "sha": "58b66063ee595dc16199cedf2c851052ce9e68ff",
+  "short_sha": "58b66063ee",
+  "subject": "feat: accumulate text changes from same packet in file worker to dispatch their elaboration at once",
+  "zig_target": {}
+}

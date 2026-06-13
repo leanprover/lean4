@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-08",
+  "needs_port": false,
+  "sha": "a97621467f25c43c776d0b3d79a7592a7472f0eb",
+  "short_sha": "a97621467f",
+  "subject": "fix: stdlib.make: missing target",
+  "zig_target": {}
+}

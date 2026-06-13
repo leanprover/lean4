@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-11-02",
+  "needs_port": true,
+  "sha": "f4c71f6ec8f023d9c3c9f5f1364ac5638d95d9de",
+  "short_sha": "f4c71f6ec8",
+  "subject": "fix: simplify Nat.ble (#11058)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

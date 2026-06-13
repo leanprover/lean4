@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-24",
+  "needs_port": true,
+  "sha": "a2dc17055b5d4bebb2164816e057daf7ca8e394a",
+  "short_sha": "a2dc17055b",
+  "subject": "feat: missing cases for equality propagation from core to cutsat (#7220)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

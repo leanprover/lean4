@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-01-15",
+  "needs_port": false,
+  "sha": "fb3238d47c108bd15112c39420e618613f9786f8",
+  "short_sha": "fb3238d47c",
+  "subject": "chore: add `size/install` benchmark (#12015)",
+  "zig_target": {}
+}

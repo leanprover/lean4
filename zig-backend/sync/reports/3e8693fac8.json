@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-24",
+  "needs_port": false,
+  "sha": "3e8693fac889cd5b888ca0ea3f83e552b4573842",
+  "short_sha": "3e8693fac8",
+  "subject": "fix: Nix: provide .#lean-package etc. from Lean package",
+  "zig_target": {}
+}

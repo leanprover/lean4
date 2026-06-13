@@ -1,0 +1,10 @@
+{
+  "author": "\u0411\u0430\u043a\u0438\u043d\u043e\u0432\u0441\u043a\u0438\u0439 \u041c\u0430\u043a\u0441\u0438\u043c",
+  "backend_changes": [],
+  "date": "2021-05-06",
+  "needs_port": false,
+  "sha": "c96cb78970bc1d70e7a1ed6a7fdf947e6db40a98",
+  "short_sha": "c96cb78970",
+  "subject": "doc: \"enumerated types\" section markdown fix",
+  "zig_target": {}
+}

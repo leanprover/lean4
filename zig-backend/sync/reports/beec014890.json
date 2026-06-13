@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-25",
+  "needs_port": false,
+  "sha": "beec014890cc9f25df3d07d65c5eefcb5d332ee4",
+  "short_sha": "beec014890",
+  "subject": "feat(library/init/lean/{parser/term,expander}): remove `(x : e) \u2192 f` macro hack and replace with actual parser",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Rat/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+    }
+  ],
+  "date": "2025-08-22",
+  "needs_port": true,
+  "sha": "385daa99a8bd03ca03e134223bde1f457c54b97e",
+  "short_sha": "385daa99a8",
+  "subject": "chore: cleanup in Data/Rat (#10050)",
+  "zig_target": {
+    "src/Init/Data/Rat/Lemmas.lean": "zig-backend/src/init/Data/Rat/Lemmas.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-13",
+  "needs_port": true,
+  "sha": "c02e2d3b564835c227b353bed8e0e7340cd98ed1",
+  "short_sha": "c02e2d3b56",
+  "subject": "feat(library/compiler/lcnf): split `cases` followed by application",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

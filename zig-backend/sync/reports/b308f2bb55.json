@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-28",
+  "needs_port": false,
+  "sha": "b308f2bb55af92a4f6edcfe47898972fe59fc4e5",
+  "short_sha": "b308f2bb55",
+  "subject": "fix: let `simp` arguments elaborate with error recovery (#5863)",
+  "zig_target": {}
+}

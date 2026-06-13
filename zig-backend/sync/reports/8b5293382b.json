@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-06",
+  "needs_port": false,
+  "sha": "8b5293382bade7aa62aa422b8c2e86fe15f9695b",
+  "short_sha": "8b5293382b",
+  "subject": "test: copy shallow_add_sub_cancel into mvcgen benchmark for precompilation (#12347)",
+  "zig_target": {}
+}

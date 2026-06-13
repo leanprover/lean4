@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-23",
+  "needs_port": false,
+  "sha": "a0eff55772c7c02e6e203dccda9c7ee51b623146",
+  "short_sha": "a0eff55772",
+  "subject": "fix: unhygiene in synthesized notation unexpander",
+  "zig_target": {}
+}

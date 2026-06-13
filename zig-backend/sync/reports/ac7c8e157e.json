@@ -1,0 +1,42 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/List.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Scan.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/Scan.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Scan/Basic.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/Scan/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Scan/Lemmas.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/List/Scan/Lemmas.lean"
+    }
+  ],
+  "date": "2026-02-18",
+  "needs_port": true,
+  "sha": "ac7c8e157e72eec166ea425c8f41a256f6c19814",
+  "short_sha": "ac7c8e157e",
+  "subject": "feat: upstream `List.scanl` and `List.scanr` (#12452)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/List.lean": "zig-backend/src/init/Data/List.lean",
+    "src/Init/Data/List/Scan.lean": "zig-backend/src/init/Data/List/Scan.lean",
+    "src/Init/Data/List/Scan/Basic.lean": "zig-backend/src/init/Data/List/Scan/Basic.lean",
+    "src/Init/Data/List/Scan/Lemmas.lean": "zig-backend/src/init/Data/List/Scan/Lemmas.lean"
+  }
+}

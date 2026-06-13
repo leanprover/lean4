@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2026-05-05",
+  "needs_port": false,
+  "sha": "a2c4b7305d23d7bf6f91291bda5141f151652567",
+  "short_sha": "a2c4b7305d",
+  "subject": "fix: indicate in `readModuleDataParts` if memory is exhausted (#13549)",
+  "zig_target": {}
+}

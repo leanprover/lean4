@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-25",
+  "needs_port": false,
+  "sha": "72d233d181baa183a5288a3a52defd219015e952",
+  "short_sha": "72d233d181",
+  "subject": "fix: `match` patterns containing int values and constructors (#3496)",
+  "zig_target": {}
+}

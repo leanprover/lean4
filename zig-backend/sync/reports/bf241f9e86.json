@@ -1,0 +1,24 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/MinMax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/MinMax.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-19",
+  "needs_port": true,
+  "sha": "bf241f9e8649b0cb59b22ca097b3baee67121b70",
+  "short_sha": "bf241f9e86",
+  "subject": "feat: List.min? lemmas and Option.bind_congr (#7529)",
+  "zig_target": {
+    "src/Init/Data/List/MinMax.lean": "zig-backend/src/init/Data/List/MinMax.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean"
+  }
+}

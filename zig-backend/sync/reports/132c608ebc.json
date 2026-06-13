@@ -1,0 +1,102 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/DecidableEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/DecidableEq.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lex/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lex/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/MapIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/MapIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Monadic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/ToArray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/ToArray.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/DecidableEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/DecidableEq.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lex.lean"
+    }
+  ],
+  "date": "2025-05-04",
+  "needs_port": true,
+  "sha": "132c608ebcbd59947d8a493db63ba05b640198ce",
+  "short_sha": "132c608ebc",
+  "subject": "chore: more @[grind] annotations for List/Array/Vector (#8218)",
+  "zig_target": {
+    "src/Init/Data/Array/Attach.lean": "zig-backend/src/init/Data/Array/Attach.lean",
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/Bootstrap.lean": "zig-backend/src/init/Data/Array/Bootstrap.lean",
+    "src/Init/Data/Array/Count.lean": "zig-backend/src/init/Data/Array/Count.lean",
+    "src/Init/Data/Array/DecidableEq.lean": "zig-backend/src/init/Data/Array/DecidableEq.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/Lex/Lemmas.lean": "zig-backend/src/init/Data/Array/Lex/Lemmas.lean",
+    "src/Init/Data/Array/MapIdx.lean": "zig-backend/src/init/Data/Array/MapIdx.lean",
+    "src/Init/Data/Array/Monadic.lean": "zig-backend/src/init/Data/Array/Monadic.lean",
+    "src/Init/Data/List/ToArray.lean": "zig-backend/src/init/Data/List/ToArray.lean",
+    "src/Init/Data/Option/Attach.lean": "zig-backend/src/init/Data/Option/Attach.lean",
+    "src/Init/Data/Vector/Basic.lean": "zig-backend/src/init/Data/Vector/Basic.lean",
+    "src/Init/Data/Vector/DecidableEq.lean": "zig-backend/src/init/Data/Vector/DecidableEq.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/Lex.lean": "zig-backend/src/init/Data/Vector/Lex.lean"
+  }
+}

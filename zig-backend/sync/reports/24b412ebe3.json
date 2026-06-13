@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Channel.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Channel.lean"
+    },
+    {
+      "path": "src/Init/System/Mutex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Mutex.lean"
+    }
+  ],
+  "date": "2024-12-03",
+  "needs_port": true,
+  "sha": "24b412ebe364a6b6d05bc2fffaf753d90562d0c7",
+  "short_sha": "24b412ebe3",
+  "subject": "refactor: move `IO.Channel` and `IO.Mutex` to `Std.Sync` (#6282)",
+  "zig_target": {
+    "src/Init/Data/Channel.lean": "zig-backend/src/init/Data/Channel.lean",
+    "src/Init/System/Mutex.lean": "zig-backend/src/init/System/Mutex.lean"
+  }
+}

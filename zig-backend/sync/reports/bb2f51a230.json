@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-04-15",
+  "needs_port": false,
+  "sha": "bb2f51a2309f27f269b026b8d33a62e7b8b645aa",
+  "short_sha": "bb2f51a230",
+  "subject": "feat: link `Lake.EStateT` with `EStateM` (#7963)",
+  "zig_target": {}
+}

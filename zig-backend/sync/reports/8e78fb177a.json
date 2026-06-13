@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic.lean"
+    }
+  ],
+  "date": "2020-01-16",
+  "needs_port": true,
+  "sha": "8e78fb177a5668598abd033375c0d585985d117f",
+  "short_sha": "8e78fb177a",
+  "subject": "feat: basic `runTactic`",
+  "zig_target": {
+    "src/Init/Lean/Elab/SynthesizeSyntheticMVars.lean": "zig-backend/src/init/Lean/Elab/SynthesizeSyntheticMVars.lean",
+    "src/Init/Lean/Elab/Tactic.lean": "zig-backend/src/init/Lean/Elab/Tactic.lean"
+  }
+}

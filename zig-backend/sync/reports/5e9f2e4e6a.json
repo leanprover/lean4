@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-04-17",
+  "needs_port": true,
+  "sha": "5e9f2e4e6abaf34e3efc16ed97754a8e12c9d87f",
+  "short_sha": "5e9f2e4e6a",
+  "subject": "chore(library/compiler/specialize): remove leftover that is now a noop",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

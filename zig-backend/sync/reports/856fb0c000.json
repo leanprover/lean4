@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/ExprDefEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+    }
+  ],
+  "date": "2019-11-25",
+  "needs_port": true,
+  "sha": "856fb0c0005d77895883eed2dc47766991ce9e42",
+  "short_sha": "856fb0c000",
+  "subject": "feat: use `isProofQuick` to implement `isDefEqProofIrrel`",
+  "zig_target": {
+    "src/Init/Lean/Meta/ExprDefEq.lean": "zig-backend/src/init/Lean/Meta/ExprDefEq.lean"
+  }
+}

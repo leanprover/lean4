@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-14",
+  "needs_port": false,
+  "sha": "7e3bc30674310adb7629383f48238c4a95ebe994",
+  "short_sha": "7e3bc30674",
+  "subject": "feat: add `expandCoe`",
+  "zig_target": {}
+}

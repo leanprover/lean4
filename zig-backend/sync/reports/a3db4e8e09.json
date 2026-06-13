@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2018-11-15",
+  "needs_port": true,
+  "sha": "a3db4e8e098602f03e516776d8b641bd20307877",
+  "short_sha": "a3db4e8e09",
+  "subject": "chore(*): style",
+  "zig_target": {
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

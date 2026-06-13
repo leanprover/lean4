@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "c77d6680a78b7d468e80309d9cf258548eed0aa6",
+  "short_sha": "c77d6680a7",
+  "subject": "feat: allow `@[defaultTarget] extern_lib`",
+  "zig_target": {}
+}

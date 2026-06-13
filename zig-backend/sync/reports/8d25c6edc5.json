@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2018-11-14",
+  "needs_port": true,
+  "sha": "8d25c6edc539a76f8cc5ec0b500b739b8d40beb6",
+  "short_sha": "8d25c6edc5",
+  "subject": "fix(library/compiler/llnf): fix out-of-bounds access",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

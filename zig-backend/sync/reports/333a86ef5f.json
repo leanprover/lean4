@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-24",
+  "needs_port": false,
+  "sha": "333a86ef5fe2f55475cdab8df7e0c3b2ccfc7e20",
+  "short_sha": "333a86ef5f",
+  "subject": "fix: typing mistakes with `CliMethodsRef` + cleanup",
+  "zig_target": {}
+}

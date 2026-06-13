@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Lawful.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Lawful.lean"
+    }
+  ],
+  "date": "2021-11-25",
+  "needs_port": true,
+  "sha": "3ccd44fafae1ba3073ea06a4b74f36cd81e4bb80",
+  "short_sha": "3ccd44fafa",
+  "subject": "fix: proofs after adding eta struct support at recursors",
+  "zig_target": {
+    "src/Init/Control/Lawful.lean": "zig-backend/src/init/Control/Lawful.lean"
+  }
+}

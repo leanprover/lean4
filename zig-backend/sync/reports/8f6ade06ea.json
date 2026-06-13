@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-03-19",
+  "needs_port": false,
+  "sha": "8f6ade06ea2964d55625a9809f3349a0112aee04",
+  "short_sha": "8f6ade06ea",
+  "subject": "fix: interaction between `cbv_opaque` and `inline` (#12981)",
+  "zig_target": {}
+}

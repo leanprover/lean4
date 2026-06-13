@@ -1,0 +1,24 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/OtherDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/OtherDecl.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToImpureType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToImpureType.lean"
+    }
+  ],
+  "date": "2026-03-24",
+  "needs_port": true,
+  "sha": "7ef25b8fe3a9b845e976a65032b2edb458e62471",
+  "short_sha": "7ef25b8fe3",
+  "subject": "chore: remove dead code (#13093)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/OtherDecl.lean": "zig-backend/src/lean/compiler/lcnf/OtherDecl.lean",
+    "src/Lean/Compiler/LCNF/ToImpureType.lean": "zig-backend/src/lean/compiler/lcnf/ToImpureType.lean"
+  }
+}

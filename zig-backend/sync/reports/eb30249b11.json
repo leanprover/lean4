@@ -1,0 +1,10 @@
+{
+  "author": "Martin Dvo\u0159\u00e1k",
+  "backend_changes": [],
+  "date": "2025-01-21",
+  "needs_port": false,
+  "sha": "eb30249b1118b5bea767354d5362f4afba97c82e",
+  "short_sha": "eb30249b11",
+  "subject": "doc: make description of `pp.analyze` more precise (#6726)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Command.lean"
+    }
+  ],
+  "date": "2020-02-01",
+  "needs_port": true,
+  "sha": "2abfa1bcff70e3f9952b1c1a3e2765530a318eb0",
+  "short_sha": "2abfa1bcff",
+  "subject": "fix: closes #108",
+  "zig_target": {
+    "src/Init/Lean/Elab/Command.lean": "zig-backend/src/init/Lean/Elab/Command.lean"
+  }
+}

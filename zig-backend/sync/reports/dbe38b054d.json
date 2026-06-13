@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-06",
+  "needs_port": false,
+  "sha": "dbe38b054d71f241db739c9145f769e228d99248",
+  "short_sha": "dbe38b054d",
+  "subject": "feat(library/init/lean/name): add Lean version of `name::append_after`",
+  "zig_target": {}
+}

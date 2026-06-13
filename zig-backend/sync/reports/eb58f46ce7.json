@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2025-03-12",
+  "needs_port": true,
+  "sha": "eb58f46ce7b41a9b6b273bb2dae2dc11abd78246",
+  "short_sha": "eb58f46ce7",
+  "subject": "feat: language reference links and examples in docstrings (#7240)",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

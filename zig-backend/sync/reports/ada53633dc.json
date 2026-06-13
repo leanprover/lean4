@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    }
+  ],
+  "date": "2026-03-10",
+  "needs_port": true,
+  "sha": "ada53633dc88a127b59529a936b2057d69305bed",
+  "short_sha": "ada53633dc",
+  "subject": "feat: add grind.unusedLemmaThreshold option to report unused E-matching activations (#12805)",
+  "zig_target": {
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean"
+  }
+}

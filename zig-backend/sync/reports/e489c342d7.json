@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-13",
+  "needs_port": false,
+  "sha": "e489c342d75d0389932f7665b1245195ad48e3b2",
+  "short_sha": "e489c342d7",
+  "subject": "fix: literal internalization in `grind` (#11658)",
+  "zig_target": {}
+}

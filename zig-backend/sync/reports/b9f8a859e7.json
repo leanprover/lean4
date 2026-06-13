@@ -1,0 +1,18 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Perm.lean"
+    }
+  ],
+  "date": "2025-03-08",
+  "needs_port": true,
+  "sha": "b9f8a859e7f354f026de7c910e17ce29e23678f9",
+  "short_sha": "b9f8a859e7",
+  "subject": "feat: equivalence on hash maps (#7341)",
+  "zig_target": {
+    "src/Init/Data/List/Perm.lean": "zig-backend/src/init/Data/List/Perm.lean"
+  }
+}

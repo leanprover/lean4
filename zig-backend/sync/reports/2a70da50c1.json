@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-16",
+  "needs_port": false,
+  "sha": "2a70da50c1478bb146bac7bb6986c09f24d326ec",
+  "short_sha": "2a70da50c1",
+  "subject": "feat: proper case-split anchor generation in `splitNext` for `grind?` and `finish?` (#10811)",
+  "zig_target": {}
+}

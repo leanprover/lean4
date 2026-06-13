@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-04-11",
+  "needs_port": false,
+  "sha": "264095be7f2a8f20e92bba224e9fa67ee9a121c5",
+  "short_sha": "264095be7f",
+  "subject": "fix: missing propagation and split filter in `grind` (#7926)",
+  "zig_target": {}
+}

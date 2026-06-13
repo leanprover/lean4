@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-11",
+  "needs_port": false,
+  "sha": "60e548bf7b2dc5f74f1381d2a9e8c5cee3ff1541",
+  "short_sha": "60e548bf7b",
+  "subject": "feat: add [combinatorParenthesizer] attribute",
+  "zig_target": {}
+}

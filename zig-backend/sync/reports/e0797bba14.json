@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-24",
+  "needs_port": false,
+  "sha": "e0797bba14101710b5d8011a592ed99b4a58b369",
+  "short_sha": "e0797bba14",
+  "subject": "fix(library/init/lean/elaborator/command): bug at `addScopes`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "JovanGerb",
+  "backend_changes": [],
+  "date": "2024-11-21",
+  "needs_port": false,
+  "sha": "b7248d52954bc53e732efc92559efe272927fd67",
+  "short_sha": "b7248d5295",
+  "subject": "fix: `revert` creates natural metavariable goal (#6145)",
+  "zig_target": {}
+}

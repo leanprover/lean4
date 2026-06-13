@@ -1,0 +1,60 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/inliner.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/inliner.cpp"
+    },
+    {
+      "path": "src/library/compiler/nat_value.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/nat_value.cpp"
+    },
+    {
+      "path": "src/library/compiler/simp_inductive.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/simp_inductive.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    },
+    {
+      "path": "src/library/compiler/vm_compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/vm_compiler.cpp"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    },
+    {
+      "path": "src/runtime/utf8.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.cpp"
+    },
+    {
+      "path": "src/runtime/utf8.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.h"
+    }
+  ],
+  "date": "2018-06-15",
+  "needs_port": true,
+  "sha": "13c532d0d4d4dc6af4054d5c29535ee62664b04e",
+  "short_sha": "13c532d0d4",
+  "subject": "fix(*): truncation bugs",
+  "zig_target": {
+    "src/library/compiler/inliner.cpp": "zig-backend/src/library/compiler/inliner.cpp",
+    "src/library/compiler/nat_value.cpp": "zig-backend/src/library/compiler/nat_value.cpp",
+    "src/library/compiler/simp_inductive.cpp": "zig-backend/src/library/compiler/simp_inductive.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp",
+    "src/library/compiler/vm_compiler.cpp": "zig-backend/src/library/compiler/vm_compiler.cpp",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp",
+    "src/runtime/utf8.cpp": "zig-backend/src/runtime/utf8.cpp",
+    "src/runtime/utf8.h": "zig-backend/src/runtime/utf8.h"
+  }
+}

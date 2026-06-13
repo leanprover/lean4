@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-28",
+  "needs_port": false,
+  "sha": "cb55ffae94ff59a9802ef60cbf89f71057503268",
+  "short_sha": "cb55ffae94",
+  "subject": "chore: add new tactic syntax kind",
+  "zig_target": {}
+}

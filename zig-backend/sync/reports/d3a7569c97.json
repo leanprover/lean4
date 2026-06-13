@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2024-06-19",
+  "needs_port": true,
+  "sha": "d3a7569c97123d022828106468d54e9224ed8207",
+  "short_sha": "d3a7569c97",
+  "subject": "refactor: move `ApplyNewGoals` and `ApplyConfig` to `Init`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

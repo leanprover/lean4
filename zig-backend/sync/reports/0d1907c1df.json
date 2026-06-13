@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-02-07",
+  "needs_port": false,
+  "sha": "0d1907c1df2093f2ef1da2b470693c8b0860f0b4",
+  "short_sha": "0d1907c1df",
+  "subject": "feat: parallel progress notifications (#6329)",
+  "zig_target": {}
+}

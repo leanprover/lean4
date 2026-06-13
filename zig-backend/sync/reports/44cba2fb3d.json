@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-06",
+  "needs_port": false,
+  "sha": "44cba2fb3d845b7ff58cb7ddde5781d1e560ae95",
+  "short_sha": "44cba2fb3d",
+  "subject": "chore(library/init/lean/attributes): add `Inhabited` instance and improve stats",
+  "zig_target": {}
+}

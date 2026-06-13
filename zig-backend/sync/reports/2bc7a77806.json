@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-03-27",
+  "needs_port": false,
+  "sha": "2bc7a778061470e46b4ac882845e8dca34f9550c",
+  "short_sha": "2bc7a77806",
+  "subject": "fix: lake: `lake cache help put-staged` (#13150)",
+  "zig_target": {}
+}

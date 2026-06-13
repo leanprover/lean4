@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-25",
+  "needs_port": false,
+  "sha": "b437232ab6d4ac4f1a63855001d8279dc7803a4f",
+  "short_sha": "b437232ab6",
+  "subject": "refactor: minimize `Lean.DefEqAttrib` imports (#9543)",
+  "zig_target": {}
+}

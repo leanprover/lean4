@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-30",
+  "needs_port": false,
+  "sha": "4c497eaa32be75b4df1fb7affcf4036984dd901e",
+  "short_sha": "4c497eaa32",
+  "subject": "chore: disable `#print axioms` under the module system (#8174)",
+  "zig_target": {}
+}

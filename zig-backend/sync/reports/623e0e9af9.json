@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-11",
+  "needs_port": false,
+  "sha": "623e0e9af9e4e596e377549d290d3d6bae2d9bff",
+  "short_sha": "623e0e9af9",
+  "subject": "feat: `TerminalCases` for new LCNF",
+  "zig_target": {}
+}

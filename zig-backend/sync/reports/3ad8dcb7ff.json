@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-24",
+  "needs_port": false,
+  "sha": "3ad8dcb7ffdc3b01ae326798bf2e3a7e11cd961b",
+  "short_sha": "3ad8dcb7ff",
+  "subject": "fix: nasty interaction between TC resolution and Eta for structures",
+  "zig_target": {}
+}

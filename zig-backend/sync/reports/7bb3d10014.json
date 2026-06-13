@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-01",
+  "needs_port": false,
+  "sha": "7bb3d100147f1dbfc00b977846ffa66ff62e104e",
+  "short_sha": "7bb3d10014",
+  "subject": "chore: ensure that a failing `node` parser creates at least one `missing`",
+  "zig_target": {}
+}

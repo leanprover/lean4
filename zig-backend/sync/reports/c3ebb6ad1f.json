@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-30",
+  "needs_port": false,
+  "sha": "c3ebb6ad1f957362eaf1e54e6eb5dbd1008e34bb",
+  "short_sha": "c3ebb6ad1f",
+  "subject": "fix: Format.group ignored preceding content on line",
+  "zig_target": {}
+}

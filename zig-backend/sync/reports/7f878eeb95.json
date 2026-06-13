@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-04",
+  "needs_port": false,
+  "sha": "7f878eeb9575bc81cb63a5c407899b808408c875",
+  "short_sha": "7f878eeb95",
+  "subject": "chore: (try to) fix Windows build",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Declaration.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/RecursorInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/RecursorInfo.lean"
+    }
+  ],
+  "date": "2020-02-22",
+  "needs_port": true,
+  "sha": "472276f63f4f40a1015ffdfae95a0efe034f6d6b",
+  "short_sha": "472276f63f",
+  "subject": "feat: add `mkRecFor`",
+  "zig_target": {
+    "src/Init/Lean/Declaration.lean": "zig-backend/src/init/Lean/Declaration.lean",
+    "src/Init/Lean/Meta/RecursorInfo.lean": "zig-backend/src/init/Lean/Meta/RecursorInfo.lean"
+  }
+}

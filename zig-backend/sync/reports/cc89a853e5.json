@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "cc89a853e57726577a2357c161d4991476ff5050",
+  "short_sha": "cc89a853e5",
+  "subject": "doc: note that tests/lean/run disables linters (#11595)",
+  "zig_target": {}
+}

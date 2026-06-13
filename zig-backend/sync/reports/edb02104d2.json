@@ -1,0 +1,10 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [],
+  "date": "2025-03-31",
+  "needs_port": false,
+  "sha": "edb02104d20a63c615bc5fea45a8ec53f8c97b4a",
+  "short_sha": "edb02104d2",
+  "subject": "fix: async task assertions in tests by replacing `assert!` with `assertBEq` (#7729)",
+  "zig_target": {}
+}

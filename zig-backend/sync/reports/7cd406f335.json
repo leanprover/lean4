@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-08-12",
+  "needs_port": false,
+  "sha": "7cd406f335db0b3ba02fc52b36362b49e6118983",
+  "short_sha": "7cd406f335",
+  "subject": "fix: check is valid structure projection when pretty printing (#4982)",
+  "zig_target": {}
+}

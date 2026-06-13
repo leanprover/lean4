@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-25",
+  "needs_port": false,
+  "sha": "402d4437c0c36d12de98c75bc83cb372f40c8d5c",
+  "short_sha": "402d4437c0",
+  "subject": "chore: fix interactive use of stage 0",
+  "zig_target": {}
+}

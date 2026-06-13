@@ -1,0 +1,10 @@
+{
+  "author": "mhuisi",
+  "backend_changes": [],
+  "date": "2020-09-02",
+  "needs_port": false,
+  "sha": "8decfb6b1d3b7b644c13842658dfeb0bc94aba06",
+  "short_sha": "8decfb6b1d",
+  "subject": "feat: initial multiprocess watchdog arch",
+  "zig_target": {}
+}

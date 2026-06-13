@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-04-03",
+  "needs_port": false,
+  "sha": "427540db4582dbc8c9e6464c58a363f42296237d",
+  "short_sha": "427540db45",
+  "subject": "chore: remove redundant Elab.input trace class in favor of Elab.command",
+  "zig_target": {}
+}

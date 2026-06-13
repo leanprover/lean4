@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-16",
+  "needs_port": false,
+  "sha": "2f9c96475380beb70b45092e083f7f84f9347968",
+  "short_sha": "2f9c964753",
+  "subject": "chore: update RELEASES.md to reflect v4.2.0-rc2 (#2692)",
+  "zig_target": {}
+}

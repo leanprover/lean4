@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "ed5d884d8facb36f6fd2b01e6832aa5a9bd30667",
+  "short_sha": "ed5d884d8f",
+  "subject": "chore(library/tactic): remove `app_builder_tactics`",
+  "zig_target": {}
+}

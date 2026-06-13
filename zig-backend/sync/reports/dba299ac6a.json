@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-27",
+  "needs_port": false,
+  "sha": "dba299ac6af38295079c573eb20e1ca198856f68",
+  "short_sha": "dba299ac6a",
+  "subject": "chore: update 'nightly' branch to track nightly releases (#2767)",
+  "zig_target": {}
+}

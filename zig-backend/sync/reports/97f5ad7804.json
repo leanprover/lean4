@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2023-10-11",
+  "needs_port": true,
+  "sha": "97f5ad78045e52a54d12af19d93a604ceea8092f",
+  "short_sha": "97f5ad7804",
+  "subject": "chore: change trustCompiler axiom to True (#2662)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

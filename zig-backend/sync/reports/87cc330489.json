@@ -1,0 +1,67 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind.lean"
+    },
+    {
+      "path": "src/Init/Grind/CommRing/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module.lean"
+    },
+    {
+      "path": "src/Init/Grind/Module/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Module/Basic.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ordered.lean"
+    },
+    {
+      "old_path": "src/Init/Grind/Module/Int.lean",
+      "path": "src/Init/Grind/Ordered/Int.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Int.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Module.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Module.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/PartialOrder.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/PartialOrder.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Ring.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+    }
+  ],
+  "date": "2025-05-21",
+  "needs_port": true,
+  "sha": "87cc330489f7eb778d6b670634fef41993d1557c",
+  "short_sha": "87cc330489",
+  "subject": "feat: ordered ring typeclass for `grind` (#8429)",
+  "zig_target": {
+    "src/Init/Grind.lean": "zig-backend/src/init/Grind.lean",
+    "src/Init/Grind/CommRing/Basic.lean": "zig-backend/src/init/Grind/CommRing/Basic.lean",
+    "src/Init/Grind/Module.lean": "zig-backend/src/init/Grind/Module.lean",
+    "src/Init/Grind/Module/Basic.lean": "zig-backend/src/init/Grind/Module/Basic.lean",
+    "src/Init/Grind/Ordered.lean": "zig-backend/src/init/Grind/Ordered.lean",
+    "src/Init/Grind/Ordered/Int.lean": "zig-backend/src/init/Grind/Ordered/Int.lean",
+    "src/Init/Grind/Ordered/Module.lean": "zig-backend/src/init/Grind/Ordered/Module.lean",
+    "src/Init/Grind/Ordered/PartialOrder.lean": "zig-backend/src/init/Grind/Ordered/PartialOrder.lean",
+    "src/Init/Grind/Ordered/Ring.lean": "zig-backend/src/init/Grind/Ordered/Ring.lean"
+  }
+}

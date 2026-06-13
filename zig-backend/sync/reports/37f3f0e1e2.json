@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-09-17",
+  "needs_port": true,
+  "sha": "37f3f0e1e21192ae26a4c178b527c4868f65c844",
+  "short_sha": "37f3f0e1e2",
+  "subject": "feat: minimal indexable subexpressions in `grind` parameters (#10430)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

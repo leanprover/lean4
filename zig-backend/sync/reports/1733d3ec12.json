@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-28",
+  "needs_port": false,
+  "sha": "1733d3ec12a9903abb26e9a123d4caefc5573158",
+  "short_sha": "1733d3ec12",
+  "subject": "feat(library/init/lean/elaborator): default leading notation symbols to max_prec",
+  "zig_target": {}
+}

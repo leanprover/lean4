@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-12",
+  "needs_port": false,
+  "sha": "a8de4b3b06624461d1cf43ed8155d616b5a4fcbe",
+  "short_sha": "a8de4b3b06",
+  "subject": "chore: CI: use Namespace runners (#4427)",
+  "zig_target": {}
+}

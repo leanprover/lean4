@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2021-09-03",
+  "needs_port": true,
+  "sha": "b5b5ef6fdfce9252a1eba9f28a42e6fd5368d16f",
+  "short_sha": "b5b5ef6fdf",
+  "subject": "feat: add `funext` conv tactic",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

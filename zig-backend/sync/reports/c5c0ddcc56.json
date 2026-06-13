@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-02-16",
+  "needs_port": false,
+  "sha": "c5c0ddcc56941b91e2a6c0889481585628dffaec",
+  "short_sha": "c5c0ddcc56",
+  "subject": "test: remove `let` handling from Sym mvcgen (#12505)",
+  "zig_target": {}
+}

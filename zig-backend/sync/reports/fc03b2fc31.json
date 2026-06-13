@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2022-05-09",
+  "needs_port": true,
+  "sha": "fc03b2fc31ef38f0a708d9aba3e8e60d256be363",
+  "short_sha": "fc03b2fc31",
+  "subject": "feat: `unfold ident,+`",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

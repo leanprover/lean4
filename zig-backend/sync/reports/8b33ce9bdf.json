@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-18",
+  "needs_port": false,
+  "sha": "8b33ce9bdfb505440e0578b603c53fe8590fde8f",
+  "short_sha": "8b33ce9bdf",
+  "subject": "chore: Nix: strip \"Git dir ... is dirty\" warnings",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-11",
+  "needs_port": false,
+  "sha": "3bdb385c199ebbcc2070f8849647df35c2cc2145",
+  "short_sha": "3bdb385c19",
+  "subject": "fix: make sure \"eta for structures\" in the elaborator uses projection functions if available",
+  "zig_target": {}
+}

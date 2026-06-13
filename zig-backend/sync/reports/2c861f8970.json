@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-11",
+  "needs_port": false,
+  "sha": "2c861f8970abed13ff5d6d2c6886000b43aca1be",
+  "short_sha": "2c861f8970",
+  "subject": "feat: nix: use ccache by default",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-02-17",
+  "needs_port": false,
+  "sha": "2a7b1162af01b2e3c93603310c993c6be9b188a1",
+  "short_sha": "2a7b1162af",
+  "subject": "fix: FunInd to clear match discriminants if possible",
+  "zig_target": {}
+}

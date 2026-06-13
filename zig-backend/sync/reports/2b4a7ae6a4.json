@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Declaration.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+    }
+  ],
+  "date": "2020-01-03",
+  "needs_port": true,
+  "sha": "2b4a7ae6a471a29fa73b21f5a0fe6461da0e5d17",
+  "short_sha": "2b4a7ae6a4",
+  "subject": "feat: elaborate declaration modifiers",
+  "zig_target": {
+    "src/Init/Lean/Elab.lean": "zig-backend/src/init/Lean/Elab.lean",
+    "src/Init/Lean/Elab/Declaration.lean": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+  }
+}

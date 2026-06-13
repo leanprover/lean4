@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-11-01",
+  "needs_port": false,
+  "sha": "c7f5fd9a8351c0b69932a81d8d8010395f5e649b",
+  "short_sha": "c7f5fd9a83",
+  "subject": "feat: make \"type mismatch\" error add numeric type ascriptions (#5919)",
+  "zig_target": {}
+}

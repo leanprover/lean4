@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-09-20",
+  "needs_port": false,
+  "sha": "c50bc845c28e1172b4e210ce499bec72a5453bdb",
+  "short_sha": "c50bc845c2",
+  "subject": "feat: HashSet.ofArray (unverified) (#5369)",
+  "zig_target": {}
+}

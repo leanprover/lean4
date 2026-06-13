@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-04-17",
+  "needs_port": false,
+  "sha": "85e7000666f49d26158a56a69888e65330f876f7",
+  "short_sha": "85e7000666",
+  "subject": "doc: update release checklist based on experience with 4.7.0 (#3833)",
+  "zig_target": {}
+}

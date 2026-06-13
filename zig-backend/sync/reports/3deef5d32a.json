@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.cpp"
+    }
+  ],
+  "date": "2023-01-23",
+  "needs_port": true,
+  "sha": "3deef5d32a9d6e23075a915ab8c253957ce6ae8e",
+  "short_sha": "3deef5d32a",
+  "subject": "fix: mpz: honor LEAN_SMALL_ALLOCATOR",
+  "zig_target": {
+    "src/runtime/mpz.cpp": "zig-backend/src/runtime/mpz.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-21",
+  "needs_port": false,
+  "sha": "32a55d5b9c97544c9a84169262663aad00703000",
+  "short_sha": "32a55d5b9c",
+  "subject": "refactor: remove special support for `IO` errors",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-07-11",
+  "needs_port": false,
+  "sha": "6c20cd08f10f2bb6d51dc32e211168acb67c946c",
+  "short_sha": "6c20cd08f1",
+  "subject": "perf: `isDiseq` and `mkDiseqProof?` in `grind` (#9324)",
+  "zig_target": {}
+}

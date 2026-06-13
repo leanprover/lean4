@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-23",
+  "needs_port": false,
+  "sha": "e3ea2e84d24773d49a04a117394e95efe3914a4c",
+  "short_sha": "e3ea2e84d2",
+  "subject": "feat(frontends/lean/lean_elaborator): set position of `#check` output etc.",
+  "zig_target": {}
+}

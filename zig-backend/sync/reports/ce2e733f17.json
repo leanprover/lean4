@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-07",
+  "needs_port": false,
+  "sha": "ce2e733f175b62164a2886c68c92ceb4389a0038",
+  "short_sha": "ce2e733f17",
+  "subject": "fix: make option completion work in presence of value",
+  "zig_target": {}
+}

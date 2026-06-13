@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Slice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Slice.lean"
+    }
+  ],
+  "date": "2025-11-20",
+  "needs_port": true,
+  "sha": "f7ed15800246e6532d0fd01c5856f59a9bf9679f",
+  "short_sha": "f7ed158002",
+  "subject": "chore: introduce and immediately deprecate `String.Slice.length` (#11286)",
+  "zig_target": {
+    "src/Init/Data/String/Slice.lean": "zig-backend/src/init/Data/String/Slice.lean"
+  }
+}

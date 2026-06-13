@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-12-15",
+  "needs_port": false,
+  "sha": "5c2ef51b44169355a92adcf1e9855d32a1572f7d",
+  "short_sha": "5c2ef51b44",
+  "subject": "chore: add gitpod configuration (#6382)",
+  "zig_target": {}
+}

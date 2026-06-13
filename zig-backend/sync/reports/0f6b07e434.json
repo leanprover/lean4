@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-06",
+  "needs_port": false,
+  "sha": "0f6b07e4344b46e4218bfc1714ec071a7451fd46",
+  "short_sha": "0f6b07e434",
+  "subject": "Remove unused `examples/helloDeps/a/leanpkg.toml`",
+  "zig_target": {}
+}

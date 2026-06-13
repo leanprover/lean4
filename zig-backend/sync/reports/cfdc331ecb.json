@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-12",
+  "needs_port": true,
+  "sha": "cfdc331ecbce44947df0f498c971ee0dd18e51f0",
+  "short_sha": "cfdc331ecb",
+  "subject": "feat(library/compiler/lcnf): replace `eq.rec` and `eq.ndrec` applications with `lc_cast`",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-14",
+  "needs_port": false,
+  "sha": "0ab29c7420e037f0273fe16d52fae0bb65dcc9c9",
+  "short_sha": "0ab29c7420",
+  "subject": "fix: do not show progress bar for checking/compiling helper decls (#9786)",
+  "zig_target": {}
+}

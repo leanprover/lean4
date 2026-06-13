@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-30",
+  "needs_port": false,
+  "sha": "97419f5cc57458171ce49be1d38062bd706b9ccf",
+  "short_sha": "97419f5cc5",
+  "subject": "feat(library/init/util): add `panicWithPos`",
+  "zig_target": {}
+}

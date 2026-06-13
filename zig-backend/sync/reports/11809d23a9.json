@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-19",
+  "needs_port": false,
+  "sha": "11809d23a929cd5598815d312cf59d73d45f051d",
+  "short_sha": "11809d23a9",
+  "subject": "chore: remove outdated assertion",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/DivMod/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+    }
+  ],
+  "date": "2025-04-09",
+  "needs_port": true,
+  "sha": "07e7a4366839ee73ff61d69e1c03a899b815223a",
+  "short_sha": "07e7a43668",
+  "subject": "chore: add Int.toNat_emod (#7879)",
+  "zig_target": {
+    "src/Init/Data/Int/DivMod/Lemmas.lean": "zig-backend/src/init/Data/Int/DivMod/Lemmas.lean"
+  }
+}

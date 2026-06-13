@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-07",
+  "needs_port": false,
+  "sha": "e020cd2ea09646b814ceafa432b4f44f824723cc",
+  "short_sha": "e020cd2ea0",
+  "subject": "refactor: parametrize over `getConst : Name -> m (Option (ConstantInfo))` instead of `env : Environment`",
+  "zig_target": {}
+}

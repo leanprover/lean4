@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-10",
+  "needs_port": false,
+  "sha": "f1d84a5096b0a10c4fc65b7c7e526659f18d752b",
+  "short_sha": "f1d84a5096",
+  "subject": "perf: use `dsimp := false` in `split` tactic and while proving equation theorems",
+  "zig_target": {}
+}

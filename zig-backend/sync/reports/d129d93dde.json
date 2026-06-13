@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "d129d93ddebe0a66c96bf5591a706466da64d8fa",
+  "short_sha": "d129d93dde",
+  "subject": "chore: add `letrec` to the list of keywords",
+  "zig_target": {}
+}

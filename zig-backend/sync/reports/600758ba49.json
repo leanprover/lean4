@@ -1,0 +1,10 @@
+{
+  "author": "Rishikesh Vaishnav",
+  "backend_changes": [],
+  "date": "2023-01-19",
+  "needs_port": false,
+  "sha": "600758ba490687ebabc62e2a3057930b58597978",
+  "short_sha": "600758ba49",
+  "subject": "fix: fuzzy-find bonus for matching last characters of pattern and symbol (#1917)",
+  "zig_target": {}
+}

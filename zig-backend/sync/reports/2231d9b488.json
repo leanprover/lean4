@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-09-25",
+  "needs_port": false,
+  "sha": "2231d9b4883038d16eba24ac7daa17b400f763e3",
+  "short_sha": "2231d9b488",
+  "subject": "feat: improve error messages for ambiguous `3.toDecmial` syntax (#10488)",
+  "zig_target": {}
+}

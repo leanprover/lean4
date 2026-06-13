@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-01",
+  "needs_port": false,
+  "sha": "416a8372cd14657af643224641cf83c1e33f6f4b",
+  "short_sha": "416a8372cd",
+  "subject": "perf: shorten rebuild critical path by 19% (#9626)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-21",
+  "needs_port": false,
+  "sha": "c363019777619ddc73b426a938892f6abb124bd4",
+  "short_sha": "c363019777",
+  "subject": "doc: notes on debugging Lean",
+  "zig_target": {}
+}

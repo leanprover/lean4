@@ -1,0 +1,18 @@
+{
+  "author": "Evan Chen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Attr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Attr.lean"
+    }
+  ],
+  "date": "2025-12-14",
+  "needs_port": true,
+  "sha": "429e09cd8251a15bf5cc8e287f5393fa482d37bd",
+  "short_sha": "429e09cd82",
+  "subject": "doc: trivial typo in Grind/Attr.lean (#11676)",
+  "zig_target": {
+    "src/Init/Grind/Attr.lean": "zig-backend/src/init/Grind/Attr.lean"
+  }
+}

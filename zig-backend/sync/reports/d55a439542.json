@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-11",
+  "needs_port": false,
+  "sha": "d55a439542b6321927f78544a7c8546a44bcd8f2",
+  "short_sha": "d55a439542",
+  "subject": "test(tests/playground/fix_1): add `fix.lean` variant: `fix_1.lean`",
+  "zig_target": {}
+}

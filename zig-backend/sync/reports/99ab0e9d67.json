@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "99ab0e9d670555d4dbda75def18a8ae5ccddfaa9",
+  "short_sha": "99ab0e9d67",
+  "subject": "refactor(library/messages): make an object_ref",
+  "zig_target": {}
+}

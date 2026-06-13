@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ByteArray/Utf8.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ByteArray/Utf8.lean"
+    }
+  ],
+  "date": "2020-08-08",
+  "needs_port": true,
+  "sha": "43560170359507ad49e956e2f30ce8dbe22cef4b",
+  "short_sha": "4356017035",
+  "subject": "chore: copyright",
+  "zig_target": {
+    "src/Init/Data/ByteArray/Utf8.lean": "zig-backend/src/init/Data/ByteArray/Utf8.lean"
+  }
+}

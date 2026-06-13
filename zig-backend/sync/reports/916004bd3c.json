@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-31",
+  "needs_port": false,
+  "sha": "916004bd3cddce36a930df49579c16838b23281e",
+  "short_sha": "916004bd3c",
+  "subject": "fix: add checkSystem calls to hasAssignableMVar (#13219)",
+  "zig_target": {}
+}

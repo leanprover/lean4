@@ -1,0 +1,18 @@
+{
+  "author": "Hongyu Ouyang",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-03-23",
+  "needs_port": true,
+  "sha": "2ed777b2b4fb90856ce74ed8ec1460e650062946",
+  "short_sha": "2ed777b2b4",
+  "subject": "doc: fix typo in docstring of `left` (#3748)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-15",
+  "needs_port": false,
+  "sha": "17082939204354ec5c86e96b35ce75a631a74070",
+  "short_sha": "1708293920",
+  "subject": "feat: shake: precise reasons in `--explain` output (#13740)",
+  "zig_target": {}
+}

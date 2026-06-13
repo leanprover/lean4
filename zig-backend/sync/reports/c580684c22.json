@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/ShareCommon.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/ShareCommon.lean"
+    },
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/sharecommon.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/sharecommon.cpp"
+    }
+  ],
+  "date": "2024-07-17",
+  "needs_port": true,
+  "sha": "c580684c227c380fe01a5bebb1978424448f58b5",
+  "short_sha": "c580684c22",
+  "subject": "perf: add `ShareCommon.shareCommon'` (#4767)",
+  "zig_target": {
+    "src/Init/ShareCommon.lean": "zig-backend/src/init/ShareCommon.lean",
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/sharecommon.cpp": "zig-backend/src/runtime/sharecommon.cpp"
+  }
+}

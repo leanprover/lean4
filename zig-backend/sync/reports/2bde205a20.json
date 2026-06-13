@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-24",
+  "needs_port": false,
+  "sha": "2bde205a20fd2c03e3719d0ca13327fff8e3bc94",
+  "short_sha": "2bde205a20",
+  "subject": "chore(CMakeLists): enable COMPRESSED_OBJECT_HEADER",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-12",
+  "needs_port": false,
+  "sha": "8d3be9602470449daa1fd4e580207bf33eeac880",
+  "short_sha": "8d3be96024",
+  "subject": "fix: tactics in terms in tactics may break incremental reporting (#4436)",
+  "zig_target": {}
+}

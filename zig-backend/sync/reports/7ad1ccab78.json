@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-10",
+  "needs_port": false,
+  "sha": "7ad1ccab78ce3276c12ea5d695fce983946b97c7",
+  "short_sha": "7ad1ccab78",
+  "subject": "feat: use quotation prechecks where possible at FromToJson",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-09",
+  "needs_port": false,
+  "sha": "ec5aa511a4ad46797e6ddfafa99682a981f7f693",
+  "short_sha": "ec5aa511a4",
+  "subject": "chore: move `Level.lean` to new frontend",
+  "zig_target": {}
+}

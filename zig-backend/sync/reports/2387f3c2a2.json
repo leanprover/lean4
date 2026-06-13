@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-22",
+  "needs_port": false,
+  "sha": "2387f3c2a22da8a27a4c643b67a0330597572999",
+  "short_sha": "2387f3c2a2",
+  "subject": "feat(library/init/lean/elaborator): improve `namespace`, `scope`, and `end` commands",
+  "zig_target": {}
+}

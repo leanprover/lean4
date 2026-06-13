@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-02-20",
+  "needs_port": false,
+  "sha": "a3a99d387564d67a495f14dbac3c02eebeed44b8",
+  "short_sha": "a3a99d3875",
+  "subject": "feat: more tree map lemmas about empty, isEmpty, contains, size, insert, erase (#7161)",
+  "zig_target": {}
+}

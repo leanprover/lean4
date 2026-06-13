@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-29",
+  "needs_port": true,
+  "sha": "9f8760d936730a98d3c00c08b6241dbf3b23b07f",
+  "short_sha": "9f8760d936",
+  "subject": "fix(library/compiler/llnf): LLNF terminal is variable, jmp, or cases",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

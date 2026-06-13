@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "351a94175647b3c18831c65144b4d5daae6ad59b",
+  "short_sha": "351a941756",
+  "subject": "fix: show deprecation warnings for `grind` theorem arguments (#11593)",
+  "zig_target": {}
+}

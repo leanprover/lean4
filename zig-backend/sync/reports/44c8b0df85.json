@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-06-29",
+  "needs_port": false,
+  "sha": "44c8b0df8559728b2a1bea5e2f52f63def5dfaa0",
+  "short_sha": "44c8b0df85",
+  "subject": "feat: `warn.sorry` option (#8662)",
+  "zig_target": {}
+}

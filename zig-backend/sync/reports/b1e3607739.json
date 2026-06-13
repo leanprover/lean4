@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "b1e3607739dfef5d99af1794b8372636fc7ec5d0",
+  "short_sha": "b1e3607739",
+  "subject": "fix: `match` tactic with multiple LHSs",
+  "zig_target": {}
+}

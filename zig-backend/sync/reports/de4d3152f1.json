@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-04",
+  "needs_port": false,
+  "sha": "de4d3152f17d82116958fe7bc5a06948a754e368",
+  "short_sha": "de4d3152f1",
+  "subject": "chore: use CamelCase to name files and directories",
+  "zig_target": {}
+}

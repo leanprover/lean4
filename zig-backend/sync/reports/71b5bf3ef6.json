@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2025-07-12",
+  "needs_port": true,
+  "sha": "71b5bf3ef62c6414d4eab046a6e8d1f669e221f0",
+  "short_sha": "71b5bf3ef6",
+  "subject": "fix: include `._closed` decls in trace.Compiler.result output (#9336)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

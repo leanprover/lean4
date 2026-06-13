@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-16",
+  "needs_port": false,
+  "sha": "7ea0d5394d1e0d4494345e9d4cac873a6e0c50ca",
+  "short_sha": "7ea0d5394d",
+  "subject": "feat: add `withMacroExpansion`",
+  "zig_target": {}
+}

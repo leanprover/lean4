@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-11-11",
+  "needs_port": false,
+  "sha": "4063729b6cbb20b558662e6f2d81915eab98329c",
+  "short_sha": "4063729b6c",
+  "subject": "doc: document some built-in term notations",
+  "zig_target": {}
+}

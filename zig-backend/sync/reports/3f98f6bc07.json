@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    }
+  ],
+  "date": "2025-03-30",
+  "needs_port": true,
+  "sha": "3f98f6bc07c76444b04d21e034d023fb282b4091",
+  "short_sha": "3f98f6bc07",
+  "subject": "feat: structure instance notation elaboration improvements (#7717)",
+  "zig_target": {
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean"
+  }
+}

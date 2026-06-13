@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-11",
+  "needs_port": false,
+  "sha": "9f8dd99ccd54717eb9d137b0bb9dd29832380540",
+  "short_sha": "9f8dd99ccd",
+  "subject": "fix: macro `declare_config_elab` was corrupting the info tree",
+  "zig_target": {}
+}

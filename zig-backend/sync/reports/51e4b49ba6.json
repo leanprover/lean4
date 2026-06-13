@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-06-25",
+  "needs_port": false,
+  "sha": "51e4b49ba637dd30a920441352b94382ee64926b",
+  "short_sha": "51e4b49ba6",
+  "subject": "feat: allow arbitrary syntax in `macro`/`elab`",
+  "zig_target": {}
+}

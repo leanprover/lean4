@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-02-14",
+  "needs_port": false,
+  "sha": "c12c783f624c5579da58db28e9e9c8cd06961836",
+  "short_sha": "c12c783f62",
+  "subject": "perf: remove the additional relabeling step during AIG to CNF conversion (#12480)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-19",
+  "needs_port": false,
+  "sha": "774d776133c4ebc95924ef36412c7b650f528223",
+  "short_sha": "774d776133",
+  "subject": "feat(frontends/lean/builtin_exprs): pattern `let` with type",
+  "zig_target": {}
+}

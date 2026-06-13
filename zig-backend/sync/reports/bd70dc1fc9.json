@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-11-06",
+  "needs_port": false,
+  "sha": "bd70dc1fc959e7daa4de67410d045f1d1dd9819b",
+  "short_sha": "bd70dc1fc9",
+  "subject": "perf(library/init/lean/parser): move backtrackable state from parser_core_t to module_parser_m",
+  "zig_target": {}
+}

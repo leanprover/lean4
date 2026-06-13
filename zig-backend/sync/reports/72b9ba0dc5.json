@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-08-03",
+  "needs_port": false,
+  "sha": "72b9ba0dc54dda10993974b292fc630fef544da2",
+  "short_sha": "72b9ba0dc5",
+  "subject": "chore: move tutorial to examples folder",
+  "zig_target": {}
+}

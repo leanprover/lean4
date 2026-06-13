@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-17",
+  "needs_port": false,
+  "sha": "52a0de00e4aa6d9cc4cb755f49308186da7fe27a",
+  "short_sha": "52a0de00e4",
+  "subject": "feat: report error on ambiguous `export` and `open` commands",
+  "zig_target": {}
+}

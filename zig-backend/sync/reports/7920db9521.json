@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-25",
+  "needs_port": false,
+  "sha": "7920db952116e838b31c6f59f17bde0af01df545",
+  "short_sha": "7920db9521",
+  "subject": "feat: check for invalid projections during elaboration",
+  "zig_target": {}
+}

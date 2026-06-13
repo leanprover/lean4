@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-11-13",
+  "needs_port": false,
+  "sha": "f08805e5c446d0b7d7c61861ea035d1cdb82e944",
+  "short_sha": "f08805e5c4",
+  "subject": "feat: message kinds (#5945)",
+  "zig_target": {}
+}

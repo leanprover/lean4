@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-17",
+  "needs_port": true,
+  "sha": "1d0d17d4aebc70258d65147e1dafdc2157b3b09b",
+  "short_sha": "1d0d17d4ae",
+  "subject": "fix(library/compiler/llnf): bug at explicit boxing transformation",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

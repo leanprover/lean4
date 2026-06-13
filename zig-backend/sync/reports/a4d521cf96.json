@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-11-04",
+  "needs_port": true,
+  "sha": "a4d521cf96d4994640c42d96b693c2d789016f5f",
+  "short_sha": "a4d521cf96",
+  "subject": "fix: make `all_goals` admit goals on failure (#5934)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-17",
+  "needs_port": false,
+  "sha": "bcf2bf994bdc4cfb9b9e631542c4af9b0193aa10",
+  "short_sha": "bcf2bf994b",
+  "subject": "chore: exploit that command* is command as well",
+  "zig_target": {}
+}

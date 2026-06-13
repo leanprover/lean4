@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2024-02-27",
+  "needs_port": true,
+  "sha": "9c00a5933944bbc4801079777dd9fcc326e66390",
+  "short_sha": "9c00a59339",
+  "subject": "feat: use omega in default decreasing_trivial (#3503)",
+  "zig_target": {
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-15",
+  "needs_port": true,
+  "sha": "ecdc2d57f23411e758197bcde4780916aea8a42a",
+  "short_sha": "ecdc2d57f2",
+  "subject": "refactor: `Int.Linear` module (#7093)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

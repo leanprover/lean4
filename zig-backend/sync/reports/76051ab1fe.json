@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-07-31",
+  "needs_port": false,
+  "sha": "76051ab1fedf8a6035bb497517cee9848d7f9158",
+  "short_sha": "76051ab1fe",
+  "subject": "feat: use name resolution for dot identifier notation (#9634)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-28",
+  "needs_port": false,
+  "sha": "d63d1188cc03eccc6d0d81546eaad333c3d5aa35",
+  "short_sha": "d63d1188cc",
+  "subject": "chore: fix stdlib size benchmarks",
+  "zig_target": {}
+}

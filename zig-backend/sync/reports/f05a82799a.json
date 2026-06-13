@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-05-26",
+  "needs_port": false,
+  "sha": "f05a82799a01569edeb5e2594cd7d56282320f9e",
+  "short_sha": "f05a82799a",
+  "subject": "chore: CI: restore macOS aarch64 install sufix",
+  "zig_target": {}
+}

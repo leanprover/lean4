@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-21",
+  "needs_port": false,
+  "sha": "7d82dd99c951e3b095188f7b24e37d84ccee693f",
+  "short_sha": "7d82dd99c9",
+  "subject": "chore: add test for #4278, which was fixed by the new compiler (#8916)",
+  "zig_target": {}
+}

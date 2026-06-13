@@ -1,0 +1,10 @@
+{
+  "author": "Alok Singh",
+  "backend_changes": [],
+  "date": "2024-05-17",
+  "needs_port": false,
+  "sha": "489d2d11ec6e624ac609b051ea8e74a0c852dad0",
+  "short_sha": "489d2d11ec",
+  "subject": "feat: lake: add readme to package templates (#4147)",
+  "zig_target": {}
+}

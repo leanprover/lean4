@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-09",
+  "needs_port": false,
+  "sha": "c58d13869557ab6fb1f8497e9de612d25175f614",
+  "short_sha": "c58d138695",
+  "subject": "perf: fno-semantic-interposition",
+  "zig_target": {}
+}

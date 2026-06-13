@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-14",
+  "needs_port": false,
+  "sha": "ae7df32428af951223bafe0b704321c172840fca",
+  "short_sha": "ae7df32428",
+  "subject": "refactor(library/init/lean/parser/syntax): setting `source_info.leading` is much easier after parsing",
+  "zig_target": {}
+}

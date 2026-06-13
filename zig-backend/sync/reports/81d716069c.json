@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-17",
+  "needs_port": false,
+  "sha": "81d716069c354fe5f6f1e36ab731ff54b2b42e55",
+  "short_sha": "81d716069c",
+  "subject": "fix: lake: improper uses of `computeArtifact` w/o `text` (#11216)",
+  "zig_target": {}
+}

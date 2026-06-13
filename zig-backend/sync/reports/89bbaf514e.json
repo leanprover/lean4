@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-01-07",
+  "needs_port": false,
+  "sha": "89bbaf514e7faa0f4398b2c97eaa7837a714e26d",
+  "short_sha": "89bbaf514e",
+  "subject": "feat: include imports in header snap info tree",
+  "zig_target": {}
+}

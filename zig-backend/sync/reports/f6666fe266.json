@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-07-17",
+  "needs_port": false,
+  "sha": "f6666fe2662972aee0d4358950f116f7331eae42",
+  "short_sha": "f6666fe266",
+  "subject": "chore: add missing `withTraceNode` (#4769)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-08-16",
+  "needs_port": false,
+  "sha": "eb15c08ea0efc3a30cb8f32dca20cc115ffd854d",
+  "short_sha": "eb15c08ea0",
+  "subject": "fix: instantiate mvars of indices before instantiating fvars (#4717)",
+  "zig_target": {}
+}

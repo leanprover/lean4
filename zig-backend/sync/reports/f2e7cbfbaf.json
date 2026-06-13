@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-07-19",
+  "needs_port": false,
+  "sha": "f2e7cbfbaff6dc88c076a64047c95e4f4016546a",
+  "short_sha": "f2e7cbfbaf",
+  "subject": "chore: use inaccessible name for RpcEncodingPacket",
+  "zig_target": {}
+}

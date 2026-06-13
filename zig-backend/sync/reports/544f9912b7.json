@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Main.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+    }
+  ],
+  "date": "2025-08-09",
+  "needs_port": true,
+  "sha": "544f9912b70df75511e73eaef1f57573bf92b351",
+  "short_sha": "544f9912b7",
+  "subject": "chore: add separate profiling entries for base, mono, and IR phases (#9817)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Main.lean": "zig-backend/src/lean/compiler/lcnf/Main.lean"
+  }
+}

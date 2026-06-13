@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-26",
+  "needs_port": false,
+  "sha": "5dc5e8a92ff2bbbe78797aeacb3ebe13850c404b",
+  "short_sha": "5dc5e8a92f",
+  "subject": "feat: add `LetRecView` and expand `letEqnsDecl` occurring in letrec's",
+  "zig_target": {}
+}

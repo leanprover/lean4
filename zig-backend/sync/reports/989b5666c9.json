@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "989b5666c94d22b8124afa1fd2e0d291d0eb4a7b",
+  "short_sha": "989b5666c9",
+  "subject": "refactor: remove unnecesssary build key subtypes",
+  "zig_target": {}
+}

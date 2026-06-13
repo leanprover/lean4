@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-22",
+  "needs_port": false,
+  "sha": "f7451e025c0c786d296406d0bfb1123d429ea39a",
+  "short_sha": "f7451e025c",
+  "subject": "feat: basic precompiled modules + builtin module facets",
+  "zig_target": {}
+}

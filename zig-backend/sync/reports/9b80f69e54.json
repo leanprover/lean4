@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-20",
+  "needs_port": false,
+  "sha": "9b80f69e546d2a946a1e0006bedf97c440927693",
+  "short_sha": "9b80f69e54",
+  "subject": "chore: add proper shebang to build.sh & port to `sh`",
+  "zig_target": {}
+}

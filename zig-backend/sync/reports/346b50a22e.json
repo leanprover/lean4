@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2022-01-13",
+  "needs_port": false,
+  "sha": "346b50a22e3ae2c96bf66f3cc31ca06179e75572",
+  "short_sha": "346b50a22e",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

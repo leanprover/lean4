@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    }
+  ],
+  "date": "2018-09-23",
+  "needs_port": true,
+  "sha": "dd046b0e0a8f64d867029ef1e809ec15945dac91",
+  "short_sha": "dd046b0e0a",
+  "subject": "feat(library/init/core): mark `id_rhs` as `[macro_inline]`",
+  "zig_target": {
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp"
+  }
+}

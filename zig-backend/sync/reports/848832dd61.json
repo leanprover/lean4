@@ -1,0 +1,18 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [
+    {
+      "path": "src/runtime/compact.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.cpp"
+    }
+  ],
+  "date": "2025-09-02",
+  "needs_port": true,
+  "sha": "848832dd6192876c29b8231dc390039bfdc3200e",
+  "short_sha": "848832dd61",
+  "subject": "chore: demote a panic to an exception in saveModuleData (#9127)",
+  "zig_target": {
+    "src/runtime/compact.cpp": "zig-backend/src/runtime/compact.cpp"
+  }
+}

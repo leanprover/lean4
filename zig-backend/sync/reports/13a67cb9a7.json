@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "13a67cb9a73873fe0b5b421e6d58606b87435b87",
+  "short_sha": "13a67cb9a7",
+  "subject": "feat(library/init/lean/elaborator/preterm): add glue code for new and old elaborators",
+  "zig_target": {}
+}

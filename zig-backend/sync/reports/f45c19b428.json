@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-03-04",
+  "needs_port": false,
+  "sha": "f45c19b428496aa99036d317c2b8bd83dae4e7ea",
+  "short_sha": "f45c19b428",
+  "subject": "feat: identify more fixed parameters  (#7166)",
+  "zig_target": {}
+}

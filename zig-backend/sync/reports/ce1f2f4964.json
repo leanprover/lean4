@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-28",
+  "needs_port": false,
+  "sha": "ce1f2f4964c3809b2c97bcac6b38e4a277653b05",
+  "short_sha": "ce1f2f4964",
+  "subject": "feat: add `lake clean` command",
+  "zig_target": {}
+}

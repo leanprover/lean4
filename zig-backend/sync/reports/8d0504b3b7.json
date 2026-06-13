@@ -1,0 +1,18 @@
+{
+  "author": "Bulhwi Cha",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2023-05-25",
+  "needs_port": true,
+  "sha": "8d0504b3b762d0950f44939ba4d2ac3821637fe7",
+  "short_sha": "8d0504b3b7",
+  "subject": "doc: add docstring to `String.next'`",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

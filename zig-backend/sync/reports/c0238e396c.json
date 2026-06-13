@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ToIR.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+    }
+  ],
+  "date": "2025-09-04",
+  "needs_port": true,
+  "sha": "c0238e396cdd4145612cc6f406cc5982e6fef4c9",
+  "short_sha": "c0238e396c",
+  "subject": "refactor: inline `tryIrDecl?` into its only caller (#10255)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ToIR.lean": "zig-backend/src/lean/compiler/ir/ToIR.lean"
+  }
+}

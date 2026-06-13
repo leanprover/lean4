@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-08",
+  "needs_port": false,
+  "sha": "32eeac88c8cc6027827bea47a5a63663113f8362",
+  "short_sha": "32eeac88c8",
+  "subject": "fix: ensure `matchAlts` have same shape with and without `optionalFirstBar`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-23",
+  "needs_port": false,
+  "sha": "525021c01e1253b9026200212d91e00a3a80ffa3",
+  "short_sha": "525021c01e",
+  "subject": "feat: pluggable `pure`/`bind` builders for `do` elaboration (#13507)",
+  "zig_target": {}
+}

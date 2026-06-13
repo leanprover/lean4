@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-06",
+  "needs_port": false,
+  "sha": "d25f520143e9c037f27f19d8e703a70ae2bde609",
+  "short_sha": "d25f520143",
+  "subject": "feat: elaborate `#reduce` command",
+  "zig_target": {}
+}

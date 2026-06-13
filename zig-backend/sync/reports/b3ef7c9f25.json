@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-10-25",
+  "needs_port": false,
+  "sha": "b3ef7c9f25c2d4ee3728cbb14534a3b203382f71",
+  "short_sha": "b3ef7c9f25",
+  "subject": "chore: add an assertion about mkValueTypeClosure (#10954)",
+  "zig_target": {}
+}

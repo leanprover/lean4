@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-25",
+  "needs_port": false,
+  "sha": "423b0fed3a2388d097f8237d9c3be7bf9ecda001",
+  "short_sha": "423b0fed3a",
+  "subject": "refactor: use `Array Expr` at `DelayedMVarAssignment`",
+  "zig_target": {}
+}

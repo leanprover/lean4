@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-06-28",
+  "needs_port": false,
+  "sha": "7f986c62bad575d940a173ecf94a85fc31220f03",
+  "short_sha": "7f986c62ba",
+  "subject": "refactor: add `Arg.lean`",
+  "zig_target": {}
+}

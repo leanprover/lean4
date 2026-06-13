@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-06",
+  "needs_port": false,
+  "sha": "b27f215b9a92b9612e42feec9d56f143d04fd082",
+  "short_sha": "b27f215b9a",
+  "subject": "chore(library/local_context): simplify `pp`",
+  "zig_target": {}
+}

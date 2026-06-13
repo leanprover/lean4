@@ -1,0 +1,18 @@
+{
+  "author": "Zhao Yuyang \u8d75\u96e8\u626c",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2025-12-10",
+  "needs_port": true,
+  "sha": "06037ade0f52824f255c09e47b8c0ce7ccf8803b",
+  "short_sha": "06037ade0f",
+  "subject": "doc: fix typo in `Init.Coe` module docstring (#11567)",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-05",
+  "needs_port": false,
+  "sha": "5aceea2632944938bab1c737f2cd2f514f27a6b1",
+  "short_sha": "5aceea2632",
+  "subject": "feat: add \"non variable\" transition",
+  "zig_target": {}
+}

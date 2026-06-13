@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-31",
+  "needs_port": false,
+  "sha": "77b160a5a8c713a13f2bbf727d81d0d6b3c839bb",
+  "short_sha": "77b160a5a8",
+  "subject": "chore: use `mkFreshUserName` at `generalizeTelescope`",
+  "zig_target": {}
+}

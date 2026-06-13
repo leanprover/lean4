@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-06",
+  "needs_port": false,
+  "sha": "0ed3f08c1b446d45f87c4cb58b861144fd9981d0",
+  "short_sha": "0ed3f08c1b",
+  "subject": "feat: `open` in terms and tatics",
+  "zig_target": {}
+}

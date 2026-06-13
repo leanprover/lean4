@@ -1,0 +1,10 @@
+{
+  "author": "Parth Shastri",
+  "backend_changes": [],
+  "date": "2023-01-23",
+  "needs_port": false,
+  "sha": "954190e45714b832493788dd30862e83ff6920a0",
+  "short_sha": "954190e457",
+  "subject": "fix: remove repeat calls to `inferType` in `ignoreField`",
+  "zig_target": {}
+}

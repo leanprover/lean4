@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-10-04",
+  "needs_port": false,
+  "sha": "662dc1044769076ec7586068c775538fa31f291d",
+  "short_sha": "662dc10447",
+  "subject": "fix: lake: outdated traces w/ cache (#10672)",
+  "zig_target": {}
+}

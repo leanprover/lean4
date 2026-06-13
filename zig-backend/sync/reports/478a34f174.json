@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-10-02",
+  "needs_port": false,
+  "sha": "478a34f17449b3fca8594cf4a9d0890f92c46315",
+  "short_sha": "478a34f174",
+  "subject": "feat: Singleton/Insert/Union instances for HashMap/Set (#5581)",
+  "zig_target": {}
+}

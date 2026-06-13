@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-12-25",
+  "needs_port": false,
+  "sha": "a2760d01447eb83f818de29e955a37c292295051",
+  "short_sha": "a2760d0144",
+  "subject": "test: multi-process server",
+  "zig_target": {}
+}

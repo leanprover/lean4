@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-09-08",
+  "needs_port": true,
+  "sha": "d2a1e20dd0a5aa437c1688d2934bc01dc41bbd06",
+  "short_sha": "d2a1e20dd0",
+  "subject": "feat: bundling LLVM on Linux",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

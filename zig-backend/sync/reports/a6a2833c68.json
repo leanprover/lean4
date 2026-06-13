@@ -1,0 +1,18 @@
+{
+  "author": "Marcus Rossel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Basic.lean"
+    }
+  ],
+  "date": "2025-05-13",
+  "needs_port": true,
+  "sha": "a6a2833c6899e24f824589fde5579ef6b777f352",
+  "short_sha": "a6a2833c68",
+  "subject": "feat: lemmas about `List.intersperse` (#8272)",
+  "zig_target": {
+    "src/Init/Data/List/Nat/Basic.lean": "zig-backend/src/init/Data/List/Nat/Basic.lean"
+  }
+}

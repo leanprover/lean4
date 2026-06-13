@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-08",
+  "needs_port": false,
+  "sha": "a31595bda5762b873c1b1dba49719771d73a4d46",
+  "short_sha": "a31595bda5",
+  "subject": "feat: add `doElem.quot` elaboration function",
+  "zig_target": {}
+}

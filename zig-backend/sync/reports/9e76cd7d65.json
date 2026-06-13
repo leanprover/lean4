@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-04",
+  "needs_port": false,
+  "sha": "9e76cd7d659f843ce3db7cd82eb631af7a39069e",
+  "short_sha": "9e76cd7d65",
+  "subject": "fix: `toName` function at `elabAppFnId`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-03-07",
+  "needs_port": false,
+  "sha": "7648ec57b58aee062d96699488a10b53afc1b72e",
+  "short_sha": "7648ec57b5",
+  "subject": "fix: adapt to new `Handle.mk` signature",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-23",
+  "needs_port": false,
+  "sha": "ccb873cea2b6b7d615f1e81dcd26d3b26d21ed48",
+  "short_sha": "ccb873cea2",
+  "subject": "fix: panic on `variable :`",
+  "zig_target": {}
+}

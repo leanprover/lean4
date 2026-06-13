@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-03-03",
+  "needs_port": false,
+  "sha": "acb1b09fbfdba95ea0aa1c87ee5ebabd1627d5d3",
+  "short_sha": "acb1b09fbf",
+  "subject": "fix: expression tree elaborator for relations now localizes error messages to the LHS or RHS (#3442)",
+  "zig_target": {}
+}

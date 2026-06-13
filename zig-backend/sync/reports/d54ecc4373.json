@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-27",
+  "needs_port": false,
+  "sha": "d54ecc43731b8d35001cae0a2fd29d8ce9c810fa",
+  "short_sha": "d54ecc4373",
+  "subject": "doc: refer to mathlib4 instructions in quickstart",
+  "zig_target": {}
+}

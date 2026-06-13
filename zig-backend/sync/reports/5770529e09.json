@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-24",
+  "needs_port": false,
+  "sha": "5770529e09a996d11f93198b23a8b2b1936dbd36",
+  "short_sha": "5770529e09",
+  "subject": "feat: add non-`leanc` compile o/bin functions",
+  "zig_target": {}
+}

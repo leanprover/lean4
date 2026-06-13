@@ -1,0 +1,10 @@
+{
+  "author": "thorimur",
+  "backend_changes": [],
+  "date": "2023-10-24",
+  "needs_port": false,
+  "sha": "6063deb6bdc772db582c2e4edd2fa306288f6083",
+  "short_sha": "6063deb6bd",
+  "subject": "fix: `rw ... at h` unknown fvar bug (#2728)",
+  "zig_target": {}
+}

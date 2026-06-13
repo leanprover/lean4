@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-10",
+  "needs_port": false,
+  "sha": "82d90b4cdcd3e5c9a57e0764e6b0ff57fe505e73",
+  "short_sha": "82d90b4cdc",
+  "subject": "fix: force unfolding of the Decidable instace in Decidable.rec (#12399)",
+  "zig_target": {}
+}

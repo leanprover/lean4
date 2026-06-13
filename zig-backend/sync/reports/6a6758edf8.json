@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-13",
+  "needs_port": false,
+  "sha": "6a6758edf851d6f6a45436253dbabea7444adb9a",
+  "short_sha": "6a6758edf8",
+  "subject": "refactor(library/init/lean/elaborator): move `elabTerm` to `term.lean`",
+  "zig_target": {}
+}

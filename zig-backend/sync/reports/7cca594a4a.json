@@ -1,0 +1,168 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/DecidableEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/DecidableEq.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Lex/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Lex/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/BEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BEq.lean"
+    },
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lex.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Perm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Perm.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Prod.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Prod.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/DecidableEq.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/DecidableEq.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Lex.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Lex.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    },
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2025-04-16",
+  "needs_port": true,
+  "sha": "7cca594a4a567ad801dc0cefc3d1adcd0e141ec7",
+  "short_sha": "7cca594a4a",
+  "subject": "chore: adjust `BEq` classes (#7855)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/Array/Attach.lean": "zig-backend/src/init/Data/Array/Attach.lean",
+    "src/Init/Data/Array/Count.lean": "zig-backend/src/init/Data/Array/Count.lean",
+    "src/Init/Data/Array/DecidableEq.lean": "zig-backend/src/init/Data/Array/DecidableEq.lean",
+    "src/Init/Data/Array/Lemmas.lean": "zig-backend/src/init/Data/Array/Lemmas.lean",
+    "src/Init/Data/Array/Lex/Lemmas.lean": "zig-backend/src/init/Data/Array/Lex/Lemmas.lean",
+    "src/Init/Data/BEq.lean": "zig-backend/src/init/Data/BEq.lean",
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean",
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean",
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean",
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Lex.lean": "zig-backend/src/init/Data/List/Lex.lean",
+    "src/Init/Data/List/Perm.lean": "zig-backend/src/init/Data/List/Perm.lean",
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean",
+    "src/Init/Data/Option/Basic.lean": "zig-backend/src/init/Data/Option/Basic.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Data/Prod.lean": "zig-backend/src/init/Data/Prod.lean",
+    "src/Init/Data/Vector/Attach.lean": "zig-backend/src/init/Data/Vector/Attach.lean",
+    "src/Init/Data/Vector/Count.lean": "zig-backend/src/init/Data/Vector/Count.lean",
+    "src/Init/Data/Vector/DecidableEq.lean": "zig-backend/src/init/Data/Vector/DecidableEq.lean",
+    "src/Init/Data/Vector/Lemmas.lean": "zig-backend/src/init/Data/Vector/Lemmas.lean",
+    "src/Init/Data/Vector/Lex.lean": "zig-backend/src/init/Data/Vector/Lex.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean",
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

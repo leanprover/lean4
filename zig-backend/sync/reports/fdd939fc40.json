@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2021-12-21",
+  "needs_port": true,
+  "sha": "fdd939fc40d36a39addc8f038746a1395b6fca05",
+  "short_sha": "fdd939fc40",
+  "subject": "fix: accidental memory leak in last commit",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

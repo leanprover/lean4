@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-05-05",
+  "needs_port": false,
+  "sha": "3bd2a7419df83fd9bdec8c480b52cc1ff340933e",
+  "short_sha": "3bd2a7419d",
+  "subject": "fix: have app unexpanders be considered before field notation (#4071)",
+  "zig_target": {}
+}

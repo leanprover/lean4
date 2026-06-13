@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-07-26",
+  "needs_port": true,
+  "sha": "cbe39dc4bb3c23b05ee00f649676bc8bb97ef757",
+  "short_sha": "cbe39dc4bb",
+  "subject": "chore: fix List deprecations (#4842)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

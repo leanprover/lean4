@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/PrettyPrinter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+    }
+  ],
+  "date": "2022-10-09",
+  "needs_port": true,
+  "sha": "b20e208867a2ef88b4ff4a5f666131d2677b9d65",
+  "short_sha": "b20e208867",
+  "subject": "chore: pretty print LCNF `cases` result type",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/PrettyPrinter.lean": "zig-backend/src/lean/compiler/lcnf/PrettyPrinter.lean"
+  }
+}

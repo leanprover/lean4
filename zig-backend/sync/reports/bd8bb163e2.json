@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-11",
+  "needs_port": false,
+  "sha": "bd8bb163e2c9c44b31c709a1b796677976b866a4",
+  "short_sha": "bd8bb163e2",
+  "subject": "feat: add parser aliases tables",
+  "zig_target": {}
+}

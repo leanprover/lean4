@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-30",
+  "needs_port": false,
+  "sha": "4246d98547755d11118f823685b3751ae6f1366a",
+  "short_sha": "4246d98547",
+  "subject": "fix: remove unnecessary `BaseIO` in `AsyncList`",
+  "zig_target": {}
+}

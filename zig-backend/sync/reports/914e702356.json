@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-22",
+  "needs_port": false,
+  "sha": "914e702356047bcb1290728fe6ae5d19efa5c6f8",
+  "short_sha": "914e702356",
+  "subject": "chore(kernel/level): remove unnecessary `friend` annotation",
+  "zig_target": {}
+}

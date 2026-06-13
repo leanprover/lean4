@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-06-18",
+  "needs_port": false,
+  "sha": "e83b7681407043c75f5167c2e4da13e25078a0c0",
+  "short_sha": "e83b768140",
+  "subject": "feat: lake: reintroduce `lean --setup` basics (#8846)",
+  "zig_target": {}
+}

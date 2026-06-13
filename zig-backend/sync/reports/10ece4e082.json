@@ -1,0 +1,84 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Find/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Find/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Find/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Split/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Split/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/Pred.lean"
+    }
+  ],
+  "date": "2026-03-04",
+  "needs_port": true,
+  "sha": "10ece4e082ac78e3ded5ad855c3c8fb10073b241",
+  "short_sha": "10ece4e082",
+  "subject": "refactor: reduce duplication in string pattern lemmas (#12793)",
+  "zig_target": {
+    "src/Init/Data/String/Lemmas/Pattern/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Find/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/Char.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Find/Pred.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/Pred.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Find/String.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Find/String.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Split/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Char.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Split/Pred.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Split/Pred.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardPattern.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean",
+    "src/Init/Data/String/Pattern/Char.lean": "zig-backend/src/init/Data/String/Pattern/Char.lean",
+    "src/Init/Data/String/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Pattern/Pred.lean"
+  }
+}

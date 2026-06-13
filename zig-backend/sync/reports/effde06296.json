@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-17",
+  "needs_port": false,
+  "sha": "effde06296ad42809aafe9d3667f4e6e46c6442f",
+  "short_sha": "effde06296",
+  "subject": "chore: add public modifiers in Lean.Elab.Tactic.Induction (#10810)",
+  "zig_target": {}
+}

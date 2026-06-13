@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-16",
+  "needs_port": false,
+  "sha": "3516c37ec939a39edc93ed3200af96d254ce245d",
+  "short_sha": "3516c37ec9",
+  "subject": "feat(library/init/control/coroutine_io): coroutine_io",
+  "zig_target": {}
+}

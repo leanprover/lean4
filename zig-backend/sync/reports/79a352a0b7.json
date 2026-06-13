@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-02-27",
+  "needs_port": false,
+  "sha": "79a352a0b7c016cc0716758be393a784c66db409",
+  "short_sha": "79a352a0b7",
+  "subject": "chore: benchmark binary sizes",
+  "zig_target": {}
+}

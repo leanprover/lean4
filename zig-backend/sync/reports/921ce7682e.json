@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-05-27",
+  "needs_port": false,
+  "sha": "921ce7682e46544b536b3ab2901233b06c8165cf",
+  "short_sha": "921ce7682e",
+  "subject": "feat: use omission dots for hidden let values in Infoview (#8041)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-06-12",
+  "needs_port": false,
+  "sha": "b01288e11803794593eab197220da873bd455498",
+  "short_sha": "b01288e118",
+  "subject": "chore(tests/lean/lisp): speed up test",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-30",
+  "needs_port": false,
+  "sha": "8e3052fe8dc554c397ed337b0c2d2eb0fe758cd1",
+  "short_sha": "8e3052fe8d",
+  "subject": "feat: server: show \"processing...\" message",
+  "zig_target": {}
+}

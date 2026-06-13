@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-20",
+  "needs_port": false,
+  "sha": "588df4612a808fb813ad3c686ad72a3a7b8f54e4",
+  "short_sha": "588df4612a",
+  "subject": "fix: missing `isEqFalse` (#8893)",
+  "zig_target": {}
+}

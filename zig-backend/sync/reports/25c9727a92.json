@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-14",
+  "needs_port": false,
+  "sha": "25c9727a92e2a49120c3509aae950052ebbb1635",
+  "short_sha": "25c9727a92",
+  "subject": "feat: add `TermInfo` for `LVal`",
+  "zig_target": {}
+}

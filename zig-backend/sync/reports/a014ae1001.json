@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-13",
+  "needs_port": false,
+  "sha": "a014ae10018cff5c10fe448a9f5048ff923b326c",
+  "short_sha": "a014ae1001",
+  "subject": "fix: make `Term.mkAuxName` async-compatible (#7468)",
+  "zig_target": {}
+}

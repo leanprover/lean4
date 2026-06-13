@@ -1,0 +1,54 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Lemmas/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Pattern/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Pattern/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/PosRaw.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/PosRaw.lean"
+    }
+  ],
+  "date": "2026-02-11",
+  "needs_port": true,
+  "sha": "61cef96cd79747b5b6ef8fce5c188e112713dee9",
+  "short_sha": "61cef96cd7",
+  "subject": "feat: verification of our KMP implementation (#12424)",
+  "zig_target": {
+    "src/Init/Data/String/Lemmas/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/ForwardSearcher.lean",
+    "src/Init/Data/String/Pattern/String.lean": "zig-backend/src/init/Data/String/Pattern/String.lean",
+    "src/Init/Data/String/PosRaw.lean": "zig-backend/src/init/Data/String/PosRaw.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-08-13",
+  "needs_port": true,
+  "sha": "bff30fe98eb85456b45b9f977b93d8d585c6259c",
+  "short_sha": "bff30fe98e",
+  "subject": "feat: express `BitVec.extractLsb'` in terms of `extractLsb` (#5007)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

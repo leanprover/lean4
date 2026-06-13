@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-12",
+  "needs_port": false,
+  "sha": "da91fc4526bcf84def3192823c9a8a218fc0127b",
+  "short_sha": "da91fc4526",
+  "subject": "refactor: move `synthesizeArgs`",
+  "zig_target": {}
+}

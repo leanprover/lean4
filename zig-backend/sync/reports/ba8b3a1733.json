@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-10-18",
+  "needs_port": false,
+  "sha": "ba8b3a1733144e258c73641af1378977f84d1cc3",
+  "short_sha": "ba8b3a1733",
+  "subject": "feat: allow ':' as search path operator on Windows",
+  "zig_target": {}
+}

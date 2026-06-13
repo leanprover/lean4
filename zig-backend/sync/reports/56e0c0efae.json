@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-11",
+  "needs_port": false,
+  "sha": "56e0c0efaed3d4c7a1ffa5f43befc44cdecf95fa",
+  "short_sha": "56e0c0efae",
+  "subject": "chore(library/init/lean/compiler/ir/boxing): apply `elimDead`",
+  "zig_target": {}
+}

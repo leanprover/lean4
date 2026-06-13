@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-01",
+  "needs_port": false,
+  "sha": "fb0c46a011c79c906a439cb357c7e3afbcde6e9a",
+  "short_sha": "fb0c46a011",
+  "subject": "feat: termination_by structural (#4542)",
+  "zig_target": {}
+}

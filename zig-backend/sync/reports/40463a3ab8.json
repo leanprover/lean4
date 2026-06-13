@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-05-28",
+  "needs_port": false,
+  "sha": "40463a3ab8e5b1db068b7a38b8af691a1401eb28",
+  "short_sha": "40463a3ab8",
+  "subject": "chore: building static executables is hopeless, do mostly static instead",
+  "zig_target": {}
+}

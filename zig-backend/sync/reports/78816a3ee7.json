@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-18",
+  "needs_port": false,
+  "sha": "78816a3ee7dc2dbb6dd9600a0f2c3f3e1685faf8",
+  "short_sha": "78816a3ee7",
+  "subject": "chore: refine PR template (#3074)",
+  "zig_target": {}
+}

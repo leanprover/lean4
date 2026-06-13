@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-06-14",
+  "needs_port": false,
+  "sha": "7f8ccd84259b975f2cbb6c293ca608696f2709fc",
+  "short_sha": "7f8ccd8425",
+  "subject": "feat: enable the new compiler",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-09-03",
+  "needs_port": false,
+  "sha": "6d68aab56a7d92827027ab5087c88f504280de51",
+  "short_sha": "6d68aab56a",
+  "subject": "feat: generalize universes in monadic operators for collections (#10224)",
+  "zig_target": {}
+}

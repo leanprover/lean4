@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/maxsharing.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/maxsharing.cpp"
+    }
+  ],
+  "date": "2020-02-25",
+  "needs_port": true,
+  "sha": "657f3792b1957652221c6c27d683636ad674f995",
+  "short_sha": "657f3792b1",
+  "subject": "feat: maxsharing scalar arrays",
+  "zig_target": {
+    "src/runtime/maxsharing.cpp": "zig-backend/src/runtime/maxsharing.cpp"
+  }
+}

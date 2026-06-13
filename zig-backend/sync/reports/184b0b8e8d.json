@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-17",
+  "needs_port": false,
+  "sha": "184b0b8e8da2102814376464881b44e3a96d4bad",
+  "short_sha": "184b0b8e8d",
+  "subject": "feat: improve \"result types must be in the same universe level\" error message",
+  "zig_target": {}
+}

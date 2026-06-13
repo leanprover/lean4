@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-01-26",
+  "needs_port": false,
+  "sha": "ba95dbc36be02086d51fed358f5bf2373eaae0cb",
+  "short_sha": "ba95dbc36b",
+  "subject": "feat: zetaUnused option (implementation) (#6755)",
+  "zig_target": {}
+}

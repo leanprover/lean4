@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "815bc95c4723b766d120a81eb189f52b886eae76",
+  "short_sha": "815bc95c47",
+  "subject": "refactor: remove duplication `MVarId.applyRefl` => `MVarId.refl`",
+  "zig_target": {}
+}

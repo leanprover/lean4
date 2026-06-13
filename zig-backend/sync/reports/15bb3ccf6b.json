@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-19",
+  "needs_port": false,
+  "sha": "15bb3ccf6b6b915f1d7286b8277f2bca08ee3c71",
+  "short_sha": "15bb3ccf6b",
+  "subject": "chore: reduce `TSyntax.Compat` scope in Elab.Declaration",
+  "zig_target": {}
+}

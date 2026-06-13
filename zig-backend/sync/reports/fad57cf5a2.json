@@ -1,0 +1,18 @@
+{
+  "author": "FR",
+  "backend_changes": [
+    {
+      "path": "src/Init/GetElem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/GetElem.lean"
+    }
+  ],
+  "date": "2024-10-23",
+  "needs_port": true,
+  "sha": "fad57cf5a2a2eafdba597926ae893ce4757fa966",
+  "short_sha": "fad57cf5a2",
+  "subject": "chore: remove redundant `Decidable` assumptions (#5812)",
+  "zig_target": {
+    "src/Init/GetElem.lean": "zig-backend/src/init/GetElem.lean"
+  }
+}

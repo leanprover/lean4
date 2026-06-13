@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-25",
+  "needs_port": false,
+  "sha": "3a310fb122150ed113cc7b14c8d66a750f75fc40",
+  "short_sha": "3a310fb122",
+  "subject": "fix: the eta for structures implementation in the elaborator was different from the implementation in the kernel",
+  "zig_target": {}
+}

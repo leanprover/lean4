@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-03-05",
+  "needs_port": false,
+  "sha": "7a8c8a4fb3fbcd0ae947db3e99bcc05e61ad2da3",
+  "short_sha": "7a8c8a4fb3",
+  "subject": "fix: `markNestedProofs` (#7355)",
+  "zig_target": {}
+}

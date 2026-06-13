@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2024-02-09",
+  "needs_port": true,
+  "sha": "f68429d3a7da4cf5093f0d65513c74a92d53c26c",
+  "short_sha": "f68429d3a7",
+  "subject": "chore: move syntax to Init/Notation, make builtin_term_elab",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

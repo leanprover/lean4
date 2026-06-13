@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/HashSet.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/HashSet.lean"
+    }
+  ],
+  "date": "2020-03-02",
+  "needs_port": true,
+  "sha": "0893b6259884c3e1cd90cd487ed88999f2c01462",
+  "short_sha": "0893b62598",
+  "subject": "perf: avoid unnecessary overhead at `HashSet`",
+  "zig_target": {
+    "src/Init/Data/HashSet.lean": "zig-backend/src/init/Data/HashSet.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-10-20",
+  "needs_port": false,
+  "sha": "dd8bbe936769cb8ed6a092172ee1136f19d1bd1e",
+  "short_sha": "dd8bbe9367",
+  "subject": "fix: catch kernel exceptions in `Kernel.{isDefEq, whnf}`",
+  "zig_target": {}
+}

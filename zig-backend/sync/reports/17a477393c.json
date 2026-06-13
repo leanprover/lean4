@@ -1,0 +1,10 @@
+{
+  "author": "jrr6",
+  "backend_changes": [],
+  "date": "2025-07-25",
+  "needs_port": false,
+  "sha": "17a477393c37a169a7671aa9e3e427c6012a010b",
+  "short_sha": "17a477393c",
+  "subject": "feat: allow custom preview spans in hint suggestions (#9555)",
+  "zig_target": {}
+}

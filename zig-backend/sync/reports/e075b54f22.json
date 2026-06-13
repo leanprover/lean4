@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-25",
+  "needs_port": false,
+  "sha": "e075b54f22ae63d26cca0816887463af30f93197",
+  "short_sha": "e075b54f22",
+  "subject": "fix: collision between implicit and auto-bound level names",
+  "zig_target": {}
+}

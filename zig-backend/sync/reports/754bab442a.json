@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-03-10",
+  "needs_port": false,
+  "sha": "754bab442ae5d64a62a5ff062d9e9a15903f5397",
+  "short_sha": "754bab442a",
+  "subject": "feat: omega to abstract its own proofs (#5998)",
+  "zig_target": {}
+}

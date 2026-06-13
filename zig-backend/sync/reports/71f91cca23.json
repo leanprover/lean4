@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "71f91cca23f3a58be21ac08e2171dcfd4e58e30e",
+  "short_sha": "71f91cca23",
+  "subject": "chore: make sure `isClass?` return `none` when argument contains type errors",
+  "zig_target": {}
+}

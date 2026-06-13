@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-01",
+  "needs_port": false,
+  "sha": "36f2bc987e8ed4670b2946f160500b489960e9ba",
+  "short_sha": "36f2bc987e",
+  "subject": "chore: `TypeInference` ==> `TypeUtil`",
+  "zig_target": {}
+}

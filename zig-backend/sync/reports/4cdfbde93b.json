@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-08-04",
+  "needs_port": false,
+  "sha": "4cdfbde93b17e194fe38b8afd0b8b70fb4e94b58",
+  "short_sha": "4cdfbde93b",
+  "subject": "fix: pp.analyze also bottom-up the trivials",
+  "zig_target": {}
+}

@@ -1,0 +1,114 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/apply.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/apply.h"
+    },
+    {
+      "path": "src/runtime/compact.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/compact.h"
+    },
+    {
+      "path": "src/runtime/debug.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/debug.h"
+    },
+    {
+      "path": "src/runtime/exception.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/exception.h"
+    },
+    {
+      "path": "src/runtime/init_module.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/init_module.cpp"
+    },
+    {
+      "path": "src/runtime/init_module.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/init_module.h"
+    },
+    {
+      "path": "src/runtime/interrupt.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/interrupt.h"
+    },
+    {
+      "path": "src/runtime/io.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.h"
+    },
+    {
+      "path": "src/runtime/load_dynlib.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/load_dynlib.h"
+    },
+    {
+      "path": "src/runtime/memory.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/memory.h"
+    },
+    {
+      "path": "src/runtime/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.h"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    },
+    {
+      "path": "src/runtime/object_ref.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object_ref.h"
+    },
+    {
+      "path": "src/runtime/stackinfo.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/stackinfo.cpp"
+    },
+    {
+      "path": "src/runtime/stackinfo.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/stackinfo.h"
+    },
+    {
+      "path": "src/runtime/thread.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/thread.h"
+    },
+    {
+      "path": "src/runtime/utf8.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/utf8.h"
+    }
+  ],
+  "date": "2024-02-22",
+  "needs_port": true,
+  "sha": "8193af33e397ed3452ba8ab071014625d0ed53a7",
+  "short_sha": "8193af33e3",
+  "subject": "fix: split `libInit_shared` out of `libleanshared` (#3421)",
+  "zig_target": {
+    "src/runtime/apply.h": "zig-backend/src/runtime/apply.h",
+    "src/runtime/compact.h": "zig-backend/src/runtime/compact.h",
+    "src/runtime/debug.h": "zig-backend/src/runtime/debug.h",
+    "src/runtime/exception.h": "zig-backend/src/runtime/exception.h",
+    "src/runtime/init_module.cpp": "zig-backend/src/runtime/init_module.cpp",
+    "src/runtime/init_module.h": "zig-backend/src/runtime/init_module.h",
+    "src/runtime/interrupt.h": "zig-backend/src/runtime/interrupt.h",
+    "src/runtime/io.h": "zig-backend/src/runtime/io.h",
+    "src/runtime/load_dynlib.h": "zig-backend/src/runtime/load_dynlib.h",
+    "src/runtime/memory.h": "zig-backend/src/runtime/memory.h",
+    "src/runtime/mpz.h": "zig-backend/src/runtime/mpz.h",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h",
+    "src/runtime/object_ref.h": "zig-backend/src/runtime/object_ref.h",
+    "src/runtime/stackinfo.cpp": "zig-backend/src/runtime/stackinfo.cpp",
+    "src/runtime/stackinfo.h": "zig-backend/src/runtime/stackinfo.h",
+    "src/runtime/thread.h": "zig-backend/src/runtime/thread.h",
+    "src/runtime/utf8.h": "zig-backend/src/runtime/utf8.h"
+  }
+}

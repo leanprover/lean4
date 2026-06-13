@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-22",
+  "needs_port": false,
+  "sha": "14a5246695dbb577d8f9ef37a8fc0e34ff89f3e3",
+  "short_sha": "14a5246695",
+  "subject": "fix(frontends/lean/elaborator): nested parser should reset imports",
+  "zig_target": {}
+}

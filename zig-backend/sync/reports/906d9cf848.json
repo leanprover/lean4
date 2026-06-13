@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-30",
+  "needs_port": false,
+  "sha": "906d9cf848b17a80110629214c0b0008ba26ad6e",
+  "short_sha": "906d9cf848",
+  "subject": "feat: add SPred and PostCond entailment lemmas (#13582)",
+  "zig_target": {}
+}

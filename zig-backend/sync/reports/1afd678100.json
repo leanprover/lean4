@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-21",
+  "needs_port": false,
+  "sha": "1afd67810097af814b55b5ec074049f592708586",
+  "short_sha": "1afd678100",
+  "subject": "perf: handle more symmetries in bv_decide bitblasting (#7617)",
+  "zig_target": {}
+}

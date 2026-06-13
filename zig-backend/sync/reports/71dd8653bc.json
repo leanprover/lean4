@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "71dd8653bc9f4635eaaae07b9b4f4d191d745e94",
+  "short_sha": "71dd8653bc",
+  "subject": "feat(library/init/core): `decidable_eq` is a proper class",
+  "zig_target": {}
+}

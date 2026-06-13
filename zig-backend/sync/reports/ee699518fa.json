@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-08-20",
+  "needs_port": false,
+  "sha": "ee699518fa6855cc179f6cc040de8c9a7bf3b84c",
+  "short_sha": "ee699518fa",
+  "subject": "fix: have `#eval` save the info context (#10008)",
+  "zig_target": {}
+}

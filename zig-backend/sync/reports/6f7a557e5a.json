@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2020-08-06",
+  "needs_port": true,
+  "sha": "6f7a557e5a127a06c93c47ad6f512164494c66b8",
+  "short_sha": "6f7a557e5a",
+  "subject": "feat: add `--root` flag to set package root directory",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

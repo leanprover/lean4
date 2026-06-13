@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2023-11-06",
+  "needs_port": false,
+  "sha": "72f714440367f7ea68a8746072a9622ccdd9c616",
+  "short_sha": "72f7144403",
+  "subject": "doc: mention the proof-binding syntax in match",
+  "zig_target": {}
+}

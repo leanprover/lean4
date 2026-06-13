@@ -1,0 +1,54 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range/Polymorphic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/BitVec.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/BitVec.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/UInt.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/UpwardEnumerable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/UpwardEnumerable.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    }
+  ],
+  "date": "2025-09-12",
+  "needs_port": true,
+  "sha": "caa0eacea8a23a10fafbb42e8ce9b8fd1879ff3f",
+  "short_sha": "caa0eacea8",
+  "subject": "feat: ranges in `UInt*` (#10303)",
+  "zig_target": {
+    "src/Init/Data/Range/Polymorphic.lean": "zig-backend/src/init/Data/Range/Polymorphic.lean",
+    "src/Init/Data/Range/Polymorphic/BitVec.lean": "zig-backend/src/init/Data/Range/Polymorphic/BitVec.lean",
+    "src/Init/Data/Range/Polymorphic/Int.lean": "zig-backend/src/init/Data/Range/Polymorphic/Int.lean",
+    "src/Init/Data/Range/Polymorphic/Nat.lean": "zig-backend/src/init/Data/Range/Polymorphic/Nat.lean",
+    "src/Init/Data/Range/Polymorphic/UInt.lean": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean",
+    "src/Init/Data/Range/Polymorphic/UpwardEnumerable.lean": "zig-backend/src/init/Data/Range/Polymorphic/UpwardEnumerable.lean",
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+  }
+}

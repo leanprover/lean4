@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-01-17",
+  "needs_port": true,
+  "sha": "4d4c0941beb8e0602509fe891fe9cb80538cc04e",
+  "short_sha": "4d4c0941be",
+  "subject": "feat: extensionality theorems in `grind` (#6682)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

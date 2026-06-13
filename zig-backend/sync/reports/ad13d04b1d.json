@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2019-01-17",
+  "needs_port": true,
+  "sha": "ad13d04b1d431510857e9f2eb4c4506bf5aa075b",
+  "short_sha": "ad13d04b1d",
+  "subject": "chore(library/compiler/llnf): use `_` to name `_inc` and `_dec` instructions",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

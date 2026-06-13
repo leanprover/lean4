@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/DiscrTree.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+    }
+  ],
+  "date": "2020-01-09",
+  "needs_port": true,
+  "sha": "11d15575f72f3b0c9080fae9f6e4b8ed750a7937",
+  "short_sha": "11d15575f7",
+  "subject": "feat: ignore `Nat.succ`, `Nat.zero` `Nat.add` and `HasAdd.add` at `DiscrTree",
+  "zig_target": {
+    "src/Init/Lean/Meta/DiscrTree.lean": "zig-backend/src/init/Lean/Meta/DiscrTree.lean"
+  }
+}

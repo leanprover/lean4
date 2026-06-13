@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    },
+    {
+      "path": "src/Init/Data/Int/OfNat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/OfNat.lean"
+    }
+  ],
+  "date": "2025-03-14",
+  "needs_port": true,
+  "sha": "d5f01f2db1efd18034421ae2f40120d1c608f3c0",
+  "short_sha": "d5f01f2db1",
+  "subject": "feat: `Nat` divisibility constraints in cutsat (#7495)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean",
+    "src/Init/Data/Int/OfNat.lean": "zig-backend/src/init/Data/Int/OfNat.lean"
+  }
+}

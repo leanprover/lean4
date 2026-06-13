@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-20",
+  "needs_port": false,
+  "sha": "d8ad343885d87f6ab6715ee443f0db826d1286d1",
+  "short_sha": "d8ad343885",
+  "subject": "test: add `Expr.eq_of_toPoly_eq`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-04-19",
+  "needs_port": true,
+  "sha": "72e4f699c6980d9fe400b631491a61c27ea92702",
+  "short_sha": "72e4f699c6",
+  "subject": "fix: lake: import-related bugs (#8026)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Environment.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Environment.lean"
+    },
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2020-03-14",
+  "needs_port": true,
+  "sha": "6ad0c2cc181143992476da3678871a03cb06a8f1",
+  "short_sha": "6ad0c2cc18",
+  "subject": "feat: simplify `unsafeCast`",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Lean/Environment.lean": "zig-backend/src/init/Lean/Environment.lean",
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

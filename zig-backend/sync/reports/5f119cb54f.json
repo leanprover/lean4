@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-28",
+  "needs_port": false,
+  "sha": "5f119cb54f88832d9d028c1fdeb65a468443e6d9",
+  "short_sha": "5f119cb54f",
+  "subject": "feat: avoid metavariables at `CompletionItem`s",
+  "zig_target": {}
+}

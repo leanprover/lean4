@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-16",
+  "needs_port": false,
+  "sha": "9a8e7a64114a6ff29dde2359f97a383c1b2d6a04",
+  "short_sha": "9a8e7a6411",
+  "subject": "feat: add `cleanupAnnotations` parameter to `forallTelescope` methods (#4180)",
+  "zig_target": {}
+}

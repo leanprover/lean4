@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-13",
+  "needs_port": true,
+  "sha": "5d6553029cb589669f75b8eb68f0e7d1bd8147ff",
+  "short_sha": "5d6553029c",
+  "subject": "feat: expand relationship with BitVec and toFin (#5680)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

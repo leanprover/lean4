@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-04",
+  "needs_port": false,
+  "sha": "8e728b1159a4d374ac7194c057f2c9d884121f81",
+  "short_sha": "8e728b1159",
+  "subject": "refactor: split `Package` and `Workspace`",
+  "zig_target": {}
+}

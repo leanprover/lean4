@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Linear.lean"
+    }
+  ],
+  "date": "2022-02-25",
+  "needs_port": true,
+  "sha": "3f636b9f836c86958eb85280314500cdf5e69b32",
+  "short_sha": "3f636b9f83",
+  "subject": "feat: add `Lean.Meta.Linear.Nat.simpCnstr?`",
+  "zig_target": {
+    "src/Init/Data/Nat/Linear.lean": "zig-backend/src/init/Data/Nat/Linear.lean"
+  }
+}

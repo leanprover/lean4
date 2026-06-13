@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "368326fb484e9bd00f73530c6b20d90daacf85cc",
+  "short_sha": "368326fb48",
+  "subject": "fix: `simp` fails when custom discharger makes no progress (#3317)",
+  "zig_target": {}
+}

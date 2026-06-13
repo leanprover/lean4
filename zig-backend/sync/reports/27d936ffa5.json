@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "27d936ffa562910f964c525a6ecc5e1d14c43b9c",
+  "short_sha": "27d936ffa5",
+  "subject": "feat: pretty print structure instances",
+  "zig_target": {}
+}

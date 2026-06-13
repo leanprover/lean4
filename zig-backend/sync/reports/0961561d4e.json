@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-19",
+  "needs_port": false,
+  "sha": "0961561d4e8e589406654708f681e1bdb4151cef",
+  "short_sha": "0961561d4e",
+  "subject": "feat: track simp lemmas through the core tactics",
+  "zig_target": {}
+}

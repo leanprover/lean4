@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "e74ba14f4c562dcd24ea866486380cecba5dae03",
+  "short_sha": "e74ba14f4c",
+  "subject": "feat: modify `structSimpleBinder` parser",
+  "zig_target": {}
+}

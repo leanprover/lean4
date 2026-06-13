@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-19",
+  "needs_port": false,
+  "sha": "204b408df7b11cdd09cef04ea1d03d8fc5d1d18e",
+  "short_sha": "204b408df7",
+  "subject": "chore: remove noisy root code owners",
+  "zig_target": {}
+}

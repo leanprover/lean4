@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-12-10",
+  "needs_port": false,
+  "sha": "9e875603768b5535cb1eedb1b4d6661473ed7002",
+  "short_sha": "9e87560376",
+  "subject": "chore: switch the association of stored suggestions (#11590)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    },
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-08-28",
+  "needs_port": true,
+  "sha": "f40617d8dd49296b637df2126de4d229ffcfe54d",
+  "short_sha": "f40617d8dd",
+  "subject": "feat(CMakeLists, runtime): add `CHECK_RC_OVERFLOW` cmake option",
+  "zig_target": {
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h",
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

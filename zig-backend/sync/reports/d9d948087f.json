@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-25",
+  "needs_port": false,
+  "sha": "d9d948087f71cf44233e2284442fb274e4c72567",
+  "short_sha": "d9d948087f",
+  "subject": "fix: use `TransparencyMode.instances` at `SynthInstance`",
+  "zig_target": {}
+}

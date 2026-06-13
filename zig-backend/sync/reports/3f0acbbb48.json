@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-28",
+  "needs_port": false,
+  "sha": "3f0acbbb483d54e844260c960e80af86b48bbf46",
+  "short_sha": "3f0acbbb48",
+  "subject": "fix: use `isClass?` instead of binder annotation to identify instance parameters (#12172)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-14",
+  "needs_port": false,
+  "sha": "19595a0d03274a26b92ea769fadb864c690638af",
+  "short_sha": "19595a0d03",
+  "subject": "fix: resolve pending universe metavars",
+  "zig_target": {}
+}

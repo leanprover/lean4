@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-25",
+  "needs_port": false,
+  "sha": "79b6a144d5a6ca3dfd8d4447d14178aa10d94bba",
+  "short_sha": "79b6a144d5",
+  "subject": "feat(library/init/data/string/basic): improve and cleanup String/Substring API",
+  "zig_target": {}
+}

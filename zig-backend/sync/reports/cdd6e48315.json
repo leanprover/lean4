@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-16",
+  "needs_port": false,
+  "sha": "cdd6e48315e3eae065881cad9931e790bfc2dfa8",
+  "short_sha": "cdd6e48315",
+  "subject": "fix: do not assume the prefix of a projection function name is the structure name",
+  "zig_target": {}
+}

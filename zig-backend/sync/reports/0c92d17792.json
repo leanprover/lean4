@@ -1,0 +1,10 @@
+{
+  "author": "Arthur Adjedj",
+  "backend_changes": [],
+  "date": "2024-02-17",
+  "needs_port": false,
+  "sha": "0c92d177921b804783cc594d04a488fc0be6d21f",
+  "short_sha": "0c92d17792",
+  "subject": "fix: instantiate the types of inductives with the right parameters (#3246)",
+  "zig_target": {}
+}

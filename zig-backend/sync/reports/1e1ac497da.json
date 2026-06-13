@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-29",
+  "needs_port": false,
+  "sha": "1e1ac497da6ff7b30b74854edde45cf8a908fdda",
+  "short_sha": "1e1ac497da",
+  "subject": "feat: add `Meta.mkListLit` and `Meta.mkArrayLit`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-26",
+  "needs_port": false,
+  "sha": "e8870da205af61d98edb0ae9a7fb73b050abd299",
+  "short_sha": "e8870da205",
+  "subject": "chore: improve performance of mpure_intro and mvcgen by avoiding whnfD (#12165)",
+  "zig_target": {}
+}

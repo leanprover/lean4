@@ -1,0 +1,42 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Data/DList.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/DList.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/BuiltinNotation.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-11",
+  "needs_port": true,
+  "sha": "8fd70ee882e27765b5937f3ed1741b9d7855e8ea",
+  "short_sha": "8fd70ee882",
+  "subject": "feat: add builtin notation",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Data/DList.lean": "zig-backend/src/init/Data/DList.lean",
+    "src/Init/Lean/Elab.lean": "zig-backend/src/init/Lean/Elab.lean",
+    "src/Init/Lean/Elab/BuiltinNotation.lean": "zig-backend/src/init/Lean/Elab/BuiltinNotation.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

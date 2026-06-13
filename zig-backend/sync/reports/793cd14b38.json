@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-05-13",
+  "needs_port": false,
+  "sha": "793cd14b3816dfec686daa8515d6fc750c6f7326",
+  "short_sha": "793cd14b38",
+  "subject": "feat: improve message of `unusedVariables` linter (#13715)",
+  "zig_target": {}
+}

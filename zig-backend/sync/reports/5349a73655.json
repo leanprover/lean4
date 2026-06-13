@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-27",
+  "needs_port": false,
+  "sha": "5349a73655501604bfbbc826746031bda6be9cce",
+  "short_sha": "5349a73655",
+  "subject": "chore: add `MessageData.nestD`",
+  "zig_target": {}
+}

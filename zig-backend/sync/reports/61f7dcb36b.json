@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-11-11",
+  "needs_port": false,
+  "sha": "61f7dcb36b43b05903cf02236f85426db6d59365",
+  "short_sha": "61f7dcb36b",
+  "subject": "feat: bv_decide and flattening (#6035)",
+  "zig_target": {}
+}

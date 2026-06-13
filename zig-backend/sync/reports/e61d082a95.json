@@ -1,0 +1,18 @@
+{
+  "author": "Hongyu Ouyang",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-03-13",
+  "needs_port": true,
+  "sha": "e61d082a9555464bca6de954f8fbc2a1b1a1bf89",
+  "short_sha": "e61d082a95",
+  "subject": "doc: fix typo in USize.size docstring (#3664)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

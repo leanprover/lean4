@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-16",
+  "needs_port": false,
+  "sha": "389a274d4561fb7bc503ac54c3f47ed96c0185cc",
+  "short_sha": "389a274d45",
+  "subject": "fix: show exclusive profiling times everywhere",
+  "zig_target": {}
+}

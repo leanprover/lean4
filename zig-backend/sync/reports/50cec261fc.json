@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-01",
+  "needs_port": false,
+  "sha": "50cec261fc6e68979c6692d5d94ba2a4e53947ba",
+  "short_sha": "50cec261fc",
+  "subject": "chore: failing test cases for grind proving List lemmas (#7767)",
+  "zig_target": {}
+}

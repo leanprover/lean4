@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-06",
+  "needs_port": false,
+  "sha": "dda1f0ebaa70a24062bb84fd816ac0ef4491b45a",
+  "short_sha": "dda1f0ebaa",
+  "subject": "chore(library/init/meta/interactive): remove more tactics",
+  "zig_target": {}
+}

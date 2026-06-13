@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-21",
+  "needs_port": false,
+  "sha": "cc4c26e8ab012cd34c16edc7d0b0866ce58225fe",
+  "short_sha": "cc4c26e8ab",
+  "subject": "feat(library/init/lean/compiler/ir/emitcpp): add some missing cases",
+  "zig_target": {}
+}

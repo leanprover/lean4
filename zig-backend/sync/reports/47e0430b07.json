@@ -1,0 +1,18 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-13",
+  "needs_port": true,
+  "sha": "47e0430b07cdd2569046e531fb44eba5f6ffc3d0",
+  "short_sha": "47e0430b07",
+  "subject": "feat: complete `BitVec.[getMsbD|getLsbD|msb]` for shifts (#5604)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

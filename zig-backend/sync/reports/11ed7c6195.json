@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/PersistentArray.lean",
+      "status": "D",
+      "zig_target": "zig-backend/src/init/Data/PersistentArray.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/ElimDeadBranches.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+    }
+  ],
+  "date": "2020-06-25",
+  "needs_port": true,
+  "sha": "11ed7c61952aa4fcc0901bf85d70ba0afe8d77f5",
+  "short_sha": "11ed7c6195",
+  "subject": "chore: move `PersistentArray` to `Std`",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/PersistentArray.lean": "zig-backend/src/init/Data/PersistentArray.lean",
+    "src/Lean/Compiler/IR/ElimDeadBranches.lean": "zig-backend/src/lean/compiler/ir/ElimDeadBranches.lean"
+  }
+}

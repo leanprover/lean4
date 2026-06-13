@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-17",
+  "needs_port": false,
+  "sha": "fdb1bf84b4dfb1b5814e985187dfa2d34f7a8e2c",
+  "short_sha": "fdb1bf84b4",
+  "subject": "refactor(library/init/data/array/basic): cleanup names and types, add monadic versions",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/hash.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/hash.cpp"
+    },
+    {
+      "path": "src/runtime/hash.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/hash.h"
+    }
+  ],
+  "date": "2019-04-03",
+  "needs_port": true,
+  "sha": "a46e27a3d7641791673f17d27bfce8f5e4a0c176",
+  "short_sha": "a46e27a3d7",
+  "subject": "feat(runtime/hash): use `size_t` instead of `unsigned`",
+  "zig_target": {
+    "src/runtime/hash.cpp": "zig-backend/src/runtime/hash.cpp",
+    "src/runtime/hash.h": "zig-backend/src/runtime/hash.h"
+  }
+}

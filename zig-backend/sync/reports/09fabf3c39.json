@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-24",
+  "needs_port": false,
+  "sha": "09fabf3c3961ea33023b123fd8cd0517f7e2423c",
+  "short_sha": "09fabf3c39",
+  "subject": "fix: lake: namespace in `Lake.Util.Opaque` (reapplied) (#13526)",
+  "zig_target": {}
+}

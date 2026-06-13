@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-07-22",
+  "needs_port": false,
+  "sha": "5938dbbd14145c9b78f7645c4777f62a3fc8212c",
+  "short_sha": "5938dbbd14",
+  "subject": "fix: make `elab_as_elim` eagerly elaborate arguments for parameters appearing in the types of targets (#4800)",
+  "zig_target": {}
+}

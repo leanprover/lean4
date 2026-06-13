@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "b5036e4d81b399447a5c9f684da2d46d84910854",
+  "short_sha": "b5036e4d81",
+  "subject": "doc: rewrite ReducibilityHints docstring (#13065)",
+  "zig_target": {}
+}

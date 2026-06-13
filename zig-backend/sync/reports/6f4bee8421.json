@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-11-26",
+  "needs_port": false,
+  "sha": "6f4bee84215c993ba8769d93177dbbb7b2e7ce4e",
+  "short_sha": "6f4bee8421",
+  "subject": "perf: avoid re-exporting Std.Time from grind_annotated (#11372)",
+  "zig_target": {}
+}

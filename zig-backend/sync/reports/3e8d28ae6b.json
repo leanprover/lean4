@@ -1,0 +1,42 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/BasicAux.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Bootstrap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bootstrap.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2025-06-24",
+  "needs_port": true,
+  "sha": "3e8d28ae6b7826c0e9db94fb09044c6efa6361b7",
+  "short_sha": "3e8d28ae6b",
+  "subject": "feat: use `grind` in BitVec/Lemmas (#8967)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/BasicAux.lean": "zig-backend/src/init/Data/BitVec/BasicAux.lean",
+    "src/Init/Data/BitVec/Bootstrap.lean": "zig-backend/src/init/Data/BitVec/Bootstrap.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean",
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

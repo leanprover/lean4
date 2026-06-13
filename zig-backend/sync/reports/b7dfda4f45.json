@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-07-24",
+  "needs_port": false,
+  "sha": "b7dfda4f45889b0a57592a628d6a07414182e26f",
+  "short_sha": "b7dfda4f45",
+  "subject": "chore: Extract `collectFreshMVars` from `withCollectingNewGoalsFrom` (#9502)",
+  "zig_target": {}
+}

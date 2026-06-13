@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-27",
+  "needs_port": false,
+  "sha": "e30249c2d24e9b506cfa162a459f3220e3cbe196",
+  "short_sha": "e30249c2d2",
+  "subject": "chore: add workarounds to `forIn` experiment",
+  "zig_target": {}
+}

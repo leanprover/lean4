@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-22",
+  "needs_port": false,
+  "sha": "33d24c3bcab0cb18a26b1f817ef2f0b2299f1e95",
+  "short_sha": "33d24c3bca",
+  "subject": "fix: improper handling of strict-implicit section variables (#5138)",
+  "zig_target": {}
+}

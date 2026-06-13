@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-02",
+  "needs_port": false,
+  "sha": "fd9e3d8fe65004911d8a03320443f3b56ff2f870",
+  "short_sha": "fd9e3d8fe6",
+  "subject": "chore: add completion test and go-to field type",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-05-28",
+  "needs_port": false,
+  "sha": "c3a010a938023ae547552c7c0bf7d2e3afb24c5a",
+  "short_sha": "c3a010a938",
+  "subject": "feat: use dot notation for class parent projections (#8504)",
+  "zig_target": {}
+}

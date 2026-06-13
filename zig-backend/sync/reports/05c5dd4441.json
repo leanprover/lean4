@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-03",
+  "needs_port": false,
+  "sha": "05c5dd4441730d0122ecfb2d767e430cb2fdd493",
+  "short_sha": "05c5dd4441",
+  "subject": "fix: unused variables linter: search fvar aliases in tactics",
+  "zig_target": {}
+}

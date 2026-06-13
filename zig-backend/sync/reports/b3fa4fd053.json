@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-07-28",
+  "needs_port": false,
+  "sha": "b3fa4fd0536c02d93829a077bb4bfbf76ed5ad52",
+  "short_sha": "b3fa4fd053",
+  "subject": "chore: revert #2317",
+  "zig_target": {}
+}

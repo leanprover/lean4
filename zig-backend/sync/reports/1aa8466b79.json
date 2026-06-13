@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-20",
+  "needs_port": false,
+  "sha": "1aa8466b79a465dca3aeb9f505bd45f6e2d70d20",
+  "short_sha": "1aa8466b79",
+  "subject": "fix: `liftCoreM` and `liftTermElabM`",
+  "zig_target": {}
+}

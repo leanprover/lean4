@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-29",
+  "needs_port": false,
+  "sha": "64f7af9da53da44ea44aa717960904ec4195e72a",
+  "short_sha": "64f7af9da5",
+  "subject": "feat: add `SimpM`",
+  "zig_target": {}
+}

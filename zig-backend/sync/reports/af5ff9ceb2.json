@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2021-07-31",
+  "needs_port": true,
+  "sha": "af5ff9ceb27676b9b95c065bc75542f7635edd5d",
+  "short_sha": "af5ff9ceb2",
+  "subject": "refactor: move `List.takeWhile` to `Init.Data.List.Basic`",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

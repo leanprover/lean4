@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/LiveVars.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LiveVars.lean"
+    }
+  ],
+  "date": "2025-07-27",
+  "needs_port": true,
+  "sha": "d7e7bd16a6ba265ff3f653833ffa81ebba689f4a",
+  "short_sha": "d7e7bd16a6",
+  "subject": "chore: increase code sharing in IR LiveVars computation (#9576)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/LiveVars.lean": "zig-backend/src/lean/compiler/ir/LiveVars.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-13",
+  "needs_port": false,
+  "sha": "3856d0030c4400ed59f8240a9c14ec287237c2d5",
+  "short_sha": "3856d0030c",
+  "subject": "feat: improve `do` notation error message for pure code",
+  "zig_target": {}
+}

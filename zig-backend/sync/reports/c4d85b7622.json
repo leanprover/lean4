@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    }
+  ],
+  "date": "2026-02-10",
+  "needs_port": true,
+  "sha": "c4d85b762299f69e337fc5cc3305095296d4ab8d",
+  "short_sha": "c4d85b7622",
+  "subject": "chore: revert reducibility change `PartialOrder.rel` (#12407)",
+  "zig_target": {
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean"
+  }
+}

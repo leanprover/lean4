@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-09-19",
+  "needs_port": false,
+  "sha": "f22c17e94b452db3dde3bee8029a459d9220f99a",
+  "short_sha": "f22c17e94b",
+  "subject": "chore(library/init/data/string/basic): remove broken `lineColumn` obsoleted by `FileMap`",
+  "zig_target": {}
+}

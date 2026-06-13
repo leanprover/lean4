@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2020-07-08",
+  "needs_port": false,
+  "sha": "c40ccfe399cf59ae814b1fef7064a5f35f4cc295",
+  "short_sha": "c40ccfe399",
+  "subject": "feat: readme",
+  "zig_target": {}
+}

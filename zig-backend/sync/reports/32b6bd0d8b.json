@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-11-03",
+  "needs_port": false,
+  "sha": "32b6bd0d8b8db5fab8e8e9041cf61eb341bf4cf9",
+  "short_sha": "32b6bd0d8b",
+  "subject": "feat: empty type ascription syntax `(e :)` (part 2)",
+  "zig_target": {}
+}

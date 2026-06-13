@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToLCNF.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Util.lean"
+    }
+  ],
+  "date": "2022-08-23",
+  "needs_port": true,
+  "sha": "083523ee9cd3c4e60df7a125441bd9ab9dac9a86",
+  "short_sha": "083523ee9c",
+  "subject": "feat: att new `LCNF/toLCNF.lean`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToLCNF.lean": "zig-backend/src/lean/compiler/lcnf/ToLCNF.lean",
+    "src/Lean/Compiler/LCNF/Util.lean": "zig-backend/src/lean/compiler/lcnf/Util.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-11-23",
+  "needs_port": false,
+  "sha": "1e79d659f25789b46b4d34f653d1317d816ba30a",
+  "short_sha": "1e79d659f2",
+  "subject": "chore: bundle libatomic in releases",
+  "zig_target": {}
+}

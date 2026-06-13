@@ -1,0 +1,18 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Basic.lean"
+    }
+  ],
+  "date": "2025-12-05",
+  "needs_port": true,
+  "sha": "f2415b7a9a8331e486b666f4092555f764226fa7",
+  "short_sha": "f2415b7a9a",
+  "subject": "fix: find? -> findRev? (#11514)",
+  "zig_target": {
+    "src/Init/Data/List/Basic.lean": "zig-backend/src/init/Data/List/Basic.lean"
+  }
+}

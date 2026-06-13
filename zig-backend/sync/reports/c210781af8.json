@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "c210781af802f8445d5987abd777d0060e2b4633",
+  "short_sha": "c210781af8",
+  "subject": "refactor: add doc strings, cleanup, and dotted notation friendly API",
+  "zig_target": {}
+}

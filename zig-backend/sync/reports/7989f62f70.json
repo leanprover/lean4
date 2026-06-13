@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2024-03-27",
+  "needs_port": false,
+  "sha": "7989f62f704e2cbf5d652a51e01c728af3fabd77",
+  "short_sha": "7989f62f70",
+  "subject": "fix: remove unused try catch (#3794)",
+  "zig_target": {}
+}

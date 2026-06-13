@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-20",
+  "needs_port": false,
+  "sha": "097a127c6981fc6e50310b1cefe1368d30654032",
+  "short_sha": "097a127c69",
+  "subject": "feat(util/map_foreach): add `phashmap_foreach`, fix `smap_foreach`, update stage0",
+  "zig_target": {}
+}

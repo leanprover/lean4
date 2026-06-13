@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-25",
+  "needs_port": false,
+  "sha": "a969014eb9b1d5d4db1e3151c083ed3e3afe470b",
+  "short_sha": "a969014eb9",
+  "subject": "chore: add `matchHEq?`",
+  "zig_target": {}
+}

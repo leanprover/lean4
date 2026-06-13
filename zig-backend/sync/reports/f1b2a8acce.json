@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2023-06-28",
+  "needs_port": false,
+  "sha": "f1b2a8accec8e3697857ff261b7600da309163c2",
+  "short_sha": "f1b2a8acce",
+  "subject": "fix: lazy_binop + coercion bug",
+  "zig_target": {}
+}

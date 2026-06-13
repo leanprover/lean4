@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-07",
+  "needs_port": false,
+  "sha": "aed9b16dc8b0a005cc131cd3d62b66c9f0be3b93",
+  "short_sha": "aed9b16dc8",
+  "subject": "feat: add `MatcherInfo` extension",
+  "zig_target": {}
+}

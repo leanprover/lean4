@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-30",
+  "needs_port": false,
+  "sha": "527493c2a13e3cf89eae184cbed9cf6b029b1480",
+  "short_sha": "527493c2a1",
+  "subject": "feat: in tried theorem section at `simp` diagnostics, indicate how many times is succeeded",
+  "zig_target": {}
+}

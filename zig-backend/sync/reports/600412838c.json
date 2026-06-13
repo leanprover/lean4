@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-13",
+  "needs_port": false,
+  "sha": "600412838c039c942cc92a4332fc8cbe63f2f309",
+  "short_sha": "600412838c",
+  "subject": "fix: auxiliary definition nested in theorem should be `def` if its type is not a proposition (#3662)",
+  "zig_target": {}
+}

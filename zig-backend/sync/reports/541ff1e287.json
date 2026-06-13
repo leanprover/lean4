@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-06-27",
+  "needs_port": false,
+  "sha": "541ff1e2876fe4d3cff8b8c5ad640e426d00aea6",
+  "short_sha": "541ff1e287",
+  "subject": "feat: lake: local artifact cache (#8922)",
+  "zig_target": {}
+}

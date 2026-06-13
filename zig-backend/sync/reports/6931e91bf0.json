@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div/Basic.lean"
+    }
+  ],
+  "date": "2025-03-21",
+  "needs_port": true,
+  "sha": "6931e91bf05aaaa200ca40e05ec612eb817f4bfa",
+  "short_sha": "6931e91bf0",
+  "subject": "fix: mark Nat.div and Nat.modCore irreducible (#7614)",
+  "zig_target": {
+    "src/Init/Data/Nat/Div/Basic.lean": "zig-backend/src/init/Data/Nat/Div/Basic.lean"
+  }
+}

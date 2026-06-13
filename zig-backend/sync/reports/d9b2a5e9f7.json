@@ -1,0 +1,114 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Extract.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Extract.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/InsertIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/InsertIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Count.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Erase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Erase.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/InsertIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Modify.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Modify.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Range.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/Sublist.lean"
+    },
+    {
+      "path": "src/Init/Data/List/Nat/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Extract.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Extract.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/InsertIdx.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/InsertIdx.lean"
+    },
+    {
+      "path": "src/Init/Data/Vector/Range.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Vector/Range.lean"
+    }
+  ],
+  "date": "2025-06-16",
+  "needs_port": true,
+  "sha": "d9b2a5e9f79f6815708423e5053026f67e7a78d9",
+  "short_sha": "d9b2a5e9f7",
+  "subject": "feat: additional grind annotations for List/Array/Vector lemmas (#8805)",
+  "zig_target": {
+    "src/Init/Data/Array/Count.lean": "zig-backend/src/init/Data/Array/Count.lean",
+    "src/Init/Data/Array/Extract.lean": "zig-backend/src/init/Data/Array/Extract.lean",
+    "src/Init/Data/Array/InsertIdx.lean": "zig-backend/src/init/Data/Array/InsertIdx.lean",
+    "src/Init/Data/Array/Range.lean": "zig-backend/src/init/Data/Array/Range.lean",
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean",
+    "src/Init/Data/List/Nat/Basic.lean": "zig-backend/src/init/Data/List/Nat/Basic.lean",
+    "src/Init/Data/List/Nat/Count.lean": "zig-backend/src/init/Data/List/Nat/Count.lean",
+    "src/Init/Data/List/Nat/Erase.lean": "zig-backend/src/init/Data/List/Nat/Erase.lean",
+    "src/Init/Data/List/Nat/InsertIdx.lean": "zig-backend/src/init/Data/List/Nat/InsertIdx.lean",
+    "src/Init/Data/List/Nat/Modify.lean": "zig-backend/src/init/Data/List/Nat/Modify.lean",
+    "src/Init/Data/List/Nat/Range.lean": "zig-backend/src/init/Data/List/Nat/Range.lean",
+    "src/Init/Data/List/Nat/Sublist.lean": "zig-backend/src/init/Data/List/Nat/Sublist.lean",
+    "src/Init/Data/List/Nat/TakeDrop.lean": "zig-backend/src/init/Data/List/Nat/TakeDrop.lean",
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean",
+    "src/Init/Data/Vector/Extract.lean": "zig-backend/src/init/Data/Vector/Extract.lean",
+    "src/Init/Data/Vector/InsertIdx.lean": "zig-backend/src/init/Data/Vector/InsertIdx.lean",
+    "src/Init/Data/Vector/Range.lean": "zig-backend/src/init/Data/Vector/Range.lean"
+  }
+}

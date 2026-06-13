@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-03-07",
+  "needs_port": false,
+  "sha": "20571a938baaa3088efdde29ab77f2dea0c26d24",
+  "short_sha": "20571a938b",
+  "subject": "feat: bv_decide support for simple pattern matching on enum inductives (#7329)",
+  "zig_target": {}
+}

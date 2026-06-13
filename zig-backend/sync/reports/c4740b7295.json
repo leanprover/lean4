@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-25",
+  "needs_port": false,
+  "sha": "c4740b7295ac2822b31b38e6ef557d29157e2f99",
+  "short_sha": "c4740b7295",
+  "subject": "test(tests/playground/rbmap.ml): take the same input as Lean version",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [],
+  "date": "2025-06-06",
+  "needs_port": false,
+  "sha": "ec9b00996fbb8fd3c36b0d8852fd1896a8c1ff00",
+  "short_sha": "ec9b00996f",
+  "subject": "feat: equivalence of iterators (#8545)",
+  "zig_target": {}
+}

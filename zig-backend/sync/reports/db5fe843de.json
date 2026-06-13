@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/ToString/Macro.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/ToString/Macro.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2020-11-14",
+  "needs_port": true,
+  "sha": "db5fe843dea0d3df110f154053e19669c7dfe945",
+  "short_sha": "db5fe843de",
+  "subject": "chore: add `expandInterpolatedStr` helper function, rename `msg!` => `m!`",
+  "zig_target": {
+    "src/Init/Data/ToString/Macro.lean": "zig-backend/src/init/Data/ToString/Macro.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

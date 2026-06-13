@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/App.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/App.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Binders.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Binders.lean"
+    }
+  ],
+  "date": "2020-02-12",
+  "needs_port": true,
+  "sha": "fae52a7ba65b6c85e47bc3712235c60da5b79768",
+  "short_sha": "fae52a7ba6",
+  "subject": "fix: `@($f:fun)` case",
+  "zig_target": {
+    "src/Init/Lean/Elab/App.lean": "zig-backend/src/init/Lean/Elab/App.lean",
+    "src/Init/Lean/Elab/Binders.lean": "zig-backend/src/init/Lean/Elab/Binders.lean"
+  }
+}

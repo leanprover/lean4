@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-10-23",
+  "needs_port": false,
+  "sha": "9d32aff0c6928bd31b37d470a0a19cef40ddf9ce",
+  "short_sha": "9d32aff0c6",
+  "subject": "chore(library/init/meta): remove rest of old `meta` folder",
+  "zig_target": {}
+}

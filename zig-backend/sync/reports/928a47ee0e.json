@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-06-14",
+  "needs_port": false,
+  "sha": "928a47ee0ebdb9dd158425d981910b690b075926",
+  "short_sha": "928a47ee0e",
+  "subject": "feat(tests/bench/speedcenter): temci-based speedcenter config",
+  "zig_target": {}
+}

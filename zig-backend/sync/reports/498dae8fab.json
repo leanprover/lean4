@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-19",
+  "needs_port": false,
+  "sha": "498dae8fab6fe46e8ff20fd186f0ffb0cd09b1a4",
+  "short_sha": "498dae8fab",
+  "subject": "chore: add trace messages",
+  "zig_target": {}
+}

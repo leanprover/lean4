@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-06-17",
+  "needs_port": false,
+  "sha": "bbc196eeb79db463b03a884639c72b1c8f76f7de",
+  "short_sha": "bbc196eeb7",
+  "subject": "fix: make sure `WF/Fix.lean` tolerates `MatcherApp.addArg?` failures",
+  "zig_target": {}
+}

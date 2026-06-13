@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-12",
+  "needs_port": false,
+  "sha": "da2ea1fa9897a9b5be6abd613aae663c08cded09",
+  "short_sha": "da2ea1fa98",
+  "subject": "chore: Nix: fix symbol interposition",
+  "zig_target": {}
+}

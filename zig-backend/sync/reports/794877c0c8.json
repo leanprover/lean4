@@ -1,0 +1,10 @@
+{
+  "author": "asdasd1dsadsa",
+  "backend_changes": [],
+  "date": "2022-05-25",
+  "needs_port": false,
+  "sha": "794877c0c89c473294c2a43c3665257c93b69b58",
+  "short_sha": "794877c0c8",
+  "subject": "chore: add option to exclude 'LICENSE' files from 'make install'",
+  "zig_target": {}
+}

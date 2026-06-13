@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-07-31",
+  "needs_port": false,
+  "sha": "5e7c4557f819133c15b22b1a0d2e907ab0974cab",
+  "short_sha": "5e7c4557f8",
+  "subject": "refactor: minimize `Lean.Meta.Diagnostics` imports (#9546)",
+  "zig_target": {}
+}

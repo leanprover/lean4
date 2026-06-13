@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-10-14",
+  "needs_port": true,
+  "sha": "9f8ce47699d1567d83465743f9d5bae9f9b26d8d",
+  "short_sha": "9f8ce47699",
+  "subject": "feat: add BitVec.[udiv|umod]_[zero|one|self] theorems (#5712)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

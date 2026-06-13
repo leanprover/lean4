@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-02",
+  "needs_port": false,
+  "sha": "2c4811a808b93e41503dcf92a7e6b02ac5eaecd5",
+  "short_sha": "2c4811a808",
+  "subject": "chore(library/init/lean/compiler): remove unnecessary `[@export]`s",
+  "zig_target": {}
+}

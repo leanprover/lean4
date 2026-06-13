@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-21",
+  "needs_port": false,
+  "sha": "eaa384bd8119bee1804590af028b52463d1c9c67",
+  "short_sha": "eaa384bd81",
+  "subject": "perf: remove unnecessary calls to `ensureUniqueLetVarNames`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-05-03",
+  "needs_port": false,
+  "sha": "316c39ffe49565d73887e146f7aed36c45d2bd12",
+  "short_sha": "316c39ffe4",
+  "subject": "fix: `grind` congruence-table invariant for lazy `ite` branches (#13624)",
+  "zig_target": {}
+}

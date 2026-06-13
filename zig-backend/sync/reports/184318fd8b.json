@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    }
+  ],
+  "date": "2023-10-07",
+  "needs_port": true,
+  "sha": "184318fd8b3e46000b45c54046274f27159f041f",
+  "short_sha": "184318fd8b",
+  "subject": "fix: eliminate widestring uses",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp"
+  }
+}

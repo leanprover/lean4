@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-20",
+  "needs_port": false,
+  "sha": "14e1d4328f70aa5b6680586a6aae79167f4aa37e",
+  "short_sha": "14e1d4328f",
+  "subject": "fix: prevent `cbv` crash on dependent projections with `@[cbv_eval]` rewrites (#12612)",
+  "zig_target": {}
+}

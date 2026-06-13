@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-15",
+  "needs_port": false,
+  "sha": "6e1a64a3ede24f20fe3fba435432a3224f7ecd3a",
+  "short_sha": "6e1a64a3ed",
+  "subject": "fix(library/init/lean/ir): change semantics of big number operations",
+  "zig_target": {}
+}

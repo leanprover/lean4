@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-09",
+  "needs_port": false,
+  "sha": "aeae37eb81ca3b7f8b1643b963168d0c5e2a76bd",
+  "short_sha": "aeae37eb81",
+  "subject": "feat(library/init/lean/metavarcontext): missing functions",
+  "zig_target": {}
+}

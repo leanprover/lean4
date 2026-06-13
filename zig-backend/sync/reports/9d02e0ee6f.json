@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    }
+  ],
+  "date": "2023-10-15",
+  "needs_port": true,
+  "sha": "9d02e0ee6fbc5990058d92216dd90a4d7048df20",
+  "short_sha": "9d02e0ee6f",
+  "subject": "chore: remove unnecessary `%` operations at `Fin.mod` and `Fin.div`",
+  "zig_target": {
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean"
+  }
+}

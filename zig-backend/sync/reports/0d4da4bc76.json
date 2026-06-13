@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-07",
+  "needs_port": false,
+  "sha": "0d4da4bc7635bd434af68f9e332f601e8ec69710",
+  "short_sha": "0d4da4bc76",
+  "subject": "fix(library/init/lean/elaborator): borrow annotations",
+  "zig_target": {}
+}

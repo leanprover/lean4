@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2025-08-25",
+  "needs_port": false,
+  "sha": "be4651a77285841c00ee80a5cd9ff416811179fd",
+  "short_sha": "be4651a772",
+  "subject": "fix: don't block fileworker with `lake setup-file` (#10052)",
+  "zig_target": {}
+}

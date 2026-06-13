@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2022-11-09",
+  "needs_port": true,
+  "sha": "3e33fcc4f82471184677389f0125a8819281bab5",
+  "short_sha": "3e33fcc4f8",
+  "subject": "chore: use `lean_string_utf8_next_fast`",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

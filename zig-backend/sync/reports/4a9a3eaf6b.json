@@ -1,0 +1,42 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Array/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/InternalLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/InternalLemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Slice/Operations.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Slice/Operations.lean"
+    }
+  ],
+  "date": "2026-02-16",
+  "needs_port": true,
+  "sha": "4a9a3eaf6bed9840cb0c04fcff84a616489224e4",
+  "short_sha": "4a9a3eaf6b",
+  "subject": "feat: `Rxx.nodup_toList` lemmas and slice/`foldl` lemmas (#12438)",
+  "zig_target": {
+    "src/Init/Data/Range/Polymorphic/Lemmas.lean": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean",
+    "src/Init/Data/Slice/Array/Lemmas.lean": "zig-backend/src/init/Data/Slice/Array/Lemmas.lean",
+    "src/Init/Data/Slice/InternalLemmas.lean": "zig-backend/src/init/Data/Slice/InternalLemmas.lean",
+    "src/Init/Data/Slice/Lemmas.lean": "zig-backend/src/init/Data/Slice/Lemmas.lean",
+    "src/Init/Data/Slice/Operations.lean": "zig-backend/src/init/Data/Slice/Operations.lean"
+  }
+}

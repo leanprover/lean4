@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-02",
+  "needs_port": false,
+  "sha": "1fff412b1f1a5c82d30fb7e68aaa98a9b6d1a52a",
+  "short_sha": "1fff412b1f",
+  "subject": "fix: regressions from previous commit",
+  "zig_target": {}
+}

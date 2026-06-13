@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-09",
+  "needs_port": false,
+  "sha": "92403ae7e1b421768b86c20aee8c38943bb0865f",
+  "short_sha": "92403ae7e1",
+  "subject": "chore: move -fno-semantic-interposition to the right place",
+  "zig_target": {}
+}

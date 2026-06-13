@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-13",
+  "needs_port": false,
+  "sha": "6d235586f0550f6b300ae0e3de07a3c5b13c1743",
+  "short_sha": "6d235586f0",
+  "subject": "fix: ignore TC failures while processing patterns",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-06-28",
+  "needs_port": false,
+  "sha": "c52605dfe3d367ba04273e183b30997c065d920e",
+  "short_sha": "c52605dfe3",
+  "subject": "fix: some inconsistencies in Map grind annotations (#9054)",
+  "zig_target": {}
+}

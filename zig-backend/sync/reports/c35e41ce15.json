@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-03-19",
+  "needs_port": false,
+  "sha": "c35e41ce15b3e47ccd2d3d4d11a97625f8112e0a",
+  "short_sha": "c35e41ce15",
+  "subject": "chore: Nix: add `lake` executable",
+  "zig_target": {}
+}

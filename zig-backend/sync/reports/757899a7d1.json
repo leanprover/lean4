@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-19",
+  "needs_port": false,
+  "sha": "757899a7d179b3fd845d3e03031bbe360c80ef51",
+  "short_sha": "757899a7d1",
+  "subject": "chore: run test suite with `Elab.async` for more coverage",
+  "zig_target": {}
+}

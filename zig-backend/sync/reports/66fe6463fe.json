@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-10-04",
+  "needs_port": true,
+  "sha": "66fe6463fe5262d2e5afc9b3dcf4a67f14493cd3",
+  "short_sha": "66fe6463fe",
+  "subject": "fix(library/compiler/csimp): missing `mk_let`",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

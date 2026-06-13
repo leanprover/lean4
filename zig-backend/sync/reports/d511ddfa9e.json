@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2020-02-29",
+  "needs_port": true,
+  "sha": "d511ddfa9e7eb374ed44b8b65d5146d624471b6b",
+  "short_sha": "d511ddfa9e",
+  "subject": "feat: add `SemiDeciable` and `withPtrEqSubsingleton`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-16",
+  "needs_port": false,
+  "sha": "4e3025fe81cdbd8d8fc93c3778e8b48221da4d36",
+  "short_sha": "4e3025fe81",
+  "subject": "feat: Nix: use HEAD as stage0",
+  "zig_target": {}
+}

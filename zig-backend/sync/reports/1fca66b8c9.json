@@ -1,0 +1,36 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Option.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Attach.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Option/Attach.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Option/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Option/List.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Option/List.lean"
+    }
+  ],
+  "date": "2024-09-30",
+  "needs_port": true,
+  "sha": "1fca66b8c90e5fbf79ff936d34b697ec8b53ca35",
+  "short_sha": "1fca66b8c9",
+  "subject": "feat: Option.attach (#5532)",
+  "zig_target": {
+    "src/Init/Data/Option.lean": "zig-backend/src/init/Data/Option.lean",
+    "src/Init/Data/Option/Attach.lean": "zig-backend/src/init/Data/Option/Attach.lean",
+    "src/Init/Data/Option/Lemmas.lean": "zig-backend/src/init/Data/Option/Lemmas.lean",
+    "src/Init/Data/Option/List.lean": "zig-backend/src/init/Data/Option/List.lean"
+  }
+}

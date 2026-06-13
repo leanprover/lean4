@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-30",
+  "needs_port": false,
+  "sha": "b2b385b45678532b7f269a92d76912c2dedc7ed7",
+  "short_sha": "b2b385b456",
+  "subject": "chore: update stage0",
+  "zig_target": {}
+}

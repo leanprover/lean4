@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-02-21",
+  "needs_port": false,
+  "sha": "6719af350fde9339354f28d091458df39a4af9d4",
+  "short_sha": "6719af350f",
+  "subject": "chore: remove mkAppN macro in omega (#3428)",
+  "zig_target": {}
+}

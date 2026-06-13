@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-08-10",
+  "needs_port": false,
+  "sha": "cbeef963a990f2e852a130bf4b8b26beab15d727",
+  "short_sha": "cbeef963a9",
+  "subject": "fix: have `unsafe` term produce an opaqueDecl (#9819)",
+  "zig_target": {}
+}

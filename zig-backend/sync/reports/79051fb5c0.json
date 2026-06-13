@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-09-08",
+  "needs_port": true,
+  "sha": "79051fb5c0b9f50a6afaaae20c060c4709194d43",
+  "short_sha": "79051fb5c0",
+  "subject": "feat: simpler off-diagonal noConfusion construction using `ctorIdx` (#10300)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

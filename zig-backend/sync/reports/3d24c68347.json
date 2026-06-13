@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-04-13",
+  "needs_port": false,
+  "sha": "3d24c68347d44f0c9c854647dd96b8997419ca11",
+  "short_sha": "3d24c68347",
+  "subject": "doc: rephrase a couple RELEASES entries (#3900)",
+  "zig_target": {}
+}

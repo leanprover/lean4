@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-12",
+  "needs_port": false,
+  "sha": "123583231429d886a186cc479e9e9dbac791c004",
+  "short_sha": "1235832314",
+  "subject": "feat: add `runPendingTacticsAt (e : Expr)`",
+  "zig_target": {}
+}

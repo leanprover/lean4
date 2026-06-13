@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-25",
+  "needs_port": false,
+  "sha": "39e0b41fe1ab4d16f15efb0dc9bd7607a8941713",
+  "short_sha": "39e0b41fe1",
+  "subject": "test: make #1697 test case Linux-Debug safe (#4829)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-02-19",
+  "needs_port": false,
+  "sha": "0e0ed9ccaf07a74c661d87d2c6313f57e3bfddd9",
+  "short_sha": "0e0ed9ccaf",
+  "subject": "fix: broken trace tree on elab runtime exception (#3371)",
+  "zig_target": {}
+}

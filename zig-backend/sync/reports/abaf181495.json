@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-13",
+  "needs_port": false,
+  "sha": "abaf1814951c9c8fe292a62d022441ad6fb8151e",
+  "short_sha": "abaf181495",
+  "subject": "refactor(core): homogeneous `andthen`",
+  "zig_target": {}
+}

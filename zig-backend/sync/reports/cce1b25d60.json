@@ -1,0 +1,10 @@
+{
+  "author": "Rishikesh Vaishnav",
+  "backend_changes": [],
+  "date": "2023-01-16",
+  "needs_port": false,
+  "sha": "cce1b25d60ea25f2fd1a89e1270720239b209992",
+  "short_sha": "cce1b25d60",
+  "subject": "doc: improve documentation of `MetavarContext.lean` (#1625)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac",
+  "backend_changes": [],
+  "date": "2022-06-28",
+  "needs_port": false,
+  "sha": "a2e39659f9dc4ef6f1c40458d0346f7351fc0b3d",
+  "short_sha": "a2e39659f9",
+  "subject": "perf: do not build object files of imports when linking executable",
+  "zig_target": {}
+}

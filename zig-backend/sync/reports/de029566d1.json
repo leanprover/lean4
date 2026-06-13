@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-08-01",
+  "needs_port": false,
+  "sha": "de029566d132be25c52e18843f004ef5e737f92f",
+  "short_sha": "de029566d1",
+  "subject": "fix: unused variables false positive with `match`",
+  "zig_target": {}
+}

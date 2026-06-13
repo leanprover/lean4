@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2020-10-28",
+  "needs_port": true,
+  "sha": "227faa0aadb5d1def2b963a346fd0b9d3e10a138",
+  "short_sha": "227faa0aad",
+  "subject": "chore: remove dead code",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

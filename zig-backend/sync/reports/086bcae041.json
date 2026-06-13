@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Quotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+    }
+  ],
+  "date": "2019-12-15",
+  "needs_port": true,
+  "sha": "086bcae04122a2f439d6f71fa33ad07a35a43d6b",
+  "short_sha": "086bcae041",
+  "subject": "refactor: quoteSyntax: use TermElabM",
+  "zig_target": {
+    "src/Init/Lean/Elab/Quotation.lean": "zig-backend/src/init/Lean/Elab/Quotation.lean"
+  }
+}

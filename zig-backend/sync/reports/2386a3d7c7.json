@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-04-21",
+  "needs_port": false,
+  "sha": "2386a3d7c7086c92266fe04257f5217a22f6993e",
+  "short_sha": "2386a3d7c7",
+  "subject": "chore: add RISC-V ast benchmark (#8035)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-09",
+  "needs_port": false,
+  "sha": "a4dd66df62ea9572c51db952e6a567c9c91e20e1",
+  "short_sha": "a4dd66df62",
+  "subject": "perf: bypass typeclass synthesis in SizeOf spec theorem generation (#12849)",
+  "zig_target": {}
+}

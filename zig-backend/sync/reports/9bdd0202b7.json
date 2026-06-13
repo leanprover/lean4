@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-19",
+  "needs_port": false,
+  "sha": "9bdd0202b7177050c0658eca1b879241332a6a9e",
+  "short_sha": "9bdd0202b7",
+  "subject": "test: add `ffi-dep` example and fix `ffi` example",
+  "zig_target": {}
+}

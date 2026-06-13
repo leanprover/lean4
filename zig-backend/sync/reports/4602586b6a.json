@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Visibility.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+    }
+  ],
+  "date": "2025-11-14",
+  "needs_port": true,
+  "sha": "4602586b6a72a89bf9e4519d89de4637f7547e84",
+  "short_sha": "4602586b6a",
+  "subject": "chore: suggest public `meta import` on phase check failure, which is more likely to be the correct variant (#11173)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Visibility.lean": "zig-backend/src/lean/compiler/lcnf/Visibility.lean"
+  }
+}

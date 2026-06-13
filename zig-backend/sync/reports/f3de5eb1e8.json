@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-10-10",
+  "needs_port": false,
+  "sha": "f3de5eb1e8dc0708cd5b7983c282cace6e025957",
+  "short_sha": "f3de5eb1e8",
+  "subject": "feat: lake: `--no-build` to exit before a build",
+  "zig_target": {}
+}

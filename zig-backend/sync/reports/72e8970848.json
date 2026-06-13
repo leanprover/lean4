@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-08-27",
+  "needs_port": false,
+  "sha": "72e8970848d787d7888c6384dd5839b3cea0eefd",
+  "short_sha": "72e8970848",
+  "subject": "chore: benchmarks for deriving DecidableEq on large inductives (#10149)",
+  "zig_target": {}
+}

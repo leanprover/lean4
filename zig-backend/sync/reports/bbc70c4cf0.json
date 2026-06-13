@@ -1,0 +1,10 @@
+{
+  "author": "Yuri de Wit",
+  "backend_changes": [],
+  "date": "2022-09-14",
+  "needs_port": false,
+  "sha": "bbc70c4cf0418a8ed5bc80bc32033f9f31c88fe5",
+  "short_sha": "bbc70c4cf0",
+  "subject": "fix: fixes #1599 by adding correct indentation",
+  "zig_target": {}
+}

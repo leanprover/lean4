@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-03-04",
+  "needs_port": false,
+  "sha": "eacb82e5f3171b8f395e3b9ed586eae9633c712f",
+  "short_sha": "eacb82e5f3",
+  "subject": "test: move cbv tests to appropriate directories (#12791)",
+  "zig_target": {}
+}

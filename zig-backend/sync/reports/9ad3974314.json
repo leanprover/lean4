@@ -1,0 +1,18 @@
+{
+  "author": "Jakob von Raumer",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/TakeDrop.lean"
+    }
+  ],
+  "date": "2025-05-22",
+  "needs_port": true,
+  "sha": "9ad397431491a96f211691f1260ba82da03de9a7",
+  "short_sha": "9ad3974314",
+  "subject": "feat: add `List.drop_cons` (#8434)",
+  "zig_target": {
+    "src/Init/Data/List/TakeDrop.lean": "zig-backend/src/init/Data/List/TakeDrop.lean"
+  }
+}

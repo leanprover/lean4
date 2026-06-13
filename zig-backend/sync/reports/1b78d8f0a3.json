@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "1b78d8f0a37fcd8b6428882344b1ef83e4e6d2ba",
+  "short_sha": "1b78d8f0a3",
+  "subject": "fix: Rewriting in `mvcgen` when there are excess arguments to `wp` (#9834)",
+  "zig_target": {}
+}

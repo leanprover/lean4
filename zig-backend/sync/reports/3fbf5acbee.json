@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    },
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-01-12",
+  "needs_port": true,
+  "sha": "3fbf5acbee93c567a166150c710702fedc59a3da",
+  "short_sha": "3fbf5acbee",
+  "subject": "fix: add missing `[reducible]` annotations `Init/WF.lean`",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean",
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-18",
+  "needs_port": false,
+  "sha": "092d5d67b4254c0c209ccc0336fdf160868ea1b3",
+  "short_sha": "092d5d67b4",
+  "subject": "chore: Nix: rebase old shell.nix setup on new flake.nix one, add shell `nix` attribute for pinned flakes-enable Nix",
+  "zig_target": {}
+}

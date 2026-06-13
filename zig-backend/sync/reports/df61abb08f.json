@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-03-03",
+  "needs_port": false,
+  "sha": "df61abb08fe60ddb811fb44c4a9fa3a4a61ddd3c",
+  "short_sha": "df61abb08f",
+  "subject": "fix: normalize instance argument in getStuckMVar? for class projections (#12778)",
+  "zig_target": {}
+}

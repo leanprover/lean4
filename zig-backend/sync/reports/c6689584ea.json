@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-07-03",
+  "needs_port": false,
+  "sha": "c6689584eae3621115b6cf4439d967f507111f05",
+  "short_sha": "c6689584ea",
+  "subject": "fix: split ifs in `mvcgen` rather than relying on a spec (#9176)",
+  "zig_target": {}
+}

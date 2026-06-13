@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-10",
+  "needs_port": false,
+  "sha": "45636324f9e34f37d434603aaebce62fc158d467",
+  "short_sha": "45636324f9",
+  "subject": "chore: CI: exclude nonreproducible test",
+  "zig_target": {}
+}

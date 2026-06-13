@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-20",
+  "needs_port": false,
+  "sha": "3d90850fdda2fa4a5c8947ad94a8c41b881d6d58",
+  "short_sha": "3d90850fdd",
+  "subject": "feat: add syntax for specifying LHS precedence on trailing parsers",
+  "zig_target": {}
+}

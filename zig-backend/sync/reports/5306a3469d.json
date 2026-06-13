@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-11-20",
+  "needs_port": false,
+  "sha": "5306a3469d20caa5f9d80384a5c1effdb14e9c67",
+  "short_sha": "5306a3469d",
+  "subject": "fix: bug `ite`/`dite` propagator used in `grind` (#11295)",
+  "zig_target": {}
+}

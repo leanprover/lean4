@@ -1,0 +1,138 @@
+{
+  "author": "Julia Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/ToString.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/ToString.lean"
+    },
+    {
+      "path": "src/Init/Data/String.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Extra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Extra.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Intercalate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Intercalate.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/IsEmpty.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/IsEmpty.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Length.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Length.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Modify.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Modify.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/Pred.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Splits.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Splits.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Length.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/String/Length.lean"
+    },
+    {
+      "path": "src/Init/Data/String/TakeDrop.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/TakeDrop.lean"
+    },
+    {
+      "path": "src/Init/System/FilePath.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/FilePath.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/Uri.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Uri.lean"
+    }
+  ],
+  "date": "2026-05-07",
+  "needs_port": true,
+  "sha": "79659457fb0377da019c274eb58e5de2ff95d9d0",
+  "short_sha": "79659457fb",
+  "subject": "chore: reduce usage of `String.length` (#13681)",
+  "zig_target": {
+    "src/Init/Data/Nat/ToString.lean": "zig-backend/src/init/Data/Nat/ToString.lean",
+    "src/Init/Data/String.lean": "zig-backend/src/init/Data/String.lean",
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean",
+    "src/Init/Data/String/Extra.lean": "zig-backend/src/init/Data/String/Extra.lean",
+    "src/Init/Data/String/Lemmas.lean": "zig-backend/src/init/Data/String/Lemmas.lean",
+    "src/Init/Data/String/Lemmas/Intercalate.lean": "zig-backend/src/init/Data/String/Lemmas/Intercalate.lean",
+    "src/Init/Data/String/Lemmas/IsEmpty.lean": "zig-backend/src/init/Data/String/Lemmas/IsEmpty.lean",
+    "src/Init/Data/String/Lemmas/Length.lean": "zig-backend/src/init/Data/String/Lemmas/Length.lean",
+    "src/Init/Data/String/Lemmas/Modify.lean": "zig-backend/src/init/Data/String/Lemmas/Modify.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Char.lean",
+    "src/Init/Data/String/Lemmas/Pattern/Pred.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/Pred.lean",
+    "src/Init/Data/String/Lemmas/Pattern/String/Basic.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/String/Basic.lean",
+    "src/Init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean": "zig-backend/src/init/Data/String/Lemmas/Pattern/TakeDrop/Char.lean",
+    "src/Init/Data/String/Lemmas/Splits.lean": "zig-backend/src/init/Data/String/Lemmas/Splits.lean",
+    "src/Init/Data/String/Lemmas/TakeDrop.lean": "zig-backend/src/init/Data/String/Lemmas/TakeDrop.lean",
+    "src/Init/Data/String/Length.lean": "zig-backend/src/init/Data/String/Length.lean",
+    "src/Init/Data/String/TakeDrop.lean": "zig-backend/src/init/Data/String/TakeDrop.lean",
+    "src/Init/System/FilePath.lean": "zig-backend/src/init/System/FilePath.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/Uri.lean": "zig-backend/src/init/System/Uri.lean"
+  }
+}

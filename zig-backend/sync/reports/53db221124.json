@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Config.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Config.lean"
+    }
+  ],
+  "date": "2026-04-30",
+  "needs_port": true,
+  "sha": "53db2211243d6617ef764e217d73441093e174f0",
+  "short_sha": "53db221124",
+  "subject": "fix: disable model-based theory combination in `grind` derived tactics (#13593)",
+  "zig_target": {
+    "src/Init/Grind/Config.lean": "zig-backend/src/init/Grind/Config.lean"
+  }
+}

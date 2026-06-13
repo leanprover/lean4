@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Control.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Control.lean"
+    }
+  ],
+  "date": "2020-10-16",
+  "needs_port": true,
+  "sha": "dd4ae81774a76268d8ed87b19543a1b293171455",
+  "short_sha": "dd4ae81774",
+  "subject": "chore: move to new frontend",
+  "zig_target": {
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/Nat/Control.lean": "zig-backend/src/init/Data/Nat/Control.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-10",
+  "needs_port": false,
+  "sha": "7d32030729953d5533e4cd4d5918015e7866341b",
+  "short_sha": "7d32030729",
+  "subject": "feat: add `cbv_eval` attribute (#12296)",
+  "zig_target": {}
+}

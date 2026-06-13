@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ll_infer_type.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+    }
+  ],
+  "date": "2022-07-04",
+  "needs_port": true,
+  "sha": "ffc90f6a3545ce12e487cba0304200be8d7d21da",
+  "short_sha": "ffc90f6a35",
+  "subject": "fix: bug at `ll_infer_type`",
+  "zig_target": {
+    "src/library/compiler/ll_infer_type.cpp": "zig-backend/src/library/compiler/ll_infer_type.cpp"
+  }
+}

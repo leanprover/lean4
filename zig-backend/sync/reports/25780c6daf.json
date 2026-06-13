@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2018-09-25",
+  "needs_port": true,
+  "sha": "25780c6daf0a0ae5c947dc3423907783773cadea",
+  "short_sha": "25780c6daf",
+  "subject": "fix(library/compiler/csimp): never create join points for floating cases from application",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

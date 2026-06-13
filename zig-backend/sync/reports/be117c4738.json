@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-22",
+  "needs_port": false,
+  "sha": "be117c4738bfd81d6a59c95e89a4294b25d53939",
+  "short_sha": "be117c4738",
+  "subject": "fix: missing traces from `realizeConst` (#8050)",
+  "zig_target": {}
+}

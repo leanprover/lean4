@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2023-08-03",
+  "needs_port": false,
+  "sha": "1f3ef28a1dfe903c0a62663fee4301e6da015942",
+  "short_sha": "1f3ef28a1d",
+  "subject": "fix: correct universe polymorphism in `Lean.instFromJsonProd`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/WF.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WF.lean"
+    }
+  ],
+  "date": "2022-11-30",
+  "needs_port": true,
+  "sha": "1b5029222859a52ad1afcd23f5fbfd64b047e17a",
+  "short_sha": "1b50292228",
+  "subject": "chore: protect Prod.Lex",
+  "zig_target": {
+    "src/Init/WF.lean": "zig-backend/src/init/WF.lean"
+  }
+}

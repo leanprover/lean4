@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/inliner.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/inliner.cpp"
+    }
+  ],
+  "date": "2018-10-01",
+  "needs_port": true,
+  "sha": "efa77c2a5b7418a8a952d7d87d99417ba51c214c",
+  "short_sha": "efa77c2a5b",
+  "subject": "fix(library/compiler/inliner): bug in the old compiler",
+  "zig_target": {
+    "src/library/compiler/inliner.cpp": "zig-backend/src/library/compiler/inliner.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-07-04",
+  "needs_port": true,
+  "sha": "f5e47480f23c25a3f8ed4ac6cfdcf97ad423baf6",
+  "short_sha": "f5e47480f2",
+  "subject": "chore: #9196 part 2 (#9197)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

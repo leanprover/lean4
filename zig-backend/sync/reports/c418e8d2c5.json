@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-25",
+  "needs_port": false,
+  "sha": "c418e8d2c5111fce5c8032576a68886d6f679c5a",
+  "short_sha": "c418e8d2c5",
+  "subject": "fix: use `useExplicit := false` when processing `instance ... where ...` notation fields",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-31",
+  "needs_port": false,
+  "sha": "f5db6575e87b360efcd881b51e14a5e10ad472cc",
+  "short_sha": "f5db6575e8",
+  "subject": "chore: Nix: always use stage 1 leanc & headers",
+  "zig_target": {}
+}

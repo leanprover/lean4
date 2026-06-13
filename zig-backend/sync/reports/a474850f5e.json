@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/DoNotation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/DoNotation.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-02-03",
+  "needs_port": true,
+  "sha": "a474850f5e4f40c42f3b42f555d2c249667961d0",
+  "short_sha": "a474850f5e",
+  "subject": "feat: use automatic `liftM` at `ensureHasType`",
+  "zig_target": {
+    "src/Init/Lean/Elab/DoNotation.lean": "zig-backend/src/init/Lean/Elab/DoNotation.lean",
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

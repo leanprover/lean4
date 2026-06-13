@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-05-06",
+  "needs_port": false,
+  "sha": "036bd4f0df5bb32dd84af2e82690754d486e3f3d",
+  "short_sha": "036bd4f0df",
+  "subject": "fix: `withoutExporting` around diagnostic reporting (#13630)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2026-03-13",
+  "needs_port": false,
+  "sha": "47b3be05247c1d749f7031c06405ddc86daa4b09",
+  "short_sha": "47b3be0524",
+  "subject": "feat: update RPC wire format (#12905)",
+  "zig_target": {}
+}

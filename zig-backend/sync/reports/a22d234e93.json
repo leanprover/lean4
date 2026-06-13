@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2020-11-29",
+  "needs_port": true,
+  "sha": "a22d234e9357a9a77fe38d5de374902cc8496837",
+  "short_sha": "a22d234e93",
+  "subject": "fix: Thunk.get: mark result as MT before storing it in the task object",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

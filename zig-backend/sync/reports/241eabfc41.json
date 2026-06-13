@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-09-20",
+  "needs_port": true,
+  "sha": "241eabfc41f2b25206a0d6404684230d57dae014",
+  "short_sha": "241eabfc41",
+  "subject": "fix: non termination on ill-formed string literals",
+  "zig_target": {
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

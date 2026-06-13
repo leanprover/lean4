@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/elim_recursors.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/elim_recursors.cpp"
+    },
+    {
+      "path": "src/shell/leandoc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/leandoc.cpp"
+    }
+  ],
+  "date": "2018-08-01",
+  "needs_port": true,
+  "sha": "9d35d3152903a39278a24d9039aee0d13f87b7d0",
+  "short_sha": "9d35d31529",
+  "subject": "refactor(kernel): merge `constant_assumption` and `axiom`",
+  "zig_target": {
+    "src/library/compiler/elim_recursors.cpp": "zig-backend/src/library/compiler/elim_recursors.cpp",
+    "src/shell/leandoc.cpp": "zig-backend/src/shell/leandoc.cpp"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-02",
+  "needs_port": false,
+  "sha": "f8866dcc59d5e5021410eaea4dfb1a2ce490391e",
+  "short_sha": "f8866dcc59",
+  "subject": "fix: `grind?` dropping options (#11481)",
+  "zig_target": {}
+}

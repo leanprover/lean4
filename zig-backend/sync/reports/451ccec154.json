@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-06",
+  "needs_port": false,
+  "sha": "451ccec1547591802847b4512b000f51f84ca43c",
+  "short_sha": "451ccec154",
+  "subject": "fix: `save` when used as last tactic",
+  "zig_target": {}
+}

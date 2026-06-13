@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-06-05",
+  "needs_port": false,
+  "sha": "fd9c8a4c8254e083851fce017e2272265273c456",
+  "short_sha": "fd9c8a4c82",
+  "subject": "feat(library/init/lean/attributes): add `pushScope/popScope`, missing APIs, and `@[export]`",
+  "zig_target": {}
+}

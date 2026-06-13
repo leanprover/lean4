@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/QSort.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/QSort.lean"
+    }
+  ],
+  "date": "2022-12-17",
+  "needs_port": true,
+  "sha": "eeab2af7aef8c1d9902160aa0400f9017048c8df",
+  "short_sha": "eeab2af7ae",
+  "subject": "fix: remove `Inhabited Environment` instance",
+  "zig_target": {
+    "src/Init/Data/Array/QSort.lean": "zig-backend/src/init/Data/Array/QSort.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/WFTactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/WFTactics.lean"
+    }
+  ],
+  "date": "2022-01-11",
+  "needs_port": true,
+  "sha": "2464da0dca9a85e566ac59e0c4726cb1b977ed86",
+  "short_sha": "2464da0dca",
+  "subject": "feat: add support for `PSigma.Lex` at `default_decreasing_tactic`",
+  "zig_target": {
+    "src/Init/WFTactics.lean": "zig-backend/src/init/WFTactics.lean"
+  }
+}

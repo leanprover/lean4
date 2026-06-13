@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-15",
+  "needs_port": false,
+  "sha": "9e3b3b249528ae4d01ec9f15f06a5c0a5051362e",
+  "short_sha": "9e3b3b2495",
+  "subject": "refactor: move attribute related parsers to separate file",
+  "zig_target": {}
+}

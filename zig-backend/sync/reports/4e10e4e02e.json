@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-02-18",
+  "needs_port": false,
+  "sha": "4e10e4e02ea2f166382491c38cbbb30e18d3f310",
+  "short_sha": "4e10e4e02e",
+  "subject": "feat: make linter names clickable in trace messages (#7119)",
+  "zig_target": {}
+}

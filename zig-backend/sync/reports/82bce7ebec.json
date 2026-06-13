@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-12",
+  "needs_port": false,
+  "sha": "82bce7ebecfbfc01ec5541e2e07297f3d5dbe2ec",
+  "short_sha": "82bce7ebec",
+  "subject": "fix: declare local instaces occurring in patterns",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "986bb17e341e2c9b352ff058de86738a5541c34c",
+  "short_sha": "986bb17e34",
+  "subject": "test: remove broken test case",
+  "zig_target": {}
+}

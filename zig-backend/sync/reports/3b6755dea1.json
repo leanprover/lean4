@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2019-11-05",
+  "needs_port": false,
+  "sha": "3b6755dea1acf0a1a3196131dc3bf9cb7d1ea5c8",
+  "short_sha": "3b6755dea1",
+  "subject": "doc: namespace A.B vs namespace A namespace B",
+  "zig_target": {}
+}

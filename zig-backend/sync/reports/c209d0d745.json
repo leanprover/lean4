@@ -1,0 +1,48 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Fin/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Nat/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/NeZero.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/NeZero.lean"
+    },
+    {
+      "path": "src/Init/Data/Zero.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Zero.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2024-09-02",
+  "needs_port": true,
+  "sha": "c209d0d745b8f16f50fae64fc4232b175914b4e9",
+  "short_sha": "c209d0d745",
+  "subject": "chore: upstream Zero and NeZero",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Fin/Basic.lean": "zig-backend/src/init/Data/Fin/Basic.lean",
+    "src/Init/Data/Nat/Basic.lean": "zig-backend/src/init/Data/Nat/Basic.lean",
+    "src/Init/Data/NeZero.lean": "zig-backend/src/init/Data/NeZero.lean",
+    "src/Init/Data/Zero.lean": "zig-backend/src/init/Data/Zero.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

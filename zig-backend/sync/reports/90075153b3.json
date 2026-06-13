@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-01-19",
+  "needs_port": false,
+  "sha": "90075153b3d2d095795d2fd3faae181d615b7d77",
+  "short_sha": "90075153b3",
+  "subject": "fix: UTF-16 strikes again",
+  "zig_target": {}
+}

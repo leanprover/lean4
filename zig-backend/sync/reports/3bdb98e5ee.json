@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-05-17",
+  "needs_port": false,
+  "sha": "3bdb98e5ee280b6e3f94a80ec7df8bf984e63e12",
+  "short_sha": "3bdb98e5ee",
+  "subject": "feat: rpc attribute",
+  "zig_target": {}
+}

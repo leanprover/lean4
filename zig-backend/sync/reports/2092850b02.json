@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-25",
+  "needs_port": false,
+  "sha": "2092850b02ffbaec2c4edb24f9d653d7f1dc102a",
+  "short_sha": "2092850b02",
+  "subject": "refactor: `lake server` -> `lake serve`",
+  "zig_target": {}
+}

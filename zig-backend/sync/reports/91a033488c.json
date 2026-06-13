@@ -1,0 +1,10 @@
+{
+  "author": "Alex Keizer",
+  "backend_changes": [],
+  "date": "2024-09-26",
+  "needs_port": false,
+  "sha": "91a033488c28f62f94ae7230a319c9f86cbc474a",
+  "short_sha": "91a033488c",
+  "subject": "chore: remove mention of `Lean.withSeconds` (#5481)",
+  "zig_target": {}
+}

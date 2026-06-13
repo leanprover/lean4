@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-14",
+  "needs_port": false,
+  "sha": "223a25195843aeee57912ac4b0b90bccec206413",
+  "short_sha": "223a251958",
+  "subject": "chore: remove legacy constructor",
+  "zig_target": {}
+}

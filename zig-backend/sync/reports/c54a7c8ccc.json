@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2021-03-13",
+  "needs_port": true,
+  "sha": "c54a7c8ccc75e0a664560b53d26987b0a7bb861b",
+  "short_sha": "c54a7c8ccc",
+  "subject": "chore: make `HasEquiv` more general",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

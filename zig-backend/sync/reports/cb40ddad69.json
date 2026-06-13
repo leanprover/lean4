@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-11-08",
+  "needs_port": false,
+  "sha": "cb40ddad69cada36940844e538ddf09a304b007b",
+  "short_sha": "cb40ddad69",
+  "subject": "fix: avoid max heartbeat error in completion (#5996)",
+  "zig_target": {}
+}

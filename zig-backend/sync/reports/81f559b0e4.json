@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/While.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/While.lean"
+    }
+  ],
+  "date": "2026-04-19",
+  "needs_port": true,
+  "sha": "81f559b0e4a444d1b968cda32d3b0b95f8fd9eb8",
+  "short_sha": "81f559b0e4",
+  "subject": "chore: remove `repeat`/`while` macro_rules bootstrap from `Init.While` (#13479)",
+  "zig_target": {
+    "src/Init/While.lean": "zig-backend/src/init/While.lean"
+  }
+}

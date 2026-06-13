@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "4b3ca1f6798e5fac3fdd16c3437a4cb1b124da77",
+  "short_sha": "4b3ca1f679",
+  "subject": "fix(script/gen_constants_cpp): do not insert '_' between two upper case letters",
+  "zig_target": {}
+}

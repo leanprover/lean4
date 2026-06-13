@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-22",
+  "needs_port": false,
+  "sha": "7106c7d15ed40acc872ca672d6a1a4774bb728fc",
+  "short_sha": "7106c7d15e",
+  "subject": "feat(tests/playground/Makefile): measure Lean GC% as lean::del/dealloc execution times via perf",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-05-21",
+  "needs_port": false,
+  "sha": "8d4dd2311ccfa3de8dbcaba015b52e3ae1ed308d",
+  "short_sha": "8d4dd2311c",
+  "subject": "fix: increase semantic token highlight limit",
+  "zig_target": {}
+}

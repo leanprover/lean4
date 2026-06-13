@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "11f8e24136d40378b393b0bd82e3ef92adff46f5",
+  "short_sha": "11f8e24136",
+  "subject": "chore(lean4-mode): change `lean-` prefixes to `lean4-`",
+  "zig_target": {}
+}

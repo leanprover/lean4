@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-05",
+  "needs_port": false,
+  "sha": "5644cee2d63c447b3fc2f347b8d199c243850ca9",
+  "short_sha": "5644cee2d6",
+  "subject": "chore: reset prefer_native",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-08-26",
+  "needs_port": false,
+  "sha": "1d51492139e5ed2b28ff6f9f158439fc59512bd9",
+  "short_sha": "1d51492139",
+  "subject": "test: lake: add build Init/Lean/Lake benchmark",
+  "zig_target": {}
+}

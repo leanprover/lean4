@@ -1,0 +1,10 @@
+{
+  "author": "Andrei Cheremskoy",
+  "backend_changes": [],
+  "date": "2022-01-06",
+  "needs_port": false,
+  "sha": "5eea97534f4aa6e01765ce47dc3ac0e45e7997dc",
+  "short_sha": "5eea97534f",
+  "subject": "chore(doc): remove duplicate Tactics section (#927)",
+  "zig_target": {}
+}

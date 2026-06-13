@@ -1,0 +1,18 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/system.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/system.cpp"
+    }
+  ],
+  "date": "2026-03-31",
+  "needs_port": true,
+  "sha": "17795b02eebb6e1f83ce25fb71c53acf401708d8",
+  "short_sha": "17795b02ee",
+  "subject": "fix: missing borrow annotations in `Std.Internal.UV.System` (#13172)",
+  "zig_target": {
+    "src/runtime/uv/system.cpp": "zig-backend/src/runtime/uv/system.cpp"
+  }
+}

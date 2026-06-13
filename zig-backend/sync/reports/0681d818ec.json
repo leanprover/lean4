@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-25",
+  "needs_port": false,
+  "sha": "0681d818ec34010d3114b4f3de75de7516f303d6",
+  "short_sha": "0681d818ec",
+  "subject": "chore: add helper function for `simp`",
+  "zig_target": {}
+}

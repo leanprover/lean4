@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-21",
+  "needs_port": false,
+  "sha": "c69cc61292a4cd21a10a91f0b4b4ad736fb2d4aa",
+  "short_sha": "c69cc61292",
+  "subject": "feat(frontends/lean,library/init/lean/parser/reader/module): add `node_choice!` macro",
+  "zig_target": {}
+}

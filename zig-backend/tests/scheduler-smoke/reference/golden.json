@@ -1,0 +1,11 @@
+{
+  "seed": 12648430,
+  "rc_total": 32724888,
+  "dep_shape_hash": 11995775385037572265,
+  "sync_prio_order": [0, 1, 2, 3],
+  "tagged_alloc_balance": {
+    "alloc": 0,
+    "free": 0,
+    "net": 0
+  }
+}

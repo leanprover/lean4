@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-18",
+  "needs_port": false,
+  "sha": "53ad51e984cb0466e71f1471053474d0b1896ed6",
+  "short_sha": "53ad51e984",
+  "subject": "fix: correct the lake lib location of a co-located lake and lean",
+  "zig_target": {}
+}

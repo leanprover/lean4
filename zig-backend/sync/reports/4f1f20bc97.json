@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToExpr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToExpr.lean"
+    }
+  ],
+  "date": "2022-09-15",
+  "needs_port": true,
+  "sha": "4f1f20bc97239f17438f0395c3353df2f5a9d6db",
+  "short_sha": "4f1f20bc97",
+  "subject": "refactor: `ToExprM`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToExpr.lean": "zig-backend/src/lean/compiler/lcnf/ToExpr.lean"
+  }
+}

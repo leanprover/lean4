@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-07",
+  "needs_port": false,
+  "sha": "15636a347f276d912a2cd903c76282f198a5070e",
+  "short_sha": "15636a347f",
+  "subject": "fix: `induction` incrementality on removal of extraneous case (#10679)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2026-02-25",
+  "needs_port": false,
+  "sha": "dc760cf54af838af03a4668ad94f8cee19262f29",
+  "short_sha": "dc760cf54a",
+  "subject": "chore: fail build on non-make generators (#12690)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/SimpLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SimpLemmas.lean"
+    }
+  ],
+  "date": "2022-08-30",
+  "needs_port": true,
+  "sha": "c089639b19078f591f88453db32102df8c3f22a0",
+  "short_sha": "c089639b19",
+  "subject": "refactor: Init.SimpLemmas proof golf / cleanup",
+  "zig_target": {
+    "src/Init/SimpLemmas.lean": "zig-backend/src/init/SimpLemmas.lean"
+  }
+}

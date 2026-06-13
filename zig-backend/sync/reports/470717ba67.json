@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-28",
+  "needs_port": false,
+  "sha": "470717ba674b9548f55e36f4f3c6962c5b706884",
+  "short_sha": "470717ba67",
+  "subject": "feat: autoBoundImplicit for universes",
+  "zig_target": {}
+}

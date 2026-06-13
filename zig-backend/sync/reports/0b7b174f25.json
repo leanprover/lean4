@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-22",
+  "needs_port": false,
+  "sha": "0b7b174f257a370b7af969a4bc63f26a4c917a12",
+  "short_sha": "0b7b174f25",
+  "subject": "feat: replace recursive applications at `packMutual`",
+  "zig_target": {}
+}

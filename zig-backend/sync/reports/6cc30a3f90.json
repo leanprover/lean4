@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-31",
+  "needs_port": false,
+  "sha": "6cc30a3f900616c10c3d299c85c6e6a29277a462",
+  "short_sha": "6cc30a3f90",
+  "subject": "feat: add `NameSSet`",
+  "zig_target": {}
+}

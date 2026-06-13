@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-01-13",
+  "needs_port": false,
+  "sha": "40efbb9b7a5e5e05e7e4009a8287d7228d18552a",
+  "short_sha": "40efbb9b7a",
+  "subject": "doc: commit conventions and Mathlib CI (#6605)",
+  "zig_target": {}
+}

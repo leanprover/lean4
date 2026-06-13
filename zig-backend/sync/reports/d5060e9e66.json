@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Passes.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+    }
+  ],
+  "date": "2025-05-23",
+  "needs_port": true,
+  "sha": "d5060e9e66aee1eee60bbeeea8ae9b9c94e29a47",
+  "short_sha": "d5060e9e66",
+  "subject": "feat: add extractClosed pass to LCNF pass list (#8462)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Passes.lean": "zig-backend/src/lean/compiler/lcnf/Passes.lean"
+  }
+}

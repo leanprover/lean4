@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-02",
+  "needs_port": false,
+  "sha": "3628b39cb664af910ae2ac7dba8d4020e0c5fe1a",
+  "short_sha": "3628b39cb6",
+  "subject": "feat(library/init/lean/compiler): add `simpcase` transformation",
+  "zig_target": {}
+}

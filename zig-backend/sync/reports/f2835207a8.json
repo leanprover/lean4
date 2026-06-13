@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "f2835207a84afe17a315ff6bc1f19c223c1ca35f",
+  "short_sha": "f2835207a8",
+  "subject": "refactor: move `isDefEqGuarded` helper",
+  "zig_target": {}
+}

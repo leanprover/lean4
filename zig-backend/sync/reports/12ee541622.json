@@ -1,0 +1,10 @@
+{
+  "author": "Joscha",
+  "backend_changes": [],
+  "date": "2021-12-01",
+  "needs_port": false,
+  "sha": "12ee541622dbec472d4446e61ec518fc438a92ce",
+  "short_sha": "12ee541622",
+  "subject": "fix: reference fields in constructor correctly",
+  "zig_target": {}
+}

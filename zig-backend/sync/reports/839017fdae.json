@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2020-12-22",
+  "needs_port": true,
+  "sha": "839017fdae81f864cfad843656f93e85bc0019c0",
+  "short_sha": "839017fdae",
+  "subject": "feat: add macro tactical `solve`",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

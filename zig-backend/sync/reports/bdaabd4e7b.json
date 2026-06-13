@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-08",
+  "needs_port": false,
+  "sha": "bdaabd4e7b4b463dc4cebd7adf44a143199bbecb",
+  "short_sha": "bdaabd4e7b",
+  "subject": "feat: propagate return type to `for-in` block",
+  "zig_target": {}
+}

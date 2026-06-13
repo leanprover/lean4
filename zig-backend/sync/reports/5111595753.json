@@ -1,0 +1,10 @@
+{
+  "author": "Adrien Champion",
+  "backend_changes": [],
+  "date": "2023-02-24",
+  "needs_port": false,
+  "sha": "5111595753c47799552b7d37a9488bb2eed7d041",
+  "short_sha": "5111595753",
+  "subject": "chore: discuss alternative calc syntax in RELEASES.md",
+  "zig_target": {}
+}

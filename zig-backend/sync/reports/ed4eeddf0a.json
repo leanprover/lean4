@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2018-11-14",
+  "needs_port": true,
+  "sha": "ed4eeddf0a448d07c8e15e9113ac69fd654164a1",
+  "short_sha": "ed4eeddf0a",
+  "subject": "feat(runtime/object): add more string primitives",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

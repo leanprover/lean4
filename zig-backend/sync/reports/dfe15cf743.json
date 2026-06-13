@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-21",
+  "needs_port": false,
+  "sha": "dfe15cf743df19f4de00ab051add4b240b6073a2",
+  "short_sha": "dfe15cf743",
+  "subject": "refactor(library/init): use `get` and `set` for `State` `EState` and `Ref`",
+  "zig_target": {}
+}

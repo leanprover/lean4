@@ -1,0 +1,10 @@
+{
+  "author": "euprunin",
+  "backend_changes": [],
+  "date": "2025-03-04",
+  "needs_port": false,
+  "sha": "2f8901d6d01351bcfd8f765ca99e003d3f788d37",
+  "short_sha": "2f8901d6d0",
+  "subject": "chore: add missing period to `grind` warning message (#7317)",
+  "zig_target": {}
+}

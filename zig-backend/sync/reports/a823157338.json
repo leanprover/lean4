@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-22",
+  "needs_port": false,
+  "sha": "a823157338ae54523eb8fb93a7b1517659da9df6",
+  "short_sha": "a823157338",
+  "subject": "fix(library/init/lean/expander): fix `let` expansion again",
+  "zig_target": {}
+}

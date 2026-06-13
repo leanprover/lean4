@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-07-08",
+  "needs_port": false,
+  "sha": "0b2bdaebd6f4016b788b4e991db78eca2b49800e",
+  "short_sha": "0b2bdaebd6",
+  "subject": "fix: More stuck definitional equalities involving smart unfoldings (#8766) (#9015)",
+  "zig_target": {}
+}

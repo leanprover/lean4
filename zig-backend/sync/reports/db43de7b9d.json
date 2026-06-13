@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Conv.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Conv.lean"
+    }
+  ],
+  "date": "2025-08-23",
+  "needs_port": true,
+  "sha": "db43de7b9d4c5059ea4a5db87a347387f3983629",
+  "short_sha": "db43de7b9d",
+  "subject": "feat: add `enter [in patt]` syntax (#10081)",
+  "zig_target": {
+    "src/Init/Conv.lean": "zig-backend/src/init/Conv.lean"
+  }
+}

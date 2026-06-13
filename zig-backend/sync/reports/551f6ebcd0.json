@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/AppBuilder.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/AppBuilder.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Rewrite.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Rewrite.lean"
+    }
+  ],
+  "date": "2020-02-14",
+  "needs_port": true,
+  "sha": "551f6ebcd0c5289a8d2f212d19394c4d3e35e0ed",
+  "short_sha": "551f6ebcd0",
+  "subject": "feat: `rewriteCore` tactic",
+  "zig_target": {
+    "src/Init/Lean/Meta/AppBuilder.lean": "zig-backend/src/init/Lean/Meta/AppBuilder.lean",
+    "src/Init/Lean/Meta/Tactic.lean": "zig-backend/src/init/Lean/Meta/Tactic.lean",
+    "src/Init/Lean/Meta/Tactic/Rewrite.lean": "zig-backend/src/init/Lean/Meta/Tactic/Rewrite.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "db74ee9e83c631dd4bab9b7b6a10d0793cb0cbef",
+  "short_sha": "db74ee9e83",
+  "subject": "feat: lake: reliably cache logs and hashes (#4402)",
+  "zig_target": {}
+}

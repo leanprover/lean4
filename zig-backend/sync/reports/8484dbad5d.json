@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-07",
+  "needs_port": false,
+  "sha": "8484dbad5d8b4b36a591d55ffc8aef3e30309dfe",
+  "short_sha": "8484dbad5d",
+  "subject": "test: benchmarks for `have`-telescopes (#11927)",
+  "zig_target": {}
+}

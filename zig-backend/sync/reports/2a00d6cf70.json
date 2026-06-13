@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-06-21",
+  "needs_port": false,
+  "sha": "2a00d6cf70e6dd25c0011b8ad7c7b8fb8c8b3688",
+  "short_sha": "2a00d6cf70",
+  "subject": "doc: more detailed docstring for PersistentEnvExtension (#4501)",
+  "zig_target": {}
+}

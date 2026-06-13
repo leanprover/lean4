@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-07",
+  "needs_port": false,
+  "sha": "43fcf69485c8d626f0fe50b8d769169767a1e013",
+  "short_sha": "43fcf69485",
+  "subject": "fix: watchdog: mark request as pending even if worker crashed",
+  "zig_target": {}
+}

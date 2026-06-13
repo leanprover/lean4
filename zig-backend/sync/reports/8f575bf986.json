@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-03",
+  "needs_port": false,
+  "sha": "8f575bf9868a11f7d74bbcf2e1b26c30a5b8a85e",
+  "short_sha": "8f575bf986",
+  "subject": "fix: Use non-overloading `Std.Do.Triple` notation in SpecLemmas.lean (#9701)",
+  "zig_target": {}
+}

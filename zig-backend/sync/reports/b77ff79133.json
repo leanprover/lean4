@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-15",
+  "needs_port": false,
+  "sha": "b77ff791333c04d81a1acba33bc0bb59dcf7c6d6",
+  "short_sha": "b77ff79133",
+  "subject": "fix: put `Lean.Server.FileWorker.WidgetRequests` back",
+  "zig_target": {}
+}

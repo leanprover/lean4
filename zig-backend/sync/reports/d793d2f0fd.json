@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-27",
+  "needs_port": false,
+  "sha": "d793d2f0fd45a776b26071f31ca00b3895b5f6a5",
+  "short_sha": "d793d2f0fd",
+  "subject": "feat: adapt `elabMatchAltView` to handle the new encoding for `h : discr = pattern`",
+  "zig_target": {}
+}

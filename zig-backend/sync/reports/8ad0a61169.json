@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-14",
+  "needs_port": false,
+  "sha": "8ad0a61169ed1343226f281559dd1cdab7dfaaa4",
+  "short_sha": "8ad0a61169",
+  "subject": "refactor: lake: scope all module build keys by package (#11169)",
+  "zig_target": {}
+}

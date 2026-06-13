@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-05",
+  "needs_port": false,
+  "sha": "abcb57d23404521053d2945e43c8fc4d96ca5272",
+  "short_sha": "abcb57d234",
+  "subject": "fix: use mathlib-lean-pr-testing app for PR comments (#12323)",
+  "zig_target": {}
+}

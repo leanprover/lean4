@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-08",
+  "needs_port": false,
+  "sha": "03a99986bbeea2fa474a3b25958893f3fc149aeb",
+  "short_sha": "03a99986bb",
+  "subject": "feat(kernel): implement `local_decl` using runtime",
+  "zig_target": {}
+}

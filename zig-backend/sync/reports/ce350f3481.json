@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-27",
+  "needs_port": false,
+  "sha": "ce350f348161e63fccde6c4a5fe1fd2070e7ce0f",
+  "short_sha": "ce350f3481",
+  "subject": "perf: linearity issue",
+  "zig_target": {}
+}

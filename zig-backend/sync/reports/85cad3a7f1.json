@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-17",
+  "needs_port": false,
+  "sha": "85cad3a7f128120edcace9cdb5a7ec8f5bcbaf36",
+  "short_sha": "85cad3a7f1",
+  "subject": "fix(library/init/lean/elaborator): equation heads",
+  "zig_target": {}
+}

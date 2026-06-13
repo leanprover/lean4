@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-09-12",
+  "needs_port": false,
+  "sha": "3ec73b715653e68c6593a0bdce0c73a30eb30341",
+  "short_sha": "3ec73b7156",
+  "subject": "fix(library/equations_compiler/compiler): avoid pull_nested_rec_fn by unfolding auxiliary declarations",
+  "zig_target": {}
+}

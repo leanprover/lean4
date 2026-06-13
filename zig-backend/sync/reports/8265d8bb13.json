@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2023-02-02",
+  "needs_port": false,
+  "sha": "8265d8bb13d62db391dc195ec4bbf507744c7b0b",
+  "short_sha": "8265d8bb13",
+  "subject": "chore: calc: improve error range",
+  "zig_target": {}
+}

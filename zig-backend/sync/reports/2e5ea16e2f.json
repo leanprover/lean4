@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-27",
+  "needs_port": false,
+  "sha": "2e5ea16e2f7f48209c57cfd56a1e3461e0766c9e",
+  "short_sha": "2e5ea16e2f",
+  "subject": "perf(library/init/lean/parser): cache consecutive calls to `token` at the same position",
+  "zig_target": {}
+}

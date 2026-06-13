@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Basic.lean"
+    }
+  ],
+  "date": "2020-09-11",
+  "needs_port": true,
+  "sha": "b025c1c623d4ec3d26c0df9e3913d71a721d3477",
+  "short_sha": "b025c1c623",
+  "subject": "chore: remove `HasEmptyc` workarounds",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Basic.lean": "zig-backend/src/lean/compiler/ir/Basic.lean"
+  }
+}

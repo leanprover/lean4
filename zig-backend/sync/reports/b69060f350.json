@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-28",
+  "needs_port": false,
+  "sha": "b69060f3506bc96da943470857f955698d2bb824",
+  "short_sha": "b69060f350",
+  "subject": "fix: category quotations in term position",
+  "zig_target": {}
+}

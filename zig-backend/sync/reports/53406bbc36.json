@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-07-24",
+  "needs_port": false,
+  "sha": "53406bbc36b62d05f562df214f3ec18c23b80e6c",
+  "short_sha": "53406bbc36",
+  "subject": "feat: add auxiliary constructions",
+  "zig_target": {}
+}

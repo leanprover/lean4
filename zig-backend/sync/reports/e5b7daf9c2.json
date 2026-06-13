@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-24",
+  "needs_port": false,
+  "sha": "e5b7daf9c233be7997b5fb2e3aa8762874643d1b",
+  "short_sha": "e5b7daf9c2",
+  "subject": "refactor: make `AppBuilder` methods polymorphic",
+  "zig_target": {}
+}

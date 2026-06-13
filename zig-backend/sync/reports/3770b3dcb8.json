@@ -1,0 +1,48 @@
+{
+  "author": "Jason Yuen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Lemmas/Iterate.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Lemmas/Iterate.lean"
+    },
+    {
+      "path": "src/Init/Data/String/Subslice.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Subslice.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/SimpCase.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SimpCase.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/ToDecl.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+    }
+  ],
+  "date": "2026-04-04",
+  "needs_port": true,
+  "sha": "3770b3dcb8b1b3340e0252760dc68e8e61daef06",
+  "short_sha": "3770b3dcb8",
+  "subject": "chore: fix spelling errors (#13274)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/Monadic/FilterMap.lean",
+    "src/Init/Data/String/Lemmas/Iterate.lean": "zig-backend/src/init/Data/String/Lemmas/Iterate.lean",
+    "src/Init/Data/String/Subslice.lean": "zig-backend/src/init/Data/String/Subslice.lean",
+    "src/Lean/Compiler/LCNF/ResetReuse.lean": "zig-backend/src/lean/compiler/lcnf/ResetReuse.lean",
+    "src/Lean/Compiler/LCNF/SimpCase.lean": "zig-backend/src/lean/compiler/lcnf/SimpCase.lean",
+    "src/Lean/Compiler/LCNF/ToDecl.lean": "zig-backend/src/lean/compiler/lcnf/ToDecl.lean"
+  }
+}

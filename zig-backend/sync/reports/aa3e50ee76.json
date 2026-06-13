@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-08-01",
+  "needs_port": false,
+  "sha": "aa3e50ee76f1a0393ae0439160acf5261c95acd6",
+  "short_sha": "aa3e50ee76",
+  "subject": "chore: revert reversion (#9672)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Checker.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Checker.lean"
+    }
+  ],
+  "date": "2025-06-28",
+  "needs_port": true,
+  "sha": "ef77322133042b6c3694b4b7e5a8cc0968ccc766",
+  "short_sha": "ef77322133",
+  "subject": "chore: fix a typo in an error message (#9066)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Checker.lean": "zig-backend/src/lean/compiler/ir/Checker.lean"
+  }
+}

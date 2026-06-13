@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-04-13",
+  "needs_port": true,
+  "sha": "1f4039a25d255eb21a1a00b1ec91f6d4cbf3d845",
+  "short_sha": "1f4039a25d",
+  "subject": "chore: remove `{}` from `Eq.refl` and `HEq.refl`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

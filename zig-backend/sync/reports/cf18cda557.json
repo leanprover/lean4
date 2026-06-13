@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-08-23",
+  "needs_port": false,
+  "sha": "cf18cda5570298645bd05510d9015f6c72a3af05",
+  "short_sha": "cf18cda557",
+  "subject": "chore(library/Makefile.in): make sure failures from `lean --deps` are propagated",
+  "zig_target": {}
+}

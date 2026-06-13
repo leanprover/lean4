@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-07-21",
+  "needs_port": false,
+  "sha": "fcd60e73f8a4474ba69ea4f63c197310133f9320",
+  "short_sha": "fcd60e73f8",
+  "subject": "fix: use withIncRecDepth in SizeOf deriving (#9448)",
+  "zig_target": {}
+}

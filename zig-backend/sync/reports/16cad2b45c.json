@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "16cad2b45c6a77efe4dce850dcdbaafaa7c91fc3",
+  "short_sha": "16cad2b45c",
+  "subject": "chore: CI: do not fetch complete history",
+  "zig_target": {}
+}

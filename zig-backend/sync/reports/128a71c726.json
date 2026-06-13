@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-10-30",
+  "needs_port": false,
+  "sha": "128a71c726ab79cba549b867f32456adfcb61ec0",
+  "short_sha": "128a71c726",
+  "subject": "fix: excessive RPC logging",
+  "zig_target": {}
+}

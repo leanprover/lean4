@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-07",
+  "needs_port": false,
+  "sha": "3faa0337050a2e4d85d03aac2bc65365cf9bd93f",
+  "short_sha": "3faa033705",
+  "subject": "refactor: add parametric `whnfCore`",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/CommRing/Poly.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/CommRing/Poly.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Linarith.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Linarith.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ordered/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ordered/Order.lean"
+    }
+  ],
+  "date": "2025-06-06",
+  "needs_port": true,
+  "sha": "ef9094d7f82cd9f012897493a52963659b0a48c4",
+  "short_sha": "ef9094d7f8",
+  "subject": "feat: `CommRing` interface for `grind` linarith (#8670)",
+  "zig_target": {
+    "src/Init/Grind/CommRing/Poly.lean": "zig-backend/src/init/Grind/CommRing/Poly.lean",
+    "src/Init/Grind/Ordered/Linarith.lean": "zig-backend/src/init/Grind/Ordered/Linarith.lean",
+    "src/Init/Grind/Ordered/Order.lean": "zig-backend/src/init/Grind/Ordered/Order.lean"
+  }
+}

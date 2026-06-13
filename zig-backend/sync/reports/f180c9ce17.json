@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/EmitC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/EmitC.lean"
+    }
+  ],
+  "date": "2026-04-17",
+  "needs_port": true,
+  "sha": "f180c9ce1796bad54d663c6708bdf95c8b3b1116",
+  "short_sha": "f180c9ce17",
+  "subject": "fix: handling of EmitC for small hex string literals (#13435)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/EmitC.lean": "zig-backend/src/lean/compiler/lcnf/EmitC.lean"
+  }
+}

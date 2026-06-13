@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-24",
+  "needs_port": false,
+  "sha": "a6d50a61b35b73576f5c4ceac08789d9517f3079",
+  "short_sha": "a6d50a61b3",
+  "subject": "fix: Meta.Closure: topologically sort abstracted vars (#10926)",
+  "zig_target": {}
+}

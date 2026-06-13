@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-09-12",
+  "needs_port": false,
+  "sha": "116b7082695ababbd7733d801af84923759bf6f1",
+  "short_sha": "116b708269",
+  "subject": "chore: CI: ensure cache reuse in `update-stage0` (#10359)",
+  "zig_target": {}
+}

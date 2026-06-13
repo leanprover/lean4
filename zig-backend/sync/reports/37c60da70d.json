@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-07",
+  "needs_port": false,
+  "sha": "37c60da70d19a7e976b4faeb177d13297f51d0b7",
+  "short_sha": "37c60da70d",
+  "subject": "refactor(library/init/lean/compiler/ir): cleanup `Context`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2021-09-08",
+  "needs_port": true,
+  "sha": "3787c6081c9eef78793786067b6c9f15e5e4920f",
+  "short_sha": "3787c6081c",
+  "subject": "fix: pass worker cmdline options to Lean code",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

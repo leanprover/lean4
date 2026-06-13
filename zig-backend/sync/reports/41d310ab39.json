@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-04-21",
+  "needs_port": false,
+  "sha": "41d310ab39c8d211fcdab0c00ef8fc7796ffece9",
+  "short_sha": "41d310ab39",
+  "subject": "fix: solveByElim would add symm hypotheses to local context and make impossible-to-elaborate terms (#3962)",
+  "zig_target": {}
+}

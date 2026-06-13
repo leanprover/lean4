@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-30",
+  "needs_port": false,
+  "sha": "d2e01bbd09a61da55c9d499a91c841f8ce66bcb8",
+  "short_sha": "d2e01bbd09",
+  "subject": "feat: overapplied `ite` and `dite` applications in `grind` (#8544)",
+  "zig_target": {}
+}

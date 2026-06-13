@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-16",
+  "needs_port": false,
+  "sha": "8972cc9bafdb3a7a25f460d557493fd1f1644cb8",
+  "short_sha": "8972cc9baf",
+  "subject": "chore: Nix: cache Leanc-deps",
+  "zig_target": {}
+}

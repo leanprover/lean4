@@ -1,0 +1,10 @@
+{
+  "author": "hwatheod",
+  "backend_changes": [],
+  "date": "2024-06-11",
+  "needs_port": false,
+  "sha": "bedcbfcfeed429428c3e7f008b6984fc8c2b2b76",
+  "short_sha": "bedcbfcfee",
+  "subject": "chore: fix typo in trace.split.failure error message (#4431)",
+  "zig_target": {}
+}

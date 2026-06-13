@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-21",
+  "needs_port": false,
+  "sha": "ce73728be3a12286000c43445cae1d1931266e99",
+  "short_sha": "ce73728be3",
+  "subject": "chore: Nix: avoid build closure dependencies on stdenv",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-06-15",
+  "needs_port": true,
+  "sha": "a78302243c26395199ca2b71f33edebbba0883bf",
+  "short_sha": "a78302243c",
+  "subject": "refactor: strengthen `Syntax` signatures",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

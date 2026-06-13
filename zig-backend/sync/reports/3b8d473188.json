@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    }
+  ],
+  "date": "2020-09-24",
+  "needs_port": true,
+  "sha": "3b8d47318815600e3dc80cdb869a9e934cb49933",
+  "short_sha": "3b8d473188",
+  "subject": "fix: alloc: do not forget about orphaned pages",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp"
+  }
+}

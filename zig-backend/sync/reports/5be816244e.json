@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-11-07",
+  "needs_port": false,
+  "sha": "5be816244ea1ed43ce1870adf2b2f05ac92dcde2",
+  "short_sha": "5be816244e",
+  "subject": "chore: update script/apply.lean syntax",
+  "zig_target": {}
+}

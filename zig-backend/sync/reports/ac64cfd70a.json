@@ -1,0 +1,24 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Mem.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Mem.lean"
+    },
+    {
+      "path": "src/Init/Data/List/BasicAux.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/BasicAux.lean"
+    }
+  ],
+  "date": "2024-08-14",
+  "needs_port": true,
+  "sha": "ac64cfd70a9f46f48bc001ac2f102f731c9679a0",
+  "short_sha": "ac64cfd70a",
+  "subject": "fix: array_get_dec etc. tactics to solve more cases (#5037)",
+  "zig_target": {
+    "src/Init/Data/Array/Mem.lean": "zig-backend/src/init/Data/Array/Mem.lean",
+    "src/Init/Data/List/BasicAux.lean": "zig-backend/src/init/Data/List/BasicAux.lean"
+  }
+}

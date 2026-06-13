@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "847125d2e8b435fd902d5668be187a285c8550f0",
+  "short_sha": "847125d2e8",
+  "subject": "chore: remove global trace enabled flag",
+  "zig_target": {}
+}

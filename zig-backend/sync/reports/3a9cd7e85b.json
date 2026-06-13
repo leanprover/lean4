@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-13",
+  "needs_port": false,
+  "sha": "3a9cd7e85bfd667872ee2dd0ec30bdc68e0cb5b4",
+  "short_sha": "3a9cd7e85b",
+  "subject": "refactor: use `Simp.Context` instead of `Config`+`SimpLemmas`+`CongrLemmas`",
+  "zig_target": {}
+}

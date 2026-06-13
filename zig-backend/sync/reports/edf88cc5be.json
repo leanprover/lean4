@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-04-04",
+  "needs_port": false,
+  "sha": "edf88cc5be9eb1d07f1834871b7c808114601a9d",
+  "short_sha": "edf88cc5be",
+  "subject": "chore: update .gitignore for release checklist scripts (#7810)",
+  "zig_target": {}
+}

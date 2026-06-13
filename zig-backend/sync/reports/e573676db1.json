@@ -1,0 +1,18 @@
+{
+  "author": "Violeta Hern\u00e1ndez",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Attach.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Attach.lean"
+    }
+  ],
+  "date": "2024-11-04",
+  "needs_port": true,
+  "sha": "e573676db1d078d1b6d83cec2f16c818ca3a5b96",
+  "short_sha": "e573676db1",
+  "subject": "feat: `List.pmap_eq_self` (#5927)",
+  "zig_target": {
+    "src/Init/Data/List/Attach.lean": "zig-backend/src/init/Data/List/Attach.lean"
+  }
+}

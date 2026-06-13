@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-10-20",
+  "needs_port": false,
+  "sha": "0d5869bb711b495755974b3821e5f868c9ffb903",
+  "short_sha": "0d5869bb71",
+  "subject": "fix: stuck \"Missing alternative name\" with incremental processing (#10848)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-23",
+  "needs_port": false,
+  "sha": "26ad4d6972e7e51636bb32cfe9cceab296981839",
+  "short_sha": "26ad4d6972",
+  "subject": "feat: name the functional argument to brecOn in structural recursion (#12987)",
+  "zig_target": {}
+}

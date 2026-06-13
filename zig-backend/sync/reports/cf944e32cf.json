@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-07",
+  "needs_port": false,
+  "sha": "cf944e32cf976266953fd0f2e56370bf20fb844f",
+  "short_sha": "cf944e32cf",
+  "subject": "chore: add back support for Lean3 mixfix/reserve syntax",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-07-08",
+  "needs_port": false,
+  "sha": "625de14b23ee5b5a1161cc22240522c3e9c8f356",
+  "short_sha": "625de14b23",
+  "subject": "chore: remove options from 'run' tests that are now meaningless (#9274)",
+  "zig_target": {}
+}

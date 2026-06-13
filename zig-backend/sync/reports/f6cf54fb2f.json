@@ -1,0 +1,10 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [],
+  "date": "2025-09-07",
+  "needs_port": false,
+  "sha": "f6cf54fb2f38ba798407ece55e491f2da5813c88",
+  "short_sha": "f6cf54fb2f",
+  "subject": "chore: remove `lean/run/lcnf1.lean` test (#10297)",
+  "zig_target": {}
+}

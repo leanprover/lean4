@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-09-25",
+  "needs_port": false,
+  "sha": "a03749cbe433b9cce707b256c3589a3a6d598f1f",
+  "short_sha": "a03749cbe4",
+  "subject": "fix: `findReferences` should find only original syntax",
+  "zig_target": {}
+}

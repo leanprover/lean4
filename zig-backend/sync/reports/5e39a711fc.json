@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-06",
+  "needs_port": false,
+  "sha": "5e39a711fcdbb061bdb339d822a3441e2d164440",
+  "short_sha": "5e39a711fc",
+  "subject": "chore(init/lean/ir): remove old IR",
+  "zig_target": {}
+}

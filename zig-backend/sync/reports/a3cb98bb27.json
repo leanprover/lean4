@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-04-20",
+  "needs_port": false,
+  "sha": "a3cb98bb273d30a09887b1f26c93ea8ab0fc4de9",
+  "short_sha": "a3cb98bb27",
+  "subject": "fix: aggregate `ControlInfo` past `numRegularExits == 0` elements (#13486)",
+  "zig_target": {}
+}

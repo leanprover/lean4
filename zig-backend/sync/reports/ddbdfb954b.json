@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2024-04-12",
+  "needs_port": false,
+  "sha": "ddbdfb954b9d7a043cfb625198ccac7a333a6b0e",
+  "short_sha": "ddbdfb954b",
+  "subject": "chore: use `Ordering.then` in `deriving Ord` (#3893)",
+  "zig_target": {}
+}

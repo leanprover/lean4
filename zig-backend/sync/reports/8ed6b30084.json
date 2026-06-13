@@ -1,0 +1,30 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Iterators/Combinators/Monadic/FilterMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FilterMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Iterators/Lemmas/Combinators/FlatMap.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FlatMap.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/SInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/SInt.lean"
+    }
+  ],
+  "date": "2026-02-23",
+  "needs_port": true,
+  "sha": "8ed6b30084dfc1d2fe303dbc7a8d1c435dac6655",
+  "short_sha": "8ed6b30084",
+  "subject": "refactor: cleanups after #12538 (#12643)",
+  "zig_target": {
+    "src/Init/Data/Iterators/Combinators/Monadic/FilterMap.lean": "zig-backend/src/init/Data/Iterators/Combinators/Monadic/FilterMap.lean",
+    "src/Init/Data/Iterators/Lemmas/Combinators/FlatMap.lean": "zig-backend/src/init/Data/Iterators/Lemmas/Combinators/FlatMap.lean",
+    "src/Init/Data/Range/Polymorphic/SInt.lean": "zig-backend/src/init/Data/Range/Polymorphic/SInt.lean"
+  }
+}

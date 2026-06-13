@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2022-07-07",
+  "needs_port": true,
+  "sha": "b48061ed23c77f1781d07f5e92c984d98fb0c5a1",
+  "short_sha": "b48061ed23",
+  "subject": "feat: expose lower level compile function",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

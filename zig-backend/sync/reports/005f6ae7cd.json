@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-02-26",
+  "needs_port": false,
+  "sha": "005f6ae7cd9be5fe9c99be43531509429ee9a5cc",
+  "short_sha": "005f6ae7cd",
+  "subject": "fix: let `Meta.zetaReduce` zeta reduce `have` expressions (#12695)",
+  "zig_target": {}
+}

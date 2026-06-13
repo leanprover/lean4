@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-04",
+  "needs_port": false,
+  "sha": "6be71b337ff57176a0a9a6f6ddb9c0e1b5500940",
+  "short_sha": "6be71b337f",
+  "subject": "refactor: add `prototype2.lean`",
+  "zig_target": {}
+}

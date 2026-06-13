@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-19",
+  "needs_port": false,
+  "sha": "8aa9d2cdbf0197059d4bc972672336a89add794d",
+  "short_sha": "8aa9d2cdbf",
+  "subject": "feat: add \"cases on cases\" simplification",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-05-19",
+  "needs_port": false,
+  "sha": "37d5f8e74aea5bda049ed3b6dab52f65252ec081",
+  "short_sha": "37d5f8e74a",
+  "subject": "feat: add unused variables linter",
+  "zig_target": {}
+}

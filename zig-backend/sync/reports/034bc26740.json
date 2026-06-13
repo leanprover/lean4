@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-08",
+  "needs_port": false,
+  "sha": "034bc2674029e53c282efd2cb220221480565c8c",
+  "short_sha": "034bc26740",
+  "subject": "feat: make `classical` tactic incremental (#6575)",
+  "zig_target": {}
+}

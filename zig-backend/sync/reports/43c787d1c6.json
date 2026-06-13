@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-26",
+  "needs_port": false,
+  "sha": "43c787d1c6219a9af52a6906272136620054dd54",
+  "short_sha": "43c787d1c6",
+  "subject": "feat: synthesize implicit structure fields in the structure instance notation",
+  "zig_target": {}
+}

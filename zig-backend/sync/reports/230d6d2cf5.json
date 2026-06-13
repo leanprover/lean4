@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-12-14",
+  "needs_port": true,
+  "sha": "230d6d2cf579fcf13e9b3f5cf364ca3709816459",
+  "short_sha": "230d6d2cf5",
+  "subject": "fix: use group for if-then-else",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

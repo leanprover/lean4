@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Specialize.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+    }
+  ],
+  "date": "2025-05-29",
+  "needs_port": true,
+  "sha": "b7ec369863b2e1b5be3b52f2d9e3d18bfe6b7c29",
+  "short_sha": "b7ec369863",
+  "subject": "fix: allow ground variables to depend on fun decls in LCNF specialize pass (#8540)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Specialize.lean": "zig-backend/src/lean/compiler/lcnf/Specialize.lean"
+  }
+}

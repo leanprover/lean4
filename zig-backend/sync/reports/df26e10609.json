@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-20",
+  "needs_port": false,
+  "sha": "df26e106092e239615a503feb566d9dbb9dacdf3",
+  "short_sha": "df26e10609",
+  "subject": "fix(util): assertion violations",
+  "zig_target": {}
+}

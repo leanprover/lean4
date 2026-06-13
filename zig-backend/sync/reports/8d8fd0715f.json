@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-06-07",
+  "needs_port": true,
+  "sha": "8d8fd0715fc8976ef9dd9661c53ba645724f8946",
+  "short_sha": "8d8fd0715f",
+  "subject": "fix: increase precision of new compiler's noncomputable check (#8675)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

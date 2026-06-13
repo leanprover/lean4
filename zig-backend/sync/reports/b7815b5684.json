@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-01-16",
+  "needs_port": true,
+  "sha": "b7815b56843f5da8ce9d31bbf9d53a2f5ce2a85d",
+  "short_sha": "b7815b5684",
+  "subject": "feat: add lcAny constant to Prelude (#6665)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

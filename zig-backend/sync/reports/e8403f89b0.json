@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-09",
+  "needs_port": false,
+  "sha": "e8403f89b05d78a960d367c31c7e4a3e648b3d50",
+  "short_sha": "e8403f89b0",
+  "subject": "fix: ensure field names are atomic",
+  "zig_target": {}
+}

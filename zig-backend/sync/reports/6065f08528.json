@@ -1,0 +1,18 @@
+{
+  "author": "S\u00e9bastien Boisg\u00e9rault",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2025-08-06",
+  "needs_port": true,
+  "sha": "6065f08528eb7c0084171a27c30bac9fd29607f4",
+  "short_sha": "6065f08528",
+  "subject": "doc: fix \"the same as the same as\" in the description of |> (#9765)",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

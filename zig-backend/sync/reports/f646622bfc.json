@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-10",
+  "needs_port": false,
+  "sha": "f646622bfcd3e0608b5773ab47d04823cdf87747",
+  "short_sha": "f646622bfc",
+  "subject": "feat: add `MatchAltView`",
+  "zig_target": {}
+}

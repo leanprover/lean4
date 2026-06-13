@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-07",
+  "needs_port": false,
+  "sha": "1a4a69679df5309f44159e2a94e87335e68524b6",
+  "short_sha": "1a4a69679d",
+  "subject": "chore(lean4-mode): rename files",
+  "zig_target": {}
+}

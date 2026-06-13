@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Expr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Expr.lean"
+    }
+  ],
+  "date": "2019-12-21",
+  "needs_port": true,
+  "sha": "fdfff29bb13107116d5f52aad06171a96232a4e0",
+  "short_sha": "fdfff29bb1",
+  "subject": "feat: expose `liftLooseBVars` and `lowerLooseBVars`",
+  "zig_target": {
+    "src/Init/Lean/Expr.lean": "zig-backend/src/init/Lean/Expr.lean"
+  }
+}

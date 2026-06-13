@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-09-26",
+  "needs_port": false,
+  "sha": "3f816156cc34f3286c72b3608212917cf416b8f0",
+  "short_sha": "3f816156cc",
+  "subject": "fix: immediately replace main goal in `SPred` proof mode tactics (#10571)",
+  "zig_target": {}
+}

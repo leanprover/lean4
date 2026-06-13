@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-22",
+  "needs_port": false,
+  "sha": "2a2aeec085b2996a30011e3f5165632223d8b58c",
+  "short_sha": "2a2aeec085",
+  "subject": "feat: LSP semantic token for `where` and `let rec` declarations",
+  "zig_target": {}
+}

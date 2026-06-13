@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-07-14",
+  "needs_port": false,
+  "sha": "a7789d863c44c73ee993177180540ba6763254a7",
+  "short_sha": "a7789d863c",
+  "subject": "chore: Grove: update and enable on master (#9353)",
+  "zig_target": {}
+}

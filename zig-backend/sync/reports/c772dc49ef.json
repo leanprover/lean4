@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2021-06-03",
+  "needs_port": true,
+  "sha": "c772dc49efafac2e75bae494fef47e098b280b52",
+  "short_sha": "c772dc49ef",
+  "subject": "chore: use leanc for all C code",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

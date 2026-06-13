@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/InferType.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+    }
+  ],
+  "date": "2024-10-30",
+  "needs_port": true,
+  "sha": "03c6e99ef7fcde86aa1843ff4dac7d581cb4e830",
+  "short_sha": "03c6e99ef7",
+  "subject": "fix: bring elaborator in line with kernel for primitive projections (#5822)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/InferType.lean": "zig-backend/src/lean/compiler/lcnf/InferType.lean"
+  }
+}

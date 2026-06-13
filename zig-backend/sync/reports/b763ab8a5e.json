@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/CancelToken.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/CancelToken.lean"
+    }
+  ],
+  "date": "2026-04-29",
+  "needs_port": true,
+  "sha": "b763ab8a5e2c848c2ea3c46c6d66d786a5a8e3fe",
+  "short_sha": "b763ab8a5e",
+  "subject": "refactor: keep `IO.CancelToken` task private, resolve promise before setting flag (#13569)",
+  "zig_target": {
+    "src/Init/System/CancelToken.lean": "zig-backend/src/init/System/CancelToken.lean"
+  }
+}

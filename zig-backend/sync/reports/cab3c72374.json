@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-05",
+  "needs_port": false,
+  "sha": "cab3c7237477f55bca5ef1522c144590ce0a7a6a",
+  "short_sha": "cab3c72374",
+  "subject": "fix: `isDefEq` for applications in WHNF",
+  "zig_target": {}
+}

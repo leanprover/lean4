@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-10",
+  "needs_port": false,
+  "sha": "e42262e3975e6a58c02d608c49c0a77b0b904341",
+  "short_sha": "e42262e397",
+  "subject": "fix: allow private proof-valued structure fields in library suggestions (#11962)",
+  "zig_target": {}
+}

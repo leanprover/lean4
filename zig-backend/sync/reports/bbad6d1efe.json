@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-07-26",
+  "needs_port": true,
+  "sha": "bbad6d1efe7464ac9ea860fdb579279928b100f1",
+  "short_sha": "bbad6d1efe",
+  "subject": "feat: add `with_annotate_term`",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

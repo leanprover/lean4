@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-15",
+  "needs_port": false,
+  "sha": "f1b88e1304ceae2a47a7a0a4d2e5f857218f93a9",
+  "short_sha": "f1b88e1304",
+  "subject": "feat: add option for disabling smart unfolding and fix tests",
+  "zig_target": {}
+}

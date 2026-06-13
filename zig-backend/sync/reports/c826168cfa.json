@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-02-11",
+  "needs_port": false,
+  "sha": "c826168cfa79d421c0723d5fbdd840595c29fe3a",
+  "short_sha": "c826168cfa",
+  "subject": "fix: atomic `--profile` output for `xargs -P`",
+  "zig_target": {}
+}

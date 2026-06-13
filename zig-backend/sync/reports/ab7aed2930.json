@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-09-09",
+  "needs_port": false,
+  "sha": "ab7aed29308351daf4b7c35216d6033aa33c0a6c",
+  "short_sha": "ab7aed2930",
+  "subject": "feat: use incrementality for completion in tactic blocks (#5205)",
+  "zig_target": {}
+}

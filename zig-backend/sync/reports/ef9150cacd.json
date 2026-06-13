@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-11-15",
+  "needs_port": false,
+  "sha": "ef9150cacdcf0665d76561ba29b85b9c986cb49f",
+  "short_sha": "ef9150cacd",
+  "subject": "chore: cross bench suite: add Strict Haskell category (disabled by default)",
+  "zig_target": {}
+}

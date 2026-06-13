@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2021-11-19",
+  "needs_port": false,
+  "sha": "63f9b37c0a5143f8b533b7b62291cc65a42f4fba",
+  "short_sha": "63f9b37c0a",
+  "subject": "fix: return fully-qualified name in PrettyPrinter when pp.fullNames is set",
+  "zig_target": {}
+}

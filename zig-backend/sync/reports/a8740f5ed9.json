@@ -1,0 +1,18 @@
+{
+  "author": "Alok Singh",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2024-08-01",
+  "needs_port": true,
+  "sha": "a8740f5ed9b419591d711a57e36e449f5623daf8",
+  "short_sha": "a8740f5ed9",
+  "subject": "doc: add docstring to `IO.FS.realpath` (#4648)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

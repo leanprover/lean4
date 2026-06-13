@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-22",
+  "needs_port": false,
+  "sha": "180cc59d64948a5b59a17db27904bfccabd20ed4",
+  "short_sha": "180cc59d64",
+  "subject": "chore: update Lake to https://github.com/leanprover/lake/pull/48/files",
+  "zig_target": {}
+}

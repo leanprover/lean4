@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-11",
+  "needs_port": false,
+  "sha": "7860f3645e15fec448712c0ec34e69468b1e3de1",
+  "short_sha": "7860f3645e",
+  "subject": "doc: update comments to match new algorithm",
+  "zig_target": {}
+}

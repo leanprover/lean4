@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-01-26",
+  "needs_port": false,
+  "sha": "7564329f066fe900db811b5d02bd5bc06256b003",
+  "short_sha": "7564329f06",
+  "subject": "fix: make Std.Do's `post` macro universe polymorphic (#12159)",
+  "zig_target": {}
+}

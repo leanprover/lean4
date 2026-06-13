@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "6d265b42b117eef78089f479790587a399da7690",
+  "short_sha": "6d265b42b1",
+  "subject": "chore: CI: fix github.event.pull_request.merge_commit_sha sometimes not being available",
+  "zig_target": {}
+}

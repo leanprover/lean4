@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-12",
+  "needs_port": false,
+  "sha": "7e3519a3a25de42119bd75d772bf69f56efcdf7d",
+  "short_sha": "7e3519a3a2",
+  "subject": "test: add CPDT first example",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-03",
+  "needs_port": false,
+  "sha": "01d951c3fc0c2615353c6539aa28744aef9e1fa4",
+  "short_sha": "01d951c3fc",
+  "subject": "fix: cancel computations within command elaboration as soon as reuse is ruled out (#7241)",
+  "zig_target": {}
+}

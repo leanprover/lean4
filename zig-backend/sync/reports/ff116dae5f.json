@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-06-01",
+  "needs_port": true,
+  "sha": "ff116dae5fe9e4e053074b6fdd49aaeecf069e76",
+  "short_sha": "ff116dae5f",
+  "subject": "feat: add BitVec _assoc lemmas (#4299)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

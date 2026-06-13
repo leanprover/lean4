@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-21",
+  "needs_port": false,
+  "sha": "e5de32c2dda3986b108f42940eefee9e766c8ed9",
+  "short_sha": "e5de32c2dd",
+  "subject": "feat: auto-generate header formatter",
+  "zig_target": {}
+}

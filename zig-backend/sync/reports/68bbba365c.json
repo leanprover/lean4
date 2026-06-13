@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-01",
+  "needs_port": false,
+  "sha": "68bbba365c4962f3004ee828f170d47afdc968bc",
+  "short_sha": "68bbba365c",
+  "subject": "feat: add `isQuotRecStuck`",
+  "zig_target": {}
+}

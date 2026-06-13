@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2019-01-29",
+  "needs_port": true,
+  "sha": "bb4356727386136134863440076516e4811b4d8e",
+  "short_sha": "bb43567273",
+  "subject": "fix(runtime/object): typos",
+  "zig_target": {
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

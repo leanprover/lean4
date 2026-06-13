@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-01-14",
+  "needs_port": false,
+  "sha": "9dbe5e6f9ce6bc686541218f62ff6b8063dfc4dc",
+  "short_sha": "9dbe5e6f9c",
+  "subject": "refactor: bv_normalize simp set and implementation (#6639)",
+  "zig_target": {}
+}

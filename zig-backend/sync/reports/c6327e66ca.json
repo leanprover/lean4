@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-08-05",
+  "needs_port": false,
+  "sha": "c6327e66ca062aa6d3acda54f4eccb1b43a56276",
+  "short_sha": "c6327e66ca",
+  "subject": "chore: bump Lake version",
+  "zig_target": {}
+}

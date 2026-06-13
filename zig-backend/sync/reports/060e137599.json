@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-10",
+  "needs_port": false,
+  "sha": "060e137599b860b2a88ba40c32907df08b1bc972",
+  "short_sha": "060e137599",
+  "subject": "chore: enforce `awaiting-mathlib` label (#7342)",
+  "zig_target": {}
+}

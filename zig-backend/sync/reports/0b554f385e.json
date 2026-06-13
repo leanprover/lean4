@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-01",
+  "needs_port": false,
+  "sha": "0b554f385e7de76b8d0030f6fe5ce771ac4148c7",
+  "short_sha": "0b554f385e",
+  "subject": "feat: RpcEncoding for inductive types",
+  "zig_target": {}
+}

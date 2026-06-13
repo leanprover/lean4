@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/SInt/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Basic.lean"
+    }
+  ],
+  "date": "2025-02-14",
+  "needs_port": true,
+  "sha": "784444c7a99e4eb1f7959b097ec34fd42997ef49",
+  "short_sha": "784444c7a9",
+  "subject": "feat: `IntX.minValue`, `IntX.maxValue`, `IntX.ofIntLE`, `IntX.ofIntTruncate` (#7081)",
+  "zig_target": {
+    "src/Init/Data/SInt/Basic.lean": "zig-backend/src/init/Data/SInt/Basic.lean"
+  }
+}

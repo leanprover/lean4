@@ -1,0 +1,10 @@
+{
+  "author": "Josh Levine",
+  "backend_changes": [],
+  "date": "2022-01-09",
+  "needs_port": false,
+  "sha": "1637d75d3f03d9f14595a0f44d691686bd38785f",
+  "short_sha": "1637d75d3f",
+  "subject": "doc: fix trivial typo",
+  "zig_target": {}
+}

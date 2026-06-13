@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-12-25",
+  "needs_port": false,
+  "sha": "b2fda9b9ae43d46b412007ba6df3abd20debb740",
+  "short_sha": "b2fda9b9ae",
+  "subject": "chore: disable randomly failing test",
+  "zig_target": {}
+}

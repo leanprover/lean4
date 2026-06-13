@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/runtime/exception.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/exception.cpp"
+    }
+  ],
+  "date": "2026-01-26",
+  "needs_port": true,
+  "sha": "c6e530a4f160bd08c9b6e9f417aeffd8b32aab54",
+  "short_sha": "c6e530a4f1",
+  "subject": "doc: add link to reference manual in stack overflow message (#12157)",
+  "zig_target": {
+    "src/runtime/exception.cpp": "zig-backend/src/runtime/exception.cpp"
+  }
+}

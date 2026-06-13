@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-10-05",
+  "needs_port": true,
+  "sha": "ee59048bfbc673ce0f7240e8b57d9cdcb5755310",
+  "short_sha": "ee59048bfb",
+  "subject": "chore: remove dead declaration",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

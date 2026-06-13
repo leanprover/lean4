@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "02ee011a0ef10d591908f5148dd94702e68c6648",
+  "short_sha": "02ee011a0e",
+  "subject": "refactor: simplify module target code + related cleanup",
+  "zig_target": {}
+}

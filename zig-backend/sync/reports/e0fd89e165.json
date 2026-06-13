@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    }
+  ],
+  "date": "2019-02-15",
+  "needs_port": true,
+  "sha": "e0fd89e1652155a6e337c445c77024fbf3d7ed23",
+  "short_sha": "e0fd89e165",
+  "subject": "feat(library/init/lean/compiler): fold nat predicates",
+  "zig_target": {
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp"
+  }
+}

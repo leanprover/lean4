@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-27",
+  "needs_port": false,
+  "sha": "c0e117daa46499173f1345ff0e604f062e008113",
+  "short_sha": "c0e117daa4",
+  "subject": "fix: Option.ToMessageData",
+  "zig_target": {}
+}

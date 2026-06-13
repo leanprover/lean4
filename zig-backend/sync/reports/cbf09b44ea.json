@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-07",
+  "needs_port": false,
+  "sha": "cbf09b44ea70f38c7a75f539356c4c15cdcde427",
+  "short_sha": "cbf09b44ea",
+  "subject": "feat: add `getStuckMVar`",
+  "zig_target": {}
+}

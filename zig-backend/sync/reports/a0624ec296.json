@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-03",
+  "needs_port": false,
+  "sha": "a0624ec296cae6b27d7146c7b9aa94f5818448dd",
+  "short_sha": "a0624ec296",
+  "subject": "chore: CI: ignore foreigntest on Linux release",
+  "zig_target": {}
+}

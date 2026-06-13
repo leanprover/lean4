@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-09-29",
+  "needs_port": false,
+  "sha": "76403367baa8b3c8a4448c383febe845c37933da",
+  "short_sha": "76403367ba",
+  "subject": "fix: remove superfluous `Monad` instances from some spec lemmas (#10564) (#10618)",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Sym.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Sym.lean"
+    },
+    {
+      "path": "src/Init/Sym/Simp/SimprocDSL.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Sym/Simp/SimprocDSL.lean"
+    }
+  ],
+  "date": "2026-03-21",
+  "needs_port": true,
+  "sha": "545f27956baba7ff8a4aa0518ff4662f87539f79",
+  "short_sha": "545f27956b",
+  "subject": "feat: add `sym_simproc` and `sym_discharger` DSL syntax categories (#13026)",
+  "zig_target": {
+    "src/Init/Sym.lean": "zig-backend/src/init/Sym.lean",
+    "src/Init/Sym/Simp/SimprocDSL.lean": "zig-backend/src/init/Sym/Simp/SimprocDSL.lean"
+  }
+}

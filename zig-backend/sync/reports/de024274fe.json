@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-31",
+  "needs_port": false,
+  "sha": "de024274fe11b0ee534dc19db2de727c412cb85d",
+  "short_sha": "de024274fe",
+  "subject": "feat: elaborate syntactically incorrect commands",
+  "zig_target": {}
+}

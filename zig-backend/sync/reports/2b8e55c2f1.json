@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-06-21",
+  "needs_port": false,
+  "sha": "2b8e55c2f19e6599128bc7e57cb7221df5693b4e",
+  "short_sha": "2b8e55c2f1",
+  "subject": "fix: Nat literal bug at DiscrTree.lean",
+  "zig_target": {}
+}

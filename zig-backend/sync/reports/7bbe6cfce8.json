@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-13",
+  "needs_port": false,
+  "sha": "7bbe6cfce85114a5c9e40d036c08b90229250f37",
+  "short_sha": "7bbe6cfce8",
+  "subject": "feat: different package templates",
+  "zig_target": {}
+}

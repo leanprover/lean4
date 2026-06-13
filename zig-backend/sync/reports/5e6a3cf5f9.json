@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-08-01",
+  "needs_port": false,
+  "sha": "5e6a3cf5f9c13b885eef3cfc53d5e0152d9260a2",
+  "short_sha": "5e6a3cf5f9",
+  "subject": "chore: revert \"fix: make import resolution case-sensitive on all platforms\" (#4896)",
+  "zig_target": {}
+}

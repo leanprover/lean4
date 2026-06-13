@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-08",
+  "needs_port": false,
+  "sha": "608de7b592efdadc38e720107b64647dd5783868",
+  "short_sha": "608de7b592",
+  "subject": "feat: expand `doReassignArrow`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-30",
+  "needs_port": false,
+  "sha": "b329c4b5dbe0f6f8eb75354789485bde3f4ac0d9",
+  "short_sha": "b329c4b5db",
+  "subject": "feat: improve pattern selection heuristic in `grind` (#6880)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-16",
+  "needs_port": false,
+  "sha": "6d7041fcb43d4a5d2d26d17b045557d9e8fc034c",
+  "short_sha": "6d7041fcb4",
+  "subject": "test(tests/playground/inst): add `instantiate` and `instantiateRev` simple tests",
+  "zig_target": {}
+}

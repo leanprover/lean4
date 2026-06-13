@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-13",
+  "needs_port": false,
+  "sha": "23db584b8f3b2ec3b5d0e87282fc3fb7f8d5a737",
+  "short_sha": "23db584b8f",
+  "subject": "fix: Nix: precompilation against stdlib",
+  "zig_target": {}
+}

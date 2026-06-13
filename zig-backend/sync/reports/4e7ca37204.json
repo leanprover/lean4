@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-05",
+  "needs_port": false,
+  "sha": "4e7ca37204b258ff3eca69c94d123843d6a9adc6",
+  "short_sha": "4e7ca37204",
+  "subject": "chore: use Lean version",
+  "zig_target": {}
+}

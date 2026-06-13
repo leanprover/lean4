@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/hash.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/hash.h"
+    }
+  ],
+  "date": "2022-11-30",
+  "needs_port": true,
+  "sha": "e5681ac141018e2fee4bcaf46b479e12900abecd",
+  "short_sha": "e5681ac141",
+  "subject": "feat: replace `mixHash` implementation",
+  "zig_target": {
+    "src/runtime/hash.h": "zig-backend/src/runtime/hash.h"
+  }
+}

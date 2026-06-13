@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-05-27",
+  "needs_port": false,
+  "sha": "e50b2040b636771103a69f484b95c94bc4a11d46",
+  "short_sha": "e50b2040b6",
+  "subject": "feat(tests/playground/Makefile): more output polishing",
+  "zig_target": {}
+}

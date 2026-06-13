@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2019-06-03",
+  "needs_port": true,
+  "sha": "ffbccf1ee951fda6ed80f664269fac1ab7d2a1f4",
+  "short_sha": "ffbccf1ee9",
+  "subject": "fix(library/compiler): ByteArray bug",
+  "zig_target": {
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

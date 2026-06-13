@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-11",
+  "needs_port": false,
+  "sha": "f1738ce2a0f1163add6563556ff9f0ea36c8e75d",
+  "short_sha": "f1738ce2a0",
+  "subject": "feat: add macro for expanding field abbrev notation",
+  "zig_target": {}
+}

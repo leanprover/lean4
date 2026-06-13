@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-02",
+  "needs_port": false,
+  "sha": "0b0afef09a8eda5f56601e68098c22676664d856",
+  "short_sha": "0b0afef09a",
+  "subject": "refactor: split `EIO UInt32` from Cli into its own `MainM` file",
+  "zig_target": {}
+}

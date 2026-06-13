@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-04-18",
+  "needs_port": true,
+  "sha": "5599cefe2e24ce3aa23b79be15b38883b0e21681",
+  "short_sha": "5599cefe2e",
+  "subject": "feat: add `sleep` tactic for debugging purposes",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

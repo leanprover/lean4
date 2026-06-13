@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-26",
+  "needs_port": false,
+  "sha": "70a5c6d5855e5c5fd47e2d0101abe7016b577698",
+  "short_sha": "70a5c6d585",
+  "subject": "test(tests/playground/binarytrees.lean): more coarse parallelization",
+  "zig_target": {}
+}

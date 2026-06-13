@@ -1,0 +1,10 @@
+{
+  "author": "Joe Hendrix",
+  "backend_changes": [],
+  "date": "2024-03-14",
+  "needs_port": false,
+  "sha": "1151d73a551e45303495f73d59cd3f617d49fd9d",
+  "short_sha": "1151d73a55",
+  "subject": "fix: use builtin_initialize in library_search (#3677)",
+  "zig_target": {}
+}

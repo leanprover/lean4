@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-09-26",
+  "needs_port": false,
+  "sha": "4acdcc4c4063f28d04e1a6d3afa4f39919d80fd7",
+  "short_sha": "4acdcc4c40",
+  "subject": "doc: add token error change to RELEASES.md (#2579)",
+  "zig_target": {}
+}

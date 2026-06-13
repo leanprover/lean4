@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-20",
+  "needs_port": false,
+  "sha": "4786cb12b55d6e76702beca941469fed3e8fbac5",
+  "short_sha": "4786cb12b5",
+  "subject": "fix: unknown namespace error message",
+  "zig_target": {}
+}

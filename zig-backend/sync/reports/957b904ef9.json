@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-15",
+  "needs_port": false,
+  "sha": "957b904ef9fd11ed9cb49f12fcc9d7b989c01900",
+  "short_sha": "957b904ef9",
+  "subject": "chore: revert \"fix: add terminfo for structure fields (#8568)\"",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-12-10",
+  "needs_port": false,
+  "sha": "a805946466e2ee13246e0fd1790d0c435dfd63dd",
+  "short_sha": "a805946466",
+  "subject": "chore: adjust CODEOWNERS (#6327)",
+  "zig_target": {}
+}

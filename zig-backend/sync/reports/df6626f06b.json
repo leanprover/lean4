@@ -1,0 +1,10 @@
+{
+  "author": "Eric Rodriguez",
+  "backend_changes": [],
+  "date": "2023-10-30",
+  "needs_port": false,
+  "sha": "df6626f06b8f5ecba550bfa24523211c4ebb49b1",
+  "short_sha": "df6626f06b",
+  "subject": "doc: fix a link in development documentation #2780",
+  "zig_target": {}
+}

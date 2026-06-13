@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    },
+    {
+      "path": "src/runtime/object.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.h"
+    }
+  ],
+  "date": "2022-08-06",
+  "needs_port": true,
+  "sha": "f9f074dbf5a04b755d88f3f63397889c1e8d3677",
+  "short_sha": "f9f074dbf5",
+  "subject": "chore: remove dead code",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h",
+    "src/runtime/object.h": "zig-backend/src/runtime/object.h"
+  }
+}

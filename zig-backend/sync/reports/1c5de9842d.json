@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-02-15",
+  "needs_port": true,
+  "sha": "1c5de9842d40a361b0a5f4f7fceed72251b50c79",
+  "short_sha": "1c5de9842d",
+  "subject": "feat: use `decide` at `simp`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

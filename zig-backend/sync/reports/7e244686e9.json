@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2020-10-26",
+  "needs_port": true,
+  "sha": "7e244686e9efe804837920b13ac83a5c5acd9910",
+  "short_sha": "7e244686e9",
+  "subject": "chore: remove old notation",
+  "zig_target": {
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

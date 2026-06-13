@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-06-19",
+  "needs_port": false,
+  "sha": "357b52928f905bfb85a3496e411cf12fa20e730c",
+  "short_sha": "357b52928f",
+  "subject": "fix: global definition shadowing a local one when using dot-notation (#4497)",
+  "zig_target": {}
+}

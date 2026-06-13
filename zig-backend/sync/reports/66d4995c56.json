@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-17",
+  "needs_port": false,
+  "sha": "66d4995c56f8a782088f78b134f489ce86fe250d",
+  "short_sha": "66d4995c56",
+  "subject": "feat(library/init/lean/compiler/ir/compilerm): add `'` versions",
+  "zig_target": {}
+}

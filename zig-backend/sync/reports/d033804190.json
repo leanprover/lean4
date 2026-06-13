@@ -1,0 +1,18 @@
+{
+  "author": "Jon Eugster",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-01-23",
+  "needs_port": true,
+  "sha": "d033804190aaff1bb82d9d5f98784301c0dd0e3e",
+  "short_sha": "d033804190",
+  "subject": "doc: remove duplicated sentense in Lean.Syntax.node (#6752)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

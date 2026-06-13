@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-21",
+  "needs_port": false,
+  "sha": "b3165709d26de5cd0fbd0867cee5fe8664f3cc5f",
+  "short_sha": "b3165709d2",
+  "subject": "chore: Nix: writeScriptBin ~> writeShellScriptBin",
+  "zig_target": {}
+}

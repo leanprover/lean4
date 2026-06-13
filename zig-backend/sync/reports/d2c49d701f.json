@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-03-27",
+  "needs_port": false,
+  "sha": "d2c49d701f3e0bab4819e3aaa2475c4fb29e106f",
+  "short_sha": "d2c49d701f",
+  "subject": "doc: add Windows Server 2025 to the list of supported platforms (#7693)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-30",
+  "needs_port": false,
+  "sha": "e34f2e8cd75c4c8c4f9ac37d3d1068a05dab27c4",
+  "short_sha": "e34f2e8cd7",
+  "subject": "chore(library/init/lean/parser): improve error messages",
+  "zig_target": {}
+}

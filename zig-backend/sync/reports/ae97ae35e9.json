@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2023-01-13",
+  "needs_port": false,
+  "sha": "ae97ae35e9fca284782bbd8917781afd30926b5f",
+  "short_sha": "ae97ae35e9",
+  "subject": "chore: remove Inhabited instance",
+  "zig_target": {}
+}

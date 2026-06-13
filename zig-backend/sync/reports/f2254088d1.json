@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2022-09-08",
+  "needs_port": true,
+  "sha": "f2254088d15912583297c479a8fa70e19764c354",
+  "short_sha": "f2254088d1",
+  "subject": "feat: deriving Repr for TSyntax",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

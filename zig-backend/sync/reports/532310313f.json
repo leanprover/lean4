@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-02-25",
+  "needs_port": false,
+  "sha": "532310313f32246e257af0de3fb73c7d49db95d0",
+  "short_sha": "532310313f",
+  "subject": "feat: `lake shake --only` (#12682)",
+  "zig_target": {}
+}

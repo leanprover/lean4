@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-23",
+  "needs_port": false,
+  "sha": "1ac9c1263b9414b79f8895f20668e15592ff8e9f",
+  "short_sha": "1ac9c1263b",
+  "subject": "test: add helper theorems",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-06",
+  "needs_port": false,
+  "sha": "ee70805c3599681845b3557e9f88a51796906def",
+  "short_sha": "ee70805c35",
+  "subject": "feat: add LCNF missing cases",
+  "zig_target": {}
+}

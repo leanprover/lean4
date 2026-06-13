@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Instances.lean"
+    }
+  ],
+  "date": "2019-11-26",
+  "needs_port": true,
+  "sha": "9a160a197a68e74429dc9773d7bae1bb1db7d89f",
+  "short_sha": "9a160a197a",
+  "subject": "fix: `addGlobalInstance`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Instances.lean": "zig-backend/src/init/Lean/Meta/Instances.lean"
+  }
+}

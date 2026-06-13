@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-11",
+  "needs_port": false,
+  "sha": "1f85fd2db8aadcd64990ef8da93b72c514df3498",
+  "short_sha": "1f85fd2db8",
+  "subject": "fix: rfl theorem tracking in the module system (#8215)",
+  "zig_target": {}
+}

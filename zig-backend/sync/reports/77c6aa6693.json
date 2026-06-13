@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-11",
+  "needs_port": false,
+  "sha": "77c6aa6693b5acb31e4315bd34e682f9d9682a6e",
+  "short_sha": "77c6aa6693",
+  "subject": "chore(library/init/io): mark `unsafeIO` as `unsafe`",
+  "zig_target": {}
+}

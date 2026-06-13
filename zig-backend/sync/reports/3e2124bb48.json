@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2025-09-10",
+  "needs_port": true,
+  "sha": "3e2124bb489dd98025427015ae5b3c5a17d14aad",
+  "short_sha": "3e2124bb48",
+  "subject": "feat: docstrings with Verso syntax (#10307)",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

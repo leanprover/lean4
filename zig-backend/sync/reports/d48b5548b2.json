@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-02",
+  "needs_port": false,
+  "sha": "d48b5548b222587f8e0746cf655e07bba1cdbb76",
+  "short_sha": "d48b5548b2",
+  "subject": "feat: flatten tagged text",
+  "zig_target": {}
+}

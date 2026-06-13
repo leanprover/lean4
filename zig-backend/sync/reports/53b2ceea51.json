@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-16",
+  "needs_port": false,
+  "sha": "53b2ceea51b4406c9b102f7f4fee7944db9278ba",
+  "short_sha": "53b2ceea51",
+  "subject": "fix: missing `withoutModifyingState` at `elabSimpConfig`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-09-13",
+  "needs_port": true,
+  "sha": "3e4fa12c7247341ae4a0dcdf2f9fe7d796c741f7",
+  "short_sha": "3e4fa12c72",
+  "subject": "feat: add `unicode(...)` parser syntax and `pp.unicode` option (#10373)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

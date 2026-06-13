@@ -1,0 +1,24 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Except.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Except.lean"
+    },
+    {
+      "path": "src/Init/Control/Reader.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Reader.lean"
+    }
+  ],
+  "date": "2020-03-31",
+  "needs_port": true,
+  "sha": "fd61812b6e2c41ad3e3df7b452cf814875002924",
+  "short_sha": "fd61812b6e",
+  "subject": "fix: wrong instance order for several instances",
+  "zig_target": {
+    "src/Init/Control/Except.lean": "zig-backend/src/init/Control/Except.lean",
+    "src/Init/Control/Reader.lean": "zig-backend/src/init/Control/Reader.lean"
+  }
+}

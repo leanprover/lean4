@@ -1,0 +1,10 @@
+{
+  "author": "Mac",
+  "backend_changes": [],
+  "date": "2022-07-18",
+  "needs_port": false,
+  "sha": "ad0288d7675320bf29c5ff6a0f93d33c92d4ddcf",
+  "short_sha": "ad0288d767",
+  "subject": "feat: allow registering/chaining LSP handlers in `initialize`",
+  "zig_target": {}
+}

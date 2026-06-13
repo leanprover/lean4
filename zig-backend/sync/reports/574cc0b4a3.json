@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-21",
+  "needs_port": false,
+  "sha": "574cc0b4a3655d525a7864eb5f870774beda3ba6",
+  "short_sha": "574cc0b4a3",
+  "subject": "chore: Nix: do a single-user install after all so the ccache cache doesn't get confused about permissions",
+  "zig_target": {}
+}

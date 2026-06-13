@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-07-05",
+  "needs_port": false,
+  "sha": "04fefdd728f6e888ff85a978a5495ce445a93740",
+  "short_sha": "04fefdd728",
+  "subject": "chore: restart-on-label: wait for 30s (#4663)",
+  "zig_target": {}
+}

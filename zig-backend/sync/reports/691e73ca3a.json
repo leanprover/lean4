@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-27",
+  "needs_port": false,
+  "sha": "691e73ca3ae878de8ca94068a151eb9860bcd555",
+  "short_sha": "691e73ca3a",
+  "subject": "fix: collect metavars occurring in delayed assignments",
+  "zig_target": {}
+}

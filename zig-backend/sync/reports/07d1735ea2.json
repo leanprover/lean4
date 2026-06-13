@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    }
+  ],
+  "date": "2021-08-05",
+  "needs_port": true,
+  "sha": "07d1735ea2ddd7cabd179e6f7fb1865d8d77c022",
+  "short_sha": "07d1735ea2",
+  "subject": "feat: borrow inference: preserve mutual tail calls",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+  }
+}

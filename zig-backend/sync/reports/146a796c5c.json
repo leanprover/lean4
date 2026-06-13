@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-15",
+  "needs_port": false,
+  "sha": "146a796c5ce6559e8c5e36152a86c634b1f5bf19",
+  "short_sha": "146a796c5c",
+  "subject": "feat(library/init/lean/module): add `ModuleParser` with error recovery",
+  "zig_target": {}
+}

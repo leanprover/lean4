@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-02",
+  "needs_port": false,
+  "sha": "8bf90b128e0d0c0f132e98b95837b0b57d06bde5",
+  "short_sha": "8bf90b128e",
+  "subject": "fix: interactive test driver",
+  "zig_target": {}
+}

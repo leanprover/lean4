@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Declaration.lean"
+    }
+  ],
+  "date": "2019-12-12",
+  "needs_port": true,
+  "sha": "9caf3b28780efe61f82676180b9e2b7f9af3d601",
+  "short_sha": "9caf3b2878",
+  "subject": "chore: add instances",
+  "zig_target": {
+    "src/Init/Lean/Declaration.lean": "zig-backend/src/init/Lean/Declaration.lean"
+  }
+}

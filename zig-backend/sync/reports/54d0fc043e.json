@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-11",
+  "needs_port": false,
+  "sha": "54d0fc043e0afef89f8776be5aebc848c4a78919",
+  "short_sha": "54d0fc043e",
+  "subject": "feat: preserve `Expr.mdata` at `simp`",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Iterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Iterator.lean"
+    }
+  ],
+  "date": "2025-11-13",
+  "needs_port": true,
+  "sha": "eb01aaeee4c5f4fad3f19c7f52f15ea84e9f0a9a",
+  "short_sha": "eb01aaeee4",
+  "subject": "chore: rename `String.Iterator` to `String.Legacy.Iterator` (#11152)",
+  "zig_target": {
+    "src/Init/Data/String/Iterator.lean": "zig-backend/src/init/Data/String/Iterator.lean"
+  }
+}

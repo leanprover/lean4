@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-03-31",
+  "needs_port": false,
+  "sha": "ffee6676effe44de95947037a8ed76508ceaedd1",
+  "short_sha": "ffee6676ef",
+  "subject": "feat: allow adjusting anonymous antiquot generation at `leading_parser`",
+  "zig_target": {}
+}

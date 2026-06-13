@@ -1,0 +1,25 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "old_path": "src/Lean/Compiler/LCNF/FixedArgs.lean",
+      "path": "src/Lean/Compiler/LCNF/FixedParams.lean",
+      "status": "R",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FixedParams.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/LCNF/SpecInfo.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean"
+    }
+  ],
+  "date": "2022-10-09",
+  "needs_port": true,
+  "sha": "eeb98d9cf445663773178eb120eec950e3fc4645",
+  "short_sha": "eeb98d9cf4",
+  "subject": "refactor: rename `FixedArgs` => `FixedParams`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FixedParams.lean": "zig-backend/src/lean/compiler/lcnf/FixedParams.lean",
+    "src/Lean/Compiler/LCNF/SpecInfo.lean": "zig-backend/src/lean/compiler/lcnf/SpecInfo.lean"
+  }
+}

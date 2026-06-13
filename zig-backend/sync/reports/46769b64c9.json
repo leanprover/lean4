@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-04-15",
+  "needs_port": false,
+  "sha": "46769b64c9f17707f9c846841ee2c1a7e521a55c",
+  "short_sha": "46769b64c9",
+  "subject": "chore: lake: bootstrap Lean include directory (#7967)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-01-24",
+  "needs_port": false,
+  "sha": "6f409e0eeabba761758c7f8576bfd5311129d7f7",
+  "short_sha": "6f409e0eea",
+  "subject": "fix: lake: `--no-build` exit code w/ release fetch (#12142)",
+  "zig_target": {}
+}

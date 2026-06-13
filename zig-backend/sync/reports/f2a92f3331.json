@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-12-07",
+  "needs_port": false,
+  "sha": "f2a92f3331aff91540be44a3c7288b3d647934c6",
+  "short_sha": "f2a92f3331",
+  "subject": "fix: GuessLex: deduplicate recursive calls (#3004)",
+  "zig_target": {}
+}

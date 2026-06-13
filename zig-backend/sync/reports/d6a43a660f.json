@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/ResetReuse.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+    }
+  ],
+  "date": "2025-08-20",
+  "needs_port": true,
+  "sha": "d6a43a660fb1f878f8bf3134f7bbe7005962a8f4",
+  "short_sha": "d6a43a660f",
+  "subject": "perf: disable reuse when a value's last use is an owned argument (#10017)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/ResetReuse.lean": "zig-backend/src/lean/compiler/ir/ResetReuse.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-02",
+  "needs_port": false,
+  "sha": "b82b90a687387068b31af2edd082036617bcb91d",
+  "short_sha": "b82b90a687",
+  "subject": "feat: KeyedDeclAttribute: expose declaration names",
+  "zig_target": {}
+}

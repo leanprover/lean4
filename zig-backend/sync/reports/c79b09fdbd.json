@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-09-09",
+  "needs_port": false,
+  "sha": "c79b09fdbd223282c50a2b8b5b8b0f66c37e4db8",
+  "short_sha": "c79b09fdbd",
+  "subject": "chore: restore Lake build",
+  "zig_target": {}
+}

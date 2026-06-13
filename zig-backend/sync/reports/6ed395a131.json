@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-10-21",
+  "needs_port": false,
+  "sha": "6ed395a13119caf60dddb9a1ca1493f03d0aa959",
+  "short_sha": "6ed395a131",
+  "subject": "feat: ParametricAttributeImpl.afterImport",
+  "zig_target": {}
+}

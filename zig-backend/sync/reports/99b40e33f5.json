@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-13",
+  "needs_port": false,
+  "sha": "99b40e33f5d27ae7f4abff2c455a691a78ef5398",
+  "short_sha": "99b40e33f5",
+  "subject": "chore: Windows: create import library after all",
+  "zig_target": {}
+}

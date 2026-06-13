@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-04-18",
+  "needs_port": false,
+  "sha": "02b206af9b857a2bbc796394aec14fe192ab59d7",
+  "short_sha": "02b206af9b",
+  "subject": "fix: mkAppM to typecheck at .default transparency (#7957)",
+  "zig_target": {}
+}

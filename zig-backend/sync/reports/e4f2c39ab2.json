@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-29",
+  "needs_port": false,
+  "sha": "e4f2c39ab26e8c8f7d3e59578a1bd532d2ddfb95",
+  "short_sha": "e4f2c39ab2",
+  "subject": "test: termination checking and duplicated terms (#2993)",
+  "zig_target": {}
+}

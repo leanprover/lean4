@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-11-21",
+  "needs_port": false,
+  "sha": "6cafcabe462689e9201947a3cee79f660b0e2104",
+  "short_sha": "6cafcabe46",
+  "subject": "fix: print universe level lists in lean 4 style",
+  "zig_target": {}
+}

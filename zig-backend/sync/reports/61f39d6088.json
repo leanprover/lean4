@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-04-17",
+  "needs_port": false,
+  "sha": "61f39d608879cf7fe10ff962784f1c9ec2172987",
+  "short_sha": "61f39d6088",
+  "subject": "chore: Parser.atomic: preserve partial output",
+  "zig_target": {}
+}

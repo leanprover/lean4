@@ -1,0 +1,10 @@
+{
+  "author": "David Renshaw",
+  "backend_changes": [],
+  "date": "2022-10-24",
+  "needs_port": false,
+  "sha": "e4ab10dc30a7e819b222814bb331ca938f112cbb",
+  "short_sha": "e4ab10dc30",
+  "subject": "doc: fix some typos",
+  "zig_target": {}
+}

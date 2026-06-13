@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2023-12-14",
+  "needs_port": false,
+  "sha": "d279a4871fa641f9bc423404cf2797fd3c26426e",
+  "short_sha": "d279a4871f",
+  "subject": "chore: add the lean4 extension to the vscode workspace (#3059)",
+  "zig_target": {}
+}

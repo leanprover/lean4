@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-19",
+  "needs_port": false,
+  "sha": "1840b4b1ff733553395fb054dbb3eb44e8d3828c",
+  "short_sha": "1840b4b1ff",
+  "subject": "fix: pretty printer with new syntax",
+  "zig_target": {}
+}

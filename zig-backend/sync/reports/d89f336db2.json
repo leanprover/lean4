@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-07-04",
+  "needs_port": false,
+  "sha": "d89f336db2ea991656daba83c68b61278edb0703",
+  "short_sha": "d89f336db2",
+  "subject": "fix: Scope `PostCond.total` to `Std.Do` by making it non-builtin (#9184)",
+  "zig_target": {}
+}

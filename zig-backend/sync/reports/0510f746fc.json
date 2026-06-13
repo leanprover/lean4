@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-11",
+  "needs_port": false,
+  "sha": "0510f746fccaac3a82dfe558d086f14911aaeccd",
+  "short_sha": "0510f746fc",
+  "subject": "feat: add macro `registerParserAlias!`",
+  "zig_target": {}
+}

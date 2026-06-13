@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-02-17",
+  "needs_port": false,
+  "sha": "e2407589ff8355e06ea3d62773c5a04e2629554e",
+  "short_sha": "e2407589ff",
+  "subject": "fix: lake: `cache clean` should succeed w/ no cache dir (#12532)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-16",
+  "needs_port": false,
+  "sha": "e3540a5d8fd547ba2d1b4510de66fe77e551b9ea",
+  "short_sha": "e3540a5d8f",
+  "subject": "chore: remove `high` builtin parser",
+  "zig_target": {}
+}

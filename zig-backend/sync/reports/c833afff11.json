@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-04-30",
+  "needs_port": false,
+  "sha": "c833afff11e84e2344328b12e9c207b9468af7d4",
+  "short_sha": "c833afff11",
+  "subject": "feat: mention `set_option diagnostics true` at deterministic timeout message",
+  "zig_target": {}
+}

@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Subarray.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Subarray.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    },
+    {
+      "path": "src/Init/System/Platform.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Platform.lean"
+    }
+  ],
+  "date": "2022-06-14",
+  "needs_port": true,
+  "sha": "f6d1e48cb8bcb7c235365d78098cf72cd9879922",
+  "short_sha": "f6d1e48cb8",
+  "subject": "fix: `constant` => `opaque` issues",
+  "zig_target": {
+    "src/Init/Data/Array/Subarray.lean": "zig-backend/src/init/Data/Array/Subarray.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean",
+    "src/Init/System/Platform.lean": "zig-backend/src/init/System/Platform.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-07",
+  "needs_port": false,
+  "sha": "d5eb9f340068f3bb319bc2c7b7ef7a66ed1ca0e2",
+  "short_sha": "d5eb9f3400",
+  "subject": "chore: improve check traces",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-16",
+  "needs_port": false,
+  "sha": "cb925a3a3c7a15bdd72f5a2fb487db35fef978eb",
+  "short_sha": "cb925a3a3c",
+  "subject": "fix: return `some` at `simpCnstrPos?` if arith expr was normalized, but not simplified",
+  "zig_target": {}
+}

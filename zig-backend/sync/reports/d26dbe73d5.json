@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-11-14",
+  "needs_port": false,
+  "sha": "d26dbe73d554f720fa9dce48780b657a64107e2d",
+  "short_sha": "d26dbe73d5",
+  "subject": "fix: do not double-report `snapshotTasks` after `wrapAsyncAsSnapshot`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-20",
+  "needs_port": false,
+  "sha": "d78ad40aaf95070d5d9f9ccde9f348a9af10faba",
+  "short_sha": "d78ad40aaf",
+  "subject": "feat(script/gen_constants_cpp.py): support for provifing custom C name",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Bitwise.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Fin/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Bitwise.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/UInt/Bitwise.lean"
+    }
+  ],
+  "date": "2024-07-03",
+  "needs_port": true,
+  "sha": "a2a73e9611ddccbabbc3fe274c28b1da9e89b594",
+  "short_sha": "a2a73e9611",
+  "subject": "feat: USize.and_toNat (#4629)",
+  "zig_target": {
+    "src/Init/Data/Fin/Bitwise.lean": "zig-backend/src/init/Data/Fin/Bitwise.lean",
+    "src/Init/Data/UInt.lean": "zig-backend/src/init/Data/UInt.lean",
+    "src/Init/Data/UInt/Bitwise.lean": "zig-backend/src/init/Data/UInt/Bitwise.lean"
+  }
+}

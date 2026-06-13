@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-05-15",
+  "needs_port": false,
+  "sha": "528fe0b0ed673accd37d986d80a7c49f876a3087",
+  "short_sha": "528fe0b0ed",
+  "subject": "fix: FunInd: clean up packed arguments more throughly (#8356)",
+  "zig_target": {}
+}

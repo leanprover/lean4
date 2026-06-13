@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-12-26",
+  "needs_port": false,
+  "sha": "ec9570fdd051e7d368aaa77221b2dcc516ffe0a1",
+  "short_sha": "ec9570fdd0",
+  "subject": "feat: add `Expr.getAppPrefix`",
+  "zig_target": {}
+}

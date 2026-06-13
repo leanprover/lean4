@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-29",
+  "needs_port": false,
+  "sha": "2eb330e36a491bb3210d01563ebf2385636e6d9b",
+  "short_sha": "2eb330e36a",
+  "subject": "feat: improve `clear` tactic",
+  "zig_target": {}
+}

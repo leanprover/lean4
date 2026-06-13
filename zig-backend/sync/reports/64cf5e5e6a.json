@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Tactics.lean"
+    }
+  ],
+  "date": "2025-01-15",
+  "needs_port": true,
+  "sha": "64cf5e5e6a5ef1d820858ddc4fc76115153606c2",
+  "short_sha": "64cf5e5e6a",
+  "subject": "feat: improve `grind` search procedure (#6657)",
+  "zig_target": {
+    "src/Init/Grind/Tactics.lean": "zig-backend/src/init/Grind/Tactics.lean"
+  }
+}

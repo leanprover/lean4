@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-15",
+  "needs_port": false,
+  "sha": "7e0d76aff0a1d6adfd4a286469a60120591a2764",
+  "short_sha": "7e0d76aff0",
+  "subject": "fix: losing local instances at `assertAfter`",
+  "zig_target": {}
+}

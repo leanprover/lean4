@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-29",
+  "needs_port": true,
+  "sha": "e922edfc218090ab2e54092336c67fe3b970dfc2",
+  "short_sha": "e922edfc21",
+  "subject": "feat: `Bool.and`, `Bool.or`, and `Bool.not` propagation in `grind` (#6861)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

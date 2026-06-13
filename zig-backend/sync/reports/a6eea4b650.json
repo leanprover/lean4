@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-01-13",
+  "needs_port": false,
+  "sha": "a6eea4b650037967b37b751db160689f33567a2e",
+  "short_sha": "a6eea4b650",
+  "subject": "fix: lake: v4.16.0-rc1 trace issues (#6627)",
+  "zig_target": {}
+}

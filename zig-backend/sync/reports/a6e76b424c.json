@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ToMono.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+    }
+  ],
+  "date": "2025-05-28",
+  "needs_port": true,
+  "sha": "a6e76b424ce2e3960fe648fe2950e48b733888d0",
+  "short_sha": "a6e76b424c",
+  "subject": "fix: move the new compiler's noncomputable check into toMono (#8523)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ToMono.lean": "zig-backend/src/lean/compiler/lcnf/ToMono.lean"
+  }
+}

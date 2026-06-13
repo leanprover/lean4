@@ -1,0 +1,10 @@
+{
+  "author": "Ed Ayers",
+  "backend_changes": [],
+  "date": "2022-09-28",
+  "needs_port": false,
+  "sha": "22bb798995f84630f27da3997c8883ee0ad13245",
+  "short_sha": "22bb798995",
+  "subject": "feat: datatypes for LSP code actions (#1654)",
+  "zig_target": {}
+}

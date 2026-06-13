@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Bitblast.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+    }
+  ],
+  "date": "2026-03-02",
+  "needs_port": true,
+  "sha": "4ac7ea4aab85cab5627763b0a462b66c04813595",
+  "short_sha": "4ac7ea4aab",
+  "subject": "perf: fixup BitVec.cpop termination proof performance (#12764)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Bitblast.lean": "zig-backend/src/init/Data/BitVec/Bitblast.lean"
+  }
+}

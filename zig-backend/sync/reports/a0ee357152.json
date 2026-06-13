@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2026-04-14",
+  "needs_port": false,
+  "sha": "a0ee357152b5e38e9cdcf6172db3955ae0328cd6",
+  "short_sha": "a0ee357152",
+  "subject": "chore: add io compute benchmark (#13406)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-20",
+  "needs_port": false,
+  "sha": "299a89e2c0fac2b3a191c48c0a6100a214784385",
+  "short_sha": "299a89e2c0",
+  "subject": "fix: missing `instantiateMVars`",
+  "zig_target": {}
+}

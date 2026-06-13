@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-28",
+  "needs_port": false,
+  "sha": "9d5f211c287cd5f492980c292560724648ce95b3",
+  "short_sha": "9d5f211c28",
+  "subject": "feat: add environment extension for storing match conditional equations and splitter",
+  "zig_target": {}
+}

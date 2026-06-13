@@ -1,0 +1,18 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-12-10",
+  "needs_port": true,
+  "sha": "7be0d7ec16fc88d808e8515b04d6f19363696f4c",
+  "short_sha": "7be0d7ec16",
+  "subject": "fix: space before $",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

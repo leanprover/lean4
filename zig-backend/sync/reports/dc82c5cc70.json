@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2019-08-28",
+  "needs_port": true,
+  "sha": "dc82c5cc702587baf590a4f8dadf321c9cb41159",
+  "short_sha": "dc82c5cc70",
+  "subject": "chore(runtime/object): fix compilation error in debug mode on OSX",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

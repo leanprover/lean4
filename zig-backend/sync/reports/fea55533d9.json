@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2025-11-26",
+  "needs_port": false,
+  "sha": "fea55533d9c87b10edac3afde88e8e99b58711f8",
+  "short_sha": "fea55533d9",
+  "subject": "feat: add `ofArray` to `DHashMap`/`HashMap`/`HashSet` (#11243)",
+  "zig_target": {}
+}

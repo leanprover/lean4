@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-08-07",
+  "needs_port": false,
+  "sha": "3b14642c42311b1bcbff6cbf6102a24ce2a41cce",
+  "short_sha": "3b14642c42",
+  "subject": "chore: build Lake again",
+  "zig_target": {}
+}

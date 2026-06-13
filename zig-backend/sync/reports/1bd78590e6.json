@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-19",
+  "needs_port": false,
+  "sha": "1bd78590e6af2e1860badc431950d6d3fa504c8d",
+  "short_sha": "1bd78590e6",
+  "subject": "test: for Lean 3 nocomputable issue",
+  "zig_target": {}
+}

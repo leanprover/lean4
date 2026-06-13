@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/mpz.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/mpz.h"
+    }
+  ],
+  "date": "2019-08-24",
+  "needs_port": true,
+  "sha": "dfbc50094745484145f2b7bcfcfb9e007d48dfae",
+  "short_sha": "dfbc500947",
+  "subject": "fix(runtime/mpz): (try to) fix Linux build again",
+  "zig_target": {
+    "src/runtime/mpz.h": "zig-backend/src/runtime/mpz.h"
+  }
+}

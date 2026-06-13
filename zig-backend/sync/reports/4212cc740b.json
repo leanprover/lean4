@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-16",
+  "needs_port": false,
+  "sha": "4212cc740babd6b6df9742c3721bf27ff5a6f570",
+  "short_sha": "4212cc740b",
+  "subject": "refactor: move linebreak check into `sepBy(1)Indent`",
+  "zig_target": {}
+}

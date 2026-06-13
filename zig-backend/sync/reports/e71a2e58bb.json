@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-12",
+  "needs_port": false,
+  "sha": "e71a2e58bbdc364702a9962e7c350b02eaa29ad1",
+  "short_sha": "e71a2e58bb",
+  "subject": "fix: remove misleading leading space in \" where\"",
+  "zig_target": {}
+}

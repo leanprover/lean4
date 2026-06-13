@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2021-06-06",
+  "needs_port": false,
+  "sha": "8efd56d131ae317e8205d662df8ee35a9aea4364",
+  "short_sha": "8efd56d131",
+  "subject": "Properly lowercase `Package.lean` configurations",
+  "zig_target": {}
+}

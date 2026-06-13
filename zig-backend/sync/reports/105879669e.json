@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/ToIntLemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/ToIntLemmas.lean"
+    }
+  ],
+  "date": "2025-08-20",
+  "needs_port": true,
+  "sha": "105879669e65311404bd52583b74a1f4803e864e",
+  "short_sha": "105879669e",
+  "subject": "chore: remove unnecessary hypothesis in `ToInt` helper theorems (#10014)",
+  "zig_target": {
+    "src/Init/Grind/ToIntLemmas.lean": "zig-backend/src/init/Grind/ToIntLemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-02-20",
+  "needs_port": false,
+  "sha": "73751bbb276616fca774b7d19d5cfeefc664f1ae",
+  "short_sha": "73751bbb27",
+  "subject": "fix: interaction between `simp` and `backward.whnf.reducibleClassField` (#12622)",
+  "zig_target": {}
+}

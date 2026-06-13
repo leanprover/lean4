@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-05-13",
+  "needs_port": false,
+  "sha": "337685a38a3de272cf70e2b4331df389746683cd",
+  "short_sha": "337685a38a",
+  "subject": "feat: bv_decide support for BitVec.reverse (#8323)",
+  "zig_target": {}
+}

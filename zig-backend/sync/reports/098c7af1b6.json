@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-07-16",
+  "needs_port": true,
+  "sha": "098c7af1b66ef520d4d59b02b3dc777ae8e8f0f0",
+  "short_sha": "098c7af1b6",
+  "subject": "feat: server tests",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

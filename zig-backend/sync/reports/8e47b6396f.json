@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir.cpp"
+    }
+  ],
+  "date": "2019-09-12",
+  "needs_port": true,
+  "sha": "8e47b6396f26abfb91ef3c21a6f7759e81d43cf4",
+  "short_sha": "8e47b6396f",
+  "subject": "chore(library/init/lean/compiler/ir): simplify `mkCase`, the `xType` field is set by `explicitBoxing`",
+  "zig_target": {
+    "src/library/compiler/ir.cpp": "zig-backend/src/library/compiler/ir.cpp"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/compiler.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/compiler.cpp"
+    }
+  ],
+  "date": "2018-11-12",
+  "needs_port": true,
+  "sha": "2f8e6cc975c1f6cf0f49feb7a10fcaa429ae943e",
+  "short_sha": "2f8e6cc975",
+  "subject": "chore(frontends/lean/elaborator,library/compiler/compiler): avoid error recovery errors",
+  "zig_target": {
+    "src/library/compiler/compiler.cpp": "zig-backend/src/library/compiler/compiler.cpp"
+  }
+}

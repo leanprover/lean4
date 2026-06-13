@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2024-11-06",
+  "needs_port": true,
+  "sha": "5d2bd1e2e4ab4212f347c08cd7464b673f9e1c39",
+  "short_sha": "5d2bd1e2e4",
+  "subject": "chore: deprecate Array.split in favour of identical Array.partition (#5970)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

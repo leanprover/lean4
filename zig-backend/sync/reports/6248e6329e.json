@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2020-12-05",
+  "needs_port": false,
+  "sha": "6248e6329ecd61f936655c447685ce0f31fc0209",
+  "short_sha": "6248e6329e",
+  "subject": "chore: refactor jsonrpc and lsp handle functions and deal with fallout",
+  "zig_target": {}
+}

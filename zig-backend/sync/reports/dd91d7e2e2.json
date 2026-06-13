@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-03-09",
+  "needs_port": true,
+  "sha": "dd91d7e2e2b99498f9284fca04f178da1809fc4d",
+  "short_sha": "dd91d7e2e2",
+  "subject": "fix: bv_omega to use -implicitDefEqProofs (#7387)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

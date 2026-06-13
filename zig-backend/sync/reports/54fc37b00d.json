@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-03",
+  "needs_port": false,
+  "sha": "54fc37b00db9b3f4ce07ea2f58aa263df891d7ee",
+  "short_sha": "54fc37b00d",
+  "subject": "feat(library/init/lean/compiler): add `Decl.normalizeIds`",
+  "zig_target": {}
+}

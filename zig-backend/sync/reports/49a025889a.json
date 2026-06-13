@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-08",
+  "needs_port": false,
+  "sha": "49a025889a7d7bd7f38ade67dee69dcd334004a6",
+  "short_sha": "49a025889a",
+  "subject": "chore: remove redundant declaration in .envrc",
+  "zig_target": {}
+}

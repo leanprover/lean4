@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-08-21",
+  "needs_port": false,
+  "sha": "5f30d62d9b583de7fdf2b61836f884d3140e8c2d",
+  "short_sha": "5f30d62d9b",
+  "subject": "feat: `[runParserAttributeHooks]`",
+  "zig_target": {}
+}

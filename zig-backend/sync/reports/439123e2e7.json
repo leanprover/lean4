@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-11-21",
+  "needs_port": false,
+  "sha": "439123e2e72b0ccbcb6e19aef81ad7cdd0f92f2a",
+  "short_sha": "439123e2e7",
+  "subject": "refactor: ensure that `unfoldDefinitionAux` is not specialized multiple times",
+  "zig_target": {}
+}

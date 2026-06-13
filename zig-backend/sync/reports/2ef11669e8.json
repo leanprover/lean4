@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-06-03",
+  "needs_port": false,
+  "sha": "2ef11669e859599a8bc60ce362f2a17b8168f8f3",
+  "short_sha": "2ef11669e8",
+  "subject": "chore: reinstate -x c in leanc",
+  "zig_target": {}
+}

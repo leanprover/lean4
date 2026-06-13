@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-10-21",
+  "needs_port": true,
+  "sha": "2eb44b3cdc41888549e8e73fcaa4e76d1ac43a6a",
+  "short_sha": "2eb44b3cdc",
+  "subject": "chore: fix a typo in the docstring for `SeqRight` and add documentation to `getLevel` (#10866)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-13",
+  "needs_port": false,
+  "sha": "bdb92ce7a4934fdc6f0eaa65700da82b4f9709dd",
+  "short_sha": "bdb92ce7a4",
+  "subject": "feat: add `throwError!` macro and improve `trace[..]!` macro",
+  "zig_target": {}
+}

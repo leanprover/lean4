@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-07-05",
+  "needs_port": false,
+  "sha": "6ca8389670bd7979172234c3c31b2b394fc69d06",
+  "short_sha": "6ca8389670",
+  "subject": "fix: preserve synthetic positions in sanitizer",
+  "zig_target": {}
+}

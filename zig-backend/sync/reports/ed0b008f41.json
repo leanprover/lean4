@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-20",
+  "needs_port": false,
+  "sha": "ed0b008f410cddb180d71e24ce518a81fa021724",
+  "short_sha": "ed0b008f41",
+  "subject": "feat: add helper method `Term.commitIfNoErrors?`",
+  "zig_target": {}
+}

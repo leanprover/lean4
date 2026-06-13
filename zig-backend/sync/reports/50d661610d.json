@@ -1,0 +1,30 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/EmitLLVM.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean"
+    },
+    {
+      "path": "src/Lean/Compiler/IR/LLVMBindings.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean"
+    },
+    {
+      "path": "src/library/compiler/llvm.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llvm.cpp"
+    }
+  ],
+  "date": "2024-02-13",
+  "needs_port": true,
+  "sha": "50d661610de3a7351e7130c1c2a896e397155278",
+  "short_sha": "50d661610d",
+  "subject": "perf: LLVM backend, put all allocas in the first BB to enable mem2reg (#3244)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/EmitLLVM.lean": "zig-backend/src/lean/compiler/ir/EmitLLVM.lean",
+    "src/Lean/Compiler/IR/LLVMBindings.lean": "zig-backend/src/lean/compiler/ir/LLVMBindings.lean",
+    "src/library/compiler/llvm.cpp": "zig-backend/src/library/compiler/llvm.cpp"
+  }
+}

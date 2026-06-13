@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-22",
+  "needs_port": false,
+  "sha": "01996bc4c6aabc4c6031483bade5b8870f7974e9",
+  "short_sha": "01996bc4c6",
+  "subject": "chore(bin/lean-gdb): fix `list_ref` printer",
+  "zig_target": {}
+}

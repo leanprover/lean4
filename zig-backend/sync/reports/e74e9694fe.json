@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-27",
+  "needs_port": false,
+  "sha": "e74e9694feae234a2a4fe6a749f44b9ceb470bf6",
+  "short_sha": "e74e9694fe",
+  "subject": "feat: revamp and unify visibility/exposure handling in deriving handlers (#10148)",
+  "zig_target": {}
+}

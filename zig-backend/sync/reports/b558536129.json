@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-13",
+  "needs_port": false,
+  "sha": "b55853612903c5ea8d9e3a6aa4bccc96541de74b",
+  "short_sha": "b558536129",
+  "subject": "feat: add basic `lake server` CLI",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Lemmas.lean"
+    }
+  ],
+  "date": "2024-09-29",
+  "needs_port": true,
+  "sha": "7d26a1604f146a5f2e6e2ff826609cd46a52d8a4",
+  "short_sha": "7d26a1604f",
+  "subject": "chore: restore @[simp] on List.getElem_mem et al (#5520)",
+  "zig_target": {
+    "src/Init/Data/List/Lemmas.lean": "zig-backend/src/init/Data/List/Lemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Bhavik Mehta",
+  "backend_changes": [],
+  "date": "2025-01-06",
+  "needs_port": false,
+  "sha": "2c9641f621f8aecf69d8644d5b7f99c96cb947fa",
+  "short_sha": "2c9641f621",
+  "subject": "doc: modify aesop usage example of `omegaDefault` (#6549)",
+  "zig_target": {}
+}

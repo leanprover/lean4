@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-23",
+  "needs_port": false,
+  "sha": "3af7bc0b878f1435e814b87daa9f4441ae75026f",
+  "short_sha": "3af7bc0b87",
+  "subject": "fix: wrong dir in new error message",
+  "zig_target": {}
+}

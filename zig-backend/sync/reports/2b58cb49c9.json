@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-25",
+  "needs_port": false,
+  "sha": "2b58cb49c9f44ba17b420af23428d94748f26458",
+  "short_sha": "2b58cb49c9",
+  "subject": "feat: use `whnf` at `getResultingUniverse`",
+  "zig_target": {}
+}

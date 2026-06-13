@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-07-15",
+  "needs_port": false,
+  "sha": "93c954397622a569eba014abe9eb2cf0341f2358",
+  "short_sha": "93c9543976",
+  "subject": "feat: add convenience functions for constructing a `LeanTrace`",
+  "zig_target": {}
+}

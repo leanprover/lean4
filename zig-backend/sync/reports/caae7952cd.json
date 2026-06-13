@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-01",
+  "needs_port": false,
+  "sha": "caae7952cd3583d8055ae205fe142c9d2d69c320",
+  "short_sha": "caae7952cd",
+  "subject": "feat: add helper parsers for auto-completion",
+  "zig_target": {}
+}

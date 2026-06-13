@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-03-02",
+  "needs_port": false,
+  "sha": "c66c5bb45b5e7f34f7c75d832f4101bd6727d71d",
+  "short_sha": "c66c5bb45b",
+  "subject": "fix: `simp?` suggests generated equations lemma names (#3573)",
+  "zig_target": {}
+}

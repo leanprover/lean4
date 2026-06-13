@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-12",
+  "needs_port": false,
+  "sha": "b6860968ff3436824221d6ec74c45abd531fecba",
+  "short_sha": "b6860968ff",
+  "subject": "fix: catch exception at `elabMutualDef`",
+  "zig_target": {}
+}

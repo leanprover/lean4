@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-04-16",
+  "needs_port": false,
+  "sha": "a8df7d9d5c05bbfcc7cdb9aa00fa81a2dfccf1d2",
+  "short_sha": "a8df7d9d5c",
+  "subject": "fix: find nightly-with-mathlib SHA (#3923)",
+  "zig_target": {}
+}

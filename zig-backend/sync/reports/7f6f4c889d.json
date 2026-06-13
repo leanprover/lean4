@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Fin/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+    }
+  ],
+  "date": "2025-05-12",
+  "needs_port": true,
+  "sha": "7f6f4c889d5163a981df8ab1d80e4a434a31ca4f",
+  "short_sha": "7f6f4c889d",
+  "subject": "feat: use NeZero in Fin lemmas where possible (#8291)",
+  "zig_target": {
+    "src/Init/Data/Fin/Lemmas.lean": "zig-backend/src/init/Data/Fin/Lemmas.lean"
+  }
+}

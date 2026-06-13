@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-10-02",
+  "needs_port": false,
+  "sha": "5a2e46b0211ad353399b21af4be9edbe65c32b72",
+  "short_sha": "5a2e46b021",
+  "subject": "fix: equational theorem generation: avoid reducing at transparency all (#10654)",
+  "zig_target": {}
+}

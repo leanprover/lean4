@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Lemmas.lean"
+    }
+  ],
+  "date": "2025-02-25",
+  "needs_port": true,
+  "sha": "769fe4ebf6177ea90e257066cd44732ab9c20f3c",
+  "short_sha": "769fe4ebf6",
+  "subject": "feat: add `Grind.mkDiseqProof?` (#7231)",
+  "zig_target": {
+    "src/Init/Grind/Lemmas.lean": "zig-backend/src/init/Grind/Lemmas.lean"
+  }
+}

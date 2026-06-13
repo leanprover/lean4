@@ -1,0 +1,18 @@
+{
+  "author": "Daniel Fabian",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Ord.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Ord.lean"
+    }
+  ],
+  "date": "2021-04-01",
+  "needs_port": true,
+  "sha": "fb4a119ed776a126ddba02b540696d9cfc48469f",
+  "short_sha": "fb4a119ed7",
+  "subject": "fix: allow also recursive types in the `Ord` construction.",
+  "zig_target": {
+    "src/Init/Data/Ord.lean": "zig-backend/src/init/Data/Ord.lean"
+  }
+}

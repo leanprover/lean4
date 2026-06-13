@@ -1,0 +1,18 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2023-05-17",
+  "needs_port": true,
+  "sha": "fd72fdf8f84a56c5e906ece4ae43649d08cf52bd",
+  "short_sha": "fd72fdf8f8",
+  "subject": "fix: incorrect utf8 in splitAux",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

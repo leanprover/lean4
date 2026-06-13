@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-15",
+  "needs_port": false,
+  "sha": "18becc7d7ddb28a42467865a841e348959c6885d",
+  "short_sha": "18becc7d7d",
+  "subject": "fix: plain term goal on binders",
+  "zig_target": {}
+}

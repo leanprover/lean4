@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech Rozowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Internal/Order/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Internal/Order/Basic.lean"
+    }
+  ],
+  "date": "2025-05-19",
+  "needs_port": true,
+  "sha": "a8a6f71abbec7728bf29de3b23e225051f787fdd",
+  "short_sha": "a8a6f71abb",
+  "subject": "fix: add monotonicity lemmas for universal quantifiers (#8403)",
+  "zig_target": {
+    "src/Init/Internal/Order/Basic.lean": "zig-backend/src/init/Internal/Order/Basic.lean"
+  }
+}

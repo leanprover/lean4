@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-21",
+  "needs_port": false,
+  "sha": "7c0bb0a6dc940d7c74ae998a2ea59ee06827ca65",
+  "short_sha": "7c0bb0a6dc",
+  "subject": "feat: add `compiler.check` option",
+  "zig_target": {}
+}

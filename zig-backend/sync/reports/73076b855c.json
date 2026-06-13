@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-20",
+  "needs_port": false,
+  "sha": "73076b855c94eaa1a380e05411b60ca19df191f6",
+  "short_sha": "73076b855c",
+  "subject": "fix: bug at `processGenDiseq`",
+  "zig_target": {}
+}

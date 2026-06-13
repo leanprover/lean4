@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-22",
+  "needs_port": false,
+  "sha": "42e681a5a6f28d7a41b92a1cf3b8aba56a5cab55",
+  "short_sha": "42e681a5a6",
+  "subject": "fix: make unterminated comments consume all input",
+  "zig_target": {}
+}

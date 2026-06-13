@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-07",
+  "needs_port": false,
+  "sha": "1d20cbd3d64a32752e6acdbb3e187ab32ec50d2d",
+  "short_sha": "1d20cbd3d6",
+  "subject": "refacttor: check  `LEAN_SYSROOT` rather than `LEAN_HOME` for Lean",
+  "zig_target": {}
+}

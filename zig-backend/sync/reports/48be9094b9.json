@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-02-04",
+  "needs_port": false,
+  "sha": "48be9094b9c6a27123fa2e91ffcd06a08679ea6c",
+  "short_sha": "48be9094b9",
+  "subject": "test: add test for parsing `Core.lean`",
+  "zig_target": {}
+}

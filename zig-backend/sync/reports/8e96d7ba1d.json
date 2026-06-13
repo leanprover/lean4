@@ -1,0 +1,18 @@
+{
+  "author": "Timo Carlin-Burns",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2024-03-17",
+  "needs_port": true,
+  "sha": "8e96d7ba1d7a36c7160112ef12307e4f361e8c3b",
+  "short_sha": "8e96d7ba1d",
+  "subject": "refactor: clean up public API around `Array.eraseIdx` (#3676)",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

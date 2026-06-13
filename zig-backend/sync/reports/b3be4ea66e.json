@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-30",
+  "needs_port": false,
+  "sha": "b3be4ea66eeaf961e831c2e2603790aea4e0720c",
+  "short_sha": "b3be4ea66e",
+  "subject": "feat: include Case analyses trace in the `grind` error message (#6881)",
+  "zig_target": {}
+}

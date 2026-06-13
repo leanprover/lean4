@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-10",
+  "needs_port": false,
+  "sha": "3214a20d33b4f88ff4783cb2fa3148ade47b833a",
+  "short_sha": "3214a20d33",
+  "subject": "feat: allow overloaded notation in patterns",
+  "zig_target": {}
+}

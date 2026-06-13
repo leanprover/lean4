@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/lambda_lifting.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+    }
+  ],
+  "date": "2018-11-01",
+  "needs_port": true,
+  "sha": "e11fe27de27f01f9cefbc7461e026e71b8a6a823",
+  "short_sha": "e11fe27de2",
+  "subject": "chore(library/compiler/lambda_lifting): temporary hack",
+  "zig_target": {
+    "src/library/compiler/lambda_lifting.cpp": "zig-backend/src/library/compiler/lambda_lifting.cpp"
+  }
+}

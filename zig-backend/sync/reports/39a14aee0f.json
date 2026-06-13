@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-22",
+  "needs_port": false,
+  "sha": "39a14aee0f8cecaafb685bdb8fead68253342788",
+  "short_sha": "39a14aee0f",
+  "subject": "refactor: move `Lean.Core.Exception` to `Lean.Exception`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-15",
+  "needs_port": false,
+  "sha": "a49de9ccd3a4afb81d8d4550e165a6d914500172",
+  "short_sha": "a49de9ccd3",
+  "subject": "feat(library/init/lean): add `kvmap`",
+  "zig_target": {}
+}

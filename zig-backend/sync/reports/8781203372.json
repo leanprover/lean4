@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Repr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Repr.lean"
+    }
+  ],
+  "date": "2022-08-01",
+  "needs_port": true,
+  "sha": "8781203372836f99db48154b2b963bcaf169b9e0",
+  "short_sha": "8781203372",
+  "subject": "chore: rename misleading function",
+  "zig_target": {
+    "src/Init/Data/Repr.lean": "zig-backend/src/init/Data/Repr.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-08-17",
+  "needs_port": true,
+  "sha": "8985a15f9647542f35aa623bc1ded2bb0b4a3fa0",
+  "short_sha": "8985a15f96",
+  "subject": "chore: mark `inferInstance` and `inferInstanceAs` as `[inline]`",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

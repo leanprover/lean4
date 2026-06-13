@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-21",
+  "needs_port": false,
+  "sha": "2f90b1dadd0fbf6adfda4045f55189c8b74421b2",
+  "short_sha": "2f90b1dadd",
+  "subject": "fix: elaborate `grind` state filter (#10874)",
+  "zig_target": {}
+}

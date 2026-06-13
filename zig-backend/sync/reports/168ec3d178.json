@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-23",
+  "needs_port": false,
+  "sha": "168ec3d178db401068b30c3587153771d705f75a",
+  "short_sha": "168ec3d178",
+  "subject": "perf: cache lean exe trace in `BuildM`",
+  "zig_target": {}
+}

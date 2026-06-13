@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-13",
+  "needs_port": false,
+  "sha": "f80274be6bead01e60fd97abe3510c331d4961c9",
+  "short_sha": "f80274be6b",
+  "subject": "fix: Rename M.by_wp lemmas according to naming convention (#9894)",
+  "zig_target": {}
+}

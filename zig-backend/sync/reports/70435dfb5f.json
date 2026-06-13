@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/SizeOf.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/SizeOf.lean"
+    }
+  ],
+  "date": "2024-11-07",
+  "needs_port": true,
+  "sha": "70435dfb5ffb994d2eac99ae5ad4fa715835db53",
+  "short_sha": "70435dfb5f",
+  "subject": "refactor: name the default SizeOf instance (#5981)",
+  "zig_target": {
+    "src/Init/SizeOf.lean": "zig-backend/src/init/SizeOf.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2024-01-31",
+  "needs_port": false,
+  "sha": "dd77dbdc11ac5f69dd837e2c93ad9d58387cc427",
+  "short_sha": "dd77dbdc11",
+  "subject": "chore: add GitHub token to manual link checker (#3235)",
+  "zig_target": {}
+}

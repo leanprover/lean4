@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-07-08",
+  "needs_port": false,
+  "sha": "00eda2f8c6d21148f51ba28b0a8e83ce3513d9dc",
+  "short_sha": "00eda2f8c6",
+  "subject": "chore: update nixpkgs, changing back to LLVM 10",
+  "zig_target": {}
+}

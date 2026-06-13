@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Declaration.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Declaration.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/CollectLevelParams.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/CollectLevelParams.lean"
+    }
+  ],
+  "date": "2020-01-06",
+  "needs_port": true,
+  "sha": "573877dcdffd2bf57bed6cb93f45cc1578c96759",
+  "short_sha": "573877dcdf",
+  "subject": "chore: cleanup",
+  "zig_target": {
+    "src/Init/Lean/Elab/Declaration.lean": "zig-backend/src/init/Lean/Elab/Declaration.lean",
+    "src/Init/Lean/Util/CollectLevelParams.lean": "zig-backend/src/init/Lean/Util/CollectLevelParams.lean"
+  }
+}

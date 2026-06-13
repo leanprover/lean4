@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-30",
+  "needs_port": false,
+  "sha": "b6ce9fa4b19b6971542361423ac414765af56bce",
+  "short_sha": "b6ce9fa4b1",
+  "subject": "doc: add `palindromes.lean`",
+  "zig_target": {}
+}

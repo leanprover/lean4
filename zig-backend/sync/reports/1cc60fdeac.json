@@ -1,0 +1,48 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/CMakeLists.txt"
+    },
+    {
+      "path": "src/library/compiler/csimp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/csimp.cpp"
+    },
+    {
+      "path": "src/library/compiler/lc_util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lc_util.cpp"
+    },
+    {
+      "path": "src/library/compiler/lc_util.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lc_util.h"
+    },
+    {
+      "path": "src/library/compiler/lcnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/lcnf.cpp"
+    },
+    {
+      "path": "src/library/compiler/util.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/util.cpp"
+    }
+  ],
+  "date": "2018-09-14",
+  "needs_port": true,
+  "sha": "1cc60fdeace79b6f05d1307eb50412d673ce0c6e",
+  "short_sha": "1cc60fdeac",
+  "subject": "feat(library/compiler): add helper functions",
+  "zig_target": {
+    "src/library/compiler/CMakeLists.txt": "zig-backend/src/library/compiler/CMakeLists.txt",
+    "src/library/compiler/csimp.cpp": "zig-backend/src/library/compiler/csimp.cpp",
+    "src/library/compiler/lc_util.cpp": "zig-backend/src/library/compiler/lc_util.cpp",
+    "src/library/compiler/lc_util.h": "zig-backend/src/library/compiler/lc_util.h",
+    "src/library/compiler/lcnf.cpp": "zig-backend/src/library/compiler/lcnf.cpp",
+    "src/library/compiler/util.cpp": "zig-backend/src/library/compiler/util.cpp"
+  }
+}

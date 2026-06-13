@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-08-24",
+  "needs_port": false,
+  "sha": "8fc3bae47cd6d68b21d4c299b594a5480d1cb460",
+  "short_sha": "8fc3bae47c",
+  "subject": "chore: remove unexpanded coercion support from pp.analyze",
+  "zig_target": {}
+}

@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Syntax.lean"
+    },
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2021-05-17",
+  "needs_port": true,
+  "sha": "3b7bcdc44992c3364fb924b81597834dab583016",
+  "short_sha": "3b7bcdc449",
+  "subject": "feat: add `endPos` field to `SourceInfo.original`",
+  "zig_target": {
+    "src/Init/Data/Format/Syntax.lean": "zig-backend/src/init/Data/Format/Syntax.lean",
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

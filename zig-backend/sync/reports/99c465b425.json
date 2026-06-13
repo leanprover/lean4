@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-18",
+  "needs_port": false,
+  "sha": "99c465b42588c8db0707b10fef8681d5099c2e7c",
+  "short_sha": "99c465b425",
+  "subject": "feat(library/init/lean/elaborator/basic): add basic error handling functions",
+  "zig_target": {}
+}

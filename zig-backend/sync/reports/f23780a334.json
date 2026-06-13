@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-06-09",
+  "needs_port": true,
+  "sha": "f23780a334999623b79cad6dec26839b223338fd",
+  "short_sha": "f23780a334",
+  "subject": "chore: add hack for allowing old and new frontends to parse Core.lean",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

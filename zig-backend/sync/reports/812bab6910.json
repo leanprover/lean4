@@ -1,0 +1,10 @@
+{
+  "author": "Rob23oba",
+  "backend_changes": [],
+  "date": "2025-06-13",
+  "needs_port": false,
+  "sha": "812bab6910068cd370704f747c97494421b1d9c2",
+  "short_sha": "812bab6910",
+  "subject": "chore: convert `ExtDHashMap` into a one-field structure (#8770)",
+  "zig_target": {}
+}

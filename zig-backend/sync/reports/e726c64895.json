@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-16",
+  "needs_port": false,
+  "sha": "e726c648959488306b5980094e7b7c1271cebee0",
+  "short_sha": "e726c64895",
+  "subject": "feat(frontends/lean/vm_elaborator): synthesize instance names",
+  "zig_target": {}
+}

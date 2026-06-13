@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-12-28",
+  "needs_port": false,
+  "sha": "1e99ff1dba98d9dc99fd9db65d08428862b7f14b",
+  "short_sha": "1e99ff1dba",
+  "subject": "feat: optimized `abstractFVars` and `abstractFVarsRange` (#11820)",
+  "zig_target": {}
+}

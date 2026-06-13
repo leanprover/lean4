@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-10-06",
+  "needs_port": false,
+  "sha": "91d2f6d4fcbac3dae497d1c665cd66416cc38ca0",
+  "short_sha": "91d2f6d4fc",
+  "subject": "feat: add `cleanup` tactic",
+  "zig_target": {}
+}

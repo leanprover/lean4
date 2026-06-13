@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Count.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Count.lean"
+    }
+  ],
+  "date": "2024-09-11",
+  "needs_port": true,
+  "sha": "0b7debe3764797e7cd02339682d811483f0aba0d",
+  "short_sha": "0b7debe376",
+  "subject": "chore: fix List.countP lemmas (#5311)",
+  "zig_target": {
+    "src/Init/Data/List/Count.lean": "zig-backend/src/init/Data/List/Count.lean"
+  }
+}

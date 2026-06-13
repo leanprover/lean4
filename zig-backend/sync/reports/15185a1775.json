@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-24",
+  "needs_port": false,
+  "sha": "15185a1775cd104c4a2dcb95c60a36e984b57258",
+  "short_sha": "15185a1775",
+  "subject": "fix: unset LEAN_PATH before building stdlib",
+  "zig_target": {}
+}

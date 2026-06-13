@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-18",
+  "needs_port": false,
+  "sha": "45cd9fe7259600d43bb18ba29119367b20791518",
+  "short_sha": "45cd9fe725",
+  "subject": "feat: add `Core.transform`",
+  "zig_target": {}
+}

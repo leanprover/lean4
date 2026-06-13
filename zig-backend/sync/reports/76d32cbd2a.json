@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2024-11-06",
+  "needs_port": false,
+  "sha": "76d32cbd2a9912f4c9833c2a26a23d9609443104",
+  "short_sha": "76d32cbd2a",
+  "subject": "chore: exclude leanruntest_task_test_io for now (#5973)",
+  "zig_target": {}
+}

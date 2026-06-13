@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-05",
+  "needs_port": false,
+  "sha": "d39102f865290e3ccb8f70155308c69e8089f8be",
+  "short_sha": "d39102f865",
+  "subject": "fix: smart unfolding for reducible definitions",
+  "zig_target": {}
+}

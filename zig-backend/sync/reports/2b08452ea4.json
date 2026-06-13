@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-01-05",
+  "needs_port": false,
+  "sha": "2b08452ea4226aa913996f5fbac59f84b7ef83b8",
+  "short_sha": "2b08452ea4",
+  "subject": "doc: fix notation overlap example",
+  "zig_target": {}
+}

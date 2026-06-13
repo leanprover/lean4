@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-13",
+  "needs_port": false,
+  "sha": "811a480d77489e144660023e75517fd6c9aee063",
+  "short_sha": "811a480d77",
+  "subject": "feat(kernel/expr): low level API for `expr`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-08",
+  "needs_port": false,
+  "sha": "a6f9633e6420c8067290edb47c9685800f7b6443",
+  "short_sha": "a6f9633e64",
+  "subject": "feat(library/init/lean/parser/term): dependent arrow notation",
+  "zig_target": {}
+}

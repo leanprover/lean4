@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-11",
+  "needs_port": false,
+  "sha": "e56351da7ae15673a5bc2b83e7fb70e1fbd988ca",
+  "short_sha": "e56351da7a",
+  "subject": "fix: pattern unification/matching in `Sym`  (#11976)",
+  "zig_target": {}
+}

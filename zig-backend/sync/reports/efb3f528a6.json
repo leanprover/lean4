@@ -1,0 +1,10 @@
+{
+  "author": "Daniel Selsam",
+  "backend_changes": [],
+  "date": "2021-08-11",
+  "needs_port": false,
+  "sha": "efb3f528a66eebc5e2bc1cb0a6093c13667d5c28",
+  "short_sha": "efb3f528a6",
+  "subject": "fix: handle MData-wrapped app fns consistently in delaborator",
+  "zig_target": {}
+}

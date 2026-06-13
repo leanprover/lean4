@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2021-07-15",
+  "needs_port": false,
+  "sha": "8d616e060be8350959ca85990de272cfc4b58a28",
+  "short_sha": "8d616e060b",
+  "subject": "doc: fix categoryParenthesizer documentation",
+  "zig_target": {}
+}

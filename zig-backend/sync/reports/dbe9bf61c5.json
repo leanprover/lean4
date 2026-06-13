@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-23",
+  "needs_port": false,
+  "sha": "dbe9bf61c5dd13b1ca8ca450d590dfa3f220fe6c",
+  "short_sha": "dbe9bf61c5",
+  "subject": "fix: unfold auxiliary theorems created by `decreasing_tactic`",
+  "zig_target": {}
+}

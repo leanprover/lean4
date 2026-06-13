@@ -1,0 +1,10 @@
+{
+  "author": "thorimur",
+  "backend_changes": [],
+  "date": "2023-10-29",
+  "needs_port": false,
+  "sha": "50f2154cbb8caaaba07e933f02a3348d40df620a",
+  "short_sha": "50f2154cbb",
+  "subject": "fix: make `rw [foo]` look in the local context for `foo` before it looks in the environment (#2738)",
+  "zig_target": {}
+}

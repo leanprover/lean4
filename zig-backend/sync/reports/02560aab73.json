@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Format/Syntax.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Format/Syntax.lean"
+    }
+  ],
+  "date": "2022-10-13",
+  "needs_port": true,
+  "sha": "02560aab7356552f4fb8f27e4a675f93681e6ae3",
+  "short_sha": "02560aab73",
+  "subject": "chore: nicer pp.raw.showInfo output",
+  "zig_target": {
+    "src/Init/Data/Format/Syntax.lean": "zig-backend/src/init/Data/Format/Syntax.lean"
+  }
+}

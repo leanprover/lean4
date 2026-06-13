@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-10-10",
+  "needs_port": false,
+  "sha": "3930100b67d2dd14a62412432f8822b29a9900af",
+  "short_sha": "3930100b67",
+  "subject": "feat: whitespace tactic completion & tactic completion docs (#5666)",
+  "zig_target": {}
+}

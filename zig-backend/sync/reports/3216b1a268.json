@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-01-12",
+  "needs_port": false,
+  "sha": "3216b1a268b912e6b911191aebc8fdc74be587da",
+  "short_sha": "3216b1a268",
+  "subject": "feat(library/init/lean/elaborator): implement instance/example",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-19",
+  "needs_port": false,
+  "sha": "c6677e0b6f25a23f4a269045f5e1d9178ad06aa6",
+  "short_sha": "c6677e0b6f",
+  "subject": "perf: avoid environment extension indirection",
+  "zig_target": {}
+}

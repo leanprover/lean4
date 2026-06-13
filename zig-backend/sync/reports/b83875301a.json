@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-02-02",
+  "needs_port": false,
+  "sha": "b83875301a72cff9724c19eb5701f3c78de2d84f",
+  "short_sha": "b83875301a",
+  "subject": "chore: move test without output",
+  "zig_target": {}
+}

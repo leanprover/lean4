@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-05-26",
+  "needs_port": false,
+  "sha": "4bca76a87e75423f1b07297ab51ffc058edd3128",
+  "short_sha": "4bca76a87e",
+  "subject": "chore: use `src/Lean.lean` to initialize lean",
+  "zig_target": {}
+}

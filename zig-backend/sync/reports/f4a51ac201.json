@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-12",
+  "needs_port": false,
+  "sha": "f4a51ac201c0086f33fd164a214c7cc9a41e284a",
+  "short_sha": "f4a51ac201",
+  "subject": "chore: add `deriving` to keyword lists",
+  "zig_target": {}
+}

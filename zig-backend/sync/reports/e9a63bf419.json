@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-14",
+  "needs_port": false,
+  "sha": "e9a63bf419f4188dc99ca51a8acee1926f5e69fa",
+  "short_sha": "e9a63bf419",
+  "subject": "chore(frontends/lean/elaborator): remove `recover_expr_from_exception`",
+  "zig_target": {}
+}

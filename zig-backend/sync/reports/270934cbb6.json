@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-01-30",
+  "needs_port": false,
+  "sha": "270934cbb6ba82cfdb4fa316e76c09298f18b2f9",
+  "short_sha": "270934cbb6",
+  "subject": "test: `constProp` using `grind` (#6873)",
+  "zig_target": {}
+}

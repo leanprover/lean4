@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Level.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Level.lean"
+    }
+  ],
+  "date": "2019-12-01",
+  "needs_port": true,
+  "sha": "24a31ab50ef1f932176c1b512fdff1c3c52cb3bf",
+  "short_sha": "24a31ab50e",
+  "subject": "feat: improve `Level.instantiate`",
+  "zig_target": {
+    "src/Init/Lean/Level.lean": "zig-backend/src/init/Lean/Level.lean"
+  }
+}

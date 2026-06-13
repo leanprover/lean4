@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-07",
+  "needs_port": false,
+  "sha": "cbf2b6c0dbb19e1bb8583d0f4000db129e3130fc",
+  "short_sha": "cbf2b6c0db",
+  "subject": "feat: change `synthinstance` threshold",
+  "zig_target": {}
+}

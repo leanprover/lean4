@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2026-01-01",
+  "needs_port": false,
+  "sha": "97c23abf8ebaf62fabba2c98569d2d65290694bd",
+  "short_sha": "97c23abf8e",
+  "subject": "feat: main loop for `Sym.simp` (#11866)",
+  "zig_target": {}
+}

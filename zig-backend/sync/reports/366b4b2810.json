@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Fold.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Fold.lean"
+    }
+  ],
+  "date": "2025-07-30",
+  "needs_port": true,
+  "sha": "366b4b2810a0d8cf1b4e9f344ce5aff86252325c",
+  "short_sha": "366b4b2810",
+  "subject": "feat: Nat.dfold (#7450)",
+  "zig_target": {
+    "src/Init/Data/Nat/Fold.lean": "zig-backend/src/init/Data/Nat/Fold.lean"
+  }
+}

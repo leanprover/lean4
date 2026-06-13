@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Command.lean"
+    }
+  ],
+  "date": "2020-01-15",
+  "needs_port": true,
+  "sha": "6b8de16ede13b536170a99272e175333b4a3e01b",
+  "short_sha": "6b8de16ede",
+  "subject": "feat: simplify `notation` command and allow `strLit`",
+  "zig_target": {
+    "src/Init/Lean/Parser/Command.lean": "zig-backend/src/init/Lean/Parser/Command.lean"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/QSort.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/QSort.lean"
+    }
+  ],
+  "date": "2024-09-29",
+  "needs_port": true,
+  "sha": "3bd01de3840ad05ebfa99ccef9fc5586a3417b15",
+  "short_sha": "3bd01de384",
+  "subject": "feat: upstream Array.qsortOrd (#5515)",
+  "zig_target": {
+    "src/Init/Data/Array/QSort.lean": "zig-backend/src/init/Data/Array/QSort.lean"
+  }
+}

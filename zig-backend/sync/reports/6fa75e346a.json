@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Monadic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Monadic.lean"
+    }
+  ],
+  "date": "2024-10-17",
+  "needs_port": true,
+  "sha": "6fa75e346a43279c3e7ccb63b6c5640327fe7896",
+  "short_sha": "6fa75e346a",
+  "subject": "chore: upstream List.foldxM_map (#5697)",
+  "zig_target": {
+    "src/Init/Data/List/Monadic.lean": "zig-backend/src/init/Data/List/Monadic.lean"
+  }
+}

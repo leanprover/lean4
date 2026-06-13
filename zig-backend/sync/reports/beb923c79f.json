@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/FVarUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+    }
+  ],
+  "date": "2022-11-04",
+  "needs_port": true,
+  "sha": "beb923c79fe663e707cd19af19d8990f3f5da1e7",
+  "short_sha": "beb923c79f",
+  "subject": "chore: `anyFVar` and `allFVar`",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FVarUtil.lean": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+  }
+}

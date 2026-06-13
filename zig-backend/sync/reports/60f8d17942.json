@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-25",
+  "needs_port": false,
+  "sha": "60f8d1794296976f75298410eace6baab6a019e5",
+  "short_sha": "60f8d17942",
+  "subject": "refactor(library/init/data/string/basic): simplify `String.Iterator`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-10",
+  "needs_port": false,
+  "sha": "768df1581cd02087929ba1f7e3f484478db5931e",
+  "short_sha": "768df1581c",
+  "subject": "chore: CI: put llvm-symbolizer in PATH for asan/lsan backtraces",
+  "zig_target": {}
+}

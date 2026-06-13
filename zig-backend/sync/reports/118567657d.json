@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-12-05",
+  "needs_port": false,
+  "sha": "118567657dec5c2efb6c2fcaf9aeafdafff7d01d",
+  "short_sha": "118567657d",
+  "subject": "chore: remove dangerous instances in json-rpc",
+  "zig_target": {}
+}

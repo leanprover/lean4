@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/io.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/io.cpp"
+    },
+    {
+      "path": "src/runtime/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean.h"
+    }
+  ],
+  "date": "2020-02-24",
+  "needs_port": true,
+  "sha": "d6a7e9a308fe7e9f1c4384122d48ae552b16428e",
+  "short_sha": "d6a7e9a308",
+  "subject": "chore: remove `mutquot` primitives",
+  "zig_target": {
+    "src/runtime/io.cpp": "zig-backend/src/runtime/io.cpp",
+    "src/runtime/lean.h": "zig-backend/src/runtime/lean.h"
+  }
+}

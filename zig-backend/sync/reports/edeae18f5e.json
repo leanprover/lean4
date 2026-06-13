@@ -1,0 +1,24 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2025-01-21",
+  "needs_port": true,
+  "sha": "edeae18f5eb98159df4371154eb491c07eccabd0",
+  "short_sha": "edeae18f5e",
+  "subject": "feat: add `Bitvec reverse` definition, `getLsbD_reverse, getMsbD_reverse, reverse_append, reverse_replicate` and `Nat.mod_sub_eq_sub_mod` (#6476)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Basic.lean": "zig-backend/src/init/Data/BitVec/Basic.lean",
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

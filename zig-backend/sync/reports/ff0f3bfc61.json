@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-06",
+  "needs_port": false,
+  "sha": "ff0f3bfc616437e0c59f9cb282f863148175eabf",
+  "short_sha": "ff0f3bfc61",
+  "subject": "fix: interaction between overloaded notation and delayed coercions",
+  "zig_target": {}
+}

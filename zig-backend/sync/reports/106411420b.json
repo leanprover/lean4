@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/ExtractClosed.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/ExtractClosed.lean"
+    }
+  ],
+  "date": "2025-06-02",
+  "needs_port": true,
+  "sha": "106411420b4c94b8e73e4fcd9a851421d9393538",
+  "short_sha": "106411420b",
+  "subject": "fix: support compiler.extract_closed option in the new compiler (#8604)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/ExtractClosed.lean": "zig-backend/src/lean/compiler/lcnf/ExtractClosed.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2026-03-08",
+  "needs_port": false,
+  "sha": "d8accf47b39c107e53336744376a7ffff4d7ec98",
+  "short_sha": "d8accf47b3",
+  "subject": "chore: use terminology \"non-recursive structure\" instead of \"struct-like\" (#12749)",
+  "zig_target": {}
+}

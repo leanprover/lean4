@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-25",
+  "needs_port": false,
+  "sha": "b855d797186e7a073887b25d64275a091c4da865",
+  "short_sha": "b855d79718",
+  "subject": "feat: filter \"failed to synthesize ...\" errors when there are other errors",
+  "zig_target": {}
+}

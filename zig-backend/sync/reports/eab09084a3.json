@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Try.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Try.lean"
+    }
+  ],
+  "date": "2025-02-06",
+  "needs_port": true,
+  "sha": "eab09084a3380665fff6004672ffdba6d2d139b3",
+  "short_sha": "eab09084a3",
+  "subject": "feat: `try?` composite suggestions (#6979)",
+  "zig_target": {
+    "src/Init/Try.lean": "zig-backend/src/init/Try.lean"
+  }
+}

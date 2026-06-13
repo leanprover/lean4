@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-08-27",
+  "needs_port": true,
+  "sha": "f8db5d2652c76a57c98e5f0b3577f2b9ded6a7c8",
+  "short_sha": "f8db5d2652",
+  "subject": "fix: must use `lean_mk_task_own`",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2024-10-17",
+  "needs_port": false,
+  "sha": "2669fb525f9eec0299369a3e8ae62d01dae85aea",
+  "short_sha": "2669fb525f",
+  "subject": "feat: change `lake new math` to use `autoImplicit false` (#5715)",
+  "zig_target": {}
+}

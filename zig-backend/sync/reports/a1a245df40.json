@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2024-06-21",
+  "needs_port": true,
+  "sha": "a1a245df403196c4b826113996e2880ac393743a",
+  "short_sha": "a1a245df40",
+  "subject": "chore: missing Prod.map lemmas (#4526)",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

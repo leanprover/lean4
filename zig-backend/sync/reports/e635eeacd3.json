@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-05-14",
+  "needs_port": false,
+  "sha": "e635eeacd3a6ebfef6c73de11a5c20de09627d6d",
+  "short_sha": "e635eeacd3",
+  "subject": "chore: CI: replace Nix CI with Linux release (#8335)",
+  "zig_target": {}
+}

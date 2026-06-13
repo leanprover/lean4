@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-04",
+  "needs_port": false,
+  "sha": "d4fdb5d7c061a6938c60ec445e9c4dd6fbc2a05b",
+  "short_sha": "d4fdb5d7c0",
+  "subject": "fix: getFunInfo, inferType to use withAtLeastTransparency, not withTransparency (#5563)",
+  "zig_target": {}
+}

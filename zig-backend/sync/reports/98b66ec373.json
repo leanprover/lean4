@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-06-28",
+  "needs_port": false,
+  "sha": "98b66ec373312517391b228dd8c75bc44ae93602",
+  "short_sha": "98b66ec373",
+  "subject": "feat: variable reordering heuristic for `grind cutsat` (#9057)",
+  "zig_target": {}
+}

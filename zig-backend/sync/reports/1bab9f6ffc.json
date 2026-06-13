@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2021-08-03",
+  "needs_port": false,
+  "sha": "1bab9f6ffc633204ac12b7ab760fbf3fd74f5bec",
+  "short_sha": "1bab9f6ffc",
+  "subject": "refactor: simplify delaborator monad stacks",
+  "zig_target": {}
+}

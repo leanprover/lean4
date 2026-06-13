@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-10-29",
+  "needs_port": false,
+  "sha": "627900ba9f98cd53442a19c3634ab4477031a32a",
+  "short_sha": "627900ba9f",
+  "subject": "doc: FFI",
+  "zig_target": {}
+}

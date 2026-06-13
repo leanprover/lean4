@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/Types.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+    }
+  ],
+  "date": "2025-08-04",
+  "needs_port": true,
+  "sha": "713a46cd75a813a501ef5acd8eee29c8a99abdd5",
+  "short_sha": "713a46cd75",
+  "subject": "chore: adopt `<||>` to reduce code duplication (#9719)",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/Types.lean": "zig-backend/src/lean/compiler/lcnf/Types.lean"
+  }
+}

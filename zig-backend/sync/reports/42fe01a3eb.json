@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-18",
+  "needs_port": false,
+  "sha": "42fe01a3ebe7996109d15f80937025e48b90a3f3",
+  "short_sha": "42fe01a3eb",
+  "subject": "feat: add new flag to `caseValues`",
+  "zig_target": {}
+}

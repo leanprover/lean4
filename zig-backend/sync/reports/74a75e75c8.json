@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-16",
+  "needs_port": false,
+  "sha": "74a75e75c805d74a6421c675039289b1149ff6ee",
+  "short_sha": "74a75e75c8",
+  "subject": "hack: support group tactic for bootstrap",
+  "zig_target": {}
+}

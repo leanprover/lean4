@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-10-01",
+  "needs_port": false,
+  "sha": "4932dbc65dc8a459ab8cec1c13c6bcae06d951ac",
+  "short_sha": "4932dbc65d",
+  "subject": "refactor: dead code AttributeExtensionOLeanEntry.decl (#5496)",
+  "zig_target": {}
+}

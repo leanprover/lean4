@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-21",
+  "needs_port": false,
+  "sha": "2fd0b8c663d2c8879213665bbf712cc98d3a85fc",
+  "short_sha": "2fd0b8c663",
+  "subject": "feat: `contradiction` catches empty inductive types",
+  "zig_target": {}
+}

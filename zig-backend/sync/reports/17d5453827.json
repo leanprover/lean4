@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/TermApp.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+    }
+  ],
+  "date": "2020-01-26",
+  "needs_port": true,
+  "sha": "17d54538276492c89ded31bc3679c8c43800f818",
+  "short_sha": "17d5453827",
+  "subject": "fix: `elabTerm` must be part of `observing`",
+  "zig_target": {
+    "src/Init/Lean/Elab/TermApp.lean": "zig-backend/src/init/Lean/Elab/TermApp.lean"
+  }
+}

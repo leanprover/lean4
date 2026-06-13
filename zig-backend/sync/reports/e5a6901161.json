@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Order.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Order.lean"
+    }
+  ],
+  "date": "2025-11-01",
+  "needs_port": true,
+  "sha": "e5a6901161541aaa23fbb40ac014909685acc4e9",
+  "short_sha": "e5a6901161",
+  "subject": "feat: `Nat` equality propagation in `grind order` (#11049)",
+  "zig_target": {
+    "src/Init/Grind/Order.lean": "zig-backend/src/init/Grind/Order.lean"
+  }
+}

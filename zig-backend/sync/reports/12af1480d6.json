@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-09-08",
+  "needs_port": true,
+  "sha": "12af1480d62beea9278ef24b68686271cf02f1e0",
+  "short_sha": "12af1480d6",
+  "subject": "feat: add `specialize` tactic",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

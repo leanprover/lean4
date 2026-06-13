@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-27",
+  "needs_port": false,
+  "sha": "fbfc7694a030c3d9639557bdb7bd77d375177d08",
+  "short_sha": "fbfc7694a0",
+  "subject": "fix: only pass known CMake build types to Lake (#10595)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-08-02",
+  "needs_port": false,
+  "sha": "dedff7d295a9b510b71774d026ee486fbdd1d25c",
+  "short_sha": "dedff7d295",
+  "subject": "chore(script/prepare-commit-msg): strip 'src/' prefix",
+  "zig_target": {}
+}

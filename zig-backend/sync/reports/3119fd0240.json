@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "3119fd024005562b2ab7e2a586fa8d327da7d0e1",
+  "short_sha": "3119fd0240",
+  "subject": "fix: make watchdog more resilient against badly behaving clients (#4443)",
+  "zig_target": {}
+}

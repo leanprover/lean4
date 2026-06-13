@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-14",
+  "needs_port": false,
+  "sha": "2a7ec9dd8c314de7094579e10c6a13a95b8d61c8",
+  "short_sha": "2a7ec9dd8c",
+  "subject": "feat: add `splitAnd` and `applyRefl` helper methods",
+  "zig_target": {}
+}

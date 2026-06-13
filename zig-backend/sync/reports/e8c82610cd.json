@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-06-18",
+  "needs_port": false,
+  "sha": "e8c82610cd43741a284fae08bdfdb16edff9b503",
+  "short_sha": "e8c82610cd",
+  "subject": "refactor: make syntax covering snapshot tasks more precise on the top level (#8744)",
+  "zig_target": {}
+}

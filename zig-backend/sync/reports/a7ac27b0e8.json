@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-08",
+  "needs_port": false,
+  "sha": "a7ac27b0e80792a820b5993f27038e58c7eb7c63",
+  "short_sha": "a7ac27b0e8",
+  "subject": "refactor: use mutual recursion",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-10",
+  "needs_port": false,
+  "sha": "48af5627aad12d121c0739df88f06ac8ed9ca9b9",
+  "short_sha": "48af5627aa",
+  "subject": "test: `InductiveVal.isNested`",
+  "zig_target": {}
+}

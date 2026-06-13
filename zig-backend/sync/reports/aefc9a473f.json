@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    }
+  ],
+  "date": "2020-08-07",
+  "needs_port": true,
+  "sha": "aefc9a473f88d83a298791906d7b676b0a20b2d2",
+  "short_sha": "aefc9a473f",
+  "subject": "feat: add auxiliary definitions for compiling array literals in pattern matching expressions",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean"
+  }
+}

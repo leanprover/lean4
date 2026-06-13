@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "dc71fafac1925f2a1265924a04ebc5963d014211",
+  "short_sha": "dc71fafac1",
+  "subject": "feat(library/init/data/array): add `Array.binSearch`",
+  "zig_target": {}
+}

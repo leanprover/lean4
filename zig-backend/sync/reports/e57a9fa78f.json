@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/llnf.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf.cpp"
+    }
+  ],
+  "date": "2021-01-19",
+  "needs_port": true,
+  "sha": "e57a9fa78f8f81492a45b373cf71bfe9decd204b",
+  "short_sha": "e57a9fa78f",
+  "subject": "fix: fixes #280",
+  "zig_target": {
+    "src/library/compiler/llnf.cpp": "zig-backend/src/library/compiler/llnf.cpp"
+  }
+}

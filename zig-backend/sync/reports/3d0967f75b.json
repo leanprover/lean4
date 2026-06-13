@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "3d0967f75b725ed377504a0ff5e7a8a8726f5e1f",
+  "short_sha": "3d0967f75b",
+  "subject": "Revert \"chore: CI: switch to GCC on Windows for now\"",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2019-12-16",
+  "needs_port": true,
+  "sha": "ecb1bc982faefeaffbea03f92ba639de13dfb145",
+  "short_sha": "ecb1bc982f",
+  "subject": "feat: invoke `ensureHasType` at `elabArg`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

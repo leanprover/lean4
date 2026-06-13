@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-10",
+  "needs_port": false,
+  "sha": "eacf3ed6c78bfe44c0a6b64f9fd1cdfdd0c88842",
+  "short_sha": "eacf3ed6c7",
+  "subject": "refactor: move `ResolveName` to `Lean` directory",
+  "zig_target": {}
+}

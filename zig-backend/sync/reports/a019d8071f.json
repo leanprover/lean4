@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/include/lean/lean.h",
+      "status": "M",
+      "zig_target": "zig-backend/include/lean/lean.h"
+    }
+  ],
+  "date": "2021-07-20",
+  "needs_port": true,
+  "sha": "a019d8071f184ffb5e9e41bf6cf9b277afcde820",
+  "short_sha": "a019d8071f",
+  "subject": "chore: document simplified object header and remove obsolete cmake options",
+  "zig_target": {
+    "src/include/lean/lean.h": "zig-backend/include/lean/lean.h"
+  }
+}

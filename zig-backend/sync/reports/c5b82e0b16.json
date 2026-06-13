@@ -1,0 +1,18 @@
+{
+  "author": "Tobias Grosser",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/BitVec/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+    }
+  ],
+  "date": "2024-12-10",
+  "needs_port": true,
+  "sha": "c5b82e0b16b328081655854d1023db7c0aee1836",
+  "short_sha": "c5b82e0b16",
+  "subject": "feat: BitVec.[toFin|getMsbD]_setWidth and [getMsbD|msb]_signExtend (#6338)",
+  "zig_target": {
+    "src/Init/Data/BitVec/Lemmas.lean": "zig-backend/src/init/Data/BitVec/Lemmas.lean"
+  }
+}

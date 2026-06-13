@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Hygiene.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Hygiene.lean"
+    },
+    {
+      "path": "src/Init/LeanInit.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/LeanInit.lean"
+    }
+  ],
+  "date": "2020-02-01",
+  "needs_port": true,
+  "sha": "ca919c20219039fd7737f780ec68861b9510afee",
+  "short_sha": "ca919c2021",
+  "subject": "refactor: move instance to `LeanInit`",
+  "zig_target": {
+    "src/Init/Lean/Hygiene.lean": "zig-backend/src/init/Lean/Hygiene.lean",
+    "src/Init/LeanInit.lean": "zig-backend/src/init/LeanInit.lean"
+  }
+}

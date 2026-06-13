@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-16",
+  "needs_port": false,
+  "sha": "4cbd1a439a3055998c0e47356f04587205906557",
+  "short_sha": "4cbd1a439a",
+  "subject": "feat: non-commutative semiring normalizer in `grind` (#10421)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2022-09-28",
+  "needs_port": false,
+  "sha": "66040a9803cb2ff46de3a19b22ebc8d5f1950bdb",
+  "short_sha": "66040a9803",
+  "subject": "feat: clearer info tree formatting",
+  "zig_target": {}
+}

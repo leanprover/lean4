@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-01-19",
+  "needs_port": false,
+  "sha": "4d8bc22228b926893fad848602488928897ae2c1",
+  "short_sha": "4d8bc22228",
+  "subject": "feat: Environment.addConstAsync (#6691)",
+  "zig_target": {}
+}

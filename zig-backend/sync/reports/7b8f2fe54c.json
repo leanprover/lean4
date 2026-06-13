@@ -1,0 +1,18 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2024-09-19",
+  "needs_port": true,
+  "sha": "7b8f2fe54cf24f5475b0b6a04260448cef325c39",
+  "short_sha": "7b8f2fe54c",
+  "subject": "doc: mark \u00abtacticHave'_:=_\u00bb as an alternative form of have' (#5396)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

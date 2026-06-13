@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-08-23",
+  "needs_port": false,
+  "sha": "902484988eb8f27dbb479c9fc68cbb2658dbfc9f",
+  "short_sha": "902484988e",
+  "subject": "fix: include `Lake.Load` in core build (#10087)",
+  "zig_target": {}
+}

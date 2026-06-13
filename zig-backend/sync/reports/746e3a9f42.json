@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-02-19",
+  "needs_port": false,
+  "sha": "746e3a9f4277ee2d5295a7fd644b548428c542de",
+  "short_sha": "746e3a9f42",
+  "subject": "feat: model search skeleton for `cutsat` (#7155)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Norm.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Norm.lean"
+    }
+  ],
+  "date": "2025-07-04",
+  "needs_port": true,
+  "sha": "722ab706c8fcefdc4169363554189428289231d9",
+  "short_sha": "722ab706c8",
+  "subject": "perf: normalize `exists` expressions using a simproc in `grind` (#9200)",
+  "zig_target": {
+    "src/Init/Grind/Norm.lean": "zig-backend/src/init/Grind/Norm.lean"
+  }
+}

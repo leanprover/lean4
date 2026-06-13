@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-01-24",
+  "needs_port": false,
+  "sha": "02677cf326ad2710a6d7ca8254db915599be725c",
+  "short_sha": "02677cf326",
+  "subject": "fix: igore instance implicit arguments in term ordering used at `simp`",
+  "zig_target": {}
+}

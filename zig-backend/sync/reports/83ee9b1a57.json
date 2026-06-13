@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-30",
+  "needs_port": false,
+  "sha": "83ee9b1a57e95a58dba4ab86b2734218a6412d8e",
+  "short_sha": "83ee9b1a57",
+  "subject": "feat: auto-completion for dotted identifier notation",
+  "zig_target": {}
+}

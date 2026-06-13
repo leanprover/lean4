@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-10-10",
+  "needs_port": false,
+  "sha": "894c3abb37ed5d1f79fc17452e8bb611cb38c436",
+  "short_sha": "894c3abb37",
+  "subject": "chore: lake: ignore manifest in `examples/scripts`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-11-24",
+  "needs_port": false,
+  "sha": "096d3ce83fe4d637404feae5afc0fe6f0863e9af",
+  "short_sha": "096d3ce83f",
+  "subject": "feat: document that `backward` options may disappear (#11304)",
+  "zig_target": {}
+}

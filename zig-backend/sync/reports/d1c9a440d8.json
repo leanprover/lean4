@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-24",
+  "needs_port": false,
+  "sha": "d1c9a440d8894aa784e8ee3a01bc392755b3d837",
+  "short_sha": "d1c9a440d8",
+  "subject": "feat: add missing `Expr.update*` functions",
+  "zig_target": {}
+}

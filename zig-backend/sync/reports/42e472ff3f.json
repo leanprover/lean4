@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-06",
+  "needs_port": false,
+  "sha": "42e472ff3fa7d6669c25b4c407cbb715ac38d8eb",
+  "short_sha": "42e472ff3f",
+  "subject": "refactor: simplify `AddConstAsyncResult.commitCheckEnv` use (#9715)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Tactic/Cases.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean"
+    }
+  ],
+  "date": "2020-03-05",
+  "needs_port": true,
+  "sha": "4eaee1147ba3a1bfa9765284d64b5b05a04535ec",
+  "short_sha": "4eaee1147b",
+  "subject": "feat: `unifyEqs` skeleton",
+  "zig_target": {
+    "src/Init/Lean/Meta/Tactic/Cases.lean": "zig-backend/src/init/Lean/Meta/Tactic/Cases.lean"
+  }
+}

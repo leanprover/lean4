@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-07-19",
+  "needs_port": false,
+  "sha": "a91de26c90995c2c1e0e88e1f5e0bf0232b0980d",
+  "short_sha": "a91de26c90",
+  "subject": "chore(script/prepare-commit-msg): use file with largest diff",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-20",
+  "needs_port": false,
+  "sha": "052f3f54c88c380ec1724d1b2bebf65f3ca5f7a8",
+  "short_sha": "052f3f54c8",
+  "subject": "fix: normalize universe levels in `grind` preprocessor (#6428)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-09-19",
+  "needs_port": false,
+  "sha": "0e122870beca37a34293278c388c26605b0bbfa3",
+  "short_sha": "0e122870be",
+  "subject": "perf: mkNoConfusionCtors: cheaper `inferType` (#10455)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-11-14",
+  "needs_port": false,
+  "sha": "06f457b48a3d1f93d7c19967025865cc160cfc14",
+  "short_sha": "06f457b48a",
+  "subject": "fix: lake: indeterminism in targets test (#11188)",
+  "zig_target": {}
+}

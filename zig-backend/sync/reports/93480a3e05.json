@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-05-30",
+  "needs_port": false,
+  "sha": "93480a3e05e7c0f305d5fd4ec708197cbc8e686a",
+  "short_sha": "93480a3e05",
+  "subject": "fix: consider tactic mvar assignments for used variables",
+  "zig_target": {}
+}

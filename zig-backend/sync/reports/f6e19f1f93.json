@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-02",
+  "needs_port": false,
+  "sha": "f6e19f1f931e19ec667e8d938ac822f62ffec75c",
+  "short_sha": "f6e19f1f93",
+  "subject": "fix: nonstandard `Nat` and `Int` instances (#9676)",
+  "zig_target": {}
+}

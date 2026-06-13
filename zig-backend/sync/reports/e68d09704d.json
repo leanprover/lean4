@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-21",
+  "needs_port": false,
+  "sha": "e68d09704d3a6494974de8b921d5b1b5cd1473df",
+  "short_sha": "e68d09704d",
+  "subject": "chore: Nix CI: build & cache everything again",
+  "zig_target": {}
+}

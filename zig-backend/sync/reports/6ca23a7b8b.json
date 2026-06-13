@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-02-13",
+  "needs_port": false,
+  "sha": "6ca23a7b8bee57152110ce500ce795148707d4ed",
+  "short_sha": "6ca23a7b8b",
+  "subject": "fix: nightly revision date logic and mathlib trigger auth (#12463)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-08",
+  "needs_port": false,
+  "sha": "cb6db07bb90898ffcf755c5d29b099f681f059da",
+  "short_sha": "cb6db07bb9",
+  "subject": "chore: warnings on deprecated features",
+  "zig_target": {}
+}

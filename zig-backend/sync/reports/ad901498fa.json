@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2024-03-04",
+  "needs_port": false,
+  "sha": "ad901498fad0286d9877b7b66a7c4c4a8409ce2a",
+  "short_sha": "ad901498fa",
+  "subject": "chore: add release notes for #3507 and #3509 (#3583)",
+  "zig_target": {}
+}

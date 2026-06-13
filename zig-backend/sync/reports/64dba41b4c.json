@@ -1,0 +1,10 @@
+{
+  "author": "larsk21",
+  "backend_changes": [],
+  "date": "2022-03-10",
+  "needs_port": false,
+  "sha": "64dba41b4c57da30362e773b2073752de3fd6c8e",
+  "short_sha": "64dba41b4c",
+  "subject": "feat: enable fuzzy matching for completion",
+  "zig_target": {}
+}

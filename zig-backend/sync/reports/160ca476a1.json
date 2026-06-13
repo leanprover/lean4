@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "160ca476a1f369c8f937bc1c4c44d2e63c8da213",
+  "short_sha": "160ca476a1",
+  "subject": "chore: `USE_LAKE` touchups (#7581)",
+  "zig_target": {}
+}

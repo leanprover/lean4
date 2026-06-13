@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-08",
+  "needs_port": false,
+  "sha": "b50f9de3b889f564cbaddd68b8f4b3884ed3c6d6",
+  "short_sha": "b50f9de3b8",
+  "subject": "feat(library/init/lean/extern): declare extern_attr_data and helper functions",
+  "zig_target": {}
+}

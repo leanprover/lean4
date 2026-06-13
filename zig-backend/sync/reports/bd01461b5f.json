@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-03-21",
+  "needs_port": false,
+  "sha": "bd01461b5f3c7ff884b2d0ad128e38b0535081ab",
+  "short_sha": "bd01461b5f",
+  "subject": "chore: run awaiting-mathlib.yml on more events (#7621)",
+  "zig_target": {}
+}

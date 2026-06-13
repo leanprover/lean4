@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2026-03-24",
+  "needs_port": false,
+  "sha": "a824e5b85e8faafda7a51e820cdab083a274cf0d",
+  "short_sha": "a824e5b85e",
+  "subject": "test: add iota reduction via reduceRecMatcher? to sym-based mvcgen' (#13100)",
+  "zig_target": {}
+}

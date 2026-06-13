@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-01-21",
+  "needs_port": false,
+  "sha": "fb57b73e1f07828fa9aad91c2112bf072b3e79f2",
+  "short_sha": "fb57b73e1f",
+  "subject": "fix: Nix: compatibility with standard build",
+  "zig_target": {}
+}

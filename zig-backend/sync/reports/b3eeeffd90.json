@@ -1,0 +1,18 @@
+{
+  "author": "Bulhwi Cha",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2023-02-12",
+  "needs_port": true,
+  "sha": "b3eeeffd90c2f3e25538216bc181b586a03e3e1d",
+  "short_sha": "b3eeeffd90",
+  "subject": "doc: improve documentation of `Init.Coe`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

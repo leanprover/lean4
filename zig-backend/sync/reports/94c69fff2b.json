@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/alloc.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.cpp"
+    },
+    {
+      "path": "src/runtime/alloc.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/alloc.h"
+    }
+  ],
+  "date": "2019-08-21",
+  "needs_port": true,
+  "sha": "94c69fff2bc162bd7bc61a913897e033b73df7f3",
+  "short_sha": "94c69fff2b",
+  "subject": "feat(runtime/alloc): auxiliary functions for new runtime",
+  "zig_target": {
+    "src/runtime/alloc.cpp": "zig-backend/src/runtime/alloc.cpp",
+    "src/runtime/alloc.h": "zig-backend/src/runtime/alloc.h"
+  }
+}

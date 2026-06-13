@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2020-12-26",
+  "needs_port": true,
+  "sha": "4450b8567d4e968ed6da5e375467ffe3eaa6dbc7",
+  "short_sha": "4450b8567d",
+  "subject": "fix: sigma notation precedence",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

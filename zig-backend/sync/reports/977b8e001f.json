@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-25",
+  "needs_port": false,
+  "sha": "977b8e001f8f14dc15bae22d2533fef0ea745486",
+  "short_sha": "977b8e001f",
+  "subject": "refactor: move simplifier support to `GrindM` (#6447)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-01-19",
+  "needs_port": false,
+  "sha": "12356b739bd0ca1bce4ad84c712dd29d66f3715f",
+  "short_sha": "12356b739b",
+  "subject": "test: add rbmap_2 benchmark",
+  "zig_target": {}
+}

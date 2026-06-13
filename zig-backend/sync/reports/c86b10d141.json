@@ -1,0 +1,18 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/List/Sublist.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/List/Sublist.lean"
+    }
+  ],
+  "date": "2025-12-22",
+  "needs_port": true,
+  "sha": "c86b10d141480031634176022611b7e84c5b870c",
+  "short_sha": "c86b10d141",
+  "subject": "chore: add grind pattern guide for `Sublist.eq_of_length_le` (#11762)",
+  "zig_target": {
+    "src/Init/Data/List/Sublist.lean": "zig-backend/src/init/Data/List/Sublist.lean"
+  }
+}

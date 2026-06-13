@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-01-27",
+  "needs_port": false,
+  "sha": "dff6bd300e6195fe055673e510953efb17da544a",
+  "short_sha": "dff6bd300e",
+  "subject": "chore: add `Expr.const?`",
+  "zig_target": {}
+}

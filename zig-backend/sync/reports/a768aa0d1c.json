@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-10-28",
+  "needs_port": false,
+  "sha": "a768aa0d1c5fa372f2a84033c6775e845abfd11b",
+  "short_sha": "a768aa0d1c",
+  "subject": "doc: add comment describing why examples fail",
+  "zig_target": {}
+}

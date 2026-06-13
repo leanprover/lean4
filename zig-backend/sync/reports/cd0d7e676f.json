@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-07",
+  "needs_port": false,
+  "sha": "cd0d7e676f0b68ee794b7103053d3efce12a55ed",
+  "short_sha": "cd0d7e676f",
+  "subject": "chore: rename `renameMVar` => `setMVarUserName`",
+  "zig_target": {}
+}

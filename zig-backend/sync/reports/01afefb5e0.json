@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-08-30",
+  "needs_port": false,
+  "sha": "01afefb5e02ee3b5773895c9838eeb39d7920ff0",
+  "short_sha": "01afefb5e0",
+  "subject": "fix: missing stage0 files",
+  "zig_target": {}
+}

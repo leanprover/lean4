@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-06-12",
+  "needs_port": false,
+  "sha": "c168d06edffb2e8662c3787cdccc6f3094a55b55",
+  "short_sha": "c168d06edf",
+  "subject": "chore: partially revert \"feat: lake: use `lean --setup`\" (#8736)",
+  "zig_target": {}
+}

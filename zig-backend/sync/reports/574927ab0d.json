@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-06",
+  "needs_port": false,
+  "sha": "574927ab0d3d557700fbf2e2e849ee148d196eea",
+  "short_sha": "574927ab0d",
+  "subject": "fix: jump to definition for recursive declarations",
+  "zig_target": {}
+}

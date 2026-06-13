@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2025-10-21",
+  "needs_port": false,
+  "sha": "3f82b307aa92f4c8c364f423fd10ec6d3b259ea1",
+  "short_sha": "3f82b307aa",
+  "subject": "fix: rule of 3 for xtimit (#10818)",
+  "zig_target": {}
+}

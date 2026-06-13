@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-14",
+  "needs_port": false,
+  "sha": "882fa6e71fc033efd082b8f8a0f69ebdd198a589",
+  "short_sha": "882fa6e71f",
+  "subject": "fix(library/init/meta/expr): order does not match C++ implementation",
+  "zig_target": {}
+}

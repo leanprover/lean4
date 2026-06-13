@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Classical.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Classical.lean"
+    },
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    },
+    {
+      "path": "src/Init/System/ST.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/ST.lean"
+    },
+    {
+      "path": "src/Init/Util.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Util.lean"
+    }
+  ],
+  "date": "2020-11-10",
+  "needs_port": true,
+  "sha": "7f364feeb5bc1ef3b734b78e7bb0abc4f494b755",
+  "short_sha": "7f364feeb5",
+  "subject": "chore: add `Classical.lean`, `Equivalence`, and cleanup",
+  "zig_target": {
+    "src/Init/Classical.lean": "zig-backend/src/init/Classical.lean",
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean",
+    "src/Init/System/ST.lean": "zig-backend/src/init/System/ST.lean",
+    "src/Init/Util.lean": "zig-backend/src/init/Util.lean"
+  }
+}

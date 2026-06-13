@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/RC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/RC.lean"
+    }
+  ],
+  "date": "2025-09-18",
+  "needs_port": true,
+  "sha": "9a3b4b27160d0077cc9111b0163f5ef78fbdbf51",
+  "short_sha": "9a3b4b2716",
+  "subject": "fix: overeager inc insertion for large uint constants (#10444)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/RC.lean": "zig-backend/src/lean/compiler/ir/RC.lean"
+  }
+}

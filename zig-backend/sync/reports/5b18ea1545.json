@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-01",
+  "needs_port": false,
+  "sha": "5b18ea15457255a9db8a3c92fde7d55003f0cff9",
+  "short_sha": "5b18ea1545",
+  "subject": "chore: remove flaky code action tests (#9658)",
+  "zig_target": {}
+}

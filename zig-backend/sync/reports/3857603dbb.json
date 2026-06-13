@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Nat/Div/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Nat/Div/Basic.lean"
+    }
+  ],
+  "date": "2025-03-19",
+  "needs_port": true,
+  "sha": "3857603dbb0b4380322a8ceed0fe097ccf7c607b",
+  "short_sha": "3857603dbb",
+  "subject": "feat: `Nat.{div,mod}` to use fuel, not `fix` (#7558)",
+  "zig_target": {
+    "src/Init/Data/Nat/Div/Basic.lean": "zig-backend/src/init/Data/Nat/Div/Basic.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-03",
+  "needs_port": false,
+  "sha": "50f70712a85bac4b6e80787cf42015e9b0c9c7c0",
+  "short_sha": "50f70712a8",
+  "subject": "feat: add name to `package` DSL signature",
+  "zig_target": {}
+}

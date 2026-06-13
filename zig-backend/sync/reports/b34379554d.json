@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2024-09-12",
+  "needs_port": false,
+  "sha": "b34379554d3e75ac021c5cddd7101b482c600a98",
+  "short_sha": "b34379554d",
+  "subject": "feat: completion fallback (#5299)",
+  "zig_target": {}
+}

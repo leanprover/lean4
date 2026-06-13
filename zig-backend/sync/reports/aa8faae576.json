@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-03-04",
+  "needs_port": false,
+  "sha": "aa8faae5766b3f7003774d5d01d6af0a69a39622",
+  "short_sha": "aa8faae576",
+  "subject": "feat: allow `cond` to be used in proofs (stage0 update prep) (#7320)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-11",
+  "needs_port": false,
+  "sha": "ed3dad93134b77031c8e4963a5429bde59afd70d",
+  "short_sha": "ed3dad9313",
+  "subject": "fix: bundling on Linux",
+  "zig_target": {}
+}

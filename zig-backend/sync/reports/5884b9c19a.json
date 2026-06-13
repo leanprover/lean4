@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-23",
+  "needs_port": false,
+  "sha": "5884b9c19aef7cb10a0b10f4838445f8be7a40bb",
+  "short_sha": "5884b9c19a",
+  "subject": "feat: add support for `instance ... where`",
+  "zig_target": {}
+}

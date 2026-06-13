@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-05-12",
+  "needs_port": false,
+  "sha": "4db3ccaddb32ed00d37c8c3b9dea4606de39a7f6",
+  "short_sha": "4db3ccaddb",
+  "subject": "feat: type ascription should disable implicit lambdas",
+  "zig_target": {}
+}

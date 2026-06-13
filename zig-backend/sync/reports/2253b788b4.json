@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2023-10-09",
+  "needs_port": false,
+  "sha": "2253b788b416c2e46bbb1c5b69a50985ed6ecb2e",
+  "short_sha": "2253b788b4",
+  "subject": "perf: fine grain isDefEq cache for terms not containing metavariables",
+  "zig_target": {}
+}

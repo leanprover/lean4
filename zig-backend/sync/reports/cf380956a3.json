@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/NotationExtra.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/NotationExtra.lean"
+    }
+  ],
+  "date": "2022-06-30",
+  "needs_port": true,
+  "sha": "cf380956a37b48c76d188e9194e4ac86a47899ae",
+  "short_sha": "cf380956a3",
+  "subject": "fix: regression from previous commit",
+  "zig_target": {
+    "src/Init/NotationExtra.lean": "zig-backend/src/init/NotationExtra.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-31",
+  "needs_port": false,
+  "sha": "0947abaee4145e3ca15d1c6501faa967990b5e74",
+  "short_sha": "0947abaee4",
+  "subject": "chore(frontends/lean): remove broken `declare_trace` command",
+  "zig_target": {}
+}

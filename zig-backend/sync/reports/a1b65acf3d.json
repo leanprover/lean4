@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/builtin.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/builtin.cpp"
+    }
+  ],
+  "date": "2019-01-31",
+  "needs_port": true,
+  "sha": "a1b65acf3d62786107a5b76c6ef98a4b515f3efb",
+  "short_sha": "a1b65acf3d",
+  "subject": "fix(library/compiler/builtin): add `lean::` prefix",
+  "zig_target": {
+    "src/library/compiler/builtin.cpp": "zig-backend/src/library/compiler/builtin.cpp"
+  }
+}

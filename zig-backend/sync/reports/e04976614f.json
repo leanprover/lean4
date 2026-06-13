@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-17",
+  "needs_port": false,
+  "sha": "e04976614f210f7ed5f993a541444fa7939f8cc2",
+  "short_sha": "e04976614f",
+  "subject": "feat: check if metavar is not assigned at `simp` tactics",
+  "zig_target": {}
+}

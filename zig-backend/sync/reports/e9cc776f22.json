@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-04-11",
+  "needs_port": false,
+  "sha": "e9cc776f22e82187743f1798147fd4fe9a7ebf8c",
+  "short_sha": "e9cc776f22",
+  "subject": "perf: bv_decide DecidableEq fast path using hash comparison (#7920)",
+  "zig_target": {}
+}

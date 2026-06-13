@@ -1,0 +1,18 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [
+    {
+      "path": "src/Init/Sym/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Sym/Lemmas.lean"
+    }
+  ],
+  "date": "2026-03-02",
+  "needs_port": true,
+  "sha": "d66aaebca69ce116712f549fbeb310ce091fd48a",
+  "short_sha": "d66aaebca6",
+  "subject": "perf: simplify `cbv` `ite`/`dite` simprocs by reducing `Decidable` instance directly (#12677)",
+  "zig_target": {
+    "src/Init/Sym/Lemmas.lean": "zig-backend/src/init/Sym/Lemmas.lean"
+  }
+}

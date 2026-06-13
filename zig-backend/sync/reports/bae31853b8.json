@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-06",
+  "needs_port": false,
+  "sha": "bae31853b833e62e8ca61119eb33765ae56ef7e6",
+  "short_sha": "bae31853b8",
+  "subject": "chore: Nix: do not install Cachix if not authenticated",
+  "zig_target": {}
+}

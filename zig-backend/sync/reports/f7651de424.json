@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-10-14",
+  "needs_port": false,
+  "sha": "f7651de4243536f7481f1001112192f01cea32d8",
+  "short_sha": "f7651de424",
+  "subject": "chore: CI: avoid skipped dependencies hellhole",
+  "zig_target": {}
+}

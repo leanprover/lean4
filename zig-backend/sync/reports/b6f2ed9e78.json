@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Coe.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Coe.lean"
+    }
+  ],
+  "date": "2020-11-28",
+  "needs_port": true,
+  "sha": "b6f2ed9e782386afad5811b659ba6273ca3eff71",
+  "short_sha": "b6f2ed9e78",
+  "subject": "feat: add instances for converting `CoeFun` and `CoeSort` into `Coe`",
+  "zig_target": {
+    "src/Init/Coe.lean": "zig-backend/src/init/Coe.lean"
+  }
+}

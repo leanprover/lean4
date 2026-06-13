@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-09-25",
+  "needs_port": false,
+  "sha": "dadfe84c1571220d13e25bf23e81ebcbd6be9b14",
+  "short_sha": "dadfe84c15",
+  "subject": "doc: update `const2ModIdx` docstring",
+  "zig_target": {}
+}

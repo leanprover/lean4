@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-06",
+  "needs_port": false,
+  "sha": "faa2619e53ac9303d1faa40de88c0e01ef4631ff",
+  "short_sha": "faa2619e53",
+  "subject": "feat: add `isBoolTrueExpr` and `isBoolFalseExpr` (#12355)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-14",
+  "needs_port": false,
+  "sha": "65816d8b8776f9568ff9373a9b0093f874d0dcf9",
+  "short_sha": "65816d8b87",
+  "subject": "chore(library/message_builder): handle nested kernel exceptions",
+  "zig_target": {}
+}

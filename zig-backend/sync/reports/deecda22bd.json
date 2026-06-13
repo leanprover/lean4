@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-15",
+  "needs_port": false,
+  "sha": "deecda22bdf22b623763041f2dc86f0008efaae7",
+  "short_sha": "deecda22bd",
+  "subject": "feat(library/init/lean/compiler/ir/emitc): C code emitter",
+  "zig_target": {}
+}

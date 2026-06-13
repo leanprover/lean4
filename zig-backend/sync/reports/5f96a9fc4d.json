@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-19",
+  "needs_port": false,
+  "sha": "5f96a9fc4dbf0deae280eaf0a5bbd293fe9ec6c2",
+  "short_sha": "5f96a9fc4d",
+  "subject": "fix: do not show type of sort in hover",
+  "zig_target": {}
+}

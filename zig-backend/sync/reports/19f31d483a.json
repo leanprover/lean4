@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-03-28",
+  "needs_port": false,
+  "sha": "19f31d483a7803761482c111f55135adf545951e",
+  "short_sha": "19f31d483a",
+  "subject": "chore(tests/playground/rbmap.library.lean): camelCase",
+  "zig_target": {}
+}

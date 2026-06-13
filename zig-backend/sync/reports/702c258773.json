@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Array/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/Basic.lean"
+    },
+    {
+      "path": "src/Init/Data/Array/BinSearch.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Array/BinSearch.lean"
+    },
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2020-12-08",
+  "needs_port": true,
+  "sha": "702c258773cfe3add1f622a8f6a40f5e7b1f10cf",
+  "short_sha": "702c258773",
+  "subject": "fix: index out of bounds",
+  "zig_target": {
+    "src/Init/Data/Array/Basic.lean": "zig-backend/src/init/Data/Array/Basic.lean",
+    "src/Init/Data/Array/BinSearch.lean": "zig-backend/src/init/Data/Array/BinSearch.lean",
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

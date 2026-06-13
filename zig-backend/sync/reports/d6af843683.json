@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-05",
+  "needs_port": false,
+  "sha": "d6af8436833eab46c9aa95d51253c153437790fc",
+  "short_sha": "d6af843683",
+  "subject": "chore: remove completion auxiliary parser",
+  "zig_target": {}
+}

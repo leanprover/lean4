@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-07-01",
+  "needs_port": false,
+  "sha": "a81994871aa360343865203a2ff98b3c068a0a6a",
+  "short_sha": "a81994871a",
+  "subject": "feat: add build types (e.g., debug, release)",
+  "zig_target": {}
+}

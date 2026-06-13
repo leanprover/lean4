@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-07-27",
+  "needs_port": false,
+  "sha": "66a93dbb39a5ad123d6924d664c1ff8973041c76",
+  "short_sha": "66a93dbb39",
+  "subject": "feat(library/init/lean/elaborator/basic): `absolutizeModuleName`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-25",
+  "needs_port": false,
+  "sha": "7217ee77543798826500cb4b17b54542940ca07d",
+  "short_sha": "7217ee7754",
+  "subject": "fix: `GE.ge` and `GT.gt` support at `simpCnstr?`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2023-06-07",
+  "needs_port": false,
+  "sha": "8ba05f34eab69263c9b1b8acc039d98e7c6dbaa9",
+  "short_sha": "8ba05f34ea",
+  "subject": "doc: remove reference to harmful `elan` command",
+  "zig_target": {}
+}

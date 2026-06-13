@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-06",
+  "needs_port": false,
+  "sha": "e6dfdfdcee2e6fcf1ad8e5c108bbeccb6e6ebb00",
+  "short_sha": "e6dfdfdcee",
+  "subject": "fix: reject attribute uses whose module is reachable only via IR (#13613)",
+  "zig_target": {}
+}

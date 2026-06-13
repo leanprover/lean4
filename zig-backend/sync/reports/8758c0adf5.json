@@ -1,0 +1,24 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data.lean"
+    },
+    {
+      "path": "src/Init/Data/Bool.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Data/Bool.lean"
+    }
+  ],
+  "date": "2024-02-19",
+  "needs_port": true,
+  "sha": "8758c0adf554b3a9b9b7cf9283287ac1d3e3bea3",
+  "short_sha": "8758c0adf5",
+  "subject": "chore: upstream Std.Data.Bool (#3389)",
+  "zig_target": {
+    "src/Init/Data.lean": "zig-backend/src/init/Data.lean",
+    "src/Init/Data/Bool.lean": "zig-backend/src/init/Data/Bool.lean"
+  }
+}

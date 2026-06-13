@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-24",
+  "needs_port": false,
+  "sha": "cefbc277205d0e7a5e3e2243a9efeb491ef1535d",
+  "short_sha": "cefbc27720",
+  "subject": "feat: add `elab` and `elab_rules` command syntax",
+  "zig_target": {}
+}

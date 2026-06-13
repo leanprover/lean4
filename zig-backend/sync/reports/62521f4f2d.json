@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-10-28",
+  "needs_port": false,
+  "sha": "62521f4f2d12ad239644e160dfdc5bd4d34d3f1b",
+  "short_sha": "62521f4f2d",
+  "subject": "fix: let `congr` conv tactic handle \"over-applied\" functions (#5861)",
+  "zig_target": {}
+}

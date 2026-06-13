@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2024-08-30",
+  "needs_port": false,
+  "sha": "d31066646dfa7389d818a2e2e1493be6a941924e",
+  "short_sha": "d31066646d",
+  "subject": "feat: make `#check` and `#reduce` typecheck terms (#5079)",
+  "zig_target": {}
+}

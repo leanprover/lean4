@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-05-10",
+  "needs_port": false,
+  "sha": "a6d186a81d4a4b5991b568cf016b1f471646b79a",
+  "short_sha": "a6d186a81d",
+  "subject": "fix: add `checkSystem` and `withIncRecDepth` to `withAutoBoundImplicit` (#4128)",
+  "zig_target": {}
+}

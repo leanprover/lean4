@@ -1,0 +1,24 @@
+{
+  "author": "Sofia Rodrigues",
+  "backend_changes": [
+    {
+      "path": "src/runtime/uv/timer.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/timer.cpp"
+    },
+    {
+      "path": "src/runtime/uv/timer.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/uv/timer.h"
+    }
+  ],
+  "date": "2025-10-08",
+  "needs_port": true,
+  "sha": "7600d41c9093db0106e785911a0bf392440ecb08",
+  "short_sha": "7600d41c90",
+  "subject": "fix: add `cancel` function to the Timer API to make it behave correctly with finalizers and selectables (#10630)",
+  "zig_target": {
+    "src/runtime/uv/timer.cpp": "zig-backend/src/runtime/uv/timer.cpp",
+    "src/runtime/uv/timer.h": "zig-backend/src/runtime/uv/timer.h"
+  }
+}

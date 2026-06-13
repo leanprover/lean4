@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-04-28",
+  "needs_port": false,
+  "sha": "4b78d02a5ea6c7625227ea65d9824967b1a9d16f",
+  "short_sha": "4b78d02a5e",
+  "subject": "fix: do not discriminate anonymous antiquots after all",
+  "zig_target": {}
+}

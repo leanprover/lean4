@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-12",
+  "needs_port": false,
+  "sha": "d1f0db7072897fdfa416c0c222571cc85ec2483e",
+  "short_sha": "d1f0db7072",
+  "subject": "fix: `resumePostponed` backtracking",
+  "zig_target": {}
+}

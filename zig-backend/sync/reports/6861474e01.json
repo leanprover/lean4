@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-08-29",
+  "needs_port": false,
+  "sha": "6861474e012f3b72b218137699cda93731669602",
+  "short_sha": "6861474e01",
+  "subject": "feat: create release at lean4-pr-releases for each PR (#2448)",
+  "zig_target": {}
+}

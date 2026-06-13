@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-04-29",
+  "needs_port": false,
+  "sha": "63442ebde73ff312f37ddfcdffe20213c8b93ab0",
+  "short_sha": "63442ebde7",
+  "subject": "feat(library/init/data/array/basic): add `iterate\u2082` and `foldl\u2082`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-07-22",
+  "needs_port": false,
+  "sha": "dc3d94ff61dfcc8afd8c74ae61a65b6f7270734d",
+  "short_sha": "dc3d94ff61",
+  "subject": "fix: check arity in notation unexpander",
+  "zig_target": {}
+}

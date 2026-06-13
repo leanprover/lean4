@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "1fb4a32c8d4a63b8d55e494e05283035d2cba02a",
+  "short_sha": "1fb4a32c8d",
+  "subject": "fix: avoid follow-up kernel errors (#7570)",
+  "zig_target": {}
+}

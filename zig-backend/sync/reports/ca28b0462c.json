@@ -1,0 +1,10 @@
+{
+  "author": "Gabriel Ebner",
+  "backend_changes": [],
+  "date": "2022-09-12",
+  "needs_port": false,
+  "sha": "ca28b0462c92ea699fd56e348ca0f7fd9e868ca5",
+  "short_sha": "ca28b0462c",
+  "subject": "feat: show all missing fields in structure instance",
+  "zig_target": {}
+}

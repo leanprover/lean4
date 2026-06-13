@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-08-30",
+  "needs_port": false,
+  "sha": "2012d9dca16c0419f051bc0679967e6a587f0ca4",
+  "short_sha": "2012d9dca1",
+  "subject": "fix: make sure `simp only` still uses `eq_self`",
+  "zig_target": {}
+}

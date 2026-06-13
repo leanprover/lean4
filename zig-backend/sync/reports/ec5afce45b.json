@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Meta.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Meta.lean"
+    }
+  ],
+  "date": "2021-03-24",
+  "needs_port": true,
+  "sha": "ec5afce45b1d3fdf857ee5de4009950688f14976",
+  "short_sha": "ec5afce45b",
+  "subject": "feat: `contextual := true` at `simp_all`",
+  "zig_target": {
+    "src/Init/Meta.lean": "zig-backend/src/init/Meta.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-01",
+  "needs_port": false,
+  "sha": "baabfc13e098b6d6563edf443b6706a314f19500",
+  "short_sha": "baabfc13e0",
+  "subject": "chore: remove occurrences of `Append.append`",
+  "zig_target": {}
+}

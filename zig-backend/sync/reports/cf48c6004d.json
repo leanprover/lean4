@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-08-03",
+  "needs_port": false,
+  "sha": "cf48c6004dd14438f78ffcf16b4bd87fa5678b29",
+  "short_sha": "cf48c6004d",
+  "subject": "fix: assertion violations at `grind` `checkInvariants` (#9700)",
+  "zig_target": {}
+}

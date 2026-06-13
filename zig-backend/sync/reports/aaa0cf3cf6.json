@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-06",
+  "needs_port": false,
+  "sha": "aaa0cf3cf64b2a41e83e10625780639728daf22c",
+  "short_sha": "aaa0cf3cf6",
+  "subject": "refactor: lake: rm `public syntax` workarounds (#10275)",
+  "zig_target": {}
+}

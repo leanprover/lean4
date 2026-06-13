@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-13",
+  "needs_port": false,
+  "sha": "70e22910d7b36fb0f799290cf3ca9ce5bf75caa2",
+  "short_sha": "70e22910d7",
+  "subject": "perf: missing -Bsymbolic-functions for libleanshared.so",
+  "zig_target": {}
+}

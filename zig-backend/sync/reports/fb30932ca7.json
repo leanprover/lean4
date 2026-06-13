@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-21",
+  "needs_port": false,
+  "sha": "fb30932ca7a88cb713e15e4557205dfff8a1a9da",
+  "short_sha": "fb30932ca7",
+  "subject": "refactor: WF.Fix: Pass all remaining goals to `Term.reportUnsolvedGoals` (#2922)",
+  "zig_target": {}
+}

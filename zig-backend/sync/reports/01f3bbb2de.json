@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-04-02",
+  "needs_port": false,
+  "sha": "01f3bbb2deab89b4849a8440346a7930ff156787",
+  "short_sha": "01f3bbb2de",
+  "subject": "fix: lake: Lean shared lib path before the workspace's (#7796)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-18",
+  "needs_port": false,
+  "sha": "4cbe67954bc40be54db49ffbeb72b0f049171e67",
+  "short_sha": "4cbe67954b",
+  "subject": "feat: improve `inlineProjInst?`",
+  "zig_target": {}
+}

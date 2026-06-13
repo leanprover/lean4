@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-03-28",
+  "needs_port": false,
+  "sha": "e54a0d7b89b7b8e4393b91e81f471d81f67ca713",
+  "short_sha": "e54a0d7b89",
+  "subject": "fix: lake: check normalized packages directory path before rename (#3795)",
+  "zig_target": {}
+}

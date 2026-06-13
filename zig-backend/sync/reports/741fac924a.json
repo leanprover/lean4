@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Init/Control/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Control/Basic.lean"
+    }
+  ],
+  "date": "2022-10-15",
+  "needs_port": true,
+  "sha": "741fac924a193be309c03f36eb015f9a08240ce7",
+  "short_sha": "741fac924a",
+  "subject": "chore: inline control primitives",
+  "zig_target": {
+    "src/Init/Control/Basic.lean": "zig-backend/src/init/Control/Basic.lean"
+  }
+}

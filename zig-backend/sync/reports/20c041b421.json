@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-05",
+  "needs_port": false,
+  "sha": "20c041b421a7c6d15f78a19cd8f0404bdcd1fc84",
+  "short_sha": "20c041b421",
+  "subject": "feat: `mkUnsafeRecName` and `isUnsafeRecName?` in Lean",
+  "zig_target": {}
+}

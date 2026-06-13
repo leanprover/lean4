@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2020-04-29",
+  "needs_port": true,
+  "sha": "053d4bab1cbe2bbc8039e0b333890ab08edb12a8",
+  "short_sha": "053d4bab1c",
+  "subject": "chore: factor out and unify common test behavior; retrieve `lean` from `PATH`",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-05-26",
+  "needs_port": false,
+  "sha": "f48b822532872bb756bc04dfa453197ee6d35190",
+  "short_sha": "f48b822532",
+  "subject": "feat: add field for storing `autoParam` information at `StructureFieldInfo`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-14",
+  "needs_port": false,
+  "sha": "b888b6f3b6058bd336d666ff45a5544779d1d5b7",
+  "short_sha": "b888b6f3b6",
+  "subject": "feat(library/init/lean/environment): process imported entries",
+  "zig_target": {}
+}

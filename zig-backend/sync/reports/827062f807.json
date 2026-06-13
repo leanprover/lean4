@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/Platform.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/Platform.lean"
+    }
+  ],
+  "date": "2024-11-28",
+  "needs_port": true,
+  "sha": "827062f807cd869709fb71d5d04a00ff10320be3",
+  "short_sha": "827062f807",
+  "subject": "feat: `System.Platform.numBits` inequalities (#6247)",
+  "zig_target": {
+    "src/Init/System/Platform.lean": "zig-backend/src/init/System/Platform.lean"
+  }
+}

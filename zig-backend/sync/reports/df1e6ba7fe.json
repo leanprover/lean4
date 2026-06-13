@@ -1,0 +1,10 @@
+{
+  "author": "Mario Carneiro",
+  "backend_changes": [],
+  "date": "2024-04-18",
+  "needs_port": false,
+  "sha": "df1e6ba7fefdce90f8c655cb2c1bf5ea8640d1a5",
+  "short_sha": "df1e6ba7fe",
+  "subject": "fix: built-in parser attributes link to the wrong place (#3916)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2023-12-12",
+  "needs_port": true,
+  "sha": "78200b309f63b30e855313a15e25391efcfe6974",
+  "short_sha": "78200b309f",
+  "subject": "fix: `run_task`/`deactivate_task` race condition on `m_imp->m_closure` (#2959)",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

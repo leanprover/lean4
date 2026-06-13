@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-06-16",
+  "needs_port": false,
+  "sha": "5568e06160ee846600d418c02039ae92429da4ab",
+  "short_sha": "5568e06160",
+  "subject": "chore: Run \u201cLinux release\u201d for PRs as secondary job (#8817)",
+  "zig_target": {}
+}

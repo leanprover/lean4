@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/MutQuot.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/MutQuot.lean"
+    }
+  ],
+  "date": "2020-02-07",
+  "needs_port": true,
+  "sha": "d9ca2751c2f05e32ea9db8f3954c4fa4346554d8",
+  "short_sha": "d9ca2751c2",
+  "subject": "chore: mark `MutQuot.val` as `[neverExtract]`",
+  "zig_target": {
+    "src/Init/MutQuot.lean": "zig-backend/src/init/MutQuot.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2024-12-02",
+  "needs_port": false,
+  "sha": "95dbac26cff90f2a54806020ab4de77301a43892",
+  "short_sha": "95dbac26cf",
+  "subject": "chore: shake Std.Time (#6283)",
+  "zig_target": {}
+}

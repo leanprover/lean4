@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Graf",
+  "backend_changes": [],
+  "date": "2025-08-11",
+  "needs_port": false,
+  "sha": "e0fcaf5e7ddab2fcab51be8c403446d84a8a0d45",
+  "short_sha": "e0fcaf5e7d",
+  "subject": "chore: Naming in `Invariant.withEarlyReturn` (#9835)",
+  "zig_target": {}
+}

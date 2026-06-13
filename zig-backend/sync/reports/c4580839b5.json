@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2022-06-25",
+  "needs_port": false,
+  "sha": "c4580839b50eab92efa8d9e87c986d4888d8b5ae",
+  "short_sha": "c4580839b5",
+  "subject": "test: \"fix\" library loading issues",
+  "zig_target": {}
+}

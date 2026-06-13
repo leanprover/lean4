@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2023-06-21",
+  "needs_port": false,
+  "sha": "3f9a867469c4ddc76ffced4decf7782322ed8e80",
+  "short_sha": "3f9a867469",
+  "subject": "test: generalize make test/clean targets",
+  "zig_target": {}
+}

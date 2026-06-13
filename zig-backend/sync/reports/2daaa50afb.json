@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-03-03",
+  "needs_port": false,
+  "sha": "2daaa50afbb72f986ae7202d45d481304f9be8a0",
+  "short_sha": "2daaa50afb",
+  "subject": "chore: constructorNameAsVariable linter respects linter.all (#4966)",
+  "zig_target": {}
+}

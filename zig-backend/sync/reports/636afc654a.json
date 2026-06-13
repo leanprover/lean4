@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-12-13",
+  "needs_port": false,
+  "sha": "636afc654ad9bfbf950b54cae3c97c6922da489b",
+  "short_sha": "636afc654a",
+  "subject": "fix: avoid mapping .oleans in the way of the stack",
+  "zig_target": {}
+}

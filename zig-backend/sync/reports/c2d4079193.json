@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-14",
+  "needs_port": false,
+  "sha": "c2d4079193fa62cbd177059d9022c7a7ae097c42",
+  "short_sha": "c2d4079193",
+  "subject": "perf: optimize string literal equality simprocs for kernel efficiency (#12887)",
+  "zig_target": {}
+}

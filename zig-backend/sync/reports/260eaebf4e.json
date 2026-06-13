@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2023-11-22",
+  "needs_port": false,
+  "sha": "260eaebf4e804c9ac1319532970544a4e157c336",
+  "short_sha": "260eaebf4e",
+  "subject": "fix: `PackMutual`: Eta-Expand as needed (#2902)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-07-14",
+  "needs_port": false,
+  "sha": "7213ff0065c239ceef801485f48a9bce002b9016",
+  "short_sha": "7213ff0065",
+  "subject": "doc: document generating releases via tags (#2302)",
+  "zig_target": {}
+}

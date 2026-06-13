@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-05-23",
+  "needs_port": false,
+  "sha": "306c3002264d0ba730644bba85d9486ca1f39532",
+  "short_sha": "306c300226",
+  "subject": "refactor(kernel/level): implement `level` on top of `object`",
+  "zig_target": {}
+}

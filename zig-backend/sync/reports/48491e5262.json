@@ -1,0 +1,10 @@
+{
+  "author": "Kyle Miller",
+  "backend_changes": [],
+  "date": "2025-03-03",
+  "needs_port": false,
+  "sha": "48491e52627739397f889e2104c2292f40d6d328",
+  "short_sha": "48491e5262",
+  "subject": "chore: re-enable synthesis checkpoint for structure parent elaboration (#7314)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-12-12",
+  "needs_port": false,
+  "sha": "9f74e71f101ae47b03c17a6552ec418153802d92",
+  "short_sha": "9f74e71f10",
+  "subject": "perf: avoid kernel env block in `realizeConst` (#11617)",
+  "zig_target": {}
+}

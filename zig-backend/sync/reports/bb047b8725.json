@@ -1,0 +1,10 @@
+{
+  "author": "Jovan Gerbscheid",
+  "backend_changes": [],
+  "date": "2026-03-10",
+  "needs_port": false,
+  "sha": "bb047b8725766cf4562e159d64458fdef89f167b",
+  "short_sha": "bb047b8725",
+  "subject": "fix: improve `Name.isMetaprogramming` (#12767)",
+  "zig_target": {}
+}

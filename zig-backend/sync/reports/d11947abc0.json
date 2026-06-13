@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-21",
+  "needs_port": false,
+  "sha": "d11947abc069b9ea8f3f543777ade6552355bb9c",
+  "short_sha": "d11947abc0",
+  "subject": "perf: optimize `mkLetUsingScope`",
+  "zig_target": {}
+}

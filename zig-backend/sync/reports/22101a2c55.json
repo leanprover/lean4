@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-08-23",
+  "needs_port": false,
+  "sha": "22101a2c5576f0d1559792e00cc34c675f904a95",
+  "short_sha": "22101a2c55",
+  "subject": "chore(library/tactic): remove `assert_tactic` and `change_tactic`",
+  "zig_target": {}
+}

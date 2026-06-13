@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2024-08-16",
+  "needs_port": false,
+  "sha": "72f2e7aab1e041e361c0be39cc90751f91f8d6f0",
+  "short_sha": "72f2e7aab1",
+  "subject": "feat: make structure type clickable in \u201cnot a field\u201d error (#5072)",
+  "zig_target": {}
+}

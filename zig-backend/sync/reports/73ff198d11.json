@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-12-19",
+  "needs_port": false,
+  "sha": "73ff198d11410054def5223123a58de85f06d3dd",
+  "short_sha": "73ff198d11",
+  "subject": "doc: replace ffi.md with links to the reference manual (#11737)",
+  "zig_target": {}
+}

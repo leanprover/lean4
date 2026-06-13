@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-10-09",
+  "needs_port": false,
+  "sha": "ca0e6b0522e2948e8d819886be1e8fc106354947",
+  "short_sha": "ca0e6b0522",
+  "subject": "chore: fix MVarId.getType' (#2595)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Term.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Term.lean"
+    }
+  ],
+  "date": "2020-03-18",
+  "needs_port": true,
+  "sha": "2954f6ad3efc0648aa1e618f7cb652d56fb1183e",
+  "short_sha": "2954f6ad3e",
+  "subject": "feat: add `MetaHasEval` instance for `TermElabM`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Term.lean": "zig-backend/src/init/Lean/Elab/Term.lean"
+  }
+}

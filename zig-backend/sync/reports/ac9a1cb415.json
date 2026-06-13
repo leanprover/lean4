@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/BinderNameHint.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/BinderNameHint.lean"
+    }
+  ],
+  "date": "2026-04-27",
+  "needs_port": true,
+  "sha": "ac9a1cb4151d93cddc11ff8db611c10b67c32253",
+  "short_sha": "ac9a1cb415",
+  "subject": "feat: add `@[backward_defeq]` attribute and local `useBackward` simp option (#13492)",
+  "zig_target": {
+    "src/Init/BinderNameHint.lean": "zig-backend/src/init/BinderNameHint.lean"
+  }
+}

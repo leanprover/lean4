@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-15",
+  "needs_port": false,
+  "sha": "ca6453a0abe95d455613482eb9d9515b277249a6",
+  "short_sha": "ca6453a0ab",
+  "subject": "perf: efficient `unsigned hash(expr const & e)`",
+  "zig_target": {}
+}

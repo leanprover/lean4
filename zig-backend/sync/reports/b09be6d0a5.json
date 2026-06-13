@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    }
+  ],
+  "date": "2019-02-08",
+  "needs_port": true,
+  "sha": "b09be6d0a5e6d1f28aceb919b809a256756eab24",
+  "short_sha": "b09be6d0a5",
+  "subject": "fix(library/compiler/emit_cpp): missing `{` `}`",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp"
+  }
+}

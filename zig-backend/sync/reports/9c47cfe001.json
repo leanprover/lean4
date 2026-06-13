@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-12-23",
+  "needs_port": false,
+  "sha": "9c47cfe001d009b24237a5240621b4ae586c456c",
+  "short_sha": "9c47cfe001",
+  "subject": "fix: `panic` message",
+  "zig_target": {}
+}

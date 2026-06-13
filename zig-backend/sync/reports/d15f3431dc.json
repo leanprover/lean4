@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Command.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Command.lean"
+    }
+  ],
+  "date": "2020-02-12",
+  "needs_port": true,
+  "sha": "d15f3431dc87fe40ab94f9bfc7b3e4c985c1d097",
+  "short_sha": "d15f3431dc",
+  "subject": "feat: add `#check_failure` command",
+  "zig_target": {
+    "src/Init/Lean/Parser/Command.lean": "zig-backend/src/init/Lean/Parser/Command.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-06-11",
+  "needs_port": false,
+  "sha": "f0ebf426b7da4e7049f78f1dea3a43bf458c5f91",
+  "short_sha": "f0ebf426b7",
+  "subject": "chore: `longestMatchFn` parsers must produce exactly one Syntax node",
+  "zig_target": {}
+}

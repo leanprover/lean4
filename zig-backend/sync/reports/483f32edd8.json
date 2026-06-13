@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-10",
+  "needs_port": false,
+  "sha": "483f32edd80955a127ccea625b007727eb7b8940",
+  "short_sha": "483f32edd8",
+  "subject": "feat: in pure code, do use assume `Id` monad at `do` notation",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Aaron Liu",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2025-09-02",
+  "needs_port": true,
+  "sha": "f748d1c4ef5b22b343ab38775f1e9096a0f54809",
+  "short_sha": "f748d1c4ef",
+  "subject": "doc: fix typo in docstring for `fieldIdxKind` (#8814)",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

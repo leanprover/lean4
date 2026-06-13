@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-30",
+  "needs_port": false,
+  "sha": "b1a9c58d43f6afeeea9aeeb2736f7d8f0c72d42e",
+  "short_sha": "b1a9c58d43",
+  "subject": "feat: relax eager antiquotation parsing",
+  "zig_target": {}
+}

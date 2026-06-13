@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-26",
+  "needs_port": false,
+  "sha": "c22120371ec06062389359d9884b43940d7f9d95",
+  "short_sha": "c22120371e",
+  "subject": "feat: finer-grained term infos for `do` blocks",
+  "zig_target": {}
+}

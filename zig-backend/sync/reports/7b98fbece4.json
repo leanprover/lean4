@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2024-12-03",
+  "needs_port": false,
+  "sha": "7b98fbece4bb2f4d72132047d5b56f0a5386eb35",
+  "short_sha": "7b98fbece4",
+  "subject": "feat: reverse `HashMap.toList`, so it agrees with `HashMap.toArray` (#6244)",
+  "zig_target": {}
+}

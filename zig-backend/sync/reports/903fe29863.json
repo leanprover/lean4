@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-02-28",
+  "needs_port": false,
+  "sha": "903fe298638965c7578ee0c8a6124b6a95ec239c",
+  "short_sha": "903fe29863",
+  "subject": "chore: release_notes.py: report on all commit types (#7258)",
+  "zig_target": {}
+}

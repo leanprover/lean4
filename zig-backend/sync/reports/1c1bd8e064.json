@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-12-11",
+  "needs_port": false,
+  "sha": "1c1bd8e0649b5a05a8c3393a218e55296d73d931",
+  "short_sha": "1c1bd8e064",
+  "subject": "fix: handle dot notation on local variables in grind parameters (#11573)",
+  "zig_target": {}
+}

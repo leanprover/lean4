@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-07-05",
+  "needs_port": false,
+  "sha": "3ee93713745e2d62b86eb206b1e03afad57b8a01",
+  "short_sha": "3ee9371374",
+  "subject": "doc(tests/bench/README): update speedcenter URL",
+  "zig_target": {}
+}

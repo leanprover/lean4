@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2018-06-19",
+  "needs_port": false,
+  "sha": "c0a9b0bb4bf41fa7f0a31d6ad72fd0f0d3e488c7",
+  "short_sha": "c0a9b0bb4b",
+  "subject": "chore(frontends/lean): remove field_notation macro",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-19",
+  "needs_port": false,
+  "sha": "233a262c03c61463486dcc518c10024e03c33f69",
+  "short_sha": "233a262c03",
+  "subject": "feat: improve `whnfReducibleLHS?`",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Ring/CommSemiringAdapter.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/CommSemiringAdapter.lean"
+    },
+    {
+      "path": "src/Init/Grind/Ring/Envelope.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+    }
+  ],
+  "date": "2025-09-16",
+  "needs_port": true,
+  "sha": "4c1830e5ae27596c5848879f68c4c413ca0e74c9",
+  "short_sha": "4c1830e5ae",
+  "subject": "refactor: semiring support in `grind ring` (#10403)",
+  "zig_target": {
+    "src/Init/Grind/Ring/CommSemiringAdapter.lean": "zig-backend/src/init/Grind/Ring/CommSemiringAdapter.lean",
+    "src/Init/Grind/Ring/Envelope.lean": "zig-backend/src/init/Grind/Ring/Envelope.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-12-26",
+  "needs_port": false,
+  "sha": "8a1e50f0b98337f5d0f9a9697f95f10237c4a77c",
+  "short_sha": "8a1e50f0b9",
+  "subject": "feat: equality proof generation for `grind` (#6452)",
+  "zig_target": {}
+}

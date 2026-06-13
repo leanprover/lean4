@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/AC.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/AC.lean"
+    }
+  ],
+  "date": "2025-09-01",
+  "needs_port": true,
+  "sha": "c83237baf78d6930d40e556a5cacdca149c4b198",
+  "short_sha": "c83237baf7",
+  "subject": "chore: cleanup `superposeAC?` (#10207)",
+  "zig_target": {
+    "src/Init/Grind/AC.lean": "zig-backend/src/init/Grind/AC.lean"
+  }
+}

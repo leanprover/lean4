@@ -1,0 +1,66 @@
+{
+  "author": "Paul Reichert",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Range/Polymorphic/BitVec.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/BitVec.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Instances.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Instances.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Int.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Int.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Iterators.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Iterators.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/Nat.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/Nat.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/RangeIterator.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/UInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean"
+    },
+    {
+      "path": "src/Init/Data/Range/Polymorphic/UpwardEnumerable.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Range/Polymorphic/UpwardEnumerable.lean"
+    }
+  ],
+  "date": "2025-10-06",
+  "needs_port": true,
+  "sha": "7771b8079c43a409ccb653fcf15f9ba59665e2ab",
+  "short_sha": "7771b8079c",
+  "subject": "refactor: improve naming in the range API  (#10537)",
+  "zig_target": {
+    "src/Init/Data/Range/Polymorphic/BitVec.lean": "zig-backend/src/init/Data/Range/Polymorphic/BitVec.lean",
+    "src/Init/Data/Range/Polymorphic/Instances.lean": "zig-backend/src/init/Data/Range/Polymorphic/Instances.lean",
+    "src/Init/Data/Range/Polymorphic/Int.lean": "zig-backend/src/init/Data/Range/Polymorphic/Int.lean",
+    "src/Init/Data/Range/Polymorphic/Iterators.lean": "zig-backend/src/init/Data/Range/Polymorphic/Iterators.lean",
+    "src/Init/Data/Range/Polymorphic/Lemmas.lean": "zig-backend/src/init/Data/Range/Polymorphic/Lemmas.lean",
+    "src/Init/Data/Range/Polymorphic/Nat.lean": "zig-backend/src/init/Data/Range/Polymorphic/Nat.lean",
+    "src/Init/Data/Range/Polymorphic/RangeIterator.lean": "zig-backend/src/init/Data/Range/Polymorphic/RangeIterator.lean",
+    "src/Init/Data/Range/Polymorphic/UInt.lean": "zig-backend/src/init/Data/Range/Polymorphic/UInt.lean",
+    "src/Init/Data/Range/Polymorphic/UpwardEnumerable.lean": "zig-backend/src/init/Data/Range/Polymorphic/UpwardEnumerable.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2024-11-05",
+  "needs_port": false,
+  "sha": "c6e4947f4a99919096dcaf88da725062f1a73471",
+  "short_sha": "c6e4947f4a",
+  "subject": "chore: CI: bump dcarbone/install-jq-action from 1.0.1 to 2.1.0 (#5965)",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "tydeu",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2023-09-06",
+  "needs_port": true,
+  "sha": "bb09efe1c49f6433fb263987265b74154e7b3d7b",
+  "short_sha": "bb09efe1c4",
+  "subject": "test: lake: rename `test` to `tests`",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

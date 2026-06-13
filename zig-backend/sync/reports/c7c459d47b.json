@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-09-19",
+  "needs_port": false,
+  "sha": "c7c459d47b8ad4160f5c9b808fc4642a11f77398",
+  "short_sha": "c7c459d47b",
+  "subject": "Revert \"perf(library/init/lean/parser): collect tokens in trie instead of list, do not inline\"",
+  "zig_target": {}
+}

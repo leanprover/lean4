@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2024-11-29",
+  "needs_port": false,
+  "sha": "c9ee66fb1f7e18a7f04900f398e64fa8d520c779",
+  "short_sha": "c9ee66fb1f",
+  "subject": "chore: lake: fix typo in materialize error (#6250)",
+  "zig_target": {}
+}

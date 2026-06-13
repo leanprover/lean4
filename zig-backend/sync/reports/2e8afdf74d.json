@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2026-01-27",
+  "needs_port": false,
+  "sha": "2e8afdf74db2efda82632ac0df05bb84ac707766",
+  "short_sha": "2e8afdf74d",
+  "subject": "fix: use gh release create instead of action-gh-release (#12180)",
+  "zig_target": {}
+}

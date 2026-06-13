@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Prelude.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Prelude.lean"
+    }
+  ],
+  "date": "2022-11-30",
+  "needs_port": true,
+  "sha": "aee63ee7b0a7ab41e285ad1f56e708da8337b7dc",
+  "short_sha": "aee63ee7b0",
+  "subject": "feat: panic at `Name.append` if both names have macro scopes",
+  "zig_target": {
+    "src/Init/Prelude.lean": "zig-backend/src/init/Prelude.lean"
+  }
+}

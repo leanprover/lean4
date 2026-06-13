@@ -1,0 +1,10 @@
+{
+  "author": "Parth Shastri",
+  "backend_changes": [],
+  "date": "2025-06-13",
+  "needs_port": false,
+  "sha": "5d50433e6ac6a69ec422fa342fcf559dd47c4da4",
+  "short_sha": "5d50433e6a",
+  "subject": "fix: allow arbitrary sorts in structural recursion over reflexive inductive types (#7639)",
+  "zig_target": {}
+}

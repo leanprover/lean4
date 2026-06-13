@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Core.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Core.lean"
+    }
+  ],
+  "date": "2020-03-13",
+  "needs_port": true,
+  "sha": "7bb9638ea6252d16b78f8f8b04d91b7c173abbf7",
+  "short_sha": "7bb9638ea6",
+  "subject": "feat: helper lemmas for equation compiler",
+  "zig_target": {
+    "src/Init/Core.lean": "zig-backend/src/init/Core.lean"
+  }
+}

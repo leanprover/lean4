@@ -1,0 +1,18 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [
+    {
+      "path": "src/Init/System/IO.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/System/IO.lean"
+    }
+  ],
+  "date": "2025-06-22",
+  "needs_port": true,
+  "sha": "52bdc9bcbdefd3b27f12f0950b2ef2ef1b5cb208",
+  "short_sha": "52bdc9bcbd",
+  "subject": "feat: `IO.FS.Stream.lines` & `IO.FS.Handle.lines` (#8887)",
+  "zig_target": {
+    "src/Init/System/IO.lean": "zig-backend/src/init/System/IO.lean"
+  }
+}

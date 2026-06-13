@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-09-17",
+  "needs_port": false,
+  "sha": "4265348bed41bfa02da8ff9b7933c63c975919a6",
+  "short_sha": "4265348bed",
+  "subject": "feat: add `withResultOf` parser combinator and `unboxSingleton`",
+  "zig_target": {}
+}

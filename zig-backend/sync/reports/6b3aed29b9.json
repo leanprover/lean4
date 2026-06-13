@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2025-08-14",
+  "needs_port": false,
+  "sha": "6b3aed29b955a91c3099a45410fd151dff967b89",
+  "short_sha": "6b3aed29b9",
+  "subject": "feat: unused simp argument linter to explain false positives around `\u2190` (#9912)",
+  "zig_target": {}
+}

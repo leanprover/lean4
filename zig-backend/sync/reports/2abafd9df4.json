@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-07-31",
+  "needs_port": false,
+  "sha": "2abafd9df4f2e8a5963aafb964945b5e511c13a7",
+  "short_sha": "2abafd9df4",
+  "subject": "feat: add \"staged set\" helper type",
+  "zig_target": {}
+}

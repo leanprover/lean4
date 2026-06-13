@@ -1,0 +1,18 @@
+{
+  "author": "Cameron Zwarich",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/IR/Borrow.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+    }
+  ],
+  "date": "2025-07-14",
+  "needs_port": true,
+  "sha": "c0079fd9ddbf065fe51af7a009ab46d5fbbd3234",
+  "short_sha": "c0079fd9dd",
+  "subject": "perf: allow boxed scalars passed to scalar params to be borrowed (#9360)",
+  "zig_target": {
+    "src/Lean/Compiler/IR/Borrow.lean": "zig-backend/src/lean/compiler/ir/Borrow.lean"
+  }
+}

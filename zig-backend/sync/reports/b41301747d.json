@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-11-28",
+  "needs_port": false,
+  "sha": "b41301747d0dc738e5362014008df857e6fc8b37",
+  "short_sha": "b41301747d",
+  "subject": "chore: fall back to raw printer on pretty printing failure",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-20",
+  "needs_port": false,
+  "sha": "a5034d67000b66b37bf2fa7a46c4fc306694c763",
+  "short_sha": "a5034d6700",
+  "subject": "feat: add performance counter to `Compiler.Simp`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-05-08",
+  "needs_port": false,
+  "sha": "1db53b39c4301a5f786b7a1d71762aa4331396d2",
+  "short_sha": "1db53b39c4",
+  "subject": "chore: improve application type mismatch error message (#8264)",
+  "zig_target": {}
+}

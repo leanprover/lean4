@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-06-20",
+  "needs_port": false,
+  "sha": "82196b5b94a1a375c2065ec07ee0beaa4d91677d",
+  "short_sha": "82196b5b94",
+  "subject": "feat: allow upper case single character identifiers when relaxedAutoImplicit false (#2277)",
+  "zig_target": {}
+}

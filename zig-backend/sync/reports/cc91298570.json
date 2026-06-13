@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-08-03",
+  "needs_port": false,
+  "sha": "cc91298570296e0e14f6f082086f98fa1e7b4406",
+  "short_sha": "cc91298570",
+  "subject": "feat: add `PersistentHashMap.map` and `PersistentHashMap.mapM`",
+  "zig_target": {}
+}

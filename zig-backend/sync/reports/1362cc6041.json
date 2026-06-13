@@ -1,0 +1,10 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [],
+  "date": "2026-03-20",
+  "needs_port": false,
+  "sha": "1362cc60415fc461a2a6c61e15d0a8b6d895d120",
+  "short_sha": "1362cc6041",
+  "subject": "refactor: simplify structural recursion elaboration (#13008)",
+  "zig_target": {}
+}

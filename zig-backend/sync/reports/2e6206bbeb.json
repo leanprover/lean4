@@ -1,0 +1,18 @@
+{
+  "author": "Joachim Breitner",
+  "backend_changes": [
+    {
+      "path": "src/Init/Tactics.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Tactics.lean"
+    }
+  ],
+  "date": "2025-02-06",
+  "needs_port": true,
+  "sha": "2e6206bbeb24108e3aa8e50322109ddbdf248b36",
+  "short_sha": "2e6206bbeb",
+  "subject": "refactor: rename auto_attach attribute to wf_preprocess (#6972)",
+  "zig_target": {
+    "src/Init/Tactics.lean": "zig-backend/src/init/Tactics.lean"
+  }
+}

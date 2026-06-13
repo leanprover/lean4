@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-08-04",
+  "needs_port": false,
+  "sha": "1ef23950a44a4018147f491f57d857beb70502ab",
+  "short_sha": "1ef23950a4",
+  "subject": "chore(library/init/lean/expr): expose temporary legacy constructor",
+  "zig_target": {}
+}

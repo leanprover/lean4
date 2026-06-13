@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-26",
+  "needs_port": false,
+  "sha": "425bebe99ecb69bf0859dee5eb08f440d4e99fcb",
+  "short_sha": "425bebe99e",
+  "subject": "chore: further split `libleanshared` on Windows to avoid symbol limit (#10136)",
+  "zig_target": {}
+}

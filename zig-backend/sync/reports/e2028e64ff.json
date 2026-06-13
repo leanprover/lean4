@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-02-04",
+  "needs_port": false,
+  "sha": "e2028e64fff930141097690523d3d60ff0c03976",
+  "short_sha": "e2028e64ff",
+  "subject": "feat: add option `maxUniverseOffset`",
+  "zig_target": {}
+}

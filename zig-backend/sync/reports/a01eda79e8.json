@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-08-02",
+  "needs_port": false,
+  "sha": "a01eda79e8d930cbbea57253917011e3e9da6a07",
+  "short_sha": "a01eda79e8",
+  "subject": "feat: lake: build times & `--no-build` jobs (#9677)",
+  "zig_target": {}
+}

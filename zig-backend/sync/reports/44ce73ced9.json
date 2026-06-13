@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/ir_interpreter.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+    }
+  ],
+  "date": "2019-12-05",
+  "needs_port": true,
+  "sha": "44ce73ced99d7d24945cf520461d2ed3c52987a4",
+  "short_sha": "44ce73ced9",
+  "subject": "refactor: call generated boxed wrapper instead of reinventing it in the interpreter",
+  "zig_target": {
+    "src/library/compiler/ir_interpreter.cpp": "zig-backend/src/library/compiler/ir_interpreter.cpp"
+  }
+}

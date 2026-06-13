@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Util/FindExpr.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/FindExpr.lean"
+    }
+  ],
+  "date": "2020-02-17",
+  "needs_port": true,
+  "sha": "378dca293efeb99d262cc926824ed969be9d6cab",
+  "short_sha": "378dca293e",
+  "subject": "test: add `Expr.find?` test",
+  "zig_target": {
+    "src/Init/Lean/Util/FindExpr.lean": "zig-backend/src/init/Lean/Util/FindExpr.lean"
+  }
+}

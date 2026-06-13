@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-01-23",
+  "needs_port": false,
+  "sha": "dae0d6fa0517d1f3af94c520489928105eb91ff0",
+  "short_sha": "dae0d6fa05",
+  "subject": "fix: context for info trees and warning hints in Verso docstrings (#12121)",
+  "zig_target": {}
+}

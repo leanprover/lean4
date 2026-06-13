@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-16",
+  "needs_port": false,
+  "sha": "4f5b59ad020c2b3d62400b11e348851d5ab434ae",
+  "short_sha": "4f5b59ad02",
+  "subject": "feat: pretty print shortened names (export/open/namespace/private)",
+  "zig_target": {}
+}

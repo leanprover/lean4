@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2019-02-18",
+  "needs_port": false,
+  "sha": "59d19aee2b4fd43e241f0fd783afd7970caddf6f",
+  "short_sha": "59d19aee2b",
+  "subject": "test(tests/playground/expr_const_folding): fix Lean version",
+  "zig_target": {}
+}

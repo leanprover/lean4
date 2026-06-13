@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-06-07",
+  "needs_port": false,
+  "sha": "0c3c0ed735483300d600a7ba4b61dae198dce88b",
+  "short_sha": "0c3c0ed735",
+  "subject": "fix: ignore notifications in `readResponseAs`",
+  "zig_target": {}
+}

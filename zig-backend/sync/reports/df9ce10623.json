@@ -1,0 +1,30 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/emit_cpp.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/emit_cpp.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_attribute.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_attribute.cpp"
+    },
+    {
+      "path": "src/library/compiler/init_attribute.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/init_attribute.h"
+    }
+  ],
+  "date": "2019-03-23",
+  "needs_port": true,
+  "sha": "df9ce10623c95cbaa7207d4575e2c2c7502ab7d0",
+  "short_sha": "df9ce10623",
+  "subject": "feat(library/compiler): special support for initialization functions of the form `def initFn : IO Unit`",
+  "zig_target": {
+    "src/library/compiler/emit_cpp.cpp": "zig-backend/src/library/compiler/emit_cpp.cpp",
+    "src/library/compiler/init_attribute.cpp": "zig-backend/src/library/compiler/init_attribute.cpp",
+    "src/library/compiler/init_attribute.h": "zig-backend/src/library/compiler/init_attribute.h"
+  }
+}

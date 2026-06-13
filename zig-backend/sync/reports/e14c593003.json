@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/Int/Linear.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/Int/Linear.lean"
+    }
+  ],
+  "date": "2025-02-09",
+  "needs_port": true,
+  "sha": "e14c593003473e90e48259114e0f8ba1ccdf88f7",
+  "short_sha": "e14c593003",
+  "subject": "feat: `simp +arith` for integers (#7011)",
+  "zig_target": {
+    "src/Init/Data/Int/Linear.lean": "zig-backend/src/init/Data/Int/Linear.lean"
+  }
+}

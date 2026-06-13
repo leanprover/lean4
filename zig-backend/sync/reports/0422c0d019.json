@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-11",
+  "needs_port": false,
+  "sha": "0422c0d01950799afd8096b8ef382dcd4aa76dd7",
+  "short_sha": "0422c0d019",
+  "subject": "ci: trigger on all branches",
+  "zig_target": {}
+}

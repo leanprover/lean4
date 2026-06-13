@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-07-06",
+  "needs_port": false,
+  "sha": "4ed79472af1f85b13c51e9ed77d15d3b4c40e3cc",
+  "short_sha": "4ed79472af",
+  "subject": "fix: explicitly initialize `Std` in `lean_initialize` (#4668)",
+  "zig_target": {}
+}

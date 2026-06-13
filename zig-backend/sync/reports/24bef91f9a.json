@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-04-25",
+  "needs_port": false,
+  "sha": "24bef91f9a20a45f074729e869461d374687de1c",
+  "short_sha": "24bef91f9a",
+  "subject": "test: `tests/lake/run_test.sh` (#13501)",
+  "zig_target": {}
+}

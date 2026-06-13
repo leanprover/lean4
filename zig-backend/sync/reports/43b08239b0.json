@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-06-14",
+  "needs_port": false,
+  "sha": "43b08239b0e43a885380f8823f212d53c2157eb7",
+  "short_sha": "43b08239b0",
+  "subject": "fix: further conv goal state refinements",
+  "zig_target": {}
+}

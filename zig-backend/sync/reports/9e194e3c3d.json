@@ -1,0 +1,10 @@
+{
+  "author": "E.W.Ayers",
+  "backend_changes": [],
+  "date": "2022-08-16",
+  "needs_port": false,
+  "sha": "9e194e3c3d993a985ed420a6ce2ae32d6731687d",
+  "short_sha": "9e194e3c3d",
+  "subject": "fix: add + parser to decimalNumberFn",
+  "zig_target": {}
+}

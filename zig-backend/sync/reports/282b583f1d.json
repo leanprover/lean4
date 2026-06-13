@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-10-31",
+  "needs_port": false,
+  "sha": "282b583f1df2a70e9d66c9f701f5b2043a1dd9d9",
+  "short_sha": "282b583f1d",
+  "subject": "fix: panic during the processing of generalized patterns in `grind` (#11040)",
+  "zig_target": {}
+}

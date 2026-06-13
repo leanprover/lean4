@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2022-04-06",
+  "needs_port": true,
+  "sha": "27cd6787170b3cfc7f8e05c57ac96dd7c246be51",
+  "short_sha": "27cd678717",
+  "subject": "doc: improve `contradiction` doc string",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

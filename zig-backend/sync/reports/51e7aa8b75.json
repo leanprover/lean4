@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-11-03",
+  "needs_port": false,
+  "sha": "51e7aa8b75b442f3764ba8337cafc195eda5104f",
+  "short_sha": "51e7aa8b75",
+  "subject": "fix: backtrack `Term.State` at `TacticM`",
+  "zig_target": {}
+}

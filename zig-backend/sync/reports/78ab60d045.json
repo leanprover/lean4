@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/Interactive.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/Interactive.lean"
+    }
+  ],
+  "date": "2025-10-17",
+  "needs_port": true,
+  "sha": "78ab60d045d948f3b06c9c8fec40b460185eb913",
+  "short_sha": "78ab60d045",
+  "subject": "feat: `cases?` tactic for `grind` interactive mode (#10824)",
+  "zig_target": {
+    "src/Init/Grind/Interactive.lean": "zig-backend/src/init/Grind/Interactive.lean"
+  }
+}

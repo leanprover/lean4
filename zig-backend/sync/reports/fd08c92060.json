@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-10-25",
+  "needs_port": false,
+  "sha": "fd08c9206097781c9bca8f61531de6a0479df0f8",
+  "short_sha": "fd08c92060",
+  "subject": "chore: update src/library/module.cpp after update stage0",
+  "zig_target": {}
+}

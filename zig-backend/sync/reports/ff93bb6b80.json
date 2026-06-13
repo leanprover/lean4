@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech R\u00f3\u017cowski",
+  "backend_changes": [],
+  "date": "2026-02-04",
+  "needs_port": false,
+  "sha": "ff93bb6b805c82b949dc51aef2e4be40dcc2c784",
+  "short_sha": "ff93bb6b80",
+  "subject": "feat: add `cbv_opaque` attribute (#12283)",
+  "zig_target": {}
+}

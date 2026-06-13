@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-04-27",
+  "needs_port": false,
+  "sha": "e8531ef4deaaed3f396e871e5487cb940d92c60d",
+  "short_sha": "e8531ef4de",
+  "subject": "fix: new type ascription elaborator",
+  "zig_target": {}
+}

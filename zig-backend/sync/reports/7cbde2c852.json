@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-10-19",
+  "needs_port": false,
+  "sha": "7cbde2c852d60ff09054a495de9de84bba964766",
+  "short_sha": "7cbde2c852",
+  "subject": "ci: switch back to homebrew on macOS",
+  "zig_target": {}
+}

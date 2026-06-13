@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-31",
+  "needs_port": false,
+  "sha": "00d41d64e5699cc822ffca813cdafd464d693516",
+  "short_sha": "00d41d64e5",
+  "subject": "feat: remove `+premises` from `grind?` output (#11028)",
+  "zig_target": {}
+}

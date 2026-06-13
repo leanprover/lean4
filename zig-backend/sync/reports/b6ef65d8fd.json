@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-12-12",
+  "needs_port": false,
+  "sha": "b6ef65d8fd0be4f8d33ecb1daaab9d5155255935",
+  "short_sha": "b6ef65d8fd",
+  "subject": "fix: `where` structure instance parser",
+  "zig_target": {}
+}

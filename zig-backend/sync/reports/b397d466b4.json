@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2026-02-04",
+  "needs_port": false,
+  "sha": "b397d466b4d0e583c47f922bd2c6793fd460893c",
+  "short_sha": "b397d466b4",
+  "subject": "fix: report Verso docsring parse errors (#12314)",
+  "zig_target": {}
+}

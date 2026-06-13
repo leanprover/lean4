@@ -1,0 +1,10 @@
+{
+  "author": "dependabot[bot]",
+  "backend_changes": [],
+  "date": "2024-11-06",
+  "needs_port": false,
+  "sha": "7f0fe20315dcfc6125dc4fb7faefe181b4741cb1",
+  "short_sha": "7f0fe20315",
+  "subject": "chore: CI: bump mymindstorm/setup-emsdk from 12 to 14 (#5963)",
+  "zig_target": {}
+}

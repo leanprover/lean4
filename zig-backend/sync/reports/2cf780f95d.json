@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-08-05",
+  "needs_port": false,
+  "sha": "2cf780f95d124d9802122b7eb8db4d15e15b912f",
+  "short_sha": "2cf780f95d",
+  "subject": "chore: Nix: cache store",
+  "zig_target": {}
+}

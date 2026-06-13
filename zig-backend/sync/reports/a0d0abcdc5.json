@@ -1,0 +1,10 @@
+{
+  "author": "Garmelon",
+  "backend_changes": [],
+  "date": "2025-11-28",
+  "needs_port": false,
+  "sha": "a0d0abcdc5a59368d0a920b7a89cb5c02903bc8a",
+  "short_sha": "a0d0abcdc5",
+  "subject": "chore: update and add benchmark metrics (#11420)",
+  "zig_target": {}
+}

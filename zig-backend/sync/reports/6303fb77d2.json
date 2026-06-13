@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-05",
+  "needs_port": false,
+  "sha": "6303fb77d2c8d2aab55242827a672a33435e3f0f",
+  "short_sha": "6303fb77d2",
+  "subject": "fix: expansion info for macro commands",
+  "zig_target": {}
+}

@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Grind/ToInt.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Grind/ToInt.lean"
+    }
+  ],
+  "date": "2025-06-28",
+  "needs_port": true,
+  "sha": "4247dcfea64e099e90de49a69830fb8f651f9ccf",
+  "short_sha": "4247dcfea6",
+  "subject": "feat: improve counterexamples using `ToInt.toInt` in `grind cutsat` (#9065)",
+  "zig_target": {
+    "src/Init/Grind/ToInt.lean": "zig-backend/src/init/Grind/ToInt.lean"
+  }
+}

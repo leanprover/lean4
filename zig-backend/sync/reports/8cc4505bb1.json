@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-05-04",
+  "needs_port": false,
+  "sha": "8cc4505bb16feb1c1015b7f35115d09b3e40b6e0",
+  "short_sha": "8cc4505bb1",
+  "subject": "feat: diagnostics for comm ring procedure in `grind` (#8224)",
+  "zig_target": {}
+}

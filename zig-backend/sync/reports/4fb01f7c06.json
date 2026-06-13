@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-03",
+  "needs_port": false,
+  "sha": "4fb01f7c06491970eee56a9080a6b9f950406ef2",
+  "short_sha": "4fb01f7c06",
+  "subject": "fix: goal state on `;`",
+  "zig_target": {}
+}

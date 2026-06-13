@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Notation.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Notation.lean"
+    }
+  ],
+  "date": "2021-04-30",
+  "needs_port": true,
+  "sha": "a2e8bc0780c349c5c6f599b10d7d443537fe6972",
+  "short_sha": "a2e8bc0780",
+  "subject": "feat: use `binop%` to define arith operators",
+  "zig_target": {
+    "src/Init/Notation.lean": "zig-backend/src/init/Notation.lean"
+  }
+}

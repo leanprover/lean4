@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/object.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/object.cpp"
+    }
+  ],
+  "date": "2021-03-04",
+  "needs_port": true,
+  "sha": "709eaf6873005157f32dfc56cb22a143b5fdc49f",
+  "short_sha": "709eaf6873",
+  "subject": "chore: use `lean_internal_panic`",
+  "zig_target": {
+    "src/runtime/object.cpp": "zig-backend/src/runtime/object.cpp"
+  }
+}

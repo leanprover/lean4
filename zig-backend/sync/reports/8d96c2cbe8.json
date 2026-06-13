@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-11-10",
+  "needs_port": false,
+  "sha": "8d96c2cbe8eed48e3ad44d1585c84044439c7a0d",
+  "short_sha": "8d96c2cbe8",
+  "subject": "refactor: move Workspace/Script code to separate files",
+  "zig_target": {}
+}

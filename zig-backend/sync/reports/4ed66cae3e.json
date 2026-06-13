@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/shell/lean.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/lean.cpp"
+    }
+  ],
+  "date": "2021-06-09",
+  "needs_port": true,
+  "sha": "4ed66cae3e47dd186a47c83e237ace6bf559e2a6",
+  "short_sha": "4ed66cae3e",
+  "subject": "feat: add `--print-prefix`, `--print-libdir` flags",
+  "zig_target": {
+    "src/shell/lean.cpp": "zig-backend/src/shell/lean.cpp"
+  }
+}

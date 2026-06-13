@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-16",
+  "needs_port": false,
+  "sha": "7dc6721fea48099af2049ae2dfdde35ecc94c7d2",
+  "short_sha": "7dc6721fea",
+  "subject": "fix: missing `pushScope` and `popScope`",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-07-27",
+  "needs_port": false,
+  "sha": "49ce4408df1b5a88da8cb9d7c80564a477f6651c",
+  "short_sha": "49ce4408df",
+  "subject": "feat: validate parametric local instances",
+  "zig_target": {}
+}

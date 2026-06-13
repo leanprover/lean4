@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-09-29",
+  "needs_port": false,
+  "sha": "6f3fef937359b3ccec3a2817d969212fd92c825c",
+  "short_sha": "6f3fef9373",
+  "subject": "fix: lake: add `lake help cache` (#10616)",
+  "zig_target": {}
+}

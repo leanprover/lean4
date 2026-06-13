@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-02-11",
+  "needs_port": false,
+  "sha": "9073ad37bba9595d6bab1a112c6b66209e8fd21e",
+  "short_sha": "9073ad37bb",
+  "subject": "feat: lake: hard link cache artifacts (#12203)",
+  "zig_target": {}
+}

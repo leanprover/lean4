@@ -1,0 +1,18 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [
+    {
+      "path": "src/Lean/Compiler/LCNF/FVarUtil.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+    }
+  ],
+  "date": "2022-10-08",
+  "needs_port": true,
+  "sha": "d1325518294a2d0ad5373fed4d53a1afe683850e",
+  "short_sha": "d132551829",
+  "subject": "feat: extend FVarUtil framework",
+  "zig_target": {
+    "src/Lean/Compiler/LCNF/FVarUtil.lean": "zig-backend/src/lean/compiler/lcnf/FVarUtil.lean"
+  }
+}

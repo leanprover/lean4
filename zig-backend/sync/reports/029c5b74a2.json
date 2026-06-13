@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-09-05",
+  "needs_port": false,
+  "sha": "029c5b74a214feeb33296bcef883aa0145ccad8d",
+  "short_sha": "029c5b74a2",
+  "subject": "feat: ignore implicit arguments at `congr` conv tactic",
+  "zig_target": {}
+}

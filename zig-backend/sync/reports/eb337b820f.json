@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2025-09-08",
+  "needs_port": false,
+  "sha": "eb337b820fa062d80193102a955c455b19e0586b",
+  "short_sha": "eb337b820f",
+  "subject": "refactor: `grind linarith` as solver extension (#10310)",
+  "zig_target": {}
+}

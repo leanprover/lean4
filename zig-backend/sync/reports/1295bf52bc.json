@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-05-06",
+  "needs_port": false,
+  "sha": "1295bf52bc7bdcd4390d40c0ba97be381739cc60",
+  "short_sha": "1295bf52bc",
+  "subject": "feat(library/init/lean/compiler/ir): add `Decl.checker` for debugging purposes",
+  "zig_target": {}
+}

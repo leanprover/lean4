@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-02-06",
+  "needs_port": false,
+  "sha": "886fdf263e34f32714e1ba4461bee6bc3c72d2cd",
+  "short_sha": "886fdf263e",
+  "subject": "chore(doc/examples/compiler): we don't need `main.cpp` anymore",
+  "zig_target": {}
+}

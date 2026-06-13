@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2024-06-13",
+  "needs_port": false,
+  "sha": "c5120c1d0dd5a23f1432b6432e6d897659ebb63f",
+  "short_sha": "c5120c1d0d",
+  "subject": "chore: CI: fix Wasm release-ci (#4442)",
+  "zig_target": {}
+}

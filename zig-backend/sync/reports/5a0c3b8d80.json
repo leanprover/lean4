@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/String/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/String/Basic.lean"
+    }
+  ],
+  "date": "2022-06-25",
+  "needs_port": true,
+  "sha": "5a0c3b8d803a17c0a8c1c23ff4f789b8398bcd09",
+  "short_sha": "5a0c3b8d80",
+  "subject": "fix: String.isNat",
+  "zig_target": {
+    "src/Init/Data/String/Basic.lean": "zig-backend/src/init/Data/String/Basic.lean"
+  }
+}

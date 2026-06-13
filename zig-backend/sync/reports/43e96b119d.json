@@ -1,0 +1,10 @@
+{
+  "author": "Eric Wieser",
+  "backend_changes": [],
+  "date": "2026-04-17",
+  "needs_port": false,
+  "sha": "43e96b119d9911d5424c7a493ebcc50321f2e8f7",
+  "short_sha": "43e96b119d",
+  "subject": "fix: prevent a hang in acLt (#13367)",
+  "zig_target": {}
+}

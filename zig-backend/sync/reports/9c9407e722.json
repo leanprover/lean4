@@ -1,0 +1,10 @@
+{
+  "author": "Wojciech Nawrocki",
+  "backend_changes": [],
+  "date": "2022-05-30",
+  "needs_port": false,
+  "sha": "9c9407e722914f57ed1a18859db7a1dd587afa31",
+  "short_sha": "9c9407e722",
+  "subject": "feat: propagate tagAppFns in delaborator",
+  "zig_target": {}
+}

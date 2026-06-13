@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Basic.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Tactic/Induction.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean"
+    }
+  ],
+  "date": "2020-02-23",
+  "needs_port": true,
+  "sha": "c4dac739be40de1c6786bb0efffc2060dbebdc33",
+  "short_sha": "c4dac739be",
+  "subject": "feat: add support for user-defined recursors at `getRecInfo`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Tactic/Basic.lean": "zig-backend/src/init/Lean/Elab/Tactic/Basic.lean",
+    "src/Init/Lean/Elab/Tactic/Induction.lean": "zig-backend/src/init/Lean/Elab/Tactic/Induction.lean"
+  }
+}

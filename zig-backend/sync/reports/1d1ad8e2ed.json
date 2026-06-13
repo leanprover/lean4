@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2019-09-17",
+  "needs_port": false,
+  "sha": "1d1ad8e2ed3ddb60f8c97b614dc1f53fcb261ec3",
+  "short_sha": "1d1ad8e2ed",
+  "subject": "chore(library/init): auxiliary combinators",
+  "zig_target": {}
+}

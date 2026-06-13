@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-03-03",
+  "needs_port": false,
+  "sha": "f306c9b69bd154269930eeea53ac6b47b086f0a6",
+  "short_sha": "f306c9b69b",
+  "subject": "fix: `split` tactic",
+  "zig_target": {}
+}

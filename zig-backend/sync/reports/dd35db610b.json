@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-05-21",
+  "needs_port": false,
+  "sha": "dd35db610b3d944249ca8c5b31e485fb59733048",
+  "short_sha": "dd35db610b",
+  "subject": "feat: server: show final state after tactic combinator",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2025-03-20",
+  "needs_port": false,
+  "sha": "10f0adc9f9dafbad3ae893eae02fe121faa680a0",
+  "short_sha": "10f0adc9f9",
+  "subject": "feat: lake: thin libraries for `static.export` (#7586)",
+  "zig_target": {}
+}

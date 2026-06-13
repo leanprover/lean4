@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-03-10",
+  "needs_port": false,
+  "sha": "64bfd803fec7b36b3c7175715ac4b8f08a64fcfa",
+  "short_sha": "64bfd803fe",
+  "subject": "chore: lean4-mode: avoid `cl`",
+  "zig_target": {}
+}

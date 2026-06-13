@@ -1,0 +1,10 @@
+{
+  "author": "Mac Malone",
+  "backend_changes": [],
+  "date": "2026-05-15",
+  "needs_port": false,
+  "sha": "f8b7f30f5ca97f16c2c0361e6be0459a0ef11c9d",
+  "short_sha": "f8b7f30f5c",
+  "subject": "fix: change plugin separator to `=` (#13737)",
+  "zig_target": {}
+}

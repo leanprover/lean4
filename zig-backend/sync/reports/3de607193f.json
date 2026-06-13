@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-04-11",
+  "needs_port": false,
+  "sha": "3de607193f9273fa29105a34d177b219f0bc44d0",
+  "short_sha": "3de607193f",
+  "subject": "fix: `withoutModifyingStateWithInfoAndMessagesImpl`",
+  "zig_target": {}
+}

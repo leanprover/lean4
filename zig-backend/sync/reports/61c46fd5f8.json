@@ -1,0 +1,10 @@
+{
+  "author": "David Thrane Christiansen",
+  "backend_changes": [],
+  "date": "2025-09-11",
+  "needs_port": false,
+  "sha": "61c46fd5f8edf86080455f181975895db3ec472e",
+  "short_sha": "61c46fd5f8",
+  "subject": "fix: mark doc parser tests as eol=lf (#10344)",
+  "zig_target": {}
+}

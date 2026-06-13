@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Meta/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Meta/Message.lean"
+    },
+    {
+      "path": "src/Init/Lean/Util/Message.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Util/Message.lean"
+    }
+  ],
+  "date": "2019-12-10",
+  "needs_port": true,
+  "sha": "83b0a712d945bf93685a87c76a28c49014a584d5",
+  "short_sha": "83b0a712d9",
+  "subject": "feat: convert `KernelException` into `MessageData`",
+  "zig_target": {
+    "src/Init/Lean/Meta/Message.lean": "zig-backend/src/init/Lean/Meta/Message.lean",
+    "src/Init/Lean/Util/Message.lean": "zig-backend/src/init/Lean/Util/Message.lean"
+  }
+}

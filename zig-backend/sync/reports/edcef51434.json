@@ -1,0 +1,10 @@
+{
+  "author": "Robert J. Simmons",
+  "backend_changes": [],
+  "date": "2025-12-02",
+  "needs_port": false,
+  "sha": "edcef51434804e6432c02f42ef364cb13f9149b2",
+  "short_sha": "edcef51434",
+  "subject": "feat: improve error messages for invalid field access (#11456)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2022-02-15",
+  "needs_port": false,
+  "sha": "fd9165415e762a1a69c994e085f91c6875857159",
+  "short_sha": "fd9165415e",
+  "subject": "feat: try to preserve variable names during discriminant refinement",
+  "zig_target": {}
+}

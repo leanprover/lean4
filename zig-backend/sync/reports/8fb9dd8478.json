@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-12-16",
+  "needs_port": false,
+  "sha": "8fb9dd847828473afdd655475257b29b2ecd8101",
+  "short_sha": "8fb9dd8478",
+  "subject": "fix: consider globbed files local",
+  "zig_target": {}
+}

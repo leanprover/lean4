@@ -1,0 +1,10 @@
+{
+  "author": "Henrik B\u00f6ving",
+  "backend_changes": [],
+  "date": "2025-07-24",
+  "needs_port": false,
+  "sha": "75b5c8b0aa24d27d3dfe4d465a9d45e71f9af71e",
+  "short_sha": "75b5c8b0aa",
+  "subject": "perf: phashmap benchmark (#9517)",
+  "zig_target": {}
+}

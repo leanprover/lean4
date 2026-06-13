@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2026-05-02",
+  "needs_port": false,
+  "sha": "06ac4728591aee593f52f7763c32d72212474087",
+  "short_sha": "06ac472859",
+  "subject": "feat: detect further sub-instances in `wrapInstance` (#13536)",
+  "zig_target": {}
+}

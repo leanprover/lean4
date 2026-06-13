@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/shell/CMakeLists.txt",
+      "status": "M",
+      "zig_target": "zig-backend/src/shell/CMakeLists.txt"
+    }
+  ],
+  "date": "2019-11-13",
+  "needs_port": true,
+  "sha": "bbe44a79f2019a95d9210714887411b2b99497a0",
+  "short_sha": "bbe44a79f2",
+  "subject": "feat: add tests for compiling stdlib with stage1",
+  "zig_target": {
+    "src/shell/CMakeLists.txt": "zig-backend/src/shell/CMakeLists.txt"
+  }
+}

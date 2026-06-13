@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2021-12-27",
+  "needs_port": false,
+  "sha": "555584375a92817ddd00071abd3a0c61e063b1d8",
+  "short_sha": "555584375a",
+  "subject": "fix: compare fields top-down in `deriving Ord`",
+  "zig_target": {}
+}

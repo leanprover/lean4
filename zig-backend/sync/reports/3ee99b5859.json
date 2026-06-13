@@ -1,0 +1,18 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Parser/Identifier.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Parser/Identifier.lean"
+    }
+  ],
+  "date": "2020-01-19",
+  "needs_port": true,
+  "sha": "3ee99b5859a6c455c61c0f7b427316b06a31ac49",
+  "short_sha": "3ee99b5859",
+  "subject": "feat: remove last superscript letter from list of valid identifier chars",
+  "zig_target": {
+    "src/Init/Lean/Parser/Identifier.lean": "zig-backend/src/init/Lean/Parser/Identifier.lean"
+  }
+}

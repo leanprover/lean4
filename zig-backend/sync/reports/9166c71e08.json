@@ -1,0 +1,10 @@
+{
+  "author": "Kim Morrison",
+  "backend_changes": [],
+  "date": "2025-10-24",
+  "needs_port": false,
+  "sha": "9166c71e0860b60a72f5353cac329c3b65e3910a",
+  "short_sha": "9166c71e08",
+  "subject": "feat: don't count symbols in instances and proofs",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-03-05",
+  "needs_port": false,
+  "sha": "7a79ef62d1ee7ff34ac3141eacbecb537ec62e28",
+  "short_sha": "7a79ef62d1",
+  "subject": "fix: bug at `hasSyntheticSorry`",
+  "zig_target": {}
+}

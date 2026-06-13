@@ -1,0 +1,18 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/runtime/lean_obj.h",
+      "status": "M",
+      "zig_target": "zig-backend/src/runtime/lean_obj.h"
+    }
+  ],
+  "date": "2018-05-20",
+  "needs_port": true,
+  "sha": "e081f9ad78c9f351effd8293adee76ecb5335e69",
+  "short_sha": "e081f9ad78",
+  "subject": "chore(runtime/lean_obj): cleanup",
+  "zig_target": {
+    "src/runtime/lean_obj.h": "zig-backend/src/runtime/lean_obj.h"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2024-02-26",
+  "needs_port": false,
+  "sha": "bb0695b0175bad81f8c13e5db5c6f54e11ca6db0",
+  "short_sha": "bb0695b017",
+  "subject": "fix: `simp?` should track unfolded let-decls (#3510)",
+  "zig_target": {}
+}

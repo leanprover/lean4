@@ -1,0 +1,10 @@
+{
+  "author": "Marc Huisinga",
+  "backend_changes": [],
+  "date": "2026-01-20",
+  "needs_port": false,
+  "sha": "db30cf3954373b460920c6a64d1399cef853f24f",
+  "short_sha": "db30cf3954",
+  "subject": "fix: set `data?` field in all unknown identifier code actions (#12046)",
+  "zig_target": {}
+}

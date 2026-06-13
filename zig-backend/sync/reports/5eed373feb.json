@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-02-10",
+  "needs_port": false,
+  "sha": "5eed373febdc5540d60b207bdb96ab0b5635a814",
+  "short_sha": "5eed373feb",
+  "subject": "doc: misc. style guide and naming scheme additions (#7026)",
+  "zig_target": {}
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Scott Morrison",
+  "backend_changes": [],
+  "date": "2023-11-09",
+  "needs_port": false,
+  "sha": "007b1b5979b34b65b0e28ebca096bea9c4862b1e",
+  "short_sha": "007b1b5979",
+  "subject": "feat: extend API of KVMap (#2851)",
+  "zig_target": {}
+}

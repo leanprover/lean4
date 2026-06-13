@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2018-12-06",
+  "needs_port": false,
+  "sha": "599d5c6c76d4bf3c559563ca111dc2f4413582ca",
+  "short_sha": "599d5c6c76",
+  "subject": "feat(library/init/lean/elaborator): log error on unknown command",
+  "zig_target": {}
+}

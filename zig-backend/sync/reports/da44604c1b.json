@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2022-07-24",
+  "needs_port": false,
+  "sha": "da44604c1b04371bd938398d47bd44cbf049b918",
+  "short_sha": "da44604c1b",
+  "subject": "fix: notation delaborator on over-application",
+  "zig_target": {}
+}

@@ -1,0 +1,24 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/Init/Lean/Elab/Level.lean",
+      "status": "A",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Level.lean"
+    },
+    {
+      "path": "src/Init/Lean/Elab/Log.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Lean/Elab/Log.lean"
+    }
+  ],
+  "date": "2019-12-30",
+  "needs_port": true,
+  "sha": "11c7045f4bbb91dab26caf3f574e7dc262f3ba46",
+  "short_sha": "11c7045f4b",
+  "subject": "feat: add `elabLevel`",
+  "zig_target": {
+    "src/Init/Lean/Elab/Level.lean": "zig-backend/src/init/Lean/Elab/Level.lean",
+    "src/Init/Lean/Elab/Log.lean": "zig-backend/src/init/Lean/Elab/Log.lean"
+  }
+}

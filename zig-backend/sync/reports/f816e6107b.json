@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2021-06-16",
+  "needs_port": false,
+  "sha": "f816e6107b612960a332af9a02cad36b6babba77",
+  "short_sha": "f816e6107b",
+  "subject": "fix: report (pending) type mismatch errors in `simp` arguments",
+  "zig_target": {}
+}

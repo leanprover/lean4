@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-08-22",
+  "needs_port": false,
+  "sha": "561a4510b3925a83dae34658a602c1fdc8e107f3",
+  "short_sha": "561a4510b3",
+  "subject": "fix: auto params on private structure fields (#10053)",
+  "zig_target": {}
+}

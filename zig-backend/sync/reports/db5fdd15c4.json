@@ -1,0 +1,10 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [],
+  "date": "2020-10-06",
+  "needs_port": false,
+  "sha": "db5fdd15c49e45b13d59fe973b278a5f08b7b01b",
+  "short_sha": "db5fdd15c4",
+  "subject": "feat: add `let*` parser and add some support for it at `Binders.lean`",
+  "zig_target": {}
+}

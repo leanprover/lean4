@@ -1,0 +1,36 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [
+    {
+      "path": "src/Init/Data/SInt/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/SInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/SInt/Lemmas.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Bitwise.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Bitwise.lean"
+    },
+    {
+      "path": "src/Init/Data/UInt/Lemmas.lean",
+      "status": "M",
+      "zig_target": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+    }
+  ],
+  "date": "2025-03-27",
+  "needs_port": true,
+  "sha": "17c18752ffb61c793f88eee4255dd33d5bee2c07",
+  "short_sha": "17c18752ff",
+  "subject": "feat: `IntX` operations and conversion theory (#7592)",
+  "zig_target": {
+    "src/Init/Data/SInt/Bitwise.lean": "zig-backend/src/init/Data/SInt/Bitwise.lean",
+    "src/Init/Data/SInt/Lemmas.lean": "zig-backend/src/init/Data/SInt/Lemmas.lean",
+    "src/Init/Data/UInt/Bitwise.lean": "zig-backend/src/init/Data/UInt/Bitwise.lean",
+    "src/Init/Data/UInt/Lemmas.lean": "zig-backend/src/init/Data/UInt/Lemmas.lean"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2025-04-01",
+  "needs_port": false,
+  "sha": "9c6c54107f19cf36f539408178faa5137ae7d25d",
+  "short_sha": "9c6c54107f",
+  "subject": "doc: `AsyncMode.mainOnly` is the default (#7773)",
+  "zig_target": {}
+}

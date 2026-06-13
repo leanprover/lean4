@@ -1,0 +1,10 @@
+{
+  "author": "Sebastian Ullrich",
+  "backend_changes": [],
+  "date": "2020-09-15",
+  "needs_port": false,
+  "sha": "1e6faf3f28f4501ab82ade571c4112c89c404d78",
+  "short_sha": "1e6faf3f28",
+  "subject": "test: ignore \\r when diffing",
+  "zig_target": {}
+}

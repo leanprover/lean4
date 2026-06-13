@@ -1,0 +1,10 @@
+{
+  "author": "Luisa Cicolini",
+  "backend_changes": [],
+  "date": "2025-06-05",
+  "needs_port": false,
+  "sha": "74d87463569cca5a63e38ca087cb96ee558adc08",
+  "short_sha": "74d8746356",
+  "subject": "feat: add `BitVec.setWidth'_eq` to `bv_normalize` (#8640)",
+  "zig_target": {}
+}

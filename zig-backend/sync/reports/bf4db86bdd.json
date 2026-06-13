@@ -1,0 +1,10 @@
+{
+  "author": "tydeu",
+  "backend_changes": [],
+  "date": "2021-09-16",
+  "needs_port": false,
+  "sha": "bf4db86bddb9731f4ebd63b85e755896e1402131",
+  "short_sha": "bf4db86bdd",
+  "subject": "feat: search path now first checks `IO.appPath` for `lean`",
+  "zig_target": {}
+}

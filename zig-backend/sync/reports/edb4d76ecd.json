@@ -1,0 +1,36 @@
+{
+  "author": "Leonardo de Moura",
+  "backend_changes": [
+    {
+      "path": "src/library/compiler/borrowed_annotation.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/borrowed_annotation.cpp"
+    },
+    {
+      "path": "src/library/compiler/closed_term_cache.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/closed_term_cache.cpp"
+    },
+    {
+      "path": "src/library/compiler/llnf_code.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/llnf_code.cpp"
+    },
+    {
+      "path": "src/library/compiler/specialize.cpp",
+      "status": "M",
+      "zig_target": "zig-backend/src/library/compiler/specialize.cpp"
+    }
+  ],
+  "date": "2019-05-13",
+  "needs_port": true,
+  "sha": "edb4d76ecde73e38bc8354419f62cde050385716",
+  "short_sha": "edb4d76ecd",
+  "subject": "feat(kernel/environment): `environment` as a Lean object",
+  "zig_target": {
+    "src/library/compiler/borrowed_annotation.cpp": "zig-backend/src/library/compiler/borrowed_annotation.cpp",
+    "src/library/compiler/closed_term_cache.cpp": "zig-backend/src/library/compiler/closed_term_cache.cpp",
+    "src/library/compiler/llnf_code.cpp": "zig-backend/src/library/compiler/llnf_code.cpp",
+    "src/library/compiler/specialize.cpp": "zig-backend/src/library/compiler/specialize.cpp"
+  }
+}

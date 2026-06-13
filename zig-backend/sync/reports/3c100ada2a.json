@@ -1,0 +1,10 @@
+{
+  "author": "Markus Himmel",
+  "backend_changes": [],
+  "date": "2025-12-08",
+  "needs_port": false,
+  "sha": "3c100ada2a8bb3fb207232effa37099502b393d8",
+  "short_sha": "3c100ada2a",
+  "subject": "doc: grove: update and add `String` data (#11551)",
+  "zig_target": {}
+}

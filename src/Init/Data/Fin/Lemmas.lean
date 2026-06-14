@@ -703,7 +703,7 @@ theorem natAdd_cast {n n' : Nat} (m : Nat) (i : Fin n') (h : n' = n) :
     natAdd m (i.cast h) = (natAdd m i).cast (congrArg _ h) := rfl
 
 theorem cast_natAdd_right {n n' m : Nat} (i : Fin n') (h : m + n' = m + n) :
-    (natAdd m i).cast h  = natAdd m (i.cast (Nat.add_left_cancel h)) := rfl
+    (natAdd m i).cast h = natAdd m (i.cast (Nat.add_left_cancel h)) := rfl
 
 @[simp] theorem cast_natAdd_left {n m m' : Nat} (i : Fin n) (h : m' + n = m + n) :
     (natAdd m' i).cast h = natAdd m i :=

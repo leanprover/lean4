@@ -520,6 +520,24 @@ partial def containsTailCall : Code .impure → EmitM Bool
       pure hasTail
   | .jmp .. | .return .. | .unreach .. => pure false
 
+partial def containsJmp : Code .impure → EmitM Bool
+  | .let _ k => containsJmp k
+  | .jp decl k => do
+      let bodyHas ← containsJmp decl.value
+      let restHas ← containsJmp k
+      pure (bodyHas || restHas)
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .sset _ _ _ _ _ k => containsJmp k
+  | .cases cs => do
+      let mut hasJmp := false
+      for alt in cs.alts do
+        hasJmp := hasJmp || (← containsJmp alt.getCode)
+      pure hasJmp
+  | .jmp .. => pure true
+  | .return .. | .unreach .. => pure false
+
 partial def collectCodeTypes (code : Code .impure) (acc : NameMap Expr := {}) : NameMap Expr :=
   match code with
   | .let decl k =>
@@ -560,20 +578,20 @@ def ensureHasDefault (alts : Array (Alt .impure)) : Array (Alt .impure) :=
   else
     if alts.size < 2 then alts else alts.pop.push (.default alts.back!.getCode)
 
-partial def emitVarDecls : Code .impure → EmitM Unit
-  | .let _ k => emitVarDecls k
+partial def emitVarDecls (bodyText : String) : Code .impure → EmitM Unit
+  | .let _ k => emitVarDecls bodyText k
   | .jp decl k => do
       for p in runtimeParams decl.params do
-        emitLn s!"  var {zigIdent p.fvarId.name}: {p.type.toZigType} = undefined;"
-      emitVarDecls decl.value
-      emitVarDecls k
+        if bodyUsesIdent bodyText (zigIdent p.fvarId.name) then
+          emitLn s!"  var {zigIdent p.fvarId.name}: {p.type.toZigType} = undefined;"
+      emitVarDecls bodyText k
   | .inc _ _ _ _ k
   | .dec _ _ _ _ _ k
   | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
-  | .sset _ _ _ _ _ k => emitVarDecls k
+  | .sset _ _ _ _ _ k => emitVarDecls bodyText k
   | .cases cs =>
       for alt in cs.alts do
-        emitVarDecls alt.getCode
+        emitVarDecls bodyText alt.getCode
   | .jmp .. | .return .. | .unreach .. => pure ()
 
 partial def supportsCodeSubset : Code .impure → EmitM Bool
@@ -600,13 +618,27 @@ partial def supportsCodeSubset : Code .impure → EmitM Bool
   | .jmp .. | .return .. | .unreach .. => pure true
 
 def renderJumpPayload (params : Array (Param .impure)) (args : Array (Arg .impure)) : String :=
-  let filteredArgs := runtimeArgs params args
-  if filteredArgs.isEmpty then
+  -- LCNF pairs each `jmp` argument with the join point's parameter list
+  -- at the same index. Some parameters are `void`/`erased` and have no
+  -- runtime representation; for those we substitute a dummy object so
+  -- every break site of the same join point sends exactly the same
+  -- number of arguments, letting Zig infer a single, consistent tuple
+  -- shape for the label block.
+  let runtimeArgsList : List (Arg .impure) := Id.run do
+    let mut out : List (Arg .impure) := []
+    for h : i in [0:params.size] do
+      let p := params[i]
+      let arg :=
+        if p.type.isVoid || p.type.isErased then Arg.erased
+        else if h : i < args.size then args[i]
+        else Arg.erased
+      out := arg :: out
+    out.reverse
+  let rendered : List String := runtimeArgsList.map renderImpureArg
+  if rendered.isEmpty then
     ".{}"
-  else if filteredArgs.size == 1 then
-    renderImpureArg filteredArgs[0]!
   else
-    ".{ " ++ renderArgList filteredArgs ++ " }"
+    ".{ " ++ String.intercalate ", " rendered ++ " }"
 
 def emitRenderedLet (binder : Name) (type : Expr) (lines : List String) (forceVar := false) : EmitM Unit := do
   let lhs := zigIdent binder
@@ -791,15 +823,11 @@ partial def emitJoinPoint (decl : FunDecl .impure) (k : Code .impure) : EmitM Un
     emitLn <| "  const " ++ resultVar ++ " = " ++ label ++ ": {"
     emitBasicBlock k
     emitLn "  };"
-    if params.size == 1 then
-      let p := params[0]!
-      emitLn s!"  {zigIdent p.fvarId.name} = {resultVar};"
-    else
-      for h : i in [0:params.size] do
-        let p := params[i]
-        let field := ".@\"" ++ toString i ++ "\""
-        emitLn s!"  {zigIdent p.fvarId.name} = {resultVar}{field};"
-  emitBasicBlock decl.value
+
+    for h : i in [0:params.size] do
+      let p := params[i]
+      let field := ".@\"" ++ toString i ++ "\""
+      emitLn s!"  {zigIdent p.fvarId.name} = {resultVar}{field};"
 
 end
 
@@ -877,33 +905,34 @@ def emitDecl (decl : Decl .impure) : EmitM Unit := do
       { ctx with currFn := decl.name, currParams := decl.params, fvarTypes, joinDecls }
     let supported ← withReader readerCtx do
       supportsCodeSubset code
-    let tailRec ← withReader readerCtx do
-      containsTailCall code
+    let tailRec ← withReader readerCtx do containsTailCall code
+    let hasJmp ← withReader readerCtx do containsJmp code
     let bodyText ← withReader readerCtx do
       captureOutput (emitBasicBlock code)
     let params := runtimeParams decl.params
     if supported then
       withReader readerCtx do
         for p in params do
+          let mutated := tailRec && tailCallMutatesParam decl.name decl.params p.fvarId code
           let used := bodyUsesIdent bodyText (zigIdent p.fvarId.name) ||
             (tailRec && bodyUsesIdent bodyText (tailStateIdent p.fvarId.name))
-          let mutated := tailRec && tailCallMutatesParam decl.name decl.params p.fvarId code
           if used then
             let name := if tailRec then tailStateIdent p.fvarId.name else zigIdent p.fvarId.name
             let bindingKw := if tailRec && mutated then "var" else "const"
             emitLn s!"  {bindingKw} {name}: {p.type.toZigType} = {zigParamIdent p.fvarId.name};"
           else
             emitLn s!"  _ = {zigParamIdent p.fvarId.name};"
-        emitVarDecls code
+        emitVarDecls bodyText code
         if !params.isEmpty then
           emitLn ""
-        if tailRec then
+        let needsLoop := tailRec || (hasJmp && params.any (fun p => bodyUsesIdent bodyText (tailStateIdent p.fvarId.name)))
+        if needsLoop then
           emitLn "  while (true) {"
           for p in params do
             let used := bodyUsesIdent bodyText (zigIdent p.fvarId.name) ||
               bodyUsesIdent bodyText (tailStateIdent p.fvarId.name)
-            let mutated := tailCallMutatesParam decl.name decl.params p.fvarId code
             if used then
+              let mutated := tailCallMutatesParam decl.name decl.params p.fvarId code
               let bindingKw := if mutated then "var" else "const"
               emitLn s!"  {bindingKw} {zigIdent p.fvarId.name}: {p.type.toZigType} = {tailStateIdent p.fvarId.name};"
           if !params.isEmpty then

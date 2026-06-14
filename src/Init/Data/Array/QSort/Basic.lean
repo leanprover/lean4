@@ -175,23 +175,27 @@ def ordOfLt (lt : α → α → Bool) : Ord α where
 /-
   Wrappers for qsort to ensure compatibility to previous code
 -/
+@[inline]
 def Array.qsort (xs : Array α) (lt : α → α → Bool := by exact (· < ·)) (sllo := 0) (slhi := xs.size) : Array α :=
   letI : Ord α := ordOfLt lt
   let slhi := min slhi xs.size
   let sllo := min sllo slhi
   (quicksorthelper xs.toVector sllo slhi (by omega) (by omega)).toArray
 
+@[inline]
 def Vector.qsort {size} (xs : Vector α size) (lt : α → α → Bool := by exact (· < ·)) (sllo := 0) (slhi := size) : Vector α size :=
   letI : Ord α := ordOfLt lt
   let slhi := min slhi size
   let sllo := min sllo slhi
   quicksorthelper xs sllo slhi (by omega) (by omega)
 
+@[inline]
 def Array.qsortOrd [Ord α] (xs : Array α) (sllo := 0) (slhi := xs.size - 1) : Array α :=
   let slhi := min slhi xs.size
   let sllo := min sllo slhi
   (quicksorthelper xs.toVector sllo slhi (by omega) (by omega)).toArray
 
+@[inline]
 def Vector.qsortOrd [Ord α] {size} (xs : Vector α size) (sllo := 0) (slhi := size) : Vector α size :=
   let slhi := min slhi size
   let sllo := min sllo slhi

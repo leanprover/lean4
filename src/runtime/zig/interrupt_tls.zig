@@ -1,27 +1,4 @@
-const builtin = @import("builtin");
 const std = @import("std");
-
-const cpp_partial = if (builtin.is_test)
-    struct {
-        fn leanrt_cpp_partial_hidden_reset_heartbeat() callconv(.c) void {}
-
-        fn leanrt_cpp_partial_hidden_lean_inc_heartbeat_impl() callconv(.c) void {}
-
-        fn leanrt_cpp_partial_hidden_cancel_tk_get() callconv(.c) ?*anyopaque {
-            return null;
-        }
-
-        fn leanrt_cpp_partial_hidden_cancel_tk_swap(token: ?*anyopaque) callconv(.c) ?*anyopaque {
-            return token;
-        }
-    }
-else
-    struct {
-        extern fn leanrt_cpp_partial_hidden_reset_heartbeat() callconv(.c) void;
-        extern fn leanrt_cpp_partial_hidden_lean_inc_heartbeat_impl() callconv(.c) void;
-        extern fn leanrt_cpp_partial_hidden_cancel_tk_get() callconv(.c) ?*anyopaque;
-        extern fn leanrt_cpp_partial_hidden_cancel_tk_swap(token: ?*anyopaque) callconv(.c) ?*anyopaque;
-    };
 
 pub const HeartbeatBoundarySnapshot = extern struct {
     pre_spawn_before_reset: usize,
@@ -86,12 +63,10 @@ const HeartbeatBoundaryState = struct {
 
 var g_heartbeat_boundary_state = HeartbeatBoundaryState{};
 threadlocal var g_heartbeat_probe: usize = 0;
+threadlocal var g_cancel_token: ?*anyopaque = null;
 
 fn resetHeartbeatAt(boundary: HeartbeatBoundary) void {
     const before = g_heartbeat_probe;
-    if (!builtin.is_test) {
-        cpp_partial.leanrt_cpp_partial_hidden_reset_heartbeat();
-    }
     g_heartbeat_probe = 0;
     g_heartbeat_boundary_state.record(boundary, before);
 }
@@ -109,12 +84,7 @@ pub fn resetHeartbeatAfterWorkerRun() void {
 }
 
 pub fn noteHeartbeatPulseForTest(iterations: usize) void {
-    for (0..iterations) |_| {
-        if (!builtin.is_test) {
-            cpp_partial.leanrt_cpp_partial_hidden_lean_inc_heartbeat_impl();
-        }
-        g_heartbeat_probe += 1;
-    }
+    g_heartbeat_probe += iterations;
 }
 
 pub fn resetHeartbeatBoundaryState() void {
@@ -127,9 +97,11 @@ pub fn heartbeatBoundarySnapshot() HeartbeatBoundarySnapshot {
 }
 
 pub fn currentCancelToken() ?*anyopaque {
-    return cpp_partial.leanrt_cpp_partial_hidden_cancel_tk_get();
+    return g_cancel_token;
 }
 
 pub fn swapCancelToken(token: ?*anyopaque) ?*anyopaque {
-    return cpp_partial.leanrt_cpp_partial_hidden_cancel_tk_swap(token);
+    const prev = g_cancel_token;
+    g_cancel_token = token;
+    return prev;
 }

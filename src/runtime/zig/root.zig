@@ -5,7 +5,6 @@ pub const apply = @import("apply.zig");
 pub const array = @import("array.zig");
 pub const box = @import("box.zig");
 pub const ctor = @import("ctor.zig");
-pub const cpp_partial_stubs = @import("cpp_partial_stubs.zig");
 pub const dbg = @import("dbg.zig");
 pub const float = @import("float.zig");
 pub const init = @import("init.zig");
@@ -66,7 +65,6 @@ comptime {
     _ = task_manager;
     _ = task_manager_export;
     _ = thread;
-    _ = cpp_partial_stubs;
     _ = thunk;
     _ = uint_conv;
     _ = utf8;

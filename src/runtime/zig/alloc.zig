@@ -10,9 +10,6 @@ const external_allocator = struct {
     extern fn lean_alloc_object(sz: usize) callconv(.c) *anyopaque;
     extern fn lean_free_object(o: *anyopaque) callconv(.c) void;
 };
-const delegated_runtime = struct {
-    extern fn leanrt_cpp_partial_hidden_lean_free_object_impl(o: *anyopaque) callconv(.c) void;
-};
 const task_runtime = if (builtin.is_test)
     struct {
         fn leanrt_task_deactivate_promise_impl(o: *anyopaque) callconv(.c) void {
@@ -231,14 +228,12 @@ fn freeLegacyRaw(ptr: *anyopaque) void {
 }
 
 fn freeDelegatedCppObject(ptr: *anyopaque) void {
-    if (builtin.is_test) {
-        freeLegacySmall(ptr);
-        return;
-    }
-
-    delegated_runtime.leanrt_cpp_partial_hidden_lean_free_object_impl(ptr);
+    // Objects reaching this path were allocated by the legacy C++ runtime
+    // (e.g., MPZ values produced by GMP callbacks). Until the Zig runtime
+    // owns those allocations end-to-end, route them through the same libc
+    // free path used for legacy small objects.
+    freeLegacySmall(ptr);
 }
-
 fn decObjectForTask(value: ?*anyopaque) void {
     if (value) |ptr| {
         if ((@intFromPtr(ptr) & 1) == 1) {

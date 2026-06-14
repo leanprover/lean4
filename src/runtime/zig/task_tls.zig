@@ -1,16 +1,4 @@
-const builtin = @import("builtin");
 const lean = @import("lean_object.zig");
-
-const cpp_partial = if (builtin.is_test)
-    struct {
-        fn leanrt_cpp_partial_hidden_current_task_swap(task: ?*lean.lean_task_object) callconv(.c) ?*lean.lean_task_object {
-            return task;
-        }
-    }
-else
-    struct {
-        extern fn leanrt_cpp_partial_hidden_current_task_swap(task: ?*lean.lean_task_object) callconv(.c) ?*lean.lean_task_object;
-    };
 
 threadlocal var g_current_task_object: ?*lean.lean_task_object = null;
 
@@ -20,9 +8,6 @@ pub fn get() ?*lean.lean_task_object {
 
 pub fn swap(task: ?*lean.lean_task_object) ?*lean.lean_task_object {
     const prev = g_current_task_object;
-    if (!builtin.is_test) {
-        _ = cpp_partial.leanrt_cpp_partial_hidden_current_task_swap(task);
-    }
     g_current_task_object = task;
     return prev;
 }

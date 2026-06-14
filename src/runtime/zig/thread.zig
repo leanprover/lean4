@@ -16,11 +16,6 @@ const libc = struct {
     extern "c" fn unsetenv(name: [*:0]const u8) c_int;
 };
 
-const delegated_runtime = struct {
-    extern fn leanrt_cpp_partial_hidden_lean_initialize_thread() callconv(.c) void;
-    extern fn leanrt_cpp_partial_hidden_lean_finalize_thread() callconv(.c) void;
-};
-
 threadlocal var g_thread_initialized = false;
 var g_live_spawn_contexts = std.atomic.Value(usize).init(0);
 
@@ -84,9 +79,6 @@ pub fn initializeThreadSubsystems() void {
     if (g_thread_initialized) return;
 
     alloc.initializeThreadAllocator();
-    if (!builtin.is_test) {
-        delegated_runtime.leanrt_cpp_partial_hidden_lean_initialize_thread();
-    }
     g_thread_initialized = true;
 }
 
@@ -94,12 +86,8 @@ pub fn finalizeThreadSubsystems() void {
     if (!g_thread_initialized) return;
 
     alloc.finalizeThreadAllocator();
-    if (!builtin.is_test) {
-        delegated_runtime.leanrt_cpp_partial_hidden_lean_finalize_thread();
-    }
     g_thread_initialized = false;
 }
-
 pub export fn lean_initialize_thread() callconv(.c) void {
     initializeThreadSubsystems();
 }

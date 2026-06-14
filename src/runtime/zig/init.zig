@@ -20,11 +20,6 @@ const libc = struct {
     extern "c" fn setenv(name: [*:0]const u8, value: [*:0]const u8, overwrite: c_int) c_int;
     extern "c" fn unsetenv(name: [*:0]const u8) c_int;
 };
-const delegated_runtime = struct {
-    extern fn leanrt_cpp_partial_hidden_lean_initialize_runtime_module() callconv(.c) void;
-    extern fn leanrt_cpp_partial_hidden_lean_setup_args(argc: c_int, argv: [*c][*c]u8) callconv(.c) [*c][*c]u8;
-};
-
 const MainFn = *const fn (argc: c_int, argv: [*c][*c]u8) callconv(.c) ?*anyopaque;
 const RunMainContext = struct {
     main_fn: MainFn,
@@ -70,11 +65,6 @@ pub fn initializeRuntimeSubsystems() void {
         alloc.initializeRuntimeAllocator();
         initializeRcSubsystem();
         io_errno.initializeDecodeCache();
-        if (!builtin.is_test) {
-            delegated_runtime.leanrt_cpp_partial_hidden_lean_initialize_runtime_module();
-        }
-    } else {
-        delegated_runtime.leanrt_cpp_partial_hidden_lean_initialize_runtime_module();
     }
     g_runtime_initialized = true;
     g_initializing = true;
@@ -169,14 +159,8 @@ pub export fn lean_initialize() callconv(.c) void {
 }
 
 pub export fn lean_setup_args(argc: c_int, argv: [*c][*c]u8) callconv(.c) [*c][*c]u8 {
-    if (comptime export_allocator_symbols) {
-        if (!builtin.is_test) {
-            return delegated_runtime.leanrt_cpp_partial_hidden_lean_setup_args(argc, argv);
-        }
-        return argv;
-    }
-
-    return delegated_runtime.leanrt_cpp_partial_hidden_lean_setup_args(argc, argv);
+    _ = argc;
+    return argv;
 }
 
 test "runtime module and thread initialization enable allocation" {

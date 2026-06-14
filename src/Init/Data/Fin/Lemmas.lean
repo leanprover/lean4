@@ -459,7 +459,9 @@ theorem one_lt_succ_succ (a : Fin n) : (1 : Fin (n + 2)) < a.succ.succ := by
 @[simp] theorem lt_add_one_iff {n : Nat} {k : Fin (n + 1)} : k < k + 1 ↔ k < last n := by
   rw [← Decidable.not_iff_not]; simp
 
-@[simp] theorem le_zero_iff {n : Nat} [NeZero n] {k : Fin n} : k ≤ 0 ↔ k = 0 :=
+@[simp] theorem le_zero_iff {n : Nat} {k : Fin n} :
+    haveI : NeZero n := ⟨Nat.ne_zero_of_lt k.isLt⟩
+    k ≤ 0 ↔ k = 0 :=
   ⟨fun h => Fin.eq_of_val_eq <| Nat.eq_zero_of_le_zero h, (· ▸ Nat.le_refl _)⟩
 
 theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=

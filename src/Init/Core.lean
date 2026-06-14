@@ -988,19 +988,19 @@ theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') 
 Heterogeneous equality with an `Eq.rec` application on the left is equivalent to a heterogeneous
 equality on the original term.
 -/
-theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h}
+theorem eqRec_heq_iff {α : Sort u} {β : Sort v} {a : α} {motive : (b : α) → a = b → Sort v}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β}
     : @Eq.rec α a motive refl b h ≍ c ↔ refl ≍ c :=
-  h.rec (fun _ => ⟨id, id⟩) c
+  h.rec Iff.rfl
 
 /--
 Heterogeneous equality with an `Eq.rec` application on the right is equivalent to a heterogeneous
 equality on the original term.
 -/
-theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+theorem heq_eqRec_iff {α : Sort u} {β : Sort v} {a : α} {motive : (b : α) → a = b → Sort v}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β} :
     c ≍ @Eq.rec α a motive refl b h ↔ c ≍ refl :=
-  h.rec (fun _ => ⟨id, id⟩) c
+  h.rec Iff.rfl
 
 /--
 Moves an cast using `Eq.rec` from the function to the argument.

@@ -201,6 +201,8 @@ fn lean_mk_io_error_unsupported_operation(os_code: u32, details: *anyopaque) *an
 // Minimal stub implementations for programs that link the Zig runtime without
 // the Lean standard library. These are sufficient for trivial IO smoke tests.
 
+extern fn lean_mk_string_unchecked(s: [*:0]const u8, sz: usize, len: usize) callconv(.c) *anyopaque;
+
 fn stringBytes(msg: *anyopaque) []const u8 {
     const str: *lean.lean_string_object = @ptrCast(@alignCast(msg));
     const size = if (str.m_size == 0) 0 else str.m_size - 1;
@@ -214,6 +216,39 @@ fn stdoutPutStr(str_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopa
     return io_result.lean_io_result_mk_ok(world_obj);
 }
 
+fn stdoutWrite(ba_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    const ba: *lean.lean_sarray_object = @ptrCast(@alignCast(ba_obj));
+    const bytes: [*]const u8 = @ptrCast(&ba.m_data);
+    _ = std.c.write(1, bytes, ba.m_size);
+    return io_result.lean_io_result_mk_ok(world_obj);
+}
+
+fn stdoutFlush(world_obj: *anyopaque) callconv(.c) *anyopaque {
+    return io_result.lean_io_result_mk_ok(world_obj);
+}
+
+fn stdoutRead(n_obj: *anyopaque, _: *anyopaque) callconv(.c) *anyopaque {
+    const n = object.lean_unbox(n_obj);
+    const ba = alloc.lean_alloc_sarray(1, 0, n);
+    return io_result.lean_io_result_mk_ok(ba);
+}
+
+fn stdinGetLine(_: *anyopaque) callconv(.c) *anyopaque {
+    return io_result.lean_io_result_mk_ok(lean_mk_string_unchecked(@ptrCast("".ptr), 0, 0));
+}
+
+fn streamIsTty(_: *anyopaque) callconv(.c) *anyopaque {
+    return io_result.lean_io_result_mk_ok(object.lean_box(0).?);
+}
+
+fn makeStreamClosure(comptime fun: anytype) *anyopaque {
+    return alloc.lean_alloc_closure(@constCast(@ptrCast(&fun)), 1, 0);
+}
+
+fn makeStreamClosure2(comptime fun: anytype) *anyopaque {
+    return alloc.lean_alloc_closure(@constCast(@ptrCast(&fun)), 2, 0);
+}
+
 export fn initialize_Init(builtin: u8) callconv(.c) *anyopaque {
     _ = builtin;
     return io_result.lean_io_result_mk_ok(object.lean_box(0).?);
@@ -221,13 +256,12 @@ export fn initialize_Init(builtin: u8) callconv(.c) *anyopaque {
 
 export fn lean_get_stdout() callconv(.c) *anyopaque {
     const stream = alloc.lean_alloc_ctor(0, 6, 0);
-    const put_str = alloc.lean_alloc_closure(@constCast(@ptrCast(&stdoutPutStr)), 2, 0);
-    ctor.lean_ctor_set(stream, 0, object.lean_box(0).?); // flush
-    ctor.lean_ctor_set(stream, 1, object.lean_box(0).?); // read
-    ctor.lean_ctor_set(stream, 2, object.lean_box(0).?); // write
-    ctor.lean_ctor_set(stream, 3, object.lean_box(0).?); // getLine
-    ctor.lean_ctor_set(stream, 4, put_str);              // putStr
-    ctor.lean_ctor_set(stream, 5, object.lean_box(0).?); // isTty
+    ctor.lean_ctor_set(stream, 0, makeStreamClosure(stdoutFlush));
+    ctor.lean_ctor_set(stream, 1, makeStreamClosure2(stdoutRead));
+    ctor.lean_ctor_set(stream, 2, makeStreamClosure2(stdoutWrite));
+    ctor.lean_ctor_set(stream, 3, makeStreamClosure(stdinGetLine));
+    ctor.lean_ctor_set(stream, 4, makeStreamClosure2(stdoutPutStr));
+    ctor.lean_ctor_set(stream, 5, makeStreamClosure(streamIsTty));
     return stream;
 }
 fn lean_mk_io_user_error(msg: *anyopaque) *anyopaque {

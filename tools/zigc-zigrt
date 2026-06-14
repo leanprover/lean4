@@ -5,14 +5,9 @@ set -euo pipefail
 # Usage: zigc-zigrt <input.zig> [output-name]
 #
 # Links against libleanrt_zig.a (the in-tree Zig runtime) instead of the C++ runtime/stdlib.
+# Requires libgmp and libuv to be discoverable by zig build-exe.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-LEANC="${LEANC:-$ROOT/build/release/stage1/bin/leanc}"
-
-if [[ ! -x "$LEANC" ]]; then
-  echo "zigc-zigrt: leanc not found at $LEANC" >&2
-  exit 1
-fi
 
 INPUT="$1"
 OUTPUT="${2:-$(basename "$INPUT" .zig)}"
@@ -23,10 +18,14 @@ if [[ ! -f "$ZIGRT_LIB" ]]; then
   exit 1
 fi
 
+EXTRA_FLAGS=()
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  EXTRA_FLAGS=(-L/opt/homebrew/lib -framework CoreFoundation)
+fi
+
 zig build-exe "$INPUT" -O Debug \
   -I "$ROOT/build/release/stage1/include" \
-  -L "$ROOT/build/release/stage1/lib/lean" \
   "$ZIGRT_LIB" \
   -lgmp -luv -lpthread \
-  -L/opt/homebrew/lib -framework CoreFoundation \
+  "${EXTRA_FLAGS[@]}" \
   -femit-bin="$OUTPUT"

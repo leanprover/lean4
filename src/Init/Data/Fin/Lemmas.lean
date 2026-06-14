@@ -230,7 +230,7 @@ theorem mk_le_of_le_val {b : Fin n} {a : Nat} (h : a ≤ b) :
 
 @[simp] theorem val_zero (n : Nat) [NeZero n] : ((0 : Fin n) : Nat) = 0 := rfl
 
-@[simp] theorem mk_zero : (⟨0, Nat.succ_pos n⟩ : Fin (n + 1)) = 0 := rfl
+@[simp] theorem mk_zero [NeZero n] : (⟨0, Nat.pos_of_neZero n⟩ : Fin n) = 0 := rfl
 
 @[simp] theorem zero_le [NeZero n] (a : Fin n) : 0 ≤ a := Nat.zero_le a.val
 
@@ -418,7 +418,8 @@ grind_pattern val_succ => j.succ
 theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0
   | ⟨k, _⟩, heq => Nat.succ_ne_zero k <| congrArg Fin.val heq
 
-@[simp] theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
+@[simp] theorem succ_zero_eq_one [NeZero n] : Fin.succ (0 : Fin n) = 1 :=
+  n.casesOn (fun hn => (hn.out rfl).elim) (fun _ _ => rfl) hn
 
 /-- Version of `succ_one_eq_two` to be used by `dsimp` -/
 @[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl
@@ -458,7 +459,7 @@ theorem one_lt_succ_succ (a : Fin n) : (1 : Fin (n + 2)) < a.succ.succ := by
 @[simp] theorem lt_add_one_iff {n : Nat} {k : Fin (n + 1)} : k < k + 1 ↔ k < last n := by
   rw [← Decidable.not_iff_not]; simp
 
-@[simp] theorem le_zero_iff {n : Nat} {k : Fin (n + 1)} : k ≤ 0 ↔ k = 0 :=
+@[simp] theorem le_zero_iff {n : Nat} [NeZero n] {k : Fin n} : k ≤ 0 ↔ k = 0 :=
   ⟨fun h => Fin.eq_of_val_eq <| Nat.eq_zero_of_le_zero h, (· ▸ Nat.le_refl _)⟩
 
 theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
@@ -480,7 +481,9 @@ theorem coe_castLE (h : n ≤ m) (i : Fin n) : (castLE h i : Nat) = i := rfl
 @[simp] theorem castLE_mk (i n m : Nat) (hn : i < n) (h : n ≤ m) :
     castLE h ⟨i, hn⟩ = ⟨i, Nat.lt_of_lt_of_le hn h⟩ := rfl
 
-@[simp] theorem castLE_zero {n m : Nat} (h : n.succ ≤ m.succ) : castLE h 0 = 0 := by simp [Fin.ext_iff]
+@[simp] theorem castLE_zero {n m : Nat} [NeZero n] (h : n ≤ m) :
+    haveI : NeZero m := ⟨Nat.ne_zero_of_lt (Nat.lt_of_lt_of_le (Nat.pos_of_neZero n) h)⟩
+    castLE h 0 = 0 := rfl
 
 @[simp] theorem castLE_succ {m n : Nat} (h : m + 1 ≤ n + 1) (i : Fin m) :
     castLE h i.succ = (castLE (Nat.succ_le_succ_iff.mp h) i).succ := by simp [Fin.ext_iff]
@@ -508,7 +511,7 @@ theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
 
 @[simp] theorem cast_zero [NeZero n] [NeZero m] (h : n = m) : Fin.cast h 0 = 0 := rfl
 
-@[simp] theorem cast_last {n' : Nat} {h : n + 1 = n' + 1} : (last n).cast h  = last n' :=
+@[simp] theorem cast_last {n' : Nat} {h : n + 1 = n' + 1} : (last n).cast h = last n' :=
   Fin.ext (by rw [val_cast, val_last, val_last, Nat.succ.inj h])
 
 @[simp] theorem cast_mk (h : n = m) (i : Nat) (hn : i < n) : Fin.cast h ⟨i, hn⟩ = ⟨i, h ▸ hn⟩ := rfl

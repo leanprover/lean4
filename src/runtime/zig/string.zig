@@ -5,6 +5,7 @@ const lean = @import("lean_object.zig");
 const object = @import("object.zig");
 const rc = @import("rc.zig");
 const utf8 = @import("utf8.zig");
+const ctor = @import("ctor.zig");
 
 fn asString(o: *anyopaque) *lean.lean_string_object {
     return @ptrCast(@alignCast(o));
@@ -137,14 +138,44 @@ export fn lean_string_append(s1: *anyopaque, s2: *anyopaque) callconv(.c) *anyop
     return result;
 }
 
-fn lean_string_mk(_cs: *anyopaque) callconv(.c) *anyopaque {
-    _ = _cs;
-    @panic("unimplemented: lean_string_mk");
+fn lean_string_mk(cs: *anyopaque) callconv(.c) *anyopaque {
+    var bytes: std.ArrayListUnmanaged(u8) = .empty;
+    defer bytes.deinit(std.heap.page_allocator);
+    var len: usize = 0;
+    var it: ?*anyopaque = cs;
+    while (it) |node| {
+        if (object.lean_is_scalar(node)) break;
+        const c = @as(u32, @truncate(object.lean_unbox(ctor.lean_ctor_get(node, 0))));
+        var buf: [4]u8 = undefined;
+        const n = utf8.pushUnicodeScalar(&buf, c);
+        bytes.appendSlice(std.heap.page_allocator, buf[0..n]) catch @panic("lean_string_mk: out of memory");
+        len += 1;
+        it = ctor.lean_ctor_get(node, 1);
+    }
+    rc.lean_dec(cs);
+    const result = allocString(bytes.items.len + 1, bytes.items.len + 1, len);
+    const dest = stringDataMut(result);
+    @memcpy(dest[0..bytes.items.len], bytes.items);
+    dest[bytes.items.len] = 0;
+    return result;
 }
 
-fn lean_string_data(_s: *anyopaque) callconv(.c) *anyopaque {
-    _ = _s;
-    @panic("unimplemented: lean_string_data");
+fn lean_string_data(s: *anyopaque) callconv(.c) *anyopaque {
+    const bytes = stringData(s);
+    const size = stringSize(s) - 1;
+    var result: ?*anyopaque = object.lean_box(0).?;
+    var pos: usize = size;
+    while (pos > 0) {
+        const prev = utf8.prevIndex(bytes, pos);
+        const code = utf8.decodeAt(bytes, size, prev) orelse 0xFFFD;
+        const cell = alloc.lean_alloc_ctor(1, 2, 0);
+        ctor.lean_ctor_set(cell, 0, object.lean_box(@as(usize, code)));
+        ctor.lean_ctor_set(cell, 1, result);
+        result = cell;
+        pos = prev;
+    }
+    rc.lean_dec(s);
+    return result.?;
 }
 
 export fn lean_string_utf8_get(s: *anyopaque, i: *anyopaque) callconv(.c) u32 {
@@ -188,18 +219,57 @@ export fn lean_string_utf8_prev(s: *anyopaque, i: *anyopaque) callconv(.c) *anyo
     return object.lean_box(index).?;
 }
 
-fn lean_string_utf8_set(_s: *anyopaque, _i: *anyopaque, _c: u32) callconv(.c) *anyopaque {
-    _ = _s;
-    _ = _i;
-    _ = _c;
-    @panic("unimplemented: lean_string_utf8_set");
+fn lean_string_utf8_set(s: *anyopaque, idx_arg: *anyopaque, c: u32) callconv(.c) *anyopaque {
+    if (!object.lean_is_scalar(idx_arg)) return s;
+    const i = object.lean_unbox(idx_arg);
+    const sz = stringSize(s) - 1;
+    if (i >= sz) return s;
+    const bytes = stringData(s);
+    if (!utf8.isUtf8FirstByte(bytes[i])) return s;
+
+    const old_size = utf8.getUtf8Size(bytes[i]);
+    var new_encoded: [4]u8 = undefined;
+    const new_size = utf8.pushUnicodeScalar(&new_encoded, c);
+    const new_total = (sz - old_size) + new_size;
+
+    const result = allocString(new_total + 1, new_total + 1, stringLength(s));
+    const dest = stringDataMut(result);
+    @memcpy(dest[0..i], bytes[0..i]);
+    @memcpy(dest[i..i + new_size], new_encoded[0..new_size]);
+    @memcpy(dest[i + new_size .. new_total], bytes[i + old_size .. sz]);
+    dest[new_total] = 0;
+    rc.lean_dec(s);
+    return result;
 }
 
-fn lean_string_utf8_extract(_s: *anyopaque, _b: *anyopaque, _e: *anyopaque) callconv(.c) *anyopaque {
-    _ = _s;
-    _ = _b;
-    _ = _e;
-    @panic("unimplemented: lean_string_utf8_extract");
+fn lean_string_utf8_extract(s: *anyopaque, b0: *anyopaque, e0: *anyopaque) callconv(.c) *anyopaque {
+    if (!object.lean_is_scalar(b0) or !object.lean_is_scalar(e0)) return s;
+    const b_in = object.lean_unbox(b0);
+    const e_in = object.lean_unbox(e0);
+    const bytes = stringData(s);
+    const sz = stringSize(s) - 1;
+    if (b_in >= e_in or b_in >= sz) {
+        rc.lean_dec(s);
+        return mkStringUncheckedBytes("", 0, 0);
+    }
+    if (!utf8.isUtf8FirstByte(bytes[b_in])) {
+        rc.lean_dec(s);
+        return mkStringUncheckedBytes("", 0, 0);
+    }
+    const b = b_in;
+    const e = if (e_in > sz) sz else (if (e_in < sz and !utf8.isUtf8FirstByte(bytes[e_in])) sz else e_in);
+    const new_sz = e - b;
+    var len: usize = 0;
+    var pos = b;
+    while (pos < e) : (len += 1) {
+        pos += utf8.getUtf8Size(bytes[pos]);
+    }
+    const result = allocString(new_sz + 1, new_sz + 1, len);
+    const dest = stringDataMut(result);
+    @memcpy(dest[0..new_sz], bytes[b..e]);
+    dest[new_sz] = 0;
+    rc.lean_dec(s);
+    return result;
 }
 
 export fn lean_string_eq_cold(s1: *anyopaque, s2: *anyopaque) callconv(.c) bool {
@@ -212,36 +282,160 @@ export fn lean_string_lt(s1: *anyopaque, s2: *anyopaque) callconv(.c) bool {
     return std.mem.order(u8, stringData(s1)[0 .. stringSize(s1) - 1], stringData(s2)[0 .. stringSize(s2) - 1]) == .lt;
 }
 
-fn lean_string_hash(_arg0: *anyopaque) callconv(.c) u64 {
-    _ = _arg0;
-    @panic("unimplemented: lean_string_hash");
+fn lean_string_hash(s: *anyopaque) callconv(.c) u64 {
+    const sz = stringSize(s) - 1;
+    const bytes = stringData(s)[0..sz];
+    return hashBytes(bytes, 11);
 }
 
-fn lean_string_of_usize(_arg0: usize) callconv(.c) *anyopaque {
-    _ = _arg0;
-    @panic("unimplemented: lean_string_of_usize");
+fn lean_string_of_usize(n: usize) callconv(.c) *anyopaque {
+    var buf: [32]u8 = undefined;
+    const str = std.fmt.bufPrint(&buf, "{}", .{n}) catch @panic("lean_string_of_usize overflow");
+    return mkAsciiStringBytes(str);
 }
 
-fn lean_string_memcmp(_s1: *anyopaque, _s2: *anyopaque, _lstart: *anyopaque, _rstart: *anyopaque, _len: *anyopaque) callconv(.c) u8 {
-    _ = _s1;
-    _ = _s2;
-    _ = _lstart;
-    _ = _rstart;
-    _ = _len;
-    @panic("unimplemented: lean_string_memcmp");
+fn hashBytes(bytes: []const u8, seed: u64) u64 {
+    const m: u64 = 0xc6a4a7935bd1e995;
+    const r = 47;
+    var h: u64 = seed ^ (bytes.len *% m);
+
+    var i: usize = 0;
+    while (i + 8 <= bytes.len) : (i += 8) {
+        var k: u64 = 0;
+        @memcpy(std.mem.asBytes(&k), bytes[i..][0..8]);
+        k *%= m;
+        k ^= k >> r;
+        k *%= m;
+        h ^= k;
+        h *%= m;
+    }
+
+    const rem = bytes.len & 7;
+    if (rem >= 7) h ^= @as(u64, bytes[i + 6]) << 48;
+    if (rem >= 6) h ^= @as(u64, bytes[i + 5]) << 40;
+    if (rem >= 5) h ^= @as(u64, bytes[i + 4]) << 32;
+    if (rem >= 4) h ^= @as(u64, bytes[i + 3]) << 24;
+    if (rem >= 3) h ^= @as(u64, bytes[i + 2]) << 16;
+    if (rem >= 2) h ^= @as(u64, bytes[i + 1]) << 8;
+    if (rem >= 1) {
+        h ^= @as(u64, bytes[i]);
+        h *%= m;
+    }
+
+    h ^= h >> r;
+    h *%= m;
+    h ^= h >> r;
+    return h;
+}
+
+fn lean_string_memcmp(s1: *anyopaque, s2: *anyopaque, lstart: *anyopaque, rstart: *anyopaque, len: *anyopaque) callconv(.c) u8 {
+    const lbase = stringData(s1) + object.lean_unbox(lstart);
+    const rbase = stringData(s2) + object.lean_unbox(rstart);
+    const n = object.lean_unbox(len);
+    return @intFromBool(std.mem.eql(u8, lbase[0..n], rbase[0..n]));
+}
+
+test "string mk builds string from List Char" {
+    const nil = object.lean_box(0).?;
+    var list: ?*anyopaque = nil;
+    const chars = [_]u32{ 'h', 0xE9, 'l', 'l', 'o' };
+    var i: usize = chars.len;
+    while (i > 0) {
+        i -= 1;
+        const cell = alloc.lean_alloc_ctor(1, 2, 0);
+        ctor.lean_ctor_set(cell, 0, object.lean_box(@as(usize, chars[i])));
+        ctor.lean_ctor_set(cell, 1, list);
+        list = cell;
+    }
+
+    const s = lean_string_mk(list.?);
+    defer freeString(s);
+
+    try testing.expectEqual(@as(usize, 7), stringSize(s));
+    try testing.expectEqual(@as(usize, 5), stringLength(s));
+    try testing.expectEqualStrings("héllo", std.mem.span(stringCStr(s)));
+}
+
+test "string data builds List Char from string" {
+    const s = lean_mk_string("héllo");
+    defer freeString(s);
+
+    const list = lean_string_data(s);
+    defer {
+        var it: ?*anyopaque = list;
+        while (it) |node| {
+            if (object.lean_is_scalar(node)) break;
+            const next = ctor.lean_ctor_get(node, 1);
+            rc.lean_dec(node);
+            it = next;
+        }
+    }
+
+    const expected = [_]u32{ 'h', 0xE9, 'l', 'l', 'o' };
+    var it: ?*anyopaque = list;
+    var idx: usize = 0;
+    while (it) |node| {
+        if (object.lean_is_scalar(node)) break;
+        try testing.expectEqual(@as(u32, @truncate(object.lean_unbox(ctor.lean_ctor_get(node, 0)))), expected[idx]);
+        it = ctor.lean_ctor_get(node, 1);
+        idx += 1;
+    }
+    try testing.expectEqual(expected.len, idx);
+}
+
+test "string hash matches C++ MurmurHash64A" {
+    const cases = [_]struct { s: []const u8, h: u64 }{
+        .{ .s = "", .h = 0x89133354f2041b41 },
+        .{ .s = "a", .h = 0xdce594566b8c31f5 },
+        .{ .s = "hello", .h = 0x884e46be8ed9fafd },
+        .{ .s = "hello, world", .h = 0xd7a3f3d09f66d43e },
+        .{ .s = "héllo", .h = 0xfb983514f98ab9e4 },
+    };
+    for (cases) |c| {
+        const s = lean_mk_string_unchecked(@ptrCast(c.s.ptr), c.s.len, c.s.len);
+        defer freeString(s);
+        try testing.expectEqual(c.h, lean_string_hash(s));
+    }
+}
+
+test "string of usize" {
+    const s = lean_string_of_usize(12345);
+    defer freeString(s);
+    try testing.expectEqualStrings("12345", std.mem.span(stringCStr(s)));
+    try testing.expectEqual(@as(usize, 6), stringSize(s));
+}
+
+test "string memcmp compares slices" {
+    const s1 = lean_mk_string("hello, world");
+    defer freeString(s1);
+    const s2 = lean_mk_string("hello, world");
+    defer freeString(s2);
+    const s3 = lean_mk_string("hello, earth");
+    defer freeString(s3);
+    try testing.expectEqual(@as(u8, 1), lean_string_memcmp(s1, s2, object.lean_box(0).?, object.lean_box(0).?, object.lean_box(12).?));
+    try testing.expectEqual(@as(u8, 0), lean_string_memcmp(s1, s3, object.lean_box(0).?, object.lean_box(0).?, object.lean_box(12).?));
+    try testing.expectEqual(@as(u8, 1), lean_string_memcmp(s1, s2, object.lean_box(7).?, object.lean_box(7).?, object.lean_box(5).?));
+}
+
+test "string utf8 set replaces codepoint" {
+    const s = lean_mk_string("héllo");
+    defer freeString(s);
+    const replaced = lean_string_utf8_set(s, object.lean_box(1).?, 'a');
+    defer freeString(replaced);
+    try testing.expectEqual(@as(usize, 6), stringSize(replaced));
+    try testing.expectEqualStrings("hallo", std.mem.span(stringCStr(replaced)));
+}
+
+test "string utf8 extract slices by byte positions" {
+    const s = lean_mk_string("héllo");
+    defer freeString(s);
+    const extracted = lean_string_utf8_extract(s, object.lean_box(0).?, object.lean_box(4).?);
+    defer freeString(extracted);
+    try testing.expectEqual(@as(usize, 5), stringSize(extracted));
+    try testing.expectEqualStrings("hél", std.mem.span(stringCStr(extracted)));
 }
 
 test "lean_mk_string tracks ASCII byte size and UTF-8 length" {
-    const s = lean_mk_string("hello, world");
-    defer freeString(s);
-
-    try testing.expectEqual(@as(c_uint, lean.LeanString), object.lean_obj_tag(s));
-    try testing.expectEqual(@as(usize, 13), stringSize(s));
-    try testing.expectEqual(@as(usize, 12), stringLength(s));
-    try testing.expectEqualStrings("hello, world", std.mem.span(stringCStr(s)));
-}
-
-test "lean_mk_string and utf8 iterators handle non ASCII text" {
     const s = lean_mk_string("héllo");
     defer freeString(s);
 

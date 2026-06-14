@@ -116,6 +116,16 @@ pub fn nextIndex(i: usize, c: u8) usize {
     return i + 1;
 }
 
+pub fn prevIndex(str: [*]const u8, pos: usize) usize {
+    var i = pos;
+    while (i > 0) {
+        i -= 1;
+        if (isUtf8FirstByte(str[i])) return i;
+    }
+    return 0;
+}
+
+
 pub fn pushUnicodeScalar(dest: [*]u8, code: u32) usize {
     if (code < 0x80) {
         dest[0] = @intCast(code);

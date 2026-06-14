@@ -5,6 +5,7 @@ const box = @import("box.zig");
 const lean = @import("lean_object.zig");
 const object = @import("object.zig");
 const rc = @import("rc.zig");
+const ctor = @import("ctor.zig");
 
 const Obj = ?*anyopaque;
 
@@ -268,17 +269,44 @@ pub fn lean_float_array_set(a: *anyopaque, i: Obj, d: f64) *anyopaque {
     if (idx >= lean_sarray_size(a)) return a;
     return lean_float_array_uset(a, idx, d);
 }
+fn lean_array_mk(l: *anyopaque) callconv(.c) *anyopaque {
+    var size: usize = 0;
+    var it: ?*anyopaque = l;
+    while (it) |node| {
+        if (object.lean_is_scalar(node)) break;
+        size += 1;
+        it = ctor.lean_ctor_get(node, 1);
+    }
 
-fn lean_array_mk(_l: *anyopaque) callconv(.c) *anyopaque {
-    _ = _l;
-    @panic("unimplemented: lean_array_mk");
+    const result = allocObjectArray(size, size);
+    it = l;
+    var idx: usize = 0;
+    while (it) |node2| {
+        if (object.lean_is_scalar(node2)) break;
+        arraySlots(result)[idx] = ctor.lean_ctor_get(node2, 0);
+        rc.lean_inc(arraySlots(result)[idx]);
+        it = ctor.lean_ctor_get(node2, 1);
+        idx += 1;
+    }
+    rc.lean_dec(l);
+    return result;
 }
 
-fn lean_array_to_list(_a: *anyopaque) callconv(.c) *anyopaque {
-    _ = _a;
-    @panic("unimplemented: lean_array_to_list");
+fn lean_array_to_list(a: *anyopaque) callconv(.c) *anyopaque {
+    const size = lean_array_size(a);
+    var result: ?*anyopaque = object.lean_box(0).?;
+    var k: usize = size;
+    while (k > 0) {
+        k -= 1;
+        const cell = alloc.lean_alloc_ctor(1, 2, 0);
+        ctor.lean_ctor_set(cell, 0, arraySlots(a)[k]);
+        ctor.lean_ctor_set(cell, 1, result);
+        rc.lean_inc(arraySlots(a)[k]);
+        result = cell;
+    }
+    rc.lean_dec(a);
+    return result.?;
 }
-
 export fn lean_array_get_panic(def_val: *anyopaque) callconv(.c) *anyopaque {
     rc.lean_dec(def_val);
     @panic("array index out of bounds");
@@ -438,6 +466,56 @@ test "lean_array_push increases size and stores value at last slot" {
 
     try testing.expectEqual(@as(usize, 1), asArray(pushed).m_size);
     try testing.expectEqual(@as(usize, 42), object.lean_unbox(arraySlots(pushed)[0]));
+}
+
+test "lean_array_mk builds array from List constructor chain" {
+    const nil = object.lean_box(0).?;
+    var list: ?*anyopaque = nil;
+    var i: u32 = 3;
+    while (i > 0) {
+        i -= 1;
+        const cell = alloc.lean_alloc_ctor(1, 2, 0);
+        ctor.lean_ctor_set(cell, 0, object.lean_box(@as(usize, i + 1)));
+        ctor.lean_ctor_set(cell, 1, list);
+        list = cell;
+    }
+
+    const array = lean_array_mk(list.?);
+    defer freeIfHeap(array);
+
+    try testing.expectEqual(@as(usize, 3), lean_array_size(array));
+    try testing.expectEqual(@as(usize, 1), object.lean_unbox(arraySlots(array)[0]));
+    try testing.expectEqual(@as(usize, 2), object.lean_unbox(arraySlots(array)[1]));
+    try testing.expectEqual(@as(usize, 3), object.lean_unbox(arraySlots(array)[2]));
+}
+
+test "lean_array_to_list builds List constructor chain from array" {
+    const array = allocObjectArray(3, 3);
+    defer freeIfHeap(array);
+    fillArraySlot(array, 0, object.lean_box(1));
+    fillArraySlot(array, 1, object.lean_box(2));
+    fillArraySlot(array, 2, object.lean_box(3));
+
+    const list = lean_array_to_list(array);
+    defer {
+        var it: ?*anyopaque = list;
+        while (it) |node| {
+            if (object.lean_is_scalar(node)) break;
+            const next = ctor.lean_ctor_get(node, 1);
+            rc.lean_dec(node);
+            it = next;
+        }
+    }
+
+    var it: ?*anyopaque = list;
+    var expected: usize = 1;
+    while (it) |node| {
+        if (object.lean_is_scalar(node)) break;
+        try testing.expectEqual(expected, object.lean_unbox(ctor.lean_ctor_get(node, 0)));
+        it = ctor.lean_ctor_get(node, 1);
+        expected += 1;
+    }
+    try testing.expectEqual(@as(usize, 4), expected);
 }
 
 test "lean_array_set and lean_array_get round-trip boxed values" {

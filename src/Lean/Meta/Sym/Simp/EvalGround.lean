@@ -321,6 +321,14 @@ def evalShift (left : Bool) (α β : Expr) (a b : Expr) : SimpM Result :=
     return .step e (mkApp2 (mkConst ``Eq.refl [1]) α e) (done := true)
   | _ => return .rfl
 
+def evalNatLog2 (a : Expr) : SimpM Result := do
+  let some va := getNatValue? a | return .rfl
+  if va = 0 then
+    return .step a (mkConst ``Nat.log2_zero)
+  else
+    let e ← share <| toExpr va.log2
+    return .step e (mkApp4 (mkConst ``Nat.log2.simp_eval) a e reflBoolTrue reflBoolFalse)
+
 def evalIntGcd (a b : Expr) : SimpM Result := do
   let some a := getIntValue? a | return .rfl
   let some b := getIntValue? b | return .rfl
@@ -566,6 +574,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
+  | Nat.log2 a => evalNatLog2 a
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
   | Int.fdiv a b => evalBinInt Int.fdiv a b

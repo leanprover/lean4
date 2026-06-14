@@ -363,4 +363,12 @@ builtin_simproc [simp, seval] reduceDvd ((_ : Nat) ∣ _) := fun e => do
   else
     return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Nat.dvd_eq_false_of_mod_ne_zero) a b eagerReflBoolTrue}
 
+builtin_simproc [simp, seval] reduceLog2 (Nat.log2 _) := fun e => do
+  let_expr Nat.log2 n ← e | return .continue
+  let some va ← fromExpr? n | return .continue
+  if va = 0 then
+    return .done { expr := toExpr 0, proof? := mkConst ``Nat.log2_zero }
+  else
+    return .done { expr := toExpr va.log2, proof? := mkApp4 (mkConst ``Nat.log2.simp_eval) n (toExpr va.log2) reflBoolTrue reflBoolFalse }
+
 end Nat

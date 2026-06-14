@@ -110,6 +110,13 @@ variable (a b : Nat)
 #check_simp (a + 1000) != (b +  400) ~> a + 600 != b
 #check_simp (a +  400) != (b + 1000) ~> a != b + 600
 
+/- log2 tests -/
+
+#check_simp Nat.log2 0 ~> 0
+#check_simp Nat.log2 1 ~> 0
+#check_simp Nat.log2 16 ~> 4
+#check_simp Nat.log2 (1 <<< 10000 + 1 <<< 9999 + 3) ~> 10000
+
 /-! Alternate instance tests
 
 These check that the simplification rules will matching

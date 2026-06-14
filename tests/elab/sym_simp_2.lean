@@ -16,6 +16,7 @@ example : 17 % 5 = 2 := by sym_simp
 example : 2 ^ 10 = 1024 := by sym_simp
 example : Nat.succ 5 = 6 := by sym_simp
 example : Nat.gcd 12 18 = 6 := by sym_simp
+example : Nat.log2 13489 = 13 := by sym_simp
 
 -- Basic arithmetic: Int
 example : (2 : Int) + 3 = 5 := by sym_simp
@@ -171,9 +172,10 @@ example : ∀ n : Nat, (n = n) = True := by intro n; sym_simp
 example : ∀ n : Nat, (n ≠ n) = False := by intro n; sym_simp
 
 -- Edge cases
-example : 0 / 0 = 0 := by sym_simp  -- Nat division by zero
-example : 5 % 0 = 5 := by sym_simp  -- Nat mod by zero
-example : 0 ^ 0 = 1 := by sym_simp  -- 0^0 = 1 in Lean
+example : 0 / 0 = 0 := by sym_simp       -- Nat division by zero
+example : 5 % 0 = 5 := by sym_simp       -- Nat mod by zero
+example : 0 ^ 0 = 1 := by sym_simp       -- 0^0 = 1 in Lean
+example : Nat.log2 0 = 0 := by sym_simp  -- Logarithm of zero
 
 theorem ex₁ : (2 / 3 : Rat) + 2 / 3 = 8 / 6 := by sym_simp
 

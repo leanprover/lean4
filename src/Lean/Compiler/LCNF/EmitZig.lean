@@ -107,9 +107,18 @@ def runtimeExternDeclsRaw : List String := [
   "extern fn lean_unbox_float32(o: LeanObj) callconv(.c) f32;", "extern fn lean_apply_1(f: LeanObj, a1: LeanObj) callconv(.c) LeanObj;", "extern fn lean_apply_2(f: LeanObj, a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;",
   "extern fn lean_apply_3(f: LeanObj, a1: LeanObj, a2: LeanObj, a3: LeanObj) callconv(.c) LeanObj;", "extern fn lean_apply_4(f: LeanObj, a1: LeanObj, a2: LeanObj, a3: LeanObj, a4: LeanObj) callconv(.c) LeanObj;",
   "extern fn lean_apply_n(f: LeanObj, n: c_uint, args: [*]LeanObj) callconv(.c) LeanObj;", "extern fn lean_alloc_closure(fun: ?*const anyopaque, arity: c_uint, num_fixed: c_uint) callconv(.c) LeanObj;",
-  "extern fn lean_closure_set(o: LeanObj, i: c_uint, v: LeanObj) callconv(.c) void;", "extern fn lean_mk_string(s: [*c]const u8) callconv(.c) LeanObj;", "extern fn lean_mk_string_unchecked(s: [*c]const u8, sz: usize, len: usize) callconv(.c) LeanObj;",
+  "extern fn lean_mk_string(s: [*c]const u8) callconv(.c) LeanObj;", "extern fn lean_mk_string_unchecked(s: [*c]const u8, sz: usize, len: usize) callconv(.c) LeanObj;",
+  "extern fn lean_string_mk(cs: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_data(s: LeanObj) callconv(.c) LeanObj;",
+  "extern fn lean_string_size(s: LeanObj) callconv(.c) usize;", "extern fn lean_string_length(s: LeanObj) callconv(.c) LeanObj;",
+  "extern fn lean_string_utf8_get(s: LeanObj, i: LeanObj) callconv(.c) u32;", "extern fn lean_string_utf8_get_fast_cold(str: [*:0]const u8, i: usize, size: usize, c: u8) callconv(.c) u32;",
+  "extern fn lean_string_utf8_get_opt(s: LeanObj, i: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_utf8_get_bang(s: LeanObj, i: LeanObj) callconv(.c) u32;",
+  "extern fn lean_string_utf8_next(s: LeanObj, i: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_utf8_next_fast_cold(i: usize, c: u8) callconv(.c) LeanObj;",
+  "extern fn lean_string_utf8_prev(s: LeanObj, i: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_utf8_set(s: LeanObj, i: LeanObj, c: u32) callconv(.c) LeanObj;",
+  "extern fn lean_string_utf8_extract(s: LeanObj, b: LeanObj, e: LeanObj) callconv(.c) LeanObj;",
+  "extern fn lean_string_lt(s1: LeanObj, s2: LeanObj) callconv(.c) bool;", "extern fn lean_string_eq_cold(s1: LeanObj, s2: LeanObj) callconv(.c) bool;",
+  "extern fn lean_string_hash(s: LeanObj) callconv(.c) u64;", "extern fn lean_string_of_usize(n: usize) callconv(.c) LeanObj;",
+  "extern fn lean_string_validate_utf8(a: LeanObj) callconv(.c) u8;",
   "extern fn lean_unsigned_to_nat(v: c_uint) callconv(.c) LeanObj;", "extern fn lean_big_usize_to_nat(n: usize) callconv(.c) LeanObj;", "extern fn lean_usize_of_big_nat(a: LeanObj) callconv(.c) usize;",
-  "extern fn lean_nat_big_le(a1: LeanObj, a2: LeanObj) callconv(.c) bool;", "extern fn lean_nat_big_lt(a1: LeanObj, a2: LeanObj) callconv(.c) bool;",
   "extern fn lean_internal_panic_out_of_memory() callconv(.c) noreturn;", "extern fn lean_cstr_to_nat(s: [*c]const u8) callconv(.c) LeanObj;", "extern fn lean_io_result_mk_ok(v: LeanObj) callconv(.c) LeanObj;",
   "extern fn lean_setup_args(argc: c_int, argv: [*c][*c]u8) callconv(.c) [*c][*c]u8;", "extern fn lean_initialize() callconv(.c) void;", "extern fn lean_initialize_runtime_module() callconv(.c) void;",
   "extern fn lean_initialize_thread() callconv(.c) void;", "extern fn lean_init_task_manager() callconv(.c) void;", "extern fn lean_finalize_task_manager() callconv(.c) void;",
@@ -538,6 +547,18 @@ partial def containsJmp : Code .impure → EmitM Bool
   | .jmp .. => pure true
   | .return .. | .unreach .. => pure false
 
+/-- Return true if `code` contains a jump to the join point `target`. -/
+partial def codeContainsJmpTo (target : FVarId) : Code .impure → Bool
+  | .let _ k => codeContainsJmpTo target k
+  | .jp decl k => codeContainsJmpTo target decl.value || codeContainsJmpTo target k
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .sset _ _ _ _ _ k => codeContainsJmpTo target k
+  | .cases cs => cs.alts.any (codeContainsJmpTo target ·.getCode)
+  | .jmp fvarId _ => fvarId == target
+  | .return .. | .unreach .. => false
+
 partial def collectCodeTypes (code : Code .impure) (acc : NameMap Expr := {}) : NameMap Expr :=
   match code with
   | .let decl k =>
@@ -584,6 +605,7 @@ partial def emitVarDecls (bodyText : String) : Code .impure → EmitM Unit
       for p in runtimeParams decl.params do
         if bodyUsesIdent bodyText (zigIdent p.fvarId.name) then
           emitLn s!"  var {zigIdent p.fvarId.name}: {p.type.toZigType} = undefined;"
+      emitVarDecls bodyText decl.value
       emitVarDecls bodyText k
   | .inc _ _ _ _ k
   | .dec _ _ _ _ _ k
@@ -616,29 +638,6 @@ partial def supportsCodeSubset : Code .impure → EmitM Bool
         ok := ok && (← supportsCodeSubset alt.getCode)
       pure ok
   | .jmp .. | .return .. | .unreach .. => pure true
-
-def renderJumpPayload (params : Array (Param .impure)) (args : Array (Arg .impure)) : String :=
-  -- LCNF pairs each `jmp` argument with the join point's parameter list
-  -- at the same index. Some parameters are `void`/`erased` and have no
-  -- runtime representation; for those we substitute a dummy object so
-  -- every break site of the same join point sends exactly the same
-  -- number of arguments, letting Zig infer a single, consistent tuple
-  -- shape for the label block.
-  let runtimeArgsList : List (Arg .impure) := Id.run do
-    let mut out : List (Arg .impure) := []
-    for h : i in [0:params.size] do
-      let p := params[i]
-      let arg :=
-        if p.type.isVoid || p.type.isErased then Arg.erased
-        else if h : i < args.size then args[i]
-        else Arg.erased
-      out := arg :: out
-    out.reverse
-  let rendered : List String := runtimeArgsList.map renderImpureArg
-  if rendered.isEmpty then
-    ".{}"
-  else
-    ".{ " ++ String.intercalate ", " rendered ++ " }"
 
 def emitRenderedLet (binder : Name) (type : Expr) (lines : List String) (forceVar := false) : EmitM Unit := do
   let lhs := zigIdent binder
@@ -714,8 +713,10 @@ def emitTailCall (decl : LetDecl .impure) : EmitM Unit := do
 mutual
 
 partial def emitBasicBlock : Code .impure → EmitM Unit
-  | .jp decl k => do
-      emitJoinPoint decl k
+  | .jp _decl k => do
+      -- Join points are inlined at each `jmp` site; their declarations do not
+      -- produce code on their own. Just emit the continuation.
+      emitBasicBlock k
   | .let decl k => do
       if ← isTailCall (.let decl k) then
         emitTailCall decl
@@ -724,6 +725,8 @@ partial def emitBasicBlock : Code .impure → EmitM Unit
         | some lines =>
             emitRenderedLet decl.fvarId.name decl.type lines <|
               match decl.value with | .reset .. | .reuse .. => true | _ => false
+            if !codeUsesFVar decl.fvarId k then
+              emitLn s!"  _ = {zigIdent decl.fvarId.name};"
             emitBasicBlock k
         | none =>
             emitLn "  @panic(\"EmitZig let-value emission not implemented yet\");"
@@ -806,30 +809,25 @@ partial def emitBasicBlock : Code .impure → EmitM Unit
       let some jpDecl ← findStoredJoinDecl? fvarId | unreachable!
       if args.size != jpDecl.params.size then
         throwError "invalid jump"
-      let label := s!"jp_{zigIdent jpDecl.fvarId.name}"
-      emitLn s!"  break :{label} {renderJumpPayload jpDecl.params args};"
+      -- Directly recursive join points cannot be inlined without a loop; leave a
+      -- placeholder so we can identify and fix them later.
+      if codeContainsJmpTo fvarId jpDecl.value then
+        emitLn "  @panic(\"EmitZig recursive join point not implemented yet\");"
+      else
+        -- Inline the join point body: assign runtime arguments to its parameters
+        -- and then emit its body.
+        for h : i in [0:jpDecl.params.size] do
+          let p := jpDecl.params[i]
+          if p.type.isVoid || p.type.isErased then
+            continue
+          let arg := args[i]!
+          emitLn s!"  {zigIdent p.fvarId.name} = {renderImpureArg arg};"
+        emitBasicBlock jpDecl.value
   | .unreach _ =>
       emitLn "  unreachable;"
 
-partial def emitJoinPoint (decl : FunDecl .impure) (k : Code .impure) : EmitM Unit := do
-  let label := s!"jp_{zigIdent decl.fvarId.name}"
-  let params := runtimeParams decl.params
-  if params.isEmpty then
-    emitLn <| "  " ++ label ++ ": {"
-    emitBasicBlock k
-    emitLn "  };"
-  else
-    let resultVar := s!"{label}__result"
-    emitLn <| "  const " ++ resultVar ++ " = " ++ label ++ ": {"
-    emitBasicBlock k
-    emitLn "  };"
-
-    for h : i in [0:params.size] do
-      let p := params[i]
-      let field := ".@\"" ++ toString i ++ "\""
-      emitLn s!"  {zigIdent p.fvarId.name} = {resultVar}{field};"
-
 end
+
 
 def emitFileHeader : EmitM Unit := do
   let modName ← getModName

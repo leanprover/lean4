@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.NameMap.Basic
+import Init.Data.String.Legacy
 import Lean.CoreM
 import Lean.Expr
 import Lean.Data.Name
@@ -17,6 +18,15 @@ namespace InlineHelpers
 
 private def joinLines (lines : List String) : String :=
   String.intercalate "\n" lines
+
+private def addEvalQuota (s : String) : String :=
+  if s.startsWith "inline fn " then
+    let lines := s.splitOn "\n"
+    match lines with
+    | first :: rest => String.intercalate "\n" (first :: "  @setEvalBranchQuota(10000000);" :: rest)
+    | [] => s
+  else
+    s
 
 private def supportInlineDecls : List String := [
   joinLines [
@@ -325,9 +335,67 @@ private def mvpInlineHelperEntries : List (String × String) := [
     "inline fn lean_usize_dec_eq(a1: usize, a2: usize) u8 {",
     "  return @intFromBool(a1 == a2);",
     "}"
-  ])
-
-  ,
+  ]),
+  ("lean_string_size", joinLines [
+    "inline fn lean_string_size(s: LeanObj) usize {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(s));",
+    "  return @as(*usize, @ptrCast(@alignCast(bytes + @sizeOf(lean_object)))).*;",
+    "}"
+  ]),
+  ("lean_string_utf8_get_fast", joinLines [
+    "inline fn lean_string_utf8_get_fast(s: LeanObj, i: LeanObj) u32 {",
+    "  const str: [*:0]const u8 = @ptrCast(lean_heap_obj(s));",
+    "  const idx = lean_unbox(i);",
+    "  const c = str[idx];",
+    "  if ((c & 0x80) == 0) return @as(u32, c);",
+    "  return lean_string_utf8_get_fast_cold(str, idx, lean_string_size(s), c);",
+    "}"
+  ]),
+  ("lean_string_utf8_next_fast", joinLines [
+    "inline fn lean_string_utf8_next_fast(s: LeanObj, i: LeanObj) LeanObj {",
+    "  const str: [*:0]const u8 = @ptrCast(lean_heap_obj(s));",
+    "  const idx = lean_unbox(i);",
+    "  const c = str[idx];",
+    "  if ((c & 0x80) == 0) return lean_box(idx + 1);",
+    "  return lean_string_utf8_next_fast_cold(idx, c);",
+    "}"
+  ]),
+  ("lean_string_utf8_at_end", joinLines [
+    "inline fn lean_string_utf8_at_end(s: LeanObj, i: LeanObj) u8 {",
+    "  return @intFromBool(!lean_is_scalar(i) or lean_unbox(i) >= lean_string_size(s) - 1);",
+    "}"
+  ]),
+  ("lean_string_dec_lt", joinLines [
+    "inline fn lean_string_dec_lt(s1: LeanObj, s2: LeanObj) u8 {",
+    "  return @intFromBool(lean_string_lt(s1, s2));",
+    "}"
+  ]),
+  ("lean_string_utf8_byte_size", joinLines [
+    "inline fn lean_string_utf8_byte_size(s: LeanObj) LeanObj {",
+    "  return lean_box(lean_string_size(s) - 1);",
+    "}"
+  ]),
+  ("lean_string_length", joinLines [
+    "inline fn lean_string_length(s: LeanObj) LeanObj {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(s));",
+    "  return lean_box(@as(*usize, @ptrCast(@alignCast(bytes + @sizeOf(lean_object) + 2 * @sizeOf(usize)))).*);",
+    "}"
+  ]),
+  ("lean_string_dec_eq", joinLines [
+    "inline fn lean_string_dec_eq(s1: LeanObj, s2: LeanObj) u8 {",
+    "  return @intFromBool(s1 == s2 or (lean_string_size(s1) == lean_string_size(s2) and lean_string_eq_cold(s1, s2)));",
+    "}"
+  ]),
+  ("lean_string_is_valid_pos", joinLines [
+    "inline fn lean_string_is_valid_pos(s: LeanObj, i: LeanObj) u8 {",
+    "  if (!lean_is_scalar(i)) return 0;",
+    "  const idx = lean_unbox(i);",
+    "  const size = lean_string_size(s) - 1;",
+    "  if (idx >= size) return 0;",
+    "  const str: [*:0]const u8 = @ptrCast(lean_heap_obj(s));",
+    "  return @intFromBool((str[idx] & 0x80) == 0 or (str[idx] & 0xC0) != 0x80);",
+    "}"
+  ]),
   ("lean_ctor_scalar_base", joinLines [
     "inline fn lean_ctor_scalar_base(o: LeanObj) [*]u8 {",
     "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
@@ -709,7 +777,7 @@ public def isInlineHelperName (name : String) : Bool :=
   emittedInlineNames.contains name
 
 public def inlineHelperDecls : List String :=
-  supportInlineDecls ++
-    (mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map Prod.snd
+  supportInlineDecls.map addEvalQuota ++
+    (mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map (addEvalQuota ∘ Prod.snd)
 
 end InlineHelpers

@@ -493,6 +493,7 @@ All arithmetic folders.
 -/
 def arithmeticFolders : List (Name × Folder) := [
   (``Nat.succ, Folder.mkUnary Nat.succ),
+  (``Nat.reprFast, Folder.mkUnary Nat.reprFast),
   (``Nat.add,    Folder.first #[Folder.mkBinary Nat.add, Folder.leftRightNeutral 0 (· + ·)]),
   (``UInt8.add,  Folder.first #[Folder.mkBinary UInt8.add, Folder.leftRightNeutral (0 : UInt8) (· + ·)]),
   (``UInt16.add,  Folder.first #[Folder.mkBinary UInt16.add, Folder.leftRightNeutral (0 : UInt16) (· + ·)]),

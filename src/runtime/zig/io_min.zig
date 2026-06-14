@@ -6,6 +6,11 @@ const io_result = @import("io_result.zig");
 const lean = @import("lean_object.zig");
 const object = @import("object.zig");
 
+const mpz_zig = @import("mpz_zig");
+
+const gmp = struct {
+    extern fn __gmpz_get_d(op: *const mpz_zig.Mpz) callconv(.c) f64;
+};
 var g_exit_on_panic = false;
 var g_panic_messages = true;
 
@@ -316,8 +321,8 @@ fn ioEprintlnAction(str_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *an
 }
 
 // IO.println / IO.eprintln are compiled to functions that return an already-
-// executed IO result (not a suspended closure), matching what the generated
-// main wrapper expects from lean_run_main.
+// executed IO result (not a suspended closure), matching the convention used by
+// the generated main wrapper.
 export fn lean_io_println(str_obj: *anyopaque) callconv(.c) *anyopaque {
     return ioPrintlnAction(str_obj, object.lean_box(0).?);
 }
@@ -325,14 +330,39 @@ export fn lean_io_println(str_obj: *anyopaque) callconv(.c) *anyopaque {
 export fn lean_io_eprintln(str_obj: *anyopaque) callconv(.c) *anyopaque {
     return ioEprintlnAction(str_obj, object.lean_box(0).?);
 }
-
-// Mangled name emitted by the Lean compiler for IO.eprintln.
+// Mangled name emitted by the Lean compiler for IO.eprintln in some modules.
 fn l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0(str_obj: *anyopaque) callconv(.c) *anyopaque {
     return lean_io_eprintln(str_obj);
 }
 comptime {
     @export(&l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0, .{ .name = "l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0" });
 }
+
+fn natToF64(n: *anyopaque) f64 {
+    if (object.lean_is_scalar(n)) {
+        return @floatFromInt(object.lean_unbox(n));
+    } else {
+        const mpz_obj: *lean.MpzObject = @ptrCast(@alignCast(n));
+        const mpz: *mpz_zig.Mpz = @ptrCast(@alignCast(&mpz_obj.m_value));
+        return gmp.__gmpz_get_d(mpz);
+    }
+}
+
+// Mangled name emitted by the Lean compiler for Float.ofScientific.
+fn l_Float_ofScientific(m: *anyopaque, s: u8, e: *anyopaque) callconv(.c) f64 {
+    const mantissa = natToF64(m);
+    const exponent = object.lean_unbox(e);
+    const factor = std.math.pow(f64, 10.0, @floatFromInt(exponent));
+    if (s != 0) {
+        return mantissa / factor;
+    } else {
+        return mantissa * factor;
+    }
+}
+comptime {
+    @export(&l_Float_ofScientific, .{ .name = "l_Float_ofScientific" });
+}
+
 export fn initialize_Init(builtin: u8) callconv(.c) *anyopaque {
     _ = builtin;
     return io_result.lean_io_result_mk_ok(object.lean_box(0).?);
@@ -349,6 +379,7 @@ export fn lean_get_stderr() callconv(.c) *anyopaque {
 export fn lean_get_stdin() callconv(.c) *anyopaque {
     return makeInputStream();
 }
+
 fn lean_mk_io_user_error(msg: *anyopaque) *anyopaque {
     return io_error.lean_mk_io_user_error(msg);
 }

@@ -14,6 +14,7 @@ pub const io_error = @import("io_error.zig");
 pub const io_errno = @import("io_errno.zig");
 pub const io_result = @import("io_result.zig");
 pub const io_min = @import("io_min.zig");
+pub const list = @import("list.zig");
 pub const misc = @import("misc.zig");
 pub const nat = @import("nat.zig");
 pub const nat_constructors = @import("nat_constructors.zig");
@@ -49,6 +50,7 @@ comptime {
     _ = io_errno;
     _ = io_result;
     _ = io_min;
+    _ = list;
     _ = misc;
     _ = nat;
     _ = nat_constructors;

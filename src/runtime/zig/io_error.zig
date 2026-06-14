@@ -242,6 +242,20 @@ pub export fn lean_mk_io_error_unsupported_operation_zig_impl(os_code: u32, deta
 pub export fn lean_mk_io_user_error_zig_impl(msg: *anyopaque) callconv(.c) *anyopaque {
     return lean_mk_io_user_error(msg);
 }
+extern fn lean_mk_string_unchecked(s: [*:0]const u8, sz: usize, len: usize) callconv(.c) *anyopaque;
+
+pub export fn lean_io_error_to_string(err: *anyopaque) callconv(.c) *anyopaque {
+    const tag = object.lean_obj_tag(err);
+    if (tag == 17) {
+        return lean_mk_string_unchecked("end of file".ptr, 11, 11);
+    }
+    if (tag == 18) {
+        const msg = ctor.lean_ctor_get(err, 0).?;
+        rc.lean_inc(msg);
+        return msg;
+    }
+    return lean_mk_string_unchecked("IO error".ptr, 8, 8);
+}
 
 fn expectOptionSome(option_value: ?*anyopaque, expected: ?*anyopaque) !void {
     try testing.expect(option_value != null);

@@ -435,7 +435,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ("lean_closure_obj_cptr", joinLines [
     "inline fn lean_closure_obj_cptr(o: LeanObj) [*]LeanObj {",
     "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
-    "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object) + @sizeOf(*anyopaque) + 2 * @sizeOf(u16)));",
+    "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_closure_object)));",
     "}"
   ]),
   ("lean_closure_set", joinLines [

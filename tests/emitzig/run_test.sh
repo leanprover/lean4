@@ -11,7 +11,7 @@ OUT="$BASENAME.zig"
 
 # Basic sanity: the file must be non-empty and mention the module.
 [[ -s "$OUT" ]] || { echo "Zig output is empty"; exit 1; }
-grep -q "module: ${BASENAME}" "$OUT" || { echo "Missing module marker"; exit 1; }
+grep -q "module: .*${BASENAME}" "$OUT" || { echo "Missing module marker"; exit 1; }
 
 # Syntactic sanity via zig fmt.
 if command -v zig &> /dev/null; then

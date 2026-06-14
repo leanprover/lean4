@@ -435,6 +435,20 @@ pub export fn lean_task_spawn_core(c: *anyopaque, prio: c_uint, keep_alive: bool
     const value = apply.lean_apply_1(c, object.lean_box(0).?) orelse @panic("task spawn fast-path returned null");
     return lean_task_pure(value);
 }
+fn lean_io_as_task_fn(act: *anyopaque, _: *anyopaque) callconv(.c) *anyopaque {
+    return apply.lean_apply_1(act, object.lean_box(0).?) orelse @panic("lean_io_as_task_fn: apply returned null");
+}
+
+pub export fn lean_io_as_task(act: *anyopaque, prio: *anyopaque) callconv(.c) *anyopaque {
+    const closure = closurePtr(alloc.lean_alloc_closure(opaqueFunPtr(&lean_io_as_task_fn), 2, 1));
+    closureSlots(closure)[0] = act;
+    const priority: c_uint = @intCast(object.lean_unbox(prio));
+    return lean_task_spawn_core(@ptrCast(closure), priority, true);
+}
+
+pub export fn lean_task_get_own(t: *anyopaque) callconv(.c) *anyopaque {
+    return taskGetOwn(t);
+}
 
 export fn lean_task_pure(a: *anyopaque) callconv(.c) *anyopaque {
     return @ptrCast(allocFinishedTask(a));

@@ -1216,6 +1216,12 @@ extern "C" LEAN_EXPORT b_obj_res lean_task_get(b_obj_arg t) {
     object * r = lean_to_task(t)->m_value;
     return r;
 }
+extern "C" LEAN_EXPORT obj_res lean_task_get_own(obj_arg t) {
+    object * r = lean_task_get(t);
+    lean_inc(r);
+    lean_dec(t);
+    return r;
+}
 
 static obj_res task_bind_fn2(obj_arg t, obj_arg) {
     lean_assert(lean_to_task(t)->m_value);

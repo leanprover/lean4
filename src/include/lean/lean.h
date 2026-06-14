@@ -1326,12 +1326,7 @@ LEAN_EXPORT lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsi
 static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio, uint8_t sync) { return lean_task_map_core(f, t, lean_unbox(prio), sync, false); }
 LEAN_EXPORT b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 /* Primitive for implementing Task.get : Task A -> A */
-static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
-    lean_object * r = lean_task_get(t);
-    lean_inc(r);
-    lean_dec(t);
-    return r;
-}
+LEAN_EXPORT lean_obj_res lean_task_get_own(lean_obj_arg t);
 
 /* primitive for implementing `IO.checkCanceled : IO Bool` */
 LEAN_EXPORT bool lean_io_check_canceled_core(void);

@@ -208,7 +208,9 @@ def letValueUsesFVar (target : FVarId) : LetValue .impure → Bool
 partial def codeUsesFVar (target : FVarId) : Code .impure → Bool
   | .let decl k => letValueUsesFVar target decl.value || codeUsesFVar target k
   | .jp decl k => codeUsesFVar target decl.value || codeUsesFVar target k
-  | .inc fvarId _ _ _ k | .dec fvarId _ _ _ k | .del fvarId k | .setTag fvarId _ k =>
+  | .inc fvarId _ _ _ k
+  | .dec fvarId _ _ _ _ k
+  | .del fvarId k | .setTag fvarId _ k =>
       fvarId == target || codeUsesFVar target k
   | .oset fvarId _ arg k =>
       fvarId == target || argUsesFVar target arg || codeUsesFVar target k
@@ -239,7 +241,9 @@ partial def tailCallMutatesParam (fnName : Name) (ps : Array (Param .impure)) (t
       | _ => false
   | .let _ k => tailCallMutatesParam fnName ps target k
   | .jp decl k => tailCallMutatesParam fnName ps target decl.value || tailCallMutatesParam fnName ps target k
-  | .inc _ _ _ _ k | .dec _ _ _ _ k | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
   | .sset _ _ _ _ _ k => tailCallMutatesParam fnName ps target k
   | .cases cs => cs.alts.any (fun alt => tailCallMutatesParam fnName ps target alt.getCode)
   | .jmp .. | .return .. | .unreach .. => false
@@ -504,7 +508,9 @@ partial def containsTailCall : Code .impure → EmitM Bool
       let bodyHas ← containsTailCall decl.value
       let restHas ← containsTailCall k
       pure (bodyHas || restHas)
-  | .inc _ _ _ _ k | .dec _ _ _ _ k | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
   | .sset _ _ _ _ _ k =>
       containsTailCall k
   | .cases cs => do
@@ -522,7 +528,9 @@ partial def collectCodeTypes (code : Code .impure) (acc : NameMap Expr := {}) : 
       let acc := decl.params.foldl (init := acc) fun acc p => acc.insert p.fvarId.name p.type
       let acc := collectCodeTypes decl.value acc
       collectCodeTypes k acc
-  | .inc _ _ _ _ k | .dec _ _ _ _ k | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
   | .sset _ _ _ _ _ k =>
       collectCodeTypes k acc
   | .cases cs =>
@@ -537,7 +545,9 @@ partial def collectJoinDecls (code : Code .impure) (acc : NameMap (FunDecl .impu
       let acc := acc.insert decl.fvarId.name decl
       let acc := collectJoinDecls decl.value acc
       collectJoinDecls k acc
-  | .inc _ _ _ _ k | .dec _ _ _ _ k | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
   | .sset _ _ _ _ _ k | .let _ k =>
       collectJoinDecls k acc
   | .cases cs =>
@@ -557,7 +567,9 @@ partial def emitVarDecls : Code .impure → EmitM Unit
         emitLn s!"  var {zigIdent p.fvarId.name}: {p.type.toZigType} = undefined;"
       emitVarDecls decl.value
       emitVarDecls k
-  | .inc _ _ _ _ k | .dec _ _ _ _ k | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
   | .sset _ _ _ _ _ k => emitVarDecls k
   | .cases cs =>
       for alt in cs.alts do
@@ -577,7 +589,7 @@ partial def supportsCodeSubset : Code .impure → EmitM Bool
       let restOk ← supportsCodeSubset k
       pure (bodyOk && restOk)
   | .inc _ _ _ _ k => supportsCodeSubset k
-  | .dec _ n _ persistent k =>
+  | .dec _ n _ persistent _ k =>
       if persistent || n == 1 then supportsCodeSubset k else pure false
   | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k | .sset _ _ _ _ _ k =>
       supportsCodeSubset k
@@ -692,7 +704,7 @@ partial def emitBasicBlock : Code .impure → EmitM Unit
         else
           emitLn "  @panic(\"EmitZig multi-inc emission not implemented yet\");"
       emitBasicBlock k
-  | .dec fvarId n check persistent k => do
+  | .dec fvarId n check persistent _ k => do
       if persistent then
         emitBasicBlock k
       else if n == 1 then

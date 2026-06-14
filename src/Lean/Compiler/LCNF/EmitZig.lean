@@ -87,7 +87,7 @@ structure State where
 abbrev EmitM := ReaderT Context <| StateRefT State CoreM
 
 def runtimeExternDeclsRaw : List String := [
-  "extern fn lean_alloc_object(sz: usize) callconv(.c) LeanObj;",
+  "extern fn lean_alloc_object(sz: usize) callconv(.c) LeanObj;", "extern fn lean_free_object(o: LeanObj) callconv(.c) void;",
   "extern fn lean_alloc_ctor(tag: c_uint, num_objs: c_uint, scalar_sz: usize) callconv(.c) LeanObj;", "extern fn lean_ctor_set(o: LeanObj, i: c_uint, v: LeanObj) callconv(.c) void;",
   "extern fn lean_ctor_get(o: LeanObj, i: c_uint) callconv(.c) LeanObj;", "extern fn lean_ctor_set_tag(o: LeanObj, new_tag: u8) callconv(.c) void;",
   "extern fn lean_ctor_release(o: LeanObj, i: c_uint) callconv(.c) void;", "extern fn lean_ctor_set_usize(o: LeanObj, i: c_uint, v: usize) callconv(.c) void;",
@@ -97,8 +97,8 @@ def runtimeExternDeclsRaw : List String := [
   "extern fn lean_ctor_get_float32(o: LeanObj, offset: c_uint) callconv(.c) f32;", "extern fn lean_ctor_set_uint8(o: LeanObj, offset: c_uint, v: u8) callconv(.c) void;",
   "extern fn lean_ctor_set_uint16(o: LeanObj, offset: c_uint, v: u16) callconv(.c) void;", "extern fn lean_ctor_set_uint32(o: LeanObj, offset: c_uint, v: u32) callconv(.c) void;",
   "extern fn lean_ctor_set_uint64(o: LeanObj, offset: c_uint, v: u64) callconv(.c) void;", "extern fn lean_ctor_set_float(o: LeanObj, offset: c_uint, v: f64) callconv(.c) void;",
-  "extern fn lean_ctor_set_float32(o: LeanObj, offset: c_uint, v: f32) callconv(.c) void;", "extern fn lean_inc(o: LeanObj) callconv(.c) void;",
-  "extern fn lean_inc_ref(o: LeanObj) callconv(.c) void;", "extern fn lean_dec(o: LeanObj) callconv(.c) void;", "extern fn lean_dec_ref(o: LeanObj) callconv(.c) void;",
+  "extern fn lean_ctor_set_float32(o: LeanObj, offset: c_uint, v: f32) callconv(.c) void;", "extern fn lean_inc(o: LeanObj) callconv(.c) void;", "extern fn lean_inc_n(o: LeanObj, n: usize) callconv(.c) void;",
+  "extern fn lean_inc_ref(o: LeanObj) callconv(.c) void;", "extern fn lean_dec(o: LeanObj) callconv(.c) void;", "extern fn lean_dec_n(o: LeanObj, n: usize) callconv(.c) void;", "extern fn lean_dec_ref(o: LeanObj) callconv(.c) void;",
   "extern fn lean_dec_ref_cold(o: LeanObj) callconv(.c) void;", "extern fn lean_del_object(o: LeanObj) callconv(.c) void;", "extern fn lean_is_exclusive(o: LeanObj) callconv(.c) bool;",
   "extern fn lean_is_scalar(o: LeanObj) callconv(.c) bool;", "extern fn lean_obj_tag(o: LeanObj) callconv(.c) c_uint;", "extern fn lean_box(value: usize) callconv(.c) LeanObj;", "extern fn lean_box_uint32(value: u32) callconv(.c) LeanObj;",
   "extern fn lean_box_uint64(value: u64) callconv(.c) LeanObj;", "extern fn lean_box_usize(value: usize) callconv(.c) LeanObj;", "extern fn lean_box_float(value: f64) callconv(.c) LeanObj;",
@@ -113,7 +113,8 @@ def runtimeExternDeclsRaw : List String := [
   "extern fn lean_internal_panic_out_of_memory() callconv(.c) noreturn;", "extern fn lean_cstr_to_nat(s: [*c]const u8) callconv(.c) LeanObj;", "extern fn lean_io_result_mk_ok(v: LeanObj) callconv(.c) LeanObj;",
   "extern fn lean_setup_args(argc: c_int, argv: [*c][*c]u8) callconv(.c) [*c][*c]u8;", "extern fn lean_initialize() callconv(.c) void;", "extern fn lean_initialize_runtime_module() callconv(.c) void;",
   "extern fn lean_initialize_thread() callconv(.c) void;", "extern fn lean_init_task_manager() callconv(.c) void;", "extern fn lean_finalize_task_manager() callconv(.c) void;",
-  "extern fn lean_io_result_show_error(r: LeanObj) callconv(.c) void;", "extern fn lean_io_mark_end_initialization() callconv(.c) void;", "extern fn lean_run_main(main_fn: MainFn, argc: c_int, argv: [*c][*c]u8) callconv(.c) LeanObj;",
+  "extern fn lean_io_result_show_error(r: LeanObj) callconv(.c) void;", "extern fn lean_io_mark_end_initialization() callconv(.c) void;", "extern fn lean_array_get_panic(def_val: LeanObj) callconv(.c) LeanObj;",
+  "extern fn lean_run_main(main_fn: MainFn, argc: c_int, argv: [*c][*c]u8) callconv(.c) LeanObj;",
   "extern fn exit(code: c_int) callconv(.c) noreturn;"
 ]
 
@@ -179,13 +180,12 @@ def runtimeParams (ps : Array (Param .impure)) : Array (Param .impure) :=
 def runtimeArgs (ps : Array (Param .impure)) (args : Array (Arg .impure)) : Array (Arg .impure) :=
   Id.run do
     let mut filtered := #[]
-    for h : i in [0:ps.size] do
-      let p := ps[i]
-      let arg := args[i]!
+    for h : i in [0:args.size] do
+      let arg := args[i]
+      let p := ps[i]!
       if !(p.type.isVoid || p.type.isErased || arg == .erased) then
         filtered := filtered.push arg
     filtered
-
 def argMatchesParam (p : Param .impure) : Arg .impure → Bool
   | .fvar fvarId => p.fvarId == fvarId
   | .erased => false
@@ -589,8 +589,7 @@ partial def supportsCodeSubset : Code .impure → EmitM Bool
       let restOk ← supportsCodeSubset k
       pure (bodyOk && restOk)
   | .inc _ _ _ _ k => supportsCodeSubset k
-  | .dec _ n _ persistent _ k =>
-      if persistent || n == 1 then supportsCodeSubset k else pure false
+  | .dec _ _ _ _ _ k => supportsCodeSubset k
   | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k | .sset _ _ _ _ _ k =>
       supportsCodeSubset k
   | .cases cs => do
@@ -698,11 +697,13 @@ partial def emitBasicBlock : Code .impure → EmitM Unit
             emitLn "  @panic(\"EmitZig let-value emission not implemented yet\");"
   | .inc fvarId n check persistent k => do
       unless persistent do
+        let target := zigIdent fvarId.name
         if n == 1 then
           let incFn := if check then "lean_inc" else "lean_inc_ref"
-          emitLn s!"  {incFn}({zigIdent fvarId.name});"
+          emitLn s!"  {incFn}({target});"
         else
-          emitLn "  @panic(\"EmitZig multi-inc emission not implemented yet\");"
+          let incFn := if check then "lean_inc_n" else "lean_inc_ref_n"
+          emitLn s!"  {incFn}({target}, {usizeLit n});"
       emitBasicBlock k
   | .dec fvarId n check persistent _ k => do
       if persistent then
@@ -712,7 +713,9 @@ partial def emitBasicBlock : Code .impure → EmitM Unit
         emitLn s!"  {decFn}({zigIdent fvarId.name});"
         emitBasicBlock k
       else
-        emitLn "  @panic(\"EmitZig multi-dec emission not implemented yet\");"
+        let decFn := if check then "lean_dec_n" else "lean_dec_ref_n"
+        emitLn s!"  {decFn}({zigIdent fvarId.name}, {usizeLit n});"
+        emitBasicBlock k
   | .del fvarId k => do
       emitLn s!"  lean_dec_ref({zigIdent fvarId.name});"
       emitBasicBlock k
@@ -811,6 +814,13 @@ def emitFileHeader : EmitM Unit := do
     "  m_cs_sz: u16,",
     "  m_other: u8,",
     "  m_tag: u8,",
+    "};",
+    "const lean_closure_object = extern struct {",
+    "  m_header: lean_object,",
+    "  m_fun: ?*anyopaque,",
+    "  m_arity: u16,",
+    "  m_num_fixed: u16,",
+    "  m_objs: [0]?*anyopaque,",
     "};",
     "const LeanObj = ?*align(1) lean_object;",
     "const MainFn = *const fn (c_int, [*c][*c]u8) callconv(.c) LeanObj;",
@@ -979,6 +989,9 @@ def emitMainFnIfNeeded : EmitM Unit := do
     "  lean_io_result_show_error(res);",
     "  lean_dec_ref(res);",
     "  return 1;",
+    "}",
+    "comptime {",
+    "  @export(\u0026main, .{ .name = \"main\" });",
     "}"
   ]
   emitLn ""

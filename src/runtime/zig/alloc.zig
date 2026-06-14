@@ -13,9 +13,6 @@ const external_allocator = struct {
 const delegated_runtime = struct {
     extern fn leanrt_cpp_partial_hidden_lean_free_object_impl(o: *anyopaque) callconv(.c) void;
 };
-const mimalloc = struct {
-    extern fn mi_free(ptr: *anyopaque) callconv(.c) void;
-};
 const task_runtime = if (builtin.is_test)
     struct {
         fn leanrt_task_deactivate_promise_impl(o: *anyopaque) callconv(.c) void {
@@ -225,11 +222,7 @@ fn freeLarge(ptr: *anyopaque) void {
 }
 
 fn freeLegacySmall(ptr: *anyopaque) void {
-    if (builtin.is_test) {
-        std.c.free(ptr);
-        return;
-    }
-    mimalloc.mi_free(ptr);
+    std.c.free(ptr);
 }
 
 fn freeLegacyRaw(ptr: *anyopaque) void {

@@ -34,3 +34,8 @@ wdErr.txt
 wdIn.txt
 wdOut.txt
 .claude/worktrees/
+src/runtime/zig/.zig-cache/
+src/runtime/zig/zig-out/
+tests/emitzig/*
+!tests/emitzig/*.lean
+!tests/emitzig/*.sh

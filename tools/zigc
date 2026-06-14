@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Wrapper for compiling Lean-generated Zig code into an executable.
+# Usage: zigc <input.zig> [output-name]
+#
+# The script derives include/library paths from the in-tree leanc wrapper.
+# It links against the C++ Lean runtime and standard library.
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+LEANC="${LEANC:-$ROOT/build/release/stage1/bin/leanc}"
+
+if [[ ! -x "$LEANC" ]]; then
+  echo "zigc: leanc not found at $LEANC" >&2
+  exit 1
+fi
+
+INPUT="$1"
+OUTPUT="${2:-$(basename "$INPUT" .zig)}"
+
+zig build-exe "$INPUT" -O Debug \
+  -I "$ROOT/build/release/stage1/include" \
+  -L "$ROOT/build/release/stage1/lib/lean" \
+  -lInit -lStd -lLean -lleanrt -lc++ -lgmp -luv -lpthread \
+  -L/opt/homebrew/lib -framework CoreFoundation \
+  -femit-bin="$OUTPUT"

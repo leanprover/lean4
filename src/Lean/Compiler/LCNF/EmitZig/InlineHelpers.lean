@@ -326,6 +326,231 @@ private def mvpInlineHelperEntries : List (String × String) := [
     "  return @intFromBool(a1 == a2);",
     "}"
   ])
+
+  ,
+  ("lean_ctor_scalar_base", joinLines [
+    "inline fn lean_ctor_scalar_base(o: LeanObj) [*]u8 {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
+    "  return bytes + @sizeOf(lean_object) + @sizeOf(usize) * @as(usize, lean_ctor_num_objs(o));",
+    "}"
+  ]),
+  ("lean_ctor_set", joinLines [
+    "inline fn lean_ctor_set(o: LeanObj, i: c_uint, v: LeanObj) void {",
+    "  std.debug.assert(i < lean_ctor_num_objs(o));",
+    "  lean_ctor_obj_cptr(o)[@as(usize, i)] = v;",
+    "}"
+  ]),
+  ("lean_ctor_release", joinLines [
+    "inline fn lean_ctor_release(o: LeanObj, i: c_uint) void {",
+    "  std.debug.assert(i < lean_ctor_num_objs(o));",
+    "  const slots = lean_ctor_obj_cptr(o);",
+    "  lean_dec(slots[@as(usize, i)]);",
+    "  slots[@as(usize, i)] = lean_box(0);",
+    "}"
+  ]),
+  ("lean_ctor_get_usize", joinLines [
+    "inline fn lean_ctor_get_usize(o: LeanObj, i: c_uint) usize {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  return @as(*usize, @ptrCast(@alignCast(base + @sizeOf(usize) * @as(usize, i)))).*;",
+    "}"
+  ]),
+  ("lean_ctor_set_usize", joinLines [
+    "inline fn lean_ctor_set_usize(o: LeanObj, i: c_uint, v: usize) void {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  @as(*usize, @ptrCast(@alignCast(base + @sizeOf(usize) * @as(usize, i)))).* = v;",
+    "}"
+  ]),
+  ("lean_ctor_get_uint8", joinLines [
+    "inline fn lean_ctor_get_uint8(o: LeanObj, offset: c_uint) u8 {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  return @as(*u8, @ptrCast(base + offset)).*;",
+    "}"
+  ]),
+  ("lean_ctor_get_uint16", joinLines [
+    "inline fn lean_ctor_get_uint16(o: LeanObj, offset: c_uint) u16 {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  return @as(*u16, @ptrCast(@alignCast(base + offset))).*;",
+    "}"
+  ]),
+  ("lean_ctor_get_uint32", joinLines [
+    "inline fn lean_ctor_get_uint32(o: LeanObj, offset: c_uint) u32 {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  return @as(*u32, @ptrCast(@alignCast(base + offset))).*;",
+    "}"
+  ]),
+  ("lean_ctor_get_uint64", joinLines [
+    "inline fn lean_ctor_get_uint64(o: LeanObj, offset: c_uint) u64 {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  return @as(*u64, @ptrCast(@alignCast(base + offset))).*;",
+    "}"
+  ]),
+  ("lean_ctor_get_float", joinLines [
+    "inline fn lean_ctor_get_float(o: LeanObj, offset: c_uint) f64 {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  return @as(*f64, @ptrCast(@alignCast(base + offset))).*;",
+    "}"
+  ]),
+  ("lean_ctor_get_float32", joinLines [
+    "inline fn lean_ctor_get_float32(o: LeanObj, offset: c_uint) f32 {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  return @as(*f32, @ptrCast(@alignCast(base + offset))).*;",
+    "}"
+  ]),
+  ("lean_ctor_set_uint8", joinLines [
+    "inline fn lean_ctor_set_uint8(o: LeanObj, offset: c_uint, v: u8) void {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  @as(*u8, @ptrCast(base + offset)).* = v;",
+    "}"
+  ]),
+  ("lean_ctor_set_uint16", joinLines [
+    "inline fn lean_ctor_set_uint16(o: LeanObj, offset: c_uint, v: u16) void {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  @as(*u16, @ptrCast(@alignCast(base + offset))).* = v;",
+    "}"
+  ]),
+  ("lean_ctor_set_uint32", joinLines [
+    "inline fn lean_ctor_set_uint32(o: LeanObj, offset: c_uint, v: u32) void {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  @as(*u32, @ptrCast(@alignCast(base + offset))).* = v;",
+    "}"
+  ]),
+  ("lean_ctor_set_uint64", joinLines [
+    "inline fn lean_ctor_set_uint64(o: LeanObj, offset: c_uint, v: u64) void {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  @as(*u64, @ptrCast(@alignCast(base + offset))).* = v;",
+    "}"
+  ]),
+  ("lean_ctor_set_float", joinLines [
+    "inline fn lean_ctor_set_float(o: LeanObj, offset: c_uint, v: f64) void {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  @as(*f64, @ptrCast(@alignCast(base + offset))).* = v;",
+    "}"
+  ]),
+  ("lean_ctor_set_float32", joinLines [
+    "inline fn lean_ctor_set_float32(o: LeanObj, offset: c_uint, v: f32) void {",
+    "  const base = lean_ctor_scalar_base(o);",
+    "  @as(*f32, @ptrCast(@alignCast(base + offset))).* = v;",
+    "}"
+  ]),
+  ("lean_closure_obj_cptr", joinLines [
+    "inline fn lean_closure_obj_cptr(o: LeanObj) [*]LeanObj {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
+    "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object) + @sizeOf(*anyopaque) + 2 * @sizeOf(u16)));",
+    "}"
+  ]),
+  ("lean_closure_set", joinLines [
+    "inline fn lean_closure_set(o: LeanObj, i: c_uint, v: LeanObj) void {",
+    "  lean_closure_obj_cptr(o)[@as(usize, i)] = v;",
+    "}"
+  ]),
+  ("lean_dec_ref_n", joinLines [
+    "inline fn lean_dec_ref_n(o: LeanObj, n: usize) void {",
+    "  for (0..n) |_| { lean_dec_ref(o); }",
+    "}"
+  ]),
+  ("lean_dec_n", joinLines [
+    "inline fn lean_dec_n(o: LeanObj, n: usize) void {",
+    "  if (!lean_is_scalar(o)) lean_dec_ref_n(o, n);",
+    "}"
+  ]),
+  ("lean_inc_n", joinLines [
+    "inline fn lean_inc_n(o: LeanObj, n: usize) void {",
+    "  if (!lean_is_scalar(o)) lean_inc_ref_n(o, n);",
+    "}"
+  ]),
+  ("lean_is_exclusive", joinLines [
+    "inline fn lean_is_exclusive(o: LeanObj) bool {",
+    "  return !lean_is_scalar(o) and lean_heap_obj(o).m_rc == 1;",
+    "}"
+  ]),
+  ("lean_alloc_closure", joinLines [
+    "inline fn lean_alloc_closure(fun: *const anyopaque, arity: c_uint, num_fixed: c_uint) LeanObj {",
+    "  std.debug.assert(arity > 0 and num_fixed < arity);",
+    "  const total = lean_usize_add_checked(",
+    "    @sizeOf(lean_closure_object), lean_usize_mul_checked(@sizeOf(*anyopaque), @as(usize, num_fixed))",
+    "  );",
+    "  const o: *lean_closure_object = @ptrCast(@alignCast(lean_alloc_object(total)));",
+    "  lean_set_st_header(@ptrCast(o), @as(c_uint, 245), @as(c_uint, 0));",
+    "  o.m_fun = @constCast(fun);",
+    "  o.m_arity = @as(u16, @intCast(arity));",
+    "  o.m_num_fixed = @as(u16, @intCast(num_fixed));",
+    "  return @ptrCast(o);",
+    "}"
+  ]),
+  ("lean_array_get_borrowed", joinLines [
+    "inline fn lean_array_get_borrowed(def_val: LeanObj, a: LeanObj, i: LeanObj) LeanObj {",
+    "  if (lean_is_scalar(i)) {",
+    "    const idx = lean_unbox(i);",
+    "    if (idx < lean_array_size(a)) {",
+    "      return lean_array_get_core(a, idx);",
+    "    }",
+    "  }",
+    "  lean_inc(def_val);",
+    "  return lean_array_get_panic(def_val);",
+    "}"
+  ]),
+  ("lean_del_object", joinLines [
+    "inline fn lean_del_object(o: LeanObj) void {",
+    "  if (!lean_is_scalar(o)) lean_free_object(o);",
+    "}"
+  ]),
+  ("lean_box_uint32", joinLines [
+    "inline fn lean_box_uint32(value: u32) LeanObj {",
+    "  if (value <= LeanMaxSmallNat) { return lean_box(@as(usize, value)); }",
+    "  const r = lean_alloc_ctor(@as(c_uint, 0), @as(c_uint, 0), @as(usize, 4));",
+    "  lean_ctor_set_uint32(r, @as(c_uint, 0), value);",
+    "  return r;",
+    "}"
+  ]),
+  ("lean_box_uint64", joinLines [
+    "inline fn lean_box_uint64(value: u64) LeanObj {",
+    "  if (value <= LeanMaxSmallNat) { return lean_box(@as(usize, @intCast(value))); }",
+    "  const r = lean_alloc_ctor(@as(c_uint, 0), @as(c_uint, 0), @as(usize, 8));",
+    "  lean_ctor_set_uint64(r, @as(c_uint, 0), value);",
+    "  return r;",
+    "}"
+  ]),
+  ("lean_box_usize", joinLines [
+    "inline fn lean_box_usize(value: usize) LeanObj {",
+    "  const r = lean_alloc_ctor(@as(c_uint, 0), @as(c_uint, 0), @sizeOf(usize));",
+    "  lean_ctor_set_usize(r, @as(c_uint, 0), value);",
+    "  return r;",
+    "}"
+  ]),
+  ("lean_box_float", joinLines [
+    "inline fn lean_box_float(value: f64) LeanObj {",
+    "  const r = lean_alloc_ctor(@as(c_uint, 0), @as(c_uint, 0), @as(usize, 8));",
+    "  lean_ctor_set_float(r, @as(c_uint, 0), value);",
+    "  return r;",
+    "}"
+  ]),
+  ("lean_box_float32", joinLines [
+    "inline fn lean_box_float32(value: f32) LeanObj {",
+    "  const r = lean_alloc_ctor(@as(c_uint, 0), @as(c_uint, 0), @as(usize, 4));",
+    "  lean_ctor_set_float32(r, @as(c_uint, 0), value);",
+    "  return r;",
+    "}"
+  ]),
+  ("lean_unbox_usize", joinLines [
+    "inline fn lean_unbox_usize(o: LeanObj) usize {",
+    "  return lean_ctor_get_usize(o, @as(c_uint, 0));",
+    "}"
+  ]),
+  ("lean_unbox_uint64", joinLines [
+    "inline fn lean_unbox_uint64(o: LeanObj) u64 {",
+    "  return lean_ctor_get_uint64(o, @as(c_uint, 0));",
+    "}"
+  ]),
+  ("lean_unbox_float", joinLines [
+    "inline fn lean_unbox_float(o: LeanObj) f64 {",
+    "  return lean_ctor_get_float(o, @as(c_uint, 0));",
+    "}"
+  ]),
+  ("lean_unbox_float32", joinLines [
+    "inline fn lean_unbox_float32(o: LeanObj) f32 {",
+    "  return lean_ctor_get_float32(o, @as(c_uint, 0));",
+    "}"
+  ]),
 ]
 
 private def bignumExternHelperEntries : List (String × String) := [

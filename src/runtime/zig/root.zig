@@ -1,10 +1,11 @@
-// Root module re-exporting all runtime stubs
+// Root module re-exporting all runtime submodules.
 
 pub const alloc = @import("alloc.zig");
 pub const apply = @import("apply.zig");
 pub const array = @import("array.zig");
 pub const box = @import("box.zig");
 pub const ctor = @import("ctor.zig");
+pub const cpp_partial_stubs = @import("cpp_partial_stubs.zig");
 pub const dbg = @import("dbg.zig");
 pub const float = @import("float.zig");
 pub const init = @import("init.zig");
@@ -15,6 +16,7 @@ pub const io_errno = @import("io_errno.zig");
 pub const io_result = @import("io_result.zig");
 pub const io_min = @import("io_min.zig");
 pub const misc = @import("misc.zig");
+pub const nat = @import("nat.zig");
 pub const nat_constructors = @import("nat_constructors.zig");
 pub const nat_arithmetic = @import("nat_arithmetic.zig");
 pub const mpz_zig = @import("mpz_zig");
@@ -35,97 +37,37 @@ pub const utf8 = @import("utf8.zig");
 
 comptime {
     _ = alloc;
-}
-comptime {
     _ = apply;
-}
-comptime {
     _ = array;
-}
-comptime {
     _ = box;
-}
-comptime {
     _ = ctor;
-}
-comptime {
     _ = dbg;
-}
-comptime {
     _ = float;
-}
-comptime {
     _ = init;
-}
-comptime {
     _ = int;
-}
-comptime {
     _ = int_conv;
-}
-comptime {
     _ = io_error;
-}
-comptime {
     _ = io_errno;
-}
-comptime {
     _ = io_result;
-}
-comptime {
     _ = io_min;
-}
-comptime {
     _ = misc;
-}
-comptime {
+    _ = nat;
     _ = nat_constructors;
-}
-comptime {
     _ = nat_arithmetic;
-}
-comptime {
     _ = mpz_zig;
-}
-comptime {
     _ = mpz_object;
-}
-comptime {
     _ = object;
-}
-comptime {
     _ = once;
-}
-comptime {
     _ = rc;
-}
-comptime {
     _ = st_ref;
-}
-comptime {
     _ = string;
-}
-comptime {
     _ = sync;
-}
-comptime {
     _ = task;
-}
-comptime {
     _ = task_manager;
-}
-comptime {
     _ = task_manager_export;
-}
-comptime {
     _ = thread;
-}
-comptime {
+    _ = cpp_partial_stubs;
     _ = thunk;
-}
-comptime {
     _ = uint_conv;
-}
-comptime {
     _ = utf8;
 }

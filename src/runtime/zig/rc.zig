@@ -147,6 +147,18 @@ pub export fn lean_dec(o: ?*anyopaque) callconv(.c) void {
         }
     }
 }
+pub export fn lean_dec_n(o: ?*anyopaque, n: usize) callconv(.c) void {
+    if (o) |ptr| {
+        if (!object.lean_is_scalar(ptr)) {
+            var i: usize = 0;
+            while (i < n) : (i += 1) {
+                lean_dec_ref(ptr);
+            }
+        }
+    }
+}
+
+
 
 pub export fn lean_is_exclusive(o: *anyopaque) callconv(.c) bool {
     return header(o).m_rc == 1;

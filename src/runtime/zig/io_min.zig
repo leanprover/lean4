@@ -1,7 +1,10 @@
 const std = @import("std");
+const alloc = @import("alloc.zig");
+const ctor = @import("ctor.zig");
 const io_error = @import("io_error.zig");
 const io_result = @import("io_result.zig");
 const lean = @import("lean_object.zig");
+const object = @import("object.zig");
 
 var g_exit_on_panic = false;
 var g_panic_messages = true;
@@ -87,17 +90,6 @@ pub export fn lean_internal_panic_overflow() callconv(.c) void {
     exitWithCodeOne();
 }
 
-fn lean_decode_io_error(_errnum: c_int, _fname: *anyopaque) callconv(.c) *anyopaque {
-    _ = _errnum;
-    _ = _fname;
-    @panic("unimplemented: lean_decode_io_error");
-}
-
-fn lean_decode_uv_error(_errnum: c_int, _fname: *anyopaque) callconv(.c) *anyopaque {
-    _ = _errnum;
-    _ = _fname;
-    @panic("unimplemented: lean_decode_uv_error");
-}
 
 pub const lean_io_initializing = io_result.lean_io_initializing;
 pub const lean_io_mark_end_initialization = io_result.lean_io_mark_end_initialization;
@@ -205,6 +197,39 @@ fn lean_mk_io_error_unsupported_operation(os_code: u32, details: *anyopaque) *an
     return io_error.lean_mk_io_error_unsupported_operation(os_code, details);
 }
 
+
+// Minimal stub implementations for programs that link the Zig runtime without
+// the Lean standard library. These are sufficient for trivial IO smoke tests.
+
+fn stringBytes(msg: *anyopaque) []const u8 {
+    const str: *lean.lean_string_object = @ptrCast(@alignCast(msg));
+    const size = if (str.m_size == 0) 0 else str.m_size - 1;
+    const bytes: [*]const u8 = @ptrCast(&str.m_data);
+    return bytes[0..size];
+}
+
+fn stdoutPutStr(str_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    const bytes = stringBytes(str_obj);
+    _ = std.c.write(1, bytes.ptr, bytes.len);
+    return io_result.lean_io_result_mk_ok(world_obj);
+}
+
+export fn initialize_Init(builtin: u8) callconv(.c) *anyopaque {
+    _ = builtin;
+    return io_result.lean_io_result_mk_ok(object.lean_box(0).?);
+}
+
+export fn lean_get_stdout() callconv(.c) *anyopaque {
+    const stream = alloc.lean_alloc_ctor(0, 6, 0);
+    const put_str = alloc.lean_alloc_closure(@constCast(@ptrCast(&stdoutPutStr)), 2, 0);
+    ctor.lean_ctor_set(stream, 0, object.lean_box(0).?); // flush
+    ctor.lean_ctor_set(stream, 1, object.lean_box(0).?); // read
+    ctor.lean_ctor_set(stream, 2, object.lean_box(0).?); // write
+    ctor.lean_ctor_set(stream, 3, object.lean_box(0).?); // getLine
+    ctor.lean_ctor_set(stream, 4, put_str);              // putStr
+    ctor.lean_ctor_set(stream, 5, object.lean_box(0).?); // isTty
+    return stream;
+}
 fn lean_mk_io_user_error(msg: *anyopaque) *anyopaque {
     return io_error.lean_mk_io_user_error(msg);
 }

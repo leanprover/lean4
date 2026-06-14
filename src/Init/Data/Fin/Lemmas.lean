@@ -1217,9 +1217,9 @@ instance [NeZero n] : Std.LawfulIdentity (α := Fin n) (· * ·) 1 where
   right_id := Fin.mul_one
 
 protected theorem mul_zero [NeZero n] (k : Fin n) : k * 0 = 0 := by
-  simp [Fin.ext_iff, mul_def]
+  simp [mul_def]
 
 protected theorem zero_mul [NeZero n] (k : Fin n) : (0 : Fin n) * k = 0 := by
-  simp [Fin.ext_iff, mul_def]
+  simp [mul_def]
 
 end Fin

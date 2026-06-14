@@ -5,7 +5,7 @@ const io_error = @import("io_error.zig");
 const io_result = @import("io_result.zig");
 const lean = @import("lean_object.zig");
 const object = @import("object.zig");
-
+const rc = @import("rc.zig");
 const mpz_zig = @import("mpz_zig");
 
 const gmp = struct {
@@ -13,6 +13,9 @@ const gmp = struct {
 };
 var g_exit_on_panic = false;
 var g_panic_messages = true;
+var g_stdout: ?*anyopaque = null;
+var g_stderr: ?*anyopaque = null;
+var g_stdin: ?*anyopaque = null;
 
 fn writeStderr(bytes: []const u8) void {
     std.debug.print("{s}", .{bytes});
@@ -203,8 +206,10 @@ fn lean_mk_io_error_unsupported_operation(os_code: u32, details: *anyopaque) *an
 }
 
 
-// Minimal stub implementations for programs that link the Zig runtime without
-// the Lean standard library. These are sufficient for trivial IO smoke tests.
+// Minimal IO implementation for programs that link the Zig runtime without the
+// Lean standard library. `initialize_Init` creates the standard streams; the
+// getters return cached objects and the setters swap them, matching the C++
+// runtime convention used by `Init.System.IO`.
 
 extern fn lean_mk_string_unchecked(s: [*:0]const u8, sz: usize, len: usize) callconv(.c) *anyopaque;
 
@@ -365,21 +370,97 @@ comptime {
 
 export fn initialize_Init(builtin: u8) callconv(.c) *anyopaque {
     _ = builtin;
+    if (g_stdout == null) g_stdout = makeOutputStream(stdoutPutStr, stdoutWrite);
+    if (g_stderr == null) g_stderr = makeOutputStream(stderrPutStr, stderrWrite);
+    if (g_stdin == null) g_stdin = makeInputStream();
     return io_result.lean_io_result_mk_ok(object.lean_box(0).?);
 }
 
+fn getStreamOrInit(current: *?*anyopaque, make: *const fn () callconv(.c) *anyopaque) *anyopaque {
+    const s = current.* orelse make();
+    rc.lean_inc_ref(s);
+    return s;
+}
+
 export fn lean_get_stdout() callconv(.c) *anyopaque {
-    return makeOutputStream(stdoutPutStr, stdoutWrite);
+    return getStreamOrInit(&g_stdout, struct {
+        fn make() callconv(.c) *anyopaque {
+            return makeOutputStream(stdoutPutStr, stdoutWrite);
+        }
+    }.make);
 }
 
 export fn lean_get_stderr() callconv(.c) *anyopaque {
-    return makeOutputStream(stderrPutStr, stderrWrite);
+    return getStreamOrInit(&g_stderr, struct {
+        fn make() callconv(.c) *anyopaque {
+            return makeOutputStream(stderrPutStr, stderrWrite);
+        }
+    }.make);
 }
 
 export fn lean_get_stdin() callconv(.c) *anyopaque {
-    return makeInputStream();
+    return getStreamOrInit(&g_stdin, struct {
+        fn make() callconv(.c) *anyopaque {
+            return makeInputStream();
+        }
+    }.make);
+}
+
+fn setStream(current: *?*anyopaque, h: *anyopaque, fallback: *const fn () callconv(.c) *anyopaque) *anyopaque {
+    const old = current.* orelse fallback();
+    current.* = h;
+    rc.lean_inc_ref(h);
+    return old;
+}
+
+export fn lean_get_set_stdout(h: *anyopaque) callconv(.c) *anyopaque {
+    return setStream(&g_stdout, h, struct {
+        fn make() callconv(.c) *anyopaque {
+            return makeOutputStream(stdoutPutStr, stdoutWrite);
+        }
+    }.make);
+}
+
+export fn lean_get_set_stderr(h: *anyopaque) callconv(.c) *anyopaque {
+    return setStream(&g_stderr, h, struct {
+        fn make() callconv(.c) *anyopaque {
+            return makeOutputStream(stderrPutStr, stderrWrite);
+        }
+    }.make);
+}
+
+export fn lean_get_set_stdin(h: *anyopaque) callconv(.c) *anyopaque {
+    return setStream(&g_stdin, h, struct {
+        fn make() callconv(.c) *anyopaque {
+            return makeInputStream();
+        }
+    }.make);
 }
 
 fn lean_mk_io_user_error(msg: *anyopaque) *anyopaque {
     return io_error.lean_mk_io_user_error(msg);
+}
+test "initialize_Init creates stdout, stderr, and stdin streams" {
+    g_stdout = null;
+    g_stderr = null;
+    g_stdin = null;
+    const res = initialize_Init(1);
+    defer rc.lean_dec(res);
+    try std.testing.expect(g_stdout != null);
+    try std.testing.expect(g_stderr != null);
+    try std.testing.expect(g_stdin != null);
+}
+test "lean_get_set_stdout swaps the current stream and returns the previous one" {
+    g_stdout = null;
+    const init_res = initialize_Init(1);
+    defer rc.lean_dec(init_res);
+    const original = lean_get_stdout();
+    defer rc.lean_dec_ref(original);
+    const replacement = makeOutputStream(stdoutPutStr, stdoutWrite);
+    const old = lean_get_set_stdout(replacement);
+    defer rc.lean_dec_ref(old);
+    try std.testing.expectEqual(original, old);
+    const current = lean_get_stdout();
+    defer rc.lean_dec_ref(current);
+    try std.testing.expectEqual(replacement, current);
 }

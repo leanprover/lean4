@@ -216,28 +216,54 @@ fn stdoutPutStr(str_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopa
     return io_result.lean_io_result_mk_ok(world_obj);
 }
 
-fn stdoutWrite(ba_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+fn stderrPutStr(str_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    const bytes = stringBytes(str_obj);
+    _ = std.c.write(2, bytes.ptr, bytes.len);
+    return io_result.lean_io_result_mk_ok(world_obj);
+}
+
+fn streamWriteFd(fd: c_int, ba_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
     const ba: *lean.lean_sarray_object = @ptrCast(@alignCast(ba_obj));
     const bytes: [*]const u8 = @ptrCast(&ba.m_data);
-    _ = std.c.write(1, bytes, ba.m_size);
+    _ = std.c.write(fd, bytes, ba.m_size);
     return io_result.lean_io_result_mk_ok(world_obj);
 }
 
-fn stdoutFlush(world_obj: *anyopaque) callconv(.c) *anyopaque {
+fn stdoutWrite(ba_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    return streamWriteFd(1, ba_obj, world_obj);
+}
+
+fn stderrWrite(ba_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    return streamWriteFd(2, ba_obj, world_obj);
+}
+
+fn streamFlush(world_obj: *anyopaque) callconv(.c) *anyopaque {
     return io_result.lean_io_result_mk_ok(world_obj);
 }
 
-fn stdoutRead(n_obj: *anyopaque, _: *anyopaque) callconv(.c) *anyopaque {
+fn streamReadEmpty(n_obj: *anyopaque, _: *anyopaque) callconv(.c) *anyopaque {
     const n = object.lean_unbox(n_obj);
-    const ba = alloc.lean_alloc_sarray(1, 0, n);
+    const ba: *lean.lean_sarray_object = @ptrCast(@alignCast(alloc.lean_alloc_sarray(1, 0, n)));
     return io_result.lean_io_result_mk_ok(ba);
 }
 
-fn stdinGetLine(_: *anyopaque) callconv(.c) *anyopaque {
+fn stdinRead(n_obj: *anyopaque, _: *anyopaque) callconv(.c) *anyopaque {
+    const n = object.lean_unbox(n_obj);
+    const ba: *lean.lean_sarray_object = @ptrCast(@alignCast(alloc.lean_alloc_sarray(1, 0, n)));
+    if (n > 0) {
+        const bytes: [*]u8 = @ptrCast(&ba.m_data);
+        const got = std.c.read(0, bytes, n);
+        if (got >= 0) {
+            ba.m_size = @intCast(got);
+        }
+    }
+    return io_result.lean_io_result_mk_ok(ba);
+}
+fn streamGetLineEmpty(_: *anyopaque) callconv(.c) *anyopaque {
     return io_result.lean_io_result_mk_ok(lean_mk_string_unchecked(@ptrCast("".ptr), 0, 0));
 }
 
-fn streamIsTty(_: *anyopaque) callconv(.c) *anyopaque {
+fn streamIsTtyFalse(_: *anyopaque) callconv(.c) *anyopaque {
     return io_result.lean_io_result_mk_ok(object.lean_box(0).?);
 }
 
@@ -249,20 +275,79 @@ fn makeStreamClosure2(comptime fun: anytype) *anyopaque {
     return alloc.lean_alloc_closure(@constCast(@ptrCast(&fun)), 2, 0);
 }
 
+fn makeOutputStream(put_str: anytype, write_fn: anytype) *anyopaque {
+    const stream = alloc.lean_alloc_ctor(0, 6, 0);
+    ctor.lean_ctor_set(stream, 0, makeStreamClosure(streamFlush));
+    ctor.lean_ctor_set(stream, 1, makeStreamClosure2(streamReadEmpty));
+    ctor.lean_ctor_set(stream, 2, makeStreamClosure2(write_fn));
+    ctor.lean_ctor_set(stream, 3, makeStreamClosure(streamGetLineEmpty));
+    ctor.lean_ctor_set(stream, 4, makeStreamClosure2(put_str));
+    ctor.lean_ctor_set(stream, 5, makeStreamClosure(streamIsTtyFalse));
+    return stream;
+}
+
+fn makeInputStream() *anyopaque {
+    const stream = alloc.lean_alloc_ctor(0, 6, 0);
+    ctor.lean_ctor_set(stream, 0, makeStreamClosure(streamFlush));
+    ctor.lean_ctor_set(stream, 1, makeStreamClosure2(stdinRead));
+    ctor.lean_ctor_set(stream, 2, makeStreamClosure2(streamWriteFdNoop));
+    ctor.lean_ctor_set(stream, 3, makeStreamClosure(streamGetLineEmpty));
+    ctor.lean_ctor_set(stream, 4, makeStreamClosure2(streamWriteFdNoop));
+    ctor.lean_ctor_set(stream, 5, makeStreamClosure(streamIsTtyFalse));
+    return stream;
+}
+
+fn streamWriteFdNoop(_: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    return io_result.lean_io_result_mk_ok(world_obj);
+}
+
+fn ioPrintlnAction(str_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    const bytes = stringBytes(str_obj);
+    _ = std.c.write(1, bytes.ptr, bytes.len);
+    _ = std.c.write(1, "\n".ptr, 1);
+    return io_result.lean_io_result_mk_ok(world_obj);
+}
+
+fn ioEprintlnAction(str_obj: *anyopaque, world_obj: *anyopaque) callconv(.c) *anyopaque {
+    const bytes = stringBytes(str_obj);
+    _ = std.c.write(2, bytes.ptr, bytes.len);
+    _ = std.c.write(2, "\n".ptr, 1);
+    return io_result.lean_io_result_mk_ok(world_obj);
+}
+
+// IO.println / IO.eprintln are compiled to functions that return an already-
+// executed IO result (not a suspended closure), matching what the generated
+// main wrapper expects from lean_run_main.
+export fn lean_io_println(str_obj: *anyopaque) callconv(.c) *anyopaque {
+    return ioPrintlnAction(str_obj, object.lean_box(0).?);
+}
+
+export fn lean_io_eprintln(str_obj: *anyopaque) callconv(.c) *anyopaque {
+    return ioEprintlnAction(str_obj, object.lean_box(0).?);
+}
+
+// Mangled name emitted by the Lean compiler for IO.eprintln.
+fn l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0(str_obj: *anyopaque) callconv(.c) *anyopaque {
+    return lean_io_eprintln(str_obj);
+}
+comptime {
+    @export(&l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0, .{ .name = "l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0" });
+}
 export fn initialize_Init(builtin: u8) callconv(.c) *anyopaque {
     _ = builtin;
     return io_result.lean_io_result_mk_ok(object.lean_box(0).?);
 }
 
 export fn lean_get_stdout() callconv(.c) *anyopaque {
-    const stream = alloc.lean_alloc_ctor(0, 6, 0);
-    ctor.lean_ctor_set(stream, 0, makeStreamClosure(stdoutFlush));
-    ctor.lean_ctor_set(stream, 1, makeStreamClosure2(stdoutRead));
-    ctor.lean_ctor_set(stream, 2, makeStreamClosure2(stdoutWrite));
-    ctor.lean_ctor_set(stream, 3, makeStreamClosure(stdinGetLine));
-    ctor.lean_ctor_set(stream, 4, makeStreamClosure2(stdoutPutStr));
-    ctor.lean_ctor_set(stream, 5, makeStreamClosure(streamIsTty));
-    return stream;
+    return makeOutputStream(stdoutPutStr, stdoutWrite);
+}
+
+export fn lean_get_stderr() callconv(.c) *anyopaque {
+    return makeOutputStream(stderrPutStr, stderrWrite);
+}
+
+export fn lean_get_stdin() callconv(.c) *anyopaque {
+    return makeInputStream();
 }
 fn lean_mk_io_user_error(msg: *anyopaque) *anyopaque {
     return io_error.lean_mk_io_user_error(msg);

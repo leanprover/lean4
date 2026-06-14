@@ -6807,4 +6807,36 @@ theorem toNat_cpop_not {x : BitVec w} :
     cases b
     <;> (simp [ih]; omega)
 
+theorem cpopNatRec_le_of_acc_le {x : BitVec w} {pos acc acc' : Nat} (h : acc ≤ acc') :
+    x.cpopNatRec pos acc ≤ x.cpopNatRec pos acc' := by
+  induction pos generalizing acc acc'
+  · case zero => simp [h]
+  · case succ pos ih =>
+    rw [cpopNatRec_succ, cpopNatRec_succ]
+    apply ih
+    omega
+
+theorem cpopNatRec_le_of_pos_le {x : BitVec w} {pos pos' acc : Nat} (h : pos ≤ pos') :
+    x.cpopNatRec pos acc ≤ x.cpopNatRec pos' acc := by
+  induction pos'
+  · case zero =>
+    have : pos = 0 := by omega
+    simp [this]
+  · case succ pos' ih =>
+    rcases Nat.le_or_eq_of_le_add_one h with h | h
+    · apply Nat.le_trans (ih h)
+      rw [cpopNatRec_succ]
+      cases x.getLsbD pos'
+      · simp
+      · simp [cpopNatRec_le_of_acc_le]
+    · simp [h]
+
+theorem toNat_cpop_setWidth_le_of_le {x : BitVec w} {n : Nat} (h : n ≤ w) :
+    (x.setWidth n).cpop.toNat ≤ x.cpop.toNat := by
+  simp [toNat_cpop, cpopNatRec_le_of_pos_le h]
+
+theorem toNat_cpop_setWidth_eq_of_le {x : BitVec w} {n : Nat} (h : w ≤ n) :
+    (x.setWidth n).cpop.toNat = x.cpop.toNat := by
+  simp [BitVec.setWidth_eq_append, h]
+
 end BitVec

@@ -695,8 +695,26 @@ inductive TransferKind
 
 structure TransferInfo where
   url : String
+  hash : Hash
   path : FilePath
-  descr : ArtifactDescr
+  /-- Additional paths for a downloaded artifact. -/
+  extraPaths : Array FilePath := #[]
+
+@[inline] def TransferInfo.addExtraPath (self : TransferInfo) (path : FilePath) : TransferInfo :=
+  {self with extraPaths := self.extraPaths.push path}
+
+structure TransferDict where
+  infos : Array TransferInfo
+  indices : Std.HashMap Hash Nat
+
+def TransferDict.empty : TransferDict :=
+  ⟨#[], ∅⟩
+
+def TransferDict.add (self : TransferDict) (url : String) (hash : Hash) (path : FilePath) : TransferDict :=
+  if let some j := self.indices.get? hash then
+    {self with infos := self.infos.modify j (·.addExtraPath path)}
+  else
+    ⟨self.infos.push {url, hash, path}, self.indices.insert hash self.infos.size⟩
 
 structure TransferConfig where
   kind : TransferKind
@@ -718,7 +736,7 @@ partial def monitorTransfer
     let s ← (·.2) <$> StateT.run (s := s) do
       match Json.parse line >>= fromJson? with
       | .ok (out : JsonObject) =>
-        let some info@{url, path, descr} := getInfo? out
+        let some info@{url, hash, path, extraPaths} := getInfo? out
           | logError s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
             modify ({· with didError := true})
             return
@@ -727,18 +745,20 @@ partial def monitorTransfer
         | .ok 201 =>
           match cfg.kind with
           | .get =>
-            logInfo s!"{cfg.scope}: downloaded artifact {descr.hash}\
+            logInfo s!"{cfg.scope}: downloaded artifact {hash}\
               \n  local path: {path}\
               \n  remote URL: {url}"
             let actualHash ← computeFileHash path
-            if actualHash != descr.hash then
+            if actualHash != hash then
               logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
               IO.FS.removeFile path
               modify ({· with didError := true})
             else
+              for extraPath in extraPaths do
+                copyFile path extraPath
               modify fun s => {s with numSuccesses := s.numSuccesses + 1}
           | .put =>
-            logInfo s!"{cfg.scope}: uploaded artifact {descr.hash}\
+            logInfo s!"{cfg.scope}: uploaded artifact {hash}\
               \n  local path: {path}\
               \n  remote URL: {url}"
             modify fun s => {s with numSuccesses := s.numSuccesses + 1}
@@ -756,7 +776,7 @@ where
     | _ => none
   handleFailure info code? out line : LoggerIO Unit := do
     let action := match cfg.kind with | .get => "download" | .put => "upload"
-    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.descr.hash}"
+    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.hash}"
     if let .ok code := code? then
       msg := s!"{msg} (status code: {code})"
     if let .ok errMsg := out.getAs String "errormsg" then
@@ -843,14 +863,15 @@ public def downloadArtifacts
   if descrs.isEmpty then
     logWarning "no artifacts to download"
     return
-  let infos ← descrs.foldlM (init := #[]) fun s descr => do
+  let {infos, ..} ← descrs.foldlM (init := TransferDict.empty) fun s {descr} => do
     let path := cache.artifactDir / descr.relPath
     if force then
       removeFileIfExists path
     else if (← path.pathExists) then
       return s
-    let url := service.artifactUrl descr.hash scope
-    return s.push {url, path, descr}
+    let hash := descr.hash
+    let url := service.artifactUrl hash scope
+    return s.add url hash path
   if infos.isEmpty then
     return
   let infos ← id do
@@ -863,7 +884,7 @@ public def downloadArtifacts
   transferArtifacts {scope, infos, kind := .get}
 where
   fetchUrls url infos := IO.FS.withTempFile fun h path => do
-    let body := Json.arr <| infos.map (toJson ·.descr.hash)
+    let body := Json.arr <| infos.map (toJson ·.hash)
     h.putStr body.compress
     h.flush
     let args := #[
@@ -932,9 +953,10 @@ public def uploadArtifacts
   if n = 0 then
     logWarning "no artifacts to upload"
     return
-  let infos ← n.foldM (init := #[]) fun i _ s => do
-    let url := service.artifactUrl descrs[i].hash scope
-    return s.push {url, path := paths[i], descr := descrs[i]}
+  let {infos, ..} ← n.foldM (init := TransferDict.empty) fun i _ s => do
+    let hash := descrs[i].hash
+    let url := service.artifactUrl hash scope
+    return s.add url hash paths[i]
   transferArtifacts {scope, infos, kind := .put, key := service.impl.key}
 
 /-! ### Output Transfer -/

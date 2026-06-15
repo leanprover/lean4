@@ -139,30 +139,54 @@ fn systemTimeObj(sec: i64, nsec: u32) *anyopaque {
 }
 
 fn statSec(st: anytype, comptime base: []const u8) i64 {
-    if (@hasField(@TypeOf(st.*), base ++ "im")) return @intCast(@field(@field(st.*, base ++ "im"), "tv_sec"));
-    if (std.mem.eql(u8, base, "st_at")) return @intCast(st.*.atimespec.sec);
-    return @intCast(st.*.mtimespec.sec);
+    return switch (builtin.target.os.tag) {
+        .linux => if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.sec) else @intCast(st.*.mtim.sec),
+        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos =>
+            if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.sec) else @intCast(st.*.mtimespec.sec),
+        else => @panic("statSec unsupported on this platform"),
+    };
 }
 
 fn statNSec(st: anytype, comptime base: []const u8) u32 {
-    if (@hasField(@TypeOf(st.*), base ++ "im")) return @intCast(@field(@field(st.*, base ++ "im"), "tv_nsec"));
-    if (std.mem.eql(u8, base, "st_at")) return @intCast(st.*.atimespec.nsec);
-    return @intCast(st.*.mtimespec.nsec);
+    return switch (builtin.target.os.tag) {
+        .linux => if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.nsec) else @intCast(st.*.mtim.nsec),
+        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos =>
+            if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.nsec) else @intCast(st.*.mtimespec.nsec),
+        else => @panic("statNSec unsupported on this platform"),
+    };
 }
 
 fn statMode(st: anytype) usize {
-    if (@hasField(@TypeOf(st.*), "mode")) return @intCast(st.*.mode);
-    return @intCast(st.*.st_mode);
+    return switch (builtin.target.os.tag) {
+        .linux => @intCast(st.*.st_mode),
+        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos => @intCast(st.*.mode),
+        else => @panic("statMode unsupported on this platform"),
+    };
 }
 
 fn statSize(st: anytype) u64 {
-    if (@hasField(@TypeOf(st.*), "size")) return @intCast(st.*.size);
-    return @intCast(st.*.st_size);
+    return switch (builtin.target.os.tag) {
+        .linux => @intCast(st.*.st_size),
+        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos => @intCast(st.*.size),
+        else => @panic("statSize unsupported on this platform"),
+    };
 }
 
 fn statNLink(st: anytype) u64 {
-    if (@hasField(@TypeOf(st.*), "nlink")) return @intCast(st.*.nlink);
-    return @intCast(st.*.st_nlink);
+    return switch (builtin.target.os.tag) {
+        .linux => @intCast(st.*.st_nlink),
+        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos => @intCast(st.*.nlink),
+        else => @panic("statNLink unsupported on this platform"),
+    };
+}
+
+fn waitCode(status: c_int) u32 {
+    const s: u32 = @bitCast(status);
+    if (c.W.IFEXITED(s)) return c.W.EXITSTATUS(s);
+    return 128 + switch (builtin.target.os.tag) {
+        .linux => c.W.TERMSIG(s),
+        else => @intFromEnum(c.W.TERMSIG(s)),
+    };
 }
 
 fn metadataFromStat(st: *const c.Stat) *anyopaque {
@@ -584,9 +608,7 @@ pub export fn lean_io_process_child_wait(_: *anyopaque, child: *anyopaque) callc
     if (c.waitpid(childPid(child), &status, 0) == -1) {
         return io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
     }
-    const s: u32 = @bitCast(status);
-    const code: u32 = if (c.W.IFEXITED(s)) c.W.EXITSTATUS(s) else 128 + @intFromEnum(c.W.TERMSIG(s));
-    return io_result.lean_io_result_mk_ok(box.lean_box_uint32(code).?);
+    return io_result.lean_io_result_mk_ok(box.lean_box_uint32(waitCode(status)).?);
 }
 
 pub export fn lean_io_process_child_try_wait(_: *anyopaque, child: *anyopaque) callconv(.c) *anyopaque {
@@ -594,15 +616,13 @@ pub export fn lean_io_process_child_try_wait(_: *anyopaque, child: *anyopaque) c
     const ret = c.waitpid(childPid(child), &status, c.W.NOHANG);
     if (ret == -1) return io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
     if (ret == 0) return io_result.lean_io_result_mk_ok(mkOptionNone());
-    const s: u32 = @bitCast(status);
-    const code: u32 = if (c.W.IFEXITED(s)) c.W.EXITSTATUS(s) else 128 + @intFromEnum(c.W.TERMSIG(s));
-    return io_result.lean_io_result_mk_ok(mkOptionSome(box.lean_box_uint32(code).?));
+    return io_result.lean_io_result_mk_ok(mkOptionSome(box.lean_box_uint32(waitCode(status)).?));
 }
 
 pub export fn lean_io_process_child_kill(_: *anyopaque, child: *anyopaque) callconv(.c) *anyopaque {
     const pid = childPid(child);
     const target: c.pid_t = if (childSetsid(child)) -pid else pid;
-    return if (c.kill(target, .KILL) == 0) mkUnitResult() else io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
+    return if ((if (builtin.target.os.tag == .linux) c.kill(target, 9) else c.kill(target, .KILL)) == 0) mkUnitResult() else io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
 }
 
 pub export fn lean_io_process_child_pid(_: *anyopaque, child: *anyopaque) callconv(.c) u32 {

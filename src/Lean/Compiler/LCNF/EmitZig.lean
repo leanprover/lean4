@@ -1346,12 +1346,16 @@ def emitInitFn : EmitM Unit := do
     emitLn ""
   let initName ← getModInitFn
   let defName := s!"{initName}__def"
+  let initialized := s!"_G_{initName}_initialized"
+  emitLn s!"var {initialized}: bool = false;"
   let builtinParam := if imported.isEmpty then "_: u8" else "builtin: u8"
   emitLn (s!"fn {defName}({builtinParam}) callconv(.c) LeanObj " ++ "{")
+  emitLn s!"  if ({initialized}) return lean_io_result_mk_ok(lean_box(0));"
+  emitLn s!"  {initialized} = true;"
   emitLn "  lean_initialize_runtime_module();"
   emitLn "  lean_initialize_thread();"
   for fn in imported do
-    emitLn s!"  _ = {fn}(builtin);"
+    emitLn s!"  lean_dec_ref({fn}(builtin));"
   emitLn "  return lean_io_result_mk_ok(lean_box(0));"
   emitLn "}"
   emitLn <| "comptime { @export(&" ++ defName ++ ", .{ .name = \"" ++ initName ++ "\" }); }"

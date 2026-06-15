@@ -67,6 +67,40 @@ pub export fn lean_register_external_class(
     return &g_external_classes[g_external_class_count - 1];
 }
 
+pub export fn lean_alloc_external(cls: *lean.lean_external_class, data: ?*anyopaque) callconv(.c) *anyopaque {
+    const ptr = alloc.lean_alloc_object(@sizeOf(lean.lean_external_object));
+    const ext: *lean.lean_external_object = @ptrCast(@alignCast(ptr));
+    ext.* = .{
+        .m_header = .{ .m_rc = 1, .m_cs_sz = 0, .m_other = 0, .m_tag = lean.LeanExternal },
+        .m_class = cls,
+        .m_data = data,
+    };
+    return ptr;
+}
+
+pub export fn lean_get_external_class(o: *anyopaque) callconv(.c) *lean.lean_external_class {
+    const ext: *lean.lean_external_object = @ptrCast(@alignCast(o));
+    return ext.m_class;
+}
+
+pub export fn lean_get_external_data(o: *anyopaque) callconv(.c) ?*anyopaque {
+    const ext: *lean.lean_external_object = @ptrCast(@alignCast(o));
+    return ext.m_data;
+}
+
+extern fn lean_dec_ref(o: *anyopaque) callconv(.c) void;
+
+pub export fn lean_set_external_data(o: *anyopaque, data: ?*anyopaque) callconv(.c) *anyopaque {
+    const ext: *lean.lean_external_object = @ptrCast(@alignCast(o));
+    if (header(o).m_rc == 1) {
+        ext.m_data = data;
+        return o;
+    }
+    const fresh = lean_alloc_external(ext.m_class, data);
+    lean_dec_ref(o);
+    return fresh;
+}
+
 pub export fn lean_object_byte_size(o: *anyopaque) callconv(.c) usize {
     switch (ptrTag(o)) {
         lean.LeanArray => {

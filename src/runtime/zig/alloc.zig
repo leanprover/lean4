@@ -305,6 +305,10 @@ pub fn heartbeatCount() u64 {
     return g_heartbeat;
 }
 
+pub fn setHeartbeatCount(value: u64) void {
+    g_heartbeat = value;
+}
+
 pub fn noteTaskObjectAllocation() void {
     _ = g_task_object_alloc_count.fetchAdd(1, .acq_rel);
 }

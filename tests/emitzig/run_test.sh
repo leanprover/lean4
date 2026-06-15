@@ -26,7 +26,11 @@ if [[ "${LEAN_ZIG_EXE:-0}" == "1" ]] && command -v zig &>/dev/null; then
   if [[ -x "$LEANC" ]]; then
     EXE="$BASENAME"
     if [[ "${LEAN_ZIG_ZIGRT:-0}" == "1" ]]; then
-      "$ROOT/tools/zigc-zigrt" "$OUT" "$EXE"
+      if [[ "$BASENAME" == "StdlibString" ]]; then
+        "$ROOT/tools/zigc-stdlib" "$TEST" "$EXE" --module Init.Data.String.Basic
+      else
+        "$ROOT/tools/zigc-zigrt" "$OUT" "$EXE"
+      fi
     else
       "$ROOT/tools/zigc" "$OUT" "$EXE"
     fi

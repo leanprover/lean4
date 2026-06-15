@@ -39,3 +39,4 @@ src/runtime/zig/zig-out/
 tests/emitzig/*
 !tests/emitzig/*.lean
 !tests/emitzig/*.sh
+.zigc-stdlib-cache/

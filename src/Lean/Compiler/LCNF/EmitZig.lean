@@ -8,6 +8,7 @@ module
 prelude
 import Lean.CoreM
 import Lean.Compiler.LCNF.EmitZig.InlineHelpers
+import Lean.Compiler.LCNF.EmitZig.RuntimeExterns
 public import Lean.Expr
 public import Lean.Compiler.LCNF.Basic
 import Lean.Compiler.LCNF.EmitUtil
@@ -19,7 +20,7 @@ import Lean.Compiler.ModPkgExt
 import Lean.Runtime
 import Init.Data.String.Legacy
 
-open Lean Compiler LCNF
+open Lean Compiler LCNF RuntimeExterns
 namespace Lean.Compiler.LCNF
 def leanMainFn := "_lean_main"
 namespace ImpureType
@@ -86,47 +87,6 @@ structure State where
 
 abbrev EmitM := ReaderT Context <| StateRefT State CoreM
 
-def runtimeExternDeclsRaw : List String := [
-  "extern fn lean_alloc_object(sz: usize) callconv(.c) LeanObj;", "extern fn lean_free_object(o: LeanObj) callconv(.c) void;",
-  "extern fn lean_alloc_ctor(tag: c_uint, num_objs: c_uint, scalar_sz: usize) callconv(.c) LeanObj;", "extern fn lean_ctor_set(o: LeanObj, i: c_uint, v: LeanObj) callconv(.c) void;",
-  "extern fn lean_ctor_get(o: LeanObj, i: c_uint) callconv(.c) LeanObj;", "extern fn lean_ctor_set_tag(o: LeanObj, new_tag: u8) callconv(.c) void;",
-  "extern fn lean_ctor_release(o: LeanObj, i: c_uint) callconv(.c) void;", "extern fn lean_ctor_set_usize(o: LeanObj, i: c_uint, v: usize) callconv(.c) void;",
-  "extern fn lean_ctor_get_usize(o: LeanObj, i: c_uint) callconv(.c) usize;", "extern fn lean_ctor_get_uint8(o: LeanObj, offset: c_uint) callconv(.c) u8;",
-  "extern fn lean_ctor_get_uint16(o: LeanObj, offset: c_uint) callconv(.c) u16;", "extern fn lean_ctor_get_uint32(o: LeanObj, offset: c_uint) callconv(.c) u32;",
-  "extern fn lean_ctor_get_uint64(o: LeanObj, offset: c_uint) callconv(.c) u64;", "extern fn lean_ctor_get_float(o: LeanObj, offset: c_uint) callconv(.c) f64;",
-  "extern fn lean_ctor_get_float32(o: LeanObj, offset: c_uint) callconv(.c) f32;", "extern fn lean_ctor_set_uint8(o: LeanObj, offset: c_uint, v: u8) callconv(.c) void;",
-  "extern fn lean_ctor_set_uint16(o: LeanObj, offset: c_uint, v: u16) callconv(.c) void;", "extern fn lean_ctor_set_uint32(o: LeanObj, offset: c_uint, v: u32) callconv(.c) void;",
-  "extern fn lean_ctor_set_uint64(o: LeanObj, offset: c_uint, v: u64) callconv(.c) void;", "extern fn lean_ctor_set_float(o: LeanObj, offset: c_uint, v: f64) callconv(.c) void;",
-  "extern fn lean_ctor_set_float32(o: LeanObj, offset: c_uint, v: f32) callconv(.c) void;", "extern fn lean_inc(o: LeanObj) callconv(.c) void;", "extern fn lean_inc_n(o: LeanObj, n: usize) callconv(.c) void;",
-  "extern fn lean_inc_ref(o: LeanObj) callconv(.c) void;", "extern fn lean_dec(o: LeanObj) callconv(.c) void;", "extern fn lean_dec_n(o: LeanObj, n: usize) callconv(.c) void;", "extern fn lean_dec_ref(o: LeanObj) callconv(.c) void;",
-  "extern fn lean_dec_ref_cold(o: LeanObj) callconv(.c) void;", "extern fn lean_del_object(o: LeanObj) callconv(.c) void;", "extern fn lean_is_exclusive(o: LeanObj) callconv(.c) bool;",
-  "extern fn lean_is_scalar(o: LeanObj) callconv(.c) bool;", "extern fn lean_obj_tag(o: LeanObj) callconv(.c) c_uint;", "extern fn lean_box(value: usize) callconv(.c) LeanObj;", "extern fn lean_box_uint32(value: u32) callconv(.c) LeanObj;",
-  "extern fn lean_box_uint64(value: u64) callconv(.c) LeanObj;", "extern fn lean_box_usize(value: usize) callconv(.c) LeanObj;", "extern fn lean_box_float(value: f64) callconv(.c) LeanObj;",
-  "extern fn lean_box_float32(value: f32) callconv(.c) LeanObj;", "extern fn lean_unbox(o: LeanObj) callconv(.c) usize;", "extern fn lean_unbox_usize(o: LeanObj) callconv(.c) usize;",
-  "extern fn lean_unbox_uint32(o: LeanObj) callconv(.c) u32;", "extern fn lean_unbox_uint64(o: LeanObj) callconv(.c) u64;", "extern fn lean_unbox_float(o: LeanObj) callconv(.c) f64;",
-  "extern fn lean_unbox_float32(o: LeanObj) callconv(.c) f32;", "extern fn lean_apply_1(f: LeanObj, a1: LeanObj) callconv(.c) LeanObj;", "extern fn lean_apply_2(f: LeanObj, a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;",
-  "extern fn lean_apply_3(f: LeanObj, a1: LeanObj, a2: LeanObj, a3: LeanObj) callconv(.c) LeanObj;", "extern fn lean_apply_4(f: LeanObj, a1: LeanObj, a2: LeanObj, a3: LeanObj, a4: LeanObj) callconv(.c) LeanObj;",
-  "extern fn lean_apply_n(f: LeanObj, n: c_uint, args: [*]LeanObj) callconv(.c) LeanObj;", "extern fn lean_alloc_closure(fun: ?*const anyopaque, arity: c_uint, num_fixed: c_uint) callconv(.c) LeanObj;",
-  "extern fn lean_mk_string(s: [*c]const u8) callconv(.c) LeanObj;", "extern fn lean_mk_string_unchecked(s: [*c]const u8, sz: usize, len: usize) callconv(.c) LeanObj;",
-  "extern fn lean_string_mk(cs: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_data(s: LeanObj) callconv(.c) LeanObj;",
-  "extern fn lean_string_size(s: LeanObj) callconv(.c) usize;", "extern fn lean_string_length(s: LeanObj) callconv(.c) LeanObj;",
-  "extern fn lean_string_utf8_get(s: LeanObj, i: LeanObj) callconv(.c) u32;", "extern fn lean_string_utf8_get_fast_cold(str: [*:0]const u8, i: usize, size: usize, c: u8) callconv(.c) u32;",
-  "extern fn lean_string_utf8_get_opt(s: LeanObj, i: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_utf8_get_bang(s: LeanObj, i: LeanObj) callconv(.c) u32;",
-  "extern fn lean_string_utf8_next(s: LeanObj, i: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_utf8_next_fast_cold(i: usize, c: u8) callconv(.c) LeanObj;",
-  "extern fn lean_string_utf8_prev(s: LeanObj, i: LeanObj) callconv(.c) LeanObj;", "extern fn lean_string_utf8_set(s: LeanObj, i: LeanObj, c: u32) callconv(.c) LeanObj;",
-  "extern fn lean_string_utf8_extract(s: LeanObj, b: LeanObj, e: LeanObj) callconv(.c) LeanObj;",
-  "extern fn lean_string_lt(s1: LeanObj, s2: LeanObj) callconv(.c) bool;", "extern fn lean_string_eq_cold(s1: LeanObj, s2: LeanObj) callconv(.c) bool;",
-  "extern fn lean_string_hash(s: LeanObj) callconv(.c) u64;", "extern fn lean_string_of_usize(n: usize) callconv(.c) LeanObj;",
-  "extern fn lean_string_validate_utf8(a: LeanObj) callconv(.c) u8;",
-  "extern fn lean_unsigned_to_nat(v: c_uint) callconv(.c) LeanObj;", "extern fn lean_big_usize_to_nat(n: usize) callconv(.c) LeanObj;", "extern fn lean_usize_of_big_nat(a: LeanObj) callconv(.c) usize;",
-  "extern fn lean_internal_panic_out_of_memory() callconv(.c) noreturn;", "extern fn lean_cstr_to_nat(s: [*c]const u8) callconv(.c) LeanObj;", "extern fn lean_io_result_mk_ok(v: LeanObj) callconv(.c) LeanObj;",
-  "extern fn lean_setup_args(argc: c_int, argv: [*c][*c]u8) callconv(.c) [*c][*c]u8;", "extern fn lean_initialize() callconv(.c) void;", "extern fn lean_initialize_runtime_module() callconv(.c) void;",
-  "extern fn lean_initialize_thread() callconv(.c) void;", "extern fn lean_init_task_manager() callconv(.c) void;", "extern fn lean_finalize_task_manager() callconv(.c) void;",
-  "extern fn lean_io_result_show_error(r: LeanObj) callconv(.c) void;", "extern fn lean_io_mark_end_initialization() callconv(.c) void;", "extern fn lean_array_get_panic(def_val: LeanObj) callconv(.c) LeanObj;",
-  "extern fn lean_run_main(main_fn: MainFn, argc: c_int, argv: [*c][*c]u8) callconv(.c) LeanObj;",
-  "extern fn exit(code: c_int) callconv(.c) noreturn;"
-]
-
 def externFnName? (decl : String) : Option String :=
   if decl.startsWith "extern fn " then
     match (decl.drop 10).toString.splitOn "(" with
@@ -136,10 +96,13 @@ def externFnName? (decl : String) : Option String :=
     none
 
 def runtimeExternDecls : List String :=
-  runtimeExternDeclsRaw.filter fun decl =>
+  runtimeExternDeclsGenerated.filter fun decl =>
     match externFnName? decl with
     | some name => !InlineHelpers.isInlineHelperName name
     | none => true
+
+def runtimeExternNames : List String :=
+  runtimeExternDecls.filterMap externFnName?
 
 @[inline] def emit (text : String) : EmitM Unit :=
   modify fun s => { s with buf := s.buf ++ text }
@@ -872,6 +835,8 @@ def emitFnDecls : EmitM Unit := do
     let env ← getEnv
     let name := (getExternNameFor env `c sig.name).getD (← toZigSymbolName sig.name)
     if InlineHelpers.isInlineHelperName name then
+      continue
+    if runtimeExternNames.contains name then
       continue
     emitSignature name sig
   for decl in (← getLocalDecls) do

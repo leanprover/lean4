@@ -28,67 +28,70 @@ private def addEvalQuota (s : String) : String :=
   else
     s
 
-private def supportInlineDecls : List String := [
+private def supportInlineConsts : List String := [
   joinLines [
     "const LeanMaxCtorTag: c_uint = @as(c_uint, 243);",
     "const LeanMaxCtorFields: c_uint = @as(c_uint, 256);",
     "const LeanMaxCtorScalarsSize: usize = @as(usize, 1024);",
     "const LeanMaxSmallNat: usize = std.math.maxInt(usize) >> 1;"
-  ],
-  joinLines [
+  ]
+]
+
+private def supportInlineHelperEntries : List (String × String) := [
+  ("lean_heap_obj", joinLines [
     "inline fn lean_heap_obj(o: LeanObj) *lean_object {",
     "  return @alignCast(o.?);",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_is_scalar", joinLines [
     "inline fn lean_is_scalar(o: LeanObj) bool {",
     "  return (@intFromPtr(o.?) & 1) == 1;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_unbox", joinLines [
     "inline fn lean_unbox(o: LeanObj) usize {",
     "  return @intFromPtr(o.?) >> 1;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_ptr_tag", joinLines [
     "inline fn lean_ptr_tag(o: LeanObj) u8 {",
     "  return lean_heap_obj(o).m_tag;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_ptr_other", joinLines [
     "inline fn lean_ptr_other(o: LeanObj) u8 {",
     "  return lean_heap_obj(o).m_other;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_is_st", joinLines [
     "inline fn lean_is_st(o: LeanObj) bool {",
     "  return lean_heap_obj(o).m_rc > 0;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_get_rc_mt_addr", joinLines [
     "inline fn lean_get_rc_mt_addr(o: LeanObj) *i32 {",
     "  return &lean_heap_obj(o).m_rc;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_is_ctor", joinLines [
     "inline fn lean_is_ctor(o: LeanObj) bool {",
     "  return @as(c_uint, lean_ptr_tag(o)) <= LeanMaxCtorTag;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_ctor_num_objs", joinLines [
     "inline fn lean_ctor_num_objs(o: LeanObj) c_uint {",
     "  std.debug.assert(lean_is_ctor(o));",
     "  return @as(c_uint, lean_ptr_other(o));",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_ctor_obj_cptr", joinLines [
     "inline fn lean_ctor_obj_cptr(o: LeanObj) [*]LeanObj {",
     "  std.debug.assert(lean_is_ctor(o));",
     "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
     "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object)));",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_set_st_header", joinLines [
     "inline fn lean_set_st_header(o: LeanObj, tag: c_uint, other: c_uint) void {",
     "  const obj = lean_heap_obj(o);",
     "  obj.m_rc = 1;",
@@ -96,18 +99,18 @@ private def supportInlineDecls : List String := [
     "  obj.m_other = @as(u8, @intCast(other));",
     "  obj.m_cs_sz = 0;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_usize_mul_checked", joinLines [
     "inline fn lean_usize_mul_checked(a: usize, b: usize) usize {",
     "  return std.math.mul(usize, a, b) catch @panic(\"lean_usize_mul_checked overflow\");",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_usize_add_checked", joinLines [
     "inline fn lean_usize_add_checked(a: usize, b: usize) usize {",
     "  return std.math.add(usize, a, b) catch @panic(\"lean_usize_add_checked overflow\");",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_usize_to_nat", joinLines [
     "inline fn lean_usize_to_nat(n: usize) LeanObj {",
     "  if (n <= LeanMaxSmallNat) {",
     "    return lean_box(n);",
@@ -115,31 +118,31 @@ private def supportInlineDecls : List String := [
     "    return lean_big_usize_to_nat(n);",
     "  }",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_array_fields", joinLines [
     "inline fn lean_array_fields(o: LeanObj) [*]usize {",
     "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
     "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object)));",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_array_size", joinLines [
     "inline fn lean_array_size(o: LeanObj) usize {",
     "  return lean_array_fields(o)[0];",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_array_cptr", joinLines [
     "inline fn lean_array_cptr(o: LeanObj) [*]LeanObj {",
     "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
     "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object) + 2 * @sizeOf(usize)));",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_array_get_core", joinLines [
     "inline fn lean_array_get_core(o: LeanObj, i: usize) LeanObj {",
     "  std.debug.assert(i < lean_array_size(o));",
     "  return lean_array_cptr(o)[i];",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_alloc_array", joinLines [
     "inline fn lean_alloc_array(size: usize, capacity: usize) LeanObj {",
     "  const total = lean_usize_add_checked(",
     "    @sizeOf(lean_object) + 2 * @sizeOf(usize),",
@@ -152,8 +155,8 @@ private def supportInlineDecls : List String := [
     "  fields[1] = capacity;",
     "  return o;",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_nat_le", joinLines [
     "inline fn lean_nat_le(a1: LeanObj, a2: LeanObj) bool {",
     "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
     "    return @intFromPtr(a1.?) <= @intFromPtr(a2.?);",
@@ -161,8 +164,8 @@ private def supportInlineDecls : List String := [
     "    return lean_nat_big_le(a1, a2);",
     "  }",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_nat_lt", joinLines [
     "inline fn lean_nat_lt(a1: LeanObj, a2: LeanObj) bool {",
     "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
     "    return @intFromPtr(a1.?) < @intFromPtr(a2.?);",
@@ -170,8 +173,8 @@ private def supportInlineDecls : List String := [
     "    return lean_nat_big_lt(a1, a2);",
     "  }",
     "}"
-  ],
-  joinLines [
+  ]),
+  ("lean_inc_ref_n", joinLines [
     "inline fn lean_inc_ref_n(o: LeanObj, n: usize) void {",
     "  const obj = lean_heap_obj(o);",
     "  if (lean_is_st(o)) {",
@@ -180,7 +183,7 @@ private def supportInlineDecls : List String := [
     "    _ = @atomicRmw(i32, lean_get_rc_mt_addr(o), .Sub, @as(i32, @intCast(n)), .monotonic);",
     "  }",
     "}"
-  ]
+  ])
 ]
 
 private def mvpInlineHelperEntries : List (String × String) := [
@@ -829,14 +832,13 @@ public def inlineHelpers : NameMap String :=
     acc.insert (.str .anonymous name) decl
 
 public def emittedInlineNames : List String :=
-  ["lean_is_scalar", "lean_unbox"] ++
-    (mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map Prod.fst
+  (supportInlineHelperEntries ++ mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map Prod.fst
 
 public def isInlineHelperName (name : String) : Bool :=
   emittedInlineNames.contains name
 
 public def inlineHelperDecls : List String :=
-  supportInlineDecls.map addEvalQuota ++
-    (mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map (addEvalQuota ∘ Prod.snd)
+  supportInlineConsts.map addEvalQuota ++
+    (supportInlineHelperEntries ++ mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map (addEvalQuota ∘ Prod.snd)
 
 end InlineHelpers

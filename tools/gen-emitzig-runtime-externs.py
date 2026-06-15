@@ -143,7 +143,24 @@ EXTRA_FUNCS: list[tuple[str, str, str]] = [
     ("lean_apply_m", "LeanObj", "LeanObj, c_uint, [*c]LeanObj"),
     ("lean_dbg_stack_trace", "LeanObj", "LeanObj"),
     ("lean_byte_array_copy_slice", "LeanObj", "LeanObj, LeanObj, LeanObj, LeanObj, LeanObj, u8"),
-    ("lean_chmod", "LeanObj", "LeanObj, LeanObj"),
+    ("lean_chmod", "LeanObj", "LeanObj, u32"),
+    ("lean_sharecommon_eq", "u8", "LeanObj, LeanObj"),
+    ("lean_sharecommon_hash", "u64", "LeanObj"),
+    ("lean_state_sharecommon", "LeanObj", "LeanObj, LeanObj, LeanObj"),
+    ("lean_sharecommon_quick", "LeanObj", "LeanObj"),
+    ("lean_st_ref_take", "LeanObj", "LeanObj"),
+    ("lean_st_ref_ptr_eq", "u8", "LeanObj, LeanObj"),
+    ("lean_option_get_or_block", "LeanObj", "LeanObj"),
+    ("lean_io_map_task", "LeanObj", "LeanObj, LeanObj, LeanObj, u8"),
+    ("lean_io_bind_task", "LeanObj", "LeanObj, LeanObj, LeanObj, u8"),
+    ("lean_io_process_child_kill", "LeanObj", "LeanObj, LeanObj"),
+    ("lean_io_process_child_pid", "u32", "LeanObj, LeanObj"),
+    ("lean_io_process_child_take_stdin", "LeanObj", "LeanObj, LeanObj"),
+    ("lean_io_process_child_try_wait", "LeanObj", "LeanObj, LeanObj"),
+    ("lean_io_process_child_wait", "LeanObj", "LeanObj, LeanObj"),
+    ("lean_io_get_task_state", "u8", "LeanObj"),
+    ("lean_io_wait_any", "LeanObj", "LeanObj"),
+    ("lean_string_front", "u32", "LeanObj"),
     ("lean_nat_land", "LeanObj", "LeanObj, LeanObj"),
     ("lean_nat_lor", "LeanObj", "LeanObj, LeanObj"),
     ("lean_nat_lxor", "LeanObj", "LeanObj, LeanObj"),
@@ -171,6 +188,7 @@ EXTRA_FUNCS: list[tuple[str, str, str]] = [
     ("lean_mk_string", "LeanObj", "[*c]const u8"),
     ("lean_mk_string_unchecked", "LeanObj", "[*c]const u8, usize, usize"),
     ("lean_string_utf8_get_fast_cold", "u32", "[*:0]const u8, usize, usize, u8"),
+    ("lean_runtime_mark_persistent", "LeanObj", "LeanObj"),
 ]
 
 
@@ -330,6 +348,240 @@ def simplify_complex_signature(name: str, ret: str, args: list[str]) -> tuple[st
         return zret, zargs
     return ret, args
 
+LEAN_SCALAR_TYPES: dict[str, str] = {
+    "Char": "u32",
+    "Bool": "u8",
+    "UInt8": "u8",
+    "UInt16": "u16",
+    "UInt32": "u32",
+    "UInt64": "u64",
+    "USize": "usize",
+    "Int8": "i8",
+    "Int16": "i16",
+    "Int32": "i32",
+    "Int64": "i64",
+    "ISize": "isize",
+    "Float": "f64",
+    "Float32": "f32",
+    "FS.Mode": "u8",
+}
+
+
+def normalize_lean_type(t: str) -> str:
+    """Strip borrow annotations and simple outer parentheses from a Lean type string."""
+    t = t.strip()
+    while t.startswith("@&"):
+        t = t[2:].strip()
+    while t.startswith("(") and t.endswith(")"):
+        inner = t[1:-1].strip()
+        depth = 0
+        has_nested = False
+        for ch in inner:
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            if depth < 0:
+                has_nested = True
+                break
+        if has_nested:
+            break
+        if ":" in inner:
+            inner = inner.split(":", 1)[1].strip()
+        t = inner
+    return t
+
+
+def lean_type_to_zig(t: str) -> str:
+    """Map a Lean type (as written in an extern declaration) to a Zig extern type."""
+    t = normalize_lean_type(t)
+    return LEAN_SCALAR_TYPES.get(t, "LeanObj")
+
+
+def split_lean_arrow(t: str) -> list[str]:
+    """Split a Lean type on top-level non-dependent arrows '→' or '->'."""
+    parts: list[str] = []
+    depth = 0
+    cur: list[str] = []
+    i = 0
+    while i < len(t):
+        ch = t[i]
+        if ch in "([{":
+            depth += 1
+            cur.append(ch)
+        elif ch in ")]}":
+            depth -= 1
+            cur.append(ch)
+        elif depth == 0 and ch == "→":
+            parts.append("".join(cur).strip())
+            cur = []
+        elif depth == 0 and t.startswith("->", i):
+            parts.append("".join(cur).strip())
+            cur = []
+            i += 1
+        else:
+            cur.append(ch)
+        i += 1
+    tail = "".join(cur).strip()
+    if tail:
+        parts.append(tail)
+    return parts
+
+
+def strip_io_return(ret: str) -> str:
+    """Strip BaseIO wrapper from a return type; leave IO/EIO intact.
+
+    C externs with BaseIO return type return their unwrapped value directly,
+    whereas IO/EIO externs return the boxed IO result object (lean_object*).
+    """
+    t = normalize_lean_type(ret)
+    if t.startswith("BaseIO "):
+        return t[len("BaseIO "):].strip()
+    return t
+
+
+def infer_default_arg_type(expr: str) -> str:
+    """Infer the Lean type of a default argument expression for extern ABI purposes."""
+    expr = expr.strip()
+    if expr == "true" or expr == "false":
+        return "Bool"
+    return "LeanObj"
+
+
+def parse_param_group(group: str) -> list[str]:
+    """Parse a single parameter group like 's : String', 'ss1 ss2 : Substring.Raw',
+    or 'exclusive := true' into a list of Lean type strings."""
+    group = group.strip()
+    if not group:
+        return []
+
+    if ":=" in group:
+        lhs, rhs = group.split(":=", 1)
+        lhs = lhs.strip()
+        if ":" in lhs:
+            names_part, type_part = lhs.rsplit(":", 1)
+            type_part = type_part.strip()
+        else:
+            names_part = lhs
+            type_part = infer_default_arg_type(rhs)
+        binder_count = len([b for b in re.split(r"[,\s]+", names_part.strip()) if b])
+        return [type_part] * binder_count
+
+    if ":" in group:
+        names_part, type_part = group.rsplit(":", 1)
+        type_part = type_part.strip()
+        binder_count = len([b for b in re.split(r"[,\s]+", names_part.strip()) if b])
+        return [type_part] * binder_count
+
+    # Untyped parameter (rare); assume one object arg.
+    return [group]
+
+
+def parse_extern_after_attr(rest: str) -> tuple[str, list[str], str] | None:
+    """Parse the declaration header following an `@[extern ...]` attribute.
+
+    Returns (decl_name, arg_types, ret_type) with Lean types as strings.
+    """
+    s = rest.strip()
+
+    # Skip optional `set_option ... in` or `attribute ... in` wrappers.
+    while True:
+        m = re.match(r"(?:set_option|attribute)\s+[^ ]+(?:\s+[^ ]+)?\s+in\b", s)
+        if not m:
+            break
+        s = s[m.end():].lstrip()
+
+    # Match declaration keyword and name (allow "unsafe def").
+    m = re.match(r"(?:protected\s+|private\s+)?(?:unsafe\s+)?(?:opaque|def|axiom)\s+([\w\.\']+)\s*", s)
+    if not m:
+        return None
+    s = s[m.end():]
+
+    # Parse explicit (...) and implicit {...} parameter groups, handling nested brackets.
+    arg_types: list[str] = []
+    while s.startswith("(") or s.startswith("{"):
+        open_ch = s[0]
+        close_ch = ")" if open_ch == "(" else "}"
+        s = s[1:]
+        depth = 1
+        j = 0
+        while j < len(s) and depth > 0:
+            if s[j] == open_ch:
+                depth += 1
+            elif s[j] == close_ch:
+                depth -= 1
+            j += 1
+        if depth != 0:
+            return None
+        group = s[: j - 1].strip()
+        s = s[j:].lstrip()
+        arg_types.extend(parse_param_group(group))
+
+    # Match colon and capture the return type, allowing multi-line indented types.
+    if not s.startswith(":"):
+        return None
+    s = s[1:].lstrip()
+
+    lines = s.splitlines()
+    collected: list[str] = []
+    for idx, line in enumerate(lines):
+        stripped = line.strip()
+        if ":=" in stripped:
+            part = stripped.split(":=", 1)[0]
+            if part.strip():
+                collected.append(part)
+            break
+        if idx == 0:
+            collected.append(line)
+        elif stripped == "":
+            break
+        elif not line[0].isspace():
+            break
+        else:
+            collected.append(line)
+    ret = " ".join(collected).strip()
+
+    # Curried return types add further parameters.
+    ret_for_args = strip_io_return(ret)
+    arrow_parts = split_lean_arrow(ret_for_args)
+    if len(arrow_parts) > 1:
+        arg_types.extend(arrow_parts[:-1])
+        ret_type = strip_io_return(arrow_parts[-1])
+    else:
+        ret_type = ret_for_args
+
+    return m.group(1), arg_types, ret_type
+
+
+def scan_init_extern_decls() -> dict[str, tuple[str, list[str]]]:
+    """Collect `@[extern "lean_..."]` declarations from Init with inferred Zig signatures."""
+    funcs: dict[str, tuple[str, list[str]]] = {}
+    attr_pat = re.compile(r'@\[extern\s+"([^"]+)"[^\]]*\]')
+    init_root = ROOT / "src" / "Init"
+    for path in init_root.rglob("*.lean"):
+        text = path.read_text(errors="replace")
+        pos = 0
+        while True:
+            m = attr_pat.search(text, pos)
+            if not m:
+                break
+            name = m.group(1)
+            if not name.startswith("lean_"):
+                pos = m.end()
+                continue
+
+            parsed = parse_extern_after_attr(text[m.end():])
+            if parsed is None:
+                pos = m.end()
+                continue
+
+            _, arg_types, ret_type = parsed
+            zret = lean_type_to_zig(ret_type)
+            zargs = [lean_type_to_zig(a) for a in arg_types]
+            funcs.setdefault(name, (zret, zargs))
+            pos = m.end()
+    return funcs
+
 
 def format_zig_extern(name: str, ret: str, args: list[str]) -> str:
     ret, args = simplify_complex_signature(name, ret, args)
@@ -362,6 +614,9 @@ def main() -> int:
 
     # Ensure zig-runtime-only exports are declared with signatures from the Zig sources.
     for name, sig in sorted(zig_rt_export_signatures().items()):
+        funcs.setdefault(name, sig)
+
+    for name, sig in sorted(scan_init_extern_decls().items()):
         funcs.setdefault(name, sig)
 
     decls: list[str] = []

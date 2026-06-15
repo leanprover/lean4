@@ -19,7 +19,34 @@
       pkgsDist-old-aarch = import inputs.nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
 
       llvmPackages = pkgs.llvmPackages_19;
-      zigPkg = (pkgs.callPackage (pkgs.path + "/pkgs/development/compilers/zig") { })."0.16";
+      zigSources = {
+        x86_64-linux = {
+          url = "https://ziglang.org/download/0.16.0/zig-x86_64-linux-0.16.0.tar.xz";
+          hash = "sha256-cOSWZKdDdLSLUebz/fv0N/Y5XUJQkFBYi9SavlK6PQA=";
+        };
+        aarch64-linux = {
+          url = "https://ziglang.org/download/0.16.0/zig-aarch64-linux-0.16.0.tar.xz";
+          hash = "sha256-6ksJv7IuxvbGzqxXq2PvtrRuF6sI0h9p86SLOOFTTxc=";
+        };
+        aarch64-darwin = {
+          url = "https://ziglang.org/download/0.16.0/zig-aarch64-macos-0.16.0.tar.xz";
+          hash = "sha256-sj1w3qqHm1wtSG7TMW9+qlPoSs9vycx0feFSRQ1AFIk=";
+        };
+      };
+      zigPkg = pkgs.stdenvNoCC.mkDerivation {
+        pname = "zig";
+        version = "0.16.0";
+        src = pkgs.fetchurl zigSources.${system};
+        dontConfigure = true;
+        dontBuild = true;
+        installPhase = ''
+          mkdir -p "$out"
+          cp -R . "$out/zig"
+          rm -rf "$out/zig/.github" "$out/zig/.cirrus.yml"
+          mkdir -p "$out/bin"
+          ln -s "$out/zig/zig" "$out/bin/zig"
+        '';
+      };
 
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
           stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;

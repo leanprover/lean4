@@ -619,6 +619,65 @@ private def mvpInlineHelperEntries : List (String × String) := [
     "  return lean_ctor_get_float32(o, @as(c_uint, 0));",
     "}"
   ]),
+  ("lean_byte_array_size", joinLines [
+    "inline fn lean_byte_array_size(a: LeanObj) LeanObj {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(a));",
+    "  return lean_box(@as(*usize, @ptrCast(@alignCast(bytes + @sizeOf(lean_object)))).*);",
+    "}"
+  ]),
+  ("lean_byte_array_fget", joinLines [
+    "inline fn lean_byte_array_fget(a: LeanObj, i: LeanObj) u8 {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(a));",
+    "  const data = bytes + @sizeOf(lean_object) + 2 * @sizeOf(usize);",
+    "  return data[lean_unbox(i)];",
+    "}"
+  ]),
+  ("lean_string_get_byte_fast", joinLines [
+    "inline fn lean_string_get_byte_fast(s: LeanObj, i: LeanObj) u8 {",
+    "  const str: [*:0]const u8 = @ptrCast(lean_heap_obj(s));",
+    "  return str[lean_unbox(i)];",
+    "}"
+  ]),
+  ("lean_uint8_land", joinLines [
+    "inline fn lean_uint8_land(a1: u8, a2: u8) u8 {",
+    "  return a1 & a2;",
+    "}"
+  ]),
+  ("lean_uint8_dec_eq", joinLines [
+    "inline fn lean_uint8_dec_eq(a1: u8, a2: u8) u8 {",
+    "  return @intFromBool(a1 == a2);",
+    "}"
+  ]),
+  ("lean_uint8_to_uint32", joinLines [
+    "inline fn lean_uint8_to_uint32(a: u8) u32 {",
+    "  return @as(u32, a);",
+    "}"
+  ]),
+  ("lean_uint32_dec_eq", joinLines [
+    "inline fn lean_uint32_dec_eq(a1: u32, a2: u32) u8 {",
+    "  return @intFromBool(a1 == a2);",
+    "}"
+  ]),
+  ("lean_uint32_dec_le", joinLines [
+    "inline fn lean_uint32_dec_le(a1: u32, a2: u32) u8 {",
+    "  return @intFromBool(a1 <= a2);",
+    "}"
+  ]),
+  ("lean_uint32_dec_lt", joinLines [
+    "inline fn lean_uint32_dec_lt(a1: u32, a2: u32) u8 {",
+    "  return @intFromBool(a1 < a2);",
+    "}"
+  ]),
+  ("lean_uint32_lor", joinLines [
+    "inline fn lean_uint32_lor(a1: u32, a2: u32) u32 {",
+    "  return a1 | a2;",
+    "}"
+  ]),
+  ("lean_uint32_shift_left", joinLines [
+    "inline fn lean_uint32_shift_left(a1: u32, a2: u32) u32 {",
+    "  return a1 << @as(u5, @truncate(a2));",
+    "}"
+  ]),
 ]
 
 private def bignumExternHelperEntries : List (String × String) := [

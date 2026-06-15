@@ -138,7 +138,7 @@ export fn lean_string_append(s1: *anyopaque, s2: *anyopaque) callconv(.c) *anyop
     return result;
 }
 
-fn lean_string_mk(cs: *anyopaque) callconv(.c) *anyopaque {
+export fn lean_string_mk(cs: *anyopaque) callconv(.c) *anyopaque {
     var bytes: std.ArrayListUnmanaged(u8) = .empty;
     defer bytes.deinit(std.heap.page_allocator);
     var len: usize = 0;
@@ -160,7 +160,7 @@ fn lean_string_mk(cs: *anyopaque) callconv(.c) *anyopaque {
     return result;
 }
 
-fn lean_string_data(s: *anyopaque) callconv(.c) *anyopaque {
+export fn lean_string_data(s: *anyopaque) callconv(.c) *anyopaque {
     const bytes = stringData(s);
     const size = stringSize(s) - 1;
     var result: ?*anyopaque = object.lean_box(0).?;
@@ -219,7 +219,7 @@ export fn lean_string_utf8_prev(s: *anyopaque, i: *anyopaque) callconv(.c) *anyo
     return object.lean_box(index).?;
 }
 
-fn lean_string_utf8_set(s: *anyopaque, idx_arg: *anyopaque, c: u32) callconv(.c) *anyopaque {
+export fn lean_string_utf8_set(s: *anyopaque, idx_arg: *anyopaque, c: u32) callconv(.c) *anyopaque {
     if (!object.lean_is_scalar(idx_arg)) return s;
     const i = object.lean_unbox(idx_arg);
     const sz = stringSize(s) - 1;
@@ -242,7 +242,7 @@ fn lean_string_utf8_set(s: *anyopaque, idx_arg: *anyopaque, c: u32) callconv(.c)
     return result;
 }
 
-fn lean_string_utf8_extract(s: *anyopaque, b0: *anyopaque, e0: *anyopaque) callconv(.c) *anyopaque {
+export fn lean_string_utf8_extract(s: *anyopaque, b0: *anyopaque, e0: *anyopaque) callconv(.c) *anyopaque {
     if (!object.lean_is_scalar(b0) or !object.lean_is_scalar(e0)) return s;
     const b_in = object.lean_unbox(b0);
     const e_in = object.lean_unbox(e0);
@@ -282,16 +282,55 @@ export fn lean_string_lt(s1: *anyopaque, s2: *anyopaque) callconv(.c) bool {
     return std.mem.order(u8, stringData(s1)[0 .. stringSize(s1) - 1], stringData(s2)[0 .. stringSize(s2) - 1]) == .lt;
 }
 
-fn lean_string_hash(s: *anyopaque) callconv(.c) u64 {
+export fn lean_string_hash(s: *anyopaque) callconv(.c) u64 {
     const sz = stringSize(s) - 1;
     const bytes = stringData(s)[0..sz];
     return hashBytes(bytes, 11);
 }
 
-fn lean_string_of_usize(n: usize) callconv(.c) *anyopaque {
+export fn lean_string_of_usize(n: usize) callconv(.c) *anyopaque {
     var buf: [32]u8 = undefined;
     const str = std.fmt.bufPrint(&buf, "{}", .{n}) catch @panic("lean_string_of_usize overflow");
     return mkAsciiStringBytes(str);
+}
+
+export fn lean_string_utf8_get_opt(s: *anyopaque, i: *anyopaque) callconv(.c) *anyopaque {
+    if (!object.lean_is_scalar(i)) return object.lean_box(0).?;
+    const index = object.lean_unbox(i);
+    const size = stringSize(s) - 1;
+    if (index >= size) return object.lean_box(0).?;
+    const c = utf8.decodeAt(stringData(s), size, index) orelse 0xFFFD;
+    const r = alloc.lean_alloc_ctor(1, 1, 0);
+    ctor.lean_ctor_set(r, 0, object.lean_box(@as(usize, c)).?);
+    return r;
+}
+
+export fn lean_string_utf8_get_bang(s: *anyopaque, i: *anyopaque) callconv(.c) u32 {
+    return lean_string_utf8_get(s, i);
+}
+
+export fn lean_string_validate_utf8(a: *anyopaque) callconv(.c) u8 {
+    const sa: *lean.lean_sarray_object = @ptrCast(@alignCast(a));
+    const bytes = @as([*]const u8, @ptrCast(&sa.m_data))[0..sa.m_size];
+    return @intFromBool(std.unicode.utf8ValidateSlice(bytes));
+}
+
+export fn lean_string_to_utf8(s: *anyopaque) callconv(.c) *anyopaque {
+    const sz = stringSize(s) - 1;
+    const r = alloc.lean_alloc_sarray(1, sz, sz);
+    const sa: *lean.lean_sarray_object = @ptrCast(@alignCast(r));
+    const dest = @as([*]u8, @ptrCast(&sa.m_data));
+    @memcpy(dest[0..sz], stringData(s)[0..sz]);
+    return r;
+}
+
+export fn lean_string_from_utf8_unchecked(a: *anyopaque) callconv(.c) *anyopaque {
+    const sa: *lean.lean_sarray_object = @ptrCast(@alignCast(a));
+    const bytes = @as([*]const u8, @ptrCast(&sa.m_data))[0..sa.m_size];
+    const len = utf8.lean_utf8_n_strlen(@ptrCast(bytes.ptr), sa.m_size);
+    const r = mkStringUncheckedBytes(bytes.ptr, sa.m_size, len);
+    rc.lean_dec(a);
+    return r;
 }
 
 fn hashBytes(bytes: []const u8, seed: u64) u64 {

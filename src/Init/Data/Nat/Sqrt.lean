@@ -6,5 +6,5 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.Nat.Sqrt.Basic
-import Init.Data.Nat.Sqrt.Lemmas
+public import Init.Data.Nat.Sqrt.Basic
+public import Init.Data.Nat.Sqrt.Lemmas

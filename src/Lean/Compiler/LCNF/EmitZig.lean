@@ -15,6 +15,8 @@ import Lean.Compiler.LCNF.EmitUtil
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.ExportAttr
 import Lean.Compiler.InitAttr
+import Lean.Compiler.ClosedTermCache
+import Lean.Compiler.LCNF.SimpleGroundExpr
 import Lean.Compiler.NameMangling
 import Lean.Compiler.ModPkgExt
 import Lean.Runtime
@@ -83,8 +85,7 @@ structure Context where
   joinDecls : NameMap (FunDecl .impure) := {}
 
 structure State where
-  buf : String := ""
-
+  buf : ByteArray := ByteArray.empty
 abbrev EmitM := ReaderT Context <| StateRefT State CoreM
 
 def externFnName? (decl : String) : Option String :=
@@ -111,19 +112,20 @@ def runtimeExternDeclsForModule (localNames : Array String) : List String :=
     | none => true
 
 @[inline] def emit (text : String) : EmitM Unit :=
-  modify fun s => { s with buf := s.buf ++ text }
+  modify fun s => { s with buf := s.buf ++ text.toUTF8 }
 
-@[inline] def emitLn (text : String) : EmitM Unit :=
-  emit (text ++ "\n")
+@[inline] def emitLn (text : String) : EmitM Unit := do
+  emit text
+  emit "\n"
 
 @[inline] def emitLns (lines : List String) : EmitM Unit :=
   lines.forM emitLn
 
 def captureOutput (act : EmitM Unit) : EmitM String := do
   let saved ← get
-  set { saved with buf := "" }
+  set { saved with buf := ByteArray.empty }
   act
-  let out := (← get).buf
+  let out := String.fromUTF8! (← get).buf
   set saved
   pure out
 
@@ -161,7 +163,7 @@ def runtimeArgs (ps : Array (Param .impure)) (args : Array (Arg .impure)) : Arra
     for h : i in [0:args.size] do
       let arg := args[i]
       let p := ps[i]!
-      if !(p.type.isVoid || p.type.isErased || arg == .erased) then
+      if !(p.type.isVoid || p.type.isErased) then
         filtered := filtered.push arg
     filtered
 def argMatchesParam (p : Param .impure) : Arg .impure → Bool
@@ -280,6 +282,36 @@ def emitSignature (name : String) (sig : Signature .impure) : EmitM Unit := do
   emit s!"extern fn {name}("
   emitParamList sig.params
   emitLn s!") callconv(.c) {sig.type.toZigType};"
+
+def emitClosedTermDecl (name : String) (type : Expr) : EmitM Unit :=
+  emitLn s!"extern var {name}: {type.toZigType};"
+
+def closedTermReadOpName (t : Expr) : String :=
+  match t with
+  | ImpureType.float => "lean_float_once_cold"
+  | ImpureType.float32 => "lean_float32_once_cold"
+  | ImpureType.uint8 => "lean_uint8_once_cold"
+  | ImpureType.uint16 => "lean_uint16_once_cold"
+  | ImpureType.uint32 => "lean_uint32_once_cold"
+  | ImpureType.uint64 => "lean_uint64_once_cold"
+  | ImpureType.usize => "lean_usize_once_cold"
+  | ImpureType.object | ImpureType.tobject | ImpureType.tagged | ImpureType.void => "lean_obj_once_cold"
+  | _ => "lean_obj_once_cold"
+
+def toOnceTokenName (sym : String) : String :=
+  sym ++ "_once"
+
+def toZigInitName (n : Name) : EmitM String := do
+  return s!"_init_{← toZigSymbolName n}"
+
+def isStandardExternC? (env : Environment) (name : Name) : Option String :=
+  getExternAttrData? env name |>.bind fun data =>
+    match getExternEntryFor data `c with
+    | some (.standard _ externName) => some externName
+    | _ => none
+
+def isGlobalVarSignature (env : Environment) (sig : Signature .impure) : Bool :=
+  (runtimeParams sig.params).isEmpty && (isStandardExternC? env sig.name).isNone
 
 @[inline] def zigIdent (name : Name) : String :=
   name.mangle (pre := "v_")
@@ -422,7 +454,19 @@ def toCallableZigName (fn : Name) : EmitM String := do
   let env ← getEnv
   return (getExternNameFor env `c fn).getD (← toZigSymbolName fn)
 
-def renderFapLines (binder : Name) (fn : Name) (args : Array (Arg .impure)) :
+def renderGlobalRefRhs (type : Expr) (fn : Name) : EmitM String := do
+  let env ← getEnv
+  let callable ← toCallableZigName fn
+  if isSimpleGroundDecl env fn then
+    return callable
+  else if isClosedTermName env fn then
+    let initName ← toZigInitName fn
+    let token := toOnceTokenName callable
+    return s!"{closedTermReadOpName type}(&{callable}, &{token}, {initName})"
+  else
+    return callable
+
+def renderFapLines (binder : Name) (type : Expr) (fn : Name) (args : Array (Arg .impure)) :
     EmitM (List String) := do
   let lhs := zigIdent binder
   let assign (rhs : String) := s!"{lhs} = {rhs};"
@@ -435,10 +479,18 @@ def renderFapLines (binder : Name) (fn : Name) (args : Array (Arg .impure)) :
   | some (.inline _ pat) =>
       pure [assign (expandExternPattern pat (renderImpureArgs args))]
   | some .opaque | none =>
-      let callable ← toCallableZigName fn
-      if args.size ≤ closureMaxArgs then
+      if args.isEmpty then
+        let env ← getEnv
+        let callable ← toCallableZigName fn
+        if (← getLocalDecls).any (·.name == fn) || (isStandardExternC? env fn).isSome then
+          pure [assign s!"{callable}()"]
+        else
+          pure [assign (← renderGlobalRefRhs type fn)]
+      else if args.size ≤ closureMaxArgs then
+        let callable ← toCallableZigName fn
         pure [assign s!"{callable}({renderArgList args})"]
       else
+        let callable ← toCallableZigName fn
         let fnVar := s!"{lhs}__fn"
         let argsVar := s!"{lhs}__args"
         pure [
@@ -481,7 +533,7 @@ def renderLetValueLines? (binder : Name) (type : Expr) (value : LetValue .impure
   | some lines => pure (some lines)
   | none =>
     match value with
-    | .fap fn args => return some (← renderFapLines binder fn args)
+    | .fap fn args => return some (← renderFapLines binder type fn args)
     | .pap fn args => return some (← renderPapLines binder fn args)
     | .fvar fvarId args => return some (renderFVarAppLines binder fvarId args)
     | _ => pure none
@@ -858,7 +910,10 @@ def emitFnDecls : EmitM Unit := do
       continue
     if runtimeExternNames.contains name then
       continue
-    emitSignature name sig
+    if isGlobalVarSignature env sig then
+      emitClosedTermDecl name sig.type
+    else
+      emitSignature name sig
   for decl in (← getLocalDecls) do
     let env ← getEnv
     if hasInitAttr env decl.name then
@@ -1030,7 +1085,7 @@ def emitZigForDecls (modName : Name) (decls : Array Name) : CoreM String := do
   let indexMap := getImpureDeclIndices (← getEnv) decls
   let localDecls := localDecls.qsort fun l r => indexMap[l.name]! < indexMap[r.name]!
   let (_, state) ← emitFile.run { localDecls, otherModuleDecls, modName } |>.run {}
-  return state.buf
+  return String.fromUTF8! state.buf
 
 public def emitZig (modName : Name) : CoreM String := do
   emitZigForDecls modName (← getLocalImpureDecls)

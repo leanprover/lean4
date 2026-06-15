@@ -144,18 +144,25 @@ where
       let h := mkAppN expr xs
       mkLambdaFVars xs (← wrap h)
 
+/-- Builds a `Theorem` from a preprocessed equational type, keyed on the selected LHS, with `proof`
+as the underlying proof term. -/
+private def mkTheoremCore (levelParams : List Name) (type : Expr) (proof : Expr) : MetaM Theorem :=
+  Pattern.forallTelescope type none fun xs body => do
+    let (key, rhs, adaptation) ← selectEqKey body
+    let pattern ← mkPatternFVars xs key levelParams
+    let rhs := rhs.abstract xs
+    let expr ← wrapProof pattern.varTypes.size proof adaptation
+    let perm := isPerm pattern.varTypes.size pattern.pattern rhs
+    return { expr, pattern, rhs, perm }
+
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
-  let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey
-  let expr ← wrapProof pattern.varTypes.size (mkConst declName) adaptation
-  let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  return { expr, pattern, rhs, perm }
+  let (levelParams, type) ← preprocessDeclPattern declName
+  mkTheoremCore levelParams type (mkConst declName)
 
 /-- Create a `Theorem` from a proof expression. Handles equalities, `¬`, `↔`, and propositions. -/
 def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
-  let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey
-  let expr ← wrapProof pattern.varTypes.size e adaptation
-  let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  return { expr, pattern, rhs, perm }
+  let (levelParams, type) ← preprocessExprPattern e []
+  mkTheoremCore levelParams type e
 
 /--
 Environment extension storing a set of `Sym.Simp` theorems.

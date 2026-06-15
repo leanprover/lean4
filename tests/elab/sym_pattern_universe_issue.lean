@@ -29,10 +29,11 @@ info: Match SUCCEEDED: 2 levels, 6 args
   let info ← getConstInfo ``Spec.get_StateT
   let levelParams := info.levelParams
   let proof := mkConst ``Spec.get_StateT (levelParams.map mkLevelParam)
-  let (pat, _) ← Sym.mkPatternFromExprWithKey proof levelParams fun type => do
-    let_expr Triple _m _ps _inst _α prog _P _Q := type
-      | throwError "not a Triple: {type}"
-    return (prog, ())
+  let (levelParams, type) ← Sym.preprocessExprPattern proof levelParams
+  let pat ← forallTelescope type fun xs body => do
+    let_expr Triple _m _ps _inst _α prog _P _Q := body
+      | throwError "not a Triple: {body}"
+    Sym.mkPatternFVars xs prog levelParams
 
   -- 2. Build target: @MonadStateOf.get (Nat × Nat) (StateT (Nat × Nat) m) inst
   let u1 := Level.param `u_1

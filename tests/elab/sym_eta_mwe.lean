@@ -14,11 +14,13 @@ open Lean Meta Sym Std Do
 private def mkProgPattern (declName : Name) : MetaM Pattern := do
   let ci ← getConstInfo declName
   let expr ← mkExpectedTypeHint (← mkConstWithLevelParams declName) ci.type
-  Prod.fst <$> (mkPatternFromExprWithKey expr ci.levelParams fun type => do
-    let type ← whnfR type
-    let_expr Triple _m _ps _inst _α prog _P _Q := type
-      | throwError "not a Triple: {indentExpr type}"
-    return (prog, ())).run' {}
+  (do
+    let (levelParams, type) ← preprocessExprPattern expr ci.levelParams
+    forallTelescope type fun xs body => do
+      let body ← whnfR body
+      let_expr Triple _m _ps _inst _α prog _P _Q := body
+        | throwError "not a Triple: {indentExpr body}"
+      mkPatternFVars xs prog levelParams).run' {}
 
 /-- A `forIn` on a mapped iterator — the expression we want to look up. -/
 noncomputable def lookupTerm : Id Unit :=

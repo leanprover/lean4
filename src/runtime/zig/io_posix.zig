@@ -22,8 +22,31 @@ pub const force_link = true;
 const posix = std.posix;
 const c = std.c;
 const gpa = std.heap.c_allocator;
-extern fn stat(path: [*:0]const u8, buf: *c.Stat) callconv(.c) c_int;
-extern fn lstat(path: [*:0]const u8, buf: *c.Stat) callconv(.c) c_int;
+const NativeStat = switch (builtin.target.os.tag) {
+    .linux => switch (builtin.target.cpu.arch) {
+        .x86_64 => extern struct {
+            st_dev: c.dev_t,
+            st_ino: c.ino_t,
+            st_nlink: c.nlink_t,
+            st_mode: c.mode_t,
+            st_uid: c.uid_t,
+            st_gid: c.gid_t,
+            __pad0: c_int,
+            st_rdev: c.dev_t,
+            st_size: c.off_t,
+            st_blksize: c.blksize_t,
+            st_blocks: c.blkcnt_t,
+            st_atim: c.timespec,
+            st_mtim: c.timespec,
+            st_ctim: c.timespec,
+            __glibc_reserved: [3]isize,
+        },
+        else => @compileError("Linux NativeStat layout not implemented for this architecture"),
+    },
+    else => c.Stat,
+};
+extern fn stat(path: [*:0]const u8, buf: *NativeStat) callconv(.c) c_int;
+extern fn lstat(path: [*:0]const u8, buf: *NativeStat) callconv(.c) c_int;
 extern fn mkstemp(template: [*:0]u8) callconv(.c) c_int;
 extern fn mkdtemp(template: [*:0]u8) callconv(.c) ?[*:0]u8;
 extern fn lean_mk_string(s: [*:0]const u8) callconv(.c) *anyopaque;
@@ -138,67 +161,59 @@ fn systemTimeObj(sec: i64, nsec: u32) *anyopaque {
     return result;
 }
 
-fn statSec(st: anytype, comptime base: []const u8) i64 {
-    if (builtin.target.os.tag == .linux) {
-        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.sec) else @intCast(st.*.mtim.sec);
-    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
-        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.sec) else @intCast(st.*.mtimespec.sec);
-    } else {
-        @panic("statSec unsupported on this platform");
-    }
+fn statSec(st: *const NativeStat, comptime base: []const u8) i64 {
+    return switch (builtin.target.os.tag) {
+        .linux => if (std.mem.eql(u8, base, "st_at")) @intCast(st.st_atim.sec) else @intCast(st.st_mtim.sec),
+        .macos, .maccatalyst, .ios, .tvos, .watchos, .visionos, .driverkit =>
+            if (std.mem.eql(u8, base, "st_at")) @intCast(st.atimespec.sec) else @intCast(st.mtimespec.sec),
+        else => @panic("statSec unsupported on this platform"),
+    };
 }
 
-fn statNSec(st: anytype, comptime base: []const u8) u32 {
-    if (builtin.target.os.tag == .linux) {
-        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.nsec) else @intCast(st.*.mtim.nsec);
-    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
-        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.nsec) else @intCast(st.*.mtimespec.nsec);
-    } else {
-        @panic("statNSec unsupported on this platform");
-    }
+fn statNSec(st: *const NativeStat, comptime base: []const u8) u32 {
+    return switch (builtin.target.os.tag) {
+        .linux => if (std.mem.eql(u8, base, "st_at")) @intCast(st.st_atim.nsec) else @intCast(st.st_mtim.nsec),
+        .macos, .maccatalyst, .ios, .tvos, .watchos, .visionos, .driverkit =>
+            if (std.mem.eql(u8, base, "st_at")) @intCast(st.atimespec.nsec) else @intCast(st.mtimespec.nsec),
+        else => @panic("statNSec unsupported on this platform"),
+    };
 }
 
-fn statMode(st: anytype) usize {
-    if (builtin.target.os.tag == .linux) {
-        return @intCast(st.*.st_mode);
-    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
-        return @intCast(st.*.mode);
-    } else {
-        @panic("statMode unsupported on this platform");
-    }
+fn statMode(st: *const NativeStat) usize {
+    return switch (builtin.target.os.tag) {
+        .linux => @intCast(st.st_mode),
+        .macos, .maccatalyst, .ios, .tvos, .watchos, .visionos, .driverkit => @intCast(st.mode),
+        else => @panic("statMode unsupported on this platform"),
+    };
 }
 
-fn statSize(st: anytype) u64 {
-    if (builtin.target.os.tag == .linux) {
-        return @intCast(st.*.st_size);
-    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
-        return @intCast(st.*.size);
-    } else {
-        @panic("statSize unsupported on this platform");
-    }
+fn statSize(st: *const NativeStat) u64 {
+    return switch (builtin.target.os.tag) {
+        .linux => @intCast(st.st_size),
+        .macos, .maccatalyst, .ios, .tvos, .watchos, .visionos, .driverkit => @intCast(st.size),
+        else => @panic("statSize unsupported on this platform"),
+    };
 }
 
-fn statNLink(st: anytype) u64 {
-    if (builtin.target.os.tag == .linux) {
-        return @intCast(st.*.st_nlink);
-    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
-        return @intCast(st.*.nlink);
-    } else {
-        @panic("statNLink unsupported on this platform");
-    }
+fn statNLink(st: *const NativeStat) u64 {
+    return switch (builtin.target.os.tag) {
+        .linux => @intCast(st.st_nlink),
+        .macos, .maccatalyst, .ios, .tvos, .watchos, .visionos, .driverkit => @intCast(st.nlink),
+        else => @panic("statNLink unsupported on this platform"),
+    };
 }
 
 fn waitCode(status: c_int) u32 {
     const s: u32 = @bitCast(status);
     if (c.W.IFEXITED(s)) return c.W.EXITSTATUS(s);
-    if (builtin.target.os.tag == .linux) {
-        return 128 + @as(u32, c.W.TERMSIG(s));
-    } else {
-        return 128 + @as(u32, @intFromEnum(c.W.TERMSIG(s)));
-    }
+    const term = c.W.TERMSIG(s);
+    return 128 + switch (@typeInfo(@TypeOf(term))) {
+        .@"enum" => @intFromEnum(term),
+        else => @as(u32, @intCast(term)),
+    };
 }
 
-fn metadataFromStat(st: *const c.Stat) *anyopaque {
+fn metadataFromStat(st: *const NativeStat) *anyopaque {
     const mode = statMode(st);
     const ty: u8 = if ((mode & c.S.IFMT) == c.S.IFDIR) 0 else if ((mode & c.S.IFMT) == c.S.IFREG) 1 else if ((mode & c.S.IFMT) == c.S.IFLNK) 2 else 3;
     const result = alloc.lean_alloc_ctor(0, 2, 17);
@@ -404,14 +419,14 @@ pub export fn lean_io_read_dir(dirname: *anyopaque) callconv(.c) *anyopaque {
 
 pub export fn lean_io_metadata(filename: *anyopaque) callconv(.c) *anyopaque {
     const path = pathArg(filename) orelse return invalidPath(filename);
-    var st: c.Stat = undefined;
+    var st: NativeStat = undefined;
     if (stat(path, &st) != 0) return io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, filename));
     return io_result.lean_io_result_mk_ok(metadataFromStat(&st));
 }
 
 pub export fn lean_io_symlink_metadata(filename: *anyopaque) callconv(.c) *anyopaque {
     const path = pathArg(filename) orelse return invalidPath(filename);
-    var st: c.Stat = undefined;
+    var st: NativeStat = undefined;
     if (lstat(path, &st) != 0) return io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, filename));
     return io_result.lean_io_result_mk_ok(metadataFromStat(&st));
 }
@@ -631,7 +646,7 @@ pub export fn lean_io_process_child_try_wait(_: *anyopaque, child: *anyopaque) c
 pub export fn lean_io_process_child_kill(_: *anyopaque, child: *anyopaque) callconv(.c) *anyopaque {
     const pid = childPid(child);
     const target: c.pid_t = if (childSetsid(child)) -pid else pid;
-    return if (c.kill(target, .KILL) == 0) mkUnitResult() else io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
+    return if (c.kill(target, c.SIG.KILL) == 0) mkUnitResult() else io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
 }
 
 pub export fn lean_io_process_child_pid(_: *anyopaque, child: *anyopaque) callconv(.c) u32 {

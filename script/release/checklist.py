@@ -133,18 +133,6 @@ class DownstreamChecker(RepoChecker):
     def _bump_toolchain_mathlib4(self) -> None:
         self._bump_toolchain(self.lrepo.path)
 
-        pw = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
-        tag = util.get_proofwidgets_release_for(pw, self.version)
-        if not tag:
-            raise SystemExit(1)
-
-        # For both normal and rc1 PRs
-        util.edit(
-            self.lrepo.path / "lakefile.lean",
-            r'"proofwidgets" @ git ".*"',
-            f'"proofwidgets" @ git "{tag.name}"',
-        )
-
         # For rc1 PRs
         util.edit(
             self.lrepo.path / "lakefile.lean",

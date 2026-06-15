@@ -26,6 +26,12 @@ import sys
 import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+KNOWN_EMIT_BLOCKERS = {
+    "Init.MetaTypes": "EmitZig currently exhausts memory while emitting large meta configuration code",
+    "Init.Grind.Config": "EmitZig currently exhausts memory while emitting large grind configuration code",
+}
+
+
 
 
 def path_to_module(path: pathlib.Path, src_root: pathlib.Path) -> str:
@@ -334,10 +340,15 @@ def main() -> int:
         help="Ignore cache and re-emit all modules",
     )
     parser.add_argument(
+        "--allow-stubs",
+        action="store_true",
+        help="Generate panic stubs for unresolved symbols instead of failing",
+    )
+    parser.add_argument(
         "--max-stub-iterations",
         type=int,
         default=5,
-        help="Maximum stub-generation/link retries",
+        help="Maximum stub-generation/link retries when --allow-stubs is set",
     )
     args = parser.parse_args()
 
@@ -371,6 +382,14 @@ def main() -> int:
             seeds = [driver] + [module_to_path(m, src_root) for m in args.module]
             modules = discover_dependencies(lean, src_root, seeds)
             print(f"discovered {len(modules)} stdlib module(s)")
+
+        blocked_modules = [m for m in modules if m in KNOWN_EMIT_BLOCKERS]
+        if blocked_modules and not args.allow_stubs:
+            print("error: stdlib Zig linking is blocked by known EmitZig module failures", file=sys.stderr)
+            for module in blocked_modules:
+                print(f"  - {module}: {KNOWN_EMIT_BLOCKERS[module]}", file=sys.stderr)
+            print("rerun with --allow-stubs only for exploratory debugging; CI parity mode fails hard", file=sys.stderr)
+            return 1
 
         # Compile each stdlib module.
         for module in modules:
@@ -410,7 +429,14 @@ def main() -> int:
             objs.append(obj_file)
 
         if failed_modules:
-            print(f"warning: {len(failed_modules)} module(s) failed to emit/compile; will stub undefined symbols", file=sys.stderr)
+            print(f"error: {len(failed_modules)} module(s) failed to emit/compile", file=sys.stderr)
+            for module in failed_modules[:20]:
+                print(f"  - {module}", file=sys.stderr)
+            if len(failed_modules) > 20:
+                print(f"  ... and {len(failed_modules) - 20} more", file=sys.stderr)
+            if not args.allow_stubs:
+                return 1
+            print("warning: continuing because --allow-stubs is set", file=sys.stderr)
 
         # Driver.
         print(f"emitting {driver.name} -> {driver.stem}.zig")
@@ -420,11 +446,13 @@ def main() -> int:
         compile_zig(zig, driver_zig, driver_obj)
         objs.append(driver_obj)
 
-        # Link with automatic stub generation for undefined symbols.
+        # Link. By default this is a real parity gate: unresolved symbols are fatal.
+        # --allow-stubs preserves the old exploratory behavior for manual debugging.
         stubs_zig = work / "stubs.zig"
         stubs_obj = work / "stubs.o"
         objs = filter_conflicting_objs(objs, zigrt_lib, work)
-        for iteration in range(args.max_stub_iterations):
+        max_attempts = args.max_stub_iterations if args.allow_stubs else 1
+        for iteration in range(max_attempts):
             print(f"linking (attempt {iteration + 1})...")
             result = link(zig, objs, zigrt_lib, args.output, build_dir / "include")
             if result.returncode == 0:
@@ -445,12 +473,16 @@ def main() -> int:
                 print(result.stderr, file=sys.stderr)
                 return result.returncode
 
-            print(f"undefined symbols: {len(undefined)}; generating stubs...")
-            for sym in undefined[:10]:
-                print(f"  - {sym}")
-            if len(undefined) > 10:
-                print(f"  ... and {len(undefined) - 10} more")
+            print(f"undefined symbols: {len(undefined)}", file=sys.stderr)
+            for sym in undefined[:50]:
+                print(f"  - {sym}", file=sys.stderr)
+            if len(undefined) > 50:
+                print(f"  ... and {len(undefined) - 50} more", file=sys.stderr)
+            if not args.allow_stubs:
+                print(result.stderr, file=sys.stderr)
+                return result.returncode
 
+            print("generating stubs because --allow-stubs is set...")
             generate_stubs(undefined, stubs_zig)
             compile_zig(zig, stubs_zig, stubs_obj)
             if stubs_obj not in objs:

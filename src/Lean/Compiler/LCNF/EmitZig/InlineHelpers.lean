@@ -560,6 +560,20 @@ private def mvpInlineHelperEntries : List (String × String) := [
     "  return lean_array_get_panic(def_val);",
     "}"
   ]),
+  ("lean_dec_ref_known", joinLines [
+    "inline fn lean_dec_ref_known(o: LeanObj, objs: c_uint) void {",
+    "  std.debug.assert(lean_is_scalar(o) == 0);",
+    "  if (lean_is_exclusive(o)) {",
+    "    var i: c_uint = 0;",
+    "    while (i < objs) : (i += 1) {",
+    "      lean_dec(lean_ctor_get(o, i));",
+    "    }",
+    "    lean_free_object(o);",
+    "  } else {",
+    "    lean_dec_ref(o);",
+    "  }",
+    "}"
+  ]),
   ("lean_del_object", joinLines [
     "inline fn lean_del_object(o: LeanObj) void {",
     "  if (lean_is_scalar(o) == 0) lean_free_object(o);",

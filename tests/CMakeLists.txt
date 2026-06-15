@@ -307,18 +307,37 @@ if(LEAN_ZIG_RUNTIME)
       --cache-dir "${MANGLED_BINARY_DIR}/runtime/zig/.zig-cache"
       --global-cache-dir "${MANGLED_BINARY_DIR}/runtime/zig/.zig-global-cache"
   )
-  add_test(
-    NAME emitzig/zigrt/Smoke.lean
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/emitzig"
-    COMMAND
-      "${CMAKE_COMMAND}" -E env
-      LEAN_ZIG_EXE=1
-      LEAN_ZIG_ZIGRT=1
-      BUILD_DIR=${MANGLED_BINARY_DIR}
-      LEANC=${MANGLED_BINARY_DIR}/bin/leanc
-      bash "${WITH_TEST_ENV}" "${CMAKE_CURRENT_SOURCE_DIR}/emitzig/run_test.sh" Smoke.lean
+  set(EMITZIG_ZIGRT_TESTS
+    Array.lean
+    Cases.lean
+    Closure.lean
+    Exception.lean
+    Float.lean
+    JoinPoint.lean
+    List.lean
+    Nat.lean
+    Recursion.lean
+    SetStdout.lean
+    Smoke.lean
+    Stderr.lean
+    String.lean
+    StringHelpers.lean
+    Task.lean
   )
-  set_tests_properties(emitzig/zigrt/Smoke.lean PROPERTIES RUN_SERIAL TRUE)
+  foreach(T ${EMITZIG_ZIGRT_TESTS})
+    add_test(
+      NAME "emitzig/zigrt/${T}"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/emitzig"
+      COMMAND
+        "${CMAKE_COMMAND}" -E env
+        LEAN_ZIG_EXE=1
+        LEAN_ZIG_ZIGRT=1
+        BUILD_DIR=${MANGLED_BINARY_DIR}
+        LEANC=${MANGLED_BINARY_DIR}/bin/leanc
+        LEAN_ZIG_OUT_DIR=${MANGLED_BINARY_DIR}/tests/emitzig-zigrt
+        bash "${WITH_TEST_ENV}" "${CMAKE_CURRENT_SOURCE_DIR}/emitzig/run_test.sh" "${T}"
+    )
+  endforeach()
   add_test(
     NAME emitzig/zig-symbols
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.."

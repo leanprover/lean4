@@ -20,11 +20,44 @@ fi
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-# Emit Zig for the smoke test; it exercises a broad cross-section of runtime externs.
-"$LEAN" -Dbackward.do.legacy=false "$ROOT/tests/emitzig/Smoke.lean" -z "$TMP_DIR/smoke.zig"
+if [[ "$#" -gt 0 ]]; then
+  TESTS=("$@")
+else
+  TESTS=(
+    Array.lean
+    Cases.lean
+    Closure.lean
+    Exception.lean
+    Float.lean
+    JoinPoint.lean
+    List.lean
+    Nat.lean
+    Recursion.lean
+    SetStdout.lean
+    Smoke.lean
+    Stderr.lean
+    String.lean
+    StringHelpers.lean
+    Task.lean
+  )
+fi
 
-# Extract runtime symbols actually invoked by the emitted Zig (skip extern/inline declarations).
-python3 - "$TMP_DIR/smoke.zig" > "$TMP_DIR/needed.txt" <<'PY'
+: > "$TMP_DIR/needed.unsorted.txt"
+: > "$TMP_DIR/inline.unsorted.txt"
+
+# Emit Zig for the small emitzig corpus; together these cover the current
+# executable Zig-runtime test matrix without including stdlib-stub tests.
+for TEST in "${TESTS[@]}"; do
+  if [[ "$TEST" == /* ]]; then
+    TEST_PATH="$TEST"
+  else
+    TEST_PATH="$ROOT/tests/emitzig/$TEST"
+  fi
+  OUT="$TMP_DIR/$(basename "$TEST_PATH" .lean).zig"
+  "$LEAN" -Dbackward.do.legacy=false "$TEST_PATH" -z "$OUT"
+
+  # Extract runtime symbols actually invoked by emitted Zig (skip extern/inline declarations).
+  python3 - "$OUT" >> "$TMP_DIR/needed.unsorted.txt" <<'PY'
 import re, sys
 text = open(sys.argv[1]).read().splitlines()
 syms = set()
@@ -37,6 +70,12 @@ for sym in sorted(syms):
     print(sym)
 PY
 
+  # Inline helpers emitted into generated Zig are satisfied at compile time.
+  command grep -oE 'inline fn lean_[A-Za-z0-9_]+' "$OUT" | sed 's/inline fn //' >> "$TMP_DIR/inline.unsorted.txt" || true
+done
+
+sort -u "$TMP_DIR/needed.unsorted.txt" > "$TMP_DIR/needed.txt"
+
 # Defined symbols exported from the C runtime shared library.
 nm -D "$LIB" 2> /dev/null | awk '$2 == "T" || $2 == "t" {print $3}' | sed 's/^_//' | sort -u > "$TMP_DIR/defined.txt" || \
 nm "$LIB" | awk '$2 == "T" || $2 == "t" {print $3}' | sed 's/^_//' | sort -u > "$TMP_DIR/defined.txt"
@@ -44,8 +83,7 @@ nm "$LIB" | awk '$2 == "T" || $2 == "t" {print $3}' | sed 's/^_//' | sort -u > "
 # Symbols provided by the in-tree Zig runtime source files.
 grep -rhoE '(export|pub) fn lean_[A-Za-z0-9_]+' "$ROOT/src/runtime/zig" | sed 's/.* fn //' | sort -u > "$TMP_DIR/zig_provided.txt"
 
-# Inline helpers emitted into generated Zig are satisfied at compile time.
-command grep -oE 'inline fn lean_[A-Za-z0-9_]+' "$TMP_DIR/smoke.zig" | sed 's/inline fn //' | sort -u > "$TMP_DIR/inline_provided.txt"
+sort -u "$TMP_DIR/inline.unsorted.txt" > "$TMP_DIR/inline_provided.txt"
 
 # Combine C runtime, Zig runtime, and emitted inline helper coverage.
 sort -u "$TMP_DIR/defined.txt" "$TMP_DIR/zig_provided.txt" "$TMP_DIR/inline_provided.txt" > "$TMP_DIR/available.txt"
@@ -68,6 +106,7 @@ rm -f "$TMP_DIR/missing.txt.bak"
 
 COUNT="$(grep -c '^lean_' "$TMP_DIR/missing.txt" || true)"
 
+echo "Checked tests: ${#TESTS[@]}"
 if [[ "$COUNT" -eq 0 ]]; then
   echo "Missing symbols: 0"
   exit 0

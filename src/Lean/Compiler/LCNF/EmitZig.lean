@@ -130,10 +130,13 @@ def captureOutput (act : EmitM Unit) : EmitM String := do
   pure out
 
 def bodyUsesIdent (body ident : String) : Bool :=
-  body.splitOn "\n" |>.any fun line =>
-    let trimmed := line.trimAsciiStart.toString
-    !(trimmed.startsWith s!"const {ident}:" || trimmed.startsWith s!"var {ident}:") &&
-      line.contains ident
+  if !body.contains ident then
+    false
+  else
+    body.splitOn "\n" |>.any fun line =>
+      let trimmed := line.trimAsciiStart.toString
+      !(trimmed.startsWith s!"const {ident}:" || trimmed.startsWith s!"var {ident}:") &&
+        line.contains ident
 
 @[inline] def getModName : EmitM Name :=
   return (← read).modName
@@ -744,123 +747,133 @@ def emitTailCall (decl : LetDecl .impure) : EmitM Unit := do
       emitLn s!"  {tailStateIdent p.fvarId.name} = {zigIdent p.fvarId.name};"
   emitLn "  continue;"
 
-mutual
-
-partial def emitBasicBlock : Code .impure → EmitM Unit
-  | .jp _decl k => do
-      -- Join points are inlined at each `jmp` site; their declarations do not
-      -- produce code on their own. Just emit the continuation.
-      emitBasicBlock k
-  | .let decl k => do
-      if ← isTailCall (.let decl k) then
-        emitTailCall decl
-      else
-        match ← renderLetValueLines? decl.fvarId.name decl.type decl.value with
-        | some lines =>
-            emitRenderedLet decl.fvarId.name decl.type lines <|
-              match decl.value with | .reset .. | .reuse .. => true | _ => false
-            if !codeUsesFVar decl.fvarId k then
-              emitLn s!"  _ = {zigIdent decl.fvarId.name};"
-            emitBasicBlock k
+partial def emitBasicBlock (code0 : Code .impure) : EmitM Unit := do
+  let mut code := code0
+  while true do
+    match code with
+    | .jp _decl k =>
+        -- Join points are inlined at each `jmp` site; their declarations do not
+        -- produce code on their own. Just emit the continuation.
+        code := k
+    | .let decl k =>
+        if ← isTailCall (.let decl k) then
+          emitTailCall decl
+          break
+        else
+          match ← renderLetValueLines? decl.fvarId.name decl.type decl.value with
+          | some lines =>
+              emitRenderedLet decl.fvarId.name decl.type lines <|
+                match decl.value with | .reset .. | .reuse .. => true | _ => false
+              if !codeUsesFVar decl.fvarId k then
+                emitLn s!"  _ = {zigIdent decl.fvarId.name};"
+              code := k
+          | none =>
+              emitLn "  @panic(\"EmitZig let-value emission not implemented yet\");"
+              break
+    | .inc fvarId n check persistent k =>
+        unless persistent do
+          let target := zigIdent fvarId.name
+          if n == 1 then
+            let incFn := if check then "lean_inc" else "lean_inc_ref"
+            emitLn s!"  {incFn}({target});"
+          else
+            let incFn := if check then "lean_inc_n" else "lean_inc_ref_n"
+            emitLn s!"  {incFn}({target}, {usizeLit n});"
+        code := k
+    | .dec fvarId n check persistent objs? k =>
+        unless persistent do
+          let target := zigIdent fvarId.name
+          match objs? with
+          | some objs =>
+              if n != 1 then
+                throwError "EmitZig does not support known-object dec with n != 1"
+              emitLn s!"  lean_dec_ref_known({target}, {cUIntLit objs});"
+          | none =>
+              if n == 1 then
+                let decFn := if check then "lean_dec" else "lean_dec_ref"
+                emitLn s!"  {decFn}({target});"
+              else
+                let decFn := if check then "lean_dec_n" else "lean_dec_ref_n"
+                emitLn s!"  {decFn}({target}, {usizeLit n});"
+        code := k
+    | .del fvarId k =>
+        emitLn s!"  lean_del_object({zigIdent fvarId.name});"
+        code := k
+    | .setTag fvarId cidx k =>
+        emitLn s!"  lean_ctor_set_tag({zigIdent fvarId.name}, @as(u8, {cidx}));"
+        code := k
+    | .oset fvarId i y k =>
+        emitLn s!"  lean_ctor_set({zigIdent fvarId.name}, {cUIntLit i}, {renderImpureArg y});"
+        code := k
+    | .uset fvarId i y k =>
+        emitLn s!"  lean_ctor_set_usize({zigIdent fvarId.name}, {cUIntLit i}, {zigIdent y.name});"
+        code := k
+    | .sset fvarId i offset y type k =>
+        emitLn s!"  {renderSsetLine fvarId i offset y type}"
+        code := k
+    | .cases cs =>
+        let shortIf? :=
+          if h : cs.alts.size = 2 then
+            have : 0 < cs.alts.size := by rw [h]; decide
+            have : 1 < cs.alts.size := by rw [h]; decide
+            match cs.alts[0] with
+            | .ctorAlt info k => some (info.cidx, k, cs.alts[1].getCode)
+            | _ => none
+          else
+            none
+        let discrType ← getStoredType cs.discr
+        let discrExpr :=
+          if discrType.isObj then s!"lean_obj_tag({zigIdent cs.discr.name})" else zigIdent cs.discr.name
+        match shortIf? with
+        | some (tag, t, e) =>
+            emitLn <| "  if (" ++ discrExpr ++ " == " ++ cUIntLit tag ++ ") {"
+            emitBasicBlock t
+            emitLn "  } else {"
+            emitBasicBlock e
+            emitLn "  }"
         | none =>
-            emitLn "  @panic(\"EmitZig let-value emission not implemented yet\");"
-  | .inc fvarId n check persistent k => do
-      unless persistent do
-        let target := zigIdent fvarId.name
-        if n == 1 then
-          let incFn := if check then "lean_inc" else "lean_inc_ref"
-          emitLn s!"  {incFn}({target});"
+            emitLn <| "  switch (" ++ discrExpr ++ ") {"
+            for alt in ensureHasDefault cs.alts do
+              match alt with
+              | .ctorAlt info k =>
+                  emitLn <| "    " ++ cUIntLit info.cidx ++ " => {"
+                  emitBasicBlock k
+                  emitLn "    },"
+              | .default k =>
+                  emitLn "    else => {"
+                  emitBasicBlock k
+                  emitLn "    },"
+              | .alt .. =>
+                  emitLn "    else => {"
+                  emitLn "      @panic(\"EmitZig pure cases not implemented yet\");"
+                  emitLn "    },"
+            emitLn "  }"
+        break
+    | .return fvarId =>
+        emitLn s!"  return {zigIdent fvarId.name};"
+        break
+    | .jmp fvarId args =>
+        let some jpDecl ← findStoredJoinDecl? fvarId | unreachable!
+        if args.size != jpDecl.params.size then
+          throwError "invalid jump"
+        -- Directly recursive join points cannot be inlined without a loop; leave a
+        -- placeholder so we can identify and fix them later.
+        if codeContainsJmpTo fvarId jpDecl.value then
+          emitLn "  @panic(\"EmitZig recursive join point not implemented yet\");"
         else
-          let incFn := if check then "lean_inc_n" else "lean_inc_ref_n"
-          emitLn s!"  {incFn}({target}, {usizeLit n});"
-      emitBasicBlock k
-  | .dec fvarId n check persistent _ k => do
-      if persistent then
-        emitBasicBlock k
-      else if n == 1 then
-        let decFn := if check then "lean_dec" else "lean_dec_ref"
-        emitLn s!"  {decFn}({zigIdent fvarId.name});"
-        emitBasicBlock k
-      else
-        let decFn := if check then "lean_dec_n" else "lean_dec_ref_n"
-        emitLn s!"  {decFn}({zigIdent fvarId.name}, {usizeLit n});"
-        emitBasicBlock k
-  | .del fvarId k => do
-      emitLn s!"  lean_dec_ref({zigIdent fvarId.name});"
-      emitBasicBlock k
-  | .setTag fvarId cidx k => do
-      emitLn s!"  lean_ctor_set_tag({zigIdent fvarId.name}, @as(u8, {cidx}));"
-      emitBasicBlock k
-  | .oset fvarId i y k => do
-      emitLn s!"  lean_ctor_set({zigIdent fvarId.name}, {cUIntLit i}, {renderImpureArg y});"
-      emitBasicBlock k
-  | .uset fvarId i y k => do
-      emitLn s!"  lean_ctor_set_usize({zigIdent fvarId.name}, {cUIntLit i}, {zigIdent y.name});"
-      emitBasicBlock k
-  | .sset fvarId i offset y type k => do
-      emitLn s!"  {renderSsetLine fvarId i offset y type}"
-      emitBasicBlock k
-  | .cases cs => do
-      let shortIf? :=
-        if h : cs.alts.size = 2 then
-          have : 0 < cs.alts.size := by rw [h]; decide
-          have : 1 < cs.alts.size := by rw [h]; decide
-          match cs.alts[0] with
-          | .ctorAlt info k => some (info.cidx, k, cs.alts[1].getCode)
-          | _ => none
-        else
-          none
-      let discrType ← getStoredType cs.discr
-      let discrExpr :=
-        if discrType.isObj then s!"lean_obj_tag({zigIdent cs.discr.name})" else zigIdent cs.discr.name
-      match shortIf? with
-      | some (tag, t, e) =>
-          emitLn <| "  if (" ++ discrExpr ++ " == " ++ cUIntLit tag ++ ") {"
-          emitBasicBlock t
-          emitLn "  } else {"
-          emitBasicBlock e
-          emitLn "  }"
-      | none =>
-          emitLn <| "  switch (" ++ discrExpr ++ ") {"
-          for alt in ensureHasDefault cs.alts do
-            match alt with
-            | .ctorAlt info k =>
-                emitLn <| "    " ++ cUIntLit info.cidx ++ " => {"
-                emitBasicBlock k
-                emitLn "    },"
-            | .default k =>
-                emitLn "    else => {"
-                emitBasicBlock k
-                emitLn "    },"
-            | .alt .. =>
-                emitLn "    else => {"
-                emitLn "      @panic(\"EmitZig pure cases not implemented yet\");"
-                emitLn "    },"
-          emitLn "  }"
-  | .return fvarId =>
-      emitLn s!"  return {zigIdent fvarId.name};"
-  | .jmp fvarId args => do
-      let some jpDecl ← findStoredJoinDecl? fvarId | unreachable!
-      if args.size != jpDecl.params.size then
-        throwError "invalid jump"
-      -- Directly recursive join points cannot be inlined without a loop; leave a
-      -- placeholder so we can identify and fix them later.
-      if codeContainsJmpTo fvarId jpDecl.value then
-        emitLn "  @panic(\"EmitZig recursive join point not implemented yet\");"
-      else
-        -- Inline the join point body: assign runtime arguments to its parameters
-        -- and then emit its body.
-        for h : i in [0:jpDecl.params.size] do
-          let p := jpDecl.params[i]
-          if p.type.isVoid || p.type.isErased then
-            continue
-          let arg := args[i]!
-          emitLn s!"  {zigIdent p.fvarId.name} = {renderImpureArg arg};"
-        emitBasicBlock jpDecl.value
-  | .unreach _ =>
-      emitLn "  unreachable;"
-
-end
+          -- Inline the join point body: assign runtime arguments to its parameters
+          -- and then emit its body.
+          for h : i in [0:jpDecl.params.size] do
+            let p := jpDecl.params[i]
+            if p.type.isVoid || p.type.isErased then
+              continue
+            let arg := args[i]!
+            emitLn s!"  {zigIdent p.fvarId.name} = {renderImpureArg arg};"
+          emitBasicBlock jpDecl.value
+        break
+    | .unreach _ =>
+        emitLn "  unreachable;"
+        break
 
 
 def emitFileHeader : EmitM Unit := do

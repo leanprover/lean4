@@ -19,12 +19,13 @@
       pkgsDist-old-aarch = import inputs.nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
 
       llvmPackages = pkgs.llvmPackages_19;
+      zigPkg = (pkgs.callPackage (pkgs.path + "/pkgs/development/compilers/zig") { })."0.16";
 
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
           stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache pkg-config openssl openssl.dev zig
+            cmake gmp libuv ccache pkg-config openssl openssl.dev zigPkg
             llvmPackages.bintools  # wrapped lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb

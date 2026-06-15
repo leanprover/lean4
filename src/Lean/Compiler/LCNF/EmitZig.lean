@@ -83,6 +83,8 @@ structure Context where
   currParams : Array (Param .impure) := #[]
   fvarTypes : NameMap Expr := {}
   joinDecls : NameMap (FunDecl .impure) := {}
+  joinStates : NameMap Nat := {}
+  hoistLocals : Bool := false
 
 structure State where
   buf : ByteArray := ByteArray.empty
@@ -156,6 +158,7 @@ def getStoredType (fvarId : FVarId) : EmitM Expr := do
   return type
 
 def findStoredJoinDecl? (fvarId : FVarId) : EmitM (Option (FunDecl .impure)) := return (← read).joinDecls.find? fvarId.name
+def findStoredJoinState? (fvarId : FVarId) : EmitM (Option Nat) := return (← read).joinStates.find? fvarId.name
 
 def runtimeParams (ps : Array (Param .impure)) : Array (Param .impure) :=
   ps.filter (fun p => !(p.type.isVoid || p.type.isErased))
@@ -204,6 +207,47 @@ partial def codeUsesFVar (target : FVarId) : Code .impure → Bool
   | .jmp _ args => argsUseFVar target args
   | .return fvarId => fvarId == target
   | .unreach .. => false
+
+partial def letValueUsesFVarRuntime (target : FVarId) : LetValue .impure → EmitM Bool
+  | .ctor _ args => pure <| argsUseFVar target args
+  | .reset _ fvarId | .oproj _ fvarId | .uproj _ fvarId | .sproj _ _ fvarId
+  | .box _ fvarId | .unbox fvarId | .isShared fvarId =>
+      pure <| fvarId == target
+  | .reuse fvarId _ _ args | .fvar fvarId args =>
+      pure <| fvarId == target || argsUseFVar target args
+  | .fap fn args | .pap fn args => do
+      match ← getImpureSignature? fn with
+      | some sig => pure <| argsUseFVar target (runtimeArgs sig.params args)
+      | none => pure <| argsUseFVar target args
+  | .lit .. | .erased => pure false
+
+partial def codeUsesFVarRuntime (target : FVarId) : Code .impure → EmitM Bool
+  | .let decl k => do
+      let lhs ← letValueUsesFVarRuntime target decl.value
+      let rhs ← codeUsesFVarRuntime target k
+      pure (lhs || rhs)
+  | .jp decl k => do
+      let lhs ← codeUsesFVarRuntime target decl.value
+      let rhs ← codeUsesFVarRuntime target k
+      pure (lhs || rhs)
+  | .inc fvarId _ _ _ k
+  | .dec fvarId _ _ _ _ k
+  | .del fvarId k | .setTag fvarId _ k => do
+      if fvarId == target then pure true else codeUsesFVarRuntime target k
+  | .oset fvarId _ arg k => do
+      if fvarId == target || argUsesFVar target arg then pure true else codeUsesFVarRuntime target k
+  | .uset fvarId _ y k | .sset fvarId _ _ y _ k => do
+      if fvarId == target || y == target then pure true else codeUsesFVarRuntime target k
+  | .cases cs => do
+      if cs.discr == target then
+        pure true
+      else
+        cs.alts.anyM fun alt => codeUsesFVarRuntime target alt.getCode
+  | .jmp fvarId args => do
+      let some jpDecl ← findStoredJoinDecl? fvarId | unreachable!
+      pure <| argsUseFVar target (runtimeArgs jpDecl.params args)
+  | .return fvarId => pure <| fvarId == target
+  | .unreach .. => pure false
 
 partial def tailCallMutatesParam (fnName : Name) (ps : Array (Param .impure)) (target : FVarId) :
     Code .impure → Bool
@@ -263,13 +307,10 @@ def getModInitFn : EmitM String := do
 
 def importedInitFnNames : EmitM (Array String) := do
   let env ← getEnv
-  let phases := if env.header.isModule then .runtime else .all
   let names ← env.imports.filterMapM fun imp => do
-    if env.header.isModule && imp.isMeta then
-      return none
     let some idx := env.getModuleIdx? imp.module | return none
     let pkg? := env.getModulePackageByIdx? idx
-    return some <| mkModuleInitializationFunctionName imp.module pkg? phases
+    return some <| mkModuleInitializationFunctionName imp.module pkg? .all
   return names.foldl (init := #[]) fun acc name =>
     if acc.contains name then acc else acc.push name
 
@@ -469,6 +510,175 @@ def renderGlobalRefRhs (type : Expr) (fn : Name) : EmitM String := do
   else
     return callable
 
+abbrev GroundEmitM := StateT Nat EmitM
+
+partial def emitGroundDecl (decl : Decl .impure) : EmitM Unit := do
+  let env ← getEnv
+  let some ground := getSimpleGroundExpr env decl.name | unreachable!
+  let baseName ← toZigSymbolName decl.name
+  let valueName := (← compileGroundToValueNamed baseName (groundValueName baseName) ground |>.run 0).1
+  emitLn s!"const {baseName}: LeanObj = {groundLeanObjLitOfValueName valueName};"
+  unless isClosedTermName env decl.name do
+    emitLn <| "comptime { @export(&" ++ baseName ++ ", .{ .name = \"" ++ baseName ++ "\" }); }"
+  emitLn ""
+where
+
+  groundValueName (name : String) : String :=
+    name ++ "_value"
+
+  groundAuxValueName (rootName : String) (idx : Nat) : String :=
+    groundValueName rootName ++ s!"_aux_{idx}"
+
+  renderGroundArrayLit (xs : List String) : String :=
+    if xs.isEmpty then ".{}" else ".{ " ++ String.intercalate ", " xs ++ " }"
+
+  groundPtrExprOfValueName (name : String) : String :=
+    s!"@as(*align(1) lean_object, @ptrCast(@constCast(&{name})))"
+
+  groundLeanObjLitOfTagged (n : Nat) : String :=
+    s!"@as(LeanObj, @ptrFromInt((@as(usize, {n}) << 1) | 1))"
+
+  groundLeanObjLitOfValueName (name : String) : String :=
+    s!"@as(LeanObj, {groundPtrExprOfValueName name})"
+
+  groundSlotLitOfTagged (n : Nat) : String :=
+    s!"((@as(usize, {n}) << 1) | 1)"
+
+  groundSlotLitOfValueName (name : String) : String :=
+    s!"@intFromPtr(@as(*const lean_object, @ptrCast(&{name})))"
+
+  groundHeaderLit (csSz other tag : String) : String :=
+    ".{ .m_rc = 0, .m_cs_sz = @as(u16, @intCast(" ++ csSz ++ ")), " ++
+      ".m_other = @as(u8, @intCast(" ++ other ++ ")), " ++
+      ".m_tag = @as(u8, @intCast(" ++ tag ++ ")) }"
+
+  emitGroundConst (name type value : String) : GroundEmitM Unit := do
+    emitLn s!"const {name}: {type} = {value};"
+
+  findValueDecl (decl : Name) : GroundEmitM String := do
+    let mut decl := decl
+    while true do
+      if let some (.reference ref) := getSimpleGroundExpr (← getEnv) decl then
+        decl := ref
+      else
+        break
+    return groundValueName (← toZigSymbolName decl)
+
+  groundArgToLeanObjLit : SimpleGroundArg → GroundEmitM String
+    | .tagged val => pure <| groundLeanObjLitOfTagged val
+    | .reference decl => return groundLeanObjLitOfValueName (← findValueDecl decl)
+    | .rawReference decl => pure <| groundLeanObjLitOfValueName decl
+
+  groundArgToSlotLit : SimpleGroundArg → GroundEmitM String
+    | .tagged val => pure <| groundSlotLitOfTagged val
+    | .reference decl => return groundSlotLitOfValueName (← findValueDecl decl)
+    | .rawReference decl => pure <| groundSlotLitOfValueName decl
+
+  packGroundScalarBytes (scalarArgs : Array UInt8) : List String := Id.run do
+    assert! scalarArgs.size % 8 == 0
+    let chunks := scalarArgs.size / 8
+    let mut packed := []
+    for idx in [0:chunks] do
+      let mut value : Nat := 0
+      for off in [0:8] do
+        let b := scalarArgs[idx * 8 + off]!.toNat
+        value := value + b * (2 ^ (8 * off))
+      packed := packed.concat s!"@as(usize, {value})"
+    packed
+
+  emitCtorValue (name : String) (cidx : Nat) (objArgs : Array SimpleGroundArg)
+      (usizeArgs : Array UInt64) (scalarArgs : Array UInt8) : GroundEmitM Unit := do
+    let objLits ← objArgs.toList.mapM groundArgToLeanObjLit
+    let usizeLits := usizeArgs.toList.map (fun u => s!"@as(usize, {u.toNat})")
+    let scalarLits := packGroundScalarBytes scalarArgs
+    let type := "extern struct { m_header: lean_object, m_objs: [" ++ toString objArgs.size ++ "]LeanObj, m_usize: [" ++ toString usizeArgs.size ++ "]usize, m_scalars: [" ++ toString scalarLits.length ++ "]usize }"
+    let header := groundHeaderLit
+      ("@sizeOf(lean_ctor_object) + @sizeOf(usize) * " ++ toString objArgs.size ++
+        " + " ++ ctorScalarSizeExpressionZig usizeArgs.size scalarArgs.size)
+      (toString objArgs.size) (toString cidx)
+    let value := ".{ .m_header = " ++ header ++
+      ", .m_objs = " ++ renderGroundArrayLit objLits ++
+      ", .m_usize = " ++ renderGroundArrayLit usizeLits ++
+      ", .m_scalars = " ++ renderGroundArrayLit scalarLits ++ " }"
+    emitGroundConst name type value
+
+  emitStringValue (name : String) (data : String) : GroundEmitM Unit := do
+    let bytes := data.toUTF8.data.push 0
+    let byteLits := bytes.toList.map (fun b => s!"@as(u8, {b.toNat})")
+    let type := "extern struct { m_header: lean_object, m_size: usize, m_capacity: usize, m_length: usize, m_data: [" ++ toString bytes.size ++ "]u8 }"
+    let value := ".{ .m_header = " ++ groundHeaderLit "0" "0" "249" ++
+      ", .m_size = " ++ usizeLit bytes.size ++
+      ", .m_capacity = " ++ usizeLit bytes.size ++
+      ", .m_length = " ++ usizeLit data.length ++
+      ", .m_data = " ++ renderGroundArrayLit byteLits ++ " }"
+    emitGroundConst name type value
+
+  emitPapValue (name : String) (func : Name) (args : Array SimpleGroundArg) : GroundEmitM Unit := do
+    let some sig ← getImpureSignature? func | unreachable!
+    let objLits ← args.toList.mapM groundArgToLeanObjLit
+    let callable ← toCallableZigName func
+    let type := "extern struct { m_header: lean_object, m_fun: ?*anyopaque, m_arity: u16, m_num_fixed: u16, m_objs: [" ++ toString args.size ++ "]LeanObj }"
+    let value := ".{ .m_header = " ++
+      groundHeaderLit ("@sizeOf(lean_closure_object) + @sizeOf(LeanObj) * " ++ toString args.size) "0" "245" ++
+      ", .m_fun = @as(?*anyopaque, @ptrCast(@constCast(&" ++ callable ++ ")))" ++
+      ", .m_arity = @as(u16, @intCast(" ++ toString (runtimeParams sig.params).size ++ "))" ++
+      ", .m_num_fixed = @as(u16, @intCast(" ++ toString args.size ++ "))" ++
+      ", .m_objs = " ++ renderGroundArrayLit objLits ++ " }"
+    emitGroundConst name type value
+
+  emitArrayValue (name : String) (elems : Array SimpleGroundArg) : GroundEmitM Unit := do
+    let elemLits ← elems.toList.mapM groundArgToLeanObjLit
+    let type := "extern struct { m_header: lean_object, m_size: usize, m_capacity: usize, m_data: [" ++ toString elems.size ++ "]LeanObj }"
+    let value := ".{ .m_header = " ++
+      groundHeaderLit ("@sizeOf(lean_array_object) + @sizeOf(LeanObj) * " ++ toString elems.size) "0" "246" ++
+      ", .m_size = " ++ usizeLit elems.size ++
+      ", .m_capacity = " ++ usizeLit elems.size ++
+      ", .m_data = " ++ renderGroundArrayLit elemLits ++ " }"
+    emitGroundConst name type value
+
+  emitByteArrayValue (name : String) (data : Array UInt8) : GroundEmitM Unit := do
+    let byteLits := data.toList.map (fun b => s!"@as(u8, {b.toNat})")
+    let type := "extern struct { m_header: lean_object, m_size: usize, m_capacity: usize, m_data: [" ++ toString data.size ++ "]u8 }"
+    let value := ".{ .m_header = " ++
+      groundHeaderLit ("@sizeOf(lean_sarray_object) + " ++ toString data.size) "1" "248" ++
+      ", .m_size = " ++ usizeLit data.size ++
+      ", .m_capacity = " ++ usizeLit data.size ++
+      ", .m_data = " ++ renderGroundArrayLit byteLits ++ " }"
+    emitGroundConst name type value
+
+  compileGroundToValueNamed (rootName name : String) (e : SimpleGroundExpr) : GroundEmitM String := do
+    match e with
+    | .ctor cidx objArgs usizeArgs scalarArgs =>
+        emitCtorValue name cidx objArgs usizeArgs scalarArgs
+        return name
+    | .string data =>
+        emitStringValue name data
+        return name
+    | .pap func args =>
+        emitPapValue name func args
+        return name
+    | .nameMkStr args =>
+        assert! args.size > 0
+        if args.size == 1 then
+          let (ref, hash) := args[0]!
+          emitCtorValue name 1 #[.tagged 0, .reference ref] #[] (uint64ToByteArrayLE hash)
+          return name
+        else
+          let (ref, hash) := args.back!
+          let idx ← modifyGet fun idx => (idx, idx + 1)
+          let auxName := groundAuxValueName rootName idx
+          discard <| compileGroundToValueNamed rootName auxName (.nameMkStr args.pop)
+          emitCtorValue name 1 #[.rawReference auxName, .reference ref] #[] (uint64ToByteArrayLE hash)
+          return name
+    | .reference refDecl =>
+        findValueDecl refDecl
+    | .array elems =>
+        emitArrayValue name elems
+        return name
+    | .byteArray data =>
+        emitByteArrayValue name data
+        return name
+
 def renderFapLines (binder : Name) (type : Expr) (fn : Name) (args : Array (Arg .impure)) :
     EmitM (List String) := do
   let lhs := zigIdent binder
@@ -485,7 +695,14 @@ def renderFapLines (binder : Name) (type : Expr) (fn : Name) (args : Array (Arg 
       if args.isEmpty then
         let env ← getEnv
         let callable ← toCallableZigName fn
-        if (← getLocalDecls).any (·.name == fn) || (isStandardExternC? env fn).isSome then
+        if let some localDecl := (← getLocalDecls).find? (·.name == fn) then
+          if isSimpleGroundDecl env fn then
+            pure [assign (← renderGlobalRefRhs type fn)]
+          else if (runtimeParams localDecl.params).isEmpty then
+            pure [assign s!"{callable}()"]
+          else
+            pure [assign s!"{callable}()"]
+        else if (isStandardExternC? env fn).isSome then
           pure [assign s!"{callable}()"]
         else
           pure [assign (← renderGlobalRefRhs type fn)]
@@ -630,27 +847,50 @@ partial def collectJoinDecls (code : Code .impure) (acc : NameMap (FunDecl .impu
       cs.alts.foldl (init := acc) fun acc alt => collectJoinDecls alt.getCode acc
   | .jmp .. | .return .. | .unreach .. => acc
 
+partial def collectJoinDeclOrder (code : Code .impure) (acc : Array (FunDecl .impure) := #[]) :
+    Array (FunDecl .impure) :=
+  match code with
+  | .jp decl k =>
+      let acc := acc.push decl
+      let acc := collectJoinDeclOrder decl.value acc
+      collectJoinDeclOrder k acc
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
+  | .sset _ _ _ _ _ k | .let _ k =>
+      collectJoinDeclOrder k acc
+  | .cases cs =>
+      cs.alts.foldl (init := acc) fun acc alt => collectJoinDeclOrder alt.getCode acc
+  | .jmp .. | .return .. | .unreach .. => acc
+
 def ensureHasDefault (alts : Array (Alt .impure)) : Array (Alt .impure) :=
   if alts.any (· matches .default ..) then
     alts
   else
     if alts.size < 2 then alts else alts.pop.push (.default alts.back!.getCode)
 
-partial def emitVarDecls (bodyText : String) : Code .impure → EmitM Unit
-  | .let _ k => emitVarDecls bodyText k
+partial def emitVarDecls : Code .impure → EmitM Unit
+  | .let decl k => do
+      if ← isTailCall (.let decl k) then
+        emitVarDecls k
+      else
+        emitLn s!"  var {zigIdent decl.fvarId.name}: {decl.type.toZigType} = undefined;"
+        emitLn s!"  _ = &{zigIdent decl.fvarId.name};"
+        emitVarDecls k
   | .jp decl k => do
       for p in runtimeParams decl.params do
-        if bodyUsesIdent bodyText (zigIdent p.fvarId.name) then
+        if ← codeUsesFVarRuntime p.fvarId decl.value then
           emitLn s!"  var {zigIdent p.fvarId.name}: {p.type.toZigType} = undefined;"
-      emitVarDecls bodyText decl.value
-      emitVarDecls bodyText k
+          emitLn s!"  _ = &{zigIdent p.fvarId.name};"
+      emitVarDecls decl.value
+      emitVarDecls k
   | .inc _ _ _ _ k
   | .dec _ _ _ _ _ k
   | .del _ k | .setTag _ _ k | .oset _ _ _ k | .uset _ _ _ k
-  | .sset _ _ _ _ _ k => emitVarDecls bodyText k
+  | .sset _ _ _ _ _ k => emitVarDecls k
   | .cases cs =>
       for alt in cs.alts do
-        emitVarDecls bodyText alt.getCode
+        emitVarDecls alt.getCode
   | .jmp .. | .return .. | .unreach .. => pure ()
 
 partial def supportsCodeSubset : Code .impure → EmitM Bool
@@ -676,18 +916,23 @@ partial def supportsCodeSubset : Code .impure → EmitM Bool
       pure ok
   | .jmp .. | .return .. | .unreach .. => pure true
 
-def emitRenderedLet (binder : Name) (type : Expr) (lines : List String) (forceVar := false) : EmitM Unit := do
+def emitRenderedLet (binder : Name) (type : Expr) (lines : List String) (forceVar := false)
+    (declare := true) : EmitM Unit := do
   let lhs := zigIdent binder
   let assignPrefix := s!"{lhs} = "
   match lines with
   | first :: rest =>
       if first.startsWith assignPrefix then
-        let kw := if forceVar then "var" else "const"
-        emitLn s!"  {kw} {lhs}: {type.toZigType} = {first.drop assignPrefix.length}"
+        if declare then
+          let kw := if forceVar then "var" else "const"
+          emitLn s!"  {kw} {lhs}: {type.toZigType} = {first.drop assignPrefix.length}"
+        else
+          emitLn s!"  {first}"
         for line in rest do
           emitLn s!"  {line}"
       else
-        emitLn s!"  var {lhs}: {type.toZigType} = undefined;"
+        if declare then
+          emitLn s!"  var {lhs}: {type.toZigType} = undefined;"
         for line in lines do
           emitLn s!"  {line}"
   | [] => pure ()
@@ -745,6 +990,8 @@ def emitTailCall (decl : LetDecl .impure) : EmitM Unit := do
       | .erased => false
     unless same do
       emitLn s!"  {tailStateIdent p.fvarId.name} = {zigIdent p.fvarId.name};"
+  if !(← read).joinStates.isEmpty then
+    emitLn s!"  jp_state = {cUIntLit 0};"
   emitLn "  continue;"
 
 partial def emitBasicBlock (code0 : Code .impure) : EmitM Unit := do
@@ -762,10 +1009,14 @@ partial def emitBasicBlock (code0 : Code .impure) : EmitM Unit := do
         else
           match ← renderLetValueLines? decl.fvarId.name decl.type decl.value with
           | some lines =>
-              emitRenderedLet decl.fvarId.name decl.type lines <|
-                match decl.value with | .reset .. | .reuse .. => true | _ => false
+              emitRenderedLet decl.fvarId.name decl.type lines
+                (forceVar := match decl.value with | .reset .. | .reuse .. => true | _ => false)
+                (declare := !(← read).hoistLocals)
               if !codeUsesFVar decl.fvarId k then
-                emitLn s!"  _ = {zigIdent decl.fvarId.name};"
+                if (← read).hoistLocals then
+                  emitLn s!"  _ = &{zigIdent decl.fvarId.name};"
+                else
+                  emitLn s!"  _ = {zigIdent decl.fvarId.name};"
               code := k
           | none =>
               emitLn "  @panic(\"EmitZig let-value emission not implemented yet\");"
@@ -856,13 +1107,18 @@ partial def emitBasicBlock (code0 : Code .impure) : EmitM Unit := do
         let some jpDecl ← findStoredJoinDecl? fvarId | unreachable!
         if args.size != jpDecl.params.size then
           throwError "invalid jump"
-        -- Directly recursive join points cannot be inlined without a loop; leave a
-        -- placeholder so we can identify and fix them later.
-        if codeContainsJmpTo fvarId jpDecl.value then
+        if let some jpState ← findStoredJoinState? fvarId then
+          for h : i in [0:jpDecl.params.size] do
+            let p := jpDecl.params[i]
+            if p.type.isVoid || p.type.isErased then
+              continue
+            let arg := args[i]!
+            emitLn s!"  {zigIdent p.fvarId.name} = {renderImpureArg arg};"
+          emitLn s!"  jp_state = {cUIntLit jpState};"
+          emitLn "  continue;"
+        else if codeContainsJmpTo fvarId jpDecl.value then
           emitLn "  @panic(\"EmitZig recursive join point not implemented yet\");"
         else
-          -- Inline the join point body: assign runtime arguments to its parameters
-          -- and then emit its body.
           for h : i in [0:jpDecl.params.size] do
             let p := jpDecl.params[i]
             if p.type.isVoid || p.type.isErased then
@@ -874,6 +1130,28 @@ partial def emitBasicBlock (code0 : Code .impure) : EmitM Unit := do
     | .unreach _ =>
         emitLn "  unreachable;"
         break
+
+partial def emitJoinPointCases : Code .impure → EmitM Unit
+  | .jp decl k => do
+      let some jpState ← findStoredJoinState? decl.fvarId | unreachable!
+      emitLn s!"      {cUIntLit jpState} => \{"
+      emitBasicBlock decl.value
+      emitLn "      },"
+      emitJoinPointCases decl.value
+      emitJoinPointCases k
+  | .let _ k
+  | .inc _ _ _ _ k
+  | .dec _ _ _ _ _ k
+  | .del _ k
+  | .setTag _ _ k
+  | .oset _ _ _ k
+  | .uset _ _ _ k
+  | .sset _ _ _ _ _ k =>
+      emitJoinPointCases k
+  | .cases cs =>
+      for alt in cs.alts do
+        emitJoinPointCases alt.getCode
+  | .jmp .. | .return .. | .unreach .. => pure ()
 
 
 def emitFileHeader : EmitM Unit := do
@@ -888,14 +1166,37 @@ def emitFileHeader : EmitM Unit := do
     "  m_other: u8,",
     "  m_tag: u8,",
     "};",
+    "const LeanObj = ?*align(1) lean_object;",
+    "const lean_ctor_object = extern struct {",
+    "  m_header: lean_object,",
+    "  m_objs: [0]usize,",
+    "};",
+    "const lean_array_object = extern struct {",
+    "  m_header: lean_object,",
+    "  m_size: usize,",
+    "  m_capacity: usize,",
+    "  m_data: [0]LeanObj,",
+    "};",
+    "const lean_sarray_object = extern struct {",
+    "  m_header: lean_object,",
+    "  m_size: usize,",
+    "  m_capacity: usize,",
+    "  m_data: [0]u8,",
+    "};",
+    "const lean_string_object = extern struct {",
+    "  m_header: lean_object,",
+    "  m_size: usize,",
+    "  m_capacity: usize,",
+    "  m_length: usize,",
+    "  m_data: [0]u8,",
+    "};",
     "const lean_closure_object = extern struct {",
     "  m_header: lean_object,",
     "  m_fun: ?*anyopaque,",
     "  m_arity: u16,",
     "  m_num_fixed: u16,",
-    "  m_objs: [0]?*anyopaque,",
+    "  m_objs: [0]LeanObj,",
     "};",
-    "const LeanObj = ?*align(1) lean_object;",
     "const MainFn = *const fn (c_int, [*c][*c]u8) callconv(.c) LeanObj;",
     ""
   ]
@@ -931,6 +1232,8 @@ def emitFnDecls : EmitM Unit := do
     let env ← getEnv
     if hasInitAttr env decl.name then
       continue
+    if isSimpleGroundDecl env decl.name then
+      continue
     match decl.value with
     | .extern .. => pure ()
     | _ => emitSignature (← toZigSymbolName decl.name) decl.toSignature
@@ -939,6 +1242,9 @@ def emitFnDecls : EmitM Unit := do
 def emitDecl (decl : Decl .impure) : EmitM Unit := do
   let env ← getEnv
   if hasInitAttr env decl.name then
+    return ()
+  if isSimpleGroundDecl env decl.name then
+    emitGroundDecl decl
     return ()
   match decl.value with
   | .extern .. => return ()
@@ -949,44 +1255,73 @@ def emitDecl (decl : Decl .impure) : EmitM Unit := do
       collectCodeTypes code <|
         decl.params.foldl (init := ({} : NameMap Expr)) fun acc p => acc.insert p.fvarId.name p.type
     let joinDecls := collectJoinDecls code
+    let joinOrder := collectJoinDeclOrder code
+    let joinStates : NameMap Nat := Id.run do
+      let mut states := ({} : NameMap Nat)
+      for h : i in [0:joinOrder.size] do
+        let jp := joinOrder[i]
+        states := states.insert jp.fvarId.name (i + 1)
+      return states
     emit s!"fn {defName}("
     emitParamList decl.params
     emitLn (s!") callconv(.c) {decl.type.toZigType} " ++ "{")
-    let readerCtx := fun ctx =>
-      { ctx with currFn := decl.name, currParams := decl.params, fvarTypes, joinDecls }
-    let supported ← withReader readerCtx do
+    let baseReaderCtx := fun ctx =>
+      { ctx with currFn := decl.name, currParams := decl.params, fvarTypes, joinDecls, joinStates }
+    let supported ← withReader baseReaderCtx do
       supportsCodeSubset code
-    let tailRec ← withReader readerCtx do containsTailCall code
-    let hasJmp ← withReader readerCtx do containsJmp code
-    let bodyText ← withReader readerCtx do
-      captureOutput (emitBasicBlock code)
+    let tailRec ← withReader baseReaderCtx do containsTailCall code
+    let hasJmp ← withReader baseReaderCtx do containsJmp code
+    let readerCtx := fun ctx => { (baseReaderCtx ctx) with hoistLocals := hasJmp }
     let params := runtimeParams decl.params
     if supported then
       withReader readerCtx do
         for p in params do
           let mutated := tailRec && tailCallMutatesParam decl.name decl.params p.fvarId code
-          let used := bodyUsesIdent bodyText (zigIdent p.fvarId.name) ||
-            (tailRec && bodyUsesIdent bodyText (tailStateIdent p.fvarId.name))
+          let used := (← codeUsesFVarRuntime p.fvarId code) || mutated
           if used then
             let name := if tailRec then tailStateIdent p.fvarId.name else zigIdent p.fvarId.name
             let bindingKw := if tailRec && mutated then "var" else "const"
             emitLn s!"  {bindingKw} {name}: {p.type.toZigType} = {zigParamIdent p.fvarId.name};"
           else
             emitLn s!"  _ = {zigParamIdent p.fvarId.name};"
-        emitVarDecls bodyText code
-        if !params.isEmpty then
+        if hasJmp then
+          emitVarDecls code
+        if hasJmp then
+          emitLn s!"  var jp_state: c_uint = {cUIntLit 0};"
+        if !params.isEmpty || hasJmp then
           emitLn ""
-        let needsLoop := tailRec || (hasJmp && params.any (fun p => bodyUsesIdent bodyText (tailStateIdent p.fvarId.name)))
-        if needsLoop then
+        if hasJmp then
           emitLn "  while (true) {"
-          for p in params do
-            let used := bodyUsesIdent bodyText (zigIdent p.fvarId.name) ||
-              bodyUsesIdent bodyText (tailStateIdent p.fvarId.name)
-            if used then
+          if tailRec then
+            let usedParams ← params.filterM fun p => do
+              let mutated := tailCallMutatesParam decl.name decl.params p.fvarId code
+              let used ← codeUsesFVarRuntime p.fvarId code
+              pure (used || mutated)
+            for p in usedParams do
               let mutated := tailCallMutatesParam decl.name decl.params p.fvarId code
               let bindingKw := if mutated then "var" else "const"
               emitLn s!"  {bindingKw} {zigIdent p.fvarId.name}: {p.type.toZigType} = {tailStateIdent p.fvarId.name};"
-          if !params.isEmpty then
+            if !usedParams.isEmpty then
+              emitLn ""
+          emitLn "    switch (jp_state) {"
+          emitLn s!"      {cUIntLit 0} => \{"
+          emitBasicBlock code
+          emitLn "      },"
+          emitJoinPointCases code
+          emitLn "      else => unreachable,"
+          emitLn "    }"
+          emitLn "  }"
+        else if tailRec then
+          emitLn "  while (true) {"
+          let usedParams ← params.filterM fun p => do
+            let mutated := tailCallMutatesParam decl.name decl.params p.fvarId code
+            let used ← codeUsesFVarRuntime p.fvarId code
+            pure (used || mutated)
+          for p in usedParams do
+            let mutated := tailCallMutatesParam decl.name decl.params p.fvarId code
+            let bindingKw := if mutated then "var" else "const"
+            emitLn s!"  {bindingKw} {zigIdent p.fvarId.name}: {p.type.toZigType} = {tailStateIdent p.fvarId.name};"
+          if !usedParams.isEmpty then
             emitLn ""
           emitBasicBlock code
           emitLn "  }"

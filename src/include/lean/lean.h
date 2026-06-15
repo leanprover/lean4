@@ -1128,6 +1128,90 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
     return lean_byte_array_uset(a, lean_unbox(i), b);
 }
 
+/* Wide fixed-width unsigned-integer load/store on ByteArray.
+
+   `i` is a *byte* offset into the array. The byte-shift assembly below is
+   endian-correct on any host (it constructs the little-/big-endian value from
+   individual bytes, independent of the machine's byte order), and optimizing
+   compilers can lower it to a wide (possibly unaligned) load or store. The
+   `uget`/`fget`/`uset`/`fset` variants assume the caller has checked
+   that the whole `W/8`-byte window `[i, i + W/8)` is in bounds (matching
+   `lean_byte_array_uget`); the `get`/`set` variants perform an all-or-nothing
+   bounds check (overflow-safe) and default to `0` / leave the array unchanged
+   when the window does not fit. */
+
+#define LEAN_BYTE_ARRAY_DEFINE_UINT(W, T)                                                          \
+static inline T lean_byte_array_uget_uint##W##le(b_lean_obj_arg a, size_t i) {                      \
+    assert(lean_sarray_size(a) >= (W)/8 && i <= lean_sarray_size(a) - (W)/8);                       \
+    const uint8_t * p = lean_sarray_cptr(a) + i;                                                   \
+    T r = 0;                                                                                        \
+    for (unsigned k = 0; k < (W)/8; k++) r |= (T)p[k] << (8u*k);                                    \
+    return r;                                                                                       \
+}                                                                                                  \
+static inline T lean_byte_array_uget_uint##W##be(b_lean_obj_arg a, size_t i) {                      \
+    assert(lean_sarray_size(a) >= (W)/8 && i <= lean_sarray_size(a) - (W)/8);                       \
+    const uint8_t * p = lean_sarray_cptr(a) + i;                                                   \
+    T r = 0;                                                                                        \
+    for (unsigned k = 0; k < (W)/8; k++) r = (T)(r << 8) | (T)p[k];                                 \
+    return r;                                                                                       \
+}                                                                                                  \
+static inline T lean_byte_array_fget_uint##W##le(b_lean_obj_arg a, b_lean_obj_arg i) {              \
+    return lean_byte_array_uget_uint##W##le(a, lean_unbox(i));                                      \
+}                                                                                                  \
+static inline T lean_byte_array_fget_uint##W##be(b_lean_obj_arg a, b_lean_obj_arg i) {              \
+    return lean_byte_array_uget_uint##W##be(a, lean_unbox(i));                                      \
+}                                                                                                  \
+static inline T lean_byte_array_get_uint##W##le(b_lean_obj_arg a, b_lean_obj_arg i) {               \
+    if (!lean_is_scalar(i)) return 0;                                                               \
+    size_t idx = lean_unbox(i), sz = lean_sarray_size(a);                                           \
+    if (sz < (W)/8 || idx > sz - (W)/8) return 0;                                                   \
+    return lean_byte_array_uget_uint##W##le(a, idx);                                                \
+}                                                                                                  \
+static inline T lean_byte_array_get_uint##W##be(b_lean_obj_arg a, b_lean_obj_arg i) {               \
+    if (!lean_is_scalar(i)) return 0;                                                               \
+    size_t idx = lean_unbox(i), sz = lean_sarray_size(a);                                           \
+    if (sz < (W)/8 || idx > sz - (W)/8) return 0;                                                   \
+    return lean_byte_array_uget_uint##W##be(a, idx);                                                \
+}                                                                                                  \
+static inline lean_object * lean_byte_array_uset_uint##W##le(lean_obj_arg a, size_t i, T v) {       \
+    assert(lean_sarray_size(a) >= (W)/8 && i <= lean_sarray_size(a) - (W)/8);                       \
+    lean_obj_res r = lean_is_exclusive(a) ? a : lean_copy_byte_array(a);                            \
+    uint8_t * p = lean_sarray_cptr(r) + i;                                                          \
+    for (unsigned k = 0; k < (W)/8; k++) p[k] = (uint8_t)(v >> (8u*k));                             \
+    return r;                                                                                       \
+}                                                                                                  \
+static inline lean_object * lean_byte_array_uset_uint##W##be(lean_obj_arg a, size_t i, T v) {       \
+    assert(lean_sarray_size(a) >= (W)/8 && i <= lean_sarray_size(a) - (W)/8);                       \
+    lean_obj_res r = lean_is_exclusive(a) ? a : lean_copy_byte_array(a);                            \
+    uint8_t * p = lean_sarray_cptr(r) + i;                                                          \
+    for (unsigned k = 0; k < (W)/8; k++) p[k] = (uint8_t)(v >> (8u*((W)/8 - 1u - k)));              \
+    return r;                                                                                       \
+}                                                                                                  \
+static inline lean_object * lean_byte_array_fset_uint##W##le(lean_obj_arg a, b_lean_obj_arg i, T v) {\
+    return lean_byte_array_uset_uint##W##le(a, lean_unbox(i), v);                                   \
+}                                                                                                  \
+static inline lean_object * lean_byte_array_fset_uint##W##be(lean_obj_arg a, b_lean_obj_arg i, T v) {\
+    return lean_byte_array_uset_uint##W##be(a, lean_unbox(i), v);                                   \
+}                                                                                                  \
+static inline lean_object * lean_byte_array_set_uint##W##le(lean_obj_arg a, b_lean_obj_arg i, T v) { \
+    if (!lean_is_scalar(i)) return a;                                                               \
+    size_t idx = lean_unbox(i), sz = lean_sarray_size(a);                                           \
+    if (sz < (W)/8 || idx > sz - (W)/8) return a;                                                   \
+    return lean_byte_array_uset_uint##W##le(a, idx, v);                                             \
+}                                                                                                  \
+static inline lean_object * lean_byte_array_set_uint##W##be(lean_obj_arg a, b_lean_obj_arg i, T v) { \
+    if (!lean_is_scalar(i)) return a;                                                               \
+    size_t idx = lean_unbox(i), sz = lean_sarray_size(a);                                           \
+    if (sz < (W)/8 || idx > sz - (W)/8) return a;                                                   \
+    return lean_byte_array_uset_uint##W##be(a, idx, v);                                             \
+}
+
+LEAN_BYTE_ARRAY_DEFINE_UINT(16, uint16_t)
+LEAN_BYTE_ARRAY_DEFINE_UINT(32, uint32_t)
+LEAN_BYTE_ARRAY_DEFINE_UINT(64, uint64_t)
+
+#undef LEAN_BYTE_ARRAY_DEFINE_UINT
+
 /* FloatArray (special case of Array of Scalars) */
 
 LEAN_EXPORT lean_obj_res lean_float_array_mk(lean_obj_arg a);

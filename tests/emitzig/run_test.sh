@@ -23,15 +23,16 @@ fi
 
 # End-to-end executable smoke test.
 if [[ "${LEAN_ZIG_EXE:-0}" == "1" ]] && command -v zig &>/dev/null; then
-  ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-  LEANC="${LEANC:-$ROOT/build/release/stage1/bin/leanc}"
+  ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+  BUILD_DIR="${BUILD_DIR:-$ROOT/build/release/stage1}"
+  LEANC="${LEANC:-$BUILD_DIR/bin/leanc}"
   if [[ -x "$LEANC" ]]; then
     EXE="$TEST_DIR/$BASENAME"
     if [[ "${LEAN_ZIG_ZIGRT:-0}" == "1" ]]; then
       if [[ "$BASENAME" == "StdlibString" ]]; then
-        "$ROOT/tools/zigc-stdlib" "$TEST" "$EXE" --module Init.Data.String.Basic
+        BUILD_DIR="$BUILD_DIR" "$ROOT/tools/zigc-stdlib" "$TEST" "$EXE" --lean "$LEAN" --build-dir "$BUILD_DIR" --module Init.Data.String.Basic
       else
-        "$ROOT/tools/zigc-zigrt" "$OUT" "$EXE"
+        BUILD_DIR="$BUILD_DIR" "$ROOT/tools/zigc-zigrt" "$OUT" "$EXE"
       fi
     else
       "$ROOT/tools/zigc" "$OUT" "$EXE"

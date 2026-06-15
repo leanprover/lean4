@@ -295,6 +295,40 @@ add_test_pile(
 add_test_pile(elab_bench *.lean BENCH PART2)
 add_test_pile(elab_fail *.lean)
 add_test_pile(emitzig *.lean)
+
+if(LEAN_ZIG_RUNTIME)
+  find_program(ZIG zig REQUIRED)
+  add_test(
+    NAME runtime/zig
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/runtime/zig"
+    COMMAND
+      "${ZIG}" build test --test-timeout 60s
+      --prefix "${MANGLED_BINARY_DIR}/runtime/zig/zig-out"
+      --cache-dir "${MANGLED_BINARY_DIR}/runtime/zig/.zig-cache"
+      --global-cache-dir "${MANGLED_BINARY_DIR}/runtime/zig/.zig-global-cache"
+  )
+  add_test(
+    NAME emitzig/zigrt/Smoke.lean
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/emitzig"
+    COMMAND
+      "${CMAKE_COMMAND}" -E env
+      LEAN_ZIG_EXE=1
+      LEAN_ZIG_ZIGRT=1
+      BUILD_DIR=${MANGLED_BINARY_DIR}
+      LEANC=${MANGLED_BINARY_DIR}/bin/leanc
+      bash "${WITH_TEST_ENV}" "${CMAKE_CURRENT_SOURCE_DIR}/emitzig/run_test.sh" Smoke.lean
+  )
+  set_tests_properties(emitzig/zigrt/Smoke.lean PROPERTIES RUN_SERIAL TRUE)
+  add_test(
+    NAME emitzig/zig-symbols
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/.."
+    COMMAND
+      "${CMAKE_COMMAND}" -E env
+      BUILD_DIR=${MANGLED_BINARY_DIR}
+      LEAN=${MANGLED_BINARY_DIR}/bin/lean
+      bash "${CMAKE_SOURCE_DIR}/../tools/check-zig-symbols.sh"
+  )
+endif()
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
 add_test_pile(server *.lean)

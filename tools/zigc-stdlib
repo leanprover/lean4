@@ -17,6 +17,7 @@ Usage:
 
 import argparse
 import json
+import os
 import pathlib
 import re
 import shutil
@@ -161,11 +162,17 @@ def extract_duplicate_symbol_objs(stderr: str) -> list[str]:
     return objs
 
 
-def link(zig: pathlib.Path, objs: list[pathlib.Path], zigrt_lib: pathlib.Path, output: str) -> subprocess.CompletedProcess:
+def link(
+    zig: pathlib.Path,
+    objs: list[pathlib.Path],
+    zigrt_lib: pathlib.Path,
+    output: str,
+    include_dir: pathlib.Path,
+) -> subprocess.CompletedProcess:
     cmd = [
         str(zig), "build-exe", "-O", "Debug",
     ] + [str(o) for o in objs] + [
-        "-I", str(ROOT / "build" / "release" / "stage1" / "include"),
+        "-I", str(include_dir),
         str(zigrt_lib),
         "-lgmp", "-luv", "-lpthread",
     ]
@@ -291,10 +298,15 @@ def main() -> int:
     parser.add_argument("output", help="Output executable name")
     parser.add_argument(
         "--lean",
-        default=str(ROOT / "build" / "release" / "stage1" / "bin" / "lean"),
-        help="Path to the lean executable",
+        default=None,
+        help="Path to the lean executable (default: BUILD_DIR/bin/lean)",
     )
     parser.add_argument("--zig", default="zig", help="Path to the zig executable")
+    parser.add_argument(
+        "--build-dir",
+        default=os.environ.get("BUILD_DIR", str(ROOT / "build" / "release" / "stage1")),
+        help="Active Lean stage build directory",
+    )
     parser.add_argument(
         "--lean-src-root",
         default=str(ROOT / "src"),
@@ -329,17 +341,18 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    lean = pathlib.Path(args.lean)
+    build_dir = pathlib.Path(args.build_dir).resolve()
+    lean = pathlib.Path(args.lean).resolve() if args.lean is not None else build_dir / "bin" / "lean"
     zig = pathlib.Path(args.zig)
     driver = pathlib.Path(args.driver).resolve()
     src_root = pathlib.Path(args.lean_src_root).resolve()
     cache_dir = pathlib.Path(args.cache_dir).resolve()
-    zigrt_lib = ROOT / "build" / "release" / "stage1" / "runtime" / "zig" / "zig-out" / "lib" / "libleanrt_zig.a"
+    zigrt_lib = build_dir / "runtime" / "zig" / "zig-out" / "lib" / "libleanrt_zig.a"
 
     if not zigrt_lib.exists():
         print(
             f"zigc-stdlib: {zigrt_lib} not found; run "
-            f"'make -C build/release/stage1/runtime/zig leanrt_zig'",
+            f"'make -C {build_dir} leanrt_zig'",
             file=sys.stderr,
         )
         return 1
@@ -413,7 +426,7 @@ def main() -> int:
         objs = filter_conflicting_objs(objs, zigrt_lib, work)
         for iteration in range(args.max_stub_iterations):
             print(f"linking (attempt {iteration + 1})...")
-            result = link(zig, objs, zigrt_lib, args.output)
+            result = link(zig, objs, zigrt_lib, args.output, build_dir / "include")
             if result.returncode == 0:
                 print(f"linked {args.output}")
                 return 0

@@ -8,13 +8,14 @@ set -euo pipefail
 # Requires libgmp and libuv to be discoverable by zig build-exe.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BUILD_DIR="${BUILD_DIR:-$ROOT/build/release/stage1}"
 
 INPUT="$1"
 OUTPUT="${2:-$(basename "$INPUT" .zig)}"
 
-ZIGRT_LIB="$ROOT/build/release/stage1/runtime/zig/zig-out/lib/libleanrt_zig.a"
+ZIGRT_LIB="$BUILD_DIR/runtime/zig/zig-out/lib/libleanrt_zig.a"
 if [[ ! -f "$ZIGRT_LIB" ]]; then
-  echo "zigc-zigrt: $ZIGRT_LIB not found; run 'make -C build/release/stage1/runtime/zig leanrt_zig'" >&2
+  echo "zigc-zigrt: $ZIGRT_LIB not found; run 'make -C \"$BUILD_DIR\" leanrt_zig'" >&2
   exit 1
 fi
 
@@ -24,7 +25,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 zig build-exe "$INPUT" -O Debug \
-  -I "$ROOT/build/release/stage1/include" \
+  -I "$BUILD_DIR/include" \
   "$ZIGRT_LIB" \
   -lgmp -luv -lpthread \
   "${EXTRA_FLAGS[@]}" \

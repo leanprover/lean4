@@ -7,6 +7,7 @@ if(NOT CMAKE_GENERATOR MATCHES "Makefiles")
 endif()
 
 option(USE_MIMALLOC "use mimalloc" ON)
+option(LEAN_ZIG_RUNTIME "Build and test the experimental Lean Zig runtime" OFF)
 
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
@@ -28,7 +29,7 @@ foreach(var ${vars})
     elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
-  elseif(var MATCHES "USE_MIMALLOC")
+  elseif(var MATCHES "USE_MIMALLOC|LEAN_ZIG_RUNTIME")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
     list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
   elseif((var MATCHES "CMAKE_.*") AND NOT (var MATCHES "CMAKE_BUILD_TYPE") AND NOT (var MATCHES "CMAKE_HOME_DIRECTORY"))

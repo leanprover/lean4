@@ -66,35 +66,24 @@ public def reduceEPostHead? (goal : MVarId) (target α inst pre rhs : Expr) :
 
 /--
 Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`) on the RHS of `pre ⊑ rhs` by
-applying the corresponding cached logic rule. Returns `none` if the RHS head is not a supported
-connective.
+applying its cached split rule, looked up from `latticeSplits` by head constant. Returns `none` if
+the head is not a supported connective or its rule does not apply.
 
-An embedded proposition `⌜p⌝` is only decomposed when the precondition is `⊤`: turning
-`pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`, which can make the goal unprovable otherwise.
+An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed split
+rule fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
 -/
-public def solveLatticeConnective? (goal : MVarId) (target rhs : Expr) :
+public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (List MVarId)) :=
   rhs.withApp fun head args => do
-    let applyLattice (c : LatticeSplit) (as excessArgs : Array Expr)
-        (resultType? : Option Expr := none) : VCGenM (List MVarId) := do
-      let rule ← mkBackwardRuleForLatticeCached c as excessArgs resultType?
-      let .goals goals ← rule.applyChecked goal
-        | throwError "Failed to apply lattice rule at {indentExpr target}"
-      return goals
-    match_expr head with
-    | meet =>
-      return some (← applyLattice .meet (args.extract 2 4) (args.drop 4))
-    | himp =>
-      return some (← applyLattice .himp (args.extract 2 4) (args.drop 4))
-    | CompleteLattice.ofProp =>
-      let preIsTop := match target.app4? ``Lean.Order.PartialOrder.rel with
-        | some (_, _, pre, _) => pre.isAppOf ``Lean.Order.top && pre.getAppNumArgs == 2
-        | none => false
-      unless preIsTop do return none
-      return some (← applyLattice .ofProp (args.extract 2 3) (args.drop 3) args[0]!)
-    | top =>
-      return some (← applyLattice .top #[] (args.drop 2) args[0]!)
-    | _ => return none
+    let some headName := head.constName? | return none
+    let some c := latticeSplits[headName]? | return none
+    let as := args.extract 2 (2 + c.numOperands)
+    let excessArgs := args.drop (2 + c.numOperands)
+    let resultType? := if c.needApplyArgs then none else args[0]?
+    let rule ← mkBackwardRuleForLatticeCached c as excessArgs resultType?
+    match ← rule.applyChecked goal with
+    | .goals goals => return some goals
+    | .failed => return none
 
 /-- Reduce a `Prop`-lattice goal `(⊤ : Prop) ⊑ φ` to the bare proposition `φ` via `top_le_prop`,
 returning any other goal unchanged. The match on `Sort 0` keeps it to the `Prop` base lattice,

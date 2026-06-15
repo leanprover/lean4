@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Graf
+Authors: Sebastian Graf, Vladimir Gladshtein
 -/
 module
 
@@ -59,6 +59,9 @@ public structure LatticeSplit where
   so each operand `a` becomes `a s`. For `⌜·⌝`/`⊤` the operand is reused unchanged
   (`(⌜p⌝ : σ→β) s = (⌜p⌝ : β)`, `(⊤ : σ→β) s = (⊤ : β)`), so it must not be applied to `s`. -/
   needApplyArgs : Bool
+  /-- The number of explicit lattice operands the connective takes after its carrier type and
+  instance: `2` for `⊓`/`⇨`, `1` for `⌜·⌝`, `0` for `⊤`. -/
+  numOperands : Nat
 
 /-- The lattice meet `⊓`. -/
 public def LatticeSplit.meet : LatticeSplit where
@@ -66,6 +69,7 @@ public def LatticeSplit.meet : LatticeSplit where
   applyLemma := ``meet_apply
   relLemma := ``le_meet           -- le_meet (x y z) : x ⊑ y → x ⊑ z → x ⊑ y ⊓ z
   needApplyArgs := true
+  numOperands := 2
 
 /-- The Heyting implication `⇨`. -/
 public def LatticeSplit.himp : LatticeSplit where
@@ -73,14 +77,17 @@ public def LatticeSplit.himp : LatticeSplit where
   applyLemma := ``himp_apply
   relLemma := ``himp_complete     -- himp_complete (x a b) : a ⊓ x ⊑ b → x ⊑ a ⇨ b
   needApplyArgs := true
+  numOperands := 2
 
-/-- The pure assertion embedding `⌜·⌝`. Only built when the precondition is `⊤`. -/
+/-- The pure assertion embedding `⌜·⌝`. The `⊤`-fixed split lemma makes the rule apply only when the
+precondition is `⊤`, where turning `pre ⊑ ⌜p⌝` into the subgoal `p` is sound. -/
 public def LatticeSplit.ofProp : LatticeSplit where
   mkLattice as resultType? :=
     mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[resultType?, none, some as[0]!]
   applyLemma := ``Lean.Order.CompleteLattice.ofProp_apply
-  relLemma := ``Lean.Order.le_ofProp -- le_ofProp (x p) : p → x ⊑ ⌜p⌝
+  relLemma := ``Lean.Order.top_le_ofProp -- top_le_ofProp (p) : p → ⊤ ⊑ ⌜p⌝
   needApplyArgs := false
+  numOperands := 1
 
 /-- The lattice top `⊤`. Has no operands; `le_top` has no premise, so the rule closes the goal. -/
 public def LatticeSplit.top : LatticeSplit where
@@ -88,6 +95,15 @@ public def LatticeSplit.top : LatticeSplit where
   applyLemma := ``Lean.Order.top_apply
   relLemma := ``le_top            -- le_top (x) : x ⊑ ⊤  (no premise ⇒ closes the goal)
   needApplyArgs := false
+  numOperands := 0
+
+/-- The lattice connectives VCGen decomposes on the RHS of an entailment, keyed by head constant. -/
+public def latticeSplits : Std.HashMap Name LatticeSplit :=
+  .ofList [
+    (``meet, .meet),
+    (``himp, .himp),
+    (``Lean.Order.CompleteLattice.ofProp, .ofProp),
+    (``Lean.Order.top, .top)]
 
 /-- Lift an equality `lhs = rhs` to `(lhs args...) = (rhs args...)`. -/
 private def liftEqByArgs (eqPrf : Expr) (args : List Expr) : MetaM Expr := do
@@ -177,7 +193,7 @@ public def LatticeSplit.mkBackwardRule
   -- eqMp : (pre ⊑ distributed) → (pre ⊑ goal)
   let eqMp ← mkAppM ``Eq.mp #[relEqSymm]
 
-  -- Instantiate the split lemma (le_meet / himp_complete / le_ofProp / le_top) via telescope
+  -- Instantiate the split lemma (le_meet / himp_complete / top_le_ofProp / le_top) via telescope
   let splitLemma ← mkConstWithFreshMVarLevels c.relLemma
   let (xs, _, body) ← forallMetaTelescope (← Meta.inferType splitLemma)
   -- Unify conclusion with eqMp's domain to assign param mvars

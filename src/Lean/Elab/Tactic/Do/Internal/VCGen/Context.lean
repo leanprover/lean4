@@ -14,8 +14,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
-open Std.Do
+open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.Internal.SpecAttr
 
 namespace Lean.Elab.Tactic.Do.Internal
 
@@ -45,48 +44,69 @@ public def UntilPatternThunk.force (ref : IO.Ref UntilPatternThunk) (m : Expr) :
     ref.set (.elaborated pat)
     return pat
 
+/--
+Common metadata for a goal whose right-hand side is a weakest-precondition application
+`pre ⊑ wp m Pred EPred monadInst instAL instEAL instWP α prog post epost s₁ ... sₙ`.
+-/
+public structure VCGen.WPInfo where
+  /-- The `wp` function head, separated from its explicit core arguments. -/
+  head : Expr
+  /-- The ordered core arguments of the `wp` application:
+  `#[m, Pred, EPred, monadInst, instAL, instEAL, instWP, α, prog, post, epost]`. -/
+  args : Array Expr
+  /-- Extra arguments applied after `wp … prog post epost`, usually concrete state arguments. -/
+  excessArgs : Array Expr
+
+namespace VCGen.WPInfo
+
+/-- Monad type constructor argument of `wp`. -/
+public def m (info : WPInfo) : Expr := info.args[0]!
+/-- Predicate/lattice type argument of `wp`. -/
+public def Pred (info : WPInfo) : Expr := info.args[1]!
+/-- Exception postcondition type argument of `wp`. -/
+public def EPred (info : WPInfo) : Expr := info.args[2]!
+/-- `WPMonad` instance argument of `wp`. -/
+public def instWP (info : WPInfo) : Expr := info.args[6]!
+/-- Program expression classified by VCGen. -/
+public def prog (info : WPInfo) : Expr := info.args[8]!
+
+end VCGen.WPInfo
+
+/-- Pre-built backward rules for the introduction steps of `solve`. -/
+public structure VCGen.IntroRules where
+  /-- The backward rule for `Triple.intro`. Unfolds `⦃P⦄ x ⦃Q; E⦄` into `P ⊑ wp x Q E`. -/
+  tripleIntro : BackwardRule
+  /-- The backward rule for `Lean.Order.le_of_forall_le`. Peels one excess state argument
+  from a function-lattice entailment. -/
+  stateArgIntro : BackwardRule
+  /-- The backward rule for `Lean.Order.top_le_of_forall_top_le`. Peels one excess state
+  argument when the precondition is `⊤`. -/
+  topStateArgIntro : BackwardRule
+  /-- The backward rule for `Lean.Order.le_of_imp_top_le`. Introduces a bare pure
+  precondition on the `Prop` lattice. -/
+  propPreIntro : BackwardRule
+  /-- The backward rule for `Lean.Order.ofProp_le`. Introduces an embedded pure
+  precondition `⌜p⌝` on any complete lattice. -/
+  ofPropPreIntro : BackwardRule
+  /-- The backward rule for `Lean.Order.true_le_of_top_le`. Replaces a `True` precondition
+  with `⊤` on the `Prop` lattice. -/
+  truePreIntro : BackwardRule
+
 public structure VCGen.Context where
-  /-- The backward rule for `SPred.entails_cons_intro`. -/
-  entailsConsIntroRule : BackwardRule
-  /-- The backward rule for `SPred.entails_nil_pure_intro`. Preferred over `entails_nil_intro`
-  when the LHS is `⌜φ⌝`, as it unwraps `.down` on the pure assertion. -/
-  entailsNilPureIntroRule : BackwardRule
-  /-- The backward rule for `SPred.entails_nil_intro`. Fallback when LHS is not `⌜φ⌝`. -/
-  entailsNilIntroRule : BackwardRule
-  /-- The backward rule for `SPred.apply_pure_cons_entails_l`. Peels a state arg from
-  `SPred.pure (σ::σs) φ s` on the LHS of an entailment. -/
-  applyPureConsEntailsLRule : BackwardRule
-  /-- The backward rule for `SPred.apply_pure_cons_entails_r`. Peels a state arg from
-  `SPred.pure (σ::σs) φ s` on the RHS of an entailment. -/
-  applyPureConsEntailsRRule : BackwardRule
-  /-- The backward rule for `SPred.down_pure_intro`. Reduces a target of the form
-  `(SPred.pure [] φ).down` to `φ`. -/
-  downPureIntroRule : BackwardRule
-  /-- The backward rule for `SPred.pure_elim'`. -/
-  pureElimRule : BackwardRule
-  /-- The backward rule for `SPred.pure_intro`. -/
-  pureIntroRule : BackwardRule
-  /-- The backward rule for `PostCond.entails.rfl`. Tried first to close by reflexivity. -/
-  postCondEntailsRflRule : BackwardRule
-  /-- The backward rule for `PostCond.entails.mk`. -/
-  postCondEntailsMkRule : BackwardRule
-  /-- The backward rule for `ExceptConds.entails.rfl`. -/
-  exceptCondsEntailsRflRule : BackwardRule
-  /-- The backward rule for `ExceptConds.entails.pure`. Closes the exception side for
-  pure PostShapes, where `ExceptConds.entails` reduces to `True`. -/
-  exceptCondsEntailsPureRule : BackwardRule
-  /-- The backward rule for `ExceptConds.entails_false`. -/
-  exceptCondsEntailsFalseRule : BackwardRule
-  /-- The backward rule for `ExceptConds.entails_true`. -/
-  exceptCondsEntailsTrueRule : BackwardRule
-  /-- The backward rule for `Triple.of_entails_wp`. -/
-  tripleOfEntailsWPRule : BackwardRule
+  /-- Pre-built backward rules for the introduction steps of `solve`. -/
+  introRules : VCGen.IntroRules
+  /-- The backward rule for `Lean.Order.top_le_prop`. Strips a `(⊤ : Prop) ⊑ ·` wrapper
+  from a VC before it is emitted. -/
+  elimPreRule : BackwardRule
   /-- The backward rule for `And.intro`. -/
   andIntroRule : BackwardRule
+  /-- The backward rule for `Lean.Order.PartialOrder.rel_refl`. Closes a reflexive
+  entailment `pre ⊑ pre`. -/
+  reflRule : BackwardRule
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
-  `repeatAndRfl` to collapse trivial `And.intro` chains; when `false`, the goal is
+  `solveTrivialConjuncts` to collapse trivial `And.intro` chains; when `false`, the goal is
   emitted as-is. -/
   trivial : Bool := true
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
@@ -119,9 +139,12 @@ public structure VCGen.Context where
 
 public structure VCGen.Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
-  specs : SpecTheoremsNew
+  specs : SpecTheorems
   /-- `__do_jp` fvars currently in scope. -/
   jps : FVarIdMap JumpSiteInfo := {}
+  /-- The most recently lifted pure precondition. `tryLiftedHyp` closes handoff VCs against
+  it without walking the local context. -/
+  lastLiftedPre? : Option FVarId := none
   /-- Index of the next local declaration to consider for local specs. -/
   nextDeclIdx : Nat := 0
   deriving Inhabited
@@ -129,8 +152,8 @@ public structure VCGen.Scope where
 public structure VCGen.State where
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
-  The particular rule depends on the theorem name, the monad and the number of excess state
-  arguments that the weakest precondition target is applied to.
+  The particular rule depends on the theorem name, the `WPMonad` instance and the number of
+  excess state arguments that the weakest precondition target is applied to.
   -/
   specBackwardRuleCache : Std.HashMap (Name × Expr × Nat) BackwardRule := {}
   /--
@@ -139,6 +162,13 @@ public structure VCGen.State where
   arguments that the weakest precondition target is applied to.
   -/
   splitBackwardRuleCache : Std.HashMap (Name × Expr × Nat) BackwardRule := {}
+  /--
+  A cache mapping logic rules to their backward rule to apply.
+  The particular rule depends on the rule name, the monad, the number of excess state
+  arguments that the weakest precondition target is applied to, and whether the precondition
+  is `⊤` (which selects a `⊤`-specialized split lemma).
+  -/
+  logicBackwardRuleCache : Std.HashMap (Name × Array Expr × Nat × Bool) BackwardRule := {}
   /--
   Holes of type `Invariant` that have been generated so far.
   -/
@@ -178,8 +208,8 @@ public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Sc
 public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JumpSiteInfo :=
   s.jps.get? fv
 
-public def Scope.insertSpec (s : Scope) (thm : SpecTheoremNew) : Scope :=
-  { s with specs := { s.specs with specs := Sym.insertPattern s.specs.specs thm.pattern thm } }
+public def Scope.insertSpec (s : Scope) (thm : SpecTheorem) : Scope :=
+  { s with specs := s.specs.insert thm }
 
 /-- Walk `goal`'s local context from `scope.nextDeclIdx` onward, registering any
 spec-shaped hypotheses as local specs. Advances `nextDeclIdx` to the current
@@ -191,7 +221,7 @@ public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scop
     let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
       if decl.isAuxDecl then return scope
       try
-        if let some thm ← mkSpecTheoremNew (.local decl.fvarId) (eval_prio low) then
+        if let some thm ← mkSpecTheoremFromLocal decl.fvarId (eval_prio low) then
           return scope.insertSpec thm
       catch _ => pure ()
       return scope

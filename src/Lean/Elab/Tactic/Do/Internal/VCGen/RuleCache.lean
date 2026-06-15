@@ -10,57 +10,78 @@ public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
+import Lean.Meta.Sym.InferType
 
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do.SpecAttr
+open Lean.Elab.Tactic.Do.Internal.SpecAttr
 open Lean.Elab.Tactic.Do.Internal
-open Std.Do
 
 /-!
 `VCGenM`-level cache wrappers around the `SymM` rule constructors in
-`VCGen.RuleConstruction`. The cache key is `(declName, m, excessArgs.size)`.
+`VCGen.RuleConstruction`.
 -/
 
 namespace Lean.Elab.Tactic.Do.Internal
 
-set_option linter.checkUnivs false in
-@[inline]
-def Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
-    (cache : Std.HashMap α β) (key : α) (fallback : m β) : m (β × Std.HashMap α β) := do
-  if let some b := cache.get? key then
-    return (b, cache)
-  let b ← fallback
-  return (b, cache.insert key b)
-
 namespace VCGen
 
-public def SpecTheoremNew.global? (specThm : SpecTheoremNew) : Option Name :=
-  match specThm.proof with | .global decl => some decl | _ => none
+/--
+Cached version of ordinary and equality spec rule construction.
 
-/-- See the documentation for `mkBackwardRuleFromSpec` and `mkBackwardRuleFromSimpSpec`. -/
-public def mkBackwardRuleFromSpecCached (specThm : SpecTheoremNew) (m σs ps instWP : Expr)
-    (excessArgs : Array Expr) : VCGenM BackwardRule := do
-  let mkRuleSlow := match specThm.kind with
-    | .triple _ => mkBackwardRuleFromSpec     specThm m σs ps instWP excessArgs
-    | .simp _   => mkBackwardRuleFromSimpSpec specThm m σs ps instWP excessArgs
-  let s ← get
-  let some decl := SpecTheoremNew.global? specThm | mkRuleSlow
-  let (res, specBackwardRuleCache) ← s.specBackwardRuleCache.getDM (decl, m, excessArgs.size) mkRuleSlow
-  set { s with specBackwardRuleCache }
-  return res
+Ordinary `Triple`/`⊑ wp` entries are sent to `tryMkBackwardRuleFromSpec`; equality entries are sent
+to `tryMkBackwardRuleFromSimp`. The caller supplies the full `wp` metadata because equality
+specs must check that their equation type is definitionally equal to `m α`.
+
+Cache key: `(proof key, instWP, excessArgs.size)`.
+-/
+public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPInfo) :
+    OptionT VCGenM BackwardRule := do
+  let key := (specThm.proof.key, info.instWP, info.excessArgs.size)
+  let s := (← get).specBackwardRuleCache
+  if let some rule := s[key]? then return rule
+  let some rule ← withNewMCtxDepth <| match specThm.kind with
+      | .triple => tryMkBackwardRuleFromSpec specThm info |>.run
+      | .simp _ => tryMkBackwardRuleFromSimp specThm info |>.run
+    | failure
+  modify fun st => { st with specBackwardRuleCache := st.specBackwardRuleCache.insert key rule }
+  return rule
 
 open Lean.Elab.Tactic.Do in
-/-- Creates and caches a backward rule for splitting `ite`, `dite`, or matchers. -/
-public def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : VCGenM BackwardRule := do
+/--
+Cached version of `mkBackwardRuleForSplit`.
+
+Cache key: `(splitter name, instWP, excessArgs.size)`.
+-/
+public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) :
+    VCGenM BackwardRule := do
   let cacheKey := match splitInfo with
     | .ite .. => ``ite
     | .dite .. => ``dite
     | .matcher matcherApp => matcherApp.matcherName
-  let mkRuleSlow := mkBackwardRuleForSplit splitInfo m σs ps instWP excessArgs
-  let s ← get
-  let (res, splitBackwardRuleCache) ← s.splitBackwardRuleCache.getDM (cacheKey, m, excessArgs.size) mkRuleSlow
-  set { s with splitBackwardRuleCache }
-  return res
+  let key := (cacheKey, info.instWP, info.excessArgs.size)
+  let s := (← get).splitBackwardRuleCache
+  if let some rule := s[key]? then return rule
+  let rule ← mkBackwardRuleForSplit splitInfo info
+  modify fun st =>
+    { st with splitBackwardRuleCache := st.splitBackwardRuleCache.insert key rule }
+  return rule
+
+/--
+Cached version of `LogicOp.mkBackwardRule`.
+
+Cache key: `(logic rule lemma, argument types, excessArgs.size, preIsTop)`. The `preIsTop` flag is
+part of the key because a `⊤` precondition produces a `⊤`-specialized rule whose type differs from
+the general one.
+-/
+public def mkBackwardRuleForLogicCached (lop : LogicOp) (as excessArgs : Array Expr)
+    (resultType? : Option Expr := none) (preIsTop : Bool := false) : VCGenM BackwardRule := do
+  let s := (← get).logicBackwardRuleCache
+  let asTypes ← (as.mapM Sym.inferType : SymM (Array Expr))
+  let key := (lop.toApplyLemma, asTypes, excessArgs.size, preIsTop)
+  if let some rule := s[key]? then return rule
+  let rule ← LogicOp.mkBackwardRule lop as excessArgs resultType? preIsTop
+  modify fun st => { st with logicBackwardRuleCache := st.logicBackwardRuleCache.insert key rule }
+  return rule
 
 end VCGen
 

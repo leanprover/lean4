@@ -8,7 +8,7 @@ import Driver
 
 set_option mvcgen.warning false
 
-open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
+open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do Do.Internal.SpecAttr
 open AddSubCancelSimp
 
 set_option maxRecDepth 10000

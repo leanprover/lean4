@@ -1,8 +1,9 @@
+import Std.Internal.Do
 import Std.Tactic.Do
 
 /-! Tests that `mvcgen'` is usable as a step inside `sym => …` blocks. -/
 
-open Std.Do
+open Std.Internal.Do Lean.Order
 
 set_option mvcgen.warning false
 set_option warn.sorry false
@@ -17,12 +18,12 @@ noncomputable def F : StateM Nat Unit := do
   H
 
 @[spec]
-axiom G_spec : ⦃⌜True⌝⦄ G ⦃⇓ _ n => ⌜n = n⌝⦄
+axiom G_spec : ⦃ (fun (_ : Nat) => True) ⦄ G ⦃ fun _ n => n = n ⦄
 
 @[spec]
-axiom H_spec : ⦃⌜True⌝⦄ H ⦃⇓ _ n => ⌜n = n⌝⦄
+axiom H_spec : ⦃ (fun (_ : Nat) => True) ⦄ H ⦃ fun _ n => n = n ⦄
 
-example : ⦃⌜True⌝⦄ F ⦃⇓ _ n => ⌜n = n⌝⦄ := by
+example : ⦃ (fun (_ : Nat) => True) ⦄ F ⦃ fun _ n => n = n ⦄ := by
   sym =>
     mvcgen' [F]
 
@@ -38,12 +39,12 @@ noncomputable def F2 : StateM Nat Unit := do
 axiom P : Nat → Prop
 
 @[spec]
-axiom G2_spec : ⦃⌜True⌝⦄ G2 ⦃⇓ _ n => ⌜P n⌝⦄
+axiom G2_spec : ⦃ (fun (_ : Nat) => True) ⦄ G2 ⦃ fun _ n => P n ⦄
 
 @[spec]
-axiom H2_spec : ⦃fun n => ⌜P n⌝⦄ H2 ⦃⇓ _ n => ⌜True⌝⦄
+axiom H2_spec : ⦃ (fun n => P n) ⦄ H2 ⦃ fun _ _ => True ⦄
 
-example : ⦃⌜True⌝⦄ F2 ⦃⇓ _ n => ⌜True⌝⦄ := by
+example : ⦃ (fun (_ : Nat) => True) ⦄ F2 ⦃ fun _ _ => True ⦄ := by
   sym =>
     mvcgen' [F2] <;> finish
 
@@ -60,18 +61,18 @@ axiom Q : Nat → Prop
 axiom hPQ : ∀ n, P n → Q n
 
 @[spec]
-axiom G3_spec : ⦃⌜True⌝⦄ G3 ⦃⇓ _ n => ⌜P n⌝⦄
+axiom G3_spec : ⦃ (fun (_ : Nat) => True) ⦄ G3 ⦃ fun _ n => P n ⦄
 
 @[spec]
-axiom H3_spec : ⦃fun n => ⌜Q n⌝⦄ H3 ⦃⇓ _ n => ⌜True⌝⦄
+axiom H3_spec : ⦃ (fun n => Q n) ⦄ H3 ⦃ fun _ _ => True ⦄
 
-example : ⦃⌜True⌝⦄ F3 ⦃⇓ _ n => ⌜True⌝⦄ := by
+example : ⦃ (fun (_ : Nat) => True) ⦄ F3 ⦃ fun _ _ => True ⦄ := by
   sym =>
     mvcgen' [F3]
     finish [hPQ]
 
 -- `sym [hPQ]` propagates to the new VC `Grind.Goal`s; no need to re-pass it.
-example : ⦃⌜True⌝⦄ F3 ⦃⇓ _ n => ⌜True⌝⦄ := by
+example : ⦃ (fun (_ : Nat) => True) ⦄ F3 ⦃ fun _ _ => True ⦄ := by
   sym [hPQ] =>
     mvcgen' [F3]
     finish
@@ -83,7 +84,7 @@ axiom Q4 : Nat → Prop
 axiom hPQ4 : ∀ n, P n → Q4 n
 
 @[spec]
-axiom G4_spec : ⦃⌜True⌝⦄ G4 ⦃⇓ x _ => ⌜P x⌝⦄
+axiom G4_spec : ⦃ (fun (_ : Nat) => True) ⦄ G4 ⦃ fun x _ => P x ⦄
 
 noncomputable def F4 : StateM Nat Nat := do
   let x ← G4
@@ -91,7 +92,7 @@ noncomputable def F4 : StateM Nat Nat := do
 
 -- `mvcgen'` introduces `x` and a hypothesis `P x` into the VC's local context.
 -- The subsequent `finish [hPQ4]` must see `P x` in the E-graph to derive `Q4 x`.
-example : ⦃⌜True⌝⦄ F4 ⦃⇓ r _ => ⌜Q4 r⌝⦄ := by
+example : ⦃ (fun (_ : Nat) => True) ⦄ F4 ⦃ fun r _ => Q4 r ⦄ := by
   sym =>
     mvcgen' [F4]
     finish [hPQ4]
@@ -99,19 +100,19 @@ example : ⦃⌜True⌝⦄ F4 ⦃⇓ r _ => ⌜Q4 r⌝⦄ := by
 /-! ## Inline invariants (bullet form) inside `sym =>` -/
 
 example :
-    ⦃⌜True⌝⦄
+    ⦃ (True : Prop) ⦄
     (do
       let mut x := 0
       for i in [1:5] do
         x := x + i
       pure x : Id Nat)
-    ⦃⇓r => ⌜r < 30⌝⦄ := by
+    ⦃ fun r => r < 30 ⦄ := by
   sym =>
     mvcgen' invariants
-      · ⇓(xs, r) => ⌜r + xs.suffix.length * 5 ≤ 25⌝
+      · fun xs r => r + xs.suffix.length * 5 ≤ 25
     <;> finish
 
-/-! ## `invariants?` (suggest mode) works inside `sym =>` -/
+/-! ## `invariants?` (suggest mode) inside `sym =>` -/
 
 def mySum (l : List Nat) : Nat := Id.run do
   let mut acc := 0
@@ -120,14 +121,12 @@ def mySum (l : List Nat) : Nat := Id.run do
   return acc
 
 /--
-info: Try this:
-  [apply] invariants
-  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = 0 ∨ xs.suffix = [] ∧ letMuts = l.sum⌝
+info: There were no suggestions for missing invariants.
 -/
 #guard_msgs (info) in
 theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by
   generalize h : mySum l = r
-  apply Id.of_wp_run_eq h
+  apply Std.Internal.Do.Id.of_wp_run_eq h
   sym =>
     mvcgen' [mySum] invariants?
     all_goals tactic => admit

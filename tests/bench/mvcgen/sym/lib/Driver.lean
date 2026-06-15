@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Meta
-import Lean.Elab
-import Lean.Meta.Sym.Simp.Theorems
-
+public import Lean
+public import Std.Tactic.Do
+public import Std.Internal.Do
+public import Std.Internal.Do.Triple.SpecLemmas
 open Lean Parser Meta Elab Tactic Sym
 
 def timeItMs (k : MetaM α) : MetaM (α × UInt64) := do

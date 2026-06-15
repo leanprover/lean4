@@ -1,28 +1,28 @@
 import Lean
 import Std.Tactic.Do
+/-!
+Port of `Sym/Cases/DiteSplit` to the new meta theory.
 
-open Lean Meta Elab Tactic Sym Std Do SpecAttr
+Dependent if-then-else (`if h : cond then ...`) inside an `ExceptT String <| StateM Nat`
+program. The add/sub around the guarded `throw` keeps the state unchanged on the success path.
+-/
 
-namespace DiteSplit
+open Lean Meta Order Std.Internal.Do
 
 set_option mvcgen.warning false
 
+namespace DiteSplit
+
 abbrev M := ExceptT String <| StateM Nat
 
-@[spec high]
-theorem Spec.throw_M {e : String} :
-    ⦃Q.2.1 e⦄ throw (m := M) e ⦃Q⦄ := by
-  mvcgen
+@[spec high] theorem spec_throw (e : String) {post : α → Nat → Prop} :
+    ⦃epost e⦄ (throw (m := M) e) ⦃post; epost⦄ := ⟨PartialOrder.rel_refl⟩
 
-@[spec high]
-theorem Spec.set_M {s : Nat} :
-    ⦃fun _ => Q.1 ⟨⟩ s⦄ set (m := M) s ⦃Q⦄ := by
-  mvcgen
+@[spec high] theorem spec_set (x : Nat) {post : PUnit → Nat → Prop} :
+    ⦃fun _ => post ⟨⟩ x⦄ (set (m := M) x) ⦃post⦄ := ⟨PartialOrder.rel_refl⟩
 
-@[spec high]
-theorem Spec.get_M :
-    ⦃fun s => Q.1 s s⦄ get (m := M) ⦃Q⦄ := by
-  mvcgen
+@[spec high] theorem spec_get (post : Nat → Nat → Prop) :
+    ⦃fun s => post s s⦄ (get (m := M)) ⦃post⦄ := ⟨PartialOrder.rel_refl⟩
 
 def step (v : Nat) : M Unit := do
   let s ← get
@@ -37,6 +37,7 @@ def loop (n : Nat) : M Unit := do
   | 0 => pure ()
   | n+1 => step n; loop n
 
-def Goal (n : Nat) : Prop := ⦃fun s => ⌜s = 0⌝⦄ loop n ⦃⇓_ s => ⌜s = 0⌝⦄
+def Goal (n : Nat) : Prop := ⦃fun s => s = 0⦄ loop n ⦃fun _ s => s = 0⦄
+
 
 end DiteSplit

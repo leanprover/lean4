@@ -21,8 +21,7 @@ public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Sym.ProofInstInfo
 
 open Lean Parser Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
-open Std.Do
+open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.Internal.SpecAttr
 
 namespace Lean.Elab.Tactic.Do.Internal
 
@@ -53,7 +52,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
     if arg.getKind == ``simpErase then
       try
         -- Try to interpret as a spec theorem erasure; fall back to simp erasure.
-        let specThm ←
+        let specThm? ←
           if let some fvar ← Term.isLocalIdent? arg[1] then
             mkSpecTheoremFromLocal fvar.fvarId!
           else
@@ -62,6 +61,8 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
               mkSpecTheoremFromConst declName
             else
               withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
+        let some specThm := specThm?
+          | throwError "not a spec theorem"
         specThms := specThms.erase specThm.proof
       catch _ =>
         simpStuff := simpStuff.push ⟨arg⟩ -- simp tracks its own erase stuff
@@ -74,13 +75,15 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
       match ← Term.resolveId? term (withInfo := true) <|> Term.elabCDotFunctionAlias? ⟨term⟩ with
       | some (.const declName _) =>
         try
-          let thm ← mkSpecTheoremFromConst declName
+          let some thm ← mkSpecTheoremFromConst declName
+            | throwError "not a spec theorem"
           specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         try
-          let thm ← mkSpecTheoremFromLocal fvar
+          let some thm ← mkSpecTheoremFromLocal fvar
+            | throwError "not a spec theorem"
           specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
@@ -96,7 +99,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   let stx ← `(tactic| simp +unfoldPartialApp -zeta [$(Syntax.TSepArray.ofElems simpStuff),*])
   let res ← runTacticM (goals := [goal]) <| mkSimpContext stx.raw
     (eraseLocal := false)
-    (simpTheorems := getSpecSimpTheorems)
+    (simpTheorems := SpecAttr.getSpecSimpTheorems)
     (ignoreStarArg := ignoreStarArg)
   let simpThms := res.ctx.simpTheorems[0]?.getD {}
   -- Add local spec hypotheses when `*` is used.
@@ -105,43 +108,25 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
     for fvar in fvars do
       unless specThms.isErased (.local fvar) do
         try
-          let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.insert thm
+          if let some thm ← mkSpecTheoremFromLocal fvar then
+            specThms := specThms.insert thm
         catch _ => continue
-  let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
-  let entailsNilPureIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_pure_intro
-  let entailsNilIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_intro
-  let applyPureConsEntailsLRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_l
-  let applyPureConsEntailsRRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_r
-  let downPureIntroRule ← mkBackwardRuleFromDecl ``SPred.down_pure_intro
-  let pureElimRule ← mkBackwardRuleFromDecl ``SPred.pure_elim'
-  let pureIntroRule ← mkBackwardRuleFromDecl ``SPred.pure_intro
-  let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
-  let postCondEntailsMkRule ← mkBackwardRuleFromDecl ``PostCond.entails.mk
-  let exceptCondsEntailsRflRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.rfl
-  let exceptCondsEntailsPureRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.pure
-  let exceptCondsEntailsFalseRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_false
-  let exceptCondsEntailsTrueRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_true
-  let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
+  let tripleIntro ← mkBackwardRuleFromDecl ``Std.Internal.Do.Triple.intro
+  let stateArgIntro ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
+  let topStateArgIntro ← mkBackwardRuleFromDecl ``Lean.Order.top_le_of_forall_top_le
+  let propPreIntro ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
+  let ofPropPreIntro ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le
+  let truePreIntro ← mkBackwardRuleFromDecl ``Lean.Order.true_le_of_top_le
+  let elimPreRule ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
   let andIntroRule ← mkBackwardRuleFromDecl ``And.intro
+  let reflRule ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
   let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
   let ctx : VCGen.Context := {
-    entailsConsIntroRule,
-    entailsNilPureIntroRule,
-    entailsNilIntroRule,
-    applyPureConsEntailsLRule,
-    applyPureConsEntailsRRule,
-    downPureIntroRule,
-    pureElimRule,
-    pureIntroRule,
-    postCondEntailsRflRule,
-    postCondEntailsMkRule,
-    exceptCondsEntailsRflRule,
-    exceptCondsEntailsPureRule,
-    exceptCondsEntailsFalseRule,
-    exceptCondsEntailsTrueRule,
-    tripleOfEntailsWPRule,
+    introRules := { tripleIntro, stateArgIntro, topStateArgIntro, propPreIntro, ofPropPreIntro,
+                    truePreIntro },
+    elimPreRule,
     andIntroRule,
+    reflRule,
   }
   return (ctx, { specs := specThmsNew })
 

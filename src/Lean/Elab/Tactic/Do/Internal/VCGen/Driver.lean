@@ -13,7 +13,6 @@ public import Lean.Meta.Sym.Grind
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
-open Std.Do
 
 namespace Lean.Elab.Tactic.Do.Internal
 
@@ -82,15 +81,18 @@ private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVa
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
+If the goal is `(⊤ : Prop) ⊑ φ`, the `⊤ ⊑` wrapper is stripped first.
 -/
 public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
-  let goal ← processHypotheses goal
+  let mvarId ← elimTopPre goal.mvarId
+  let mut goal := { goal with mvarId }
+  goal ← processHypotheses goal
   if goal.inconsistent then return
-  -- `trivial`: when false, skip `repeatAndRfl` (which collapses And-chains via rfl);
+  -- `trivial`: when false, skip `solveTrivialConjuncts` (which collapses And-chains via rfl);
   -- emit the goal as-is.
   let mvarId ←
     if (← read).trivial then
-      let some mvarId ← repeatAndRfl goal.mvarId | return
+      let some mvarId ← solveTrivialConjuncts goal.mvarId | return
       pure mvarId
     else
       pure goal.mvarId
@@ -111,7 +113,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     match ← solve s.scope goal.mvarId with
     | .stop =>
       emitVC goal
-    | .noEntailment .. | .noProgramFoundInTarget .. =>
+    | .noEntailment .. | .noProgramOrLatticeFoundInTarget .. =>
       emitVC goal
     | .noSpecFoundForProgram prog monad thms =>
       if (← read).errorOnMissingSpec then goal.mvarId.withContext do
@@ -150,7 +152,7 @@ public structure Result where
   inlineHandledInvariants : Std.HashSet Nat := {}
 
 /--
-Generate verification conditions for a goal of the form `P ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ` by repeatedly
+Generate verification conditions for a goal of the form `pre ⊑ wp e post epost s₁ ... sₙ` by repeatedly
 decomposing `e` using registered `@[spec]` theorems.
 Return the VCs and invariant goals.
 

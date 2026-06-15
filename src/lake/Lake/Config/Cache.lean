@@ -700,21 +700,34 @@ structure TransferInfo where
   /-- Additional paths for a downloaded artifact. -/
   extraPaths : Array FilePath := #[]
 
-@[inline] def TransferInfo.addExtraPath (self : TransferInfo) (path : FilePath) : TransferInfo :=
-  {self with extraPaths := self.extraPaths.push path}
+@[inline] def TransferInfo.addPath (self : TransferInfo) (path : FilePath) (extra := true) : TransferInfo :=
+  if extra then
+    {self with extraPaths := self.extraPaths.push path}
+  else
+    {self with path, extraPaths := self.extraPaths.push self.path}
 
 structure TransferDict where
   infos : Array TransferInfo
   indices : Std.HashMap Hash Nat
 
-def TransferDict.empty : TransferDict :=
+@[inline] def TransferDict.empty : TransferDict :=
   ⟨#[], ∅⟩
 
-def TransferDict.add (self : TransferDict) (url : String) (hash : Hash) (path : FilePath) : TransferDict :=
+@[inline] def TransferDict.push
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath)
+: TransferDict := ⟨self.infos.push {url, hash, path}, self.indices.insert hash self.infos.size⟩
+
+@[inline] def TransferDict.addIfNew
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath)
+: TransferDict := if self.indices.contains hash then self else self.push url hash path
+
+@[inline] def TransferDict.add
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath) (extra := true)
+: TransferDict :=
   if let some j := self.indices.get? hash then
-    {self with infos := self.infos.modify j (·.addExtraPath path)}
+    {self with infos := self.infos.modify j (·.addPath path extra)}
   else
-    ⟨self.infos.push {url, hash, path}, self.indices.insert hash self.infos.size⟩
+    self.push url hash path
 
 structure TransferConfig where
   kind : TransferKind
@@ -725,6 +738,12 @@ structure TransferConfig where
 structure TransferState where
   didError : Bool := false
   numSuccesses : Nat := 0
+
+def createExtraPaths (path : FilePath) (extraPaths : Array FilePath) : IO Unit := do
+  -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
+  let contents ← IO.FS.readBinFile path
+  for extraPath in extraPaths do
+    IO.FS.writeBinFile extraPath contents
 
 partial def monitorTransfer
   (cfg : TransferConfig) (h hOut : IO.FS.Handle) (s : TransferState)
@@ -754,8 +773,8 @@ partial def monitorTransfer
               IO.FS.removeFile path
               modify ({· with didError := true})
             else
-              for extraPath in extraPaths do
-                copyFile path extraPath
+              unless extraPaths.isEmpty do
+                createExtraPaths path extraPaths
               modify fun s => {s with numSuccesses := s.numSuccesses + 1}
           | .put =>
             logInfo s!"{cfg.scope}: uploaded artifact {hash}\
@@ -864,14 +883,24 @@ public def downloadArtifacts
     logWarning "no artifacts to download"
     return
   let {infos, ..} ← descrs.foldlM (init := TransferDict.empty) fun s {descr} => do
+    let hash := descr.hash
+    let url := service.artifactUrl hash scope
     let path := cache.artifactDir / descr.relPath
     if force then
       removeFileIfExists path
+      return s.add url hash path
     else if (← path.pathExists) then
-      return s
-    let hash := descr.hash
-    let url := service.artifactUrl hash scope
-    return s.add url hash path
+      return s.add url hash path (extra := false)
+    else
+      return s.add url hash path
+  let infos ← infos.filterM fun info => do
+    if info.extraPaths.isEmpty then
+      not <$> info.path.pathExists
+    else
+      match (← createExtraPaths info.path info.extraPaths |>.toBaseIO) with
+      | .ok _ => return false
+      | .error (.noFileOrDirectory ..) => return true
+      | .error e => error s!"failed to copy artifact: {e}"
   if infos.isEmpty then
     return
   let infos ← id do
@@ -956,7 +985,7 @@ public def uploadArtifacts
   let {infos, ..} ← n.foldM (init := TransferDict.empty) fun i _ s => do
     let hash := descrs[i].hash
     let url := service.artifactUrl hash scope
-    return s.add url hash paths[i]
+    return s.addIfNew url hash paths[i]
   transferArtifacts {scope, infos, kind := .put, key := service.impl.key}
 
 /-! ### Output Transfer -/

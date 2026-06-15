@@ -10,11 +10,8 @@ public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
-public import Lean.Meta.Sym.AlphaShareBuilder
 public import Lean.Meta.Sym.Apply
-public import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.Util
-import Lean.Meta.Sym.InferType
 import Lean.Meta.WHNF
 
 open Lean Meta Elab Tactic Sym
@@ -26,13 +23,10 @@ namespace VCGen
 
 /-!
 Construction of `BackwardRule`s from `SpecTheorem`s and split info. Pure
-`SymM` — no knowledge of `VCGenM`. The `VCGenM` cache wrappers live in
+`MetaM` — no knowledge of `VCGenM`. The `VCGenM` cache wrappers live in
 `VCGen.RuleCache`.
 -/
 
-section NewMetaTheory
-
-open Sym.Internal
 open Std.Internal.Do Lean.Order
 
 /-! ## Logic rules
@@ -147,9 +141,9 @@ private partial def LatticeSplit.mkApplyEq
     staying at the lattice level. Returns `((a ⊓ b) s₁…sₙ, eq)` where
     `eq : (a ⊓ b) s₁…sₙ = (a s₁…sₙ ⊓ b s₁…sₙ)`. -/
 private def LatticeSplit.mkDistributeEq
-    (c : LatticeSplit) (as ss : Array Expr) (resultType? : Option Expr := none) : SymM (Expr × Expr) := do
+    (c : LatticeSplit) (as ss : Array Expr) (resultType? : Option Expr := none) : MetaM (Expr × Expr) := do
   let lat ← c.mkLattice as resultType?
-  let goal ← mkAppNS lat ss
+  let goal := mkAppN lat ss
   let eqFun ← c.mkApplyEq as ss.toList resultType?
   return (goal, eqFun)
 
@@ -172,11 +166,11 @@ Works for any `CompleteLattice`, not just `Prop`.
 public def LatticeSplit.mkBackwardRule
     (c : LatticeSplit) (as : Array Expr) (excessArgs : Array Expr)
     (resultType? : Option Expr := none)
-    : SymM BackwardRule := do
+    : MetaM BackwardRule := do
   let as ← as.mapM fun arg => do
-    mkFreshExprMVar (userName := `a) (← Sym.inferType arg)
+    mkFreshExprMVar (userName := `a) (← Meta.inferType arg)
   let ss ← excessArgs.mapM fun arg => do
-    mkFreshExprMVar (userName := `s) (← Sym.inferType arg)
+    mkFreshExprMVar (userName := `s) (← Meta.inferType arg)
 
   let (goal, eqGoalDistributed) ← c.mkDistributeEq as ss resultType?
 
@@ -211,7 +205,7 @@ public def LatticeSplit.mkBackwardRule
     State binders are named positionally from `stateArgNames` (else `s`); their names ride
     on the premise and are later introduced with the right user-facing names. -/
 private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes : Array Expr)
-    (stateArgNames : Array Name := #[]) : SymM Expr := do
+    (stateArgNames : Array Name := #[]) : MetaM Expr := do
   let .forallE _ α _ _ := postTy
     | throwError "expected a postcondition function, got {indentExpr postTy}"
   withLocalDeclD `a α fun a => do
@@ -227,7 +221,7 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
     - Otherwise, if `EPred` is `EPost.Cons`, project `epostSpec.head`/`.tail` and decompose those
     - Otherwise → single mvar for `epostSpec ⊑ epostAbstract` -/
 private partial def decomposeEPostRel (EPred epostSpec epostAbstract : Expr)
-    (stateArgNames : Array Name := #[]) : SymM Expr := do
+    (stateArgNames : Array Name := #[]) : MetaM Expr := do
   match_expr epostSpec with
   | EPost.Cons.mk ehTy etTy head tail =>
     let absHead ← mkAppM ``EPost.Cons.head #[epostAbstract]
@@ -244,7 +238,7 @@ private partial def decomposeEPostRel (EPred epostSpec epostAbstract : Expr)
     else
       -- Collect state types: e.g. String → Nat → Prop → skip first (exc type), rest are state types
       let ssTypes ← forallTelescope ehTy fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
-      let headTy ← Sym.inferType head
+      let headTy ← Meta.inferType head
       let hHeadTy ← mkPostPointwisePremise head absHead headTy ssTypes stateArgNames
       let hHead ← mkFreshExprMVar (userName := `epostImpl) hHeadTy
       mkAppM ``EPost.Cons.mk_le #[head, tail, epostAbstract, hHead, hTail]
@@ -256,7 +250,7 @@ private partial def decomposeEPostRel (EPred epostSpec epostAbstract : Expr)
       let specTail ← mkAppM ``EPost.Cons.tail #[epostSpec]
       let absHead ← mkAppM ``EPost.Cons.head #[epostAbstract]
       let absTail ← mkAppM ``EPost.Cons.tail #[epostAbstract]
-      let headTy ← Sym.inferType specHead
+      let headTy ← Meta.inferType specHead
       -- Collect state types: e.g. String → Nat → Prop → skip first (exc type), rest are state types
       let ssTypes ← forallTelescope ehTy fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
       let hHeadTy ← mkPostPointwisePremise specHead absHead headTy ssTypes stateArgNames
@@ -359,7 +353,7 @@ prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
 -/
 private def mkSpecBackwardProof
     (pre prog postSpec epostSpec specProof EPred : Expr) (ss ssTypes : Array Expr)
-    (stateArgNames : Array Name := #[]) : SymM AbstractMVarsResult := do
+    (stateArgNames : Array Name := #[]) : MetaM AbstractMVarsResult := do
   /- we start with `pre ⊑ wp prog post epost` where
   1. `pre` represents the Lean expression for `pre`
   2. `prog`, `postSpec`, and `epostSpec` are the selected arguments of the spec's `wp` RHS
@@ -373,7 +367,7 @@ private def mkSpecBackwardProof
   /- abstract concrete `post` if it is not already abstract -/
   unless postAbstract.isMVar do
     /- `α → Pred`: type of `post` -/
-    let postTy ← Sym.inferType postSpec
+    let postTy ← Meta.inferType postSpec
     /- mvar `postAbstract` for new abstract `post` -/
     postAbstract ← mkFreshExprMVar (userName := `Post) postTy
     /- premise type `∀ (a : α) (s₁ : σ₁) ... (sₙ : σₙ), postSpec a s₁ ... sₙ → postAbstract a s₁ ... sₙ` -/
@@ -394,7 +388,7 @@ private def mkSpecBackwardProof
   /- abstract concrete `epost` if it is not already abstract -/
   unless epostAbstract.isMVar do
     /- `EPost⟨t₁, t₂, ..., tₙ⟩`: type of `epost` -/
-    let epostTy ← Sym.inferType epostSpec
+    let epostTy ← Meta.inferType epostSpec
     /- mvar `epostAbstract` for new abstract `epost` -/
     epostAbstract ← mkFreshExprMVar (userName := `EPost) epostTy
     /- if `epost` is `⊥`, then `epost ⊑ epostAbstract` holds trivially and
@@ -452,7 +446,7 @@ Given a spec `pre ⊑ wp prog post epost` where the lattice type is
   `info.Pred = σ1 → ... → σn → Prop`
 -/
 public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPInfo)
-    (stateArgNames : Array Name := #[]) : OptionT SymM BackwardRule := do
+    (stateArgNames : Array Name := #[]) : OptionT MetaM BackwardRule := do
   -- Instantiate the spec theorem, creating metavars for all universally quantified params
   let (_xs, _bs, specProof, specType) ← specThm.instantiate
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
@@ -466,7 +460,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPInfo)
   let mut ss := #[]
   let mut ssTypes := #[]
   for h : i in [0:info.excessArgs.size] do
-    let ty ← Sym.inferType info.excessArgs[i]
+    let ty ← Meta.inferType info.excessArgs[i]
     ssTypes := ssTypes.push ty
     ss := ss.push <| ← mkFreshExprMVar (userName := stateArgNames[i]?.getD `s) ty
   let res ← mkSpecBackwardProof pre prog postSpec epostSpec specProof info.EPred ss ssTypes stateArgNames
@@ -498,11 +492,11 @@ The postcondition, exception postcondition and precondition are created as metav
 abstracted by `abstractMVars`, giving a reusable proof term for `mkBackwardRuleFromExpr`.
 -/
 private def mkSimpBackwardProof
-    (info : WPInfo) (α m lhs rhs eqPrf : Expr) (ss : Array Expr) : SymM AbstractMVarsResult := do
+    (info : WPInfo) (α m lhs rhs eqPrf : Expr) (ss : Array Expr) : MetaM AbstractMVarsResult := do
   let postTy ← mkArrow α info.Pred
   let post ← mkFreshExprMVar (userName := `Post) postTy
   let epost ← mkFreshExprMVar (userName := `EPost) info.EPred
-  let mkWpApplyPostEpost (prog : Expr) : SymM Expr := do
+  let mkWpApplyPostEpost (prog : Expr) : MetaM Expr := do
     let wpProg ← mkAppOptM ``Std.Internal.Do.wp #[m, none, none, none, none, none, none, α, prog, post, epost]
     return mkAppN wpProg ss
   let lhsWp ← mkWpApplyPostEpost lhs
@@ -516,8 +510,8 @@ private def mkSimpBackwardProof
     let progWp ← mkWpApplyPostEpost prog
     let body ← mkAppM ``PartialOrder.rel #[pre, progWp]
     mkLambdaFVars #[prog] body
-  let eqProof ← liftMetaM <| Meta.mkCongrArg motive eqPrf
-  let prf ← liftMetaM <| Meta.mkEqMPR eqProof h
+  let eqProof ← Meta.mkCongrArg motive eqPrf
+  let prf ← Meta.mkEqMPR eqProof h
   abstractMVars prf
 
 /--
@@ -543,7 +537,7 @@ pre ⊑ wp lhs post epost s₁ ... sₙ
 ```
 -/
 public def tryMkBackwardRuleFromSimp (specThm : SpecTheorem) (info : WPInfo)
-    : OptionT SymM BackwardRule := do
+    : OptionT MetaM BackwardRule := do
   let wpInstTy ← whnfR (← Meta.inferType info.instWP)
   let_expr Std.Internal.Do.WPMonad m' Pred' _EPred _monadInst _instAL _instEAL := wpInstTy
     | throwError "expected a WPMonad instance, got {wpInstTy}"
@@ -552,7 +546,7 @@ public def tryMkBackwardRuleFromSimp (specThm : SpecTheorem) (info : WPInfo)
   let (xs, _, eqPrf, eqType) ← specThm.instantiate
   let_expr Eq eqα lhs rhs := eqType
     | throwError "simp spec is not an equation: {eqType}"
-  let wpType ← liftMetaM <| Meta.inferType info.instWP
+  let wpType ← Meta.inferType info.instWP
   let α ← mkFreshExprMVar (mkSort wpType.getAppFn.constLevels![0]!.succ)
   guard <| ← isDefEqGuarded eqα (mkApp info.m α)
   for x in xs do
@@ -563,13 +557,13 @@ public def tryMkBackwardRuleFromSimp (specThm : SpecTheorem) (info : WPInfo)
       catch _ =>
         pure ()
   -- Reduce projections, for example dictionary projections exposed after instance synthesis.
-  let rhs ← liftMetaM <| Meta.transform rhs (pre := fun e => do
+  let rhs ← show MetaM Expr from Meta.transform rhs (pre := fun e => do
     if let .proj .. := e then
       if let some r ← withDefault <| Meta.reduceProj? e then return .done r
     return .continue)
   let mut ss := #[]
   for arg in info.excessArgs do
-    let ty ← Sym.inferType arg
+    let ty ← Meta.inferType arg
     ss := ss.push <| ← mkFreshExprMVar (userName := `s) ty
   let res ← mkSimpBackwardProof info α info.m lhs rhs eqPrf ss
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
@@ -583,14 +577,14 @@ Uses `SplitInfo.withAbstract` to introduce abstract fvars for the split componen
 then `SplitInfo.splitWith` to build the splitting proof. Hypothesis types are
 discovered via `rwIfOrMatcher` inside the splitter telescope. -/
 public def mkBackwardRuleForSplit
-    (splitInfo : SplitInfo) (info : WPInfo) : SymM BackwardRule := do
+    (splitInfo : SplitInfo) (info : WPInfo) : MetaM BackwardRule := do
   let m := info.m
-  let mTy ← Sym.inferType m
+  let mTy ← Meta.inferType m
   let some aTy := if mTy.isForall then some mTy.bindingDomain! else none
     | throwError "Expected monad type constructor at {indentExpr m}"
   let prf ←
     withLocalDeclD `a aTy fun a => do
-    let ma ← shareCommon <| mkApp m a
+    let ma := mkApp m a
     splitInfo.withAbstract ma fun abstractInfo splitFVars => do
     -- Eta-reduce matcher alts for the backward rule pattern to avoid expensive
     -- higher-order unification. The alts are eta-expanded by `withAbstract` so that
@@ -600,14 +594,14 @@ public def mkBackwardRuleForSplit
       | .matcher matcherApp =>
         { matcherApp with alts := matcherApp.alts.map Expr.eta }.toExpr
     let excessArgNamesTypes ← info.excessArgs.mapM fun arg =>
-      return (`s, ← Sym.inferType arg)
+      return (`s, ← Meta.inferType arg)
     withLocalDeclsDND excessArgNamesTypes fun ss => do
-    withLocalDeclD `Post (← shareCommon (← mkArrow a info.Pred)) fun post => do
+    withLocalDeclD `Post (← mkArrow a info.Pred) fun post => do
     withLocalDeclD `EPost info.EPred fun epost => do
     let mkWP (prog : Expr) : Expr :=
       let args := info.args.take 7 ++ #[a, prog, post, epost]
       mkAppN (mkAppN info.head args) ss
-    let Pred' ← Sym.inferType (mkWP abstractProg)
+    let Pred' ← Meta.inferType (mkWP abstractProg)
     withLocalDeclD `Pre Pred' fun pre => do
     let sampleGoal ← mkAppM ``PartialOrder.rel #[pre, mkWP abstractProg]
     let relArgs := sampleGoal.getAppArgs
@@ -616,10 +610,10 @@ public def mkBackwardRuleForSplit
     -- Use synthetic opaque mvars so that `rwIfOrMatcher`'s `assumption` cannot
     -- accidentally assign our subgoal metavariables.
     let subgoals ← splitInfo.altInfos.mapM fun _ =>
-      liftMetaM <| mkFreshExprSyntheticOpaqueMVar (mkSort 0)
+      mkFreshExprSyntheticOpaqueMVar (mkSort 0)
     let namedSubgoals := subgoals.mapIdx fun i mv => ((`h).appendIndexAfter (i+1), mv)
     withLocalDeclsDND namedSubgoals fun subgoalHyps => do
-    let prf ← liftMetaM <|
+    let prf ←
       abstractInfo.splitWith
         (useSplitter := true)
         (mkGoal abstractProg)
@@ -639,13 +633,11 @@ public def mkBackwardRuleForSplit
             mkLambdaFVars #[x] (mkGoal x)
           let eqProof ← mkAppM ``congrArg #[context, res.proof?.get!]
           mkEqMPR eqProof (mkAppN subgoalHyps[idx]! altParams))
-    let prf ← liftMetaM <| instantiateMVars prf
+    let prf ← instantiateMVars prf
     mkLambdaFVars (#[a] ++ splitFVars ++ ss ++ #[post, epost, pre] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
-
-end NewMetaTheory
 
 end VCGen
 end Lean.Elab.Tactic.Do.Internal

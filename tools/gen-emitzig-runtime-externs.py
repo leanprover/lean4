@@ -112,6 +112,18 @@ MATH_FUNCS = [
 
 # Symbols referenced by stdlib/runtime but not declared in lean.h.
 # Defined locally in `EmitZig.lean` preamble (not as runtime externs).
+# typedef names used as parameter types in lean.h (unnamed parameters).
+TYPEDEF_ARG_TYPES = {
+    "lean_external_finalize_proc": "?*anyopaque",
+    "lean_external_foreach_proc": "?*anyopaque",
+    "b_lean_obj_arg": "LeanObj",
+    "lean_obj_arg": "LeanObj",
+    "u_lean_obj_arg": "LeanObj",
+    "b_lean_obj_res": "LeanObj",
+    "lean_obj_res": "LeanObj",
+    "lean_obj_arg": "LeanObj",
+}
+
 EMITZIG_LOCAL_FUNCS = {
     "lean_io_result_is_ok",
     "lean_io_result_get_value",
@@ -126,15 +138,21 @@ EXTRA_FUNCS: list[tuple[str, str, str]] = [
     ("lean_version_get_special_desc", "LeanObj", "LeanObj"),
     ("lean_internal_is_stage0", "u8", "LeanObj"),
     ("lean_internal_has_llvm_backend", "u8", "LeanObj"),
-    ("lean_internal_get_hardware_concurrency", "u32", ""),
+    ("lean_internal_get_hardware_concurrency", "u32", "LeanObj"),
+    ("lean_apply_n", "LeanObj", "LeanObj, c_uint, [*c]LeanObj"),
+    ("lean_apply_m", "LeanObj", "LeanObj, c_uint, [*c]LeanObj"),
     ("lean_dbg_stack_trace", "LeanObj", "LeanObj"),
-    ("lean_byte_array_copy_slice", "LeanObj", "LeanObj, LeanObj, LeanObj, LeanObj"),
+    ("lean_byte_array_copy_slice", "LeanObj", "LeanObj, LeanObj, LeanObj, LeanObj, LeanObj, u8"),
     ("lean_chmod", "LeanObj", "LeanObj, LeanObj"),
     ("lean_nat_land", "LeanObj", "LeanObj, LeanObj"),
     ("lean_nat_lor", "LeanObj", "LeanObj, LeanObj"),
     ("lean_nat_lxor", "LeanObj", "LeanObj, LeanObj"),
     ("lean_nat_shiftr", "LeanObj", "LeanObj, LeanObj"),
-    ("lean_sorry", "LeanObj", ""),
+    ("lean_sorry", "LeanObj", "u8"),
+    ("lean_system_platform_nbits", "LeanObj", "LeanObj"),
+    ("lean_system_platform_windows", "u8", "LeanObj"),
+    ("lean_system_platform_osx", "u8", "LeanObj"),
+    ("lean_system_platform_emscripten", "u8", "LeanObj"),
     ("lean_string_to_utf8", "LeanObj", "LeanObj"),
     ("lean_string_from_utf8_unchecked", "LeanObj", "LeanObj"),
     ("exit", "noreturn", "c_int"),
@@ -147,6 +165,8 @@ EXTRA_FUNCS: list[tuple[str, str, str]] = [
     ("lean_finalize_task_manager", "void", ""),
     ("lean_io_mark_end_initialization", "void", ""),
     ("lean_io_result_show_error", "void", "LeanObj"),
+    ("lean_io_timeit", "LeanObj", "LeanObj, LeanObj"),
+    ("lean_io_allocprof", "LeanObj", "LeanObj, LeanObj"),
     ("lean_array_get_panic", "LeanObj", "LeanObj"),
     ("lean_mk_string", "LeanObj", "[*c]const u8"),
     ("lean_mk_string_unchecked", "LeanObj", "[*c]const u8, usize, usize"),
@@ -251,9 +271,16 @@ def parse_arg(arg: str) -> str:
     arg = arg.strip()
     if not arg or arg == "void":
         return ""
-    # Strip parameter names, keep type.
-    arg = re.sub(r"\b\w+\s*$", "", arg).strip()
-    return normalize_type(arg)
+    if arg in TYPEDEF_ARG_TYPES:
+        return TYPEDEF_ARG_TYPES[arg]
+    # Strip parameter names, keep type.  Unnamed parameters (e.g. `b_lean_obj_arg`)
+    # are the type token itself.
+    type_part = re.sub(r"\b\w+\s*$", "", arg).strip()
+    if not type_part:
+        type_part = arg
+    if type_part in TYPEDEF_ARG_TYPES:
+        return TYPEDEF_ARG_TYPES[type_part]
+    return normalize_type(type_part)
 
 
 def parse_signature(ret: str, args: str) -> tuple[str, list[str]]:

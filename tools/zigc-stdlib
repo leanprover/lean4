@@ -57,10 +57,18 @@ def emit_zig(lean: pathlib.Path, src: pathlib.Path, cwd: pathlib.Path, out: path
 
 def compile_zig(zig: pathlib.Path, zig_file: pathlib.Path, out_obj: pathlib.Path) -> None:
     out_obj.parent.mkdir(parents=True, exist_ok=True)
-    run([
-        str(zig), "build-obj", "-O", "Debug", str(zig_file),
-        "-fstrip", f"-femit-bin={out_obj}",
-    ])
+    result = subprocess.run(
+        [
+            str(zig), "build-obj", "-O", "Debug", str(zig_file),
+            "-fstrip", f"-femit-bin={out_obj}",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        raise subprocess.CalledProcessError(result.returncode, result.args, result.stdout, result.stderr)
 
 
 def normalize_symbol(sym: str) -> str:
@@ -83,21 +91,62 @@ def extract_defined_symbols(path: pathlib.Path) -> set[str]:
     return symbols
 
 
-def filter_conflicting_objs(objs: list[pathlib.Path], zigrt_lib: pathlib.Path) -> list[pathlib.Path]:
-    """Drop object files that define symbols already provided by the Zig runtime."""
+def strip_symbols_from_obj(obj: pathlib.Path, symbols: set[str], work_dir: pathlib.Path) -> pathlib.Path | None:
+    """Return a copy of `obj` with global symbols removed, or None if stripping failed."""
+    if not symbols:
+        return obj
+    out = work_dir / f"{obj.stem}.stripped.o"
+    shutil.copy2(obj, out)
+    for sym in sorted(symbols):
+        sym_name = sym if sym.startswith("_") else f"_{sym}"
+        if sys.platform == "darwin":
+            cmd = ["strip", "-N", sym_name, str(out)]
+        else:
+            cmd = ["llvm-objcopy", f"--strip-symbol={sym}", str(out)]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            return None
+    remaining = extract_defined_symbols(out)
+    if remaining & symbols:
+        return None
+    return out
+
+
+def filter_conflicting_objs(
+    objs: list[pathlib.Path],
+    zigrt_lib: pathlib.Path,
+    work_dir: pathlib.Path,
+) -> list[pathlib.Path]:
+    """Remove runtime-provided symbols from object files instead of dropping them wholesale."""
     zigrt_syms = extract_defined_symbols(zigrt_lib)
     if not zigrt_syms:
         return objs
     kept: list[pathlib.Path] = []
+    stripped = 0
     dropped = 0
     for obj in objs:
         obj_syms = extract_defined_symbols(obj)
-        if obj_syms & zigrt_syms:
-            dropped += 1
-            overlap = sorted(obj_syms & zigrt_syms)[:3]
-            print(f"skip {obj.name}: runtime already provides {', '.join(overlap)}", file=sys.stderr)
+        overlap = obj_syms & zigrt_syms
+        if not overlap:
+            kept.append(obj)
             continue
-        kept.append(obj)
+        if obj_syms <= zigrt_syms:
+            dropped += 1
+            sample = sorted(overlap)[:3]
+            print(f"skip {obj.name}: runtime already provides {', '.join(sample)}", file=sys.stderr)
+            continue
+        stripped_obj = strip_symbols_from_obj(obj, overlap, work_dir)
+        if stripped_obj is None:
+            dropped += 1
+            sample = sorted(overlap)[:3]
+            print(f"skip {obj.name}: could not strip {', '.join(sample)}", file=sys.stderr)
+            continue
+        stripped += 1
+        sample = sorted(overlap)[:3]
+        print(f"strip {obj.name}: removed {', '.join(sample)}", file=sys.stderr)
+        kept.append(stripped_obj)
+    if stripped:
+        print(f"stripped runtime symbols from {stripped} object file(s)", file=sys.stderr)
     if dropped:
         print(f"filtered {dropped} object file(s) with runtime symbol overlap", file=sys.stderr)
     return kept
@@ -361,7 +410,7 @@ def main() -> int:
         # Link with automatic stub generation for undefined symbols.
         stubs_zig = work / "stubs.zig"
         stubs_obj = work / "stubs.o"
-        objs = filter_conflicting_objs(objs, zigrt_lib)
+        objs = filter_conflicting_objs(objs, zigrt_lib, work)
         for iteration in range(args.max_stub_iterations):
             print(f"linking (attempt {iteration + 1})...")
             result = link(zig, objs, zigrt_lib, args.output)

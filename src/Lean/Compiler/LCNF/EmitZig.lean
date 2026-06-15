@@ -104,6 +104,12 @@ def runtimeExternDecls : List String :=
 def runtimeExternNames : List String :=
   runtimeExternDecls.filterMap externFnName?
 
+def runtimeExternDeclsForModule (localNames : Array String) : List String :=
+  runtimeExternDecls.filter fun decl =>
+    match externFnName? decl with
+    | some name => !localNames.contains name
+    | none => true
+
 @[inline] def emit (text : String) : EmitM Unit :=
   modify fun s => { s with buf := s.buf ++ text }
 
@@ -232,6 +238,19 @@ def toZigSymbolName (n : Name) : EmitM String := do
 def toZigDefName (n : Name) : EmitM String :=
   return s!"{← toZigSymbolName n}__def"
 
+def getLocalRuntimeSymbolNames : EmitM (Array String) := do
+  let env ← getEnv
+  let mut names : Array String := #[]
+  for decl in (← getLocalDecls) do
+    match decl.value with
+    | .code _ =>
+      let sym ← toZigSymbolName decl.name
+      names := names.push sym
+      if let some extName := getExternNameFor env `c decl.name then
+        names := names.push extName
+    | _ => pure ()
+  return names
+
 def getModInitFn : EmitM String := do
   let env ← getEnv
   let pkg? := env.getModulePackage?
@@ -338,7 +357,7 @@ def renderReuseLines (binder : Name) (fvarId : FVarId) (info : CtorInfo) (update
   let lhs := zigIdent binder
   let target := zigIdent fvarId.name
   let head :=
-    ["if (lean_is_scalar(" ++ target ++ ")) {",
+    ["if (lean_is_scalar(" ++ target ++ ") != 0) {",
       s!"  {lhs} = lean_alloc_ctor({cUIntLit info.cidx}, {cUIntLit info.size}, {ctorScalarSizeExpressionZig info.usize info.ssize});",
       "} else {", s!"  {lhs} = {target};"] ++
     (if update then [s!"  lean_ctor_set_tag({lhs}, @as(u8, {info.cidx}));"] else []) ++
@@ -815,7 +834,8 @@ def emitFileHeader : EmitM Unit := do
     "const MainFn = *const fn (c_int, [*c][*c]u8) callconv(.c) LeanObj;",
     ""
   ]
-  runtimeExternDecls.forM emitLn
+  let localNames ← getLocalRuntimeSymbolNames
+  runtimeExternDeclsForModule localNames |>.forM emitLn
   emitLn ""
   InlineHelpers.inlineHelperDecls.forM emitLn
   emitLns [
@@ -923,7 +943,8 @@ def emitInitFn : EmitM Unit := do
     emitLn ""
   let initName ← getModInitFn
   let defName := s!"{initName}__def"
-  emitLn (s!"fn {defName}(builtin: u8) callconv(.c) LeanObj " ++ "{")
+  let builtinParam := if imported.isEmpty then "_: u8" else "builtin: u8"
+  emitLn (s!"fn {defName}({builtinParam}) callconv(.c) LeanObj " ++ "{")
   emitLn "  lean_initialize_runtime_module();"
   emitLn "  lean_initialize_thread();"
   for fn in imported do

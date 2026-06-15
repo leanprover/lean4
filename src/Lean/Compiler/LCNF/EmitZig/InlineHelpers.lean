@@ -44,8 +44,8 @@ private def supportInlineHelperEntries : List (String × String) := [
     "}"
   ]),
   ("lean_is_scalar", joinLines [
-    "inline fn lean_is_scalar(o: LeanObj) bool {",
-    "  return (@intFromPtr(o.?) & 1) == 1;",
+    "inline fn lean_is_scalar(o: LeanObj) u8 {",
+    "  return @intFromBool((@intFromPtr(o.?) & 1) == 1);",
     "}"
   ]),
   ("lean_unbox", joinLines [
@@ -158,7 +158,7 @@ private def supportInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_le", joinLines [
     "inline fn lean_nat_le(a1: LeanObj, a2: LeanObj) bool {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    return @intFromPtr(a1.?) <= @intFromPtr(a2.?);",
     "  } else {",
     "    return lean_nat_big_le(a1, a2);",
@@ -167,7 +167,7 @@ private def supportInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_lt", joinLines [
     "inline fn lean_nat_lt(a1: LeanObj, a2: LeanObj) bool {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    return @intFromPtr(a1.?) < @intFromPtr(a2.?);",
     "  } else {",
     "    return lean_nat_big_lt(a1, a2);",
@@ -221,7 +221,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_obj_tag", joinLines [
     "inline fn lean_obj_tag(o: LeanObj) c_uint {",
-    "  if (lean_is_scalar(o)) {",
+    "  if (lean_is_scalar(o) != 0) {",
     "    return @as(c_uint, @intCast(lean_unbox(o)));",
     "  } else {",
     "    return @as(c_uint, lean_ptr_tag(o));",
@@ -257,12 +257,12 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_inc", joinLines [
     "inline fn lean_inc(o: LeanObj) void {",
-    "  if (!lean_is_scalar(o)) lean_inc_ref(o);",
+    "  if (lean_is_scalar(o) == 0) lean_inc_ref(o);",
     "}"
   ]),
   ("lean_dec", joinLines [
     "inline fn lean_dec(o: LeanObj) void {",
-    "  if (!lean_is_scalar(o)) lean_dec_ref(o);",
+    "  if (lean_is_scalar(o) == 0) lean_dec_ref(o);",
     "}"
   ]),
   ("lean_alloc_ctor", joinLines [
@@ -296,7 +296,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_mk_empty_array_with_capacity", joinLines [
     "inline fn lean_mk_empty_array_with_capacity(capacity: LeanObj) LeanObj {",
-    "  if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();",
+    "  if (lean_is_scalar(capacity) == 0) lean_internal_panic_out_of_memory();",
     "  return lean_alloc_array(@as(usize, 0), lean_unbox(capacity));",
     "}"
   ]),
@@ -322,7 +322,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_usize_of_nat", joinLines [
     "inline fn lean_usize_of_nat(a: LeanObj) usize {",
-    "  if (lean_is_scalar(a)) {",
+    "  if (lean_is_scalar(a) != 0) {",
     "    return lean_unbox(a);",
     "  } else {",
     "    return lean_usize_of_big_nat(a);",
@@ -365,7 +365,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_string_utf8_at_end", joinLines [
     "inline fn lean_string_utf8_at_end(s: LeanObj, i: LeanObj) u8 {",
-    "  return @intFromBool(!lean_is_scalar(i) or lean_unbox(i) >= lean_string_size(s) - 1);",
+    "  return @intFromBool(lean_is_scalar(i) == 0 or lean_unbox(i) >= lean_string_size(s) - 1);",
     "}"
   ]),
   ("lean_string_dec_lt", joinLines [
@@ -391,7 +391,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_string_is_valid_pos", joinLines [
     "inline fn lean_string_is_valid_pos(s: LeanObj, i: LeanObj) u8 {",
-    "  if (!lean_is_scalar(i)) return 0;",
+    "  if (lean_is_scalar(i) == 0) return 0;",
     "  const idx = lean_unbox(i);",
     "  const size = lean_string_size(s) - 1;",
     "  if (idx >= size) return 0;",
@@ -521,17 +521,17 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_dec_n", joinLines [
     "inline fn lean_dec_n(o: LeanObj, n: usize) void {",
-    "  if (!lean_is_scalar(o)) lean_dec_ref_n(o, n);",
+    "  if (lean_is_scalar(o) == 0) lean_dec_ref_n(o, n);",
     "}"
   ]),
   ("lean_inc_n", joinLines [
     "inline fn lean_inc_n(o: LeanObj, n: usize) void {",
-    "  if (!lean_is_scalar(o)) lean_inc_ref_n(o, n);",
+    "  if (lean_is_scalar(o) == 0) lean_inc_ref_n(o, n);",
     "}"
   ]),
   ("lean_is_exclusive", joinLines [
     "inline fn lean_is_exclusive(o: LeanObj) bool {",
-    "  return !lean_is_scalar(o) and lean_heap_obj(o).m_rc == 1;",
+    "  return lean_is_scalar(o) == 0 and lean_heap_obj(o).m_rc == 1;",
     "}"
   ]),
   ("lean_alloc_closure", joinLines [
@@ -550,7 +550,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_array_get_borrowed", joinLines [
     "inline fn lean_array_get_borrowed(def_val: LeanObj, a: LeanObj, i: LeanObj) LeanObj {",
-    "  if (lean_is_scalar(i)) {",
+    "  if (lean_is_scalar(i) != 0) {",
     "    const idx = lean_unbox(i);",
     "    if (idx < lean_array_size(a)) {",
     "      return lean_array_get_core(a, idx);",
@@ -562,7 +562,7 @@ private def mvpInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_del_object", joinLines [
     "inline fn lean_del_object(o: LeanObj) void {",
-    "  if (!lean_is_scalar(o)) lean_free_object(o);",
+    "  if (lean_is_scalar(o) == 0) lean_free_object(o);",
     "}"
   ]),
   ("lean_box_uint32", joinLines [
@@ -713,7 +713,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_succ", joinLines [
     "inline fn lean_nat_succ(a: LeanObj) LeanObj {",
-    "  if (lean_is_scalar(a)) {",
+    "  if (lean_is_scalar(a) != 0) {",
     "    return lean_usize_to_nat(lean_unbox(a) +% @as(usize, 1));",
     "  } else {",
     "    return lean_nat_big_succ(a);",
@@ -722,7 +722,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_add", joinLines [
     "inline fn lean_nat_add(a1: LeanObj, a2: LeanObj) LeanObj {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    return lean_usize_to_nat(lean_unbox(a1) +% lean_unbox(a2));",
     "  } else {",
     "    return lean_nat_big_add(a1, a2);",
@@ -731,7 +731,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_sub", joinLines [
     "inline fn lean_nat_sub(a1: LeanObj, a2: LeanObj) LeanObj {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    const n1 = lean_unbox(a1);",
     "    const n2 = lean_unbox(a2);",
     "    if (n1 < n2) {",
@@ -746,7 +746,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_mul", joinLines [
     "inline fn lean_nat_mul(a1: LeanObj, a2: LeanObj) LeanObj {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    const n1 = lean_unbox(a1);",
     "    if (n1 == 0) {",
     "      return a1;",
@@ -765,7 +765,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_div", joinLines [
     "inline fn lean_nat_div(a1: LeanObj, a2: LeanObj) LeanObj {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    const n1 = lean_unbox(a1);",
     "    const n2 = lean_unbox(a2);",
     "    if (n2 == 0) {",
@@ -780,7 +780,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_mod", joinLines [
     "inline fn lean_nat_mod(a1: LeanObj, a2: LeanObj) LeanObj {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    const n1 = lean_unbox(a1);",
     "    const n2 = lean_unbox(a2);",
     "    if (n2 == 0) {",
@@ -795,7 +795,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_nat_eq", joinLines [
     "inline fn lean_nat_eq(a1: LeanObj, a2: LeanObj) bool {",
-    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "  if (lean_is_scalar(a1) != 0 and lean_is_scalar(a2) != 0) {",
     "    return a1 == a2;",
     "  } else {",
     "    return lean_nat_big_eq(a1, a2);",
@@ -809,7 +809,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_uint32_of_nat", joinLines [
     "inline fn lean_uint32_of_nat(a: LeanObj) u32 {",
-    "  if (lean_is_scalar(a)) {",
+    "  if (lean_is_scalar(a) != 0) {",
     "    return @as(u32, @intCast(lean_unbox(a)));",
     "  } else {",
     "    return lean_uint32_of_big_nat(a);",
@@ -818,7 +818,7 @@ private def bignumInlineHelperEntries : List (String × String) := [
   ]),
   ("lean_uint64_of_nat", joinLines [
     "inline fn lean_uint64_of_nat(a: LeanObj) u64 {",
-    "  if (lean_is_scalar(a)) {",
+    "  if (lean_is_scalar(a) != 0) {",
     "    return @as(u64, @intCast(lean_unbox(a)));",
     "  } else {",
     "    return lean_uint64_of_big_nat(a);",

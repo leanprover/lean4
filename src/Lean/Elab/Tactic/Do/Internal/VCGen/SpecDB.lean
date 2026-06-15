@@ -109,14 +109,15 @@ public def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Op
   let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
+  -- Skip no-op equations whose preprocessed LHS key is syntactically the RHS, so rewriting makes no
+  -- progress: `getThe.eq_1 : getThe σ = MonadStateOf.get` and the function-level
+  -- `liftM.eq_1 : @liftM = @monadLift` (`getThe`/`liftM` are reducible, so `preprocessDeclPattern`
+  -- already unfolded them in `pattern.pattern`). A structural `==` (not `isDefEq`) avoids both the
+  -- loose-bvar `whnf` panic on the lemma's binders and over-skipping productive unfolds whose RHS is
+  -- only definitionally equal (`get`, `monadLift_trans`, ordinary `foo.eq_1`). The key is compared
+  -- pre-eta so function-level equations are covered.
+  if pattern.pattern == rhs then return none
   let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
-  -- Skip no-op equations where LHS and RHS are the same after `unfoldReducible`.
-  -- E.g., `getThe.eq_1 : getThe σ = MonadStateOf.get` becomes a no-op because
-  -- `preprocessDeclPattern` unfolds `getThe` to `MonadStateOf.get`.
-  -- We use `==` (structural equality) rather than `isSameExpr` (pointer equality)
-  -- because the LHS and RHS are independently constructed.
-  -- Compare the original (non-expanded) pattern with rhs, since both are in the same context.
-  if etaArgs == 0 && pattern.pattern == rhs then return none
   return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
 
 /--

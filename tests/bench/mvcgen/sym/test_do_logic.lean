@@ -657,3 +657,27 @@ example : ⦃ True ⦄ foo bar ⦃ fun r => r % 2 = 0 ⦄ := by
   mvcgen' [foo_spec, bar] with finish
 
 end LocalSpec
+
+namespace RawMonadLiftRegression
+
+/-! A raw `monadLift`/`liftM` of an inner-monad value used to loop, because `liftM.eq_1`
+(`@liftM = @monadLift`, a reducible no-op) was registered as a productive simp spec. It now
+terminates. It is still not dischargeable: `monadLift_trans` is selected but cannot determine the
+existential intermediate monad, so a missing spec is reported. Turn this into a successful proof
+once raw lifts are supported. -/
+
+def liftProg : StateT Nat Id Nat := do
+  let x ← (pure 5 : Id Nat)
+  return x
+
+/--
+error: No spec matching the monad StateT Nat
+  Id found for program monadLift
+  (pure
+    5). Candidates were [SpecProof.global Std.Do.Spec.UnfoldLift.monadLift_trans,
+ SpecProof.global Std.Do.Spec.UnfoldLift.monadLift_refl].
+-/
+#guard_msgs in
+example : ⦃ ⊤ ⦄ liftProg ⦃ fun r _ => r = 5 ⦄ := by mvcgen' [liftProg]
+
+end RawMonadLiftRegression

@@ -120,6 +120,18 @@ pub export fn lean_st_ref_get(ref: *anyopaque) callconv(.c) *anyopaque {
     return value;
 }
 
+pub export fn lean_st_ref_take(ref: *anyopaque) callconv(.c) *anyopaque {
+    if (refMaybeMt(ref)) {
+        while (true) {
+            if (mtTakeValue(ref)) |value| return value;
+        }
+    }
+    const ref_obj = asRef(ref);
+    const value = ref_obj.m_value orelse @panic("null reference read");
+    ref_obj.m_value = null;
+    return value;
+}
+
 pub export fn lean_st_ref_set(ref: *anyopaque, value: *anyopaque) callconv(.c) *anyopaque {
     const old_value = if (refMaybeMt(ref)) blk: {
         rc.lean_mark_mt(value);
@@ -148,6 +160,10 @@ pub export fn lean_st_ref_swap(ref: *anyopaque, value: *anyopaque) callconv(.c) 
     const old_value = ref_obj.m_value orelse @panic("null reference read");
     ref_obj.m_value = value;
     return old_value;
+}
+
+pub export fn lean_st_ref_ptr_eq(ref1: *anyopaque, ref2: *anyopaque) callconv(.c) u8 {
+    return @intFromBool(asRef(ref1) == asRef(ref2));
 }
 
 test "lean_ref_object layout matches lean.h" {

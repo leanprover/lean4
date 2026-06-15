@@ -7,6 +7,7 @@ const lean = @import("lean_object.zig");
 const object = @import("object.zig");
 const rc = @import("rc.zig");
 const mpz_zig = @import("mpz_zig");
+const runtime_options = @import("runtime_options");
 
 const gmp = struct {
     extern fn __gmpz_get_d(op: *const mpz_zig.Mpz) callconv(.c) f64;
@@ -332,15 +333,18 @@ export fn lean_io_println(str_obj: *anyopaque) callconv(.c) *anyopaque {
     return ioPrintlnAction(str_obj, object.lean_box(0).?);
 }
 
-export fn lean_io_eprintln(str_obj: *anyopaque) callconv(.c) *anyopaque {
+fn lean_io_eprintln_impl(str_obj: *anyopaque) callconv(.c) *anyopaque {
     return ioEprintlnAction(str_obj, object.lean_box(0).?);
 }
 // Mangled name emitted by the Lean compiler for IO.eprintln in some modules.
 fn l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0(str_obj: *anyopaque) callconv(.c) *anyopaque {
-    return lean_io_eprintln(str_obj);
+    return lean_io_eprintln_impl(str_obj);
 }
 comptime {
-    @export(&l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0, .{ .name = "l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0" });
+    if (runtime_options.export_lean_helpers) {
+        @export(&lean_io_eprintln_impl, .{ .name = "lean_io_eprintln" });
+        @export(&l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0, .{ .name = "l_IO_eprintln___at___00__private_Init_System_IO_0__IO_eprintlnAux_spec__0" });
+    }
 }
 
 fn natToF64(n: *anyopaque) f64 {
@@ -365,7 +369,9 @@ fn l_Float_ofScientific(m: *anyopaque, s: u8, e: *anyopaque) callconv(.c) f64 {
     }
 }
 comptime {
-    @export(&l_Float_ofScientific, .{ .name = "l_Float_ofScientific" });
+    if (runtime_options.export_lean_helpers) {
+        @export(&l_Float_ofScientific, .{ .name = "l_Float_ofScientific" });
+    }
 }
 
 export fn initialize_Init(builtin: u8) callconv(.c) *anyopaque {

@@ -5,6 +5,7 @@ pub const apply = @import("apply.zig");
 pub const array = @import("array.zig");
 pub const box = @import("box.zig");
 pub const ctor = @import("ctor.zig");
+pub const compat = @import("compat.zig");
 pub const dbg = @import("dbg.zig");
 pub const float = @import("float.zig");
 pub const init = @import("init.zig");
@@ -41,6 +42,7 @@ comptime {
     _ = array;
     _ = box;
     _ = ctor;
+    _ = compat.force_link;
     _ = dbg;
     _ = float;
     _ = init;

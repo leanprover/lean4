@@ -9,6 +9,7 @@ const std = @import("std");
 const lean = @import("lean_object.zig");
 const mpz_zig = @import("mpz_zig");
 const object = @import("object.zig");
+const runtime_options = @import("runtime_options");
 
 const nat_constructors = @import("nat_constructors.zig");
 const nat_arithmetic = @import("nat_arithmetic.zig");
@@ -31,7 +32,9 @@ fn natReprFast(n: *anyopaque) callconv(.c) *anyopaque {
 }
 
 comptime {
-    @export(&natReprFast, .{ .name = "l_Nat_reprFast" });
+    if (runtime_options.export_lean_helpers) {
+        @export(&natReprFast, .{ .name = "l_Nat_reprFast" });
+    }
 }
 
 test "nat module re-exports compile" {

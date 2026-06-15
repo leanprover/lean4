@@ -8,6 +8,7 @@ const rc = @import("rc.zig");
 const ctor = @import("ctor.zig");
 
 const Obj = ?*anyopaque;
+extern fn lean_usize_of_nat(a: *anyopaque) callconv(.c) usize;
 
 fn asArray(o: *anyopaque) *lean.lean_array_object {
     return @ptrCast(@alignCast(o));
@@ -107,11 +108,15 @@ pub fn lean_array_uget(a: *anyopaque, i: usize) Obj {
     return result;
 }
 
-pub fn lean_array_fget(a: *anyopaque, i: Obj) Obj {
+pub export fn lean_array_fget(a: *anyopaque, i: Obj) callconv(.c) Obj {
     return lean_array_uget(a, object.lean_unbox(i));
 }
 
-pub fn lean_array_get(def_val: Obj, a: *anyopaque, i: Obj) Obj {
+pub export fn lean_array_fget_borrowed(a: *anyopaque, i: Obj) callconv(.c) Obj {
+    return lean_array_get_core(a, object.lean_unbox(i));
+}
+
+pub export fn lean_array_get(def_val: Obj, a: *anyopaque, i: Obj) callconv(.c) Obj {
     if (object.lean_is_scalar(i)) {
         const idx = object.lean_unbox(i);
         if (idx < lean_array_size(a)) {
@@ -122,7 +127,7 @@ pub fn lean_array_get(def_val: Obj, a: *anyopaque, i: Obj) Obj {
     return lean_array_get_panic(def_val.?);
 }
 
-pub fn lean_array_uset(a: *anyopaque, i: usize, v: Obj) *anyopaque {
+pub export fn lean_array_uset(a: *anyopaque, i: usize, v: Obj) callconv(.c) *anyopaque {
     const result = lean_ensure_exclusive_array(a);
     std.debug.assert(i < lean_array_size(result));
     const slots = arraySlots(result);
@@ -131,11 +136,11 @@ pub fn lean_array_uset(a: *anyopaque, i: usize, v: Obj) *anyopaque {
     return result;
 }
 
-pub fn lean_array_fset(a: *anyopaque, i: Obj, v: Obj) *anyopaque {
+pub export fn lean_array_fset(a: *anyopaque, i: Obj, v: Obj) callconv(.c) *anyopaque {
     return lean_array_uset(a, object.lean_unbox(i), v);
 }
 
-pub fn lean_array_set(a: *anyopaque, i: Obj, v: Obj) *anyopaque {
+pub export fn lean_array_set(a: *anyopaque, i: Obj, v: Obj) callconv(.c) *anyopaque {
     if (object.lean_is_scalar(i)) {
         const idx = object.lean_unbox(i);
         if (idx < lean_array_size(a)) {
@@ -145,7 +150,7 @@ pub fn lean_array_set(a: *anyopaque, i: Obj, v: Obj) *anyopaque {
     return lean_array_set_panic(a, v.?);
 }
 
-pub fn lean_array_pop(a: *anyopaque) *anyopaque {
+pub export fn lean_array_pop(a: *anyopaque) callconv(.c) *anyopaque {
     const result = lean_ensure_exclusive_array(a);
     const size = lean_array_size(result);
     if (size == 0) return result;
@@ -165,11 +170,11 @@ pub fn lean_array_uswap(a: *anyopaque, i: usize, j: usize) *anyopaque {
     return result;
 }
 
-pub fn lean_array_fswap(a: *anyopaque, i: Obj, j: Obj) *anyopaque {
+pub export fn lean_array_fswap(a: *anyopaque, i: Obj, j: Obj) callconv(.c) *anyopaque {
     return lean_array_uswap(a, object.lean_unbox(i), object.lean_unbox(j));
 }
 
-pub fn lean_array_swap(a: *anyopaque, i: Obj, j: Obj) *anyopaque {
+pub export fn lean_array_swap(a: *anyopaque, i: Obj, j: Obj) callconv(.c) *anyopaque {
     if (!object.lean_is_scalar(i) or !object.lean_is_scalar(j)) return a;
     const ui = object.lean_unbox(i);
     const uj = object.lean_unbox(j);
@@ -216,7 +221,7 @@ fn ensureCapacitySArray(a: *anyopaque, min_cap: usize, exact: bool) *anyopaque {
     return copySArray(a, if (exact) min_cap else growCapacity(min_cap));
 }
 
-pub fn lean_byte_array_get(a: *anyopaque, i: Obj) u8 {
+pub export fn lean_byte_array_get(a: *anyopaque, i: Obj) callconv(.c) u8 {
     if (object.lean_is_scalar(i)) {
         const idx = object.lean_unbox(i);
         return if (idx < lean_sarray_size(a)) sarrayBytes(a)[idx] else 0;
@@ -224,23 +229,42 @@ pub fn lean_byte_array_get(a: *anyopaque, i: Obj) u8 {
     return 0;
 }
 
-fn lean_byte_array_uget(a: *anyopaque, i: usize) u8 {
+pub export fn lean_byte_array_uget(a: *anyopaque, i: usize) callconv(.c) u8 {
     std.debug.assert(i < lean_sarray_size(a));
     return sarrayBytes(a)[i];
 }
 
-pub fn lean_byte_array_uset(a: *anyopaque, i: usize, v: u8) *anyopaque {
+pub export fn lean_byte_array_uset(a: *anyopaque, i: usize, v: u8) callconv(.c) *anyopaque {
     const result = ensureExclusiveSArray(a);
     std.debug.assert(i < lean_sarray_size(result));
     sarrayBytes(result)[i] = v;
     return result;
 }
 
-pub fn lean_byte_array_set(a: *anyopaque, i: Obj, b: u8) *anyopaque {
+pub export fn lean_byte_array_fset(a: *anyopaque, i: Obj, b: u8) callconv(.c) *anyopaque {
+    return lean_byte_array_uset(a, object.lean_unbox(i), b);
+}
+
+pub export fn lean_byte_array_set(a: *anyopaque, i: Obj, b: u8) callconv(.c) *anyopaque {
     if (!object.lean_is_scalar(i)) return a;
     const idx = object.lean_unbox(i);
     if (idx >= lean_sarray_size(a)) return a;
     return lean_byte_array_uset(a, idx, b);
+}
+
+pub export fn lean_byte_array_copy_slice(src: *anyopaque, o_src_off: *anyopaque, dest: *anyopaque, o_dest_off: *anyopaque, o_len: *anyopaque, exact: bool) callconv(.c) *anyopaque {
+    const src_size = lean_sarray_size(src);
+    const src_off = lean_usize_of_nat(o_src_off);
+    if (src_off > src_size) return dest;
+    const len = @min(lean_usize_of_nat(o_len), src_size - src_off);
+    const dest_size = lean_sarray_size(dest);
+    var dest_off = lean_usize_of_nat(o_dest_off);
+    if (dest_off > dest_size) dest_off = dest_size;
+    const new_size = @max(dest_size, dest_off + len);
+    const result = ensureExclusiveSArray(ensureCapacitySArray(dest, new_size, exact));
+    lean_sarray_set_size(result, new_size);
+    @memcpy(sarrayBytes(result)[dest_off .. dest_off + len], sarrayBytes(src)[src_off .. src_off + len]);
+    return result;
 }
 
 pub fn lean_float_array_get(a: *anyopaque, i: Obj) f64 {
@@ -269,7 +293,7 @@ pub fn lean_float_array_set(a: *anyopaque, i: Obj, d: f64) *anyopaque {
     if (idx >= lean_sarray_size(a)) return a;
     return lean_float_array_uset(a, idx, d);
 }
-fn lean_array_mk(l: *anyopaque) callconv(.c) *anyopaque {
+export fn lean_array_mk(l: *anyopaque) callconv(.c) *anyopaque {
     var size: usize = 0;
     var it: ?*anyopaque = l;
     while (it) |node| {
@@ -292,7 +316,7 @@ fn lean_array_mk(l: *anyopaque) callconv(.c) *anyopaque {
     return result;
 }
 
-fn lean_array_to_list(a: *anyopaque) callconv(.c) *anyopaque {
+export fn lean_array_to_list(a: *anyopaque) callconv(.c) *anyopaque {
     const size = lean_array_size(a);
     var result: ?*anyopaque = object.lean_box(0).?;
     var k: usize = size;
@@ -391,6 +415,10 @@ export fn lean_sarray_eq_cold(a1: *anyopaque, a2: *anyopaque) callconv(.c) bool 
     return std.mem.eql(u8, sarrayBytes(a1)[0..len], sarrayBytes(a2)[0..len]);
 }
 
+export fn lean_mk_empty_byte_array(capacity: *anyopaque) callconv(.c) *anyopaque {
+    if (!object.lean_is_scalar(capacity)) @panic("lean_mk_empty_byte_array: non-scalar capacity");
+    return allocByteArray(0, object.lean_unbox(capacity));
+}
 export fn lean_byte_array_mk(a: *anyopaque) callconv(.c) *anyopaque {
     const size = lean_array_size(a);
     const result = allocByteArray(size, size);

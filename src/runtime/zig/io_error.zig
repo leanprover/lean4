@@ -8,6 +8,7 @@ const ctor = @import("ctor.zig");
 const lean = @import("lean_object.zig");
 const object = @import("object.zig");
 const rc = @import("rc.zig");
+const runtime_options = @import("runtime_options");
 
 const pointer_bytes: c_uint = @sizeOf(?*anyopaque);
 
@@ -244,7 +245,7 @@ pub export fn lean_mk_io_user_error_zig_impl(msg: *anyopaque) callconv(.c) *anyo
 }
 extern fn lean_mk_string_unchecked(s: [*:0]const u8, sz: usize, len: usize) callconv(.c) *anyopaque;
 
-pub export fn lean_io_error_to_string(err: *anyopaque) callconv(.c) *anyopaque {
+fn lean_io_error_to_string_impl(err: *anyopaque) callconv(.c) *anyopaque {
     const tag = object.lean_obj_tag(err);
     if (tag == 17) {
         return lean_mk_string_unchecked("end of file".ptr, 11, 11);
@@ -255,6 +256,11 @@ pub export fn lean_io_error_to_string(err: *anyopaque) callconv(.c) *anyopaque {
         return msg;
     }
     return lean_mk_string_unchecked("IO error".ptr, 8, 8);
+}
+comptime {
+    if (runtime_options.export_lean_helpers) {
+        @export(&lean_io_error_to_string_impl, .{ .name = "lean_io_error_to_string" });
+    }
 }
 
 fn expectOptionSome(option_value: ?*anyopaque, expected: ?*anyopaque) !void {

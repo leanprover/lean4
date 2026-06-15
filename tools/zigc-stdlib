@@ -120,9 +120,21 @@ def filter_conflicting_objs(
     zigrt_lib: pathlib.Path,
     work_dir: pathlib.Path,
 ) -> list[pathlib.Path]:
-    """Remove runtime-provided symbols from object files instead of dropping them wholesale."""
+    """On Darwin rely on link-order + duplicate suppression; elsewhere strip overlaps."""
     zigrt_syms = extract_defined_symbols(zigrt_lib)
     if not zigrt_syms:
+        return objs
+    if sys.platform == "darwin":
+        overlap_count = 0
+        for obj in objs:
+            obj_syms = extract_defined_symbols(obj)
+            overlap = obj_syms & zigrt_syms
+            if overlap:
+                overlap_count += 1
+                sample = sorted(overlap)[:3]
+                print(f"keep {obj.name}: defer overlapping symbols to Darwin linker ({', '.join(sample)})", file=sys.stderr)
+        if overlap_count:
+            print(f"kept {overlap_count} overlapping object file(s) for Darwin duplicate suppression", file=sys.stderr)
         return objs
     kept: list[pathlib.Path] = []
     stripped = 0
@@ -182,6 +194,30 @@ def link(
         cmd.extend(["-L/opt/homebrew/lib", "-framework", "CoreFoundation"])
     cmd.append(f"-femit-bin={output}")
     return subprocess.run(cmd, capture_output=True, text=True)
+
+def build_helperless_zigrt(zig: pathlib.Path, work_dir: pathlib.Path) -> pathlib.Path:
+    runtime_dir = ROOT / "src" / "runtime" / "zig"
+    prefix = work_dir / "zigrt-nohelpers"
+    cache_dir = work_dir / ".zig-runtime-cache"
+    global_cache_dir = work_dir / ".zig-runtime-global-cache"
+    cmd = [
+        str(zig),
+        "build",
+        "--prefix",
+        str(prefix),
+        "--cache-dir",
+        str(cache_dir),
+        "--global-cache-dir",
+        str(global_cache_dir),
+        "-Dexport-lean-helpers=false",
+    ]
+    result = subprocess.run(cmd, cwd=runtime_dir, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
+    lib = prefix / "lib" / "libleanrt_zig.a"
+    if not lib.exists():
+        raise FileNotFoundError(lib)
+    return lib
 
 
 def extract_undefined_symbols(stderr: str) -> list[str]:
@@ -354,11 +390,11 @@ def main() -> int:
     driver = pathlib.Path(args.driver).resolve()
     src_root = pathlib.Path(args.lean_src_root).resolve()
     cache_dir = pathlib.Path(args.cache_dir).resolve()
-    zigrt_lib = build_dir / "runtime" / "zig" / "zig-out" / "lib" / "libleanrt_zig.a"
+    base_zigrt_lib = build_dir / "runtime" / "zig" / "zig-out" / "lib" / "libleanrt_zig.a"
 
-    if not zigrt_lib.exists():
+    if not base_zigrt_lib.exists():
         print(
-            f"zigc-stdlib: {zigrt_lib} not found; run "
+            f"zigc-stdlib: {base_zigrt_lib} not found; run "
             f"'make -C {build_dir} leanrt_zig'",
             file=sys.stderr,
         )
@@ -368,6 +404,7 @@ def main() -> int:
     work = pathlib.Path(tempfile.mkdtemp(prefix="zigc-stdlib-"))
 
     try:
+        zigrt_lib = build_helperless_zigrt(zig, work)
         objs: list[pathlib.Path] = []
         failed_modules: list[str] = []
 

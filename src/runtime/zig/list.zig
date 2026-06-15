@@ -3,6 +3,7 @@
 
 const lean = @import("lean_object.zig");
 const object = @import("object.zig");
+const runtime_options = @import("runtime_options");
 
 // Mangled name emitted by the Lean compiler for List.lengthTR's reducer argument.
 fn l_List_lengthTR___redArg(list: *anyopaque) callconv(.c) *anyopaque {
@@ -25,5 +26,7 @@ fn l_List_lengthTR___redArg(list: *anyopaque) callconv(.c) *anyopaque {
 }
 
 comptime {
-    @export(&l_List_lengthTR___redArg, .{ .name = "l_List_lengthTR___redArg" });
+    if (runtime_options.export_lean_helpers) {
+        @export(&l_List_lengthTR___redArg, .{ .name = "l_List_lengthTR___redArg" });
+    }
 }

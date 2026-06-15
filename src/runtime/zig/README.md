@@ -14,15 +14,30 @@ runtime under `src/runtime/` for selected targets.
 
 ## Build
 
-There is no top-level CMake integration yet. The previous standalone
-`zig-backend/` build is being migrated; for now use the Zig CLI directly:
+The Zig runtime is opt-in and experimental. Default Lean builds continue to use
+the C++ runtime and do not require Zig.
+
+Build the runtime archive manually from an existing stage1 build:
 
 ```bash
-cd src/runtime/zig
-zig build --build-file ../../../zig-backend/build.zig  # TODO: migrate build.zig
+make -C build/release/stage1 leanrt_zig
+```
+
+Configure the full release build with the Zig runtime path enabled:
+
+```bash
+cmake --preset release -B build/release -DLEAN_ZIG_RUNTIME=ON
+make -j$(sysctl -n hw.logicalcpu) -C build/release
+```
+
+Run the opt-in runtime tests:
+
+```bash
+ctest --preset release --test-dir build/release/stage1 -R 'runtime/zig|emitzig/zigrt|emitzig/zig-symbols'
 ```
 
 ## Status
 
-M1-M6 functionality has been ported from `zig-backend/`. Full in-tree build
-integration is pending.
+M1-M6 functionality has been ported from `zig-backend/`. The in-tree CMake and
+CTest path builds `libleanrt_zig.a`, runs Zig runtime unit tests, and runs one
+EmitZig-to-Zig-runtime smoke test when `LEAN_ZIG_RUNTIME=ON`.

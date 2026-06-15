@@ -2,13 +2,14 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-LEAN="${LEAN:-$ROOT/build/release/stage1/bin/lean}"
+BUILD_DIR="${BUILD_DIR:-$ROOT/build/release/stage1}"
+LEAN="${LEAN:-$BUILD_DIR/bin/lean}"
 
 # Locate the Lean runtime shared library.
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  LIB="$ROOT/build/release/stage1/lib/lean/libleanshared.dylib"
+  LIB="$BUILD_DIR/lib/lean/libleanshared.dylib"
 else
-  LIB="$ROOT/build/release/stage1/lib/lean/libleanshared.so"
+  LIB="$BUILD_DIR/lib/lean/libleanshared.so"
 fi
 
 if [[ ! -f "$LIB" ]]; then

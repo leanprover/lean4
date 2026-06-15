@@ -298,6 +298,15 @@ jobs:
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
               },
               {
+                "name": "Linux Zig runtime",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
+                "enabled": level >= 1,
+                "test": true,
+                "secondary": true,
+                "CMAKE_OPTIONS": "-DLEAN_ZIG_RUNTIME=ON",
+                "CTEST_OPTIONS": "-R 'runtime/zig|emitzig/zigrt|emitzig/zig-symbols'",
+              },
+              {
                 "name": "Linux RelWithAssert",
                 "os": "ubuntu-latest",
                 "enabled": level >= 2,

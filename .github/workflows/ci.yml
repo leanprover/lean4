@@ -312,8 +312,6 @@ jobs:
                 // Always run on large if available, more reliable regarding timeouts
                 "os": large ? "nscloud-ubuntu-24.04-amd64-16x32" : "ubuntu-latest",
                 "enabled": level >= 2,
-                // do not fail nightlies on this for now
-                "secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",

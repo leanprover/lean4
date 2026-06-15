@@ -113,20 +113,20 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
         catch _ => continue
   let tripleIntro ← mkBackwardRuleFromDecl ``Std.Internal.Do.Triple.intro
   let stateArgIntro ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
-  let topStateArgIntro ← mkBackwardRuleFromDecl ``Lean.Order.top_le_of_forall_top_le
   let propPreIntro ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
   let ofPropPreIntro ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le
   let truePreIntro ← mkBackwardRuleFromDecl ``Lean.Order.true_le_of_top_le
   let elimPreRule ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
   let andIntroRule ← mkBackwardRuleFromDecl ``And.intro
   let reflRule ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
+  let meetTopRule ← mkBackwardRuleFromDecl ``Std.Internal.Do.CompleteLattice.meet_top_le_of_le
   let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
   let ctx : VCGen.Context := {
-    introRules := { tripleIntro, stateArgIntro, topStateArgIntro, propPreIntro, ofPropPreIntro,
-                    truePreIntro },
+    introRules := { tripleIntro, stateArgIntro, propPreIntro, ofPropPreIntro, truePreIntro },
     elimPreRule,
     andIntroRule,
     reflRule,
+    meetTopRule,
   }
   return (ctx, { specs := specThmsNew })
 

@@ -48,15 +48,6 @@ theorem himp_complete (x a b : α) : a ⊓ x ⊑ b → x ⊑ a ⇨ b := by
   exact le_sup (c := fun y : α => a ⊓ y ⊑ b) h
 
 /--
-`⊤`-specialized completeness direction: if `a ⊑ b`, then `⊤ ⊑ a ⇨ b`.
-
-This avoids the redundant `⊓ ⊤` that `himp_complete` would leave when the precondition is `⊤`.
--/
-theorem himp_complete_top (a b : α) : a ⊑ b → (⊤ : α) ⊑ a ⇨ b := by
-  intro h
-  exact himp_complete ⊤ a b (PartialOrder.rel_trans (meet_le_left a ⊤) h)
-
-/--
 Soundness direction (`a ⊓ (a ⇨ b) ⊑ b`) from the frame distributivity law.
 -/
 theorem himp_sound [Frame α] (a b : α) : a ⊓ (a ⇨ b) ⊑ b := by

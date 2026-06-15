@@ -67,20 +67,18 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) 
   return rule
 
 /--
-Cached version of `LogicOp.mkBackwardRule`.
+Cached version of `LatticeSplit.mkBackwardRule`.
 
-Cache key: `(logic rule lemma, argument types, excessArgs.size, preIsTop)`. The `preIsTop` flag is
-part of the key because a `⊤` precondition produces a `⊤`-specialized rule whose type differs from
-the general one.
+Cache key: `(distribution lemma, argument types, excessArgs.size)`.
 -/
-public def mkBackwardRuleForLogicCached (lop : LogicOp) (as excessArgs : Array Expr)
-    (resultType? : Option Expr := none) (preIsTop : Bool := false) : VCGenM BackwardRule := do
-  let s := (← get).logicBackwardRuleCache
+public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (as excessArgs : Array Expr)
+    (resultType? : Option Expr := none) : VCGenM BackwardRule := do
+  let s := (← get).latticeBackwardRuleCache
   let asTypes ← (as.mapM Sym.inferType : SymM (Array Expr))
-  let key := (lop.toApplyLemma, asTypes, excessArgs.size, preIsTop)
+  let key := (c.applyLemma, asTypes, excessArgs.size)
   if let some rule := s[key]? then return rule
-  let rule ← LogicOp.mkBackwardRule lop as excessArgs resultType? preIsTop
-  modify fun st => { st with logicBackwardRuleCache := st.logicBackwardRuleCache.insert key rule }
+  let rule ← c.mkBackwardRule as excessArgs resultType?
+  modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
   return rule
 
 end VCGen

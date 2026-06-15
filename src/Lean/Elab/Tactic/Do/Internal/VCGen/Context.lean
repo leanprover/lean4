@@ -79,9 +79,6 @@ public structure VCGen.IntroRules where
   /-- The backward rule for `Lean.Order.le_of_forall_le`. Peels one excess state argument
   from a function-lattice entailment. -/
   stateArgIntro : BackwardRule
-  /-- The backward rule for `Lean.Order.top_le_of_forall_top_le`. Peels one excess state
-  argument when the precondition is `⊤`. -/
-  topStateArgIntro : BackwardRule
   /-- The backward rule for `Lean.Order.le_of_imp_top_le`. Introduces a bare pure
   precondition on the `Prop` lattice. -/
   propPreIntro : BackwardRule
@@ -103,6 +100,9 @@ public structure VCGen.Context where
   /-- The backward rule for `Lean.Order.PartialOrder.rel_refl`. Closes a reflexive
   entailment `pre ⊑ pre`. -/
   reflRule : BackwardRule
+  /-- The backward rule for `meet_top_le_of_le`. Cancels a redundant `⊓ ⊤` on the left of an
+  entailment, turning `P ⊓ ⊤ ⊑ Q` into `P ⊑ Q`. -/
+  meetTopRule : BackwardRule
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
@@ -163,12 +163,11 @@ public structure VCGen.State where
   -/
   splitBackwardRuleCache : Std.HashMap (Name × Expr × Nat) BackwardRule := {}
   /--
-  A cache mapping logic rules to their backward rule to apply.
-  The particular rule depends on the rule name, the monad, the number of excess state
-  arguments that the weakest precondition target is applied to, and whether the precondition
-  is `⊤` (which selects a `⊤`-specialized split lemma).
+  A cache mapping lattice connectives to their backward rule to apply.
+  The particular rule depends on the rule name, the monad, and the number of excess state
+  arguments that the weakest precondition target is applied to.
   -/
-  logicBackwardRuleCache : Std.HashMap (Name × Array Expr × Nat × Bool) BackwardRule := {}
+  latticeBackwardRuleCache : Std.HashMap (Name × Array Expr × Nat) BackwardRule := {}
   /--
   Holes of type `Invariant` that have been generated so far.
   -/

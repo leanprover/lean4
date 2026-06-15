@@ -250,6 +250,18 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
 
 end Automated
 
+namespace HimpSplit
+
+-- A `⇨` (Heyting implication) in the postcondition exercises the `himp_complete` split, whose
+-- subgoal carries a `⊓ ⊤` precondition that `meet_top_le_of_le` cancels. The abstract `Pred` keeps
+-- `⇨` from collapsing to `→`.
+theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+    ⦃ ⊤ ⦄ (pure 4 : m Nat) ⦃ fun r => ⌜r = 4⌝ ⇨ ⌜r > 0⌝ ⦄ := by
+  mvcgen'
+  all_goals grind
+
+end HimpSplit
+
 namespace VSTTE2010
 
 namespace MaxAndSum

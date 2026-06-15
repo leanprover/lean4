@@ -72,25 +72,28 @@ connective.
 An embedded proposition `⌜p⌝` is only decomposed when the precondition is `⊤`: turning
 `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`, which can make the goal unprovable otherwise.
 -/
-public def solveLatticeConnective? (goal : MVarId) (target rhs : Expr) (preIsTop : Bool) :
+public def solveLatticeConnective? (goal : MVarId) (target rhs : Expr) :
     VCGenM (Option (List MVarId)) :=
   rhs.withApp fun head args => do
-    let applyLattice (lop : LogicOp) (as excessArgs : Array Expr)
+    let applyLattice (c : LatticeSplit) (as excessArgs : Array Expr)
         (resultType? : Option Expr := none) : VCGenM (List MVarId) := do
-      let rule ← mkBackwardRuleForLogicCached lop as excessArgs resultType? preIsTop
+      let rule ← mkBackwardRuleForLatticeCached c as excessArgs resultType?
       let .goals goals ← rule.applyChecked goal
-        | throwError "Failed to apply logic rule at {indentExpr target}"
+        | throwError "Failed to apply lattice rule at {indentExpr target}"
       return goals
     match_expr head with
     | meet =>
-      return some (← applyLattice .And (args.extract 2 4) (args.drop 4))
+      return some (← applyLattice .meet (args.extract 2 4) (args.drop 4))
     | himp =>
-      return some (← applyLattice .Imp (args.extract 2 4) (args.drop 4))
+      return some (← applyLattice .himp (args.extract 2 4) (args.drop 4))
     | CompleteLattice.ofProp =>
+      let preIsTop := match target.app4? ``Lean.Order.PartialOrder.rel with
+        | some (_, _, pre, _) => pre.isAppOf ``Lean.Order.top && pre.getAppNumArgs == 2
+        | none => false
       unless preIsTop do return none
-      return some (← applyLattice .Pure (args.extract 2 3) (args.drop 3) args[0]!)
+      return some (← applyLattice .ofProp (args.extract 2 3) (args.drop 3) args[0]!)
     | top =>
-      return some (← applyLattice .Top #[] (args.drop 2) args[0]!)
+      return some (← applyLattice .top #[] (args.drop 2) args[0]!)
     | _ => return none
 
 /-- Reduce a `Prop`-lattice goal `(⊤ : Prop) ⊑ φ` to the bare proposition `φ` via `top_le_prop`,

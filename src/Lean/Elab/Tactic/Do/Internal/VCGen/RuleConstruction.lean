@@ -41,64 +41,53 @@ Backward rules for decomposing lattice logic connectives (`⊓`, `⇨`, `⌜·�
 entailment `pre ⊑ e s₁ … sₙ`.
 -/
 
-/-- A lattice logic connective decomposed by VCGen. -/
-public inductive LogicOp where
-  /-- The lattice meet `⊓`. -/
-  | And
-  /-- The Heyting implication `⇨`. -/
-  | Imp
-  /-- The pure assertion embedding `⌜·⌝`. -/
-  | Pure
-  /-- The lattice top `⊤`. Has no operands; the split lemma `le_top` has no premise, so this
-      closes the goal (it is the nullary analogue of `Pure`). -/
-  | Top
+/-- A decomposition of a lattice logic connective on the RHS of an entailment. Bundles everything
+`LatticeSplit.mkBackwardRule` needs: how to rebuild the connective, the pointwise `_apply`
+distribution lemma, the `⊑`-form split lemma, and whether the operands depend on the excess (state)
+arguments. -/
+public structure LatticeSplit where
+  /-- Rebuild the connective from its operands `as` and the optional lattice carrier type. -/
+  mkLattice : Array Expr → Option Expr → MetaM Expr
+  /-- The pointwise `_apply` lemma distributing the connective through function application. -/
+  applyLemma : Name
+  /-- The `⊑`-form split lemma decomposing `pre ⊑ connective`. -/
+  relLemma : Name
+  /-- Whether the operands are functions of the excess (state) arguments, and so must be applied to
+  each excess argument when descending one lattice level during `mkApplyEq`.
 
-/-- Map lattice connective declaration names to supported `LogicOp`s. -/
-public def _root_.Lean.Name.toLogicOp? : Name → Option LogicOp
-  | ``meet => some .And
-  | ``himp => some .Imp
-  | ``Lean.Order.CompleteLattice.ofProp => some .Pure
-  | ``Lean.Order.top => some .Top
-  | _ => none
+  For `⊓`/`⇨` the operands are themselves elements of the function lattice (`(a ⊓ b) s = a s ⊓ b s`),
+  so each operand `a` becomes `a s`. For `⌜·⌝`/`⊤` the operand is reused unchanged
+  (`(⌜p⌝ : σ→β) s = (⌜p⌝ : β)`, `(⊤ : σ→β) s = (⊤ : β)`), so it must not be applied to `s`. -/
+  needApplyArgs : Bool
 
-private def LogicOp.mkLatticeExpr (as : Array Expr) (resultType? : Option Expr := none) : LogicOp → MetaM Expr
-  | .And => mkAppM ``meet as
-  | .Imp => mkAppM ``himp as
-  | .Pure => mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[resultType?, none, some as[0]!]
-  | .Top => mkAppOptM ``Lean.Order.top #[resultType?, none]
+/-- The lattice meet `⊓`. -/
+public def LatticeSplit.meet : LatticeSplit where
+  mkLattice as _ := mkAppM ``meet as
+  applyLemma := ``meet_apply
+  relLemma := ``le_meet           -- le_meet (x y z) : x ⊑ y → x ⊑ z → x ⊑ y ⊓ z
+  needApplyArgs := true
 
-/-- Map a logic operator to its corresponding pointwise `_apply` lemma. -/
-public def LogicOp.toApplyLemma : LogicOp → Name
-  | .And => ``meet_apply
-  | .Imp => ``himp_apply
-  | .Pure => ``Lean.Order.CompleteLattice.ofProp_apply
-  | .Top => ``Lean.Order.top_apply
+/-- The Heyting implication `⇨`. -/
+public def LatticeSplit.himp : LatticeSplit where
+  mkLattice as _ := mkAppM ``himp as
+  applyLemma := ``himp_apply
+  relLemma := ``himp_complete     -- himp_complete (x a b) : a ⊓ x ⊑ b → x ⊑ a ⇨ b
+  needApplyArgs := true
 
-/-- Whether the operands of this logic operator are functions of the excess (state)
-    arguments, and so must be applied to each excess argument when descending one
-    lattice level during `mkApplyEq`.
+/-- The pure assertion embedding `⌜·⌝`. Only built when the precondition is `⊤`. -/
+public def LatticeSplit.ofProp : LatticeSplit where
+  mkLattice as resultType? :=
+    mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[resultType?, none, some as[0]!]
+  applyLemma := ``Lean.Order.CompleteLattice.ofProp_apply
+  relLemma := ``Lean.Order.le_ofProp -- le_ofProp (x p) : p → x ⊑ ⌜p⌝
+  needApplyArgs := false
 
-    For `meet`/`himp` the operands are themselves elements of the function lattice
-    (`(a ⊓ b) s = a s ⊓ b s`), so each operand `a` becomes `a s`. For `ofProp`/`top` the
-    operand is reused unchanged (`(⌜p⌝ : σ→β) s = (⌜p⌝ : β)`, `(⊤ : σ→β) s = (⊤ : β)`), so it must
-    *not* be applied to `s`. -/
-private def LogicOp.needApplyArgs : LogicOp → Bool
-  | .And => true
-  | .Imp => true
-  | .Pure => false
-  | .Top => false
-
-/-- Map a logic operator to its `⊑`-form splitting lemma.
-
-    When `preIsTop` is set, the precondition is `⊤`, so `.Imp` uses the `⊤`-specialized lemma
-    `himp_complete_top` (`a ⊑ b → ⊤ ⊑ a ⇨ b`) instead of `himp_complete`, dropping the redundant
-    `⊓ ⊤`. `.And`/`.Pure` already produce `⊓ ⊤`-free subgoals, so they are unaffected. -/
-private def LogicOp.toRelLemma (preIsTop : Bool) : LogicOp → Name
-  | .And => ``le_meet           -- le_meet (x y z) : x ⊑ y → x ⊑ z → x ⊑ y ⊓ z
-  | .Imp => if preIsTop then ``himp_complete_top -- himp_complete_top (a b) : a ⊑ b → ⊤ ⊑ a ⇨ b
-            else ``himp_complete                 -- himp_complete (x a b) : a ⊓ x ⊑ b → x ⊑ a ⇨ b
-  | .Pure => ``Lean.Order.le_ofProp -- le_ofProp (x p) : p → x ⊑ ⌜p⌝
-  | .Top => ``le_top            -- le_top (x) : x ⊑ ⊤  (no premise ⇒ closes the goal)
+/-- The lattice top `⊤`. Has no operands; `le_top` has no premise, so the rule closes the goal. -/
+public def LatticeSplit.top : LatticeSplit where
+  mkLattice _ resultType? := mkAppOptM ``Lean.Order.top #[resultType?, none]
+  applyLemma := ``Lean.Order.top_apply
+  relLemma := ``le_top            -- le_top (x) : x ⊑ ⊤  (no premise ⇒ closes the goal)
+  needApplyArgs := false
 
 /-- Lift an equality `lhs = rhs` to `(lhs args...) = (rhs args...)`. -/
 private def liftEqByArgs (eqPrf : Expr) (args : List Expr) : MetaM Expr := do
@@ -117,82 +106,68 @@ private def liftEqByArgs (eqPrf : Expr) (args : List Expr) : MetaM Expr := do
 Apply a pointwise `_apply` lemma repeatedly over all excess arguments, producing an equality at
 the fully applied level.
 
-Example (`lop = .And`, `stepThm = ``meet_apply`, `as = #[a, b]`, `ss = [s₁, s₂]`): the resulting
+Example (`c = .meet`, `c.applyLemma = ``meet_apply`, `as = #[a, b]`, `ss = [s₁, s₂]`): the resulting
 proof has type `((a ⊓ b) s₁ s₂) = (a s₁ s₂ ⊓ b s₁ s₂)`.
 -/
-private partial def LogicOp.mkApplyEq
-    (stepThm : Name) (lop : LogicOp)
+private partial def LatticeSplit.mkApplyEq
+    (c : LatticeSplit)
     (as : Array Expr) (ss : List Expr) (resultType? : Option Expr := none) : MetaM Expr := do
   match ss with
-  | [] => mkEqRefl =<< lop.mkLatticeExpr as resultType?
+  | [] => mkEqRefl =<< c.mkLattice as resultType?
   | s :: ss' =>
     let args := as.push s |>.map some
     let rt := resultType?.map .bindingBody!
-    let step ← mkAppOptM stepThm <| #[none, rt, none] ++ args
+    let step ← mkAppOptM c.applyLemma <| #[none, rt, none] ++ args
     if ss'.isEmpty then
       return step
     let stepLift ← liftEqByArgs step ss'
-    -- Descend one lattice level: only operators whose operands depend on the excess
-    -- arguments (see `LogicOp.needApplyArgs`) get their operands applied to `s`.
-    let as := if lop.needApplyArgs then as.map (mkApp · s) else as
-    let rest ← lop.mkApplyEq stepThm as ss' rt
+    -- Descend one lattice level: only connectives whose operands depend on the excess
+    -- arguments (see `LatticeSplit.needApplyArgs`) get their operands applied to `s`.
+    let as := if c.needApplyArgs then as.map (mkApp · s) else as
+    let rest ← c.mkApplyEq as ss' rt
     mkEqTrans stepLift rest
 
-/-- Distribute a logic connective through function applications via its `_apply` lemma,
+/-- Distribute a lattice connective through function applications via its `_apply` lemma,
     staying at the lattice level. Returns `((a ⊓ b) s₁…sₙ, eq)` where
     `eq : (a ⊓ b) s₁…sₙ = (a s₁…sₙ ⊓ b s₁…sₙ)`. -/
-private def LogicOp.mkDistributeEq
-    (lop : LogicOp) (as ss : Array Expr) (resultType? : Option Expr := none) : SymM (Expr × Expr) := do
-  let applyLemma := lop.toApplyLemma
-  let lat ← lop.mkLatticeExpr as resultType?
+private def LatticeSplit.mkDistributeEq
+    (c : LatticeSplit) (as ss : Array Expr) (resultType? : Option Expr := none) : SymM (Expr × Expr) := do
+  let lat ← c.mkLattice as resultType?
   let goal ← mkAppNS lat ss
-  let eqFun ← lop.mkApplyEq applyLemma as ss.toList resultType?
+  let eqFun ← c.mkApplyEq as ss.toList resultType?
   return (goal, eqFun)
 
 /--
-Creates a reusable backward rule for a lattice logic expression in `⊑` form.
+Creates a reusable backward rule for a lattice connective in `⊑` form.
 Chains distribution (`_apply`) with the split lemma (`le_meet`/`himp_complete`).
 
-For `And`, produces:
+For `⊓`, produces:
 ```
 ∀ (a b : l) (s₁ : σ₁) ... (sₙ : σₙ) (pre : l'),
   pre ⊑ a s₁...sₙ → pre ⊑ b s₁...sₙ → pre ⊑ (a ⊓ b) s₁...sₙ
 ```
-For `Imp`, produces:
+For `⇨`, produces:
 ```
 ∀ (a b : l) (s₁ : σ₁) ... (sₙ : σₙ) (pre : l'),
   a s₁...sₙ ⊓ pre ⊑ b s₁...sₙ → pre ⊑ (a ⇨ b) s₁...sₙ
 ```
 Works for any `CompleteLattice`, not just `Prop`.
-
-When `preIsTop` is set, the precondition `pre` is fixed to `⊤` (rather than abstracted as a
-parameter) and `Imp` uses the `⊤`-specialized split lemma `himp_complete_top`, so the `Imp` rule
-becomes
-```
-∀ (a b : l) (s₁ : σ₁) ... (sₙ : σₙ),
-  a s₁...sₙ ⊑ b s₁...sₙ → ⊤ ⊑ (a ⇨ b) s₁...sₙ
-```
-dropping the redundant `⊓ ⊤`.
 -/
-public def LogicOp.mkBackwardRule
-    (lop : LogicOp) (as : Array Expr) (excessArgs : Array Expr)
-    (resultType? : Option Expr := none) (preIsTop : Bool := false)
+public def LatticeSplit.mkBackwardRule
+    (c : LatticeSplit) (as : Array Expr) (excessArgs : Array Expr)
+    (resultType? : Option Expr := none)
     : SymM BackwardRule := do
   let as ← as.mapM fun arg => do
     mkFreshExprMVar (userName := `a) (← Sym.inferType arg)
   let ss ← excessArgs.mapM fun arg => do
     mkFreshExprMVar (userName := `s) (← Sym.inferType arg)
 
-  let (goal, eqGoalDistributed) ← lop.mkDistributeEq as ss resultType?
+  let (goal, eqGoalDistributed) ← c.mkDistributeEq as ss resultType?
 
   let goalTy ← Meta.inferType goal
-  -- When the precondition is `⊤`, bake it into the rule (and use a `⊤`-specialized split lemma
-  -- below) so the resulting subgoals avoid the redundant `⊓ ⊤`. Otherwise the precondition is a
-  -- fresh metavariable that becomes a universally quantified parameter of the rule.
-  let pre ← if preIsTop then
-      mkAppOptM ``Lean.Order.top #[goalTy, none]
-    else
-      mkFreshExprMVar (userName := `Pre) goalTy
+  -- The precondition is a fresh metavariable that becomes a universally quantified parameter of
+  -- the rule.
+  let pre ← mkFreshExprMVar (userName := `Pre) goalTy
 
   -- Lift equality through `pre ⊑ ·`: (pre ⊑ goal) = (pre ⊑ distributed)
   -- Use partial application (not lambda) to avoid beta redexes
@@ -202,8 +177,8 @@ public def LogicOp.mkBackwardRule
   -- eqMp : (pre ⊑ distributed) → (pre ⊑ goal)
   let eqMp ← mkAppM ``Eq.mp #[relEqSymm]
 
-  -- Instantiate the split lemma (le_meet / himp_complete / himp_complete_top) via telescope
-  let splitLemma ← mkConstWithFreshMVarLevels (lop.toRelLemma preIsTop)
+  -- Instantiate the split lemma (le_meet / himp_complete / le_ofProp / le_top) via telescope
+  let splitLemma ← mkConstWithFreshMVarLevels c.relLemma
   let (xs, _, body) ← forallMetaTelescope (← Meta.inferType splitLemma)
   -- Unify conclusion with eqMp's domain to assign param mvars
   unless ← isDefEq body (← Meta.inferType eqMp).bindingDomain! do

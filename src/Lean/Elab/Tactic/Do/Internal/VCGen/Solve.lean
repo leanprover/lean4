@@ -51,7 +51,7 @@ private def isDuplicable (e : Expr) : Bool := match e with
   | .app .. => e.isAppOf ``OfNat.ofNat
 
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
-private def tryForallIntro (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
+private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
   let (goal, simped) ← match ← simpGoalTelescope goal with
     | .closed => return some []
@@ -72,7 +72,7 @@ private def throwIfUnsupportedJP (name : Name) (val : Expr) : VCGenM Unit := do
 
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
 introduce it into the local context. -/
-private def tryTargetLetIntro (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
+private def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let .letE name _ val body _ := target | return none
   throwIfUnsupportedJP name val
   if isDuplicable val then
@@ -83,7 +83,7 @@ private def tryTargetLetIntro (goal : MVarId) (target : Expr) : VCGenM (Option M
     return some (← introsHygienic goal)
 
 /-- Strategy 3: unfold a `Triple` target into the underlying lattice entailment. -/
-private def tryTripleUnfold (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
+private def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   unless target.isAppOf ``Triple do return none
   return some (← unfoldTriple goal)
 
@@ -97,7 +97,7 @@ private def getWPInfo? (rhs : Expr) : Option WPInfo :=
 
 /-- Strategy 3b: turn a bare `wp` application target (a `Prop`) into `⊤ ⊑ wp …`. Entry-point
 goals produced by the `of_wp_run_eq` lemmas have this shape. -/
-private def tryBareWPToLe (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
+private def bareWPToLe? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let some _ := getWPInfo? target | return none
   let newTarget ← mkAppM ``PartialOrder.rel #[← mkAppOptM ``Lean.Order.top #[mkSort 0, none], target]
   let newTarget ← shareCommon newTarget
@@ -109,7 +109,7 @@ private def tryBareWPToLe (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
 Runs before the precondition lift so a spec handoff `pre ⊑ specPre` closes by unification rather
 than an assumption search. The pattern matcher keeps synthetic-opaque invariant holes rigid, so
 `⊤ ⊑ ?inv args` is left untouched. -/
-private def tryRfl (goal : MVarId) : VCGenM (Option (List MVarId)) := do
+private def rfl? (goal : MVarId) : VCGenM (Option (List MVarId)) := do
   let .goals gs ← (← read).reflRule.apply goal | return none
   trace[Elab.Tactic.Do.vcgen] "Solved by rfl {goal}"
   return some gs
@@ -121,7 +121,7 @@ hypothesis, not an assumption search.
 
 Goals whose RHS contains metavariables are skipped: the defeq check could otherwise assign
 a post abstraction from an unrelated hypothesis. -/
-private def tryLiftedHyp (scope : VCGen.Scope) (goal : MVarId) (α pre rhs : Expr) :
+private def liftedHyp? (scope : VCGen.Scope) (goal : MVarId) (α pre rhs : Expr) :
     VCGenM (Option (List MVarId)) :=
   goal.withContext do
     unless α.isProp do return none
@@ -136,7 +136,7 @@ private def tryLiftedHyp (scope : VCGen.Scope) (goal : MVarId) (α pre rhs : Exp
 /-- Close a bare `Prop` residual, such as the subgoal of the `⌜φ⌝` lattice rule, against the
 most recently lifted pure precondition. Runs when the target is not a lattice entailment,
 just before it would be classified as a VC. -/
-private def tryLiftedHypBare (scope : VCGen.Scope) (goal : MVarId) (target : Expr) :
+private def liftedHypBare? (scope : VCGen.Scope) (goal : MVarId) (target : Expr) :
     VCGenM (Option (List MVarId)) :=
   goal.withContext do
     if target.hasExprMVar then return none
@@ -147,10 +147,19 @@ private def tryLiftedHypBare (scope : VCGen.Scope) (goal : MVarId) (target : Exp
     goal.assign hyp.toExpr
     return some []
 
+/-- Strategy 5: cancel a redundant `P ⊓ ⊤` precondition via `meet_top_le_of_le`, leaving `P ⊑ rhs`.
+Such a precondition arises when `himp_complete` splits `⊤ ⊑ a ⇨ b` into `a ⊓ ⊤ ⊑ b`. -/
+private def stripMeetTopPre? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
+  let_expr Lean.Order.meet _l _inst _P top := pre | return none
+  unless top.isAppOf ``Lean.Order.top do return none
+  let .goals [g] ← (← read).meetTopRule.applyChecked goal
+    | throwError "Failed to cancel the `⊓ ⊤` precondition of {goal}"
+  return some g
+
 /-- Strategy 5: lift an embedded pure precondition `⌜φ⌝` into the local context, leaving `⊤`
 as the residual precondition. Runs before state-argument introduction, which would otherwise
 leave `⌜φ⌝` applied to the introduced arguments. Returns the new goal and the hypothesis. -/
-private def tryOfPropPreIntro (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
+private def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
   let_expr CompleteLattice.ofProp _l _inst φ := pre | return none
   if φ.isTrue then return none
   return some (← introPre (← read).introRules.ofPropPreIntro goal)
@@ -158,40 +167,38 @@ private def tryOfPropPreIntro (goal : MVarId) (pre : Expr) : VCGenM (Option (MVa
 /-- Strategy 7: move a bare `Prop` precondition `φ ⊑ rhs` into the local context via
 `le_of_imp_top_le`, leaving `⊤ ⊑ rhs`. Runs after `True` and `⊤` preconditions are handled, so
 `φ` carries information worth keeping. Returns the new goal and the introduced hypothesis. -/
-private def tryBarePreIntro (goal : MVarId) (α pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
+private def barePreIntro? (goal : MVarId) (α pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
   unless α.isProp do return none
   if pre.isAppOf ``Lean.Order.top then return none
   return some (← introPre (← read).introRules.propPreIntro goal)
 
 /-- Strategy 7: replace a `True` precondition by `⊤` via `true_le_of_top_le`, so the goal
 follows the `⊤` path instead of lifting `True` into the local context. -/
-private def tryTruePre (goal : MVarId) (pre target : Expr) : VCGenM (Option (List MVarId)) := do
+private def truePre? (goal : MVarId) (pre target : Expr) : VCGenM (Option (List MVarId)) := do
   unless pre.isTrue do return none
   let .goals [g] ← (← read).introRules.truePreIntro.applyChecked goal
     | throwError "Failed to apply {.ofConstName ``Lean.Order.true_le_of_top_le} to{indentExpr target}"
   return some [g]
 
 /-- Phase 2: drive the precondition of `pre ⊑ rhs` toward `⊤`, lifting any pure content into the
-local context so a later spec application sees a `⊤` precondition. In order: lift an embedded
-`⌜φ⌝` (before state-argument introduction, which would otherwise leave `⌜φ⌝` applied to the
-introduced state); introduce excess state arguments; drop a `True` precondition; lift a bare
-`Prop` precondition. Returns the updated scope, recording any lifted hypothesis. -/
-private def tryNormalizePre (scope : VCGen.Scope) (goal : MVarId) (α pre target : Expr) :
+local context so a later spec application sees a `⊤` precondition. In order: cancel a redundant
+`⊓ ⊤`; lift an embedded `⌜φ⌝` (before state-argument introduction, which would otherwise leave
+`⌜φ⌝` applied to the introduced state); introduce excess state arguments; drop a `True`
+precondition; lift a bare `Prop` precondition. Returns the updated scope, recording any lifted
+hypothesis. -/
+private def normalizePre? (scope : VCGen.Scope) (goal : MVarId) (α pre target : Expr) :
     VCGenM (Option (VCGen.Scope × List MVarId)) := do
-  if let some (g, h) ← tryOfPropPreIntro goal pre then
+  if let some g ← stripMeetTopPre? goal pre then
+    return some (scope, [g])
+  if let some (g, h) ← ofPropPreIntro? goal pre then
     return some ({ scope with lastLiftedPre? := some h }, [g])
   if α.isForall then
     return some (scope, [← introsExcessArgs goal])
-  if let some gs ← tryTruePre goal pre target then
+  if let some gs ← truePre? goal pre target then
     return some (scope, gs)
-  if let some (g, h) ← tryBarePreIntro goal α pre then
+  if let some (g, h) ← barePreIntro? goal α pre then
     return some ({ scope with lastLiftedPre? := some h }, [g])
   return none
-
-/-- Strategy 9: decompose a supported lattice connective on the RHS. -/
-private def tryLattice (goal : MVarId) (target rhs : Expr) (preIsTop : Bool) :
-    VCGenM (Option (List MVarId)) := do
-  solveLatticeConnective? goal target rhs preIsTop
 
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/
 private def replaceProgDefEq (goal : MVarId) (target : Expr) (info : WPInfo) (prog : Expr) :
@@ -202,15 +209,16 @@ private def replaceProgDefEq (goal : MVarId) (target : Expr) (info : WPInfo) (pr
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
   goal.replaceTargetDefEq newTarget
 
-private def substOrHoistLet (goal : MVarId) (target : Expr) (info : WPInfo)
-    (name : Name) (type val body : Expr) (nondep : Bool)
-    (appArgs : Array Expr) : VCGenM MVarId := do
+/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
+private def wpLet? (goal : MVarId) (target : Expr) (info : WPInfo) : VCGenM (Option MVarId) := do
+  let .letE name type val body nondep := info.prog.getAppFn | return none
+  let appArgs := info.prog.getAppRevArgs
   throwIfUnsupportedJP name val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
     let prog ← mkAppRevS body' appArgs
-    replaceProgDefEq goal target info prog
+    return some (← replaceProgDefEq goal target info prog)
   else
     trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
     let prog ← mkAppRevS body appArgs
@@ -222,17 +230,11 @@ private def substOrHoistLet (goal : MVarId) (target : Expr) (info : WPInfo)
     let goal ← goal.replaceTargetDefEq target
     let .goal _ goal ← Sym.intros goal
       | throwError "Failed to intro hoisted let"
-    return goal
-
-/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
-private def tryWPLet (goal : MVarId) (target : Expr) (info : WPInfo) : VCGenM (Option MVarId) := do
-  let .letE name type val body nondep := info.prog.getAppFn | return none
-  return some (← substOrHoistLet goal target info name type val body nondep
-    info.prog.getAppRevArgs)
+    return some goal
 
 /-- Strategy 11b: split an `ite`/`dite`/match program, or iota-reduce a matcher with a concrete
 discriminant. -/
-private def tryWPMatch (goal : MVarId) (target : Expr) (info : WPInfo) :
+private def wpMatch? (goal : MVarId) (target : Expr) (info : WPInfo) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
   if splitInfo matches .matcher .. then
@@ -250,7 +252,7 @@ private def tryWPMatch (goal : MVarId) (target : Expr) (info : WPInfo) :
   return some simpGoals.toList
 
 /-- Strategy 11c: zeta-unfold a local let-bound fvar used as the program head. -/
-private def tryWPFVarZeta (goal : MVarId) (target : Expr) (info : WPInfo) :
+private def wpFVarZeta? (goal : MVarId) (target : Expr) (info : WPInfo) :
     VCGenM (Option MVarId) := do
   let f := info.prog.getAppFn
   let some fvarId := f.fvarId? | return none
@@ -260,7 +262,7 @@ private def tryWPFVarZeta (goal : MVarId) (target : Expr) (info : WPInfo) :
   return some (← replaceProgDefEq goal target info prog)
 
 /-- Strategy 11d: reduce a projection head in the program. -/
-private def tryWPHeadReduce (goal : MVarId) (target : Expr) (info : WPInfo) :
+private def wpHeadReduce? (goal : MVarId) (target : Expr) (info : WPInfo) :
     VCGenM (Option MVarId) := do
   let f := info.prog.getAppFn
   unless f matches .proj .. do return none
@@ -352,45 +354,44 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     goal ← goal.replaceTargetDefEq target
 
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
-  if let some gs ← tryForallIntro goal target then return .goals scope gs
-  if let some g ← tryTargetLetIntro goal target then return .goals scope [g]
-  if let some g ← tryTripleUnfold goal target then return .goals scope [g]
-  if let some g ← tryBareWPToLe goal target then return .goals scope [g]
+  if let some gs ← forallIntro? goal target then return .goals scope gs
+  if let some g ← targetLetIntro? goal target then return .goals scope [g]
+  if let some g ← tripleUnfold? goal target then return .goals scope [g]
+  if let some g ← bareWPToLe? goal target then return .goals scope [g]
 
   let_expr PartialOrder.rel α inst pre rhs := target
-    | if let some gs ← tryLiftedHypBare scope goal target then return .goals scope gs
+    | if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
       else return .noEntailment target
-  let preIsTop := pre.isAppOf ``Lean.Order.top && pre.getAppNumArgs == 2
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.
-  if let some gs ← tryRfl goal then return .goals scope gs
-  if let some (scope, gs) ← tryNormalizePre scope goal α pre target then return .goals scope gs
+  if let some gs ← rfl? goal then return .goals scope gs
+  if let some (scope, gs) ← normalizePre? scope goal α pre target then return .goals scope gs
 
   -- Collect new local specs before any strategy that may emit multiple subgoals
-  -- (`tryWPMatch`, `tryLattice`) or apply a registered spec (`applySpec`).
+  -- (`wpMatch?`, `solveLatticeConnective?`) or apply a registered spec (`applySpec`).
   let scope ← scope.collectLocalSpecs goal
 
   -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective), then
   -- discharge a residual entailment against the lifted hypothesis.
   if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
-  if let some gs ← tryLattice goal target rhs preIsTop then return .goals scope gs
-  if let some gs ← tryLiftedHyp scope goal α pre rhs then return .goals scope gs
+  if let some gs ← solveLatticeConnective? goal target rhs then return .goals scope gs
+  if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
 
   -- Phase 4: wp decomposition. The program-shape steps below all consume one unit of fuel
   -- (the `stepLimit` config option) when they make progress.
   if let some info := getWPInfo? rhs then
     trace[Elab.Tactic.Do.vcgen] "📜 Program: {info.prog}"
-    if let some g ← tryWPLet goal target info then
+    if let some g ← wpLet? goal target info then
       VCGen.burnOne
       return .goals scope [g]
-    if let some gs ← tryWPMatch goal target info then
+    if let some gs ← wpMatch? goal target info then
       VCGen.burnOne
       return .goals scope gs
-    if let some g ← tryWPFVarZeta goal target info then
+    if let some g ← wpFVarZeta? goal target info then
       VCGen.burnOne
       return .goals scope [g]
-    if let some g ← tryWPHeadReduce goal target info then
+    if let some g ← wpHeadReduce? goal target info then
       VCGen.burnOne
       return .goals scope [g]
     -- Stop if the program matches the `until` pattern.

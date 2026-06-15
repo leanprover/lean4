@@ -345,8 +345,9 @@ jobs:
               {
                 "name": "macOS aarch64",
                 "enabled": level >= 1,
+                "test": level >= 2,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
-                "os": large ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
+                "os": large && (fast || level >= 2) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",

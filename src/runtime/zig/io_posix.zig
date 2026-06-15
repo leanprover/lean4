@@ -139,54 +139,63 @@ fn systemTimeObj(sec: i64, nsec: u32) *anyopaque {
 }
 
 fn statSec(st: anytype, comptime base: []const u8) i64 {
-    return switch (builtin.target.os.tag) {
-        .linux => if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.sec) else @intCast(st.*.mtim.sec),
-        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos =>
-            if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.sec) else @intCast(st.*.mtimespec.sec),
-        else => @panic("statSec unsupported on this platform"),
-    };
+    if (builtin.target.os.tag == .linux) {
+        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.sec) else @intCast(st.*.mtim.sec);
+    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
+        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.sec) else @intCast(st.*.mtimespec.sec);
+    } else {
+        @panic("statSec unsupported on this platform");
+    }
 }
 
 fn statNSec(st: anytype, comptime base: []const u8) u32 {
-    return switch (builtin.target.os.tag) {
-        .linux => if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.nsec) else @intCast(st.*.mtim.nsec),
-        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos =>
-            if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.nsec) else @intCast(st.*.mtimespec.nsec),
-        else => @panic("statNSec unsupported on this platform"),
-    };
+    if (builtin.target.os.tag == .linux) {
+        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atim.nsec) else @intCast(st.*.mtim.nsec);
+    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
+        return if (std.mem.eql(u8, base, "st_at")) @intCast(st.*.atimespec.nsec) else @intCast(st.*.mtimespec.nsec);
+    } else {
+        @panic("statNSec unsupported on this platform");
+    }
 }
 
 fn statMode(st: anytype) usize {
-    return switch (builtin.target.os.tag) {
-        .linux => @intCast(st.*.st_mode),
-        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos => @intCast(st.*.mode),
-        else => @panic("statMode unsupported on this platform"),
-    };
+    if (builtin.target.os.tag == .linux) {
+        return @intCast(st.*.st_mode);
+    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
+        return @intCast(st.*.mode);
+    } else {
+        @panic("statMode unsupported on this platform");
+    }
 }
 
 fn statSize(st: anytype) u64 {
-    return switch (builtin.target.os.tag) {
-        .linux => @intCast(st.*.st_size),
-        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos => @intCast(st.*.size),
-        else => @panic("statSize unsupported on this platform"),
-    };
+    if (builtin.target.os.tag == .linux) {
+        return @intCast(st.*.st_size);
+    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
+        return @intCast(st.*.size);
+    } else {
+        @panic("statSize unsupported on this platform");
+    }
 }
 
 fn statNLink(st: anytype) u64 {
-    return switch (builtin.target.os.tag) {
-        .linux => @intCast(st.*.st_nlink),
-        .driverkit, .ios, .maccatalyst, .macos, .tvos, .visionos, .watchos => @intCast(st.*.nlink),
-        else => @panic("statNLink unsupported on this platform"),
-    };
+    if (builtin.target.os.tag == .linux) {
+        return @intCast(st.*.st_nlink);
+    } else if (builtin.target.os.tag == .macos or builtin.target.os.tag == .maccatalyst or builtin.target.os.tag == .ios or builtin.target.os.tag == .tvos or builtin.target.os.tag == .watchos or builtin.target.os.tag == .visionos or builtin.target.os.tag == .driverkit) {
+        return @intCast(st.*.nlink);
+    } else {
+        @panic("statNLink unsupported on this platform");
+    }
 }
 
 fn waitCode(status: c_int) u32 {
     const s: u32 = @bitCast(status);
     if (c.W.IFEXITED(s)) return c.W.EXITSTATUS(s);
-    return 128 + switch (builtin.target.os.tag) {
-        .linux => c.W.TERMSIG(s),
-        else => @intFromEnum(c.W.TERMSIG(s)),
-    };
+    if (builtin.target.os.tag == .linux) {
+        return 128 + @as(u32, c.W.TERMSIG(s));
+    } else {
+        return 128 + @as(u32, @intFromEnum(c.W.TERMSIG(s)));
+    }
 }
 
 fn metadataFromStat(st: *const c.Stat) *anyopaque {
@@ -622,7 +631,7 @@ pub export fn lean_io_process_child_try_wait(_: *anyopaque, child: *anyopaque) c
 pub export fn lean_io_process_child_kill(_: *anyopaque, child: *anyopaque) callconv(.c) *anyopaque {
     const pid = childPid(child);
     const target: c.pid_t = if (childSetsid(child)) -pid else pid;
-    return if ((if (builtin.target.os.tag == .linux) c.kill(target, 9) else c.kill(target, .KILL)) == 0) mkUnitResult() else io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
+    return if (c.kill(target, .KILL) == 0) mkUnitResult() else io_result.lean_io_result_mk_error(io_errno.lean_decode_io_error(c._errno().*, null));
 }
 
 pub export fn lean_io_process_child_pid(_: *anyopaque, child: *anyopaque) callconv(.c) u32 {

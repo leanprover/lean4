@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.Prelude
-import Init.Data.Nat.Log2
-import Init.Data.Nat.Bitwise.Basic
-import Init.WFTactics
+public import Init.Data.Nat.Log2
+public import Init.Data.Nat.Bitwise.Basic
+public import Init.WFTactics
 
 public section
 
@@ -18,6 +18,7 @@ namespace Nat
 /--
 Integer square root function. Implemented via Newton's method.
 -/
+@[expose]
 def sqrt (n : Nat) : Nat :=
   if n ≤ 1 then n else
   iter n (1 <<< ((n.log2 / 2) + 1))

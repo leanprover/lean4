@@ -129,6 +129,13 @@ test_out "restored artifact from cache" -v build +Ignored --no-build
 test_run -v build Test.ImportIgnored
 test_run resolve-deps -R
 
+# Test that `LAKE_RESTORE_ARTIFACTS` overrides the
+# workspace's (unset) `restoreAllArtifacts` default.
+echo "def foo := ()" > Ignored.lean
+test_not_out "Ignored.olean" -v build +Ignored --no-build
+echo "def bar := ()" > Ignored.lean
+LAKE_RESTORE_ARTIFACTS=true test_out "Ignored.olean" -v build +Ignored --no-build
+
 # Test that outdated files are not stored in the cache with `--old`
 echo "def baz := ()" > Ignored.lean
 test_out "Built Ignored" -v build +Ignored --old
@@ -226,11 +233,41 @@ test_run cache unstage .lake/staging
 # Verify that `cache unstage` fails if staging artifacts are missing
 test_cmd mkdir -p .lake/staging-empty
 test_cmd cp .lake/outputs.jsonl .lake/staging-empty/outputs.jsonl
-test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty
+test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty \
+  --force-overwrite # needed since the artifact is in the cache
+
+# Test stage/unstage behavior regarding `--no-overwrite` / `--force-overwrite`
+test_cmd rm -rf "$CACHE_DIR"
+test_run build Test:static -o .lake/outputs.jsonl
+cache_art=$(echo "$CACHE_DIR"/artifacts/*.a)
+test_exp -s $cache_art
+staging_art=$(echo .lake/staging/*.a)
+test_exp -s $staging_art
+# Verify stage overwritting
+test_cmd rm -rf .lake/staging
+test_run cache stage .lake/outputs.jsonl .lake/staging --no-overwrite
+test_exp -f $staging_art # verify copy can occur with `--no-overwrite`
+test_cmd rm $staging_art
+test_cmd touch $staging_art
+test_exp ! -s $staging_art
+test_run cache stage .lake/outputs.jsonl .lake/staging
+test_exp ! -s $staging_art
+test_run cache stage .lake/outputs.jsonl .lake/staging --force-overwrite
+test_exp -s $staging_art
+# Verify unstage overwritting
+test_cmd rm -rf "$CACHE_DIR"
+test_run cache unstage .lake/staging --no-overwrite
+test_exp -f $cache_art # verify copy can occur with `--no-overwrite`
+test_cmd rm $staging_art
+test_cmd touch $staging_art
+test_exp ! -s $staging_art
+test_run cache unstage .lake/staging
+test_exp -s $cache_art
+test_run cache unstage .lake/staging --force-overwrite
+test_exp ! -s $cache_art
 
 # Verify that `lake cache clean` deletes the cache directory
 test_exp -d "$CACHE_DIR"
-test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
 test_run cache clean
 test_exp ! -d "$CACHE_DIR"
 
@@ -273,9 +310,11 @@ if command -v jq > /dev/null; then # skip if no jq found
   test_cmd rm -f $libPath
   inputHash=$(jq -r '.depHash' $libPath.trace)
   echo $inputHash
+  test_cmd rm -f $libPath.trace
   echo bogus > "$CACHE_DIR/outputs/test/$inputHash.json"
   test_out 'invalid JSON' build Test:static
-  test_cmd rm -f $libPath
+  test_exp -f $libPath
+  test_cmd rm -f $libPath $libPath.trace
   echo '"bogus"' > "$CACHE_DIR/outputs/test/$inputHash.json"
   test_out 'some output(s) have issues' build Test:static
   test_exp -f $libPath

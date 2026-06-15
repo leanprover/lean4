@@ -273,12 +273,13 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
   let asFVar : Expr → MetaM _
     | .fvar e => pure e
     | e => throwError "Tactic `rcases` failed: `{e}` is not a free variable"
+  let e := fs.apply e
   withRef pat.ref <| g.withContext do match pat with
   | .one ref `rfl =>
     Term.synthesizeSyntheticMVarsNoPostponing
     -- Note: the mdata prevents the span from getting highlighted like a variable
     Term.addTermInfo' ref (.mdata {} e)
-    let (fs, g) ← substEq g (← asFVar (fs.apply e)) fs
+    let (fs, g) ← substEq g (← asFVar e) fs
     cont g fs clears a
   | .one ref _ =>
     if e.isFVar then
@@ -290,7 +291,6 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
   | .typed ref pat ty =>
     Term.addTermInfo' ref (.mdata {} e)
     let expected ← Term.elabType ty
-    let e := fs.apply e
     let etype ← inferType e
     unless ← isDefEq etype expected do
       Term.throwTypeMismatchError "Tactic `rcases` failed: scrutinee" expected etype e
@@ -302,7 +302,6 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     rcasesCore g fs clears e a p cont
   | _ =>
     Term.addTermInfo' pat.ref (.mdata {} e)
-    let e := fs.apply e
     let _ ← asFVar e
     Term.synthesizeSyntheticMVarsNoPostponing
     let type ← whnfD (← inferType e)

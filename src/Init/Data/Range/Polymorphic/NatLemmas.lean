@@ -18,6 +18,9 @@ import Init.Data.Option.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Omega
 
+-- TODO: remove after stage0 update
+set_option linter.unusedSimpArgs false
+
 set_option doc.verso true
 
 public section
@@ -50,12 +53,6 @@ theorem size_rcc {a b : Nat} :
     (a...=b).size = b + 1 - a := by
   simp [Rcc.size, Rxc.HasSize.size]
 
-@[deprecated size_rcc (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Rcc := @_root_.Nat.size_rcc
-
-@[deprecated size_rcc (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_rcc := @_root_.Nat.size_rcc
-
 @[simp]
 theorem length_toList_rcc {a b : Nat} :
     (a...=b).toList.length = b + 1 - a := by
@@ -72,12 +69,6 @@ theorem size_rco {a b : Nat} :
   simp only [Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
   omega
 
-@[deprecated size_rco (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Rco := @_root_.Nat.size_rco
-
-@[deprecated size_rco (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_rco := @_root_.Nat.size_rco
-
 @[simp]
 theorem length_toList_rco {a b : Nat} :
     (a...b).toList.length = b - a := by
@@ -92,12 +83,6 @@ theorem size_toArray_rco {a b : Nat} :
 theorem size_roc {a b : Nat} :
     (a<...=b).size = b - a := by
   simp [Roc.size, Rxc.HasSize.size]
-
-@[deprecated size_roc (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Roc := @_root_.Nat.size_roc
-
-@[deprecated size_roc (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_roc := @_root_.Nat.size_roc
 
 @[simp]
 theorem length_toList_roc {a b : Nat} :
@@ -114,12 +99,6 @@ theorem size_roo {a b : Nat} :
     (a<...b).size = b - a - 1 := by
   simp [Roo.size, Rxo.HasSize.size, Rxc.HasSize.size]
 
-@[deprecated size_roo (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Roo := @_root_.Nat.size_roo
-
-@[deprecated size_roo (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_roo := @_root_.Nat.size_roo
-
 @[simp]
 theorem length_toList_roo {a b : Nat} :
     (a<...b).toList.length = b - a - 1 := by
@@ -133,13 +112,7 @@ theorem size_toArray_roo {a b : Nat} :
 @[simp]
 theorem size_ric {b : Nat} :
     (*...=b).size = b + 1 := by
-  simp [Ric.size, Rxc.HasSize.size]
-
-@[deprecated size_ric (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Ric := @_root_.Nat.size_ric
-
-@[deprecated size_ric (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_ric := @_root_.Nat.size_ric
+  simp [Ric.size, Rxc.HasSize.size, Least?.least?]
 
 @[simp]
 theorem length_toList_ric {b : Nat} :
@@ -154,13 +127,7 @@ theorem size_toArray_ric {b : Nat} :
 @[simp]
 theorem size_rio {b : Nat} :
     (*...b).size = b := by
-  simp [Rio.size, Rxo.HasSize.size, Rxc.HasSize.size]
-
-@[deprecated size_rio (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Rio := @_root_.Nat.size_rio
-
-@[deprecated size_rio (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_rio := @_root_.Nat.size_rio
+  simp [Rio.size, Rxo.HasSize.size, Rxc.HasSize.size, Least?.least?]
 
 @[simp]
 theorem length_toList_rio {b : Nat} :
@@ -191,9 +158,11 @@ theorem toList_rco_succ_succ {m n : Nat} :
     ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := by
   simp [← succ_eq, Rco.toList_succ_succ_eq_map]
 
+set_option linter.defProp false in
 @[deprecated _root_.Nat.toList_rco_succ_succ (since := "2025-10-30")]
 def _root_.Std.PRange.Nat.toList_Rco_succ_succ := @_root_.Nat.toList_rco_succ_succ
 
+set_option linter.defProp false in
 @[deprecated _root_.Nat.toList_rco_succ_succ (since := "2025-12-01")]
 def _root_.Std.PRange.Nat.toList_rco_succ_succ := @_root_.Nat.toList_rco_succ_succ
 
@@ -1852,7 +1821,7 @@ theorem induct_roc_right (motive : Nat → Nat → Prop)
 
 theorem toList_rio_eq_toList_rco {n : Nat} :
     (*...n).toList = (0...n).toList := by
-  simp [Rio.toList_eq_match_rco]
+  simp [Rio.toList_eq_match_rco, Least?.least?]
 
 @[simp]
 theorem toList_toArray_rio {n : Nat} :
@@ -2014,7 +1983,7 @@ theorem getD_toList_rio_eq_fallback {n i fallback : Nat} (h : n ≤ i) :
 
 theorem toArray_rio_eq_toArray_rco {n : Nat} :
     (*...n).toArray = (0...n).toArray := by
-  simp [Rio.toArray_eq_match_rco]
+  simp [Rio.toArray_eq_match_rco, Least?.least?]
 
 theorem toArray_rio_eq_if {n : Nat} :
     (*...n).toArray = if 0 < n then (*...(n - 1)).toArray.push (n - 1) else #[] := by
@@ -2166,7 +2135,8 @@ theorem getD_toArray_rio_eq_fallback {n i fallback : Nat} (h : n ≤ i) :
 
 theorem toList_ric_eq_toList_rio {n : Nat} :
     (*...=n).toList = (*...(n + 1)).toList := by
-  simp [Ric.toList_eq_match_rcc, toList_rio_succ_eq_append, toList_rio_eq_toList_rco]
+  simp [Ric.toList_eq_match_rcc, toList_rio_succ_eq_append, toList_rio_eq_toList_rco,
+    Least?.least?]
 
 theorem toList_ric_eq_toList_rcc {n : Nat} :
     (*...=n).toList = (0...=n).toList := by

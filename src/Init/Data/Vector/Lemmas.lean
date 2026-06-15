@@ -36,7 +36,7 @@ namespace Array
 theorem toVector_inj {xs ys : Array α} (h₁ : xs.size = ys.size) (h₂ : xs.toVector.cast h₁ = ys.toVector) : xs = ys := by
   ext i ih₁ ih₂
   · exact h₁
-  · simpa using congrArg (fun xs => xs[i]) h₂
+  · simpa using! congrArg (fun xs => xs[i]) h₂
 
 end Array
 
@@ -970,7 +970,6 @@ theorem eq_push_append_of_mem {xs : Vector α n} {x : α} (h : x ∈ xs) :
       xs = (as.push x ++ bs).cast h ∧ x ∉ as:= by
   rcases xs with ⟨xs, rfl⟩
   obtain ⟨as, bs, h, w⟩ := Array.eq_push_append_of_mem (by simpa using h)
-  simp only at h
   obtain rfl := h
   exact ⟨_, _, as.toVector, bs.toVector, by simp, by simp, by simpa using w⟩
 
@@ -2091,7 +2090,7 @@ theorem flatMap_singleton {f : α → Vector β m} {x : α} : #v[x].flatMap f = 
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem flatMap_append {xs ys : Vector α n} {f : α → Vector β m} :
+@[simp] theorem flatMap_append {xs : Vector α n} {ys : Vector α k} {f : α → Vector β m} :
     (xs ++ ys).flatMap f = (xs.flatMap f ++ ys.flatMap f).cast (by simp [Nat.add_mul]) := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
@@ -3119,7 +3118,7 @@ theorem sum_eq_foldr [Add α] [Zero α] {xs : Vector α n} :
 @[simp, grind =]
 theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
-    {as₁ as₂ : Vector α n} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
+    {as₁ : Vector α n} {as₂ : Vector α m} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
   simp [← sum_toList, List.sum_append]
 
 @[simp, grind =]
@@ -3155,7 +3154,7 @@ theorem prod_eq_foldr [Mul α] [One α] {xs : Vector α n} :
 @[simp, grind =]
 theorem prod_append [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
     [Std.LeftIdentity (α := α) (· * ·) 1] [Std.LawfulLeftIdentity (α := α) (· * ·) 1]
-    {as₁ as₂ : Vector α n} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+    {as₁ : Vector α n} {as₂ : Vector α m} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
   simp [← prod_toList, List.prod_append]
 
 @[simp, grind =]
@@ -3180,3 +3179,48 @@ theorem prod_eq_foldl [One α] [Mul α]
     {xs : Vector α n} :
     xs.prod = xs.foldl (b := 1) (· * ·) := by
   simp [← prod_toList, List.prod_eq_foldl]
+
+@[simp] theorem toList_set! {xs : Vector α n} {i : Nat} {x : α} :
+    (xs.set! i x).toList = xs.toList.set i x := by
+  cases xs
+  simp [Array.set!_eq_setIfInBounds]
+
+theorem set!_eq_setIfInBounds {xs : Vector α n} {i : Nat} {x : α} :
+    xs.set! i x = xs.setIfInBounds i x := by
+  cases xs
+  simp [Array.set!_eq_setIfInBounds]
+
+@[grind =] theorem getElem_set! {xs : Vector α n} {x : α} (hj : j < n) :
+    (xs.set! i x)[j] = if i = j then x else xs[j] := by
+  rw [set!_eq_setIfInBounds]
+  simp [getElem_setIfInBounds]
+
+@[simp] theorem getElem_set!_self {xs : Vector α n} {x : α} (hi : i < n) :
+    (xs.set! i x)[i] = x := by
+  rw [set!_eq_setIfInBounds]
+  simp [getElem_setIfInBounds_self]
+
+@[simp] theorem getElem_set!_ne {xs : Vector α n} {x : α} (hj : j < n) (h : i ≠ j) :
+    (xs.set! i x)[j] = xs[j] := by
+  rw [set!_eq_setIfInBounds]
+  simp [getElem_setIfInBounds_ne, h]
+
+@[grind =] theorem getElem?_set! {xs : Vector α n} {x : α} :
+    (xs.set! i x)[j]? = if i = j then if i < n then some x else none else xs[j]? := by
+  rw [set!_eq_setIfInBounds]
+  simp [getElem?_setIfInBounds]
+
+theorem getElem?_set!_self {xs : Vector α n} {x : α} :
+    (xs.set! i x)[i]? = if i < n then some x else none := by
+  rw [set!_eq_setIfInBounds]
+  simp [getElem?_setIfInBounds_self]
+
+@[simp] theorem getElem?_set!_self_of_lt {xs : Vector α n} {x : α} (h : i < n) :
+    (xs.set! i x)[i]? = some x := by
+  rw [set!_eq_setIfInBounds]
+  simp [h]
+
+@[simp] theorem getElem?_set!_ne {xs : Vector α n} {x : α} (h : i ≠ j) :
+    (xs.set! i x)[j]? = xs[j]? := by
+  rw [set!_eq_setIfInBounds]
+  simp [getElem?_setIfInBounds_ne, h]

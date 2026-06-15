@@ -1,4 +1,4 @@
-import Std.Internal.Http
+import Std.Http
 
 open Std Http
 open Std.Http.Protocol.H1
@@ -26,6 +26,23 @@ private def hasCloseBodyEvent (events : Array (Event .receiving)) : Bool :=
   events.any fun
     | .closeBody => true
     | _ => false
+
+private def hasContinueEvent (events : Array (Event .receiving)) : Bool :=
+  events.any fun
+    | .«continue» => true
+    | _ => false
+
+private def countNeedAnswerEvents (events : Array (Event .receiving)) : Nat :=
+  events.foldl (init := 0) fun n e =>
+    match e with
+    | .needAnswer => n + 1
+    | _ => n
+
+private def countFailedEvents (events : Array (Event .receiving)) : Nat :=
+  events.foldl (init := 0) fun n e =>
+    match e with
+    | .failed _ => n + 1
+    | _ => n
 
 private def pulledBodyBytes (chunks : Array PulledChunk) : ByteArray :=
   chunks.foldl (fun acc c => acc ++ c.chunk.data) .empty
@@ -184,6 +201,23 @@ private def assertIncrementalSuccess
     ensure name ((trace.pulled.back?.map (·.final)).getD false) "expected last pulled chunk to be final"
   else
     pure ()
+
+private def runOneStepReceiving
+    (payload : ByteArray)
+    (config : Protocol.H1.Config := {}) :
+    Machine .receiving × StepResult .receiving :=
+  let machine0 : Machine .receiving := { config := config }
+  (machine0.feed payload).step
+
+private def assertFailedWith
+    (name : String)
+    (payload : ByteArray)
+    (expected : Error)
+    (config : Protocol.H1.Config := {}) : IO Unit := do
+  let (machine, step) := runOneStepReceiving payload config
+  ensure name (hasFailedEvent step.events) s!"expected failure event, events:\n{repr step.events}"
+  ensure name (machine.error == some expected)
+    s!"expected error {repr expected}, got {repr machine.error}"
 
 -- Deterministic: one-byte incremental content-length request.
 #eval show IO Unit from do

@@ -34,7 +34,7 @@ v_head_3_ = lean_ctor_get(v_x_1_, 0);
 lean_inc(v_head_3_);
 v_tail_4_ = lean_ctor_get(v_x_1_, 1);
 lean_inc(v_tail_4_);
-lean_dec_ref(v_x_1_);
+lean_dec_ref_known(v_x_1_, 2);
 v___x_5_ = lean_array_push(v_x_2_, v_head_3_);
 v_x_1_ = v_tail_4_;
 v_x_2_ = v___x_5_;

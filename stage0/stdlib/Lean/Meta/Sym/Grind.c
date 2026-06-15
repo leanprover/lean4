@@ -93,7 +93,7 @@ if (lean_obj_tag(v___x_12_) == 0)
 lean_object* v_a_13_; lean_object* v___x_14_; 
 v_a_13_ = lean_ctor_get(v___x_12_, 0);
 lean_inc(v_a_13_);
-lean_dec_ref(v___x_12_);
+lean_dec_ref_known(v___x_12_, 1);
 v___x_14_ = l_Lean_Meta_Grind_mkGoalCore(v_a_13_, v_a_2_, v_a_3_, v_a_4_, v_a_5_, v_a_6_, v_a_7_, v_a_8_, v_a_9_, v_a_10_);
 return v___x_14_;
 }
@@ -197,7 +197,7 @@ v_newDecls_42_ = lean_ctor_get(v_t_40_, 0);
 lean_inc_ref(v_newDecls_42_);
 v_goal_43_ = lean_ctor_get(v_t_40_, 1);
 lean_inc_ref(v_goal_43_);
-lean_dec_ref(v_t_40_);
+lean_dec_ref_known(v_t_40_, 2);
 v___x_44_ = lean_apply_2(v_k_41_, v_newDecls_42_, v_goal_43_);
 return v___x_44_;
 }
@@ -724,7 +724,7 @@ else
 lean_object* v_subgoals_196_; lean_object* v___x_197_; 
 v_subgoals_196_ = lean_ctor_get(v_t_194_, 0);
 lean_inc(v_subgoals_196_);
-lean_dec_ref(v_t_194_);
+lean_dec_ref_known(v_t_194_, 1);
 v___x_197_ = lean_apply_1(v_k_195_, v_subgoals_196_);
 return v___x_197_;
 }
@@ -1071,7 +1071,7 @@ if (lean_obj_tag(v_t_303_) == 2)
 lean_object* v_goal_305_; lean_object* v___x_306_; 
 v_goal_305_ = lean_ctor_get(v_t_303_, 0);
 lean_inc_ref(v_goal_305_);
-lean_dec_ref(v_t_303_);
+lean_dec_ref_known(v_t_303_, 1);
 v___x_306_ = lean_apply_1(v_k_304_, v_goal_305_);
 return v___x_306_;
 }
@@ -1718,7 +1718,7 @@ if (lean_obj_tag(v_t_528_) == 0)
 lean_object* v_goal_530_; lean_object* v___x_531_; 
 v_goal_530_ = lean_ctor_get(v_t_528_, 0);
 lean_inc_ref(v_goal_530_);
-lean_dec_ref(v_t_528_);
+lean_dec_ref_known(v_t_528_, 1);
 v___x_531_ = lean_apply_1(v_k_529_, v_goal_530_);
 return v___x_531_;
 }

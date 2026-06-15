@@ -8,10 +8,14 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
+import Lean.Meta.PPBinder
+import Lean.Util.UnusedBinders
+import Lean.Meta.CollectFVars
 import Init.While
 import Lean.OriginalConstKind
 import Lean.ProjFns
 public section
+
 namespace Lean.Meta
 
 register_builtin_option synthInstance.checkSynthOrder : Bool := {
@@ -92,8 +96,9 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
-    exportEntry? := fun level e =>
-      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
+    exportEntry? := fun _ e =>
+      if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
+      else ⟨none, none, some e⟩
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
@@ -229,33 +234,53 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 
   return synthed
 
-def checkImpossibleInstance (c : Expr) : MetaM Unit := do
-  let cTy ← inferType c
-  forallTelescopeReducing cTy fun args ty => do
-    let argTys ← args.mapM inferType
-    let impossibleArgs ← args.zipIdx.filterMapM fun (arg, i) => do
-      let fv := arg.fvarId!
-      if (← fv.getDecl).binderInfo.isInstImplicit then return none
-      if ty.containsFVar fv then return none
-      if argTys[i+1:].any (·.containsFVar fv) then return none
-      return some m!"{arg} : {← inferType arg}"
-    if impossibleArgs.isEmpty then return
-    let impossibleArgs := MessageData.joinSep impossibleArgs.toList ", "
-    throwError m!"Instance {c} has arguments "
-      ++ impossibleArgs
-      ++ " that are impossible to infer. Those arguments are not instance-implicit and do not appear in another instance-implicit argument or the return type."
+def checkImpossibleInstance (cinfo : ConstantInfo): MetaM Unit := do
+  -- Performantly check if any non-instance binder is unused.
+  if cinfo.type.hasUnusedForallBindersWhere fun bi _ => !bi.isInstImplicit then do
+    forallTelescope cinfo.type fun args ty => do
+      -- Find the fvars used in the type and any instance implicit argument, transitively.
+      let getInitialPossibleFVars := do
+        ty.collectFVars
+        for arg in args do
+          if (← arg.fvarId!.getBinderInfo).isInstImplicit then
+            /- The fvarIds in the `CollectFVars.State` should be our possible args. As such, we
+            start by adding the instance arguments to the state, rather than computing the
+            dependencies of their types. -/
+            modifyThe CollectFVars.State (·.add arg.fvarId!)
+      let possibleFVars ← (·.2) <$> getInitialPossibleFVars.run {}
+      -- Transitively include dependencies.
+      let possibleFVars ← possibleFVars.addDependencies
+      let mut impossibleArgMsgs := #[]
+      for arg in args, i in 1...* do
+        unless possibleFVars.fvarSet.contains arg.fvarId! do
+          let some binder ← arg.fvarId!.ppAsBinder | continue
+          impossibleArgMsgs := impossibleArgMsgs.push <|
+            indentD m!"argument {i}: `{binder}`"
+      if impossibleArgMsgs.isEmpty then return -- Should not be reachable.
+      let msg := m!"\
+        This instance has {impossibleArgMsgs.size} \
+        argument{if impossibleArgMsgs.size = 1 then "" else "s"} that cannot be \
+        inferred using typeclass synthesis. Specifically\n\
+        {.joinSep impossibleArgMsgs.toList .nil}\n\n\
+        These arguments are not instance-implicit and appear neither in another \
+        instance-implicit argument nor the return type, so they cannot be inferred using \
+        typeclass synthesis."
+      if cinfo.type.hasSorry then logWarning msg else throwError msg
 
-def checkNonClassInstance (declName : Name) (c : Expr) : MetaM Unit := do
+def checkNonClassInstance (c : Expr) : MetaM Unit := do
   let type ← inferType c
   forallTelescopeReducing type fun _ target => do
     unless (← isClass? target).isSome do
-      unless target.isSorry do
-      throwError m!"instance `{declName}` target `{target}` is not a type class."
+      throwError m!"The declaration `{c}` should not be an instance as its return type `{target}` \
+      is not a type class."
 
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
-  checkImpossibleInstance c
-  checkNonClassInstance declName c
+  let cinfo ← getConstInfo declName
+  -- If there is a sorry, we skip the `NonClassInstance` and `ImpossibleInstance` checks completely
+  unless cinfo.type.hasSorry do
+    checkNonClassInstance c
+    checkImpossibleInstance cinfo
   let keys ← mkInstanceKey c
   let status ← getReducibilityStatus declName
   unless status matches .reducible | .implicitReducible do
@@ -362,6 +387,10 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
   registerSimplePersistentEnvExtension {
     addEntryFn    := addDefaultInstanceEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
+    exportEntriesFnEx? := some fun env _ entries =>
+      let all := entries.toArray
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.instanceName)
+      { exported, server := exported, «private» := all }
   }
 
 def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
@@ -390,7 +419,13 @@ builtin_initialize
 def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
   return defaultInstanceExtension.getState (← getEnv) |>.priorities
 
-def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
-  return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
+def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) := do
+  let env ← getEnv
+  let insts := defaultInstanceExtension.getState env |>.defaultInstances.find? className |>.getD []
+  if env.isExporting then
+    -- private instances must not leak into public scope
+    return insts.filter fun (n, _) => env.contains n
+  else
+    return insts
 
 end Lean.Meta

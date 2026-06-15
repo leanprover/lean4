@@ -434,22 +434,30 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
 def writeOutputsCore
   (cache : Cache) (scope : String) (inputHash : Hash) (out : Json)
   (service? : Option CacheServiceName) (remoteScope? : Option CacheServiceScope)
+  (overwrite : Bool)
 : IO Unit := do
   let file := cache.outputsFile scope inputHash
   createParentDirs file
   let out := {service?, scope? := remoteScope?, data := out : CacheOutput}
-  IO.FS.writeFile file (toJson out).pretty
+  let contents := (toJson out).pretty
+  if overwrite then
+    IO.FS.writeFile file contents
+  else
+    writeFileIfNew file contents
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs
   [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α)
-: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) none none
+  (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
+  (overwrite := true)
+: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) service? remoteScope? overwrite
 
 /-- Cache the input-to-outputs mappings from a `CacheMap`.  -/
 public def writeMap
   (cache : Cache) (scope : String) (map : CacheMap)
   (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
-: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope?
+  (overwrite := true)
+: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope? overwrite
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
 public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option CacheOutput) := do
@@ -497,7 +505,7 @@ public def system : CachePlatform := ⟨System.Platform.target⟩
 @[inline] public def ofString (s : String) : CachePlatform := ⟨s⟩
 
 /-- Returns the length of the platform identifier in Unicode code points. -/
-public def length (self : CachePlatform) : Nat := self.raw.length
+public def length (self : CachePlatform) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the platform identifier. -/
 public protected def toString (self : CachePlatform) : String :=
@@ -529,7 +537,7 @@ public def ofString (s : String) : CacheToolchain := ⟨normalizeToolchain s⟩
 @[inline] public def ofElanToolchain (s : String) : CacheToolchain := ⟨s⟩
 
 /-- Returns the length of the toolchain identifier in Unicode code points. -/
-public def length (self : CacheToolchain) : Nat := self.raw.length
+public def length (self : CacheToolchain) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the toolchain identifier. -/
 public protected def toString (self : CacheToolchain) : String :=

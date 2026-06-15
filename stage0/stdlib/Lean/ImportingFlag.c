@@ -271,7 +271,7 @@ else
 lean_object* v_a_79_; lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_83_; uint8_t v_isShared_84_; uint8_t v_isSharedCheck_88_; 
 v_a_79_ = lean_ctor_get(v_r_61_, 0);
 lean_inc(v_a_79_);
-lean_dec_ref(v_r_61_);
+lean_dec_ref_known(v_r_61_, 1);
 v___x_80_ = lean_box(0);
 v___x_81_ = l_Lean_withImporting___redArg___lam__0(v___x_56_, v___x_60_, v___x_80_);
 v_isSharedCheck_88_ = !lean_is_exclusive(v___x_81_);

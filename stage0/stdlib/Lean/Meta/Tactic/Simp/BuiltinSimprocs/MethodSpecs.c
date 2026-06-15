@@ -177,7 +177,7 @@ if (lean_obj_tag(v___x_60_) == 0)
 lean_object* v_a_61_; lean_object* v___x_62_; lean_object* v___x_63_; uint8_t v___x_64_; 
 v_a_61_ = lean_ctor_get(v___x_60_, 0);
 lean_inc(v_a_61_);
-lean_dec_ref(v___x_60_);
+lean_dec_ref_known(v___x_60_, 1);
 v___x_62_ = lean_unsigned_to_nat(1u);
 v___x_63_ = lean_array_get_size(v_a_61_);
 v___x_64_ = lean_nat_dec_eq(v___x_63_, v___x_62_);
@@ -214,7 +214,7 @@ lean_object* v_a_71_; lean_object* v___x_73_;
 lean_dec_ref(v_e_37_);
 v_a_71_ = lean_ctor_get(v_a_67_, 0);
 lean_inc(v_a_71_);
-lean_dec_ref(v_a_67_);
+lean_dec_ref_known(v_a_67_, 1);
 if (v_isShared_70_ == 0)
 {
 lean_ctor_set(v___x_69_, 0, v_a_71_);
@@ -240,7 +240,7 @@ lean_object* v_a_75_;
 lean_del_object(v___x_69_);
 v_a_75_ = lean_ctor_get(v_a_67_, 0);
 lean_inc(v_a_75_);
-lean_dec_ref(v_a_67_);
+lean_dec_ref_known(v_a_67_, 1);
 v_a_51_ = v_a_75_;
 goto v___jp_50_;
 }
@@ -592,7 +592,7 @@ v_resetjp_176_:
 if (lean_obj_tag(v_a_175_) == 1)
 {
 lean_object* v___x_179_; lean_object* v_rhs_180_; lean_object* v___x_181_; 
-lean_dec_ref(v_a_175_);
+lean_dec_ref_known(v_a_175_, 1);
 lean_del_object(v___x_177_);
 v___x_179_ = lean_unsigned_to_nat(2u);
 v_rhs_180_ = lean_array_get(v___x_162_, v_xs_165_, v___x_179_);
@@ -622,7 +622,7 @@ v_resetjp_183_:
 if (lean_obj_tag(v_a_182_) == 1)
 {
 lean_object* v___x_186_; lean_object* v___x_187_; 
-lean_dec_ref(v_a_182_);
+lean_dec_ref_known(v_a_182_, 1);
 lean_del_object(v___x_184_);
 v___x_186_ = l_Lean_Expr_constName_x21(v___x_168_);
 lean_dec_ref(v___x_168_);
@@ -654,7 +654,7 @@ lean_object* v_val_192_; lean_object* v___x_193_; size_t v_sz_194_; size_t v___x
 lean_del_object(v___x_190_);
 v_val_192_ = lean_ctor_get(v_a_188_, 0);
 lean_inc(v_val_192_);
-lean_dec_ref(v_a_188_);
+lean_dec_ref_known(v_a_188_, 1);
 v___x_193_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_MethodSpecs_0__reduceMethod_spec__1___closed__4));
 v_sz_194_ = lean_array_size(v_val_192_);
 v___x_195_ = ((size_t)0ULL);
@@ -713,7 +713,7 @@ else
 lean_object* v_val_206_; lean_object* v___x_208_; 
 v_val_206_ = lean_ctor_get(v_fst_201_, 0);
 lean_inc(v_val_206_);
-lean_dec_ref(v_fst_201_);
+lean_dec_ref_known(v_fst_201_, 1);
 if (v_isShared_200_ == 0)
 {
 lean_ctor_set(v___x_199_, 0, v_val_206_);

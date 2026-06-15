@@ -11,6 +11,7 @@ module
 
 prelude
 public import Lean.Linter.EnvLinter.Basic
+public import Lean.Linter.Init
 import Lean.DeclarationRange
 import Lean.Util.Path
 import Lean.CoreM
@@ -32,23 +33,25 @@ inductive LintVerbosity
   | high
   deriving Inhabited, DecidableEq, Repr
 
-/-- `getChecks clippy runOnly` produces a list of linters.
-`runOnly` is an optional list of names that should resolve to declarations with type
-`NamedEnvLinter`. If populated, only these linters are run (regardless of the default
-configuration). Otherwise, it uses all enabled linters in the environment tagged with
-`@[builtin_env_linter]`. If `clippy` is false, it only uses linters with `isDefault = true`. -/
-def getChecks (clippy : Bool) (runOnly : Option (List Name)) :
-    CoreM (Array NamedEnvLinter) := do
+/--
+Getter for the registered environment linters. The result is sorted by the linter option name.
+-/
+def getEnvLinters (opts? : Option LinterOptions := none) : CoreM (Array NamedEnvLinter) := do
   let mut result := #[]
-  for (name, declName, isDefault) in envLinterExt.getState (← getEnv) do
-    let shouldRun := match runOnly with
-      | some only => only.contains name
-      | none => clippy || isDefault
-    if shouldRun then
-      let linter ← getEnvLinter name declName
-      result := result.binInsert (·.name.lt ·.name) linter
+  for (optName, declName) in envLinterExt.getState (← getEnv) do
+      if opts?.all (isLinterEnabledByOptions optName) then
+        let linter ← getEnvLinter optName declName
+        result := result.binInsert (·.optName.lt ·.optName) linter
   pure result
 
+/--
+Queries the `envLinterSnapshotExt` to see if a given environment linter is enabled for the given
+declaration.
+-/
+def isLinterEnabledFor (env : Environment) (linter : NamedEnvLinter) (decl : Name) : Bool :=
+  match getEnvLinterSnapshotEntry? env decl linter.optName with
+  | some b => b
+  | none => false
 
 /--
 Runs all the specified linters on all the specified declarations in parallel,
@@ -56,9 +59,10 @@ producing a list of results.
 -/
 def lintCore (decls : Array Name) (linters : Array NamedEnvLinter) :
     CoreM (Array (NamedEnvLinter × Std.HashMap Name MessageData)) := do
+  let env ← getEnv
   let tasks : Array (NamedEnvLinter × Array (Name × Task (Except Exception <| Option MessageData))) ←
     linters.mapM fun linter => do
-      let decls ← decls.filterM (shouldBeLinted linter.name)
+      let decls := decls.filter (isLinterEnabledFor env linter ·)
       (linter, ·) <$> decls.mapM fun decl => (decl, ·) <$> do
         let act : MetaM (Option MessageData) := do
           linter.test decl
@@ -133,7 +137,7 @@ def formatLinterResults
     (results : Array (NamedEnvLinter × Std.HashMap Name MessageData))
     (decls : Array Name)
     (groupByFilename : Bool)
-    (whereDesc : String) (runClippyLinters : Bool)
+    (whereDesc : String)
     (verbose : LintVerbosity) (numLinters : Nat) (useErrorFormat : Bool := false) :
     CoreM MessageData := do
   let formattedResults ← results.filterMapM fun (linter, results) => do
@@ -143,20 +147,19 @@ def formatLinterResults
           groupedByFilename results (useErrorFormat := useErrorFormat)
         else
           printWarnings results
-      pure $ some m!"/- The `{linter.name}` linter reports:\n{linter.errorsFound} -/\n{warnings}\n"
+      pure $ some m!"/- The `{linter.optName}` linter reports:\n{linter.errorsFound} -/\n{warnings}\n"
     else if verbose = LintVerbosity.high then
       pure $ some m!"/- OK: {linter.noErrorsFound} -/"
     else
       pure none
   let mut s := MessageData.joinSep formattedResults.toList Format.line
-  let numAutoDecls := (← decls.filterM isAutoDecl).size
+  let numAutoDecls := (← decls.filterM isAutoDeclOrPrivate_Internal).size
   let failed := results.map (·.2.size) |>.foldl (·+·) 0
   unless verbose matches LintVerbosity.low do
     s := m!"-- Found {failed} error{if failed == 1 then "" else "s"
       } in {decls.size - numAutoDecls} declarations (plus {
       numAutoDecls} automatically generated ones) {whereDesc
       } with {numLinters} linters\n\n{s}"
-  unless runClippyLinters do s := m!"{s}-- (non-clippy linters skipped)\n"
   pure s
 
 /-- Get the list of declarations in the current module. -/

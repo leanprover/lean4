@@ -265,6 +265,7 @@ export NoNatZeroDivisors (no_nat_zero_divisors)
 
 namespace NoNatZeroDivisors
 
+set_option linter.defProp false in
 /-- Alternative constructor for `NoNatZeroDivisors` when we have an `IntModule`. -/
 @[implicit_reducible]
 def mk' {α} [IntModule α]

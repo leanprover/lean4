@@ -2677,7 +2677,7 @@ if (v___x_1468_ == 0)
 {
 if (v___x_1462_ == 0)
 {
-lean_dec_ref(v___x_1467_);
+lean_dec_ref_known(v___x_1467_, 2);
 lean_dec_ref(v___f_1465_);
 lean_dec_ref(v___x_1458_);
 v___y_1415_ = v___x_1459_;
@@ -2753,7 +2753,7 @@ lean_object* v_val_1426_; lean_object* v___x_1427_; size_t v_sz_1428_; lean_obje
 lean_dec_ref(v___f_1407_);
 v_val_1426_ = lean_ctor_get(v___x_1418_, 0);
 lean_inc(v_val_1426_);
-lean_dec_ref(v___x_1418_);
+lean_dec_ref_known(v___x_1418_, 1);
 v___x_1427_ = ((lean_object*)(l_Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___redArg___lam__6___closed__9));
 v_sz_1428_ = lean_array_size(v_val_1426_);
 lean_inc(v_inst_1364_);

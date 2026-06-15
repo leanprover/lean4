@@ -78,3 +78,7 @@ namespace LoadConfig
 /-- The package's Lake directory (for Lake temporary files). -/
 @[inline] public def lakeDir (cfg : LoadConfig) : FilePath :=
   cfg.pkgDir / defaultLakeDir
+
+/-- The absolute path where compiled configurations are stored. -/
+@[inline] public def configDir (cfg : LoadConfig) : FilePath :=
+  cfg.wsDir / defaultLakeDir / "config" / toString cfg.pkgIdx

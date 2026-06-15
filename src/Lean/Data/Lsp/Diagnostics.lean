@@ -159,6 +159,14 @@ abbrev Diagnostic := DiagnosticWith String
 structure PublishDiagnosticsParams where
   uri : DocumentUri
   version? : Option Int := none
+  /--
+  Whether the client should append this set of diagnostics to the previous set
+  rather than replacing the previous set by this one (the default LSP behavior).
+  `false` means the client should replace.
+  `none` is equivalent to `false`.
+  This is a Lean-specific extension (see `LeanClientCapabilities`).
+  -/
+  isIncremental? : Option Bool := none
   diagnostics : Array Diagnostic
   deriving Inhabited, BEq, ToJson, FromJson
 

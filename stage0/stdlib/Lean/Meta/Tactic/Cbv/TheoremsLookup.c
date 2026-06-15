@@ -937,7 +937,7 @@ if (lean_obj_tag(v___x_245_) == 0)
 lean_object* v_a_246_; lean_object* v___x_247_; lean_object* v_bs_x27_248_; size_t v___x_249_; size_t v___x_250_; lean_object* v___x_251_; 
 v_a_246_ = lean_ctor_get(v___x_245_, 0);
 lean_inc(v_a_246_);
-lean_dec_ref(v___x_245_);
+lean_dec_ref_known(v___x_245_, 1);
 v___x_247_ = lean_unsigned_to_nat(0u);
 v_bs_x27_248_ = lean_array_uset(v_bs_236_, v_i_235_, v___x_247_);
 v___x_249_ = ((size_t)1ULL);
@@ -1311,7 +1311,7 @@ lean_object* v_val_365_; size_t v_sz_366_; size_t v___x_367_; lean_object* v___x
 lean_del_object(v___x_363_);
 v_val_365_ = lean_ctor_get(v_a_361_, 0);
 lean_inc(v_val_365_);
-lean_dec_ref(v_a_361_);
+lean_dec_ref_known(v_a_361_, 1);
 v_sz_366_ = lean_array_size(v_val_365_);
 v___x_367_ = ((size_t)0ULL);
 v___x_368_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_Tactic_Cbv_getEqnTheorems_spec__1(v_sz_366_, v___x_367_, v_val_365_, v_a_338_, v_a_339_, v_a_340_, v_a_341_);
@@ -2349,7 +2349,7 @@ if (lean_obj_tag(v___x_686_) == 0)
 lean_object* v_a_687_; lean_object* v_eqnNames_688_; size_t v_sz_689_; size_t v___x_690_; lean_object* v___x_691_; 
 v_a_687_ = lean_ctor_get(v___x_686_, 0);
 lean_inc(v_a_687_);
-lean_dec_ref(v___x_686_);
+lean_dec_ref_known(v___x_686_, 1);
 v_eqnNames_688_ = lean_ctor_get(v_a_687_, 0);
 lean_inc_ref(v_eqnNames_688_);
 lean_dec(v_a_687_);

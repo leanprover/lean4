@@ -210,13 +210,14 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
 
-private def List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
+
+private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
     List.Sublist (l.filter P) (l.filter Q) := by
   apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
   · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
   · apply List.filter_sublist
 
-private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
+private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
     (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
     (l.filter P).length < (l.filter Q).length := by
   have hsl : List.Sublist (l.filter P) (l.filter Q) := by
@@ -279,7 +280,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LE α] [Decid
           · cases h
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] :
     Finite (Rxc.Iterator α) Id :=
@@ -300,7 +300,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LE α] [D
       · cases h
       · cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxc.Iterator α) Id :=
@@ -792,13 +791,13 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
 
-private def List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
+private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
     List.Sublist (l.filter P) (l.filter Q) := by
   apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
   · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
   · apply List.filter_sublist
 
-private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
+private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
     (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
     (l.filter P).length < (l.filter Q).length := by
   have hsl : List.Sublist (l.filter P) (l.filter Q) := by
@@ -861,7 +860,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LT α] [Decid
           · cases h
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] :
     Finite (Rxo.Iterator α) Id :=
@@ -882,7 +880,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LT α] [D
       · cases h
       · cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxo.Iterator α) Id :=
@@ -1374,7 +1371,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α]
           exact ih
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     Finite (Rxi.Iterator α) Id :=
@@ -1391,7 +1387,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α]
       Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerable] at h -- TODO
     split at h <;> cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxi.Iterator α) Id :=

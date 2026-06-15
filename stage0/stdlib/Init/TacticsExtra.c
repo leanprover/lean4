@@ -984,7 +984,7 @@ v_a_239_ = lean_ctor_get(v___x_238_, 0);
 lean_inc(v_a_239_);
 v_a_240_ = lean_ctor_get(v___x_238_, 1);
 lean_inc(v_a_240_);
-lean_dec_ref(v___x_238_);
+lean_dec_ref_known(v___x_238_, 2);
 lean_inc_ref(v___y_236_);
 v___x_241_ = lean_apply_3(v___f_235_, v_a_239_, v___y_236_, v_a_240_);
 if (lean_obj_tag(v___x_241_) == 0)
@@ -1175,7 +1175,7 @@ v_a_295_ = lean_ctor_get(v___x_294_, 0);
 lean_inc(v_a_295_);
 v_a_296_ = lean_ctor_get(v___x_294_, 1);
 lean_inc(v_a_296_);
-lean_dec_ref(v___x_294_);
+lean_dec_ref_known(v___x_294_, 2);
 lean_inc_ref(v___y_292_);
 v___x_297_ = lean_apply_3(v___f_291_, v_a_295_, v___y_292_, v_a_296_);
 if (lean_obj_tag(v___x_297_) == 0)
@@ -1402,7 +1402,7 @@ v_a_413_ = lean_ctor_get(v___x_412_, 0);
 lean_inc(v_a_413_);
 v_a_414_ = lean_ctor_get(v___x_412_, 1);
 lean_inc(v_a_414_);
-lean_dec_ref(v___x_412_);
+lean_dec_ref_known(v___x_412_, 2);
 v_fst_415_ = lean_ctor_get(v_a_413_, 0);
 v_snd_416_ = lean_ctor_get(v_a_413_, 1);
 v_isSharedCheck_507_ = !lean_is_exclusive(v_a_413_);
@@ -1433,7 +1433,7 @@ v_a_422_ = lean_ctor_get(v___x_421_, 0);
 lean_inc(v_a_422_);
 v_a_423_ = lean_ctor_get(v___x_421_, 1);
 lean_inc(v_a_423_);
-lean_dec_ref(v___x_421_);
+lean_dec_ref_known(v___x_421_, 2);
 v_fst_424_ = lean_ctor_get(v_a_422_, 0);
 v_snd_425_ = lean_ctor_get(v_a_422_, 1);
 v_isSharedCheck_497_ = !lean_is_exclusive(v_a_422_);
@@ -1839,7 +1839,7 @@ lean_ctor_set(v___x_595_, 3, v_currRecDepth_576_);
 lean_ctor_set(v___x_595_, 4, v_maxRecDepth_577_);
 lean_ctor_set(v___x_595_, 5, v_ref_594_);
 v___x_596_ = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse(v_tk_580_, v_ttk_587_, v_etk_591_, v___x_589_, v___x_593_, v___f_585_, v___x_595_, v_a_568_);
-lean_dec_ref(v___x_595_);
+lean_dec_ref_known(v___x_595_, 6);
 lean_dec(v_tk_580_);
 if (lean_obj_tag(v___x_596_) == 0)
 {
@@ -2064,7 +2064,7 @@ lean_ctor_set(v___x_695_, 3, v_currRecDepth_678_);
 lean_ctor_set(v___x_695_, 4, v_maxRecDepth_679_);
 lean_ctor_set(v___x_695_, 5, v_ref_694_);
 v___x_696_ = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse(v_tk_682_, v_ttk_687_, v_etk_691_, v___x_689_, v___x_693_, v___f_685_, v___x_695_, v_a_669_);
-lean_dec_ref(v___x_695_);
+lean_dec_ref_known(v___x_695_, 6);
 lean_dec(v_tk_682_);
 if (lean_obj_tag(v___x_696_) == 0)
 {

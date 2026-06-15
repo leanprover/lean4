@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 def f (x : Nat) : IO Nat := do
   if x == 0 then
     return 0

@@ -256,7 +256,7 @@ else
 lean_object* v_val_52_; lean_object* v___x_53_; uint64_t v___x_54_; uint64_t v___x_55_; uint64_t v___x_56_; 
 v_val_52_ = lean_ctor_get(v_x_50_, 0);
 lean_inc(v_val_52_);
-lean_dec_ref(v_x_50_);
+lean_dec_ref_known(v_x_50_, 1);
 v___x_53_ = lean_apply_1(v_inst_49_, v_val_52_);
 v___x_54_ = 13ULL;
 v___x_55_ = lean_unbox_uint64(v___x_53_);

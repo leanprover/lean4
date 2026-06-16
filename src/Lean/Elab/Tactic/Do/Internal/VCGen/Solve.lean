@@ -37,17 +37,15 @@ public inductive SolveResult.StopReason where
   | noEntailment (target : Expr)
   /-- The target was of the form `pre ⊑ rhs`, but we couldn't make further progress. -/
   | noProgress (pre rhs : Expr)
+  /-- No spec was found for the program `e` in `pre ⊑ wp e post epost s₁ ... sₙ`. Candidates
+  were `thms`, but none matched the monad. Reached only when `errorOnMissingSpec` is `false`. -/
+  | noSpecFound (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
 
 /-- The result of one `solve` step of VC generation. -/
 public inductive SolveResult where
   /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. -/
   | goals (scope : VCGen.Scope) (subgoals : List MVarId)
-  /--
-  Did not find a spec for the `e` in `pre ⊑ wp e post epost s₁ ... sₙ`.
-  Candidates were `thms`, but none of them matched the monad.
-  -/
-  | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
-  /-- No further progress possible on the current goal for the given reason. Emit goal as VC. -/
+  /-- No further progress possible; emit the current goal as a VC. -/
   | stop (reason : SolveResult.StopReason)
 
 private def isDuplicable (e : Expr) : Bool := match e with
@@ -116,26 +114,27 @@ Runs before the precondition lift so a spec handoff `pre ⊑ specPre` closes by 
 than an assumption search. The pattern matcher keeps synthetic-opaque invariant holes rigid, so
 `⊤ ⊑ ?inv args` is left untouched. -/
 private def rfl? (goal : MVarId) : VCGenM (Option (List MVarId)) := do
-  let .goals gs ← (← read).reflRule.apply goal | return none
+  let .goals gs ← (← read).backwardRules.refl.apply goal | return none
   trace[Elab.Tactic.Do.vcgen] "Solved by rfl {goal}"
   return some gs
 
-/-- Strategy 10: close `pre ⊑ φ` on the `Prop` lattice against the most recently lifted pure
-precondition, cached in `Scope.lastLiftedPre?`. Runs after lattice decomposition, so `φ` is an
-opaque proposition rather than a lattice connective. This is one defeq check against one
-hypothesis, not an assumption search.
+/-- The most recently lifted pure precondition (cached in `Scope.lastLiftedPre?`) whose type is
+the same hash-consed expression as `e`, or `none`. Must run in `goal`'s context. -/
+private def liftedPreFor? (scope : VCGen.Scope) (e : Expr) : VCGenM (Option LocalDecl) := do
+  let some fvarId := scope.lastLiftedPre? | return none
+  let some hyp := (← getLCtx).find? fvarId | return none
+  unless isSameExpr e hyp.type do return none
+  trace[Elab.Tactic.Do.vcgen] "Solved by lifted hypothesis {hyp.userName}"
+  return some hyp
 
-Goals whose RHS contains metavariables are skipped: the defeq check could otherwise assign
-a post abstraction from an unrelated hypothesis. -/
+/-- Strategy 10: close `pre ⊑ φ` on the `Prop` lattice against the most recently lifted pure
+precondition. Runs after lattice decomposition, so `φ` is an opaque proposition rather than a
+lattice connective. This is one comparison against one hypothesis, not an assumption search. -/
 private def liftedHyp? (scope : VCGen.Scope) (goal : MVarId) (α pre rhs : Expr) :
     VCGenM (Option (List MVarId)) :=
   goal.withContext do
     unless α.isProp do return none
-    if rhs.hasExprMVar then return none
-    let some fvarId := scope.lastLiftedPre? | return none
-    let some hyp := (← getLCtx).find? fvarId | return none
-    unless ← isDefEqS rhs hyp.type do return none -- TODO: Replace with isSameExpr test?
-    trace[Elab.Tactic.Do.vcgen] "Solved by lifted hypothesis {hyp.userName}"
+    let some hyp ← liftedPreFor? scope rhs | return none
     goal.assign (← mkAppM ``Lean.Order.le_of_right #[pre, rhs, hyp.toExpr])
     return some []
 
@@ -145,11 +144,7 @@ just before it would be classified as a VC. -/
 private def liftedHypBare? (scope : VCGen.Scope) (goal : MVarId) (target : Expr) :
     VCGenM (Option (List MVarId)) :=
   goal.withContext do
-    if target.hasExprMVar then return none
-    let some fvarId := scope.lastLiftedPre? | return none
-    let some hyp := (← getLCtx).find? fvarId | return none
-    unless ← isDefEqS target hyp.type do return none -- TODO: Replace with isSameExpr test?
-    trace[Elab.Tactic.Do.vcgen] "Solved by lifted hypothesis {hyp.userName}"
+    let some hyp ← liftedPreFor? scope target | return none
     goal.assign hyp.toExpr
     return some []
 
@@ -158,7 +153,7 @@ Such a precondition arises when `himp_complete` splits `⊤ ⊑ a ⇨ b` into `a
 private def stripMeetTopPre? (goal : MVarId) (pre : Expr) : VCGenM (Option MVarId) := do
   let_expr Lean.Order.meet _l _inst _P top := pre | return none
   unless top.isAppOf ``Lean.Order.top do return none
-  let .goals [g] ← (← read).meetTopRule.applyChecked goal
+  let .goals [g] ← (← read).backwardRules.meetTop.applyChecked goal
     | throwError "Failed to cancel the `⊓ ⊤` precondition of {goal}"
   return some g
 
@@ -168,7 +163,7 @@ leave `⌜φ⌝` applied to the introduced arguments. Returns the new goal and t
 private def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
   let_expr CompleteLattice.ofProp _l _inst φ := pre | return none
   if φ.isTrue then return none
-  return some (← introPre (← read).introRules.ofPropPreIntro goal)
+  return some (← introPre (← read).backwardRules.ofPropPreIntro goal)
 
 /-- Strategy 7: move a bare `Prop` precondition `φ ⊑ rhs` into the local context via
 `le_of_imp_top_le`, leaving `⊤ ⊑ rhs`. Runs after `True` and `⊤` preconditions are handled, so
@@ -176,13 +171,13 @@ private def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarI
 private def barePreIntro? (goal : MVarId) (α pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
   unless α.isProp do return none
   if pre.isAppOf ``Lean.Order.top then return none
-  return some (← introPre (← read).introRules.propPreIntro goal)
+  return some (← introPre (← read).backwardRules.propPreIntro goal)
 
 /-- Strategy 7: replace a `True` precondition by `⊤` via `true_le_of_top_le`, so the goal
 follows the `⊤` path instead of lifting `True` into the local context. -/
 private def truePre? (goal : MVarId) (pre target : Expr) : VCGenM (Option (List MVarId)) := do
   unless pre.isTrue do return none
-  let .goals [g] ← (← read).introRules.truePreIntro.applyChecked goal
+  let .goals [g] ← (← read).backwardRules.truePreIntro.applyChecked goal
     | throwError "Failed to apply {.ofConstName ``Lean.Order.true_le_of_top_le} to{indentExpr target}"
   return some [g]
 
@@ -277,13 +272,25 @@ private def wpHeadReduce? (goal : MVarId) (target : Expr) (info : WPInfo) :
   let prog ← betaRevS f' info.prog.getAppRevArgs
   return some (← replaceProgDefEq goal target info prog)
 
+/-- Stop or raise on a program with no matching spec. With `errorOnMissingSpec` (default), raise a
+hard error naming the program and any candidate specs; otherwise stop and emit the goal as a VC. -/
+private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheorem) :
+    VCGenM SolveResult := do
+  unless (← read).errorOnMissingSpec do
+    return .stop (.noSpecFound prog monad thms)
+  if thms.isEmpty then
+    throwError "No spec found for program {prog}."
+  else
+    throwError "No spec matching the monad {monad} found for program {prog}. \
+      Candidates were {thms.map (·.proof)}."
+
 /-- Strategy 11e: look up a registered `@[spec]` theorem (triple or simp) for the program head
 and apply its cached backward rule. -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (info : WPInfo) :
     VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying a spec for {info.prog}. Excess args: {info.excessArgs}"
   match ← SpecTheorems.findSpecs scope.specs info.prog with
-  | .error thms => return .noSpecFoundForProgram info.prog info.m thms
+  | .error thms => stopOrErrorOnMissingSpec info.prog info.m thms
   | .ok thm =>
   trace[Elab.Tactic.Do.vcgen] "Spec for {info.prog}: {thm.proof}"
   let some rule ←
@@ -295,7 +302,7 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (inf
         target:{indentExpr target}\n\
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
-    | return .noSpecFoundForProgram info.prog info.m #[thm]
+    | stopOrErrorOnMissingSpec info.prog info.m #[thm]
   let .goals goals ← rule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | do
       let ruleType ← Meta.inferType rule.expr
@@ -359,10 +366,10 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   if let some g ← targetLetIntro? goal target then return .goals scope [g]
   if let some g ← tripleUnfold? goal target then return .goals scope [g]
   if let some g ← bareWPToLe? goal target then return .goals scope [g]
+  if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
 
   let_expr PartialOrder.rel α inst pre rhs := target
-    | if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
-      else return .stop (.noEntailment target)
+    | return .stop (.noEntailment target)
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.

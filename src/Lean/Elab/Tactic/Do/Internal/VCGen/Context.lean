@@ -72,8 +72,8 @@ public def prog (info : WPInfo) : Expr := info.args[8]!
 
 end VCGen.WPInfo
 
-/-- Pre-built backward rules for the introduction steps of `solve`. -/
-public structure VCGen.IntroRules where
+/-- Pre-built backward rules used by `solve`. -/
+public structure VCGen.BackwardRules where
   /-- The backward rule for `Triple.intro`. Unfolds `⦃P⦄ x ⦃Q; E⦄` into `P ⊑ wp x Q E`. -/
   tripleIntro : BackwardRule
   /-- The backward rule for `Lean.Order.le_of_forall_le`. Peels one excess state argument
@@ -88,21 +88,35 @@ public structure VCGen.IntroRules where
   /-- The backward rule for `Lean.Order.true_le_of_top_le`. Replaces a `True` precondition
   with `⊤` on the `Prop` lattice. -/
   truePreIntro : BackwardRule
-
-public structure VCGen.Context where
-  /-- Pre-built backward rules for the introduction steps of `solve`. -/
-  introRules : VCGen.IntroRules
   /-- The backward rule for `Lean.Order.top_le_prop`. Strips a `(⊤ : Prop) ⊑ ·` wrapper
   from a VC before it is emitted. -/
-  elimPreRule : BackwardRule
+  elimPre : BackwardRule
   /-- The backward rule for `And.intro`. -/
-  andIntroRule : BackwardRule
+  andIntro : BackwardRule
   /-- The backward rule for `Lean.Order.PartialOrder.rel_refl`. Closes a reflexive
   entailment `pre ⊑ pre`. -/
-  reflRule : BackwardRule
+  refl : BackwardRule
   /-- The backward rule for `meet_top_le_of_le`. Cancels a redundant `⊓ ⊤` on the left of an
   entailment, turning `P ⊓ ⊤ ⊑ Q` into `P ⊑ Q`. -/
-  meetTopRule : BackwardRule
+  meetTop : BackwardRule
+
+/-- Build the backward rules used by `solve` from their underlying lemmas. -/
+public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
+  return {
+    tripleIntro := ← mkBackwardRuleFromDecl ``Std.Internal.Do.Triple.intro
+    stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
+    propPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
+    ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le
+    truePreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.true_le_of_top_le
+    elimPre := ← mkBackwardRuleFromDecl ``Lean.Order.top_le_prop
+    andIntro := ← mkBackwardRuleFromDecl ``And.intro
+    refl := ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
+    meetTop := ← mkBackwardRuleFromDecl ``Std.Internal.Do.CompleteLattice.meet_top_le_of_le
+  }
+
+public structure VCGen.Context where
+  /-- Pre-built backward rules used by `solve`. -/
+  backwardRules : VCGen.BackwardRules
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
@@ -114,11 +128,10 @@ public structure VCGen.Context where
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call
   site of the JP zeta-unfolds, leading to exponential blow-up on nested splits. -/
   useJP : Bool := false
-  /-- The `errorOnMissingSpec` config option: when `true` (default), `Driver.work`
-  raises a hard error when `solve` returns `.noSpecFoundForProgram`. When `false`,
-  the goal is emitted as an unsolved VC for the user to discharge — useful with
-  `mvcgen' [-some_spec]` patterns where the user knows the spec is intentionally
-  removed and wants to handle the residual goal by hand. -/
+  /-- The `errorOnMissingSpec` config option: when `true` (default), a program with no matching
+  spec raises a hard error. When `false`, the goal is emitted as an unsolved VC for the user to
+  discharge — useful with `mvcgen' [-some_spec]` patterns where the user knows the spec is
+  intentionally removed and wants to handle the residual goal by hand. -/
   errorOnMissingSpec : Bool := true
   /-- The `debug` config option: when `true`, `tryApplyRule` retries failed
   `BackwardRule.apply` calls after `unfoldReducible` and reports an error when the

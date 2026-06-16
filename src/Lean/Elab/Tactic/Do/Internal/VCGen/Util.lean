@@ -122,7 +122,7 @@ public partial def introsExcessArgs (goal : MVarId) :
   let type ← goal.getType
   let_expr PartialOrder.rel α _inst _pre _rhs := type | return goal
   unless α.isForall do return goal
-  let .goals [goal] ← (← read).introRules.stateArgIntro.applyChecked goal | return goal
+  let .goals [goal] ← (← read).backwardRules.stateArgIntro.applyChecked goal | return goal
   let goal ← introsHygienic goal
   introsExcessArgs goal
 
@@ -140,7 +140,7 @@ public partial def solveTrivialConjuncts (goal : MVarId) : VCGenM (Option MVarId
     goal.assign (mkConst ``True.intro)
     return none
   else if ty.isAppOf ``And then
-    let .goals [g₁, g₂] ← ctx.andIntroRule.applyChecked goal
+    let .goals [g₁, g₂] ← ctx.backwardRules.andIntro.applyChecked goal
       | throwError "solveTrivialConjuncts: failed to apply {.ofConstName ``And.intro} to{indentExpr ty}"
     match ← solveTrivialConjuncts g₁, ← solveTrivialConjuncts g₂ with
     | none,    none    => return none

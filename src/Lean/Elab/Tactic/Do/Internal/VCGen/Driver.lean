@@ -81,11 +81,9 @@ private def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVa
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
 so they never reach this path.
-If the goal is `(⊤ : Prop) ⊑ φ`, the `⊤ ⊑` wrapper is stripped first.
 -/
 public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
-  let mvarId ← elimTopPre goal.mvarId
-  let mut goal := { goal with mvarId }
+  let mut goal := { goal with mvarId := ← elimTopPre goal.mvarId }
   goal ← processHypotheses goal
   if goal.inconsistent then return
   -- `trivial`: when false, skip `solveTrivialConjuncts` (which collapses And-chains via rfl);
@@ -113,14 +111,6 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     match ← solve s.scope goal.mvarId with
     | .stop _reason =>
       emitVC goal
-    | .noSpecFoundForProgram prog monad thms => goal.mvarId.withContext do
-      if (← read).errorOnMissingSpec then
-        if thms.isEmpty then
-          throwError "No spec found for program {prog}."
-        else
-          throwError "No spec matching the monad {monad} found for program {prog}. Candidates were {thms.map (·.proof)}."
-      else
-        emitVC goal
     | .goals scope subgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.

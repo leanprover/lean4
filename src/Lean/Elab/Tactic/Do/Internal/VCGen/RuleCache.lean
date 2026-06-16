@@ -67,7 +67,7 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) 
   return rule
 
 /--
-Cached version of `LatticeSplit.mkBackwardRule`.
+Cached version of `LatticeSplit.mkBackwardRuleForLattice`.
 
 Cache key: `(distribution lemma, argument types, excessArgs.size)`.
 -/
@@ -77,7 +77,7 @@ public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (as excessArgs : Ar
   let asTypes ← (as.mapM Sym.inferType : SymM (Array Expr))
   let key := (c.applyLemma, asTypes, excessArgs.size)
   if let some rule := s[key]? then return rule
-  let rule ← c.mkBackwardRule as excessArgs resultType?
+  let rule ← c.mkBackwardRuleForLattice as excessArgs resultType?
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
   return rule
 

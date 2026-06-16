@@ -30,7 +30,7 @@ namespace VCGen
 
 /-- Unfold `⦃P⦄ x ⦃Q; E⦄` into the underlying entailment `P ⊑ wp x Q E`. -/
 public def unfoldTriple (goal : MVarId) : VCGenM MVarId := do
-  let .goals [goal] ← (← read).introRules.tripleIntro.applyChecked goal
+  let .goals [goal] ← (← read).backwardRules.tripleIntro.applyChecked goal
     | throwError "Failed to unfold the Triple target of {goal}"
   return goal
 
@@ -92,7 +92,7 @@ public def elimTopPre (goal : MVarId) : VCGenM MVarId := do
   let some (.sort .zero, _, pre, _) := (← goal.getType).app4? ``Lean.Order.PartialOrder.rel
     | return goal
   unless pre.isAppOf ``Lean.Order.top do return goal
-  let .goals [goal] ← (← read).elimPreRule.apply goal
+  let .goals [goal] ← (← read).backwardRules.elimPre.apply goal
     | throwError "Failed to strip the `⊤ ⊑` wrapper of {goal}"
   return goal
 

@@ -131,7 +131,7 @@ Hoare triple and `⊑ wp` specs are already in `database`: the attribute stores 
 at annotation time.
 -/
 public def extendWithSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorems) :
-    SymM SpecTheorems := do
+    MetaM SpecTheorems := do
   let mut specs := database.specs
   -- Erased entries are still inserted into `specs` below; `findSpecs` filters them out
   -- at lookup time.
@@ -153,7 +153,7 @@ public def extendWithSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorem
       | some eqThms => pure eqThms
       | none =>
         -- No explicit equational theorems stored; generate them via `getEqnsFor?`
-        let some eqThms ← liftMetaM <| Meta.getEqnsFor? declName | continue
+        let some eqThms ← Meta.getEqnsFor? declName | continue
         pure eqThms
     for eqThm in eqThms do
       try

@@ -36,7 +36,7 @@ entailment `pre ⊑ e s₁ … sₙ`.
 -/
 
 /-- A decomposition of a lattice logic connective on the RHS of an entailment. Bundles everything
-`LatticeSplit.mkBackwardRule` needs: how to rebuild the connective, the pointwise `_apply`
+`LatticeSplit.mkBackwardRuleForLattice` needs: how to rebuild the connective, the pointwise `_apply`
 distribution lemma, the `⊑`-form split lemma, and whether the operands depend on the excess (state)
 arguments. -/
 public structure LatticeSplit where
@@ -163,7 +163,7 @@ For `⇨`, produces:
 ```
 Works for any `CompleteLattice`, not just `Prop`.
 -/
-public def LatticeSplit.mkBackwardRule
+public def LatticeSplit.mkBackwardRuleForLattice
     (c : LatticeSplit) (as : Array Expr) (excessArgs : Array Expr)
     (resultType? : Option Expr := none)
     : MetaM BackwardRule := do

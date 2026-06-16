@@ -261,6 +261,11 @@ theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
     Q := by simp [Triple.iff, SPred.entails.refl]
 
+@[spec]
+theorem Spec.monadLift_Id [Monad m] [WPMonad m ps] {α} (x : Id α) (Q : PostCond α ps) :
+    Triple (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) (spred(Q.1 x.run)) Q :=
+  Spec.pure' .rfl
+
 /-! # `MonadLiftT` -/
 
 @[spec]

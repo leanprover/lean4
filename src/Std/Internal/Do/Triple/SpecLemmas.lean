@@ -98,6 +98,11 @@ theorem Spec.monadLift_OptionT (x : m α) (post : α → Pred) (epost : EPost.Co
     Triple (wp x post epost.tail) (MonadLift.monadLift x : OptionT m α) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_monadLift_OptionT_apply x)
 
+@[spec]
+theorem Spec.monadLift_Id (x : Id α) :
+    Triple (post x.run) (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) post epost :=
+  Triple.pure x.run PartialOrder.rel_refl
+
 /-! # `MonadLiftT` -/
 
 omit [Monad m] in

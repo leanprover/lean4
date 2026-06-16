@@ -4,13 +4,13 @@ source ../common.sh
 ./clean.sh
 
 # ---
-# Tests the package-level `requiresModuleSystem` flag and its companion
-# `allowNonModules` opt-out.
+# Tests the `requiresModuleSystem` flag and its companion `allowNonModules`
+# opt-out.
 #
-# A package that sets `requiresModuleSystem = true` should cause Lake to warn
+# `requiresModuleSystem = true` should cause Lake to warn
 # whenever a module imports it without a `module` header -- both for downstream
 # consumers and for non-module files within the package itself. An importing
-# package can opt out by setting `allowNonModules = true`.
+# package or library can opt out by setting `allowNonModules = true`.
 #
 # The lakefiles are generated here rather than committed as the opt-out phase
 # mutates them (to add `allowNonModules`).
@@ -56,14 +56,15 @@ test_out "Test/NonModuleConsumer.lean: imports \`Dep\` from package \`dep\`, whi
 # Same-package non-module file: dep itself contains DepLegacy.lean (no module
 # header) which imports another module of dep. The warning must fire here too,
 # since `requiresModuleSystem` applies within the package.
-test_out "DepLegacy.lean: missing \`module\` header as required by \`requiresModuleSystem\` package option" \
+test_out "DepLegacy.lean: missing \`module\` header as required by the \`requiresModuleSystem\` option" \
   build "@dep/DepLegacy"
 
-# Opt out by setting `allowNonModules` on the importing package. The flag is a
-# root package option, so insert it after the `name` line rather than appending
-# (which would bind it to the trailing table section). The cross-package
-# consumer lives in `test`; the intra-package consumer lives in `dep`.
-sed_i '1a allowNonModules = true' lakefile.toml
+# Opt out via `allowNonModules`, exercising both granularities: set it on the
+# `Test` library (per-library opt-out, as one might for a test library) and on
+# the `dep` package as a whole. For the library, insert the option inside the
+# `Test` table; for the package, insert it after the root `name` line (appending
+# would instead bind it to the trailing table section).
+sed_i '/^name = "Test"$/a allowNonModules = true' lakefile.toml
 sed_i '1a allowNonModules = true' dep/lakefile.toml
 
 # After a clean rebuild, neither warning should appear.

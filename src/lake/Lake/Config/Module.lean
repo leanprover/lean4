@@ -173,6 +173,12 @@ public def dynlibSuffix := "-1"
 @[inline] public def allowImportAll (self : Module) : Bool :=
   self.lib.allowImportAll
 
+@[inline] public def requiresModuleSystem (self : Module) : Bool :=
+  self.lib.requiresModuleSystem
+
+@[inline] public def allowNonModules (self : Module) : Bool :=
+  self.lib.allowNonModules
+
 @[inline] public def dynlibs (self : Module) : TargetArray Dynlib :=
   self.lib.dynlibs
 

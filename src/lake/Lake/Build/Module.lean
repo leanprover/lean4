@@ -383,7 +383,7 @@ def Package.discriminant (self : Package) :=
 set_option linter.unusedVariables.funArgs false in
 def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
-  (silenceWarning : Bool := false)
+  (allowNonModules : Bool := false)
 : FetchM (Job ModuleImportInfo) := do
   let nonModule := !header.isModule
   let info := ModuleImportInfo.nil modName
@@ -393,11 +393,11 @@ def fetchImportInfo
       logError s!"{fileName}: module imports itself"
       return .error
     let mods ← findModules imp.module
-    if nonModule && !silenceWarning then
-      if let some mod := mods.find? (·.pkg.requiresModuleSystem) then
+    if nonModule && !allowNonModules then
+      if let some mod := mods.find? (·.requiresModuleSystem) then
         if pkgName == mod.pkg.keyName then
           logWarning s!"{fileName}: missing `module` header as required \
-            by `requiresModuleSystem` package option"
+            by the `requiresModuleSystem` option"
         else
           logWarning s!"{fileName}: imports `{imp.module}` from package \
             `{mod.pkg.prettyName}`, which is designed for use with the module \
@@ -454,7 +454,7 @@ public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
   mkFacetJobConfig fun mod => do
     let header ← (← mod.header.fetch).await
     fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
-      (silenceWarning := mod.pkg.allowNonModules)
+      (allowNonModules := mod.allowNonModules)
 
 def noServerOLeanError :=
   "No server olean generated. Ensure the module system is enabled."
@@ -1276,7 +1276,7 @@ def setupEditedModule
   let fileName := mod.relLeanFile.toString
   let localImports := directImports.filterMap (·.module?)
   let impInfoJob ← fetchImportInfo fileName mod.pkg.keyName mod.name header
-    (silenceWarning := mod.pkg.allowNonModules)
+    (allowNonModules := mod.allowNonModules)
   let precompileImports ←
     if mod.shouldPrecompile then
       (← computeTransImportsAux fileName localImports).await

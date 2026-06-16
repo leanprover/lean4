@@ -27,22 +27,28 @@ progress is possible (`SolveResult`).
 
 namespace VCGen
 
-public inductive SolveResult where
-  /-- `target` was not of the form `pre ⊑ rhs`. -/
+/-- The reason why no further VC generation progress is possible on the current goal. -/
+public inductive SolveResult.StopReason where
+  /-- Out of fuel. -/
+  | outOfFuel
+  /-- `until <pat>` matched. -/
+  | untilPatternMatched (m : Expr)
+  /-- The target was not of the form `pre ⊑ rhs`. -/
   | noEntailment (target : Expr)
-  /-- The RHS in `pre ⊑ rhs` was neither a `wp` application nor a supported lattice connective. -/
-  | noProgramOrLatticeFoundInTarget (rhs : Expr)
-  /-- Don't know how to handle `e` in `pre ⊑ wp e post epost s₁ ... sₙ`. -/
-  | noStrategyForProgram (e : Expr)
+  /-- The target was of the form `pre ⊑ rhs`, but we couldn't make further progress. -/
+  | noProgress (pre rhs : Expr)
+
+/-- The result of one `solve` step of VC generation. -/
+public inductive SolveResult where
+  /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. -/
+  | goals (scope : VCGen.Scope) (subgoals : List MVarId)
   /--
   Did not find a spec for the `e` in `pre ⊑ wp e post epost s₁ ... sₙ`.
   Candidates were `thms`, but none of them matched the monad.
   -/
   | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
-  /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. -/
-  | goals (scope : VCGen.Scope) (subgoals : List MVarId)
-  /-- Stop decomposing and emit the current goal as a VC (out of fuel, or `until` matched). -/
-  | stop
+  /-- No further progress possible on the current goal for the given reason. Emit goal as VC. -/
+  | stop (reason : SolveResult.StopReason)
 
 private def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
@@ -337,7 +343,7 @@ The function performs the following steps in order:
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/
 public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do
-  if ← outOfFuel then return .stop
+  if ← outOfFuel then return .stop .outOfFuel
   let mut goal := goal
   let mut target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"
@@ -356,7 +362,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
 
   let_expr PartialOrder.rel α inst pre rhs := target
     | if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
-      else return .noEntailment target
+      else return .stop (.noEntailment target)
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.
@@ -377,6 +383,9 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   -- (the `stepLimit` config option) when they make progress.
   if let some info := getWPInfo? rhs then
     trace[Elab.Tactic.Do.vcgen] "📜 Program: {info.prog}"
+    -- Stop if the program matches the `until` pattern.
+    if ← matchesUntilPattern info.m info.prog then
+      return .stop (.untilPatternMatched info.m)
     if let some g ← wpLet? goal target info then
       VCGen.burnOne
       return .goals scope [g]
@@ -389,15 +398,13 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     if let some g ← wpHeadReduce? goal target info then
       VCGen.burnOne
       return .goals scope [g]
-    -- Stop if the program matches the `until` pattern.
-    if ← matchesUntilPattern info.m info.prog then return .stop
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne
       return ← applySpec scope goal target info
-    return .noStrategyForProgram info.prog
+    throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
 
-  return .noProgramOrLatticeFoundInTarget rhs
+  return .stop (.noProgress pre rhs)
 
 end VCGen
 

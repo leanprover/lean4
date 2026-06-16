@@ -111,20 +111,16 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     let goal := s.goal
     if goal.inconsistent then continue
     match ← solve s.scope goal.mvarId with
-    | .stop =>
+    | .stop _reason =>
       emitVC goal
-    | .noEntailment .. | .noProgramOrLatticeFoundInTarget .. =>
-      emitVC goal
-    | .noSpecFoundForProgram prog monad thms =>
-      if (← read).errorOnMissingSpec then goal.mvarId.withContext do
+    | .noSpecFoundForProgram prog monad thms => goal.mvarId.withContext do
+      if (← read).errorOnMissingSpec then
         if thms.isEmpty then
           throwError "No spec found for program {prog}."
         else
           throwError "No spec matching the monad {monad} found for program {prog}. Candidates were {thms.map (·.proof)}."
       else
         emitVC goal
-    | .noStrategyForProgram prog => goal.mvarId.withContext do
-      throwError "Did not know how to decompose weakest precondition for {prog}"
     | .goals scope subgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.

@@ -197,7 +197,7 @@ def Int8.ofIntClamp (i : Int) : Int8 :=
     if hr : i ≤ Int8.maxValue.toInt then
       Int8.ofIntLE i hl hr
     else
-      Int8.minValue
+      Int8.maxValue
   else
     Int8.minValue
 
@@ -569,7 +569,7 @@ def Int16.ofIntClamp (i : Int) : Int16 :=
     if hr : i ≤ Int16.maxValue.toInt then
       Int16.ofIntLE i hl hr
     else
-      Int16.minValue
+      Int16.maxValue
   else
     Int16.minValue
 
@@ -958,7 +958,7 @@ def Int32.ofIntClamp (i : Int) : Int32 :=
     if hr : i ≤ Int32.maxValue.toInt then
       Int32.ofIntLE i hl hr
     else
-      Int32.minValue
+      Int32.maxValue
   else
     Int32.minValue
 
@@ -1367,7 +1367,7 @@ def Int64.ofIntClamp (i : Int) : Int64 :=
     if hr : i ≤ Int64.maxValue.toInt then
       Int64.ofIntLE i hl hr
     else
-      Int64.minValue
+      Int64.maxValue
   else
     Int64.minValue
 
@@ -1759,7 +1759,7 @@ def ISize.ofIntClamp (i : Int) : ISize :=
     if hr : i ≤ ISize.maxValue.toInt then
       ISize.ofIntLE i hl hr
     else
-      ISize.minValue
+      ISize.maxValue
   else
     ISize.minValue
 

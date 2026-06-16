@@ -358,7 +358,13 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
     }
     return nullptr;
 #else
-    return dlsym(RTLD_DEFAULT, sym);
+    // On glibc, failed `dlsym` calls materialize an error string that is owned by
+    // the dynamic loader. Clear it before and after probing so repeated misses in
+    // the IR interpreter do not show up as LeakSanitizer noise in fsanitize jobs.
+    dlerror();
+    void * addr = dlsym(RTLD_DEFAULT, sym);
+    dlerror();
+    return addr;
 #endif
 }
 

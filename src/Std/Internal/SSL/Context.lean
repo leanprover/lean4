@@ -41,7 +41,7 @@ instance : Nonempty Context.Client := ContextClientImpl.property
 namespace Context.Server
 
 /--
-Creates a new server-side TLS context. Only the server certificate is authenticated; Set
+Creates a new server-side TLS context. Only the server certificate is authenticated; set
 `defaultVerify := true` if you want the server context to start with peer verification enabled.
 -/
 @[extern "lean_ssl_ctx_mk_server"]

@@ -144,7 +144,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg ctx_
     const char * cert = lean_string_cstr(cert_file);
     const char * key = lean_string_cstr(key_file);
 
-
     // use_certificate_chain_file loads the leaf + any intermediates from the PEM file,
     // so clients receive the full chain and can build OCSP cert IDs without a separate CA fetch.
     if (SSL_CTX_use_certificate_chain_file(obj->ctx, cert) <= 0) {
@@ -277,45 +276,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.SSL.Context.Client.configureCRL (ctx : @& Context.Client) (crlPEM : @& String) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_crl(b_obj_arg ctx_obj, b_obj_arg crl_pem) {
-    ERR_clear_error();
-
-    lean_ssl_context_object * obj = lean_to_ssl_context_object(ctx_obj);
-    const char * pem = lean_string_cstr(crl_pem);
-    size_t pem_size = lean_string_size(crl_pem) - 1;
-
-    if (pem_size > INT_MAX) {
-        return mk_openssl_io_error("CRL PEM string is too large");
-    }
-
-    BIO * bio = BIO_new_mem_buf(pem, (int)pem_size);
-    if (bio == nullptr) {
-        return mk_openssl_io_error("BIO_new_mem_buf (CRL) failed");
-    }
-
-    X509_CRL * crl = PEM_read_bio_X509_CRL(bio, nullptr, nullptr, nullptr);
-    BIO_free(bio);
-
-    if (crl == nullptr) {
-        return mk_openssl_io_error("PEM_read_bio_X509_CRL failed");
-    }
-
-    X509_STORE * store = SSL_CTX_get_cert_store(obj->ctx);
-
-    if (X509_STORE_add_crl(store, crl) != 1) {
-        X509_CRL_free(crl);
-        return mk_openssl_io_error("X509_STORE_add_crl failed");
-    }
-
-    X509_CRL_free(crl);
-
-    // Check the CRL for the leaf certificate and every CA in the chain.
-    X509_STORE_set_flags(store, X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
-
-    return lean_io_result_mk_ok(lean_box(0));
-}
-
 #else
 
 void initialize_openssl_context() {}
@@ -337,10 +297,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg /*ct
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj_arg /*ctx_obj*/, b_obj_arg /*ca_pem*/, uint8_t /*verify_peer*/) {
-    lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_crl(b_obj_arg /*ctx_obj*/, b_obj_arg /*crl_file*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 

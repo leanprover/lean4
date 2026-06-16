@@ -6,7 +6,3 @@ Authors: Sofia Rodrigues
 module
 prelude
 public import Std.Internal.SSL.Context
-
-/-!
-Re-exports `Std.Internal.SSL.Context`.
--/

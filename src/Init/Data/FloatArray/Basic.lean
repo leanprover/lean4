@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Float
+public import Init.Data.Float.Float
 import Init.Ext
 public import Init.GetElem
 public import Init.Data.ToString.Extra

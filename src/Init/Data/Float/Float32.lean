@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Float
+public import Init.Data.Float.Float
 
 public section
 

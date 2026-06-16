@@ -65,15 +65,26 @@ certificate will fail unless `configure` is called first with that CA file.
 opaque mk (defaultVerify : Bool := true) : IO Context.Client
 
 /--
-Configures CA trust anchors and peer verification for a client context. `caFile` may be empty to use
-platform default trust anchors.
+Configures CA trust anchors and peer verification for a client context.
+
+Trust-anchor semantics:
+- A non-empty `caFile` pins trust to exactly those CA certificates; the platform default trust
+  anchors are **not** added.
+- An empty `caFile` with `verifyPeer := true` uses the platform default trust anchors.
+- `verifyPeer := false` disables peer verification entirely.
 -/
 @[extern "lean_ssl_ctx_configure_client"]
 opaque configure (ctx : @& Context.Client) (caFile : @& String) (verifyPeer : Bool) : IO Unit
 
 /--
 Configures CA trust anchors from an in-memory PEM string instead of a file path. Accepts one or more
-PEM-encoded certificates (same format as a CA bundle file). `verifyPeer` works the same as in `configure`.
+PEM-encoded certificates (same format as a CA bundle file).
+
+Trust-anchor semantics match `configure`:
+- A non-empty `caPEM` pins trust to exactly those CA certificates; the platform default trust
+  anchors are **not** added.
+- An empty `caPEM` with `verifyPeer := true` uses the platform default trust anchors.
+- `verifyPeer := false` disables peer verification entirely (the PEM is not parsed).
 
 Use this when the CA certificate is embedded in the binary rather than on disk.
 -/

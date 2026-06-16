@@ -47,6 +47,34 @@ def testConfigureClientFromPEM (certFile : String) : IO Unit := do
   let clientCtx ← Context.Client.mk
   clientCtx.configureFromPEM caPEM true
 
+-- Asserts that an IO action fails, used to exercise the rejection/error paths.
+def assertThrows (label : String) (act : IO Unit) : IO Unit := do
+  match ← act.toBaseIO with
+  | .ok _ => throw <| IO.userError s!"{label}: expected failure, but it succeeded"
+  | .error _ => pure ()
+
+-- An empty CA bundle with `verifyPeer := true` falls back to the platform trust anchors and succeeds.
+def testConfigureFromPEMEmptyFallsBack : IO Unit := do
+  let clientCtx ← Context.Client.mk
+  clientCtx.configureFromPEM "" true
+
+-- `verifyPeer := false` succeeds without parsing the CA material, even for a real bundle.
+def testConfigureFromPEMNoVerify (certFile : String) : IO Unit := do
+  let caPEM ← IO.FS.readFile certFile
+  let clientCtx ← Context.Client.mk
+  clientCtx.configureFromPEM caPEM false
+
+-- Malformed PEM input is rejected rather than silently ignored.
+def testConfigureFromPEMRejectsGarbage : IO Unit := do
+  let clientCtx ← Context.Client.mk
+  assertThrows "garbage PEM" (clientCtx.configureFromPEM "not a certificate at all" true)
+
+-- A well-formed PEM block that contains no certificate is rejected.
+def testConfigureFromPEMRejectsEmptyBlock : IO Unit := do
+  let clientCtx ← Context.Client.mk
+  assertThrows "PEM without certificates"
+    (clientCtx.configureFromPEM "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n" true)
+
 #eval do
   let (certFile, keyFile) ← setupTestCerts
   testContextCreation certFile keyFile
@@ -54,3 +82,13 @@ def testConfigureClientFromPEM (certFile : String) : IO Unit := do
 #eval do
   let (certFile, _) ← setupTestCerts
   testConfigureClientFromPEM certFile
+
+#eval testConfigureFromPEMEmptyFallsBack
+
+#eval do
+  let (certFile, _) ← setupTestCerts
+  testConfigureFromPEMNoVerify certFile
+
+#eval testConfigureFromPEMRejectsGarbage
+
+#eval testConfigureFromPEMRejectsEmptyBlock

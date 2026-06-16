@@ -215,6 +215,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
         return mk_openssl_io_error("CA PEM string is too large");
     }
 
+    // Without peer verification the supplied CA certificates would never be consulted, so skip
+    // parsing them and just disable verification (mirrors the empty-PEM and file-based paths).
+    if (!verify_peer) {
+        SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_NONE, nullptr);
+        return lean_io_result_mk_ok(lean_box(0));
+    }
+
     BIO * bio = BIO_new_mem_buf(pem, (int)pem_size);
 
     if (bio == nullptr) {
@@ -237,12 +244,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
         return mk_openssl_io_error("X509_STORE_new failed");
     }
 
-    if (verify_peer && X509_STORE_set_default_paths(store) != 1) {
-        sk_X509_INFO_pop_free(infos, X509_INFO_free);
-        X509_STORE_free(store);
-        return mk_openssl_io_error("X509_STORE_set_default_paths failed");
-    }
-
+    // A non-empty CA bundle pins trust to exactly these certificates; system trust anchors are
+    // intentionally not added, matching the file-based `configure` ("only this CA") behavior.
     int cert_count = 0;
 
     for (int i = 0; i < sk_X509_INFO_num(infos); i++) {
@@ -271,8 +274,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
     }
 
     SSL_CTX_set_cert_store(obj->ctx, store);
-
-    SSL_CTX_set_verify(obj->ctx, verify_peer ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, nullptr);
+    SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_PEER, nullptr);
     return lean_io_result_mk_ok(lean_box(0));
 }
 

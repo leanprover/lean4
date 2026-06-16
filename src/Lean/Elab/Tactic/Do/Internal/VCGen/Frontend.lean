@@ -120,7 +120,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   let andIntroRule ← mkBackwardRuleFromDecl ``And.intro
   let reflRule ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
   let meetTopRule ← mkBackwardRuleFromDecl ``Std.Internal.Do.CompleteLattice.meet_top_le_of_le
-  let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
+  let allSpecThms ← SymM.run <| extendWithSimpSpecs specThms simpThms
   let ctx : VCGen.Context := {
     introRules := { tripleIntro, stateArgIntro, propPreIntro, ofPropPreIntro, truePreIntro },
     elimPreRule,
@@ -128,7 +128,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
     reflRule,
     meetTopRule,
   }
-  return (ctx, { specs := specThmsNew })
+  return (ctx, { specs := allSpecThms })
 
 end VCGen
 

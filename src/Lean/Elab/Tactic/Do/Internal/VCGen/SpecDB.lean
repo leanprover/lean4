@@ -127,10 +127,10 @@ side of `@[spec]`:
 - unfold entries registered with `attribute [spec] foo`, using stored equation lemmas when
   available and falling back to `Meta.getEqnsFor?`.
 
-Hoare triple and `⊑ wp` specs need no migration: the attribute stores them pattern-keyed
+Hoare triple and `⊑ wp` specs are already in `database`: the attribute stores them pattern-keyed
 at annotation time.
 -/
-public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpTheorems) :
+public def extendWithSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorems) :
     SymM SpecTheorems := do
   let mut specs := database.specs
   -- Erased entries are still inserted into `specs` below; `findSpecs` filters them out
@@ -139,15 +139,15 @@ public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : Sim
     match SpecProof.ofOrigin o with
     | some p => acc.insert p
     | none => acc
-  -- Migrate simp spec theorems (equational lemmas registered via `@[spec]`)
+  -- Add simp spec theorems (equational lemmas registered via `@[spec]`)
   for simpThm in simpThms.post.values do
     if let .decl declName .. := simpThm.origin then
       try
         if let some newSpec ← mkSpecTheoremFromSimpDecl? declName simpThm.priority then
           specs := Sym.insertPattern specs newSpec.pattern newSpec
       catch e =>
-        trace[Elab.Tactic.Do.vcgen] "Failed to migrate simp spec {declName}: {e.toMessageData}"
-  -- Migrate definitions to unfold (registered via `attribute [spec] foo`)
+        trace[Elab.Tactic.Do.vcgen] "Failed to add simp spec {declName}: {e.toMessageData}"
+  -- Add definitions to unfold (registered via `attribute [spec] foo`)
   for declName in simpThms.toUnfold.toList do
     let eqThms ← match simpThms.toUnfoldThms.find? declName with
       | some eqThms => pure eqThms
@@ -160,7 +160,7 @@ public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : Sim
         if let some newSpec ← mkSpecTheoremFromSimpDecl? eqThm (prio := eval_prio default) then
           specs := Sym.insertPattern specs newSpec.pattern newSpec
       catch e =>
-        trace[Elab.Tactic.Do.vcgen] "Failed to migrate unfold spec {declName}/{eqThm}: {e.toMessageData}"
+        trace[Elab.Tactic.Do.vcgen] "Failed to add unfold spec {declName}/{eqThm}: {e.toMessageData}"
   return { specs, erased }
 
 end VCGen

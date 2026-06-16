@@ -190,7 +190,8 @@ example (F G H : C ⥤ C) [Foo ((F ⋙ G) ⋙ H)] :
     Foo (F ⋙ (G ⋙ H)) := by
   infer_instance
 
-/-! With the `[implicit_reducible]` / `[instance_reducible]` split, `[implicit_reducible]`
+/-!
+With the `[implicit_reducible]` / `[instance_reducible]` split, `[implicit_reducible]`
 no longer unfolds during type class synthesis, so the two associations stay distinct here
 too — this is the behaviour we want: -/
 attribute [local implicit_reducible] Functor.comp in
@@ -204,3 +205,37 @@ Hint: Type class instance resolution failures can be inspected with the `set_opt
 example (F G H : C ⥤ C) [Foo ((F ⋙ G) ⋙ H)] :
     Foo (F ⋙ (G ⋙ H)) := by
   infer_instance
+
+/-!
+If `Functor.comp` is instance-reducible, the left-associated instance is, undesirably,
+synthesized where the right-associated instance is requested. Discrimination keys play no role
+here; local instances are always tried. If the instance was global instead of local, Lean would
+not even try to apply it because its discrimination key does not match.
+-/
+attribute [local instance_reducible] Functor.comp in
+#guard_msgs in
+example (F G H : C ⥤ C) [Foo ((F ⋙ G) ⋙ H)] :
+    Foo (F ⋙ (G ⋙ H)) := by
+  infer_instance
+
+section
+
+local instance {F G H : C ⥤ C} : Foo ((F ⋙ G) ⋙ H) where data := 0
+
+/-!
+If the instance was global instead of local, Lean would not even try to apply it because its
+discrimination key does not match.
+-/
+attribute [local implicit_reducible] Functor.comp in
+/--
+error: failed to synthesize instance of type class
+  Foo (F ⋙ G ⋙ H)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+example (F G H : C ⥤ C) :
+    Foo (F ⋙ (G ⋙ H)) := by
+  infer_instance
+
+end

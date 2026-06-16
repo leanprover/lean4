@@ -47,22 +47,64 @@ Each level unfolds everything the previous level does, plus more:
   (e.g., discrimination tree lookups in `simp`, type class resolution). Think of `[reducible]` as
   `[inline]` for type checking and indexing.
 
-- **`instances`**: Also unfolds `[instance_reducible]` definitions (auto-applied to type class
-  instances by the `instance` command). Used during type class synthesis so that instance
-  diamonds (e.g., `Add Nat` from a direct instance vs via `Semiring`) can be resolved: instances
-  are definitionally equal but structurally different, and `isDefEq` must unfold them to confirm
-  equality. Crucially, this level does **not** unfold user-written `[implicit_reducible]` —
-  marking a Mathlib functor `[implicit_reducible]` does not affect type class search.
+/-
+TODO: clarify this. My understanding:
+* When comparing instance implicit arguments, we use *implicit* transparency.
+* When applying an instance during instance search, we unify the arguments at *instance* transparency.
+* Only relevant for efficiency: lazy WHNF operates at instances transparency.
+* (Maybe, check again?) Before instance indexing instances or doing index lookups, terms are normalized at *reducible*, not instance transparency.
+  However, there are #9077-like cases where it looks like an instance-reducible constant was unfolded.
+  (Note to self: Is is a smell if a definition is more reducible than the transparency at which the types are equal?)
+* sizeOf equational lemmas use `whnfI`. (SizeOf.lean)
 
-- **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Used when checking implicit
-  *value* arguments. This lets downstream libraries mark their own abbreviations
-  `[implicit_reducible]` so they unfold during implicit-argument defeq without affecting type
-  class search. (Definitions like `Nat.add`/`Array.size` are `[instance_reducible]`,
-  so already unfold at `.instances`; core currently has no `[implicit_reducible]` constants.)
+Things that are expected to be part of an instance discrimination key should *not* be instance-reducible.
+The main use case are instances themselves:
+* They aren't indexed at all, so we don't need to care about that.
+* They should be unfolded during lazy WHNF so that we can get down to the underlying property.
+
+Basic rule:
+Instance transparency is used for instance synthesis, instance type indexing (not really, but morally; even though indexing uses `reducible`, see #9077 as an example of what can happen), and instance canonicalization mostly.
+Unification of existing instances happens at implicit.
+-/
+- **`instances`**: Also unfolds `[instance_reducible]` definitions (auto-applied to type class
+  instances by the `instance` command). Primarily but not exclusively used during type class synthesis
+  when unifying an instance's type with the expected type. Constants that play a role in an instance's
+  discrimination pattern must not be instance-reducible; they must at least be implicit-reducible.
+  For example, if `id : α → α` was instance-reducible, unter some circumstances an instance of type
+  `C (id x)` can be applied when an instance of type `C x` is requested. If this is undesirable,
+  `id` (in this example) should be at most implicit-reducible.
+  Most users will never need to manually annotate anything with `[instance_reducible]` and they
+  should unless they understand what they do.
+- **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Implicit arguments and instance
+  arguments are always checked at implicit transparency, even if the ambient transparency is `reducible`
+  or `instances`. It is usually cheaper to compare terms at implicit transparency than it is to
+  compare them at default transparency (see below) because it is more restrictive at unfolding.
+  Tactics such as `simp` unify lemmas with subterms at `reducible` transparency. For example, when
+  `simp` applies a lemma to a subterm, it puts metavariables in the place of its parameters and then
+  unifies the lemma's conclusion with the subterm at `reducible` transparency, bumping the
+  transparency to `implicit` for implicit and instance arguments. When `simp` does not apply a lemma
+  that it should, it can be because `simp` would need to unfold a semireducible declaration during
+  the unification process. In that case, marking that declaration `[implicit_reducible]` can be a
+  solution.
+
+  `[implicit_reducible]` is the right annotation in several situations, such as the following ones.
+
+  - Because instance arguments are always compared at (at least) implicit transparency,
+    marking constants as `[implicit_reducible]` can prevent instance diamonds.
+  - Operations used in type parameters (such as in the `n` of `Fin n`) should, as a basic rule,
+    be implicit-reducible, at least as soon as `backward.isDefEq.respectTransparency.types` is
+    enabled, because types during metavariable assignments are then compared at implicit
+    transparency.
+  - The left-hand side and right-hand side of a `rfl` lemma should be definitionally equal at
+    implicit transparency. Marking constants as `[implicit_reducible]` allows for more `rfl` lemmas.
+
+  The downside is that every implicit-reducible constant makes the definitional equality checker
+  do more unfolding, which can get expensive.
+
+  TODO: Is this true?
   Discrimination trees do not index `[implicit_reducible]` definitions,
   so `.implicit` is still safe for speculative checks involving implicit arguments
   without the performance cost of `.default`.
-
 - **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
   Used for type checking user input where we want to try hard.
 
@@ -74,10 +116,10 @@ When proof automation (e.g., `simp`, `rw`) applies a lemma, explicit arguments a
 caller's transparency (typically `.reducible`). But implicit arguments are often "invisible" to the
 user — if a lemma fails to apply because of an implicit argument mismatch, the user is confused.
 Historically, Lean bumped transparency to `.default` for implicit arguments, but this eventually
-became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency`
-(default: `true`) disables this bump. Instead, instance-implicit arguments (`[..]`) are checked at
-`.instances` (so instance diamonds resolve), and other implicit arguments are checked at
-`.implicit` (so user-marked `[implicit_reducible]` definitions additionally unfold), or at the
+became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency true`
+(default: `true`) disables this bump. Instead, implicit arguments (`{..}`) and instance-implicit
+arguments (`[..]`) are checked at `.implicit` (so implicit-reducible definitions additionally unfold
+and instance diamonds resolve), or at the
 caller's transparency when `backward.isDefEq.implicitBump` is `false`.
 
 See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,

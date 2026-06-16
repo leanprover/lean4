@@ -19,7 +19,7 @@ namespace Float.Model.UnpackedFloat
 Returns an `Int` that is close to the given `(sign, mantissa, exponent)` triple.
 -/
 def roundToInt (sign : Sign) (mantissa : Nat) (exponent : Int) : Int :=
-  let (mantissa, exponent) := decreaseExponent mantissa exponent 0
+  -- let (mantissa, exponent) := decreaseExponent mantissa exponent 0
   let (em₁, _) := shiftToExponent mantissa exponent .exact 0
   sign.apply em₁.mantissa
 

@@ -3914,6 +3914,28 @@ theorem neg_one_eq_allOnes : -1#w = allOnes w := by
     have r : (2^w - 1) < 2^w := by omega
     simp [Nat.mod_eq_of_lt q, Nat.mod_eq_of_lt r]
 
+@[simp]
+theorem zero_eq_neg_one_iff {w : Nat} : 0#w = (-1#w) ↔ w = 0 := by
+  simp only [← toNat_inj, toNat_ofNat, Nat.zero_mod, toNat_neg]
+  match w with
+  | 0 => simp
+  | w + 1 =>
+    suffices 0 ≠ 2 ^ (w + 1) - 1 by simpa
+    have : 2 ≤ 2 ^ (w + 1) := Nat.le_pow (by simp)
+    omega
+
+@[simp]
+theorem neg_one_eq_zero_iff {w : Nat} : (-1#w) = 0#w ↔ w = 0 := by
+  rw [eq_comm, zero_eq_neg_one_iff]
+
+@[simp]
+theorem zero_eq_allOnes_iff {w : Nat} : 0#w = allOnes w ↔ w = 0 := by
+  rw [← neg_one_eq_allOnes, zero_eq_neg_one_iff]
+
+@[simp]
+theorem allOnes_eq_zero_iff : allOnes w = 0#w ↔ w = 0 := by
+  rw [← neg_one_eq_allOnes, neg_one_eq_zero_iff]
+
 theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1#w := by
   apply eq_of_toNat_eq
   simp only [toNat_neg, toNat_add, toNat_not, toNat_ofNat, Nat.add_mod_mod]
@@ -4405,6 +4427,12 @@ theorem lt_add_one {b : BitVec w} (h : b ≠ allOnes w) : b < b + 1 := by
   · exact Nat.lt_add_one _
   · have := b.toNat_lt_twoPow_of_le (Nat.le_refl _)
     omega
+
+theorem toNat_pos {n : Nat} (b : BitVec n) : 0 < b.toNat ↔ 0#_ < b := by
+  simp [BitVec.lt_def]
+
+theorem pos_iff_ne_zero {n : Nat} (b : BitVec n) : 0#_ < b ↔ b ≠ 0#_ := by
+  rw [BitVec.lt_def, Ne, ← BitVec.toNat_inj, BitVec.toNat_zero, Nat.pos_iff_ne_zero]
 
 /-! ### udiv -/
 

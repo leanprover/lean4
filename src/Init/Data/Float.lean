@@ -8,3 +8,4 @@ module
 prelude
 public import Init.Data.Float.Float
 public import Init.Data.Float.Float32
+public import Init.Data.Float.Model

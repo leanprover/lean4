@@ -22,6 +22,7 @@ var g_live_spawn_contexts = std.atomic.Value(usize).init(0);
 pub const default_stack_size_kb: usize = 8192;
 const min_stack_size_kb: usize = 64;
 const max_stack_size_kb: usize = 65536;
+const stack_buffer_space_bytes: usize = 128 * 1024;
 
 pub const SpawnConfig = struct {
     stack_size: usize = 0,
@@ -62,8 +63,11 @@ pub fn stackSizeBytesFromEnv() ?usize {
 }
 
 fn effectiveStackSize(requested: usize) usize {
-    if (requested != 0) return requested;
-    return stackSizeBytesFromEnv() orelse defaultStackSizeBytes();
+    const base = if (requested != 0) requested else (stackSizeBytesFromEnv() orelse defaultStackSizeBytes());
+    if (builtin.os.tag == .linux) {
+        return std.mem.alignForward(usize, base + stack_buffer_space_bytes, std.heap.pageSize());
+    }
+    return base;
 }
 
 pub fn resetTestState() void {

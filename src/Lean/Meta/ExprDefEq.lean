@@ -79,6 +79,11 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
+  defValue := false
+  descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
+}
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
   Remark: `n`, `k` may be 0.
@@ -487,7 +492,20 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       let mvarType ← inferType mvar
       let vType ← inferType v
       if (← respectTransparencyAtTypes) then
-        withImplicitConfig do
+        -- For instance metavariables — those created for an instance-implicit (`[..]`) parameter,
+        -- identified by `.synthetic` kind together with a class type — cap the transparency at
+        -- exactly `.instances` so an ambient `.default`/`.all` does not let semireducible
+        -- definitions be unfolded while checking the type of an instance assignment. This
+        -- intentionally does not apply to ordinary implicit (`{..}`) metavariables that happen
+        -- to have a class type, which are created with `.natural` kind.
+        let isInstance ←
+          if (← mvar.mvarId!.getKind) matches .synthetic then
+            pure (← isClass? mvarType).isSome
+          else
+            pure false
+        let capInstance (x : MetaM Bool) : MetaM Bool :=
+          if isInstance then withTransparency .instances x else x
+        capInstance <| withImplicitConfig do
           if (← Meta.isExprDefEqAux mvarType vType) then
             mvar.mvarId!.assign v
             return true
@@ -2270,7 +2288,11 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
-  withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq (fun _ => do
+    if trace.Meta.isDefEq.printTransparency.get (← getOptions) then
+      return m!"[{toString (← getTransparency)}] {t} =?= {s}"
+    else
+      return m!"{t} =?= {s}") do
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
@@ -2360,5 +2382,6 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct
+  registerTraceClass `Meta.isDefEq.transparency (inherited := true)
 
 end Lean.Meta

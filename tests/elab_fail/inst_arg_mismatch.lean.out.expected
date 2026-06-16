@@ -1,0 +1,7 @@
+inst_arg_mismatch.lean:31:7-31:20: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules
+while elaborating instance argument #2 of
+  @myFn Nat ic1 5
+synthesized
+  ic2
+inferred
+  ic1

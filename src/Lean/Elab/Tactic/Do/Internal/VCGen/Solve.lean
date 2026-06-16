@@ -351,15 +351,8 @@ The function performs the following steps in order:
 -/
 public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   if ← outOfFuel then return .stop .outOfFuel
-  let mut goal := goal
-  let mut target ← goal.getType
+  let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"
-
-  if target.hasExprMVar then
-    -- Rule application may have assigned metavariables in the target; re-normalise so the
-    -- syntactic shape tests below see the assigned form.
-    target ← instantiateMVars target
-    goal ← goal.replaceTargetDefEq target
 
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
   if let some gs ← forallIntro? goal target then return .goals scope gs
@@ -370,6 +363,12 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
 
   let_expr PartialOrder.rel α inst pre rhs := target
     | return .stop (.noEntailment target)
+
+  -- A previous rule application may have assigned the entailment's sides to fresh metavariables
+  -- (e.g. a lattice-split operand). Instantiate those heads so the shape tests below see the
+  -- assigned form.
+  let pre ← instantiateMVarsIfMVarApp pre
+  let rhs ← instantiateMVarsIfMVarApp rhs
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.

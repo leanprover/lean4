@@ -91,7 +91,7 @@ where the reduction is sound; entailments at an abstract lattice carrier pass th
 public def elimTopPre (goal : MVarId) : VCGenM MVarId := do
   let some (.sort .zero, _, pre, _) := (← goal.getType).app4? ``Lean.Order.PartialOrder.rel
     | return goal
-  unless pre.isAppOf ``Lean.Order.top do return goal
+  unless (← instantiateMVarsIfMVarApp pre).isAppOf ``Lean.Order.top do return goal
   let .goals [goal] ← (← read).backwardRules.elimPre.apply goal
     | throwError "Failed to strip the `⊤ ⊑` wrapper of {goal}"
   return goal

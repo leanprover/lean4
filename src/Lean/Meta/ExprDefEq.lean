@@ -438,7 +438,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     if respectTransparency && finfo.paramInfo[i]!.isInstance then
-      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false -- TODO: change for consistency's sake?
     else if respectTransparency && implicitBump then
       unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if !respectTransparency && finfo.paramInfo[i]!.isInstance then

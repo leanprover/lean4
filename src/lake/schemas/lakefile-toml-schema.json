@@ -153,7 +153,7 @@
                 "requiresModuleSystem": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Whether this package or library should be considered designed for use with the module system.\n\nIf enabled, Lake emits a warning whenever a module imports a module of this code unit without itself using the module system (i.e., without a `module` header). This applies both to downstream consumers and to non-module files within the same package, signalling that the code unit's API expects the visibility and elaboration semantics of the module system.\n\nImporters can opt out of the warning by setting `allowNonModules := true` on their own package or library.\n\nDefaults to `false`."
+                    "description": "Whether this package or library should be considered designed for use with the module system.\n\nIf enabled, Lake emits a warning whenever a module imports a module of this code unit without itself using the module system (i.e., without a `module` header). This applies both to downstream consumers and to non-module files within the same package, signalling that the code unit's API expects the visibility and elaboration semantics of the module system.\n\nImporters can opt out of the warning by setting `allowNonModules = true` on their own package or library.\n\nDefaults to `false`."
                 },
                 "allowNonModules": {
                     "type": "boolean",

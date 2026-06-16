@@ -360,7 +360,7 @@ For example, we must be able to unfold instances, `beta := true`, `proj := .yesW
   let old ← getTransparency
   if old.lt .instances then
     trace[Meta.isDefEq.transparency]
-      "raising transparency {toString old} → instances (checking instance-implicit argument)"
+      "raising transparency {toString old} → instances"
   withAtLeastTransparency .instances do
     let cfg ← getConfig
     if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
@@ -370,15 +370,14 @@ For example, we must be able to unfold instances, `beta := true`, `proj := .yesW
 
 /--
 Ensure `MetaM` configuration is strong enough for checking definitional equality of
-implicit *value* arguments and assigned mvar types. Bumps transparency to at least `.implicit`,
-so both `[instance_reducible]` and `[implicit_reducible]` unfold. Used for non-instance implicit
-arguments where definitions like `Nat.add` / `Array.size` need to reduce to make types match.
+implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
+least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
 -/
 @[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
   let old ← getTransparency
   if old.lt .implicit then
     trace[Meta.isDefEq.transparency]
-      "raising transparency {toString old} → implicit (checking implicit value argument or assigned metavariable type)"
+      "raising transparency {toString old} → implicit"
   withAtLeastTransparency .implicit do
     let cfg ← getConfig
     if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
@@ -403,10 +402,9 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
        implicit arguments and expect them to "just work."
        When `respectTransparency` is `true` and `implicitBump` is `true`, we bump non-instance
        implicit arguments to `.implicit` so that `[reducible]`, `[instance_reducible]`, and
-       `[implicit_reducible]` definitions are unfolded (e.g. `Nat.add`, `Array.size`) but not
-       arbitrary semireducible definitions.
+       `[implicit_reducible]` definitions are unfolded but not arbitrary semireducible definitions.
        When `respectTransparency` is `true` and `implicitBump` is `false`, only instance-implicit
-       arguments (`[..]`) are bumped to `.instances`. -/
+       arguments (`[..]`) are bumped to `.implicit`. -/
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
@@ -419,15 +417,10 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.binderInfo.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    if respectTransparency && info.binderInfo.isInstImplicit then
-      -- Instance-implicit `[..]` arguments: bump to `.instances` so type class instances
-      -- (`[instance_reducible]`) unfold for diamond resolution. `[implicit_reducible]`
-      -- annotations have no effect here — they should not corrupt TC-tier defeq.
-      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
-    else if respectTransparency && implicitBump then
-      -- Other implicit arguments: bump to `.implicit` so that `[instance_reducible]` definitions
-      -- (e.g. `Nat.add`, `Array.size`) and user-marked `[implicit_reducible]` definitions both
-      -- unfold for value-level defeq.
+    if respectTransparency && (info.binderInfo.isInstImplicit || implicitBump) then
+      -- Bump to `.implicit` so that `[instance_reducible]` definitions
+      -- and user-marked `[implicit_reducible]` definitions both unfold.
+      -- For instance-implicit arguments, this is especially necessary for diamond resolution.
       unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if respectTransparency then
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
@@ -437,12 +430,10 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
-    if respectTransparency && finfo.paramInfo[i]!.isInstance then
+    if respectTransparency && (finfo.paramInfo[i]!.isInstance || implicitBump) then
       unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
-    else if respectTransparency && implicitBump then
-      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+    -- Old behavior
     else if !respectTransparency && finfo.paramInfo[i]!.isInstance then
-      -- Old behavior
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false

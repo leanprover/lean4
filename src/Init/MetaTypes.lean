@@ -47,25 +47,6 @@ Each level unfolds everything the previous level does, plus more:
   (e.g., discrimination tree lookups in `simp`, type class resolution). Think of `[reducible]` as
   `[inline]` for type checking and indexing.
 
-/-
-TODO: clarify this. My understanding:
-* When comparing instance implicit arguments, we use *implicit* transparency.
-* When applying an instance during instance search, we unify the arguments at *instance* transparency.
-* Only relevant for efficiency: lazy WHNF operates at instances transparency.
-* (Maybe, check again?) Before instance indexing instances or doing index lookups, terms are normalized at *reducible*, not instance transparency.
-  However, there are #9077-like cases where it looks like an instance-reducible constant was unfolded.
-  (Note to self: Is is a smell if a definition is more reducible than the transparency at which the types are equal?)
-* sizeOf equational lemmas use `whnfI`. (SizeOf.lean)
-
-Things that are expected to be part of an instance discrimination key should *not* be instance-reducible.
-The main use case are instances themselves:
-* They aren't indexed at all, so we don't need to care about that.
-* They should be unfolded during lazy WHNF so that we can get down to the underlying property.
-
-Basic rule:
-Instance transparency is used for instance synthesis, instance type indexing (not really, but morally; even though indexing uses `reducible`, see #9077 as an example of what can happen), and instance canonicalization mostly.
-Unification of existing instances happens at implicit.
--/
 - **`instances`**: Also unfolds `[instance_reducible]` definitions (auto-applied to type class
   instances by the `instance` command). Primarily but not exclusively used during type class synthesis
   when unifying an instance's type with the expected type. Constants that play a role in an instance's
@@ -74,7 +55,10 @@ Unification of existing instances happens at implicit.
   `C (id x)` can be applied when an instance of type `C x` is requested. If this is undesirable,
   `id` (in this example) should be at most implicit-reducible.
   Most users will never need to manually annotate anything with `[instance_reducible]` and they
-  should unless they understand what they do.
+  should unless they understand what they do. There are some more subtle corners of the elaborator
+  where instance-reducible constants have a special role, such as in the lazy WHNF mechanism and
+  the generation of `sizeOf` equational lemmas.
+
 - **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Implicit arguments and instance
   arguments are always checked at implicit transparency, even if the ambient transparency is `reducible`
   or `instances`. It is usually cheaper to compare terms at implicit transparency than it is to

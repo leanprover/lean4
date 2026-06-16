@@ -1252,7 +1252,7 @@ where
             !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then
           let status ← getReducibilityStatus header.declName
           unless status matches .reducible | .instanceReducible | .implicitReducible | .irreducible do
-            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[instance_reducible]`"
+            logWarning m!"Definition `{header.declName}` of class type must not be marked with `@[semireducible]"
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref

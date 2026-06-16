@@ -286,7 +286,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   unless status matches .reducible | .instanceReducible | .implicitReducible do
     let info ← getConstInfo declName
     if info.isDefinition then
-      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[instance_reducible]`"
+      logWarning m!"instance `{declName}` must be marked with `@[reducible]`, `@[instance_reducible]` or `@[implicit_reducible]`"
     else if wasOriginallyDefn (← getEnv) declName then
       logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName

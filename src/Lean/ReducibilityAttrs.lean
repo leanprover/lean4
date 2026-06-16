@@ -18,18 +18,14 @@ See `TransparencyMode` for the full design rationale.
   trees (`simp`, type class resolution) and in `grind`. Think of it as `[inline]` for indexing.
   Suitable for abbreviations and definitions that should be transparent to proof automation.
 - **`instanceReducible`**: Unfolded at `TransparencyMode.instances` or above. Auto-applied by the
-  `instance` command and to subobject projections of class parents. Used so that type class
-  synthesis can resolve instance diamonds (e.g., `Add Nat` via direct instance vs via `Semiring`)
-  without unfolding user-written `[implicit_reducible]` definitions. The attribute
+  `instance` command and to subobject projections of class parents. The attribute
   `[instance_reducible]` marks a definition with this status; users typically do not need to
   apply it manually.
 - **`implicitReducible`**: Unfolded at `TransparencyMode.implicit` or above (strictly above
-  `.instances`). Used for definitions that should unfold during *implicit-argument* defeq but
-  must stay opaque to type class search — typically user-written abbreviations in downstream
-  libraries (e.g. Mathlib functors). These definitions cannot be eagerly reduced (recursive
-  definitions are problematic), but should unfold when checking implicit arguments. Crucially,
-  marking a constant `[implicit_reducible]` does **not** affect type class search — it only helps
-  implicit-arg defeq. The attribute `[implicit_reducible]` marks a definition with this status.
+  `.instances`). Used for definitions that should unfold when checking implicit and
+  instance-implicit arguments for definitional equality, including for resolving instance diamonds,
+  but must stay opaque to type class *search*.
+  The attribute `[implicit_reducible]` marks a definition with this status.
   (Note: core arithmetic such as `Nat.add` and `Array.size` is deliberately `instanceReducible`,
   not `implicitReducible`, because type class synthesis depends on it unfolding.)
 - **`semireducible`**: The default. Unfolded at `TransparencyMode.default` or above. Used for

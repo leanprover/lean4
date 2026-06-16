@@ -25,16 +25,15 @@ namespace Fin
 def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n :=
   ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ (Nat.pos_of_neZero n)⟩
 
-@[simp] theorem val_npow [NeZero n] (a : Fin n) (k : Nat) :
-    (Fin.npow a k).val = a.val ^ k % n := by
-  show Nat.powMod a.val k n = a.val ^ k % n
-  exact Nat.powMod_def _ _ _
-
 instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
   hPow := Fin.npow
 
 instance [NeZero n] : Pow (Fin n) Nat where
   pow := Fin.npow
+
+@[simp] theorem val_pow [NeZero n] (a : Fin n) (k : Nat) :
+    (a ^ k).val = a.val ^ k % n :=
+  Nat.powMod_def a.val k n
 
 @[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
   ext; exact Nat.powMod_zero a.val n
@@ -166,8 +165,7 @@ instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
 instance : PowIdentity (Fin 2) 2 where
   pow_eq x := by
     ext
-    show (Fin.npow x 2).val = x.val
-    rw [val_npow]
+    rw [val_pow]
     match x with
     | ⟨0, _⟩ => rfl
     | ⟨1, _⟩ => rfl

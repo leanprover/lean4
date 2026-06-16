@@ -41,11 +41,6 @@ public partial def peelEPostTailChain (curr : Expr) (idx : Nat := 0) : Expr × N
     else
       (curr, idx)
 
-/-- Strip one `Level.succ`, mapping the `Sort`-level of `Type w` back to `w`. -/
-private def predLevel : Level → Level
-  | .succ l => l
-  | l => l
-
 /--
 When the exception postcondition is `⊥`, the RHS of a `pre ⊑ EPost.Cons.head ⊥ x₁ … xₙ` goal is
 propositionally—but not definitionally—equal to `⊥`. This rewrites the goal to `pre ⊑ ⊥`,
@@ -90,7 +85,7 @@ public def replaceEPostHeadBot? (goal : MVarId) (target head : Expr) (args : Arr
     let uσ ← Sym.getLevel σ
     let uτ ← Sym.getLevel τ
     -- `bfa : (⊥ : σ → τ) x = (⊥ : τ)`
-    let bfa := mkApp4 (mkConst ``Lean.Order.bot_apply [predLevel uσ, predLevel uτ]) σ τ τCL x
+    let bfa := mkApp4 (mkConst ``Lean.Order.bot_apply [← decLevel uσ, ← decLevel uτ]) σ τ τCL x
     let some (_, _, newBot) := (← Sym.inferType bfa).eq? | return none
     -- `Eq.trans (congrFun acc x) bfa : curHead x = ⊥`
     let cf := mkApp6 (mkConst ``congrFun [uσ, uτ]) σ (.lam `x σ τ .default) curHead curBot acc x

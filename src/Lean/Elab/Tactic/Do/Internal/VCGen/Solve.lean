@@ -330,16 +330,11 @@ The function performs the following steps in order:
    precondition by `⊤` and lift any other precondition into the local context.
 8. **EPost projection reduction**: reduce an `EPost.Cons.head` RHS to the projected component.
 9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives.
-10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ φ` entailment against the most
-    recently lifted precondition, cached in `Scope.lastLiftedPre?`.
+10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
+    recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
 11. **WP decomposition**: when the RHS is `wp e post epost s₁ ... sₙ`, in order:
     hoist/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
-
-Pure preconditions are lifted as soon as they arise (steps 5 and 7). The lifted hypothesis is
-cached in `Scope.lastLiftedPre?`. Step 10 closes residual entailments against it with a single
-defeq check, and bare `Prop` targets, such as the subgoal of the `⌜φ⌝` lattice rule, are
-checked against it before being classified as VCs.
 -/
 public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   if ← outOfFuel then return .stop

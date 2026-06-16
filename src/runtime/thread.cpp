@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <cstring>
 #ifdef LEAN_WINDOWS
 #include <windows.h>

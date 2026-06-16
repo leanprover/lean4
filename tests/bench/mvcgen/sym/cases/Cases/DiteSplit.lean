@@ -1,17 +1,16 @@
 import Lean
 import Std.Tactic.Do
-/-!
-Port of `Sym/Cases/DiteSplit` to the new meta theory.
 
+/-!
 Dependent if-then-else (`if h : cond then ...`) inside an `ExceptT String <| StateM Nat`
 program. The add/sub around the guarded `throw` keeps the state unchanged on the success path.
 -/
 
 open Lean Meta Order Std.Internal.Do
 
-set_option mvcgen.warning false
-
 namespace DiteSplit
+
+set_option mvcgen.warning false
 
 abbrev M := ExceptT String <| StateM Nat
 
@@ -38,6 +37,5 @@ def loop (n : Nat) : M Unit := do
   | n+1 => step n; loop n
 
 def Goal (n : Nat) : Prop := ⦃fun s => s = 0⦄ loop n ⦃fun _ s => s = 0⦄
-
 
 end DiteSplit

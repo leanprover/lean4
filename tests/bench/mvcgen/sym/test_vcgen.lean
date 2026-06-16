@@ -25,7 +25,7 @@ Each case exercises a different aspect of the VC generation:
 - `MatchSplit`: Pattern matching with symbolic discriminant (state), exercising match split
 -/
 
-open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do Do.Internal.SpecAttr
+open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
 
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000

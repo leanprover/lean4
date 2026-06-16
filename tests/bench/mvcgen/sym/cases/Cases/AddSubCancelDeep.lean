@@ -1,25 +1,15 @@
 import Lean
 import Std.Tactic.Do
+
 /-!
-Port of `Sym/Cases/AddSubCancelDeep` to the new meta theory.
-
 Same loop as `AddSubCancel` but threaded through a deep monad transformer stack.
-
-Known issue: the partially-evaluated `getThe`/`set` specs for this deep stack are not yet
-provable by `mvcgen'` (see the divergence notes below),
-so they are currently axiomatized with `sorry`. The benchmark still exercises VC generation
-through the deep stack using these specs.
 -/
 
 open Lean Parser Meta Elab Tactic Sym Lean.Order Std.Internal.Do
 
-set_option mvcgen.warning false
-
 namespace AddSubCancelDeep
 
-/-!
-Same case as `AddSubCancel` but using a deep transformer stack.
--/
+set_option mvcgen.warning false
 
 abbrev M := ExceptT String <| ReaderT String <| ExceptT Nat <| StateT Nat <| ExceptT Unit <| StateM Unit
 

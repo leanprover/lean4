@@ -1,17 +1,16 @@
 import Lean
 import Std.Tactic.Do
-/-!
-Port of `Sym/Cases/AddSubCancelSimp` to the new meta theory.
 
+/-!
 Same benchmark as `AddSubCancel` but using equality (`simp`) specs for `get` and `set`
 instead of triple specs. Exercises the simp/equality spec rule-construction path.
 -/
 
 open Lean Meta Order Std.Internal.Do
 
-set_option mvcgen.warning false
-
 namespace AddSubCancelSimp
+
+set_option mvcgen.warning false
 
 /- TODO: Those lemmas actually not used because priorites are not respected for simp lemmas.
   Moreover, if `mvcgen'` actually used them, it wpould have lead to a bug:

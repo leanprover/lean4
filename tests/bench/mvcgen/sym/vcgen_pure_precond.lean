@@ -8,7 +8,7 @@ import Driver
 
 set_option mvcgen.warning false
 
-open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
+open Lean Parser Meta Elab Tactic Sym Std Do
 open PurePrecond
 
 set_option maxRecDepth 10000

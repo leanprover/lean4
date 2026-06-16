@@ -22,7 +22,7 @@ Tests whose proofs do not mention `mvcgen`/`mvcgen'` (manual `mspec`/`mintro` pr
 are intentionally not ported.
 -/
 
-open Lean Order Meta Elab Tactic Sym Std Internal.Do Do.Internal.SpecAttr
+open Lean Order Meta Elab Tactic Sym Std Internal.Do
 
 set_option grind.warning false
 set_option warn.sorry false

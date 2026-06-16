@@ -108,16 +108,34 @@ instance : HShiftRight ExtendedMantissa Nat ExtendedMantissa where
 end ExtendedMantissa
 
 /--
+Shifts the mantissa and exponent and initial accuracy to the target exponent, returning
+the new extended mantissa and exponent.
+
+Important: this function will only drop bits from the mantissa and increase the exponent,
+not the other way around. The result will only conform to the given specification if
+the exponent was not too large to begin with. If this may be the case, you should call
+`round` instead.
+-/
+def shiftToExponent (mantissa : Nat) (exponent : Int)
+    (accuracy : Accuracy) (targetExponent : Int) : ExtendedMantissa × Int :=
+  let shiftAmount := (targetExponent - exponent).toNat -- negative to 0
+  let initialExtendedMantissa := ExtendedMantissa.ofMantissaAndAccuracy mantissa accuracy
+  (initialExtendedMantissa >>> shiftAmount, exponent + shiftAmount)
+
+/--
 Computes the target exponent for the given mantissa and exponent and shifts the
 mantissa and exponent and initial accuracy to the target exponent, returning
 the new extended mantissa and exponent.
+
+Important: this function will only drop bits from the mantissa and increase the exponent,
+not the other way around. The result will only conform to the given specification if
+the exponent was not too large to begin with. If this may be the case, you should call
+`round` instead.
 -/
 def shiftToTargetExponent (spec : Format) (mantissa : Nat) (exponent : Int)
     (accuracy : Accuracy) : ExtendedMantissa × Int :=
   let targetExponent := spec.targetExponent (totalExponent mantissa exponent)
-  let shiftAmount := (targetExponent - exponent).toNat -- negative to 0
-  let initialExtendedMantissa := ExtendedMantissa.ofMantissaAndAccuracy mantissa accuracy
-  (initialExtendedMantissa >>> shiftAmount, exponent + shiftAmount)
+  shiftToExponent mantissa exponent accuracy targetExponent
 
 /--
 Given a finite float represented by a sign, mantissa and exponent, together with an

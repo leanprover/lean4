@@ -14,3 +14,5 @@ public import Init.Data.Float.Model.Unpacked.Operations.Sqrt
 public import Init.Data.Float.Model.Unpacked.Operations.Compare
 public import Init.Data.Float.Model.Unpacked.Operations.Sign
 public import Init.Data.Float.Model.Unpacked.Operations.Status
+public import Init.Data.Float.Model.Unpacked.Operations.OfNat
+public import Init.Data.Float.Model.Unpacked.Operations.ToNat

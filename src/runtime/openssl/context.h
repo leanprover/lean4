@@ -23,7 +23,7 @@ void initialize_openssl_context();
 
 #ifndef LEAN_EMSCRIPTEN
 
-// Structure for mananing a single Context object.
+// Structure for managing a single Context object.
 typedef struct {
     SSL_CTX * ctx;
 } lean_ssl_context_object;
@@ -45,6 +45,5 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(uint8_t default_verif
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg ctx, b_obj_arg cert_file, b_obj_arg key_file);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg ctx, b_obj_arg ca_file, uint8_t verify_peer);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj_arg ctx, b_obj_arg ca_pem, uint8_t verify_peer);
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_crl(b_obj_arg ctx, b_obj_arg crl_file);
 
 }

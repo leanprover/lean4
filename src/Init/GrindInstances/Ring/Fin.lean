@@ -13,32 +13,12 @@ public import Init.Data.Fin.Lemmas
 public import Init.Grind.Ring.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.MinMax
-public import Init.Data.Nat.PowMod
 
 public section
 
 namespace Lean.Grind
 
 namespace Fin
-
-@[expose]
-def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n :=
-  ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ (Nat.pos_of_neZero n)⟩
-
-instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
-  hPow := Fin.npow
-
-instance [NeZero n] : Pow (Fin n) Nat where
-  pow := Fin.npow
-
-@[simp] theorem val_pow [NeZero n] (a : Fin n) (k : Nat) :
-    (a ^ k).val = a.val ^ k % n :=
-  Nat.powMod_def a.val k n
-
-@[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
-  ext; exact Nat.powMod_zero a.val n
-@[simp] theorem pow_succ [NeZero n] (a : Fin n) (k : Nat) : a ^ (k+1) = a ^ k * a := by
-  ext; exact Nat.powMod_succ a.val k n
 
 theorem add_assoc (a b c : Fin n) : a + b + c = a + (b + c) := by
   cases a; cases b; cases c; simp [Fin.add_def, Nat.add_assoc]
@@ -159,13 +139,13 @@ instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
         simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
         rw [Int.emod_eq_of_lt] <;> omega
     | succ k ih =>
-      rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
+      rw [Fin.pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
         ← IntInterval.wrap_mul (by simp), Int.pow_succ, ToInt.wrap_toInt]
 
 instance : PowIdentity (Fin 2) 2 where
   pow_eq x := by
     ext
-    rw [val_pow]
+    rw [Fin.val_pow]
     match x with
     | ⟨0, _⟩ => rfl
     | ⟨1, _⟩ => rfl

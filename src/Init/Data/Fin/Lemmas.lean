@@ -9,6 +9,7 @@ public import Init.Ext
 public import Init.Data.Nat.Div.Basic
 public import Init.Data.Order.Classes
 public import Init.NotationExtra
+public import Init.Data.Nat.PowMod
 import Init.ByCases
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Linear
@@ -1216,5 +1217,28 @@ protected theorem mul_zero [NeZero n] (k : Fin n) : k * 0 = 0 := by
 
 protected theorem zero_mul [NeZero n] (k : Fin n) : (0 : Fin n) * k = 0 := by
   simp [Fin.ext_iff, mul_def]
+
+/--
+Exponentiation on `Fin n` by repeated squaring, backed by the fast `Nat.powMod`
+extern. `npow x y` computes `x ^ y` with the result reduced modulo `n`.
+-/
+def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n :=
+  ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ (Nat.pos_of_neZero n)⟩
+
+instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
+  hPow := Fin.npow
+
+instance [NeZero n] : Pow (Fin n) Nat where
+  pow := Fin.npow
+
+@[simp] theorem val_pow [NeZero n] (a : Fin n) (k : Nat) :
+    (a ^ k).val = a.val ^ k % n :=
+  Nat.powMod_def a.val k n
+
+@[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
+  ext; exact Nat.powMod_zero a.val n
+
+@[simp] theorem pow_succ [NeZero n] (a : Fin n) (k : Nat) : a ^ (k + 1) = a ^ k * a := by
+  ext; exact Nat.powMod_succ a.val k n
 
 end Fin

@@ -6,12 +6,15 @@ Author: Sofia Rodrigues
 #pragma once
 #include <lean/lean.h>
 
-#ifndef LEAN_EMSCRIPTEN
 namespace lean {
+void initialize_openssl();
+void finalize_openssl();
+
+#ifndef LEAN_EMSCRIPTEN
 // A `std::unique_ptr` deleter calling `release`.
 template<auto release> struct released_by { void operator()(auto * p) const { release(p); } };
-}
 #endif
+}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg);
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg);

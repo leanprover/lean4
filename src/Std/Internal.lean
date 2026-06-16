@@ -13,6 +13,8 @@ public import Std.Internal.Order
 public import Std.Internal.Parsec
 public import Std.Internal.Sat
 public import Std.Internal.UV
+public import Std.Internal.Do
+public import Std.Internal.SSL
 
 @[expose] public section
 

@@ -94,6 +94,7 @@ set(
   uv/signal.cpp
   openssl.cpp
   cadical.cpp
+  openssl/context.cpp
 )
 
 if(CADICAL_INCLUDE_DIR)

@@ -17,7 +17,7 @@ public import Init.Data.Float.Model.Unpacked.Sign
 namespace Float.Model.UnpackedFloat
 
 /--
-Suppose given a real number `x : ℝ`. We can compute the binary expansion
+Suppose given a real number `x : ℝ` with binary expansion
 `x = ± x₀.x₁x₂x₃…`. Truncating the expansion at some point gives an
 approximation of `x` as a floating-point number `y`. We can then ask how `y`
 is related to `x`. If `y` is exactly `x`, then we say that we are exact.

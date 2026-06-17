@@ -368,7 +368,7 @@ jobs:
               },
               {
                 "name": "Linux aarch64",
-                "os": large ? "nscloud-ubuntu-22.04-arm64-4x16" : "ubuntu-24.04-arm",
+                "os": "ubuntu-24.04-arm",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "enabled": level >= 2,

@@ -233,20 +233,20 @@ def ofISize (n : ISize) : Float.Model :=
   pack (UnpackedFloat.ofISize Format.binary64 n)
 
 /--
-Converts a `Float.Model` to a `UInt8`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to a `UInt8`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toUInt8 (f : Float.Model) : UInt8 := f.unpack.toUInt8
 
 /--
-Converts a `Float.Model` to a `UInt16`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to a `UInt16`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toUInt16 (f : Float.Model) : UInt16 := f.unpack.toUInt16
 
 /--
-Converts a `Float.Model` to a `UInt32`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to a `UInt32`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toUInt32 (f : Float.Model) : UInt32 := f.unpack.toUInt32
 

@@ -94,8 +94,8 @@ private def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
 /-- Extract the weakest-precondition metadata from the RHS of a lattice entailment. -/
 private def getWPInfo? (rhs : Expr) : Option WPInfo :=
   rhs.withApp fun head args =>
-    if head.isConstOf ``Std.Internal.Do.wp && args.size ≥ 11 then
-      some { head, args := args.take 11, excessArgs := args.drop 11 }
+    if head.isConstOf ``Std.Internal.Do.wp && args.size ≥ 10 then
+      some { head, args := args.take 10, excessArgs := args.drop 10 }
     else
       none
 
@@ -209,7 +209,7 @@ private def normalizePre? (scope : VCGen.Scope) (goal : MVarId) (α pre target :
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/
 private def replaceProgDefEq (goal : MVarId) (target : Expr) (info : WPInfo) (prog : Expr) :
     VCGenM MVarId := do
-  let wp ← mkAppNS info.head <| info.args.set! 8 prog
+  let wp ← mkAppNS info.head <| info.args.set! 7 prog
   let rhs ← mkAppNS wp info.excessArgs
   let relArgs := target.getAppArgs
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
@@ -228,7 +228,7 @@ private def wpLet? (goal : MVarId) (target : Expr) (info : WPInfo) : VCGenM (Opt
   else
     trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
     let prog ← mkAppRevS body appArgs
-    let wp ← mkAppNS info.head <| info.args.set! 8 prog
+    let wp ← mkAppNS info.head <| info.args.set! 7 prog
     let rhs ← mkAppNS wp info.excessArgs
     let relArgs := target.getAppArgs
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)

@@ -293,7 +293,7 @@ Normalises a specification proof so its conclusion is in `pre ⊑ wp …` form.
 -/
 def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
   let type ← whnfR type
-  if type.isAppOfArity ``Triple 12 then
+  if type.isAppOfArity ``Triple 11 then
     -- Build the `Triple.le_wp` projection application explicitly from the `Triple` type's own
     -- arguments rather than via `mkAppM`. `mkAppM` would re-synthesise the instance arguments
     -- (`Monad m`, `WPMonad m …`), which fails for transformer specs whose monad is a partially

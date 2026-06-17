@@ -46,29 +46,35 @@ public def UntilPatternThunk.force (ref : IO.Ref UntilPatternThunk) (m : Expr) :
 
 /--
 Common metadata for a goal whose right-hand side is a weakest-precondition application
-`pre ⊑ wp m Pred EPred monadInst instAL instEAL instWP α prog post epost s₁ ... sₙ`.
+`pre ⊑ wp Prog Value Pred EPred instAL instEAL instWP prog post epost s₁ ... sₙ`.
 -/
 public structure VCGen.WPInfo where
   /-- The `wp` function head, separated from its explicit core arguments. -/
   head : Expr
   /-- The ordered core arguments of the `wp` application:
-  `#[m, Pred, EPred, monadInst, instAL, instEAL, instWP, α, prog, post, epost]`. -/
+  `#[Prog, Value, Pred, EPred, instAL, instEAL, instWP, prog, post, epost]`. -/
   args : Array Expr
   /-- Extra arguments applied after `wp … prog post epost`, usually concrete state arguments. -/
   excessArgs : Array Expr
 
 namespace VCGen.WPInfo
 
-/-- Monad type constructor argument of `wp`. -/
-public def m (info : WPInfo) : Expr := info.args[0]!
+/-- Program type argument of `wp` (e.g. `m α` or a non-monadic program type). -/
+public def progTy (info : WPInfo) : Expr := info.args[0]!
+/-- The monad of an `m α`-shaped program type, obtained by dropping the value type `α`. For a
+non-monadic program type the type itself is returned. -/
+public def m (info : WPInfo) : Expr :=
+  if info.args[0]!.isApp then info.args[0]!.appFn! else info.args[0]!
+/-- Result/value type argument of `wp`. -/
+public def Value (info : WPInfo) : Expr := info.args[1]!
 /-- Predicate/lattice type argument of `wp`. -/
-public def Pred (info : WPInfo) : Expr := info.args[1]!
+public def Pred (info : WPInfo) : Expr := info.args[2]!
 /-- Exception postcondition type argument of `wp`. -/
-public def EPred (info : WPInfo) : Expr := info.args[2]!
-/-- `WPMonad` instance argument of `wp`. -/
+public def EPred (info : WPInfo) : Expr := info.args[3]!
+/-- `WP` instance argument of `wp`. -/
 public def instWP (info : WPInfo) : Expr := info.args[6]!
 /-- Program expression classified by VCGen. -/
-public def prog (info : WPInfo) : Expr := info.args[8]!
+public def prog (info : WPInfo) : Expr := info.args[7]!
 
 end VCGen.WPInfo
 

@@ -38,7 +38,7 @@ An `abbrev`, so the carrier unfolds to the dependent Pi and `Assertion`/`Partial
 pointwise function-lattice instances. -/
 abbrev StateProp := (st : State) → st.Invariant → Prop
 
-instance : WPMonad Stateful StateProp EPost⟨⟩ where
+instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EPost⟨⟩ where
   wpTrans f := ⟨fun post _epost =>
     fun st _ =>
       let (optRes, stOut) := f.run st
@@ -46,10 +46,25 @@ instance : WPMonad Stateful StateProp EPost⟨⟩ where
       match optRes with
       | none => True
       | some res => post res stOut h⟩
-  wp_trans_pure x := by simp only [Lean.Order.PartialOrder.rel, pure, Stateful.run]; grind
-  wp_trans_bind x f := by simp only [Lean.Order.PartialOrder.rel, bind, Stateful.run]; grind
   wp_trans_monotone x := by
     simp only [PredTrans.monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
+
+theorem Stateful.wpTrans_apply_eq {α : Type} (x : Stateful α)
+    (post : α → StateProp) (epost : EPost⟨⟩) (st : State) (h : st.Invariant) :
+    wp x post epost st h
+      = ∃ h' : (x st).2.Invariant,
+          match (x st).1 with
+          | none => True
+          | some r => post r (x st).2 h' := rfl
+
+instance : WPMonad Stateful StateProp EPost⟨⟩ where
+  toWP _ := Stateful.instWP
+  pure_le_wp_pure x post epost := by
+    intro st h hp; exact ⟨h, hp⟩
+  bind_le_wp_bind x f post epost := by
+    intro st h hp
+    simp only [Stateful.wpTrans_apply_eq, bind] at hp ⊢
+    grind
 
 /--
 error: failed to apply Lean.Order.le_of_forall_le to goal

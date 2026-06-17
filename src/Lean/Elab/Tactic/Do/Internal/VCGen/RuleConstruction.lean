@@ -298,7 +298,7 @@ prf : ∀ (n : Nat) (pre : Prop) (hpre : pre ⊑ True)
   pre ⊑ wp (myPure n) post epost
 ```
 The postcondition VC is pointwise over the return value and over any excess state arguments. The
-proof is generalized with `WPMonad.wp_consequence_le`.
+proof is generalized with `WP.wp_consequence_le`.
 
 #### Exception postcondition VCs
 
@@ -308,8 +308,8 @@ value, the relation `epostSpec ⊑ epost` is decomposed component by component:
 ∀ e s₁ ... sₙ, epostSpec.head e s₁ ... sₙ ⊑ epost.head e s₁ ... sₙ
 ```
 and recursively for the tail. `decomposeEPostRel` assembles these component VCs using
-`EPost.Cons.mk_le` and `EPost.Nil.le`; the proof is then generalized with `WPMonad.wp_econs_le`.
-When the spec exception postcondition is `⊥`, no VC is needed and `WPMonad.wp_econs_bot_le` is
+`EPost.Cons.mk_le` and `EPost.Nil.le`; the proof is then generalized with `WP.wp_econs_le`.
+When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_econs_bot_le` is
 used instead.
 
 #### Excess state arguments
@@ -383,7 +383,7 @@ private def mkSpecBackwardProof
     let hpostRel ← mkExpectedTypeHint hpost relTy
     /- get the proof of `pre ⊑ wp prog postAbstract epostSpec`, where `post` is abstracted.
        Uses wp_consequence_le: post ⊑ post' → pre ⊑ wp x post epost → pre ⊑ wp x post' epost -/
-    specApplied ← mkAppM ``WPMonad.wp_consequence_le #[prog, postSpec, postAbstract, epostSpec, hpostRel, specApplied]
+    specApplied ← mkAppM ``WP.wp_consequence_le #[prog, postSpec, postAbstract, epostSpec, hpostRel, specApplied]
 
   /- abstract concrete `epost` if it is not already abstract -/
   unless epostAbstract.isMVar do
@@ -392,7 +392,7 @@ private def mkSpecBackwardProof
     /- mvar `epostAbstract` for new abstract `epost` -/
     epostAbstract ← mkFreshExprMVar (userName := `EPost) epostTy
     /- if `epost` is `⊥`, then `epost ⊑ epostAbstract` holds trivially and
-      abstracting `epost` can be simply done by `WPMonad.wp_econs_bot_le` without
+      abstracting `epost` can be simply done by `WP.wp_econs_bot_le` without
       introducing a new premise. This case is quite common, that's why we handle
       it specially. -/
     let isBot ← try
@@ -402,12 +402,12 @@ private def mkSpecBackwardProof
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostAbstract`, where `epost (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostImpl` premise -/
-      specApplied ← mkAppM ``WPMonad.wp_econs_bot_le #[prog, postAbstract, epostAbstract, specApplied]
+      specApplied ← mkAppM ``WP.wp_econs_bot_le #[prog, postAbstract, epostAbstract, specApplied]
     else
       /- Decompose `epostSpec ⊑ epostAbstract` into per-component proofs
         using `EPost.Cons.mk_le` and `EPost.Nil.le` -/
       let hepost ← decomposeEPostRel EPred epostSpec epostAbstract stateArgNames
-      specApplied ← mkAppM ``WPMonad.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
+      specApplied ← mkAppM ``WP.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
     `pre` is not schematic. In exceptional cases, where `pre` is schematic, it

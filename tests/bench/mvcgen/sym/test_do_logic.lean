@@ -142,13 +142,13 @@ theorem fib_impl_vcs
   case vc4 => apply_rules [loop_post]
 
 @[spec]
-theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem mkFreshNat_spec [Monad m] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
   mvcgen' [mkFreshNat] <;> simp_all
 
-theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem erase_unfold [Monad m] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
   ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
   (mkFreshNat : StateT AppState m Nat)
   ⦃fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -158,7 +158,7 @@ theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pre
   fail_if_success done
   admit
 
-theorem add_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem add_unfold [Monad m] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -202,9 +202,9 @@ theorem unfold_to_expose_match_spec :
 
 theorem test_match_splitting {mo : Option Nat} (h : mo = some 4) :
     ⦃ fun _ => True ⦄
-    (match mo with
-     | some n => (set n : StateM Nat PUnit)
-     | none => set 0)
+    ((match mo with
+      | some n => (set n : StateM Nat PUnit)
+      | none => set 0) : StateM Nat PUnit)
     ⦃ fun _ s => s = 4 ⦄ := by
   mvcgen' <;> simp_all
 
@@ -255,7 +255,7 @@ namespace HimpSplit
 -- A `⇨` (Heyting implication) in the postcondition exercises the `himp_complete` split, whose
 -- subgoal carries a `⊓ ⊤` precondition that `meet_top_le_of_le` cancels. The abstract `Pred` keeps
 -- `⇨` from collapsing to `→`.
-theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem himp_post {m} [Monad m] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     ⦃ ⊤ ⦄ (pure 4 : m Nat) ⦃ fun r => ⌜r = 4⌝ ⇨ ⌜r > 0⌝ ⦄ := by
   mvcgen'
   all_goals grind
@@ -445,7 +445,7 @@ variable {m} [Monad m]
 open Std Std.Iterators
 
 theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
+    [LawfulMonad m] [WPMonad m Pred EPred] :
     ⦃ ⊤ ⦄
     (do
       let mut sum : Nat := 0
@@ -458,23 +458,23 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion 
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
-    ⦃ ⊤ ⦄ ((do
+    [LawfulMonad m] [WPMonad m Pred EPred] :
+    Triple (Prog := m _) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
         sum := sum + n
-      return sum) : m _) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
+      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
-    ⦃ ⊤ ⦄ ((do
+    [LawfulMonad m] [WPMonad m Pred EPred] :
+    Triple (Prog := m _) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
         sum := sum + n
-      return sum) : m _) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
+      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
@@ -482,31 +482,31 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m]
     [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    ⦃ ⊤ ⦄ ((do
+    Triple (Prog := m _) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
         sum := sum + n
-      return sum) : m _) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
+      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
     [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    ⦃ ⊤ ⦄ ((do
+    Triple (Prog := m _) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
         sum := sum + n
-      return sum) : m _) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
+      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
     [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    ⦃ ⊤ ⦄
+    Triple (Prog := m _)
       (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·))
-      ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
+      ⊤ (fun r => ⌜r = xs.sum⌝) ⊥ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
   all_goals grind
@@ -623,10 +623,10 @@ h✝ : (UInt64.toBitVec 0).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toN
 #guard_msgs in
 example (a : UInt64) :
     ⦃True⦄
-      do
+      (do
         let a ← MyShl.shl a (32: Int32)
         let a ← MyAddU.add (0 : UInt64) a
-        pure a
+        pure a : RustM UInt64)
     ⦃fun _ => True⦄ := by
   mvcgen' (errorOnMissingSpec := false) [MyShl.shl, MyAddU.add]
 

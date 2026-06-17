@@ -113,18 +113,21 @@ public def simpGoalTelescope (goal : MVarId) : VCGenM Sym.SimpGoalResult := do
 
 /--
 Introduce the excess state arguments of an entailment goal `pre ⊑ rhs` whose lattice type is a
-function type `σ₁ → … → σₙ → α`: repeatedly apply `stateArgIntroRule` (a backward rule for
-`Std.Internal.Do.le_of_forall_le`) and introduce the new state binder, until the lattice type is
-no longer a function type.
+function type `σ₁ → … → σₙ → α`: repeatedly apply `stateArgIntro` (a backward rule for
+`Lean.Order.le_of_forall_le`) and introduce the new state binder, until the lattice type is
+no longer a function type. Returns `none` when the carrier is not a function type (nothing to
+introduce); throws when the carrier is a function type that `le_of_forall_le` cannot peel, such as a
+dependent function lattice `(a : α) → β a → …`.
 -/
 public partial def introsExcessArgs (goal : MVarId) :
-    VCGenM MVarId := goal.withContext do
+    VCGenM (Option MVarId) := goal.withContext do
   let type ← goal.getType
-  let_expr PartialOrder.rel α _inst _pre _rhs := type | return goal
-  unless α.isForall do return goal
-  let .goals [goal] ← (← read).backwardRules.stateArgIntro.applyChecked goal | return goal
+  let_expr PartialOrder.rel α _inst _pre _rhs := type | return none
+  unless α.isForall do return none
+  let .goals [goal] ← (← read).backwardRules.stateArgIntro.applyChecked goal
+    | throwError "failed to apply {.ofConstName ``Lean.Order.le_of_forall_le} to goal{indentExpr type}"
   let goal ← introsHygienic goal
-  introsExcessArgs goal
+  return (← introsExcessArgs goal) <|> some goal
 
 /--
 Solves conjunctions whose leaves are `True` or `e₁ = e₂`, and returns a residual goal containing

@@ -204,6 +204,24 @@ class DownstreamChecker(RepoChecker):
             "uv", "run", "release_notes.py", self.version.tag, self.lrepo.path, cwd=here
         )
 
+        if self.version.rc == 1:
+            module = util.get_release_notes_module_for(self.version)
+            index = self.lrepo.path / util.get_release_notes_index_path()
+
+            util.edit(
+                index,
+                r"^(import Manual\.Releases\..*)$",
+                f"import {module}\n\\1",
+                count=1,
+            )
+
+            util.edit(
+                index,
+                r"^(\{include 0 Manual\.Releases\..*\})$",
+                f"{{include 0 {module}}}\n\n\\1",
+                count=1,
+            )
+
         self.prompt("Check release notes before commit")
 
     def _bump_toolchain_lean_fro_org(self) -> None:

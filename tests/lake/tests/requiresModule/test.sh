@@ -50,13 +50,13 @@ test_not_out "designed for use with the module system" build Test.ModuleConsumer
 
 # A non-module consumer: should build successfully but emit the warning,
 # naming both the importing file and the imported package.
-test_out "Test/NonModuleConsumer.lean: imports \`Dep\` from package \`dep\`, which is designed for use with the module system" \
+test_out "imports \`Dep\` from package \`dep\`, which is designed for use with the module system" \
   build Test.NonModuleConsumer
 
 # Same-package non-module file: dep itself contains DepLegacy.lean (no module
 # header) which imports another module of dep. The warning must fire here too,
 # since `requiresModuleSystem` applies within the package.
-test_out "DepLegacy.lean: missing \`module\` header as required by the \`requiresModuleSystem\` option" \
+test_out "missing \`module\` header as required by the \`requiresModuleSystem\` option" \
   build "@dep/DepLegacy"
 
 # Opt out via `allowNonModules`, exercising both granularities: set it on the

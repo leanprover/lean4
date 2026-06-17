@@ -1,3 +1,4 @@
+import time
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
@@ -677,7 +678,8 @@ class LeanChecker(RepoChecker):
         self.lrepo.push(tag_name, upstream=False)
 
         tag = self.grepo.get_git_ref(f"tags/{tag_name}")
-        self.cl.success(f"{what} created")
+        self.cl.success(f"{what} created, waiting a few seconds for release CI...")
+        time.sleep(10)
         return tag
 
     def check_release_ci(self, release_tag: GitRef) -> None:

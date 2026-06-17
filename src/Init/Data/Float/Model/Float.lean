@@ -15,11 +15,26 @@ public import Init.Data.Order.Factories
 -- need to rely on.
 @[expose] public section
 
-/-- The logical model for the `Float` type. -/
+/--
+The logical model for the `Float` type.
+
+This is defined as the type of `UInt64` with the additional restriction that bit patterns encoding
+a `NaN` must be exactly a chosen canonical `NaN`.
+
+Most functions on `Float.Model` work by unpacking the `Float.Model` into the inductive type
+`UnpackedFloat`, performing the operation there, and then repacking the result into a `Float.Model`.
+
+It is not a goal of this development to serve as the basis for a general-purpose floating-point
+library or to have any direct lemmas written about it at all. Rather, users interested in a library
+about floating-point numbers should develop such a library completely separately, and users
+interested in proving properties of their programs involving `Float` should prove that the
+operations defined here are equivalent to the operations defined in the separate library and then
+transfer lemmas from the library to the `Float` and `Float32` types.
+-/
 structure Float.Model where
-  /-- The underlying bit pattern of the `Float`. -/
+  /-- The underlying bit pattern of the `Float.Model`. -/
   toBits : UInt64
-  /-- The underlying bit pattern is valid according to the format. -/
+  /-- The underlying bit pattern is valid according to the IEEE `binary64` format. -/
   valid : Float.Model.Format.binary64.Valid toBits.toBitVec
 
 namespace Float.Model
@@ -217,34 +232,64 @@ def ofInt64 (n : Int64) : Float.Model :=
 def ofISize (n : ISize) : Float.Model :=
   pack (UnpackedFloat.ofISize Format.binary64 n)
 
-/-- Converts a `Float.Model` to a `UInt8`. -/
+/--
+Converts a `Float.Model` to a `UInt8`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toUInt8 (f : Float.Model) : UInt8 := f.unpack.toUInt8
 
-/-- Converts a `Float.Model` to a `UInt16`. -/
+/--
+Converts a `Float.Model` to a `UInt16`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toUInt16 (f : Float.Model) : UInt16 := f.unpack.toUInt16
 
-/-- Converts a `Float.Model` to a `UInt32`. -/
+/--
+Converts a `Float.Model` to a `UInt32`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toUInt32 (f : Float.Model) : UInt32 := f.unpack.toUInt32
 
-/-- Converts a `Float.Model` to a `UInt64`. -/
+/--
+Converts a `Float.Model` to a `UInt64`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toUInt64 (f : Float.Model) : UInt64 := f.unpack.toUInt64
 
-/-- Converts a `Float.Model` to a `USize`. -/
+/--
+Converts a `Float.Model` to a `USize`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toUSize (f : Float.Model) : USize := f.unpack.toUSize
 
-/-- Converts a `Float.Model` to an `Int8`. -/
+/--
+Converts a `Float.Model` to an `Int8`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toInt8 (f : Float.Model) : Int8 := f.unpack.toInt8
 
-/-- Converts a `Float.Model` to an `Int16`. -/
+/--
+Converts a `Float.Model` to an `Int16`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toInt16 (f : Float.Model) : Int16 := f.unpack.toInt16
 
-/-- Converts a `Float.Model` to an `Int32`. -/
+/--
+Converts a `Float.Model` to an `Int32`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toInt32 (f : Float.Model) : Int32 := f.unpack.toInt32
 
-/-- Converts a `Float.Model` to an `Int64`. -/
+/--
+Converts a `Float.Model` to an `Int64`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toInt64 (f : Float.Model) : Int64 := f.unpack.toInt64
 
-/-- Converts a `Float.Model` to an `ISize`. -/
+/--
+Converts a `Float.Model` to an `ISize`, sending `NaN` to `0` and clamping out-of-range values and
+infinities.
+-/
 def toISize (f : Float.Model) : ISize := f.unpack.toISize
 
 end Float.Model

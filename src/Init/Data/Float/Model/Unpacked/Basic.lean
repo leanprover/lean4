@@ -32,6 +32,14 @@ such as `compare`, assume that the input(s) are all in canonical form for the sa
 Note that an unpacked float in canonical form for a given format may not actually be
 representable in that format as the exponent is too large to fit. In this case, the `pack`
 function will overflow the float to infinity.
+
+This type exists solely for the purpose of supporting `Float.Model` and `Float32.Model`. It is not
+a goal of this development to serve as the basis for a general-purpose floating-point library or
+to have any direct lemmas written about it at all. Rather, users interested in a library about
+floating-point numbers should develop such a library completely separately, and users interested in
+proving properties of their programs involving `Float` should prove that the operations defined
+here are equivalent to the operations defined in the separate library and then transfer lemmas from
+the library to the `Float` and `Float32` types.
 -/
 inductive UnpackedFloat where
   /-- Signed infinity. -/

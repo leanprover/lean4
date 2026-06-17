@@ -452,6 +452,9 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
   let (levelParams, expr) ← proof.getProof
   let type ← instantiateMVars type
   let (_, _, type) ← forallMetaTelescope type
+  -- Reduce reducible abbreviations so a proof whose type is an abbreviation like
+  -- `abbrev s := ⦃P⦄ prog ⦃Q⦄` is recognized as a triple spec.
+  let type ← whnfR type
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
   return some { pattern, proof, priority := prio }

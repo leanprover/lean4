@@ -33,9 +33,9 @@ operations defined here are equivalent to the operations defined in the separate
 transfer lemmas from the library to the `Float` and `Float32` types.
 -/
 structure Float32.Model where
-  /-- The underlying bit pattern of the `Float32`. -/
+  /-- The underlying bit pattern of the `Float32.Model`. -/
   toBits : UInt32
-  /-- The underlying bit pattern is valid according to the format. -/
+  /-- The underlying bit pattern is valid according to the IEEE `binary32` format. -/
   valid : Float.Model.Format.binary32.Valid toBits.toBitVec
 
 namespace Float32.Model

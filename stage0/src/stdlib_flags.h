@@ -23,6 +23,8 @@ options get_default_options() {
 
     opts = opts.update({"pp", "rawOnError"}, true);
 
+    // trigger stage0 update: `@[spec]` now registers equational/unfold specs into the internal
+    // `mvcgen'` database, which the standard library's specs need at compile time
 #endif
     return opts;
 }

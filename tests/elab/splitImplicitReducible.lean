@@ -3,9 +3,8 @@ import Lean
 /-!
 # Split of `[implicit_reducible]` and `[instance_reducible]`
 
-After splitting `TransparencyMode.instances` into `.instances` (TC tier) and `.implicit`
-(implicit-arg-defeq tier), and `ReducibilityStatus.implicitReducible` into
-`.implicitReducible` and `.instanceReducible`:
+After splitting `TransparencyMode.instances` into `.instances` and `.implicit`,
+and `ReducibilityStatus.implicitReducible` into `.implicitReducible` and `.instanceReducible`:
 
   * `@[instance_reducible]` is auto-applied by the `instance` command and unfolds at
     `.instances` and above (used for type class diamond resolution).
@@ -46,7 +45,7 @@ instance instFoo : Foo := ⟨42⟩
 
 /-! ## Upgrade transition: `[instance_reducible]` -> `[implicit_reducible]` is allowed.
 
-The declaration moves to the higher implicit tier, and no longer unfolds at `.instances`. -/
+The declaration becomes implicit-reducible and no longer unfolds at `.instances`. -/
 
 @[instance_reducible] def upgradeMe : Nat → Nat
   | n => n
@@ -85,7 +84,3 @@ def noAttr : Foo := ⟨42⟩
 
 #guard_msgs in
 @[implicit_reducible] def withImplicitReducible : Foo := ⟨42⟩
-
-/-! ## Sanity: instance-tier behavior continues to work. -/
-
-example : (1 : Nat) + 2 = 3 := rfl

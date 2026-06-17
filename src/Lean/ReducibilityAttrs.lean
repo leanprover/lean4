@@ -243,7 +243,7 @@ Applied to type class instances and instance-like support symbols (e.g., subobje
 to class parents). The `instance` command automatically adds `[instance_reducible]`.
 
 Applying `[implicit_reducible]` to an `[instance_reducible]` declaration moves it to the higher
-implicit tier; it will no longer unfold at `.instances` transparency.
+implicit reducibility level; it will no longer unfold at `.instances` transparency.
 -/
 builtin_initialize
   registerBuiltinAttribute {

@@ -7,7 +7,7 @@ definitional equality (so that `rw` lemmas about `⋙` apply) *without* unfoldin
 class synthesis (so that data-carrying instances on `(F ⋙ G) ⋙ H` and `F ⋙ (G ⋙ H)` stay
 distinct).
 
-The `[implicit_reducible]` tier delivers exactly this: marking `Functor.comp` with
+The `[implicit_reducible]` reducibility level delivers exactly this: marking `Functor.comp` with
 `@[implicit_reducible]` makes `whiskerLeft''` elaborate, while a `Foo` instance on one
 association is *not* found for the other.
 -/

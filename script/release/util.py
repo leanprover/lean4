@@ -235,7 +235,7 @@ class LocalRepo:
         self.git("switch", "-C", branch, f"{remote}/{branch}")
 
     def create_branch(
-        self, branch: str, remote: str = "origin", remote_branch: str | None = None
+        self, branch: str, *, remote: str = "origin", remote_branch: str | None = None
     ) -> None:
         if remote_branch is None:
             self.git("switch", "-C", branch, remote)  # Default branch

@@ -569,7 +569,7 @@ class LeanChecker(RepoChecker):
             self.cl.fatal(f"{what} does not exist")
 
         self.lrepo.prepare()
-        self.lrepo.create_branch(branch_name)
+        self.lrepo.create_branch(branch_name, remote_branch="nightly-with-mathlib")
 
         if not self.prompt(f"Push branch [b]{e(branch_name)}[/b]?"):
             self.cl.fatal(f"{what} does not exist")
@@ -623,7 +623,7 @@ class LeanChecker(RepoChecker):
             return  # Not fatal
 
         self.lrepo.prepare()
-        self.lrepo.create_branch(head, branch_name)
+        self.lrepo.create_branch(head, remote_branch=branch_name)
         util.set_cmake_version(self.lrepo, target)
         self.lrepo.commit(title)
 

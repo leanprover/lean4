@@ -21,7 +21,7 @@ inferInstance
 #print i2
 
 /--
-warning: instance `_private.elab.instanceReducibility.0.i3` must be marked with `@[reducible]` or `@[instance_reducible]`
+warning: instance `_private.elab.instanceReducibility.0.i3` must be marked with `@[reducible]`, `@[instance_reducible]` or `@[implicit_reducible]`
 -/
 #guard_msgs in
 @[irreducible] instance i3 : Inhabited Nat := inferInstance

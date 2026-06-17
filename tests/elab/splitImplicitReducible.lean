@@ -73,7 +73,7 @@ run_meta do
 /-! ## A class-typed `def` is rejected if it lacks any reducibility attribute. -/
 
 /--
-warning: Definition `noAttr` of class type must be marked with `@[reducible]` or `@[instance_reducible]`
+warning: Definition `noAttr` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`
 -/
 #guard_msgs in
 def noAttr : Foo := ⟨42⟩

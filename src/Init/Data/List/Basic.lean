@@ -532,7 +532,7 @@ noncomputable def filterMap (f : α → Option β) : List α → List β
 
 /--
 Folds a function over a list from the right, accumulating a value starting with `init`. The
-accumulated value is combined with the each element of the list in reverse order, using `f`.
+accumulated value is combined with each element of the list in reverse order, using `f`.
 
 `O(|l|)`. Replaced at runtime with `List.foldrTR`.
 

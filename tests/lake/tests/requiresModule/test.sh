@@ -61,11 +61,32 @@ test_out "DepLegacy.lean: missing \`module\` header as required by the \`require
 
 # Opt out via `allowNonModules`, exercising both granularities: set it on the
 # `Test` library (per-library opt-out, as one might for a test library) and on
-# the `dep` package as a whole. For the library, insert the option inside the
-# `Test` table; for the package, insert it after the root `name` line (appending
-# would instead bind it to the trailing table section).
-sed_i -e '/^name = "Test"$/a\' -e 'allowNonModules = true' lakefile.toml
-sed_i -e '1a\' -e 'allowNonModules = true' dep/lakefile.toml
+# the `dep` package as a whole.
+cat > lakefile.toml <<'EOF'
+name = "test"
+defaultTargets = ["Test"]
+
+[[lean_lib]]
+name = "Test"
+allowNonModules = true
+globs = "Test.+"
+
+[[require]]
+name = "dep"
+path = "dep"
+EOF
+
+cat > dep/lakefile.toml <<'EOF'
+name = "dep"
+allowNonModules = true
+requiresModuleSystem = true
+
+[[lean_lib]]
+name = "Dep"
+
+[[lean_lib]]
+name = "DepLegacy"
+EOF
 
 # After a clean rebuild, neither warning should appear.
 test_run clean

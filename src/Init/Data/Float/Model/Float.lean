@@ -100,6 +100,9 @@ Negate a `Float.Model`.
 def neg (a : Float.Model) : Float.Model :=
   pack a.unpack.neg
 
+instance : Neg Float.Model where
+  neg a := a.neg
+
 /--
 Return a `Float.Model` with positive sign.
 -/
@@ -291,5 +294,8 @@ Converts a `Float.Model` to an `ISize`, truncating after the decimal point, send
 `0` and clamping out-of-range values and infinities.
 -/
 def toISize (f : Float.Model) : ISize := f.unpack.toISize
+
+instance : Inhabited Float.Model where
+  default := ofNat 0
 
 end Float.Model

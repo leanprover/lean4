@@ -1,32 +1,15 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Julia M. Himmel
 -/
 module
 
 prelude
 public import Init.Data.ToString.Basic
+public import Init.Data.Float.Model.Float
 
-public section
-
-structure FloatSpec where
-  float : Type
-  val   : float
-  lt    : float → float → Prop
-  le    : float → float → Prop
-  decLt : DecidableRel lt
-  decLe : DecidableRel le
-
--- Just show FloatSpec is inhabited.
-opaque floatSpec : FloatSpec := {
-  float := Unit,
-  val   := (),
-  lt    := fun _ _ => True,
-  le    := fun _ _ => True,
-  decLt := fun _ _ => inferInstanceAs (Decidable True),
-  decLe := fun _ _ => inferInstanceAs (Decidable True)
-}
+@[expose] public section
 
 /--
 64-bit floating-point numbers.
@@ -44,60 +27,78 @@ Their special values are:
    dividing zero by zero, and
  * `Inf` and `-Inf`, which represent positive and infinities that result from dividing non-zero
    values by zero.
+
+Like other low-level types, `Float` is special-cased by the Lean compiler to correspond to the C
+`double` type. From the point of view of Lean's logic, `Float` is equivalent to `Float.Model` (via
+the functions `Float.toModel` and `Float.ofModel`), which is itself a subtype of `UInt64`. Some of
+the operations on `Float` are defined in terms of their `Float.Model` counterparts, while others
+are opaque to Lean's kernel.
 -/
 structure Float where
-  val : floatSpec.float
+  /-- Contructs a `Float` from a `Float.Model`. -/
+  ofModel ::
+  /-- Converts a `Float` into a `Float.Model`. -/
+  toModel : Float.Model
 
-instance : Nonempty Float := ⟨{ val := floatSpec.val }⟩
+attribute [extern "lean_float_to_bits"] Float.toModel
+attribute [extern "lean_float_of_bits"] Float.ofModel
+
+instance : Nonempty Float :=
+  ⟨⟨default⟩⟩
 
 /--
 Adds two 64-bit floating-point numbers according to IEEE 754. Typically used via the `+` operator.
 
-This function does not reduce in the kernel. It is compiled to the C addition operator.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C addition operator.
 -/
-@[extern "lean_float_add"] opaque Float.add : Float → Float → Float
+@[extern "lean_float_add"] def Float.add : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel + b.toModel)
+
 /--
 Subtracts 64-bit floating-point numbers according to IEEE 754. Typically used via the `-` operator.
 
-This function does not reduce in the kernel. It is compiled to the C subtraction operator.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C subtraction operator.
 -/
-@[extern "lean_float_sub"] opaque Float.sub : Float → Float → Float
+@[extern "lean_float_sub"] def Float.sub : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel - b.toModel)
 /--
 Multiplies 64-bit floating-point numbers according to IEEE 754. Typically used via the `*` operator.
 
-This function does not reduce in the kernel. It is compiled to the C multiplication operator.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C multiplication operator.
 -/
-@[extern "lean_float_mul"] opaque Float.mul : Float → Float → Float
+@[extern "lean_float_mul"] def Float.mul : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel * b.toModel)
 /--
 Divides 64-bit floating-point numbers according to IEEE 754. Typically used via the `/` operator.
 
 In Lean, division by zero typically yields zero. For `Float`, it instead yields either `Inf`,
 `-Inf`, or `NaN`.
 
-This function does not reduce in the kernel. It is compiled to the C division operator.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C division operator.
 -/
-@[extern "lean_float_div"] opaque Float.div : Float → Float → Float
+@[extern "lean_float_div"] def Float.div : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel / b.toModel)
+
 /--
 Negates 64-bit floating-point numbers according to IEEE 754. Typically used via the `-` prefix
 operator.
 
-This function does not reduce in the kernel. It is compiled to the C negation operator.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C negation operator.
 -/
-@[extern "lean_float_negate"] opaque Float.neg : Float → Float
+@[extern "lean_float_negate"] def Float.neg : Float → Float :=
+  fun a => .ofModel (-a.toModel)
 
-set_option bootstrap.genMatcherCode false
 /--
 Strict inequality of floating-point numbers. Typically used via the `<` operator.
 -/
-def Float.lt : Float → Float → Prop := fun a b =>
-  match a, b with
-  | ⟨a⟩, ⟨b⟩ => floatSpec.lt a b
+@[extern "lean_float_decLt"] def Float.lt : Float → Float → Bool :=
+  fun a b => a.toModel < b.toModel
 
 /--
 Non-strict inequality of floating-point numbers. Typically used via the `≤` operator.
 -/
-def Float.le : Float → Float → Prop := fun a b =>
-  floatSpec.le a.val b.val
+@[extern "lean_float_decLe"] def Float.le : Float → Float → Bool :=
+  fun a b => a.toModel ≤ b.toModel
 
 /--
 Bit-for-bit conversion from `UInt64`. Interprets a `UInt64` as a `Float`, ignoring the numeric value
@@ -106,9 +107,10 @@ and treating the `UInt64`'s bit pattern as a `Float`.
 `Float`s and `UInt64`s have the same endianness on all supported platforms. IEEE 754 very precisely
 specifies the bit layout of floats.
 
-This function does not reduce in the kernel.
+This function has a logical model in terms of `Float.Model`.
 -/
-@[extern "lean_float_of_bits"] opaque Float.ofBits : UInt64 → Float
+@[extern "lean_float_of_bits"] def Float.ofBits : UInt64 → Float :=
+  fun a => .ofModel <| .ofBits a
 
 /--
 Bit-for-bit conversion to `UInt64`. Interprets a `Float` as a `UInt64`, ignoring the numeric value
@@ -120,15 +122,16 @@ specifies the bit layout of floats.
 This function is distinct from `Float.toUInt64`, which attempts to preserve the numeric value rather
 than reinterpreting the bit pattern.
 -/
-@[extern "lean_float_to_bits"] opaque Float.toBits : Float → UInt64
+@[extern "lean_float_to_bits"] def Float.toBits : Float → UInt64 :=
+  fun a => a.toModel.toBits
 
 instance : Add Float := ⟨Float.add⟩
 instance : Sub Float := ⟨Float.sub⟩
 instance : Mul Float := ⟨Float.mul⟩
 instance : Div Float := ⟨Float.div⟩
 instance : Neg Float := ⟨Float.neg⟩
-instance : LT Float  := ⟨Float.lt⟩
-instance : LE Float  := ⟨Float.le⟩
+instance : LT Float  := ⟨fun a b => a.lt b⟩
+instance : LE Float  := ⟨fun a b => a.le b⟩
 
 /--
 Checks whether two floating-point numbers are equal according to IEEE 754.
@@ -139,7 +142,8 @@ reflexive since `NaN != NaN`, and it is not a congruence because `0.0 == -0.0`, 
 
 This function does not reduce in the kernel. It is compiled to the C equality operator.
 -/
-@[extern "lean_float_beq"] opaque Float.beq (a b : Float) : Bool
+@[extern "lean_float_beq"] def Float.beq (a b : Float) : Bool :=
+  a.toModel == b.toModel
 
 instance : BEq Float := ⟨Float.beq⟩
 
@@ -148,20 +152,16 @@ Compares two floating point numbers for strict inequality.
 
 This function does not reduce in the kernel. It is compiled to the C inequality operator.
 -/
-@[extern "lean_float_decLt"] opaque Float.decLt (a b : Float) : Decidable (a < b) :=
-  match a, b with
-  | ⟨a⟩, ⟨b⟩ => floatSpec.decLt a b
+@[extern "lean_float_decLt"] instance Float.decLt (a b : Float) : Decidable (a < b) :=
+  inferInstanceAs (Decidable (a.lt b))
 
 /--
 Compares two floating point numbers for non-strict inequality.
 
 This function does not reduce in the kernel. It is compiled to the C inequality operator.
 -/
-@[extern "lean_float_decLe"] opaque Float.decLe (a b : Float) : Decidable (a ≤ b) :=
-  match a, b with
-  | ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
-
-attribute [instance] Float.decLt Float.decLe
+@[extern "lean_float_decLe"] instance Float.decLe (a b : Float) : Decidable (a ≤ b) :=
+  inferInstanceAs (Decidable (a.le b))
 
 /--
 Converts a floating-point number to a string.
@@ -177,9 +177,10 @@ If the given `Float` is non-negative, truncates the value to a positive integer,
 clamping to the range of `UInt8`. Returns `0` if the `Float` is negative or `NaN`, and returns the
 largest `UInt8` value (i.e. `UInt8.size - 1`) if the float is larger than it.
 
-This function does not reduce in the kernel.
+This function has a logical model in terms of `Float.Model`.
 -/
-@[extern "lean_float_to_uint8"] opaque Float.toUInt8 : Float → UInt8
+@[extern "lean_float_to_uint8"] def Float.toUInt8 : Float → UInt8 :=
+  fun a => a.toModel.toUInt8
 /--
 Converts a floating-point number to a 16-bit unsigned integer.
 
@@ -187,9 +188,10 @@ If the given `Float` is non-negative, truncates the value to a positive integer,
 clamping to the range of `UInt16`. Returns `0` if the `Float` is negative or `NaN`, and returns the
 largest `UInt16` value (i.e. `UInt16.size - 1`) if the float is larger than it.
 
-This function does not reduce in the kernel.
+This function has a logical model in terms of `Float.Model`.
 -/
-@[extern "lean_float_to_uint16"] opaque Float.toUInt16 : Float → UInt16
+@[extern "lean_float_to_uint16"] def Float.toUInt16 : Float → UInt16 :=
+  fun a => a.toModel.toUInt16
 /--
 Converts a floating-point number to a 32-bit unsigned integer.
 
@@ -197,9 +199,10 @@ If the given `Float` is non-negative, truncates the value to a positive integer,
 clamping to the range of `UInt32`. Returns `0` if the `Float` is negative or `NaN`, and returns the
 largest `UInt32` value (i.e. `UInt32.size - 1`) if the float is larger than it.
 
-This function does not reduce in the kernel.
+This function has a logical model in terms of `Float.Model`.
 -/
-@[extern "lean_float_to_uint32"] opaque Float.toUInt32 : Float → UInt32
+@[extern "lean_float_to_uint32"] def Float.toUInt32 : Float → UInt32 :=
+  fun a => a.toModel.toUInt32
 /--
 Converts a floating-point number to a 64-bit unsigned integer.
 
@@ -207,9 +210,10 @@ If the given `Float` is non-negative, truncates the value to a positive integer,
 clamping to the range of `UInt64`. Returns `0` if the `Float` is negative or `NaN`, and returns the
 largest `UInt64` value (i.e. `UInt64.size - 1`) if the float is larger than it.
 
-This function does not reduce in the kernel.
+This function has a logical model in terms of `Float.Model`.
 -/
-@[extern "lean_float_to_uint64"] opaque Float.toUInt64 : Float → UInt64
+@[extern "lean_float_to_uint64"] def Float.toUInt64 : Float → UInt64 :=
+  fun a => a.toModel.toUInt64
 /--
 Converts a floating-point number to a word-sized unsigned integer.
 
@@ -217,34 +221,38 @@ If the given `Float` is non-negative, truncates the value to a positive integer,
 clamping to the range of `USize`. Returns `0` if the `Float` is negative or `NaN`, and returns the
 largest `USize` value (i.e. `USize.size - 1`) if the float is larger than it.
 
-This function does not reduce in the kernel.
+This function has a logical model in terms of `Float.Model`.
 -/
-@[extern "lean_float_to_usize"] opaque Float.toUSize : Float → USize
+@[extern "lean_float_to_usize"] def Float.toUSize : Float → USize :=
+  fun a => a.toModel.toUSize
 
 /--
 Checks whether a floating point number is `NaN` (“not a number”) value.
 
 `NaN` values result from operations that might otherwise be errors, such as dividing zero by zero.
 
-This function does not reduce in the kernel. It is compiled to the C operator `isnan`.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C operator `isnan`.
 -/
-@[extern "lean_float_isnan"] opaque Float.isNaN : Float → Bool
+@[extern "lean_float_isnan"] def Float.isNaN : Float → Bool :=
+  fun a => a.toModel.isNaN
 
 /--
 Checks whether a floating-point number is finite, that is, whether it is normal, subnormal, or zero,
 but not infinite or `NaN`.
 
-This function does not reduce in the kernel. It is compiled to the C operator `isfinite`.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C operator `isfinite`.
 -/
-@[extern "lean_float_isfinite"] opaque Float.isFinite : Float → Bool
+@[extern "lean_float_isfinite"] def Float.isFinite : Float → Bool :=
+  fun a => a.toModel.isFinite
 
 /--
 Checks whether a floating-point number is a positive or negative infinite number, but not a finite
 number or `NaN`.
 
-This function does not reduce in the kernel. It is compiled to the C operator `isinf`.
+This function has a logical model in terms of `Float.Model`. It is compiled to the C operator `isinf`.
 -/
-@[extern "lean_float_isinf"] opaque Float.isInf : Float → Bool
+@[extern "lean_float_isinf"] def Float.isInf : Float → Bool :=
+  fun a => a.toModel.isInf
 
 /--
 Splits the given float `x` into a significand/exponent pair `(s, i)` such that `x = s * 2^i` where
@@ -259,11 +267,14 @@ instance : ToString Float where
   toString := Float.toString
 
 /-- Obtains the `Float` whose value is the same as the given `UInt8`. -/
-@[extern "lean_uint8_to_float"] opaque UInt8.toFloat (n : UInt8) : Float
+@[extern "lean_uint8_to_float"] def UInt8.toFloat (n : UInt8) : Float :=
+  .ofModel (.ofUInt8 n)
 /-- Obtains the `Float` whose value is the same as the given `UInt16`. -/
-@[extern "lean_uint16_to_float"] opaque UInt16.toFloat (n : UInt16) : Float
+@[extern "lean_uint16_to_float"] def UInt16.toFloat (n : UInt16) : Float :=
+  .ofModel (.ofUInt16 n)
 /-- Obtains the `Float` whose value is the same as the given `UInt32`. -/
-@[extern "lean_uint32_to_float"] opaque UInt32.toFloat (n : UInt32) : Float
+@[extern "lean_uint32_to_float"] def UInt32.toFloat (n : UInt32) : Float :=
+  .ofModel (.ofUInt32 n)
 /--
 Obtains a `Float` whose value is near the given `UInt64`.
 
@@ -271,10 +282,11 @@ It will be exactly the value of the given `UInt64` if such a `Float` exists. If 
 exists, the returned value will either be the smallest `Float` that is larger than the given value,
 or the largest `Float` that is smaller than the given value.
 
-This function is opaque in the kernel, but is overridden at runtime with an efficient
-implementation.
+This function has a logical model in terms of `Float.Model`, but is overridden at runtime with an
+efficient implementation.
 -/
-@[extern "lean_uint64_to_float"] opaque UInt64.toFloat (n : UInt64) : Float
+@[extern "lean_uint64_to_float"] def UInt64.toFloat (n : UInt64) : Float :=
+  .ofModel (.ofUInt64 n)
 /--
 Obtains a `Float` whose value is near the given `USize`.
 
@@ -282,10 +294,11 @@ It will be exactly the value of the given `USize` if such a `Float` exists. If n
 exists, the returned value will either be the smallest `Float` that is larger than the given value,
 or the largest `Float` that is smaller than the given value.
 
-This function is opaque in the kernel, but is overridden at runtime with an efficient
-implementation.
+This function has a logical model in terms of `Float.Model`, but is overridden at runtime with an
+efficient implementation.
 -/
-@[extern "lean_usize_to_float"] opaque USize.toFloat (n : USize) : Float
+@[extern "lean_usize_to_float"] def USize.toFloat (n : USize) : Float :=
+  .ofModel (.ofUSize n)
 
 instance : Inhabited Float where
   default := UInt64.toFloat 0
@@ -435,10 +448,11 @@ This function does not reduce in the kernel. It is implemented in compiled code 
 /--
 Computes the square root of a floating-point number.
 
-This function does not reduce in the kernel. It is implemented in compiled code by the C function
-`sqrt`.
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code by the
+C function `sqrt`.
 -/
-@[extern "sqrt"] opaque Float.sqrt : Float → Float
+@[extern "sqrt"] def Float.sqrt : Float → Float :=
+  fun a => .ofModel a.toModel.sqrt
 /--
 Computes the cube root of a floating-point number.
 
@@ -480,10 +494,11 @@ This function does not reduce in the kernel. It is implemented in compiled code 
 /--
 Computes the absolute value of a floating-point number.
 
-This function does not reduce in the kernel. It is implemented in compiled code by the C function
-`fabs`.
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code by the
+C function `fabs`.
 -/
-@[extern "fabs"] opaque Float.abs : Float → Float
+@[extern "fabs"] def Float.abs : Float → Float :=
+  fun a => .ofModel a.toModel.abs
 
 instance : HomogeneousPow Float := ⟨Float.pow⟩
 

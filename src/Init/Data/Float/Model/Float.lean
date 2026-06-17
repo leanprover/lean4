@@ -251,44 +251,44 @@ Converts a `Float.Model` to a `UInt32`, truncating after the decimal point, send
 def toUInt32 (f : Float.Model) : UInt32 := f.unpack.toUInt32
 
 /--
-Converts a `Float.Model` to a `UInt64`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to a `UInt64`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toUInt64 (f : Float.Model) : UInt64 := f.unpack.toUInt64
 
 /--
-Converts a `Float.Model` to a `USize`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to a `USize`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toUSize (f : Float.Model) : USize := f.unpack.toUSize
 
 /--
-Converts a `Float.Model` to an `Int8`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to an `Int8`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toInt8 (f : Float.Model) : Int8 := f.unpack.toInt8
 
 /--
-Converts a `Float.Model` to an `Int16`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to an `Int16`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toInt16 (f : Float.Model) : Int16 := f.unpack.toInt16
 
 /--
-Converts a `Float.Model` to an `Int32`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to an `Int32`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toInt32 (f : Float.Model) : Int32 := f.unpack.toInt32
 
 /--
-Converts a `Float.Model` to an `Int64`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to an `Int64`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toInt64 (f : Float.Model) : Int64 := f.unpack.toInt64
 
 /--
-Converts a `Float.Model` to an `ISize`, sending `NaN` to `0` and clamping out-of-range values and
-infinities.
+Converts a `Float.Model` to an `ISize`, truncating after the decimal point, sending `NaN` to
+`0` and clamping out-of-range values and infinities.
 -/
 def toISize (f : Float.Model) : ISize := f.unpack.toISize
 

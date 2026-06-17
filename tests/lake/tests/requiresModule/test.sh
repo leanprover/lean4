@@ -64,11 +64,8 @@ test_out "DepLegacy.lean: missing \`module\` header as required by the \`require
 # the `dep` package as a whole. For the library, insert the option inside the
 # `Test` table; for the package, insert it after the root `name` line (appending
 # would instead bind it to the trailing table section).
-# (POSIX/BSD requires a newline after the `a` command)
-sed_i '/^name = "Test"$/a\
-allowNonModules = true' lakefile.toml
-sed_i '1a\
-allowNonModules = true' dep/lakefile.toml
+sed_i -e '/^name = "Test"$/a\' -e 'allowNonModules = true' lakefile.toml
+sed_i -e '1a\' -e 'allowNonModules = true' dep/lakefile.toml
 
 # After a clean rebuild, neither warning should appear.
 test_run clean

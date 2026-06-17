@@ -25,8 +25,7 @@ def totalExponent (mantissa : Nat) (exponent : Int) :=
 
 /--
 A floating point format is specified by two pieces of information: the number
-of bits in the mantissa, and the range of the exponent, which is represented by
-the exponent that denotes infinity.
+of bits in the mantissa, and the number of bits in the exponent.
 -/
 structure Format where
   /-- The number of bits in the mantissa, *excluding the implicit bit*. -/

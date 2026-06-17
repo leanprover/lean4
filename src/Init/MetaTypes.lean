@@ -54,10 +54,13 @@ Each level unfolds everything the previous level does, plus more:
   For example, if `id : α → α` was instance-reducible, unter some circumstances an instance of type
   `C (id x)` can be applied when an instance of type `C x` is requested. If this is undesirable,
   `id` (in this example) should be at most implicit-reducible.
-  Most users will never need to manually annotate anything with `[instance_reducible]` and they
-  should unless they understand what they do. There are some more subtle corners of the elaborator
-  where instance-reducible constants have a special role, such as in the lazy WHNF mechanism and
-  the generation of `sizeOf` equational lemmas.
+  Most users should follow a simple rule: Make declarations that are meant to return instances but
+  were not declared using the `instance` command instance-reducible.
+  Most users will never need to manually annotate anything else with `[instance_reducible]` and they
+  should not unless they understand what they do. There are some more subtle corners of the
+  elaborator where instance-reducible constants have a special role, such as in the lazy WHNF
+  mechanism and the generation of `sizeOf` equational lemmas. `[instance_reducible]` also affects
+  the compiler's specialization and inlining behavior.
 
 - **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Implicit arguments and instance
   arguments are always checked at implicit transparency, even if the ambient transparency is `reducible`
@@ -84,11 +87,6 @@ Each level unfolds everything the previous level does, plus more:
 
   The downside is that every implicit-reducible constant makes the definitional equality checker
   do more unfolding, which can get expensive.
-
-  TODO: Is this true?
-  Discrimination trees do not index `[implicit_reducible]` definitions,
-  so `.implicit` is still safe for speculative checks involving implicit arguments
-  without the performance cost of `.default`.
 - **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
   Used for type checking user input where we want to try hard.
 
@@ -123,15 +121,13 @@ inductive TransparencyMode where
   and we must not try too hard. -/
   | reducible
   /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]` (e.g. type
-  class instances). Used during type class synthesis to resolve instance diamonds (e.g., `Add Nat`
-  from a direct instance vs from `Semiring`). Does *not* unfold `[implicit_reducible]`. -/
+  class instances). Does *not* unfold `[implicit_reducible]`. -/
   | instances
   /-- Do not unfold anything. -/
   | none
   /--
-  Unfolds reducible constants, `[instance_reducible]`, and `[implicit_reducible]` constants.
-  Used for checking definitional equality of implicit *value* arguments, so that downstream
-  `[implicit_reducible]` definitions unfold without affecting type class search.
+  Unfolds reducible, `[instance_reducible]`, and `[implicit_reducible]` constants.
+  Used for checking definitional equality of implicit and instance-implicit arguments.
   -/
   | implicit
   deriving Inhabited, BEq

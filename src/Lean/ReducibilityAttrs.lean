@@ -223,9 +223,6 @@ without affecting type class search. When proof automation applies a lemma, impl
 are checked with increased transparency so that type-level computations (e.g. `n + 0` vs `n`)
 are resolved.
 
-Note that core arithmetic such as `Nat.add` and `Array.size` is *not* `[implicit_reducible]`:
-it is `[instance_reducible]`, because type class synthesis depends on it unfolding.
-
 To mark a potential *type class instance* — so it can be unfolded during type class synthesis —
 use `[instance_reducible]` instead (which the `instance` command applies automatically).
 -/
@@ -242,10 +239,8 @@ builtin_initialize
 Marks a definition as `[instance_reducible]`, meaning it is unfolded at
 `TransparencyMode.instances` or above but *not* at `TransparencyMode.reducible`.
 
-Used for type class instances and instance-like support symbols (e.g., subobject projections
-to class parents). The `instance` command automatically adds `[instance_reducible]`. Instance
-diamonds (e.g., `Add Nat` from a direct instance vs via `Semiring`) are definitionally equal
-but structurally different, so `isDefEq` must unfold them during type class synthesis.
+Applied to type class instances and instance-like support symbols (e.g., subobject projections
+to class parents). The `instance` command automatically adds `[instance_reducible]`.
 
 Applying `[implicit_reducible]` to an `[instance_reducible]` declaration moves it to the higher
 implicit tier; it will no longer unfold at `.instances` transparency.

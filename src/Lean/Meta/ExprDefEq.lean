@@ -418,9 +418,9 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
     if respectTransparency && (info.binderInfo.isInstImplicit || implicitBump) then
-      -- Bump to `.implicit` so that `[instance_reducible]` definitions
-      -- and user-marked `[implicit_reducible]` definitions both unfold.
-      -- For instance-implicit arguments, this is especially necessary for diamond resolution.
+      -- Bump to `.implicit` so that `[instance_reducible]` and `[implicit_reducible]` definitions
+      -- both unfold. For instance-implicit arguments, this is especially necessary for diamond
+      -- resolution.
       unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if respectTransparency then
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
@@ -1442,8 +1442,8 @@ private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
     This means the unfolded result may lose the instance structure that `isDefEqProj` needs to bump
     transparency. As an example, consider the following declarations
     ```
-    @[instance_reducible] def a := 0
-    @[instance_reducible] def b := 0
+    @[implicit_reducible] def a := 0
+    @[implicit_reducible] def b := 0
     class X where x : Nat
     instance instX (n : Nat) : X where x := n
     attribute [reducible] X.x
@@ -1452,7 +1452,7 @@ private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
     is `.reducible`. If we assume this kind of projection is trivial, `tryHeuristic` skips the
     argument comparison, and `unfoldDefault` reduces `X.x (instX a)` all the way to `a`
     (via projection reduction at `.instances`). The resulting `a =?= b` comparison fails at
-    `.reducible` because both are `@[instance_reducible]`.
+    `.reducible` because both are `@[implicit_reducible]`.
     Thus, we classify this kind of projection as nontrivial, and `isDefEqArgs`
     compares `instX a =?= instX b` with the correct transparency bump for
     instance-implicit parameters, which succeeds. -/

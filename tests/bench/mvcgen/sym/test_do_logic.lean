@@ -681,3 +681,13 @@ error: No spec matching the monad StateT Nat
 example : ⦃ ⊤ ⦄ liftProg ⦃ fun r _ => r = 5 ⦄ := by mvcgen' [liftProg]
 
 end RawMonadLiftRegression
+
+namespace InvalidSpecRejection
+
+/-! A `@[spec]` annotation whose conclusion is neither a Hoare triple nor an equation is rejected. -/
+
+/-- error: Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma -/
+#guard_msgs in
+@[spec] theorem trivialSpec : True := trivial
+
+end InvalidSpecRejection

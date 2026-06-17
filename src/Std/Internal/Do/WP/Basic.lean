@@ -78,6 +78,13 @@ def wp [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] {α} 
 @[simp, grind =] theorem WPMonad.wpTrans_apply_eq [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] {α} (x : m α) :
   (WPMonad.wpTrans x).apply = wp x := rfl
 
+/-- Rewriting the program of a weakest precondition along an equation `x = y` weakens it:
+the precondition of `y` entails the precondition of `x`. -/
+theorem wp_le_wp_of_eq [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] {α}
+    {x y : m α} (h : x = y) (post : α → Pred) (epost : EPred) :
+    wp y post epost ⊑ wp x post epost := by
+  subst h; exact PartialOrder.rel_refl
+
 /-!
 ## Derived WPMonad Lemmas
 

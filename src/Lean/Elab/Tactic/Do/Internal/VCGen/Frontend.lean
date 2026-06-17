@@ -50,21 +50,24 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   let mut starArg := false
   for arg in lemmas[1].getSepArgs do
     if arg.getKind == ``simpErase then
+      -- Try to interpret as a spec theorem erasure; fall back to simp erasure. A definition
+      -- registered with `attribute [spec] foo` contributes its unfold equations to the database, so
+      -- `[-foo]` must erase each of those proofs, not just a proof named `foo`.
+      let mut erased := false
       try
-        -- Try to interpret as a spec theorem erasure; fall back to simp erasure.
-        let specThm? ←
-          if let some fvar ← Term.isLocalIdent? arg[1] then
-            mkSpecTheoremFromLocal fvar.fvarId!
-          else
-            let id := arg[1]
-            if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
-              mkSpecTheoremFromConst declName
-            else
-              withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
-        let some specThm := specThm?
-          | throwError "not a spec theorem"
-        specThms := specThms.erase specThm.proof
-      catch _ =>
+        if let some fvar ← Term.isLocalIdent? arg[1] then
+          if let some specThm ← mkSpecTheoremFromLocal fvar.fvarId! then
+            specThms := specThms.erase specThm.proof
+            erased := true
+        else
+          let id := arg[1]
+          let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id)
+            | withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
+          for proof in (← specEraseProofs declName) do
+            specThms := specThms.erase proof
+            erased := true
+      catch _ => pure ()
+      unless erased do
         simpStuff := simpStuff.push ⟨arg⟩ -- simp tracks its own erase stuff
     else if arg.getKind == ``simpLemma then
       unless arg[0].isNone && arg[1].isNone do
@@ -93,13 +96,13 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
       simpStuff := simpStuff.push ⟨arg⟩
     else
       throwUnsupportedSyntax
-  -- Build a simp context from the collected simp/unfold arguments, seeded with the
-  -- spec simp theorems database (which contains `@[spec]`-registered simp equations
-  -- and definitions to unfold).
+  -- Build a simp context from the collected per-call simp/unfold arguments only. Global
+  -- `@[spec]`-registered equations and unfold definitions already live in the internal spec
+  -- database (inserted at annotation time), so the context is not seeded from `mvcgen_simp`.
   let stx ← `(tactic| simp +unfoldPartialApp -zeta [$(Syntax.TSepArray.ofElems simpStuff),*])
   let res ← runTacticM (goals := [goal]) <| mkSimpContext stx.raw
     (eraseLocal := false)
-    (simpTheorems := SpecAttr.getSpecSimpTheorems)
+    (simpTheorems := pure {})
     (ignoreStarArg := ignoreStarArg)
   let simpThms := res.ctx.simpTheorems[0]?.getD {}
   -- Add local spec hypotheses when `*` is used.

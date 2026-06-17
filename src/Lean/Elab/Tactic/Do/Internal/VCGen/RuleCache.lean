@@ -26,11 +26,10 @@ namespace Lean.Elab.Tactic.Do.Internal
 namespace VCGen
 
 /--
-Cached version of ordinary and equality spec rule construction.
+Cached version of spec rule construction.
 
-Ordinary `Triple`/`⊑ wp` entries are sent to `tryMkBackwardRuleFromSpec`; equality entries are sent
-to `tryMkBackwardRuleFromSimp`. The caller supplies the full `wp` metadata because equality
-specs must check that their equation type is definitionally equal to `m α`.
+Both `Triple`/`⊑ wp` and equality entries go through `tryMkBackwardRuleFromSpec`, which normalizes
+an equality spec to `⊑ wp` form using the supplied `wp` metadata before building the rule.
 
 Cache key: `(proof key, instWP, excessArgs.size)`.
 -/
@@ -39,9 +38,7 @@ public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPInfo) 
   let key := (specThm.proof.key, info.instWP, info.excessArgs.size)
   let s := (← get).specBackwardRuleCache
   if let some rule := s[key]? then return rule
-  let some rule ← withNewMCtxDepth <| match specThm.kind with
-      | .triple => tryMkBackwardRuleFromSpec specThm info |>.run
-      | .simp _ => tryMkBackwardRuleFromSimp specThm info |>.run
+  let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info |>.run
     | failure
   modify fun st => { st with specBackwardRuleCache := st.specBackwardRuleCache.insert key rule }
   return rule

@@ -9,10 +9,15 @@ prelude
 public import Init.Data.Float.Model.Unpacked.Pack.Basic
 public import Init.Data.Float.Model.Format.Valid
 
-
 -- This file is part of the logical model for floats which authors of float libraries
 -- need to rely on.
 @[expose] public section
+
+/-!
+These are only the lemmas required to write down the operations on `Float.Model` and
+`Float32.Model`. There will not be any additional lemmas; see the docstring of `UnpackedFloat` for
+more details.
+-/
 
 namespace Float.Model.UnpackedFloat
 

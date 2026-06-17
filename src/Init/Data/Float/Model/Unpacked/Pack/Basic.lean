@@ -90,8 +90,7 @@ The resulting float may be assumed to be correctly rounded for the given specifi
 def unpack (spec : Format) (b : BitVec spec.numBits) : UnpackedFloat :=
   let mantissaVec := unpackMantissa b
   let exponentVec : BitVec spec.exponentBits :=  unpackExponent b
-  let unbiasedExponent : Int := (exponentVec.toNat : Int) - spec.exponentBias
-  let exponent := unbiasedExponent - spec.mantissaBitsWithoutImplicit
+  let exponent : Int := (exponentVec.toNat : Int) - (spec.exponentBias + spec.mantissaBitsWithoutImplicit)
   let signVec : BitVec 1 := unpackSign b
   let sign := Sign.ofBitVec signVec
   if exponentVec = -1#_ then

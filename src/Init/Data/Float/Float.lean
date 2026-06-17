@@ -35,7 +35,7 @@ the operations on `Float` are defined in terms of their `Float.Model` counterpar
 are opaque to Lean's kernel.
 -/
 structure Float where
-  /-- Contructs a `Float` from a `Float.Model`. -/
+  /-- Constructs a `Float` from a `Float.Model`. -/
   ofModel ::
   /-- Converts a `Float` into a `Float.Model`. -/
   toModel : Float.Model

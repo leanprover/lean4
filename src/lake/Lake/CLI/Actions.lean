@@ -20,6 +20,16 @@ open System (FilePath)
 public def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
 
+/--
+Runs a built executable. Unlike `env`, the child does not attach to Lake's cross-process
+jobserver: executables are arbitrary programs rather than build jobs, so Lake's pool should not
+constrain their internal parallelism. The child instead creates its own pool for its children,
+if any.
+-/
+public def runExeFile (exeFile : FilePath) (args : Array String := #[]) : LakeT IO UInt32 := do
+  let env := (← getAugmentedEnv).push ("LEAN_JOB_SEMAPHORE", none)
+  IO.Process.spawn {cmd := exeFile.toString, args, env} >>= (·.wait)
+
 public def exe
   (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {})
 : LakeT IO UInt32 := do
@@ -27,7 +37,7 @@ public def exe
   let some exe := ws.findLeanExe? name
     | error s!"unknown executable `{name}`"
   let exeFile ← ws.runBuild exe.fetch buildConfig
-  env exeFile.toString args
+  runExeFile exeFile args
 
 public def Package.pack
   (pkg : Package) (file : FilePath := pkg.buildArchiveFile)

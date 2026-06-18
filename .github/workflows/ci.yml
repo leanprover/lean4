@@ -189,6 +189,9 @@ jobs:
           check_level=0
           fast=false
           lake_ci=false
+          fsanitize=false
+          macos_arm=false
+          target_stage=1
 
           if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
             check_level=3
@@ -209,12 +212,24 @@ jobs:
             if echo "$labels" | grep -q "fast-ci"; then
               fast=true
             fi
+            if echo "$labels" | grep -q "fsanitize-ci"; then
+              fsanitize=true
+            fi
+            if echo "$labels" | grep -q "macos-arm-ci"; then
+              macos_arm=true
+            fi
+            if ! diff src/stdlib_flags.h stage0/src/stdlib_flags.h; then
+              target_stage=2
+            fi
           fi
 
           {
             echo "check-level=$check_level"
             echo "fast=$fast"
             echo "lake-ci=$lake_ci"
+            echo "fsanitize=$fsanitize"
+            echo "macos-arm=$macos_arm"
+            echo "target-stage=$target_stage"
           } >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
@@ -237,6 +252,9 @@ jobs:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
             const fast = ${{ steps.set-level.outputs.fast }};
+            const fsanitize = ${{ steps.set-level.outputs.fsanitize }};
+            const macos_arm = ${{ steps.set-level.outputs.macos-arm }};
+            const target_stage = ${{ steps.set-level.outputs.target-stage }};
             const lakeCi = "${{ steps.set-level.outputs.lake-ci }}" == "true";
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
@@ -309,9 +327,10 @@ jobs:
               },
               {
                 "name": "Linux fsanitize",
-                // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-24.04-amd64-16x32" : "ubuntu-latest",
-                "enabled": level >= 2,
+                // Always run on large if available, more reliable regarding timeouts.
+                // Building stage 2 with fsanitize needs > 32GB.
+                "os": large ? (target_stage >= 2 ? "nscloud-ubuntu-24.04-amd64-32x64" : "nscloud-ubuntu-24.04-amd64-8x16") : "ubuntu-latest",
+                "enabled": level >= 2 || fsanitize,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
@@ -342,7 +361,7 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "enabled": level >= 1,
+                "enabled": level >= 1 || macos_arm,
                 "test": level >= 2,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
                 "os": large && (fast || level >= 2) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",

@@ -202,9 +202,9 @@ theorem unfold_to_expose_match_spec :
 
 theorem test_match_splitting {mo : Option Nat} (h : mo = some 4) :
     ⦃ fun _ => True ⦄
-    ((match mo with
-      | some n => (set n : StateM Nat PUnit)
-      | none => set 0) : StateM Nat PUnit)
+    (match mo with
+     | some n => (set n : StateM Nat PUnit)
+     | none => set 0)
     ⦃ fun _ s => s = 4 ⦄ := by
   mvcgen' <;> simp_all
 
@@ -459,22 +459,22 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion 
 
 theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] :
-    Triple (Prog := m _) (do
+    ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
         sum := sum + n
-      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
+      return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] :
-    Triple (Prog := m _) (do
+    ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
         sum := sum + n
-      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
+      return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
@@ -482,31 +482,29 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m]
     [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    Triple (Prog := m _) (do
+    ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
         sum := sum + n
-      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
+      return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
     [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    Triple (Prog := m _) (do
+    ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
         sum := sum + n
-      return sum) ⊤ (fun r => ⌜r = xs.sum + xs.size⌝) ⊥ := by
+      return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
     [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    Triple (Prog := m _)
-      (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·))
-      ⊤ (fun r => ⌜r = xs.sum⌝) ⊥ := by
+    ⦃ ⊤ ⦄ (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·)) ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   mvcgen'
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
   all_goals grind
@@ -623,10 +621,10 @@ h✝ : (UInt64.toBitVec 0).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toN
 #guard_msgs in
 example (a : UInt64) :
     ⦃True⦄
-      (do
+      do
         let a ← MyShl.shl a (32: Int32)
         let a ← MyAddU.add (0 : UInt64) a
-        pure a : RustM UInt64)
+        pure a
     ⦃fun _ => True⦄ := by
   mvcgen' (errorOnMissingSpec := false) [MyShl.shl, MyAddU.add]
 

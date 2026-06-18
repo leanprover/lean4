@@ -40,43 +40,50 @@ structure Triple {Prog : Type v} {Value : Type u} [Assertion Pred] [Assertion EP
   le_wp : pre ⊑ wp x post epost
 
 open Lean in
-/-- A program whose `match`/`if` elaboration postpones on a metavariable expected type and so needs
-the monadic-application hint `(_ : _ → _) _` to recover its monad by first-order unification. -/
+/-- A program whose `match`/`if`/`do` elaboration postpones on a metavariable expected type and so
+needs the monadic-application hint `(_ : _ → _) _` to recover its monad by first-order unification. -/
 private meta partial def isSplitProgram (c : Syntax) : Bool :=
   if c.isOfKind `Lean.Parser.Term.paren then
     isSplitProgram c[1]
   else
     c.isOfKind `Lean.Parser.Term.match ||
     c.isOfKind `termIfThenElse ||
-    c.isOfKind `termDepIfThenElse
+    c.isOfKind `termDepIfThenElse ||
+    c.isOfKind `Lean.Parser.Term.do
 
 open Lean in
-/-- Ascribe `match`/`if` programs to the monadic-application shape `?m ?α`, so their match
-elaboration recovers the program's monad via first-order unification. Other programs are untouched. -/
-private meta def hintProgram (c : Term) : MacroM Term :=
-  if isSplitProgram c.raw then `(($c : (_ : _ → _) _)) else pure c
+/-- Ascribe the program so its monad can be recovered during elaboration. An explicit `(m := …)`
+ascribes the program to `… _`, supplying the monad head directly. Otherwise a `match`/`if`/`do`
+program gets the monadic-application hint `(_ : _ → _) _`, recovering its monad by first-order
+unification. Other programs are untouched. -/
+private meta def hintProgram (c : Term) (m? : Option Term) : MacroM Term :=
+  match m? with
+  | some m => `(($c : $m _))
+  | none => if isSplitProgram c.raw then `(($c : (_ : _ → _) _)) else pure c
 
-/-- Hoare triple notation without exception postcondition (defaults to `⊥`). -/
-scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " post " ⦄" => Triple x pre post Lean.Order.bot
+/-- Hoare triple notation without exception postcondition (defaults to `⊥`). An optional `(m := …)`
+after the precondition ascribes the program to monad `…`. -/
+scoped syntax:60 (name := tripleNotation)
+  "⦃ " term " ⦄ " (atomic("(" ident " := ") term ")")? term " ⦃ " term " ⦄" : term
 /-- Hoare triple notation with a binder for the return value. -/
-scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " v ", " post " ⦄" => Triple x pre (fun v => post) Lean.Order.bot
+scoped syntax:60 (name := tripleBinderNotation)
+  "⦃ " term " ⦄ " (atomic("(" ident " := ") term ")")? term " ⦃ " ident ", " term " ⦄" : term
 /-- Hoare triple notation with explicit exception postconditions:
 `⦃ P ⦄ x ⦃ Q; E₁; … ⦄ := Triple x P Q epost⟨E₁, …⟩`. -/
 scoped syntax:60 (name := tripleEPost)
-  "⦃ " term " ⦄ " term " ⦃ " term "; " sepBy1(term, "; ") " ⦄" : term
-macro_rules (kind := tripleEPost)
-  | `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄) => `(Triple $c $P $Q epost⟨$Es,*⟩)
+  "⦃ " term " ⦄ " (atomic("(" ident " := ") term ")")? term " ⦃ " term "; " sepBy1(term, "; ") " ⦄" : term
 
 macro_rules (kind := tripleNotation)
-  | `(⦃ $P ⦄ $c ⦃ $Q ⦄) => do `(Triple $(← hintProgram c) $P $Q Lean.Order.bot)
+  | `(⦃ $P ⦄ $[(m := $m)]? $c ⦃ $Q ⦄) => do `(Triple $(← hintProgram c m) $P $Q Lean.Order.bot)
 macro_rules (kind := tripleBinderNotation)
-  | `(⦃ $P ⦄ $c ⦃ $v, $Q ⦄) => do `(Triple $(← hintProgram c) $P (fun $v => $Q) Lean.Order.bot)
+  | `(⦃ $P ⦄ $[(m := $m)]? $c ⦃ $v, $Q ⦄) => do
+      `(Triple $(← hintProgram c m) $P (fun $v => $Q) Lean.Order.bot)
 macro_rules (kind := tripleEPost)
-  | `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄) => do `(Triple $(← hintProgram c) $P $Q epost⟨$Es,*⟩)
+  | `(⦃ $P ⦄ $[(m := $m)]? $c ⦃ $Q; $Es;* ⦄) => do `(Triple $(← hintProgram c m) $P $Q epost⟨$Es,*⟩)
 
 /-- Pretty-print `Triple` applications back as `⦃ … ⦄` notation. -/
 @[app_unexpander Triple]
-meta def unexpandTripleEPost : Lean.PrettyPrinter.Unexpander
+meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
   | `($(_) $c $P $Q epost⟨$Es,*⟩) =>
     if Es.getElems.isEmpty then throw () else `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄)
   | `($(_) $c $P $Q ⊥) => `(⦃ $P ⦄ $c ⦃ $Q ⦄)

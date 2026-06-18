@@ -23,6 +23,7 @@ options get_default_options() {
 
     opts = opts.update({"pp", "rawOnError"}, true);
 
+    // trigger update-stage0 for the `wait_if_mvar%` builtin term elaborator
 #endif
     return opts;
 }

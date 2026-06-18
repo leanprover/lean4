@@ -418,6 +418,14 @@ def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
     varInfos? := newVarInfos?
     checkTypeMask? := newCheckTypeMask? }
 
+/-- The application-argument index of `declName`'s program parameter `x`, read from its signature. -/
+def progArgIdx? (declName : Name) : MetaM (Option Nat) := do
+  forallTelescope (← getConstInfo declName).type fun xs _ => do
+    for i in [0:xs.size] do
+      if (← xs[i]!.fvarId!.getUserName) == `x then
+        return some i
+    return none
+
 /--
 Selects the program a spec conclusion is keyed on: the program of a `Triple`, or the program inside
 the `wp` on the RHS of a `pre ⊑ wp …` entailment. Returns `none` if `type` is neither shape — e.g. a
@@ -426,13 +434,15 @@ bare `lhs ⊑ rhs` whose RHS is not a `wp` application (an invariant entailment 
 `none` to skip such non-spec hypotheses instead of failing.
 -/
 def selectProg (type : Expr) : MetaM (Option Expr) := do
+  if type.getAppFn.isConstOf ``Triple then
+    let some idx ← progArgIdx? ``Triple | return none
+    return type.getAppArgs[idx]?
   match_expr type with
-  | Triple _m _Pred _EPred _α _monad _instAL _instEAL _wpInst _pre prog _post _epost =>
-    return prog
   | PartialOrder.rel _α _inst _pre rhs =>
-    let_expr wp _m _Pred _EPred _monad _instAL _instEAL _wpInst _α prog _post _epost := rhs
-      | return none
-    return prog
+    if rhs.getAppFn.isConstOf ``wp then
+      let some idx ← progArgIdx? ``wp | return none
+      return rhs.getAppArgs[idx]?
+    return none
   | _ => return none
 
 /--

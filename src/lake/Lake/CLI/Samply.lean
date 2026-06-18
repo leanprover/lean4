@@ -16,6 +16,9 @@ import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Uri
 import Init.While
+import Std.Net
+import Std.Async
+import Std.Http
 
 /-!
 # `lake samply`
@@ -27,6 +30,7 @@ and demangle Lean names for [Firefox Profiler](https://profiler.firefox.com).
 namespace Lake.Samply
 
 open Lean (Json JsonNumber)
+open Std.Http
 
 /-- Check that a command is available on PATH. -/
 private def requireCmd (cmd : String) (installHint : String) : IO Unit := do
@@ -287,34 +291,45 @@ public def run (binary : String) (passthrough : Array String)
 
     unless serve do return out
 
-    -- Serve the demangled profile using samply's HTTP server (which handles CORS,
-    -- works with VSCode port forwarding, etc). We construct the Firefox Profiler URL
-    -- ourselves, omitting `?symbolServer=` so it doesn't re-symbolicate with mangled names.
-    -- TODO: replace samply server with `Std.Http.Server` once #12151 lands.
+    -- Serve the demangled profile to Firefox Profiler over a local HTTP server built on the
+    -- standard library's `Std.Http.Server`. profiler.firefox.com fetches the profile
+    -- cross-origin, so we send permissive CORS headers; binding 127.0.0.1 keeps the server
+    -- reachable only from this machine (and lets VSCode auto-forward the port). The profile is
+    -- already gzip-compressed on disk, so we advertise `Content-Encoding: gzip` and let the
+    -- browser decompress it. We construct the Firefox Profiler URL ourselves, omitting
+    -- `?symbolServer=` so it doesn't re-symbolicate with mangled names.
     let servePort := port + 1
-    let samplyServeLog := s!"{tmpDir}/samply-serve.log"
-    IO.FS.writeFile samplyServeLog ""
-    let serveProc ← IO.Process.spawn {
-      cmd := "sh"
-      args := #["-c",
-        s!"exec samply load --no-open -P {servePort} {shellQuote out} \
-          >{shellQuote samplyServeLog} 2>&1"]
-      stdout := .null
-      stderr := .null
-      stdin := .null
-    }
-    try
-      let serveToken ← waitForServer samplyServeLog serveProc servePort
-      let profileUrl :=
-        percentEncode s!"http://127.0.0.1:{servePort}/{serveToken}/profile.json"
-      -- Print the server URL so VSCode detects and auto-forwards the port.
-      IO.eprintln s!"Serving on http://127.0.0.1:{servePort}/"
-      IO.eprintln s!"\nOpen in Firefox Profiler:"
-      IO.eprintln s!"  https://profiler.firefox.com/from-url/{profileUrl}"
-      IO.eprintln s!"\nPress Ctrl+C to stop."
-      let _ ← serveProc.wait
-    finally
-      killSafe serveProc
+    let profileBytes ← IO.FS.readBinFile out
+    let handler := Server.Handler.ofFn fun req => do
+      match req.line.method with
+      | .get =>
+        let resp ← (Response.ok
+            |>.header (Header.Name.ofString! "Content-Type") (Header.Value.ofString! "application/json")
+            |>.header (Header.Name.ofString! "Content-Encoding") (Header.Value.ofString! "gzip")
+            |>.header (Header.Name.ofString! "Access-Control-Allow-Origin") (Header.Value.ofString! "*")
+            |>.header (Header.Name.ofString! "Cache-Control") (Header.Value.ofString! "no-cache")
+          ).fromBytes profileBytes
+        return { resp with body := Body.Any.ofBody resp.body }
+      | .options =>
+        let resp ← (Response.withStatus .noContent
+            |>.header (Header.Name.ofString! "Access-Control-Allow-Origin") (Header.Value.ofString! "*")
+            |>.header (Header.Name.ofString! "Access-Control-Allow-Methods") (Header.Value.ofString! "GET, OPTIONS")
+            |>.header (Header.Name.ofString! "Access-Control-Allow-Headers") (Header.Value.ofString! "*")
+          ).empty
+        return { resp with body := Body.Any.ofBody resp.body }
+      | _ =>
+        let resp ← Response.notFound.empty
+        return { resp with body := Body.Any.ofBody resp.body }
+    let addr := Std.Net.SocketAddress.v4 ⟨Std.Net.IPv4Addr.ofParts 127 0 0 1, servePort.toUInt16⟩
+    let profileUrl := percentEncode s!"http://127.0.0.1:{servePort}/profile.json"
+    -- Print the server URL so VSCode detects and auto-forwards the port.
+    IO.eprintln s!"Serving on http://127.0.0.1:{servePort}/"
+    IO.eprintln s!"\nOpen in Firefox Profiler:"
+    IO.eprintln s!"  https://profiler.firefox.com/from-url/{profileUrl}"
+    IO.eprintln s!"\nPress Ctrl+C to stop."
+    Std.Async.Async.block do
+      let server ← Server.serve addr handler
+      server.waitShutdown
     return out
   finally
     removeDirAllIfExists tmpDir

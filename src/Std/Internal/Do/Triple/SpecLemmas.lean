@@ -53,23 +53,23 @@ variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
 @[spec]
 theorem Spec.pure (a : α) :
-    Triple (post a) (Pure.pure (f := m) a) post epost :=
+    Triple (Pure.pure (f := m) a) (post a) post epost :=
   Triple.pure a PartialOrder.rel_refl
 
 @[spec]
 theorem Spec.bind (x : m α) (f : α → m β) :
-    Triple (wp x (fun a => wp (f a) post epost) epost) (x >>= f) post epost :=
+    Triple (x >>= f) (wp x (fun a => wp (f a) post epost) epost) post epost :=
   Triple.bind x f (fun a => wp (f a) post epost)
     (Triple.iff.mpr PartialOrder.rel_refl) (fun _ => Triple.iff.mpr PartialOrder.rel_refl)
 
 @[spec]
 theorem Spec.map (f : α → β) (x : m α) :
-    Triple (wp x (fun a => post (f a)) epost) (f <$> x) post epost :=
+    Triple (f <$> x) (wp x (fun a => post (f a)) epost) post epost :=
   Triple.map f x (Triple.iff.mpr PartialOrder.rel_refl)
 
 @[spec]
 theorem Spec.seq (x : m (α → β)) (y : m α) :
-    Triple (wp x (fun f => wp y (fun a => post (f a)) epost) epost) (x <*> y) post epost :=
+    Triple (x <*> y) (wp x (fun f => wp y (fun a => post (f a)) epost) epost) post epost :=
   Triple.seq x y (Triple.iff.mpr PartialOrder.rel_refl)
 
 /-! # `MonadLift` -/
@@ -77,30 +77,30 @@ theorem Spec.seq (x : m (α → β)) (y : m α) :
 
 @[spec]
 theorem Spec.monadLift_StateT (x : m α) (post : α → σ → Pred) :
-    Triple (fun s => wp x (fun a => post a s) epost) (MonadLift.monadLift x : StateT σ m α) post epost :=
+    Triple (MonadLift.monadLift x : StateT σ m α) (fun s => wp x (fun a => post a s) epost) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_monadLift_StateT_apply x post)
 
 
 @[spec]
 theorem Spec.monadLift_ReaderT (x : m α) (post : α → ρ → Pred) :
-    Triple (fun r => wp x (fun a => post a r) epost) (MonadLift.monadLift x : ReaderT ρ m α) post epost :=
+    Triple (MonadLift.monadLift x : ReaderT ρ m α) (fun r => wp x (fun a => post a r) epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_monadLift_ReaderT_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.monadLift_ExceptT (x : m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (wp x post epost.tail) (MonadLift.monadLift x : ExceptT ε m α) post epost :=
+    Triple (MonadLift.monadLift x : ExceptT ε m α) (wp x post epost.tail) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_monadLift_ExceptT_apply x post epost)
 
 
 @[spec]
 theorem Spec.monadLift_OptionT (x : m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp x post epost.tail) (MonadLift.monadLift x : OptionT m α) post epost :=
+    Triple (MonadLift.monadLift x : OptionT m α) (wp x post epost.tail) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_monadLift_OptionT_apply x)
 
 @[spec]
 theorem Spec.monadLift_Id (x : Id α) :
-    Triple (post x.run) (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) post epost :=
+    Triple (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) (post x.run) post epost :=
   Triple.pure x.run PartialOrder.rel_refl
 
 /-! # `MonadLiftT` -/
@@ -121,40 +121,40 @@ attribute [refl] PartialOrder.rel_refl
 @[spec]
 theorem Spec.monadMap_StateT
     (f : ∀{β}, m β → m β) {α} (x : StateT σ m α) (post : α → σ → Pred) :
-    Triple (fun s => wp (f (x.run s)) (fun (a, s') => post a s') epost)
-      (MonadFunctor.monadMap (m := m) f x : StateT σ m α) post epost :=
+    Triple (MonadFunctor.monadMap (m := m) f x : StateT σ m α)
+      (fun s => wp (f (x.run s)) (fun (a, s') => post a s') epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_monadMap_StateT_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.monadMap_ReaderT
     (f : ∀{β}, m β → m β) {α} (x : ReaderT ρ m α) (post : α → ρ → Pred) :
-    Triple (fun r => wp (f (x.run r)) (fun a => post a r) epost)
-      (MonadFunctor.monadMap (m := m) f x : ReaderT ρ m α) post epost :=
+    Triple (MonadFunctor.monadMap (m := m) f x : ReaderT ρ m α)
+      (fun r => wp (f (x.run r)) (fun a => post a r) epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_monadMap_ReaderT_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.monadMap_ExceptT
     (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (wp (f x.run) (epost.pushExcept post) epost.tail)
-      (MonadFunctor.monadMap (m := m) f x : ExceptT ε m α) post epost :=
+    Triple (MonadFunctor.monadMap (m := m) f x : ExceptT ε m α)
+      (wp (f x.run) (epost.pushExcept post) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_monadMap_ExceptT_apply_eq])
 
 
 @[spec]
 theorem Spec.monadMap_OptionT
     (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp (f x.run) (epost.pushOption post) epost.tail)
-      (MonadFunctor.monadMap (m := m) f x : OptionT m α) post epost :=
+    Triple (MonadFunctor.monadMap (m := m) f x : OptionT m α)
+      (wp (f x.run) (epost.pushOption post) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_monadMap_OptionT_apply_eq])
 
 
 
 @[spec]
 theorem Spec.monadMap_refl (x : m α) :
-    Triple (wp (f x : m α) post epost)
-      (MonadFunctorT.monadMap f x : m α) post epost :=
+    Triple (MonadFunctorT.monadMap f x : m α)
+      (wp (f x : m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_monadMap_refl_apply_eq])
 
 /-! # `MonadControl` -/
@@ -163,60 +163,60 @@ theorem Spec.monadMap_refl (x : m α) :
 @[spec]
 theorem Spec.liftWith_StateT
     (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) (post : α → σ → Pred) :
-    Triple (fun s => wp (f (fun x => x.run s)) (fun a => post a s) epost)
-      (MonadControl.liftWith (m:=m) f : StateT σ m α) post epost :=
+    Triple (MonadControl.liftWith (m:=m) f : StateT σ m α)
+      (fun s => wp (f (fun x => x.run s)) (fun a => post a s) epost) post epost :=
   Triple.iff.mpr (by intro s; simp [WPMonad.wp_liftWith_StateT_apply_eq f]; apply WPMonad.wp_map'; ext; rfl)
 
 
 @[spec]
 theorem Spec.liftWith_ReaderT
     (f : (∀{β}, ReaderT ρ m β → m β) → m α) (post : α → ρ → Pred) :
-    Triple (fun r => wp (f (fun x => x.run r)) (fun a => post a r) epost)
-      (MonadControl.liftWith (m:=m) f : ReaderT ρ m α) post epost :=
+    Triple (MonadControl.liftWith (m:=m) f : ReaderT ρ m α)
+      (fun r => wp (f (fun x => x.run r)) (fun a => post a r) epost) post epost :=
   Triple.iff.mpr (by intro r; simp [WPMonad.wp_liftWith_ReaderT_apply_eq f]; rfl)
 
 
 @[spec]
 theorem Spec.liftWith_ExceptT
     (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (wp (f (fun x => x.run)) post epost.tail)
-      (MonadControl.liftWith (m:=m) f : ExceptT ε m α) post epost :=
+    Triple (MonadControl.liftWith (m:=m) f : ExceptT ε m α)
+      (wp (f (fun x => x.run)) post epost.tail) post epost :=
   Triple.iff.mpr (by simp [WPMonad.wp_liftWith_ExceptT_apply_eq f]; apply WPMonad.wp_map'; ext; rfl)
 
 
 @[spec]
 theorem Spec.liftWith_OptionT
     (f : (∀{β}, OptionT m β → m (Option β)) → m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp (f (fun x => x.run)) post epost.tail)
-      (MonadControl.liftWith (m:=m) f : OptionT m α) post epost :=
+    Triple (MonadControl.liftWith (m:=m) f : OptionT m α)
+      (wp (f (fun x => x.run)) post epost.tail) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_liftWith_OptionT_apply f)
 
 
 @[spec]
 theorem Spec.restoreM_StateT (x : m (α × σ)) (post : α → σ → Pred) :
-    Triple (fun _ => wp x (fun (a, s) => post a s) epost)
-      (MonadControl.restoreM (m:=m) x : StateT σ m α) post epost :=
+    Triple (MonadControl.restoreM (m:=m) x : StateT σ m α)
+      (fun _ => wp x (fun (a, s) => post a s) epost) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_restoreM_StateT_apply x)
 
 
 @[spec]
 theorem Spec.restoreM_ReaderT (x : m α) (post : α → ρ → Pred) :
-    Triple (fun r => wp x (fun a => post a r) epost)
-      (MonadControl.restoreM (m:=m) x : ReaderT ρ m α) post epost :=
+    Triple (MonadControl.restoreM (m:=m) x : ReaderT ρ m α)
+      (fun r => wp x (fun a => post a r) epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_restoreM_ReaderT_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.restoreM_ExceptT (x : m (@Except.{u, u} ε α)) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (wp x (epost.pushExcept post) epost.tail)
-      (MonadControl.restoreM (m:=m) x : ExceptT ε m α) post epost :=
+    Triple (MonadControl.restoreM (m:=m) x : ExceptT ε m α)
+      (wp x (epost.pushExcept post) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_restoreM_ExceptT_apply_eq])
 
 
 @[spec]
 theorem Spec.restoreM_OptionT (x : m (Option α)) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp x (epost.pushOption post) epost.tail)
-      (MonadControl.restoreM (m:=m) x : OptionT m α) post epost :=
+    Triple (MonadControl.restoreM (m:=m) x : OptionT m α)
+      (wp x (epost.pushOption post) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_restoreM_OptionT_apply_eq])
 
 /-! # `MonadControlT` -/
@@ -225,15 +225,15 @@ theorem Spec.restoreM_OptionT (x : m (Option α)) (post : α → Pred) (epost : 
 
 theorem Spec.liftWith_refl
     (f : (∀{β}, m β → m β) → m α) :
-    Triple (wp (f (fun x => x) : m α) post epost)
-      (MonadControlT.liftWith (m:=m) f : m α) post epost :=
+    Triple (MonadControlT.liftWith (m:=m) f : m α)
+      (wp (f (fun x => x) : m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_liftWith_refl_apply_eq])
 
 
 
 theorem Spec.restoreM_refl (x : stM m m α) :
-    Triple (wp (Pure.pure x : m α) post epost)
-      (MonadControlT.restoreM (m:=m) x : m α) post epost :=
+    Triple (MonadControlT.restoreM (m:=m) x : m α)
+      (wp (Pure.pure x : m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_restoreM_refl_apply_eq])
 
 /-! # `ReaderT` -/
@@ -241,20 +241,20 @@ theorem Spec.restoreM_refl (x : stM m m α) :
 
 @[spec]
 theorem Spec.read_ReaderT (post : ρ → ρ → Pred) :
-    Triple (fun r => post r r)
-      (MonadReaderOf.read : ReaderT ρ m ρ) post epost :=
+    Triple (MonadReaderOf.read : ReaderT ρ m ρ)
+      (fun r => post r r) post epost :=
   Triple.iff.mpr (by intro r; simpa [MonadReaderOf.read] using
     (WPMonad.wp_pure (m := m) (x := r) (post := fun a => post a r) (epost := epost)))
 
 theorem Spec.withReader_ReaderT (f : ρ → ρ) (x : ReaderT ρ m α) (post : α → ρ → Pred) :
-    Triple (fun r => wp x (fun a _ => post a r) epost (f r))
-      (MonadWithReaderOf.withReader f x : ReaderT ρ m α) post epost :=
+    Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α)
+      (fun r => wp x (fun a _ => post a r) epost (f r)) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_withReader_ReaderT_apply_eq]; rfl)
 
 
 theorem Spec.adapt_ReaderT (f : ρ → ρ') (x : ReaderT ρ' m α) (post : α → ρ → Pred) :
-    Triple (fun r => wp x (fun a _ => post a r) epost (f r))
-      (ReaderT.adapt f x : ReaderT ρ m α) post epost :=
+    Triple (ReaderT.adapt f x : ReaderT ρ m α)
+      (fun r => wp x (fun a _ => post a r) epost (f r)) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_adapt_ReaderT_apply_eq]; rfl)
 
 /-! # `StateT` -/
@@ -262,8 +262,8 @@ theorem Spec.adapt_ReaderT (f : ρ → ρ') (x : ReaderT ρ' m α) (post : α �
 
 @[spec]
 theorem Spec.get_StateT (post : σ → σ → Pred) :
-    Triple (fun s => post s s)
-      (MonadStateOf.get : StateT σ m σ) post epost :=
+    Triple (MonadStateOf.get : StateT σ m σ)
+      (fun s => post s s) post epost :=
   Triple.iff.mpr (by intro s; simpa [get_StateT] using!
     (WPMonad.wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (epost := epost)))
@@ -271,8 +271,8 @@ theorem Spec.get_StateT (post : σ → σ → Pred) :
 
 @[spec]
 theorem Spec.set_StateT (s : σ) (post : PUnit → σ → Pred) :
-    Triple (fun _ => post ⟨⟩ s)
-      (set s : StateT σ m PUnit) post epost :=
+    Triple (set s : StateT σ m PUnit)
+      (fun _ => post ⟨⟩ s) post epost :=
   Triple.iff.mpr (by intro _; simpa [MonadStateOf.set] using!
     (WPMonad.wp_pure (m := m) (x := (PUnit.unit, s))
       (post := fun x => post x.fst x.snd) (epost := epost)))
@@ -280,8 +280,8 @@ theorem Spec.set_StateT (s : σ) (post : PUnit → σ → Pred) :
 
 @[spec]
 theorem Spec.modifyGet_StateT (f : σ → α × σ) (post : α → σ → Pred) :
-    Triple (fun s => post (f s).1 (f s).2)
-      (MonadStateOf.modifyGet f : StateT σ m α) post epost :=
+    Triple (MonadStateOf.modifyGet f : StateT σ m α)
+      (fun s => post (f s).1 (f s).2) post epost :=
   Triple.iff.mpr (by intro s; simpa [MonadStateOf.modifyGet] using!
     (WPMonad.wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (epost := epost)))
@@ -315,8 +315,8 @@ theorem Spec.UnfoldLift.withReader [MonadFunctor m n] [MonadWithReaderOf ρ m] (
 
 @[spec]
 theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (wp x post epost)
-      (x.run : m (@Except.{u, u} ε α))
+    Triple (x.run : m (@Except.{u, u} ε α))
+      (wp x post epost)
       (epost.pushExcept post)
       epost.tail :=
   Triple.iff.mpr (by simp [PartialOrder.rel_refl])
@@ -324,7 +324,7 @@ theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (epost : EPo
 
 @[spec]
 theorem Spec.throw_ExceptT (err : ε) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (epost.head err) (MonadExceptOf.throw err : ExceptT ε m α) post epost :=
+    Triple (MonadExceptOf.throw err : ExceptT ε m α) (epost.head err) post epost :=
   Triple.iff.mpr (by simpa [EPost.Cons.pushExcept] using!
     (WPMonad.wp_pure (m := m) (x := Except.error err)
       (post := epost.pushExcept post)
@@ -333,22 +333,22 @@ theorem Spec.throw_ExceptT (err : ε) (post : α → Pred) (epost : EPost.Cons (
 
 @[spec]
 theorem Spec.tryCatch_ExceptT (x : ExceptT ε m α) (h : ε → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (wp x post ⟨fun e => wp (h e) post epost, epost.tail⟩)
-      (MonadExceptOf.tryCatch x h : ExceptT ε m α) post epost :=
+    Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α)
+      (wp x post ⟨fun e => wp (h e) post epost, epost.tail⟩) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_tryCatch_ExceptT_apply x h)
 
 
 @[spec]
 theorem Spec.orElse_ExceptT (x : ExceptT ε m α) (h : Unit → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
-    Triple (wp x post ⟨fun _ => wp (h ()) post epost, epost.tail⟩)
-      (OrElse.orElse x h : ExceptT ε m α) post epost :=
+    Triple (OrElse.orElse x h : ExceptT ε m α)
+      (wp x post ⟨fun _ => wp (h ()) post epost, epost.tail⟩) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_orElse_ExceptT_apply x h)
 
 
 @[spec]
 theorem Spec.adapt_ExceptT (f : ε → ε') (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
-    Triple (wp x post ⟨fun e => epost.head (f e), epost.tail⟩)
-      (ExceptT.adapt f x : ExceptT ε' m α) post epost :=
+    Triple (ExceptT.adapt f x : ExceptT ε' m α)
+      (wp x post ⟨fun e => epost.head (f e), epost.tail⟩) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_adapt_ExceptT_apply f x)
 
 /-! # `Except` -/
@@ -356,21 +356,21 @@ theorem Spec.adapt_ExceptT (f : ε → ε') (x : ExceptT ε m α) (post : α →
 
 @[spec]
 theorem Spec.throw_Except (err : ε) :
-    Triple (epost.head err) (MonadExceptOf.throw err : Except ε α) post epost :=
+    Triple (MonadExceptOf.throw err : Except ε α) (epost.head err) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_throw_Except_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_Except (x : Except ε α) (h : ε → Except ε α) :
-    Triple (wp x post epost⟨fun e => wp (h e) post epost⟩)
-      (MonadExceptOf.tryCatch x h : Except ε α) post epost :=
+    Triple (MonadExceptOf.tryCatch x h : Except ε α)
+      (wp x post epost⟨fun e => wp (h e) post epost⟩) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_Except_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.orElse_Except (x : Except ε α) (h : Unit → Except ε α) :
-    Triple (wp x post epost⟨fun (_ : ε) => wp (h ()) post epost⟩)
-      (OrElse.orElse x h : Except ε α) post epost :=
+    Triple (OrElse.orElse x h : Except ε α)
+      (wp x post epost⟨fun (_ : ε) => wp (h ()) post epost⟩) post epost :=
   Triple.iff.mpr (by simp only [wp, WPMonad.wpTrans, OrElse.orElse, MonadExcept.orElse]; cases x <;> rfl)
 
 /-! # `OptionT` -/
@@ -378,8 +378,8 @@ theorem Spec.orElse_Except (x : Except ε α) (h : Unit → Except ε α) :
 
 @[spec]
 theorem Spec.run_OptionT (x : OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp x post epost)
-      (x.run : m (Option α))
+    Triple (x.run : m (Option α))
+      (wp x post epost)
       (epost.pushOption post)
       epost.tail :=
   Triple.iff.mpr (by rw [← OptionT.wp_apply_eq])
@@ -387,21 +387,21 @@ theorem Spec.run_OptionT (x : OptionT m α) (post : α → Pred) (epost : EPost.
 
 @[spec]
 theorem Spec.throw_OptionT (err : PUnit) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple epost.head (MonadExceptOf.throw err : OptionT m α) post epost :=
+    Triple (MonadExceptOf.throw err : OptionT m α) epost.head post epost :=
   Triple.iff.mpr (WPMonad.le_wp_throw_OptionT_apply err)
 
 
 @[spec]
 theorem Spec.tryCatch_OptionT (x : OptionT m α) (h : PUnit → OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp x post ⟨wp (h ⟨⟩) post epost, epost.tail⟩)
-      (MonadExceptOf.tryCatch x h : OptionT m α) post epost :=
+    Triple (MonadExceptOf.tryCatch x h : OptionT m α)
+      (wp x post ⟨wp (h ⟨⟩) post epost, epost.tail⟩) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_tryCatch_OptionT_apply x h)
 
 
 @[spec]
 theorem Spec.orElse_OptionT (x : OptionT m α) (h : Unit → OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp x post ⟨wp (h ()) post epost, epost.tail⟩)
-      (OrElse.orElse x h : OptionT m α) post epost :=
+    Triple (OrElse.orElse x h : OptionT m α)
+      (wp x post ⟨wp (h ()) post epost, epost.tail⟩) post epost :=
   Triple.iff.mpr (WPMonad.le_wp_orElse_OptionT_apply x h)
 
 /-! # `Option` -/
@@ -409,21 +409,21 @@ theorem Spec.orElse_OptionT (x : OptionT m α) (h : Unit → OptionT m α) (post
 
 @[spec]
 theorem Spec.throw_Option (err : PUnit) :
-    Triple epost (MonadExceptOf.throw err : Option α) post epost :=
+    Triple (MonadExceptOf.throw err : Option α) epost post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_throw_Option_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_Option (x : Option α) (h : PUnit → Option α) :
-    Triple (wp x post (wp (h ⟨⟩) post epost))
-      (MonadExceptOf.tryCatch x h : Option α) post epost :=
+    Triple (MonadExceptOf.tryCatch x h : Option α)
+      (wp x post (wp (h ⟨⟩) post epost)) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_Option_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.orElse_Option (x : Option α) (h : Unit → Option α) (post : α → Prop) (epost : Prop) :
-    Triple (wp x post (wp (h ()) post epost))
-      (OrElse.orElse x h : Option α) post epost :=
+    Triple (OrElse.orElse x h : Option α)
+      (wp x post (wp (h ()) post epost)) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_orElse_Option_apply_eq]; rfl)
 
 /-! # `EStateM` -/
@@ -431,50 +431,50 @@ theorem Spec.orElse_Option (x : Option α) (h : Unit → Option α) (post : α �
 
 @[spec]
 theorem Spec.get_EStateM (post : σ → σ → Prop) (epost : ε → σ → Prop) :
-    Triple (fun s => post s s)
-      (MonadStateOf.get : EStateM ε σ σ) post epost :=
+    Triple (MonadStateOf.get : EStateM ε σ σ)
+      (fun s => post s s) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_get_EStateM_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.set_EStateM (s : σ) (post : PUnit → σ → Prop) (epost : ε → σ → Prop) :
-    Triple (fun _ => post ⟨⟩ s)
-      (MonadStateOf.set s : EStateM ε σ PUnit) post epost :=
+    Triple (MonadStateOf.set s : EStateM ε σ PUnit)
+      (fun _ => post ⟨⟩ s) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_set_EStateM_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.modifyGet_EStateM (f : σ → α × σ) (post : α → σ → Prop) (epost : ε → σ → Prop) :
-    Triple (fun s => post (f s).1 (f s).2)
-      (MonadStateOf.modifyGet f : EStateM ε σ α) post epost :=
+    Triple (MonadStateOf.modifyGet f : EStateM ε σ α)
+      (fun s => post (f s).1 (f s).2) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_modifyGet_EStateM_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.throw_EStateM (err : ε) (post : α → σ → Prop) (epost : ε → σ → Prop) :
-    Triple (epost err) (MonadExceptOf.throw err : EStateM ε σ α) post epost :=
+    Triple (MonadExceptOf.throw err : EStateM ε σ α) (epost err) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_throw_EStateM_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_EStateM (x : EStateM ε σ α) (h : ε → EStateM ε σ α)
     (post : α → σ → Prop) (epost : ε → σ → Prop) :
-    Triple (fun s => wp x post (fun e s' => wp (h e) post epost s') s)
-      (MonadExceptOf.tryCatch x h : EStateM ε σ α) post epost :=
+    Triple (MonadExceptOf.tryCatch x h : EStateM ε σ α)
+      (fun s => wp x post (fun e s' => wp (h e) post epost s') s) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_EStateM_apply_eq]; rfl)
 
 
 theorem Spec.orElse_EStateM (x : EStateM ε σ α) (h : Unit → EStateM ε σ α)
     (post : α → σ → Prop) (epost : ε → σ → Prop) :
-    Triple (fun s => wp x post (fun _ s' => wp (h ()) post epost s') s)
-      (OrElse.orElse x h : EStateM ε σ α) post epost :=
+    Triple (OrElse.orElse x h : EStateM ε σ α)
+      (fun s => wp x post (fun _ s' => wp (h ()) post epost s') s) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_orElse_EStateM_apply_eq]; rfl)
 
 
 theorem Spec.adaptExcept_EStateM (f : ε → ε') (x : EStateM ε σ α)
     (post : α → σ → Prop) (epost : ε' → σ → Prop) :
-    Triple (wp x post (fun e => epost (f e)))
-      (EStateM.adaptExcept f x : EStateM ε' σ α) post epost :=
+    Triple (EStateM.adaptExcept f x : EStateM ε' σ α)
+      (wp x post (fun e => epost (f e))) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_adaptExcept_EStateM_apply_eq]; rfl)
 
 /-! # Lifting `MonadExceptOf` -/
@@ -483,81 +483,81 @@ theorem Spec.adaptExcept_EStateM (f : ε → ε') (x : EStateM ε σ α)
 
 @[spec]
 theorem Spec.throw_MonadExcept [MonadExceptOf ε m] (err : ε) :
-    Triple (wp (MonadExceptOf.throw err : m α) post epost)
-      (throw err : m α) post epost :=
+    Triple (throw err : m α)
+      (wp (MonadExceptOf.throw err : m α) post epost) post epost :=
   Triple.iff.mpr (by simp [throw, PartialOrder.rel_refl])
 
 
 
 theorem Spec.tryCatch_MonadExcept [MonadExceptOf ε m] (x : m α) (h : ε → m α) :
-    Triple (wp (MonadExceptOf.tryCatch x h : m α) post epost)
-      (tryCatch x h : m α) post epost :=
+    Triple (tryCatch x h : m α)
+      (wp (MonadExceptOf.tryCatch x h : m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_MonadExcept_apply_eq])
 
 
 @[spec]
 theorem Spec.throw_ReaderT [MonadExceptOf ε m] (err : ε) (post : α → ρ → Pred) :
-    Triple (wp (MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) err : m α) : ReaderT ρ m α) post epost)
-      (MonadExceptOf.throw (ε:=ε) err : ReaderT ρ m α) post epost :=
+    Triple (MonadExceptOf.throw (ε:=ε) err : ReaderT ρ m α)
+      (wp (MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) err : m α) : ReaderT ρ m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_throw_ReaderT_lift_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.throw_StateT [MonadExceptOf ε m] (err : ε) (post : α → σ → Pred) :
-    Triple (wp (MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) err : m α) : StateT σ m α) post epost)
-      (MonadExceptOf.throw (ε:=ε) err : StateT σ m α) post epost :=
+    Triple (MonadExceptOf.throw (ε:=ε) err : StateT σ m α)
+      (wp (MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) err : m α) : StateT σ m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_throw_StateT_lift_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.throw_ExceptT_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
-    Triple (wp (MonadExceptOf.throw (ε:=ε) err : m (@Except.{u, u} ε' α))
-        (fun r => match r with | .ok a => post a | .error e => epost.head e) epost.tail)
-      (MonadExceptOf.throw (ε:=ε) err : ExceptT ε' m α) post epost :=
+    Triple (MonadExceptOf.throw (ε:=ε) err : ExceptT ε' m α)
+      (wp (MonadExceptOf.throw (ε:=ε) err : m (@Except.{u, u} ε' α))
+        (fun r => match r with | .ok a => post a | .error e => epost.head e) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_throw_lift_ExceptT_apply_eq]; apply WPMonad.wp_consequence; intro r; cases r <;> rfl)
 
 
 @[spec]
 theorem Spec.throw_Option_lift [MonadExceptOf ε m] (err : ε) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp (MonadExceptOf.throw (ε:=ε) err : m (Option α))
-        (epost.pushOption post) epost.tail)
-      (MonadExceptOf.throw (ε:=ε) err : OptionT m α) post epost :=
+    Triple (MonadExceptOf.throw (ε:=ε) err : OptionT m α)
+      (wp (MonadExceptOf.throw (ε:=ε) err : m (Option α))
+        (epost.pushOption post) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_throw_lift_OptionT_apply_eq])
 
 
 @[spec]
 theorem Spec.tryCatch_ReaderT [MonadExceptOf ε m] (x : ReaderT ρ m α) (h : ε → ReaderT ρ m α)
     (post : α → ρ → Pred) :
-    Triple (fun r => wp (MonadExceptOf.tryCatch (ε:=ε) (x.run r) (fun e => (h e).run r) : m α)
-        (fun a => post a r) epost)
-      (MonadExceptOf.tryCatch (ε:=ε) x h : ReaderT ρ m α) post epost :=
+    Triple (MonadExceptOf.tryCatch (ε:=ε) x h : ReaderT ρ m α)
+      (fun r => wp (MonadExceptOf.tryCatch (ε:=ε) (x.run r) (fun e => (h e).run r) : m α)
+        (fun a => post a r) epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_ReaderT_lift_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_StateT [MonadExceptOf ε m] (x : StateT σ m α) (h : ε → StateT σ m α)
     (post : α → σ → Pred) :
-    Triple (fun s => wp (MonadExceptOf.tryCatch (ε:=ε) (x.run s) (fun e => (h e).run s) : m (α × σ))
-        (fun (a, s') => post a s') epost)
-      (MonadExceptOf.tryCatch (ε:=ε) x h : StateT σ m α) post epost :=
+    Triple (MonadExceptOf.tryCatch (ε:=ε) x h : StateT σ m α)
+      (fun s => wp (MonadExceptOf.tryCatch (ε:=ε) (x.run s) (fun e => (h e).run s) : m (α × σ))
+        (fun (a, s') => post a s') epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_StateT_lift_apply_eq]; rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_ExceptT_lift [MonadExceptOf ε m] (x : ExceptT ε' m α) (h : ε → ExceptT ε' m α)
     (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
-    Triple (wp (MonadExceptOf.tryCatch (ε:=ε) x h : m (@Except.{u, u} ε' α))
-        (fun | .ok a => post a | .error e => epost.head e) epost.tail)
-      (MonadExceptOf.tryCatch (ε:=ε) x h : ExceptT ε' m α) post epost :=
+    Triple (MonadExceptOf.tryCatch (ε:=ε) x h : ExceptT ε' m α)
+      (wp (MonadExceptOf.tryCatch (ε:=ε) x h : m (@Except.{u, u} ε' α))
+        (fun | .ok a => post a | .error e => epost.head e) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_lift_ExceptT_apply_eq]; apply WPMonad.wp_consequence; intro r; cases r <;> rfl)
 
 
 @[spec]
 theorem Spec.tryCatch_OptionT_lift [MonadExceptOf ε m] (x : OptionT m α) (h : ε → OptionT m α)
     (post : α → Pred) (epost : EPost.Cons Pred EPred) :
-    Triple (wp (MonadExceptOf.tryCatch (ε:=ε) x h : m (Option α))
-        (epost.pushOption post) epost.tail)
-      (MonadExceptOf.tryCatch (ε:=ε) x h : OptionT m α) post epost :=
+    Triple (MonadExceptOf.tryCatch (ε:=ε) x h : OptionT m α)
+      (wp (MonadExceptOf.tryCatch (ε:=ε) x h : m (Option α))
+        (epost.pushOption post) epost.tail) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_tryCatch_lift_OptionT_apply_eq])
 
 -- /-! # `MonadFunctorT` / `MonadControlT` transitivity -/
@@ -570,8 +570,8 @@ theorem Spec.monadMap_trans
     [MonadFunctor n₁ m] [MonadFunctorT n₂ n₁]
     {f : ∀{β}, n₂ β → n₂ β}
     (x : m α) :
-    Triple (wp (MonadFunctor.monadMap (m:=n₁) (MonadFunctorT.monadMap (m:=n₂) f) x : m α) post epost)
-      (MonadFunctorT.monadMap (m:=n₂) f x : m α) post epost :=
+    Triple (MonadFunctorT.monadMap (m:=n₂) f x : m α)
+      (wp (MonadFunctor.monadMap (m:=n₁) (MonadFunctorT.monadMap (m:=n₂) f) x : m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_monadMap_trans_apply_eq])
 
 
@@ -581,8 +581,8 @@ theorem Spec.liftWith_trans
     {n₁ : Type u → Type v} {n₂ : Type u → Type v}
     [MonadControl n₁ m] [MonadControlT n₂ n₁]
     (f : (∀{β}, m β → n₂ (stM n₂ m β)) → n₂ α) :
-    Triple (wp (MonadControl.liftWith (m:=n₁) fun x₂ => MonadControlT.liftWith fun x₁ => f (x₁ ∘ x₂) : m α) post epost)
-      (MonadControlT.liftWith (m:=n₂) f : m α) post epost :=
+    Triple (MonadControlT.liftWith (m:=n₂) f : m α)
+      (wp (MonadControl.liftWith (m:=n₁) fun x₂ => MonadControlT.liftWith fun x₁ => f (x₁ ∘ x₂) : m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_liftWith_trans_apply_eq])
 
 
@@ -591,8 +591,8 @@ theorem Spec.restoreM_trans
     {n₁ : Type u → Type v} {n₂ : Type u → Type v}
     [MonadControl n₁ m] [MonadControlT n₂ n₁]
     (x : stM n₂ m α) :
-    Triple (wp (MonadControl.restoreM (m:=n₁) (MonadControlT.restoreM (m:=n₂) x) : m α) post epost)
-      (MonadControlT.restoreM (m:=n₂) x : m α) post epost :=
+    Triple (MonadControlT.restoreM (m:=n₂) x : m α)
+      (wp (MonadControl.restoreM (m:=n₁) (MonadControlT.restoreM (m:=n₂) x) : m α) post epost) post epost :=
   Triple.iff.mpr (by rw [WPMonad.wp_restoreM_trans_apply_eq])
 
 end Std.Internal.Do
@@ -634,21 +634,21 @@ theorem Spec.forIn'_list
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
                  | .yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
                  | .done b' => inv ⟨xs, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs, rfl⟩ init)
       (fun b => inv ⟨xs, [], by simp⟩ b)
       epost := by
   suffices h : ∀ c,
       Triple
-        (inv c init)
         (forIn' (m:=m) c.suffix init (fun a ha => f a (by simp [←c.property, ha])))
+        (inv c init)
         (fun b => inv ⟨xs, [], by simp⟩ b)
         epost
     from h ⟨[], xs, rfl⟩
@@ -662,13 +662,13 @@ theorem Spec.forIn'_list
     case hf =>
       intro r
       split
+      next b => -- .done case
+        apply Triple.pure; rfl
       next b => -- .yield case
         simp
         have := @ih b (pref ++ [x]) (by simp [h])
         simp at this
         exact this
-      next => -- .done case
-        apply Triple.pure; rfl
 
 
 theorem Spec.forIn'_list_const_inv
@@ -677,11 +677,11 @@ theorem Spec.forIn'_list_const_inv
     {epost : EPred}
     (step : ∀ x (hx : x ∈ xs) b,
       Triple
-        (inv b)
         (f x hx b)
+        (inv b)
         (fun r => match r with | .yield b' => inv b' | .done b' => inv b')
         epost) :
-    Triple (inv init) (forIn' xs init f) inv epost :=
+    Triple (forIn' xs init f) (inv init) inv epost :=
   Spec.forIn'_list (fun _ b => inv b)
     (fun _p c _s h b => step c (by rw [h]; exact List.mem_append_right _ (List.Mem.head _)) b)
 
@@ -694,15 +694,15 @@ theorem Spec.forIn_list
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | .yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | .done b' => inv ⟨xs, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs, rfl⟩ init)
       (fun b => inv ⟨xs, [], by simp⟩ b)
       epost := by
   simp only [← forIn'_eq_forIn]
@@ -716,11 +716,11 @@ theorem Spec.forIn_list_const_inv
     {epost : EPred}
     (step : ∀ hd b,
       Triple
-        (inv b)
         (f hd b)
+        (inv b)
         (fun r => match r with | .yield b' => inv b' | .done b' => inv b')
         epost) :
-    Triple (inv init) (forIn xs init f) inv epost :=
+    Triple (forIn xs init f) (inv init) inv epost :=
   Spec.forIn_list (fun _ b => inv b) (fun _p c _s _h b => step c b)
 
 
@@ -731,13 +731,13 @@ theorem Spec.foldlM_list [LawfulMonad m]
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f b cur)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs, rfl⟩ init)
       (List.foldlM f init xs)
+      (inv ⟨[], xs, rfl⟩ init)
       (fun b => inv ⟨xs, [], by simp⟩ b)
       epost := by
   have : xs.foldlM f init = forIn xs init (fun a b => ForInStep.yield <$> f b a) := by
@@ -755,11 +755,11 @@ theorem Spec.foldlM_list_const_inv [LawfulMonad m]
     {epost : EPred}
     (step : ∀ hd b,
       Triple
-        (inv b)
         (f b hd)
+        (inv b)
         (fun b' => inv b')
         epost) :
-    Triple (inv init) (List.foldlM f init xs) inv epost :=
+    Triple (List.foldlM f init xs) (inv init) inv epost :=
     Spec.foldlM_list (fun _ b => inv b) (fun _p c _s _h b => step c b)
 
 
@@ -771,15 +771,15 @@ theorem Spec.forIn'_range {β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [Std.Legacy.Range.mem_of_mem_range', h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Std.Legacy.Range.forIn'_eq_forIn'_range', Std.Legacy.Range.size, Std.Legacy.Range.size.eq_1]
@@ -794,15 +794,15 @@ theorem Spec.forIn_range {β : Type u} {m : Type u → Type v} {Pred : Type u} {
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Std.Legacy.Range.forIn_eq_forIn_range', Std.Legacy.Range.size]
@@ -820,15 +820,15 @@ theorem Spec.forIn'_rcc {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Rcc.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Rcc.forIn'_eq_forIn'_toList]
@@ -846,15 +846,15 @@ theorem Spec.forIn_rcc {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -872,15 +872,15 @@ theorem Spec.forIn'_rco {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Rco.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Rco.forIn'_eq_forIn'_toList]
@@ -898,15 +898,15 @@ theorem Spec.forIn_rco {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -924,15 +924,15 @@ theorem Spec.forIn'_rci {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Rci.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Rci.forIn'_eq_forIn'_toList]
@@ -950,15 +950,15 @@ theorem Spec.forIn_rci {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -976,15 +976,15 @@ theorem Spec.forIn'_roc {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Roc.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Roc.forIn'_eq_forIn'_toList]
@@ -1001,15 +1001,15 @@ theorem Spec.forIn_roc {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -1027,15 +1027,15 @@ theorem Spec.forIn'_roo {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Roo.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Roo.forIn'_eq_forIn'_toList]
@@ -1053,15 +1053,15 @@ theorem Spec.forIn_roo {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -1079,15 +1079,15 @@ theorem Spec.forIn'_roi {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Roi.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Roi.forIn'_eq_forIn'_toList]
@@ -1105,15 +1105,15 @@ theorem Spec.forIn_roi {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -1131,15 +1131,15 @@ theorem Spec.forIn'_ric {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Ric.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Ric.forIn'_eq_forIn'_toList]
@@ -1157,15 +1157,15 @@ theorem Spec.forIn_ric {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -1183,15 +1183,15 @@ theorem Spec.forIn'_rio {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [← Rio.mem_toList_iff_mem, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Rio.forIn'_eq_forIn'_toList]
@@ -1209,15 +1209,15 @@ theorem Spec.forIn_rio {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -1235,15 +1235,15 @@ theorem Spec.forIn'_rii {α β : Type u} {m : Type u → Type v} {Pred : Type u}
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [Rii.mem]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [Rii.forIn'_eq_forIn'_toList]
@@ -1261,15 +1261,15 @@ theorem Spec.forIn_rii {α β : Type u} {m : Type u → Type v} {Pred : Type u} 
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | ForInStep.yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | ForInStep.done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   simp only [forIn]
@@ -1292,13 +1292,13 @@ theorem Spec.forIn_slice {δ : Type u} {m : Type u → Type w} {Pred : Type u} {
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | .yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | .done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
-    Triple (inv ⟨[], xs.toList, rfl⟩ init) (forIn xs init f)
+    Triple (forIn xs init f) (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b) epost := by
   simp only [← Slice.forIn_toList]
   exact Spec.forIn_list inv step
@@ -1317,13 +1317,13 @@ theorem Spec.forIn_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type
     {epost : EPred}
     (step : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | .yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | .done b' => inv ⟨it.toList, [], by simp⟩ b')
         epost) :
-    Triple (inv ⟨[], it.toList, rfl⟩ init) (forIn it init f)
+    Triple (forIn it init f) (inv ⟨[], it.toList, rfl⟩ init)
       (fun b => inv ⟨it.toList, [], by simp⟩ b) epost := by
   simp only [← Iter.forIn_toList]
   exact Spec.forIn_list inv step
@@ -1339,13 +1339,13 @@ theorem Spec.forIn_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : 
     {epost : EPred}
     (step : ∀ pref cur suff (h : it.toList.run = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | .yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | .done b' => inv ⟨it.toList.run, [], by simp⟩ b')
         epost) :
-    Triple (inv ⟨[], it.toList.run, rfl⟩ init) (forIn it init f)
+    Triple (forIn it init f) (inv ⟨[], it.toList.run, rfl⟩ init)
       (fun b => inv ⟨it.toList.run, [], by simp⟩ b) epost := by
   conv in forIn it init f =>
     rw [← Iter.toIterM_toIter (it := it), ← Iter.forIn_eq_forIn_toIterM, ← Iter.forIn_toList,
@@ -1363,11 +1363,11 @@ theorem Spec.foldM_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type
     {epost : EPred}
     (step : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f b cur)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b')
         epost) :
-    Triple (inv ⟨[], it.toList, rfl⟩ init) (it.foldM f init)
+    Triple (it.foldM f init) (inv ⟨[], it.toList, rfl⟩ init)
       (fun b => inv ⟨it.toList, [], by simp⟩ b) epost := by
   rw [← Iter.foldlM_toList]
   exact Spec.foldlM_list inv step
@@ -1383,11 +1383,11 @@ theorem Spec.foldM_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : 
     {epost : EPred}
     (step : ∀ pref cur suff (h : it.toList.run = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f b cur)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b')
         epost) :
-    Triple (inv ⟨[], it.toList.run, rfl⟩ init) (it.foldM f init)
+    Triple (it.foldM f init) (inv ⟨[], it.toList.run, rfl⟩ init)
       (fun b => inv ⟨it.toList.run, [], by simp⟩ b) epost := by
   rw [← IterM.foldlM_toList]
   exact Spec.foldlM_list inv step
@@ -1405,11 +1405,11 @@ theorem Spec.IterM.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
     {g : β₂ → γ → o (ForInStep γ)} {P : Pred} {Q : γ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨monadLift⟩
-        Triple P (forIn (m := o) it init (fun out acc => do
+        Triple (forIn (m := o) it init (fun out acc => do
           match ← (f out).run with
           | some c => g c acc
-          | none => return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterMapWithPostcondition f) init g) Q eQ := by
+          | none => return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterMapWithPostcondition f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_filterMapWithPostcondition]
 
 
@@ -1426,11 +1426,11 @@ theorem Spec.IterM.forIn_filterMapM {α β β₂ γ : Type w}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨monadLift⟩
-        Triple P (forIn (m := o) it init (fun out acc => do
+        Triple (forIn (m := o) it init (fun out acc => do
           match ← f out with
           | some c => g c acc
-          | none => return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterMapM f) init g) Q eQ := by
+          | none => return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterMapM f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_filterMapM]
 
 
@@ -1444,11 +1444,11 @@ theorem Spec.IterM.forIn_filterMap {α β β₂ γ : Type w}
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     {it : IterM (α := α) m β} {f : β → Option β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn it init (fun out acc => do
+    (h : Triple (forIn it init (fun out acc => do
           match f out with
           | some c => g c acc
-          | none => return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterMap f) init g) Q eQ := by
+          | none => return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterMap f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_filterMap]
 
 
@@ -1464,8 +1464,8 @@ theorem Spec.IterM.forIn_mapWithPostcondition {α β β₂ γ : Type w}
     {g : β₂ → γ → o (ForInStep γ)} {P : Pred} {Q : γ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨monadLift⟩
-        Triple P (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) Q eQ) :
-    Triple P (forIn (it.mapWithPostcondition f) init g) Q eQ := by
+        Triple (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) P Q eQ) :
+    Triple (forIn (it.mapWithPostcondition f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_mapWithPostcondition]
 
 
@@ -1482,8 +1482,8 @@ theorem Spec.IterM.forIn_mapM {α β β₂ γ : Type w}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨monadLift⟩
-        Triple P (forIn (m := o) it init (fun out acc => do g (← f out) acc)) Q eQ) :
-    Triple P (forIn (it.mapM f) init g) Q eQ := by
+        Triple (forIn (m := o) it init (fun out acc => do g (← f out) acc)) P Q eQ) :
+    Triple (forIn (it.mapM f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_mapM]
 
 
@@ -1496,8 +1496,8 @@ theorem Spec.IterM.forIn_map {α β β₂ γ : Type w}
     [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     {it : IterM (α := α) m β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn it init (fun out acc => do g (f out) acc)) Q eQ) :
-    Triple P (forIn (it.map f) init g) Q eQ := by
+    (h : Triple (forIn it init (fun out acc => do g (f out) acc)) P Q eQ) :
+    Triple (forIn (it.map f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_map]
 
 
@@ -1513,8 +1513,8 @@ theorem Spec.IterM.forIn_filterWithPostcondition {α β γ : Type w}
     {g : β → γ → o (ForInStep γ)} {P : Pred} {Q : γ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨monadLift⟩
-        Triple P (forIn (m := o) it init (fun out acc => do if (← (f out).run).down then g out acc else return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterWithPostcondition f) init g) Q eQ := by
+        Triple (forIn (m := o) it init (fun out acc => do if (← (f out).run).down then g out acc else return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterWithPostcondition f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_filterWithPostcondition]
 
 
@@ -1531,8 +1531,8 @@ theorem Spec.IterM.forIn_filterM {α β γ : Type w}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨monadLift⟩
-        Triple P (forIn (m := o) it init (fun out acc => do if (← f out).down then g out acc else return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterM f) init g) Q eQ := by
+        Triple (forIn (m := o) it init (fun out acc => do if (← f out).down then g out acc else return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterM f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_filterM]
 
 
@@ -1545,8 +1545,8 @@ theorem Spec.IterM.forIn_filter {α β γ : Type w}
     [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     {it : IterM (α := α) m β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn (m := n) it init (fun out acc => do if f out then g out acc else return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filter f) init g) Q eQ := by
+    (h : Triple (forIn (m := n) it init (fun out acc => do if f out then g out acc else return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filter f) init g) P Q eQ := by
   rwa [Std.IterM.forIn_filter]
 
 
@@ -1563,10 +1563,10 @@ theorem Spec.IterM.foldM_filterMapWithPostcondition {α β γ δ : Type w}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
-        Triple P (it.foldM (n := o) (init := init) (fun d b => do
+        Triple (it.foldM (n := o) (init := init) (fun d b => do
           let some c ← (f b).run | Pure.pure d
-          g d c)) Q eQ) :
-    Triple P ((it.filterMapWithPostcondition f).foldM (init := init) g) Q eQ := by
+          g d c)) P Q eQ) :
+    Triple ((it.filterMapWithPostcondition f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_filterMapWithPostcondition]
 
 
@@ -1585,10 +1585,10 @@ theorem Spec.IterM.foldM_filterMapM {α β γ δ : Type w}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
-        Triple P (it.foldM (n := o) (init := init) (fun d b => do
+        Triple (it.foldM (n := o) (init := init) (fun d b => do
           let some c ← f b | Pure.pure d
-          g d c)) Q eQ) :
-    Triple P ((it.filterMapM f).foldM (init := init) g) Q eQ := by
+          g d c)) P Q eQ) :
+    Triple ((it.filterMapM f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_filterMapM]
 
 
@@ -1605,8 +1605,8 @@ theorem Spec.IterM.foldM_mapWithPostcondition {α β γ δ : Type w}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
-        Triple P (it.foldM (n := o) (init := init) (fun d b => do let c ← (f b).run; g d c)) Q eQ) :
-    Triple P ((it.mapWithPostcondition f).foldM (init := init) g) Q eQ := by
+        Triple (it.foldM (n := o) (init := init) (fun d b => do let c ← (f b).run; g d c)) P Q eQ) :
+    Triple ((it.mapWithPostcondition f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_mapWithPostcondition]
 
 
@@ -1625,8 +1625,8 @@ theorem Spec.IterM.foldM_mapM {α β γ δ : Type w}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
-        Triple P (it.foldM (n := o) (init := init) (fun d b => do let c ← f b; g d c)) Q eQ) :
-    Triple P ((it.mapM f).foldM (init := init) g) Q eQ := by
+        Triple (it.foldM (n := o) (init := init) (fun d b => do let c ← f b; g d c)) P Q eQ) :
+    Triple ((it.mapM f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_mapM]
 
 
@@ -1643,8 +1643,8 @@ theorem Spec.IterM.foldM_filterWithPostcondition {α β δ : Type w}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
-        Triple P (it.foldM (n := o) (init := init) (fun d b => do if (← (f b).run).down then g d b else Pure.pure d)) Q eQ) :
-    Triple P ((it.filterWithPostcondition f).foldM (init := init) g) Q eQ := by
+        Triple (it.foldM (n := o) (init := init) (fun d b => do if (← (f b).run).down then g d b else Pure.pure d)) P Q eQ) :
+    Triple ((it.filterWithPostcondition f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_filterWithPostcondition]
 
 
@@ -1663,8 +1663,8 @@ theorem Spec.IterM.foldM_filterM {α β δ : Type w}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
     (h :
         haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
-        Triple P (it.foldM (n := o) (init := init) (fun d b => do if (← f b).down then g d b else Pure.pure d)) Q eQ) :
-    Triple P ((it.filterM f).foldM (init := init) g) Q eQ := by
+        Triple (it.foldM (n := o) (init := init) (fun d b => do if (← f b).down then g d b else Pure.pure d)) P Q eQ) :
+    Triple ((it.filterM f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_filterM]
 
 
@@ -1678,10 +1678,10 @@ theorem Spec.IterM.foldM_filterMap {α β γ δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (n := n) (init := init) (fun d b => do
+    (h : Triple (it.foldM (n := n) (init := init) (fun d b => do
           let some c := f b | Pure.pure d
-          g d c)) Q eQ) :
-    Triple P ((it.filterMap f).foldM (init := init) g) Q eQ := by
+          g d c)) P Q eQ) :
+    Triple ((it.filterMap f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_filterMap]
 
 
@@ -1694,8 +1694,8 @@ theorem Spec.IterM.foldM_map {α β γ δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do g d (f b))) Q eQ) :
-    Triple P ((it.map f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => do g d (f b))) P Q eQ) :
+    Triple ((it.map f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_map]
 
 
@@ -1709,8 +1709,8 @@ theorem Spec.IterM.foldM_filter {α β δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → Bool} {g : δ → β → n δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => if f b then g d b else Pure.pure d)) Q eQ) :
-    Triple P ((it.filter f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => if f b then g d b else Pure.pure d)) P Q eQ) :
+    Triple ((it.filter f).foldM (init := init) g) P Q eQ := by
   rwa [Std.IterM.foldM_filter]
 
 
@@ -1725,10 +1725,10 @@ theorem Spec.IterM.fold_filterMapWithPostcondition {α β γ δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (n := n) (init := init) (fun d b => do
+    (h : Triple (it.foldM (n := n) (init := init) (fun d b => do
           let some c ← (f b).run | Pure.pure d
-          return g d c)) Q eQ) :
-    Triple P ((it.filterMapWithPostcondition f).fold (init := init) g) Q eQ := by
+          return g d c)) P Q eQ) :
+    Triple ((it.filterMapWithPostcondition f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_filterMapWithPostcondition]
 
 
@@ -1743,10 +1743,10 @@ theorem Spec.IterM.fold_filterMapM {α β γ δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do
+    (h : Triple (it.foldM (init := init) (fun d b => do
           let some c ← f b | Pure.pure d
-          return g d c)) Q eQ) :
-    Triple P ((it.filterMapM f).fold (init := init) g) Q eQ := by
+          return g d c)) P Q eQ) :
+    Triple ((it.filterMapM f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_filterMapM]
 
 
@@ -1761,8 +1761,8 @@ theorem Spec.IterM.fold_mapWithPostcondition {α β γ δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c)) Q eQ) :
-    Triple P ((it.mapWithPostcondition f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c)) P Q eQ) :
+    Triple ((it.mapWithPostcondition f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_mapWithPostcondition]
 
 
@@ -1777,8 +1777,8 @@ theorem Spec.IterM.fold_mapM {α β γ δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do let c ← f b; return g d c)) Q eQ) :
-    Triple P ((it.mapM f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← f b; return g d c)) P Q eQ) :
+    Triple ((it.mapM f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_mapM]
 
 
@@ -1793,8 +1793,8 @@ theorem Spec.IterM.fold_filterWithPostcondition {α β δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => return if (← (f b).run).down then g d b else d)) Q eQ) :
-    Triple P ((it.filterWithPostcondition f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← (f b).run).down then g d b else d)) P Q eQ) :
+    Triple ((it.filterWithPostcondition f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_filterWithPostcondition]
 
 
@@ -1809,8 +1809,8 @@ theorem Spec.IterM.fold_filterM {α β δ : Type w}
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => return if (← f b).down then g d b else d)) Q eQ) :
-    Triple P ((it.filterM f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← f b).down then g d b else d)) P Q eQ) :
+    Triple ((it.filterM f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_filterM]
 
 
@@ -1822,11 +1822,11 @@ theorem Spec.IterM.fold_filterMap {α β γ δ : Type w}
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → Option γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.fold (init := init) (fun d b =>
+    (h : Triple (it.fold (init := init) (fun d b =>
           match f b with
           | some c => g d c
-          | _ => d)) Q eQ) :
-    Triple P ((it.filterMap f).fold (init := init) g) Q eQ := by
+          | _ => d)) P Q eQ) :
+    Triple ((it.filterMap f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_filterMap]
 
 
@@ -1838,8 +1838,8 @@ theorem Spec.IterM.fold_map {α β γ δ : Type w}
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.fold (init := init) (fun d b => g d (f b))) Q eQ) :
-    Triple P ((it.map f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.fold (init := init) (fun d b => g d (f b))) P Q eQ) :
+    Triple ((it.map f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_map]
 
 
@@ -1851,8 +1851,8 @@ theorem Spec.IterM.fold_filter {α β δ : Type w}
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → Bool} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.fold (init := init) (fun d b => if f b then g d b else d)) Q eQ) :
-    Triple P ((it.filter f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.fold (init := init) (fun d b => if f b then g d b else d)) P Q eQ) :
+    Triple ((it.filter f).fold (init := init) g) P Q eQ := by
   rwa [Std.IterM.fold_filter]
 
 
@@ -1866,11 +1866,11 @@ theorem Spec.Iter.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n (Option β₂)} {init : γ}
     {g : β₂ → γ → o (ForInStep γ)} {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn (m := o) it init (fun out acc => do
+    (h : Triple (forIn (m := o) it init (fun out acc => do
         match ← (f out).run with
         | some c => g c acc
-        | none => return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterMapWithPostcondition f) init g) Q eQ := by
+        | none => return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterMapWithPostcondition f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_filterMapWithPostcondition]
 
 
@@ -1885,11 +1885,11 @@ theorem Spec.Iter.forIn_filterMapM {α β β₂ γ : Type w}
     [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → n (Option β₂)} {init : γ} {g : β₂ → γ → o (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn (m := o) it init (fun out acc => do
+    (h : Triple (forIn (m := o) it init (fun out acc => do
         match ← f out with
         | some c => g c acc
-        | none => return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterMapM f) init g) Q eQ := by
+        | none => return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterMapM f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_filterMapM]
 
 
@@ -1902,11 +1902,11 @@ theorem Spec.Iter.forIn_filterMap {α β β₂ γ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → Option β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn it init (fun out acc => do
+    (h : Triple (forIn it init (fun out acc => do
         match f out with
         | some c => g c acc
-        | none => return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterMap f) init g) Q eQ := by
+        | none => return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterMap f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_filterMap]
 
 
@@ -1920,8 +1920,8 @@ theorem Spec.Iter.forIn_mapWithPostcondition {α β β₂ γ : Type w}
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n β₂} {init : γ}
     {g : β₂ → γ → o (ForInStep γ)} {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) Q eQ) :
-    Triple P (forIn (it.mapWithPostcondition f) init g) Q eQ := by
+    (h : Triple (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) P Q eQ) :
+    Triple (forIn (it.mapWithPostcondition f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_mapWithPostcondition]
 
 
@@ -1937,8 +1937,8 @@ theorem Spec.Iter.forIn_mapM {α β β₂ γ : Type w}
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → n β₂} {init : γ} {g : β₂ → γ → o (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn (m := o) it init (fun out acc => do g (← f out) acc)) Q eQ) :
-    Triple P (forIn (it.mapM f) init g) Q eQ := by
+    (h : Triple (forIn (m := o) it init (fun out acc => do g (← f out) acc)) P Q eQ) :
+    Triple (forIn (it.mapM f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_mapM]
 
 
@@ -1951,8 +1951,8 @@ theorem Spec.Iter.forIn_map {α β β₂ γ : Type w}
     [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn it init (fun out acc => do g (f out) acc)) Q eQ) :
-    Triple P (forIn (it.map f) init g) Q eQ := by
+    (h : Triple (forIn it init (fun out acc => do g (f out) acc)) P Q eQ) :
+    Triple (forIn (it.map f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_map]
 
 
@@ -1966,8 +1966,8 @@ theorem Spec.Iter.forIn_filterWithPostcondition {α β γ : Type w}
     [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n (ULift Bool)} {init : γ}
     {g : β → γ → o (ForInStep γ)} {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn (m := o) it init (fun out acc => do if (← (f out).run).down then g out acc else return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterWithPostcondition f) init g) Q eQ := by
+    (h : Triple (forIn (m := o) it init (fun out acc => do if (← (f out).run).down then g out acc else return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterWithPostcondition f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_filterWithPostcondition]
 
 
@@ -1982,8 +1982,8 @@ theorem Spec.Iter.forIn_filterM {α β γ : Type w}
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → n (ULift Bool)} {init : γ} {g : β → γ → o (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn (m := o) it init (fun out acc => do if (← f out).down then g out acc else return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filterM f) init g) Q eQ := by
+    (h : Triple (forIn (m := o) it init (fun out acc => do if (← f out).down then g out acc else return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filterM f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_filterM]
 
 
@@ -1996,8 +1996,8 @@ theorem Spec.Iter.forIn_filter {α β γ : Type w}
     [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
-    (h : Triple P (forIn it init (fun out acc => do if f out then g out acc else return .yield acc)) Q eQ) :
-    Triple P (forIn (it.filter f) init g) Q eQ := by
+    (h : Triple (forIn it init (fun out acc => do if f out then g out acc else return .yield acc)) P Q eQ) :
+    Triple (forIn (it.filter f) init g) P Q eQ := by
   rwa [Std.Iter.forIn_filter]
 
 
@@ -2012,10 +2012,10 @@ theorem Spec.Iter.foldM_filterMapWithPostcondition {α β γ δ : Type w}
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     {f : β → PostconditionT n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (m := o) (init := init) (fun d b => do
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do
           let some c ← (f b).run | Pure.pure d
-          g d c)) Q eQ) :
-    Triple P ((it.filterMapWithPostcondition f).foldM (init := init) g) Q eQ := by
+          g d c)) P Q eQ) :
+    Triple ((it.filterMapWithPostcondition f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_filterMapWithPostcondition]
 
 
@@ -2031,10 +2031,10 @@ theorem Spec.Iter.foldM_filterMapM {α β γ δ : Type w}
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     {f : β → n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (m := o) (init := init) (fun d b => do
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do
           let some c ← f b | Pure.pure d
-          g d c)) Q eQ) :
-    Triple P ((it.filterMapM f).foldM (init := init) g) Q eQ := by
+          g d c)) P Q eQ) :
+    Triple ((it.filterMapM f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_filterMapM]
 
 
@@ -2049,8 +2049,8 @@ theorem Spec.Iter.foldM_mapWithPostcondition {α β γ δ : Type w}
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     {f : β → PostconditionT n γ} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (m := o) (init := init) (fun d b => do let c ← (f b).run; g d c)) Q eQ) :
-    Triple P ((it.mapWithPostcondition f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do let c ← (f b).run; g d c)) P Q eQ) :
+    Triple ((it.mapWithPostcondition f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_mapWithPostcondition (m := m)]
 
 
@@ -2066,8 +2066,8 @@ theorem Spec.Iter.foldM_mapM {α β γ δ : Type w}
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     {f : β → n γ} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (m := o) (init := init) (fun d b => do let c ← f b; g d c)) Q eQ) :
-    Triple P ((it.mapM f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do let c ← f b; g d c)) P Q eQ) :
+    Triple ((it.mapM f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_mapM]
 
 
@@ -2082,8 +2082,8 @@ theorem Spec.Iter.foldM_filterWithPostcondition {α β δ : Type w}
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     {f : β → PostconditionT n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (m := o) (init := init) (fun d b => do if (← (f b).run).down then g d b else Pure.pure d)) Q eQ) :
-    Triple P ((it.filterWithPostcondition f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do if (← (f b).run).down then g d b else Pure.pure d)) P Q eQ) :
+    Triple ((it.filterWithPostcondition f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_filterWithPostcondition]
 
 
@@ -2099,8 +2099,8 @@ theorem Spec.Iter.foldM_filterM {α β δ : Type w}
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     {f : β → n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (m := o) (init := init) (fun d b => do if (← f b).down then g d b else Pure.pure d)) Q eQ) :
-    Triple P ((it.filterM f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do if (← f b).down then g d b else Pure.pure d)) P Q eQ) :
+    Triple ((it.filterM f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_filterM]
 
 
@@ -2113,10 +2113,10 @@ theorem Spec.Iter.foldM_filterMap {α β γ δ : Type w}
     [LawfulIteratorLoop α Id n]
     {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do
+    (h : Triple (it.foldM (init := init) (fun d b => do
           let some c := f b | Pure.pure d
-          g d c)) Q eQ) :
-    Triple P ((it.filterMap f).foldM (init := init) g) Q eQ := by
+          g d c)) P Q eQ) :
+    Triple ((it.filterMap f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_filterMap]
 
 
@@ -2128,8 +2128,8 @@ theorem Spec.Iter.foldM_map {α β γ δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do g d (f b))) Q eQ) :
-    Triple P ((it.map f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => do g d (f b))) P Q eQ) :
+    Triple ((it.map f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_map]
 
 
@@ -2141,8 +2141,8 @@ theorem Spec.Iter.foldM_filter {α β δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → Bool} {g : δ → β → n δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => if f b then g d b else Pure.pure d)) Q eQ) :
-    Triple P ((it.filter f).foldM (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => if f b then g d b else Pure.pure d)) P Q eQ) :
+    Triple ((it.filter f).foldM (init := init) g) P Q eQ := by
   rwa [Std.Iter.foldM_filter]
 
 
@@ -2155,10 +2155,10 @@ theorem Spec.Iter.fold_filterMapWithPostcondition {α β γ δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do
+    (h : Triple (it.foldM (init := init) (fun d b => do
           let some c ← (f b).run | Pure.pure d
-          return g d c)) Q eQ) :
-    Triple P ((it.filterMapWithPostcondition f).fold (init := init) g) Q eQ := by
+          return g d c)) P Q eQ) :
+    Triple ((it.filterMapWithPostcondition f).fold (init := init) g) P Q eQ := by
   rwa [Std.Iter.fold_filterMapWithPostcondition]
 
 
@@ -2171,10 +2171,10 @@ theorem Spec.Iter.fold_filterMapM {α β γ δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do
+    (h : Triple (it.foldM (init := init) (fun d b => do
           let some c ← f b | Pure.pure d
-          return g d c)) Q eQ) :
-    Triple P ((it.filterMapM f).fold (init := init) g) Q eQ := by
+          return g d c)) P Q eQ) :
+    Triple ((it.filterMapM f).fold (init := init) g) P Q eQ := by
   rwa [Std.Iter.fold_filterMapM]
 
 
@@ -2187,8 +2187,8 @@ theorem Spec.Iter.fold_mapWithPostcondition {α β γ δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c)) Q eQ) :
-    Triple P ((it.mapWithPostcondition f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c)) P Q eQ) :
+    Triple ((it.mapWithPostcondition f).fold (init := init) g) P Q eQ := by
   rwa [Std.Iter.fold_mapWithPostcondition]
 
 
@@ -2201,8 +2201,8 @@ theorem Spec.Iter.fold_mapM {α β γ δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => do let c ← f b; return g d c)) Q eQ) :
-    Triple P ((it.mapM f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← f b; return g d c)) P Q eQ) :
+    Triple ((it.mapM f).fold (init := init) g) P Q eQ := by
   rwa [Std.Iter.fold_mapM]
 
 
@@ -2215,8 +2215,8 @@ theorem Spec.Iter.fold_filterWithPostcondition {α β δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => return if (← (f b).run).down then g d b else d)) Q eQ) :
-    Triple P ((it.filterWithPostcondition f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← (f b).run).down then g d b else d)) P Q eQ) :
+    Triple ((it.filterWithPostcondition f).fold (init := init) g) P Q eQ := by
   rwa [Std.Iter.fold_filterWithPostcondition]
 
 
@@ -2229,8 +2229,8 @@ theorem Spec.Iter.fold_filterM {α β δ : Type w}
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
-    (h : Triple P (it.foldM (init := init) (fun d b => return if (← f b).down then g d b else d)) Q eQ) :
-    Triple P ((it.filterM f).fold (init := init) g) Q eQ := by
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← f b).down then g d b else d)) P Q eQ) :
+    Triple ((it.filterM f).fold (init := init) g) P Q eQ := by
   rwa [Std.Iter.fold_filterM]
 
 end Iterators
@@ -2243,15 +2243,15 @@ theorem Spec.forIn'_array {xs : Array α} {init : β} {f : (a : α) → a ∈ xs
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur (by simp [←Array.mem_toList_iff, h]) b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | .yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | .done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn' xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   cases xs; simp; apply Spec.forIn'_list inv step
@@ -2263,15 +2263,15 @@ theorem Spec.forIn_array {xs : Array α} {init : β} {f : α → β → m (ForIn
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f cur b)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun r => match r with
           | .yield b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b'
           | .done b' => inv ⟨xs.toList, [], by simp⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (forIn xs init f)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   cases xs; simp; apply Spec.forIn_list inv step
@@ -2284,13 +2284,13 @@ theorem Spec.foldlM_array [LawfulMonad m]
     {epost : EPred}
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (f b cur)
+        (inv ⟨pref, cur::suff, h.symm⟩ b)
         (fun b' => inv ⟨pref ++ [cur], suff, by simp [h]⟩ b')
         epost) :
     Triple
-      (inv ⟨[], xs.toList, rfl⟩ init)
       (Array.foldlM f init xs)
+      (inv ⟨[], xs.toList, rfl⟩ init)
       (fun b => inv ⟨xs.toList, [], by simp⟩ b)
       epost := by
   cases xs; simp; apply Spec.foldlM_list inv step
@@ -2322,15 +2322,15 @@ theorem Spec.forIn_string
     {epost : EPred}
     (step : ∀ pos b (h : pos ≠ s.endPos),
       Triple
-        (inv pos b)
         (f (pos.get h) b)
+        (inv pos b)
         (fun r => match r with
           | .yield b' => inv (pos.next h) b'
           | .done b' => inv s.endPos b')
         epost) :
-    Triple (inv s.startPos init) (forIn s init f) (fun b => inv s.endPos b) epost := by
+    Triple (forIn s init f) (inv s.startPos init) (fun b => inv s.endPos b) epost := by
   suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
-      Triple (inv p init) (forIn t₂.toList init f) (fun b => inv s.endPos b) epost by
+      Triple (forIn t₂.toList init f) (inv p init) (fun b => inv s.endPos b) epost by
     simpa using h s.startPos _ _ s.splits_startPos
   intro p
   induction p using String.Pos.next_induction generalizing init with
@@ -2379,15 +2379,15 @@ theorem Spec.forIn_stringSlice
     {epost : EPred}
     (step : ∀ pos b (h : pos ≠ s.endPos),
       Triple
-        (inv pos b)
         (f (pos.get h) b)
+        (inv pos b)
         (fun r => match r with
           | .yield b' => inv (pos.next h) b'
           | .done b' => inv s.endPos b')
         epost) :
-    Triple (inv s.startPos init) (forIn s init f) (fun b => inv s.endPos b) epost := by
+    Triple (forIn s init f) (inv s.startPos init) (fun b => inv s.endPos b) epost := by
   suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
-      Triple (inv p init) (forIn t₂.toList init f) (fun b => inv s.endPos b) epost by
+      Triple (forIn t₂.toList init f) (inv p init) (fun b => inv s.endPos b) epost by
     simpa using h s.startPos _ _ s.splits_startPos
   intro p
   induction p using String.Slice.Pos.next_induction generalizing init with
@@ -2443,21 +2443,21 @@ theorem Spec.repeatM
     (einv : EPred)
     (step : ∀ a,
       Triple
-        (inv (.inl a))
         (f a)
+        (inv (.inl a))
         (fun r => match r with
           | .inl a' => ⌜measure a' < measure a⌝ ⊓ inv (.inl a')
           | .inr b => inv (.inr b))
         einv) :
     Triple
-      (inv (.inl init))
       (repeatM f init)
+      (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
   suffices key : ∀ (n : Nat) (a : α), measure a ≤ n →
       Triple
-        (inv (.inl a))
         (_root_.repeatM f a)
+        (inv (.inl a))
         (fun b => inv (.inr b))
         einv
     from key (measure init) init (Nat.le_refl _)
@@ -2506,15 +2506,15 @@ theorem Spec.forIn_loop
     (einv : EPred)
     (step : ∀ b,
       Triple
-        (inv (.inl b))
         (f () b)
+        (inv (.inl b))
         (fun r => match r with
           | .yield b' => ⌜measure b' < measure b⌝ ⊓ inv (.inl b')
           | .done b' => inv (.inr b'))
         einv) :
     Triple
-      (inv (.inl init))
       (forIn l init f)
+      (inv (.inl init))
       (fun b => inv (.inr b))
       einv := by
   haveI : Nonempty β := ⟨init⟩

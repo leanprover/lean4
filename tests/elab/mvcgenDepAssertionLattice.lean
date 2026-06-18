@@ -56,5 +56,5 @@ error: failed to apply Lean.Order.le_of_forall_le to goal
   Lean.Order.PartialOrder.rel (fun x x_1 => True) (wp (pure PUnit.unit) (fun x x_1 x_2 => True) epost⟨⟩)
 -/
 #guard_msgs in
-example : Triple (fun _ _ => True) (pure () : Stateful Unit) (fun _ _ _ => True) epost⟨⟩ := by
+example : Triple (pure () : Stateful Unit) (fun _ _ => True) (fun _ _ _ => True) epost⟨⟩ := by
   mvcgen'

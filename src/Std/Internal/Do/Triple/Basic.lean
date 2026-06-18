@@ -19,7 +19,7 @@ open Lean.Order
 
 Hoare triples form the basis for compositional functional correctness proofs about monadic programs.
 
-As usual, `Triple pre x post epost` holds iff the precondition `pre` entails the weakest
+As usual, `Triple x pre post epost` holds iff the precondition `pre` entails the weakest
 precondition `wp x post epost` of `x : m α` for the postcondition `post` and error
 postcondition `epost`.
 It is thus defined in terms of an instance `WPMonad m Pred EPred`.
@@ -30,31 +30,55 @@ namespace Std.Internal.Do
 universe u v
 variable {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
 
-/-- A Hoare triple for reasoning about monadic programs. A Hoare triple `Triple pre x post epost`
+/-- A Hoare triple for reasoning about monadic programs. A Hoare triple `Triple x pre post epost`
 is a *specification* for `x`: if assertion `pre` holds before `x`, then postcondition `post` holds
 after running `x` (and `epost` handles any errors). -/
-structure Triple [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] (pre : Pred) (x : m α) (post : α → Pred) (epost : EPred) : Prop where
+structure Triple [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] (x : m α) (pre : Pred) (post : α → Pred) (epost : EPred) : Prop where
   /-- Construct a triple from a weakest precondition entailment. -/
   intro ::
   /-- The weakest precondition entailment witnessing the triple. -/
   le_wp : pre ⊑ wp x post epost
 
+open Lean in
+/-- A program whose `match`/`if` elaboration postpones on a metavariable expected type and so needs
+the monadic-application hint `(_ : _ → _) _` to recover its monad by first-order unification. -/
+private meta partial def isSplitProgram (c : Syntax) : Bool :=
+  if c.isOfKind `Lean.Parser.Term.paren then
+    isSplitProgram c[1]
+  else
+    c.isOfKind `Lean.Parser.Term.match ||
+    c.isOfKind `termIfThenElse ||
+    c.isOfKind `termDepIfThenElse
+
+open Lean in
+/-- Ascribe `match`/`if` programs to the monadic-application shape `?m ?α`, so their match
+elaboration recovers the program's monad via first-order unification. Other programs are untouched. -/
+private meta def hintProgram (c : Term) : MacroM Term :=
+  if isSplitProgram c.raw then `(($c : (_ : _ → _) _)) else pure c
+
 /-- Hoare triple notation without exception postcondition (defaults to `⊥`). -/
-scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " post " ⦄" => Triple pre x post Lean.Order.bot
+scoped syntax:60 (name := tripleNotation) "⦃ " term " ⦄ " term " ⦃ " term " ⦄" : term
 /-- Hoare triple notation with a binder for the return value. -/
-scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " v ", " post " ⦄" => Triple pre x (fun v => post) Lean.Order.bot
+scoped syntax:60 (name := tripleBinderNotation) "⦃ " term " ⦄ " term " ⦃ " ident ", " term " ⦄" : term
 /-- Hoare triple notation with explicit exception postconditions:
-`⦃ P ⦄ x ⦃ Q; E₁; … ⦄ := Triple P x Q epost⟨E₁, …⟩`. -/
+`⦃ P ⦄ x ⦃ Q; E₁; … ⦄ := Triple x P Q epost⟨E₁, …⟩`. -/
 scoped syntax:60 (name := tripleEPost)
   "⦃ " term " ⦄ " term " ⦃ " term "; " sepBy1(term, "; ") " ⦄" : term
-macro_rules (kind := tripleEPost)
-  | `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄) => `(Triple $P $c $Q epost⟨$Es,*⟩)
 
-/-- Pretty-print `Triple P c Q epost⟨E₁, …⟩` back as `⦃ P ⦄ c ⦃ Q; E₁; … ⦄`. -/
+macro_rules (kind := tripleNotation)
+  | `(⦃ $P ⦄ $c ⦃ $Q ⦄) => do `(Triple $(← hintProgram c) $P $Q Lean.Order.bot)
+macro_rules (kind := tripleBinderNotation)
+  | `(⦃ $P ⦄ $c ⦃ $v, $Q ⦄) => do `(Triple $(← hintProgram c) $P (fun $v => $Q) Lean.Order.bot)
+macro_rules (kind := tripleEPost)
+  | `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄) => do `(Triple $(← hintProgram c) $P $Q epost⟨$Es,*⟩)
+
+/-- Pretty-print `Triple` applications back as `⦃ … ⦄` notation. -/
 @[app_unexpander Triple]
-meta def unexpandTripleEPost : Lean.PrettyPrinter.Unexpander
-  | `($(_) $P $c $Q epost⟨$Es,*⟩) =>
+meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
+  | `($(_) $c $P $Q epost⟨$Es,*⟩) =>
     if Es.getElems.isEmpty then throw () else `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄)
+  | `($(_) $c $P $Q ⊥) => `(⦃ $P ⦄ $c ⦃ $Q ⦄)
+  | `($(_) $c $P $Q Lean.Order.bot) => `(⦃ $P ⦄ $c ⦃ $Q ⦄)
   | _ => throw ()
 
 namespace Triple
@@ -62,11 +86,11 @@ namespace Triple
 variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
 theorem iff {x : m α} {pre : Pred} {post : α → Pred} {epost : EPred} :
-    Triple pre x post epost ↔ (pre ⊑ wp x post epost) :=
+    Triple x pre post epost ↔ (pre ⊑ wp x post epost) :=
   ⟨fun ⟨h⟩ => h, fun h => ⟨h⟩⟩
 
 theorem iff_conseq {x : m α} {pre : Pred} {post : α → Pred} {epost : EPred} :
-    Triple pre x post epost ↔
+    Triple x pre post epost ↔
     (∀ pre' post', (pre' ⊑ pre) → (post ⊑ post') → pre' ⊑ wp x post' epost) := by
   constructor
   · intro ⟨h⟩ pre' post' hpre hpost
@@ -75,29 +99,29 @@ theorem iff_conseq {x : m α} {pre : Pred} {post : α → Pred} {epost : EPred} 
     exact ⟨h _ _ PartialOrder.rel_refl (fun _ => PartialOrder.rel_refl)⟩
 
 theorem entails_wp_of_pre_post {x : m α} {pre pre' : Pred} {post post' : α → Pred} {epost : EPred}
-    (h : Triple pre' x post' epost) (hpre : pre ⊑ pre') (hpost : post' ⊑ post) :
+    (h : Triple x pre' post' epost) (hpre : pre ⊑ pre') (hpost : post' ⊑ post) :
     pre ⊑ wp x post epost :=
   iff_conseq.mp h _ _ hpre hpost
 
 theorem entails_wp_of_pre {x : m α} {pre pre' : Pred} {post : α → Pred} {epost : EPred}
-    (h : Triple pre' x post epost) (hpre : pre ⊑ pre') :
+    (h : Triple x pre' post epost) (hpre : pre ⊑ pre') :
     pre ⊑ wp x post epost :=
   iff_conseq.mp h _ _ hpre (fun _ => PartialOrder.rel_refl)
 
 theorem entails_wp_of_post {x : m α} {pre : Pred} {post post' : α → Pred} {epost : EPred}
-    (h : Triple pre x post' epost) (hpost : post' ⊑ post) :
+    (h : Triple x pre post' epost) (hpost : post' ⊑ post) :
     pre ⊑ wp x post epost :=
   iff_conseq.mp h _ _ PartialOrder.rel_refl hpost
 
 theorem pure (a : α) (h : pre ⊑ post a) :
-    Triple pre (pure (f := m) a) post epost :=
+    Triple (pure (f := m) a) pre post epost :=
   iff.mpr (PartialOrder.rel_trans h (WPMonad.wp_pure a post epost))
 
 theorem bind (x : m α) (f : α → m β)
     (mid : α → Pred)
-    (hx : Triple pre x mid epost)
-    (hf : ∀ a, Triple (mid a) (f a) post epost) :
-    Triple pre (x >>= f) post epost := by
+    (hx : Triple x pre mid epost)
+    (hf : ∀ a, Triple (f a) (mid a) post epost) :
+    Triple (x >>= f) pre post epost := by
   apply iff.mpr
   apply PartialOrder.rel_trans (iff.mp hx)
   apply PartialOrder.rel_trans (WPMonad.wp_consequence x mid (fun a => wp (f a) post epost) epost
@@ -105,13 +129,13 @@ theorem bind (x : m α) (f : α → m β)
   exact WPMonad.wp_bind x f post epost
 
 theorem map (f : α → β) (x : m α)
-    (h : Triple pre x (fun a => post (f a)) epost) :
-    Triple pre (f <$> x) post epost :=
+    (h : Triple x pre (fun a => post (f a)) epost) :
+    Triple (f <$> x) pre post epost :=
   iff.mpr (PartialOrder.rel_trans (iff.mp h) (WPMonad.wp_map f x post epost))
 
 theorem seq (x : m (α → β)) (y : m α)
-    (h : Triple pre x (fun f => wp y (fun a => post (f a)) epost) epost) :
-    Triple pre (x <*> y) post epost :=
+    (h : Triple x pre (fun f => wp y (fun a => post (f a)) epost) epost) :
+    Triple (x <*> y) pre post epost :=
   iff.mpr (PartialOrder.rel_trans (iff.mp h) (WPMonad.wp_seq x y post epost))
 
 end Triple

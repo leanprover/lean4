@@ -7,8 +7,11 @@ module
 
 prelude
 public import Lean.DeclarationRange
-public import Lean.DocString.Markdown
+public import Lean.DocString.Types
 public import Init.Data.String.Extra
+public import Init.Data.String.TakeDrop
+public import Init.Data.String.Search
+public import Init.Data.String.Length
 import Init.Omega
 
 public section
@@ -22,46 +25,32 @@ namespace Lean
 
 
 /--
-Saved data that describes the contents. The `name` should determine both the type of the value and
-its interpretation; if in doubt, use the name of the elaborator that produces the data.
+Saved data that describes a custom inline element.
+
+The type of value contained within the `Dynamic` determines the interpretation of the custom
+element, including how it is rendered to Markdown for the language server.
 -/
 structure ElabInline where
-  name : Name
   val : Dynamic
 
 instance : Repr ElabInline where
   reprPrec v _ :=
     .group <| .nestD <|
-      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
-      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
-
-instance : Doc.MarkdownInline ElabInline where
-  -- TODO extensibility
-  toMarkdown go _i content := do
-    let parts ← content.mapM go
-    return Doc.joinInlines parts
-
+      .group (.nestD ("{ val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
 
 /--
-Saved data that describes the contents. The `name` should determine both the type of the value and
-its interpretation; if in doubt, use the name of the elaborator that produces the data.
+Saved data that describes a custom block element.
+
+The type of value contained within the `Dynamic` determines the interpretation of the custom
+element, including how it is rendered to Markdown for the language server.
 -/
 structure ElabBlock where
-  name : Name
   val : Dynamic
 
 instance : Repr ElabBlock where
   reprPrec v _ :=
     .group <| .nestD <|
-      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
-      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
-
-
--- TODO extensible toMarkdown
-instance : Doc.MarkdownBlock ElabInline ElabBlock where
-  toMarkdown _goI goB _b content := do
-    let parts ← content.mapM goB
-    return Doc.joinBlocks parts
+      .group (.nestD ("{ val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
 
 structure VersoDocString where
   text : Array (Doc.Block ElabInline ElabBlock)
@@ -165,26 +154,6 @@ partial def findInternalDocString? (env : Environment) (declName : Name) (includ
       return some (.inr doc)
   return none
 
-/--
-Finds a docstring without performing any alias resolution or enrichment with extra metadata. The
-result is rendered as Markdown.
-
-Docstrings to be shown to a user should be looked up with `Lean.findDocString?` instead.
--/
-def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) := do
-  match (← findInternalDocString? env declName (includeBuiltin := includeBuiltin)) with
-  | some (.inl str) => return some str
-  | some (.inr verso) => return some (toMarkdown verso)
-  | none => return none
-
-where
-  toMarkdown : VersoDocString → String
-  | .mk bs ps => Doc.MarkdownM.run' do
-      let blockLines ← bs.mapM Doc.ToMarkdown.toMarkdown
-      let partLines ← ps.mapM Doc.ToMarkdown.toMarkdown
-      return Doc.joinBlocks (blockLines ++ partLines)
-
-
 structure ModuleDoc where
   doc : String
   declarationRange : DeclarationRange
@@ -275,14 +244,6 @@ def addPart (snippet : Snippet) (level : Nat) (range : DeclarationRange) (part :
     sections := snippet.sections.push (level, range, part) }
 
 end VersoModuleDocs.Snippet
-
-open Lean Doc ToMarkdown in
-instance : ToMarkdown VersoModuleDocs.Snippet where
-  toMarkdown
-    | {text, sections, ..} => do
-      let textBlocks ← text.mapM toMarkdown
-      let sectionBlocks ← sections.mapM fun (level, _, part) => partMarkdown level part
-      return joinBlocks (textBlocks ++ sectionBlocks)
 
 structure VersoModuleDocs where
   snippets : PersistentArray VersoModuleDocs.Snippet := {}

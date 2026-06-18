@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.DocString.Extension
+public import Lean.DocString.Markdown
 public import Lean.DocString.Links
 public import Lean.Parser.Tactic.Doc
 public import Lean.Parser.Term.Doc
@@ -30,9 +31,13 @@ account.
 Use `Lean.findSimpleDocString?` to look up the raw docstring without resolving alternate forms or
 including extensions.
 -/
-def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) := do
+def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true)
+    (options : Options := {}) (currNamespace : Name := .anonymous) (openDecls : List OpenDecl := []) :
+    IO (Option String) := do
   let declName := alternativeOfTactic env declName |>.getD declName
   let exts := getTacticExtensionString env declName
   let spellings := getRecommendedSpellingString env declName
-  let str := (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts ++ spellings)
+  let str := (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)
+      (options := options) (currNamespace := currNamespace) (openDecls := openDecls)).map
+    (· ++ exts ++ spellings)
   str.mapM (rewriteManualLinks ·)

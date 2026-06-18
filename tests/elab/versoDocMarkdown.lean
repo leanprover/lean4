@@ -16,11 +16,8 @@ Each section begins with a command that will fail when a new, untested operator 
 section
 open Lean Elab Command Term
 
-private def toMarkdown : VersoDocString → String
-  | .mk bs ps => Doc.MarkdownM.run' do
-      let blockLines ← bs.mapM Doc.ToMarkdown.toMarkdown
-      let partLines ← ps.mapM Doc.ToMarkdown.toMarkdown
-      return Doc.joinBlocks (blockLines ++ partLines)
+private def toMarkdown (verso : VersoDocString) : CoreM String :=
+  Doc.MarkdownM.run' (Doc.ToMarkdown.toMarkdown verso)
 
 private def manualRw (md : String) : String := md.replace manualRoot "$MANUAL_ROOT/"
 
@@ -30,7 +27,7 @@ elab "#verso_to_markdown " name:ident : command => do
     let declName ← realizeGlobalConstNoOverloadWithInfo name
     match (← findInternalDocString? env declName (includeBuiltin := true)) with
     | some (.inl ..) => throwError m!"`{.ofConstName declName}` has a Markdown docstring"
-    | some (.inr verso) => logInfo (manualRw (toMarkdown verso))
+    | some (.inr verso) => logInfo (manualRw (← toMarkdown verso))
     | none => throwError m!"`{.ofConstName declName}` has no docstring"
 
 /-!

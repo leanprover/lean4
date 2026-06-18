@@ -384,7 +384,7 @@ def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous
       if let some h ← makeHint m!"Specify the syntax kind:" #[s!" (of := {k'})"] then
         logInfo h
 
-    return .other {name := ``Data.Atom, val := .mk (Data.Atom.mk k catName)} #[.code s.getString]
+    return .other {val := .mk (Data.Atom.mk k catName)} #[.code s.getString]
 where
   categorySuggestions (c candidates) := Id.run do
     if c.isAnonymous then
@@ -482,7 +482,7 @@ public def kw! (of : Option Ident := none) (scope : DocScope := .local)
       logErrorAt s m!"Not a syntax kind: `{.ofConstName k}`"
   | .import xs =>
     let postponed : PostponedCheck := {handler := ``checkKindExists, imports := xs.map (⟨·⟩), info := .mk (PostponedKind.mk of'.getId)}
-    return .other {name := ``PostponedCheck, val := .mk postponed } #[.code s.getString]
+    return .other {val := .mk postponed } #[.code s.getString]
 
   pure <| .code s.getString
 

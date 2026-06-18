@@ -64,7 +64,10 @@ def CompletionItem.resolve
     let docString? ← do
       let .const declName := id
         | pure none
-      findDocString? env declName
+      -- Render docstrings in the completion's namespace scope, but the default set of options
+      let currNamespace ← getCurrNamespace
+      let openDecls ← getOpenDecls
+      findDocString? env declName (currNamespace := currNamespace) (openDecls := openDecls)
     let doc? := do
       let docValue ←
         match docStringPrefix?, docString? with

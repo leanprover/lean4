@@ -202,7 +202,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
         }
         let data : Data.Local := {name := x, lctx := ← getLCtx, type := t, fvarId := e.fvarId!}
         return .other {
-          name := ``Data.Local, val := .mk data
+          val := .mk data
         } #[.code s.getString]
   match scope with
   | .local =>
@@ -226,7 +226,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
               logErrorAt s m!"{err.toMessageData}{h}"
             else logErrorAt s m!"{err.toMessageData}"
             return .code s!"{n.raw.getId}"
-    return .other (.mk ``Data.Const (.mk (Data.Const.mk x))) #[.code s.getString]
+    return .other { val := .mk (Data.Const.mk x) } #[.code s.getString]
   | .import xs =>
     let name :=
       if let some r := full then r.getId
@@ -238,7 +238,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
       imports := xs.map (⟨·⟩)
       info := .mk { name : PostponedName }
     }
-    return .other { name := ``PostponedCheck, val := .mk val } #[.code s.getString]
+    return .other { val := .mk val } #[.code s.getString]
 
 private def similarNames (x : Name) (xs : Array Name) : Array Name := Id.run do
   let s := x.toString
@@ -292,7 +292,7 @@ def module (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline Elab
         else m!"Either disable the existence check or use an imported module:".hint ss (ref? := some ref)
       logErrorAt n m!"Module is not transitively imported by the current module.{h}"
 
-  return .other {name := ``Data.ModuleName, val := .mk (Data.ModuleName.mk x)} #[.code s.getString]
+  return .other {val := .mk (Data.ModuleName.mk x)} #[.code s.getString]
 
 
 private def introduceAntiquotes (stx : Syntax) : DocM Unit :=
@@ -343,7 +343,7 @@ def tactic (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline Elab
         let found := found[0]
         addConstInfo s found.internalName
         return .other {
-            name := ``Data.Tactic, val := .mk { name := found.internalName : Data.Tactic}
+            val := .mk { name := found.internalName : Data.Tactic}
           } #[.code s.getString]
       try
         let p := whitespace >> categoryParserFn `tactic
@@ -395,7 +395,7 @@ def conv (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       let t ← getConvTactic s
       addConstInfo s t
       return .other {
-          name := ``Data.ConvTactic, val := .mk { name := t : Data.Tactic}
+          val := .mk { name := t : Data.ConvTactic}
         } #[.code s.getString]
     catch
       | e => exns := exns.push e
@@ -426,7 +426,7 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
         -- here `a` is of kind `attrInstance`, which is `("scoped" <|> "local")? attr`
         validateAttr a[1]
 
-      return .other {name := ``Data.Attributes, val := .mk <| Data.Attributes.mk stx} #[
+      return .other {val := .mk <| Data.Attributes.mk stx} #[
         .code s.getString
       ]
     catch
@@ -435,7 +435,7 @@ def attr (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
     try
       let stx ← parseStrLit attrParser.fn s
       validateAttr stx
-      return .other {name := ``Data.Attribute, val := .mk <| Data.Attribute.mk stx} #[
+      return .other {val := .mk <| Data.Attribute.mk stx} #[
         .code s.getString
       ]
     catch
@@ -492,7 +492,7 @@ def syntaxCat (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let x ← parseStrLit rawIdentFn s
   let c := x.getId
   if (← validateCat ⟨x⟩) then
-    return .other {name := ``Data.SyntaxCat, val := .mk (Data.SyntaxCat.mk c)} #[.code (toString c)]
+    return .other {val := .mk (Data.SyntaxCat.mk c)} #[.code (toString c)]
   else
     return .code (toString c)
 
@@ -519,7 +519,7 @@ def «syntax» (cat : Ident) (xs : TSyntaxArray `inline) : DocM (Inline ElabInli
     let cat := cat.getId
     let stx ← parseStrLit (categoryParserFn cat) s
     introduceAntiquotes stx
-    return .other {name := ``Data.Syntax, val := .mk (Data.Syntax.mk cat stx)} #[.code s.getString]
+    return .other {val := .mk (Data.Syntax.mk cat stx)} #[.code s.getString]
   else
     return .code s.getString
 
@@ -978,7 +978,7 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
   if «show» then
     if h : trees.size > 0 then
       let hl := Data.LeanBlock.mk (← highlightSyntax trees (mkNullNode cmds))
-      return .other {name := ``Data.LeanBlock, val := .mk hl} #[.code code.getString]
+      return .other {val := .mk hl} #[.code code.getString]
     else
       return .code code.getString
   else
@@ -1114,7 +1114,7 @@ def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
-    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code s.getString]
+    return .other {val := .mk tm} #[.code s.getString]
   else
     -- No info
     return .code s.getString
@@ -1136,7 +1136,7 @@ def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
   let trees := (← getInfoTrees)
   if h : trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
-    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code code.getString]
+    return .other {val := .mk tm} #[.code code.getString]
   else
     -- No info
     return .code code.getString
@@ -1196,7 +1196,7 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
           (toString optionName, some <| .option optionName decl.declName), (" ", none),
           (valStr, some valHl)
         ]
-        return .other {name := ``Data.SetOption, val := .mk <| Data.SetOption.mk ⟨code⟩} #[
+        return .other {val := .mk <| Data.SetOption.mk ⟨code⟩} #[
           .code s.getString
         ]
       catch
@@ -1212,7 +1212,6 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
         pushInfoLeaf <| .ofOptionInfo { stx, optionName, declName := decl.declName }
 
         return .other {
-          name := ``Data.Option,
           val := .mk <| Data.Option.mk optionName decl.declName
         } #[
           .code s.getString
@@ -1266,7 +1265,7 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
     let mut code := (← highlightSyntax trees lhsStx) ++ " = " ++ (← highlightSyntax trees rhsStx)
     if let some tyStx := tyStx? then
       code := code ++ " : " ++ (← highlightSyntax trees tyStx)
-    return .other {name := ``Data.LeanTerm, val := .mk <| Data.LeanTerm.mk code} #[.code str]
+    return .other {val := .mk <| Data.LeanTerm.mk code} #[.code str]
   else
     -- No info
     return .code str
@@ -1288,7 +1287,7 @@ def assert (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let trees ← getInfoTrees
   if trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
-    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code s.getString]
+    return .other {val := .mk tm} #[.code s.getString]
   else
     -- No info
     return .code s.getString

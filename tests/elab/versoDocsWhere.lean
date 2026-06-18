@@ -62,7 +62,7 @@ info: { text := #[Lean.Doc.Block.para #[Lean.Doc.Inline.text "First inner functi
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Second inner function is ",
                 Lean.Doc.Inline.other
-                  { name := `Lean.Doc.Data.LeanTerm val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ }
+                  { val := Dynamic.mk `Lean.Doc.Data.LeanTerm _ }
                   #[Lean.Doc.Inline.code "outer.inner2"],
                 Lean.Doc.Inline.text ". "]],
   subsections := #[] }
@@ -80,9 +80,7 @@ def withType := helper
 /--
 info: { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "What is the type of ",
-                Lean.Doc.Inline.other
-                  { name := `Lean.Doc.Data.Const val := Dynamic.mk `Lean.Doc.Data.Const _ }
-                  #[Lean.Doc.Inline.code "helper"],
+                Lean.Doc.Inline.other { val := Dynamic.mk `Lean.Doc.Data.Const _ } #[Lean.Doc.Inline.code "helper"],
                 Lean.Doc.Inline.text "?. "]],
   subsections := #[] }
 -/

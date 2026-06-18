@@ -668,7 +668,7 @@ private def docCodeStr (dc : DocCode) : String :=
 
 private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if container.name == name then
+    if container.val.typeName == name then
       if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
         #[lt.term]
       else #[]
@@ -679,7 +679,7 @@ private partial def findInInline (name : Name) : Inline ElabInline → Array Doc
 
 private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
   | .other container _ =>
-    if container.name == name then
+    if container.val.typeName == name then
       if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
         #[lb.commands]
       else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
@@ -866,7 +866,7 @@ open Doc Elab
 private partial def findAtomInInline : Inline ElabInline → Array (Name × Data.Atom)
   | .other container _ =>
     if let some (a : Data.Atom) := container.val.get? Data.Atom then
-      #[(container.name, a)]
+      #[(container.val.typeName, a)]
     else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap findAtomInInline

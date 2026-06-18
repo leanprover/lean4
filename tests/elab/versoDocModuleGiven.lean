@@ -50,7 +50,7 @@ Finds the highlighted code segments in an inline element.
 -/
 private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if container.name == name then
+    if container.val.typeName == name then
       if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
         #[lt.term]
       else #[]
@@ -64,7 +64,7 @@ Finds the highlighted code segments in a block element.
 -/
 private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
   | .other container _ =>
-    if container.name == name then
+    if container.val.typeName == name then
       if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
         #[lb.commands]
       else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then

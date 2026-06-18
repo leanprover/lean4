@@ -17,13 +17,13 @@ set_option mvcgen.warning false
 @[spec high] theorem spec_get_StateT {m : Type u → Type v} {Pred EPred : Type u}
     [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {σ : Type u} (post : σ → σ → Pred) (epost : EPred) :
-    Triple (get : StateT σ m σ) (fun s => post s s) post epost := by
+    ⦃ fun s => post s s ⦄ (get : StateT σ m σ) ⦃ post; epost ⦄ := by
   vcgen
 
 @[spec high] theorem spec_set_StateT' {m : Type u → Type v} {Pred EPred : Type u}
     [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {σ : Type u} (s : σ) (post : PUnit → σ → Pred) (epost : EPred) :
-    Triple (set s : StateT σ m PUnit) (fun _ => post ⟨⟩ s) post epost := by
+    ⦃ fun _ => post ⟨⟩ s ⦄ (set s : StateT σ m PUnit) ⦃ post; epost ⦄ := by
   vcgen
 
 def step (v : Nat) : StateM Nat Unit := do

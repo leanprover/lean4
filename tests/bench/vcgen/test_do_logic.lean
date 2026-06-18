@@ -177,7 +177,7 @@ theorem throwing_loop_spec :
   ⦃fun s => s = 4⦄
   throwing_loop
   ⦃fun _ _ => False;
-  fun e s => e = 42 ∧ s = 4⦄ := by
+  epost⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
   vcgen [throwing_loop]
   case inv1 => exact fun xs r s => r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4
   all_goals (simp_all; try grind)
@@ -687,8 +687,7 @@ def incr (n : Nat) : StateT Nat m PUnit := modify (· + n)
 @[spec]
 theorem Spec.incr
     (post : PUnit → Nat → Pred) (epost : EPred) (n : Nat) :
-    Triple (incr n : StateT Nat m PUnit)
-      (fun s => post ⟨⟩ (s + n)) post epost := by
+    ⦃ fun s => post ⟨⟩ (s + n) ⦄ (incr n : StateT Nat m PUnit) ⦃ post; epost ⦄ := by
   vcgen [TopBetaReduction.incr]; rfl
 
 /--

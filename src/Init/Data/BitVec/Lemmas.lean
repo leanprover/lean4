@@ -2977,36 +2977,6 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   intro i hi
   simp at hi
 
-/--
-Divide-and-conquer worker for `BitVec.flattenList`, returning the underlying
-natural number value with the head of the list in the most significant bits.
-
-Splitting the list in half means each bit region is shifted `O(log xs.length)`
-times rather than once per element, so flattening a list of length `L` costs
-`O(n * L * log L)` instead of the `O(n * L²)` of a left fold (which reshifts the
-whole growing accumulator at every step). The recursion depth is `O(log L)`, so
-this also does not overflow the stack.
--/
-def flattenList.toNatAux {n : Nat} : List (BitVec n) → Nat
-  | [] => 0
-  | [x] => x.toNat
-  | x :: y :: rest =>
-    let xs := x :: y :: rest
-    let mid := xs.length / 2
-    flattenList.toNatAux (xs.take mid) <<< (n * (xs.drop mid).length)
-      ||| flattenList.toNatAux (xs.drop mid)
-termination_by l => l.length
-decreasing_by
-  all_goals simp only [List.length_take, List.length_drop, List.length_cons]
-  all_goals omega
-
-/--
-Divide-and-conquer implementation of `BitVec.flattenList`, swapped in at runtime
-via `@[csimp]`. See `BitVec.flattenList.toNatAux` for the cost analysis.
--/
-def flattenListFast {n : Nat} (xs : List (BitVec n)) : BitVec (n * xs.length) :=
-  .ofNat (n * xs.length) (BitVec.flattenList.toNatAux xs)
-
 theorem toNat_flattenList_append {n : Nat} (l r : List (BitVec n)) :
     (BitVec.flattenList (l ++ r)).toNat
       = (BitVec.flattenList l).toNat <<< (n * r.length) ||| (BitVec.flattenList r).toNat := by
@@ -3016,19 +2986,6 @@ theorem toNat_flattenList_append {n : Nat} (l r : List (BitVec n)) :
     rw [List.cons_append]
     simp only [BitVec.flattenList, toNat_cast, toNat_append, ih, List.length_append, Nat.mul_add]
     rw [Nat.shiftLeft_or_distrib, ← Nat.shiftLeft_add, Nat.or_assoc]
-
-theorem flattenList.toNatAux_eq {n : Nat} (xs : List (BitVec n)) :
-    BitVec.flattenList.toNatAux xs = (BitVec.flattenList xs).toNat := by
-  induction xs using BitVec.flattenList.toNatAux.induct with
-  | case1 => simp [BitVec.flattenList.toNatAux, BitVec.flattenList]
-  | case2 x => simp [BitVec.flattenList.toNatAux, BitVec.flattenList]
-  | case3 x y rest xs mid ih1 ih2 =>
-    rw [BitVec.flattenList.toNatAux, ih1, ih2, ← toNat_flattenList_append, List.take_append_drop]
-
-@[csimp] theorem flattenList_eq_flattenListFast :
-    @BitVec.flattenList = @BitVec.flattenListFast := by
-  funext n xs
-  rw [BitVec.flattenListFast, BitVec.flattenList.toNatAux_eq, ofNat_toNat, setWidth_eq]
 
 /-! ## extractLsb -/
 

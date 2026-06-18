@@ -403,6 +403,171 @@ theorem getLsbD_ofBoolListBEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length)
   rw [List.getD_eq_getElem?_getD, List.getD_eq_getElem?_getD]
   rw [List.getElem?_reverse hi]
 
+/-! ### General `BitVec n` chunked collect (for `BitVec.flattenList`) -/
+
+/--
+A `BitVec n` becomes a width-`n` `(value, width)` leaf. This is the general-width
+analogue of `leaf`, reusing the same `Array (Nat × Nat)` merge core (`mergePass`,
+`treeMerge`) as the `ofBoolListLE` path.
+-/
+def bvLeaf {n : Nat} (x : BitVec n) : Nat × Nat := (x.toNat, n)
+
+/--
+Pack up to `remaining` width-`n` bitvectors (LSB-first) into `chunk`, starting at bit `used`.
+-/
+def packChunkBV {n : Nat} :
+    List (BitVec n) → Nat → Nat → Nat → Nat × Nat × List (BitVec n)
+  | [],      _,   chunk, used => (chunk, used, [])
+  | xs,      0,   chunk, used => (chunk, used, xs)
+  | x :: xs, k+1, chunk, used =>
+    packChunkBV xs k (chunk ||| (x.toNat <<< used)) (used + n)
+
+/-- Walk a `List (BitVec n)` in chunks of `cap` elements, producing `(value, width)` pairs. -/
+def collectChunksBV {n : Nat} (cap : Nat) :
+    Nat → List (BitVec n) → Array (Nat × Nat) → Array (Nat × Nat)
+  | _,   [],      acc => acc
+  | 0,   _,       acc => acc -- unreachable when fuel ≥ list length
+  | f+1, x :: xs, acc =>
+    let (chunk, used, rest) := packChunkBV (x :: xs) cap 0 0
+    collectChunksBV cap f rest (acc.push (chunk, used))
+
+theorem totalWidth_map_bvLeaf {n : Nat} (xs : List (BitVec n)) :
+    totalWidth (xs.map bvLeaf) = n * xs.length := by
+  induction xs with
+  | nil => simp [totalWidth]
+  | cons x xs ih =>
+    simp only [List.map_cons, totalWidth, bvLeaf, List.length_cons, ih, Nat.mul_succ]
+    omega
+
+theorem packChunkBV_used {n : Nat} (xs : List (BitVec n)) (r c u : Nat) :
+    (packChunkBV xs r c u).2.1 = u + n * (xs.take r).length := by
+  induction xs generalizing r c u with
+  | nil => simp [packChunkBV]
+  | cons x xs ih =>
+    cases r with
+    | zero => simp [packChunkBV]
+    | succ r =>
+      simp only [packChunkBV, ih, List.take_succ_cons, List.length_cons, Nat.mul_succ]
+      omega
+
+theorem packChunkBV_rest {n : Nat} (xs : List (BitVec n)) (r c u : Nat) :
+    (packChunkBV xs r c u).2.2 = xs.drop r := by
+  induction xs generalizing r c u with
+  | nil => simp [packChunkBV]
+  | cons x xs ih =>
+    cases r <;> simp [packChunkBV, ih]
+
+theorem packChunkBV_eq {n : Nat} (xs : List (BitVec n)) (r c u : Nat) :
+    (packChunkBV xs r c u).1 = c ||| (flattenList ((xs.take r).map bvLeaf) <<< u) := by
+  induction xs generalizing r c u with
+  | nil => simp [packChunkBV, flattenList]
+  | cons x xs ih =>
+    cases r with
+    | zero => simp [packChunkBV, flattenList]
+    | succ r =>
+      simp only [packChunkBV, List.take_succ_cons, List.map_cons, flattenList, bvLeaf]
+      rw [ih]
+      rw [Nat.shiftLeft_or_distrib, ← Nat.shiftLeft_add, Nat.add_comm n u, Nat.or_assoc]
+
+/-- The `flattenList` value of the chunks produced by `collectChunksBV`. -/
+theorem flattenList_collectChunksBV {n : Nat} (cap : Nat)
+    (fuel : Nat) (xs : List (BitVec n)) (acc : Array (Nat × Nat))
+    (hfuel : xs.length ≤ cap * fuel) :
+    flattenList (collectChunksBV cap fuel xs acc).toList
+      = flattenList acc.toList ||| (flattenList (xs.map bvLeaf) <<< totalWidth acc.toList) := by
+  induction fuel generalizing xs acc with
+  | zero =>
+    have hxs : xs = [] := List.length_eq_zero_iff.mp (by simpa using hfuel)
+    subst hxs
+    simp [collectChunksBV, flattenList]
+  | succ k ih =>
+    cases xs with
+    | nil => simp [collectChunksBV, flattenList]
+    | cons x xs =>
+      have hchunk : (packChunkBV (x :: xs) cap 0 0).1
+          = flattenList (((x :: xs).take cap).map bvLeaf) := by
+        rw [packChunkBV_eq]; simp
+      have hused : (packChunkBV (x :: xs) cap 0 0).2.1
+          = totalWidth (((x :: xs).take cap).map bvLeaf) := by
+        rw [packChunkBV_used, totalWidth_map_bvLeaf]; simp
+      have hrest : (packChunkBV (x :: xs) cap 0 0).2.2 = (x :: xs).drop cap :=
+        packChunkBV_rest (x :: xs) cap 0 0
+      have hrest_len : ((x :: xs).drop cap).length ≤ cap * k := by
+        rw [List.length_drop]
+        have hbnd : (x :: xs).length ≤ cap * k + cap := by
+          rw [← Nat.mul_succ]; exact hfuel
+        omega
+      simp only [collectChunksBV]
+      rw [hchunk, hused, hrest, ih ((x :: xs).drop cap) _ hrest_len]
+      rw [Array.toList_push, flattenList_append, flattenList_singleton, totalWidth_append]
+      simp only [totalWidth, Nat.add_zero]
+      have hsplit : (x :: xs).map bvLeaf
+          = ((x :: xs).take cap).map bvLeaf ++ ((x :: xs).drop cap).map bvLeaf := by
+        rw [← List.map_append, List.take_append_drop]
+      rw [hsplit, flattenList_append]
+      exact flattenList_pack (flattenList acc.toList) (totalWidth acc.toList)
+        (flattenList (((x :: xs).take cap).map bvLeaf))
+        (totalWidth (((x :: xs).take cap).map bvLeaf))
+        (((x :: xs).drop cap).map bvLeaf)
+
+/-- Bridge: the `Nat`-level `flattenList` of the reversed leaves is `BitVec.flattenList`.
+The reverse mirrors `ofBoolListBEImpl`: `BitVec.flattenList` places the list head in the
+high bits, whereas the `Nat × Nat` `flattenList` places it in the low bits. -/
+theorem toNat_flattenList_eq {n : Nat} (xs : List (BitVec n)) :
+    (BitVec.flattenList xs).toNat = flattenList (xs.reverse.map bvLeaf) := by
+  induction xs with
+  | nil => simp [BitVec.flattenList, flattenList]
+  | cons x xs ih =>
+    rw [show x :: xs = [x] ++ xs from rfl, BitVec.toNat_flattenList_append, ih]
+    have hx : (BitVec.flattenList [x]).toNat = x.toNat := by
+      simp [BitVec.flattenList]
+    rw [hx]
+    simp only [List.reverse_append, List.reverse_cons, List.reverse_nil, List.nil_append,
+      List.map_append, List.map_cons, List.map_nil, flattenList_append, flattenList_singleton,
+      bvLeaf, totalWidth_map_bvLeaf, List.length_reverse]
+    rw [Nat.or_comm]
+
+/-- Number of width-`n` elements that fit into one ~64-bit machine word (at least one). -/
+def chunkCap (n : Nat) : Nat := max 1 (64 / n)
+
+theorem chunkCap_pos (n : Nat) : 0 < chunkCap n := by
+  unfold chunkCap
+  exact Nat.lt_of_lt_of_le Nat.zero_lt_one (Nat.le_max_left 1 (64 / n))
+
+/--
+Chunked, `O(1)`-stack implementation of `BitVec.flattenList`, sharing the `Array (Nat × Nat)`
+merge core (`mergePass`, `treeMerge`) with `ofBoolListLEImpl`. Packs `chunkCap n` width-`n`
+values per ~64-bit chunk, then tree-merges, giving `O(n * L * log L)` work and `O(1)` stack
+(versus an `O(log L)`-stack divide-and-conquer worker that re-slices the list with
+`take`/`drop` at every node).
+
+`BitVec.flattenList` places the list head in the high bits, so the leaves are collected from
+`xs.reverse` (one up-front `O(L)` traversal/allocation), matching `ofBoolListBEImpl`.
+The `Array.mkEmpty` argument is only a capacity hint; it does not affect the result.
+-/
+public def flattenListImpl {n : Nat} (xs : List (BitVec n)) : BitVec (n * xs.length) :=
+  let cap := chunkCap n
+  let len := xs.length
+  BitVec.ofNat (n * len)
+    (treeMerge (collectChunksBV cap len xs.reverse (Array.mkEmpty ((len + cap - 1) / cap))))
+
+theorem flattenListImpl_eq {n : Nat} (xs : List (BitVec n)) :
+    flattenListImpl xs = BitVec.flattenList xs := by
+  have hlen : xs.reverse.length ≤ chunkCap n * xs.length := by
+    rw [List.length_reverse]
+    calc xs.length = 1 * xs.length := by rw [Nat.one_mul]
+      _ ≤ chunkCap n * xs.length := Nat.mul_le_mul_right _ (chunkCap_pos n)
+  have hval : treeMerge (collectChunksBV (chunkCap n) xs.length xs.reverse
+      (Array.mkEmpty ((xs.length + chunkCap n - 1) / chunkCap n)))
+      = (BitVec.flattenList xs).toNat := by
+    rw [treeMerge_eq_flattenList,
+      flattenList_collectChunksBV (chunkCap n) xs.length xs.reverse _ hlen]
+    simp [Array.mkEmpty_eq, flattenList, totalWidth, toNat_flattenList_eq]
+  simp only [flattenListImpl]
+  rw [hval]
+  apply BitVec.eq_of_toNat_eq
+  rw [BitVec.toNat_ofNat, Nat.mod_eq_of_lt (BitVec.isLt _)]
+
 end BitVec.Internal
 
 namespace BitVec
@@ -422,5 +587,10 @@ public theorem ofBoolListBE_eq_impl : @ofBoolListBE = @BitVec.Internal.ofBoolLis
   intro i hi
   rw [getLsbD_ofBoolListBE]
   exact (BitVec.Internal.getLsbD_ofBoolListBEImpl bs i hi).symm
+
+@[csimp]
+public theorem flattenList_eq_impl : @BitVec.flattenList = @BitVec.Internal.flattenListImpl := by
+  funext n xs
+  exact (BitVec.Internal.flattenListImpl_eq xs).symm
 
 end BitVec

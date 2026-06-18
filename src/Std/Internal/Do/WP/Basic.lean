@@ -158,8 +158,9 @@ end WP
 
 /-- Rewriting the program of a weakest precondition along an equation `x = y` weakens it:
 the precondition of `y` entails the precondition of `x`. -/
-theorem wp_le_wp_of_eq [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] {α}
-    {x y : m α} (h : x = y) (post : α → Pred) (epost : EPred) :
+theorem wp_le_wp_of_eq {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
+    [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
+    {x y : Prog} (h : x = y) (post : Value → Pred) (epost : EPred) :
     wp y post epost ⊑ wp x post epost := by
   subst h; exact PartialOrder.rel_refl
 

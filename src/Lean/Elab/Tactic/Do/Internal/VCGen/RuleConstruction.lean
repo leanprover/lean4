@@ -454,8 +454,11 @@ private def eqSpecToWp? (info : WPInfo) (xs : Array Expr) (eqPrf eqType : Expr) 
   -- monad's domain sort so the equation's element type stays well-formed.
   let α ← mkFreshExprMVar (← inferType info.m).bindingDomain!
   guard <| ← isDefEqGuarded eqα (mkApp info.m α)
-  -- Synthesize leftover dictionary metavariables (e.g. for an abstract-monad lift equation) so the
-  -- projections in `rhs` reduce against concrete instances.
+  -- Pin the schematic instance and state metavariables by unifying the equation's LHS with the goal's
+  -- concrete program, so dictionary projections in `rhs` reduce against the real instance.
+  let _ ← show MetaM Bool from commitWhen <| isDefEqGuarded lhs info.prog
+  -- Synthesize leftover dictionary metavariables (e.g. for an abstract-monad lift equation, whose LHS
+  -- does not unify with a concrete program) so the projections in `rhs` reduce against instances.
   for x in xs do
     if x.isMVar && !(← x.mvarId!.isAssigned) then
       try x.mvarId!.assign (← Meta.synthInstance (← Meta.inferType x))
@@ -475,7 +478,7 @@ private def eqSpecToWp? (info : WPInfo) (xs : Array Expr) (eqPrf eqType : Expr) 
   -- so non-monadic equations like `Option.getD.eq_1` would fail to unify. With `m` fixed, the value
   -- type is inferred from the equation proof.
   let specProof ← mkAppOptM ``Std.Internal.Do.wp_le_wp_of_eq <|
-    (info.args.extract 0 7).map some ++ #[none, none, none, some eqPrf, some post, some epost]
+    (info.args.extract 0 7).map some ++ #[none, none, some eqPrf, some post, some epost]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
 /--
@@ -503,7 +506,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPInfo)
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
     | throwError "target not a partial order ⊑ application {specType}"
   guard <| ← isDefEqGuarded info.Pred Pred'
-  let_expr Std.Internal.Do.wp _m' _Pred' _EPred' _monadInst' _instAL' _instEAL' instWP' _α prog postSpec epostSpec := rhs
+  let_expr Std.Internal.Do.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
     | throwError "target not a wp application {rhs}"
   guard <| ← isDefEqGuarded info.instWP instWP'
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
@@ -527,13 +530,10 @@ then `SplitInfo.splitWith` to build the splitting proof. Hypothesis types are
 discovered via `rwIfOrMatcher` inside the splitter telescope. -/
 public def mkBackwardRuleForSplit
     (splitInfo : SplitInfo) (info : WPInfo) : MetaM BackwardRule := do
-  let m := info.m
-  let mTy ← Meta.inferType m
-  let some aTy := if mTy.isForall then some mTy.bindingDomain! else none
-    | throwError "Expected monad type constructor at {indentExpr m}"
+  -- The split value type is the goal's, so reuse the goal's program type and `WP` instance directly.
+  let a := info.Value
+  let ma := info.progTy
   let prf ←
-    withLocalDeclD `a aTy fun a => do
-    let ma := mkApp m a
     splitInfo.withAbstract ma fun abstractInfo splitFVars => do
     -- Eta-reduce matcher alts for the backward rule pattern to avoid expensive
     -- higher-order unification. The alts are eta-expanded by `withAbstract` so that
@@ -548,7 +548,7 @@ public def mkBackwardRuleForSplit
     withLocalDeclD `Post (← mkArrow a info.Pred) fun post => do
     withLocalDeclD `EPost info.EPred fun epost => do
     let mkWP (prog : Expr) : Expr :=
-      let args := info.args.take 7 ++ #[a, prog, post, epost]
+      let args := info.args.take 7 ++ #[prog, post, epost]
       mkAppN (mkAppN info.head args) ss
     let Pred' ← Meta.inferType (mkWP abstractProg)
     withLocalDeclD `Pre Pred' fun pre => do
@@ -572,7 +572,7 @@ public def mkBackwardRuleForSplit
           -- pattern (e.g., `Nat.zero` instead of `discr`), which is required for
           -- `rwMatcher` to discharge the equality hypotheses of congr equation theorems.
           -- For ite/dite, `bodyType` equals `mkGoal abstractProg` so this is equivalent.
-          let prog := bodyType.getArg! 3 |>.getArg! 8
+          let prog := bodyType.getArg! 3 |>.getArg! 7
           let res ← rwIfOrMatcher idx prog
           if res.proof?.isNone then
             throwError "mkBackwardRuleForSplit: rwIfOrMatcher failed for alt {idx}"
@@ -583,7 +583,7 @@ public def mkBackwardRuleForSplit
           let eqProof ← mkAppM ``congrArg #[context, res.proof?.get!]
           mkEqMPR eqProof (mkAppN subgoalHyps[idx]! altParams))
     let prf ← instantiateMVars prf
-    mkLambdaFVars (#[a] ++ splitFVars ++ ss ++ #[post, epost, pre] ++ subgoalHyps) prf
+    mkLambdaFVars (splitFVars ++ ss ++ #[post, epost, pre] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList

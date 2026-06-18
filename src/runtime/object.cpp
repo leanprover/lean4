@@ -891,17 +891,21 @@ class task_manager {
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
-        t->m_value = v;
+        /* Extract everything from `t` before setting m_value.  Once m_value
+           is set, lock-free readers (lean_task_get) can observe the result,
+           drop their last ref, and free `t` — so `t` must not be accessed
+           after the store.  This is safe because handle_finished only uses
+           `imp`, never `t`. */
         lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
-        handle_finished(lock, t, imp);
-        /* After the task has been finished and we propagated
-           dependencies, we can release `imp` and keep just the value */
+        t->m_value = v;
+        /* `t` may be freed at any point after this line. */
+        handle_finished(lock, imp);
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -1023,6 +1027,15 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
+        /* Fast path for finished tasks (incl. Task.pure): m_value is set
+           atomically and m_imp is cleared before m_value is stored in
+           resolve_core, so no lock is needed. */
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lean_dec(v);
+            free_task(t);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
             lean_assert(t->m_imp == nullptr);

@@ -77,7 +77,7 @@ def WP.wp {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
 `pure` and `bind`. The interpretation for every result type is carried as the `toWP` field; the
 `instWPofWPMonad` instance exposes it as a `WP (m α) …` interpretation. -/
 class WPMonad (m : Type u → Type v) (Pred : outParam (Type w)) (EPred : outParam (Type w'))
-    [Monad m] [Assertion Pred] [Assertion EPred] where
+    [Monad m] [Assertion Pred] [Assertion EPred] extends LawfulMonad m where
   /-- The weakest precondition interpretation of `m` at every result type. -/
   toWP : ∀ α, WP (m α) α Pred EPred
   /-- Soundness of `pure`: the postcondition applied to `x` implies the weakest precondition of
@@ -183,7 +183,7 @@ theorem wp_bind (x : m α) (f : α → m β)
   bind_le_wp_bind x f post epost
 
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
-theorem wp_map [LawfulMonad m] (f : α → β) (x : m α) :
+theorem wp_map (f : α → β) (x : m α) :
   ∀ post epost, wp x (fun a => post (f a)) epost ⊑ wp (f <$> x) post epost := by
   intro post epost
   rw [← bind_pure_comp]
@@ -193,7 +193,7 @@ theorem wp_map [LawfulMonad m] (f : α → β) (x : m α) :
   intro a; exact pure_le_wp_pure (f a) post epost
 
 /-- Variant of `wp_map` with an explicit postcondition equality hypothesis. -/
-theorem wp_map' [LawfulMonad m] (f : α → β) (x : m α) :
+theorem wp_map' (f : α → β) (x : m α) :
   ∀ post post' epost (_ : post = fun a => post' (f a)),
     wp x post epost ⊑ wp (f <$> x) post' epost := by
   intro post post' epost h
@@ -201,7 +201,7 @@ theorem wp_map' [LawfulMonad m] (f : α → β) (x : m α) :
   apply wp_map
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
-theorem wp_seq [LawfulMonad m] (f : m (α → β)) (x : m α) :
+theorem wp_seq (f : m (α → β)) (x : m α) :
   ∀ post epost,
     wp f (fun g => wp x (fun a => post (g a)) epost) epost ⊑
       wp (f <*> x) post epost := by

@@ -66,12 +66,12 @@ theorem Spec.bind (x : m α) (f : α → m β) :
     (Triple.intro PartialOrder.rel_refl) (fun _ => Triple.intro PartialOrder.rel_refl)
 
 @[spec]
-theorem Spec.map [LawfulMonad m] (f : α → β) (x : m α) :
+theorem Spec.map (f : α → β) (x : m α) :
     Triple (f <$> x) (wp x (fun a => post (f a)) epost) post epost :=
   Triple.map f x (Triple.intro PartialOrder.rel_refl)
 
 @[spec]
-theorem Spec.seq [LawfulMonad m] (x : m (α → β)) (y : m α) :
+theorem Spec.seq (x : m (α → β)) (y : m α) :
     Triple (x <*> y) (wp x (fun f => wp y (fun a => post (f a)) epost) epost) post epost :=
   Triple.seq x y (Triple.intro PartialOrder.rel_refl)
 
@@ -91,7 +91,7 @@ theorem Spec.monadLift_ReaderT (x : m α) (post : α → ρ → Pred) :
 
 
 @[spec]
-theorem Spec.monadLift_ExceptT [LawfulMonad m] (x : m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+theorem Spec.monadLift_ExceptT (x : m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     Triple (MonadLift.monadLift x : ExceptT ε m α) (wp x post epost.tail) post epost :=
   Triple.intro (WPMonad.le_wp_monadLift_ExceptT_apply x post epost)
 
@@ -164,7 +164,7 @@ theorem Spec.monadMap_refl (x : m α) :
 
 
 @[spec]
-theorem Spec.liftWith_StateT [LawfulMonad m]
+theorem Spec.liftWith_StateT
     (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) (post : α → σ → Pred) :
     Triple (MonadControl.liftWith (m:=m) f : StateT σ m α)
       (fun s => wp (f (fun x => x.run s)) (fun a => post a s) epost) post epost :=
@@ -180,7 +180,7 @@ theorem Spec.liftWith_ReaderT
 
 
 @[spec]
-theorem Spec.liftWith_ExceptT [LawfulMonad m]
+theorem Spec.liftWith_ExceptT
     (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     Triple (MonadControl.liftWith (m:=m) f : ExceptT ε m α)
       (wp (f (fun x => x.run)) post epost.tail) post epost :=
@@ -335,21 +335,21 @@ theorem Spec.throw_ExceptT (err : ε) (post : α → Pred) (epost : EPost.Cons (
 
 
 @[spec]
-theorem Spec.tryCatch_ExceptT [LawfulMonad m] (x : ExceptT ε m α) (h : ε → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+theorem Spec.tryCatch_ExceptT (x : ExceptT ε m α) (h : ε → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α)
       (wp x post ⟨fun e => wp (h e) post epost, epost.tail⟩) post epost :=
   Triple.intro (WPMonad.le_wp_tryCatch_ExceptT_apply x h)
 
 
 @[spec]
-theorem Spec.orElse_ExceptT [LawfulMonad m] (x : ExceptT ε m α) (h : Unit → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
+theorem Spec.orElse_ExceptT (x : ExceptT ε m α) (h : Unit → ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     Triple (OrElse.orElse x h : ExceptT ε m α)
       (wp x post ⟨fun _ => wp (h ()) post epost, epost.tail⟩) post epost :=
   Triple.intro (WPMonad.le_wp_orElse_ExceptT_apply x h)
 
 
 @[spec]
-theorem Spec.adapt_ExceptT [LawfulMonad m] (f : ε → ε') (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
+theorem Spec.adapt_ExceptT (f : ε → ε') (x : ExceptT ε m α) (post : α → Pred) (epost : EPost.Cons (ε' → Pred) EPred) :
     Triple (ExceptT.adapt f x : ExceptT ε' m α)
       (wp x post ⟨fun e => epost.head (f e), epost.tail⟩) post epost :=
   Triple.intro (WPMonad.le_wp_adapt_ExceptT_apply f x)
@@ -728,7 +728,7 @@ theorem Spec.forIn_list_const_inv
 
 
 @[spec]
-theorem Spec.foldlM_list [LawfulMonad m]
+theorem Spec.foldlM_list
     {xs : List α} {init : β} {f : β → α → m β}
     (inv : Invariant xs β Pred)
     {epost : EPred}
@@ -752,7 +752,7 @@ theorem Spec.foldlM_list [LawfulMonad m]
   apply step <;> assumption
 
 
-theorem Spec.foldlM_list_const_inv [LawfulMonad m]
+theorem Spec.foldlM_list_const_inv
     {xs : List α} {init : β} {f : β → α → m β}
     {inv : (β → Pred)}
     {epost : EPred}
@@ -815,7 +815,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_rcc {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {xs : Rcc α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -841,7 +841,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_rcc {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {xs : Rcc α} {init : β} {f : α → β → m (ForInStep β)}
@@ -867,7 +867,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_rco {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     {xs : Rco α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -893,7 +893,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_rco {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     {xs : Rco α} {init : β} {f : α → β → m (ForInStep β)}
@@ -919,7 +919,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_rci {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {xs : Rci α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -945,7 +945,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_rci {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {xs : Rci α} {init : β} {f : α → β → m (ForInStep β)}
@@ -971,7 +971,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_roc {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     {xs : Roc α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -996,7 +996,7 @@ theorem Spec.forIn'_roc {α β : Type u} {m : Type u → Type v} {Pred : Type u}
 open Std Std.PRange in
 
 theorem Spec.forIn_roc {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LE α] [DecidableLE α] [LT α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     {xs : Roc α} {init : β} {f : α → β → m (ForInStep β)}
@@ -1022,7 +1022,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_roo {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {xs : Roo α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -1048,7 +1048,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_roo {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {xs : Roo α} {init : β} {f : α → β → m (ForInStep β)}
@@ -1074,7 +1074,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_roi {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {xs : Roi α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -1100,7 +1100,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_roi {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {xs : Roi α} {init : β} {f : α → β → m (ForInStep β)}
@@ -1126,7 +1126,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_ric {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
     {xs : Ric α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -1152,7 +1152,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_ric {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [Rxc.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLE α]
     {xs : Ric α} {init : β} {f : α → β → m (ForInStep β)}
@@ -1178,7 +1178,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_rio {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
     {xs : Rio α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -1204,7 +1204,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_rio {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α] [LawfulUpwardEnumerableLT α]
     {xs : Rio α} {init : β} {f : α → β → m (ForInStep β)}
@@ -1230,7 +1230,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn'_rii {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     {xs : Rii α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
@@ -1256,7 +1256,7 @@ open Std Std.PRange in
 
 @[spec]
 theorem Spec.forIn_rii {α β : Type u} {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Least? α] [UpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     {xs : Rii α} {init : β} {f : α → β → m (ForInStep β)}
@@ -1282,7 +1282,7 @@ open Std Std.Iterators in
 
 @[spec]
 theorem Spec.forIn_slice {δ : Type u} {m : Type u → Type w} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {γ : Type u'} {α β : Type u}
     [ToIterator (Slice γ) Id α β]
     [Iterator α Id β]
@@ -1312,7 +1312,7 @@ open Std Std.Iterators
 
 @[spec low]
 theorem Spec.forIn_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {init : γ} {f : β → γ → m (ForInStep γ)}
     {it : Iter (α := α) β}
@@ -1334,7 +1334,7 @@ theorem Spec.forIn_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type
 
 @[spec low]
 theorem Spec.forIn_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {init : γ} {f : β → γ → m (ForInStep γ)}
     {it : IterM (α := α) Id β}
@@ -1358,7 +1358,7 @@ theorem Spec.forIn_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : 
 
 @[spec low]
 theorem Spec.foldM_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {it : Iter (α := α) β}
     {init : γ} {f : γ → β → m γ}
@@ -1378,7 +1378,7 @@ theorem Spec.foldM_iter {α β γ : Type u} {m : Type u → Type w} {Pred : Type
 
 @[spec low]
 theorem Spec.foldM_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : Type u} {EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulMonad m]
+    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
     {it : IterM (α := α) Id β}
     {init : γ} {f : γ → β → m γ}
@@ -1400,7 +1400,7 @@ theorem Spec.foldM_iterM_id {α β γ : Type u} {m : Type u → Type w} {Pred : 
 theorem Spec.IterM.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m o] [LawfulIteratorLoop α m o]
@@ -1420,7 +1420,7 @@ theorem Spec.IterM.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_filterMapM {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
@@ -1441,7 +1441,7 @@ theorem Spec.IterM.forIn_filterMapM {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_filterMap {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
@@ -1459,7 +1459,7 @@ theorem Spec.IterM.forIn_filterMap {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_mapWithPostcondition {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m o] [LawfulIteratorLoop α m o]
@@ -1476,7 +1476,7 @@ theorem Spec.IterM.forIn_mapWithPostcondition {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_mapM {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
@@ -1494,7 +1494,7 @@ theorem Spec.IterM.forIn_mapM {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_map {α β β₂ γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     {it : IterM (α := α) m β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
@@ -1508,7 +1508,7 @@ theorem Spec.IterM.forIn_map {α β β₂ γ : Type w}
 theorem Spec.IterM.forIn_filterWithPostcondition {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m o] [LawfulIteratorLoop α m o]
@@ -1525,7 +1525,7 @@ theorem Spec.IterM.forIn_filterWithPostcondition {α β γ : Type w}
 theorem Spec.IterM.forIn_filterM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
@@ -1543,7 +1543,7 @@ theorem Spec.IterM.forIn_filterM {α β γ : Type w}
 theorem Spec.IterM.forIn_filter {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad m] [LawfulMonad m] [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     {it : IterM (α := α) m β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)}
@@ -1558,7 +1558,7 @@ theorem Spec.IterM.foldM_filterMapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1580,7 +1580,7 @@ theorem Spec.IterM.foldM_filterMapM {α β γ δ : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1600,7 +1600,7 @@ theorem Spec.IterM.foldM_mapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1620,7 +1620,7 @@ theorem Spec.IterM.foldM_mapM {α β γ δ : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1638,7 +1638,7 @@ theorem Spec.IterM.foldM_filterWithPostcondition {α β δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1658,7 +1658,7 @@ theorem Spec.IterM.foldM_filterM {α β δ : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α m n] [IteratorLoop α m o]
     [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
     [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
@@ -1675,7 +1675,7 @@ theorem Spec.IterM.foldM_filterM {α β δ : Type w}
 theorem Spec.IterM.foldM_filterMap {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n]
     [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
@@ -1692,7 +1692,7 @@ theorem Spec.IterM.foldM_filterMap {α β γ δ : Type w}
 theorem Spec.IterM.foldM_map {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β}
@@ -1706,7 +1706,7 @@ theorem Spec.IterM.foldM_map {α β γ δ : Type w}
 theorem Spec.IterM.foldM_filter {α β δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n]
     [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
@@ -1723,7 +1723,7 @@ theorem Spec.IterM.fold_filterMapWithPostcondition {α β γ δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1741,7 +1741,7 @@ theorem Spec.IterM.fold_filterMapM {α β γ δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1759,7 +1759,7 @@ theorem Spec.IterM.fold_mapWithPostcondition {α β γ δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1775,7 +1775,7 @@ theorem Spec.IterM.fold_mapM {α β γ δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1791,7 +1791,7 @@ theorem Spec.IterM.fold_filterWithPostcondition {α β δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1807,7 +1807,7 @@ theorem Spec.IterM.fold_filterM {α β δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
-    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
@@ -1821,7 +1821,7 @@ theorem Spec.IterM.fold_filterM {α β δ : Type w}
 theorem Spec.IterM.fold_filterMap {α β γ δ : Type w}
     {m : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+    [Iterator α m β] [Finite α m] [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → Option γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -1837,7 +1837,7 @@ theorem Spec.IterM.fold_filterMap {α β γ δ : Type w}
 theorem Spec.IterM.fold_map {α β γ δ : Type w}
     {m : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+    [Iterator α m β] [Finite α m] [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -1850,7 +1850,7 @@ theorem Spec.IterM.fold_map {α β γ δ : Type w}
 theorem Spec.IterM.fold_filter {α β δ : Type w}
     {m : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+    [Iterator α m β] [Finite α m] [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {f : β → Bool} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -1864,7 +1864,7 @@ theorem Spec.Iter.forIn_filterMapWithPostcondition {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n (Option β₂)} {init : γ}
@@ -1882,7 +1882,7 @@ theorem Spec.Iter.forIn_filterMapM {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
@@ -1901,7 +1901,7 @@ theorem Spec.Iter.forIn_filterMap {α β β₂ γ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred] [Finite α Id]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred] [Finite α Id]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → Option β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
@@ -1918,7 +1918,7 @@ theorem Spec.Iter.forIn_mapWithPostcondition {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n β₂} {init : γ}
@@ -1933,7 +1933,7 @@ theorem Spec.Iter.forIn_mapM {α β β₂ γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Finite α Id]
@@ -1950,7 +1950,7 @@ theorem Spec.Iter.forIn_map {α β β₂ γ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
@@ -1964,7 +1964,7 @@ theorem Spec.Iter.forIn_filterWithPostcondition {α β γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
     {it : Iter (α := α) β} {f : β → PostconditionT n (ULift Bool)} {init : γ}
@@ -1979,7 +1979,7 @@ theorem Spec.Iter.forIn_filterM {α β γ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [LawfulMonad n] [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
     [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
     [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
@@ -1995,7 +1995,7 @@ theorem Spec.Iter.forIn_filter {α β γ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {it : Iter (α := α) β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)}
     {P : Pred} {Q : γ → Pred} {eQ : EPred}
@@ -2009,7 +2009,7 @@ theorem Spec.Iter.foldM_filterMapWithPostcondition {α β γ δ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [Monad o] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -2028,7 +2028,7 @@ theorem Spec.Iter.foldM_filterMapM {α β γ δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -2046,7 +2046,7 @@ theorem Spec.Iter.foldM_mapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'''} {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -2063,7 +2063,7 @@ theorem Spec.Iter.foldM_mapM {α β γ δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -2079,7 +2079,7 @@ theorem Spec.Iter.foldM_filterWithPostcondition {α β δ : Type w}
     {n : Type w → Type w'} {o : Type w → Type w''}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad n] [Monad o] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -2096,7 +2096,7 @@ theorem Spec.Iter.foldM_filterM {α β δ : Type w}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
     [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
-    [Monad o] [LawfulMonad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
+    [Monad o] [Assertion Pred] [Assertion EPred] [WPMonad o Pred EPred]
     [IteratorLoop α Id n] [IteratorLoop α Id o]
     [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
     [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -2111,7 +2111,7 @@ theorem Spec.Iter.foldM_filterM {α β δ : Type w}
 theorem Spec.Iter.foldM_filterMap {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Iterator α Id β] [Finite α Id] [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n]
     [LawfulIteratorLoop α Id n]
     {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β}
@@ -2127,7 +2127,7 @@ theorem Spec.Iter.foldM_filterMap {α β γ δ : Type w}
 theorem Spec.Iter.foldM_map {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Iterator α Id β] [Finite α Id] [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2140,7 +2140,7 @@ theorem Spec.Iter.foldM_map {α β γ δ : Type w}
 theorem Spec.Iter.foldM_filter {α β δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
-    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Iterator α Id β] [Finite α Id] [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → Bool} {g : δ → β → n δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2154,7 +2154,7 @@ theorem Spec.Iter.fold_filterMapWithPostcondition {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2170,7 +2170,7 @@ theorem Spec.Iter.fold_filterMapM {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2186,7 +2186,7 @@ theorem Spec.Iter.fold_mapWithPostcondition {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2200,7 +2200,7 @@ theorem Spec.Iter.fold_mapM {α β γ δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2214,7 +2214,7 @@ theorem Spec.Iter.fold_filterWithPostcondition {α β δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [LawfulMonad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2228,7 +2228,7 @@ theorem Spec.Iter.fold_filterM {α β δ : Type w}
     {n : Type w → Type w'}
     {Pred : Type w} {EPred : Type w}
     [Iterator α Id β] [Finite α Id]
-    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
+    [Monad n] [MonadAttach n] [WeaklyLawfulMonadAttach n] [Assertion Pred] [Assertion EPred] [WPMonad n Pred EPred]
     [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β}
     {P : Pred} {Q : δ → Pred} {eQ : EPred}
@@ -2281,7 +2281,7 @@ theorem Spec.forIn_array {xs : Array α} {init : β} {f : α → β → m (ForIn
 
 
 @[spec]
-theorem Spec.foldlM_array [LawfulMonad m]
+theorem Spec.foldlM_array
     {xs : Array α} {init : β} {f : β → α → m β}
     (inv : Invariant xs.toList β Pred)
     {epost : EPred}
@@ -2319,7 +2319,7 @@ noncomputable abbrev StringInvariant.withEarlyReturnNewDo {s : String} {β : Typ
       ⊔ (iSup fun r => ⌜x = some r ∧ pos = s.endPos⌝ ⊓ onReturn r b)
 
 @[spec]
-theorem Spec.forIn_string [LawfulMonad m]
+theorem Spec.forIn_string
     {s : String} {init : β} {f : Char → β → m (ForInStep β)}
     (inv : StringInvariant s β Pred)
     {epost : EPred}
@@ -2376,7 +2376,7 @@ noncomputable abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice
       ⊔ (iSup fun r => ⌜x = some r ∧ pos = s.endPos⌝ ⊓ onReturn r b)
 
 @[spec]
-theorem Spec.forIn_stringSlice [LawfulMonad m]
+theorem Spec.forIn_stringSlice
     {s : String.Slice} {init : β} {f : Char → β → m (ForInStep β)}
     (inv : StringSliceInvariant s β Pred)
     {epost : EPred}

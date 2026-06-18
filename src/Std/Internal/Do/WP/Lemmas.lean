@@ -180,7 +180,7 @@ omit [Monad m] in
   simp only [tryCatch, tryCatchThe, MonadExceptOf.tryCatch, ExceptT.tryCatch, ExceptT.run_mk]
   rfl
 
-theorem le_wp_tryCatch_ExceptT_apply [LawfulMonad m] (x : ExceptT ε m α)
+theorem le_wp_tryCatch_ExceptT_apply (x : ExceptT ε m α)
     (h : ε → ExceptT ε m α) :
     wp x post ⟨fun e => wp (h e) post epost, epost.tail⟩ ⊑
       wp (MonadExceptOf.tryCatch x h : ExceptT ε m α) post epost := by
@@ -291,7 +291,7 @@ theorem wp_monadLift_ReaderT_apply_eq (x : m α) :
       fun r => wp x (fun a => post a r) epost := by
   rfl
 
-theorem le_wp_monadLift_ExceptT_apply [LawfulMonad m] (x : m α) (post : α → Pred)
+theorem le_wp_monadLift_ExceptT_apply (x : m α) (post : α → Pred)
     (epost : EPost.Cons (ε → Pred) EPred) :
     wp x post epost.tail ⊑
       wp (MonadLift.monadLift x : ExceptT ε m α) post epost := by
@@ -378,7 +378,7 @@ theorem wp_withTheReader_ReaderT_apply_eq (f : ρ → ρ) (x : ReaderT ρ m α) 
 
 /-! ## Transformer adapt lemmas -/
 
-theorem le_wp_adapt_ExceptT_apply [LawfulMonad m] (f : ε → ε') (x : ExceptT ε m α) :
+theorem le_wp_adapt_ExceptT_apply (f : ε → ε') (x : ExceptT ε m α) :
     wp x post ⟨fun e => epost.head (f e), epost.tail⟩ ⊑
       wp (ExceptT.adapt f x : ExceptT ε' m α) post epost := by
   simp only [wp, ExceptT.adapt, ExceptT.mk]
@@ -397,7 +397,7 @@ theorem wp_adaptExcept_EStateM_apply_eq (f : ε → ε') (x : EStateM ε σ α) 
 /-! ## MonadControl simp lemmas -/
 
 @[simp]
-theorem wp_liftWith_StateT_apply_eq [LawfulMonad m]
+theorem wp_liftWith_StateT_apply_eq
     (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) :
     wp (MonadControl.liftWith (m:=m) f : StateT σ m α) post epost s =
       wp ((fun a => (a, s)) <$> f (fun x => x.run s)) (fun ⟨a, s⟩ => post a s) epost := by
@@ -663,7 +663,7 @@ variable {m : Type u → Type v} in
 section
 variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
-theorem le_wp_orElse_ExceptT_apply [LawfulMonad m] (x : ExceptT ε m α)
+theorem le_wp_orElse_ExceptT_apply (x : ExceptT ε m α)
     (h : Unit → ExceptT ε m α) :
     wp x post ⟨fun _ => wp (h ()) post epost, epost.tail⟩ ⊑
       wp (OrElse.orElse x h : ExceptT ε m α) post epost := by

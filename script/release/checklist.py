@@ -400,6 +400,7 @@ class DownstreamChecker(RepoChecker):
             self.cl.fatal(f"{what} does not exist")
         self.lrepo.push(tag_name, upstream=False)
 
+        time.sleep(5)  # Sometimes it takes GitHub a while to update
         tag = self.grepo.get_git_ref(f"tags/{tag_name}")
         self.cl.success(f"{what} created")
         return tag

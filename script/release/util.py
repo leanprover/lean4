@@ -349,6 +349,7 @@ def edit(
     repl: Callable[[Match[str]], str] | str,
     count: int = 0,
 ) -> None:
+    print(f"[bright_black]Editing {path}[/]")
     text = path.read_text()
     text = re.sub(pattern, repl, text, count=count)
     path.write_text(text)

@@ -7,9 +7,8 @@ After splitting `TransparencyMode.instances` into `.instances` and `.implicit`,
 and `ReducibilityStatus.implicitReducible` into `.implicitReducible` and `.instanceReducible`:
 
   * `@[instance_reducible]` is auto-applied by the `instance` command and unfolds at
-    `.instances` and above (used for type class diamond resolution).
-  * `@[implicit_reducible]` is user-applied and unfolds only at `.implicit` and above
-    (used for implicit-arg defeq, e.g. `Nat.add`, `Array.size`).
+    `.instances` and above.
+  * `@[implicit_reducible]` is user-applied and unfolds only at `.implicit`.
 
 This file pins the new contract so we don't regress.
 -/

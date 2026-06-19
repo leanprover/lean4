@@ -11,7 +11,7 @@ jobs:
       contains(github.event.label.name, 'release-ci') ||
       contains(github.event.label.name, 'lake-ci') ||
       contains(github.event.label.name, 'fsanitize-ci') ||
-      contains(github.event.label.name, 'macos_arm-ci')
+      contains(github.event.label.name, 'macos-arm-ci')
     steps:
     - run: |
         # Finding latest CI workflow run on current pull request

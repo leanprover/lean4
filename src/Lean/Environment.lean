@@ -2005,8 +2005,9 @@ private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleDa
 /-- The module data that should be used for server purposes. -/
 private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
     Option ModuleData :=
-  -- fall back to `exported` outside the server
-  self.getData? (if level ≥ .server then level else .exported)
+  -- allow unconditional access under `import all`, otherwise fall back to `exported` outside the
+  -- server
+  self.getData? (if self.importAll then .private else if level ≥ .server then level else .exported)
 
 /-- The module data that should be used for accessing IR for interpretation. -/
 private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLevel) :

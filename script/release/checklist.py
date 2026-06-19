@@ -199,14 +199,14 @@ class DownstreamChecker(RepoChecker):
 
             util.edit(
                 index,
-                r"^(import Manual\.Releases\..*)$",
+                r"(?m)^(import Manual\.Releases\..*)$",
                 f"import {module}\n\\1",
                 count=1,
             )
 
             util.edit(
                 index,
-                r"^(\{include 0 Manual\.Releases\..*\})$",
+                r"(?m)^(\{include 0 Manual\.Releases\..*\})$",
                 f"{{include 0 {module}}}\n\n\\1",
                 count=1,
             )

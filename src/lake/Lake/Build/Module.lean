@@ -245,10 +245,11 @@ where
         A module system `import` may need to be promoted to a
         wider import (`meta import`, `import all`) on another branch.
         -/
-        -- `.server` present => module, no `.private` => not already `import all`
-        let importAll := importAll && arts.oleanServer?.isSome && arts.oleanPrivate?.isNone
+        -- Only re-process a module sitting at the plain public-module level: `.server` present =>
+        -- module, no `.private` => not already `import all`. An entry already at `import all` (with
+        -- `.private`) or a non-module (no `.server`) must not be re-inserted, as that would demote it.
         let needsMeta := needsMeta && !metaVisited.contains mod.name
-        unless importAll || needsMeta do
+        unless (importAll || needsMeta) && arts.oleanServer?.isSome && arts.oleanPrivate?.isNone do
           return ← walk s metaVisited q
       let info ← (← mod.exportInfo.fetch).await
       let arts := if importAll then info.allArts else info.arts

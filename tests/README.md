@@ -248,6 +248,13 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
 
+For performance reasons,
+elab tests use prebuilt header snapshots when running in ctest.
+To disable use of the snapshots, set `LEAN_DISABLE_HEADER_SNAPSHOT=1`.
+To use the pre-built snapshots when manually running tests,
+run `tests/with_stage1_test_env.sh tests/build_lean_header_snapshots.sh`
+before running the test itself.
+
 ## The `compile*` test pile
 
 These files are available to configure a test:

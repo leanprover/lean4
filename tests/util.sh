@@ -141,7 +141,9 @@ function maybe_use_lean_header_snapshot {
   elif ! grep -qE '^import ' "$1"; then
     snap=${LEAN_HEADER_SNAPSHOT_INIT:-}
   fi
-  if [[ -n "$snap" ]]; then
+  # We must handle the case where the file does not exist (e.g. when running a
+  # test manually).
+  if [[ -n "$snap" && -f "$snap" ]]; then
     TEST_LEAN_ARGS+=("--incr-load=$snap")
   fi
 }

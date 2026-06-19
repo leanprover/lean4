@@ -2065,6 +2065,10 @@ private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × Com
 private def readIRPartsOfMod (mod : Name) : IO (Array (ModuleData × CompactedRegion)) := do
   let mFile ← findOLean mod
   let irSigFile := mFile.withExtension "ir.sig"
+  -- TODO: we don't (necessarily) know whether the module is a `module` or not, but file existence
+  -- checks are not great in the face of module-ness changes
+  unless (← irSigFile.pathExists) do
+    return #[]
   let irSig ← unsafe CompactedRegion.read (α := ModuleData) irSigFile #[]
   -- Opportunistically load all available parts.
   -- Necessary because the import level may be upgraded a later import.

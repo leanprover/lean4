@@ -371,10 +371,15 @@ structure DefEqCacheKey where
   lhs       : Expr
   rhs       : Expr
   configKey : UInt64
+  /-- `none` for an ordinary `lhs =?= rhs` query; `some f` for a query restricted to the projected
+  field `f` (i.e. really `lhs.f =?= rhs.f`). Keeping it in the key keeps field-restricted results in a
+  keyspace disjoint from full results, so the two can never poison each other. -/
+  proj?     : Option Name := none
   deriving Inhabited, BEq
 
 instance : Hashable DefEqCacheKey where
-  hash := private fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
+  hash := private fun { lhs, rhs, configKey, proj? } =>
+    mixHash (hash lhs) <| mixHash (hash rhs) <| mixHash (hash configKey) (hash proj?)
 
 /--
 A mapping `(s, t) ↦ isDefEq s t`.
@@ -664,12 +669,12 @@ def resetCache : MetaM Unit :=
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }
 
-def mkDefEqCacheKey (lhs rhs : Expr) : MetaM DefEqCacheKey := do
+def mkDefEqCacheKey (lhs rhs : Expr) (proj? : Option Name := none) : MetaM DefEqCacheKey := do
   let configKey := (← read).configKey
   if Expr.quickLt lhs rhs then
-    return { lhs, rhs, configKey }
+    return { lhs, rhs, configKey, proj? }
   else
-    return { lhs := rhs, rhs := lhs, configKey }
+    return { lhs := rhs, rhs := lhs, configKey, proj? }
 
 def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
   return { expr, nargs?, configKey := (← read).configKey }
@@ -834,6 +839,8 @@ See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 @[extern "lean_infer_type"] opaque inferType : Expr → MetaM Expr
 set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+set_option compiler.ignoreBorrowAnnotation true in
+@[extern "lean_is_expr_def_eq_p"] opaque isExprDefEqAuxP : Expr → Expr → Name → MetaM Bool
 set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
 set_option compiler.ignoreBorrowAnnotation true in

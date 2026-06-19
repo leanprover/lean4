@@ -21,6 +21,11 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
+register_builtin_option backward.isDefEq.projField : Bool := {
+  defValue := true
+  descr    := "(experimental) when comparing two applications of the same class projection function, compare the projected instance argument restricted to the projected field only, instead of comparing all of its fields"
+}
+
 /--
 Controls how implicit arguments are handled in `isDefEq` during proof automation.
 
@@ -446,6 +451,67 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
+  return true
+
+/--
+  Producer-side variant of `isDefEqArgs` for projection-aware defeq (`backward.isDefEq.projField`).
+
+  This is a verbatim copy of `isDefEqArgs` with a single surgical change: the argument at position
+  `self` (the projected instance of the class projection function `pfield`, i.e. position `numParams`)
+  is compared with the *field-restricted* `Meta.isExprDefEqAuxP _ _ pfield` instead of the full
+  `Meta.isExprDefEqAux`. Every other argument, and crucially the explicit→implicit→higher-order
+  comparison *order*, is identical to `isDefEqArgs`.
+
+  Keeping the order means the carrier and the other parameters are assigned in their normal place
+  (before the `self`), and any higher-order output parameters (e.g. `GetElem`'s `Dom`) are compared
+  *after* the `self` — so a metavariable that the field-restricted `self` comparison is responsible
+  for assigning (e.g. `Dom`'s body) is unified before the higher-order constraint that needs it. A
+  bare unassigned instance metavariable in `self` position is handled by `isDefEqArgsFirstPass`'s
+  easy case (unified in full, never synthesized), exactly as in `isDefEqArgs`.
+-/
+private partial def isDefEqArgsProjFn (f : Expr) (args₁ args₂ : Array Expr)
+    (self : Nat) (pfield : Name) : MetaM Bool := do
+  unless args₁.size == args₂.size do return false
+  let finfo ← getFunInfoNArgs f args₁.size
+  let .ok postponedImplicit postponedHO ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ | pure false
+  -- finfo.paramInfo.size may be smaller than args₁.size
+  for i in finfo.paramInfo.size...args₁.size do
+    unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
+      return false
+  let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
+  let implicitBump := backward.isDefEq.implicitBump.get (← getOptions)
+  for i in postponedImplicit do
+    let a₁   := args₁[i]!
+    let a₂   := args₂[i]!
+    let info := finfo.paramInfo[i]!
+    -- The only deviation from `isDefEqArgs`: at the `self` position, restrict the comparison to the
+    -- projected field `pfield`; everywhere else compare in full.
+    let cmp (a₁ a₂ : Expr) : MetaM Bool :=
+      if i == self then Meta.isExprDefEqAuxP a₁ a₂ pfield else Meta.isExprDefEqAux a₁ a₂
+    if info.binderInfo.isInstImplicit then
+      discard <| trySynthPending a₁
+      discard <| trySynthPending a₂
+    if respectTransparency && info.binderInfo.isInstImplicit then
+      unless (← withInstanceConfig <| cmp a₁ a₂) do return false
+    else if respectTransparency && implicitBump then
+      unless (← withImplicitConfig <| cmp a₁ a₂) do return false
+    else if respectTransparency then
+      unless (← cmp a₁ a₂) do return false
+    else
+      unless (← withInferTypeConfig <| cmp a₁ a₂) do return false
+  for i in postponedHO do
+    let a₁   := args₁[i]!
+    let a₂   := args₂[i]!
+    let cmp (a₁ a₂ : Expr) : MetaM Bool :=
+      if i == self then Meta.isExprDefEqAuxP a₁ a₂ pfield else Meta.isExprDefEqAux a₁ a₂
+    if respectTransparency && finfo.paramInfo[i]!.isInstance then
+      unless (← withInstanceConfig <| cmp a₁ a₂) do return false
+    else if respectTransparency && implicitBump then
+      unless (← withImplicitConfig <| cmp a₁ a₂) do return false
+    else if !respectTransparency && finfo.paramInfo[i]!.isInstance then
+      unless (← withInferTypeConfig <| cmp a₁ a₂) do return false
+    else
+      unless (← cmp a₁ a₂) do return false
   return true
 
 /--
@@ -1721,6 +1787,134 @@ private def isDefEqDelta (t s : Expr) : MetaM LBool := do
     else
       unfoldNonProjFnDefEq tInfo sInfo t s
 
+/-!
+Field-restricted (`…P`) copies of the lazy-delta machinery, used by `isExprDefEqExpensiveP`.
+
+Each mirrors its non-`P` counterpart exactly but threads the projected field `pfield`, so that once a
+side is unfolded to a constructor application the terminal comparisons go through the field-restricted
+`Meta.isExprDefEqAuxP` (→ `isDefEqAppP`/`isDefEqArgsP`) and only that field is compared. Carrying
+`pfield` through every unfold is sound because delta is defeq-preserving and projection is a
+congruence: `t.pfield =?= s.pfield ⟺ t'.pfield =?= s'.pfield` for any reducts `t'`, `s'`.
+
+`tryHeuristic` is deliberately reused unchanged (not given `pfield`): its head is always a `.defnInfo`,
+never a constructor, so the restriction cannot apply there, and its full success soundly implies the
+field-restricted goal; on failure we fall through to the `pfield`-carrying unfolds.
+-/
+
+/-- Field-restricted variant of `isDefEqLeft`. -/
+private def isDefEqLeftP (fn : Name) (t s : Expr) (pfield : Name) : MetaM LBool := do
+  trace[Meta.isDefEq.delta.unfoldLeft] fn
+  toLBoolM <| Meta.isExprDefEqAuxP t s pfield
+
+/-- Field-restricted variant of `isDefEqRight`. -/
+private def isDefEqRightP (fn : Name) (t s : Expr) (pfield : Name) : MetaM LBool := do
+  trace[Meta.isDefEq.delta.unfoldRight] fn
+  toLBoolM <| Meta.isExprDefEqAuxP t s pfield
+
+/-- Field-restricted variant of `isDefEqLeftRight`. -/
+private def isDefEqLeftRightP (fn : Name) (t s : Expr) (pfield : Name) : MetaM LBool := do
+  trace[Meta.isDefEq.delta.unfoldLeftRight] fn
+  toLBoolM <| Meta.isExprDefEqAuxP t s pfield
+
+/-- Field-restricted variant of `unfoldBothDefEq`. -/
+private def unfoldBothDefEqP (fn : Name) (t s : Expr) (pfield : Name) : MetaM LBool := do
+  match t, s with
+  | .const _ ls₁, .const _ ls₂ =>
+    match (← isListLevelDefEq ls₁ ls₂) with
+    | .true => return .true
+    | _ =>
+    unfold t (pure .undef) fun t =>
+    unfold s (pure .undef) fun s =>
+      isDefEqLeftRightP fn t s pfield
+  | .app _ _,     .app _ _     =>
+    if (← tryHeuristic t s) then
+      return .true
+    else
+      unfold t
+       (unfold s (pure .undef) fun s => isDefEqRightP fn t s pfield)
+       (fun t => unfold s (isDefEqLeftP fn t s pfield) (fun s => isDefEqLeftRightP fn t s pfield))
+  | _, _ => return .false
+
+/-- Field-restricted variant of `unfoldComparingHeadsDefEq`. -/
+private def unfoldComparingHeadsDefEqP (tInfo sInfo : ConstantInfo) (t s : Expr) (pfield : Name) : MetaM LBool :=
+  unfold t
+    (unfold s
+      (pure LBool.undef) -- `t` and `s` failed to be unfolded
+      (fun s => isDefEqRightP sInfo.name t s pfield))
+    (fun tNew =>
+      if sameHeadSymbol tNew s then
+        isDefEqLeftP tInfo.name tNew s pfield
+      else
+        unfold s
+          (isDefEqLeftP tInfo.name tNew s pfield)
+          (fun sNew =>
+            if sameHeadSymbol t sNew then
+              isDefEqRightP sInfo.name t sNew pfield
+            else
+              isDefEqLeftRightP tInfo.name tNew sNew pfield))
+
+/-- Field-restricted variant of `unfoldDefEq`. -/
+private def unfoldDefEqP (tInfo sInfo : ConstantInfo) (t s : Expr) (pfield : Name) : MetaM LBool :=
+  if !t.hasExprMVar && !s.hasExprMVar then
+    if tInfo.hints.lt sInfo.hints then
+      unfold t (unfoldComparingHeadsDefEqP tInfo sInfo t s pfield) fun t => isDefEqLeftP tInfo.name t s pfield
+    else if sInfo.hints.lt tInfo.hints then
+      unfold s (unfoldComparingHeadsDefEqP tInfo sInfo t s pfield) fun s => isDefEqRightP sInfo.name t s pfield
+    else
+      unfoldComparingHeadsDefEqP tInfo sInfo t s pfield
+  else
+    unfoldComparingHeadsDefEqP tInfo sInfo t s pfield
+
+/-- Field-restricted variant of `unfoldReducibleDefEq`. -/
+private def unfoldReducibleDefEqP (tInfo sInfo : ConstantInfo) (t s : Expr) (pfield : Name) : MetaM LBool := do
+  if (← shouldReduceReducibleOnly) then
+    unfoldDefEqP tInfo sInfo t s pfield
+  else
+    let tReducible ← isReducible tInfo.name
+    let sReducible ← isReducible sInfo.name
+    if tReducible && !sReducible then
+      unfold t (unfoldDefEqP tInfo sInfo t s pfield) fun t => isDefEqLeftP tInfo.name t s pfield
+    else if !tReducible && sReducible then
+      unfold s (unfoldDefEqP tInfo sInfo t s pfield) fun s => isDefEqRightP sInfo.name t s pfield
+    else
+      unfoldDefEqP tInfo sInfo t s pfield
+
+/-- Field-restricted variant of `unfoldNonProjFnDefEq`. -/
+private partial def unfoldNonProjFnDefEqP (tInfo sInfo : ConstantInfo) (t s : Expr) (pfield : Name) : MetaM LBool := do
+  let tProjInfo? ← getProjectionFnInfo? tInfo.name
+  let sProjInfo? ← getProjectionFnInfo? sInfo.name
+  if let some tNew ← packedInstanceOf? tProjInfo? t sInfo.name then
+    isDefEqLeftP tInfo.name tNew s pfield
+  else if let some sNew ← packedInstanceOf? sProjInfo? s tInfo.name then
+    isDefEqRightP sInfo.name t sNew pfield
+  else  match tProjInfo?, sProjInfo? with
+    | some _, none => unfold s (unfoldDefEqP tInfo sInfo t s pfield) fun s => isDefEqRightP sInfo.name t s pfield
+    | none, some _ => unfold t (unfoldDefEqP tInfo sInfo t s pfield) fun t => isDefEqLeftP tInfo.name t s pfield
+    | _, _ => unfoldReducibleDefEqP tInfo sInfo t s pfield
+where
+  packedInstanceOf? (projInfo? : Option ProjectionFunctionInfo) (e : Expr) (declName : Name) : MetaM (Option Expr) := do
+    let some { fromClass := true, .. } := projInfo? | return none -- It is not a class projection
+    let some e ← unfoldDefinition? e | return none
+    let e ← whnfCore e
+    if e.isAppOf declName then return some e
+    let .const name _ := e.getAppFn | return none
+    -- Keep going if new `e` is also a class projection
+    packedInstanceOf? (← getProjectionFnInfo? name) e declName
+
+/-- Field-restricted variant of `isDefEqDelta`. -/
+private def isDefEqDeltaP (t s : Expr) (pfield : Name) : MetaM LBool := do
+  let tInfo? ← isDeltaCandidate? t
+  let sInfo? ← isDeltaCandidate? s
+  match tInfo?, sInfo? with
+  | none,       none       => pure LBool.undef
+  | some tInfo, none       => unfold t (pure LBool.undef) fun t => isDefEqLeftP tInfo.name t s pfield
+  | none,       some sInfo => unfold s (pure LBool.undef) fun s => isDefEqRightP sInfo.name t s pfield
+  | some tInfo, some sInfo =>
+    if tInfo.name == sInfo.name then
+      unfoldBothDefEqP tInfo.name t s pfield
+    else
+      unfoldNonProjFnDefEqP tInfo sInfo t s pfield
+
 private def isAssigned : Expr → MetaM Bool
   | .mvar mvarId => mvarId.isAssigned
   | _            => pure false
@@ -2193,7 +2387,86 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
     /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
-    if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
+    let args₁ := t.getAppArgs
+    let args₂ := s.getAppArgs
+    /- Producer site for projection-aware defeq (`backward.isDefEq.projField`): when both heads are
+       the *same class projection function*, the projected instance is the `self` argument at index
+       `numParams`. Comparing `(self.f) extra… =?= (self'.f) extra…` only needs `self.f =?= self'.f`
+       (the field-`f` restriction of `self =?= self'`) together with the remaining arguments. So we
+       hand off to `isDefEqArgsProjFn`, which is `isDefEqArgs` with the single change that the `self`
+       position is compared field-restricted (via `isExprDefEqAuxP`) while keeping the exact argument
+       comparison order — so the carrier/params are assigned before `self` and higher-order output
+       parameters after it. -/
+    let projSelf? ←
+      if backward.isDefEq.projField.get (← getOptions) && args₁.size == args₂.size then
+        match (← getProjectionFnInfo? tFn.constName!) with
+        | some pi => pure (if pi.fromClass && pi.numParams < args₁.size then some pi.numParams else none)
+        | none    => pure none
+      else
+        pure none
+    let argsDefEq : MetaM Bool :=
+      match projSelf? with
+      | some p => isDefEqArgsProjFn tFn args₁ args₂ p tFn.constName!
+      | none   => isDefEqArgs tFn args₁ args₂
+    if (← checkpointDefEq (argsDefEq <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
+      return true
+    else
+      isDefEqOnFailure t s
+  else if (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
+    return true
+  else
+    isDefEqOnFailure t s
+
+/--
+  Field-restricted variant of `isDefEqArgs` for the *consumer* side of projection-aware defeq.
+
+  Precondition: `f` is the head of two constructor applications `f args₁` and `f args₂` that we are
+  comparing only as far as the field selected by the projection function `pfield` is concerned
+  (i.e. we are really deciding `(f args₁).pfield =?= (f args₂).pfield`).
+
+  Because `(C.mk params… fields…).fieldᵢ` iota-reduces to exactly `fieldsᵢ`, the *other* fields are
+  irrelevant to the projection's value, so we skip comparing them. The parameters, however, are *not*
+  compared for their bearing on the value — they don't have any — but because they can carry shared
+  metavariables (e.g. `GetElem`'s `Dom`) that the surrounding unification problem still needs assigned;
+  dropping their unification would leave those metavariables stuck. So we run the full `isDefEqArgs`
+  over the parameters and the selected field, neutralizing only the sibling fields (we set them equal so
+  they compare trivially). Reusing `isDefEqArgs` also gives the parameters their proper treatment
+  (implicit/instance handling, higher-order output parameters such as `Dom`). The field itself is
+  compared with the non-`P` `Meta.isExprDefEqAux`, which resets the restriction: inside the field value
+  we compare fully (one-shot semantics).
+
+  Whenever the restriction cannot apply — `pfield` is not a projection function, `f` is not the
+  constructor it projects from, the sizes disagree, or the application is too short — we fall back to
+  the full `isDefEqArgs`, so the result is always correct (just unoptimized in those cases).
+-/
+private def isDefEqArgsP (f : Expr) (args₁ args₂ : Array Expr) (pfield : Name) : MetaM Bool := do
+  let some projInfo ← getProjectionFnInfo? pfield
+    | isDefEqArgs f args₁ args₂
+  let idx := projInfo.numParams + projInfo.i
+  if f.isConstOf projInfo.ctorName && args₁.size == args₂.size && idx < args₁.size then
+    -- Neutralize the sibling fields (everything past the parameters except the selected field `idx`)
+    -- so `isDefEqArgs` still compares the parameters and the selected field, but not the other fields.
+    let mut args₂' := args₂
+    for j in projInfo.numParams...args₁.size do
+      if j != idx then
+        args₂' := args₂'.set! j args₁[j]!
+    isDefEqArgs f args₁ args₂'
+  else
+    isDefEqArgs f args₁ args₂
+
+/--
+  Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
+  check whether they are definitionally equal or not.
+-/
+private def isDefEqAppP (t s : Expr) (pfield : Name) : MetaM Bool := do
+  let tFn := t.getAppFn
+  let sFn := s.getAppFn
+  if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
+    /- See comment at `tryHeuristic` explaining why we process arguments before universe levels.
+       This is the consumer site for projection-aware defeq: when `tFn`/`sFn` are the constructor
+       that `pfield` projects from, `isDefEqArgsP` compares only the selected field; otherwise it
+       falls back to the full `isDefEqArgs`. -/
+    if (← checkpointDefEq (isDefEqArgsP tFn t.getAppArgs s.getAppArgs pfield <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
       return true
     else
       isDefEqOnFailure t s
@@ -2256,6 +2529,35 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       if (← isDefEqUnitLike t s) then return true else
       isDefEqOnFailure t s
 
+private def isExprDefEqExpensiveP (t : Expr) (s : Expr) (pfield : Name) : MetaM Bool := do
+  whenUndefDo (isDefEqEta t s) do
+  whenUndefDo (isDefEqEta s t) do
+  if (← isDefEqProj t s) then return true
+  let t' ← whnfCore t
+  let s' ← whnfCore s
+  if t != t' || s != s' then
+    Meta.isExprDefEqAuxP t' s' pfield
+  else
+    whenUndefDo (isDefEqNative t s) do
+    whenUndefDo (isDefEqNat t s) do
+    whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqDeltaP t s pfield) do
+    -- We try structure eta *after* lazy delta reduction;
+    -- otherwise we would end up applying it at every step of a reduction chain
+    -- as soon as one of the sides is a constructor application,
+    -- which is very costly because it requires us to unify the fields.
+    if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
+      return true
+    if t.isConst && s.isConst then
+      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqAppP t s pfield) then
+      return true
+    else
+      whenUndefDo (isDefEqProjInst t s) do
+      whenUndefDo (isDefEqStringLit t s) do
+      if (← isDefEqUnitLike t s) then return true else
+      isDefEqOnFailure t s
+
 inductive DefEqCacheKind where
   | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
   | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
@@ -2273,9 +2575,9 @@ structure DefEqCacheKeyInfo where
   kind : DefEqCacheKind
   key  : DefEqCacheKey
 
-private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do
+private def mkCacheKey (t s : Expr) (proj? : Option Name := none) : MetaM DefEqCacheKeyInfo := do
   let kind ← getDefEqCacheKind t s
-  let key ← mkDefEqCacheKey t s
+  let key ← mkDefEqCacheKey t s proj?
   return { key, kind }
 
 private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
@@ -2296,7 +2598,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     Otherwise, the key is invalid after the assignment is "backtracked".
     See issue #1870 for an example.
     -/
-    let key ← mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs)
+    let key ← mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs) key.proj?
     modifyDefEqTransientCache fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
@@ -2379,6 +2681,86 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
       let result ← isExprDefEqExpensive t s
       if numPostponed == (← getNumPostponed) then
         trace[Meta.isDefEq.cache] "cache {result} for {t} =?= {s}"
+        cacheResult k result
+      return result
+
+set_option compiler.ignoreBorrowAnnotation true in
+@[export lean_is_expr_def_eq_p]
+partial def isExprDefEqAuxImplP (t : Expr) (s : Expr) (pfield : Name) : MetaM Bool := withIncRecDepth do
+  withTraceNodeBefore `Meta.isDefEq (fun _ => do
+    if trace.Meta.isDefEq.printTransparency.get (← getOptions) then
+      return m!"[{toString (← getTransparency)}] {t} =?= {s}"
+    else
+      return m!"{t} =?= {s}") do
+  checkSystem "isDefEq"
+  whenUndefDo (isDefEqQuick t s) do
+  whenUndefDo (isDefEqProofIrrel t s) do
+  /-
+    We also reduce projections here to prevent expensive defeq checks when unifying TC operations.
+    When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
+    we only want to unify negation (and not all other field operations as well).
+    Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
+
+    Note that we use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
+    We added this refinement to address a performance issue in code such as
+    ```
+    let val : Test := bar c1 key
+    have : val.1 = (bar c1 key).1 := rfl
+    ```
+    where `bar` is a complex function that takes a long time to be reduced.
+
+    Note that the current solution times out at unification problems such as
+    `(f x).1 =?= (g x).1` where `f`, `g` are defined as
+    ```
+    structure Foo where
+      x : Nat
+      y : Nat
+
+    def f (x : Nat) : Foo :=
+      { x, y := ack 10 10 }
+
+    def g (x : Nat) : Foo :=
+      { x, y := ack 10 11 }
+    ```
+    and `ack` is ackermann. We claim this is an abuse of the unifier.
+    That being said, we could in principle address this issue by implementing
+    lazy-delta reduction at `isDefEqProj`.
+
+    The current solution should be sufficient. In the past, we have used
+    `whnfCore t (config := { proj := .yes })` which more conservative than `.yesWithDeltaI`,
+    and it only created performance issues when handling TC unification problems.
+  -/
+  let t' ← whnfCoreAtDefEq t
+  let s' ← whnfCoreAtDefEq s
+  if t != t' || s != s' then
+    isExprDefEqAuxImplP t' s' pfield
+  else
+    /-
+      TODO: check whether the following `instantiateMVar`s are expensive or not in practice.
+      Lean 3 does not use them, and may miss caching opportunities since it is not safe to cache when `t` and `s` may contain mvars.
+      The unit test `tryHeuristicPerfIssue2.lean` cannot be solved without these two `instantiateMVar`s.
+      If it becomes a problem, we may use store a flag in the context indicating whether we have already used `instantiateMVar` in
+      outer invocations or not. It is not perfect (we may assign mvars in nested calls), but it should work well enough in practice,
+      and prevent repeated traversals in nested calls.
+    -/
+    let t ← instantiateMVars t
+    let s ← instantiateMVars s
+    let numPostponed ← getNumPostponed
+    -- Key by `pfield` so field-restricted results live in a keyspace disjoint from full `t =?= s`
+    -- results: a full `false` must not satisfy a field query, and a field result must not poison a
+    -- full query. See `DefEqCacheKey.proj?`.
+    let k ← mkCacheKey t s (proj? := some pfield)
+    match (← getCachedResult k) with
+    | .true  =>
+      trace[Meta.isDefEq.cache] "cache hit 'true' for {t} =?= {s} (projected by .{pfield})"
+      return true
+    | .false =>
+      trace[Meta.isDefEq.cache] "cache hit 'false' for {t} =?= {s} (projected by .{pfield})"
+      return false
+    | .undef =>
+      let result ← isExprDefEqExpensiveP t s pfield
+      if numPostponed == (← getNumPostponed) then
+        trace[Meta.isDefEq.cache] "cache {result} for {t} =?= {s} (projected by .{pfield})"
         cacheResult k result
       return result
 

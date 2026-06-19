@@ -37,11 +37,54 @@ struct region_view {
     void * base_addr;
 };
 
+/** Open-addressed hash map specialized for `object* -> object_offset`. Linear probing,
+    power-of-2 capacity, no deletions. `nullptr` keys are reserved as the empty marker.
+    Significantly faster than `std::unordered_map` because there is no per-entry node
+    allocation and the entire table sits in a single contiguous buffer. */
+class object_offset_map {
+    struct entry { object * k; object_offset v; };
+    entry * m_data;
+    size_t m_capacity;
+    size_t m_mask;
+    size_t m_size;
+    void grow();
+    static size_t hash_ptr(object * k) {
+        size_t h = reinterpret_cast<size_t>(k) >> 4;
+        h ^= h >> 16;
+        h *= 0x85ebca6bull;
+        h ^= h >> 13;
+        return h;
+    }
+public:
+    object_offset_map();
+    ~object_offset_map();
+    object_offset_map(object_offset_map const &) = delete;
+    object_offset_map & operator=(object_offset_map const &) = delete;
+    /** Returns a pointer to the value if found, `nullptr` otherwise. */
+    object_offset * find(object * k) const {
+        size_t i = hash_ptr(k) & m_mask;
+        while (m_data[i].k) {
+            if (m_data[i].k == k) return &m_data[i].v;
+            i = (i + 1) & m_mask;
+        }
+        return nullptr;
+    }
+    /** Inserts (k, v) assuming `k` is not already present. */
+    void insert(object * k, object_offset v) {
+        if ((m_size + 1) * 4 > m_capacity * 3) grow();
+        size_t i = hash_ptr(k) & m_mask;
+        while (m_data[i].k) i = (i + 1) & m_mask;
+        m_data[i].k = k;
+        m_data[i].v = v;
+        m_size++;
+    }
+    void reserve(size_t n);
+    size_t size() const { return m_size; }
+};
+
 class LEAN_EXPORT object_compactor {
     struct max_sharing_table;
-    friend struct max_sharing_hash;
-    friend struct max_sharing_eq;
-    lean::unordered_map<object*, object_offset, std::hash<object*>, std::equal_to<object*>> m_obj_table;
+    object_offset_map m_obj_table;
     std::unique_ptr<max_sharing_table> m_max_sharing_table;
     std::vector<object*> m_todo;
     std::vector<object_offset> m_tmp;

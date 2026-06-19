@@ -30,7 +30,11 @@ Author: Leonardo de Moura
 #endif
 
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
-#define LEAN_MAX_SHARING_TABLE_INITIAL_SIZE 1024*1024
+// Capacities for the compactor's two hash tables (both have 16-byte entries); see
+// the `object_compactor` constructor for which is used when. The large size is
+// tuned to the `import Lean` header snapshot (~1.9M reached objects).
+#define LEAN_COMPACT_TABLE_MIN_SIZE (1u << 14)
+#define LEAN_COMPACT_TABLE_MAX_SIZE (1u << 21)
 
 // uncomment to track the number of each kind of object in an .olean file
 // #define LEAN_TAG_COUNTERS
@@ -40,33 +44,113 @@ namespace lean {
 struct max_sharing_key {
     size_t m_offset;
     size_t m_size;
+    max_sharing_key():m_offset(0), m_size(0) {}
     max_sharing_key(size_t offset, size_t sz):m_offset(offset), m_size(sz) {}
 };
 
-struct max_sharing_hash {
-    object_compactor * m;
-    max_sharing_hash(object_compactor * manager):m(manager) {}
-    unsigned operator()(max_sharing_key const & k) const {
-        return hash_str(k.m_size, reinterpret_cast<unsigned char const *>(m->m_begin) + k.m_offset, 17);
-    }
-};
-
-struct max_sharing_eq {
-    object_compactor * m;
-    max_sharing_eq(object_compactor * manager):m(manager) {}
-    bool operator()(max_sharing_key const & k1, max_sharing_key const & k2) const {
-        if (k1.m_size != k2.m_size) return false;
-        return memcmp(reinterpret_cast<char*>(m->m_begin) + k1.m_offset, reinterpret_cast<char*>(m->m_begin) + k2.m_offset, k1.m_size) == 0;
-    }
-};
-
-
+/** Open-addressed set of `max_sharing_key`s, keyed by the byte content of the compactor's
+    buffer at `[m_offset, m_offset + m_size)`. Linear probing, power-of-2 capacity, no
+    deletions. Empty slots are encoded as `m_size == 0` (a real key always has `m_size > 0`).
+    Faster than `std::unordered_set` because the entries sit in a single contiguous buffer
+    with no node allocation. Hashing/equality go through the manager's `m_begin` pointer,
+    which may be reallocated during compaction; only relative offsets are stored, so this
+    is fine. */
 struct object_compactor::max_sharing_table {
-    lean::unordered_set<max_sharing_key, max_sharing_hash, max_sharing_eq> m_table;
+    object_compactor * m_manager;
+    max_sharing_key * m_data;
+    size_t m_capacity;
+    size_t m_mask;
+    size_t m_size;
+
     max_sharing_table(object_compactor * manager):
-        m_table(LEAN_MAX_SHARING_TABLE_INITIAL_SIZE, max_sharing_hash(manager), max_sharing_eq(manager)) {
+        m_manager(manager), m_data(nullptr), m_capacity(0), m_mask(0), m_size(0) {
+        rehash(LEAN_COMPACT_TABLE_MIN_SIZE);
+    }
+
+    ~max_sharing_table() { delete[] m_data; }
+
+    size_t hash(max_sharing_key const & k) const {
+        return hash_str(k.m_size, reinterpret_cast<unsigned char const *>(m_manager->m_begin) + k.m_offset, 17);
+    }
+
+    bool eq(max_sharing_key const & a, max_sharing_key const & b) const {
+        if (a.m_size != b.m_size) return false;
+        char const * base = reinterpret_cast<char *>(m_manager->m_begin);
+        return memcmp(base + a.m_offset, base + b.m_offset, a.m_size) == 0;
+    }
+
+    /** Inserts `k`; caller is responsible for ensuring no equivalent entry exists. */
+    void insert(max_sharing_key const & k) {
+        if ((m_size + 1) * 4 > m_capacity * 3) rehash(m_capacity * 2);
+        size_t i = hash(k) & m_mask;
+        while (m_data[i].m_size != 0) i = (i + 1) & m_mask;
+        m_data[i] = k;
+        m_size++;
+    }
+
+    /** Returns the existing matching entry, or inserts `k` and returns `nullptr`.
+        Hashes `k`'s (byte) content once, unlike a separate `find` then `insert`. */
+    max_sharing_key * find_or_insert(max_sharing_key const & k) {
+        if ((m_size + 1) * 4 > m_capacity * 3) rehash(m_capacity * 2);
+        size_t i = hash(k) & m_mask;
+        while (m_data[i].m_size != 0) {
+            if (eq(m_data[i], k)) return &m_data[i];
+            i = (i + 1) & m_mask;
+        }
+        m_data[i] = k;
+        m_size++;
+        return nullptr;
+    }
+
+    void rehash(size_t new_capacity) {
+        size_t cap = 1;
+        while (cap < new_capacity) cap <<= 1;
+        if (cap <= m_capacity) return;
+        max_sharing_key * old_data = m_data;
+        size_t old_capacity = m_capacity;
+        m_data = new max_sharing_key[cap]();
+        m_capacity = cap;
+        m_mask = cap - 1;
+        m_size = 0;
+        for (size_t j = 0; j < old_capacity; j++) {
+            if (old_data[j].m_size != 0) insert(old_data[j]);
+        }
+        delete[] old_data;
     }
 };
+
+// Starts empty; `object_compactor` reserves to its estimated size before any use.
+object_offset_map::object_offset_map():
+    m_data(nullptr), m_capacity(0), m_mask(0), m_size(0) {
+}
+
+object_offset_map::~object_offset_map() {
+    delete[] m_data;
+}
+
+void object_offset_map::reserve(size_t n) {
+    size_t needed = n * 4 / 3 + 1;
+    size_t cap = 1;
+    while (cap < needed) cap <<= 1;
+    if (cap <= m_capacity) return;
+    entry * old_data = m_data;
+    size_t old_capacity = m_capacity;
+    m_data = new entry[cap]();
+    m_capacity = cap;
+    m_mask = cap - 1;
+    size_t old_size = m_size;
+    m_size = 0;
+    for (size_t i = 0; i < old_capacity; i++) {
+        if (old_data[i].k) insert(old_data[i].k, old_data[i].v);
+    }
+    lean_assert(m_size == old_size);
+    (void)old_size;
+    delete[] old_data;
+}
+
+void object_offset_map::grow() {
+    reserve(m_capacity);
+}
 
 LEAN_EXPORT std::vector<lib_info> get_loaded_libs() {
     std::vector<lib_info> libs;
@@ -144,6 +228,14 @@ object_compactor::object_compactor(void * base_addr, std::vector<region_view> de
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
+    // Pre-reserve both hash tables to avoid grow+rehash churn during compaction.
+    // A module save carries no dependency regions and reaches only its own (few)
+    // objects, so the small floor suffices; a header-snapshot save references a
+    // whole imported environment (~2M objects) and warrants the large reservation.
+    size_t table_size = m_dep_regions.empty() ? LEAN_COMPACT_TABLE_MIN_SIZE
+                                              : LEAN_COMPACT_TABLE_MAX_SIZE;
+    m_obj_table.reserve(table_size);
+    m_max_sharing_table->rehash(table_size);
     // Sort dep regions by `begin` address for binary search in `to_offset`.
     std::sort(m_dep_regions.begin(), m_dep_regions.end(),
               [](region_view const & a, region_view const & b) { return a.begin < b.begin; });
@@ -182,17 +274,14 @@ void * object_compactor::alloc(size_t sz) {
 
 void object_compactor::save(object * o, object * new_o) {
     lean_assert(m_begin <= new_o && new_o < m_end);
-    m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin) + reinterpret_cast<size_t>(m_base_addr))));
+    m_obj_table.insert(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin) + reinterpret_cast<size_t>(m_base_addr)));
 }
 
 void object_compactor::save_max_sharing(object * o, object * new_o, size_t new_o_sz) {
     max_sharing_key k(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin), new_o_sz);
-    auto it = m_max_sharing_table->m_table.find(k);
-    if (it != m_max_sharing_table->m_table.end()) {
+    if (max_sharing_key * existing = m_max_sharing_table->find_or_insert(k)) {
         m_end = new_o;
-        new_o = reinterpret_cast<lean_object*>(reinterpret_cast<char*>(m_begin) + it->m_offset);
-    } else {
-        m_max_sharing_table->m_table.insert(k);
+        new_o = reinterpret_cast<lean_object*>(reinterpret_cast<char*>(m_begin) + existing->m_offset);
     }
     save(o, new_o);
 }
@@ -201,9 +290,8 @@ object_offset object_compactor::to_offset(object * o) {
     if (lean_is_scalar(o)) {
         return o;
     } else {
-        auto it = m_obj_table.find(o);
-        if (it != m_obj_table.end()) {
-            return it->second;
+        if (object_offset * v = m_obj_table.find(o)) {
+            return *v;
         }
         // Only check dep regions for non-heap objects
         if (!m_dep_regions.empty() && !lean_has_rc(o)) {
@@ -220,7 +308,7 @@ object_offset object_compactor::to_offset(object * o) {
                     // Object is in this dep region, compute its base_addr-relative pointer
                     object_offset off = reinterpret_cast<object_offset>(
                         reinterpret_cast<size_t>(region.base_addr) + (addr - static_cast<char *>(region.begin)));
-                    m_obj_table.insert(std::make_pair(o, off));
+                    m_obj_table.insert(o, off);
                     return off;
                 }
             }
@@ -487,7 +575,7 @@ void object_compactor::operator()(object * o) {
         m_todo.push_back(o);
         while (!m_todo.empty()) {
             object * curr = m_todo.back();
-            if (m_obj_table.find(curr) != m_obj_table.end()) {
+            if (m_obj_table.find(curr)) {
                 m_todo.pop_back();
                 continue;
             }

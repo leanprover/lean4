@@ -22,7 +22,7 @@ def instX (n : Nat) : X where
   x := n
 
 -- Test 1: plain simp, semireducible X.x (works on master)
--- isDefEqArgs bumps to .instances for instance-implicit param of X.x
+-- isDefEqArgs bumps to .implicit for instance-implicit param of X.x
 example : (instX a).x = (instX b).x := by simp
 
 -- Test 2: plain simp, @[reducible] X.x

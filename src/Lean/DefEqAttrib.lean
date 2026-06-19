@@ -93,7 +93,7 @@ builtin_initialize backwardDefeqAttr : TagAttribute ←
 /--
 Marks the theorem as a definitional equality that can be used by `dsimp`.
 
-The theorem must be an equality that holds at `.instances` transparency. A theorem
+The theorem must be an equality that holds at `.implicit` transparency. A theorem
 with a definition that is (syntactically) `:= rfl` is implicitly marked `@[defeq]`
 (and also `@[backward_defeq]`, since the latter is a superset); write `:= (rfl)`
 instead to suppress this.

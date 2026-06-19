@@ -350,25 +350,6 @@ private def isDefEqArgsFirstPass
   return .ok postponedImplicit postponedHO
 
 /--
-Ensure `MetaM` configuration is strong enough for checking definitional equality at the
-*instance* level — i.e., when comparing instance-implicit `[..]` arguments or class-projection
-struct arguments. Bumps transparency to at least `.instances` so type class instances
-(`[instance_reducible]`) unfold; `[implicit_reducible]` does **not** unfold here.
-For example, we must be able to unfold instances, `beta := true`, `proj := .yesWithDelta` are essential.
--/
-@[inline] def withInstanceConfig (x : MetaM α) : MetaM α := do
-  let old ← getTransparency
-  if old.lt .instances then
-    trace[Meta.isDefEq.transparency]
-      "raising transparency {toString old} → instances"
-  withAtLeastTransparency .instances do
-    let cfg ← getConfig
-    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
-      x
-    else
-      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
-
-/--
 Ensure `MetaM` configuration is strong enough for checking definitional equality of
 implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
 least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.

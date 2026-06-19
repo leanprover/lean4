@@ -6,7 +6,9 @@ Authors: Sebastian Graf
 import Cases.GetThrowSet
 import Driver
 
-open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
+set_option mvcgen.warning false
+
+open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
 open GetThrowSet
 
 set_option maxRecDepth 10000

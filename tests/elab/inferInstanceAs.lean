@@ -46,7 +46,7 @@ instCD2._aux_1
 #guard_msgs in
 #print instCD2
 /--
-info: @[implicit_reducible] private def instCD2._aux_1 : C D2 :=
+info: private def instCD2._aux_1 : C D2 :=
 instCI2
 -/
 #guard_msgs in
@@ -91,3 +91,51 @@ instance (x y : BitVec w) : Decidable (LE.le x y) :=
 
 instance (x y : BitVec w) : Decidable (LE.le x y) :=
   inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
+
+/-! Universes can be introduced by synth and need to be unified with the expected type properly. -/
+
+structure MyStruct where
+  x : PUnit.{u + 1} := ⟨⟩
+  y : PUnit.{v + 1} := ⟨⟩
+
+instance : Zero MyStruct.{u, max u v} := ⟨{}⟩
+
+instance : Zero MyStruct.{u, max u v} := inferInstanceAs <| Zero MyStruct.{u, max u v}
+
+/-! Test reusing subinstances not encountered directly. -/
+
+class Base2 (α : Type) where
+  a : α
+
+class Main0 (α : Type) extends Base2 α where
+  b : α
+
+class Main1 (α : Type) extends Base2 α where
+  c : α
+
+class Super (α : Type) extends Main0 α, Main1 α where
+
+def MyCopy (α : Type) : Type := α
+
+instance iBase2 (α : Type) [Base2 α] : Base2 (MyCopy α) :=
+  inferInstanceAs <| Base2 α
+
+instance iMain0 (α : Type) [Main0 α] : Main0 (MyCopy α) :=
+  inferInstanceAs <| Main0 α
+
+instance iMain1 (α : Type) [Main1 α] : Main1 (MyCopy α) :=
+  inferInstanceAs <| Main1 α
+
+instance iSuper (α : Type) [Super α] : Super (MyCopy α) :=
+  inferInstanceAs <| Super α
+
+example (α : Type) [Super α] :
+    (iSuper α).toMain1 = iMain1 α := by
+  with_reducible_and_instances rfl
+
+/--
+info: @[implicit_reducible] private def iSuper : (α : Type) → [Super α] → Super (MyCopy α) :=
+fun α [Super α] => { toMain0 := iMain0 α, c := Main1.c }
+-/
+#guard_msgs in
+#print iSuper

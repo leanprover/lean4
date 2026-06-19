@@ -6,7 +6,9 @@ Authors: Sebastian Graf
 import Cases.PurePrecond
 import Driver
 
-open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
+set_option mvcgen.warning false
+
+open Lean Parser Meta Elab Tactic Sym Std Do
 open PurePrecond
 
 set_option maxRecDepth 10000

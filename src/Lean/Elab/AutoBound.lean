@@ -56,7 +56,7 @@ an error message.
 def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool) : Except MessageData Bool :=
   match n with
   | .str .anonymous s =>
-    if s.length = 0 then
+    if s.isEmpty then
       .ok false
     else if allowed && (relaxed || isValidAutoBoundSuffix s) then
       .ok true
@@ -68,13 +68,13 @@ def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool)
 
 def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | .str .anonymous s => s.length > 0 && (relaxed || (s.front.isLower && isValidAutoBoundSuffix s))
+  | .str .anonymous s => !s.isEmpty && (relaxed || (s.front.isLower && isValidAutoBoundSuffix s))
   | _ => false
 
 /--
 Tracks extra context needed within the scope of `Lean.Elab.Term.withAutoBoundImplicit`
 -/
-public structure AutoBoundImplicitContext where
+structure AutoBoundImplicitContext where
   /--
   This always matches the `autoImplicit` option; it is duplicated here in
   order to support the behavior of the deprecated `Lean.Elab.Term.Context.autoImplicit`
@@ -95,7 +95,7 @@ instance : EmptyCollection AutoBoundImplicitContext where
 Pushes a new variable onto the autoImplicit context, indicating that it needs
 to be bound as an implicit parameter.
 -/
-public def AutoBoundImplicitContext.push (ctx : AutoBoundImplicitContext) (x : Expr) :=
+def AutoBoundImplicitContext.push (ctx : AutoBoundImplicitContext) (x : Expr) :=
   { ctx with boundVariables := ctx.boundVariables.push x }
 
 end Lean.Elab

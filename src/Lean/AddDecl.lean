@@ -9,6 +9,8 @@ prelude
 public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
 public import Lean.OriginalConstKind
+public import Lean.AutoDecl
+import Lean.Linter.Init
 import Lean.Compiler.MetaAttr
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
@@ -28,7 +30,19 @@ private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : 
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
 
-
+open Linter in
+/--
+Saves the state of `Lean.Option`s associated with environment linters into `envLinterSnapshotExt`
+-/
+def snapshotEnvLinterOptions (declName : Name) : CoreM Unit := do
+  let envLinterOpts ← envLinterOptionsRef.get
+  unless envLinterOpts.isEmpty do
+    let linterOptions ← getLinterOptions
+    unless ← isAutoDeclOrPrivate_Internal declName do
+      let mut snapshot : NameMap Bool := {}
+      for opt in envLinterOpts do
+        snapshot := snapshot.insert opt.name (getLinterValue opt linterOptions)
+      modifyEnv (envLinterSnapshotExt.insert · declName snapshot)
 
 private def isNamespaceName : Name → Bool
   | .str .anonymous _ => true
@@ -36,6 +50,8 @@ private def isNamespaceName : Name → Bool
   | _                 => false
 
 private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
+  -- namespaces are based on the un-encoded name (`isNamespaceName` is false for any private name)
+  let name := privateToUserName name
   match name with
     | .str _ s =>
       if s.front == '_' then
@@ -80,13 +96,7 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
 builtin_initialize
   registerTraceClass `addDecl
 
-/--
-Adds the given declaration to the environment's private scope, deriving a suitable presentation in
-the public scope if under the module system and if the declaration is not private. If `forceExpose`
-is true, exposes the declaration body, i.e. preserves the full representation in the public scope,
-independently of `Environment.isExporting` and even for theorems.
--/
-def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
+private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
   withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
@@ -208,6 +218,15 @@ where
         return
       catch _ => pure ()
 
+/--
+Adds the given declaration to the environment's private scope, deriving a suitable presentation in
+the public scope if under the module system and if the declaration is not private. If `forceExpose`
+is true, exposes the declaration body, i.e. preserves the full representation in the public scope,
+independently of `Environment.isExporting` and even for theorems.
+-/
+def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit := do
+  addDeclCore decl forceExpose
+  discard <| decl.getTopLevelNames.mapM snapshotEnvLinterOptions
 
 def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true)
     (markMeta : Bool := false) : CoreM Unit := do

@@ -89,7 +89,7 @@ where
       let val ←
         if isStructure (← getEnv) inductiveTypeName then
           withTraceNode `Elab.Deriving.inhabited (fun _ => return m!"using structure instance elaborator") do
-            let stx ← `(structInst| {..})
+            let stx ← `(structInstDefault| struct_inst_default%)
             withoutErrToSorry <| elabTermAndSynthesize stx type
         else
           withTraceNode `Elab.Deriving.inhabited (fun _ => return m!"using constructor `{.ofConstName ctorName}`") do

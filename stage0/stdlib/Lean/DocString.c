@@ -39,7 +39,7 @@ lean_object* v_val_31_;
 lean_dec(v_declName_2_);
 v_val_31_ = lean_ctor_get(v___x_30_, 0);
 lean_inc(v_val_31_);
-lean_dec_ref(v___x_30_);
+lean_dec_ref_known(v___x_30_, 1);
 v___y_6_ = v_val_31_;
 goto v___jp_5_;
 }

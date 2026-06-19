@@ -155,6 +155,7 @@ protected theorem lt_iff_le_and_not_ge {a b : Int} : a < b ↔ a ≤ b ∧ ¬b �
   · exact Int.le_antisymm h h'
   · subst h'; apply Int.le_refl
 
+set_option linter.defProp false in
 @[deprecated Int.lt_iff_le_and_not_ge (since := "2026-02-11")]
 protected def lt_iff_le_not_le := @Int.lt_iff_le_and_not_ge
 

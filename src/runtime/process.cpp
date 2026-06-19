@@ -495,7 +495,11 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         if (cwd) {
             if (chdir(cwd.get()->data()) < 0) {
                 std::cerr << "could not change directory to " << cwd.get()->data() << std::endl;
-                exit(-1);
+                // Use `_exit` rather than `exit` to avoid flushing stdio buffers that were
+                // inherited from the parent via `fork`. Those buffers share the underlying
+                // file descriptors with the parent, so flushing them here would duplicate
+                // the parent's buffered writes in any file it had open for writing.
+                _exit(-1);
             }
         }
 
@@ -505,7 +509,8 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
         if (execvp(pargs[0], pargs.data()) < 0) {
             std::cerr << "could not execute external process '" << pargs[0] << "'" << std::endl;
-            exit(-1);
+            // See the comment above about `_exit` vs `exit`.
+            _exit(-1);
         }
     } else if (pid == -1) {
         throw errno;

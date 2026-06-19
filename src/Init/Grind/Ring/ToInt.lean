@@ -14,6 +14,7 @@ public section
 
 namespace Lean.Grind
 
+set_option linter.defProp false in
 /-- A `ToInt` instance on a semiring preserves powers if it preserves numerals and multiplication. -/
 @[implicit_reducible]
 def ToInt.pow_of_semiring [Semiring α] [ToInt α I] [ToInt.OfNat α I] [ToInt.Mul α I]

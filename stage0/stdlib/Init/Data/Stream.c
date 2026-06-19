@@ -95,7 +95,7 @@ else
 lean_object* v_val_11_; lean_object* v_fst_12_; lean_object* v_snd_13_; lean_object* v___f_14_; lean_object* v___x_15_; lean_object* v___x_16_; 
 v_val_11_ = lean_ctor_get(v___x_9_, 0);
 lean_inc(v_val_11_);
-lean_dec_ref(v___x_9_);
+lean_dec_ref_known(v___x_9_, 1);
 v_fst_12_ = lean_ctor_get(v_val_11_, 0);
 lean_inc(v_fst_12_);
 v_snd_13_ = lean_ctor_get(v_val_11_, 1);
@@ -126,7 +126,7 @@ lean_dec_ref(v_inst_19_);
 lean_dec_ref(v_inst_18_);
 v_a_23_ = lean_ctor_get(v_____do__lift_22_, 0);
 lean_inc(v_a_23_);
-lean_dec_ref(v_____do__lift_22_);
+lean_dec_ref_known(v_____do__lift_22_, 1);
 v___x_24_ = lean_apply_2(v_toPure_17_, lean_box(0), v_a_23_);
 return v___x_24_;
 }
@@ -136,7 +136,7 @@ lean_object* v_a_25_; lean_object* v___x_26_;
 lean_dec(v_toPure_17_);
 v_a_25_ = lean_ctor_get(v_____do__lift_22_, 0);
 lean_inc(v_a_25_);
-lean_dec_ref(v_____do__lift_22_);
+lean_dec_ref_known(v_____do__lift_22_, 1);
 v___x_26_ = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(v_inst_18_, v_inst_19_, v_f_20_, v_snd_21_, v_a_25_);
 return v___x_26_;
 }
@@ -329,7 +329,7 @@ else
 lean_object* v_val_109_; lean_object* v_fst_110_; lean_object* v_snd_111_; lean_object* v___x_113_; uint8_t v_isShared_114_; uint8_t v_isSharedCheck_140_; 
 v_val_109_ = lean_ctor_get(v___x_107_, 0);
 lean_inc(v_val_109_);
-lean_dec_ref(v___x_107_);
+lean_dec_ref_known(v___x_107_, 1);
 v_fst_110_ = lean_ctor_get(v_val_109_, 0);
 v_snd_111_ = lean_ctor_get(v_val_109_, 1);
 v_isSharedCheck_140_ = !lean_is_exclusive(v_val_109_);

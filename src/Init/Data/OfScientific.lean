@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Float32
+public import Init.Data.Float.Float32
 import Init.Data.Nat.Log2
 import Init.Meta
 

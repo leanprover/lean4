@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 /-!
 Testing `partial_fixpoint` with monad transformers
 -/

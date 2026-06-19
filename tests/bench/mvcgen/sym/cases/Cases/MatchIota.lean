@@ -1,7 +1,14 @@
 import Lean
-import VCGen
+import Std.Tactic.Do
 
-open Lean Meta Elab Tactic Sym Std Do SpecAttr
+/-!
+Pattern matching with a concrete discriminant (the literal argument `v` of `step`). Each
+`match v with | 0 => ... | n+1 => ...` iota-reduces during VC generation (no symbolic split).
+Because `loop` eventually calls `step 0`, the program throws, so the exceptional postcondition
+is left unconstrained.
+-/
+
+open Lean Meta Order Std.Internal.Do
 
 namespace MatchIota
 
@@ -9,20 +16,14 @@ set_option mvcgen.warning false
 
 abbrev M := ExceptT String <| StateM Nat
 
-@[spec high]
-theorem Spec.throw_M {e : String} :
-    ⦃Q.2.1 e⦄ throw (m := M) e ⦃Q⦄ := by
-  mvcgen
+@[spec high] theorem spec_throw (e : String) {post : α → Nat → Prop} :
+    ⦃epost e⦄ (throw (m := M) e) ⦃post; epost⦄ := ⟨PartialOrder.rel_refl⟩
 
-@[spec high]
-theorem Spec.set_M {s : Nat} :
-    ⦃fun _ => Q.1 ⟨⟩ s⦄ set (m := M) s ⦃Q⦄ := by
-  mvcgen
+@[spec high] theorem spec_set (x : Nat) {post : PUnit → Nat → Prop} :
+    ⦃fun _ => post ⟨⟩ x⦄ (set (m := M) x) ⦃post⦄ := ⟨PartialOrder.rel_refl⟩
 
-@[spec high]
-theorem Spec.get_M :
-    ⦃fun s => Q.1 s s⦄ get (m := M) ⦃Q⦄ := by
-  mvcgen
+@[spec high] theorem spec_get (post : Nat → Nat → Prop) :
+    ⦃fun s => post s s⦄ (get (m := M)) ⦃post⦄ := ⟨PartialOrder.rel_refl⟩
 
 def step (v : Nat) : M Unit := do
   let s ← get
@@ -35,6 +36,6 @@ def loop (n : Nat) : M Unit := do
   | 0 => pure ()
   | n+1 => step n; loop n
 
-def Goal (n : Nat) : Prop := ⦃fun s => ⌜s = 0⌝⦄ loop n ⦃⇓_ s => ⌜s = n⌝⦄
+def Goal (n : Nat) : Prop := ⦃fun s => s = 0⦄ loop n ⦃fun _ s => s = n⦄
 
 end MatchIota

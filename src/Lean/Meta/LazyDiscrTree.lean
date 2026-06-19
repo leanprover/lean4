@@ -1043,7 +1043,7 @@ def createTreeCtx (ctx : Core.Context) : Core.Context := {
   }
 
 def findImportMatches
-      (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
+      (ref : IO.Ref (Option (LazyDiscrTree α)))
       (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
       (droppedKeys : List (List LazyDiscrTree.Key) := [])
       (constantsPerTask : Nat := 1000)
@@ -1053,8 +1053,6 @@ def findImportMatches
   let ngen ← getNGen
   let (cNGen, ngen) := ngen.mkChild
   setNGen ngen
-  let _ : Inhabited (IO.Ref (Option (LazyDiscrTree α))) := ⟨← IO.mkRef none⟩
-  let ref := ext.getState (←getEnv)
   let importTree ← (←ref.get).getDM $ do
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
       let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry
@@ -1136,8 +1134,7 @@ based on priority and cache module declarations
 
 * `modulesTreeRef` points to the discriminator tree for local environment.
   Used for caching and created by `createLocalTree`.
-* `ext` should be an environment extension with an IO.Ref for caching the import lazy
-   discriminator tree.
+* `ref` is a process-global `IO.Ref` for caching the import lazy discriminator tree.
 * `addEntry` is the function for creating discriminator tree entries from constants.
 * `droppedKeys` contains keys we do not want to consider when searching for matches.
   It is used for dropping very general keys.
@@ -1148,7 +1145,7 @@ based on priority and cache module declarations
 -/
 def findMatchesExt
     (moduleTreeRef : ModuleDiscrTreeRef α)
-    (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
+    (ref : IO.Ref (Option (LazyDiscrTree α)))
     (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (droppedKeys : List (List LazyDiscrTree.Key) := [])
     (constantsPerTask : Nat := 1000)
@@ -1156,7 +1153,7 @@ def findMatchesExt
     (adjustResult : Nat → α → β)
     (ty : Expr) : MetaM (Array β) := do
   let moduleMatches ← findModuleMatches moduleTreeRef ty
-  let importMatches ← findImportMatches ext addEntry droppedKeys constantsPerTask droppedEntriesRef ty
+  let importMatches ← findImportMatches ref addEntry droppedKeys constantsPerTask droppedEntriesRef ty
   return Array.mkEmpty (moduleMatches.size + importMatches.size)
           |> moduleMatches.appendResultsAux (f := adjustResult)
           |> importMatches.appendResultsAux (f := adjustResult)
@@ -1164,14 +1161,13 @@ def findMatchesExt
 /--
 `findMatches` searches for entries in a lazily initialized discriminator tree.
 
-* `ext` should be an environment extension with an IO.Ref for caching the import lazy
-   discriminator tree.
+* `ref` is a process-global `IO.Ref` for caching the import lazy discriminator tree.
 * `addEntry` is the function for creating discriminator tree entries from constants.
 * `droppedKeys` contains keys we do not want to consider when searching for matches.
   It is used for dropping very general keys.
 * `droppedEntriesRef` optionally stores entries dropped from the tree for later use.
 -/
-def findMatches (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
+def findMatches (ref : IO.Ref (Option (LazyDiscrTree α)))
     (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (droppedKeys : List (List LazyDiscrTree.Key) := [])
     (constantsPerTask : Nat := 1000)
@@ -1180,4 +1176,4 @@ def findMatches (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
   -- Pass droppedEntriesRef to also capture star-indexed lemmas from the current module
   let moduleTreeRef ← createModuleTreeRef addEntry droppedKeys droppedEntriesRef
   let incPrio _ v := v
-  findMatchesExt moduleTreeRef ext addEntry droppedKeys constantsPerTask droppedEntriesRef incPrio ty
+  findMatchesExt moduleTreeRef ref addEntry droppedKeys constantsPerTask droppedEntriesRef incPrio ty

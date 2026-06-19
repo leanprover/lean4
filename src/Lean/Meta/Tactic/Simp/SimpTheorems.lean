@@ -50,6 +50,18 @@ register_builtin_option debug.tactic.simp.checkDefEqAttr : Bool := {
     of the `defeq` attribute, and warn if it was. Note that this is a costly check."
 }
 
+register_builtin_option warning.simp.varHead : Bool := {
+  defValue := true
+  descr := "If true, warns when the head symbol of the left-hand side of a `@[simp]` theorem \
+    is a variable. Such lemmas are tried on every simp step, which can be slow."
+}
+
+register_builtin_option warning.simp.otherHead : Bool := {
+  defValue := true
+  descr := "If true, warns when the left-hand side of a `@[simp]` theorem is headed by a \
+    `.other` key in the discrimination tree (e.g. a lambda expression). Such lemmas can cause slowdowns."
+}
+
 /--
 An `Origin` is an identifier for simp theorems which indicates roughly
 what action the user took which lead to this theorem existing in the simp set.
@@ -162,14 +174,20 @@ structure SimpTheorem where
   `rfl` is true if `proof` is by `Eq.refl`, `rfl` or a `@[defeq]` theorem.
   -/
   rfl         : Bool
+  /--
+  `backwardRfl` is true if `proof` is by a `@[backward_defeq]` theorem (i.e. rfl at default,
+  but not instance, transparency). Honored by `dsimp` only when
+  `backward.defeqAttrib.useBackward` is set.
+  -/
+  backwardRfl : Bool := false
   deriving Inhabited
 
 mutual
-  private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
+  private partial def isRflProofCore (includeBackward : Bool) (type : Expr) (proof : Expr) : CoreM Bool := do
     match type with
     | .forallE _ _ type _ =>
       if let .lam _ _ proof _ := proof then
-        isRflProofCore type proof
+        isRflProofCore includeBackward type proof
       else
         return false
     | _ =>
@@ -178,23 +196,25 @@ mutual
           return true
         else if proof.isAppOfArity ``Eq.symm 4 then
           -- `Eq.symm` of rfl theorem is a rfl theorem
-          isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
+          isRflProofCore includeBackward type proof.appArg! -- small hack: we don't need to set the exact type
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
           -- A constant which is a `rfl` theorem is a `rfl` theorem
-          isRflTheoremCore proof.getAppFn.constName!
+          isRflTheoremCore includeBackward proof.getAppFn.constName!
         else
           return false
       else
         return false
 
-  private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
+  private partial def isRflTheoremCore (includeBackward : Bool) (declName : Name) : CoreM Bool := do
     if backward.dsimp.useDefEqAttr.get (← getOptions) then
-      return defeqAttr.hasTag (← getEnv) declName
+      let env ← getEnv
+      return defeqAttr.hasTag env declName ||
+        (includeBackward && backwardDefeqAttr.hasTag env declName)
     else
       let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
       let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
-      isRflProofCore info.type info.value
+      isRflProofCore includeBackward info.type info.value
 end
 
 def isRflTheorem (declName : Name) : CoreM Bool :=
@@ -202,7 +222,12 @@ def isRflTheorem (declName : Name) : CoreM Bool :=
   -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
   -- defeq.
   withoutExporting do
-    isRflTheoremCore declName
+    isRflTheoremCore (includeBackward := false) declName
+
+/-- Like `isRflTheorem`, but also returns `true` for `@[backward_defeq]` theorems. -/
+def isBackwardRflTheorem (declName : Name) : CoreM Bool :=
+  withoutExporting do
+    isRflTheoremCore (includeBackward := true) declName
 
 def isRflProof (proof : Expr) : MetaM Bool := do
   -- Make theorem body available if `declName` is from the current module; the body does not matter
@@ -210,9 +235,18 @@ def isRflProof (proof : Expr) : MetaM Bool := do
   -- defeq.
   withoutExporting do
     if let .const declName .. := proof then
-      isRflTheoremCore declName
+      isRflTheoremCore (includeBackward := false) declName
     else
-      isRflProofCore (← inferType proof) proof
+      isRflProofCore (includeBackward := false) (← inferType proof) proof
+
+/-- Like `isRflProof`, but also returns `true` for proofs that are rfl only at default
+transparency (via `@[backward_defeq]`). -/
+def isBackwardRflProof (proof : Expr) : MetaM Bool := do
+  withoutExporting do
+    if let .const declName .. := proof then
+      isRflTheoremCore (includeBackward := true) declName
+    else
+      isRflProofCore (includeBackward := true) (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=
@@ -359,12 +393,27 @@ private def checkTypeIsProp (type : Expr) : MetaM Unit :=
   unless (← isProp type) do
     throwError "Invalid simp theorem: Expected a proposition, but found{indentExpr type}"
 
-private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) : MetaM (Array SimpTheoremKey × Bool) := do
+private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) (checkLhs : Bool := false) : MetaM (Array SimpTheoremKey × Bool) := do
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
     let type ← whnfR type
     match type.eq? with
-    | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
+    | some (_, lhs, rhs) =>
+      let keys ← DiscrTree.mkPath lhs noIndexAtArgs
+      if checkLhs then
+        if warning.simp.varHead.get (← getOptions) && keys[0]? == some .star then
+          logWarning m!"Left-hand side of simp theorem has a variable as head symbol. \
+            This means the theorem will be tried on every simp step, which can be expensive. \
+            This may be acceptable for `local` or `scoped` simp lemmas.\n\
+            Use `set_option warning.simp.varHead false` to disable this warning."
+        if warning.simp.otherHead.get (← getOptions) && keys[0]? == some .other then
+          logWarning m!"Left-hand side of simp theorem is headed by a `.other` key in the \
+            discrimination tree (e.g. because it is a lambda expression). \
+            This theorem will be tried against all expressions that also have a `.other` key as head, \
+            which can cause slowdowns. \
+            This may be acceptable for `local` or `scoped` simp lemmas.\n\
+            Use `set_option warning.simp.otherHead false` to disable this warning."
+      pure (keys, ← isPerm lhs rhs)
     | none => throwError "Unexpected kind of simp theorem{indentExpr type}"
 
 register_builtin_option simp.rfl.checkTransparency: Bool := {
@@ -373,11 +422,12 @@ register_builtin_option simp.rfl.checkTransparency: Bool := {
 }
 
 private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr)
-    (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
+    (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) (checkLhs : Bool := false): MetaM SimpTheorem := do
   assert! origin != .fvar ⟨.anonymous⟩
   let type ← instantiateMVars (← inferType e)
-  let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs
+  let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs checkLhs
   let rfl ← isRflProof proof
+  let backwardRfl ← if rfl then pure true else isBackwardRflProof proof
   if rfl && simp.rfl.checkTransparency.get (← getOptions) then
     forallTelescopeReducing type fun _ type => do
       let checkDefEq (lhs rhs : Expr) := do
@@ -392,14 +442,14 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       | Iff lhs rhs => checkDefEq lhs rhs
       | _ =>
         logWarning m!"'{origin.key}' is a 'rfl' simp theorem, unexpected resulting type{indentExpr type}"
-  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl }
+  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl, backwardRfl }
 
 /--
 Creates a `SimpTheorem` from a global theorem.
 Because some theorems lead to multiple `SimpTheorems` (in particular conjunctions), returns an array.
 -/
 def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
-    (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
+    (prio : Nat := eval_prio default) (checkLhs : Bool := false) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
@@ -413,10 +463,12 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
           (forceExpose := true)  -- These kinds of theorems are small and `to_additive` may need to
                                  -- unfold them.
-        r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
+          -- The `[defeq]` attribute transfers (should only matter for `[← thm]`)
+          (defeq := inv && defeqAttr.hasTag (← getEnv) declName)
+        r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false) (checkLhs := checkLhs))
       return r
     else
-      return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
+      return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false) (checkLhs := checkLhs)]
 
 def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
   if simpThm.proof.isConst && simpThm.levelParams.isEmpty then
@@ -670,7 +722,7 @@ def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
 Adds a simp theorem to a simp extension
 -/
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  let simpThms ← withExporting (isExporting := attrKind != .local && !isPrivateName declName) do mkSimpTheoremFromConst declName post inv prio
+  let simpThms ← withExporting (isExporting := attrKind != .local && !isPrivateName declName) do mkSimpTheoremFromConst declName post inv prio (checkLhs := true)
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 
@@ -680,7 +732,7 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
     name     := name
     initial  := {}
     addEntry := fun d e => d.addSimpEntry e
-    exportEntry? := fun lvl e => do
+    exportEntry? := fun _ e =>
       -- export only annotations on public decls
       let declName := match e with
         | .thm t => match t.origin with
@@ -688,8 +740,8 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
           | _ => unreachable!
         | .toUnfold n => n
         | .toUnfoldThms n _ => n
-      guard (lvl == .private || !isPrivateName declName)
-      return e
+      if isPrivateName declName then ⟨none, none, some e⟩
+      else .uniform (some e)
   }
 
 abbrev SimpExtensionMap := Std.HashMap Name SimpExtension

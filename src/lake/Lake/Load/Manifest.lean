@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Util.Version
 public import Lake.Config.Defaults
+public import Lake.Util.Git
 import Lake.Util.Error
 public import Lake.Util.FilePath
 import Lake.Util.JsonObject
@@ -55,7 +56,7 @@ That is, Lake ignores the `-` suffix.
 @[inline] public def Manifest.version : StdVer := {major := 1, minor := 2}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
-private inductive PackageEntryV6
+inductive PackageEntryV6
 | path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
     (inputRev? : Option String) (subDir? : Option FilePath)
@@ -75,8 +76,8 @@ public inductive PackageEntrySrc
   /-- A remote Git package. -/
   | git
     (url : String)
-    (rev : String)
-    (inputRev? : Option String)
+    (rev : GitRev)
+    (inputRev? : Option GitRev)
     (subDir? : Option FilePath)
   deriving Inhabited
 
@@ -93,9 +94,6 @@ public structure PackageEntry where
   deriving Inhabited
 
 namespace PackageEntry
-
-@[inline] public def prettyName (entry : PackageEntry) : String :=
-  entry.name.toString (escape := false)
 
 public protected def toJson (entry : PackageEntry) : Json :=
   let fields := [
@@ -154,19 +152,35 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
 
 public instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
+@[inline] public def prettyName (entry : PackageEntry) : String :=
+  entry.name.toString (escape := false)
+
+/-- The directory name used to store the materialized dependency. -/
+@[inline] public def dirName (entry : PackageEntry) : String :=
+   entry.name.toString (escape := false)
+
+@[inline] public def inputRev? (entry : PackageEntry) : Option GitRev :=
+  match entry.src with
+  | .git (inputRev? := rev?) .. => rev?
+  | .path .. => none
+
+/-- **For internal use only.** -/
 @[inline] public def setInherited (entry : PackageEntry) : PackageEntry :=
   {entry with inherited := true}
 
+/-- **For internal use only.** -/
 @[inline] public def setConfigFile (path : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with configFile := path}
 
+/-- **For internal use only.** -/
 @[inline] public def setManifestFile (path? : Option FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with manifestFile? := path?}
 
+/-- **For internal use only.** -/
 @[inline] public def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with src := match entry.src with | .path dir => .path (pkgDir / dir) | s => s}
 
-private def ofV6 : PackageEntryV6 → PackageEntry
+def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
   {name, inherited, src := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
@@ -200,7 +214,7 @@ public protected def toJson (self : Manifest) : Json :=
 
 public instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
-private def getVersion (obj : JsonObject) : Except String SemVerCore := do
+def getVersion (obj : JsonObject) : Except String SemVerCore := do
   let ver : Json ← obj.get "version" <|> obj.get "schemaVersion"
   let ver : SemVerCore ←
     match ver with
@@ -216,7 +230,7 @@ private def getVersion (obj : JsonObject) : Except String SemVerCore := do
   else
     return ver
 
-private def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array PackageEntry) := do
+def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array PackageEntry) := do
   if ver < {minor := 7} then
     (·.map PackageEntry.ofV6) <$> obj.getD "packages" #[]
   else

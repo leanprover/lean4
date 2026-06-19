@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Cases
 import Driver
 
+set_option mvcgen.warning false
+
 /-!
 # VCGen Test Suite
 
@@ -23,7 +25,7 @@ Each case exercises a different aspect of the VC generation:
 - `MatchSplit`: Pattern matching with symbolic discriminant (state), exercising match split
 -/
 
-open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
+open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
 
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
@@ -39,12 +41,12 @@ set_option maxHeartbeats 10000000
     `(tactic| mvcgen') `(tactic| grind) [10]
   runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
     `(tactic| mvcgen') `(tactic| sorry) [10]
-  -- `mvcgen' with grind`: grind integrated into VCGen loop
+  -- `mvcgen' with finish`: grind integrated into VCGen loop
   runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
-    `(tactic| mvcgen' with grind) `(tactic| fail) [10]
-  -- `mvcgen' with grind` on AddSubCancel
+    `(tactic| mvcgen' with finish) `(tactic| fail) [10]
+  -- `mvcgen' with finish` on AddSubCancel
   runBenchUsingTactic ``AddSubCancel.Goal [``AddSubCancel.loop, ``AddSubCancel.step]
-    `(tactic| mvcgen' with grind) `(tactic| fail) [10]
+    `(tactic| mvcgen' with finish) `(tactic| fail) [10]
   runBenchUsingTactic ``PurePrecond.Goal [``PurePrecond.loop, ``PurePrecond.step]
     `(tactic| mvcgen') `(tactic| fail) [10]
   runBenchUsingTactic ``ReaderState.Goal [``ReaderState.loop, ``ReaderState.step]
@@ -59,6 +61,7 @@ set_option maxHeartbeats 10000000
 -- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--
 trace: s✝ : Nat
+a✝ : s✝ = 0
 h✝⁹ : ¬0 < s✝
 h✝⁸ : ¬1 < s✝ + 1
 h✝⁷ : ¬2 < s✝ + 2
@@ -69,7 +72,7 @@ h✝³ : ¬6 < s✝ + 6
 h✝² : ¬7 < s✝ + 7
 h✝¹ : ¬8 < s✝ + 8
 h✝ : ¬9 < s✝ + 9
-⊢ ⌜s✝ = 0⌝ ⊢ₛ ⌜s✝ + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 10⌝
+⊢ s✝ + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 10
 -/
 #guard_msgs in
 open GetThrowSet in
@@ -84,7 +87,7 @@ example : Goal 10 := by
 -- let-hoist, let-intro (non-duplicable value), and fvar-zeta (let-bound program head).
 -- Run with `set_option trace.Elab.Tactic.Do.vcgen true` to see the traces.
 open LetBinding in
-example : ∀ post, ⦃post⦄ step 5 ⦃⇓_ => post⦄ := by
+example : ∀ post, ⦃post⦄ step 5 ⦃fun _ => post⦄ := by
   unfold step
   intro post
   mvcgen'

@@ -17,7 +17,8 @@ namespace SimpReducibleClassField
 class X where
   x : Nat
 
-instance instX (n : Nat) : X where
+@[implicit_reducible]
+def instX (n : Nat) : X where
   x := n
 
 -- Test 1: plain simp, semireducible X.x (works on master)

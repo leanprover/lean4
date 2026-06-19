@@ -33,8 +33,8 @@ example : strictly_ordered
    PlainTime.ofHourMinuteSecondsNano 0 1 0 0,
    PlainTime.ofHourMinuteSecondsNano 1 0 0 0] := by decide
 
-example : Std.TransOrd (DateTime TimeZone.GMT) := inferInstance
-example : Std.LawfulBEqOrd (DateTime TimeZone.GMT) := inferInstance
+example : Std.TransOrd PlainDateTime := inferInstance
+example : Std.LawfulEqOrd PlainDateTime := inferInstance
 
 -- We cannot use `decide` here because the reduction gets stuck.
 /-- info: true -/
@@ -45,4 +45,4 @@ example : Std.LawfulBEqOrd (DateTime TimeZone.GMT) := inferInstance
    "Sat Jan 01 02:01:01 2025",
    "Sat Jan 02 01:01:01 2025",
    "Sat Feb 01 01:01:01 2025",
-   "Sat Jan 01 01:01:01 2026"].map (DateTime.fromAscTimeString . |>.toOption.get!)
+   "Sat Jan 01 01:01:01 2026"].map (PlainDateTime.fromAscTimeString . |>.toOption.get!)

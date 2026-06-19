@@ -93,6 +93,7 @@ theorem length_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
     it.length = it.internalState.xs.stop - it.internalState.xs.start := by
   simp [← Iter.length_toList_eq_length, toList_eq, it.internalState.xs.stop_le_array_size]
 
+set_option linter.defProp false in
 @[deprecated length_eq (since := "2026-01-28")]
 def count_eq := @length_eq
 
@@ -233,7 +234,7 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   simp [this, ListSlice.toList_eq, lslice]
 
 -- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
-private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
+theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
     l.extract start stop = (l.take stop).drop start := by
   simp [List.take_drop]
   by_cases start ≤ stop

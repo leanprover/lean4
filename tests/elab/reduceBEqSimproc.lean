@@ -30,7 +30,7 @@ deriving BEq
 /--
 info: Linear.instBEqL.beq.eq_1.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
   instBEqL.beq x✝ x✝¹ =
-    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    match x✝.ctorIdx.decEq x✝¹.ctorIdx with
     | isTrue h =>
       match x✝, x✝¹, h with
       | L.nil, L.nil, ⋯ => true

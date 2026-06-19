@@ -1,6 +1,6 @@
-import Std.Internal.Http.Data.Body
+import Std.Http.Data.Body
 
-open Std.Internal.IO Async
+open Std.Async
 open Std.Http
 open Std.Http.Body
 
@@ -73,6 +73,32 @@ def channelRecvAfterClose : Async Unit := do
 
 #eval channelRecvAfterClose.block
 
+-- Test Body.stream runs producer concurrently and transfers chunks
+
+def bodyStreamSends : Async Unit := do
+  let incoming ← Body.stream fun outgoing => do
+    outgoing.send (Chunk.ofByteArray "x".toUTF8)
+
+  let first ← incoming.recv
+  assert! first.isSome
+  assert! first.get!.data == "x".toUTF8
+
+  let done ← incoming.recv
+  assert! done.isNone
+
+#eval bodyStreamSends.block
+
+-- Test Body.stream closes channel when generator throws
+
+def bodyStreamThrowCloses : Async Unit := do
+  let incoming ← Body.stream fun _ => do
+    throw (.userError "boom")
+
+  let result ← incoming.recv
+  assert! result.isNone
+
+#eval bodyStreamThrowCloses.block
+
 -- Test for-in iteration collects chunks until close
 
 def channelForIn : Async Unit := do
@@ -107,6 +133,34 @@ def channelExtensions : Async Unit := do
   await sendTask
 
 #eval channelExtensions.block
+
+-- Test incomplete sends are collapsed before delivery
+
+def channelCollapseIncompleteChunks : Async Unit := do
+  let stream ← Body.mkStream
+
+  let first : Chunk := { data := "aaaaaaaaaa".toUTF8, extensions := #[(.mk "part", some <| .ofString! "first")] }
+  let second : Chunk := { data := "bbbbbbbbbb".toUTF8, extensions := #[(.mk "part", some <| .ofString! "second")] }
+  let last : Chunk := { data := "cccccccccccccccccccc".toUTF8, extensions := #[(.mk "part", some <| .ofString! "last")] }
+
+  stream.send first (incomplete := true)
+  stream.send second (incomplete := true)
+
+  let noChunkYet ← stream.tryRecv
+  assert! noChunkYet.isNone
+
+  let sendFinal ← async (t := AsyncTask) <| stream.send last
+  let result ← stream.recv
+
+  assert! result.isSome
+  let merged := result.get!
+  assert! merged.data == "aaaaaaaaaabbbbbbbbbbcccccccccccccccccccc".toUTF8
+  assert! merged.data.size == 40
+  assert! merged.extensions == #[(.mk "part", some <| .ofString! "first")]
+
+  await sendFinal
+
+#eval channelCollapseIncompleteChunks.block
 
 -- Test known size metadata
 
@@ -481,6 +535,20 @@ def anyFromEmpty : Async Unit := do
   assert! (← any.isClosed)
 
 #eval anyFromEmpty.block
+
+-- Test Any wrapping an Incoming channel receives chunks
+
+def anyFromChannel : Async Unit := do
+  let outgoing ← Body.mkStream
+  let any := Body.Any.ofBody outgoing
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send (Chunk.ofByteArray "data".toUTF8)
+  let result ← any.recv
+  assert! result.isSome
+  assert! result.get!.data == "data".toUTF8
+  await sendTask
+
+#eval anyFromChannel.block
 
 -- Test Any.close closes the underlying body
 

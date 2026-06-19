@@ -246,7 +246,7 @@ lean_object* v_val_169_; lean_object* v___x_170_; lean_object* v___x_171_; lean_
 lean_dec(v___x_166_);
 v_val_169_ = lean_ctor_get(v___x_167_, 0);
 lean_inc(v_val_169_);
-lean_dec_ref(v___x_167_);
+lean_dec_ref_known(v___x_167_, 1);
 v___x_170_ = ((lean_object*)(l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__31));
 v___x_171_ = ((lean_object*)(l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__32));
 v___x_172_ = ((lean_object*)(l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__33));

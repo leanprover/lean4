@@ -1,15 +1,15 @@
 import Lean
-import VCGen
+import Std.Tactic.Do
 
-open Lean Meta Elab Tactic Sym Std Do SpecAttr
+/-!
+Same loop as `AddSubCancel` but threaded through a deep monad transformer stack.
+-/
+
+open Lean Parser Meta Elab Tactic Sym Lean.Order Std.Internal.Do
 
 namespace AddSubCancelDeep
 
 set_option mvcgen.warning false
-
-/-!
-Same case as `AddSubCancel` but using a deep transformer stack.
--/
 
 abbrev M := ExceptT String <| ReaderT String <| ExceptT Nat <| StateT Nat <| ExceptT Unit <| StateM Unit
 
@@ -19,13 +19,13 @@ abbrev M := ExceptT String <| ReaderT String <| ExceptT Nat <| StateT Nat <| Exc
 
 @[spec high]
 theorem Spec.M_getThe_Nat :
-    ⦃fun s₁ s₂ => Q.fst s₂ s₁ s₂⦄ getThe (m := M) Nat ⦃Q⦄ := by
-  mvcgen
+    ⦃fun s₁ s₂ => post s₂ s₁ s₂⦄ (getThe (m := M) Nat) ⦃post⦄ := by
+  mvcgen'
 
 @[spec high]
 theorem Spec.M_set_Nat (n : Nat) :
-    ⦃fun s₁ _ => Q.fst ⟨⟩ s₁ n⦄ set (m := M) n ⦃Q⦄ := by
-  mvcgen
+    ⦃fun s₁ _ => post ⟨⟩ s₁ n⦄ (set (m := M) n) ⦃post⦄ := by
+  mvcgen'
 
 def step (v : Nat) : M Unit := do
   let s ← getThe Nat
@@ -38,6 +38,6 @@ def loop (n : Nat) : M Unit := do
   | 0 => pure ()
   | n+1 => step n; loop n
 
-def Goal (n : Nat) : Prop := ∀ post, ⦃post⦄ loop n ⦃⇓_ => post⦄
+def Goal (n : Nat) : Prop := ∀ post, ⦃post⦄ loop n ⦃fun _ => post⦄
 
 end AddSubCancelDeep

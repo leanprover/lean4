@@ -64,13 +64,15 @@ theorem mem_of_mem_eraseIdx {xs : Vector α n} {i : Nat} {h} {a : α} (h : a ∈
 
 grind_pattern mem_of_mem_eraseIdx => a ∈ xs.eraseIdx i
 
-theorem eraseIdx_append_of_lt_size {xs : Vector α n} {k : Nat} (hk : k < n) (xs' : Vector α n) (h) :
+theorem eraseIdx_append_of_lt_size {xs : Vector α n} {k : Nat} (hk : k < n)
+    (xs' : Vector α m) (h) :
     eraseIdx (xs ++ xs') k = (eraseIdx xs k ++ xs').cast (by omega) := by
   rcases xs with ⟨xs⟩
   rcases xs' with ⟨xs'⟩
   simp [Array.eraseIdx_append_of_lt_size, *]
 
-theorem eraseIdx_append_of_length_le {xs : Vector α n} {k : Nat} (hk : n ≤ k) (xs' : Vector α n) (h) :
+theorem eraseIdx_append_of_length_le {xs : Vector α n} {k : Nat} (hk : n ≤ k)
+    (xs' : Vector α m) (h) :
     eraseIdx (xs ++ xs') k = (xs ++ eraseIdx xs' (k - n)).cast (by omega) := by
   rcases xs with ⟨xs⟩
   rcases xs' with ⟨xs'⟩

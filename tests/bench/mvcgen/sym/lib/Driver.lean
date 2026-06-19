@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Meta
-import Lean.Elab
-import Lean.Meta.Sym.Simp.Theorems
-
+public import Lean
+public import Std.Tactic.Do
+public import Std.Internal.Do
+public import Std.Internal.Do.Triple.SpecLemmas
 open Lean Parser Meta Elab Tactic Sym
 
 def timeItMs (k : MetaM α) : MetaM (α × UInt64) := do
@@ -69,6 +69,7 @@ For many benchmarks, this is `[step, loop]`.
 -/
 public def runBenchUsingTactic (goal : Name) (unfold : List Name) (solve : MetaM (TSyntax `tactic)) (discharge : MetaM (TSyntax `tactic)) (sizes : List Nat) : MetaM Unit := do
   for n in sizes do
+    resetCache
     solveUsingTactic goal unfold n solve discharge
 
 def solveUsingSym (goal : Name) (unfold : List Name) (n : Nat) (solve : MVarId → SymM (List MVarId)) (discharge : MetaM (TSyntax `tactic)) : MetaM Unit := do
@@ -81,4 +82,5 @@ For many benchmarks, this is `[step, loop]`.
 -/
 public def runBenchUsingSym (goal : Name) (unfold : List Name) (solve : MVarId → SymM (List MVarId)) (discharge : MetaM (TSyntax `tactic)) (sizes : List Nat) : MetaM Unit := do
   for n in sizes do
+    resetCache
     solveUsingSym goal unfold n solve discharge

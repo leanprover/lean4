@@ -73,6 +73,9 @@ became a performance bottleneck in Mathlib. The option `backward.isDefEq.respect
 See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,
 `backward.whnf.reducibleClassField`.
 -/
+-- Note: the constructors below are not in the `none < reducible < instances < default < all`
+-- order described in the docstring above. Reordering them induces a bootstrap problem that is
+-- non-trivial to repair.
 inductive TransparencyMode where
   /-- Unfolds all constants, even those tagged as `@[irreducible]`. -/
   | all
@@ -201,7 +204,7 @@ end DSimp
 
 namespace Simp
 
-@[inline]
+@[inline, expose]
 def defaultMaxSteps := 100000
 
 /--
@@ -385,7 +388,7 @@ structure ConfigCtx extends Config where
 /--
 A neutral configuration for `simp`, turning off all reductions and other built-in simplifications.
 -/
-def neutralConfig : Simp.Config := {
+@[expose] def neutralConfig : Simp.Config := {
   zeta              := false
   beta              := false
   eta               := false
@@ -460,5 +463,26 @@ Configuration for the `lift_lets` tactic.
 structure LiftLetsConfig extends ExtractLetsConfig where
   lift := true
   preserveBinderNames := true
+
+namespace Command
+
+structure ReduceConfig where
+  /-- Do reductions of types and propositions. Default: `false`. -/
+  types : Bool := false
+  /-- Do reductions of proof terms. Default: `false`. -/
+  proofs : Bool := false
+  /-- In applications, do reductions of implicit arguments. Default: `false`. -/
+  implicits : Bool := false
+  /-- Transparency mode for reduction. Default: `all`. -/
+  transparency : TransparencyMode := .all
+  /-- Use "smart unfolding" when reducing definitions, to ensure the primitive recursors
+  are not exposed. Default: `false`. -/
+  smartUnfolding : Bool := false
+  /-- Typecheck the elaborated term before reducing. Default: `true`. -/
+  check : Bool := true
+  /-- Ignore stuck typeclass synthesis while elaborating the term. Default: `false`. -/
+  ignoreStuckTC : Bool := false
+
+end Command
 
 end Lean.Meta

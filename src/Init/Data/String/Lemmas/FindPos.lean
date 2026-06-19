@@ -492,7 +492,7 @@ theorem Pos.prev_ofToSlice {s : String} {p : s.toSlice.Pos} {h} :
 
 theorem Pos.prevn_le {s : String} {p : s.Pos} {n : Nat} :
     p.prevn n ≤ p := by
-  simpa [Pos.le_iff, ← offset_toSlice] using Slice.Pos.prevn_le
+  simpa [Pos.le_iff, ← offset_toSlice] using! Slice.Pos.prevn_le
 
 theorem Pos.ofSliceTo_prev {s : String} {p₀ : s.Pos} {p : (s.sliceTo p₀).Pos} {h} :
     Pos.ofSliceTo (p.prev h) = (Pos.ofSliceTo p).prev (by simpa [← Pos.ofSliceTo_inj] using h) := by

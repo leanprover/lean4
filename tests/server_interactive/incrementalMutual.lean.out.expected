@@ -17,8 +17,14 @@ h 1 1
 h 1 0.5
 h 0 1
 h 1 1
-{"version": 1, "uri": "file:///incrementalMutual.lean", "diagnostics": []}
-{"version": 2, "uri": "file:///incrementalMutual.lean", "diagnostics": []}
+{"version": 1,
+ "uri": "file:///incrementalMutual.lean",
+ "isIncremental": false,
+ "diagnostics": []}
+{"version": 2,
+ "uri": "file:///incrementalMutual.lean",
+ "isIncremental": false,
+ "diagnostics": []}
 ns 0
 ns 1
 ns 1.5
@@ -31,6 +37,7 @@ so 1
 so 1.5
 {"version": 2,
  "uri": "file:///incrementalMutual.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,

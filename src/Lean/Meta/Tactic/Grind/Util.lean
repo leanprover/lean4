@@ -125,33 +125,8 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
 /--
 Converts nested `Expr.proj`s into projection applications if possible.
 -/
-def foldProjs (e : Expr) : MetaM Expr := do
-  if Option.isNone <| e.find? fun e => e.isProj then return e
-  let post (e : Expr) := do
-    let .proj structName idx s := e | return .done e
-    let some info := getStructureInfo? (← getEnv) structName |
-      trace[sym.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
-      return .done e
-    if h : idx < info.fieldNames.size then
-      let fieldName := info.fieldNames[idx]
-      /-
-      In the test `grind_cat.lean`, the following operation fails if we are not using default
-      transparency. We get the following error.
-      ```
-      error: AppBuilder for 'mkProjection', structure expected
-        T
-      has type
-        F ⟶ G
-      ```
-      We should make `mkProjection` more robust.
-
-      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
-      -/
-      return .visit (← withDefault <| mkProjection s fieldName)
-    else
-      trace[sym.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
-      return .done e
-  Meta.transform e (post := post)
+def foldProjs (e : Expr) : MetaM Expr :=
+  Sym.foldProjs e
 
 set_option compiler.ignoreBorrowAnnotation true in
 /--

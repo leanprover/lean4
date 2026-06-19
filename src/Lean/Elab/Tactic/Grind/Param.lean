@@ -212,7 +212,7 @@ def processParam (params : Grind.Params)
       return (← processTermParam params p mod? id minIndexable)
     else
       throw err
-  Linter.checkDeprecated declName
+  Term.checkDeprecatedCore declName
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   match kind with
   | .ematch .user =>
@@ -281,7 +281,7 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         if incremental then
           throwErrorAt p "invalid `-` occurrence, it can only used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
-        Linter.checkDeprecated declName
+        Term.checkDeprecatedCore declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           Grind.ensureNotBuiltinCases declName
           params ← params.eraseCasesTypes declName

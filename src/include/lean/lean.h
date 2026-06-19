@@ -327,6 +327,65 @@ static inline LEAN_ALWAYS_INLINE uint8_t lean_is_scalar(lean_object * o) { retur
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
+/* Detect whether ThreadSanitizer is enabled (Clang via `__has_feature`, GCC via `__SANITIZE_THREAD__`). */
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define LEAN_TSAN
+#endif
+#endif
+#if defined(__SANITIZE_THREAD__)
+#define LEAN_TSAN
+#endif
+
+/* Under TSan we access `m_rc` through sequentially consistent atomics so that the otherwise
+   non-atomic single-threaded fast paths are not flagged as data races. The cast to `_Atomic(int)*`
+   mirrors `lean_get_rc_mt_addr`; `_Atomic(t)` expands to `std::atomic<t>` in C++. */
+#ifdef LEAN_TSAN
+#ifdef __cplusplus
+#define LEAN_RC_ATOMIC_LOAD(o)      std::atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), std::memory_order_seq_cst)
+#define LEAN_RC_ATOMIC_STORE(o, v)  std::atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), v, std::memory_order_seq_cst)
+#define LEAN_RC_ATOMIC_ADD(o, v)    std::atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), v, std::memory_order_seq_cst)
+#define LEAN_RC_ATOMIC_SUB(o, v)    std::atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), v, std::memory_order_seq_cst)
+#else
+#define LEAN_RC_ATOMIC_LOAD(o)      atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), memory_order_seq_cst)
+#define LEAN_RC_ATOMIC_STORE(o, v)  atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), v, memory_order_seq_cst)
+#define LEAN_RC_ATOMIC_ADD(o, v)    atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), v, memory_order_seq_cst)
+#define LEAN_RC_ATOMIC_SUB(o, v)    atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), v, memory_order_seq_cst)
+#endif
+#endif
+
+static inline int lean_internal_get_rc(lean_object* o) {
+#ifdef LEAN_TSAN
+    return LEAN_RC_ATOMIC_LOAD(o);
+#else
+    return o->m_rc;
+#endif
+}
+
+static inline void lean_internal_set_rc(lean_object* o, int rc) {
+#ifdef LEAN_TSAN
+    LEAN_RC_ATOMIC_STORE(o, rc);
+#else
+    o->m_rc = rc;
+#endif
+}
+
+static inline void lean_internal_add_rc(lean_object* o, int add) {
+#ifdef LEAN_TSAN
+    LEAN_RC_ATOMIC_ADD(o, add);
+#else
+    o->m_rc += add;
+#endif
+}
+
+static inline void lean_internal_sub_rc(lean_object* o, int sub) {
+#ifdef LEAN_TSAN
+    LEAN_RC_ATOMIC_SUB(o, sub);
+#else
+    o->m_rc -= sub;
+#endif
+}
+
 LEAN_EXPORT void lean_set_exit_on_panic(bool flag);
 /* Enable/disable panic messages */
 LEAN_EXPORT void lean_set_panic_messages(bool flag);
@@ -512,20 +571,20 @@ LEAN_EXPORT size_t lean_object_byte_size(lean_object * o);
 LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o);
 
 static inline bool lean_is_mt(lean_object * o) {
-    return o->m_rc < 0;
+    return lean_internal_get_rc(o) < 0;
 }
 
 static inline bool lean_is_st(lean_object * o) {
-    return o->m_rc > 0;
+    return lean_internal_get_rc(o) > 0;
 }
 
 /* We never update the reference counter of objects stored in compact regions and allocated at initialization time. */
 static inline bool lean_is_persistent(lean_object * o) {
-    return o->m_rc == 0;
+    return lean_internal_get_rc(o) == 0;
 }
 
 static inline bool lean_has_rc(lean_object * o) {
-    return o->m_rc != 0;
+    return lean_internal_get_rc(o) != 0;
 }
 
 static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
@@ -534,8 +593,8 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
 
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_rc += n;
-    } else if (o->m_rc != 0) {
+        lean_internal_add_rc(o, n);
+    } else if (lean_internal_get_rc(o) != 0) {
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else
@@ -551,9 +610,9 @@ static inline void lean_inc_ref(lean_object * o) {
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
-    if (LEAN_LIKELY(o->m_rc > 1)) {
-        o->m_rc--;
-    } else if (o->m_rc != 0) {
+    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
+        lean_internal_sub_rc(o, 1);
+    } else if (lean_internal_get_rc(o) != 0) {
         lean_dec_ref_cold(o);
     }
 }
@@ -590,7 +649,7 @@ static inline lean_external_object * lean_to_external(lean_object * o) { assert(
 
 static inline bool lean_is_exclusive(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
-        return o->m_rc == 1;
+        return lean_internal_get_rc(o) == 1;
     } else {
         return false;
     }
@@ -602,7 +661,7 @@ static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
 
 static inline bool lean_is_shared(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
-        return o->m_rc > 1;
+        return lean_internal_get_rc(o) > 1;
     } else {
         return false;
     }
@@ -612,7 +671,7 @@ LEAN_EXPORT void lean_mark_mt(lean_object * o);
 LEAN_EXPORT void lean_mark_persistent(lean_object * o);
 
 static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned other) {
-    o->m_rc       = 1;
+    lean_internal_set_rc(o, 1);
     o->m_tag      = tag;
     o->m_other    = other;
 #ifndef LEAN_MIMALLOC
@@ -627,7 +686,7 @@ static inline void lean_set_non_heap_header(lean_object * o, size_t sz, unsigned
     assert(sz > 0);
     assert(sz < (1ull << 16));
     assert(sz == 1 || !lean_is_big_object_tag(tag));
-    o->m_rc       = 0;
+    lean_internal_set_rc(o, 0);
     o->m_tag      = tag;
     o->m_other    = other;
     o->m_cs_sz    = sz;
@@ -3258,72 +3317,88 @@ typedef struct {
 LEAN_EXPORT lean_object* lean_obj_once_cold(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void));
 
 static inline lean_object* lean_obj_once(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_obj_once_cold(loc, tok, init);
 }
 
 LEAN_EXPORT uint8_t lean_uint8_once_cold(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void));
 
 static inline uint8_t lean_uint8_once(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_uint8_once_cold(loc, tok, init);
 }
 
 LEAN_EXPORT uint16_t lean_uint16_once_cold(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void));
 
 static inline uint16_t lean_uint16_once(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_uint16_once_cold(loc, tok, init);
 }
 
 LEAN_EXPORT uint32_t lean_uint32_once_cold(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void));
 
 static inline uint32_t lean_uint32_once(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_uint32_once_cold(loc, tok, init);
 }
 
 LEAN_EXPORT uint64_t lean_uint64_once_cold(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void));
 
 static inline uint64_t lean_uint64_once(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_uint64_once_cold(loc, tok, init);
 }
 
 LEAN_EXPORT size_t lean_usize_once_cold(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void));
 
 static inline size_t lean_usize_once(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_usize_once_cold(loc, tok, init);
 }
 
 LEAN_EXPORT float lean_float32_once_cold(float* loc, lean_once_cell_t* tok, float (*init)(void));
 
 static inline float lean_float32_once(float* loc, lean_once_cell_t* tok, float (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_float32_once_cold(loc, tok, init);
 }
 
 LEAN_EXPORT double lean_float_once_cold(double* loc, lean_once_cell_t* tok, double (*init)(void));
 
 static inline double lean_float_once(double* loc, lean_once_cell_t* tok, double (*init)(void)) {
+#ifndef LEAN_TSAN
     if (LEAN_LIKELY(tok->state == 1)) {
         return *loc;
     }
+#endif
     return lean_float_once_cold(loc, tok, init);
 }
 

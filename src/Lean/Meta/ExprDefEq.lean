@@ -35,7 +35,7 @@ so that `isDefEq` would try harder and unfold semireducible definitions to make 
 in proof automation could trigger expensive unfolding of semireducible definitions on implicit
 arguments — and most of these calls *fail*. This eventually became a performance bottleneck in
 Mathlib. With `true`, instance-implicit arguments (`[..]`) are checked at
-`TransparencyMode.instances` (to resolve instance diamonds). Other implicit arguments are checked
+`TransparencyMode.implicit` (to resolve instance diamonds). Other implicit arguments are checked
 at the caller's transparency unless `backward.isDefEq.implicitBump` is also `true`, in which case
 they are bumped to `.implicit`.
 
@@ -69,8 +69,8 @@ harder to make them match. The `[reducible]`/`[instance_reducible]`/`[implicit_r
 attributes provide guardrails — only explicitly marked definitions get unfolded, not arbitrary
 semireducible definitions.
 
-When `false` (current default for staging), only instance-implicit arguments (`[..]`) are bumped
-to `.instances`; other implicit arguments stay at the caller's transparency.
+When set to `false`, only instance-implicit arguments (`[..]`) are bumped
+to `.implicit`; other implicit arguments stay at the caller's transparency.
 
 This option only has an effect when `backward.isDefEq.respectTransparency` is `true`.
 -/
@@ -2116,15 +2116,16 @@ where
 private def isDefEqProj : Expr → Expr → MetaM Bool
   | .proj m i t, .proj n j s => do
     /- When `m` is a class, the projection's parameter is instance-implicit.
-       We bump the transparency to `.instances` (via `withInstanceConfig`) so that
-       instance definitions (`[instance_reducible]`) can be unfolded when comparing
-       the struct arguments. Without this bump, comparing `.proj` nodes produced by unfolding
+       We bump the transparency to `.implicit` (via `withImplicitConfig`) so that all
+       at least implicit-reducible declarations, including instance definitions, can be unfolded
+       when comparing the struct arguments.
+       Without this bump, comparing `.proj` nodes produced by unfolding
        a `[reducible]` class field fails because the struct arguments (`instX a` vs `instX b`)
        are stuck at `.reducible`. This mirrors the transparency bump that `isDefEqArgs` applies
        for instance-implicit parameters. -/
     let fromClass := isClass (← getEnv) m
     let isDefEqStructArgs (x : MetaM Bool) : MetaM Bool :=
-      if fromClass then withInstanceConfig x else x
+      if fromClass then withImplicitConfig x else x
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)

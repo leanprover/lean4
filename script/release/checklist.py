@@ -173,18 +173,6 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain(mathlib)
         self._bump_toolchain_deps(mathlib)
 
-        if self.prompt("Run tests?"):
-            try:
-                util.run("./test.sh", cwd=self.lrepo.path)
-                print("#####################")
-                print("## Tests succeeded ##")
-                print("#####################")
-            except SystemExit as e:
-                print("###################")
-                print("## Tests failed! ##")
-                print("###################")
-                raise e
-
     def _bump_toolchain_verso(self) -> None:
         self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)

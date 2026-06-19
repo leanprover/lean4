@@ -19,6 +19,7 @@ SECTIONS = [
     "Library",
     "Tactics",
     "Compiler",
+    "FFI",
     "Pretty Printing",
     "Documentation",
     "Server",
@@ -120,6 +121,8 @@ def get_category(labels: set[str]) -> str | None:
         return "Documentation"
     if cat == "pp":
         return "Pretty Printing"
+    if cat == "ffi":
+        return "FFI"
     return cat.capitalize()
 
 

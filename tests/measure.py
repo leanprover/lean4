@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import glob
 import json
 import os
 import resource
@@ -156,23 +155,6 @@ def get_rusage_result(rusage: resource.struct_rusage, metric: str) -> Result:
     return Result(category=metric, value=value, unit=info.unit)
 
 
-def evict_caches(patterns: list[str]) -> None:
-    evicted = False
-    for pattern in patterns:
-        for path in glob.glob(pattern, recursive=True):
-            try:
-                fd = os.open(path, os.O_RDONLY)
-            except OSError:
-                continue
-            try:
-                os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
-                evicted = True
-            finally:
-                os.close(fd)
-    if patterns and not evicted:
-        print(f"warning: --evict matched no files: {patterns}", file=sys.stderr)
-
-
 def main(
     cmd: list[str],
     output: Path,
@@ -180,13 +162,9 @@ def main(
     metrics: set[str],
     append: bool = True,
     capture: bool = False,
-    evict: list[str] | None = None,
 ) -> tuple[str, str]:
     perf_metrics, rusage_metrics = resolve_metrics(metrics)
     perf_events = {PERF_METRICS[metric].event for metric in perf_metrics}
-
-    if evict:
-        evict_caches(evict)
 
     measured = measure_perf(cmd, perf_events, capture=capture)
     perf = measured.perf
@@ -213,7 +191,6 @@ class Args(Namespace):
     default_metrics: bool
     output: Path
     append: bool
-    evict: list[str]
     cmd: str
     args: list[str]
 
@@ -257,13 +234,6 @@ if __name__ == "__main__":
         help="append to the output file instead of overwriting it",
     )
     parser.add_argument(
-        "--evict",
-        action="append",
-        default=[],
-        metavar="GLOB",
-        help="drop files matching GLOB from the page cache before measuring, for a cold-cache run. Repeatable.",
-    )
-    parser.add_argument(
         "cmd",
         help="command to measure the resource usage of",
     )
@@ -285,5 +255,4 @@ if __name__ == "__main__":
         topics=args.topic,
         metrics=metrics,
         append=args.append,
-        evict=args.evict,
     )

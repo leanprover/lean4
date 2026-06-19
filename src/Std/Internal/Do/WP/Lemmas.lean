@@ -10,8 +10,6 @@ public import Std.Internal.Do.WP.Basic
 @[expose] public section
 
 set_option linter.missingDocs true
--- The `WP`/`WPMonad` split means each lemma uses only the subset of the section variables it needs.
-set_option linter.unusedSectionVars false
 
 /-!
 # Simp lemmas for weakest preconditions
@@ -516,7 +514,7 @@ end
 /-! ## Transitive lift/map/control simp lemmas -/
 
 section
-variable {m n : Type u → Type v} {o : Type u → Type v} [Monad o] [Assertion Pred] [Assertion EPred] [∀ α, WP (o α) α Pred EPred]
+variable {m n : Type u → Type v} {o : Type u → Type v} [Assertion Pred] [Assertion EPred] [∀ α, WP (o α) α Pred EPred]
 
 @[simp]
 theorem wp_monadLift_trans_apply_eq [MonadLift n o] [MonadLiftT m n] (x : m α) :
@@ -551,7 +549,7 @@ end
 /-! ## Lifted state/reader operations -/
 
 section
-variable {m n : Type u → Type v} [Monad n] [MonadLift m n] [Assertion Pred] [Assertion EPred] [∀ α, WP (n α) α Pred EPred]
+variable {m n : Type u → Type v} [MonadLift m n] [Assertion Pred] [Assertion EPred] [∀ α, WP (n α) α Pred EPred]
 
 @[simp]
 theorem wp_get_MonadStateOf_lift_apply_eq [MonadStateOf σ m] :

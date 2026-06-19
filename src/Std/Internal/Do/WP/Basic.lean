@@ -74,8 +74,8 @@ def WP.wp {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
   (self.wpTrans x).apply post epost
 
 /-- Weakest precondition monad: a monad `m` whose weakest precondition interpretation is sound for
-`pure` and `bind`. The interpretation for every result type is carried as the `toWP` field; the
-`instWPofWPMonad` instance exposes it as a `WP (m α) …` interpretation. -/
+`pure` and `bind`. The interpretation for every result type is carried as the `toWP` field; an
+instance exposes it as a `WP (m α) …` interpretation. -/
 class WPMonad (m : Type u → Type v) (Pred : outParam (Type w)) (EPred : outParam (Type w'))
     [Monad m] [Assertion Pred] [Assertion EPred] extends LawfulMonad m where
   /-- The weakest precondition interpretation of `m` at every result type. -/
@@ -91,8 +91,7 @@ class WPMonad (m : Type u → Type v) (Pred : outParam (Type w)) (EPred : outPar
 
 /-- A monadic `WP` interpretation is sourced from the monad's `WPMonad` instance. Low priority so a
 program type with a bespoke `WP` instance (e.g. a non-monadic one) is preferred. -/
-@[instance_reducible]
-instance (priority := low) instWPofWPMonad
+instance (priority := low)
     {m : Type u → Type v} {Pred : Type w} {EPred : Type w'} {α : Type u}
     [Monad m] [Assertion Pred] [Assertion EPred] [inst : WPMonad m Pred EPred] :
     WP (m α) α Pred EPred :=

@@ -31,8 +31,6 @@ import Init.Data.String.Termination
 import Init.Data.String.Lemmas.Iterate
 
 set_option linter.missingDocs true
--- The `WP`/`WPMonad` split means each lemma uses only the subset of the section variables it needs.
-set_option linter.unusedSectionVars false
 
 @[expose] public section
 

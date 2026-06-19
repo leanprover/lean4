@@ -166,7 +166,7 @@ theorem Spec.liftWith_StateT
     (f : (∀{β}, StateT σ m β → m (β × σ)) → m α) (post : α → σ → Pred) :
     Triple (MonadControl.liftWith (m:=m) f : StateT σ m α)
       (fun s => wp (f (fun x => x.run s)) (fun a => post a s) epost) post epost :=
-  Triple.intro (by intro s; simp [WPMonad.wp_liftWith_StateT_apply_eq f]; apply WPMonad.wp_map'; ext; rfl)
+  Triple.intro (by intro s; simp [WPMonad.wp_liftWith_StateT_apply_eq f]; apply WPMonad.map_le_wp_map'; ext; rfl)
 
 
 @[spec]
@@ -182,7 +182,7 @@ theorem Spec.liftWith_ExceptT
     (f : (∀{β}, ExceptT ε m β → m (Except ε β)) → m α) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     Triple (MonadControl.liftWith (m:=m) f : ExceptT ε m α)
       (wp (f (fun x => x.run)) post epost.tail) post epost :=
-  Triple.intro (by simp [WPMonad.wp_liftWith_ExceptT_apply_eq f]; apply WPMonad.wp_map'; ext; rfl)
+  Triple.intro (by simp [WPMonad.wp_liftWith_ExceptT_apply_eq f]; apply WPMonad.map_le_wp_map'; ext; rfl)
 
 
 @[spec]
@@ -245,7 +245,7 @@ theorem Spec.read_ReaderT (post : ρ → ρ → Pred) :
     Triple (MonadReaderOf.read : ReaderT ρ m ρ)
       (fun r => post r r) post epost :=
   Triple.intro (by intro r; simpa [MonadReaderOf.read] using
-    (WPMonad.wp_pure (m := m) (x := r) (post := fun a => post a r) (epost := epost)))
+    (WPMonad.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (epost := epost)))
 
 theorem Spec.withReader_ReaderT (f : ρ → ρ) (x : ReaderT ρ m α) (post : α → ρ → Pred) :
     Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α)
@@ -266,7 +266,7 @@ theorem Spec.get_StateT (post : σ → σ → Pred) :
     Triple (MonadStateOf.get : StateT σ m σ)
       (fun s => post s s) post epost :=
   Triple.intro (by intro s; simpa [get_StateT] using!
-    (WPMonad.wp_pure (m := m) (x := (s, s))
+    (WPMonad.pure_le_wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (epost := epost)))
 
 
@@ -275,7 +275,7 @@ theorem Spec.set_StateT (s : σ) (post : PUnit → σ → Pred) :
     Triple (set s : StateT σ m PUnit)
       (fun _ => post ⟨⟩ s) post epost :=
   Triple.intro (by intro _; simpa [MonadStateOf.set] using!
-    (WPMonad.wp_pure (m := m) (x := (PUnit.unit, s))
+    (WPMonad.pure_le_wp_pure (m := m) (x := (PUnit.unit, s))
       (post := fun x => post x.fst x.snd) (epost := epost)))
 
 
@@ -284,7 +284,7 @@ theorem Spec.modifyGet_StateT (f : σ → α × σ) (post : α → σ → Pred) 
     Triple (MonadStateOf.modifyGet f : StateT σ m α)
       (fun s => post (f s).1 (f s).2) post epost :=
   Triple.intro (by intro s; simpa [MonadStateOf.modifyGet] using!
-    (WPMonad.wp_pure (m := m) (x := f s)
+    (WPMonad.pure_le_wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (epost := epost)))
 
 /-! # Lifting `MonadStateOf` -/
@@ -327,7 +327,7 @@ theorem Spec.run_ExceptT (x : ExceptT ε m α) (post : α → Pred) (epost : EPo
 theorem Spec.throw_ExceptT (err : ε) (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     Triple (MonadExceptOf.throw err : ExceptT ε m α) (epost.head err) post epost :=
   Triple.intro (by simpa [EPost.Cons.pushExcept] using!
-    (WPMonad.wp_pure (m := m) (x := Except.error err)
+    (WPMonad.pure_le_wp_pure (m := m) (x := Except.error err)
       (post := epost.pushExcept post)
       (epost := epost.tail)))
 

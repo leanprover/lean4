@@ -128,7 +128,7 @@ variable [Monad m] [WPMonad m Pred EPred]
 
 theorem pure (a : α) (h : pre ⊑ post a) :
     Triple (pure (f := m) a) pre post epost :=
-  ⟨PartialOrder.rel_trans h (WPMonad.wp_pure a post epost)⟩
+  ⟨PartialOrder.rel_trans h (WPMonad.pure_le_wp_pure a post epost)⟩
 
 theorem bind (x : m α) (f : α → m β)
     (mid : α → Pred)
@@ -138,17 +138,17 @@ theorem bind (x : m α) (f : α → m β)
   ⟨PartialOrder.rel_trans hx.le_wp
     (PartialOrder.rel_trans
       (WP.wp_consequence x mid (fun a => wp (f a) post epost) epost (fun a => (hf a).le_wp))
-      (WPMonad.wp_bind x f post epost))⟩
+      (WPMonad.bind_le_wp_bind x f post epost))⟩
 
 theorem map [LawfulMonad m] (f : α → β) (x : m α)
     (h : Triple x pre (fun a => post (f a)) epost) :
     Triple (f <$> x) pre post epost :=
-  ⟨PartialOrder.rel_trans h.le_wp (WPMonad.wp_map f x post epost)⟩
+  ⟨PartialOrder.rel_trans h.le_wp (WPMonad.map_le_wp_map f x post epost)⟩
 
 theorem seq [LawfulMonad m] (x : m (α → β)) (y : m α)
     (h : Triple x pre (fun f => wp y (fun a => post (f a)) epost) epost) :
     Triple (x <*> y) pre post epost :=
-  ⟨PartialOrder.rel_trans h.le_wp (WPMonad.wp_seq x y post epost)⟩
+  ⟨PartialOrder.rel_trans h.le_wp (WPMonad.seq_le_wp_seq x y post epost)⟩
 
 end Monad
 

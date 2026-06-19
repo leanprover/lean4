@@ -173,16 +173,8 @@ namespace WPMonad
 
 variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
-theorem wp_pure (x : α) (post : α → Pred) (epost : EPred) :
-    post x ⊑ wp (pure (f := m) x) post epost := pure_le_wp_pure x post epost
-
-theorem wp_bind (x : m α) (f : α → m β)
-  (post : β → Pred) (epost : EPred) :
-    wp x (fun x => wp (f x) post epost) epost ⊑ wp (x >>= f) post epost :=
-  bind_le_wp_bind x f post epost
-
 /-- Soundness of `Functor.map`: mapping `f` over `x` preserves the WP. -/
-theorem wp_map (f : α → β) (x : m α) :
+theorem map_le_wp_map (f : α → β) (x : m α) :
   ∀ post epost, wp x (fun a => post (f a)) epost ⊑ wp (f <$> x) post epost := by
   intro post epost
   rw [← bind_pure_comp]
@@ -191,23 +183,23 @@ theorem wp_map (f : α → β) (x : m α) :
   apply WP.wp_consequence
   intro a; exact pure_le_wp_pure (f a) post epost
 
-/-- Variant of `wp_map` with an explicit postcondition equality hypothesis. -/
-theorem wp_map' (f : α → β) (x : m α) :
+/-- Variant of `map_le_wp_map` with an explicit postcondition equality hypothesis. -/
+theorem map_le_wp_map' (f : α → β) (x : m α) :
   ∀ post post' epost (_ : post = fun a => post' (f a)),
     wp x post epost ⊑ wp (f <$> x) post' epost := by
   intro post post' epost h
   subst h
-  apply wp_map
+  apply map_le_wp_map
 
 /-- Soundness of `Seq.seq`: sequencing `f <*> x` preserves the WP. -/
-theorem wp_seq (f : m (α → β)) (x : m α) :
+theorem seq_le_wp_seq (f : m (α → β)) (x : m α) :
   ∀ post epost,
     wp f (fun g => wp x (fun a => post (g a)) epost) epost ⊑
       wp (f <*> x) post epost := by
   intro post epost
   rw [← bind_map]
-  apply PartialOrder.rel_trans _ (wp_bind f (fun g => g <$> x) post epost)
-  apply WP.wp_consequence; intro g; exact wp_map g x post epost
+  apply PartialOrder.rel_trans _ (bind_le_wp_bind f (fun g => g <$> x) post epost)
+  apply WP.wp_consequence; intro g; exact map_le_wp_map g x post epost
 
 end WPMonad
 
@@ -258,15 +250,15 @@ instance ExceptT.instWPMonad {Pred : Type v}
     WPMonad (ExceptT ε m) Pred (EPost.Cons (ε → Pred) EPred) where
   toWP _ := ExceptT.wpInst
   pure_le_wp_pure x := fun post epost =>
-    WPMonad.wp_pure (m := m) (Except.ok x) (epost.pushExcept post) epost.tail
+    WPMonad.pure_le_wp_pure (m := m) (Except.ok x) (epost.pushExcept post) epost.tail
   bind_le_wp_bind x f := fun post epost => by
     show wp x.run _ epost.tail ⊑ wp (x >>= f).run (epost.pushExcept post) epost.tail
-    apply PartialOrder.rel_trans _ (WPMonad.wp_bind (m := m) x.run _ (epost.pushExcept post) epost.tail)
+    apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (epost.pushExcept post) epost.tail)
     apply WP.wp_consequence
     intro r; cases r with
     | ok a => exact PartialOrder.rel_refl
     | error el =>
-      exact WPMonad.wp_pure (m := m) (Except.error el) (epost.pushExcept post) epost.tail
+      exact WPMonad.pure_le_wp_pure (m := m) (Except.error el) (epost.pushExcept post) epost.tail
 
 @[simp, grind =]
 theorem ExceptT.wp_apply_eq {α ε Pred EPred}
@@ -296,15 +288,15 @@ instance OptionT.instWPMonad {Pred : Type u}
     WPMonad (OptionT m) Pred (EPost.Cons Pred EPred) where
   toWP _ := OptionT.wpInst
   pure_le_wp_pure x := fun post epost =>
-    WPMonad.wp_pure (m := m) (some x) (epost.pushOption post) epost.tail
+    WPMonad.pure_le_wp_pure (m := m) (some x) (epost.pushOption post) epost.tail
   bind_le_wp_bind x f := fun post epost => by
     show wp x.run _ epost.tail ⊑ wp (x >>= f).run (epost.pushOption post) epost.tail
-    apply PartialOrder.rel_trans _ (WPMonad.wp_bind (m := m) x.run _ (epost.pushOption post) epost.tail)
+    apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (epost.pushOption post) epost.tail)
     apply WP.wp_consequence
     intro r; cases r with
     | some a => exact PartialOrder.rel_refl
     | none =>
-      exact WPMonad.wp_pure (m := m) none (epost.pushOption post) epost.tail
+      exact WPMonad.pure_le_wp_pure (m := m) none (epost.pushOption post) epost.tail
 
 @[simp, grind =]
 theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPred}
@@ -329,9 +321,9 @@ instance (priority := low) StateT.instWPMonad {EPred : Type v} {σ : Type u} {Pr
     WPMonad (StateT σ m) (σ → Pred) EPred where
   toWP _ := StateT.wpInst
   pure_le_wp_pure x := fun post epost s =>
-    WPMonad.wp_pure (m := m) (x, s) (fun p => post p.1 p.2) epost
+    WPMonad.pure_le_wp_pure (m := m) (x, s) (fun p => post p.1 p.2) epost
   bind_le_wp_bind x f := fun post epost s => by
-    apply WPMonad.wp_bind
+    apply WPMonad.bind_le_wp_bind
 
 @[simp, grind =]
 theorem StateT.wp_apply_eq {σ : Type u}
@@ -356,12 +348,12 @@ instance ReaderT.instWPMonad {Pred : Type v}
     WPMonad (ReaderT ρ m) (ρ → Pred) EPred where
   toWP _ := ReaderT.wpInst
   pure_le_wp_pure x := fun post epost r =>
-    WPMonad.wp_pure (m := m) x (fun a => post a r) epost
+    WPMonad.pure_le_wp_pure (m := m) x (fun a => post a r) epost
   bind_le_wp_bind x f := fun post epost r => by
     apply PartialOrder.rel_trans
     · apply WP.wp_consequence
       intro a; exact PartialOrder.rel_refl
-    · apply WPMonad.wp_bind
+    · apply WPMonad.bind_le_wp_bind
 
 @[simp, grind =]
 theorem ReaderT.wp_apply_eq {ρ : Type u}

@@ -17,7 +17,7 @@ set_option linter.missingDocs true
 This module provides simp lemmas for simplifying weakest precondition expressions.
 Unlike `Std.Do`, we use direct function application `wp x post epost` without notation.
 
-Some lemmas prove only one direction (`⊑`) instead of equality because our `wp_bind` axiom
+Some lemmas prove only one direction (`⊑`) instead of equality because our `bind_le_wp_bind` axiom
 only provides one direction.
 -/
 
@@ -37,7 +37,7 @@ theorem le_wp_read_ReaderT_apply
     (fun r => post r r) ⊑ wp (MonadReaderOf.read : ReaderT ρ m ρ) post epost := by
   intro r
   simpa [MonadReaderOf.read] using
-    (WPMonad.wp_pure (m := m) (x := r) (post := fun a => post a r) (epost := epost))
+    (WPMonad.pure_le_wp_pure (m := m) (x := r) (post := fun a => post a r) (epost := epost))
 
 @[simp]
 theorem wp_adapt_ReaderT_apply_eq (f : ρ → ρ') (x : ReaderT ρ' m α) :
@@ -51,7 +51,7 @@ theorem le_wp_get_StateT_apply
     (fun s => post s s) ⊑ wp (MonadStateOf.get : StateT σ m σ) post epost := by
   intro s
   simpa [MonadStateOf.get] using!
-    (WPMonad.wp_pure (m := m) (x := (s, s))
+    (WPMonad.pure_le_wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (epost := epost))
 
 theorem le_wp_set_StateT_apply (x : σ)
@@ -59,7 +59,7 @@ theorem le_wp_set_StateT_apply (x : σ)
     (fun _ => post ⟨⟩ x) ⊑ wp (MonadStateOf.set x : StateT σ m PUnit) post epost := by
   intro s
   simpa [MonadStateOf.set] using!
-    (WPMonad.wp_pure (m := m) (x := (PUnit.unit, x))
+    (WPMonad.pure_le_wp_pure (m := m) (x := (PUnit.unit, x))
       (post := fun x => post x.fst x.snd) (epost := epost))
 
 theorem le_wp_modifyGet_StateT_apply (f : σ → α × σ)
@@ -67,7 +67,7 @@ theorem le_wp_modifyGet_StateT_apply (f : σ → α × σ)
     (fun s => post (f s).1 (f s).2) ⊑ wp (MonadStateOf.modifyGet f : StateT σ m α) post epost := by
   intro s
   simpa [MonadStateOf.modifyGet] using!
-    (WPMonad.wp_pure (m := m) (x := f s)
+    (WPMonad.pure_le_wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (epost := epost))
 
 theorem wp_get_EStateM_apply_eq :
@@ -123,7 +123,7 @@ theorem wp_throw_Except_apply_eq (e : ε) :
 theorem le_wp_throw_ExceptT_apply (err : ε) :
     epost.head err ⊑ wp (MonadExceptOf.throw err : ExceptT ε m α) post epost := by
   simpa [MonadExceptOf.throw, EPost.Cons.pushExcept] using
-    (WPMonad.wp_pure (m := m) (x := Except.error err)
+    (WPMonad.pure_le_wp_pure (m := m) (x := Except.error err)
       (post := epost.pushExcept post) (epost := epost.tail))
 
 @[simp]
@@ -142,7 +142,7 @@ theorem le_wp_throw_OptionT_apply (err : PUnit) :
   epost.head ⊑ wp (MonadExceptOf.throw err : OptionT m α) post epost := by
   show epost.head ⊑ wp (pure none : m (Option α)) (epost.pushOption post) epost.tail
   simpa [MonadExceptOf.throw, EPost.Cons.pushOption] using
-    (WPMonad.wp_pure (m := m) (x := none)
+    (WPMonad.pure_le_wp_pure (m := m) (x := none)
       (post := epost.pushOption post) (epost := epost.tail))
 
 @[simp]
@@ -184,11 +184,11 @@ theorem le_wp_tryCatch_ExceptT_apply (x : ExceptT ε m α)
       wp (MonadExceptOf.tryCatch x h : ExceptT ε m α) post epost := by
   change _ ⊑ wp (tryCatch x h : ExceptT ε m α) _ _
   simp only [ExceptT.wp_apply_eq, ExceptT.run_tryCatch]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
   apply WP.wp_consequence; intro r; cases r with
   | ok a =>
     simp; apply PartialOrder.rel_trans; rotate_left;
-    apply WPMonad.wp_pure; simp; rfl
+    apply WPMonad.pure_le_wp_pure; simp; rfl
   | error _ => exact PartialOrder.rel_refl
 
 @[simp]
@@ -213,10 +213,10 @@ theorem le_wp_tryCatch_OptionT_apply (x : OptionT m α)
   wp x post ⟨wp (h ⟨⟩) post epost, epost.tail⟩ ⊑
     wp (MonadExceptOf.tryCatch x h : OptionT m α) post epost := by
   simp only [wp, MonadExceptOf.tryCatch, OptionT.tryCatch, OptionT.mk]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
   apply WP.wp_consequence (x := x.run); intro o; cases o with
   | some a =>
-    apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_pure
+    apply PartialOrder.rel_trans; rotate_left; apply WPMonad.pure_le_wp_pure
     simp [EPost.Cons.pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 
@@ -277,10 +277,10 @@ theorem le_wp_monadLift_StateT_apply (x : m α) (post : α → σ → Pred) :
       wp (MonadLift.monadLift x : StateT σ m α) post epost := by
   intro s
   simp only [wp, MonadLift.monadLift]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
   apply WP.wp_consequence; intro a
   simpa using
-    (WPMonad.wp_pure (m := m) (x := (a, s))
+    (WPMonad.pure_le_wp_pure (m := m) (x := (a, s))
       (post := fun x => post x.fst x.snd) (epost := epost))
 
 @[simp]
@@ -295,7 +295,7 @@ theorem le_wp_monadLift_ExceptT_apply (x : m α) (post : α → Pred)
       wp (MonadLift.monadLift x : ExceptT ε m α) post epost := by
   simp only [wp, MonadLift.monadLift, ExceptT.lift, ExceptT.mk]
   apply PartialOrder.rel_trans; rotate_left
-  · exact WPMonad.wp_map (m := m) Except.ok x _ _
+  · exact WPMonad.map_le_wp_map (m := m) Except.ok x _ _
   · exact PartialOrder.rel_refl
 
 @[simp]
@@ -315,9 +315,9 @@ theorem le_wp_monadLift_OptionT_apply (x : m α) :
   wp x post epost.tail ⊑
     wp (MonadLift.monadLift x : OptionT m α) post epost := by
   simp only [wp, MonadLift.monadLift, OptionT.mk, OptionT.lift]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
   apply WP.wp_consequence; intro a
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_pure
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.pure_le_wp_pure
   simp [EPost.Cons.pushOption]; exact PartialOrder.rel_refl
 
 @[simp]
@@ -381,7 +381,7 @@ theorem le_wp_adapt_ExceptT_apply (f : ε → ε') (x : ExceptT ε m α) :
       wp (ExceptT.adapt f x : ExceptT ε' m α) post epost := by
   simp only [wp, ExceptT.adapt, ExceptT.mk]
   apply PartialOrder.rel_trans; rotate_left
-  · exact WPMonad.wp_map (m := m) (Except.mapError f) x _ _
+  · exact WPMonad.map_le_wp_map (m := m) (Except.mapError f) x _ _
   · apply WP.wp_consequence (x := x.run); intro r; cases r <;> exact PartialOrder.rel_refl
 
 @[simp]
@@ -434,17 +434,17 @@ theorem le_wp_restoreM_StateT_apply (x : m (α × σ)) :
     (fun _ => wp x (fun (a, s) => post a s) epost) ⊑
       wp (MonadControl.restoreM (m:=m) x : StateT σ m α) post epost := by
   simp only [MonadControl.restoreM]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind; simp only [liftM, monadLift]
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind; simp only [liftM, monadLift]
   apply PartialOrder.rel_trans; rotate_left; apply le_wp_monadLift_StateT_apply
   intro s; apply WP.wp_consequence (x := x); intro s'; simp only
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
   simp [set, StateT.set, pure, StateT.pure]
   apply PartialOrder.rel_trans
   · simpa using
-      (WPMonad.wp_pure (m := m) (x := (s'.fst, s'.snd))
+      (WPMonad.pure_le_wp_pure (m := m) (x := (s'.fst, s'.snd))
         (post := fun x => post x.fst x.snd) (epost := epost))
   · simpa using
-      (WPMonad.wp_pure (m := m) (x := (PUnit.unit, s'.snd))
+      (WPMonad.pure_le_wp_pure (m := m) (x := (PUnit.unit, s'.snd))
         (post := fun (x : PUnit × σ) => wp (pure (s'.fst, x.snd)) (fun (x : α × σ) => post x.fst x.snd) epost)
         (epost := epost))
 
@@ -673,10 +673,10 @@ theorem le_wp_orElse_OptionT_apply (x : OptionT m α)
   wp x post ⟨wp (h ()) post epost, epost.tail⟩ ⊑
     wp (OrElse.orElse x h : OptionT m α) post epost := by
   simp only [wp, OrElse.orElse]
-  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind
+  apply PartialOrder.rel_trans; rotate_left; apply WPMonad.bind_le_wp_bind
   apply WP.wp_consequence (x := x.run); intro o; cases o with
   | some a =>
-    apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_pure
+    apply PartialOrder.rel_trans; rotate_left; apply WPMonad.pure_le_wp_pure
     simp [EPost.Cons.pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 

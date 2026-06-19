@@ -270,9 +270,9 @@ verification conditions for the generalization.
 
 ### General idea
 
-Consider the spec theorem `WPMonad.wp_bind`:
+Consider the spec theorem `WPMonad.bind_le_wp_bind`:
 ```
-WPMonad.wp_bind :
+WPMonad.bind_le_wp_bind :
   wp x (fun a => wp (f a) post epost) epost ⊑ wp (x >>= f) post epost
 ```
 This theorem is already in WP-form, so `post` and `epost` are schematic. However, its precondition
@@ -282,7 +282,7 @@ prf : ∀ {α β} (x : m α) (f : α → m β) (post : β → Pred) (epost : EPr
   (pre : Pred) (hpre : pre ⊑ wp x (fun a => wp (f a) post epost) epost),
   pre ⊑ wp (x >>= f) post epost
 ```
-The proof term is constructed with `PartialOrder.rel_trans hpre WPMonad.wp_bind`.
+The proof term is constructed with `PartialOrder.rel_trans hpre WPMonad.bind_le_wp_bind`.
 
 #### Postcondition VCs
 
@@ -343,7 +343,7 @@ it for the particular predicate type, exception postcondition type and `WPMonad`
 `tryMkBackwardRuleFromSpec` does that by instantiating the spec theorem and checking that its
 `Pred` and `WPMonad` arguments match the ones from the use site.
 
-For `StateM Nat` and one excess state arg `s`, the type produced for `WPMonad.wp_bind` becomes
+For `StateM Nat` and one excess state arg `s`, the type produced for `WPMonad.bind_le_wp_bind` becomes
 ```
 prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   (f : α → StateT Nat Id β) (post : β → Nat → Prop) (epost : EPost⟨⟩) (s : Nat),

@@ -11,7 +11,7 @@ for snap in "$LEAN_HEADER_SNAPSHOT_LEAN" "$LEAN_HEADER_SNAPSHOT_INIT"; do
 done
 [[ -z "${needs_rebuild:-}" ]] && exit 0
 
-# These options must match those passed by the elab/elab_fail runners so the
-# saved `cmdState` is consistent with what tests will see.
+# These options must match those passed by the elab* runners so the saved
+# `cmdState` is consistent with what tests will see.
 echo 'import Lean' | lean --stdin --incr-header-save="$LEAN_HEADER_SNAPSHOT_LEAN" -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true
 echo -n '' | lean --stdin --incr-header-save="$LEAN_HEADER_SNAPSHOT_INIT" -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true

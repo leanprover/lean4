@@ -250,10 +250,10 @@ function(add_dir_of_test_dirs DIR)
   endforeach()
 endfunction()
 
-# Build the header snapshots reused by the `elab`/`elab_fail` piles. Run as a
-# CTest setup fixture (not in `ALL`) so it runs only after `lean` is built,
-# never blocking `make`. The script itself skips the rebuild unless `lean` is
-# newer than the snapshots, keeping single-test runs cheap.
+# Build the header snapshots reused by the elab* piles. Run as a CTest setup
+# fixture (not in `ALL`) so it runs only after `lean` is built, never blocking
+# `make`. The script itself skips the rebuild unless `lean` is newer than the
+# snapshots, keeping single-test runs cheap.
 add_test(
   NAME build_lean_header_snapshots.sh
   COMMAND bash "${WITH_TEST_ENV}" "${CMAKE_CURRENT_SOURCE_DIR}/build_lean_header_snapshots.sh"
@@ -315,7 +315,7 @@ add_test_pile(
     sync_mutex.lean # Flaky
   FIXTURES_REQUIRED lean_header_snapshot
 )
-add_test_pile(elab_bench *.lean BENCH PART2)
+add_test_pile(elab_bench *.lean BENCH PART2 FIXTURES_REQUIRED lean_header_snapshot)
 add_test_pile(elab_fail *.lean FIXTURES_REQUIRED lean_header_snapshot)
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)

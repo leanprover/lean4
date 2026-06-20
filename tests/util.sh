@@ -129,9 +129,10 @@ function source_init {
 # match byte-for-byte at the header level; if it doesn't, the loader takes
 # the slow path which costs the snapshot env *plus* a fresh import.
 function maybe_use_lean_header_snapshot {
-  [[ -n "${LEAN_DISABLE_HEADER_SNAPSHOT:-}" ]] && return
-  # Files kinds that are not supported yet; we should add `module` snapshots when we have ported a
-  # significant number of tests
+  [[ "${LEAN_HEADER_SNAPSHOTS:-}" == 0 ]] && return
+  [[ -z "${LEAN_HEADER_SNAPSHOTS:-}" && -z "${TEST_CTEST:-}" ]] && return
+  # File kinds that are not supported yet; we should add `module` snapshots when
+  # we have ported a significant number of tests
   grep -qE '^(module|prelude)$' "$1" && return
   local snap=
   if awk 'NR==1 { if ($0 != "import Lean") exit 1; n=1; next }
@@ -141,9 +142,7 @@ function maybe_use_lean_header_snapshot {
   elif ! grep -qE '^import ' "$1"; then
     snap=${LEAN_HEADER_SNAPSHOT_INIT:-}
   fi
-  # We must handle the case where the file does not exist (e.g. when running a
-  # test manually).
-  if [[ -n "$snap" && -f "$snap" ]]; then
+  if [[ -n "$snap" ]]; then
     TEST_LEAN_ARGS+=("--incr-load=$snap")
   fi
 }

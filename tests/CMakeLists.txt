@@ -173,6 +173,7 @@ function(add_test_pile DIR GLOB)
         # On Windows, we can't call the file directly, hence we always use bash.
         COMMAND bash "${WITH_TEST_ENV}" "${RUN_TEST}" "${FILE_IN_DIR}"
       )
+      set_tests_properties("${FILE_IN_SOURCE_DIR}" PROPERTIES ENVIRONMENT "TEST_CTEST=1")
       if(EXISTS "${FILE}.serial")
         set_tests_properties("${FILE_IN_SOURCE_DIR}" PROPERTIES RUN_SERIAL TRUE)
       endif()
@@ -221,6 +222,7 @@ function(add_test_dir DIR)
       # On Windows, we can't call the file directly, hence we always use bash.
       COMMAND bash "${WITH_TEST_ENV}" "${RUN_TEST}"
     )
+    set_tests_properties("${DIR_IN_SOURCE_DIR}" PROPERTIES ENVIRONMENT "TEST_CTEST=1")
   endif()
 
   # Add as benchmark

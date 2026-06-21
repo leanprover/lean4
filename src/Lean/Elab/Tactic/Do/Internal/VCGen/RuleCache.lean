@@ -40,6 +40,7 @@ public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPInfo) 
   if let some rule := s[key]? then return rule
   let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info |>.run
     | failure
+  let rule ← rule.shareCommon
   modify fun st => { st with specBackwardRuleCache := st.specBackwardRuleCache.insert key rule }
   return rule
 
@@ -59,6 +60,7 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) 
   let s := (← get).splitBackwardRuleCache
   if let some rule := s[key]? then return rule
   let rule ← mkBackwardRuleForSplit splitInfo info
+  let rule ← rule.shareCommon
   modify fun st =>
     { st with splitBackwardRuleCache := st.splitBackwardRuleCache.insert key rule }
   return rule
@@ -75,6 +77,7 @@ public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (as excessArgs : Ar
   let key := (c.applyLemma, asTypes.map ExprPtr.mk, excessArgs.size)
   if let some rule := s[key]? then return rule
   let rule ← c.mkBackwardRuleForLattice as excessArgs resultType?
+  let rule ← rule.shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
   return rule
 

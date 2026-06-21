@@ -61,7 +61,8 @@ function(glob_except OUT DIR GLOB)
 
   foreach(FILE IN LISTS ALL_FILES)
     cmake_path(RELATIVE_PATH FILE BASE_DIRECTORY "${DIR}" OUTPUT_VARIABLE FILE_IN_DIR)
-    if(NOT FILE_IN_DIR IN_LIST ARGS_EXCEPT)
+    # _tmp_: skip transient generated files
+    if(NOT FILE_IN_DIR IN_LIST ARGS_EXCEPT AND NOT FILE_IN_DIR MATCHES "^_tmp_")
       list(APPEND RETAINED_FILES "${FILE}")
     endif()
   endforeach()

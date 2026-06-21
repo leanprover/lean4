@@ -626,6 +626,16 @@ declaration signatures.
 @[builtin_command_parser] def dumpAsyncEnvState := leading_parser
   "#dump_async_env_state"
 /--
+`#trace_parse (: parser)? (-exclusion)* "my input"` parses the provided string literal with the
+provided category or parser name and produces a trace for the parsing process.
+
+When omitted, the parser defaults to `term`. You can also provide a list of exclusions, i.e. parser
+names that should not create trace nodes in the output. This can be useful to reduce the depth of
+the trace for common combinators like `orElse`.
+-/
+@[builtin_command_parser] def traceParse := leading_parser
+  "#trace_parse" >> optional (" : " >> ident) >> many (ppSpace >> "-" >> checkNoWsBefore >> ident) >> ppSpace >> strLit
+/--
 Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will be emitted.
 
 ```

@@ -51,7 +51,6 @@
         "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined",
         "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
         "STRIP_BINARIES": "OFF",
-        "SMALL_ALLOCATOR": "OFF",
         "USE_MIMALLOC": "OFF",
         "BSYMBOLIC": "OFF",
         "LEAN_TEST_VARS": "MAIN_STACK_SIZE=16000 TEST_STACK_SIZE=16000 LSAN_OPTIONS=max_leaks=10"

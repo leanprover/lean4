@@ -64,27 +64,45 @@ jobs:
           git init --bare lean4.git
           git -C lean4.git remote add origin https://github.com/${{ github.repository_owner }}/lean4.git
           if [ "${{ steps.workflow-info.outputs.pullRequestNumber }}" == "14124" ]; then
+            set -x
             echo "PR ${{ steps.workflow-info.outputs.pullRequestNumber }}: using experimental --filter=blob:none fetch"
             git -C lean4.git fetch -n --filter=blob:none origin master
             git -C lean4.git fetch -n --filter=blob:none origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+
+            # Create both the original tag and the SHA-suffixed tag
+            SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
+            SHORT_SHA="${SHORT_SHA:0:7}"
+  
+            # Export the short SHA for use in subsequent steps
+            echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
+  
+            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+  
+            set +x # don't leak secrets
+            git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+            set -x
+            GIT_TRACE=1 git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+            GIT_TRACE=1 git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
+            set +x
           else
             git -C lean4.git fetch -n origin master
             git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+
+            # Create both the original tag and the SHA-suffixed tag
+            SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
+            SHORT_SHA="${SHORT_SHA:0:7}"
+  
+            # Export the short SHA for use in subsequent steps
+            echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
+  
+            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+  
+            git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+            git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+            git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
           fi
-
-          # Create both the original tag and the SHA-suffixed tag
-          SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
-          SHORT_SHA="${SHORT_SHA:0:7}"
-
-          # Export the short SHA for use in subsequent steps
-          echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
-
-          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-
-          git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
       - name: Delete existing releases if present
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |

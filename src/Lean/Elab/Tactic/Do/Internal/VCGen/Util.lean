@@ -26,22 +26,6 @@ decomposes.
 
 namespace Lean.Elab.Tactic.Do.Internal
 
-/--
-Internalize a pattern's expressions into the current `SymM` share table.
-
-A pattern is built in `MetaM`, outside the `SymM` thread whose table holds the targets it matches
-against, so its closed subterms (the instance telescope of a `wp` application, for example) are
-equal to but distinct from the targets'. Internalizing the pattern once makes those subterms
-pointer-equal to every target internalized afterwards, so matching them no longer re-internalizes
-the same constant terms on every application.
-
-Designed for dot notation: `pattern.shareCommon`. Requires `open Lean.Elab.Tactic.Do.Internal`.
--/
-public def _root_.Lean.Meta.Sym.Pattern.shareCommon (p : Pattern) : SymM Pattern := do
-  return { p with
-    pattern := ← Sym.shareCommon p.pattern
-    varTypes := ← p.varTypes.mapM Sym.shareCommon }
-
 /-- Internalize a backward rule's pattern into the current `SymM` share table. See
 `Pattern.shareCommon`. Designed for dot notation: `rule.shareCommon`. -/
 public def _root_.Lean.Meta.Sym.BackwardRule.shareCommon (rule : BackwardRule) : SymM BackwardRule :=

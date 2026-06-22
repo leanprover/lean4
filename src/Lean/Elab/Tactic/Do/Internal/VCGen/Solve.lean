@@ -294,7 +294,13 @@ and apply its cached backward rule. -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (info : WPInfo) :
     VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying a spec for {info.prog}. Excess args: {info.excessArgs}"
-  match ← SpecTheorems.findSpecs scope.specs info.prog with
+  -- Hand `findSpecs` the sole reference to the database so its in-place pattern internalization
+  -- does not copy the discrimination tree, then thread the updated database back into the scope.
+  let specs := scope.specs
+  let scope := { scope with specs := default }
+  let (result, specs) ← SpecTheorems.findSpecs specs info.prog
+  let scope := { scope with specs }
+  match result with
   | .error thms => stopOrErrorOnMissingSpec info.prog info.m thms
   | .ok thm =>
   trace[Elab.Tactic.Do.vcgen] "Spec for {info.prog}: {thm.proof}"

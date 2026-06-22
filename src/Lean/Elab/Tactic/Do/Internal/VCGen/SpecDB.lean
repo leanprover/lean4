@@ -26,6 +26,24 @@ namespace Lean.Elab.Tactic.Do.Internal
 
 open SpecAttr
 
+/-- Returns `true` if `e` is already internalized into the current `SymM` share table, in which case
+`shareCommon e` returns `e` unchanged. -/
+public def _root_.Lean.Meta.Sym.isShared (e : Expr) : SymM Bool :=
+  return (← get).share.set.contains { expr := e }
+
+/--
+Internalizes the pattern's expressions into the current `SymM` share table.
+
+A pattern is built in `MetaM`, outside the `SymM` thread whose table the targets are internalized
+into, so its closed subterms (the instance telescope of a `wp` application, for example) are
+structurally equal to but distinct from the targets'. Internalizing the pattern once makes those
+subterms pointer-equal to every target internalized afterwards, so matching them is `O(1)`.
+-/
+public def _root_.Lean.Meta.Sym.Pattern.shareCommon (p : Pattern) : SymM Pattern := do
+  return { p with
+    pattern := ← Sym.shareCommon p.pattern
+    varTypes := ← p.varTypes.mapM Sym.shareCommon }
+
 /--
 Instantiates a spec theorem's proof.
 
@@ -110,19 +128,30 @@ Look up `SpecTheorem`s in the `@[spec]` database.
 Takes all specs that match the given program `e` and sorts by descending priority.
 -/
 public def SpecAttr.SpecTheorems.findSpecs (database : SpecTheorems) (e : Expr) :
-    SymM (Except (Array SpecTheorem) SpecTheorem) := do
+    SymM (Except (Array SpecTheorem) SpecTheorem × SpecTheorems) := do
   let e ← instantiateMVars e
   let e ← shareCommon e
   let candidates := Sym.getMatch database.specs e
   let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
   if h : candidates.size = 1 then
     have : 0 < candidates.size := h ▸ Nat.zero_lt_one
-    return .ok candidates[0]
+    return (.ok candidates[0], database)
   -- It appears that insertion sort is *much* faster than qsort here.
   let candidates := candidates.insertionSort (·.priority > ·.priority)
+  let mut database := database
   for spec in candidates do
+    -- Match against the internalized pattern so its instance arguments are pointer-equal to the
+    -- program's. A spec is internalized the first time it is tried and stored back in the database,
+    -- so later lookups find it already in the share table and skip the work.
+    let mut spec := spec
+    unless ← isShared spec.pattern.pattern do
+      spec := { spec with pattern := ← spec.pattern.shareCommon }
+      -- Take sole ownership of the discrimination tree before inserting so the update is in place.
+      let specs := database.specs
+      database := { database with specs := default }
+      database := { database with specs := Sym.insertPattern specs spec.pattern spec }
     let some _res ← spec.pattern.match? e | continue
-    return .ok spec
-  return .error candidates
+    return (.ok spec, database)
+  return (.error candidates, database)
 
 end Lean.Elab.Tactic.Do.Internal

@@ -61,6 +61,12 @@ The platform's native concurrency limit (number of hardware threads), or `0` if 
 @[extern "lean_internal_get_hardware_concurrency"]
 opaque Internal.getHardwareConcurrency : Unit → UInt32
 
+/--
+The platform's native concurrency limit (number of hardware threads), or `0` if indeterminate.
+Computed once at initialization.
+-/
+def Internal.hardwareConcurrency : UInt32 := Internal.getHardwareConcurrency ()
+
 @[simp]
 theorem numBits_pos : 0 < numBits := by
   cases numBits_eq <;> next h => simp [h]

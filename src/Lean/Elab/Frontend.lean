@@ -11,6 +11,7 @@ public import Lean.Language.Lean
 public import Lean.Server.References
 public import Lean.Util.Profiler
 import Lean.Compiler.Options
+import all Lean.Environment  -- for the private `parallelMapStriped`
 import Lean.Compiler.InitAttr  -- for `runInitAttrsForModules` on snapshot load
 import Lean.Linter.PersistentLintLog
 import Lean.Util.ProfilerServer
@@ -203,28 +204,10 @@ private unsafe def loadIncrSnapshot (fname : System.FilePath) :
     | .ok arts => pure arts
     | .error e => throw <| IO.userError s!"failed to parse snapshot deps file {depsFile}: {e}"
   -- Modules are mutually independent (cross-module references go through the constant map, not
-  -- region pointers), so read them in parallel. Spawn exactly `numWorkers` striped tasks.
-  -- Parallelism overlaps each region's cold root-page fault I/O: for an `import Mathlib` snapshot,
-  -- sequential cold load is ~16 s, dropping to ~6 s at 4 workers. More workers help cold further
-  -- (~3 s at 32) but begin shifting the warm-cache case into a slower mode (`mmap` address-space
-  -- lock contention), so the default caps low to keep warm load time unchanged. Raise
-  -- `LEAN_IMPORT_WORKERS` to trade warm parity for faster cold loads.
-  let defaultNumWorkers := min (System.Platform.Internal.getHardwareConcurrency ()).toNat 4
-  let numWorkers := max 1 <|
-    ((← IO.getEnv "LEAN_IMPORT_WORKERS").bind (·.toNat?)).getD defaultNumWorkers
-  let mut chunkTasks := Array.emptyWithCapacity numWorkers
-  for w in 0...numWorkers do
-    -- worker `w` handles modules w, w+numWorkers, w+2·numWorkers, … (stripe for load balance)
-    chunkTasks := chunkTasks.push (← IO.asTask (do
-      let mut regions : Array CompactedRegion := #[]
-      let mut i := w
-      while i < moduleArts.size do
-        regions := regions ++ (← readModuleArtifactRegions moduleArts[i]!)
-        i := i + numWorkers
-      return regions))
-  let mut depRegions : Array CompactedRegion := Array.emptyWithCapacity (moduleArts.size * 4)
-  for t in chunkTasks do
-    depRegions := depRegions ++ (← IO.ofExcept t.get)
+  -- region pointers), so read them in parallel. Parallelism overlaps each region's cold root-page
+  -- fault I/O: for an `import Mathlib` snapshot, sequential cold load is ~16 s, dropping to ~6 s at
+  -- 4 workers (see `parallelMapStriped` for the worker-count policy and `LEAN_IMPORT_WORKERS`).
+  let depRegions := (← parallelMapStriped moduleArts readModuleArtifactRegions).flatten
   -- The snapshot region itself references every loaded dep region.
   let (data, _region) ← CompactedRegion.read (α := IncrSnapshot) fname depRegions
   return data

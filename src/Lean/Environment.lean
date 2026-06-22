@@ -26,6 +26,8 @@ import Init.Data.Slice
 import Init.Data.String.TakeDrop
 import Init.Data.Range.Polymorphic.Iterators
 import Init.While
+import Init.System.Platform
+import Init.Data.String.Search
 
 public section
 
@@ -1751,13 +1753,19 @@ def saveModuleDataParts (mod : Name) (parts : Array (System.FilePath × ModuleDa
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
 `saveModuleDataParts` call.
+
+Any file present in `preRead` reuses its already-loaded region (e.g. a main `.olean` read ahead of
+time in parallel; see `preReadArtifacts`) instead of reading it from disk again.
 -/
-def readModuleDataParts (fnames : Array System.FilePath) :
+def readModuleDataParts (fnames : Array System.FilePath)
+    (preRead : Std.HashMap System.FilePath (ModuleData × CompactedRegion) := {}) :
     IO (Array (ModuleData × CompactedRegion)) := do
   let mut depRegions : Array CompactedRegion := #[]
   let mut result : Array (ModuleData × CompactedRegion) := #[]
   for fname in fnames do
-    let part ← unsafe CompactedRegion.read (α := ModuleData) fname depRegions
+    let part ← match preRead[fname]? with
+      | some part => pure part
+      | none => unsafe CompactedRegion.read (α := ModuleData) fname depRegions
     result := result.push part
     depRegions := depRegions.push part.2
   return result
@@ -1767,6 +1775,55 @@ def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : 
 
 def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) :=
   unsafe CompactedRegion.read fname #[]
+
+/--
+Maps `f` over `items` across a small, capped number of striped worker tasks, returning the results
+in unspecified order. Used to parallelize region loading (reading/`mmap`ing `.olean*` files), whose
+per-item cost is dominated by page-fault I/O that overlaps across tasks. The worker count caps at 4
+by default to bound `mmap` address-space lock contention (more workers speed up cold loads but slow
+the warm case); override with `LEAN_IMPORT_WORKERS`.
+-/
+private def parallelMapStriped [Inhabited α] (items : Array α) (f : α → IO β) : IO (Array β) := do
+  let defaultNumWorkers := min System.Platform.Internal.hardwareConcurrency.toNat 4
+  let numWorkers := max 1 <|
+    ((← IO.getEnv "LEAN_IMPORT_WORKERS").bind (·.toNat?)).getD defaultNumWorkers
+  let mut tasks : Array (Task (Except IO.Error (Array β))) := Array.emptyWithCapacity numWorkers
+  for w in 0...numWorkers do
+    -- worker `w` handles items w, w+numWorkers, w+2·numWorkers, … (stripe for load balance)
+    tasks := tasks.push (← IO.asTask do
+      let mut out : Array β := #[]
+      let mut i := w
+      while i < items.size do
+        out := out.push (← f items[i]!)
+        i := i + numWorkers
+      return out)
+  let mut result : Array β := Array.emptyWithCapacity items.size
+  for t in tasks do
+    result := result ++ (← IO.ofExcept t.get)
+  return result
+
+/--
+Pre-reads each module's main `.olean` (the exported part) in parallel, producing a path-keyed cache
+for `readModuleDataParts` to consult so the (sequential) import traversal hits warm regions instead
+of faulting them in one module at a time. We pre-read only the main `.olean`: it is loaded for
+*every* module in the transitive closure (the traversal needs each module's header to recurse), so
+there is no over-read, whereas the `.olean.server`/`.olean.private`/`.ir` parts are loaded only for a
+pruned subset and are left to the sequential path. The main oleans are mutually independent
+(cross-module references go through the constant map, not direct region pointers), so they are read
+across `numWorkers` striped tasks. The worker count is capped low: parallelism overlaps each
+region's root-page fault I/O, but a high count adds `mmap` address-space lock contention. Returns
+`{}` (no pre-read) when `arts` is empty, e.g. when `--setup` was not used.
+-/
+private def preReadArtifacts (arts : NameMap ImportArtifacts) :
+    IO (Std.HashMap System.FilePath (ModuleData × CompactedRegion)) := do
+  if arts.isEmpty then return {}
+  let oleanPaths : Array System.FilePath := arts.toArray.filterMap (·.2.olean?)
+  let parts ← unsafe parallelMapStriped oleanPaths fun oleanPath => do
+    return (oleanPath, ← readModuleData oleanPath)
+  let mut cache := Std.HashMap.emptyWithCapacity oleanPaths.size
+  for (path, part) in parts do
+    cache := cache.insert path part
+  return cache
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -2057,7 +2114,8 @@ private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × Com
 
 partial def importModulesCore
     (imports : Array Import) (globalLevel : OLeanLevel := .private)
-    (arts : NameMap ImportArtifacts := {}) (isExported : Bool := globalLevel < .private) :
+    (arts : NameMap ImportArtifacts := {}) (isExported : Bool := globalLevel < .private)
+    (preReadMain : Std.HashMap System.FilePath (ModuleData × CompactedRegion) := {}) :
     ImportStateM Unit := do
   go imports (importAll := true) (isExported := isExported) (needsData := true) (needsIRTrans := false)
   if globalLevel < .private then
@@ -2176,7 +2234,8 @@ where
       -- Opportunistically load all available parts.
       -- Producer (e.g., Lake) should limit parts to the proper import level.
       let fnames := arts.oleanParts (inServer := globalLevel ≥ .server)
-      readModuleDataParts fnames
+      -- `preReadMain` lets `readModuleDataParts` reuse the parallel-pre-read main `.olean`.
+      readModuleDataParts fnames preReadMain
     else
       readModuleDataPartsOfMod i.module
   loadIR? i := do
@@ -2384,7 +2443,10 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM fun {path, initFn?} => Lean.loadPlugin path initFn?
-    let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run
+    -- When `arts` is available (`--setup`), pre-read each module's main `.olean` in parallel so the
+    -- sequential traversal below hits warm regions instead of faulting them in one at a time.
+    let preReadMain ← preReadArtifacts arts
+    let (_, s) ← importModulesCore (globalLevel := level) imports arts (preReadMain := preReadMain) |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel
 

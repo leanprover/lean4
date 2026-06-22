@@ -239,6 +239,10 @@ instance : Inhabited TacticFinishedSnapshot where
 instance : ToSnapshotTree TacticFinishedSnapshot where
   toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot, ← s.moreSnaps.mapM (·.transform)⟩
 
+/-- Applies the given transformation to the `TacticFinishedSnapshot`. -/
+def TacticFinishedSnapshot.transform (s : TacticFinishedSnapshot) (trans : SnapshotTreeTransform) : TacticFinishedSnapshot :=
+  { s with moreSnaps := s.moreSnaps.map (·.map (sync := true) (·.transform trans)) }
+
 /-- Snapshot just before execution of a tactic. -/
 structure TacticParsedSnapshotInner (α : Type) extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
@@ -265,6 +269,16 @@ structure TacticParsedSnapshot where
 
 instance : Inhabited TacticParsedSnapshot where
   default := { transformed := default }
+
+/--
+Pushes the transformation inwards by one level, allowing transformation-correct access to fields.
+-/
+def TacticParsedSnapshot.applyTransform (s : TacticParsedSnapshot) :
+    TacticParsedSnapshotInner TacticParsedSnapshot where
+  toSnapshot := s.transformed.raw.toSnapshot.transform s.transformed.transform
+  stx := s.transformed.transform.transformSyntax s.transformed.raw.stx
+  inner? := s.transformed.raw.inner?.map (·.map (sync := true) ({ transformed := ·.transformed.compose s.transformed.transform }))
+  finished := s.transformed.raw.finished.map (sync := true) (·.transform s.transformed.transform)
 
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTreeM := go

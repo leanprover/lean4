@@ -676,6 +676,12 @@ def addTrailing? (stx : Syntax) (trailing : Substring.Raw) : Option Syntax := do
       return stx.setTailInfo (.original leading pos trailing endPos)
   none
 
+/--
+Adds the given trailing substring to a `Syntax`' existing trailing substring if they are adjacent.
+-/
+def addTrailing (stx : Syntax) (trailing : Substring.Raw) : Syntax :=
+  stx.addTrailing? trailing |>.getD stx
+
 end Syntax
 
 end Lean

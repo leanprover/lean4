@@ -225,6 +225,14 @@ structure SnapshotTreeTransform where
   addTrailing : Substring.Raw := "".toRawSubstring
 deriving Inhabited
 
+/-- Applies the transformation to the given syntax tree. -/
+def SnapshotTreeTransform.transformSyntax (trans : SnapshotTreeTransform) (stx : Syntax) : Syntax :=
+  stx.addTrailing trans.addTrailing
+
+/-- Applies the transformation to the given info tree. -/
+def SnapshotTreeTransform.transformInfoTree (trans : SnapshotTreeTransform) (t : Elab.InfoTree) : Elab.InfoTree :=
+  t.addTrailing trans.addTrailing
+
 /-- Composes two `SnapshotTreeTransform`s, applying `inner` first and then `outer`. -/
 def SnapshotTreeTransform.compose (outer inner : SnapshotTreeTransform) : SnapshotTreeTransform where
   addTrailing :=
@@ -237,7 +245,7 @@ abbrev ToSnapshotTreeM (α : Type) := ReaderT SnapshotTreeTransform Id α
 
 /-- Applies the current `SnapshotTreeTransform` to a `Snapshot`. -/
 def Snapshot.transform (s : Snapshot) : ToSnapshotTreeM Snapshot :=
-  return { s with infoTree? := s.infoTree?.map (·.addTrailing (← read).addTrailing) }
+  return { s with infoTree? := s.infoTree?.map ((← read).transformInfoTree) }
 
 /-- Applies the current `SnapshotTreeTransform` to a `SnapshotTree` and recursively to its children. -/
 partial def SnapshotTree.transform (t : SnapshotTree) : ToSnapshotTreeM SnapshotTree := do

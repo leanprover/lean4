@@ -32,31 +32,31 @@ set_option maxHeartbeats 10000000
 
 #eval do
   runBenchUsingTactic ``AddSubCancel.Goal [``AddSubCancel.loop, ``AddSubCancel.step]
-    `(tactic| mvcgen') `(tactic| grind) [10]
+    `(tactic| vcgen) `(tactic| grind) [10]
   runBenchUsingTactic ``AddSubCancelDeep.Goal [``AddSubCancelDeep.loop, ``AddSubCancelDeep.step]
-    `(tactic| mvcgen') `(tactic| grind) [10]
+    `(tactic| vcgen) `(tactic| grind) [10]
   runBenchUsingTactic ``AddSubCancelSimp.Goal [``AddSubCancelSimp.loop, ``AddSubCancelSimp.step]
-    `(tactic| mvcgen') `(tactic| grind) [10]
+    `(tactic| vcgen) `(tactic| grind) [10]
   runBenchUsingTactic ``LetBinding.Goal [``LetBinding.loop, ``LetBinding.step]
-    `(tactic| mvcgen') `(tactic| grind) [10]
+    `(tactic| vcgen) `(tactic| grind) [10]
   runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
-    `(tactic| mvcgen') `(tactic| sorry) [10]
-  -- `mvcgen' with finish`: grind integrated into VCGen loop
+    `(tactic| vcgen) `(tactic| sorry) [10]
+  -- `vcgen with finish`: grind integrated into VCGen loop
   runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
-    `(tactic| mvcgen' with finish) `(tactic| fail) [10]
-  -- `mvcgen' with finish` on AddSubCancel
+    `(tactic| vcgen with finish) `(tactic| fail) [10]
+  -- `vcgen with finish` on AddSubCancel
   runBenchUsingTactic ``AddSubCancel.Goal [``AddSubCancel.loop, ``AddSubCancel.step]
-    `(tactic| mvcgen' with finish) `(tactic| fail) [10]
+    `(tactic| vcgen with finish) `(tactic| fail) [10]
   runBenchUsingTactic ``PurePrecond.Goal [``PurePrecond.loop, ``PurePrecond.step]
-    `(tactic| mvcgen') `(tactic| fail) [10]
+    `(tactic| vcgen) `(tactic| fail) [10]
   runBenchUsingTactic ``ReaderState.Goal [``ReaderState.loop, ``ReaderState.step]
-    `(tactic| mvcgen') `(tactic| sorry) [10]
+    `(tactic| vcgen) `(tactic| sorry) [10]
   runBenchUsingTactic ``DiteSplit.Goal [``DiteSplit.loop, ``DiteSplit.step]
-    `(tactic| mvcgen') `(tactic| sorry) [10]
+    `(tactic| vcgen) `(tactic| sorry) [10]
   runBenchUsingTactic ``MatchIota.Goal [``MatchIota.loop, ``MatchIota.step]
-    `(tactic| mvcgen') `(tactic| sorry) [10]
+    `(tactic| vcgen) `(tactic| sorry) [10]
   runBenchUsingTactic ``MatchSplit.Goal [``MatchSplit.loop, ``MatchSplit.step]
-    `(tactic| mvcgen') `(tactic| grind) [10]
+    `(tactic| vcgen) `(tactic| grind) [10]
 
 -- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--
@@ -78,7 +78,7 @@ h✝ : ¬9 < s✝ + 9
 open GetThrowSet in
 example : Goal 10 := by
   simp only [Goal, loop, step]
-  mvcgen' simplifying_assumptions [Nat.add_assoc]
+  vcgen simplifying_assumptions [Nat.add_assoc]
   case vc11 => trace_state; grind
   all_goals grind
 
@@ -90,5 +90,5 @@ open LetBinding in
 example : ∀ post, ⦃post⦄ step 5 ⦃fun _ => post⦄ := by
   unfold step
   intro post
-  mvcgen'
+  vcgen
   grind

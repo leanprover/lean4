@@ -23,7 +23,7 @@ for line in open('vcgen.out'):
     case, n, vcgen_ms, kernel_ms = m.group(1), m.group(2), m.group(3), m.group(4)
     for phase, val in [('vcgen', vcgen_ms), ('kernel', kernel_ms)]:
         print(json.dumps({
-            'metric': f'mvcgen/sym/{case}/{n}/{phase}//wall-clock',
+            'metric': f'vcgen/{case}/{n}/{phase}//wall-clock',
             'value': int(val) / 1000,
             'unit': 's'
         }))

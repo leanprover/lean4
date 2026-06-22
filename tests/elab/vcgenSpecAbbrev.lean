@@ -2,7 +2,7 @@ import Std.Internal.Do
 import Std.Tactic.Do
 
 /-!
-Tests that `mvcgen` and `mvcgen'` apply a `@[spec]` theorem whose *type* is a
+Tests that `mvcgen` and `vcgen` apply a `@[spec]` theorem whose *type* is a
 reducible abbreviation wrapping a Hoare triple, e.g. `abbrev foo.spec := ⦃P⦄ foo ⦃Q⦄`.
 The triple is recovered from the proof's type and must be reduced through the
 abbreviation before it is recognized as a `Triple`.
@@ -30,7 +30,7 @@ example :
 
 end
 
-/-! `mvcgen'` over a new-metatheory `Std.Internal.Do` triple. `G` is an `axiom`,
+/-! `vcgen` over a new-metatheory `Std.Internal.Do` triple. `G` is an `axiom`,
 so discharging `wp⟦G⟧` requires the registered spec. -/
 section
 open Std.Internal.Do Lean.Order
@@ -43,6 +43,6 @@ abbrev G.spec := ⦃fun (_ : Nat) => True⦄ G ⦃fun _ n => n = n⦄
 @[spec] axiom G.spec.proof : G.spec
 
 example : ⦃fun (_ : Nat) => True⦄ G ⦃fun _ n => n = n⦄ := by
-  mvcgen'
+  vcgen
 
 end

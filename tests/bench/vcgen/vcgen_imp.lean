@@ -8,13 +8,13 @@ import Std.Internal.Do
 import Std.Internal.Do.Triple.SpecLemmas
 
 /-!
-# `mvcgen'` on a non-monadic program type
+# `vcgen` on a non-monadic program type
 
 This test exercises the `WP`/`WPMonad` split: it defines a small IMP language with (non-reentrant)
 function calls whose weakest precondition is an *operational* semantics, gives it a `WP` instance
-(without any `WPMonad` instance, since `Cmd` is not a monad), and uses `mvcgen'` to generate
+(without any `WPMonad` instance, since `Cmd` is not a monad), and uses `vcgen` to generate
 verification conditions. The environment lives in the assertion (`Env → State → Prop`) so the
-program stays a bare `Cmd` and `mvcgen'` discriminates on its constructors.
+program stays a bare `Cmd` and `vcgen` discriminates on its constructors.
 
 Functions are identified by name. A single unfolding lemma models "unfolding" of a call; each
 concrete function gets a registered contract, proven once from its body and used by callers.
@@ -238,12 +238,12 @@ theorem Spec.call_of_body (f : FName) (Φ' : Env) (body : Cmd) {P' Q' : State �
     exact Triple.le_wp hbody Φ' s ⟨rfl, hp⟩)
 
 /-- A `while` loop invariant: an IMP assertion `Env → State → Prop`. Marked `@[spec_invariant_type]`
-so `mvcgen'` classifies it as an `inv1` case rather than an ordinary verification condition. -/
+so `vcgen` classifies it as an `inv1` case rather than an ordinary verification condition. -/
 @[spec_invariant_type]
 def WhileInvariant := Assn
 
 /-- An invariant `I` proves a `while` triple: it holds on entry, is preserved by running the body
-whenever the guard is nonzero, and implies the postcondition when the guard is zero. `mvcgen'`
+whenever the guard is nonzero, and implies the postcondition when the guard is zero. `vcgen`
 instantiates `I` from the `inv1` case, recurses into `body` for the preservation `step`, and leaves
 the exit condition as a VC. `I` is applied pointwise so the triple's assertion type stays `Assn`
 rather than `WhileInvariant`. -/
@@ -309,20 +309,20 @@ macro_rules
 
 /-! ## Straight-line, conditional, and loop -/
 
-/-- Straight-line code: `mvcgen'` chains the `seq`/`assign` specs into one substitution. -/
+/-- Straight-line code: `vcgen` chains the `seq`/`assign` specs into one substitution. -/
 example : ⦃ fun _ _ => True ⦄ ⟦ x := 5; y := x + x ⟧ ⦃ fun _ _ s => s "y" = 10 ⦄ := by
-  mvcgen'
+  vcgen
   simp [State.update]
 
-/-- A conditional: `mvcgen'` applies `Spec.ite`, leaving the guarded weakest precondition as a VC. -/
+/-- A conditional: `vcgen` applies `Spec.ite`, leaving the guarded weakest precondition as a VC. -/
 example : ⦃ fun _ _ => True ⦄ ⟦ if x then y := 1 else y := 0 fi ⟧
     ⦃ fun _ _ s => s "y" = if s "x" ≠ 0 then 1 else 0 ⦄ := by
-  mvcgen'
+  vcgen
   simp only [wp_assign_eq, State.update, Expr.eval]; grind
 
 /-- A loop preserved vacuously: the guard fails immediately. -/
 example : ⦃ fun _ s => s "x" = 0 ⦄ ⟦ while x do x := x + 1 od ⟧ ⦃ fun _ _ s => s "x" = 0 ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun _ s => s "x" = 0
   all_goals simp_all [State.update]
 
@@ -340,11 +340,11 @@ def gcd : Cmd := ⟦
 ⟧
 
 /-- `gcd` leaves `Nat.gcd A B` in `a`. With `State.update`/`Expr.eval`/`gcd_step` available to `grind`,
-`mvcgen' with finish` discharges the entry/preservation/exit verification conditions. -/
+`vcgen with finish` discharges the entry/preservation/exit verification conditions. -/
 theorem gcd_correct (A B : Nat) :
     ⦃ fun _ s => s "a" = A ∧ s "b" = B ⦄ gcd ⦃ fun _ _ s => s "a" = Nat.gcd A B ⦄ := by
   unfold gcd
-  mvcgen' invariants
+  vcgen invariants
   | inv1 => fun _ s => Nat.gcd (s "a") (s "b") = Nat.gcd A B
   with finish
 
@@ -363,7 +363,7 @@ theorem isqrt_correct (N : Nat) :
     ⦃ fun _ s => s "n" = N ⦄ isqrt
       ⦃ fun _ _ s => s "r" * s "r" ≤ N ∧ N < (s "r" + 1) * (s "r" + 1) ⦄ := by
   unfold isqrt
-  mvcgen' invariants
+  vcgen invariants
   | inv1 => fun _ s => s "r" * s "r" ≤ N ∧ s "n" = N
   with finish
 
@@ -378,7 +378,7 @@ def mainBody : Cmd := ⟦ call gcd ⟧
 @[grind] def Δ : Env :=
   .snoc (.snoc (.snoc .nil "gcd" gcd) "isqrt" isqrt) "main" mainBody
 
-/-- Contract for `call "gcd"`: `mvcgen'` applies the generic `Spec.call_of_body`, discharges the
+/-- Contract for `call "gcd"`: `vcgen` applies the generic `Spec.call_of_body`, discharges the
 body obligation with `gcd_correct`, and `with finish` settles the lookup. -/
 @[spec] theorem Spec.gcd {A B : Nat} :
     ⦃ fun Φ s => Φ.lookup "gcd" = some (.nil, _root_.gcd) ∧ s "a" = A ∧ s "b" = B ⦄
@@ -401,16 +401,16 @@ gcd body. -/
         _root_.mainBody) ∧ s "a" = A ∧ s "b" = B ⦄
       Cmd.call "main" ⦃ fun _ _ s => s "a" = Nat.gcd A B ⦄ :=
   Spec.call_of_body "main" (.snoc (.snoc .nil "gcd" _root_.gcd) "isqrt" _root_.isqrt) _root_.mainBody <| by
-    unfold mainBody; mvcgen' with finish
+    unfold mainBody; vcgen with finish
 
 /-- The top-level property of `main` run in `Δ`, verified modularly through the contracts. -/
 theorem main_correct (A B : Nat) :
     ⦃ fun Φ s => Φ = Δ ∧ s "a" = A ∧ s "b" = B ⦄ ⟦ call main ⟧
       ⦃ fun _ _ s => s "a" = Nat.gcd A B ⦄ := by
-  mvcgen' with finish
+  vcgen with finish
 
 /-- `isqrt` called directly in `Δ`, verified through `Spec.isqrt`. -/
 theorem isqrt_call_correct (N : Nat) :
     ⦃ fun Φ s => Φ = Δ ∧ s "n" = N ⦄ ⟦ call isqrt ⟧
       ⦃ fun _ _ s => s "r" * s "r" ≤ N ∧ N < (s "r" + 1) * (s "r" + 1) ⦄ := by
-  mvcgen' with finish
+  vcgen with finish

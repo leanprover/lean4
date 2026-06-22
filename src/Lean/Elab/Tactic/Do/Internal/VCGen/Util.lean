@@ -82,7 +82,7 @@ public def Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardRule) (goal :
         match rule.expr.getAppFn with
         | .const declName _ => m!"`{.ofConstName declName}`"
         | _ => m!"<rule constructed from expression>"
-      throwError m!"[mvcgen' +debug] BackwardRule {ruleDesc} failed to \
+      throwError m!"[vcgen +debug] BackwardRule {ruleDesc} failed to \
         apply to:{indentExpr originalType}\nbut succeeded after `unfoldReducible`-\
         normalization to:{indentExpr normalized}\nAn earlier step is missing a normalization. \
         Re-run with `set_option pp.all true` to see the structural difference."

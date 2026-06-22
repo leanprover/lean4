@@ -3,20 +3,16 @@ Copyright (c) 2026 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
-import Cases.PurePrecond
+import Cases.AddSubCancelSimp
 import Driver
 
 set_option mvcgen.warning false
 
-open Lean Parser Meta Elab Tactic Sym Std Do
-open PurePrecond
+open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
+open AddSubCancelSimp
 
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-example : Goal 10 := by
-  simp only [Goal, loop, step]
-  mvcgen'
-
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| fail)
-  [100, 400, 700]
+#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| vcgen) `(tactic| grind)
+  [100, 250, 400]

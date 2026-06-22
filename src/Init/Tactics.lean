@@ -2363,8 +2363,8 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
 /-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
-macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
-  Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
+macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
+  Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"
 
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.

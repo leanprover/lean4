@@ -1,5 +1,5 @@
 /-
-MWE: `mvcgen'` loses precondition facts in postcondition entailment VCs.
+MWE: `vcgen` loses precondition facts in postcondition entailment VCs.
 -/
 import Cases
 import Driver
@@ -24,7 +24,7 @@ a✝ : a✝¹ = s✝¹
 -/
 #guard_msgs (trace) in
 theorem fails : ⦃fun s => ⌜s = 42⌝⦄ (get >>= myFun) ⦃⇓ r _ => ⌜42 = r⌝⦄ := by
-  mvcgen'
+  vcgen
   trivial
   trace_state
   grind

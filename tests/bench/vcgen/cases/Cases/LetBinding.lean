@@ -2,37 +2,37 @@ import Lean
 import Std.Tactic.Do
 
 /-!
-Basic add/sub loop in `StateM`: each `step` adds then subtracts the same value, so the
-loop preserves the state. Exercises the `get`/`set` `StateT` specs in the simplest setting.
+Same add/sub loop as `AddSubCancel` but with a pure `let offset := ...` binding inside `step`.
+Exercises the handling of pure `letE` nodes in the elaborated program (let-hoist / let-intro).
 -/
 
 open Lean Meta Order Std.Internal.Do
 
-namespace AddSubCancel
+namespace LetBinding
 
 set_option mvcgen.warning false
 
--- The following specs partially evaluate the specs for `get` and `set` that otherwise would need
--- multiple small substeps in the modular lifting framework. This is good practice for performance
--- sensitive use cases.
+-- Partially evaluated specs for best performance.
 
 @[spec high] theorem spec_get_StateT {m : Type u → Type v} {Pred EPred : Type u}
     [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {σ : Type u} (post : σ → σ → Pred) (epost : EPred) :
     Triple (get : StateT σ m σ) (fun s => post s s) post epost := by
-  mvcgen'
+  vcgen
 
 @[spec high] theorem spec_set_StateT' {m : Type u → Type v} {Pred EPred : Type u}
     [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {σ : Type u} (s : σ) (post : PUnit → σ → Pred) (epost : EPred) :
     Triple (set s : StateT σ m PUnit) (fun _ => post ⟨⟩ s) post epost := by
-  mvcgen'
+  vcgen
 
 def step (v : Nat) : StateM Nat Unit := do
   let s ← get
-  set (s + v)
+  -- Pure let binding: `let offset := ...` produces a letE node in the elaborated term
+  let offset := v + 1
+  set (s + offset)
   let s ← get
-  set (s - v)
+  set (s - offset)
 
 def loop (n : Nat) : StateM Nat Unit := do
   match n with
@@ -41,4 +41,4 @@ def loop (n : Nat) : StateM Nat Unit := do
 
 def Goal (n : Nat) : Prop := ∀ post, ⦃post⦄ loop n ⦃fun _ => post⦄
 
-end AddSubCancel
+end LetBinding

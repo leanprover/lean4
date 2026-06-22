@@ -20,12 +20,12 @@ abbrev M := ExceptT String <| ReaderT String <| ExceptT Nat <| StateT Nat <| Exc
 @[spec high]
 theorem Spec.M_getThe_Nat :
     ⦃fun s₁ s₂ => post s₂ s₁ s₂⦄ (getThe (m := M) Nat) ⦃post⦄ := by
-  mvcgen'
+  vcgen
 
 @[spec high]
 theorem Spec.M_set_Nat (n : Nat) :
     ⦃fun s₁ _ => post ⟨⟩ s₁ n⦄ (set (m := M) n) ⦃post⦄ := by
-  mvcgen'
+  vcgen
 
 def step (v : Nat) : M Unit := do
   let s ← getThe Nat

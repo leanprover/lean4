@@ -13,7 +13,7 @@ namespace AddSubCancelSimp
 set_option mvcgen.warning false
 
 /- TODO: Those lemmas actually not used because priorites are not respected for simp lemmas.
-  Moreover, if `mvcgen'` actually used them, it wpould have lead to a bug:
+  Moreover, if `vcgen` actually used them, it wpould have lead to a bug:
   ```
   Did not know how to decompose weakest precondition for fun s => pure (s, s)
   ```

@@ -26,7 +26,7 @@ open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.Internal.SpecAttr
 namespace Lean.Elab.Tactic.Do.Internal
 
 /-!
-`mvcgen'` tactic frontend: parse the user-facing argument syntax into a
+`vcgen` tactic frontend: parse the user-facing argument syntax into a
 `VCGen.Context`, run `VCGen.run`, and replace the main goal with the
 resulting invariants and VCs.
 -/
@@ -38,7 +38,7 @@ private def runTacticM (x : TacticM α) (goals : List MVarId := [])  : TermElabM
 namespace VCGen
 
 /--
-Parse the optional `[...]` argument list for `mvcgen'`, partitioning entries into
+Parse the optional `[...]` argument list for `vcgen`, partitioning entries into
 spec theorems and simp lemmas. Follows the same approach as
 `Lean.Elab.Tactic.Do.VCGen.mkContext`: each entry is first tried as a spec theorem,
 and on failure falls back to a simp/unfold lemma processed via `mkSimpContext`.
@@ -121,14 +121,14 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
 
 end VCGen
 
-/-- Warn about `mvcgen'` config options that are accepted by the parser but currently
+/-- Warn about `vcgen` config options that are accepted by the parser but currently
 ignored at runtime. As more options gain implementation support, drop their checks
 here. Options with implemented semantics (`trivial`, `elimLets`, `stepLimit`,
 `invariants?`) are silently accepted. -/
 private def warnIgnoredConfig (config : VCGen.Config) : MetaM Unit := do
   let default : VCGen.Config := {}
   if config.leave != default.leave then
-    logWarning "mvcgen': the `leave` config option is currently ignored."
+    logWarning "vcgen: the `leave` config option is currently ignored."
 
 /--
 Build `Sym.Simp.Methods` from a variant name and extra theorems.
@@ -147,8 +147,8 @@ private def elabSymSimpParts
     --   `public def elabSymSimp (syn : Syntax) : GrindTacticM (Sym.Simp.Methods × ...)`
     -- exposed from that module, plus a lightweight `GrindTacticM` runner
     -- (the simproc elaborators only use `CoreM`/`MetaM` capabilities).
-    throwError "named Sym.simp variants are not yet supported in `mvcgen'`; \
-      use `mvcgen' simplifying_assumptions [thm₁, thm₂, ...]` with the default variant instead"
+    throwError "named Sym.simp variants are not yet supported in `vcgen`; \
+      use `vcgen simplifying_assumptions [thm₁, thm₂, ...]` with the default variant instead"
   -- Resolve extra theorems (local hypotheses first, then global constants)
   let mut extraThms : Array Sym.Simp.Theorem := #[]
   if let some ids := extraIds? then
@@ -245,7 +245,7 @@ private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
     unless handled.contains n do
       logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
 
-/-- Parsed `mvcgen'` arguments shared by the two entry points. -/
+/-- Parsed `vcgen` arguments shared by the two entry points. -/
 private structure ParsedArgs where
   config : VCGen.Config
   ctx : VCGen.Context
@@ -284,14 +284,14 @@ private def elabUntilPattern (p : Term) : TermElabM (IO.Ref UntilPatternThunk) :
         let xs := (e.collectMVars {}).result.map Expr.mvar
         mkUntilPattern xs e
 
-/-- Parse `mvcgen'` arguments. -/
+/-- Parse `vcgen` arguments. -/
 private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
   if mvcgen.warning.get (← getOptions) then
-    logWarningAt stx "The `mvcgen'` tactic is an experimental drop-in replacement for `mvcgen` \
+    logWarningAt stx "The `vcgen` tactic is an experimental drop-in replacement for `mvcgen` \
       that will eventually replace it. Avoid using it in production projects."
   let config ← runTacticM <| elabConfig stx[1]
   warnIgnoredConfig config
-  -- `elimLets` defaults to `false` in `mvcgen'` (vs. `true` in upstream `mvcgen`):
+  -- `elimLets` defaults to `false` in `vcgen` (vs. `true` in upstream `mvcgen`):
   -- existing tests rely on let-bindings being preserved in VC local contexts so that
   -- `case vcN bs* =>` patterns line up. Re-enabling on opt-in would require detecting
   -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
@@ -311,9 +311,9 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
     untilPat? }
   return { config, ctx, scope, invariantAlts? }
 
-/-- `mvcgen'` step inside `sym => …` blocks. -/
-@[builtin_grind_tactic Lean.Parser.Tactic.Grind.mvcgen']
-def evalSymMVCGen' : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
+/-- `vcgen` step inside `sym => …` blocks. -/
+@[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
+def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM do
@@ -330,33 +330,33 @@ def evalSymMVCGen' : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
     return invGoals ++ result.vcs.toList
   Lean.Elab.Tactic.Grind.replaceMainGoal newGoals
 
-/-- Validate the optional `with` clause of `mvcgen'`. It must be a `grind`-mode step so it can share
-`mvcgen'`'s internalised E-graph; the `mvcgenWith` category's `tactic` alternative is a catch-all
+/-- Validate the optional `with` clause of `vcgen`. It must be a `grind`-mode step so it can share
+`vcgen`'s internalised E-graph; the `vcgenDischarge` category's `tactic` alternative is a catch-all
 that exists only so a non-`grind` step is reported here with a helpful error rather than a raw
 `expected grind` parser error. -/
-private def elabMvcgenWith (w? : Option (TSyntax `mvcgenWith)) :
+private def elabVCGenDischarge (w? : Option (TSyntax `vcgenDischarge)) :
     TacticM (Option (TSyntax `grind)) :=
   match w? with
   | none   => return none
   | some w =>
-    if w.raw.getKind == ``Lean.Parser.Tactic.mvcgenWithGrind then
+    if w.raw.getKind == ``Lean.Parser.Tactic.vcgenDischargeGrind then
       return some ⟨w.raw[0]⟩
     else
       throwErrorAt w
-        m!"`mvcgen' … with` expects a `grind`-mode discharging step, not a general tactic"
-          ++ MessageData.hint' m!"Examples: `mvcgen' … with finish`, `mvcgen' … with intro`."
+        m!"`vcgen … with` expects a `grind`-mode discharging step, not a general tactic"
+          ++ MessageData.hint' m!"Examples: `vcgen … with finish`, `vcgen … with intro`."
 
-/-- Tactic-level `mvcgen'`. Reuses the grind-mode implementation by re-quoting the
-input as `Grind.mvcgen' …` and running it inside a `GrindTacticM` context built
+/-- Tactic-level `vcgen`. Reuses the grind-mode implementation by re-quoting the
+input as `Grind.vcgen …` and running it inside a `GrindTacticM` context built
 without `withProtectedMCtx`, so leftover `Grind.Goal`s flow back as the new tactic
 goals. The optional `with $g:grind` clause runs as `<;> $g` and lets the user-supplied
-grind step share an internalised E-graph with `mvcgen'`. -/
-@[builtin_tactic Lean.Parser.Tactic.mvcgen']
-public def elabMVCGen' : Tactic := fun stx => withMainContext do
-  let `(tactic| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
-        $[simplifying_assumptions $(sa)? $[[$thms,*]]?]? $[with $w:mvcgenWith]?) := stx
+grind step share an internalised E-graph with `vcgen`. -/
+@[builtin_tactic Lean.Parser.Tactic.vcgen]
+public def elabVCGen : Tactic := fun stx => withMainContext do
+  let `(tactic| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
+        $[simplifying_assumptions $(sa)? $[[$thms,*]]?]? $[with $w:vcgenDischarge]?) := stx
     | throwUnsupportedSyntax
-  let g? ← elabMvcgenWith w
+  let g? ← elabVCGenDischarge w
   -- Without `with`, no downstream grind step will read the E-graph, so opt out of
   -- internalisation; `with` keeps the default `internalize := true`.
   let cfg ← match g? with
@@ -364,7 +364,7 @@ public def elabMVCGen' : Tactic := fun stx => withMainContext do
     | none   => do
         let off ← `(optConfig| -internalize)
         pure (Lean.Parser.Tactic.appendConfig off cfg)
-  let core ← `(grind| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
+  let core ← `(grind| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
         $[simplifying_assumptions $(sa)? $[[$thms,*]]?]?)
   let step ← match g? with
     | some g => `(grind| $core <;> $g)

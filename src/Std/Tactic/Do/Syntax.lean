@@ -50,18 +50,18 @@ structure Config where
   If `true` (the default), report a hard error when no `@[spec]` theorem matches the
   current program head. If `false`, leave such goals as unsolved VCs for the user to
   discharge manually. This is the behaviour that `mvcgen` exhibits implicitly;
-  the new prototypical `mvcgen'` opts into it via `(errorOnMissingSpec := false)`.
+  the new prototypical `vcgen` opts into it via `(errorOnMissingSpec := false)`.
   -/
   errorOnMissingSpec : Bool := true
   /--
-  If `true`, `mvcgen'` checks failed `BackwardRule.apply` calls by retrying after
+  If `true`, `vcgen` checks failed `BackwardRule.apply` calls by retrying after
   `unfoldReducible`-normalizing the goal. If the rule then succeeds, an earlier step
-  forgot a normalization; `mvcgen'` raises a hard error pointing at the offending
-  rule and the missing reduction. Off by default; only consulted by `mvcgen'`.
+  forgot a normalization; `vcgen` raises a hard error pointing at the offending
+  rule and the missing reduction. Off by default; only consulted by `vcgen`.
   -/
   debug : Bool := false
   /--
-  If `true` (the default in grind mode), `mvcgen'` calls `Grind.processHypotheses` on
+  If `true` (the default in grind mode), `vcgen` calls `Grind.processHypotheses` on
   each emitted VC, internalising local hypotheses into the parent's E-graph so that
   downstream grind steps share context. The tactic-level entry point disables this
   when there is no `with` clause (no grind step will consume the E-graph anyway).
@@ -437,34 +437,34 @@ syntax (name := mvcgenHint) "mvcgen?" optConfig
 
 -- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
 -- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.
--- The optional `with $g` form is sugar for `sym => mvcgen' … <;> $g`: it enters grind
+-- The optional `with $g` form is sugar for `sym => vcgen … <;> $g`: it enters grind
 -- mode to share the internalised goal context with the user-supplied grind step (the only
 -- way to do so from tactic mode). `$g` is a single grind-mode step, so passing a
 -- multi-step sequence requires explicit grouping (e.g. `with (s₁; s₂)`).
 
 /--
-The discharging step in `mvcgen' … with`. It is a single `grind`-mode tactic (e.g. `finish`,
-`intro`) so it can share `mvcgen'`'s internalised E-graph. The `tactic` alternative is a
+The discharging step in `vcgen … with`. It is a single `grind`-mode tactic (e.g. `finish`,
+`intro`) so it can share `vcgen`'s internalised E-graph. The `tactic` alternative is a
 lower-priority catch-all so that a non-`grind` step (e.g. `with grind`, `with simp`) still parses
 and the elaborator can report a helpful error instead of a raw `expected grind` parser error.
 -/
-declare_syntax_cat mvcgenWith
-syntax (name := mvcgenWithGrind) grind : mvcgenWith
-syntax (name := mvcgenWithTactic) (priority := low) tactic : mvcgenWith
+declare_syntax_cat vcgenDischarge
+syntax (name := vcgenDischargeGrind) grind : vcgenDischarge
+syntax (name := vcgenDischargeTactic) (priority := low) tactic : vcgenDischarge
 
-@[tactic_alt Lean.Parser.Tactic.mvcgen'Macro]
-syntax (name := mvcgen') "mvcgen'" optConfig
+@[tactic_alt Lean.Parser.Tactic.vcgenMacro]
+syntax (name := vcgen) "vcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (&" until " term)?
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
-  (&" with " mvcgenWith)? : tactic
+  (&" with " vcgenDischarge)? : tactic
 
 namespace Grind
 
-/-- `mvcgen'` step for `sym => …` blocks. No `with` clause: compose with subsequent grind
+/-- `vcgen` step for `sym => …` blocks. No `with` clause: compose with subsequent grind
 steps using `<;>` instead. -/
-syntax (name := mvcgen') "mvcgen'" optConfig
+syntax (name := vcgen) "vcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (&" until " term)?
   (invariantAlts)?

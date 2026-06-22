@@ -377,7 +377,7 @@ structure is untouched (bound variables are wildcards in the key).
 
 **Important:** only use this when the matched arguments are *not* reused to rebuild a proof term,
 as `Sym.BackwardRule`/`Sym.mkValue` do — dropping variables would drop arguments those need. It is
-meant for databases such as `mvcgen'`'s spec table, where the proof is re-elaborated independently
+meant for databases such as `vcgen`'s spec table, where the proof is re-elaborated independently
 of the pattern.
 -/
 def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
@@ -528,7 +528,7 @@ def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option Sp
 /--
 Register the equational lemmas of a `@[spec]`-annotated declaration as `.simp` entries with the
 given priority. An equational proposition is registered directly; a definition is registered via its
-equation lemmas (`getEqnsFor?`). Anything else throws, since it cannot serve as a `mvcgen'` spec.
+equation lemmas (`getEqnsFor?`). Anything else throws, since it cannot serve as a `vcgen` spec.
 -/
 def SpecExtension.addSimpSpecTheoremsFromConst (ext : SpecExtension) (declName : Name) (prio : Nat)
     (attrKind : AttributeKind) : MetaM Unit := do
@@ -608,7 +608,7 @@ def mkSpecAttr : AttributeImpl where
       catch _ =>
       -- Equality / unfold specs: register for legacy `mvcgen` via `mvcgen_simp`, and for the new
       -- metatheory's internal database with the annotated priority (the `mvcgen_simp` hand-off
-      -- does not preserve the priority, so `mvcgen'` reads it from the internal database instead).
+      -- does not preserve the priority, so `vcgen` reads it from the internal database instead).
       let impl ← getBuiltinAttributeImpl `mvcgen_simp
       try
         let newStx ← `(attr| mvcgen_simp)

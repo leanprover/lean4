@@ -1,14 +1,14 @@
 import Std.Internal.Do
 import Std.Tactic.Do
 
-/-! Tests that `mvcgen'` is usable as a step inside `sym => …` blocks. -/
+/-! Tests that `vcgen` is usable as a step inside `sym => …` blocks. -/
 
 open Std.Internal.Do Lean.Order
 
 set_option mvcgen.warning false
 set_option warn.sorry false
 
-/-! ## Trivial postcondition: `mvcgen'` closes the goal -/
+/-! ## Trivial postcondition: `vcgen` closes the goal -/
 
 axiom G : StateM Nat Unit
 axiom H : StateM Nat Unit
@@ -25,7 +25,7 @@ axiom H_spec : ⦃ (fun (_ : Nat) => True) ⦄ H ⦃ fun _ n => n = n ⦄
 
 example : ⦃ (fun (_ : Nat) => True) ⦄ F ⦃ fun _ n => n = n ⦄ := by
   sym =>
-    mvcgen' [F]
+    vcgen [F]
 
 /-! ## Pre-tactic dispatches the leftover VC -/
 
@@ -46,7 +46,7 @@ axiom H2_spec : ⦃ (fun n => P n) ⦄ H2 ⦃ fun _ _ => True ⦄
 
 example : ⦃ (fun (_ : Nat) => True) ⦄ F2 ⦃ fun _ _ => True ⦄ := by
   sym =>
-    mvcgen' [F2] <;> finish
+    vcgen [F2] <;> finish
 
 /-! ## VC leftover; closed by a subsequent grind step -/
 
@@ -68,16 +68,16 @@ axiom H3_spec : ⦃ (fun n => Q n) ⦄ H3 ⦃ fun _ _ => True ⦄
 
 example : ⦃ (fun (_ : Nat) => True) ⦄ F3 ⦃ fun _ _ => True ⦄ := by
   sym =>
-    mvcgen' [F3]
+    vcgen [F3]
     finish [hPQ]
 
 -- `sym [hPQ]` propagates to the new VC `Grind.Goal`s; no need to re-pass it.
 example : ⦃ (fun (_ : Nat) => True) ⦄ F3 ⦃ fun _ _ => True ⦄ := by
   sym [hPQ] =>
-    mvcgen' [F3]
+    vcgen [F3]
     finish
 
-/-! ## VC references an fvar introduced by `mvcgen'` -/
+/-! ## VC references an fvar introduced by `vcgen` -/
 
 axiom G4 : StateM Nat Nat
 axiom Q4 : Nat → Prop
@@ -90,11 +90,11 @@ noncomputable def F4 : StateM Nat Nat := do
   let x ← G4
   pure x
 
--- `mvcgen'` introduces `x` and a hypothesis `P x` into the VC's local context.
+-- `vcgen` introduces `x` and a hypothesis `P x` into the VC's local context.
 -- The subsequent `finish [hPQ4]` must see `P x` in the E-graph to derive `Q4 x`.
 example : ⦃ (fun (_ : Nat) => True) ⦄ F4 ⦃ fun r _ => Q4 r ⦄ := by
   sym =>
-    mvcgen' [F4]
+    vcgen [F4]
     finish [hPQ4]
 
 /-! ## Inline invariants (bullet form) inside `sym =>` -/
@@ -108,7 +108,7 @@ example :
       pure x : Id Nat)
     ⦃ fun r => r < 30 ⦄ := by
   sym =>
-    mvcgen' invariants
+    vcgen invariants
       · fun xs r => r + xs.suffix.length * 5 ≤ 25
     <;> finish
 
@@ -128,5 +128,5 @@ theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by
   generalize h : mySum l = r
   apply Std.Internal.Do.Id.of_wp_run_eq h
   sym =>
-    mvcgen' [mySum] invariants?
+    vcgen [mySum] invariants?
     all_goals tactic => admit

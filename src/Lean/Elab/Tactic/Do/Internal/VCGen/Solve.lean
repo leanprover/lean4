@@ -68,7 +68,7 @@ private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List 
 
 private def throwIfUnsupportedJP (name : Name) (val : Expr) : VCGenM Unit := do
   if (← read).useJP && Lean.Elab.Tactic.Do.isJP name && val.isLambda then
-    throwError "mvcgen': shared-continuation handling for `__do_jp` is not yet \
+    throwError "vcgen: shared-continuation handling for `__do_jp` is not yet \
       implemented. Detection point reached at {name}; the upstream \
       `Lean.Elab.Tactic.Do.onJoinPoint` (`src/Lean/Elab/Tactic/Do/VCGen.lean:215`) \
       needs to be ported to the worklist style. Drop `(jp := true)` to fall back \

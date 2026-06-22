@@ -1,7 +1,7 @@
 import Lake
 open System Lake DSL
 
-package mvcgen_bench where
+package vcgen_bench where
   precompileModules := true
 
 lean_lib Baseline where

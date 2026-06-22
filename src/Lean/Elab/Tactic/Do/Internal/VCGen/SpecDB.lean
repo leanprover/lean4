@@ -15,7 +15,7 @@ import Lean.Meta.Sym.Util
 open Lean Meta Elab Tactic Sym
 
 /-!
-Spec-theorem database used by `mvcgen'`. The `@[spec]` attribute already stores
+Spec-theorem database used by `vcgen`. The `@[spec]` attribute already stores
 `Std.Internal.Do` specs as pattern-keyed `SpecTheorem`s (see `Lean.Elab.Tactic.Do.Attr`);
 this module adds the operations the VC generator needs on top: instantiating a spec to
 `pre ⊑ wp …` form, migrating the equational lemmas registered through the `mvcgen_simp`

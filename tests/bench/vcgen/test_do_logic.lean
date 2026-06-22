@@ -10,15 +10,15 @@ import Std.Tactic.Do
 set_option mvcgen.warning false
 
 /-!
-# Do-logic tests for `mvcgen'`
+# Do-logic tests for `vcgen`
 
 Ported from `tests/elab/doLogicTests.lean`, keeping only `mvcgen`-specific test cases
-and replacing `mvcgen` with `mvcgen'` where possible.
+and replacing `mvcgen` with `vcgen` where possible.
 
-Tests that are not yet working with `mvcgen'` keep the original `mvcgen`-based proof.
+Tests that are not yet working with `vcgen` keep the original `mvcgen`-based proof.
 The deprecation warning emitted by `mvcgen` indicates which tests still need migration.
 
-Tests whose proofs do not mention `mvcgen`/`mvcgen'` (manual `mspec`/`mintro` proofs)
+Tests whose proofs do not mention `mvcgen`/`vcgen` (manual `mspec`/`mintro` proofs)
 are intentionally not ported.
 -/
 
@@ -96,30 +96,30 @@ open Code
 
 theorem fib_triple : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   unfold fib_impl
-  mvcgen'
+  vcgen
   case inv1 => exact fun xs ⟨a, b⟩ =>
     a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
   all_goals grind
 
 theorem fib_triple_finish : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
-  mvcgen' [fib_impl] invariants
+  vcgen [fib_impl] invariants
   | inv1 => fun xs ⟨a, b⟩ => a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
   with finish
 
 theorem fib_triple_step : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   unfold fib_impl
-  mvcgen' (stepLimit := some 14)
+  vcgen (stepLimit := some 14)
   case inv1 => exact fun xs ⟨a, b⟩ =>
     a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
   all_goals grind
 
 attribute [local spec] fib_triple in
 theorem fib_triple_attr : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
-  mvcgen'
+  vcgen
 
 attribute [local spec] fib_triple in
 theorem fib_triple_erase : ⦃ True ⦄ fib_impl n ⦃fun r => r = fib_spec n⦄ := by
-  mvcgen' (errorOnMissingSpec := false) [-fib_triple]
+  vcgen (errorOnMissingSpec := false) [-fib_triple]
   fail_if_success done
   admit
 
@@ -134,7 +134,7 @@ theorem fib_impl_vcs
     (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff (h : [1:n].toList = pref ++ cur :: suff),
                   (I n hn) ⟨pref, cur::suff, by simp[h]⟩ r ⊑ (I n hn) ⟨pref ++ [cur], suff, by simp[h]⟩ (r.2, r.1+r.2))
     : wp (fib_impl n) (Q n) E := by
-  mvcgen' [fib_impl]
+  vcgen [fib_impl]
   case inv1 h => exact I n h
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
@@ -146,14 +146,14 @@ theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m 
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
-  mvcgen' [mkFreshNat] <;> simp_all
+  vcgen [mkFreshNat] <;> simp_all
 
 theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
   ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
   (mkFreshNat : StateT AppState m Nat)
   ⦃fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
   unfold mkFreshNat
-  mvcgen' (errorOnMissingSpec := false) [-modify]
+  vcgen (errorOnMissingSpec := false) [-modify]
   simp_all [-WPMonad.wp_modify_StateT_apply_eq]
   fail_if_success done
   admit
@@ -162,14 +162,14 @@ theorem add_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred 
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
-  mvcgen' [mkFreshNat] <;> simp_all
+  vcgen [mkFreshNat] <;> simp_all
 
 theorem mkFreshPair_triple :
     ⦃ fun _ => True ⦄ mkFreshPair ⦃ fun (p : Nat × Nat) => ⌜p.1 ≠ p.2⌝ ⦄ := by
-  mvcgen' [mkFreshPair] <;> simp_all
+  vcgen [mkFreshPair] <;> simp_all
 
 theorem sum_loop_spec : ⦃ True ⦄ sum_loop ⦃ fun r => r < 30 ⦄ := by
-  mvcgen' [sum_loop]
+  vcgen [sum_loop]
   case inv1 => exact fun c x => x = c.«prefix».sum
   all_goals grind
 
@@ -178,19 +178,19 @@ theorem throwing_loop_spec :
   throwing_loop
   ⦃fun _ _ => False;
   fun e s => e = 42 ∧ s = 4⦄ := by
-  mvcgen' [throwing_loop]
+  vcgen [throwing_loop]
   case inv1 => exact fun xs r s => r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4
   all_goals (simp_all; try grind)
 
 theorem test_loop_break :
     ⦃ fun s => s = 42 ⦄ breaking_loop ⦃ fun r s => r > 4 ∧ s = 1 ⦄ := by
-  mvcgen' [breaking_loop]
+  vcgen [breaking_loop]
   case inv1 => exact fun xs r s => (r ≤ 4 ∧ r = xs.prefix.sum ∨ r > 4) ∧ s = 42
   all_goals grind
 
 theorem test_loop_early_return :
     ⦃ fun s => s = 4 ⦄ returning_loop ⦃ fun r s => r = 42 ∧ s = 4 ⦄ := by
-  mvcgen' [returning_loop]
+  vcgen [returning_loop]
   case inv1 => exact fun xs r s => (r.1 = none ∧ r.2 = xs.prefix.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4
   all_goals grind
 
@@ -198,7 +198,7 @@ theorem unfold_to_expose_match_spec :
   ⦃ fun s => s = 4 ⦄
   unfold_to_expose_match
   ⦃ fun r => ⌜r = 4⌝ ⦄ := by
-  mvcgen' [unfold_to_expose_match, Option.getD]
+  vcgen [unfold_to_expose_match, Option.getD]
 
 theorem test_match_splitting {mo : Option Nat} (h : mo = some 4) :
     ⦃ fun _ => True ⦄
@@ -206,7 +206,7 @@ theorem test_match_splitting {mo : Option Nat} (h : mo = some 4) :
      | some n => (set n : StateM Nat PUnit)
      | none => set 0)
     ⦃ fun _ s => s = 4 ⦄ := by
-  mvcgen' <;> simp_all
+  vcgen <;> simp_all
 
 theorem test_sum :
     ⦃ True ⦄
@@ -216,7 +216,7 @@ theorem test_sum :
         x := x + i
       pure x : Id _)
     ⦃ fun r => r < 30 ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun c x => x = c.«prefix».sum
   all_goals grind
 
@@ -228,7 +228,7 @@ theorem mspec_forwards_mvars {n : Nat} :
         return 1
     return 1 : Id Nat)
   ⦃fun r => True⦄ := by
-  mvcgen'
+  vcgen
   all_goals admit
 
 def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
@@ -241,7 +241,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
   apply Id.of_wp_run_eq h
-  mvcgen'
+  vcgen
   case inv1 =>
     exact Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
@@ -257,7 +257,7 @@ namespace HimpSplit
 -- `⇨` from collapsing to `→`.
 theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     ⦃ ⊤ ⦄ (pure 4 : m Nat) ⦃ fun r => ⌜r = 4⌝ ⇨ ⌜r > 0⌝ ⦄ := by
-  mvcgen'
+  vcgen
   all_goals grind
 
 end HimpSplit
@@ -278,7 +278,7 @@ def max_and_sum (xs : Array Nat) : Id (Nat × Nat) := do
 theorem max_and_sum_spec (xs : Array Nat) :
     ⦃ ∀ i, (h : i < xs.size) → xs[i] ≥ 0 ⦄
     max_and_sum xs ⦃ fun (m, s) => s ≤ m * xs.size ⦄ := by
-  mvcgen' [max_and_sum]
+  vcgen [max_and_sum]
   case inv1 => exact fun c ⟨mx, s⟩ => s ≤ mx * c.pos
   all_goals simp_all +zetaDelta
   case vc3 =>
@@ -303,7 +303,7 @@ namespace RishsConstApproxBug
 
 theorem need_const_approx' :
     ⦃ fun x => x = () ⦄ test ⦃ fun _ _ => True ⦄ := by
-  mvcgen' [test]
+  vcgen [test]
 
 end RishsConstApproxBug
 
@@ -328,7 +328,7 @@ attribute [local spec] hI hF hG
     G
 
 theorem ex : ⦃ fun _ => True ⦄ test_ite ⦃ Q ⦄ := by
-  mvcgen' [test_ite]
+  vcgen [test_ite]
 
 end RishsTailContextBug
 
@@ -352,16 +352,16 @@ def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Op
     return r
 
 -- Originally a demo that `Id.of_wp_run_eq` applies despite universe polymorphism.
--- Neither `mvcgen` nor `mvcgen'` can find a triple spec for `forIn` on the
+-- Neither `mvcgen` nor `vcgen` can find a triple spec for `forIn` on the
 -- universe-polymorphic `ExtTreeMap`; both fall back to simp, which simplifies
 -- the body but doesn't fully discharge. With `(errorOnMissingSpec := false)`,
--- `mvcgen'` matches legacy `mvcgen`'s behaviour of leaving an unsolved VC.
+-- `vcgen` matches legacy `mvcgen`'s behaviour of leaving an unsolved VC.
 theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp}
     {f : α → Option β → Option β → Option β} {a : α} :
     a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
   generalize h : mergeWithAll m₁ m₂ f = x
   apply Id.of_wp_run_eq h
-  mvcgen' (errorOnMissingSpec := false) [mergeWithAll]
+  vcgen (errorOnMissingSpec := false) [mergeWithAll]
   admit
 
 end KimsUnivPolyUseCase
@@ -377,7 +377,7 @@ def subarraySum (xs : Subarray Nat) : Nat := Id.run do
 theorem subarraySum_correct {xs : Subarray Nat} : subarraySum xs = xs.toList.sum := by
   generalize h : subarraySum xs = r
   apply Id.of_wp_run_eq h
-  mvcgen'
+  vcgen
   case inv1 => exact fun c s => s = c.«prefix».sum
   all_goals simp_all +zetaDelta
 
@@ -411,14 +411,14 @@ def fast_expo (x n : Nat) : Nat := Id.run do
 theorem naive_expo_correct (x n : Nat) : naive_expo x n = x ^ n := by
   generalize h : naive_expo x n = r
   apply Id.of_wp_run_eq h
-  mvcgen'
+  vcgen
   case inv1 => exact fun c y => y = x ^ c.pos
   all_goals simp_all +zetaDelta [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x ^ n := by
   generalize h : fast_expo x n = r
   apply Id.of_wp_run_eq h
-  mvcgen'
+  vcgen
   case inv1 => exact fun xs ⟨x', y, e⟩ => x' ^ e * y = x ^ n ∧ e ≤ n - xs.pos
   all_goals simp_all +zetaDelta
   case vc2 ih =>
@@ -453,7 +453,7 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion 
         sum := sum + n
       return sum : m _)
     ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
   all_goals grind
 
@@ -464,7 +464,7 @@ theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pre
       for n in (xs.iterM Id).map (· + 1) do
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
@@ -475,7 +475,7 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred
       for n in (xs.iterM Id).map (· + 1) do
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
@@ -487,7 +487,7 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m
       for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
@@ -498,14 +498,14 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
     [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     ⦃ ⊤ ⦄ (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·)) ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
-  mvcgen'
+  vcgen
   case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
   all_goals grind
 
@@ -519,34 +519,34 @@ currently ignored. -/
 
 def trivial_test (n : Nat) : Id Nat := pure n
 
-/-- An empty `(config := {})` matches the default `mvcgen'` behavior. -/
+/-- An empty `(config := {})` matches the default `vcgen` behavior. -/
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
-  mvcgen' (config := {}) [trivial_test]
+  vcgen (config := {}) [trivial_test]
 
 -- `trivial := false` skips `repeatAndRfl`, leaving a residual entailment.
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
-  mvcgen' (trivial := false) [trivial_test]
+  vcgen (trivial := false) [trivial_test]
   trivial
 
--- `elimLets := false` skips the let-elimination pre-pass (now honored by `mvcgen'`).
+-- `elimLets := false` skips the let-elimination pre-pass (now honored by `vcgen`).
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
-  mvcgen' (config := { elimLets := false }) [trivial_test]
+  vcgen (config := { elimLets := false }) [trivial_test]
 
 -- `stepLimit` is accepted; with a positive limit, simple programs still discharge.
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
-  mvcgen' (config := { stepLimit := some 100 }) [trivial_test]
+  vcgen (config := { stepLimit := some 100 }) [trivial_test]
 
-/-- warning: mvcgen': the `leave` config option is currently ignored. -/
+/-- warning: vcgen: the `leave` config option is currently ignored. -/
 #guard_msgs in
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
-  mvcgen' (config := { leave := false }) [trivial_test]
+  vcgen (config := { leave := false }) [trivial_test]
 
 -- `jp := true` is accepted and wired through `Context.useJP`; the actual
 -- shared-continuation construction (Phase 6 of the plan) is not yet ported,
 -- so enabling it on a program containing `__do_jp` errors at the detection
 -- point. Programs without `__do_jp` (like this trivial example) are unaffected.
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
-  mvcgen' (config := { jp := true }) [trivial_test]
+  vcgen (config := { jp := true }) [trivial_test]
 
 
 end ConfigSyntaxTests
@@ -568,7 +568,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
   apply Id.of_wp_run_eq h
-  mvcgen' invariants
+  vcgen invariants
     · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
       (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
@@ -579,7 +579,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
   apply Id.of_wp_run_eq h
-  mvcgen' invariants
+  vcgen invariants
     | inv1 => Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
       (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
@@ -591,7 +591,7 @@ namespace RflReducibility
 
 -- From `mvcgenRflReducibility.lean`. Asserts that decomposing `MyShl.shl a 32` does
 -- not whnf at default reducibility, otherwise `UInt64.ofNat 32.toInt.toNat` would
--- unfold deeply and timeout. `mvcgen'` keeps reduction at `.instances` transparency
+-- unfold deeply and timeout. `vcgen` keeps reduction at `.instances` transparency
 -- when stepping through class projections (`reduceProj?` in `Reduce.lean`), so this
 -- example decomposes cleanly.
 
@@ -626,7 +626,7 @@ example (a : UInt64) :
         let a ← MyAddU.add (0 : UInt64) a
         pure a
     ⦃fun _ => True⦄ := by
-  mvcgen' (errorOnMissingSpec := false) [MyShl.shl, MyAddU.add]
+  vcgen (errorOnMissingSpec := false) [MyShl.shl, MyAddU.add]
 
 end RflReducibility
 
@@ -642,7 +642,7 @@ theorem foo_spec
     (x_spec : ∀ (k : Id Nat), ⦃ True ⦄ k ⦃ fun r => r % 2 = 0 ⦄ →
       ⦃ True ⦄ x k ⦃ fun r => r % 2 = 0 ⦄) :
     ⦃ True ⦄ foo x ⦃ fun r => r % 2 = 0 ⦄ := by
-  mvcgen' [foo, x_spec] with finish
+  vcgen [foo, x_spec] with finish
 
 def bar (k : Id Nat) : Id Nat := do
   let r ← k
@@ -652,7 +652,7 @@ def bar (k : Id Nat) : Id Nat := do
     return r
 
 example : ⦃ True ⦄ foo bar ⦃ fun r => r % 2 = 0 ⦄ := by
-  mvcgen' [foo_spec, bar] with finish
+  vcgen [foo_spec, bar] with finish
 
 end LocalSpec
 
@@ -664,7 +664,7 @@ def liftProg : StateT Nat Id Nat := do
   let x ← (pure 5 : Id Nat)
   return x
 
-example : ⦃ fun _ => ⌜True⌝ ⦄ liftProg ⦃ fun r _ => ⌜r = 5⌝ ⦄ := by mvcgen' [liftProg] <;> grind
+example : ⦃ fun _ => ⌜True⌝ ⦄ liftProg ⦃ fun r _ => ⌜r = 5⌝ ⦄ := by vcgen [liftProg] <;> grind
 
 end RawMonadLiftRegression
 
@@ -689,7 +689,7 @@ theorem Spec.incr
     (post : PUnit → Nat → Pred) (epost : EPred) (n : Nat) :
     Triple (incr n : StateT Nat m PUnit)
       (fun s => post ⟨⟩ (s + n)) post epost := by
-  mvcgen' [TopBetaReduction.incr]; rfl
+  vcgen [TopBetaReduction.incr]; rfl
 
 /--
 error: unsolved goals
@@ -703,7 +703,7 @@ theorem incr_id (amounts : List Nat) :
   ⦃ ⊤ ⦄
     incr (m := Id) 1
   ⦃ fun _ _ => ⊥ ⦄ := by
-  mvcgen' [incr]
+  vcgen [incr]
 
 /--
 error: unsolved goals
@@ -723,14 +723,14 @@ theorem incr_poly (amounts : List Nat) :
   ⦃ ⊤ ⦄
     incr (m := m) 1
   ⦃ fun _ _ => ⊥ ⦄ := by
-  mvcgen' [incr]
+  vcgen [incr]
 
 
 end TopBetaReduction
 
 namespace RepeatInvariantOfInvariantAndBreak
 
-/-! Verifies a `while` loop whose `mvcgen'` invariant is supplied via
+/-! Verifies a `while` loop whose `vcgen` invariant is supplied via
 `RepeatInvariant.ofInvariantAndBreak`: a loop invariant `inv` that holds after every iteration plus
 an `onBreak` condition (here the negated loop condition) that additionally holds once the loop
 exits. -/
@@ -745,7 +745,7 @@ def countdown (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
-  mvcgen' [countdown]
+  vcgen [countdown]
   case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
   case inv2 => exact fun i => i
   any_goals simp at *
@@ -754,19 +754,19 @@ theorem countdown_spec (n : Nat) :
 end RepeatInvariantOfInvariantAndBreak
 namespace WithGrindError
 
-/-! The `with` clause of `mvcgen'` only accepts a `grind`-mode step (e.g. `finish`, `intro`). A
+/-! The `with` clause of `vcgen` only accepts a `grind`-mode step (e.g. `finish`, `intro`). A
 general tactic such as `grind` parses but is rejected with a helpful error in the elaborator,
 rather than a raw `unexpected identifier; expected grind` parser error. -/
 
 def trivial_test (n : Nat) : Id Nat := pure n
 
 /--
-error: `mvcgen' … with` expects a `grind`-mode discharging step, not a general tactic
+error: `vcgen … with` expects a `grind`-mode discharging step, not a general tactic
 
-Hint: Examples: `mvcgen' … with finish`, `mvcgen' … with intro`.
+Hint: Examples: `vcgen … with finish`, `vcgen … with intro`.
 -/
 #guard_msgs in
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
-  mvcgen' [trivial_test] with grind
+  vcgen [trivial_test] with grind
 
 end WithGrindError

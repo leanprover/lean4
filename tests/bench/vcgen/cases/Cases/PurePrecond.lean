@@ -20,13 +20,13 @@ def flipp (_ : Bool) : StateM Bool Unit := modify not
 theorem Spec.flipp_true :
     ⦃fun b => b = true⦄ (flipp true) ⦃fun _ b => b = false⦄ := by
   simp only [flipp, modify]
-  mvcgen' with finish
+  vcgen with finish
 
 @[spec]
 theorem Spec.flipp_false :
     ⦃fun b => b = false⦄ (flipp false) ⦃fun _ b => b = true⦄ := by
   simp only [flipp, modify]
-  mvcgen' with finish
+  vcgen with finish
 
 def step : StateM Bool Unit := do
   flipp true

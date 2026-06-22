@@ -136,12 +136,12 @@ public structure VCGen.Context where
   useJP : Bool := false
   /-- The `errorOnMissingSpec` config option: when `true` (default), a program with no matching
   spec raises a hard error. When `false`, the goal is emitted as an unsolved VC for the user to
-  discharge — useful with `mvcgen' [-some_spec]` patterns where the user knows the spec is
+  discharge — useful with `vcgen [-some_spec]` patterns where the user knows the spec is
   intentionally removed and wants to handle the residual goal by hand. -/
   errorOnMissingSpec : Bool := true
   /-- The `debug` config option: when `true`, `tryApplyRule` retries failed
   `BackwardRule.apply` calls after `unfoldReducible` and reports an error when the
-  retry succeeds, pinpointing missing normalization steps in `mvcgen'`. -/
+  retry succeeds, pinpointing missing normalization steps in `vcgen`. -/
   debug : Bool := false
   /-- The `internalize` config option: when `true` (default), `emitVC` and the
   multi-subgoal fork in `Driver.work` call `Grind.processHypotheses`. The tactic-mode

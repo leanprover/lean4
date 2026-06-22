@@ -22,11 +22,11 @@ abbrev M := ExceptT String <| StateM Nat
 
 @[spec high] theorem spec_set (x : Nat) :
     ⦃fun _ => post ⟨⟩ x⦄ (set (m := M) x) ⦃post⦄ := by
-  mvcgen'
+  vcgen
 
 @[spec high] theorem spec_get :
     ⦃fun s => post s s⦄ (get (m := M)) ⦃post⦄ := by
-  mvcgen'
+  vcgen
 
 def step (lim : Nat) : M Unit := do
   let s ← get

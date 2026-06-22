@@ -3,8 +3,8 @@ import Std.Internal.Do
 
 /-!
 Regression test for a *dependent* assertion language `(st : State) → st.Invariant → Prop`. Its order
-is the pointwise function order, but `mvcgen'`'s peel rule `le_of_forall_le` cannot currently be
-applied to a dependent function lattice. `mvcgen'` must report a clear error instead of looping until
+is the pointwise function order, but `vcgen`'s peel rule `le_of_forall_le` cannot currently be
+applied to a dependent function lattice. `vcgen` must report a clear error instead of looping until
 it runs out of heartbeats. Extracted from a user report.
 -/
 
@@ -72,4 +72,4 @@ error: failed to apply Lean.Order.le_of_forall_le to goal
 -/
 #guard_msgs in
 example : Triple (pure () : Stateful Unit) (fun _ _ => True) (fun _ _ _ => True) epost⟨⟩ := by
-  mvcgen'
+  vcgen

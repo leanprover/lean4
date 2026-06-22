@@ -2,7 +2,7 @@ import Std.Tactic.Do
 import Std.Internal.Do
 
 /-!
-Regression test for `mvcgen`/`mvcgen'` splitting a `match` whose discriminant telescope is
+Regression test for `mvcgen`/`vcgen` splitting a `match` whose discriminant telescope is
 dependent: a later discriminant's type mentions an earlier discriminant. Abstracting the matcher
 introduces the discriminant fvars as a dependent telescope, substituting each earlier original
 discriminant with its abstract counterpart, so the pre-splitter motive stays type-correct.
@@ -21,7 +21,7 @@ open Lean.Order Std.Internal.Do
 example (n : Nat) (h : 0 < n) :
     ⦃fun _ => True⦄ prog n h ⦃fun _ _ => True⦄ := by
   unfold prog
-  mvcgen'
+  vcgen
   all_goals simp_all
 end
 

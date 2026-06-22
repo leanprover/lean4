@@ -15,9 +15,9 @@ end GetThrowSetGrind
 set_option maxRecDepth 100000
 set_option maxHeartbeats 100000000
 
--- Benchmark `mvcgen' with finish`: grind integrated into VCGen loop for incremental
+-- Benchmark `vcgen with finish`: grind integrated into VCGen loop for incremental
 -- context internalization. This avoids O(n) re-internalization per VC.
 -- `simplifying_assumptions [Nat.add_assoc]` here speeds up grind and kernel checking by a factor
 -- of 2 because long chains `s + 1 + ... + 1` are collapsed into `s + n`.
-#eval runBenchUsingTactic ``GetThrowSetGrind.Goal [``loop, ``step] `(tactic| mvcgen' simplifying_assumptions [Nat.add_assoc] with finish) `(tactic| fail)
+#eval runBenchUsingTactic ``GetThrowSetGrind.Goal [``loop, ``step] `(tactic| vcgen simplifying_assumptions [Nat.add_assoc] with finish) `(tactic| fail)
   [50, 100, 150]

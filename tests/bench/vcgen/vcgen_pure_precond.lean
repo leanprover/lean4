@@ -11,7 +11,7 @@ set_option mvcgen.warning false
 open Lean Parser Meta Elab Tactic Sym Std Do
 open PurePrecond
 
-set_option maxRecDepth 10000
+set_option maxRecDepth 100000
 set_option maxHeartbeats 10000000
 
 example : Goal 10 := by
@@ -19,4 +19,4 @@ example : Goal 10 := by
   vcgen
 
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| vcgen) `(tactic| fail)
-  [100, 400, 700]
+  [400, 2400, 4400]

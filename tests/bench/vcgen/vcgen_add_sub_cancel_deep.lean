@@ -15,5 +15,5 @@ set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| vcgen) `(tactic| grind)
-  [100, 400, 700]
+  [100, 500, 900]
   -- [1000]

@@ -139,23 +139,23 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
     (Lean.regularInitAttr.ext.name, initDecls),
     (modPkgExt.name, modPkg)]
 
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
+def findEnvDecl (env : Environment) (declName : Name) : BaseIO (Option Decl) :=
+  Compiler.LCNF.findIRExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
 
 @[export lean_ir_find_env_decl]
-private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDecl (env : Environment) (declName : Name) : BaseIO (Option Decl) := do
   -- This function is never used in `leanir`, so no need for `findExtEntry?`
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     -- `meta import/import all` and additional server-mode IR
-    findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
-    -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
-    findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
-  | none => declMapExt.getState env |>.find? declName
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) declName <|>
+      -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
+      findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
+  | none => return declMapExt.getState env |>.find? declName
 
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
-private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDeclBoxed (env : Environment) (declName : Name) : BaseIO (Option Decl) := do
   let boxed := Compiler.LCNF.mkBoxedName declName
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed
@@ -165,9 +165,9 @@ private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option D
   -- not a local declaration.
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    findAtSorted? (declMapExt.getModuleIREntries env modIdx) boxed <|>
-    findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
-  | none => declMapExt.getState env |>.find? boxed
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) boxed <|>
+      findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
+  | none => return declMapExt.getState env |>.find? boxed
 
 @[export lean_has_compile_error]
 private def hasCompileError (env : Environment) (constName : Name) : Bool :=
@@ -177,8 +177,8 @@ private def hasCompileError (env : Environment) (constName : Name) : Bool :=
   -- evaluate constants previously called `compileDecl` on.
   | none => !(declMapExt.getState env |>.contains constName)
 
-def findDecl (n : Name) : CompilerM (Option Decl) :=
-  return findEnvDecl (← getEnv) n
+def findDecl (n : Name) : CompilerM (Option Decl) := do
+  findEnvDecl (← getEnv) n
 
 def containsDecl (n : Name) : CompilerM Bool :=
   return (← findDecl n).isSome
@@ -200,13 +200,13 @@ def addDecl (decl : Decl) : CompilerM Unit := do
 def addDecls (decls : Array Decl) : CompilerM Unit :=
   decls.forM addDecl
 
-def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
+def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : BaseIO (Option Decl) :=
   match decls.find? (fun decl => decl.name == n) with
-  | some decl => some decl
+  | some decl => pure (some decl)
   | none      => findEnvDecl env n
 
-def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
-  return findEnvDecl' (← getEnv) n decls
+def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) := do
+  findEnvDecl' (← getEnv) n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
   if decls.any fun decl => decl.name == n then
@@ -219,10 +219,10 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
   return decl
 
 @[export lean_decl_get_sorry_dep]
-def getSorryDep (env : Environment) (declName : Name) : Option Name :=
-  match findEnvDecl env declName with
-  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
-  | _ => none
+def getSorryDep (env : Environment) (declName : Name) : BaseIO (Option Name) := do
+  match ← findEnvDecl env declName with
+  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => return dep?
+  | _ => return none
 
 /-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
 @[export lean_get_ir_extra_const_names]

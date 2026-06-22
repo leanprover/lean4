@@ -110,7 +110,7 @@ def getModName : M llvmctx  Name := Context.modName <$> read
 
 def getDecl (n : Name) : M llvmctx Decl := do
   let env ← getEnv
-  match findEnvDecl env n with
+  match ← findEnvDecl env n with
   | some d => pure d
   | none   => throw s!"unknown declaration {n}"
 

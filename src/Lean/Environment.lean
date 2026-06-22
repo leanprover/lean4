@@ -1649,11 +1649,14 @@ def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtens
   -- safety: as in `getStateUnsafe`
   unsafe (ext.toEnvExtension.getStateImpl exts).importedEntries[m]!
 
-/-- Retrieves additional IR extension state for the interpreter. -/
+/--
+Retrieves additional IR extension state for the interpreter, loading it on demand. `BaseIO` because a
+future change loads the IR from `.olean`/`.ir` lazily; for now it reads the eagerly-imported state.
+-/
 def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
-    (env : Environment) (m : ModuleIdx) : Array α :=
+    (env : Environment) (m : ModuleIdx) : BaseIO (Array α) :=
   -- safety: as in `getStateUnsafe`
-  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]!
+  pure (unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]!)
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β)
     (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : Environment :=

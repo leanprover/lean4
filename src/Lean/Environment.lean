@@ -187,16 +187,16 @@ namespace Kernel
 /-- Per-module loaded IR for on-demand interpreter IR (see `LazyIR`). -/
 structure LazyIRState where
   /-- `loaded[m]` is module `m`'s `.ir` `ModuleData` once loaded on demand, else `none`. -/
-  loaded  : Array (Option ModuleData) := #[]
+  loaded  : PArray (Option ModuleData) := {}
   /-- Compacted regions of lazily-loaded `.ir` files, freed with the environment. -/
-  regions : Array CompactedRegion := #[]
+  regions : PArray CompactedRegion := {}
   /--
   Module index of code-generator auxiliary constants discovered while loading `.ir` files on demand.
   These are not in `const2ModIdx` (whose auxiliaries come from the imported `.olean`, which omits
   private ones); a module's auxiliaries are registered here when its `.ir` is loaded, which always
   happens before the interpreter references them (it enters a module via a regular constant first).
   -/
-  extraIdx : Std.HashMap Name ModuleIdx := {}
+  extraIdx : PHashMap Name ModuleIdx := {}
   deriving Inhabited
 
 /--
@@ -1802,16 +1802,16 @@ def PersistentEnvExtension.getModuleIREntries {α β σ : Type} [Inhabited σ]
   let some lazy := env.base.private.irData | return ext.getModuleEntries env m
   let some (some path) := lazy.paths[m]? | return ext.getModuleEntries env m
   -- Fast path: already loaded (non-atomic, as in `realizeMapRef`).
-  if let some (some data) := (← lazy.ref.get).loaded[m]? then
+  if let some (some data) := (← lazy.ref.get).loaded.get? m then
     return extractIREntries ext data
   -- Load `m`'s `.ir` and cache it, keeping the winner on a concurrent race.
   let data ← match ← (readModuleData path).toBaseIO with
     | .ok (data, region) =>
       lazy.ref.modifyGet fun st =>
-        match st.loaded[m]? with
+        match st.loaded.get? m with
         | some (some data') => (data', st)
         | _ => (data, { st with
-            loaded := st.loaded.set! m (some data), regions := st.regions.push region
+            loaded := st.loaded.set m (some data), regions := st.regions.push region
             extraIdx := data.extraConstNames.foldl (·.insert · m) st.extraIdx })
     | .error _ => pure default
   return extractIREntries ext data
@@ -1823,7 +1823,7 @@ especially private ones, are not in `const2ModIdx`).
 -/
 def Environment.lazyIRModuleIdxFor? (env : Environment) (declName : Name) : BaseIO (Option ModuleIdx) := do
   let some lazy := env.base.private.irData | return none
-  return (← lazy.ref.get).extraIdx[declName]?
+  return (← lazy.ref.get).extraIdx.find? declName
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -1850,7 +1850,7 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
   -- freed; free them after `header.regions`, once that data has been dropped with `env`.
   let irRegions ← match env.base.private.irData with
     | some lazy => pure (← lazy.ref.get).regions
-    | none      => pure #[]
+    | none      => pure {}
   env.header.regions.forM CompactedRegion.free
   irRegions.forM CompactedRegion.free
 
@@ -2388,7 +2388,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       none
   let lazyIR : Kernel.LazyIR := {
     paths := irPaths
-    ref := ← IO.mkRef { loaded := Array.replicate moduleData.size none }
+    ref := ← IO.mkRef { loaded := moduleData.size.fold (init := {}) (fun _ _ c => c.push none) }
   }
   let privateBase := { privateBase with
     extensions

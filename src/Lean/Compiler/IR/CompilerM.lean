@@ -151,7 +151,12 @@ private def findInterpDecl (env : Environment) (declName : Name) : BaseIO (Optio
     return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) declName <|>
       -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
       findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
-  | none => return declMapExt.getState env |>.find? declName
+  | none =>
+    if let some decl := declMapExt.getState env |>.find? declName then
+      return some decl
+    -- imported code-generator auxiliary (not in `const2ModIdx`) discovered during on-demand IR loading
+    let some modIdx ← env.lazyIRModuleIdxFor? declName | return none
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) declName
 
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
@@ -167,7 +172,11 @@ private def findInterpDeclBoxed (env : Environment) (declName : Name) : BaseIO (
   | some modIdx =>
     return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) boxed <|>
       findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
-  | none => return declMapExt.getState env |>.find? boxed
+  | none =>
+    if let some decl := declMapExt.getState env |>.find? boxed then
+      return some decl
+    let some modIdx ← env.lazyIRModuleIdxFor? declName | return none
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) boxed
 
 @[export lean_has_compile_error]
 private def hasCompileError (env : Environment) (constName : Name) : Bool :=

@@ -1264,6 +1264,12 @@ that never carry IR.
     if let some r := findAtSorted? (ext.getModuleEntries env modIdx) declName then
       return some r
   -- In `leanir`, the current module has a module index, so we need to check the local state always
-  return findInState? (ext.getState env) declName
+  if let some r := findInState? (ext.getState env) declName then
+    return some r
+  -- imported code-generator auxiliary (not in `const2ModIdx`) discovered during on-demand IR loading
+  if let some modIdx ← env.lazyIRModuleIdxFor? declName then
+    if let some r := findAtSorted? (← ext.getModuleIREntries env modIdx) declName then
+      return some r
+  return none
 
 end Lean.Compiler.LCNF

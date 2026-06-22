@@ -173,26 +173,25 @@ private def regionsToModuleArtifacts (regions : Array CompactedRegion) : Array M
         | some "server"  => (p.withExtension "" |>.toString, fun a => { a with oleanServer? := p })
         | some "private" => (p.withExtension "" |>.toString, fun a => { a with oleanPrivate? := p })
         | some "ir"      => (p.withExtension "olean" |>.toString, fun a => { a with ir? := p })
+        | some "sig"     => (p.withExtension "" |>.withExtension "olean" |>.toString, fun a => { a with irSig? := p })
         | _              => (p.toString, fun a => { a with olean? := p })
       unless byBase.contains base do
         order := order.push base
       byBase := byBase.insert base (upd (byBase.getD base {}))
     return order.map (byBase[·]!)
 
-/--
-Reads all the regions of one module's `ModuleArtifacts`: the `.olean` variant chain (each variant
-read with only its prior siblings as deps) plus the `.ir` region (no deps, as in regular import).
--/
 private unsafe def readModuleArtifactRegions (arts : ModuleArtifacts) :
     IO (Array CompactedRegion) := do
-  let mut chainDeps : Array CompactedRegion := #[]
+  let mut oleanRegions : Array CompactedRegion := #[]
   for partPath in arts.oleanParts do
-    let (_, region) ← CompactedRegion.read (α := ModuleData) partPath chainDeps
-    chainDeps := chainDeps.push region
-  if let some irPath := arts.ir? then
-    let (_, region) ← CompactedRegion.read (α := ModuleData) irPath #[]
-    chainDeps := chainDeps.push region
-  return chainDeps
+    let (_, region) ← CompactedRegion.read (α := ModuleData) partPath oleanRegions
+    oleanRegions := oleanRegions.push region
+  let mut irRegions : Array CompactedRegion := #[]
+  for partPath in arts.irParts do
+    let (_, region) ← CompactedRegion.read (α := ModuleData) partPath irRegions
+    -- accumulate so `.ir` is read with `.ir.sig` as a dep (its cross-part pointers); cf. olean chain
+    irRegions := irRegions.push region
+  return oleanRegions ++ irRegions
 
 /-- Loads a snapshot saved by `--incr-(header-)save`. -/
 private unsafe def loadIncrSnapshot (fname : System.FilePath) :

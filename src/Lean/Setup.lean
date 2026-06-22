@@ -131,6 +131,14 @@ def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath 
         fnames := fnames.push pFile
   return fnames
 
+def ModuleArtifacts.irParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  if let some irSigFile := arts.irSig? then
+    fnames := fnames.push irSigFile
+    if let some irFile := arts.ir? then
+      fnames := fnames.push irFile
+  return fnames
+
 /-- A Lean plugin. Plugins are shared libraries with an initialization function. -/
 structure Plugin where
   /-- The path to the plugin's shared library. -/

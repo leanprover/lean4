@@ -638,19 +638,19 @@ Detect if-then-else and XOR/XNOR gates of the form `(c → t) ∧ (¬c → f) = 
 -/
 def detectIte {aig : AIG Nat} (root : Nat) (h : root < aig.decls.size) : Option (Fanin × Fanin × Fanin) := do
   -- Match root = (l ∧ r)
-  let (eq:=hroot) .gate l r := aig.decls[root]'h | none
+  let (eq := hroot) .gate l r := aig.decls[root]'h | none
   have := aig.hdag h hroot
 
   -- We expect the structure to be a conjunction of disjunctions
-  if ¬l.invert ∨ ¬r.invert then
+  if !l.invert || !r.invert then
     none
 
   -- Match l = (l0 ∧ l1)
-  let (eq:=hl) .gate l0 l1 := aig.decls[l.gate] | none
+  let (eq := hl) .gate l0 l1 := aig.decls[l.gate] | none
   have := aig.hdag (by omega) hl
 
   -- Match r = (r0 ∧ r1)
-  let (eq:=hr) .gate r0 r1 := aig.decls[r.gate] | none
+  let (eq := hr) .gate r0 r1 := aig.decls[r.gate] | none
   have := aig.hdag (by omega) hr
 
   -- ¬(l0 ∧ l1) ∧ ¬(¬l0 ∧ r1) = (l0 → ¬l1) ∧ (¬l0 → ¬r1)
@@ -776,11 +776,11 @@ where
           have hcstate' : toCNF.State.IsExtensionBy state fstate cond.gate (by omega) := by
             apply toCNF.State.IsExtensionBy_trans_left (h23 := hfstate)
             apply toCNF.State.IsExtensionBy_trans_left (h23 := htstate)
-            · exact hcstate
+            exact hcstate
 
           have htstate' : toCNF.State.IsExtensionBy cstate fstate ifTrue.gate (by omega) := by
             apply toCNF.State.IsExtensionBy_trans_left (h23 := hfstate)
-            · exact htstate
+            exact htstate
 
           let ⟨ret, hretstate⟩ := fstate.addIte upper h hltc hltt hltf hcstate'.trueAt htstate'.trueAt hfstate.trueAt
             (by simp [toCNF.denote_detectIte hite])

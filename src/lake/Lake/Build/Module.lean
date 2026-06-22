@@ -579,10 +579,16 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     let depTrace := trace.mix extraDepJob.getTrace |>.mix info.trace
     setTraceCaption s!"{mod.name.toString}:deps"
     let libTrace := libTrace.withCaption "libs"
+    let nilLibTrace :=
+      BuildTrace.nil "libs"
+      |>.mix (.nil "import dynlibs")
+      |>.mix (.nil "package external libraries")
+      |>.mix (.nil "module dynlibs")
+      |>.mix (.nil "module plugins")
     match mod.platformIndependent with
     | none => addTrace depTrace; addTrace libTrace
     | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
-    | some true => addTrace depTrace
+    | some true => addTrace depTrace; addTrace nilLibTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
     let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
     return {

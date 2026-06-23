@@ -99,7 +99,7 @@ struct lthread::imp {
     }
 
     imp(runnable const & p) {
-        auto f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
+        std::unique_ptr<runnable> f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
         // Without `IS_A_RESERVATION`, `m_thread_stack_size` would be the initial *commit* size,
         // quickly exhausting the available address space with our large default stack size.
         m_thread = CreateThread(nullptr, m_thread_stack_size,

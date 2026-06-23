@@ -1263,13 +1263,9 @@ that never carry IR.
     -- meta defs with leanir and all defs without leanir
     if let some r := findAtSorted? (ext.getModuleEntries env modIdx) declName then
       return some r
-  -- In `leanir`, the current module has a module index, so we need to check the local state always
-  if let some r := findInState? (ext.getState env) declName then
-    return some r
-  -- imported code-generator auxiliary (not in `const2ModIdx`) discovered during on-demand IR loading
-  if let some modIdx ← env.lazyIRModuleIdxFor? declName then
-    if let some r := findAtSorted? (← ext.getModuleIREntries env modIdx) declName then
-      return some r
-  return none
+  -- In `leanir`, the current module has a module index, so we need to check the local state always.
+  -- No `lazyIRModuleIdxFor?` fallback is needed here: unlike the interpreter, code generation (the only
+  -- caller) only references kernel constants (in `const2ModIdx`) and current-module declarations.
+  return findInState? (ext.getState env) declName
 
 end Lean.Compiler.LCNF

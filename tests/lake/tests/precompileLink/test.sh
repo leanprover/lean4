@@ -32,7 +32,7 @@ test_run build -R -KplatformIndependent=true
 echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_run build --rehash --no-build
 
-# Test that `platformIndependent` can toggled without a rebuild
+# Test that `platformIndependent` can be toggled without a rebuild
 # if the library does not depend on any dynamic libraries
 test_run build -R +PlatformIndependent
 test_run build -R -KplatformIndependent=true +PlatformIndependent --no-build

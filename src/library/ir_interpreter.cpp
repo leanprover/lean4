@@ -925,7 +925,9 @@ private:
         // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
         // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
         // better signal than a segfault in that case.
-        lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
+        if (fn_body_tag(decl_fun_body(e.m_decl)) == fn_body_kind::Unreachable)
+            throw exception(sstream() << "interpreter: cannot evaluate '" << fn
+                << "', its IR body is unreachable (likely a dummy extern from incorrect `meta` phase setup)");
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
         m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });

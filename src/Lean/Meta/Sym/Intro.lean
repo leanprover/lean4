@@ -48,6 +48,8 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) : SymM (Array F
     assignDelayedMVar auxMVar.mvarId! fvars mvarId'
     mvarId.assign val
   let finalize (lctx : LocalContext) (localInsts : LocalInstances) (fvars : Array Expr) (type : Expr) : SymM (Array Expr × MVarId) := do
+    if fvars.isEmpty then
+      return (#[], mvarId)
     let type ← instantiateRevS type fvars
     let mvar' ← mkFreshExprMVarAt lctx localInsts type .syntheticOpaque mvarDecl.userName
     let mvarId' := mvar'.mvarId!

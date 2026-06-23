@@ -205,7 +205,7 @@ public theorem max_apply [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeani
     {f : α → β} {x y : α} : max (f x) (f y) = f (maxOn f x y) := by
   letI : LE β := (inferInstance : LE β).opposite
   letI : Min β := (inferInstance : Max β).oppositeMin
-  simpa [Max.min_oppositeMin] using min_apply (f := f)
+  simpa [Max.min_oppositeMin] using! min_apply (f := f)
 
 public theorem apply_maxOn [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeaningMax β]
     {f : α → β} {x y : α} : f (maxOn f x y) = max (f x) (f y) :=

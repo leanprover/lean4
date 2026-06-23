@@ -48,6 +48,13 @@ where
         {indentExpr defValType}"
     | _ => throwUnconfigurable optionName
 
+/--
+Elaborates `id` as an identifier representing an option name with value given by `val`, adding
+appropriate info to the infotrees.
+
+Validates that `val` has the correct type for values of the option `id`, and returns the updated
+`Options`. Does **not** update the options in the monad `m`.
+-/
 def elabSetOption (id : Syntax) (val : Syntax) : m (Options × OptionDecl) := do
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.

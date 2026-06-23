@@ -92,7 +92,7 @@ lean_object* v_a_28_; lean_object* v___x_29_;
 lean_dec(v_recur_25_);
 v_a_28_ = lean_ctor_get(v_____do__lift_27_, 0);
 lean_inc(v_a_28_);
-lean_dec_ref(v_____do__lift_27_);
+lean_dec_ref_known(v_____do__lift_27_, 1);
 v___x_29_ = lean_apply_2(v_toPure_24_, lean_box(0), v_a_28_);
 return v___x_29_;
 }
@@ -102,7 +102,7 @@ lean_object* v_a_30_; lean_object* v___x_31_;
 lean_dec(v_toPure_24_);
 v_a_30_ = lean_ctor_get(v_____do__lift_27_, 0);
 lean_inc(v_a_30_);
-lean_dec_ref(v_____do__lift_27_);
+lean_dec_ref_known(v_____do__lift_27_, 1);
 v___x_31_ = lean_apply_4(v_recur_25_, v_it_26_, v_a_30_, lean_box(0), lean_box(0));
 return v___x_31_;
 }
@@ -120,7 +120,7 @@ v_it_38_ = lean_ctor_get(v_s_37_, 0);
 lean_inc(v_it_38_);
 v_out_39_ = lean_ctor_get(v_s_37_, 1);
 lean_inc(v_out_39_);
-lean_dec_ref(v_s_37_);
+lean_dec_ref_known(v_s_37_, 2);
 v___f_40_ = lean_alloc_closure((void*)(l_Std_Iterators_Types_Empty_instIteratorLoop___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_40_, 0, v_toPure_32_);
 lean_closure_set(v___f_40_, 1, v_recur_33_);
@@ -137,7 +137,7 @@ lean_dec(v___y_34_);
 lean_dec(v_toPure_32_);
 v_it_43_ = lean_ctor_get(v_s_37_, 0);
 lean_inc(v_it_43_);
-lean_dec_ref(v_s_37_);
+lean_dec_ref_known(v_s_37_, 1);
 v___x_44_ = lean_apply_4(v_recur_33_, v_it_43_, v_acc_35_, lean_box(0), lean_box(0));
 return v___x_44_;
 }

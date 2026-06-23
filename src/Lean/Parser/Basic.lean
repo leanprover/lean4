@@ -876,7 +876,7 @@ where
           takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
         else
           s.mkUnexpectedError "missing exponent digits in scientific literal"
-      else if hasBareDot && isIdFirst curr then
+      else if hasBareDot && (isIdFirst curr || isIdBeginEscape curr) then
           (s.setPos startPos).mkUnexpectedError s!"unexpected identifier after decimal point; consider parenthesizing the number"
       else
         s

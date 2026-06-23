@@ -165,9 +165,9 @@ where
   go (e : Expr) (xs xs' args subst types : Array Expr) (varDeps : Array (Array Nat)) (fvarIdToPos : FVarIdMap Nat)
       : SymM ToBetaAppResult := do
     if let .letE n t v b (nondep := true) := e then
-      assert! !t.hasLooseBVars
-      withLocalDeclD n t fun x => do
+      let t := t.instantiateRev xs
       let v := v.instantiateRev xs
+      withLocalDeclD n t fun x => do
       let fvarIds := collectFVarIdsAt v fvarIdToPos
       let varPos := fvarIds.map (fvarIdToPos.getD · 0)
       let ys := fvarIds.map mkFVar

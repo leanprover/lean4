@@ -187,7 +187,7 @@ lean_object* v_val_53_; lean_object* v___x_54_;
 lean_dec(v_failure_48_);
 v_val_53_ = lean_ctor_get(v_x_51_, 0);
 lean_inc(v_val_53_);
-lean_dec_ref(v_x_51_);
+lean_dec_ref_known(v_x_51_, 1);
 v___x_54_ = lean_apply_2(v_toPure_49_, lean_box(0), v_val_53_);
 return v___x_54_;
 }
@@ -228,7 +228,7 @@ lean_object* v_a_67_; lean_object* v_throw_68_; lean_object* v___x_69_;
 lean_dec(v_inst_64_);
 v_a_67_ = lean_ctor_get(v_x_66_, 0);
 lean_inc(v_a_67_);
-lean_dec_ref(v_x_66_);
+lean_dec_ref_known(v_x_66_, 1);
 v_throw_68_ = lean_ctor_get(v_inst_63_, 0);
 lean_inc(v_throw_68_);
 lean_dec_ref(v_inst_63_);
@@ -241,7 +241,7 @@ lean_object* v_a_70_; lean_object* v___x_71_;
 lean_dec_ref(v_inst_63_);
 v_a_70_ = lean_ctor_get(v_x_66_, 0);
 lean_inc(v_a_70_);
-lean_dec_ref(v_x_66_);
+lean_dec_ref_known(v_x_66_, 1);
 v___x_71_ = lean_apply_2(v_inst_64_, lean_box(0), v_a_70_);
 return v___x_71_;
 }

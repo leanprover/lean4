@@ -106,7 +106,7 @@ theorem mapFinIdx_nil {f : (i : Nat) → α → (h : i < 0) → β} : mapFinIdx 
 @[simp] theorem length_mapFinIdx_go :
     (mapFinIdx.go as f bs acc h).length = as.length := by
   induction bs generalizing acc with
-  | nil => simpa using h
+  | nil => simpa using! h
   | cons _ _ ih => simp [mapFinIdx.go, ih]
 
 @[simp, grind =] theorem length_mapFinIdx {as : List α} {f : (i : Nat) → α → (h : i < as.length) → β} :

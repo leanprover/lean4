@@ -108,7 +108,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     addDeclarationRangesForBuiltin declName modifiers.stx stx
     Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
-    Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
+    Term.withDeprecationContextFromAttrs modifiers.attrs <| Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
       let type ← Term.elabType typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
@@ -152,8 +152,9 @@ def expandNamespacedDeclaration : Macro := fun stx => do
   | some (ns, newStx) => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
+    let depth := ns.getNumParts
     let ns := mkIdentFrom declTk ns
-    withRef declTk `(namespace $ns $endLocalScopeSyntax:command $(⟨newStx⟩) end $ns)
+    withRef declTk `(namespace $ns $(endLocalScopeSyntax depth):command $(⟨newStx⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]

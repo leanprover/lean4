@@ -220,7 +220,7 @@ else
 lean_object* v_val_56_; lean_object* v___x_57_; 
 v_val_56_ = lean_ctor_get(v___x_54_, 0);
 lean_inc(v_val_56_);
-lean_dec_ref(v___x_54_);
+lean_dec_ref_known(v___x_54_, 1);
 v___x_57_ = l_System_SearchPath_parse(v_val_56_);
 return v___x_57_;
 }

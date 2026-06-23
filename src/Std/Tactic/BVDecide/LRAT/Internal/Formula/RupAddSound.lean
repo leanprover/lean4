@@ -728,7 +728,6 @@ theorem sat_of_confirmRupHint_insertRup_fold {n : Nat} (f : DefaultFormula n)
         specialize pc v
         rw [v'_eq_v] at v'_in_c
         have pv := pc.2 v'_in_c
-        simp only at pv
         simp only [p_unsat_c] at pv
         cases pv
     · simp only [negate_eq, List.mem_map, Prod.exists, Bool.exists_bool] at v_in_neg_c
@@ -742,7 +741,6 @@ theorem sat_of_confirmRupHint_insertRup_fold {n : Nat} (f : DefaultFormula n)
         specialize pc v
         rw [v'_eq_v] at v'_in_c
         have pv := pc.1 v'_in_c
-        simp only at pv
         simp only [p_unsat_c] at pv
         cases pv
       · grind [Literal.negate]

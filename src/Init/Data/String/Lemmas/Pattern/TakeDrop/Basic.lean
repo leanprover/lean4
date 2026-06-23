@@ -909,7 +909,7 @@ theorem Slice.Pos.skipWhile_copy {ρ : Type} {pat : ρ} [ForwardPattern pat] [Pa
   simp
 
 @[simp]
-theorem Pos.skipWhile_le {ρ : Type} {pat : ρ} [ForwardPattern pat] [PatternModel pat]
+theorem Pos.le_skipWhile {ρ : Type} {pat : ρ} [ForwardPattern pat] [PatternModel pat]
     [LawfulForwardPatternModel pat] {s : String} {pos : s.Pos} : pos ≤ pos.skipWhile pat := by
   simp [skipWhile_eq_skipWhile_toSlice, Pos.le_ofToSlice_iff]
 

@@ -148,11 +148,11 @@ theorem erase_empty [TransCmp cmp] {k : α} : (∅ : ExtTreeMap α β cmp).erase
 @[simp]
 theorem erase_eq_empty_iff [TransCmp cmp] {k : α} :
     t.erase k = ∅ ↔ t = ∅ ∨ (t.size = 1 ∧ k ∈ t) := by
-  simpa only [ext_iff] using ExtDTreeMap.erase_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.erase_eq_empty_iff
 
 theorem eq_empty_iff_erase_eq_empty_and_not_mem [TransCmp cmp] (k : α) :
     t = ∅ ↔ t.erase k = ∅ ∧ ¬k ∈ t := by
-  simpa only [ext_iff] using ExtDTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
+  simpa only [ext_iff] using! ExtDTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
 
 theorem ne_empty_of_erase_ne_empty [TransCmp cmp] {k : α} (h : t.erase k ≠ ∅) : t ≠ ∅ := by
   simp_all
@@ -1046,7 +1046,7 @@ theorem isEmpty_insertMany_list [TransCmp cmp]
 
 theorem insertMany_list_eq_empty_iff [TransCmp cmp] {l : List (α × β)} :
     t.insertMany l = ∅ ↔ t = ∅ ∧ l = [] := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.insertMany_list_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.insertMany_list_eq_empty_iff
 
 theorem getElem?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α]
     [LawfulBEqCmp cmp] {l : List (α × β)} {k : α}
@@ -1243,7 +1243,7 @@ theorem isEmpty_insertManyIfNewUnit_list [TransCmp cmp] {l : List α} :
 @[simp]
 theorem insertManyIfNewUnit_list_eq_empty_iff [TransCmp cmp] {l : List α} :
     insertManyIfNewUnit t l = ∅ ↔ t = ∅ ∧ l = [] := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.insertManyIfNewUnit_list_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.insertManyIfNewUnit_list_eq_empty_iff
 
 @[simp]
 theorem getElem?_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -2280,12 +2280,12 @@ section Alter
 theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] {k : α}
     {f : Option β → Option β} :
     alter t k f = ∅ ↔ t.erase k = ∅ ∧ f t[k]? = none := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.alter_eq_empty_iff_erase_eq_empty
+  simpa only [ext_iff] using! ExtDTreeMap.Const.alter_eq_empty_iff_erase_eq_empty
 
 @[simp]
 theorem alter_eq_empty_iff [TransCmp cmp] {k : α} {f : Option β → Option β} :
     alter t k f = ∅ ↔ (t = ∅ ∨ (t.size = 1 ∧ k ∈ t)) ∧ (f t[k]?) = none := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.alter_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.alter_eq_empty_iff
 
 @[grind =]
 theorem contains_alter [TransCmp cmp] {k k' : α} {f : Option β → Option β} :
@@ -2491,7 +2491,7 @@ section Modify
 @[simp]
 theorem modify_eq_empty_iff [TransCmp cmp] {k : α} {f : β → β} :
     t.modify k f = ∅ ↔ t = ∅ := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.modify_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.modify_eq_empty_iff
 
 @[grind =]
 theorem contains_modify [TransCmp cmp] {k k' : α} {f : β → β} :
@@ -4222,7 +4222,7 @@ theorem filterMap_eq_map [TransCmp cmp]
 @[simp]
 theorem map_eq_empty_iff [TransCmp cmp] {f : α → β → γ} :
     t.map f = ∅ ↔ t = ∅ := by
-  simpa only [ext_iff] using ExtDTreeMap.map_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.map_eq_empty_iff
 
 @[simp, grind =]
 theorem contains_map [TransCmp cmp]

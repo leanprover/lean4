@@ -60,9 +60,9 @@ public:
        the current state of this object is updated to `m_next_idx = 11` */
     name_generator mk_child_with(name const & base_prefix) { return name_generator(next_with(base_prefix)); }
 
-    friend void swap(name_generator & a, name_generator & b);
+    friend void swap(name_generator & a, name_generator & b) noexcept;
 };
-void swap(name_generator & a, name_generator & b);
+void swap(name_generator & a, name_generator & b) noexcept;
 
 /* This procedure is invoked during initialization time to register
    internal prefixes used to create name_generator objects.

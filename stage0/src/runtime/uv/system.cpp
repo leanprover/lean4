@@ -286,6 +286,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
         return lean_io_result_mk_ok(lean_box(0));
     } else if (result == UV_ENOBUFS) {
         char* heap_buffer = static_cast<char*>(malloc(size));
+        if (heap_buffer == nullptr) {
+            return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        }
 
         result = uv_os_getenv(name_str, heap_buffer, &size);
 
@@ -420,13 +423,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
 
 // Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
+    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
+    if (req == nullptr) {
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    }
+
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
+    req->promise = promise;
 
     lean_object* byte_array = lean_alloc_sarray(1, 0, size);
-
-    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
-    req->promise = promise;
     req->byte_array = byte_array;
 
     req->req.data = req;

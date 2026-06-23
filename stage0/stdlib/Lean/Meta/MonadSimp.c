@@ -64,7 +64,7 @@ v_e_8_ = lean_ctor_get(v_t_6_, 0);
 lean_inc_ref(v_e_8_);
 v_h_9_ = lean_ctor_get(v_t_6_, 1);
 lean_inc_ref(v_h_9_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 2);
 v___x_10_ = lean_apply_2(v_k_7_, v_e_8_, v_h_9_);
 return v___x_10_;
 }

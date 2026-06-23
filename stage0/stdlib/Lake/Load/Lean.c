@@ -30,7 +30,7 @@ v_a_5_ = lean_ctor_get(v___x_4_, 0);
 lean_inc(v_a_5_);
 v_a_6_ = lean_ctor_get(v___x_4_, 1);
 lean_inc(v_a_6_);
-lean_dec_ref(v___x_4_);
+lean_dec_ref_known(v___x_4_, 2);
 v_leanOpts_7_ = lean_ctor_get(v_cfg_1_, 13);
 lean_inc_ref(v_leanOpts_7_);
 lean_dec_ref(v_cfg_1_);

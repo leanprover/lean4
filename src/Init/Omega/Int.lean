@@ -104,7 +104,6 @@ theorem ofNat_sub_dichotomy {a b : Nat} :
   by_cases h : b ≤ a
   · left
     have t := Int.ofNat_sub h
-    simp at t
     exact ⟨h, t⟩
   · right
     have t := Nat.not_le.mp h

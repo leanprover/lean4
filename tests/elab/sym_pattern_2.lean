@@ -111,7 +111,33 @@ info: [Std.HashMap.insertMany,
  *,
  *]
 ---
-info: [GetElem.getElem, Std.HashMap, *, *, *, *, *, *, ◾, *, Std.HashMap.insert, *, *, *, *, *, *, *, *, *]
+info: [GetElem.getElem,
+ Std.HashMap,
+ *,
+ *,
+ *,
+ *,
+ *,
+ *,
+ Membership.mem,
+ *,
+ Std.HashMap,
+ *,
+ *,
+ *,
+ *,
+ *,
+ *,
+ Std.HashMap.insert,
+ *,
+ *,
+ *,
+ *,
+ *,
+ *,
+ *,
+ *,
+ *]
 -/
 #guard_msgs in
 #eval SymM.run do

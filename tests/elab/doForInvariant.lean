@@ -4,7 +4,6 @@ import Std.Tactic.Do
 open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
-set_option backward.do.legacy false
 
 /-!
 Hypothetical intrinsic invariant syntax support:
@@ -63,8 +62,8 @@ elab_rules : doElem <= dec
         reassignments := reassignments.push (← `(_))
       | some fvarId =>
         let decl ← fvarId.getDecl
-        let .some id := (← read).mutVars.find? (·.getId = decl.userName) | continue
-        reassignments := reassignments.push id
+        let .some mutVar := (← read).mutVars.find? (·.getId = decl.userName) | continue
+        reassignments := reassignments.push mutVar.ident
       unless more do break
     let mutVarBinders ← Term.Quotation.mkTuple reassignments
     let cursorσ := mkApp2 (mkConst ``Prod [v, mi.u]) cursor σ

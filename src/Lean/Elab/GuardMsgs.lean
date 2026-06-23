@@ -192,7 +192,7 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
   -- do not forward snapshot as we don't want messages assigned to it to leak outside
   withReader ({ · with snap? := none }) do
     -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
-    elabCommandTopLevel cmd
+    elabCommandTopLevel cmd #[]
   -- collect sync and async messages
   let msgs := (← get).messages ++
     (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty

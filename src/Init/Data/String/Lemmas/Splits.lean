@@ -760,9 +760,9 @@ theorem splits_nextn_startPos (s : String) (n : Nat) :
   simpa using s.splits_startPos.nextn n
 
 theorem Slice.Pos.Splits.prevn {s : Slice} {t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (n : Nat) :
-    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.length - n))) (String.ofList (t₁.toList.drop (t₁.length - n)) ++ t₂) := by
+    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.toList.length - n))) (String.ofList (t₁.toList.drop (t₁.toList.length - n)) ++ t₂) := by
   induction n generalizing p t₁ t₂ with
-  | zero => simpa [← String.length_toList]
+  | zero => simpa
   | succ n ih =>
     rw [Pos.prevn_add_one]
     split
@@ -771,16 +771,16 @@ theorem Slice.Pos.Splits.prevn {s : Slice} {t₁ t₂ : String} {p : s.Pos} (h :
       simpa [Nat.add_sub_add_right, List.take_append, List.drop_append, ← append_assoc] using ih h.prev
 
 theorem Slice.splits_prevn_endPos (s : Slice) (n : Nat) :
-    (s.endPos.prevn n).Splits (String.ofList (s.copy.toList.take (s.copy.length - n)))
-      (String.ofList (s.copy.toList.drop (s.copy.length - n))) := by
+    (s.endPos.prevn n).Splits (String.ofList (s.copy.toList.take (s.copy.toList.length - n)))
+      (String.ofList (s.copy.toList.drop (s.copy.toList.length - n))) := by
   simpa using s.splits_endPos.prevn n
 
 theorem Pos.Splits.prevn {s t₁ t₂ : String} {p : s.Pos} (h : p.Splits t₁ t₂) (n : Nat) :
-    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.length - n))) (String.ofList (t₁.toList.drop (t₁.length - n)) ++ t₂) := by
+    (p.prevn n).Splits (String.ofList (t₁.toList.take (t₁.toList.length - n))) (String.ofList (t₁.toList.drop (t₁.toList.length - n)) ++ t₂) := by
   simpa [← splits_toSlice_iff, toSlice_prevn] using h.toSlice.prevn n
 
 theorem splits_prevn_endPos (s : String) (n : Nat) :
-    (s.endPos.prevn n).Splits (String.ofList (s.toList.take (s.length - n))) (String.ofList (s.toList.drop (s.length - n))) := by
+    (s.endPos.prevn n).Splits (String.ofList (s.toList.take (s.toList.length - n))) (String.ofList (s.toList.drop (s.toList.length - n))) := by
   simpa using s.splits_endPos.prevn n
 
 @[simp]

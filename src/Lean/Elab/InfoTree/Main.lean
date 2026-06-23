@@ -216,11 +216,21 @@ def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
 def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
   f!"[FieldRedecl] @ {formatStxRange ctx info.stx}"
 
+def DelabTermInfo.docString? (ppCtx : PPContext) (info : DelabTermInfo) : IO (Option String) := do
+  match info.mkDocString? with
+  | none => return none
+  | some act =>
+    try
+      act ppCtx
+    catch ex =>
+      return s!"[Error: {ex.toString}]"
+
 def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format := do
   let loc := if let some loc := info.location? then f!"{loc.module} {loc.range.pos}-{loc.range.endPos}" else "none"
+  let docString? ← info.docString? (ctx.toPPContext info.lctx)
   return f!"[DelabTerm] @ {← TermInfo.format ctx info.toTermInfo}\n\
     Location: {loc}\n\
-    Docstring: {repr info.docString?}\n\
+    Docstring: {repr docString?}\n\
     Explicit: {info.explicit}"
 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=

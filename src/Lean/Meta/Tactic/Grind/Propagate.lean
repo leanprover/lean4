@@ -293,19 +293,33 @@ builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
     pushEqTrue e <| mkEqTrueCore e (← mkHEqProof a b)
 
 /--
-Helper function for propagating over-applied `ite` and `dite`-applications.
-`h` is a proof for the `e`'s prefix (of size `prefixSize`) that is equal to `rhs`.
-`args` contains all arguments of `e`.
-`prefixSize <= args.size`
+Pushes `e = rhs` (justified by `h`) for an `ite`/`dite`-application `e`, after the
+condition has become `True` or `False`. `args` are the arguments of `e`, and `h`
+proves that the `prefixSize`-prefix of `e` equals `rhs`; if `e` is over-applied,
+`rhs` is extended by the trailing arguments via `mkCongrFun`.
+
+Set `ite := true` iff `rhs` is a structural argument of `e` (the `then`/`else`
+branch of a non-over-applied `ite`). In that case we call `registerParent e rhs`
+because `Internalize.lean`'s `ite` special case skips the branches: `rhs` is being
+internalized here for the first time, and the explicit `registerParent` is the
+same one the standard `for arg in args` loop in `Internalize.lean` performs for
+ordinary application arguments. (`internalize` itself only forwards `parent?` to
+satellite solvers; it does not record a structural parent.) Without it, future
+merges of `rhs`'s equivalence class would skip re-hashing `e` in the congruence
+table, leaving an orphan entry whose `congr` chain no longer matches the table's
+representative.
+
+For `dite` (and any over-applied case), `rhs` is a *constructed* reduction (built
+via `mkApp` from `e`'s children, possibly post-`preprocess`), not a structural
+argument of `e`. Pass `ite := false` so we do not record a spurious parent
+relation. The lambda branches of a `dite` are themselves arguments of `e` and were
+already internalized as parents by `Internalize.lean`.
 -/
-private def applyCongrFun (e rhs : Expr) (h : Expr) (prefixSize : Nat) (args : Array Expr) : GoalM Unit := do
-  /-
-  **Note**: We did not use to set `e` as the parent for `rhs`. This was incorrect because some
-  solvers will inspect the parent to decide whether the term should be internalized or not in the
-  solver.
-  -/
+private def applyCongrFun (e rhs : Expr) (h : Expr) (prefixSize : Nat) (args : Array Expr) (ite : Bool) : GoalM Unit := do
   if prefixSize == args.size then
     internalize rhs (← getGeneration e) e
+    if ite then
+      registerParent e rhs
     pushEq e rhs h
   else
     go rhs h prefixSize
@@ -319,6 +333,8 @@ where
     else
       let rhs ← preprocessLight rhs
       internalize rhs (← getGeneration e) e
+      if ite then
+        registerParent e rhs
       pushEq e rhs h
 
 /-- Propagates `ite` upwards -/
@@ -331,13 +347,13 @@ builtin_grind_propagator propagateIte ↑ite := fun e => do
     let args := e.getAppArgs
     let rhs := args[3]!
     let h := mkApp (mkAppRange (mkConst ``ite_cond_eq_true f.constLevels!) 0 5 args) (← mkEqTrueProof c)
-    applyCongrFun e rhs h 5 args
+    applyCongrFun e rhs h 5 args (ite := true)
   else if (← isEqFalse c) then
     let f := e.getAppFn
     let args := e.getAppArgs
     let rhs := args[4]!
     let h := mkApp (mkAppRange (mkConst ``ite_cond_eq_false f.constLevels!) 0 5 args) (← mkEqFalseProof c)
-    applyCongrFun e rhs h 5 args
+    applyCongrFun e rhs h 5 args (ite := true)
 
 /-- Propagates `dite` upwards -/
 builtin_grind_propagator propagateDIte ↑dite := fun e => do
@@ -353,7 +369,7 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
     let r := p.expr
     let h₂ ← p.getProof
     let h := mkApp3 (mkAppRange (mkConst ``Grind.dite_cond_eq_true' f.constLevels!) 0 5 args) r h₁ h₂
-    applyCongrFun e r h 5 args
+    applyCongrFun e r h 5 args (ite := false)
   else if (← isEqFalse c) then
     let f := e.getAppFn
     let args := e.getAppArgs
@@ -363,7 +379,7 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
     let r := p.expr
     let h₂ ← p.getProof
     let h := mkApp3 (mkAppRange (mkConst ``Grind.dite_cond_eq_false' f.constLevels!) 0 5 args) r h₁ h₂
-    applyCongrFun e r h 5 args
+    applyCongrFun e r h 5 args (ite := false)
 
 builtin_grind_propagator propagateDecideDown ↓decide := fun e => do
   let root ← getRootENode e

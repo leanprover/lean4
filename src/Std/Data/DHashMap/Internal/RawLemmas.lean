@@ -1511,8 +1511,7 @@ theorem any_toList {p : (_ : α) → β → Bool} :
     simp only [List.forIn'_cons, Id.run_bind, List.any_cons]
     by_cases h : p hd.fst hd.snd = true
     · simp [h]
-    · simp only at ih
-      simp [h, ih]
+    · simp [h, ih]
 
 theorem any_eq_true [LawfulHashable α] [EquivBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF) :
     m.1.any p = true ↔ ∃ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) := by
@@ -1576,8 +1575,7 @@ theorem all_toList {p : (_ : α) → β → Bool} :
     simp only [List.forIn'_cons, Id.run_bind, List.all_cons]
     by_cases h : p hd.fst hd.snd = false
     · simp [h]
-    · simp only at ih
-      simp [h, ih]
+    · simp [h, ih]
 
 theorem all_eq_true [EquivBEq α] [LawfulHashable α] {p : (a : α) → β → Bool} (h : m.1.WF) :
     m.1.all p = true ↔ ∀ (a : α) (h : m.contains a), p (m.getKey a h) (Const.get m a h) := by

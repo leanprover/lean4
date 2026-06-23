@@ -54,7 +54,7 @@ eq_norm ctx p q (eagerReduce (Eq.refl true)) h
 to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
 definitionally equal to `true = true`.
 -/
-@[expose] def eagerReduce {α : Sort u} (a : α) : α := a
+def eagerReduce {α : Sort u} (a : α) : α := a
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,

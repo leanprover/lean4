@@ -91,7 +91,7 @@ lean_ctor_set(v___x_33_, 0, v_str_20_);
 lean_ctor_set(v___x_33_, 1, v___x_31_);
 lean_ctor_set(v___x_33_, 2, v___x_32_);
 v___x_34_ = l_String_Slice_Pos_get_x3f(v___x_33_, v___x_31_);
-lean_dec_ref(v___x_33_);
+lean_dec_ref_known(v___x_33_, 3);
 if (lean_obj_tag(v___x_34_) == 0)
 {
 uint32_t v___x_35_; 
@@ -104,7 +104,7 @@ else
 lean_object* v_val_36_; uint32_t v___x_37_; 
 v_val_36_ = lean_ctor_get(v___x_34_, 0);
 lean_inc(v_val_36_);
-lean_dec_ref(v___x_34_);
+lean_dec_ref_known(v___x_34_, 1);
 v___x_37_ = lean_unbox_uint32(v_val_36_);
 lean_dec(v_val_36_);
 v___y_25_ = v___x_37_;

@@ -199,12 +199,38 @@ static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__34_val
 static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__34 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__34_value;
 static lean_once_cell_t l_Lean_Compiler_LCNF_Code_toExprM___closed__35_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__35;
-static const lean_string_object l_Lean_Compiler_LCNF_Code_toExprM___closed__36_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "del"};
+static const lean_string_object l_Lean_Compiler_LCNF_Code_toExprM___closed__36_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Nat"};
 static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__36 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__36_value;
-static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__37_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__36_value),LEAN_SCALAR_PTR_LITERAL(59, 0, 194, 149, 61, 187, 104, 96)}};
+static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__37_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__36_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
 static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__37 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__37_value;
 static lean_once_cell_t l_Lean_Compiler_LCNF_Code_toExprM___closed__38_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__38;
+static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__42_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__42 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__42_value;
+static const lean_string_object l_Lean_Compiler_LCNF_Code_toExprM___closed__40_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "none"};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__40 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__40_value;
+static const lean_string_object l_Lean_Compiler_LCNF_Code_toExprM___closed__39_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "Option"};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__39 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__39_value;
+static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__41_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__39_value),LEAN_SCALAR_PTR_LITERAL(95, 234, 177, 188, 3, 226, 91, 252)}};
+static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__41_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__41_value_aux_0),((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__40_value),LEAN_SCALAR_PTR_LITERAL(149, 114, 34, 228, 75, 195, 143, 131)}};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__41 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__41_value;
+static lean_once_cell_t l_Lean_Compiler_LCNF_Code_toExprM___closed__43_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__43;
+static lean_once_cell_t l_Lean_Compiler_LCNF_Code_toExprM___closed__44_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__44;
+static const lean_string_object l_Lean_Compiler_LCNF_Code_toExprM___closed__45_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "some"};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__45 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__45_value;
+static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__46_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__39_value),LEAN_SCALAR_PTR_LITERAL(95, 234, 177, 188, 3, 226, 91, 252)}};
+static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__46_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__46_value_aux_0),((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__45_value),LEAN_SCALAR_PTR_LITERAL(89, 148, 40, 55, 221, 242, 231, 67)}};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__46 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__46_value;
+static lean_once_cell_t l_Lean_Compiler_LCNF_Code_toExprM___closed__47_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__47;
+static const lean_string_object l_Lean_Compiler_LCNF_Code_toExprM___closed__48_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "del"};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__48 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__48_value;
+static const lean_ctor_object l_Lean_Compiler_LCNF_Code_toExprM___closed__49_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__48_value),LEAN_SCALAR_PTR_LITERAL(59, 0, 194, 149, 61, 187, 104, 96)}};
+static const lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__49 = (const lean_object*)&l_Lean_Compiler_LCNF_Code_toExprM___closed__49_value;
+static lean_once_cell_t l_Lean_Compiler_LCNF_Code_toExprM___closed__50_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__50;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExprM(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExprM(uint8_t, lean_object*, lean_object*, lean_object*);
@@ -290,7 +316,7 @@ lean_object* v_val_20_; lean_object* v___x_21_; lean_object* v___x_22_; lean_obj
 lean_dec(v_fvarId_17_);
 v_val_20_ = lean_ctor_get(v___x_18_, 0);
 lean_inc(v_val_20_);
-lean_dec_ref(v___x_18_);
+lean_dec_ref_known(v___x_18_, 1);
 v___x_21_ = lean_nat_sub(v_offset_15_, v_val_20_);
 lean_dec(v_val_20_);
 v___x_22_ = lean_unsigned_to_nat(1u);
@@ -339,7 +365,7 @@ case 1:
 lean_object* v_fvarId_40_; lean_object* v___x_41_; 
 v_fvarId_40_ = lean_ctor_get(v_e_39_, 0);
 lean_inc(v_fvarId_40_);
-lean_dec_ref(v_e_39_);
+lean_dec_ref_known(v_e_39_, 1);
 v___x_41_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr(v_o_38_, v_m_37_, v_fvarId_40_);
 return v___x_41_;
 }
@@ -350,7 +376,7 @@ v_fn_42_ = lean_ctor_get(v_e_39_, 0);
 lean_inc_ref(v_fn_42_);
 v_arg_43_ = lean_ctor_get(v_e_39_, 1);
 lean_inc_ref(v_arg_43_);
-lean_dec_ref(v_e_39_);
+lean_dec_ref_known(v_e_39_, 2);
 v___x_44_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_fn_42_);
 v___x_45_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_arg_43_);
 v___x_46_ = l_Lean_Expr_app___override(v___x_44_, v___x_45_);
@@ -366,7 +392,7 @@ lean_inc_ref(v_binderType_48_);
 v_body_49_ = lean_ctor_get(v_e_39_, 2);
 lean_inc_ref(v_body_49_);
 v_binderInfo_50_ = lean_ctor_get_uint8(v_e_39_, sizeof(void*)*3 + 8);
-lean_dec_ref(v_e_39_);
+lean_dec_ref_known(v_e_39_, 3);
 v___x_51_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_binderType_48_);
 v___x_52_ = lean_unsigned_to_nat(1u);
 v___x_53_ = lean_nat_add(v_o_38_, v___x_52_);
@@ -385,7 +411,7 @@ lean_inc_ref(v_binderType_57_);
 v_body_58_ = lean_ctor_get(v_e_39_, 2);
 lean_inc_ref(v_body_58_);
 v_binderInfo_59_ = lean_ctor_get_uint8(v_e_39_, sizeof(void*)*3 + 8);
-lean_dec_ref(v_e_39_);
+lean_dec_ref_known(v_e_39_, 3);
 v___x_60_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_binderType_57_);
 v___x_61_ = lean_unsigned_to_nat(1u);
 v___x_62_ = lean_nat_add(v_o_38_, v___x_61_);
@@ -406,7 +432,7 @@ lean_inc_ref(v_value_67_);
 v_body_68_ = lean_ctor_get(v_e_39_, 3);
 lean_inc_ref(v_body_68_);
 v_nondep_69_ = lean_ctor_get_uint8(v_e_39_, sizeof(void*)*4 + 8);
-lean_dec_ref(v_e_39_);
+lean_dec_ref_known(v_e_39_, 4);
 v___x_70_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_type_66_);
 v___x_71_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_value_67_);
 v___x_72_ = lean_unsigned_to_nat(1u);
@@ -423,7 +449,7 @@ v_data_76_ = lean_ctor_get(v_e_39_, 0);
 lean_inc(v_data_76_);
 v_expr_77_ = lean_ctor_get(v_e_39_, 1);
 lean_inc_ref(v_expr_77_);
-lean_dec_ref(v_e_39_);
+lean_dec_ref_known(v_e_39_, 2);
 v___x_78_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_expr_77_);
 v___x_79_ = l_Lean_Expr_mdata___override(v_data_76_, v___x_78_);
 return v___x_79_;
@@ -437,7 +463,7 @@ v_idx_81_ = lean_ctor_get(v_e_39_, 1);
 lean_inc(v_idx_81_);
 v_struct_82_ = lean_ctor_get(v_e_39_, 2);
 lean_inc_ref(v_struct_82_);
-lean_dec_ref(v_e_39_);
+lean_dec_ref_known(v_e_39_, 3);
 v___x_83_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_m_37_, v_o_38_, v_struct_82_);
 v___x_84_ = l_Lean_Expr_proj___override(v_typeName_80_, v_idx_81_, v___x_83_);
 return v___x_84_;
@@ -1013,7 +1039,7 @@ v_params_391_ = lean_ctor_get(v_v_380_, 1);
 lean_inc_ref(v_params_391_);
 v_code_392_ = lean_ctor_get(v_v_380_, 2);
 lean_inc_ref(v_code_392_);
-lean_dec_ref(v_v_380_);
+lean_dec_ref_known(v_v_380_, 3);
 lean_inc(v___y_376_);
 v___x_393_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(v_pu_372_, v_code_392_, v_params_391_, v_params_391_, v___x_381_, v___y_376_, v___y_377_);
 lean_dec_ref(v_params_391_);
@@ -1036,7 +1062,7 @@ v_info_399_ = lean_ctor_get(v_v_380_, 0);
 lean_inc_ref(v_info_399_);
 v_code_400_ = lean_ctor_get(v_v_380_, 1);
 lean_inc_ref(v_code_400_);
-lean_dec_ref(v_v_380_);
+lean_dec_ref_known(v_v_380_, 2);
 v___x_401_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_372_, v_code_400_, v___y_376_, v___y_377_);
 v_fst_402_ = lean_ctor_get(v___x_401_, 0);
 lean_inc(v_fst_402_);
@@ -1058,7 +1084,7 @@ default:
 lean_object* v_code_408_; lean_object* v___x_409_; lean_object* v_fst_410_; lean_object* v_snd_411_; 
 v_code_408_ = lean_ctor_get(v_v_380_, 0);
 lean_inc_ref(v_code_408_);
-lean_dec_ref(v_v_380_);
+lean_dec_ref_known(v_v_380_, 1);
 v___x_409_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_372_, v_code_408_, v___y_376_, v___y_377_);
 v_fst_410_ = lean_ctor_get(v___x_409_, 0);
 lean_inc(v_fst_410_);
@@ -1204,1227 +1230,1297 @@ v___x_489_ = l_Lean_mkConst(v___x_488_, v___x_487_);
 return v___x_489_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExprM(uint8_t v_pu_490_, lean_object* v_code_491_, lean_object* v_a_492_, lean_object* v_a_493_){
+static lean_object* _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__43(void){
 _start:
 {
-switch(lean_obj_tag(v_code_491_))
+lean_object* v___x_498_; lean_object* v___x_499_; lean_object* v___x_500_; 
+v___x_498_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__42));
+v___x_499_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__41));
+v___x_500_ = l_Lean_mkConst(v___x_499_, v___x_498_);
+return v___x_500_;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__44(void){
+_start:
+{
+lean_object* v___x_501_; lean_object* v___x_502_; lean_object* v___x_503_; 
+v___x_501_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__38, &l_Lean_Compiler_LCNF_Code_toExprM___closed__38_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__38);
+v___x_502_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__43, &l_Lean_Compiler_LCNF_Code_toExprM___closed__43_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__43);
+v___x_503_ = l_Lean_Expr_app___override(v___x_502_, v___x_501_);
+return v___x_503_;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__47(void){
+_start:
+{
+lean_object* v___x_508_; lean_object* v___x_509_; lean_object* v___x_510_; 
+v___x_508_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__42));
+v___x_509_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__46));
+v___x_510_ = l_Lean_mkConst(v___x_509_, v___x_508_);
+return v___x_510_;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__50(void){
+_start:
+{
+lean_object* v___x_514_; lean_object* v___x_515_; lean_object* v___x_516_; 
+v___x_514_ = lean_box(0);
+v___x_515_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__49));
+v___x_516_ = l_Lean_mkConst(v___x_515_, v___x_514_);
+return v___x_516_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExprM(uint8_t v_pu_517_, lean_object* v_code_518_, lean_object* v_a_519_, lean_object* v_a_520_){
+_start:
+{
+switch(lean_obj_tag(v_code_518_))
 {
 case 0:
 {
-lean_object* v_decl_494_; lean_object* v_k_495_; lean_object* v_fvarId_496_; lean_object* v_binderName_497_; lean_object* v_type_498_; lean_object* v_value_499_; lean_object* v___x_500_; lean_object* v___x_501_; lean_object* v___x_502_; lean_object* v___x_503_; lean_object* v___x_504_; lean_object* v___x_505_; lean_object* v___x_506_; lean_object* v_fst_507_; lean_object* v_snd_508_; lean_object* v___x_510_; uint8_t v_isShared_511_; uint8_t v_isSharedCheck_517_; 
-v_decl_494_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_ref(v_decl_494_);
-v_k_495_ = lean_ctor_get(v_code_491_, 1);
-lean_inc_ref(v_k_495_);
-lean_dec_ref(v_code_491_);
-v_fvarId_496_ = lean_ctor_get(v_decl_494_, 0);
-lean_inc(v_fvarId_496_);
-v_binderName_497_ = lean_ctor_get(v_decl_494_, 1);
-lean_inc(v_binderName_497_);
-v_type_498_ = lean_ctor_get(v_decl_494_, 2);
-lean_inc_ref(v_type_498_);
-v_value_499_ = lean_ctor_get(v_decl_494_, 3);
-lean_inc(v_value_499_);
-lean_dec_ref(v_decl_494_);
-v___x_500_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_493_, v_a_492_, v_type_498_);
-v___x_501_ = l_Lean_Compiler_LCNF_LetValue_toExpr(v_pu_490_, v_value_499_);
-v___x_502_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_493_, v_a_492_, v___x_501_);
-lean_inc(v_a_492_);
-v___x_503_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_496_, v_a_492_, v_a_493_);
-v___x_504_ = lean_unsigned_to_nat(1u);
-v___x_505_ = lean_nat_add(v_a_492_, v___x_504_);
-v___x_506_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_495_, v___x_505_, v___x_503_);
-lean_dec(v___x_505_);
-v_fst_507_ = lean_ctor_get(v___x_506_, 0);
-v_snd_508_ = lean_ctor_get(v___x_506_, 1);
-v_isSharedCheck_517_ = !lean_is_exclusive(v___x_506_);
-if (v_isSharedCheck_517_ == 0)
+lean_object* v_decl_521_; lean_object* v_k_522_; lean_object* v_fvarId_523_; lean_object* v_binderName_524_; lean_object* v_type_525_; lean_object* v_value_526_; lean_object* v___x_527_; lean_object* v___x_528_; lean_object* v___x_529_; lean_object* v___x_530_; lean_object* v___x_531_; lean_object* v___x_532_; lean_object* v___x_533_; lean_object* v_fst_534_; lean_object* v_snd_535_; lean_object* v___x_537_; uint8_t v_isShared_538_; uint8_t v_isSharedCheck_544_; 
+v_decl_521_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_ref(v_decl_521_);
+v_k_522_ = lean_ctor_get(v_code_518_, 1);
+lean_inc_ref(v_k_522_);
+lean_dec_ref_known(v_code_518_, 2);
+v_fvarId_523_ = lean_ctor_get(v_decl_521_, 0);
+lean_inc(v_fvarId_523_);
+v_binderName_524_ = lean_ctor_get(v_decl_521_, 1);
+lean_inc(v_binderName_524_);
+v_type_525_ = lean_ctor_get(v_decl_521_, 2);
+lean_inc_ref(v_type_525_);
+v_value_526_ = lean_ctor_get(v_decl_521_, 3);
+lean_inc(v_value_526_);
+lean_dec_ref(v_decl_521_);
+v___x_527_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_520_, v_a_519_, v_type_525_);
+v___x_528_ = l_Lean_Compiler_LCNF_LetValue_toExpr(v_pu_517_, v_value_526_);
+v___x_529_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_520_, v_a_519_, v___x_528_);
+lean_inc(v_a_519_);
+v___x_530_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_523_, v_a_519_, v_a_520_);
+v___x_531_ = lean_unsigned_to_nat(1u);
+v___x_532_ = lean_nat_add(v_a_519_, v___x_531_);
+v___x_533_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_522_, v___x_532_, v___x_530_);
+lean_dec(v___x_532_);
+v_fst_534_ = lean_ctor_get(v___x_533_, 0);
+v_snd_535_ = lean_ctor_get(v___x_533_, 1);
+v_isSharedCheck_544_ = !lean_is_exclusive(v___x_533_);
+if (v_isSharedCheck_544_ == 0)
 {
-v___x_510_ = v___x_506_;
-v_isShared_511_ = v_isSharedCheck_517_;
-goto v_resetjp_509_;
+v___x_537_ = v___x_533_;
+v_isShared_538_ = v_isSharedCheck_544_;
+goto v_resetjp_536_;
 }
 else
 {
-lean_inc(v_snd_508_);
-lean_inc(v_fst_507_);
-lean_dec(v___x_506_);
-v___x_510_ = lean_box(0);
-v_isShared_511_ = v_isSharedCheck_517_;
-goto v_resetjp_509_;
+lean_inc(v_snd_535_);
+lean_inc(v_fst_534_);
+lean_dec(v___x_533_);
+v___x_537_ = lean_box(0);
+v_isShared_538_ = v_isSharedCheck_544_;
+goto v_resetjp_536_;
 }
-v_resetjp_509_:
+v_resetjp_536_:
 {
-uint8_t v___x_512_; lean_object* v___x_513_; lean_object* v___x_515_; 
-v___x_512_ = 1;
-v___x_513_ = l_Lean_Expr_letE___override(v_binderName_497_, v___x_500_, v___x_502_, v_fst_507_, v___x_512_);
-if (v_isShared_511_ == 0)
+uint8_t v___x_539_; lean_object* v___x_540_; lean_object* v___x_542_; 
+v___x_539_ = 1;
+v___x_540_ = l_Lean_Expr_letE___override(v_binderName_524_, v___x_527_, v___x_529_, v_fst_534_, v___x_539_);
+if (v_isShared_538_ == 0)
 {
-lean_ctor_set(v___x_510_, 0, v___x_513_);
-v___x_515_ = v___x_510_;
-goto v_reusejp_514_;
+lean_ctor_set(v___x_537_, 0, v___x_540_);
+v___x_542_ = v___x_537_;
+goto v_reusejp_541_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_516_; 
-v_reuseFailAlloc_516_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_516_, 0, v___x_513_);
-lean_ctor_set(v_reuseFailAlloc_516_, 1, v_snd_508_);
-v___x_515_ = v_reuseFailAlloc_516_;
-goto v_reusejp_514_;
+lean_object* v_reuseFailAlloc_543_; 
+v_reuseFailAlloc_543_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_543_, 0, v___x_540_);
+lean_ctor_set(v_reuseFailAlloc_543_, 1, v_snd_535_);
+v___x_542_ = v_reuseFailAlloc_543_;
+goto v_reusejp_541_;
 }
-v_reusejp_514_:
+v_reusejp_541_:
 {
-return v___x_515_;
+return v___x_542_;
 }
 }
 }
 case 3:
 {
-lean_object* v_fvarId_518_; lean_object* v_args_519_; lean_object* v___x_520_; size_t v_sz_521_; size_t v___x_522_; lean_object* v___x_523_; lean_object* v_fst_524_; lean_object* v_snd_525_; lean_object* v___x_527_; uint8_t v_isShared_528_; uint8_t v_isSharedCheck_533_; 
-v_fvarId_518_ = lean_ctor_get(v_code_491_, 0);
-lean_inc(v_fvarId_518_);
-v_args_519_ = lean_ctor_get(v_code_491_, 1);
-lean_inc_ref(v_args_519_);
-lean_dec_ref(v_code_491_);
-v___x_520_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr(v_a_492_, v_a_493_, v_fvarId_518_);
-v_sz_521_ = lean_array_size(v_args_519_);
-v___x_522_ = ((size_t)0ULL);
-v___x_523_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2___redArg(v_sz_521_, v___x_522_, v_args_519_, v_a_492_, v_a_493_);
-v_fst_524_ = lean_ctor_get(v___x_523_, 0);
-v_snd_525_ = lean_ctor_get(v___x_523_, 1);
-v_isSharedCheck_533_ = !lean_is_exclusive(v___x_523_);
-if (v_isSharedCheck_533_ == 0)
+lean_object* v_fvarId_545_; lean_object* v_args_546_; lean_object* v___x_547_; size_t v_sz_548_; size_t v___x_549_; lean_object* v___x_550_; lean_object* v_fst_551_; lean_object* v_snd_552_; lean_object* v___x_554_; uint8_t v_isShared_555_; uint8_t v_isSharedCheck_560_; 
+v_fvarId_545_ = lean_ctor_get(v_code_518_, 0);
+lean_inc(v_fvarId_545_);
+v_args_546_ = lean_ctor_get(v_code_518_, 1);
+lean_inc_ref(v_args_546_);
+lean_dec_ref_known(v_code_518_, 2);
+v___x_547_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr(v_a_519_, v_a_520_, v_fvarId_545_);
+v_sz_548_ = lean_array_size(v_args_546_);
+v___x_549_ = ((size_t)0ULL);
+v___x_550_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2___redArg(v_sz_548_, v___x_549_, v_args_546_, v_a_519_, v_a_520_);
+v_fst_551_ = lean_ctor_get(v___x_550_, 0);
+v_snd_552_ = lean_ctor_get(v___x_550_, 1);
+v_isSharedCheck_560_ = !lean_is_exclusive(v___x_550_);
+if (v_isSharedCheck_560_ == 0)
 {
-v___x_527_ = v___x_523_;
-v_isShared_528_ = v_isSharedCheck_533_;
-goto v_resetjp_526_;
+v___x_554_ = v___x_550_;
+v_isShared_555_ = v_isSharedCheck_560_;
+goto v_resetjp_553_;
 }
 else
 {
-lean_inc(v_snd_525_);
-lean_inc(v_fst_524_);
-lean_dec(v___x_523_);
-v___x_527_ = lean_box(0);
-v_isShared_528_ = v_isSharedCheck_533_;
-goto v_resetjp_526_;
+lean_inc(v_snd_552_);
+lean_inc(v_fst_551_);
+lean_dec(v___x_550_);
+v___x_554_ = lean_box(0);
+v_isShared_555_ = v_isSharedCheck_560_;
+goto v_resetjp_553_;
 }
-v_resetjp_526_:
+v_resetjp_553_:
 {
-lean_object* v___x_529_; lean_object* v___x_531_; 
-v___x_529_ = l_Lean_mkAppN(v___x_520_, v_fst_524_);
-lean_dec(v_fst_524_);
-if (v_isShared_528_ == 0)
+lean_object* v___x_556_; lean_object* v___x_558_; 
+v___x_556_ = l_Lean_mkAppN(v___x_547_, v_fst_551_);
+lean_dec(v_fst_551_);
+if (v_isShared_555_ == 0)
 {
-lean_ctor_set(v___x_527_, 0, v___x_529_);
-v___x_531_ = v___x_527_;
-goto v_reusejp_530_;
+lean_ctor_set(v___x_554_, 0, v___x_556_);
+v___x_558_ = v___x_554_;
+goto v_reusejp_557_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_532_; 
-v_reuseFailAlloc_532_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_532_, 0, v___x_529_);
-lean_ctor_set(v_reuseFailAlloc_532_, 1, v_snd_525_);
-v___x_531_ = v_reuseFailAlloc_532_;
-goto v_reusejp_530_;
+lean_object* v_reuseFailAlloc_559_; 
+v_reuseFailAlloc_559_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_559_, 0, v___x_556_);
+lean_ctor_set(v_reuseFailAlloc_559_, 1, v_snd_552_);
+v___x_558_ = v_reuseFailAlloc_559_;
+goto v_reusejp_557_;
 }
-v_reusejp_530_:
+v_reusejp_557_:
 {
-return v___x_531_;
+return v___x_558_;
 }
 }
 }
 case 4:
 {
-lean_object* v_cases_534_; lean_object* v_discr_535_; lean_object* v_alts_536_; size_t v_sz_537_; size_t v___x_538_; lean_object* v___x_539_; lean_object* v_fst_540_; lean_object* v_snd_541_; lean_object* v___x_543_; uint8_t v_isShared_544_; uint8_t v_isSharedCheck_555_; 
-v_cases_534_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_ref(v_cases_534_);
-lean_dec_ref(v_code_491_);
-v_discr_535_ = lean_ctor_get(v_cases_534_, 2);
-lean_inc(v_discr_535_);
-v_alts_536_ = lean_ctor_get(v_cases_534_, 3);
-lean_inc_ref(v_alts_536_);
-lean_dec_ref(v_cases_534_);
-v_sz_537_ = lean_array_size(v_alts_536_);
-v___x_538_ = ((size_t)0ULL);
-v___x_539_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__3(v_pu_490_, v_sz_537_, v___x_538_, v_alts_536_, v_a_492_, v_a_493_);
-v_fst_540_ = lean_ctor_get(v___x_539_, 0);
-v_snd_541_ = lean_ctor_get(v___x_539_, 1);
-v_isSharedCheck_555_ = !lean_is_exclusive(v___x_539_);
-if (v_isSharedCheck_555_ == 0)
+lean_object* v_cases_561_; lean_object* v_discr_562_; lean_object* v_alts_563_; size_t v_sz_564_; size_t v___x_565_; lean_object* v___x_566_; lean_object* v_fst_567_; lean_object* v_snd_568_; lean_object* v___x_570_; uint8_t v_isShared_571_; uint8_t v_isSharedCheck_582_; 
+v_cases_561_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_ref(v_cases_561_);
+lean_dec_ref_known(v_code_518_, 1);
+v_discr_562_ = lean_ctor_get(v_cases_561_, 2);
+lean_inc(v_discr_562_);
+v_alts_563_ = lean_ctor_get(v_cases_561_, 3);
+lean_inc_ref(v_alts_563_);
+lean_dec_ref(v_cases_561_);
+v_sz_564_ = lean_array_size(v_alts_563_);
+v___x_565_ = ((size_t)0ULL);
+v___x_566_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__3(v_pu_517_, v_sz_564_, v___x_565_, v_alts_563_, v_a_519_, v_a_520_);
+v_fst_567_ = lean_ctor_get(v___x_566_, 0);
+v_snd_568_ = lean_ctor_get(v___x_566_, 1);
+v_isSharedCheck_582_ = !lean_is_exclusive(v___x_566_);
+if (v_isSharedCheck_582_ == 0)
 {
-v___x_543_ = v___x_539_;
-v_isShared_544_ = v_isSharedCheck_555_;
-goto v_resetjp_542_;
+v___x_570_ = v___x_566_;
+v_isShared_571_ = v_isSharedCheck_582_;
+goto v_resetjp_569_;
 }
 else
 {
-lean_inc(v_snd_541_);
-lean_inc(v_fst_540_);
-lean_dec(v___x_539_);
-v___x_543_ = lean_box(0);
-v_isShared_544_ = v_isSharedCheck_555_;
-goto v_resetjp_542_;
+lean_inc(v_snd_568_);
+lean_inc(v_fst_567_);
+lean_dec(v___x_566_);
+v___x_570_ = lean_box(0);
+v_isShared_571_ = v_isSharedCheck_582_;
+goto v_resetjp_569_;
 }
-v_resetjp_542_:
+v_resetjp_569_:
 {
-lean_object* v___x_545_; lean_object* v___x_546_; lean_object* v___x_547_; lean_object* v___x_548_; lean_object* v___x_549_; lean_object* v___x_550_; lean_object* v___x_551_; lean_object* v___x_553_; 
-v___x_545_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr(v_a_492_, v_snd_541_, v_discr_535_);
-v___x_546_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__2, &l_Lean_Compiler_LCNF_Code_toExprM___closed__2_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__2);
-v___x_547_ = lean_unsigned_to_nat(1u);
-v___x_548_ = lean_mk_empty_array_with_capacity(v___x_547_);
-v___x_549_ = lean_array_push(v___x_548_, v___x_545_);
-v___x_550_ = l_Array_append___redArg(v___x_549_, v_fst_540_);
-lean_dec(v_fst_540_);
-v___x_551_ = l_Lean_mkAppN(v___x_546_, v___x_550_);
-lean_dec_ref(v___x_550_);
-if (v_isShared_544_ == 0)
+lean_object* v___x_572_; lean_object* v___x_573_; lean_object* v___x_574_; lean_object* v___x_575_; lean_object* v___x_576_; lean_object* v___x_577_; lean_object* v___x_578_; lean_object* v___x_580_; 
+v___x_572_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr(v_a_519_, v_snd_568_, v_discr_562_);
+v___x_573_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__2, &l_Lean_Compiler_LCNF_Code_toExprM___closed__2_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__2);
+v___x_574_ = lean_unsigned_to_nat(1u);
+v___x_575_ = lean_mk_empty_array_with_capacity(v___x_574_);
+v___x_576_ = lean_array_push(v___x_575_, v___x_572_);
+v___x_577_ = l_Array_append___redArg(v___x_576_, v_fst_567_);
+lean_dec(v_fst_567_);
+v___x_578_ = l_Lean_mkAppN(v___x_573_, v___x_577_);
+lean_dec_ref(v___x_577_);
+if (v_isShared_571_ == 0)
 {
-lean_ctor_set(v___x_543_, 0, v___x_551_);
-v___x_553_ = v___x_543_;
-goto v_reusejp_552_;
+lean_ctor_set(v___x_570_, 0, v___x_578_);
+v___x_580_ = v___x_570_;
+goto v_reusejp_579_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_554_; 
-v_reuseFailAlloc_554_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_554_, 0, v___x_551_);
-lean_ctor_set(v_reuseFailAlloc_554_, 1, v_snd_541_);
-v___x_553_ = v_reuseFailAlloc_554_;
-goto v_reusejp_552_;
+lean_object* v_reuseFailAlloc_581_; 
+v_reuseFailAlloc_581_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_581_, 0, v___x_578_);
+lean_ctor_set(v_reuseFailAlloc_581_, 1, v_snd_568_);
+v___x_580_ = v_reuseFailAlloc_581_;
+goto v_reusejp_579_;
 }
-v_reusejp_552_:
+v_reusejp_579_:
 {
-return v___x_553_;
+return v___x_580_;
 }
 }
 }
 case 5:
 {
-lean_object* v_fvarId_556_; lean_object* v___x_557_; lean_object* v___x_558_; 
-v_fvarId_556_ = lean_ctor_get(v_code_491_, 0);
-lean_inc(v_fvarId_556_);
-lean_dec_ref(v_code_491_);
-v___x_557_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr(v_a_492_, v_a_493_, v_fvarId_556_);
-v___x_558_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_558_, 0, v___x_557_);
-lean_ctor_set(v___x_558_, 1, v_a_493_);
-return v___x_558_;
+lean_object* v_fvarId_583_; lean_object* v___x_584_; lean_object* v___x_585_; 
+v_fvarId_583_ = lean_ctor_get(v_code_518_, 0);
+lean_inc(v_fvarId_583_);
+lean_dec_ref_known(v_code_518_, 1);
+v___x_584_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr(v_a_519_, v_a_520_, v_fvarId_583_);
+v___x_585_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_585_, 0, v___x_584_);
+lean_ctor_set(v___x_585_, 1, v_a_520_);
+return v___x_585_;
 }
 case 6:
 {
-lean_object* v_type_559_; lean_object* v___x_560_; lean_object* v___x_561_; lean_object* v___x_562_; lean_object* v___x_563_; 
-v_type_559_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_ref(v_type_559_);
-lean_dec_ref(v_code_491_);
-v___x_560_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_493_, v_a_492_, v_type_559_);
-v___x_561_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__5, &l_Lean_Compiler_LCNF_Code_toExprM___closed__5_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__5);
-v___x_562_ = l_Lean_Expr_app___override(v___x_561_, v___x_560_);
-v___x_563_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_563_, 0, v___x_562_);
-lean_ctor_set(v___x_563_, 1, v_a_493_);
-return v___x_563_;
+lean_object* v_type_586_; lean_object* v___x_587_; lean_object* v___x_588_; lean_object* v___x_589_; lean_object* v___x_590_; 
+v_type_586_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_ref(v_type_586_);
+lean_dec_ref_known(v_code_518_, 1);
+v___x_587_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_520_, v_a_519_, v_type_586_);
+v___x_588_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__5, &l_Lean_Compiler_LCNF_Code_toExprM___closed__5_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__5);
+v___x_589_ = l_Lean_Expr_app___override(v___x_588_, v___x_587_);
+v___x_590_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_590_, 0, v___x_589_);
+lean_ctor_set(v___x_590_, 1, v_a_520_);
+return v___x_590_;
 }
 case 7:
 {
-lean_object* v_fvarId_564_; lean_object* v_i_565_; lean_object* v_y_566_; lean_object* v_k_567_; lean_object* v___x_568_; lean_object* v_fst_569_; lean_object* v_snd_570_; lean_object* v___x_571_; lean_object* v___x_572_; lean_object* v___x_573_; lean_object* v___x_574_; lean_object* v___x_575_; lean_object* v_fst_576_; lean_object* v_snd_577_; lean_object* v___x_579_; uint8_t v_isShared_580_; uint8_t v_isSharedCheck_591_; 
-v_fvarId_564_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_n(v_fvarId_564_, 2);
-v_i_565_ = lean_ctor_get(v_code_491_, 1);
-lean_inc(v_i_565_);
-v_y_566_ = lean_ctor_get(v_code_491_, 2);
-lean_inc(v_y_566_);
-v_k_567_ = lean_ctor_get(v_code_491_, 3);
-lean_inc_ref(v_k_567_);
-lean_dec_ref(v_code_491_);
-v___x_568_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_Arg_toExprM___redArg(v_y_566_, v_a_492_, v_a_493_);
-v_fst_569_ = lean_ctor_get(v___x_568_, 0);
-lean_inc(v_fst_569_);
-v_snd_570_ = lean_ctor_get(v___x_568_, 1);
-lean_inc(v_snd_570_);
-lean_dec_ref(v___x_568_);
-v___x_571_ = l_Lean_Expr_fvar___override(v_fvarId_564_);
-lean_inc(v_a_492_);
-v___x_572_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_564_, v_a_492_, v_snd_570_);
-v___x_573_ = lean_unsigned_to_nat(1u);
-v___x_574_ = lean_nat_add(v_a_492_, v___x_573_);
-v___x_575_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_567_, v___x_574_, v___x_572_);
-lean_dec(v___x_574_);
-v_fst_576_ = lean_ctor_get(v___x_575_, 0);
-v_snd_577_ = lean_ctor_get(v___x_575_, 1);
-v_isSharedCheck_591_ = !lean_is_exclusive(v___x_575_);
-if (v_isSharedCheck_591_ == 0)
+lean_object* v_fvarId_591_; lean_object* v_i_592_; lean_object* v_y_593_; lean_object* v_k_594_; lean_object* v___x_595_; lean_object* v_fst_596_; lean_object* v_snd_597_; lean_object* v___x_598_; lean_object* v___x_599_; lean_object* v___x_600_; lean_object* v___x_601_; lean_object* v___x_602_; lean_object* v_fst_603_; lean_object* v_snd_604_; lean_object* v___x_606_; uint8_t v_isShared_607_; uint8_t v_isSharedCheck_618_; 
+v_fvarId_591_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_n(v_fvarId_591_, 2);
+v_i_592_ = lean_ctor_get(v_code_518_, 1);
+lean_inc(v_i_592_);
+v_y_593_ = lean_ctor_get(v_code_518_, 2);
+lean_inc(v_y_593_);
+v_k_594_ = lean_ctor_get(v_code_518_, 3);
+lean_inc_ref(v_k_594_);
+lean_dec_ref_known(v_code_518_, 4);
+v___x_595_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_Arg_toExprM___redArg(v_y_593_, v_a_519_, v_a_520_);
+v_fst_596_ = lean_ctor_get(v___x_595_, 0);
+lean_inc(v_fst_596_);
+v_snd_597_ = lean_ctor_get(v___x_595_, 1);
+lean_inc(v_snd_597_);
+lean_dec_ref(v___x_595_);
+v___x_598_ = l_Lean_Expr_fvar___override(v_fvarId_591_);
+lean_inc(v_a_519_);
+v___x_599_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_591_, v_a_519_, v_snd_597_);
+v___x_600_ = lean_unsigned_to_nat(1u);
+v___x_601_ = lean_nat_add(v_a_519_, v___x_600_);
+v___x_602_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_594_, v___x_601_, v___x_599_);
+lean_dec(v___x_601_);
+v_fst_603_ = lean_ctor_get(v___x_602_, 0);
+v_snd_604_ = lean_ctor_get(v___x_602_, 1);
+v_isSharedCheck_618_ = !lean_is_exclusive(v___x_602_);
+if (v_isSharedCheck_618_ == 0)
 {
-v___x_579_ = v___x_575_;
-v_isShared_580_ = v_isSharedCheck_591_;
-goto v_resetjp_578_;
+v___x_606_ = v___x_602_;
+v_isShared_607_ = v_isSharedCheck_618_;
+goto v_resetjp_605_;
 }
 else
 {
-lean_inc(v_snd_577_);
-lean_inc(v_fst_576_);
-lean_dec(v___x_575_);
-v___x_579_ = lean_box(0);
-v_isShared_580_ = v_isSharedCheck_591_;
-goto v_resetjp_578_;
+lean_inc(v_snd_604_);
+lean_inc(v_fst_603_);
+lean_dec(v___x_602_);
+v___x_606_ = lean_box(0);
+v_isShared_607_ = v_isSharedCheck_618_;
+goto v_resetjp_605_;
 }
-v_resetjp_578_:
+v_resetjp_605_:
 {
-lean_object* v___x_581_; lean_object* v___x_582_; lean_object* v___x_583_; lean_object* v___x_584_; lean_object* v___x_585_; uint8_t v___x_586_; lean_object* v___x_587_; lean_object* v___x_589_; 
-v___x_581_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__8, &l_Lean_Compiler_LCNF_Code_toExprM___closed__8_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__8);
-v___x_582_ = l_Lean_mkNatLit(v_i_565_);
-v___x_583_ = l_Lean_mkApp3(v___x_581_, v___x_571_, v___x_582_, v_fst_569_);
-v___x_584_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
-v___x_585_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
-v___x_586_ = 1;
-v___x_587_ = l_Lean_Expr_letE___override(v___x_584_, v___x_585_, v___x_583_, v_fst_576_, v___x_586_);
-if (v_isShared_580_ == 0)
+lean_object* v___x_608_; lean_object* v___x_609_; lean_object* v___x_610_; lean_object* v___x_611_; lean_object* v___x_612_; uint8_t v___x_613_; lean_object* v___x_614_; lean_object* v___x_616_; 
+v___x_608_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__8, &l_Lean_Compiler_LCNF_Code_toExprM___closed__8_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__8);
+v___x_609_ = l_Lean_mkNatLit(v_i_592_);
+v___x_610_ = l_Lean_mkApp3(v___x_608_, v___x_598_, v___x_609_, v_fst_596_);
+v___x_611_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
+v___x_612_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
+v___x_613_ = 1;
+v___x_614_ = l_Lean_Expr_letE___override(v___x_611_, v___x_612_, v___x_610_, v_fst_603_, v___x_613_);
+if (v_isShared_607_ == 0)
 {
-lean_ctor_set(v___x_579_, 0, v___x_587_);
-v___x_589_ = v___x_579_;
-goto v_reusejp_588_;
+lean_ctor_set(v___x_606_, 0, v___x_614_);
+v___x_616_ = v___x_606_;
+goto v_reusejp_615_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_590_; 
-v_reuseFailAlloc_590_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_590_, 0, v___x_587_);
-lean_ctor_set(v_reuseFailAlloc_590_, 1, v_snd_577_);
-v___x_589_ = v_reuseFailAlloc_590_;
-goto v_reusejp_588_;
+lean_object* v_reuseFailAlloc_617_; 
+v_reuseFailAlloc_617_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_617_, 0, v___x_614_);
+lean_ctor_set(v_reuseFailAlloc_617_, 1, v_snd_604_);
+v___x_616_ = v_reuseFailAlloc_617_;
+goto v_reusejp_615_;
 }
-v_reusejp_588_:
+v_reusejp_615_:
 {
-return v___x_589_;
+return v___x_616_;
 }
 }
 }
 case 8:
 {
-lean_object* v_fvarId_592_; lean_object* v_i_593_; lean_object* v_y_594_; lean_object* v_k_595_; lean_object* v___x_596_; lean_object* v___x_597_; lean_object* v___x_598_; lean_object* v___x_599_; lean_object* v___x_600_; lean_object* v_fst_601_; lean_object* v_snd_602_; lean_object* v___x_604_; uint8_t v_isShared_605_; uint8_t v_isSharedCheck_617_; 
-v_fvarId_592_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_n(v_fvarId_592_, 2);
-v_i_593_ = lean_ctor_get(v_code_491_, 1);
-lean_inc(v_i_593_);
-v_y_594_ = lean_ctor_get(v_code_491_, 2);
-lean_inc(v_y_594_);
-v_k_595_ = lean_ctor_get(v_code_491_, 3);
-lean_inc_ref(v_k_595_);
-lean_dec_ref(v_code_491_);
-v___x_596_ = l_Lean_Expr_fvar___override(v_fvarId_592_);
-lean_inc(v_a_492_);
-v___x_597_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_592_, v_a_492_, v_a_493_);
-v___x_598_ = lean_unsigned_to_nat(1u);
-v___x_599_ = lean_nat_add(v_a_492_, v___x_598_);
-v___x_600_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_595_, v___x_599_, v___x_597_);
-lean_dec(v___x_599_);
-v_fst_601_ = lean_ctor_get(v___x_600_, 0);
-v_snd_602_ = lean_ctor_get(v___x_600_, 1);
-v_isSharedCheck_617_ = !lean_is_exclusive(v___x_600_);
-if (v_isSharedCheck_617_ == 0)
+lean_object* v_fvarId_619_; lean_object* v_i_620_; lean_object* v_y_621_; lean_object* v_k_622_; lean_object* v___x_623_; lean_object* v___x_624_; lean_object* v___x_625_; lean_object* v___x_626_; lean_object* v___x_627_; lean_object* v_fst_628_; lean_object* v_snd_629_; lean_object* v___x_631_; uint8_t v_isShared_632_; uint8_t v_isSharedCheck_644_; 
+v_fvarId_619_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_n(v_fvarId_619_, 2);
+v_i_620_ = lean_ctor_get(v_code_518_, 1);
+lean_inc(v_i_620_);
+v_y_621_ = lean_ctor_get(v_code_518_, 2);
+lean_inc(v_y_621_);
+v_k_622_ = lean_ctor_get(v_code_518_, 3);
+lean_inc_ref(v_k_622_);
+lean_dec_ref_known(v_code_518_, 4);
+v___x_623_ = l_Lean_Expr_fvar___override(v_fvarId_619_);
+lean_inc(v_a_519_);
+v___x_624_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_619_, v_a_519_, v_a_520_);
+v___x_625_ = lean_unsigned_to_nat(1u);
+v___x_626_ = lean_nat_add(v_a_519_, v___x_625_);
+v___x_627_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_622_, v___x_626_, v___x_624_);
+lean_dec(v___x_626_);
+v_fst_628_ = lean_ctor_get(v___x_627_, 0);
+v_snd_629_ = lean_ctor_get(v___x_627_, 1);
+v_isSharedCheck_644_ = !lean_is_exclusive(v___x_627_);
+if (v_isSharedCheck_644_ == 0)
 {
-v___x_604_ = v___x_600_;
-v_isShared_605_ = v_isSharedCheck_617_;
-goto v_resetjp_603_;
+v___x_631_ = v___x_627_;
+v_isShared_632_ = v_isSharedCheck_644_;
+goto v_resetjp_630_;
 }
 else
 {
-lean_inc(v_snd_602_);
-lean_inc(v_fst_601_);
-lean_dec(v___x_600_);
-v___x_604_ = lean_box(0);
-v_isShared_605_ = v_isSharedCheck_617_;
-goto v_resetjp_603_;
+lean_inc(v_snd_629_);
+lean_inc(v_fst_628_);
+lean_dec(v___x_627_);
+v___x_631_ = lean_box(0);
+v_isShared_632_ = v_isSharedCheck_644_;
+goto v_resetjp_630_;
 }
-v_resetjp_603_:
+v_resetjp_630_:
 {
-lean_object* v___x_606_; lean_object* v___x_607_; lean_object* v___x_608_; lean_object* v_value_609_; lean_object* v___x_610_; lean_object* v___x_611_; uint8_t v___x_612_; lean_object* v___x_613_; lean_object* v___x_615_; 
-v___x_606_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__16, &l_Lean_Compiler_LCNF_Code_toExprM___closed__16_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__16);
-v___x_607_ = l_Lean_mkNatLit(v_i_593_);
-v___x_608_ = l_Lean_Expr_fvar___override(v_y_594_);
-v_value_609_ = l_Lean_mkApp3(v___x_606_, v___x_596_, v___x_607_, v___x_608_);
-v___x_610_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
-v___x_611_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
-v___x_612_ = 1;
-v___x_613_ = l_Lean_Expr_letE___override(v___x_610_, v___x_611_, v_value_609_, v_fst_601_, v___x_612_);
-if (v_isShared_605_ == 0)
+lean_object* v___x_633_; lean_object* v___x_634_; lean_object* v___x_635_; lean_object* v_value_636_; lean_object* v___x_637_; lean_object* v___x_638_; uint8_t v___x_639_; lean_object* v___x_640_; lean_object* v___x_642_; 
+v___x_633_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__16, &l_Lean_Compiler_LCNF_Code_toExprM___closed__16_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__16);
+v___x_634_ = l_Lean_mkNatLit(v_i_620_);
+v___x_635_ = l_Lean_Expr_fvar___override(v_y_621_);
+v_value_636_ = l_Lean_mkApp3(v___x_633_, v___x_623_, v___x_634_, v___x_635_);
+v___x_637_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
+v___x_638_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
+v___x_639_ = 1;
+v___x_640_ = l_Lean_Expr_letE___override(v___x_637_, v___x_638_, v_value_636_, v_fst_628_, v___x_639_);
+if (v_isShared_632_ == 0)
 {
-lean_ctor_set(v___x_604_, 0, v___x_613_);
-v___x_615_ = v___x_604_;
-goto v_reusejp_614_;
+lean_ctor_set(v___x_631_, 0, v___x_640_);
+v___x_642_ = v___x_631_;
+goto v_reusejp_641_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_616_; 
-v_reuseFailAlloc_616_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_616_, 0, v___x_613_);
-lean_ctor_set(v_reuseFailAlloc_616_, 1, v_snd_602_);
-v___x_615_ = v_reuseFailAlloc_616_;
-goto v_reusejp_614_;
+lean_object* v_reuseFailAlloc_643_; 
+v_reuseFailAlloc_643_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_643_, 0, v___x_640_);
+lean_ctor_set(v_reuseFailAlloc_643_, 1, v_snd_629_);
+v___x_642_ = v_reuseFailAlloc_643_;
+goto v_reusejp_641_;
 }
-v_reusejp_614_:
+v_reusejp_641_:
 {
-return v___x_615_;
+return v___x_642_;
 }
 }
 }
 case 9:
 {
-lean_object* v_fvarId_618_; lean_object* v_i_619_; lean_object* v_offset_620_; lean_object* v_y_621_; lean_object* v_ty_622_; lean_object* v_k_623_; lean_object* v___x_624_; lean_object* v___x_625_; lean_object* v___x_626_; lean_object* v___x_627_; lean_object* v___x_628_; lean_object* v_fst_629_; lean_object* v_snd_630_; lean_object* v___x_632_; uint8_t v_isShared_633_; uint8_t v_isSharedCheck_646_; 
-v_fvarId_618_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_n(v_fvarId_618_, 2);
-v_i_619_ = lean_ctor_get(v_code_491_, 1);
-lean_inc(v_i_619_);
-v_offset_620_ = lean_ctor_get(v_code_491_, 2);
-lean_inc(v_offset_620_);
-v_y_621_ = lean_ctor_get(v_code_491_, 3);
-lean_inc(v_y_621_);
-v_ty_622_ = lean_ctor_get(v_code_491_, 4);
-lean_inc_ref(v_ty_622_);
-v_k_623_ = lean_ctor_get(v_code_491_, 5);
-lean_inc_ref(v_k_623_);
-lean_dec_ref(v_code_491_);
-v___x_624_ = l_Lean_Expr_fvar___override(v_fvarId_618_);
-lean_inc(v_a_492_);
-v___x_625_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_618_, v_a_492_, v_a_493_);
-v___x_626_ = lean_unsigned_to_nat(1u);
-v___x_627_ = lean_nat_add(v_a_492_, v___x_626_);
-v___x_628_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_623_, v___x_627_, v___x_625_);
-lean_dec(v___x_627_);
-v_fst_629_ = lean_ctor_get(v___x_628_, 0);
-v_snd_630_ = lean_ctor_get(v___x_628_, 1);
-v_isSharedCheck_646_ = !lean_is_exclusive(v___x_628_);
-if (v_isSharedCheck_646_ == 0)
+lean_object* v_fvarId_645_; lean_object* v_i_646_; lean_object* v_offset_647_; lean_object* v_y_648_; lean_object* v_ty_649_; lean_object* v_k_650_; lean_object* v___x_651_; lean_object* v___x_652_; lean_object* v___x_653_; lean_object* v___x_654_; lean_object* v___x_655_; lean_object* v_fst_656_; lean_object* v_snd_657_; lean_object* v___x_659_; uint8_t v_isShared_660_; uint8_t v_isSharedCheck_673_; 
+v_fvarId_645_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_n(v_fvarId_645_, 2);
+v_i_646_ = lean_ctor_get(v_code_518_, 1);
+lean_inc(v_i_646_);
+v_offset_647_ = lean_ctor_get(v_code_518_, 2);
+lean_inc(v_offset_647_);
+v_y_648_ = lean_ctor_get(v_code_518_, 3);
+lean_inc(v_y_648_);
+v_ty_649_ = lean_ctor_get(v_code_518_, 4);
+lean_inc_ref(v_ty_649_);
+v_k_650_ = lean_ctor_get(v_code_518_, 5);
+lean_inc_ref(v_k_650_);
+lean_dec_ref_known(v_code_518_, 6);
+v___x_651_ = l_Lean_Expr_fvar___override(v_fvarId_645_);
+lean_inc(v_a_519_);
+v___x_652_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_645_, v_a_519_, v_a_520_);
+v___x_653_ = lean_unsigned_to_nat(1u);
+v___x_654_ = lean_nat_add(v_a_519_, v___x_653_);
+v___x_655_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_650_, v___x_654_, v___x_652_);
+lean_dec(v___x_654_);
+v_fst_656_ = lean_ctor_get(v___x_655_, 0);
+v_snd_657_ = lean_ctor_get(v___x_655_, 1);
+v_isSharedCheck_673_ = !lean_is_exclusive(v___x_655_);
+if (v_isSharedCheck_673_ == 0)
 {
-v___x_632_ = v___x_628_;
-v_isShared_633_ = v_isSharedCheck_646_;
-goto v_resetjp_631_;
+v___x_659_ = v___x_655_;
+v_isShared_660_ = v_isSharedCheck_673_;
+goto v_resetjp_658_;
 }
 else
 {
-lean_inc(v_snd_630_);
-lean_inc(v_fst_629_);
-lean_dec(v___x_628_);
-v___x_632_ = lean_box(0);
-v_isShared_633_ = v_isSharedCheck_646_;
-goto v_resetjp_631_;
+lean_inc(v_snd_657_);
+lean_inc(v_fst_656_);
+lean_dec(v___x_655_);
+v___x_659_ = lean_box(0);
+v_isShared_660_ = v_isSharedCheck_673_;
+goto v_resetjp_658_;
 }
-v_resetjp_631_:
+v_resetjp_658_:
 {
-lean_object* v___x_634_; lean_object* v___x_635_; lean_object* v___x_636_; lean_object* v___x_637_; lean_object* v_value_638_; lean_object* v___x_639_; lean_object* v___x_640_; uint8_t v___x_641_; lean_object* v___x_642_; lean_object* v___x_644_; 
-v___x_634_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__19, &l_Lean_Compiler_LCNF_Code_toExprM___closed__19_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__19);
-v___x_635_ = l_Lean_mkNatLit(v_i_619_);
-v___x_636_ = l_Lean_mkNatLit(v_offset_620_);
-v___x_637_ = l_Lean_Expr_fvar___override(v_y_621_);
-v_value_638_ = l_Lean_mkApp5(v___x_634_, v___x_624_, v___x_635_, v___x_636_, v___x_637_, v_ty_622_);
-v___x_639_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
-v___x_640_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
-v___x_641_ = 1;
-v___x_642_ = l_Lean_Expr_letE___override(v___x_639_, v___x_640_, v_value_638_, v_fst_629_, v___x_641_);
-if (v_isShared_633_ == 0)
+lean_object* v___x_661_; lean_object* v___x_662_; lean_object* v___x_663_; lean_object* v___x_664_; lean_object* v_value_665_; lean_object* v___x_666_; lean_object* v___x_667_; uint8_t v___x_668_; lean_object* v___x_669_; lean_object* v___x_671_; 
+v___x_661_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__19, &l_Lean_Compiler_LCNF_Code_toExprM___closed__19_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__19);
+v___x_662_ = l_Lean_mkNatLit(v_i_646_);
+v___x_663_ = l_Lean_mkNatLit(v_offset_647_);
+v___x_664_ = l_Lean_Expr_fvar___override(v_y_648_);
+v_value_665_ = l_Lean_mkApp5(v___x_661_, v___x_651_, v___x_662_, v___x_663_, v___x_664_, v_ty_649_);
+v___x_666_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
+v___x_667_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
+v___x_668_ = 1;
+v___x_669_ = l_Lean_Expr_letE___override(v___x_666_, v___x_667_, v_value_665_, v_fst_656_, v___x_668_);
+if (v_isShared_660_ == 0)
 {
-lean_ctor_set(v___x_632_, 0, v___x_642_);
-v___x_644_ = v___x_632_;
-goto v_reusejp_643_;
+lean_ctor_set(v___x_659_, 0, v___x_669_);
+v___x_671_ = v___x_659_;
+goto v_reusejp_670_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_645_; 
-v_reuseFailAlloc_645_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_645_, 0, v___x_642_);
-lean_ctor_set(v_reuseFailAlloc_645_, 1, v_snd_630_);
-v___x_644_ = v_reuseFailAlloc_645_;
-goto v_reusejp_643_;
+lean_object* v_reuseFailAlloc_672_; 
+v_reuseFailAlloc_672_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_672_, 0, v___x_669_);
+lean_ctor_set(v_reuseFailAlloc_672_, 1, v_snd_657_);
+v___x_671_ = v_reuseFailAlloc_672_;
+goto v_reusejp_670_;
 }
-v_reusejp_643_:
+v_reusejp_670_:
 {
-return v___x_644_;
+return v___x_671_;
 }
 }
 }
 case 10:
 {
-lean_object* v_fvarId_647_; lean_object* v_cidx_648_; lean_object* v_k_649_; lean_object* v___x_650_; lean_object* v___x_651_; lean_object* v___x_652_; lean_object* v___x_653_; lean_object* v_fst_654_; lean_object* v_snd_655_; lean_object* v___x_657_; uint8_t v_isShared_658_; uint8_t v_isSharedCheck_670_; 
-v_fvarId_647_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_n(v_fvarId_647_, 2);
-v_cidx_648_ = lean_ctor_get(v_code_491_, 1);
-lean_inc(v_cidx_648_);
-v_k_649_ = lean_ctor_get(v_code_491_, 2);
-lean_inc_ref(v_k_649_);
-lean_dec_ref(v_code_491_);
-lean_inc(v_a_492_);
-v___x_650_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_647_, v_a_492_, v_a_493_);
-v___x_651_ = lean_unsigned_to_nat(1u);
-v___x_652_ = lean_nat_add(v_a_492_, v___x_651_);
-v___x_653_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_649_, v___x_652_, v___x_650_);
-lean_dec(v___x_652_);
-v_fst_654_ = lean_ctor_get(v___x_653_, 0);
-v_snd_655_ = lean_ctor_get(v___x_653_, 1);
-v_isSharedCheck_670_ = !lean_is_exclusive(v___x_653_);
-if (v_isSharedCheck_670_ == 0)
+lean_object* v_fvarId_674_; lean_object* v_cidx_675_; lean_object* v_k_676_; lean_object* v___x_677_; lean_object* v___x_678_; lean_object* v___x_679_; lean_object* v___x_680_; lean_object* v_fst_681_; lean_object* v_snd_682_; lean_object* v___x_684_; uint8_t v_isShared_685_; uint8_t v_isSharedCheck_697_; 
+v_fvarId_674_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_n(v_fvarId_674_, 2);
+v_cidx_675_ = lean_ctor_get(v_code_518_, 1);
+lean_inc(v_cidx_675_);
+v_k_676_ = lean_ctor_get(v_code_518_, 2);
+lean_inc_ref(v_k_676_);
+lean_dec_ref_known(v_code_518_, 3);
+lean_inc(v_a_519_);
+v___x_677_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_674_, v_a_519_, v_a_520_);
+v___x_678_ = lean_unsigned_to_nat(1u);
+v___x_679_ = lean_nat_add(v_a_519_, v___x_678_);
+v___x_680_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_676_, v___x_679_, v___x_677_);
+lean_dec(v___x_679_);
+v_fst_681_ = lean_ctor_get(v___x_680_, 0);
+v_snd_682_ = lean_ctor_get(v___x_680_, 1);
+v_isSharedCheck_697_ = !lean_is_exclusive(v___x_680_);
+if (v_isSharedCheck_697_ == 0)
 {
-v___x_657_ = v___x_653_;
-v_isShared_658_ = v_isSharedCheck_670_;
-goto v_resetjp_656_;
+v___x_684_ = v___x_680_;
+v_isShared_685_ = v_isSharedCheck_697_;
+goto v_resetjp_683_;
 }
 else
 {
-lean_inc(v_snd_655_);
-lean_inc(v_fst_654_);
-lean_dec(v___x_653_);
-v___x_657_ = lean_box(0);
-v_isShared_658_ = v_isSharedCheck_670_;
-goto v_resetjp_656_;
+lean_inc(v_snd_682_);
+lean_inc(v_fst_681_);
+lean_dec(v___x_680_);
+v___x_684_ = lean_box(0);
+v_isShared_685_ = v_isSharedCheck_697_;
+goto v_resetjp_683_;
 }
-v_resetjp_656_:
+v_resetjp_683_:
 {
-lean_object* v___x_659_; lean_object* v___x_660_; lean_object* v___x_661_; lean_object* v___x_662_; lean_object* v___x_663_; lean_object* v___x_664_; uint8_t v___x_665_; lean_object* v___x_666_; lean_object* v___x_668_; 
-v___x_659_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__22, &l_Lean_Compiler_LCNF_Code_toExprM___closed__22_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__22);
-v___x_660_ = l_Lean_Expr_fvar___override(v_fvarId_647_);
-v___x_661_ = l_Lean_mkNatLit(v_cidx_648_);
-v___x_662_ = l_Lean_mkAppB(v___x_659_, v___x_660_, v___x_661_);
-v___x_663_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
-v___x_664_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
-v___x_665_ = 1;
-v___x_666_ = l_Lean_Expr_letE___override(v___x_663_, v___x_664_, v___x_662_, v_fst_654_, v___x_665_);
-if (v_isShared_658_ == 0)
+lean_object* v___x_686_; lean_object* v___x_687_; lean_object* v___x_688_; lean_object* v___x_689_; lean_object* v___x_690_; lean_object* v___x_691_; uint8_t v___x_692_; lean_object* v___x_693_; lean_object* v___x_695_; 
+v___x_686_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__22, &l_Lean_Compiler_LCNF_Code_toExprM___closed__22_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__22);
+v___x_687_ = l_Lean_Expr_fvar___override(v_fvarId_674_);
+v___x_688_ = l_Lean_mkNatLit(v_cidx_675_);
+v___x_689_ = l_Lean_mkAppB(v___x_686_, v___x_687_, v___x_688_);
+v___x_690_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
+v___x_691_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
+v___x_692_ = 1;
+v___x_693_ = l_Lean_Expr_letE___override(v___x_690_, v___x_691_, v___x_689_, v_fst_681_, v___x_692_);
+if (v_isShared_685_ == 0)
 {
-lean_ctor_set(v___x_657_, 0, v___x_666_);
-v___x_668_ = v___x_657_;
-goto v_reusejp_667_;
+lean_ctor_set(v___x_684_, 0, v___x_693_);
+v___x_695_ = v___x_684_;
+goto v_reusejp_694_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_669_; 
-v_reuseFailAlloc_669_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_669_, 0, v___x_666_);
-lean_ctor_set(v_reuseFailAlloc_669_, 1, v_snd_655_);
-v___x_668_ = v_reuseFailAlloc_669_;
-goto v_reusejp_667_;
+lean_object* v_reuseFailAlloc_696_; 
+v_reuseFailAlloc_696_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_696_, 0, v___x_693_);
+lean_ctor_set(v_reuseFailAlloc_696_, 1, v_snd_682_);
+v___x_695_ = v_reuseFailAlloc_696_;
+goto v_reusejp_694_;
 }
-v_reusejp_667_:
+v_reusejp_694_:
 {
-return v___x_668_;
+return v___x_695_;
 }
 }
 }
 case 11:
 {
-lean_object* v_fvarId_671_; lean_object* v_n_672_; uint8_t v_check_673_; uint8_t v_persistent_674_; lean_object* v_k_675_; lean_object* v___x_676_; lean_object* v___x_677_; lean_object* v___x_678_; lean_object* v___y_680_; lean_object* v___y_681_; lean_object* v___y_701_; 
-v_fvarId_671_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_n(v_fvarId_671_, 2);
-v_n_672_ = lean_ctor_get(v_code_491_, 1);
-lean_inc(v_n_672_);
-v_check_673_ = lean_ctor_get_uint8(v_code_491_, sizeof(void*)*3);
-v_persistent_674_ = lean_ctor_get_uint8(v_code_491_, sizeof(void*)*3 + 1);
-v_k_675_ = lean_ctor_get(v_code_491_, 2);
-lean_inc_ref(v_k_675_);
-lean_dec_ref(v_code_491_);
-v___x_676_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__25, &l_Lean_Compiler_LCNF_Code_toExprM___closed__25_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__25);
-v___x_677_ = l_Lean_Expr_fvar___override(v_fvarId_671_);
-v___x_678_ = l_Lean_mkNatLit(v_n_672_);
-if (v_check_673_ == 0)
+lean_object* v_fvarId_698_; lean_object* v_n_699_; uint8_t v_check_700_; uint8_t v_persistent_701_; lean_object* v_k_702_; lean_object* v___x_703_; lean_object* v___x_704_; lean_object* v___x_705_; lean_object* v___y_707_; lean_object* v___y_708_; lean_object* v___y_728_; 
+v_fvarId_698_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_n(v_fvarId_698_, 2);
+v_n_699_ = lean_ctor_get(v_code_518_, 1);
+lean_inc(v_n_699_);
+v_check_700_ = lean_ctor_get_uint8(v_code_518_, sizeof(void*)*3);
+v_persistent_701_ = lean_ctor_get_uint8(v_code_518_, sizeof(void*)*3 + 1);
+v_k_702_ = lean_ctor_get(v_code_518_, 2);
+lean_inc_ref(v_k_702_);
+lean_dec_ref_known(v_code_518_, 3);
+v___x_703_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__25, &l_Lean_Compiler_LCNF_Code_toExprM___closed__25_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__25);
+v___x_704_ = l_Lean_Expr_fvar___override(v_fvarId_698_);
+v___x_705_ = l_Lean_mkNatLit(v_n_699_);
+if (v_check_700_ == 0)
 {
-lean_object* v___x_704_; 
-v___x_704_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
-v___y_701_ = v___x_704_;
-goto v___jp_700_;
+lean_object* v___x_731_; 
+v___x_731_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
+v___y_728_ = v___x_731_;
+goto v___jp_727_;
 }
 else
 {
-lean_object* v___x_705_; 
-v___x_705_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
-v___y_701_ = v___x_705_;
-goto v___jp_700_;
+lean_object* v___x_732_; 
+v___x_732_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
+v___y_728_ = v___x_732_;
+goto v___jp_727_;
 }
-v___jp_679_:
+v___jp_706_:
 {
-lean_object* v___x_682_; lean_object* v___x_683_; lean_object* v___x_684_; lean_object* v___x_685_; lean_object* v_fst_686_; lean_object* v_snd_687_; lean_object* v___x_689_; uint8_t v_isShared_690_; uint8_t v_isSharedCheck_699_; 
-lean_inc(v_a_492_);
-v___x_682_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_671_, v_a_492_, v_a_493_);
-v___x_683_ = lean_unsigned_to_nat(1u);
-v___x_684_ = lean_nat_add(v_a_492_, v___x_683_);
-v___x_685_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_675_, v___x_684_, v___x_682_);
-lean_dec(v___x_684_);
-v_fst_686_ = lean_ctor_get(v___x_685_, 0);
-v_snd_687_ = lean_ctor_get(v___x_685_, 1);
-v_isSharedCheck_699_ = !lean_is_exclusive(v___x_685_);
-if (v_isSharedCheck_699_ == 0)
+lean_object* v___x_709_; lean_object* v___x_710_; lean_object* v___x_711_; lean_object* v___x_712_; lean_object* v_fst_713_; lean_object* v_snd_714_; lean_object* v___x_716_; uint8_t v_isShared_717_; uint8_t v_isSharedCheck_726_; 
+lean_inc(v_a_519_);
+v___x_709_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_698_, v_a_519_, v_a_520_);
+v___x_710_ = lean_unsigned_to_nat(1u);
+v___x_711_ = lean_nat_add(v_a_519_, v___x_710_);
+v___x_712_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_702_, v___x_711_, v___x_709_);
+lean_dec(v___x_711_);
+v_fst_713_ = lean_ctor_get(v___x_712_, 0);
+v_snd_714_ = lean_ctor_get(v___x_712_, 1);
+v_isSharedCheck_726_ = !lean_is_exclusive(v___x_712_);
+if (v_isSharedCheck_726_ == 0)
 {
-v___x_689_ = v___x_685_;
-v_isShared_690_ = v_isSharedCheck_699_;
-goto v_resetjp_688_;
-}
-else
-{
-lean_inc(v_snd_687_);
-lean_inc(v_fst_686_);
-lean_dec(v___x_685_);
-v___x_689_ = lean_box(0);
-v_isShared_690_ = v_isSharedCheck_699_;
-goto v_resetjp_688_;
-}
-v_resetjp_688_:
-{
-lean_object* v_value_691_; lean_object* v___x_692_; lean_object* v___x_693_; uint8_t v___x_694_; lean_object* v___x_695_; lean_object* v___x_697_; 
-lean_inc_ref(v___y_681_);
-lean_inc_ref(v___y_680_);
-v_value_691_ = l_Lean_mkApp4(v___x_676_, v___x_677_, v___x_678_, v___y_680_, v___y_681_);
-v___x_692_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
-v___x_693_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
-v___x_694_ = 1;
-v___x_695_ = l_Lean_Expr_letE___override(v___x_692_, v___x_693_, v_value_691_, v_fst_686_, v___x_694_);
-if (v_isShared_690_ == 0)
-{
-lean_ctor_set(v___x_689_, 0, v___x_695_);
-v___x_697_ = v___x_689_;
-goto v_reusejp_696_;
+v___x_716_ = v___x_712_;
+v_isShared_717_ = v_isSharedCheck_726_;
+goto v_resetjp_715_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_698_; 
-v_reuseFailAlloc_698_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_698_, 0, v___x_695_);
-lean_ctor_set(v_reuseFailAlloc_698_, 1, v_snd_687_);
-v___x_697_ = v_reuseFailAlloc_698_;
-goto v_reusejp_696_;
+lean_inc(v_snd_714_);
+lean_inc(v_fst_713_);
+lean_dec(v___x_712_);
+v___x_716_ = lean_box(0);
+v_isShared_717_ = v_isSharedCheck_726_;
+goto v_resetjp_715_;
 }
-v_reusejp_696_:
+v_resetjp_715_:
 {
-return v___x_697_;
-}
-}
-}
-v___jp_700_:
+lean_object* v_value_718_; lean_object* v___x_719_; lean_object* v___x_720_; uint8_t v___x_721_; lean_object* v___x_722_; lean_object* v___x_724_; 
+lean_inc_ref(v___y_708_);
+lean_inc_ref(v___y_707_);
+v_value_718_ = l_Lean_mkApp4(v___x_703_, v___x_704_, v___x_705_, v___y_707_, v___y_708_);
+v___x_719_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
+v___x_720_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
+v___x_721_ = 1;
+v___x_722_ = l_Lean_Expr_letE___override(v___x_719_, v___x_720_, v_value_718_, v_fst_713_, v___x_721_);
+if (v_isShared_717_ == 0)
 {
-if (v_persistent_674_ == 0)
-{
-lean_object* v___x_702_; 
-v___x_702_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
-v___y_680_ = v___y_701_;
-v___y_681_ = v___x_702_;
-goto v___jp_679_;
+lean_ctor_set(v___x_716_, 0, v___x_722_);
+v___x_724_ = v___x_716_;
+goto v_reusejp_723_;
 }
 else
 {
-lean_object* v___x_703_; 
-v___x_703_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
-v___y_680_ = v___y_701_;
-v___y_681_ = v___x_703_;
-goto v___jp_679_;
+lean_object* v_reuseFailAlloc_725_; 
+v_reuseFailAlloc_725_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_725_, 0, v___x_722_);
+lean_ctor_set(v_reuseFailAlloc_725_, 1, v_snd_714_);
+v___x_724_ = v_reuseFailAlloc_725_;
+goto v_reusejp_723_;
+}
+v_reusejp_723_:
+{
+return v___x_724_;
+}
+}
+}
+v___jp_727_:
+{
+if (v_persistent_701_ == 0)
+{
+lean_object* v___x_729_; 
+v___x_729_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
+v___y_707_ = v___y_728_;
+v___y_708_ = v___x_729_;
+goto v___jp_706_;
+}
+else
+{
+lean_object* v___x_730_; 
+v___x_730_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
+v___y_707_ = v___y_728_;
+v___y_708_ = v___x_730_;
+goto v___jp_706_;
 }
 }
 }
 case 12:
 {
-lean_object* v_fvarId_706_; lean_object* v_n_707_; uint8_t v_check_708_; uint8_t v_persistent_709_; lean_object* v_k_710_; lean_object* v___x_711_; lean_object* v___x_712_; lean_object* v___x_713_; lean_object* v___x_714_; lean_object* v_fst_715_; lean_object* v_snd_716_; lean_object* v___x_718_; uint8_t v_isShared_719_; uint8_t v_isSharedCheck_740_; 
-v_fvarId_706_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_n(v_fvarId_706_, 2);
-v_n_707_ = lean_ctor_get(v_code_491_, 1);
-lean_inc(v_n_707_);
-v_check_708_ = lean_ctor_get_uint8(v_code_491_, sizeof(void*)*3);
-v_persistent_709_ = lean_ctor_get_uint8(v_code_491_, sizeof(void*)*3 + 1);
-v_k_710_ = lean_ctor_get(v_code_491_, 2);
-lean_inc_ref(v_k_710_);
-lean_dec_ref(v_code_491_);
-lean_inc(v_a_492_);
-v___x_711_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_706_, v_a_492_, v_a_493_);
-v___x_712_ = lean_unsigned_to_nat(1u);
-v___x_713_ = lean_nat_add(v_a_492_, v___x_712_);
-v___x_714_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_710_, v___x_713_, v___x_711_);
-lean_dec(v___x_713_);
-v_fst_715_ = lean_ctor_get(v___x_714_, 0);
-v_snd_716_ = lean_ctor_get(v___x_714_, 1);
-v_isSharedCheck_740_ = !lean_is_exclusive(v___x_714_);
-if (v_isSharedCheck_740_ == 0)
+lean_object* v_fvarId_733_; lean_object* v_n_734_; uint8_t v_check_735_; uint8_t v_persistent_736_; lean_object* v_objs_x3f_737_; lean_object* v_k_738_; lean_object* v___x_739_; lean_object* v___x_740_; lean_object* v___x_741_; lean_object* v___x_742_; lean_object* v_fst_743_; lean_object* v_snd_744_; lean_object* v___x_746_; uint8_t v_isShared_747_; uint8_t v_isSharedCheck_778_; 
+v_fvarId_733_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_n(v_fvarId_733_, 2);
+v_n_734_ = lean_ctor_get(v_code_518_, 1);
+lean_inc(v_n_734_);
+v_check_735_ = lean_ctor_get_uint8(v_code_518_, sizeof(void*)*4);
+v_persistent_736_ = lean_ctor_get_uint8(v_code_518_, sizeof(void*)*4 + 1);
+v_objs_x3f_737_ = lean_ctor_get(v_code_518_, 2);
+lean_inc(v_objs_x3f_737_);
+v_k_738_ = lean_ctor_get(v_code_518_, 3);
+lean_inc_ref(v_k_738_);
+lean_dec_ref_known(v_code_518_, 4);
+lean_inc(v_a_519_);
+v___x_739_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_733_, v_a_519_, v_a_520_);
+v___x_740_ = lean_unsigned_to_nat(1u);
+v___x_741_ = lean_nat_add(v_a_519_, v___x_740_);
+v___x_742_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_738_, v___x_741_, v___x_739_);
+lean_dec(v___x_741_);
+v_fst_743_ = lean_ctor_get(v___x_742_, 0);
+v_snd_744_ = lean_ctor_get(v___x_742_, 1);
+v_isSharedCheck_778_ = !lean_is_exclusive(v___x_742_);
+if (v_isSharedCheck_778_ == 0)
 {
-v___x_718_ = v___x_714_;
-v_isShared_719_ = v_isSharedCheck_740_;
-goto v_resetjp_717_;
+v___x_746_ = v___x_742_;
+v_isShared_747_ = v_isSharedCheck_778_;
+goto v_resetjp_745_;
 }
 else
 {
-lean_inc(v_snd_716_);
-lean_inc(v_fst_715_);
-lean_dec(v___x_714_);
-v___x_718_ = lean_box(0);
-v_isShared_719_ = v_isSharedCheck_740_;
-goto v_resetjp_717_;
+lean_inc(v_snd_744_);
+lean_inc(v_fst_743_);
+lean_dec(v___x_742_);
+v___x_746_ = lean_box(0);
+v_isShared_747_ = v_isSharedCheck_778_;
+goto v_resetjp_745_;
 }
-v_resetjp_717_:
+v_resetjp_745_:
 {
-lean_object* v___x_720_; lean_object* v___x_721_; lean_object* v___x_722_; lean_object* v___y_724_; lean_object* v___y_725_; lean_object* v___y_735_; 
-v___x_720_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__35, &l_Lean_Compiler_LCNF_Code_toExprM___closed__35_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__35);
-v___x_721_ = l_Lean_Expr_fvar___override(v_fvarId_706_);
-v___x_722_ = l_Lean_mkNatLit(v_n_707_);
-if (v_check_708_ == 0)
+lean_object* v___x_748_; lean_object* v___x_749_; lean_object* v___x_750_; lean_object* v___y_752_; lean_object* v___y_753_; lean_object* v___y_754_; lean_object* v___y_764_; lean_object* v___y_765_; lean_object* v___y_773_; 
+v___x_748_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__35, &l_Lean_Compiler_LCNF_Code_toExprM___closed__35_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__35);
+v___x_749_ = l_Lean_Expr_fvar___override(v_fvarId_733_);
+v___x_750_ = l_Lean_mkNatLit(v_n_734_);
+if (v_check_735_ == 0)
 {
-lean_object* v___x_738_; 
-v___x_738_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
-v___y_735_ = v___x_738_;
-goto v___jp_734_;
-}
-else
-{
-lean_object* v___x_739_; 
-v___x_739_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
-v___y_735_ = v___x_739_;
-goto v___jp_734_;
-}
-v___jp_723_:
-{
-lean_object* v___x_726_; lean_object* v___x_727_; lean_object* v___x_728_; uint8_t v___x_729_; lean_object* v___x_730_; lean_object* v___x_732_; 
-lean_inc_ref(v___y_725_);
-lean_inc_ref(v___y_724_);
-v___x_726_ = l_Lean_mkApp4(v___x_720_, v___x_721_, v___x_722_, v___y_724_, v___y_725_);
-v___x_727_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
-v___x_728_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
-v___x_729_ = 1;
-v___x_730_ = l_Lean_Expr_letE___override(v___x_727_, v___x_728_, v___x_726_, v_fst_715_, v___x_729_);
-if (v_isShared_719_ == 0)
-{
-lean_ctor_set(v___x_718_, 0, v___x_730_);
-v___x_732_ = v___x_718_;
-goto v_reusejp_731_;
+lean_object* v___x_776_; 
+v___x_776_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
+v___y_773_ = v___x_776_;
+goto v___jp_772_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_733_; 
-v_reuseFailAlloc_733_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_733_, 0, v___x_730_);
-lean_ctor_set(v_reuseFailAlloc_733_, 1, v_snd_716_);
-v___x_732_ = v_reuseFailAlloc_733_;
-goto v_reusejp_731_;
+lean_object* v___x_777_; 
+v___x_777_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
+v___y_773_ = v___x_777_;
+goto v___jp_772_;
 }
-v_reusejp_731_:
+v___jp_751_:
 {
-return v___x_732_;
-}
-}
-v___jp_734_:
+lean_object* v___x_755_; lean_object* v___x_756_; lean_object* v___x_757_; uint8_t v___x_758_; lean_object* v___x_759_; lean_object* v___x_761_; 
+lean_inc_ref(v___y_752_);
+lean_inc_ref(v___y_753_);
+v___x_755_ = l_Lean_mkApp5(v___x_748_, v___x_749_, v___x_750_, v___y_753_, v___y_752_, v___y_754_);
+v___x_756_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
+v___x_757_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
+v___x_758_ = 1;
+v___x_759_ = l_Lean_Expr_letE___override(v___x_756_, v___x_757_, v___x_755_, v_fst_743_, v___x_758_);
+if (v_isShared_747_ == 0)
 {
-if (v_persistent_709_ == 0)
-{
-lean_object* v___x_736_; 
-v___x_736_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
-v___y_724_ = v___y_735_;
-v___y_725_ = v___x_736_;
-goto v___jp_723_;
+lean_ctor_set(v___x_746_, 0, v___x_759_);
+v___x_761_ = v___x_746_;
+goto v_reusejp_760_;
 }
 else
 {
-lean_object* v___x_737_; 
-v___x_737_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
-v___y_724_ = v___y_735_;
-v___y_725_ = v___x_737_;
-goto v___jp_723_;
+lean_object* v_reuseFailAlloc_762_; 
+v_reuseFailAlloc_762_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_762_, 0, v___x_759_);
+lean_ctor_set(v_reuseFailAlloc_762_, 1, v_snd_744_);
+v___x_761_ = v_reuseFailAlloc_762_;
+goto v_reusejp_760_;
+}
+v_reusejp_760_:
+{
+return v___x_761_;
+}
+}
+v___jp_763_:
+{
+lean_object* v___x_766_; 
+v___x_766_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__38, &l_Lean_Compiler_LCNF_Code_toExprM___closed__38_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__38);
+if (lean_obj_tag(v_objs_x3f_737_) == 0)
+{
+lean_object* v___x_767_; 
+v___x_767_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__44, &l_Lean_Compiler_LCNF_Code_toExprM___closed__44_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__44);
+v___y_752_ = v___y_765_;
+v___y_753_ = v___y_764_;
+v___y_754_ = v___x_767_;
+goto v___jp_751_;
+}
+else
+{
+lean_object* v_val_768_; lean_object* v___x_769_; lean_object* v___x_770_; lean_object* v___x_771_; 
+v_val_768_ = lean_ctor_get(v_objs_x3f_737_, 0);
+lean_inc(v_val_768_);
+lean_dec_ref_known(v_objs_x3f_737_, 1);
+v___x_769_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__47, &l_Lean_Compiler_LCNF_Code_toExprM___closed__47_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__47);
+v___x_770_ = l_Lean_mkNatLit(v_val_768_);
+v___x_771_ = l_Lean_mkAppB(v___x_769_, v___x_766_, v___x_770_);
+v___y_752_ = v___y_765_;
+v___y_753_ = v___y_764_;
+v___y_754_ = v___x_771_;
+goto v___jp_751_;
+}
+}
+v___jp_772_:
+{
+if (v_persistent_736_ == 0)
+{
+lean_object* v___x_774_; 
+v___x_774_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__29, &l_Lean_Compiler_LCNF_Code_toExprM___closed__29_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__29);
+v___y_764_ = v___y_773_;
+v___y_765_ = v___x_774_;
+goto v___jp_763_;
+}
+else
+{
+lean_object* v___x_775_; 
+v___x_775_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__32, &l_Lean_Compiler_LCNF_Code_toExprM___closed__32_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__32);
+v___y_764_ = v___y_773_;
+v___y_765_ = v___x_775_;
+goto v___jp_763_;
 }
 }
 }
 }
 case 13:
 {
-lean_object* v_fvarId_741_; lean_object* v_k_742_; lean_object* v___x_743_; lean_object* v___x_744_; lean_object* v___x_745_; lean_object* v___x_746_; lean_object* v_fst_747_; lean_object* v_snd_748_; lean_object* v___x_750_; uint8_t v_isShared_751_; uint8_t v_isSharedCheck_762_; 
-v_fvarId_741_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_n(v_fvarId_741_, 2);
-v_k_742_ = lean_ctor_get(v_code_491_, 1);
-lean_inc_ref(v_k_742_);
-lean_dec_ref(v_code_491_);
-lean_inc(v_a_492_);
-v___x_743_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_741_, v_a_492_, v_a_493_);
-v___x_744_ = lean_unsigned_to_nat(1u);
-v___x_745_ = lean_nat_add(v_a_492_, v___x_744_);
-v___x_746_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_742_, v___x_745_, v___x_743_);
-lean_dec(v___x_745_);
-v_fst_747_ = lean_ctor_get(v___x_746_, 0);
-v_snd_748_ = lean_ctor_get(v___x_746_, 1);
-v_isSharedCheck_762_ = !lean_is_exclusive(v___x_746_);
-if (v_isSharedCheck_762_ == 0)
+lean_object* v_fvarId_779_; lean_object* v_k_780_; lean_object* v___x_781_; lean_object* v___x_782_; lean_object* v___x_783_; lean_object* v___x_784_; lean_object* v_fst_785_; lean_object* v_snd_786_; lean_object* v___x_788_; uint8_t v_isShared_789_; uint8_t v_isSharedCheck_800_; 
+v_fvarId_779_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_n(v_fvarId_779_, 2);
+v_k_780_ = lean_ctor_get(v_code_518_, 1);
+lean_inc_ref(v_k_780_);
+lean_dec_ref_known(v_code_518_, 2);
+lean_inc(v_a_519_);
+v___x_781_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_779_, v_a_519_, v_a_520_);
+v___x_782_ = lean_unsigned_to_nat(1u);
+v___x_783_ = lean_nat_add(v_a_519_, v___x_782_);
+v___x_784_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_780_, v___x_783_, v___x_781_);
+lean_dec(v___x_783_);
+v_fst_785_ = lean_ctor_get(v___x_784_, 0);
+v_snd_786_ = lean_ctor_get(v___x_784_, 1);
+v_isSharedCheck_800_ = !lean_is_exclusive(v___x_784_);
+if (v_isSharedCheck_800_ == 0)
 {
-v___x_750_ = v___x_746_;
-v_isShared_751_ = v_isSharedCheck_762_;
-goto v_resetjp_749_;
+v___x_788_ = v___x_784_;
+v_isShared_789_ = v_isSharedCheck_800_;
+goto v_resetjp_787_;
 }
 else
 {
-lean_inc(v_snd_748_);
-lean_inc(v_fst_747_);
-lean_dec(v___x_746_);
-v___x_750_ = lean_box(0);
-v_isShared_751_ = v_isSharedCheck_762_;
-goto v_resetjp_749_;
+lean_inc(v_snd_786_);
+lean_inc(v_fst_785_);
+lean_dec(v___x_784_);
+v___x_788_ = lean_box(0);
+v_isShared_789_ = v_isSharedCheck_800_;
+goto v_resetjp_787_;
 }
-v_resetjp_749_:
+v_resetjp_787_:
 {
-lean_object* v___x_752_; lean_object* v___x_753_; lean_object* v___x_754_; lean_object* v___x_755_; lean_object* v___x_756_; uint8_t v___x_757_; lean_object* v___x_758_; lean_object* v___x_760_; 
-v___x_752_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__38, &l_Lean_Compiler_LCNF_Code_toExprM___closed__38_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__38);
-v___x_753_ = l_Lean_Expr_fvar___override(v_fvarId_741_);
-v___x_754_ = l_Lean_Expr_app___override(v___x_752_, v___x_753_);
-v___x_755_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
-v___x_756_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
-v___x_757_ = 1;
-v___x_758_ = l_Lean_Expr_letE___override(v___x_755_, v___x_756_, v___x_754_, v_fst_747_, v___x_757_);
-if (v_isShared_751_ == 0)
+lean_object* v___x_790_; lean_object* v___x_791_; lean_object* v___x_792_; lean_object* v___x_793_; lean_object* v___x_794_; uint8_t v___x_795_; lean_object* v___x_796_; lean_object* v___x_798_; 
+v___x_790_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__50, &l_Lean_Compiler_LCNF_Code_toExprM___closed__50_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__50);
+v___x_791_ = l_Lean_Expr_fvar___override(v_fvarId_779_);
+v___x_792_ = l_Lean_Expr_app___override(v___x_790_, v___x_791_);
+v___x_793_ = ((lean_object*)(l_Lean_Compiler_LCNF_Code_toExprM___closed__10));
+v___x_794_ = lean_obj_once(&l_Lean_Compiler_LCNF_Code_toExprM___closed__13, &l_Lean_Compiler_LCNF_Code_toExprM___closed__13_once, _init_l_Lean_Compiler_LCNF_Code_toExprM___closed__13);
+v___x_795_ = 1;
+v___x_796_ = l_Lean_Expr_letE___override(v___x_793_, v___x_794_, v___x_792_, v_fst_785_, v___x_795_);
+if (v_isShared_789_ == 0)
 {
-lean_ctor_set(v___x_750_, 0, v___x_758_);
-v___x_760_ = v___x_750_;
-goto v_reusejp_759_;
+lean_ctor_set(v___x_788_, 0, v___x_796_);
+v___x_798_ = v___x_788_;
+goto v_reusejp_797_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_761_; 
-v_reuseFailAlloc_761_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_761_, 0, v___x_758_);
-lean_ctor_set(v_reuseFailAlloc_761_, 1, v_snd_748_);
-v___x_760_ = v_reuseFailAlloc_761_;
-goto v_reusejp_759_;
+lean_object* v_reuseFailAlloc_799_; 
+v_reuseFailAlloc_799_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_799_, 0, v___x_796_);
+lean_ctor_set(v_reuseFailAlloc_799_, 1, v_snd_786_);
+v___x_798_ = v_reuseFailAlloc_799_;
+goto v_reusejp_797_;
 }
-v_reusejp_759_:
+v_reusejp_797_:
 {
-return v___x_760_;
+return v___x_798_;
 }
 }
 }
 default: 
 {
-lean_object* v_decl_763_; lean_object* v_k_764_; lean_object* v_fvarId_765_; lean_object* v_binderName_766_; lean_object* v_type_767_; lean_object* v___x_768_; lean_object* v___x_769_; lean_object* v_fst_770_; lean_object* v_snd_771_; lean_object* v___x_772_; lean_object* v___x_773_; lean_object* v___x_774_; lean_object* v___x_775_; lean_object* v_fst_776_; lean_object* v_snd_777_; lean_object* v___x_779_; uint8_t v_isShared_780_; uint8_t v_isSharedCheck_786_; 
-v_decl_763_ = lean_ctor_get(v_code_491_, 0);
-lean_inc_ref(v_decl_763_);
-v_k_764_ = lean_ctor_get(v_code_491_, 1);
-lean_inc_ref(v_k_764_);
-lean_dec_ref(v_code_491_);
-v_fvarId_765_ = lean_ctor_get(v_decl_763_, 0);
-lean_inc(v_fvarId_765_);
-v_binderName_766_ = lean_ctor_get(v_decl_763_, 1);
-lean_inc(v_binderName_766_);
-v_type_767_ = lean_ctor_get(v_decl_763_, 3);
-lean_inc_ref(v_type_767_);
-v___x_768_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_493_, v_a_492_, v_type_767_);
-v___x_769_ = l_Lean_Compiler_LCNF_FunDecl_toExprM(v_pu_490_, v_decl_763_, v_a_492_, v_a_493_);
-v_fst_770_ = lean_ctor_get(v___x_769_, 0);
-lean_inc(v_fst_770_);
-v_snd_771_ = lean_ctor_get(v___x_769_, 1);
-lean_inc(v_snd_771_);
-lean_dec_ref(v___x_769_);
-lean_inc(v_a_492_);
-v___x_772_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_765_, v_a_492_, v_snd_771_);
-v___x_773_ = lean_unsigned_to_nat(1u);
-v___x_774_ = lean_nat_add(v_a_492_, v___x_773_);
-v___x_775_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_490_, v_k_764_, v___x_774_, v___x_772_);
-lean_dec(v___x_774_);
-v_fst_776_ = lean_ctor_get(v___x_775_, 0);
-v_snd_777_ = lean_ctor_get(v___x_775_, 1);
-v_isSharedCheck_786_ = !lean_is_exclusive(v___x_775_);
-if (v_isSharedCheck_786_ == 0)
+lean_object* v_decl_801_; lean_object* v_k_802_; lean_object* v_fvarId_803_; lean_object* v_binderName_804_; lean_object* v_type_805_; lean_object* v___x_806_; lean_object* v___x_807_; lean_object* v_fst_808_; lean_object* v_snd_809_; lean_object* v___x_810_; lean_object* v___x_811_; lean_object* v___x_812_; lean_object* v___x_813_; lean_object* v_fst_814_; lean_object* v_snd_815_; lean_object* v___x_817_; uint8_t v_isShared_818_; uint8_t v_isSharedCheck_824_; 
+v_decl_801_ = lean_ctor_get(v_code_518_, 0);
+lean_inc_ref(v_decl_801_);
+v_k_802_ = lean_ctor_get(v_code_518_, 1);
+lean_inc_ref(v_k_802_);
+lean_dec_ref(v_code_518_);
+v_fvarId_803_ = lean_ctor_get(v_decl_801_, 0);
+lean_inc(v_fvarId_803_);
+v_binderName_804_ = lean_ctor_get(v_decl_801_, 1);
+lean_inc(v_binderName_804_);
+v_type_805_ = lean_ctor_get(v_decl_801_, 3);
+lean_inc_ref(v_type_805_);
+v___x_806_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(v_a_520_, v_a_519_, v_type_805_);
+v___x_807_ = l_Lean_Compiler_LCNF_FunDecl_toExprM(v_pu_517_, v_decl_801_, v_a_519_, v_a_520_);
+v_fst_808_ = lean_ctor_get(v___x_807_, 0);
+lean_inc(v_fst_808_);
+v_snd_809_ = lean_ctor_get(v___x_807_, 1);
+lean_inc(v_snd_809_);
+lean_dec_ref(v___x_807_);
+lean_inc(v_a_519_);
+v___x_810_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_803_, v_a_519_, v_snd_809_);
+v___x_811_ = lean_unsigned_to_nat(1u);
+v___x_812_ = lean_nat_add(v_a_519_, v___x_811_);
+v___x_813_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_517_, v_k_802_, v___x_812_, v___x_810_);
+lean_dec(v___x_812_);
+v_fst_814_ = lean_ctor_get(v___x_813_, 0);
+v_snd_815_ = lean_ctor_get(v___x_813_, 1);
+v_isSharedCheck_824_ = !lean_is_exclusive(v___x_813_);
+if (v_isSharedCheck_824_ == 0)
 {
-v___x_779_ = v___x_775_;
-v_isShared_780_ = v_isSharedCheck_786_;
-goto v_resetjp_778_;
+v___x_817_ = v___x_813_;
+v_isShared_818_ = v_isSharedCheck_824_;
+goto v_resetjp_816_;
 }
 else
 {
-lean_inc(v_snd_777_);
-lean_inc(v_fst_776_);
-lean_dec(v___x_775_);
-v___x_779_ = lean_box(0);
-v_isShared_780_ = v_isSharedCheck_786_;
-goto v_resetjp_778_;
+lean_inc(v_snd_815_);
+lean_inc(v_fst_814_);
+lean_dec(v___x_813_);
+v___x_817_ = lean_box(0);
+v_isShared_818_ = v_isSharedCheck_824_;
+goto v_resetjp_816_;
 }
-v_resetjp_778_:
+v_resetjp_816_:
 {
-uint8_t v___x_781_; lean_object* v___x_782_; lean_object* v___x_784_; 
-v___x_781_ = 1;
-v___x_782_ = l_Lean_Expr_letE___override(v_binderName_766_, v___x_768_, v_fst_770_, v_fst_776_, v___x_781_);
-if (v_isShared_780_ == 0)
+uint8_t v___x_819_; lean_object* v___x_820_; lean_object* v___x_822_; 
+v___x_819_ = 1;
+v___x_820_ = l_Lean_Expr_letE___override(v_binderName_804_, v___x_806_, v_fst_808_, v_fst_814_, v___x_819_);
+if (v_isShared_818_ == 0)
 {
-lean_ctor_set(v___x_779_, 0, v___x_782_);
-v___x_784_ = v___x_779_;
-goto v_reusejp_783_;
+lean_ctor_set(v___x_817_, 0, v___x_820_);
+v___x_822_ = v___x_817_;
+goto v_reusejp_821_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_785_; 
-v_reuseFailAlloc_785_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_785_, 0, v___x_782_);
-lean_ctor_set(v_reuseFailAlloc_785_, 1, v_snd_777_);
-v___x_784_ = v_reuseFailAlloc_785_;
-goto v_reusejp_783_;
+lean_object* v_reuseFailAlloc_823_; 
+v_reuseFailAlloc_823_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_823_, 0, v___x_820_);
+lean_ctor_set(v_reuseFailAlloc_823_, 1, v_snd_815_);
+v___x_822_ = v_reuseFailAlloc_823_;
+goto v_reusejp_821_;
 }
-v_reusejp_783_:
+v_reusejp_821_:
 {
-return v___x_784_;
-}
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(uint8_t v_pu_787_, lean_object* v_value_788_, lean_object* v_params_789_, lean_object* v_params_790_, lean_object* v_i_791_, lean_object* v_a_792_, lean_object* v_a_793_){
-_start:
-{
-lean_object* v___x_794_; uint8_t v___x_795_; 
-v___x_794_ = lean_array_get_size(v_params_790_);
-v___x_795_ = lean_nat_dec_lt(v_i_791_, v___x_794_);
-if (v___x_795_ == 0)
-{
-lean_object* v___x_796_; lean_object* v_fst_797_; lean_object* v_snd_798_; lean_object* v___x_800_; uint8_t v_isShared_801_; uint8_t v_isSharedCheck_807_; 
-lean_dec(v_i_791_);
-v___x_796_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_787_, v_value_788_, v_a_792_, v_a_793_);
-v_fst_797_ = lean_ctor_get(v___x_796_, 0);
-v_snd_798_ = lean_ctor_get(v___x_796_, 1);
-v_isSharedCheck_807_ = !lean_is_exclusive(v___x_796_);
-if (v_isSharedCheck_807_ == 0)
-{
-v___x_800_ = v___x_796_;
-v_isShared_801_ = v_isSharedCheck_807_;
-goto v_resetjp_799_;
-}
-else
-{
-lean_inc(v_snd_798_);
-lean_inc(v_fst_797_);
-lean_dec(v___x_796_);
-v___x_800_ = lean_box(0);
-v_isShared_801_ = v_isSharedCheck_807_;
-goto v_resetjp_799_;
-}
-v_resetjp_799_:
-{
-lean_object* v___x_802_; lean_object* v___x_803_; lean_object* v___x_805_; 
-v___x_802_ = lean_array_get_size(v_params_789_);
-v___x_803_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_mkLambdaM_go(v_pu_787_, v_params_789_, v_a_792_, v_snd_798_, v___x_802_, v_fst_797_);
-if (v_isShared_801_ == 0)
-{
-lean_ctor_set(v___x_800_, 0, v___x_803_);
-v___x_805_ = v___x_800_;
-goto v_reusejp_804_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_806_; 
-v_reuseFailAlloc_806_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_806_, 0, v___x_803_);
-lean_ctor_set(v_reuseFailAlloc_806_, 1, v_snd_798_);
-v___x_805_ = v_reuseFailAlloc_806_;
-goto v_reusejp_804_;
-}
-v_reusejp_804_:
-{
-return v___x_805_;
-}
-}
-}
-else
-{
-lean_object* v___x_808_; lean_object* v_fvarId_809_; lean_object* v___x_810_; lean_object* v___x_811_; lean_object* v___x_812_; lean_object* v___x_813_; 
-v___x_808_ = lean_array_fget_borrowed(v_params_790_, v_i_791_);
-v_fvarId_809_ = lean_ctor_get(v___x_808_, 0);
-v___x_810_ = lean_unsigned_to_nat(1u);
-v___x_811_ = lean_nat_add(v_i_791_, v___x_810_);
-lean_dec(v_i_791_);
-lean_inc(v_a_792_);
-lean_inc(v_fvarId_809_);
-v___x_812_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_809_, v_a_792_, v_a_793_);
-v___x_813_ = lean_nat_add(v_a_792_, v___x_810_);
-lean_dec(v_a_792_);
-v_i_791_ = v___x_811_;
-v_a_792_ = v___x_813_;
-v_a_793_ = v___x_812_;
-goto _start;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExprM(uint8_t v_pu_815_, lean_object* v_decl_816_, lean_object* v_a_817_, lean_object* v_a_818_){
-_start:
-{
-lean_object* v_params_819_; lean_object* v_value_820_; lean_object* v___x_821_; lean_object* v___x_822_; 
-v_params_819_ = lean_ctor_get(v_decl_816_, 2);
-lean_inc_ref(v_params_819_);
-v_value_820_ = lean_ctor_get(v_decl_816_, 4);
-lean_inc_ref(v_value_820_);
-lean_dec_ref(v_decl_816_);
-v___x_821_ = lean_unsigned_to_nat(0u);
-lean_inc(v_a_817_);
-v___x_822_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(v_pu_815_, v_value_820_, v_params_819_, v_params_819_, v___x_821_, v_a_817_, v_a_818_);
-lean_dec_ref(v_params_819_);
 return v___x_822_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExprM___boxed(lean_object* v_pu_823_, lean_object* v_decl_824_, lean_object* v_a_825_, lean_object* v_a_826_){
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(uint8_t v_pu_825_, lean_object* v_value_826_, lean_object* v_params_827_, lean_object* v_params_828_, lean_object* v_i_829_, lean_object* v_a_830_, lean_object* v_a_831_){
 _start:
 {
-uint8_t v_pu_boxed_827_; lean_object* v_res_828_; 
-v_pu_boxed_827_ = lean_unbox(v_pu_823_);
-v_res_828_ = l_Lean_Compiler_LCNF_FunDecl_toExprM(v_pu_boxed_827_, v_decl_824_, v_a_825_, v_a_826_);
-lean_dec(v_a_825_);
-return v_res_828_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg___boxed(lean_object* v_pu_829_, lean_object* v_value_830_, lean_object* v_params_831_, lean_object* v_params_832_, lean_object* v_i_833_, lean_object* v_a_834_, lean_object* v_a_835_){
-_start:
+lean_object* v___x_832_; uint8_t v___x_833_; 
+v___x_832_ = lean_array_get_size(v_params_828_);
+v___x_833_ = lean_nat_dec_lt(v_i_829_, v___x_832_);
+if (v___x_833_ == 0)
 {
-uint8_t v_pu_boxed_836_; lean_object* v_res_837_; 
-v_pu_boxed_836_ = lean_unbox(v_pu_829_);
-v_res_837_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(v_pu_boxed_836_, v_value_830_, v_params_831_, v_params_832_, v_i_833_, v_a_834_, v_a_835_);
-lean_dec_ref(v_params_832_);
-lean_dec_ref(v_params_831_);
-return v_res_837_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__3___boxed(lean_object* v_pu_838_, lean_object* v_sz_839_, lean_object* v_i_840_, lean_object* v_bs_841_, lean_object* v___y_842_, lean_object* v___y_843_){
-_start:
+lean_object* v___x_834_; lean_object* v_fst_835_; lean_object* v_snd_836_; lean_object* v___x_838_; uint8_t v_isShared_839_; uint8_t v_isSharedCheck_845_; 
+lean_dec(v_i_829_);
+v___x_834_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_825_, v_value_826_, v_a_830_, v_a_831_);
+v_fst_835_ = lean_ctor_get(v___x_834_, 0);
+v_snd_836_ = lean_ctor_get(v___x_834_, 1);
+v_isSharedCheck_845_ = !lean_is_exclusive(v___x_834_);
+if (v_isSharedCheck_845_ == 0)
 {
-uint8_t v_pu_boxed_844_; size_t v_sz_boxed_845_; size_t v_i_boxed_846_; lean_object* v_res_847_; 
-v_pu_boxed_844_ = lean_unbox(v_pu_838_);
-v_sz_boxed_845_ = lean_unbox_usize(v_sz_839_);
-lean_dec(v_sz_839_);
-v_i_boxed_846_ = lean_unbox_usize(v_i_840_);
-lean_dec(v_i_840_);
-v_res_847_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__3(v_pu_boxed_844_, v_sz_boxed_845_, v_i_boxed_846_, v_bs_841_, v___y_842_, v___y_843_);
-lean_dec(v___y_842_);
-return v_res_847_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExprM___boxed(lean_object* v_pu_848_, lean_object* v_code_849_, lean_object* v_a_850_, lean_object* v_a_851_){
-_start:
-{
-uint8_t v_pu_boxed_852_; lean_object* v_res_853_; 
-v_pu_boxed_852_ = lean_unbox(v_pu_848_);
-v_res_853_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_boxed_852_, v_code_849_, v_a_850_, v_a_851_);
-lean_dec(v_a_850_);
-return v_res_853_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(uint8_t v_pu_854_, lean_object* v_value_855_, lean_object* v_params_856_, uint8_t v_pu_857_, lean_object* v_params_858_, lean_object* v_i_859_, lean_object* v_a_860_, lean_object* v_a_861_){
-_start:
-{
-lean_object* v___x_862_; 
-lean_inc(v_a_860_);
-v___x_862_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(v_pu_854_, v_value_855_, v_params_856_, v_params_858_, v_i_859_, v_a_860_, v_a_861_);
-return v___x_862_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___boxed(lean_object* v_pu_863_, lean_object* v_value_864_, lean_object* v_params_865_, lean_object* v_pu_866_, lean_object* v_params_867_, lean_object* v_i_868_, lean_object* v_a_869_, lean_object* v_a_870_){
-_start:
-{
-uint8_t v_pu_boxed_871_; uint8_t v_pu_boxed_872_; lean_object* v_res_873_; 
-v_pu_boxed_871_ = lean_unbox(v_pu_863_);
-v_pu_boxed_872_ = lean_unbox(v_pu_866_);
-v_res_873_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(v_pu_boxed_871_, v_value_864_, v_params_865_, v_pu_boxed_872_, v_params_867_, v_i_868_, v_a_869_, v_a_870_);
-lean_dec(v_a_869_);
-lean_dec_ref(v_params_867_);
-lean_dec_ref(v_params_865_);
-return v_res_873_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2(uint8_t v_pu_874_, size_t v_sz_875_, size_t v_i_876_, lean_object* v_bs_877_, lean_object* v___y_878_, lean_object* v___y_879_){
-_start:
-{
-lean_object* v___x_880_; 
-v___x_880_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2___redArg(v_sz_875_, v_i_876_, v_bs_877_, v___y_878_, v___y_879_);
-return v___x_880_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2___boxed(lean_object* v_pu_881_, lean_object* v_sz_882_, lean_object* v_i_883_, lean_object* v_bs_884_, lean_object* v___y_885_, lean_object* v___y_886_){
-_start:
-{
-uint8_t v_pu_boxed_887_; size_t v_sz_boxed_888_; size_t v_i_boxed_889_; lean_object* v_res_890_; 
-v_pu_boxed_887_ = lean_unbox(v_pu_881_);
-v_sz_boxed_888_ = lean_unbox_usize(v_sz_882_);
-lean_dec(v_sz_882_);
-v_i_boxed_889_ = lean_unbox_usize(v_i_883_);
-lean_dec(v_i_883_);
-v_res_890_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2(v_pu_boxed_887_, v_sz_boxed_888_, v_i_boxed_889_, v_bs_884_, v___y_885_, v___y_886_);
-lean_dec(v___y_885_);
-return v_res_890_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(lean_object* v_as_891_, size_t v_i_892_, size_t v_stop_893_, lean_object* v_b_894_){
-_start:
-{
-lean_object* v___y_896_; uint8_t v___x_900_; 
-v___x_900_ = lean_usize_dec_eq(v_i_892_, v_stop_893_);
-if (v___x_900_ == 0)
-{
-lean_object* v___x_901_; 
-v___x_901_ = lean_array_uget_borrowed(v_as_891_, v_i_892_);
-if (lean_obj_tag(v_b_894_) == 0)
-{
-lean_object* v_size_902_; lean_object* v___x_903_; 
-v_size_902_ = lean_ctor_get(v_b_894_, 0);
-lean_inc(v_size_902_);
-lean_inc(v___x_901_);
-v___x_903_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v___x_901_, v_size_902_, v_b_894_);
-v___y_896_ = v___x_903_;
-goto v___jp_895_;
+v___x_838_ = v___x_834_;
+v_isShared_839_ = v_isSharedCheck_845_;
+goto v_resetjp_837_;
 }
 else
 {
-lean_object* v___x_904_; lean_object* v___x_905_; 
-v___x_904_ = lean_unsigned_to_nat(0u);
-lean_inc(v___x_901_);
-v___x_905_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v___x_901_, v___x_904_, v_b_894_);
-v___y_896_ = v___x_905_;
-goto v___jp_895_;
+lean_inc(v_snd_836_);
+lean_inc(v_fst_835_);
+lean_dec(v___x_834_);
+v___x_838_ = lean_box(0);
+v_isShared_839_ = v_isSharedCheck_845_;
+goto v_resetjp_837_;
+}
+v_resetjp_837_:
+{
+lean_object* v___x_840_; lean_object* v___x_841_; lean_object* v___x_843_; 
+v___x_840_ = lean_array_get_size(v_params_827_);
+v___x_841_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_mkLambdaM_go(v_pu_825_, v_params_827_, v_a_830_, v_snd_836_, v___x_840_, v_fst_835_);
+if (v_isShared_839_ == 0)
+{
+lean_ctor_set(v___x_838_, 0, v___x_841_);
+v___x_843_ = v___x_838_;
+goto v_reusejp_842_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_844_; 
+v_reuseFailAlloc_844_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_844_, 0, v___x_841_);
+lean_ctor_set(v_reuseFailAlloc_844_, 1, v_snd_836_);
+v___x_843_ = v_reuseFailAlloc_844_;
+goto v_reusejp_842_;
+}
+v_reusejp_842_:
+{
+return v___x_843_;
+}
 }
 }
 else
 {
-return v_b_894_;
-}
-v___jp_895_:
-{
-size_t v___x_897_; size_t v___x_898_; 
-v___x_897_ = ((size_t)1ULL);
-v___x_898_ = lean_usize_add(v_i_892_, v___x_897_);
-v_i_892_ = v___x_898_;
-v_b_894_ = v___y_896_;
+lean_object* v___x_846_; lean_object* v_fvarId_847_; lean_object* v___x_848_; lean_object* v___x_849_; lean_object* v___x_850_; lean_object* v___x_851_; 
+v___x_846_ = lean_array_fget_borrowed(v_params_828_, v_i_829_);
+v_fvarId_847_ = lean_ctor_get(v___x_846_, 0);
+v___x_848_ = lean_unsigned_to_nat(1u);
+v___x_849_ = lean_nat_add(v_i_829_, v___x_848_);
+lean_dec(v_i_829_);
+lean_inc(v_a_830_);
+lean_inc(v_fvarId_847_);
+v___x_850_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v_fvarId_847_, v_a_830_, v_a_831_);
+v___x_851_ = lean_nat_add(v_a_830_, v___x_848_);
+lean_dec(v_a_830_);
+v_i_829_ = v___x_849_;
+v_a_830_ = v___x_851_;
+v_a_831_ = v___x_850_;
 goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0___boxed(lean_object* v_as_906_, lean_object* v_i_907_, lean_object* v_stop_908_, lean_object* v_b_909_){
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExprM(uint8_t v_pu_853_, lean_object* v_decl_854_, lean_object* v_a_855_, lean_object* v_a_856_){
 _start:
 {
-size_t v_i_boxed_910_; size_t v_stop_boxed_911_; lean_object* v_res_912_; 
-v_i_boxed_910_ = lean_unbox_usize(v_i_907_);
-lean_dec(v_i_907_);
-v_stop_boxed_911_ = lean_unbox_usize(v_stop_908_);
-lean_dec(v_stop_908_);
-v_res_912_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_as_906_, v_i_boxed_910_, v_stop_boxed_911_, v_b_909_);
-lean_dec_ref(v_as_906_);
-return v_res_912_;
+lean_object* v_params_857_; lean_object* v_value_858_; lean_object* v___x_859_; lean_object* v___x_860_; 
+v_params_857_ = lean_ctor_get(v_decl_854_, 2);
+lean_inc_ref(v_params_857_);
+v_value_858_ = lean_ctor_get(v_decl_854_, 4);
+lean_inc_ref(v_value_858_);
+lean_dec_ref(v_decl_854_);
+v___x_859_ = lean_unsigned_to_nat(0u);
+lean_inc(v_a_855_);
+v___x_860_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(v_pu_853_, v_value_858_, v_params_857_, v_params_857_, v___x_859_, v_a_855_, v_a_856_);
+lean_dec_ref(v_params_857_);
+return v___x_860_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExpr(uint8_t v_pu_913_, lean_object* v_code_914_, lean_object* v_xs_915_){
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExprM___boxed(lean_object* v_pu_861_, lean_object* v_decl_862_, lean_object* v_a_863_, lean_object* v_a_864_){
 _start:
 {
-lean_object* v___x_916_; lean_object* v___x_917_; lean_object* v___x_918_; lean_object* v___y_920_; uint8_t v___x_923_; 
-v___x_916_ = lean_box(1);
-v___x_917_ = lean_unsigned_to_nat(0u);
-v___x_918_ = lean_array_get_size(v_xs_915_);
-v___x_923_ = lean_nat_dec_lt(v___x_917_, v___x_918_);
-if (v___x_923_ == 0)
-{
-v___y_920_ = v___x_916_;
-goto v___jp_919_;
-}
-else
-{
-uint8_t v___x_924_; 
-v___x_924_ = lean_nat_dec_le(v___x_918_, v___x_918_);
-if (v___x_924_ == 0)
-{
-if (v___x_923_ == 0)
-{
-v___y_920_ = v___x_916_;
-goto v___jp_919_;
-}
-else
-{
-size_t v___x_925_; size_t v___x_926_; lean_object* v___x_927_; 
-v___x_925_ = ((size_t)0ULL);
-v___x_926_ = lean_usize_of_nat(v___x_918_);
-v___x_927_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_915_, v___x_925_, v___x_926_, v___x_916_);
-v___y_920_ = v___x_927_;
-goto v___jp_919_;
+uint8_t v_pu_boxed_865_; lean_object* v_res_866_; 
+v_pu_boxed_865_ = lean_unbox(v_pu_861_);
+v_res_866_ = l_Lean_Compiler_LCNF_FunDecl_toExprM(v_pu_boxed_865_, v_decl_862_, v_a_863_, v_a_864_);
+lean_dec(v_a_863_);
+return v_res_866_;
 }
 }
-else
-{
-size_t v___x_928_; size_t v___x_929_; lean_object* v___x_930_; 
-v___x_928_ = ((size_t)0ULL);
-v___x_929_ = lean_usize_of_nat(v___x_918_);
-v___x_930_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_915_, v___x_928_, v___x_929_, v___x_916_);
-v___y_920_ = v___x_930_;
-goto v___jp_919_;
-}
-}
-v___jp_919_:
-{
-lean_object* v___x_921_; lean_object* v_fst_922_; 
-v___x_921_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_913_, v_code_914_, v___x_918_, v___y_920_);
-v_fst_922_ = lean_ctor_get(v___x_921_, 0);
-lean_inc(v_fst_922_);
-lean_dec_ref(v___x_921_);
-return v_fst_922_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExpr___boxed(lean_object* v_pu_931_, lean_object* v_code_932_, lean_object* v_xs_933_){
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg___boxed(lean_object* v_pu_867_, lean_object* v_value_868_, lean_object* v_params_869_, lean_object* v_params_870_, lean_object* v_i_871_, lean_object* v_a_872_, lean_object* v_a_873_){
 _start:
 {
-uint8_t v_pu_boxed_934_; lean_object* v_res_935_; 
-v_pu_boxed_934_ = lean_unbox(v_pu_931_);
-v_res_935_ = l_Lean_Compiler_LCNF_Code_toExpr(v_pu_boxed_934_, v_code_932_, v_xs_933_);
-lean_dec_ref(v_xs_933_);
-return v_res_935_;
+uint8_t v_pu_boxed_874_; lean_object* v_res_875_; 
+v_pu_boxed_874_ = lean_unbox(v_pu_867_);
+v_res_875_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(v_pu_boxed_874_, v_value_868_, v_params_869_, v_params_870_, v_i_871_, v_a_872_, v_a_873_);
+lean_dec_ref(v_params_870_);
+lean_dec_ref(v_params_869_);
+return v_res_875_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExpr(uint8_t v_pu_936_, lean_object* v_decl_937_, lean_object* v_xs_938_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__3___boxed(lean_object* v_pu_876_, lean_object* v_sz_877_, lean_object* v_i_878_, lean_object* v_bs_879_, lean_object* v___y_880_, lean_object* v___y_881_){
 _start:
 {
-lean_object* v___x_939_; lean_object* v___x_940_; lean_object* v___x_941_; lean_object* v___y_943_; uint8_t v___x_946_; 
-v___x_939_ = lean_box(1);
-v___x_940_ = lean_unsigned_to_nat(0u);
-v___x_941_ = lean_array_get_size(v_xs_938_);
-v___x_946_ = lean_nat_dec_lt(v___x_940_, v___x_941_);
-if (v___x_946_ == 0)
-{
-v___y_943_ = v___x_939_;
-goto v___jp_942_;
-}
-else
-{
-uint8_t v___x_947_; 
-v___x_947_ = lean_nat_dec_le(v___x_941_, v___x_941_);
-if (v___x_947_ == 0)
-{
-if (v___x_946_ == 0)
-{
-v___y_943_ = v___x_939_;
-goto v___jp_942_;
-}
-else
-{
-size_t v___x_948_; size_t v___x_949_; lean_object* v___x_950_; 
-v___x_948_ = ((size_t)0ULL);
-v___x_949_ = lean_usize_of_nat(v___x_941_);
-v___x_950_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_938_, v___x_948_, v___x_949_, v___x_939_);
-v___y_943_ = v___x_950_;
-goto v___jp_942_;
+uint8_t v_pu_boxed_882_; size_t v_sz_boxed_883_; size_t v_i_boxed_884_; lean_object* v_res_885_; 
+v_pu_boxed_882_ = lean_unbox(v_pu_876_);
+v_sz_boxed_883_ = lean_unbox_usize(v_sz_877_);
+lean_dec(v_sz_877_);
+v_i_boxed_884_ = lean_unbox_usize(v_i_878_);
+lean_dec(v_i_878_);
+v_res_885_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__3(v_pu_boxed_882_, v_sz_boxed_883_, v_i_boxed_884_, v_bs_879_, v___y_880_, v___y_881_);
+lean_dec(v___y_880_);
+return v_res_885_;
 }
 }
-else
-{
-size_t v___x_951_; size_t v___x_952_; lean_object* v___x_953_; 
-v___x_951_ = ((size_t)0ULL);
-v___x_952_ = lean_usize_of_nat(v___x_941_);
-v___x_953_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_938_, v___x_951_, v___x_952_, v___x_939_);
-v___y_943_ = v___x_953_;
-goto v___jp_942_;
-}
-}
-v___jp_942_:
-{
-lean_object* v___x_944_; lean_object* v_fst_945_; 
-v___x_944_ = l_Lean_Compiler_LCNF_FunDecl_toExprM(v_pu_936_, v_decl_937_, v___x_941_, v___y_943_);
-v_fst_945_ = lean_ctor_get(v___x_944_, 0);
-lean_inc(v_fst_945_);
-lean_dec_ref(v___x_944_);
-return v_fst_945_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExpr___boxed(lean_object* v_pu_954_, lean_object* v_decl_955_, lean_object* v_xs_956_){
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExprM___boxed(lean_object* v_pu_886_, lean_object* v_code_887_, lean_object* v_a_888_, lean_object* v_a_889_){
 _start:
 {
-uint8_t v_pu_boxed_957_; lean_object* v_res_958_; 
-v_pu_boxed_957_ = lean_unbox(v_pu_954_);
-v_res_958_ = l_Lean_Compiler_LCNF_FunDecl_toExpr(v_pu_boxed_957_, v_decl_955_, v_xs_956_);
-lean_dec_ref(v_xs_956_);
-return v_res_958_;
+uint8_t v_pu_boxed_890_; lean_object* v_res_891_; 
+v_pu_boxed_890_ = lean_unbox(v_pu_886_);
+v_res_891_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_boxed_890_, v_code_887_, v_a_888_, v_a_889_);
+lean_dec(v_a_888_);
+return v_res_891_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(uint8_t v_pu_892_, lean_object* v_value_893_, lean_object* v_params_894_, uint8_t v_pu_895_, lean_object* v_params_896_, lean_object* v_i_897_, lean_object* v_a_898_, lean_object* v_a_899_){
+_start:
+{
+lean_object* v___x_900_; 
+lean_inc(v_a_898_);
+v___x_900_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___redArg(v_pu_892_, v_value_893_, v_params_894_, v_params_896_, v_i_897_, v_a_898_, v_a_899_);
+return v___x_900_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0___boxed(lean_object* v_pu_901_, lean_object* v_value_902_, lean_object* v_params_903_, lean_object* v_pu_904_, lean_object* v_params_905_, lean_object* v_i_906_, lean_object* v_a_907_, lean_object* v_a_908_){
+_start:
+{
+uint8_t v_pu_boxed_909_; uint8_t v_pu_boxed_910_; lean_object* v_res_911_; 
+v_pu_boxed_909_ = lean_unbox(v_pu_901_);
+v_pu_boxed_910_ = lean_unbox(v_pu_904_);
+v_res_911_ = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___at___00Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(v_pu_boxed_909_, v_value_902_, v_params_903_, v_pu_boxed_910_, v_params_905_, v_i_906_, v_a_907_, v_a_908_);
+lean_dec(v_a_907_);
+lean_dec_ref(v_params_905_);
+lean_dec_ref(v_params_903_);
+return v_res_911_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2(uint8_t v_pu_912_, size_t v_sz_913_, size_t v_i_914_, lean_object* v_bs_915_, lean_object* v___y_916_, lean_object* v___y_917_){
+_start:
+{
+lean_object* v___x_918_; 
+v___x_918_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2___redArg(v_sz_913_, v_i_914_, v_bs_915_, v___y_916_, v___y_917_);
+return v___x_918_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2___boxed(lean_object* v_pu_919_, lean_object* v_sz_920_, lean_object* v_i_921_, lean_object* v_bs_922_, lean_object* v___y_923_, lean_object* v___y_924_){
+_start:
+{
+uint8_t v_pu_boxed_925_; size_t v_sz_boxed_926_; size_t v_i_boxed_927_; lean_object* v_res_928_; 
+v_pu_boxed_925_ = lean_unbox(v_pu_919_);
+v_sz_boxed_926_ = lean_unbox_usize(v_sz_920_);
+lean_dec(v_sz_920_);
+v_i_boxed_927_ = lean_unbox_usize(v_i_921_);
+lean_dec(v_i_921_);
+v_res_928_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Code_toExprM_spec__2(v_pu_boxed_925_, v_sz_boxed_926_, v_i_boxed_927_, v_bs_922_, v___y_923_, v___y_924_);
+lean_dec(v___y_923_);
+return v_res_928_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(lean_object* v_as_929_, size_t v_i_930_, size_t v_stop_931_, lean_object* v_b_932_){
+_start:
+{
+lean_object* v___y_934_; uint8_t v___x_938_; 
+v___x_938_ = lean_usize_dec_eq(v_i_930_, v_stop_931_);
+if (v___x_938_ == 0)
+{
+lean_object* v___x_939_; 
+v___x_939_ = lean_array_uget_borrowed(v_as_929_, v_i_930_);
+if (lean_obj_tag(v_b_932_) == 0)
+{
+lean_object* v_size_940_; lean_object* v___x_941_; 
+v_size_940_ = lean_ctor_get(v_b_932_, 0);
+lean_inc(v_size_940_);
+lean_inc(v___x_939_);
+v___x_941_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v___x_939_, v_size_940_, v_b_932_);
+v___y_934_ = v___x_941_;
+goto v___jp_933_;
+}
+else
+{
+lean_object* v___x_942_; lean_object* v___x_943_; 
+v___x_942_ = lean_unsigned_to_nat(0u);
+lean_inc(v___x_939_);
+v___x_943_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_instSingletonFVarIdFVarIdSet_spec__1___redArg(v___x_939_, v___x_942_, v_b_932_);
+v___y_934_ = v___x_943_;
+goto v___jp_933_;
+}
+}
+else
+{
+return v_b_932_;
+}
+v___jp_933_:
+{
+size_t v___x_935_; size_t v___x_936_; 
+v___x_935_ = ((size_t)1ULL);
+v___x_936_ = lean_usize_add(v_i_930_, v___x_935_);
+v_i_930_ = v___x_936_;
+v_b_932_ = v___y_934_;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0___boxed(lean_object* v_as_944_, lean_object* v_i_945_, lean_object* v_stop_946_, lean_object* v_b_947_){
+_start:
+{
+size_t v_i_boxed_948_; size_t v_stop_boxed_949_; lean_object* v_res_950_; 
+v_i_boxed_948_ = lean_unbox_usize(v_i_945_);
+lean_dec(v_i_945_);
+v_stop_boxed_949_ = lean_unbox_usize(v_stop_946_);
+lean_dec(v_stop_946_);
+v_res_950_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_as_944_, v_i_boxed_948_, v_stop_boxed_949_, v_b_947_);
+lean_dec_ref(v_as_944_);
+return v_res_950_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExpr(uint8_t v_pu_951_, lean_object* v_code_952_, lean_object* v_xs_953_){
+_start:
+{
+lean_object* v___x_954_; lean_object* v___x_955_; lean_object* v___x_956_; lean_object* v___y_958_; uint8_t v___x_961_; 
+v___x_954_ = lean_box(1);
+v___x_955_ = lean_unsigned_to_nat(0u);
+v___x_956_ = lean_array_get_size(v_xs_953_);
+v___x_961_ = lean_nat_dec_lt(v___x_955_, v___x_956_);
+if (v___x_961_ == 0)
+{
+v___y_958_ = v___x_954_;
+goto v___jp_957_;
+}
+else
+{
+uint8_t v___x_962_; 
+v___x_962_ = lean_nat_dec_le(v___x_956_, v___x_956_);
+if (v___x_962_ == 0)
+{
+if (v___x_961_ == 0)
+{
+v___y_958_ = v___x_954_;
+goto v___jp_957_;
+}
+else
+{
+size_t v___x_963_; size_t v___x_964_; lean_object* v___x_965_; 
+v___x_963_ = ((size_t)0ULL);
+v___x_964_ = lean_usize_of_nat(v___x_956_);
+v___x_965_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_953_, v___x_963_, v___x_964_, v___x_954_);
+v___y_958_ = v___x_965_;
+goto v___jp_957_;
+}
+}
+else
+{
+size_t v___x_966_; size_t v___x_967_; lean_object* v___x_968_; 
+v___x_966_ = ((size_t)0ULL);
+v___x_967_ = lean_usize_of_nat(v___x_956_);
+v___x_968_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_953_, v___x_966_, v___x_967_, v___x_954_);
+v___y_958_ = v___x_968_;
+goto v___jp_957_;
+}
+}
+v___jp_957_:
+{
+lean_object* v___x_959_; lean_object* v_fst_960_; 
+v___x_959_ = l_Lean_Compiler_LCNF_Code_toExprM(v_pu_951_, v_code_952_, v___x_956_, v___y_958_);
+v_fst_960_ = lean_ctor_get(v___x_959_, 0);
+lean_inc(v_fst_960_);
+lean_dec_ref(v___x_959_);
+return v_fst_960_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_toExpr___boxed(lean_object* v_pu_969_, lean_object* v_code_970_, lean_object* v_xs_971_){
+_start:
+{
+uint8_t v_pu_boxed_972_; lean_object* v_res_973_; 
+v_pu_boxed_972_ = lean_unbox(v_pu_969_);
+v_res_973_ = l_Lean_Compiler_LCNF_Code_toExpr(v_pu_boxed_972_, v_code_970_, v_xs_971_);
+lean_dec_ref(v_xs_971_);
+return v_res_973_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExpr(uint8_t v_pu_974_, lean_object* v_decl_975_, lean_object* v_xs_976_){
+_start:
+{
+lean_object* v___x_977_; lean_object* v___x_978_; lean_object* v___x_979_; lean_object* v___y_981_; uint8_t v___x_984_; 
+v___x_977_ = lean_box(1);
+v___x_978_ = lean_unsigned_to_nat(0u);
+v___x_979_ = lean_array_get_size(v_xs_976_);
+v___x_984_ = lean_nat_dec_lt(v___x_978_, v___x_979_);
+if (v___x_984_ == 0)
+{
+v___y_981_ = v___x_977_;
+goto v___jp_980_;
+}
+else
+{
+uint8_t v___x_985_; 
+v___x_985_ = lean_nat_dec_le(v___x_979_, v___x_979_);
+if (v___x_985_ == 0)
+{
+if (v___x_984_ == 0)
+{
+v___y_981_ = v___x_977_;
+goto v___jp_980_;
+}
+else
+{
+size_t v___x_986_; size_t v___x_987_; lean_object* v___x_988_; 
+v___x_986_ = ((size_t)0ULL);
+v___x_987_ = lean_usize_of_nat(v___x_979_);
+v___x_988_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_976_, v___x_986_, v___x_987_, v___x_977_);
+v___y_981_ = v___x_988_;
+goto v___jp_980_;
+}
+}
+else
+{
+size_t v___x_989_; size_t v___x_990_; lean_object* v___x_991_; 
+v___x_989_ = ((size_t)0ULL);
+v___x_990_ = lean_usize_of_nat(v___x_979_);
+v___x_991_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_Code_toExpr_spec__0(v_xs_976_, v___x_989_, v___x_990_, v___x_977_);
+v___y_981_ = v___x_991_;
+goto v___jp_980_;
+}
+}
+v___jp_980_:
+{
+lean_object* v___x_982_; lean_object* v_fst_983_; 
+v___x_982_ = l_Lean_Compiler_LCNF_FunDecl_toExprM(v_pu_974_, v_decl_975_, v___x_979_, v___y_981_);
+v_fst_983_ = lean_ctor_get(v___x_982_, 0);
+lean_inc(v_fst_983_);
+lean_dec_ref(v___x_982_);
+return v_fst_983_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExpr___boxed(lean_object* v_pu_992_, lean_object* v_decl_993_, lean_object* v_xs_994_){
+_start:
+{
+uint8_t v_pu_boxed_995_; lean_object* v_res_996_; 
+v_pu_boxed_995_ = lean_unbox(v_pu_992_);
+v_res_996_ = l_Lean_Compiler_LCNF_FunDecl_toExpr(v_pu_boxed_995_, v_decl_993_, v_xs_994_);
+lean_dec_ref(v_xs_994_);
+return v_res_996_;
 }
 }
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);

@@ -629,7 +629,7 @@ export Bool (cond_eq_if cond_eq_ite xor and or not)
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
-@[implicit_reducible]
+@[instance_reducible]
 def boolPredToPred : Coe (α → Bool) (α  → Prop) where
   coe r := fun a => Eq (r a) true
 
@@ -637,7 +637,7 @@ def boolPredToPred : Coe (α → Bool) (α  → Prop) where
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
-@[expose, implicit_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+@[expose, instance_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
   coe r := fun a b => Eq (r a b) true
 
 /-! ### subtypes -/

@@ -113,12 +113,20 @@ syntax (name := showGoals) "show_goals" : grind
 declare_syntax_cat grind_ref (behavior := both)
 
 syntax:max anchor : grind_ref
+/--
+Anchor with an ordinal disambiguator. Distinct case-split candidates may have the same anchor.
+For example, two candidates that differ only in inaccessible variables have identical anchors.
+`#a56e/2` refers to the second candidate (in the case-split candidate list) matching the anchor `#a56e`.
+-/
+syntax:max anchor noWs "/" noWs num : grind_ref
 syntax term : grind_ref
 
 /--
 Performs a case-split on a logical connective, `match`-expression, `if-then-else`-expression,
 or inductive predicate. The argument is an anchor referencing one of the case-split candidates
 in the `grind` state. You can use `cases?` to select a specific candidate using a code action.
+If multiple candidates match the anchor (e.g., they differ only in inaccessible variables),
+an ordinal reference such as `#a56e/2` selects the second matching candidate.
 -/
 syntax (name := cases) "cases " grind_ref : grind
 
@@ -318,8 +326,41 @@ Only available in `sym =>` mode.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 
+/--
+`dsimp` applies the definitional simplifier to the goal target.
+Only available in `sym =>` mode.
+
+- `dsimp` — uses the default (identity) variant
+- `dsimp myVariant` — uses a named variant registered via `register_sym_dsimp`
+- `dsimp [id₁, id₂, ...]` — default variant with extra declarations to unfold
+- `dsimp myVariant [id₁, id₂, ...]` — named variant with extra declarations
+-/
+syntax (name := symDSimp) "dsimp" (ppSpace colGt ident)? (" [" ("*" <|> ident),* "]")? : grind
+
 /-- `exact e` closes the main goal if its target type matches that of `e`. -/
 macro "exact " e:term : grind => `(grind| tactic => exact $e:term)
 
+
+/--
+`cbv` performs simplification that closely mimics call-by-value evaluation.
+It reduces terms by unfolding definitions using their defining equations and
+applying matcher equations. The unfolding is propositional, so `cbv` also works
+with functions defined via well-founded recursion or partial fixpoints.
+
+`cbv` reduces the goal target using call-by-value evaluation. For equation goals
+(`lhs = rhs`), `cbv` automatically attempts `refl` after reduction to close the goal.
+
+Unlike the standalone `cbv` tactic, this variant does not support the `at` location
+syntax: in `sym =>` mode it only reduces the goal target.
+
+`cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
+
+The proofs produced by `cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
+
+This is a variant of `cbv` that only works in `sym =>` mode.
+-/
+syntax (name := symCbv) "cbv" : grind
 end Grind
 end Lean.Parser.Tactic

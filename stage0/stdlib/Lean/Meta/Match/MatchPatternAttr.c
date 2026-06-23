@@ -468,7 +468,7 @@ else
 lean_object* v_a_82_; lean_object* v___x_83_; lean_object* v___x_84_; lean_object* v___x_86_; uint8_t v_isShared_87_; uint8_t v_isSharedCheck_91_; 
 v_a_82_ = lean_ctor_get(v_r_64_, 0);
 lean_inc(v_a_82_);
-lean_dec_ref(v_r_64_);
+lean_dec_ref_known(v_r_64_, 1);
 v___x_83_ = lean_box(0);
 v___x_84_ = l_Lean_withExporting___at___00__private_Lean_Meta_Match_MatchPatternAttr_0__Lean_initFn_00___x40_Lean_Meta_Match_MatchPatternAttr_2067758803____hygCtx___hyg_2__spec__2___redArg___lam__0(v___y_42_, v_isExporting_46_, v___x_60_, v___x_83_);
 v_isSharedCheck_91_ = !lean_is_exclusive(v___x_84_);
@@ -775,7 +775,7 @@ lean_ctor_set(v___x_196_, 13, v_inheritedTraceOptions_194_);
 lean_ctor_set_uint8(v___x_196_, sizeof(void*)*14, v_diag_191_);
 lean_ctor_set_uint8(v___x_196_, sizeof(void*)*14 + 1, v_suppressElabErrors_193_);
 v___x_197_ = l_Lean_throwError___at___00__private_Lean_Meta_Match_MatchPatternAttr_0__Lean_initFn_00___x40_Lean_Meta_Match_MatchPatternAttr_2067758803____hygCtx___hyg_2__spec__1___redArg(v_msg_175_, v___x_196_, v___y_177_);
-lean_dec_ref(v___x_196_);
+lean_dec_ref_known(v___x_196_, 14);
 return v___x_197_;
 }
 }

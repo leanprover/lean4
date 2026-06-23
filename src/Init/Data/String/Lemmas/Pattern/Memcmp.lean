@@ -46,7 +46,7 @@ theorem memcmpStr_eq_true_iff {lhs rhs : String} {lstart rstart len : String.Pos
       match k with
       | 0 => simpa
       | k + 1 => exact h k (by omega)
-    | case2 p h₃ h₄ h₅ h => simpa using ⟨0, by rw [Pos.Raw.lt_iff] at h₃; omega, by simpa using h⟩
+    | case2 p h₃ h₄ h₅ h => simpa using ⟨0, by rw [Pos.Raw.lt_iff] at h₃; omega, by simpa using! h⟩
     | case3 p hp => simp [(by rw [Pos.Raw.lt_iff] at hp; omega : len.byteIdx = p.byteIdx)]
 
 theorem memcmpSlice_eq_true_iff {lhs rhs : Slice} {lstart rstart len : String.Pos.Raw} {h₁ h₂} :

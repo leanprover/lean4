@@ -1886,7 +1886,7 @@ grind_pattern size_ofList_le => (ofList l).size
 @[simp]
 theorem ofList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
     ofList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.isEmpty_ofList
 
 theorem ofList_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
@@ -2043,7 +2043,7 @@ grind_pattern size_ofList_le => (ofList l).size
 @[simp]
 theorem ofList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
     ofList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_ofList
 
 theorem ofList_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
@@ -2142,7 +2142,7 @@ theorem size_unitOfList_le [EquivBEq α] [LawfulHashable α]
 @[simp]
 theorem unitOfList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List α} :
     unitOfList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_unitOfList
 
 @[simp]
@@ -3117,7 +3117,7 @@ section Alter
 theorem alter_eq_empty_iff_erase_eq_empty [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     m.alter k f = ∅ ↔ m.erase k = ∅ ∧ f (m.get? k) = none := by
   cases m with | mk m
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DHashMap.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
@@ -3298,7 +3298,7 @@ variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}
 theorem alter_eq_empty_iff_erase_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
     alter m k f = ∅ ↔ m.erase k = ∅ ∧ f (get? m k) = none := by
   cases m with | mk m
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]

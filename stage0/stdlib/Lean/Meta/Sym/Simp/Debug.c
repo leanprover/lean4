@@ -73,7 +73,7 @@ if (lean_obj_tag(v___x_13_) == 0)
 lean_object* v_a_14_; lean_object* v___x_15_; size_t v___x_16_; size_t v___x_17_; 
 v_a_14_ = lean_ctor_get(v___x_13_, 0);
 lean_inc(v_a_14_);
-lean_dec_ref(v___x_13_);
+lean_dec_ref_known(v___x_13_, 1);
 v___x_15_ = l_Lean_Meta_Sym_Simp_Theorems_insert(v_b_4_, v_a_14_);
 v___x_16_ = ((size_t)1ULL);
 v___x_17_ = lean_usize_add(v_i_3_, v___x_16_);
@@ -417,14 +417,14 @@ if (lean_obj_tag(v___x_152_) == 0)
 lean_object* v_a_153_; lean_object* v___x_154_; 
 v_a_153_ = lean_ctor_get(v___x_152_, 0);
 lean_inc(v_a_153_);
-lean_dec_ref(v___x_152_);
+lean_dec_ref_known(v___x_152_, 1);
 v___x_154_ = l_Lean_Meta_Sym_preprocessMVar(v_mvarId_144_, v___y_145_, v___y_146_, v___y_147_, v___y_148_, v___y_149_, v___y_150_);
 if (lean_obj_tag(v___x_154_) == 0)
 {
 lean_object* v_a_155_; lean_object* v___x_156_; lean_object* v___x_157_; 
 v_a_155_ = lean_ctor_get(v___x_154_, 0);
 lean_inc(v_a_155_);
-lean_dec_ref(v___x_154_);
+lean_dec_ref_known(v___x_154_, 1);
 v___x_156_ = ((lean_object*)(l_Lean_Meta_Sym_simpGoalUsing___lam__0___closed__0));
 v___x_157_ = l_Lean_Meta_Sym_simpGoal(v_a_155_, v_a_153_, v___x_156_, v___y_145_, v___y_146_, v___y_147_, v___y_148_, v___y_149_, v___y_150_);
 if (lean_obj_tag(v___x_157_) == 0)
@@ -432,7 +432,7 @@ if (lean_obj_tag(v___x_157_) == 0)
 lean_object* v_a_158_; lean_object* v___x_159_; 
 v_a_158_ = lean_ctor_get(v___x_157_, 0);
 lean_inc(v_a_158_);
-lean_dec_ref(v___x_157_);
+lean_dec_ref_known(v___x_157_, 1);
 v___x_159_ = l_Lean_Meta_Sym_SimpGoalResult_toOption(v_a_158_, v___y_149_, v___y_150_);
 return v___x_159_;
 }

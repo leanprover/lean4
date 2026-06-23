@@ -112,7 +112,7 @@ error: expected `aS` to be a type class instance, but its type `S` does not look
 /--
 error: `indClass` is not a structure
 ---
-warning: Definition `instIndClass` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
+warning: Definition `instIndClass` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`
 -/
 #guard_msgs in @[method_specs] def instIndClass : indClass := .mk
 

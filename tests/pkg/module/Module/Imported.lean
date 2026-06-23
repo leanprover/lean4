@@ -71,7 +71,7 @@ error: failed to synthesize instance of type class
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
-warning: Definition `_private.Module.Imported.0.fX` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
+warning: Definition `_private.Module.Imported.0.fX` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`
 -/
 #guard_msgs in
 def fX : X := inferInstance

@@ -346,7 +346,7 @@ if (lean_obj_tag(v___x_100_) == 0)
 lean_object* v_a_101_; lean_object* v___x_102_; lean_object* v_bs_x27_103_; size_t v___x_104_; size_t v___x_105_; lean_object* v___x_106_; 
 v_a_101_ = lean_ctor_get(v___x_100_, 0);
 lean_inc(v_a_101_);
-lean_dec_ref(v___x_100_);
+lean_dec_ref_known(v___x_100_, 1);
 v___x_102_ = lean_unsigned_to_nat(0u);
 v_bs_x27_103_ = lean_array_uset(v_bs_92_, v_i_91_, v___x_102_);
 v___x_104_ = ((size_t)1ULL);
@@ -427,14 +427,14 @@ if (lean_obj_tag(v___x_137_) == 0)
 lean_object* v_a_138_; lean_object* v___x_139_; 
 v_a_138_ = lean_ctor_get(v___x_137_, 0);
 lean_inc(v_a_138_);
-lean_dec_ref(v___x_137_);
+lean_dec_ref_known(v___x_137_, 1);
 v___x_139_ = l_Lean_Elab_Tactic_Conv_getLhs___redArg(v___y_127_, v___y_130_, v___y_131_, v___y_132_, v___y_133_);
 if (lean_obj_tag(v___x_139_) == 0)
 {
 lean_object* v_a_140_; lean_object* v___x_141_; lean_object* v_a_142_; lean_object* v___f_143_; uint8_t v___x_144_; lean_object* v___x_145_; 
 v_a_140_ = lean_ctor_get(v___x_139_, 0);
 lean_inc(v_a_140_);
-lean_dec_ref(v___x_139_);
+lean_dec_ref_known(v___x_139_, 1);
 v___x_141_ = l_Lean_instantiateMVars___at___00Lean_Elab_Tactic_Conv_evalDelta_spec__1___redArg(v_a_140_, v___y_131_);
 v_a_142_ = lean_ctor_get(v___x_141_, 0);
 lean_inc(v_a_142_);
@@ -448,7 +448,7 @@ if (lean_obj_tag(v___x_145_) == 0)
 lean_object* v_a_146_; lean_object* v___x_147_; 
 v_a_146_ = lean_ctor_get(v___x_145_, 0);
 lean_inc(v_a_146_);
-lean_dec_ref(v___x_145_);
+lean_dec_ref_known(v___x_145_, 1);
 v___x_147_ = l_Lean_Elab_Tactic_Conv_changeLhs(v_a_146_, v___y_126_, v___y_127_, v___y_128_, v___y_129_, v___y_130_, v___y_131_, v___y_132_, v___y_133_);
 return v___x_147_;
 }

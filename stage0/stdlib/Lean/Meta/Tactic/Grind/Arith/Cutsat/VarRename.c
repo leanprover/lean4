@@ -162,7 +162,7 @@ else
 lean_object* v_val_50_; 
 v_val_50_ = lean_ctor_get(v___x_48_, 0);
 lean_inc(v_val_50_);
-lean_dec_ref(v___x_48_);
+lean_dec_ref_known(v___x_48_, 1);
 v___y_43_ = v_val_50_;
 goto v___jp_42_;
 }
@@ -286,7 +286,7 @@ else
 lean_object* v_val_81_; lean_object* v___x_83_; 
 v_val_81_ = lean_ctor_get(v___x_79_, 0);
 lean_inc(v_val_81_);
-lean_dec_ref(v___x_79_);
+lean_dec_ref_known(v___x_79_, 1);
 if (v_isShared_78_ == 0)
 {
 lean_ctor_set(v___x_77_, 0, v_val_81_);
@@ -556,7 +556,7 @@ _start:
 {
 if (lean_obj_tag(v_p_140_) == 0)
 {
-lean_dec_ref(v_p_140_);
+lean_dec_ref_known(v_p_140_, 1);
 return v_a_141_;
 }
 else
@@ -566,7 +566,7 @@ v_v_142_ = lean_ctor_get(v_p_140_, 1);
 lean_inc(v_v_142_);
 v_p_143_ = lean_ctor_get(v_p_140_, 2);
 lean_inc_ref(v_p_143_);
-lean_dec_ref(v_p_140_);
+lean_dec_ref_known(v_p_140_, 3);
 v___x_144_ = l_Lean_Meta_Grind_collectVar(v_v_142_, v_a_141_);
 v_p_140_ = v_p_143_;
 v_a_141_ = v___x_144_;
@@ -582,7 +582,7 @@ switch(lean_obj_tag(v_e_146_))
 {
 case 0:
 {
-lean_dec_ref(v_e_146_);
+lean_dec_ref_known(v_e_146_, 1);
 return v_a_147_;
 }
 case 1:
@@ -590,7 +590,7 @@ case 1:
 lean_object* v_i_154_; lean_object* v___x_155_; 
 v_i_154_ = lean_ctor_get(v_e_146_, 0);
 lean_inc(v_i_154_);
-lean_dec_ref(v_e_146_);
+lean_dec_ref_known(v_e_146_, 1);
 v___x_155_ = l_Lean_Meta_Grind_collectVar(v_i_154_, v_a_147_);
 return v___x_155_;
 }
@@ -599,7 +599,7 @@ case 4:
 lean_object* v_a_156_; 
 v_a_156_ = lean_ctor_get(v_e_146_, 0);
 lean_inc_ref(v_a_156_);
-lean_dec_ref(v_e_146_);
+lean_dec_ref_known(v_e_146_, 1);
 v_e_146_ = v_a_156_;
 goto _start;
 }
@@ -608,7 +608,7 @@ case 5:
 lean_object* v_a_158_; 
 v_a_158_ = lean_ctor_get(v_e_146_, 1);
 lean_inc_ref(v_a_158_);
-lean_dec_ref(v_e_146_);
+lean_dec_ref_known(v_e_146_, 2);
 v_e_146_ = v_a_158_;
 goto _start;
 }
@@ -617,7 +617,7 @@ case 6:
 lean_object* v_a_160_; 
 v_a_160_ = lean_ctor_get(v_e_146_, 0);
 lean_inc_ref(v_a_160_);
-lean_dec_ref(v_e_146_);
+lean_dec_ref_known(v_e_146_, 2);
 v_e_146_ = v_a_160_;
 goto _start;
 }

@@ -177,6 +177,8 @@ theorem ExceptConds.entails.refl {ps : PostShape} (x : ExceptConds ps) : x ⊢�
 
 theorem ExceptConds.entails.rfl {ps : PostShape} {x : ExceptConds ps} : x ⊢ₑ x := refl x
 
+theorem ExceptConds.entails.pure {x y : ExceptConds PostShape.pure} : x ⊢ₑ y := True.intro
+
 theorem ExceptConds.entails.trans {ps : PostShape} {x y z : ExceptConds ps} : (x ⊢ₑ y) → (y ⊢ₑ z) → x ⊢ₑ z := by
   induction ps
   case pure => intro _ _; trivial

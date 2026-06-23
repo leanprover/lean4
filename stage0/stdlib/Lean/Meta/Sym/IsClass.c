@@ -26,7 +26,7 @@ case 4:
 lean_object* v_declName_3_; uint8_t v___x_4_; 
 v_declName_3_ = lean_ctor_get(v_a_2_, 0);
 lean_inc_n(v_declName_3_, 2);
-lean_dec_ref(v_a_2_);
+lean_dec_ref_known(v_a_2_, 2);
 v___x_4_ = lean_is_class(v_env_1_, v_declName_3_);
 if (v___x_4_ == 0)
 {
@@ -48,7 +48,7 @@ case 5:
 lean_object* v_fn_7_; 
 v_fn_7_ = lean_ctor_get(v_a_2_, 0);
 lean_inc_ref(v_fn_7_);
-lean_dec_ref(v_a_2_);
+lean_dec_ref_known(v_a_2_, 2);
 v_a_2_ = v_fn_7_;
 goto _start;
 }
@@ -57,7 +57,7 @@ case 7:
 lean_object* v_body_9_; 
 v_body_9_ = lean_ctor_get(v_a_2_, 2);
 lean_inc_ref(v_body_9_);
-lean_dec_ref(v_a_2_);
+lean_dec_ref_known(v_a_2_, 3);
 v_a_2_ = v_body_9_;
 goto _start;
 }
@@ -66,7 +66,7 @@ case 8:
 lean_object* v_body_11_; 
 v_body_11_ = lean_ctor_get(v_a_2_, 3);
 lean_inc_ref(v_body_11_);
-lean_dec_ref(v_a_2_);
+lean_dec_ref_known(v_a_2_, 4);
 v_a_2_ = v_body_11_;
 goto _start;
 }
@@ -75,7 +75,7 @@ case 10:
 lean_object* v_expr_13_; 
 v_expr_13_ = lean_ctor_get(v_a_2_, 1);
 lean_inc_ref(v_expr_13_);
-lean_dec_ref(v_a_2_);
+lean_dec_ref_known(v_a_2_, 2);
 v_a_2_ = v_expr_13_;
 goto _start;
 }

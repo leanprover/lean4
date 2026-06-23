@@ -1,4 +1,4 @@
-rm -rf .lake/build
+rm -rf .lake
 
 # Build Main library — includes all test modules
 capture lake build Main

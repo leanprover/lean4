@@ -11,6 +11,8 @@ public import Init.Data.Nat.Linear
 public import Init.Data.Array.Basic
 import Init.WFTactics
 
+deprecated_module "`Lean.RBMap` is deprecated; use `Std.TreeMap` instead" (since := "2026-06-01")
+
 public section
 
 namespace Lean

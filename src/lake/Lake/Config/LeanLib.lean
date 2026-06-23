@@ -156,6 +156,20 @@ Enabled if either the library or the package enables it.
   self.config.allowImportAll || self.pkg.allowImportAll
 
 /--
+Whether modules of this library are designed for use with the module system.
+Enabled if either the library or the package enables it.
+-/
+@[inline] public def requiresModuleSystem (self : LeanLib) : Bool :=
+  self.config.requiresModuleSystem || self.pkg.requiresModuleSystem
+
+/--
+Whether modules of this library may be non-module-system files without warning.
+Enabled if either the library or the package enables it.
+-/
+@[inline] public def allowNonModules (self : LeanLib) : Bool :=
+  self.config.allowNonModules || self.pkg.allowNonModules
+
+/--
 The dynamic libraries to load for modules of this library.
 The targets of the package plus the targets of the library (in that order).
 -/

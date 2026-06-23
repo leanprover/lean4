@@ -462,7 +462,7 @@ case 1:
 lean_object* v_a_145_; lean_object* v___x_146_; 
 v_a_145_ = lean_ctor_get(v_x_137_, 0);
 lean_inc(v_a_145_);
-lean_dec_ref(v_x_137_);
+lean_dec_ref_known(v_x_137_, 1);
 v___x_146_ = l_Lean_CollectLevelParams_visitLevel(v_a_145_, v_a_138_);
 return v___x_146_;
 }
@@ -473,7 +473,7 @@ v_a_147_ = lean_ctor_get(v_x_137_, 0);
 lean_inc(v_a_147_);
 v_a_148_ = lean_ctor_get(v_x_137_, 1);
 lean_inc(v_a_148_);
-lean_dec_ref(v_x_137_);
+lean_dec_ref_known(v_x_137_, 2);
 v_u_140_ = v_a_147_;
 v_v_141_ = v_a_148_;
 v___y_142_ = v_a_138_;
@@ -486,7 +486,7 @@ v_a_149_ = lean_ctor_get(v_x_137_, 0);
 lean_inc(v_a_149_);
 v_a_150_ = lean_ctor_get(v_x_137_, 1);
 lean_inc(v_a_150_);
-lean_dec_ref(v_x_137_);
+lean_dec_ref_known(v_x_137_, 2);
 v_u_140_ = v_a_149_;
 v_v_141_ = v_a_150_;
 v___y_142_ = v_a_138_;
@@ -497,7 +497,7 @@ case 4:
 lean_object* v_a_151_; lean_object* v_visitedLevel_152_; lean_object* v_visitedExpr_153_; lean_object* v_params_154_; lean_object* v___x_156_; uint8_t v_isShared_157_; uint8_t v_isSharedCheck_162_; 
 v_a_151_ = lean_ctor_get(v_x_137_, 0);
 lean_inc(v_a_151_);
-lean_dec_ref(v_x_137_);
+lean_dec_ref_known(v_x_137_, 1);
 v_visitedLevel_152_ = lean_ctor_get(v_a_138_, 0);
 v_visitedExpr_153_ = lean_ctor_get(v_a_138_, 1);
 v_params_154_ = lean_ctor_get(v_a_138_, 2);
@@ -725,7 +725,7 @@ v_head_220_ = lean_ctor_get(v_x_219_, 0);
 lean_inc(v_head_220_);
 v_tail_221_ = lean_ctor_get(v_x_219_, 1);
 lean_inc(v_tail_221_);
-lean_dec_ref(v_x_219_);
+lean_dec_ref_known(v_x_219_, 2);
 v___x_222_ = l_Lean_CollectLevelParams_visitLevel(v_head_220_, v_x_218_);
 v_x_218_ = v___x_222_;
 v_x_219_ = v_tail_221_;
@@ -1067,7 +1067,7 @@ case 11:
 lean_object* v_struct_359_; lean_object* v___x_360_; 
 v_struct_359_ = lean_ctor_get(v_x_351_, 2);
 lean_inc_ref(v_struct_359_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 3);
 v___x_360_ = l_Lean_CollectLevelParams_visitExpr(v_struct_359_, v_a_352_);
 return v___x_360_;
 }
@@ -1078,7 +1078,7 @@ v_binderType_361_ = lean_ctor_get(v_x_351_, 1);
 lean_inc_ref(v_binderType_361_);
 v_body_362_ = lean_ctor_get(v_x_351_, 2);
 lean_inc_ref(v_body_362_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 3);
 v_d_354_ = v_binderType_361_;
 v_b_355_ = v_body_362_;
 v___y_356_ = v_a_352_;
@@ -1091,7 +1091,7 @@ v_binderType_363_ = lean_ctor_get(v_x_351_, 1);
 lean_inc_ref(v_binderType_363_);
 v_body_364_ = lean_ctor_get(v_x_351_, 2);
 lean_inc_ref(v_body_364_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 3);
 v_d_354_ = v_binderType_363_;
 v_b_355_ = v_body_364_;
 v___y_356_ = v_a_352_;
@@ -1106,7 +1106,7 @@ v_value_366_ = lean_ctor_get(v_x_351_, 2);
 lean_inc_ref(v_value_366_);
 v_body_367_ = lean_ctor_get(v_x_351_, 3);
 lean_inc_ref(v_body_367_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 4);
 v___x_368_ = l_Lean_CollectLevelParams_visitExpr(v_type_365_, v_a_352_);
 v___x_369_ = l_Lean_CollectLevelParams_visitExpr(v_value_366_, v___x_368_);
 v___x_370_ = l_Lean_CollectLevelParams_visitExpr(v_body_367_, v___x_369_);
@@ -1119,7 +1119,7 @@ v_fn_371_ = lean_ctor_get(v_x_351_, 0);
 lean_inc_ref(v_fn_371_);
 v_arg_372_ = lean_ctor_get(v_x_351_, 1);
 lean_inc_ref(v_arg_372_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 2);
 v___x_373_ = l_Lean_CollectLevelParams_visitExpr(v_fn_371_, v_a_352_);
 v___x_374_ = l_Lean_CollectLevelParams_visitExpr(v_arg_372_, v___x_373_);
 return v___x_374_;
@@ -1129,7 +1129,7 @@ case 10:
 lean_object* v_expr_375_; lean_object* v___x_376_; 
 v_expr_375_ = lean_ctor_get(v_x_351_, 1);
 lean_inc_ref(v_expr_375_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 2);
 v___x_376_ = l_Lean_CollectLevelParams_visitExpr(v_expr_375_, v_a_352_);
 return v___x_376_;
 }
@@ -1138,7 +1138,7 @@ case 4:
 lean_object* v_us_377_; lean_object* v___x_378_; 
 v_us_377_ = lean_ctor_get(v_x_351_, 1);
 lean_inc(v_us_377_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 2);
 v___x_378_ = l_List_foldl___at___00Lean_CollectLevelParams_visitLevels_spec__0(v_a_352_, v_us_377_);
 return v___x_378_;
 }
@@ -1147,7 +1147,7 @@ case 3:
 lean_object* v_u_379_; lean_object* v___x_380_; 
 v_u_379_ = lean_ctor_get(v_x_351_, 0);
 lean_inc(v_u_379_);
-lean_dec_ref(v_x_351_);
+lean_dec_ref_known(v_x_351_, 1);
 v___x_380_ = l_Lean_CollectLevelParams_visitLevel(v_u_379_, v_a_352_);
 return v___x_380_;
 }

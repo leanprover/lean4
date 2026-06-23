@@ -86,7 +86,7 @@ theorem get?_eq_dif {s : String} {p : s.Pos} : p.get? = if h : p = s.endPos then
   simp [← get?_toSlice, Slice.Pos.get?_eq_dif]
 
 theorem get?_eq_some_get {s : String} {p : s.Pos} (h : p ≠ s.endPos) : p.get? = some (p.get h) := by
-  simpa [← get?_toSlice] using Slice.Pos.get?_eq_some_get (by simpa)
+  simpa [← get?_toSlice] using! Slice.Pos.get?_eq_some_get (by simpa)
 
 @[simp]
 theorem get?_eq_none_iff {s : String} {p : s.Pos} : p.get? = none ↔ p = s.endPos := by

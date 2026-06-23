@@ -178,10 +178,10 @@ instance : ToInt.Div UInt8 (.uint 8) where
   toInt_div x y := by simp
 
 instance : ToInt.LE UInt8 (.uint 8) where
-  le_iff x y := by simpa using UInt8.le_iff_toBitVec_le
+  le_iff x y := by simpa using! UInt8.le_iff_toBitVec_le
 
 instance : ToInt.LT UInt8 (.uint 8) where
-  lt_iff x y := by simpa using UInt8.lt_iff_toBitVec_lt
+  lt_iff x y := by simpa using! UInt8.lt_iff_toBitVec_lt
 
 instance : ToInt UInt16 (.uint 16) where
   toInt x := (x.toNat : Int)
@@ -212,10 +212,10 @@ instance : ToInt.Div UInt16 (.uint 16) where
   toInt_div x y := by simp
 
 instance : ToInt.LE UInt16 (.uint 16) where
-  le_iff x y := by simpa using UInt16.le_iff_toBitVec_le
+  le_iff x y := by simpa using! UInt16.le_iff_toBitVec_le
 
 instance : ToInt.LT UInt16 (.uint 16) where
-  lt_iff x y := by simpa using UInt16.lt_iff_toBitVec_lt
+  lt_iff x y := by simpa using! UInt16.lt_iff_toBitVec_lt
 
 instance : ToInt UInt32 (.uint 32) where
   toInt x := (x.toNat : Int)
@@ -246,10 +246,10 @@ instance : ToInt.Div UInt32 (.uint 32) where
   toInt_div x y := by simp
 
 instance : ToInt.LE UInt32 (.uint 32) where
-  le_iff x y := by simpa using UInt32.le_iff_toBitVec_le
+  le_iff x y := by simpa using! UInt32.le_iff_toBitVec_le
 
 instance : ToInt.LT UInt32 (.uint 32) where
-  lt_iff x y := by simpa using UInt32.lt_iff_toBitVec_lt
+  lt_iff x y := by simpa using! UInt32.lt_iff_toBitVec_lt
 
 instance : ToInt UInt64 (.uint 64) where
   toInt x := (x.toNat : Int)
@@ -280,10 +280,10 @@ instance : ToInt.Div UInt64 (.uint 64) where
   toInt_div x y := by simp
 
 instance : ToInt.LE UInt64 (.uint 64) where
-  le_iff x y := by simpa using UInt64.le_iff_toBitVec_le
+  le_iff x y := by simpa using! UInt64.le_iff_toBitVec_le
 
 instance : ToInt.LT UInt64 (.uint 64) where
-  lt_iff x y := by simpa using UInt64.lt_iff_toBitVec_lt
+  lt_iff x y := by simpa using! UInt64.lt_iff_toBitVec_lt
 
 instance : ToInt USize (.uint System.Platform.numBits) where
   toInt x := (x.toNat : Int)
@@ -320,10 +320,10 @@ instance : ToInt.Div USize (.uint System.Platform.numBits) where
   toInt_div x y := by simp
 
 instance : ToInt.LE USize (.uint System.Platform.numBits) where
-  le_iff x y := by simpa using USize.le_iff_toBitVec_le
+  le_iff x y := by simpa using! USize.le_iff_toBitVec_le
 
 instance : ToInt.LT USize (.uint System.Platform.numBits) where
-  lt_iff x y := by simpa using USize.lt_iff_toBitVec_lt
+  lt_iff x y := by simpa using! USize.lt_iff_toBitVec_lt
 
 instance : ToInt Int8 (.sint 8) where
   toInt x := x.toInt

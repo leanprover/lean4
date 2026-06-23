@@ -116,7 +116,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
   simp
 
 @[simp, grind =] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
-    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using h) := by
+    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using! h) := by
   rcases xs with ⟨xs⟩
   simp
 
@@ -577,7 +577,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   suffices ∀ xs, List.foldl (fun ys a => ys ++ f a) (f a ++ xs) as =
       f a ++ List.foldl (fun ys a => ys ++ f a) xs as by
     erw [empty_append] -- Why doesn't this work via `simp`?
-    simpa using this #[]
+    simpa using! this #[]
   intro xs
   induction as generalizing xs <;> simp_all
 

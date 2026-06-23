@@ -2,12 +2,12 @@ module
 
 import Lean
 import all Lean.Elab.Idbg
-import Std.Internal.Async
+import Std.Async
 import Std.Net.Addr
 
 /-! ## Part 1: Expr JSON round-trip with hygienic names -/
 
-open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
+open Lean Lean.Idbg Std.Net Std.Async in
 #eval show IO Unit from do
   -- `_@` contains `@` which breaks the standard Name.toString/toName round-trip
   let hygName := Name.mkNum (.mkStr (.mkNum (.mkStr (.mkStr .anonymous "_@") "test") 42) "_hyg") 6
@@ -33,7 +33,7 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
 
 /-! ## Part 2: Manual TCP server/client round-trip with hand-built expression -/
 
-open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
+open Lean Lean.Idbg Std.Net Std.Async in
 #eval show IO Unit from do
   let siteId := "test-e2e"
   let env ← importModules #[{ module := `Init }] {} 0
@@ -119,7 +119,7 @@ client: receive the expression JSON, compile it, evaluate it, send result back.
 This is the actual end-to-end flow that happens between the editor and a running program.
 We do this TWICE to test reconnection (simulating the user editing the expression). -/
 
-open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
+open Lean Lean.Idbg Std.Net Std.Async in
 #eval show IO Unit from do
   let lean := (← IO.appDir) / "lean"
   let env ← importModules #[{ module := `Init }] {} 0
@@ -199,11 +199,11 @@ open Lean Lean.Idbg Std.Net Std.Internal.IO.Async in
     let _ ← child.wait
 
   -- Exchange 1: `idbg x + s.length`
-  -- idbg at byte 108 in this string
-  let code1 := "import Lean\nset_option backward.do.legacy false\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length\n"
-  doExchange env code1 108
+  -- idbg at byte 72 in this string
+  let code1 := "import Lean\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length\n"
+  doExchange env code1 72
 
   -- Exchange 2: `idbg x + s.length + 1` (the expression that triggered the mvar bug)
-  -- idbg at byte 108 in this string too
-  let code2 := "import Lean\nset_option backward.do.legacy false\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length + 1\n"
-  doExchange env code2 108
+  -- idbg at byte 72 in this string too
+  let code2 := "import Lean\ndef main : IO Unit := do\n  let x := 42\n  let s := \"hello\"\n  idbg x + s.length + 1\n"
+  doExchange env code2 72

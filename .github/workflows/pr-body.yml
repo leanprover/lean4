@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check PR body
         if: github.event_name == 'pull_request_target'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           # Safety note: this uses pull_request_target, so the workflow has elevated privileges.
           # The PR title and body are only used in regex tests (read-only string matching),

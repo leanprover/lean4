@@ -154,7 +154,9 @@ set_option linter.unusedVariables true
 
 #guard_msgs in
 /--
-warning: unused variable `n`
+warning: Variable name `n` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/
@@ -163,7 +165,9 @@ example (n : Nat) : True := trivial
 
 #guard_msgs in
 /--
-warning: unused variable `n`
+warning: Variable name `n` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/

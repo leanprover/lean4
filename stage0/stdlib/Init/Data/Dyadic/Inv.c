@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic.Inv
-// Imports: public import Init.Data.Dyadic.Basic import Init.Data.Rat.Lemmas
+// Imports: public import Init.Data.Dyadic.Basic import Init.Data.Int.Order import Init.Data.Rat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,10 +14,13 @@
 extern "C" {
 #endif
 lean_object* l_Dyadic_toRat(lean_object*);
-lean_object* l_Rat_inv(lean_object*);
+lean_object* l_Rat_div(lean_object*, lean_object*);
 lean_object* l_Rat_toDyadic(lean_object*, lean_object*);
+lean_object* l_Rat_inv(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_invAtPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_invAtPrec___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Dyadic_divAtPrec(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Dyadic_divAtPrec___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_invAtPrec(lean_object* v_x_1_, lean_object* v_prec_2_){
 _start:
 {
@@ -44,7 +47,37 @@ lean_dec(v_prec_7_);
 return v_res_8_;
 }
 }
+LEAN_EXPORT lean_object* l_Dyadic_divAtPrec(lean_object* v_a_9_, lean_object* v_b_10_, lean_object* v_prec_11_){
+_start:
+{
+if (lean_obj_tag(v_b_10_) == 0)
+{
+lean_dec(v_a_9_);
+return v_b_10_;
+}
+else
+{
+lean_object* v___x_12_; lean_object* v___x_13_; lean_object* v___x_14_; lean_object* v___x_15_; 
+v___x_12_ = l_Dyadic_toRat(v_a_9_);
+v___x_13_ = l_Dyadic_toRat(v_b_10_);
+v___x_14_ = l_Rat_div(v___x_12_, v___x_13_);
+lean_dec_ref(v___x_12_);
+v___x_15_ = l_Rat_toDyadic(v___x_14_, v_prec_11_);
+return v___x_15_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Dyadic_divAtPrec___boxed(lean_object* v_a_16_, lean_object* v_b_17_, lean_object* v_prec_18_){
+_start:
+{
+lean_object* v_res_19_; 
+v_res_19_ = l_Dyadic_divAtPrec(v_a_16_, v_b_17_, v_prec_18_);
+lean_dec(v_prec_18_);
+return v_res_19_;
+}
+}
 lean_object* runtime_initialize_Init_Data_Dyadic_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Rat_Lemmas(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Dyadic_Inv(uint8_t builtin) {
@@ -52,6 +85,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_Dyadic_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Rat_Lemmas(builtin);
@@ -67,6 +103,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic_Inv(uint8_t builtin) {
@@ -74,6 +111,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Dyadic_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Rat_Lemmas(builtin);

@@ -137,3 +137,9 @@ def foo (x : Nat) :=
 
 example : foo 0 = true := by
   sym_simp [foo.eq_def, foo.match_1.eq_1, eq_self]
+
+theorem exists_eq_True (a : α) : (∃ x, a = x) = True := by
+  simp
+
+example (b : Nat) : ∃ x, b = x := by
+  sym_simp [exists_eq_True]

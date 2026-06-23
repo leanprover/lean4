@@ -293,8 +293,10 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   artifacts into the build directory. This ensures the build results are available
   to external consumers who expect them in the build directory.
 
-  If `none` (the default), this will follow the workspace's `restoreAllArtifacts` configuration
-  (if set and this package is a dependency). If that is also unset, this will default to `false`.
+  If `none` (the default), this will fallback to (in order):
+  * The `LAKE_RESTORE_ARTIFACTS` environment variable (if set).
+  * The workspace root's `restoreAllArtifacts` configuration (if set and this package is a dependency).
+  * **Lake's default**: `false`.
   -/
   restoreAllArtifacts?, restoreAllArtifacts : Option Bool := none
 
@@ -320,6 +322,19 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   Defaults to `false`.
   -/
   allowImportAll : Bool := false
+
+  /--
+  Whether to run Lake's built-in linter on the package.
+
+  * `true` — Always run built-in lints. When a lint driver is also configured,
+    built-in lints run before the driver.
+  * `false` — Never run built-in lints by default. `lake check-lint` will exit
+    with a nonzero code if no lint driver is configured either.
+  * `none` (default) — Currently equivalent to `false`. In a future release, `none`
+    will run built-in lints when no lint driver is configured (i.e., act like `true`
+    as a fallback).
+  -/
+  builtinLint?, builtinLint : Option Bool := none
 
   /--
   Whether this package is expected to function only on a single toolchain

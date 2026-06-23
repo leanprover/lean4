@@ -10,6 +10,7 @@ public import Init.Data.Repr
 public import Init.Data.Char.Basic
 public import Init.Data.ToString.Basic
 public import Init.Data.String.Basic
+public import Init.Data.String.Length
 import Init.NotationExtra
 import all Init.Data.Repr
 import Init.Omega

@@ -124,7 +124,7 @@ v___x_25_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_25_, 0, v_lhs_5_);
 lean_ctor_set(v___x_25_, 1, v_curr_7_);
 v_res_26_ = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeftConst___redArg(v_w_3_, v_aig_4_, v___x_25_);
-lean_dec_ref(v___x_25_);
+lean_dec_ref_known(v___x_25_, 2);
 v_aig_27_ = lean_ctor_get(v_res_26_, 0);
 v_vec_28_ = lean_ctor_get(v_res_26_, 1);
 v_isSharedCheck_46_ = !lean_is_exclusive(v_res_26_);

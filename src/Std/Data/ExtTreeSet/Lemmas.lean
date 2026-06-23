@@ -157,11 +157,11 @@ theorem erase_empty [TransCmp cmp] {k : α} : (∅ : ExtTreeSet α cmp).erase k 
 @[simp, grind =]
 theorem erase_eq_empty_iff [TransCmp cmp] {k : α} :
     t.erase k = ∅ ↔ t = ∅ ∨ (t.size = 1 ∧ k ∈ t) := by
-  simpa only [ext_iff] using ExtTreeMap.erase_eq_empty_iff
+  simpa only [ext_iff] using! ExtTreeMap.erase_eq_empty_iff
 
 theorem eq_empty_iff_erase_eq_empty_and_not_mem [TransCmp cmp] (k : α) :
     t = ∅ ↔ t.erase k = ∅ ∧ ¬k ∈ t := by
-  simpa only [ext_iff] using ExtTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
+  simpa only [ext_iff] using! ExtTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
 
 theorem ne_empty_of_erase_ne_empty [TransCmp cmp] {k : α} (h : t.erase k ≠ ∅) : t ≠ ∅ := by
   simp_all
@@ -1015,7 +1015,7 @@ theorem isEmpty_insertMany_list [TransCmp cmp] {l : List α} :
 @[simp]
 theorem insertMany_list_eq_empty_iff [TransCmp cmp] {l : List α} :
     t.insertMany l = ∅ ↔ t = ∅ ∧ l = [] := by
-  simpa only [ext_iff] using ExtTreeMap.insertManyIfNewUnit_list_eq_empty_iff
+  simpa only [ext_iff] using! ExtTreeMap.insertManyIfNewUnit_list_eq_empty_iff
 
 theorem insertMany_list_eq_foldl [TransCmp cmp] {l : List α} :
     t.insertMany l = l.foldl (init := t) fun acc a => acc.insert a := by

@@ -304,7 +304,8 @@ public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
       | m =>
         let status ← getReducibilityStatus info.name
         if status == .reducible then return true
-        else if m == .instances && status == .implicitReducible then return true
+        else if status == .instanceReducible && (m == .instances || m == .implicit) then return true
+        else if status == .implicitReducible && m == .implicit then return true
         else return false
   ) x
 

@@ -476,6 +476,7 @@ end Mem
 
 @[simp] theorem Decidable.not_not [Decidable p] : ¬¬p ↔ p := ⟨of_not_not, not_not_intro⟩
 
+set_option linter.defProp false in
 /-- Excluded middle.  Added as alias for Decidable.em -/
 abbrev Decidable.or_not_self := em
 

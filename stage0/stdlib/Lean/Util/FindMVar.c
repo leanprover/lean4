@@ -30,7 +30,7 @@ case 11:
 lean_object* v_struct_10_; lean_object* v___x_11_; 
 v_struct_10_ = lean_ctor_get(v_x_2_, 2);
 lean_inc_ref(v_struct_10_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 3);
 v___x_11_ = l_Lean_FindMVar_visit(v_p_1_, v_struct_10_, v_a_3_);
 return v___x_11_;
 }
@@ -41,7 +41,7 @@ v_binderType_12_ = lean_ctor_get(v_x_2_, 1);
 lean_inc_ref(v_binderType_12_);
 v_body_13_ = lean_ctor_get(v_x_2_, 2);
 lean_inc_ref(v_body_13_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 3);
 v_d_5_ = v_binderType_12_;
 v_b_6_ = v_body_13_;
 v___y_7_ = v_a_3_;
@@ -54,7 +54,7 @@ v_binderType_14_ = lean_ctor_get(v_x_2_, 1);
 lean_inc_ref(v_binderType_14_);
 v_body_15_ = lean_ctor_get(v_x_2_, 2);
 lean_inc_ref(v_body_15_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 3);
 v_d_5_ = v_binderType_14_;
 v_b_6_ = v_body_15_;
 v___y_7_ = v_a_3_;
@@ -69,7 +69,7 @@ v_value_17_ = lean_ctor_get(v_x_2_, 2);
 lean_inc_ref(v_value_17_);
 v_body_18_ = lean_ctor_get(v_x_2_, 3);
 lean_inc_ref(v_body_18_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 4);
 lean_inc_ref_n(v_p_1_, 2);
 v___x_19_ = l_Lean_FindMVar_visit(v_p_1_, v_type_16_, v_a_3_);
 v___x_20_ = l_Lean_FindMVar_visit(v_p_1_, v_value_17_, v___x_19_);
@@ -85,7 +85,7 @@ v_fn_22_ = lean_ctor_get(v_x_2_, 0);
 lean_inc_ref(v_fn_22_);
 v_arg_23_ = lean_ctor_get(v_x_2_, 1);
 lean_inc_ref(v_arg_23_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 2);
 lean_inc_ref(v_p_1_);
 v___x_24_ = l_Lean_FindMVar_visit(v_p_1_, v_fn_22_, v_a_3_);
 v___x_25_ = l_Lean_FindMVar_visit(v_p_1_, v_arg_23_, v___x_24_);
@@ -97,7 +97,7 @@ case 10:
 lean_object* v_expr_26_; lean_object* v___x_27_; 
 v_expr_26_ = lean_ctor_get(v_x_2_, 1);
 lean_inc_ref(v_expr_26_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 2);
 v___x_27_ = l_Lean_FindMVar_visit(v_p_1_, v_expr_26_, v_a_3_);
 return v___x_27_;
 }
@@ -108,7 +108,7 @@ if (lean_obj_tag(v_a_3_) == 0)
 lean_object* v_mvarId_28_; lean_object* v___x_29_; uint8_t v___x_30_; 
 v_mvarId_28_ = lean_ctor_get(v_x_2_, 0);
 lean_inc_n(v_mvarId_28_, 2);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 1);
 v___x_29_ = lean_apply_1(v_p_1_, v_mvarId_28_);
 v___x_30_ = lean_unbox(v___x_29_);
 if (v___x_30_ == 0)
@@ -126,7 +126,7 @@ return v___x_31_;
 }
 else
 {
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 1);
 lean_dec_ref(v_p_1_);
 lean_inc_ref(v_a_3_);
 return v_a_3_;

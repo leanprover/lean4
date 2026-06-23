@@ -264,28 +264,6 @@ theorem String.toList_empty : "".toList = [] := by
 theorem String.data_empty : "".toList = [] :=
   toList_empty
 
-/--
-Returns the length of a string in Unicode code points.
-
-Examples:
-* `"".length = 0`
-* `"abc".length = 3`
-* `"L∃∀N".length = 4`
--/
-@[extern "lean_string_length", expose, tagged_return]
-def String.length (b : @& String) : Nat :=
-  b.toList.length
-
-@[simp]
-theorem String.Internal.size_toArray {b : String} : (String.Internal.toArray b).size = b.length :=
-  (rfl)
-
-@[simp]
-theorem String.length_toList {s : String} : s.toList.length = s.length := (rfl)
-
-@[deprecated String.length_toList (since := "2025-10-30")]
-theorem String.length_data {b : String} : b.toList.length = b.length := (rfl)
-
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
     utf8Decode?.go b i acc hi = (utf8Decode?.go (b.extract i b.size) 0 #[] (by simp)).map (acc ++ ·) := by
   fun_cases utf8Decode?.go b i acc hi with
@@ -436,14 +414,6 @@ theorem String.ofList_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l 
 theorem List.asString_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l = [] :=
   String.ofList_eq_empty_iff
 
-@[simp]
-theorem String.length_ofList {l : List Char} : (String.ofList l).length = l.length := by
-  rw [← String.length_toList, String.toList_ofList]
-
-@[deprecated String.length_ofList (since := "2025-10-30")]
-theorem List.length_asString {l : List Char} : (String.ofList l).length = l.length :=
-  String.length_ofList
-
 end
 
 namespace String
@@ -498,7 +468,7 @@ theorem Pos.Raw.IsValid.exists {s : String} {p : Pos.Raw} (h : p.IsValid s) :
   apply List.isPrefix_of_utf8Encode_append_eq_utf8Encode (s.toByteArray.extract p.byteIdx s.toByteArray.size)
   rw [← hl, ← hm₁, ← ByteArray.extract_eq_extract_append_extract _ (by simp),
     ByteArray.extract_zero_size]
-  simpa using h.le_rawEndPos
+  simpa using! h.le_rawEndPos
 
 theorem Pos.Raw.IsValid.isValidUTF8_extract_utf8ByteSize {s : String} {p : Pos.Raw} (h : p.IsValid s) :
     ByteArray.IsValidUTF8 (s.toByteArray.extract p.byteIdx s.utf8ByteSize) := by
@@ -531,7 +501,7 @@ theorem Pos.Raw.isValid_ofList {l : List Char} {p : Pos.Raw} :
   rw [isValid_iff_exists_append]
   refine ⟨?_, ?_⟩
   · rintro ⟨t₁, t₂, ht, rfl⟩
-    refine ⟨t₁.length, ?_⟩
+    refine ⟨t₁.toList.length, ?_⟩
     have := congrArg String.toList ht
     simp only [String.toList_ofList, String.toList_append] at this
     simp [this]
@@ -945,7 +915,7 @@ theorem Slice.toByteArray_str_eq {s : Slice} :
   · simp
   · simpa [Pos.Raw.le_iff] using s.endExclusive.isValid.le_rawEndPos
   · simp
-  · simpa [Pos.Raw.le_iff] using s.startInclusive_le_endExclusive
+  · simpa [Pos.Raw.le_iff] using! s.startInclusive_le_endExclusive
 
 theorem Pos.Raw.isValidForSlice_iff_isSome_utf8DecodeChar? {s : Slice} {p : Pos.Raw} :
     p.IsValidForSlice s ↔ p = s.rawEndPos ∨ (p < s.rawEndPos ∧ (s.str.toByteArray.utf8DecodeChar? (s.startInclusive.offset.byteIdx + p.byteIdx)).isSome) := by
@@ -1091,7 +1061,7 @@ def Slice.slice (s : Slice) (newStart newEnd : s.Pos)
   str := s.str
   startInclusive := newStart.str
   endExclusive := newEnd.str
-  startInclusive_le_endExclusive := by simpa [String.Pos.le_iff, Pos.Raw.le_iff] using h
+  startInclusive_le_endExclusive := by simpa [String.Pos.le_iff, Pos.Raw.le_iff] using! h
 
 @[deprecated Slice.slice (since := "2025-11-20")]
 def Slice.replaceStartEnd (s : Slice) (newStart newEnd : s.Pos) (h : newStart ≤ newEnd) : Slice :=
@@ -1882,7 +1852,7 @@ theorem Slice.Pos.prevAuxGo_le_self {s : Slice} {p : Nat} {h : p < s.utf8ByteSiz
     rw [prevAux.go]
     split
     · simp
-    · simpa using Nat.le_trans ih (by simp)
+    · simpa using! Nat.le_trans ih (by simp)
 where
   elim (P : String.Pos.Raw → Prop) {h : False} : P h.elim := h.elim
 
@@ -2819,7 +2789,7 @@ theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n :
 
 theorem Pos.le_nextn {s : String} {p : s.Pos} {n : Nat} :
     p ≤ p.nextn n := by
-  simpa [nextn, Pos.le_iff, ← offset_toSlice] using Slice.Pos.le_nextn
+  simpa [nextn, Pos.le_iff, ← offset_toSlice] using! Slice.Pos.le_nextn
 
 /--
 Returns the next position in a string after position `p`. If `p` is not a valid position or
@@ -3127,8 +3097,6 @@ namespace String
 theorem ext {s₁ s₂ : String} (h : s₁.toList = s₂.toList) : s₁ = s₂ :=
   toList_injective h
 
-@[simp] theorem length_empty : "".length = 0 := by simp [← length_toList, toList_empty]
-
 @[deprecated singleton_eq_ofList (since := "2025-10-30")]
 theorem singleton_eq {c : Char} : String.singleton c = ofList [c] :=
   singleton_eq_ofList
@@ -3141,25 +3109,12 @@ theorem data_singleton (c : Char) : (String.singleton c).toList = [c] :=
   toList_singleton c
 
 @[simp]
-theorem length_singleton {c : Char} : (String.singleton c).length = 1 := by
-  simp [← length_toList]
-
-@[simp]
 theorem toList_push (c : Char) : (String.push s c).toList = s.toList ++ [c] := by
   simp [← append_singleton]
 
 @[deprecated toList_push (since := "2025-10-30")]
 theorem data_push (c : Char) : (String.push s c).toList = s.toList ++ [c] :=
   toList_push c
-
-@[simp] theorem length_push (c : Char) : (String.push s c).length = s.length + 1 := by
-  simp [← length_toList]
-
-@[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
-  rw [pushn_eq_repeat_push]; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
-
-@[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
-  simp [← length_toList]
 
 theorem lt_iff {s t : String} : s < t ↔ s.toList < t.toList := .rfl
 
@@ -3211,11 +3166,3 @@ theorem bytes_inj {s t : String} : s.toByteArray = t.toByteArray ↔ s = t :=
   toByteArray_inj
 
 end String
-
-namespace Char
-
-@[deprecated String.length_singleton (since := "2026-02-12")]
-theorem length_toString (c : Char) : c.toString.length = 1 := by
-  simp
-
-end Char

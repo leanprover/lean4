@@ -72,7 +72,7 @@ lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_alter___redArg(lean_object*
 lean_object* l_Std_DHashMap_Raw_instForInSigmaOfMonad___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_eraseManyEntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_filter___redArg(lean_object*, lean_object*);
-lean_object* l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Raw_Internal_numBuckets___redArg(lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -289,7 +289,7 @@ static const lean_closure_object l_Std_HashMap_Raw_keys___redArg___closed__11_va
 static const lean_object* l_Std_HashMap_Raw_keys___redArg___closed__11 = (const lean_object*)&l_Std_HashMap_Raw_keys___redArg___closed__11_value;
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_keys___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_keys(lean_object*, lean_object*, lean_object*);
-static const lean_closure_object l_Std_HashMap_Raw_ofList___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0, .m_arity = 5, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_HashMap_Raw_keys___redArg___closed__9_value)} };
+static const lean_closure_object l_Std_HashMap_Raw_ofList___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0___boxed, .m_arity = 5, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_HashMap_Raw_keys___redArg___closed__9_value)} };
 static const lean_object* l_Std_HashMap_Raw_ofList___redArg___closed__0 = (const lean_object*)&l_Std_HashMap_Raw_ofList___redArg___closed__0_value;
 static const lean_closure_object l_Std_HashMap_Raw_ofList___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instForInOfForIn_x27___redArg___lam__1, .m_arity = 5, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_HashMap_Raw_ofList___redArg___closed__0_value)} };
 static const lean_object* l_Std_HashMap_Raw_ofList___redArg___closed__1 = (const lean_object*)&l_Std_HashMap_Raw_ofList___redArg___closed__1_value;
@@ -3879,7 +3879,7 @@ else
 lean_object* v_val_1546_; uint8_t v___x_1547_; 
 v_val_1546_ = lean_ctor_get(v_fst_1544_, 0);
 lean_inc(v_val_1546_);
-lean_dec_ref(v_fst_1544_);
+lean_dec_ref_known(v_fst_1544_, 1);
 v___x_1547_ = lean_unbox(v_val_1546_);
 lean_dec(v_val_1546_);
 return v___x_1547_;
@@ -3929,7 +3929,7 @@ else
 lean_object* v_val_1567_; uint8_t v___x_1568_; 
 v_val_1567_ = lean_ctor_get(v_fst_1565_, 0);
 lean_inc(v_val_1567_);
-lean_dec_ref(v_fst_1565_);
+lean_dec_ref_known(v_fst_1565_, 1);
 v___x_1568_ = lean_unbox(v_val_1567_);
 lean_dec(v_val_1567_);
 return v___x_1568_;
@@ -4016,7 +4016,7 @@ else
 lean_object* v_val_1607_; uint8_t v___x_1608_; 
 v_val_1607_ = lean_ctor_get(v_fst_1605_, 0);
 lean_inc(v_val_1607_);
-lean_dec_ref(v_fst_1605_);
+lean_dec_ref_known(v_fst_1605_, 1);
 v___x_1608_ = lean_unbox(v_val_1607_);
 lean_dec(v_val_1607_);
 return v___x_1608_;
@@ -4066,7 +4066,7 @@ else
 lean_object* v_val_1628_; uint8_t v___x_1629_; 
 v_val_1628_ = lean_ctor_get(v_fst_1626_, 0);
 lean_inc(v_val_1628_);
-lean_dec_ref(v_fst_1626_);
+lean_dec_ref_known(v_fst_1626_, 1);
 v___x_1629_ = lean_unbox(v_val_1628_);
 lean_dec(v_val_1628_);
 return v___x_1629_;

@@ -411,10 +411,8 @@ private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
                     (value := originalCasesOn)
                     (hints := .opaque)
             -- We apply the attribute so that the `cases` tactic can pick it up
-            liftCommandElabM
-              <| liftTermElabM
-                <| Term.applyAttributes
-                    casesOnName #[{name := `cases_eliminator}, {name := `elab_as_elim}]
+            Term.TermElabM.run' <| Term.applyAttributes
+              casesOnName #[{name := `cases_eliminator}, {name := `elab_as_elim}]
 
 /--
   Main entry point for elaborating mutual coinductive predicates. This function is called after

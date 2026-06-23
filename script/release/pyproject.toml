@@ -1,0 +1,10 @@
+[project]
+name = "lean4-release-scripts"
+version = "0.0.0"
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.3.1",
+    "gitpython>=3.1.46",
+    "pygithub>=2.9.0",
+    "rich>=14.3.3",
+]

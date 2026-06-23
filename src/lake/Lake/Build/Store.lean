@@ -32,7 +32,7 @@ public  abbrev BuildStore :=
 namespace BuildStore
 
 set_option linter.deprecated false in
-private def getModuleFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
+def getModuleFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
     (k : BuildKey) (v : Job (BuildData k)) : Option (Name × Job α) :=
   match k with
   | .moduleFacet m f
@@ -67,7 +67,7 @@ public def collectModuleFacetMap
       res := res.insert m job
   return res
 
-private def getPackageFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
+def getPackageFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
     (k : BuildKey) (v : Job (BuildData k)) : Option (Job α) :=
   match k with
   | .packageFacet p f =>
@@ -88,7 +88,7 @@ public def collectPackageFacetArray
       res := res.push job
   return res
 
-private def getTargetFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
+def getTargetFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
     (k : BuildKey) (v : Job (BuildData k)) : Option (Job α) :=
   match k with
   | .targetFacet _ _ f =>

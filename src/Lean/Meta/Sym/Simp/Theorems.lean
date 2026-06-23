@@ -171,10 +171,12 @@ def mkSymSimpExt (name : Name := by exact decl_name%) : IO SymSimpExtension :=
     name     := name
     initial  := {}
     addEntry := fun thms thm => thms.insert thm
-    exportEntry? := fun lvl thm => do
-      let .const declName _ := thm.expr | return thm
-      guard (lvl == .private || !isPrivateName declName)
-      return thm
+    exportEntry? := fun _ thm =>
+      match thm.expr with
+      | .const declName _ =>
+        if isPrivateName declName then ⟨none, none, some thm⟩
+        else .uniform (some thm)
+      | _ => .uniform (some thm)
   }
 
 abbrev SymSimpExtensionMap := Std.HashMap Name SymSimpExtension

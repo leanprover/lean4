@@ -250,7 +250,7 @@ lean_dec(v_create_83_);
 lean_dec(v_toBind_82_);
 v_val_88_ = lean_ctor_get(v_____do__lift_86_, 0);
 lean_inc(v_val_88_);
-lean_dec_ref(v_____do__lift_86_);
+lean_dec_ref_known(v_____do__lift_86_, 1);
 v___x_89_ = lean_apply_2(v_toPure_85_, lean_box(0), v_val_88_);
 return v___x_89_;
 }

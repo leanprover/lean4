@@ -491,7 +491,7 @@ if (lean_obj_tag(v___x_162_) == 1)
 lean_object* v_val_163_; uint8_t v_kind_164_; 
 v_val_163_ = lean_ctor_get(v___x_162_, 0);
 lean_inc(v_val_163_);
-lean_dec_ref(v___x_162_);
+lean_dec_ref_known(v___x_162_, 1);
 v_kind_164_ = lean_ctor_get_uint8(v_val_163_, sizeof(void*)*3);
 if (v_kind_164_ == 6)
 {
@@ -578,7 +578,7 @@ lean_object* v_val_180_; lean_object* v___x_182_;
 lean_dec(v_constName_145_);
 v_val_180_ = lean_ctor_get(v_a_176_, 0);
 lean_inc(v_val_180_);
-lean_dec_ref(v_a_176_);
+lean_dec_ref_known(v_a_176_, 1);
 if (v_isShared_179_ == 0)
 {
 lean_ctor_set(v___x_178_, 0, v_val_180_);
@@ -695,7 +695,7 @@ if (lean_obj_tag(v___x_207_) == 0)
 lean_object* v_a_208_; lean_object* v___x_209_; 
 v_a_208_ = lean_ctor_get(v___x_207_, 0);
 lean_inc(v_a_208_);
-lean_dec_ref(v___x_207_);
+lean_dec_ref_known(v___x_207_, 1);
 v___x_209_ = l_Lean_getConstInfoCtor___at___00Lean_Meta_compatibleCtors_spec__0(v_ctorName_u2082_201_, v_a_202_, v_a_203_, v_a_204_, v_a_205_);
 if (lean_obj_tag(v___x_209_) == 0)
 {
@@ -771,7 +771,7 @@ if (lean_obj_tag(v___x_225_) == 0)
 lean_object* v_a_226_; lean_object* v_snd_227_; lean_object* v_snd_228_; lean_object* v_type_229_; lean_object* v___x_230_; 
 v_a_226_ = lean_ctor_get(v___x_225_, 0);
 lean_inc(v_a_226_);
-lean_dec_ref(v___x_225_);
+lean_dec_ref_known(v___x_225_, 1);
 v_snd_227_ = lean_ctor_get(v_a_226_, 1);
 lean_inc(v_snd_227_);
 lean_dec(v_a_226_);
@@ -787,7 +787,7 @@ if (lean_obj_tag(v___x_230_) == 0)
 lean_object* v_a_231_; lean_object* v_snd_232_; lean_object* v_snd_233_; lean_object* v___x_234_; 
 v_a_231_ = lean_ctor_get(v___x_230_, 0);
 lean_inc(v_a_231_);
-lean_dec_ref(v___x_230_);
+lean_dec_ref_known(v___x_230_, 1);
 v_snd_232_ = lean_ctor_get(v_a_231_, 1);
 lean_inc(v_snd_232_);
 lean_dec(v_a_231_);

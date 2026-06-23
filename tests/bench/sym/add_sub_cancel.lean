@@ -402,7 +402,7 @@ partial def solveReusingCache (mvarId : MVarId) : SymM Unit := do
   return
 
 def solveUsingCSym (n : Nat) (check := true) : MetaM Unit := do
-  driver n check fun mvarId => SymM.run do solveReusingCache mvarId |>.run' {}
+  driver n check fun mvarId => SymM.run do solveReusingCache mvarId |>.run {}
 
 def runBenchUsingCSym : MetaM Unit := do
   IO.println "=== Symbolic Simulation Tests ==="

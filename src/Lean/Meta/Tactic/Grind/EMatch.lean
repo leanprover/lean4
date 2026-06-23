@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Util.CollectLevelMVars
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
@@ -57,6 +58,11 @@ structure Choice where
   gen        : Nat
   /-- Partial assignment so far. Recall that pattern variables are encoded as de-Bruijn variables. -/
   assignment : Array Expr
+  /--
+  Helper field for implementing `grind.ematch.diagnostics`.
+  It stores the sources for an entry `{thm_1, ..., thm_n} => thm`
+  -/
+  sources : PHashSet EMatchDiagNode := {}
   deriving Inhabited
 
 /-- Context for the E-matching monad. -/
@@ -143,6 +149,15 @@ private def assignDelayedEqProof? (c : Choice) (bidx : Nat) : OptionT GoalM Choi
     -- `Choice` was not properly initialized
     unreachable!
 
+/--
+Save `e.ematchDiagSource` in `c` if it is not `.other`.
+This is used to implement `grind.ematch.diagnostics`.
+-/
+private def saveSource (c : Choice) (e : Expr) : GoalM Choice := do
+  unless (← isEmatchDiagEnabled) do return c
+  let some n ← getENode? e | return c
+  let .ematch o p := n.ematchDiagSource | return c
+  return { c with sources := c.sources.insert { origin := o, proof := p } }
 
 private def unassign (c : Choice) (bidx : Nat) : Choice :=
   { c with assignment := c.assignment.set! bidx unassigned }
@@ -191,7 +206,8 @@ private def matchGroundPattern (pArg eArg : Expr) : GoalM Bool := do
 private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM Choice := do
   if isPatternDontCare pArg then
     return c
-  else if pArg.isBVar then
+  let c ← saveSource c eArg
+  if pArg.isBVar then
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
     guard (← matchGroundPattern pArg eArg)
@@ -237,6 +253,7 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
   let pn := p.getAppNumArgs
   let en := e.getAppNumArgs
   guard (pn <= en)
+  let c ← saveSource c e
   if pn == en then
     matchArgs? c p e
   else
@@ -253,7 +270,16 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
 
 private def assignGenInfo? (genInfo? : Option GenPatternInfo) (c : Choice) (x : Expr) : OptionT GoalM Choice := do
   let some genInfo := genInfo? | return c
+  let c ← saveSource c x
   genInfo.assign? c x
+
+/--
+Return the maximum generation allowed for the current theorem.
+-/
+private def getMaxGeneration : M Nat := do
+  match (← read).thm.origin with
+  | .stx .. | .decl _ => return (← getConfig).gen
+  | _ => return (← getConfig).genLocal
 
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
@@ -340,10 +366,15 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
 /--
 Given a proposition `prop` corresponding to an equational theorem.
 Annotate the conditions using `Grind.MatchCond`. See `MatchCond.lean`.
+
+Only hypotheses that have the `match`-condition shape `∀ …, _ = _ → … → False` are
+annotated (see `isMatchCondCandidate`). Equational theorems may have other propositional
+hypotheses (e.g., the discriminant equalities of a `match` with proof discriminants),
+and the `MatchCond` propagators assume the annotated conditions have this shape.
 -/
 private partial def annotateEqnTypeConds (prop : Expr) (k : Expr → M Expr := pure) : M Expr := do
   if let .forallE n d b bi := prop then
-    let d := if (← isProp d) then
+    let d := if isMatchCondCandidate d then
       markAsPreMatchCond d
     else
       d
@@ -463,7 +494,8 @@ macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
 -/
-private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) (guards : List TheoremGuard) : M Unit := do
+private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat)
+    (guards : List TheoremGuard) (sources : PHashSet EMatchDiagNode) : M Unit := do
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
@@ -505,7 +537,7 @@ where
     **Note**: Restores grind transparency setting because with use `withDefault` at `instantiateTheorem`.
     -/
     withGTransparency do
-      addTheoremInstance thm proof prop (generation+1) guards
+      addTheoremInstance thm proof prop (generation+1) guards sources.toList
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
   let thm := (← read).thm
@@ -516,17 +548,41 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
         reportEMatchIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
         failure
 
-private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
+/--
+Constructs a proof of `lhs = rhs` (`lhs ≍ rhs` if `heq := true`) for a delayed
+generalized-pattern equality. `lhs` is a term from the goal and has already been
+internalized. `rhs` is the value the pattern was instantiated with; it is preprocessed,
+and the equality is established using the e-graph. The instantiation fails if `lhs` and
+`rhs` cannot be proved equal. `expectedType` is used for error messages only.
+
+**Note**: `rhs` is an auxiliary term, and it is internalized inside
+`withoutModifyingState`. The equality proof is also constructed there, before the state
+is restored. `rhs` may contain metavariables corresponding to theorem parameters that
+have not been assigned yet; they are abstracted at the end of `instantiateTheorem`. The
+e-graph must not retain terms containing such metavariables: they become dangling
+references when the `withNewMCtxDepth` at `instantiateTheorem` is exited. See issue
+#13773.
+-/
+private def mkGeneralizedPatternEqProof (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) (heq : Bool)
+    : OptionT (StateT Choice M) Expr := do
   assert! (← alreadyInternalized lhs)
   -- We use `dsimp` here to ensure terms such as `Nat.succ x` are normalized as `x+1`.
   let rhs ← preprocessLight (← dsimpCore rhs)
-  internalize rhs (← getGeneration lhs)
-  processNewFacts
-  if (← isEqv lhs rhs) then
-    return rhs
-  else
+  let some proof ← checkEqvToLhs? rhs |
     reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
     failure
+  return proof
+where
+  checkEqvToLhs? (rhs : Expr) : GoalM (Option Expr) := withoutModifyingState do
+    internalize rhs (← getGeneration lhs)
+    processNewFacts
+    if (← isEqv lhs rhs) then
+      if heq then
+        return some (← mkHEqProof lhs rhs)
+      else
+        return some (← mkEqProof lhs rhs)
+    else
+      return none
 
 private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (origin : Origin) : OptionT (StateT Choice M) Unit := do
   unless (← mvarId.checkedAssign eqProof) do
@@ -557,12 +613,12 @@ private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) :
   match_expr mvarIdType with
   | Eq α lhs rhs =>
     let lhs ← findOriginalGeneralizedPatternLhs lhs
-    let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
-    assignGeneralizedPatternProof mvarId (← mkEqProof lhs rhs) thm.origin
+    let h ← mkGeneralizedPatternEqProof lhs rhs thm.origin mvarIdType (heq := false)
+    assignGeneralizedPatternProof mvarId h thm.origin
   | HEq α lhs β rhs =>
     let lhs ← findOriginalGeneralizedPatternLhs lhs
-    let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
-    assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
+    let h ← mkGeneralizedPatternEqProof lhs rhs thm.origin mvarIdType (heq := true)
+    assignGeneralizedPatternProof mvarId h thm.origin
   | _ =>
     reportEMatchIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
     failure
@@ -797,13 +853,13 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     let guards ← collectGuards thm proof mvars
     let proof := mkAppN proof mvars
     if (← mvars.allM (·.mvarId!.isAssigned)) then
-      addNewInstance thm proof c.gen guards
+      addNewInstance thm proof c.gen guards c.sources
     else
       let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
       if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
         reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
       let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
-      addNewInstance thm proof c.gen guards
+      addNewInstance thm proof c.gen guards c.sources
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do
@@ -870,7 +926,7 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
 def instantiateGroundTheorem (thm : EMatchTheorem) : M Unit := do
   if (← markTheoremInstance thm.proof #[]) then
     let proof ← thm.getProofWithFreshMVarLevels
-    addNewInstance thm proof 0 []
+    addNewInstance thm proof 0 [] {}
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()

@@ -251,7 +251,7 @@ Examples:
  * {lean}`("coffee tea water".split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
  * {lean}`("coffee tea water".split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
- * {lean}`("ababababa".split "aba").toList == ["coffee".toSlice, "water".toSlice]`
+ * {lean}`("ababababa".split "aba").toList == ["".toSlice, "b".toSlice, "ba".toSlice]`
  * {lean}`("baaab".split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[inline]

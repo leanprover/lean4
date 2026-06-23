@@ -111,15 +111,17 @@ Combines date and time into a single representation, useful for precise timestam
 - **`PlainDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss,sssssssss`.
 - **`Timestamp`**: Represents a specific point in time with nanosecond precision. Its zero value corresponds
 to the UNIX epoch. This type should be used when sending or receiving timestamps between systems.
+- **`WallTime`**: Represents the local civil time shown by a clock in some timezone, stored as a `Duration`
+since `1970-01-01T00:00:00` in local time. Unlike `Timestamp`, it is not tied to UTC; converting between
+the two requires a timezone. It is convenient for performing arithmetic directly on local times without
+first resolving to an absolute instant.
 
 ## Zoned date and times.
 Combines date, time and time zones.
 
-- **`DateTime`**: Represents both date and time but with a time zone in the type constructor.
-- **`ZonedDateTime`**: Is a way to represent date and time that includes `ZoneRules`, which consider
-Daylight Saving Time (DST). This means it can handle local time changes throughout the year better
-than a regular `DateTime`. If you want to use a specific time zone without worrying about DST, you can
-use the `ofTimestampWithZone` function, which gives you a `ZonedDateTime` based only on that time zone,
+- **`DateTime`**: Is a way to represent date and time that includes `ZoneRules`, which consider
+Daylight Saving Time (DST). If you want to use a specific time zone without worrying about DST, you can
+use the `ofTimestampWithZone` function, which gives you a `DateTime` based only on that time zone,
 without considering the zone rules, otherwise you can use `ofTimestamp` or `ofTimestampWithIdentifier`.
 
 ## Duration
@@ -152,6 +154,11 @@ The supported formats include:
   - `uu`: Two-digit year format, showing the last two digits (e.g., "04" for 2004).
   - `uuuu`: Displays the year in a four-digit format (e.g., "2004" or "-1000").
   - `uuuu+`: Extended format for handling years with more than four digits (e.g., "12345" or "-12345"). Useful for historical dates far into the past or future!
+- `Y`: Represents the week-based year. This may differ from the calendar year near the start or end of the year — for example, December 29 might belong to week 1 of the following year. Typically used together with `w` (week of week-based year).
+  - `Y`: Represents the week-based year in its full form, without a fixed length (e.g., "1", "2025", or "12345678").
+  - `YY`: Two-digit week-based year, showing the last two digits (e.g., "04" for 2004).
+  - `YYYY`: Displays the week-based year in a four-digit format (e.g., "2004" or "-1000").
+  - `YYYY+`: Extended format for week-based years with more than four digits.
 - `D`: Represents the day of the year.
 - `M`: Represents the month of the year, displayed as either a number or text.
   - `M`, `MM`: Displays the month as a number, with `MM` zero-padded (e.g., "7" for July, "07" for July with padding).
@@ -234,8 +241,8 @@ The `.sssssssss` can be omitted in most cases.
 - **`offset("+HH:mm")`**: Represents a timezone offset in the format `+HH:mm`, where `+` or `-` indicates the direction from UTC.
 - **`timezone("NAME/ID ZZZ")`**: Specifies a timezone using a region-based name or ID, along with its associated offset.
 - **`datespec("FORMAT")`**: Defines a compile-time date format based on the provided string.
-- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssssZZZ")`**: Represents a `ZonedDateTime` with a fixed timezone and optional nanosecond precision.
-- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss[IDENTIFIER]")`**: Defines an `IO ZonedDateTime`, where the timezone identifier is dynamically retrieved from the default timezone database.
-- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss, timezone")`**: Represents an `IO ZonedDateTime`, using a specified `timezone` term and allowing optional nanoseconds.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssssZZZ")`**: Represents a `DateTime` with a fixed timezone and optional nanosecond precision.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss[IDENTIFIER]")`**: Defines an `IO DateTime`, where the timezone identifier is dynamically retrieved from the default timezone database.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss, timezone")`**: Represents an `IO DateTime`, using a specified `timezone` term and allowing optional nanoseconds.
 
 -/

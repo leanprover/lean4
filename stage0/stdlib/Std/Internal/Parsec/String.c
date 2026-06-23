@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.String
-// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.String.Slice public import Init.Data.String.Termination
+// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.String.Slice public import Init.Data.String.Termination import Init.Data.String.Length
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -159,7 +159,7 @@ lean_ctor_set(v___x_13_, 1, v___x_11_);
 lean_ctor_set(v___x_13_, 2, v___x_12_);
 v___x_14_ = l_String_Slice_Pos_next_x21(v___x_13_, v_snd_7_);
 lean_dec(v_snd_7_);
-lean_dec_ref(v___x_13_);
+lean_dec_ref_known(v___x_13_, 3);
 if (v_isShared_10_ == 0)
 {
 lean_ctor_set(v___x_9_, 1, v___x_14_);
@@ -196,7 +196,7 @@ lean_ctor_set(v___x_24_, 0, v_fst_20_);
 lean_ctor_set(v___x_24_, 1, v___x_22_);
 lean_ctor_set(v___x_24_, 2, v___x_23_);
 v___x_25_ = l_String_Slice_Pos_get_x21(v___x_24_, v_snd_21_);
-lean_dec_ref(v___x_24_);
+lean_dec_ref_known(v___x_24_, 3);
 return v___x_25_;
 }
 }
@@ -325,7 +325,7 @@ if (lean_obj_tag(v___x_81_) == 0)
 lean_object* v_res_82_; lean_object* v___x_83_; 
 v_res_82_ = lean_ctor_get(v___x_81_, 1);
 lean_inc(v_res_82_);
-lean_dec_ref(v___x_81_);
+lean_dec_ref_known(v___x_81_, 2);
 v___x_83_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_83_, 0, v_res_82_);
 return v___x_83_;
@@ -337,7 +337,7 @@ v_pos_84_ = lean_ctor_get(v___x_81_, 0);
 lean_inc(v_pos_84_);
 v_err_85_ = lean_ctor_get(v___x_81_, 1);
 lean_inc(v_err_85_);
-lean_dec_ref(v___x_81_);
+lean_dec_ref_known(v___x_81_, 2);
 v_snd_86_ = lean_ctor_get(v_pos_84_, 1);
 lean_inc(v_snd_86_);
 lean_dec(v_pos_84_);
@@ -363,7 +363,7 @@ else
 lean_object* v_s_100_; 
 v_s_100_ = lean_ctor_get(v_err_85_, 0);
 lean_inc_ref(v_s_100_);
-lean_dec_ref(v_err_85_);
+lean_dec_ref_known(v_err_85_, 1);
 v___y_96_ = v_s_100_;
 goto v___jp_95_;
 }
@@ -445,7 +445,7 @@ lean_ctor_set(v___x_125_, 0, v_fst_113_);
 lean_ctor_set(v___x_125_, 1, v___x_119_);
 lean_ctor_set(v___x_125_, 2, v___x_115_);
 v___x_126_ = l_String_Slice_Pos_nextn(v___x_125_, v_snd_114_, v___x_124_);
-lean_dec_ref(v___x_125_);
+lean_dec_ref_known(v___x_125_, 3);
 if (v_isShared_123_ == 0)
 {
 lean_ctor_set(v___x_122_, 1, v___x_126_);
@@ -1282,7 +1282,7 @@ v___x_365_ = 65;
 v___x_366_ = lean_uint32_dec_le(v___x_365_, v_c_359_);
 if (v___x_366_ == 0)
 {
-lean_dec_ref(v___x_363_);
+lean_dec_ref_known(v___x_363_, 2);
 goto v___jp_352_;
 }
 else
@@ -1292,7 +1292,7 @@ v___x_367_ = 70;
 v___x_368_ = lean_uint32_dec_le(v_c_359_, v___x_367_);
 if (v___x_368_ == 0)
 {
-lean_dec_ref(v___x_363_);
+lean_dec_ref_known(v___x_363_, 2);
 goto v___jp_352_;
 }
 else
@@ -1397,7 +1397,7 @@ v___x_397_ = 97;
 v___x_398_ = lean_uint32_dec_le(v___x_397_, v_c_391_);
 if (v___x_398_ == 0)
 {
-lean_dec_ref(v___x_395_);
+lean_dec_ref_known(v___x_395_, 2);
 goto v___jp_384_;
 }
 else
@@ -1407,7 +1407,7 @@ v___x_399_ = 122;
 v___x_400_ = lean_uint32_dec_le(v_c_391_, v___x_399_);
 if (v___x_400_ == 0)
 {
-lean_dec_ref(v___x_395_);
+lean_dec_ref_known(v___x_395_, 2);
 goto v___jp_384_;
 }
 else
@@ -1581,7 +1581,7 @@ lean_ctor_set(v___x_445_, 2, v___x_444_);
 lean_inc(v_n_439_);
 lean_inc(v_snd_442_);
 v_right_446_ = l_String_Slice_Pos_nextn(v___x_445_, v_snd_442_, v_n_439_);
-lean_dec_ref(v___x_445_);
+lean_dec_ref_known(v___x_445_, 3);
 v_substr_447_ = lean_string_utf8_extract(v_fst_441_, v_snd_442_, v_right_446_);
 v___x_448_ = lean_string_length(v_substr_447_);
 v___x_449_ = lean_nat_dec_eq(v___x_448_, v_n_439_);
@@ -1653,6 +1653,7 @@ return v___x_457_;
 lean_object* runtime_initialize_Std_Internal_Parsec_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Parsec_String(uint8_t builtin) {
 lean_object * res;
@@ -1667,6 +1668,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Length(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -1679,6 +1683,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Internal_Parsec_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Parsec_String(uint8_t builtin) {
 lean_object * res;
@@ -1691,6 +1696,9 @@ res = initialize_Init_Data_String_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Termination(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Length(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Parsec_String(builtin);

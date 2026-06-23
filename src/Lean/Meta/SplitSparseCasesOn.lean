@@ -16,7 +16,7 @@ import Lean.Meta.Tactic.Replace
 
 namespace Lean.Meta
 
-private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
+def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
   let rewriteResult ← goal.rewrite (←goal.getType) eq symm
   goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
 

@@ -295,7 +295,7 @@ v_resetjp_56_:
 lean_object* v_a_59_; lean_object* v___x_60_; lean_object* v___x_61_; uint8_t v___x_62_; 
 v_a_59_ = lean_ctor_get(v_fst_36_, 0);
 lean_inc(v_a_59_);
-lean_dec_ref(v_fst_36_);
+lean_dec_ref_known(v_fst_36_, 1);
 v___x_60_ = ((lean_object*)(l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg___lam__6___closed__0));
 v___x_61_ = ((lean_object*)(l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg___lam__6___closed__1));
 lean_inc_ref(v_e_32_);
@@ -554,7 +554,7 @@ else
 lean_object* v_a_138_; 
 v_a_138_ = lean_ctor_get(v_fst_118_, 0);
 lean_inc(v_a_138_);
-lean_dec_ref(v_fst_118_);
+lean_dec_ref_known(v_fst_118_, 1);
 if (lean_obj_tag(v_a_138_) == 0)
 {
 lean_object* v_snd_139_; lean_object* v___x_141_; uint8_t v_isShared_142_; uint8_t v_isSharedCheck_149_; 
@@ -616,7 +616,7 @@ lean_object* v_val_151_; lean_object* v_snd_152_; lean_object* v_mvarIdPending_1
 lean_dec_ref(v_toApplicative_113_);
 v_val_151_ = lean_ctor_get(v_a_138_, 0);
 lean_inc(v_val_151_);
-lean_dec_ref(v_a_138_);
+lean_dec_ref_known(v_a_138_, 1);
 v_snd_152_ = lean_ctor_get(v_____x_117_, 1);
 lean_inc(v_snd_152_);
 lean_dec_ref(v_____x_117_);
@@ -737,7 +737,7 @@ lean_object* v_a_185_;
 lean_dec_ref(v_toApplicative_155_);
 v_a_185_ = lean_ctor_get(v_fst_165_, 0);
 lean_inc(v_a_185_);
-lean_dec_ref(v_fst_165_);
+lean_dec_ref_known(v_fst_165_, 1);
 if (lean_obj_tag(v_a_185_) == 0)
 {
 lean_object* v_snd_186_; lean_object* v___x_5693__overap_187_; lean_object* v___x_188_; lean_object* v___x_189_; 
@@ -765,7 +765,7 @@ lean_inc(v_snd_190_);
 lean_dec_ref(v_____x_164_);
 v_val_191_ = lean_ctor_get(v_a_185_, 0);
 lean_inc(v_val_191_);
-lean_dec_ref(v_a_185_);
+lean_dec_ref_known(v_a_185_, 1);
 v___x_192_ = l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg(v_inst_161_, v_inst_162_, v_mvarId_163_, v_val_191_, v_snd_190_);
 return v___x_192_;
 }
@@ -999,7 +999,7 @@ lean_inc(v_snd_266_);
 lean_dec_ref(v_____x_256_);
 v_struct_267_ = lean_ctor_get(v_e_255_, 2);
 lean_inc_ref(v_struct_267_);
-lean_dec_ref(v_e_255_);
+lean_dec_ref_known(v_e_255_, 3);
 v___x_268_ = l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg(v_inst_251_, v_inst_252_, v_mvarId_253_, v_struct_267_, v_snd_266_);
 return v___x_268_;
 }
@@ -1013,7 +1013,7 @@ v_binderType_270_ = lean_ctor_get(v_e_255_, 1);
 lean_inc_ref(v_binderType_270_);
 v_body_271_ = lean_ctor_get(v_e_255_, 2);
 lean_inc_ref(v_body_271_);
-lean_dec_ref(v_e_255_);
+lean_dec_ref_known(v_e_255_, 3);
 v_d_258_ = v_binderType_270_;
 v_b_259_ = v_body_271_;
 v___y_260_ = v_snd_269_;
@@ -1029,7 +1029,7 @@ v_binderType_273_ = lean_ctor_get(v_e_255_, 1);
 lean_inc_ref(v_binderType_273_);
 v_body_274_ = lean_ctor_get(v_e_255_, 2);
 lean_inc_ref(v_body_274_);
-lean_dec_ref(v_e_255_);
+lean_dec_ref_known(v_e_255_, 3);
 v_d_258_ = v_binderType_273_;
 v_b_259_ = v_body_274_;
 v___y_260_ = v_snd_272_;
@@ -1047,7 +1047,7 @@ v_value_277_ = lean_ctor_get(v_e_255_, 2);
 lean_inc_ref(v_value_277_);
 v_body_278_ = lean_ctor_get(v_e_255_, 3);
 lean_inc_ref(v_body_278_);
-lean_dec_ref(v_e_255_);
+lean_dec_ref_known(v_e_255_, 4);
 lean_inc_n(v_mvarId_253_, 2);
 lean_inc_ref_n(v_inst_252_, 2);
 lean_inc_ref_n(v_inst_251_, 2);
@@ -1081,7 +1081,7 @@ lean_inc(v_snd_283_);
 lean_dec_ref(v_____x_256_);
 v_expr_284_ = lean_ctor_get(v_e_255_, 1);
 lean_inc_ref(v_expr_284_);
-lean_dec_ref(v_e_255_);
+lean_dec_ref_known(v_e_255_, 2);
 v___x_285_ = l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg(v_inst_251_, v_inst_252_, v_mvarId_253_, v_expr_284_, v_snd_283_);
 return v___x_285_;
 }
@@ -1095,7 +1095,7 @@ v_fn_287_ = lean_ctor_get(v_e_255_, 0);
 lean_inc_ref(v_fn_287_);
 v_arg_288_ = lean_ctor_get(v_e_255_, 1);
 lean_inc_ref(v_arg_288_);
-lean_dec_ref(v_e_255_);
+lean_dec_ref_known(v_e_255_, 2);
 lean_inc(v_mvarId_253_);
 lean_inc_ref(v_inst_252_);
 lean_inc_ref(v_inst_251_);
@@ -1119,7 +1119,7 @@ lean_inc(v_snd_292_);
 lean_dec_ref(v_____x_256_);
 v_mvarId_293_ = lean_ctor_get(v_e_255_, 0);
 lean_inc(v_mvarId_293_);
-lean_dec_ref(v_e_255_);
+lean_dec_ref_known(v_e_255_, 1);
 v___x_294_ = l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visitMVar___redArg(v_inst_251_, v_inst_252_, v_mvarId_253_, v_mvarId_293_, v_snd_292_);
 return v___x_294_;
 }

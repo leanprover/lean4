@@ -136,32 +136,32 @@ v___x_19_ = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(v___x_
 if (lean_obj_tag(v___x_19_) == 0)
 {
 lean_object* v___x_20_; 
-lean_dec_ref(v___x_19_);
+lean_dec_ref_known(v___x_19_, 1);
 lean_inc_ref(v_decls_13_);
 v___x_20_ = l_Lean_IR_checkDecls(v_decls_13_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_20_) == 0)
 {
 lean_object* v___x_21_; 
-lean_dec_ref(v___x_20_);
+lean_dec_ref_known(v___x_20_, 1);
 v___x_21_ = l_Lean_IR_updateSorryDep(v_decls_13_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_21_) == 0)
 {
 lean_object* v_a_22_; lean_object* v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; 
 v_a_22_ = lean_ctor_get(v___x_21_, 0);
 lean_inc_n(v_a_22_, 2);
-lean_dec_ref(v___x_21_);
+lean_dec_ref_known(v___x_21_, 1);
 v___x_23_ = ((lean_object*)(l_Lean_IR_compile___closed__4));
 v___x_24_ = lean_obj_once(&l_Lean_IR_compile___closed__5, &l_Lean_IR_compile___closed__5_once, _init_l_Lean_IR_compile___closed__5);
 v___x_25_ = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(v___x_24_, v___x_23_, v_a_22_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_25_) == 0)
 {
 lean_object* v___x_26_; 
-lean_dec_ref(v___x_25_);
+lean_dec_ref_known(v___x_25_, 1);
 v___x_26_ = l_Lean_IR_addDecls(v_a_22_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_26_) == 0)
 {
 lean_object* v___x_27_; 
-lean_dec_ref(v___x_26_);
+lean_dec_ref_known(v___x_26_, 1);
 v___x_27_ = l_Lean_IR_inferMeta(v_a_22_, v_a_14_, v_a_15_);
 if (lean_obj_tag(v___x_27_) == 0)
 {
@@ -448,14 +448,14 @@ v___x_154_ = l_Lean_registerTraceClass(v___x_151_, v___x_152_, v___x_153_);
 if (lean_obj_tag(v___x_154_) == 0)
 {
 lean_object* v___x_155_; uint8_t v___x_156_; lean_object* v___x_157_; 
-lean_dec_ref(v___x_154_);
+lean_dec_ref_known(v___x_154_, 1);
 v___x_155_ = ((lean_object*)(l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__27_00___x40_Lean_Compiler_IR_640659120____hygCtx___hyg_2_));
 v___x_156_ = 1;
 v___x_157_ = l_Lean_registerTraceClass(v___x_155_, v___x_156_, v___x_153_);
 if (lean_obj_tag(v___x_157_) == 0)
 {
 lean_object* v___x_158_; lean_object* v___x_159_; 
-lean_dec_ref(v___x_157_);
+lean_dec_ref_known(v___x_157_, 1);
 v___x_158_ = ((lean_object*)(l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__28_00___x40_Lean_Compiler_IR_640659120____hygCtx___hyg_2_));
 v___x_159_ = l_Lean_registerTraceClass(v___x_158_, v___x_156_, v___x_153_);
 return v___x_159_;

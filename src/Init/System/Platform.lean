@@ -55,6 +55,12 @@ The LLVM target triple of the current platform. Empty if missing when Lean was c
 -/
 def target : String := getTarget ()
 
+/--
+The platform's native concurrency limit (number of hardware threads), or `0` if indeterminate.
+-/
+@[extern "lean_internal_get_hardware_concurrency"]
+opaque Internal.getHardwareConcurrency : Unit → UInt32
+
 @[simp]
 theorem numBits_pos : 0 < numBits := by
   cases numBits_eq <;> next h => simp [h]

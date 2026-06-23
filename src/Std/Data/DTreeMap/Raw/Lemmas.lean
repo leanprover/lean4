@@ -1896,7 +1896,7 @@ theorem contains_of_contains_insertMany_list' [TransCmp cmp] [BEq α] [LawfulBEq
     (w : l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none) = none) :
     contains t k = true :=
   Impl.Const.contains_of_contains_insertMany_list' h
-    (by simpa [Impl.Const.insertMany_eq_insertMany!] using h')
+    (by simpa [Impl.Const.insertMany_eq_insertMany!] using! h')
     (by simpa [compare_eq_iff_beq, BEq.comm] using w)
 
 @[grind =] theorem get_insertMany_list [TransCmp cmp] [BEq α] [PartialEquivBEq α] [LawfulBEqCmp cmp] (h : t.WF)
@@ -6755,7 +6755,7 @@ theorem contains_of_contains_map [TransCmp cmp]
 theorem mem_map [TransCmp cmp]
     {f : (a : α) → β a → γ a} {k : α} (h : t.WF) :
     k ∈ (t.map f) ↔ k ∈ t := by
-  simpa only [mem_iff_contains, Bool.coe_iff_coe] using Impl.contains_map h
+  simpa only [mem_iff_contains, Bool.coe_iff_coe] using! Impl.contains_map h
 
 theorem mem_of_mem_map [TransCmp cmp]
     {f : (a : α) → β a → γ a} {k : α} (h : t.WF) :

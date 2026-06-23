@@ -50,7 +50,7 @@ Returns `a` modulo `n` as a `Fin n`.
 
 The assumption `NeZero n` ensures that `Fin n` is nonempty.
 -/
-@[expose] protected def ofNat (n : Nat) [NeZero n] (a : Nat) : Fin n :=
+protected def ofNat (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
 
 @[simp]

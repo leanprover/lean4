@@ -407,6 +407,14 @@ Syntax that represents a tactic.
 -/
 protected abbrev Tactic := TSyntax `tactic
 /--
+Syntax that represents an element of a `do` sequence.
+-/
+abbrev DoElem := TSyntax `doElem
+/--
+Syntax that represents a sequence of `do` elements.
+-/
+abbrev DoSeq := TSyntax `Lean.Parser.Term.doSeq
+/--
 Syntax that represents a precedence (e.g. for an operator).
 -/
 abbrev Prec := TSyntax `prec
@@ -449,7 +457,7 @@ abbrev HexNum := TSyntax hexnumKind
 
 end Syntax
 
-export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit HygieneInfo)
+export Syntax (Term Command DoElem DoSeq Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit HygieneInfo)
 
 namespace TSyntax
 
@@ -1788,14 +1796,16 @@ namespace Tactic
 /--
 Extracts the items from a tactic configuration,
 either a `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`, or these wrapped in null nodes.
+
+New metaprograms should use `Lean.Elab.ConfigEval.foldConfigM` instead.
 -/
 partial def getConfigItems (c : Syntax) : TSyntaxArray ``configItem :=
   if c.isOfKind nullKind then
     c.getArgs.flatMap getConfigItems
   else
     match c with
-    | `(optConfig| $items:configItem*) => items
-    | `(config| (config := $_)) => #[⟨c⟩] -- handled by mkConfigItemViews
+    | `(Tactic.optConfig| $items:configItem*) => items
+    | `(Tactic.config| (config := $_)) => #[⟨c⟩] -- handled by mkConfigItemViews
     | _ => #[]
 
 def mkOptConfig (items : TSyntaxArray ``configItem) : TSyntax ``optConfig :=
@@ -1808,3 +1818,9 @@ or these wrapped in null nodes (for example because the syntax is `(config)?`).
 -/
 def appendConfig (cfg cfg' : Syntax) : TSyntax ``optConfig :=
   mkOptConfig <| getConfigItems cfg ++ getConfigItems cfg'
+
+end Tactic
+
+end Parser
+
+end Lean

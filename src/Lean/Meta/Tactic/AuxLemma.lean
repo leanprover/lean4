@@ -18,6 +18,8 @@ structure AuxLemmaKey where
   -- When an aux lemma is created in a private context and thus has a private name, we must not
   -- reuse it in an exported context.
   isPrivate : Bool
+  -- Whether the theorem should be tagged with `[defeq]` (needs to happen before caching)
+  defeq : Bool
 deriving BEq, Hashable
 
 structure AuxLemmas where
@@ -39,10 +41,10 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ←
   users. For example, `simp` preprocessor may convert a lemma into multiple ones.
 -/
 def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : Option Name := none)
-    (cache := true) (inferRfl := false) (forceExpose := false) : MetaM Name := do
+    (cache := true) (inferRfl := false) (forceExpose := false) (defeq := false) : MetaM Name := do
   let env ← getEnv
   let s := auxLemmasExt.getState env
-  let key := { type, isPrivate := !env.isExporting }
+  let key := { type, isPrivate := !env.isExporting, defeq }
   let mkNewAuxLemma := do
     let auxName ← mkAuxDeclName (kind := kind?.getD `_proof)
     let decl :=
@@ -60,6 +62,7 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
           levelParams, type, value
         }
     addDecl (forceExpose := forceExpose) decl
+    if defeq then defeqAttr.setTag auxName
     if inferRfl then
       inferDefEqAttr auxName
     modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert key (auxName, levelParams)⟩

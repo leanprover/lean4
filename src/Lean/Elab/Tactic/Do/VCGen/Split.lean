@@ -95,9 +95,15 @@ def withAbstract {n} {α} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n]
     let u ← liftMetaM <| getLevel resTy
     k (.dite <| mkApp5 (mkConst ``_root_.dite [u]) resTy c dec t e) #[c, dec, t, e]
   | .matcher matcherApp => do
-    let discrNamesTypes ← matcherApp.discrs.mapIdxM fun i discr => do
-      return ((`discr).appendIndexAfter (i+1), ← liftMetaM <| inferType discr)
-    withLocalDeclsDND discrNamesTypes fun discrs => do
+    -- Abstract the discriminants as a dependent telescope: a later discriminant's type may mention an earlier one.
+    let discrDecls := matcherApp.discrs.mapIdx fun i discr =>
+      ((`discr).appendIndexAfter (i+1), fun (prior : Array Expr) => liftMetaM do
+        let mut ty ← inferType discr
+        for j in *...i do
+          if matcherApp.discrs[j]!.isFVar then
+            ty := ty.replaceFVar matcherApp.discrs[j]! prior[j]!
+        return ty)
+    withLocalDeclsD discrDecls fun discrs => do
     -- Non-dependent motive: fun _ ... _ => mα
     let motive ← liftMetaM <| lambdaTelescope matcherApp.motive fun motiveArgs _ =>
       mkLambdaFVars motiveArgs resTy

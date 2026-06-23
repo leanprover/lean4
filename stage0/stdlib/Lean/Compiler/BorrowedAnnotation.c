@@ -47,7 +47,7 @@ return v___x_10_;
 else
 {
 uint8_t v___x_11_; 
-lean_dec_ref(v___x_9_);
+lean_dec_ref_known(v___x_9_, 1);
 v___x_11_ = 1;
 return v___x_11_;
 }

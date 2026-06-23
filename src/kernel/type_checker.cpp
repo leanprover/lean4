@@ -1170,7 +1170,7 @@ type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety
     m_definition_safety(ds), m_lparams(nullptr) {
 }
 
-type_checker::type_checker(type_checker && src):
+type_checker::type_checker(type_checker && src) noexcept:
     m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
     m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
     src.m_st_owner = false;

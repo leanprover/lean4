@@ -209,7 +209,7 @@ theorem take_succ_eq_append_getElem {i} {l : List α} (h : i < l.length) : l.tak
   match l with
   | [] => simp
   | x :: xs =>
-    simpa using take_append_getLast (x :: xs) (by simp)
+    simpa using! take_append_getLast (x :: xs) (by simp)
 
 theorem drop_left : ∀ {l₁ l₂ : List α}, drop (length l₁) (l₁ ++ l₂) = l₂
   | [], _ => rfl

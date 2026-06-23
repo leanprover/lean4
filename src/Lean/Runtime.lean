@@ -21,6 +21,9 @@ opaque maxSmallNatFn : Unit → Nat
 @[extern "lean_libuv_version"]
 opaque libUVVersionFn : Unit → Nat
 
+@[extern "lean_openssl_version"]
+opaque openSSLVersionFn : Unit → Nat
+
 def closureMaxArgs : Nat :=
   closureMaxArgsFn ()
 
@@ -29,5 +32,8 @@ def maxSmallNat : Nat :=
 
 def libUVVersion : Nat :=
   libUVVersionFn ()
+
+def openSSLVersion : Nat :=
+  openSSLVersionFn ()
 
 end Lean

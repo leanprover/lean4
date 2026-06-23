@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: public import Lean.Data.DeclarationRange public import Lean.Data.OpenDecl public import Lean.MetavarContext public import Lean.Environment public import Lean.Widget.Types
+// Imports: public import Lean.Data.DeclarationRange public import Lean.Data.OpenDecl public import Lean.Data.PPContext public import Lean.MetavarContext public import Lean.Environment public import Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -265,7 +265,7 @@ if (lean_obj_tag(v_t_7_) == 1)
 lean_object* v_parentDecl_9_; lean_object* v___x_10_; 
 v_parentDecl_9_ = lean_ctor_get(v_t_7_, 0);
 lean_inc(v_parentDecl_9_);
-lean_dec_ref(v_t_7_);
+lean_dec_ref_known(v_t_7_, 1);
 v___x_10_ = lean_apply_1(v_k_8_, v_parentDecl_9_);
 return v___x_10_;
 }
@@ -363,7 +363,7 @@ v___x_60_ = 0;
 v___x_61_ = lean_obj_once(&l_Lean_Elab_instInhabitedTermInfo_default___closed__2, &l_Lean_Elab_instInhabitedTermInfo_default___closed__2_once, _init_l_Lean_Elab_instInhabitedTermInfo_default___closed__2);
 v___x_62_ = lean_box(0);
 v___x_63_ = l_Lean_instInhabitedLocalContext_default;
-v___x_64_ = ((lean_object*)(l_Lean_Elab_instInhabitedElabInfo_default___closed__0));
+v___x_64_ = ((lean_object*)(l_Lean_Elab_instInhabitedElabInfo_default));
 v___x_65_ = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(v___x_65_, 0, v___x_64_);
 lean_ctor_set(v___x_65_, 1, v___x_63_);
@@ -396,7 +396,7 @@ _start:
 lean_object* v___x_68_; lean_object* v___x_69_; lean_object* v___x_70_; lean_object* v___x_71_; 
 v___x_68_ = lean_box(0);
 v___x_69_ = l_Lean_instInhabitedLocalContext_default;
-v___x_70_ = ((lean_object*)(l_Lean_Elab_instInhabitedElabInfo_default___closed__0));
+v___x_70_ = ((lean_object*)(l_Lean_Elab_instInhabitedElabInfo_default));
 v___x_71_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_71_, 0, v___x_70_);
 lean_ctor_set(v___x_71_, 1, v___x_69_);
@@ -503,7 +503,7 @@ v_termInfo_90_ = lean_ctor_get(v_t_88_, 0);
 lean_inc_ref(v_termInfo_90_);
 v_expectedType_x3f_91_ = lean_ctor_get(v_t_88_, 1);
 lean_inc(v_expectedType_x3f_91_);
-lean_dec_ref(v_t_88_);
+lean_dec_ref_known(v_t_88_, 2);
 v___x_92_ = lean_apply_2(v_k_89_, v_termInfo_90_, v_expectedType_x3f_91_);
 return v___x_92_;
 }
@@ -519,7 +519,7 @@ v_lctx_96_ = lean_ctor_get(v_t_88_, 2);
 lean_inc_ref(v_lctx_96_);
 v_expectedType_x3f_97_ = lean_ctor_get(v_t_88_, 3);
 lean_inc(v_expectedType_x3f_97_);
-lean_dec_ref(v_t_88_);
+lean_dec_ref_known(v_t_88_, 4);
 v___x_98_ = lean_box(v_danglingDot_95_);
 v___x_99_ = lean_apply_5(v_k_89_, v_stx_93_, v_id_94_, v___x_98_, v_lctx_96_, v_expectedType_x3f_97_);
 return v___x_99_;
@@ -535,7 +535,7 @@ v_lctx_102_ = lean_ctor_get(v_t_88_, 2);
 lean_inc_ref(v_lctx_102_);
 v_expectedType_x3f_103_ = lean_ctor_get(v_t_88_, 3);
 lean_inc(v_expectedType_x3f_103_);
-lean_dec_ref(v_t_88_);
+lean_dec_ref_known(v_t_88_, 4);
 v___x_104_ = lean_apply_4(v_k_89_, v_stx_100_, v_id_101_, v_lctx_102_, v_expectedType_x3f_103_);
 return v___x_104_;
 }
@@ -550,7 +550,7 @@ v_lctx_107_ = lean_ctor_get(v_t_88_, 2);
 lean_inc_ref(v_lctx_107_);
 v_structName_108_ = lean_ctor_get(v_t_88_, 3);
 lean_inc(v_structName_108_);
-lean_dec_ref(v_t_88_);
+lean_dec_ref_known(v_t_88_, 4);
 v___x_109_ = lean_apply_4(v_k_89_, v_stx_105_, v_id_106_, v_lctx_107_, v_structName_108_);
 return v___x_109_;
 }
@@ -561,7 +561,7 @@ v_stx_110_ = lean_ctor_get(v_t_88_, 0);
 lean_inc(v_stx_110_);
 v_partialId_111_ = lean_ctor_get(v_t_88_, 1);
 lean_inc(v_partialId_111_);
-lean_dec_ref(v_t_88_);
+lean_dec_ref_known(v_t_88_, 2);
 v___x_112_ = lean_apply_2(v_k_89_, v_stx_110_, v_partialId_111_);
 return v___x_112_;
 }
@@ -575,7 +575,7 @@ lean_inc(v_id_x3f_114_);
 v_danglingDot_115_ = lean_ctor_get_uint8(v_t_88_, sizeof(void*)*3);
 v_scopeNames_116_ = lean_ctor_get(v_t_88_, 2);
 lean_inc(v_scopeNames_116_);
-lean_dec_ref(v_t_88_);
+lean_dec_ref_known(v_t_88_, 3);
 v___x_117_ = lean_box(v_danglingDot_115_);
 v___x_118_ = lean_apply_4(v_k_89_, v_stx_113_, v_id_x3f_114_, v___x_117_, v_scopeNames_116_);
 return v___x_118_;
@@ -830,7 +830,7 @@ _start:
 lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; 
 v___x_218_ = lean_box(0);
 v___x_219_ = lean_obj_once(&l_Lean_Elab_instInhabitedTacticInfo_default___closed__2, &l_Lean_Elab_instInhabitedTacticInfo_default___closed__2_once, _init_l_Lean_Elab_instInhabitedTacticInfo_default___closed__2);
-v___x_220_ = ((lean_object*)(l_Lean_Elab_instInhabitedElabInfo_default___closed__0));
+v___x_220_ = ((lean_object*)(l_Lean_Elab_instInhabitedElabInfo_default));
 v___x_221_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v___x_221_, 0, v___x_220_);
 lean_ctor_set(v___x_221_, 1, v___x_219_);
@@ -1413,7 +1413,7 @@ if (lean_obj_tag(v_t_397_) == 12)
 lean_object* v_i_399_; lean_object* v___x_400_; 
 v_i_399_ = lean_ctor_get(v_t_397_, 0);
 lean_inc(v_i_399_);
-lean_dec_ref(v_t_397_);
+lean_dec_ref_known(v_t_397_, 1);
 v___x_400_ = lean_apply_1(v_k_398_, v_i_399_);
 return v___x_400_;
 }
@@ -1786,7 +1786,7 @@ if (lean_obj_tag(v_t_561_) == 2)
 lean_object* v_mvarId_563_; lean_object* v___x_564_; 
 v_mvarId_563_ = lean_ctor_get(v_t_561_, 0);
 lean_inc(v_mvarId_563_);
-lean_dec_ref(v_t_561_);
+lean_dec_ref_known(v_t_561_, 1);
 v___x_564_ = lean_apply_1(v_k_562_, v_mvarId_563_);
 return v___x_564_;
 }
@@ -2092,6 +2092,7 @@ return v___x_664_;
 }
 lean_object* runtime_initialize_Lean_Data_DeclarationRange(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_OpenDecl(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_PPContext(uint8_t builtin);
 lean_object* runtime_initialize_Lean_MetavarContext(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Environment(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Widget_Types(uint8_t builtin);
@@ -2104,6 +2105,9 @@ res = runtime_initialize_Lean_Data_DeclarationRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_OpenDecl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_PPContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_MetavarContext(builtin);
@@ -2158,6 +2162,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin);
 lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin);
+lean_object* initialize_Lean_Data_PPContext(uint8_t builtin);
 lean_object* initialize_Lean_MetavarContext(uint8_t builtin);
 lean_object* initialize_Lean_Environment(uint8_t builtin);
 lean_object* initialize_Lean_Widget_Types(uint8_t builtin);
@@ -2170,6 +2175,9 @@ res = initialize_Lean_Data_DeclarationRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_OpenDecl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_PPContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_MetavarContext(builtin);

@@ -23,7 +23,7 @@ open Lean.Meta
   | `(doFor| for $[$_ : ]? $_:ident in $_ do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for $decls:doForDecl,* do $body) =>
+  | `(doFor| for%$tk $decls:doForDecl,* do $body) =>
     let decls := decls.getElems
     let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
     let mut doElems := #[]
@@ -74,12 +74,13 @@ open Lean.Meta
           | some ($y, s') =>
             $s:ident := s'
             do $body)
-    doElems := doElems.push (← `(doSeqItem| for $[$h? : ]? $x:ident in $xs do $body))
+    doElems := doElems.push (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs do $body))
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
-  let `(doFor| for $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
+  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar
   let uρ ← mkFreshLevelMVar
@@ -110,7 +111,7 @@ open Lean.Meta
       defs := defs.push returnVar
     for x in loopMutVars do
       let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x defn.toExpr
+      Term.addTermInfo' x.ident defn.toExpr
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as
       --   `max ?u.46 ?u.47 =?= max (max ?u.22 ?u.46) ?u.47`
@@ -123,9 +124,6 @@ open Lean.Meta
     if info.returnsEarly && loopMutVars.isEmpty then
       defs := defs.push (mkConst ``Unit.unit)
     return defs
-
-  unless ← isDefEq dec.resultType (← mkPUnit) do
-    logError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
 
   let (preS, σ) ← mkProdMkN (← useLoopMutVars none) mi.u
 
@@ -153,6 +151,9 @@ open Lean.Meta
 
   let body ←
     withLocalDeclsD xh fun xh => do
+    Term.addLocalVarInfo x xh[0]!
+    if let some h := h? then
+      Term.addLocalVarInfo h xh[1]!
     withLocalDecl s .default σ (kind := .implDetail) fun loopS => do
     mkLambdaFVars (xh.push loopS) <| ← do
     bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
@@ -184,7 +185,7 @@ open Lean.Meta
         if info.returnsEarly then
           let ret ← getFVarFromUserName returnVarName
           let ret ← if loopMutVars.isEmpty then mkAppM ``Prod.fst #[ret] else pure ret
-          let motive := mkLambda `_ .default (← inferType ret) (← mkMonadicType γ)
+          let motive := mkLambda `_ .default (← inferType ret) (← mkMonadApp γ)
           let app := mkApp3 (mkConst ``Break.runK.match_1 [mi.u, mi.v.succ]) oldReturnCont.resultType motive ret
           let none := mkSimpleThunk (← dec.continueWithUnit)
           let some ← withLocalDeclD (← mkFreshUserName `r) oldReturnCont.resultType fun r => do

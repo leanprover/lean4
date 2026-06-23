@@ -61,7 +61,7 @@ mpz::mpz(mpz const & s) {
     mpz_init_set(m_val, s.m_val);
 }
 
-mpz::mpz(mpz && s):mpz() {
+mpz::mpz(mpz && s) noexcept : mpz() {
     mpz_swap(m_val, s.m_val);
 }
 
@@ -73,7 +73,7 @@ void mpz::set(mpz_t r) const {
     mpz_set(r, m_val);
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     mpz_swap(a.m_val, b.m_val);
 }
 
@@ -320,11 +320,16 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 
 static void *mpz_alloc(size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
+    // the small allocator already panics on memory exhaustion
     return alloc(size);
 #elif defined(LEAN_MIMALLOC)
-    return mi_malloc(size);
+    void * r = mi_malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #else
-    return malloc(size);
+    void * r = malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #endif
 }
 
@@ -340,7 +345,7 @@ static void mpz_dealloc(void *ptr, size_t size) {
 
 void mpz::allocate(size_t s) {
     m_size   = s;
-    m_digits = static_cast<mpn_digit*>(mpz_alloc(s * sizeof(mpn_digit)));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(lean_usize_mul_checked(s, sizeof(mpn_digit))));
 }
 
 void mpz::init() {
@@ -409,8 +414,8 @@ void mpz::init_int64(int64 v) {
 void mpz::init_mpz(mpz const & v) {
     m_sign   = v.m_sign;
     m_size   = v.m_size;
-    m_digits = static_cast<mpn_digit*>(mpz_alloc(m_size * sizeof(mpn_digit)));
-    memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(lean_usize_mul_checked(m_size, sizeof(mpn_digit))));
+    memcpy(m_digits, v.m_digits, lean_usize_mul_checked(m_size, sizeof(mpn_digit)));
 }
 
 mpz::mpz() {
@@ -441,7 +446,7 @@ mpz::mpz(mpz const & s) {
     init_mpz(s);
 }
 
-mpz::mpz(mpz && s):
+mpz::mpz(mpz && s) noexcept :
     m_sign(s.m_sign),
     m_size(s.m_size),
     m_digits(s.m_digits) {
@@ -454,7 +459,7 @@ mpz::~mpz() {
     }
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     std::swap(a.m_sign, b.m_sign);
     std::swap(a.m_size, b.m_size);
     std::swap(a.m_digits, b.m_digits);

@@ -13,6 +13,8 @@ import Lake.Util.Git
 import Lake.Util.IO
 import Lake.Reservoir
 
+set_option doc.verso true
+
 open System Lean
 
 /-! # Dependency Materialization
@@ -23,9 +25,12 @@ or resolve a local path dependency.
 
 namespace Lake
 
-/-- Update the Git package in `repo` to `rev` if not already at it. -/
+/--
+Update the Git package in {lean}`repo` to the revision {lean}`rev?` if not already at it.
+IF no revision is specified (i.e., {lean}`rev? = none`), then uses the latest {lit}`master`.
+-/
 def updateGitPkg
-  (name : String) (repo : GitRepo) (rev? : Option String)
+  (name : String) (repo : GitRepo) (rev? : Option GitRev)
 : LoggerIO PUnit := do
   let rev ← repo.findRemoteRevision rev?
   if (← repo.getHeadRevision) = rev then
@@ -40,9 +45,9 @@ def updateGitPkg
     -- so stale ones from the previous revision cause incorrect trace computations.
     repo.clean
 
-/-- Clone the Git package as `repo`. -/
+/-- Clone the Git package as {lean}`repo`. -/
 def cloneGitPkg
-  (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
+  (name : String) (repo : GitRepo) (url : String) (rev? : Option GitRev)
 : LoggerIO PUnit := do
   logInfo s!"{name}: cloning {url}"
   repo.clone url
@@ -52,9 +57,9 @@ def cloneGitPkg
     repo.checkoutDetach rev
 
 /--
-Update the Git repository from `url` in `repo` to `rev?`.
-If `repo` is already from `url`, just checkout the new revision.
-Otherwise, delete the local repository and clone a fresh copy from `url`.
+Update the Git repository from {lean}`url` in {lean}`repo` to {lean}`rev?`.
+If {lean}`repo` is already from {lean}`url`, just checkout the new revision.
+Otherwise, delete the local repository and clone a fresh copy from {lean}`url`.
 -/
 def updateGitRepo
   (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
@@ -75,8 +80,9 @@ def updateGitRepo
       IO.FS.removeDirAll repo.dir
       cloneGitPkg name repo url rev?
 
+
 /--
-Materialize the Git repository from `url` into `repo` at `rev?`.
+Materialize the Git repository from {lean}`url` into {lean}`repo` at {lean}`rev?`.
 Clone it if no local copy exists, otherwise update it.
 -/
 def materializeGitRepo
@@ -114,11 +120,11 @@ namespace MaterializedDep
 @[inline] public def scope (self : MaterializedDep) : String :=
   self.manifestEntry.scope
 
-/-- Path to the dependency's manfiest file (relative to `relPkgDir`). -/
+/-- Path to the dependency's manfiest file (relative to {lean}`relPkgDir`). -/
 @[inline] public def relManifestFile? (self : MaterializedDep) : Option FilePath :=
   self.manifestEntry.manifestFile?
 
-/-- Path to the dependency's manfiest file (relative to `relPkgDir`). -/
+/-- Path to the dependency's manfiest file (relative to {lean}`relPkgDir`). -/
 @[inline] public def relManifestFile (self : MaterializedDep) : FilePath :=
   self.relManifestFile?.getD defaultManifestFile
 
@@ -126,7 +132,7 @@ namespace MaterializedDep
 @[inline] public def manifestFile (self : MaterializedDep) : FilePath :=
   self.pkgDir / self.relManifestFile
 
-/-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
+/-- Path to the dependency's configuration file (relative to {lean}`relPkgDir`). -/
 @[inline] public def relConfigFile (self : MaterializedDep) : FilePath :=
   self.manifestEntry.configFile
 
@@ -141,28 +147,23 @@ public def fixedToolchain (self : MaterializedDep) : Bool :=
 
 end MaterializedDep
 
-inductive InputVer
-| none
-| git (rev : String)
-| ver (ver : VerRange)
-
-def pkgNotIndexed (scope name : String) (ver : InputVer) : String :=
+def pkgNotIndexed (dep : Dependency) : String :=
   let (leanVer, tomlVer) :=
-    match ver with
+    match dep.version with
     | .none => ("", "")
     | .git rev => (s!" @ {repr rev}", s!"\n    rev = {repr rev}")
     | .ver ver => (s!" @ {repr ver.toString}", s!"\n    version = {repr ver.toString}")
-s!"{scope}/{name}: package not found on Reservoir.
+s!"{dep.fullName}: package not found on Reservoir.
 
   If the package is on GitHub, you can add a Git source. For example:
 
     require ...
-      from git \"https://github.com/{scope}/{name}\"{leanVer}
+      from git \"https://github.com/{dep.scope}/{dep.reservoirName}\"{leanVer}
 
   or, if using TOML:
 
     [[require]]
-    git = \"https://github.com/{scope}/{name}\"{tomlVer}
+    git = \"https://github.com/{dep.scope}/{dep.reservoirName}\"{tomlVer}
     ...
 "
 
@@ -175,54 +176,40 @@ public def Dependency.materialize
   (lakeEnv : Env) (wsDir relPkgsDir relParentDir : FilePath)
 : LoggerIO MaterializedDep := do
   if let some src := dep.src? then
-    let sname := dep.name.toString (escape := false)
     match src with
     | .path dir =>
       let relPkgDir := relParentDir / dir
-      mkDep sname relPkgDir "" (.path relPkgDir)
+      mkDep dep.prettyName relPkgDir "" (.path relPkgDir)
     | .git url inputRev? subDir? => do
-      let sname := dep.name.toString (escape := false)
       let repoUrl := Git.filterUrl? url |>.getD ""
-      materializeGit sname (relPkgsDir / sname) url repoUrl inputRev? subDir?
+      materializeGit dep.prettyName (relPkgsDir / dep.dirName) url repoUrl inputRev? subDir?
   else
     if dep.scope.isEmpty then
-      error s!"{dep.name}: ill-formed dependency: \
+      error s!"{dep.prettyName}: ill-formed dependency: \
         dependency is missing a source and is missing a scope for Reservoir"
-    let ver : InputVer ← id do
-      let some ver := dep.version?
-        | return .none
-      if let some ver := ver.dropPrefix? "git#" then
-        return .git ver.toString
-      else
-        match VerRange.parse ver with
-        | .ok ver => return .ver ver
-        | .error e =>  error s!"{dep.name}: invalid dependency version range: {e}"
-    let depName := dep.name.toString (escape := false)
-    let pkg ←
-      match (← Reservoir.fetchPkg? lakeEnv dep.scope depName |>.toLogT) with
-      | .ok (some pkg) => pure pkg
-      | .ok none => error <| pkgNotIndexed dep.scope depName ver
-      | .error .. =>
-          error s!"{dep.scope}/{depName}: could not materialize package: \
-            this may be a transient error or a bug in Lake or Reservoir"
+    let pkg ← id do
+      match (← Reservoir.fetchPkg? lakeEnv dep.scope dep.reservoirName |>.toLogT) with
+      | .ok (some pkg) => return pkg
+      | .ok none => error <| pkgNotIndexed dep
+      | .error .. => error s!"{dep.fullName}: could not materialize package: \
+        this may be a transient error or a bug in Lake or Reservoir"
     let relPkgDir := relPkgsDir / pkg.name
     match pkg.gitSrc? with
     | some (.git _ url githubUrl? defaultBranch? subDir?) =>
-      let rev? ←
-        match ver with
+      let rev? ← id do
+        match dep.version with
         | .none => defaultBranch?
         | .git rev => some rev
         | .ver ver =>
-          match (← Reservoir.fetchPkgVersions lakeEnv dep.scope depName |>.toLogT) with
+          match (← Reservoir.fetchPkgVersions lakeEnv dep.scope dep.reservoirName |>.toLogT) with
           | .ok vers =>
-              if let some ver := vers.find? (ver.test ·.version) then
-                logInfo s!"{dep.scope}/{depName}: using version `{ver.version}` at revision `{ver.revision}`"
-                pure ver.revision
-              else
-                error s!"{dep.scope}/{depName}: version `{ver}` not found on Reservoir"
-          | .error .. =>
-              error s!"{dep.scope}/{depName}: could not fetch package versions: \
-                this may be a transient error or a bug in Lake or Reservoir"
+            if let some ver := vers.find? (ver.test ·.version) then
+              logInfo s!"{dep.fullName}: using version `{ver.version}` at revision `{ver.revision}`"
+              return ver.revision
+            else
+              error s!"{dep.fullName}: version `{ver}` not found on Reservoir"
+          | .error .. => error s!"{dep.fullName}: could not fetch package versions: \
+            this may be a transient error or a bug in Lake or Reservoir"
       materializeGit pkg.fullName relPkgDir url (githubUrl?.getD "") rev? subDir?
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
@@ -255,8 +242,8 @@ public def PackageEntry.materialize
   | .path (dir := relPkgDir) .. =>
     mkDep relPkgDir ""
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
-    let sname := manifestEntry.prettyName
-    let relGitDir := relPkgsDir / sname
+    let prettyName := manifestEntry.prettyName
+    let relGitDir := relPkgsDir / manifestEntry.dirName
     let gitDir := wsDir / relGitDir
     let repo := GitRepo.mk gitDir
     /-
@@ -268,13 +255,13 @@ public def PackageEntry.materialize
     if (← repo.dirExists) then
       if (← repo.getHeadRevision?) = rev then
         if (← repo.hasDiff) then
-          logWarning s!"{sname}: repository '{repo.dir}' has local changes"
+          logWarning s!"{prettyName}: repository '{repo.dir}' has local changes"
       else
         let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-        updateGitRepo sname repo url rev
+        updateGitRepo prettyName repo url rev
     else
       let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-      cloneGitPkg sname repo url rev
+      cloneGitPkg prettyName repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     mkDep relPkgDir (Git.filterUrl? url |>.getD "")
 where

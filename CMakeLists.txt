@@ -52,7 +52,8 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       # Use same platform flags as for Lean executables, in particular from `prepare-llvm-linux.sh`,
       # but not Lean-specific `LEAN_EXTRA_CXX_FLAGS` such as fsanitize.
       set(CADICAL_CXXFLAGS "${CMAKE_CXX_FLAGS}")
-      set(CADICAL_LDFLAGS "-Wl,-rpath=\\$$ORIGIN/../lib")
+      string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}/stage1" CADICAL_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+      set(CADICAL_LDFLAGS "${CADICAL_INTERNAL_LINKER_FLAGS} -Wl,-rpath=\\$$ORIGIN/../lib")
     endif()
     find_program(CCACHE ccache)
     if(CCACHE)
@@ -86,7 +87,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       set(LEANTAR_TARGET x86_64-pc-windows-msvc)
     else()
       set(LEANTAR_ARCHIVE_SUFFIX .tar.gz)
-      if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
         set(LEANTAR_TARGET_ARCH aarch64)
       else()
         set(LEANTAR_TARGET_ARCH x86_64)
@@ -129,6 +130,7 @@ if(USE_MIMALLOC)
     # cadical, it might be worth reorganizing the directory structure.
     SOURCE_DIR
     "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
+    EXCLUDE_FROM_ALL
   )
   FetchContent_MakeAvailable(mimalloc)
 endif()

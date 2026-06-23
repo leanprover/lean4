@@ -758,6 +758,13 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     Perhaps, we should have a `HasToInt` auxiliary class without output parameters.
     -/
     let_expr Eq α a b := e | return ()
+    unless (← alreadyInternalized e) do
+      /-
+      **Note**: Core invokes `Solver.internalize` for top-level equations that are not internalized.
+      There is no point of processing them since this module has handlers for `newEq` and
+      `newDiseq`.
+      -/
+      return ()
     unless (← getToIntId? α).isSome do return ()
     internalizeToIntTerm a α
     internalizeToIntTerm b α

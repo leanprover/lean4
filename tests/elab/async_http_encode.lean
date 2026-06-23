@@ -1,6 +1,6 @@
-import Std.Internal.Http.Data.Chunk
-import Std.Internal.Http.Data.Request
-import Std.Internal.Http.Data.Response
+import Std.Http.Data.Chunk
+import Std.Http.Data.Request
+import Std.Http.Data.Response
 
 open Std.Http
 open Std.Http.Internal
@@ -348,21 +348,21 @@ info: "HTTP/1.1 418 I'm a teapot\x0d\n\x0d\n"
 
 /-! ## Edge cases: Status encoding -/
 
--- Status.other 0: minimum possible value
+-- Status.other 104: minimum valid non-known code (100–103 are all named)
 /--
 info: "999 Unknown"
 -/
 #guard_msgs in
 #eval encodeStr (Status.other ⟨999, "Unknown", by decide, by decide, by decide⟩)
 
--- Status.other that overlaps with a named status (100 = Continue)
+-- Status.other 209: non-named code between two known blocks
 /--
 info: "888 Unknown"
 -/
 #guard_msgs in
 #eval encodeStr (Status.other ⟨888, "Unknown", by decide, by decide, by decide⟩)
 
--- Status.other max UInt16
+-- Status.other 999: maximum valid code
 /--
 info: "999 Unknown"
 -/
@@ -410,7 +410,7 @@ info: "f\x0d\n0123456789abcde\x0d\n"
 #guard_msgs in
 #eval encodeStr (Chunk.ofByteArray "0123456789abcde".toUTF8)
 
--- Chunk.ofByteArray with empty data (same as Chunk.empty)
+-- Chunk.ofByteArray with empty data encodes as the last-chunk terminator.
 /--
 info: "0\x0d\n\x0d\n"
 -/

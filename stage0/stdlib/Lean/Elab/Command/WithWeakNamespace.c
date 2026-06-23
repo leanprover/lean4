@@ -112,7 +112,7 @@ v_pre_4_ = lean_ctor_get(v_x_3_, 0);
 lean_inc(v_pre_4_);
 v_str_5_ = lean_ctor_get(v_x_3_, 1);
 lean_inc_ref(v_str_5_);
-lean_dec_ref(v_x_3_);
+lean_dec_ref_known(v_x_3_, 2);
 if (lean_obj_tag(v_pre_4_) == 0)
 {
 lean_object* v___x_9_; uint8_t v___x_10_; 
@@ -147,7 +147,7 @@ v_pre_11_ = lean_ctor_get(v_x_3_, 0);
 lean_inc(v_pre_11_);
 v_i_12_ = lean_ctor_get(v_x_3_, 1);
 lean_inc(v_i_12_);
-lean_dec_ref(v_x_3_);
+lean_dec_ref_known(v_x_3_, 2);
 v___x_13_ = l___private_Lean_Elab_Command_WithWeakNamespace_0__Lean_Elab_Command_resolveNamespaceRelative(v_ns_2_, v_pre_11_);
 v___x_14_ = l_Lean_Name_num___override(v___x_13_, v_i_12_);
 return v___x_14_;
@@ -330,7 +330,7 @@ if (lean_obj_tag(v___x_67_) == 0)
 lean_object* v_a_68_; lean_object* v___x_69_; lean_object* v_currNamespace_70_; lean_object* v_env_71_; lean_object* v_messages_72_; lean_object* v_scopes_73_; lean_object* v_usedQuotCtxts_74_; lean_object* v_nextMacroScope_75_; lean_object* v_maxRecDepth_76_; lean_object* v_ngen_77_; lean_object* v_auxDeclNGen_78_; lean_object* v_infoState_79_; lean_object* v_traceState_80_; lean_object* v_snapshotTasks_81_; lean_object* v___x_83_; uint8_t v_isShared_84_; uint8_t v_isSharedCheck_139_; 
 v_a_68_ = lean_ctor_get(v___x_67_, 0);
 lean_inc(v_a_68_);
-lean_dec_ref(v___x_67_);
+lean_dec_ref_known(v___x_67_, 1);
 v___x_69_ = lean_st_ref_take(v_a_65_);
 v_currNamespace_70_ = lean_ctor_get(v_a_68_, 2);
 lean_inc(v_currNamespace_70_);
@@ -411,7 +411,7 @@ v___x_91_ = l_Lean_Elab_Command_modifyScope___redArg(v___f_90_, v_a_65_);
 if (lean_obj_tag(v___x_91_) == 0)
 {
 lean_object* v___f_92_; lean_object* v_r_93_; 
-lean_dec_ref(v___x_91_);
+lean_dec_ref_known(v___x_91_, 1);
 v___f_92_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Command_WithWeakNamespace_0__Lean_Elab_Command_withWeakNamespace___redArg___lam__1), 2, 1);
 lean_closure_set(v___f_92_, 0, v_currNamespace_70_);
 lean_inc(v_a_65_);
@@ -422,7 +422,7 @@ if (lean_obj_tag(v_r_93_) == 0)
 lean_object* v_a_94_; lean_object* v___x_95_; 
 v_a_94_ = lean_ctor_get(v_r_93_, 0);
 lean_inc(v_a_94_);
-lean_dec_ref(v_r_93_);
+lean_dec_ref_known(v_r_93_, 1);
 v___x_95_ = l_Lean_Elab_Command_modifyScope___redArg(v___f_92_, v_a_65_);
 if (lean_obj_tag(v___x_95_) == 0)
 {
@@ -515,7 +515,7 @@ else
 lean_object* v_a_112_; lean_object* v___x_113_; 
 v_a_112_ = lean_ctor_get(v_r_93_, 0);
 lean_inc(v_a_112_);
-lean_dec_ref(v_r_93_);
+lean_dec_ref_known(v_r_93_, 1);
 v___x_113_ = l_Lean_Elab_Command_modifyScope___redArg(v___f_92_, v_a_65_);
 if (lean_obj_tag(v___x_113_) == 0)
 {

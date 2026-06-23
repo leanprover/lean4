@@ -123,7 +123,7 @@ theorem Array.iterM_equiv_iterM_toList {α : Type w} {array : Array α} {m : Typ
     [Monad m] [LawfulMonad m] :
     (array.iterM m).Equiv (array.toList.iterM m) := by
   rw [Array.iterM_eq_iterFromIdxM]
-  simpa using iterFromIdxM_equiv_iterM_drop_toList
+  simpa using! iterFromIdxM_equiv_iterM_drop_toList
 
 end Equivalence
 

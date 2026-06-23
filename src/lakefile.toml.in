@@ -46,6 +46,8 @@ moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 # Uncomment to limit number of reported errors further in case of overwhelming cmdline output
 #weakLeanArgs = ["-DmaxErrors=1"]
 
+moreLeancArgs = [${LEAN_MORE_LEANC_ARGS_TOML}]
+
 ${LEAN_EXTRA_LAKEFILE_TOML}
 
 [[lean_lib]]

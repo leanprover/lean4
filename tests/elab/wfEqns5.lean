@@ -88,9 +88,9 @@ termination_by structural n => n
 
 /--
 info: equations:
-@[defeq] theorem Structural.foo.eq_1 : foo 0 0 = 0
+@[backward_defeq] theorem Structural.foo.eq_1 : foo 0 0 = 0
 theorem Structural.foo.eq_2 : ∀ (x : Nat), (x = 0 → False) → foo 0 x = x
-@[defeq] theorem Structural.foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
+@[backward_defeq] theorem Structural.foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 -/
 #guard_msgs in
 #print equations foo

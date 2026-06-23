@@ -107,7 +107,7 @@ lean_dec_ref(v_inst_30_);
 lean_dec_ref(v_type_29_);
 v_val_33_ = lean_ctor_get(v_____x_32_, 0);
 lean_inc(v_val_33_);
-lean_dec_ref(v_____x_32_);
+lean_dec_ref_known(v_____x_32_, 1);
 v___x_34_ = lean_apply_2(v_toPure_28_, lean_box(0), v_val_33_);
 return v___x_34_;
 }

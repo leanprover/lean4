@@ -494,7 +494,7 @@ def unusedVariables : Linter where
 
     let infoTrees := (← get).infoState.trees.toArray
 
-    let linterSets := linterSetsExt.getState (← getEnv)
+    let linterSets := (linterSetsExt.getState (← getEnv)).merged
 
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange linterSets).run {}
@@ -570,7 +570,7 @@ def unusedVariables : Linter where
 
     -- Sort the outputs by position
     for (declStx, userName) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
-      logLint linter.unusedVariables declStx m!"unused variable `{userName}`"
+      logLint linter.unusedVariables declStx m!"Variable name `{userName}` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly)."
 
 builtin_initialize addLinter unusedVariables
 

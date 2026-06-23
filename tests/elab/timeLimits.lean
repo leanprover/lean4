@@ -7,7 +7,7 @@ def ISO8601UTCNot : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSS
 def ISO8601UTCDef : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
 
 /--
-info: Except.ok (zoned("2002-07-14T23:14:00.324354679-23:59"))
+info: Except.ok (zoned("2002-07-14T23:13:60.324354679-23:59"))
 -/
 #guard_msgs in
 #eval ISO8601UTCAllow.parse "2002-07-14T23:13:60.324354679-2359"

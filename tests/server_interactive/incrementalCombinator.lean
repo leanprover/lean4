@@ -16,7 +16,7 @@ def case (h : a ∨ b ∨ c) : True := by
 -/
 
 -- RESET
-def case2 (h : a ∨ b ∨ c) : True := by
+theorem case2 (h : a ∨ b ∨ c) : True := by
   cases h
   case inl | inr =>
     skip

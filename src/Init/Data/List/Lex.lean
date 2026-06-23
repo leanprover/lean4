@@ -293,7 +293,6 @@ instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
     Std.Total (· ≤ · : List α → List α → Prop) where
   total := List.le_total
 
-@[no_expose]
 instance instIsLinearOrder [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
     IsLinearOrder (List α) := IsLinearOrder.of_le
 

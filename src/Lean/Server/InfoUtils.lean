@@ -328,10 +328,13 @@ def Info.type? (i : Info) : MetaM (Option Expr) :=
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
   match i with
-  | .ofDelabTermInfo { docString? := some s, .. } => return s
-  | .ofTermInfo ti
-  | .ofDelabTermInfo ti =>
+  | .ofTermInfo ti =>
     if let some n := ti.expr.constName? then
+      return (← findDocString? env n)
+  | .ofDelabTermInfo ti =>
+    if let some doc ← ti.docString? (← Meta.getPPContext) then
+      return doc
+    else if let some n := ti.expr.constName? then
       return (← findDocString? env n)
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
   | .ofOptionInfo oi =>

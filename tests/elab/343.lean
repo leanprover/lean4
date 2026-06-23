@@ -41,7 +41,7 @@ with
   CatIsh.{max _ _, max (_ + 1) (_ + 1)} : Type (max ((max _ _) + 1) ((max (_ + 1) (_ + 1)) + 1))
 ---
 error: failed to solve universe constraint
-  max (_ + 1) (_ + 1) =?= max (_ + 1) (_ + 1)
+  max (u_1 + 1) (u_2 + 1) =?= max (u_3 + 1) (u_4 + 1)
 while trying to unify
   Catish.Obj : Type (max ((max (u_1 + 1) (u_2 + 1)) + 1) ((max u_3 u_4) + 1))
 with

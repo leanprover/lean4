@@ -873,7 +873,7 @@ structure DivModState.Lawful {w : Nat} (args : DivModArgs w) (qr : DivModState w
   hdiv : args.n.toNat >>> qr.wn = args.d.toNat * qr.q.toNat + qr.r.toNat
 
 /-- A lawful DivModState implies `w > 0`. -/
-def DivModState.Lawful.hw {args : DivModArgs w} {qr : DivModState w}
+theorem DivModState.Lawful.hw {args : DivModArgs w} {qr : DivModState w}
     {h : DivModState.Lawful args qr} : 0 < w := by
   have hd := h.hdPos
   rcases w with rfl | w
@@ -891,7 +891,7 @@ def DivModState.init (w : Nat) : DivModState w := {
 }
 
 /-- The initial state is lawful. -/
-def DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) :
+theorem DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) :
     DivModState.Lawful args (DivModState.init w) := by
   simp only [BitVec.DivModState.init]
   exact {
@@ -951,7 +951,7 @@ structure DivModState.Poised {w : Nat} (args : DivModArgs w) (qr : DivModState w
 In the shift subtract input, the dividend is at least one bit long (`wn > 0`), so
 the remainder has bits to be computed (`wr < w`).
 -/
-def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w := by
+theorem DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w := by
   have hwrn := h.hwrn
   have hwn_lt := h.hwn_lt
   omega
@@ -1518,7 +1518,6 @@ theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
   simp only [sdiv, udiv_eq, neg_eq]
   by_cases hx : x.msb <;> by_cases hy : y.msb
   <;> simp only [hx, hy, neg_ne_intMin_inj]
-  <;> simp only [Bool.not_eq_true] at hx hy
   <;> apply ne_intMin_of_msb_eq_false (by omega)
   <;> rw [msb_udiv]
   <;> try simp only [hx, Bool.false_and]
@@ -1588,8 +1587,7 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
   have := Nat.two_pow_pos (w - 1)
 
   by_cases hbintMin : b = intMin w
-  · simp only at hbintMin
-    subst hbintMin
+  · subst hbintMin
     have toIntA_lt := @BitVec.toInt_lt w a; norm_cast at toIntA_lt
     have le_toIntA := @BitVec.le_toInt w a; norm_cast at le_toIntA
     simp only [sdiv_intMin, toInt_intMin, wpos,
@@ -1607,7 +1605,7 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
             omega
 
   · by_cases ha : a.msb <;> by_cases hb : b.msb
-    <;> simp only [not_eq_true] at ha hb
+    <;> (try simp only [not_eq_true] at ha hb)
     · simp only [sdiv_eq, ha, hb, udiv_eq]
       rw [toInt_eq_neg_toNat_neg_of_nonpos (x := a) (by simp [ha]),
         toInt_eq_neg_toNat_neg_of_nonpos (x := b) (by simp [hb]),

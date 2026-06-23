@@ -1,6 +1,7 @@
 {"params":
  {"version": 1,
   "uri": "file:///test.lean",
+  "isIncremental": false,
   "diagnostics":
   [{"source": "Lean 4",
     "severity": 3,

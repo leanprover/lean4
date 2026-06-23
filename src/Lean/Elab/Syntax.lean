@@ -422,7 +422,7 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
       let mut name := base
       let mut i := 1
       -- Avoid name conflicts, for which we have to check both public and private name
-      while (←
+      while (← do
         let fullName := (← getCurrNamespace) ++ name
         hasConst fullName <||>
           (withoutExporting <| hasConst (mkPrivateName (← getEnv) fullName))) do

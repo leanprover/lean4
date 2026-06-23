@@ -6,9 +6,28 @@ Authors: Leonardo de Moura, Kyle Miller
 module
 
 prelude
-public import Lean.Meta.Eval
-public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.ConfigEval
 import Lean.Linter.MissingDocs
+
+/-!
+# Legacy tactic configuration elaboration
+
+This module exists for reverse compatibility — users should import `Lean.Elab.ConfigEval` directly.
+It has been deprecated since 2026-05-14 and will be removed.
+
+The new `declare_config_elab` and `declare_command_config_elab` commands are generally drop-in
+replacements for the legacy ones.
+
+Migration notes:
+- You may need to add a `where except field1, field2, ...` clause to omit things like function
+  fields that do not have expression interpreters (e.g. `Lean.Elab.Tactic.SolveByElim.elabConfig`)
+- You may choose to use `derive_eval_expr_instance_using_meta_eval` to derive a `Meta.evalTerm'`-based
+  expression evaluator for one or more fields, or for the configuration structure itself to support
+  the `(config := ...)` option, replicating the technique used in this module.
+  Note that these instances are slow.
+- If all else fails, until this module is removed there are the
+  `declare_config_elab_legacy` and `declare_command_config_elab_legacy` commands.
+-/
 
 public section
 
@@ -64,7 +83,7 @@ private partial def expandField (structName : Name) (field : Name) : MetaM (Name
     return (field' ++ field'', projFn)
 
 /-- Elaborates a tactic configuration. -/
-def elabConfig (recover : Bool) (structName : Name) (items : Array ConfigItemView) : TermElabM Expr :=
+def elabConfig (recover : Bool) (structName : Name) (items : Array ConfigItemView) : TermElabM Expr := do
   withoutModifyingStateWithInfoAndMessages <| withLCtx {} {} <| withSaveInfoContext do
     let mkStructInst (source? : Option Term) (fields : TSyntaxArray ``Parser.Term.structInstField) : TermElabM Term :=
       match source? with
@@ -161,8 +180,8 @@ private meta def mkConfigElaborator
 
 end
 
-/-!
-`declare_config_elab elabName TypeName` declares a function `elabName : Syntax → TacticM TypeName`
+/--
+`declare_config_elab_legacy elabName TypeName` declares a function `elabName : Syntax → TacticM TypeName`
 that elaborates a tactic configuration.
 The tactic configuration can be from `Lean.Parser.Tactic.optConfig` or `Lean.Parser.Tactic.config`,
 and these can also be wrapped in null nodes (for example, from `(config)?`).
@@ -170,23 +189,27 @@ and these can also be wrapped in null nodes (for example, from `(config)?`).
 The elaborator responds to the current recovery state.
 
 For defining elaborators for commands, use `declare_command_config_elab`.
+
+This command has been deprecated since 2026-05-14. Use `declare_config_elab` instead.
 -/
-macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ident type:ident : command => do
+macro (name := configElab) doc?:(docComment)? "declare_config_elab_legacy" elabName:ident type:ident : command => do
   mkConfigElaborator doc? elabName type (mkCIdent ``TacticM) (mkCIdent ``id) (← `((← read).recover))
 
 open Linter.MissingDocs in
 @[builtin_missing_docs_handler Elab.Tactic.configElab]
 private def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
-/-!
-`declare_command_config_elab elabName TypeName` declares a function `elabName : Syntax → CommandElabM TypeName`
+/--
+`declare_command_config_elab_legacy elabName TypeName` declares a function `elabName : Syntax → CommandElabM TypeName`
 that elaborates a command configuration.
 The configuration can be from `Lean.Parser.Tactic.optConfig` or `Lean.Parser.Tactic.config`,
 and these can also be wrapped in null nodes (for example, from `(config)?`).
 
 The elaborator has error recovery enabled.
+
+This command has been deprecated since 2026-05-14. Use `declare_command_config_elab` instead.
 -/
-macro (name := commandConfigElab) doc?:(docComment)? "declare_command_config_elab" elabName:ident type:ident : command => do
+macro (name := commandConfigElab) doc?:(docComment)? "declare_command_config_elab_legacy" elabName:ident type:ident : command => do
   mkConfigElaborator doc? elabName type (mkCIdent ``CommandElabM) (mkCIdent ``liftTermElabM) (mkCIdent ``true)
 
 open Linter.MissingDocs in

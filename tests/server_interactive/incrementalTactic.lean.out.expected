@@ -8,6 +8,7 @@ t 2
 t 2
 {"version": 3,
  "uri": "file:///incrementalTactic.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -29,6 +30,7 @@ t 2
     "end": {"line": 4, "character": 13}}}]}
 {"version": 1,
  "uri": "file:///incrementalTactic.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -40,6 +42,7 @@ t 2
     "end": {"line": 4, "character": 3}}}]}
 {"version": 1,
  "uri": "file:///incrementalTactic.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -70,6 +73,7 @@ s
    "ctx": {"__rpcref": "1"}}]}
 {"version": 1,
  "uri": "file:///incrementalTactic.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -82,6 +86,7 @@ s
     "end": {"line": 2, "character": 25}}}]}
 {"version": 1,
  "uri": "file:///incrementalTactic.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -94,6 +99,7 @@ s
     "end": {"line": 3, "character": 16}}}]}
 {"version": 2,
  "uri": "file:///incrementalTactic.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -119,6 +125,7 @@ s
    {"start": {"line": 4, "character": 2}, "end": {"line": 4, "character": 8}}}]}
 {"version": 2,
  "uri": "file:///incrementalTactic.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,

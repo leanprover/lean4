@@ -1,5 +1,5 @@
-import Std.Internal.Http.Internal.String
-import Std.Internal.Http.Internal.Char
+import Std.Http.Internal.String
+import Std.Http.Internal.Char
 
 open Std.Http.Internal
 

@@ -59,7 +59,7 @@ v_head_16_ = lean_ctor_get(v_x_6_, 0);
 lean_inc(v_head_16_);
 v_tail_17_ = lean_ctor_get(v_x_6_, 1);
 lean_inc(v_tail_17_);
-lean_dec_ref(v_x_6_);
+lean_dec_ref_known(v_x_6_, 2);
 lean_inc(v_f_5_);
 v___f_18_ = lean_alloc_closure((void*)(l_List_flatMapMTR_loop___redArg___lam__0), 5, 4);
 lean_closure_set(v___f_18_, 0, v_x_7_);
@@ -127,7 +127,7 @@ v_head_54_ = lean_ctor_get(v_x_49_, 0);
 lean_inc(v_head_54_);
 v_tail_55_ = lean_ctor_get(v_x_49_, 1);
 lean_inc(v_tail_55_);
-lean_dec_ref(v_x_49_);
+lean_dec_ref_known(v_x_49_, 2);
 v___x_56_ = lean_apply_3(v_h__2_52_, v_head_54_, v_tail_55_, v_x_50_);
 return v___x_56_;
 }
@@ -151,7 +151,7 @@ v_head_65_ = lean_ctor_get(v_x_60_, 0);
 lean_inc(v_head_65_);
 v_tail_66_ = lean_ctor_get(v_x_60_, 1);
 lean_inc(v_tail_66_);
-lean_dec_ref(v_x_60_);
+lean_dec_ref_known(v_x_60_, 2);
 v___x_67_ = lean_apply_3(v_h__2_63_, v_head_65_, v_tail_66_, v_x_61_);
 return v___x_67_;
 }
@@ -175,7 +175,7 @@ v_head_73_ = lean_ctor_get(v_x_68_, 0);
 lean_inc(v_head_73_);
 v_tail_74_ = lean_ctor_get(v_x_68_, 1);
 lean_inc(v_tail_74_);
-lean_dec_ref(v_x_68_);
+lean_dec_ref_known(v_x_68_, 2);
 v___x_75_ = lean_apply_3(v_h__2_71_, v_head_73_, v_tail_74_, v_x_69_);
 return v___x_75_;
 }
@@ -199,7 +199,7 @@ v_head_84_ = lean_ctor_get(v_x_79_, 0);
 lean_inc(v_head_84_);
 v_tail_85_ = lean_ctor_get(v_x_79_, 1);
 lean_inc(v_tail_85_);
-lean_dec_ref(v_x_79_);
+lean_dec_ref_known(v_x_79_, 2);
 v___x_86_ = lean_apply_3(v_h__2_82_, v_head_84_, v_tail_85_, v_x_80_);
 return v___x_86_;
 }

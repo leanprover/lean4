@@ -3215,7 +3215,7 @@ theorem msb_umod {x y : BitVec w} :
       · suffices x.toNat % y.toNat < 2 ^ (w - 1) by
           simpa [x_lt_y]
         have y_le_x : y.toNat ≤ x.toNat := by
-          simpa using x_lt_y
+          simpa [BitVec.lt_def] using x_lt_y
         replace hy : y.toNat ≠ 0 :=
           toNat_ne_iff_ne.mpr hy
         by_cases msb_y : y.toNat < 2 ^ (w - 1)
@@ -3387,8 +3387,6 @@ theorem toInt_ediv_toInt_lt_of_nonpos_of_lt_neg_one {w : Nat} {x y : BitVec w} (
     rcases hx' with hx'|hx'|hx'
     · simp [hx']; omega
     · have := BitVec.neg_one_ediv_toInt_eq (y := y)
-      simp only [
-        Int.reduceNeg] at this
       simp [hx', this]
       omega
     · have := Int.ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x := x.toInt) (y := y.toInt) (by omega) hy

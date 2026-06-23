@@ -166,7 +166,7 @@ def displayHelp (useStderr : Bool) : IO Unit := do
     out.putStrLn  "  -s, --tstack=num       thread stack size in Kb"
     out.putStrLn  "      --server           start lean in server mode"
     out.putStrLn  "      --worker           start lean in server-worker mode"
-  out.putStrLn    "      --plugin=file      load and initialize Lean shared library for registering linters etc."
+  out.putStrLn    "      --plugin=file[=fn] load and initialize Lean shared library for registering linters etc."
   out.putStrLn    "      --load-dynlib=file load shared library to make its symbols available to the interpreter"
   out.putStrLn    "      --setup=file       JSON file with module setup data (supersedes the file's header)"
   out.putStrLn    "      --json             report Lean output (e.g., messages) as JSON (one per line)"
@@ -177,6 +177,10 @@ def displayHelp (useStderr : Bool) : IO Unit := do
   out.putStrLn    "      --print-libdir     print the installation directory for Lean's built-in libraries and exit"
   out.putStrLn    "      --profile          display elaboration/type checking time for each definition/theorem"
   out.putStrLn    "      --stats            display environment statistics"
+  out.putStrLn    "      --incr-save=file   EXPERIMENTAL: save a full incremental snapshot of post-elaboration state at end of run"
+  out.putStrLn    "      --incr-load=file   EXPERIMENTAL: reuse a snapshot saved by `--incr-(header-)save` at start of run"
+  out.putStrLn    "      --incr-header-save=file"
+  out.putStrLn    "                         EXPERIMENTAL: like `--incr-save`, but save only the header (state after importing)"
   if Internal.isDebug () then
     out.putStrLn  "      --debug=tag        enable assertions with the given tag"
   out.putStrLn    "      -D name=value      set a configuration option (see set_option command)"
@@ -215,14 +219,10 @@ opaque Internal.getBelieverTrustLevel (_ : Unit) : UInt32
 def defaultTrustLevel : UInt32 :=
   Internal.getBelieverTrustLevel () + 1
 
-/-- Returns the platform's native concurrency limit. -/
-@[extern "lean_internal_get_hardware_concurrency"]
-opaque Internal.getHardwareCurrency (_ : Unit) : UInt32
-
 /-- Returns the default number of threads for the shell's task manager. -/
 def defaultNumThreads : UInt32 :=
   if Internal.isMultiThread () then
-    Internal.getHardwareCurrency ()
+    Platform.Internal.getHardwareConcurrency ()
   else 0
 
 structure ShellOptions where
@@ -248,6 +248,9 @@ structure ShellOptions where
   errorOnKinds : Array Name := #[]
   printStats : Bool := false
   run : Bool := false
+  incrSaveFileName? : Option System.FilePath := none
+  incrLoadFileName? : Option System.FilePath := none
+  incrHeaderSaveFileName? : Option System.FilePath := none
 
 @[export lean_shell_options_mk]
 def mkShellOptions (_ : Unit) : ShellOptions := {}
@@ -410,9 +413,17 @@ def ShellOptions.process (opts : ShellOptions)
       Internal.enableDebug arg
       return opts
     -- if not `LEAN_DEBUG`, fall through to unknown option
-  | 'p' => -- `--plugin=file`
+  | 'p' => -- `--plugin=file[=fn]`
     let arg ← checkOptArg "p" optArg?
-    Lean.loadPlugin arg
+    let (path, fn?) :=
+      let pos := arg.find '='
+      if h : pos.IsAtEnd then
+        (FilePath.mk arg, none)
+      else
+        let path := arg.sliceTo pos
+        let initFn := arg.sliceFrom (pos.next h)
+        (FilePath.mk path.copy, some initFn.copy)
+    Lean.loadPlugin path fn?
     let forwardedArgs := opts.forwardedArgs.push s!"-p{arg}"
     return {opts with forwardedArgs}
   | 'l' => -- `--load-dynlib=file`
@@ -426,6 +437,12 @@ def ShellOptions.process (opts : ShellOptions)
     let arg ← checkOptArg "E" optArg?
     let errorOnKinds := opts.errorOnKinds.push arg.toName
     return {opts with errorOnKinds}
+  | 'Y' => -- `--incr-save=file`
+    return {opts with incrSaveFileName? := ← checkOptArg "Y" optArg?}
+  | 'Z' => -- `--incr-load=file`
+    return {opts with incrLoadFileName? := ← checkOptArg "Z" optArg?}
+  | 'H' => -- `--incr-header-save=file`
+    return {opts with incrHeaderSaveFileName? := ← checkOptArg "H" optArg?}
   | _ =>
     pure ()
   eprint "Unknown command line option\n"
@@ -537,6 +554,9 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
   let env? ← Elab.runFrontend contents opts.leanOpts fileName mainModuleName
     opts.trustLevel opts.oleanFileName? opts.ileanFileName? opts.jsonOutput opts.errorOnKinds
     #[] opts.printStats setup?
+    (incrSaveFileName? := opts.incrSaveFileName?)
+    (incrLoadFileName? := opts.incrLoadFileName?)
+    (incrHeaderSaveFileName? := opts.incrHeaderSaveFileName?)
   if let some env := env? then
     if opts.run then
       return ← runMain env opts.leanOpts args

@@ -37,6 +37,7 @@ public import Lean.Log
 public import Lean.Linter
 public import Lean.SubExpr
 public import Lean.LabelAttribute
+public import Lean.AutoDecl
 public import Lean.AddDecl
 public import Lean.Replay
 public import Lean.PrivateName

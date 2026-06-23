@@ -259,6 +259,7 @@ theorem Iter.step_map {f : β → γ} :
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
+set_option linter.defProp false in
 def Iter.step_filter {f : β → Bool} :
     (it.filter f).step = match it.step with
       | .yield it' out h =>
@@ -278,6 +279,7 @@ def Iter.step_filter {f : β → Bool} :
   · simp
   · simp
 
+set_option linter.defProp false in
 def Iter.val_step_filter {f : β → Bool} :
     (it.filter f).step.val = match it.step.val with
       | .yield it' out =>
@@ -738,6 +740,7 @@ theorem Iter.length_map {α β β' : Type w} [Iterator α Id β]
     (it.map f).length = it.length := by
   simp [map_eq_toIter_map_toIterM, length_eq_length_toIterM]
 
+set_option linter.defProp false in
 @[deprecated Iter.length_map (since := "2026-01-28")]
 def Iter.count_map := @Iter.length_map
 

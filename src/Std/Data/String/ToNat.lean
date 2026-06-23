@@ -61,7 +61,7 @@ theorem NoRepetition.append_singleton_of_ne {α : Type u} {a b : α} {l : List �
 
 @[simp]
 theorem noRepetition_singleton {α : Type u} {a b : α} : NoRepetition a [b] := by
-  simpa [noRepetition_iff] using fun h => by simpa using h.length_le
+  simpa [noRepetition_iff] using! fun h => by simpa using! h.length_le
 
 theorem noRepetition_cons_append_append_iff {α : Type u} {a : α} {l : List α} :
     NoRepetition a (a :: (l ++ [a])) ↔
@@ -243,7 +243,7 @@ public theorem Slice.isNat_comp_copy : String.isNat ∘ String.Slice.copy = Stri
 
 @[simp]
 public theorem Slice.toNat?_copy {s : Slice} : s.copy.toNat? = s.toNat? := by
-  simpa [← isNat_toSlice] using Slice.toNat?_congr (by simp)
+  simpa [← isNat_toSlice] using! Slice.toNat?_congr (by simp)
 
 @[simp]
 public theorem Slice.toNat?_comp_copy : String.toNat? ∘ String.Slice.copy = String.Slice.toNat? := by

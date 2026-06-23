@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 
 -- Refines the free variable `n` and the result type of the `do` block:
 example (x : Nat) (n : Fin (x + 1)) : Id (Fin (x + 1)) := do

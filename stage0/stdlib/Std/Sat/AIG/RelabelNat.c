@@ -179,7 +179,7 @@ return v___x_35_;
 else
 {
 lean_object* v___x_38_; 
-lean_dec_ref(v___x_30_);
+lean_dec_ref_known(v___x_30_, 1);
 lean_dec_ref(v___f_29_);
 lean_dec(v_a_23_);
 lean_dec_ref(v_inst_21_);
@@ -463,7 +463,7 @@ lean_dec(v_h__3_165_);
 lean_dec(v_h__2_164_);
 v_idx_167_ = lean_ctor_get(v_decl_162_, 0);
 lean_inc(v_idx_167_);
-lean_dec_ref(v_decl_162_);
+lean_dec_ref_known(v_decl_162_, 1);
 v___x_168_ = lean_apply_2(v_h__1_163_, v_idx_167_, lean_box(0));
 return v___x_168_;
 }
@@ -476,7 +476,7 @@ v_l_169_ = lean_ctor_get(v_decl_162_, 0);
 lean_inc(v_l_169_);
 v_r_170_ = lean_ctor_get(v_decl_162_, 1);
 lean_inc(v_r_170_);
-lean_dec_ref(v_decl_162_);
+lean_dec_ref_known(v_decl_162_, 2);
 v___x_171_ = lean_apply_3(v_h__3_165_, v_l_169_, v_r_170_, lean_box(0));
 return v___x_171_;
 }
@@ -503,7 +503,7 @@ lean_dec(v_h__3_177_);
 lean_dec(v_h__2_176_);
 v_idx_179_ = lean_ctor_get(v_decl_174_, 0);
 lean_inc(v_idx_179_);
-lean_dec_ref(v_decl_174_);
+lean_dec_ref_known(v_decl_174_, 1);
 v___x_180_ = lean_apply_2(v_h__1_175_, v_idx_179_, lean_box(0));
 return v___x_180_;
 }
@@ -516,7 +516,7 @@ v_l_181_ = lean_ctor_get(v_decl_174_, 0);
 lean_inc(v_l_181_);
 v_r_182_ = lean_ctor_get(v_decl_174_, 1);
 lean_inc(v_r_182_);
-lean_dec_ref(v_decl_174_);
+lean_dec_ref_known(v_decl_174_, 2);
 v___x_183_ = lean_apply_3(v_h__3_177_, v_l_181_, v_r_182_, lean_box(0));
 return v___x_183_;
 }
@@ -613,7 +613,7 @@ else
 lean_object* v_val_230_; 
 v_val_230_ = lean_ctor_get(v___x_228_, 0);
 lean_inc(v_val_230_);
-lean_dec_ref(v___x_228_);
+lean_dec_ref_known(v___x_228_, 1);
 return v_val_230_;
 }
 }
@@ -692,7 +692,7 @@ lean_object* v_val_264_; lean_object* v___x_265_;
 lean_dec(v_h__2_261_);
 v_val_264_ = lean_ctor_get(v_x_259_, 0);
 lean_inc(v_val_264_);
-lean_dec_ref(v_x_259_);
+lean_dec_ref_known(v_x_259_, 1);
 v___x_265_ = lean_apply_1(v_h__1_260_, v_val_264_);
 return v___x_265_;
 }
@@ -715,7 +715,7 @@ lean_object* v_val_272_; lean_object* v___x_273_;
 lean_dec(v_h__2_269_);
 v_val_272_ = lean_ctor_get(v_x_267_, 0);
 lean_inc(v_val_272_);
-lean_dec_ref(v_x_267_);
+lean_dec_ref_known(v_x_267_, 1);
 v___x_273_ = lean_apply_1(v_h__1_268_, v_val_272_);
 return v___x_273_;
 }

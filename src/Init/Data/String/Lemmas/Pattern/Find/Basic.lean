@@ -32,7 +32,7 @@ theorem Pattern.Model.find?_eq_some_iff {ρ : Type} (pat : ρ) [PatternModel pat
   suffices ∀ (l : List (SearchStep s)) (pos : s.Pos) (hl : IsValidSearchFrom pat pos l) (pos' : s.Pos),
       l.findSome? (fun | .matched s _ => some s | .rejected .. => none) = some pos' ↔
         pos ≤ pos' ∧ MatchesAt pat pos' ∧ ∀ pos'', pos ≤ pos'' → pos'' < pos' → ¬ MatchesAt pat pos'' by
-    simpa using this (ToForwardSearcher.toSearcher pat s).toList s.startPos
+    simpa using! this (ToForwardSearcher.toSearcher pat s).toList s.startPos
       (LawfulToForwardSearcherModel.isValidSearchFrom_toList s) pos
   intro l pos hl pos'
   induction hl with

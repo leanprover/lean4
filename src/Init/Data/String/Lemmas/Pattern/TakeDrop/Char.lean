@@ -87,7 +87,7 @@ theorem get_eq_of_lt_skipPrefixWhile_char {c : Char} {s : Slice} {pos : s.Pos} (
   Pos.get_eq_of_lt_skipWhile_char (Pos.startPos_le _) (by rwa [skipPrefixWhile_eq_skipWhile_startPos] at h)
 
 @[simp]
-theorem all_char_iff {c : Char} {s : Slice} : s.all c ↔ s.copy.toList = List.replicate s.copy.length c := by
+theorem all_char_iff {c : Char} {s : Slice} : s.all c ↔ s.copy.toList = List.replicate s.copy.toList.length c := by
   rw [Bool.eq_iff_iff]
   simp [Pattern.Model.all_eq_true_iff, Char.isLongestMatchAtChain_startPos_endPos_iff_toList]
 
@@ -123,7 +123,7 @@ theorem get_eq_of_skipSuffixWhile_le_char {c : Char} {s : Slice} {pos : s.Pos}
   Pos.get_eq_of_revSkipWhile_le_char h' (by rwa [skipSuffixWhile_eq_revSkipWhile_endPos] at h)
 
 @[simp]
-theorem revAll_char_iff {c : Char} {s : Slice} : s.revAll c ↔ s.copy.toList = List.replicate s.copy.length c := by
+theorem revAll_char_iff {c : Char} {s : Slice} : s.revAll c ↔ s.copy.toList = List.replicate s.copy.toList.length c := by
   rw [Bool.eq_iff_iff]
   simp [Pattern.Model.revAll_eq_true_iff, Char.isLongestRevMatchAtChain_startPos_endPos_iff_toList]
 

@@ -1638,6 +1638,7 @@ theorem IterM.length_map {α β β' : Type w} {m : Type w → Type w'} [Iterator
   · simp [ihs ‹_›]
   · simp
 
+set_option linter.defProp false in
 @[deprecated IterM.length_map (since := "2026-01-28")]
 def IterM.count_map := @IterM.length_map
 

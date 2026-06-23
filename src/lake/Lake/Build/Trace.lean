@@ -9,7 +9,7 @@ prelude
 public import Lean.Data.Json
 import Init.Data.Nat.Fold
 meta import Init.Data.Nat.Fold
-import Lake.Util.String
+public import Lake.Util.String
 public import Init.Data.String.Search
 public import Init.Data.String.Extra
 import Init.Data.Option.Coe
@@ -141,8 +141,8 @@ public def ofHex? (s : String) : Option Hash :=
   if s.utf8ByteSize = 16 && isHex s then ofHex s else none
 
 /-- Returns the hash as 16-digit lowercase hex string. -/
-public def hex (self : Hash) : String :=
-  lpad (String.ofList <| Nat.toDigits 16 self.val.toNat) '0' 16
+@[inline] public def hex (self : Hash) : String :=
+  lowerHexUInt64 self.val
 
 /-- Parse a hash from a string of decimal digits. -/
 public def ofDecimal? (s : String) : Option Hash :=

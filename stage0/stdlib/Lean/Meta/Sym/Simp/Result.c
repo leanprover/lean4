@@ -87,7 +87,7 @@ if (lean_obj_tag(v___x_25_) == 0)
 lean_object* v_a_26_; lean_object* v___x_27_; 
 v_a_26_ = lean_ctor_get(v___x_25_, 0);
 lean_inc_n(v_a_26_, 2);
-lean_dec_ref(v___x_25_);
+lean_dec_ref_known(v___x_25_, 1);
 v___x_27_ = l_Lean_Meta_Sym_getLevel___redArg(v_a_26_, v_a_19_, v_a_20_, v_a_21_, v_a_22_, v_a_23_);
 if (lean_obj_tag(v___x_27_) == 0)
 {
@@ -241,7 +241,7 @@ uint8_t v_done_98_; uint8_t v_contextDependent_99_; uint8_t v___y_101_;
 lean_dec_ref(v_e_u2081_87_);
 v_done_98_ = lean_ctor_get_uint8(v_r_u2082_90_, 0);
 v_contextDependent_99_ = lean_ctor_get_uint8(v_r_u2082_90_, 1);
-lean_dec_ref(v_r_u2082_90_);
+lean_dec_ref_known(v_r_u2082_90_, 0);
 if (v_cd_u2081_91_ == 0)
 {
 v___y_101_ = v_contextDependent_99_;
@@ -440,7 +440,7 @@ uint8_t v_done_159_; uint8_t v_contextDependent_160_; uint8_t v___y_162_;
 lean_dec_ref(v_e_u2081_147_);
 v_done_159_ = lean_ctor_get_uint8(v_r_u2082_150_, 0);
 v_contextDependent_160_ = lean_ctor_get_uint8(v_r_u2082_150_, 1);
-lean_dec_ref(v_r_u2082_150_);
+lean_dec_ref_known(v_r_u2082_150_, 0);
 if (v_cd_u2081_151_ == 0)
 {
 v___y_162_ = v_contextDependent_160_;

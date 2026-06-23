@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym
-// Imports: public import Lean.Meta.Sym.AlphaShareBuilder public import Lean.Meta.Sym.AlphaShareCommon public import Lean.Meta.Sym.ExprPtr public import Lean.Meta.Sym.SymM public import Lean.Meta.Sym.MaxFVar public import Lean.Meta.Sym.ReplaceS public import Lean.Meta.Sym.LooseBVarsS public import Lean.Meta.Sym.InstantiateS public import Lean.Meta.Sym.IsClass public import Lean.Meta.Sym.Intro public import Lean.Meta.Sym.InstantiateMVarsS public import Lean.Meta.Sym.ProofInstInfo public import Lean.Meta.Sym.AbstractS public import Lean.Meta.Sym.Pattern public import Lean.Meta.Sym.Apply public import Lean.Meta.Sym.InferType public import Lean.Meta.Sym.Simp public import Lean.Meta.Sym.Util public import Lean.Meta.Sym.Eta public import Lean.Meta.Sym.Canon public import Lean.Meta.Sym.Arith public import Lean.Meta.Sym.Grind public import Lean.Meta.Sym.SynthInstance
+// Imports: public import Lean.Meta.Sym.AlphaShareBuilder public import Lean.Meta.Sym.AlphaShareCommon public import Lean.Meta.Sym.ExprPtr public import Lean.Meta.Sym.SymM public import Lean.Meta.Sym.MaxFVar public import Lean.Meta.Sym.ReplaceS public import Lean.Meta.Sym.LooseBVarsS public import Lean.Meta.Sym.InstantiateS public import Lean.Meta.Sym.IsClass public import Lean.Meta.Sym.Intro public import Lean.Meta.Sym.InstantiateMVarsS public import Lean.Meta.Sym.ProofInstInfo public import Lean.Meta.Sym.AbstractS public import Lean.Meta.Sym.Pattern public import Lean.Meta.Sym.Apply public import Lean.Meta.Sym.InferType public import Lean.Meta.Sym.Simp public import Lean.Meta.Sym.DSimp public import Lean.Meta.Sym.Util public import Lean.Meta.Sym.Eta public import Lean.Meta.Sym.Canon public import Lean.Meta.Sym.Arith public import Lean.Meta.Sym.Grind public import Lean.Meta.Sym.SynthInstance
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,6 +30,7 @@ lean_object* runtime_initialize_Lean_Meta_Sym_Pattern(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Apply(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_InferType(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_DSimp(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Eta(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Canon(uint8_t builtin);
@@ -92,6 +93,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Sym_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_DSimp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Sym_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -136,6 +140,7 @@ lean_object* initialize_Lean_Meta_Sym_Pattern(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Apply(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_InferType(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_DSimp(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Eta(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Canon(uint8_t builtin);
@@ -196,6 +201,9 @@ res = initialize_Lean_Meta_Sym_InferType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Simp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_DSimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Util(builtin);

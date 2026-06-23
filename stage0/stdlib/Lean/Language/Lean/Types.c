@@ -68,7 +68,7 @@ else
 lean_object* v_val_3_; lean_object* v___x_4_; 
 v_val_3_ = lean_ctor_get(v_a_x3f_1_, 0);
 lean_inc(v_val_3_);
-lean_dec_ref(v_a_x3f_1_);
+lean_dec_ref_known(v_a_x3f_1_, 1);
 v___x_4_ = lean_array_push(v_as_2_, v_val_3_);
 return v___x_4_;
 }
@@ -521,7 +521,7 @@ else
 lean_object* v_val_172_; lean_object* v_processedSnap_173_; lean_object* v_stx_x3f_174_; lean_object* v_reportingRange_175_; lean_object* v___f_176_; uint8_t v___x_177_; lean_object* v___x_178_; 
 v_val_172_ = lean_ctor_get(v_result_x3f_170_, 0);
 lean_inc(v_val_172_);
-lean_dec_ref(v_result_x3f_170_);
+lean_dec_ref_known(v_result_x3f_170_, 1);
 v_processedSnap_173_ = lean_ctor_get(v_val_172_, 1);
 lean_inc_ref(v_processedSnap_173_);
 lean_dec(v_val_172_);

@@ -6,9 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Float32
+public import Init.Data.Float.Float32
 import Init.Data.Nat.Log2
 import Init.Meta
+import Init.Data.Array.Lemmas
 
 public section
 
@@ -32,26 +33,40 @@ class OfScientific (α : Type u) where
   -/
   ofScientific (mantissa : Nat) (exponentSign : Bool) (decimalExponent : Nat) : α
 
-/-- Computes `m * 2^e`. -/
-def Float.ofBinaryScientific (m : Nat) (e : Int) : Float :=
-  let s := m.log2 - 63
-  let m := (m >>> s).toUInt64
-  let e := e + s
-  m.toFloat.scaleB e
-
 /--
-Constructs a `Float` from the given mantissa, sign, and exponent values.
-
-This function is part of the implementation of the `OfScientific Float` instance that is used to
-interpret floating-point literals.
+Precomputed values of `10 ^ e` for `0 ≤ e ≤ 22`. In this range, the values can be represented
+exactly.
 -/
-protected opaque Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
-  if s then
-    let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
-    let m := (m <<< (3 * e + s)) / 5^e
-    Float.ofBinaryScientific m (-4 * e - s)
+@[expose] def Float.exactlyRepresentablePowersOfTen : Array Float :=
+ #[Float.ofBits 0x3FF0000000000000, Float.ofBits 0x4024000000000000,
+   Float.ofBits 0x4059000000000000, Float.ofBits 0x408F400000000000,
+   Float.ofBits 0x40C3880000000000, Float.ofBits 0x40F86A0000000000,
+   Float.ofBits 0x412E848000000000, Float.ofBits 0x416312D000000000,
+   Float.ofBits 0x4197D78400000000, Float.ofBits 0x41CDCD6500000000,
+   Float.ofBits 0x4202A05F20000000, Float.ofBits 0x42374876E8000000,
+   Float.ofBits 0x426D1A94A2000000, Float.ofBits 0x42A2309CE5400000,
+   Float.ofBits 0x42D6BCC41E900000, Float.ofBits 0x430C6BF526340000,
+   Float.ofBits 0x4341C37937E08000, Float.ofBits 0x4376345785D8A000,
+   Float.ofBits 0x43ABC16D674EC800, Float.ofBits 0x43E158E460913D00,
+   Float.ofBits 0x4415AF1D78B58C40, Float.ofBits 0x444B1AE4D6E2EF50,
+   Float.ofBits 0x4480F0CF064DD592]
+
+@[expose] protected def Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
+  if h : m < 2 ^ 53 ∧ e ≤ 22 then
+    -- Fast case: both `m` and `10 ^ e` are representable as floats.
+    let powerOfTen : Float :=
+      exactlyRepresentablePowersOfTen[e]'(by simp [exactlyRepresentablePowersOfTen]; omega)
+    if s then
+      m.toUInt64.toFloat / powerOfTen
+    else
+      m.toUInt64.toFloat * powerOfTen
   else
-    Float.ofBinaryScientific (m * 5^e) e
+    -- Slow case. Implementing this efficiently is difficult. The comparatively simple algorithm at
+    -- https://www.exploringbinary.com/correct-decimal-to-floating-point-using-big-integers/
+    -- is difficult to get right in the case of subnormals and isn't faster than just going through
+    -- the model. So, we go through the model.
+    let e := if s then Int.negOfNat e else Int.ofNat e
+    Float.ofModel (Float.Model.ofScientific m e)
 
 /--
   The `OfScientific Float` must have priority higher than `mid` since
@@ -85,26 +100,28 @@ instance : OfNat Float n   := ⟨Float.ofNat n⟩
 @[inherit_doc Float.ofNat] abbrev Nat.toFloat (n : Nat) : Float :=
   Float.ofNat n
 
-/-- Computes `m * 2^e`. -/
-def Float32.ofBinaryScientific (m : Nat) (e : Int) : Float32 :=
-  let s := m.log2 - 63
-  let m := (m >>> s).toUInt64
-  let e := e + s
-  m.toFloat32.scaleB e
-
 /--
-Constructs a `Float32` from the given mantissa, sign, and exponent values.
-
-This function is part of the implementation of the `OfScientific Float32` instance that is used to
-interpret floating-point literals.
+Precomputed values of `10 ^ e` for `0 ≤ e ≤ 10 `. In this range, the values can be represented
+exactly.
 -/
-protected opaque Float32.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float32 :=
-  if s then
-    let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
-    let m := (m <<< (3 * e + s)) / 5^e
-    Float32.ofBinaryScientific m (-4 * e - s)
+@[expose] def Float32.exactlyRepresentablePowersOfTen : Array Float32 :=
+ #[Float32.ofBits 0x3F800000, Float32.ofBits 0x41200000, Float32.ofBits 0x42C80000,
+   Float32.ofBits 0x447A0000, Float32.ofBits 0x461C4000, Float32.ofBits 0x47C35000,
+   Float32.ofBits 0x49742400, Float32.ofBits 0x4B189680, Float32.ofBits 0x4CBEBC20,
+   Float32.ofBits 0x4E6E6B28, Float32.ofBits 0x501502F9]
+
+@[expose] protected def Float32.ofScientific (m :Nat) (s : Bool) (e : Nat) : Float32 :=
+  -- See comments on `Float.ofScientific`.
+  if h : m < 2 ^ 23 ∧ e ≤ 10 then
+    let powerOfTen : Float32 :=
+      exactlyRepresentablePowersOfTen[e]'(by simp [exactlyRepresentablePowersOfTen]; omega)
+    if s then
+      m.toUInt64.toFloat32 / powerOfTen
+    else
+      m.toUInt64.toFloat32 * powerOfTen
   else
-    Float32.ofBinaryScientific (m * 5^e) e
+    let e := if s then Int.negOfNat e else Int.ofNat e
+    Float32.ofModel (Float32.Model.ofScientific m e)
 
 instance : OfScientific Float32 where
   ofScientific := Float32.ofScientific

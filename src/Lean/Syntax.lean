@@ -323,35 +323,39 @@ If `nFields` is set, we take that many fields from the end and keep the remainin
 as one name. For example, `` `foo.bla.boo `` with `(nFields := 1)` ↦ `` [`foo.bla, `boo] ``. -/
 def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax :=
   match stx with
-  | ident si@(SourceInfo.original lead pos trail _) rawStr val _ => Id.run do
+  | ident si rawStr val _ => Id.run do
     let val := val.eraseMacroScopes
-    -- With original info, we assume that `rawStr` represents `val`.
-    let nameComps := nameComps val nFields?
-    let rawComps := splitNameLit rawStr
-    if !rawComps.isEmpty then
-      let rawComps :=
-        if let some nFields := nFields? then
-          let nPrefix := rawComps.length - nFields
-          let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring.Raw) => acc + ss.bsize + 1
-          let prefixSz := prefixSz - 1 -- The last component has no dot
-          rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
-        else
-          rawComps
-      if nameComps.length == rawComps.length then
-        return nameComps.zip rawComps |>.map fun (id, ss) =>
-          let off := ss.startPos.unoffsetBy rawStr.startPos
-          let lead := if off == 0 then lead else "".toRawSubstring
-          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
-          let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
-          ident info ss id []
-    -- if re-parsing failed, just give them all the same span
-    nameComps.map fun n => ident si n.toString.toRawSubstring n []
-  | ident si _ val _ =>
-    let val := val.eraseMacroScopes
-    /- With non-original info:
-     - `rawStr` can take all kinds of forms so we only use `val`.
-     - there is no source extent to offset, so we pass it as-is. -/
-    nameComps val nFields? |>.map fun n => ident si n.toString.toRawSubstring n []
+    -- Early return if the name has at most one component
+    if val.getNumParts ≤ 1 then
+      return [ident si rawStr val []]
+    match si with
+    | SourceInfo.original lead pos trail _ =>
+      -- With original info, we assume that `rawStr` represents `val`.
+      let nameComps := nameComps val nFields?
+      let rawComps := splitNameLit rawStr
+      if !rawComps.isEmpty then
+        let rawComps :=
+          if let some nFields := nFields? then
+            let nPrefix := rawComps.length - nFields
+            let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring.Raw) => acc + ss.bsize + 1
+            let prefixSz := prefixSz - 1 -- The last component has no dot
+            rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
+          else
+            rawComps
+        if nameComps.length == rawComps.length then
+          return nameComps.zip rawComps |>.map fun (id, ss) =>
+            let off := ss.startPos.unoffsetBy rawStr.startPos
+            let lead := if off == 0 then lead else "".toRawSubstring
+            let trail := if ss.stopPos == rawStr.stopPos then trail else "".toRawSubstring
+            let info := original lead (pos.offsetBy off) trail (pos.offsetBy off |>.offsetBy ⟨ss.bsize⟩)
+            ident info ss id []
+      -- if re-parsing failed, just give them all the same span
+      nameComps.map fun n => ident si n.toString.toRawSubstring n []
+    | _ =>
+      /- With non-original info:
+      - `rawStr` can take all kinds of forms so we only use `val`.
+      - there is no source extent to offset, so we pass it as-is. -/
+      nameComps val nFields? |>.map fun n => ident si n.toString.toRawSubstring n []
   | _ => unreachable!
   where
     nameComps (n : Name) (nFields? : Option Nat) : List Name :=

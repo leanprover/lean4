@@ -1,4 +1,4 @@
-rm -rf .lake/build
+rm -rf .lake
 
 mkdir -p Rebuild
 cat <<EOF > Rebuild/Basic.lean

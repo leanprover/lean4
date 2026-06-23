@@ -5,7 +5,6 @@ https://markushimmel.de/blog/my-first-verified-imperative-program/
 
 import Std.Data.HashSet.Lemmas
 import Std.Tactic.Do
-set_option backward.do.legacy false
 
 open Std Do
 

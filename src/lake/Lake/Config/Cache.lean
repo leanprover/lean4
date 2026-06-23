@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Control.Do
+public import Lake.Util.Git
 public import Lake.Util.Log
 public import Lake.Util.Version
 public import Lake.Config.Artifact
@@ -97,7 +98,7 @@ public partial def parse
   else
     loop 2 {} (lfPos.next h)
 
-@[inline] private partial def loadCore
+@[inline] partial def loadCore
   (h : IO.FS.Handle) (fileName : String) (platformIndependent : Bool)
 : LogIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) := do
@@ -433,22 +434,30 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
 def writeOutputsCore
   (cache : Cache) (scope : String) (inputHash : Hash) (out : Json)
   (service? : Option CacheServiceName) (remoteScope? : Option CacheServiceScope)
+  (overwrite : Bool)
 : IO Unit := do
   let file := cache.outputsFile scope inputHash
   createParentDirs file
   let out := {service?, scope? := remoteScope?, data := out : CacheOutput}
-  IO.FS.writeFile file (toJson out).pretty
+  let contents := (toJson out).pretty
+  if overwrite then
+    IO.FS.writeFile file contents
+  else
+    writeFileIfNew file contents
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs
   [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α)
-: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) none none
+  (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
+  (overwrite := true)
+: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) service? remoteScope? overwrite
 
 /-- Cache the input-to-outputs mappings from a `CacheMap`.  -/
 public def writeMap
   (cache : Cache) (scope : String) (map : CacheMap)
   (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
-: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope?
+  (overwrite := true)
+: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope? overwrite
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
 public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option CacheOutput) := do
@@ -469,7 +478,7 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   cache.dir / "revisions"
 
 /-- Returns path to the input-to-output mappings of a downloaded package revision. -/
-@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : String)   : FilePath :=
+@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : GitRev) : FilePath :=
   cache.revisionDir / scope / s!"{rev}.jsonl"
 
 end Cache
@@ -496,7 +505,7 @@ public def system : CachePlatform := ⟨System.Platform.target⟩
 @[inline] public def ofString (s : String) : CachePlatform := ⟨s⟩
 
 /-- Returns the length of the platform identifier in Unicode code points. -/
-public def length (self : CachePlatform) : Nat := self.raw.length
+public def length (self : CachePlatform) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the platform identifier. -/
 public protected def toString (self : CachePlatform) : String :=
@@ -528,7 +537,7 @@ public def ofString (s : String) : CacheToolchain := ⟨normalizeToolchain s⟩
 @[inline] public def ofElanToolchain (s : String) : CacheToolchain := ⟨s⟩
 
 /-- Returns the length of the toolchain identifier in Unicode code points. -/
-public def length (self : CacheToolchain) : Nat := self.raw.length
+public def length (self : CacheToolchain) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the toolchain identifier. -/
 public protected def toString (self : CacheToolchain) : String :=
@@ -575,7 +584,7 @@ def uploadS3
   | .error e =>
     error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
-private structure CacheServiceImpl where
+structure CacheServiceImpl where
   mk ::
     name? : Option CacheServiceName := none
     /- S3 Bucket -/
@@ -641,11 +650,11 @@ namespace CacheService
 /-- The MIME type of a Lake/Reservoir artifact. -/
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
-private def appendScope (endpoint : String) (scope : String) : String :=
+def appendScope (endpoint : String) (scope : String) : String :=
   scope.split '/' |>.fold (init := endpoint) fun s component =>
     uriEncode component.copy (s.push '/')
 
-private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
+def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
   let endpoint :=
     match scope.impl with
     | .repo scope => appendScope service.impl.artifactEndpoint scope
@@ -687,27 +696,64 @@ public def uploadArtifact
 
 /-! ## Multi-Artifact Transfer -/
 
-private inductive TransferKind
+inductive TransferKind
   | get
   | put
   deriving DecidableEq
 
-private structure TransferInfo where
+structure TransferInfo where
   url : String
+  hash : Hash
   path : FilePath
-  descr : ArtifactDescr
+  /-- Additional paths for a downloaded artifact. -/
+  extraPaths : Array FilePath := #[]
 
-private structure TransferConfig where
+@[inline] def TransferInfo.addPath (self : TransferInfo) (path : FilePath) (extra := true) : TransferInfo :=
+  if extra then
+    {self with extraPaths := self.extraPaths.push path}
+  else
+    {self with path, extraPaths := self.extraPaths.push self.path}
+
+structure TransferDict where
+  infos : Array TransferInfo
+  indices : Std.HashMap Hash Nat
+
+@[inline] def TransferDict.empty : TransferDict :=
+  ⟨#[], ∅⟩
+
+@[inline] def TransferDict.push
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath)
+: TransferDict := ⟨self.infos.push {url, hash, path}, self.indices.insert hash self.infos.size⟩
+
+@[inline] def TransferDict.addIfNew
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath)
+: TransferDict := if self.indices.contains hash then self else self.push url hash path
+
+@[inline] def TransferDict.add
+  (self : TransferDict) (url : String) (hash : Hash) (path : FilePath) (extra := true)
+: TransferDict :=
+  if let some j := self.indices.get? hash then
+    {self with infos := self.infos.modify j (·.addPath path extra)}
+  else
+    self.push url hash path
+
+structure TransferConfig where
   kind : TransferKind
   scope : CacheServiceScope
   infos : Array TransferInfo
   key : String := ""
 
-private structure TransferState where
+structure TransferState where
   didError : Bool := false
   numSuccesses : Nat := 0
 
-private partial def monitorTransfer
+def createExtraPaths (path : FilePath) (extraPaths : Array FilePath) : IO Unit := do
+  -- Note: No intra-cache hard links (breaks permissions/pruning), so we copy
+  let contents ← IO.FS.readBinFile path
+  for extraPath in extraPaths do
+    IO.FS.writeBinFile extraPath contents
+
+partial def monitorTransfer
   (cfg : TransferConfig) (h hOut : IO.FS.Handle) (s : TransferState)
 : LoggerIO TransferState := do
   let line ← h.getLine
@@ -717,7 +763,7 @@ private partial def monitorTransfer
     let s ← (·.2) <$> StateT.run (s := s) do
       match Json.parse line >>= fromJson? with
       | .ok (out : JsonObject) =>
-        let some info@{url, path, descr} := getInfo? out
+        let some info@{url, hash, path, extraPaths} := getInfo? out
           | logError s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
             modify ({· with didError := true})
             return
@@ -726,18 +772,20 @@ private partial def monitorTransfer
         | .ok 201 =>
           match cfg.kind with
           | .get =>
-            logInfo s!"{cfg.scope}: downloaded artifact {descr.hash}\
+            logInfo s!"{cfg.scope}: downloaded artifact {hash}\
               \n  local path: {path}\
               \n  remote URL: {url}"
             let actualHash ← computeFileHash path
-            if actualHash != descr.hash then
+            if actualHash != hash then
               logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
               IO.FS.removeFile path
               modify ({· with didError := true})
             else
+              unless extraPaths.isEmpty do
+                createExtraPaths path extraPaths
               modify fun s => {s with numSuccesses := s.numSuccesses + 1}
           | .put =>
-            logInfo s!"{cfg.scope}: uploaded artifact {descr.hash}\
+            logInfo s!"{cfg.scope}: uploaded artifact {hash}\
               \n  local path: {path}\
               \n  remote URL: {url}"
             modify fun s => {s with numSuccesses := s.numSuccesses + 1}
@@ -755,7 +803,7 @@ where
     | _ => none
   handleFailure info code? out line : LoggerIO Unit := do
     let action := match cfg.kind with | .get => "download" | .put => "upload"
-    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.descr.hash}"
+    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.hash}"
     if let .ok code := code? then
       msg := s!"{msg} (status code: {code})"
     if let .ok errMsg := out.getAs String "errormsg" then
@@ -781,7 +829,7 @@ where
     logError msg
     logVerbose s!"curl JSON: {line.trimAsciiEnd}"
 
-private def transferArtifacts
+def transferArtifacts
   (cfg : TransferConfig)
 : LoggerIO Unit := IO.FS.withTempFile fun h path => do
   let args ← id do
@@ -842,14 +890,25 @@ public def downloadArtifacts
   if descrs.isEmpty then
     logWarning "no artifacts to download"
     return
-  let infos ← descrs.foldlM (init := #[]) fun s descr => do
+  let {infos, ..} ← descrs.foldlM (init := TransferDict.empty) fun s {descr} => do
+    let hash := descr.hash
+    let url := service.artifactUrl hash scope
     let path := cache.artifactDir / descr.relPath
     if force then
       removeFileIfExists path
+      return s.add url hash path
     else if (← path.pathExists) then
-      return s
-    let url := service.artifactUrl descr.hash scope
-    return s.push {url, path, descr}
+      return s.add url hash path (extra := false)
+    else
+      return s.add url hash path
+  let infos ← infos.filterM fun info => do
+    if info.extraPaths.isEmpty then
+      not <$> info.path.pathExists
+    else
+      match (← createExtraPaths info.path info.extraPaths |>.toBaseIO) with
+      | .ok _ => return false
+      | .error (.noFileOrDirectory ..) => return true
+      | .error e => error s!"failed to copy artifact: {e}"
   if infos.isEmpty then
     return
   let infos ← id do
@@ -862,7 +921,7 @@ public def downloadArtifacts
   transferArtifacts {scope, infos, kind := .get}
 where
   fetchUrls url infos := IO.FS.withTempFile fun h path => do
-    let body := Json.arr <| infos.map (toJson ·.descr.hash)
+    let body := Json.arr <| infos.map (toJson ·.hash)
     h.putStr body.compress
     h.flush
     let args := #[
@@ -931,9 +990,10 @@ public def uploadArtifacts
   if n = 0 then
     logWarning "no artifacts to upload"
     return
-  let infos ← n.foldM (init := #[]) fun i _ s => do
-    let url := service.artifactUrl descrs[i].hash scope
-    return s.push {url, path := paths[i], descr := descrs[i]}
+  let {infos, ..} ← n.foldM (init := TransferDict.empty) fun i _ s => do
+    let hash := descrs[i].hash
+    let url := service.artifactUrl hash scope
+    return s.addIfNew url hash paths[i]
   transferArtifacts {scope, infos, kind := .put, key := service.impl.key}
 
 /-! ### Output Transfer -/
@@ -941,8 +1001,8 @@ public def uploadArtifacts
 /-- The MIME type of a Lake/Reservoir input-to-output mappings for a Git revision. -/
 public def mapContentType : String := "application/vnd.reservoir.outputs+json-lines"
 
-private def s3RevisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+def s3RevisionUrl
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   match scope.impl with
@@ -956,7 +1016,7 @@ private def s3RevisionUrl
     return s!"{url}/{rev}.jsonl"
 
 public def revisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   if service.isReservoir then Id.run do
@@ -974,7 +1034,7 @@ public def revisionUrl
     service.s3RevisionUrl rev scope platform toolchain
 
 public def downloadRevisionOutputs?
-  (rev : String) (cache : Cache) (service : CacheService)
+  (rev : GitRev) (cache : Cache) (service : CacheService)
   (localScope : String) (remoteScope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none) (force := false)
 : LoggerIO (Option CacheMap) := do
@@ -998,7 +1058,7 @@ public def downloadRevisionOutputs?
   CacheMap.load path platform.isNone
 
 public def uploadRevisionOutputs
-  (rev : String) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : LoggerIO Unit := do
   let url := service.s3RevisionUrl rev scope platform toolchain

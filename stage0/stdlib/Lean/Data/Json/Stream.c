@@ -427,7 +427,7 @@ v___x_105_ = lean_apply_2(v_putStr_103_, v___x_104_, lean_box(0));
 if (lean_obj_tag(v___x_105_) == 0)
 {
 lean_object* v___x_106_; 
-lean_dec_ref(v___x_105_);
+lean_dec_ref_known(v___x_105_, 1);
 v___x_106_ = lean_apply_1(v_flush_102_, lean_box(0));
 return v___x_106_;
 }

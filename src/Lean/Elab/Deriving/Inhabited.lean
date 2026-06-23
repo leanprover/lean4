@@ -89,7 +89,7 @@ where
       let val ←
         if isStructure (← getEnv) inductiveTypeName then
           withTraceNode `Elab.Deriving.inhabited (fun _ => return m!"using structure instance elaborator") do
-            let stx ← `(structInst| {..})
+            let stx ← `(structInstDefault| struct_inst_default%)
             withoutErrToSorry <| elabTermAndSynthesize stx type
         else
           withTraceNode `Elab.Deriving.inhabited (fun _ => return m!"using constructor `{.ofConstName ctorName}`") do
@@ -131,8 +131,8 @@ where
         (hints       := ReducibilityHints.regular (getMaxHeight (← getEnv) auxVal + 1))
       if isMarkedMeta (← getEnv) inductiveTypeName then
         modifyEnv (markMeta · auxFunName)
-      unless (← read).isNoncomputableSection do
-        compileDecls #[auxFunName]
+      compileDecls #[auxFunName]
+        (logErrors := !(← read).isNoncomputableSection || isMarkedMeta (← getEnv) auxFunName)
       enableRealizationsForConst auxFunName
       trace[Elab.Deriving.inhabited] "defined {.ofConstName auxFunName}"
       let cmd ← mkInstanceCmdWith (mkIdent ctx.instName) usedInstIdxs (mkCIdent auxFunName)

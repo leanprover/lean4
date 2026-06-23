@@ -110,7 +110,7 @@ example : foo = bar := rfl
 
 /-!
 Tests that reducibility attributes set by the user are preserved for WF-recursive functions.
-In particular, `@[instance_reducible]` (alias for `@[implicit_reducible]`) should not be
+In particular, both `@[instance_reducible]` and `@[implicit_reducible]` should not be
 overridden by the default `@[irreducible]` that WF recursion sets. See issue #7082.
 -/
 
@@ -119,7 +119,7 @@ overridden by the default `@[irreducible]` that WF recursion sets. See issue #70
   | n+1, m => baz n (m + n)
 termination_by n m => (n, m)
 
-/-- info: @[implicit_reducible] def baz : Nat → Nat → Nat -/
+/-- info: @[instance_reducible] def baz : Nat → Nat → Nat -/
 #guard_msgs in
 #print sig baz
 

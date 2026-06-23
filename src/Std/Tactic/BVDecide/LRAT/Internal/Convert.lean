@@ -52,13 +52,7 @@ def CNF.Clause.convertLRAT' (clause : CNF.Clause (PosFin n)) : Option (DefaultCl
 Turn a `CNF PosFin` into the representation used by the LRAT checker.
 -/
 def CNF.convertLRAT' (clauses : CNF (PosFin n)) : Array (Option (DefaultClause n)) :=
-  clauses.clauses.filterMap (fun clause =>
-    match CNF.Clause.convertLRAT' clause with
-    | some clause => some (some clause)
-    -- This might look stupid but we are in an Option (Option x) here so explicitly returning none
-    -- is different from not doing this pattern match.
-    | none => none
-  )
+  clauses.clauses.map CNF.Clause.convertLRAT'
 
 theorem CNF.Clause.mem_lrat_of_mem (clause : CNF.Clause (PosFin n)) (h1 : l ∈ clause)
     (h2 : DefaultClause.ofArray clause.toArray = some lratClause) : l ∈ lratClause.clause := by
@@ -133,21 +127,13 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   simp only [Formula.formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro lratClause hlclause
   simp only [Formula.toList, DefaultFormula.toList, DefaultFormula.ofArray, convertLRAT',
-    Array.size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Array.foldl_append', List.foldl_toArray', List.foldl_cons,
-    List.foldl_nil, Array.toList_append, Array.toList_filterMap', List.cons_append, List.nil_append,
-    List.toList_toArray, id_eq, List.filterMap_cons_none, List.map_nil, List.append_nil,
-    List.mem_filterMap, Array.mem_toList_iff, exists_eq_right] at hlclause
+    Array.toList_append, Array.toList_map, List.cons_append, List.nil_append, id_eq,
+    List.filterMap_cons_none, List.filterMap_map, List.map_nil, List.append_nil,
+    List.mem_filterMap, Array.mem_toList_iff, Array.mem_iff_getElem] at hlclause
   rcases hlclause with ⟨reflectClause, ⟨hrclause1, hrclause2⟩⟩
   simp only [CNF.eval, Array.all_eq_true] at h2
-  split at hrclause2
-  · next heq =>
-    rw [← heq] at hrclause2
-    simp only [Option.some.injEq] at hrclause2
-    rw [Array.mem_iff_getElem] at hrclause1
-    rcases hrclause1 with ⟨i, h, rfl⟩
-    simp [CNF.Clause.convertLRAT_sat_of_sat _ hrclause2, h2 i h]
-  · contradiction
+  rcases hrclause1 with ⟨i, h, rfl⟩
+  simp [CNF.Clause.convertLRAT_sat_of_sat _ hrclause2, h2 i h]
 
 end Internal
 end LRAT

@@ -293,7 +293,7 @@ lean_dec(v_a_118_);
 lean_dec(v_compute_117_);
 v_val_126_ = lean_ctor_get(v_a_123_, 0);
 lean_inc(v_val_126_);
-lean_dec_ref(v_a_123_);
+lean_dec_ref_known(v_a_123_, 1);
 v_toPure_127_ = lean_ctor_get(v_toApplicative_122_, 1);
 lean_inc(v_toPure_127_);
 lean_dec_ref(v_toApplicative_122_);

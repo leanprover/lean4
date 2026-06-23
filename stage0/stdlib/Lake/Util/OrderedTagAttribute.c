@@ -1096,7 +1096,7 @@ v___x_381_ = l_Lean_Attribute_Builtin_ensureNoArgs(v_stx_333_, v___y_335_, v___y
 if (lean_obj_tag(v___x_381_) == 0)
 {
 uint8_t v___x_382_; uint8_t v___x_383_; 
-lean_dec_ref(v___x_381_);
+lean_dec_ref_known(v___x_381_, 1);
 v___x_382_ = 0;
 v___x_383_ = l_Lean_instBEqAttributeKind_beq(v_kind_334_, v___x_382_);
 if (v___x_383_ == 0)
@@ -1273,7 +1273,7 @@ goto v___jp_338_;
 else
 {
 lean_object* v___x_380_; 
-lean_dec_ref(v___x_379_);
+lean_dec_ref_known(v___x_379_, 1);
 lean_dec_ref(v_a_330_);
 lean_dec_ref(v_validate_329_);
 v___x_380_ = l_Lean_throwAttrDeclInImportedModule___at___00Lake_registerOrderedTagAttribute_spec__1___redArg(v_name_331_, v_decl_332_, v___y_375_, v___y_376_);
@@ -1324,7 +1324,7 @@ if (lean_obj_tag(v___x_421_) == 0)
 lean_object* v_a_422_; lean_object* v___f_423_; lean_object* v___f_424_; uint8_t v___x_425_; lean_object* v___x_426_; lean_object* v___x_427_; lean_object* v___x_428_; 
 v_a_422_ = lean_ctor_get(v___x_421_, 0);
 lean_inc_n(v_a_422_, 2);
-lean_dec_ref(v___x_421_);
+lean_dec_ref_known(v___x_421_, 1);
 lean_inc_n(v_name_406_, 2);
 v___f_423_ = lean_alloc_closure((void*)(l_Lake_registerOrderedTagAttribute___lam__6___boxed), 5, 1);
 lean_closure_set(v___f_423_, 0, v_name_406_);
@@ -1393,7 +1393,7 @@ return v___x_434_;
 else
 {
 lean_object* v_a_438_; lean_object* v___x_440_; uint8_t v_isShared_441_; uint8_t v_isSharedCheck_445_; 
-lean_dec_ref(v___x_427_);
+lean_dec_ref_known(v___x_427_, 3);
 lean_dec(v_a_422_);
 v_a_438_ = lean_ctor_get(v___x_428_, 0);
 v_isSharedCheck_445_ = !lean_is_exclusive(v___x_428_);
@@ -1746,7 +1746,7 @@ else
 lean_object* v_val_569_; lean_object* v_ext_570_; uint8_t v___x_571_; lean_object* v___x_572_; lean_object* v___x_573_; lean_object* v___x_574_; uint8_t v___x_575_; 
 v_val_569_ = lean_ctor_get(v___x_562_, 0);
 lean_inc(v_val_569_);
-lean_dec_ref(v___x_562_);
+lean_dec_ref_known(v___x_562_, 1);
 v_ext_570_ = lean_ctor_get(v_attr_558_, 1);
 v___x_571_ = 0;
 v___x_572_ = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(v___x_561_, v_ext_570_, v_env_559_, v_val_569_, v___x_571_);

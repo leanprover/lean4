@@ -29,7 +29,14 @@ open Lean Parser.Tactic Elab Meta Term Tactic Simp Linter
 def getLinterUnnecessarySimpa (o : LinterOptions) : Bool :=
   getLinterValue linter.unnecessarySimpa o
 
-@[builtin_tactic Lean.Parser.Tactic.simpa] def evalSimpa : Tactic := fun stx => do
+/--
+Core implementation of the `simpa` tactic, parameterized by whether the final
+unification of the simplified `using` term against the simplified goal should
+be performed at reducible transparency (`useReducible := true`, used by
+`simpa using h`) or at the ambient default/semireducible transparency
+(`useReducible := false`, used by `simpa using! h`).
+-/
+private def evalSimpaCore (useReducible : Bool) : Tactic := fun stx => do
   match stx with
   | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
         $[[$args,*]]? $[using%$usingTk? $usingArg]?) => Elab.Tactic.focus do withSimpDiagnostics do
@@ -79,7 +86,9 @@ def getLinterUnnecessarySimpa (o : LinterOptions) : Bool :=
                 let h ← Term.elabTerm (mkIdent name) gType
                 Term.synthesizeSyntheticMVarsNoPostponing
                 let hType ← inferType h
-                unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
+                let isCompatible : MetaM Bool :=
+                  withAssignableSyntheticOpaque <| isDefEq gType hType
+                unless (← if useReducible then withReducible isCompatible else isCompatible) do
                   -- `e` still is valid in this new local context
                   Term.throwTypeMismatchError gType hType h
                     (header? := some m!"Type mismatch: After simplification, term{indentExpr e}\n")
@@ -109,13 +118,30 @@ def getLinterUnnecessarySimpa (o : LinterOptions) : Bool :=
       let usingArg : Option Term := usingArg.map (⟨·.raw.unsetTrailing⟩)
       let stx ← match ← mkSimpOnly stx.raw.unsetTrailing stats.usedTheorems with
         | `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?) =>
-          if unfold.isSome then
-            `(tactic| simpa! $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)
-          else
-            `(tactic| simpa $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)
+          match unfold.isSome, useReducible, usingArg with
+          | true,  true,  _        => `(tactic| simpa! $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)
+          | false, true,  _        => `(tactic| simpa $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)
+          | true,  false, some ua  => `(tactic| simpa ! $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? using! $ua)
+          | false, false, some ua  => `(tactic| simpa $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? using! $ua)
+          | _,     false, none     => unreachable!  -- `using!` requires a term
         | _ => unreachable!
       TryThis.addSuggestion tk stx (origSpan? := ← getRef)
     return stats.diag
     | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.simpa] def evalSimpa : Tactic :=
+  evalSimpaCore (useReducible := true)
+
+@[builtin_tactic Lean.Parser.Tactic.simpaUsingBang] def evalSimpaUsingBang : Tactic := fun stx => do
+  -- The `simpa ... using! e` syntax is identical to `simpa ... using e` except for
+  -- the trailing `using!` vs `using`. Rewrite to the `simpa` shape and dispatch
+  -- to the shared core, opting into the permissive default-transparency close.
+  match stx with
+  | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
+        $[[$args,*]]? using! $usingArg) => do
+    let stx' ← `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
+        $[[$args,*]]? using $usingArg)
+    evalSimpaCore (useReducible := false) stx'
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Simpa

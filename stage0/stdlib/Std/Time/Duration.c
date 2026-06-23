@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Duration
-// Imports: public import Std.Time.Date public import Init.Data.String.Basic
+// Imports: public import Std.Time.Date public import Init.Data.String.Basic public import Init.Data.String.Length
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2063,6 +2063,7 @@ return v_res_779_;
 }
 lean_object* runtime_initialize_Std_Time_Date(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Duration(uint8_t builtin) {
 lean_object * res;
@@ -2072,6 +2073,9 @@ res = runtime_initialize_Std_Time_Date(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Length(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_instInhabitedDuration = _init_l_Std_Time_instInhabitedDuration();
@@ -2091,6 +2095,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Time_Date(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Duration(uint8_t builtin) {
 lean_object * res;
@@ -2100,6 +2105,9 @@ res = initialize_Std_Time_Date(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Length(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Time_Duration(builtin);

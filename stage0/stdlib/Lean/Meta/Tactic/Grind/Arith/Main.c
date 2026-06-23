@@ -53,7 +53,7 @@ if (lean_obj_tag(v___x_13_) == 0)
 lean_object* v_a_14_; uint8_t v___x_15_; 
 v_a_14_ = lean_ctor_get(v___x_13_, 0);
 lean_inc(v_a_14_);
-lean_dec_ref(v___x_13_);
+lean_dec_ref_known(v___x_13_, 1);
 v___x_15_ = lean_unbox(v_a_14_);
 if (v___x_15_ == 0)
 {
@@ -119,7 +119,7 @@ v___x_27_ = l_Lean_Meta_Grind_Arith_Cutsat_propagateLe(v_e_1_, v___x_26_, v_a_2_
 if (lean_obj_tag(v___x_27_) == 0)
 {
 uint8_t v___x_28_; lean_object* v___x_29_; 
-lean_dec_ref(v___x_27_);
+lean_dec_ref_known(v___x_27_, 1);
 v___x_28_ = lean_unbox(v_a_14_);
 lean_dec(v_a_14_);
 v___x_29_ = l_Lean_Meta_Grind_Arith_Linear_propagateIneq(v_e_1_, v___x_28_, v_a_2_, v_a_3_, v_a_4_, v_a_5_, v_a_6_, v_a_7_, v_a_8_, v_a_9_, v_a_10_, v_a_11_);
@@ -187,7 +187,7 @@ v___x_40_ = l_Lean_Meta_Grind_Arith_Cutsat_propagateLe(v_e_1_, v___x_39_, v_a_2_
 if (lean_obj_tag(v___x_40_) == 0)
 {
 uint8_t v___x_41_; lean_object* v___x_42_; 
-lean_dec_ref(v___x_40_);
+lean_dec_ref_known(v___x_40_, 1);
 v___x_41_ = lean_unbox(v_a_14_);
 lean_dec(v_a_14_);
 v___x_42_ = l_Lean_Meta_Grind_Arith_Linear_propagateIneq(v_e_1_, v___x_41_, v_a_2_, v_a_3_, v_a_4_, v_a_5_, v_a_6_, v_a_7_, v_a_8_, v_a_9_, v_a_10_, v_a_11_);
@@ -292,7 +292,7 @@ if (lean_obj_tag(v___x_87_) == 0)
 lean_object* v_a_88_; uint8_t v___x_89_; 
 v_a_88_ = lean_ctor_get(v___x_87_, 0);
 lean_inc(v_a_88_);
-lean_dec_ref(v___x_87_);
+lean_dec_ref_known(v___x_87_, 1);
 v___x_89_ = lean_unbox(v_a_88_);
 if (v___x_89_ == 0)
 {
@@ -358,7 +358,7 @@ v___x_101_ = l_Lean_Meta_Grind_Arith_Linear_propagateIneq(v_e_75_, v___x_100_, v
 if (lean_obj_tag(v___x_101_) == 0)
 {
 uint8_t v___x_102_; lean_object* v___x_103_; 
-lean_dec_ref(v___x_101_);
+lean_dec_ref_known(v___x_101_, 1);
 v___x_102_ = lean_unbox(v_a_88_);
 lean_dec(v_a_88_);
 v___x_103_ = l_Lean_Meta_Grind_Arith_Cutsat_propagateLt(v_e_75_, v___x_102_, v_a_76_, v_a_77_, v_a_78_, v_a_79_, v_a_80_, v_a_81_, v_a_82_, v_a_83_, v_a_84_, v_a_85_);
@@ -426,7 +426,7 @@ v___x_114_ = l_Lean_Meta_Grind_Arith_Linear_propagateIneq(v_e_75_, v___x_113_, v
 if (lean_obj_tag(v___x_114_) == 0)
 {
 uint8_t v___x_115_; lean_object* v___x_116_; 
-lean_dec_ref(v___x_114_);
+lean_dec_ref_known(v___x_114_, 1);
 v___x_115_ = lean_unbox(v_a_88_);
 lean_dec(v_a_88_);
 v___x_116_ = l_Lean_Meta_Grind_Arith_Cutsat_propagateLt(v_e_75_, v___x_115_, v_a_76_, v_a_77_, v_a_78_, v_a_79_, v_a_80_, v_a_81_, v_a_82_, v_a_83_, v_a_84_, v_a_85_);

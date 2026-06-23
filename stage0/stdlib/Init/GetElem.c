@@ -1114,7 +1114,7 @@ else
 lean_object* v_val_448_; 
 v_val_448_ = lean_ctor_get(v___x_446_, 0);
 lean_inc(v_val_448_);
-lean_dec_ref(v___x_446_);
+lean_dec_ref_known(v___x_446_, 1);
 return v_val_448_;
 }
 }
@@ -2171,7 +2171,7 @@ lean_object* v_val_810_; lean_object* v___x_811_;
 lean_dec(v_h__2_807_);
 v_val_810_ = lean_ctor_get(v_x_805_, 0);
 lean_inc(v_val_810_);
-lean_dec_ref(v_x_805_);
+lean_dec_ref_known(v_x_805_, 1);
 v___x_811_ = lean_apply_1(v_h__1_806_, v_val_810_);
 return v___x_811_;
 }
@@ -2194,7 +2194,7 @@ lean_object* v_val_819_; lean_object* v___x_820_;
 lean_dec(v_h__2_816_);
 v_val_819_ = lean_ctor_get(v_x_814_, 0);
 lean_inc(v_val_819_);
-lean_dec_ref(v_x_814_);
+lean_dec_ref_known(v_x_814_, 1);
 v___x_820_ = lean_apply_1(v_h__1_815_, v_val_819_);
 return v___x_820_;
 }
@@ -2559,7 +2559,7 @@ lean_object* v___x_1026_; lean_object* v___x_1027_; lean_object* v___x_1028_; le
 lean_dec(v_x_1018_);
 v___x_1026_ = ((lean_object*)(l_outOfBounds___redArg___closed__0));
 v___x_1027_ = ((lean_object*)(l_List_get_x21Internal___redArg___closed__0));
-v___x_1028_ = lean_unsigned_to_nat(335u);
+v___x_1028_ = lean_unsigned_to_nat(332u);
 v___x_1029_ = lean_unsigned_to_nat(18u);
 v___x_1030_ = ((lean_object*)(l_List_get_x21Internal___redArg___closed__1));
 v___x_1031_ = l_mkPanicMessageWithDecl(v___x_1026_, v___x_1027_, v___x_1028_, v___x_1029_, v___x_1030_);

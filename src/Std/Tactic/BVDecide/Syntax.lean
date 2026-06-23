@@ -15,7 +15,7 @@ import Init.Data.Nat.Bitwise.Basic
 
 set_option linter.missingDocs true -- keep it documented
 
-namespace Lean.Elab.Tactic.BVDecide.Frontend
+namespace Lean.Elab.Tactic.BVDecide
 
 /--
 The various kinds of configurations offered for the SAT solver.
@@ -96,7 +96,7 @@ structure BVDecideConfig where
   -/
   solverMode : SolverMode := .proof
 
-end Lean.Elab.Tactic.BVDecide.Frontend
+end Lean.Elab.Tactic.BVDecide
 
 
 namespace Lean.Parser

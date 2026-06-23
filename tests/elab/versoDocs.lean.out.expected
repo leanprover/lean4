@@ -5,7 +5,7 @@ Nat.gcd.induction' {P : Nat → Nat → Prop} (m n : Nat) (H0 : ∀ (n : Nat), P
   (H1 : ∀ (m n : Nat), 0 < m → P (n % m) m → P m n) : P m n
 something : Unit
 yetMore' : Unit
-versoDocs.lean:631:43-631:53: warning: Code element could be more specific.
+versoDocs.lean:633:43-633:53: warning: Code element could be more specific.
 
 Hint: Insert a role to document it:
   • {̲l̲e̲a̲n̲}̲`-checked`

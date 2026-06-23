@@ -21,20 +21,34 @@ inductive Arg where
   | expr (val : Expr)
   deriving Inhabited
 
+instance : ToString Arg where
+  toString
+    | .stx stx => toString stx
+    | .expr e  => toString e
+
+instance : ToMessageData Arg where
+  toMessageData
+    | .stx stx => toMessageData stx
+    | .expr e  => toMessageData e
+
 /-- Named arguments created using the notation `(x := val)`. -/
 structure NamedArg where
   ref  : Syntax := Syntax.missing
   name : Name
   val  : Arg
-  /-- If `true`, then make all parameters that depend on this one become implicit.
-  This is used for projection notation, since structure parameters might be explicit for classes. -/
-  suppressDeps : Bool := false
+  /-- Overrides the binder infos for the first `numImplicitParams` parameters
+  to make them be implicit if they were explicit.
+  This is used for expanding projection notation. The primary motivation for this field
+  is that class projections may feature explicit structure parameters.
+  See the note at `Lean.Elab.Term.ElabAppArgs.processExplicitArg`. -/
+  numImplicitParams : Nat := 0
   deriving Inhabited
 
-instance : ToMessageData Arg where
-  toMessageData
-  | .stx stx => toMessageData stx
-  | .expr e  => toMessageData e
+instance : ToString NamedArg where
+  toString s := s!"({s.name} := {s.val})"
+
+instance : ToMessageData NamedArg where
+  toMessageData s := m!"({s.name} := {s.val})"
 
 /--
   Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument

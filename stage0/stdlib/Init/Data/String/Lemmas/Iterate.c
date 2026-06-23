@@ -87,7 +87,7 @@ v_it_21_ = lean_ctor_get(v_x_17_, 0);
 lean_inc(v_it_21_);
 v_out_22_ = lean_ctor_get(v_x_17_, 1);
 lean_inc(v_out_22_);
-lean_dec_ref(v_x_17_);
+lean_dec_ref_known(v_x_17_, 2);
 v___x_23_ = lean_apply_2(v_h__1_18_, v_it_21_, v_out_22_);
 return v___x_23_;
 }
@@ -98,7 +98,7 @@ lean_dec(v_h__3_20_);
 lean_dec(v_h__1_18_);
 v_it_24_ = lean_ctor_get(v_x_17_, 0);
 lean_inc(v_it_24_);
-lean_dec_ref(v_x_17_);
+lean_dec_ref_known(v_x_17_, 1);
 v___x_25_ = lean_apply_1(v_h__2_19_, v_it_24_);
 return v___x_25_;
 }
@@ -128,7 +128,7 @@ v_it_35_ = lean_ctor_get(v_x_31_, 0);
 lean_inc(v_it_35_);
 v_out_36_ = lean_ctor_get(v_x_31_, 1);
 lean_inc(v_out_36_);
-lean_dec_ref(v_x_31_);
+lean_dec_ref_known(v_x_31_, 2);
 v___x_37_ = lean_apply_2(v_h__1_32_, v_it_35_, v_out_36_);
 return v___x_37_;
 }
@@ -139,7 +139,7 @@ lean_dec(v_h__3_34_);
 lean_dec(v_h__1_32_);
 v_it_38_ = lean_ctor_get(v_x_31_, 0);
 lean_inc(v_it_38_);
-lean_dec_ref(v_x_31_);
+lean_dec_ref_known(v_x_31_, 1);
 v___x_39_ = lean_apply_1(v_h__2_33_, v_it_38_);
 return v___x_39_;
 }
@@ -268,7 +268,7 @@ lean_ctor_set(v___x_84_, 2, v___x_83_);
 v___x_85_ = lean_unsigned_to_nat(1u);
 v___x_86_ = lean_nat_sub(v_p_80_, v___x_85_);
 v___x_87_ = l_String_Slice_posLE(v___x_84_, v___x_86_);
-lean_dec_ref(v___x_84_);
+lean_dec_ref_known(v___x_84_, 3);
 v___x_88_ = l_String_Model_revPositionsFrom(v_s_79_, v___x_87_);
 v___x_89_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_89_, 0, v___x_87_);

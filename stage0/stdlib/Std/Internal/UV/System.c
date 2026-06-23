@@ -1847,7 +1847,7 @@ lean_object* v_head_672_; lean_object* v___x_673_;
 lean_dec(v_x_669_);
 v_head_672_ = lean_ctor_get(v_x_668_, 0);
 lean_inc(v_head_672_);
-lean_dec_ref(v_x_668_);
+lean_dec_ref_known(v_x_668_, 2);
 v___x_673_ = l_Std_Format_joinSep___at___00Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0___lam__0(v_head_672_);
 return v___x_673_;
 }
@@ -1857,7 +1857,7 @@ lean_object* v_head_674_; lean_object* v___x_675_; lean_object* v___x_676_;
 lean_inc(v_tail_671_);
 v_head_674_ = lean_ctor_get(v_x_668_, 0);
 lean_inc(v_head_674_);
-lean_dec_ref(v_x_668_);
+lean_dec_ref_known(v_x_668_, 2);
 v___x_675_ = l_Std_Format_joinSep___at___00Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0___lam__0(v_head_674_);
 v___x_676_ = l_List_foldl___at___00Std_Format_joinSep___at___00Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1(v_x_669_, v___x_675_, v_tail_671_);
 return v___x_676_;

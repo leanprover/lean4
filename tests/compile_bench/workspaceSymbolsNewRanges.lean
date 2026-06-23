@@ -863,7 +863,7 @@ def consts := ["_private.«external:file:///Users/paul/code/lean4/tests/bench/wo
  "List.foldlM_cons",
  "_private.Lean.Meta.DiscrTree.0.Lean.Meta.DiscrTree.tmpMVarId",
  "Array.anyM",
- "Lean.Parser.Term.liftMethod.parenthesizer",
+ "Lean.Parser.Term.nestedAction.parenthesizer",
  "_private.Init.Data.UInt.Bitwise.0.UInt16.or_eq_zero_iff._simp_1_1",
  "_private.Init.Data.AC.0.Lean.Data.AC.evalList.match_1.eq_3",
  "Std.DTreeMap.Raw.empty",

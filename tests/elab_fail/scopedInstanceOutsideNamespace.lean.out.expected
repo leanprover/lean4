@@ -4,4 +4,4 @@ scopedInstanceOutsideNamespace.lean:6:0-6:30: error: Scoped attributes must be u
 scopedInstanceOutsideNamespace.lean:6:0-6:30: error: invalid syntax node kind `«term_+__1»`
 scopedInstanceOutsideNamespace.lean:6:0-6:30: error: Scoped attributes must be used inside namespaces
 scopedInstanceOutsideNamespace.lean:8:2-8:17: error: Scoped attributes must be used inside namespaces
-scopedInstanceOutsideNamespace.lean:8:0-10:38: warning: Definition `myInst` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`
+scopedInstanceOutsideNamespace.lean:8:0-10:38: warning: Definition `myInst` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`

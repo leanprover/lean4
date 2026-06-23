@@ -1,2 +1,2 @@
-rm -rf lake-manifest.json .lake/build
-rm -rf deps/fooA/.lake/build deps/fooB/.lake/build deps/useA/.lake/build deps/useB/.lake/build
+rm -rf lake-manifest.json .lake
+rm -rf deps/fooA/.lake deps/fooB/.lake deps/useA/.lake deps/useB/.lake

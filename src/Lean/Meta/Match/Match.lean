@@ -1108,9 +1108,12 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
-      -- if `matcher` is not private, we mark it as `implicit_reducible` too
+      -- If `matcher` is not private, mark it `[instance_reducible]` so that TC synthesis
+      -- can unfold it. Matchers aren't strictly type class instances, but TC instances often
+      -- contain `match` expressions in their bodies (e.g. `instance : Decidable (match ...)`),
+      -- and these matchers must unfold at `.instances` transparency to compare instance terms.
       unless isPrivateName name do
-        setReducibilityStatus name .implicitReducible
+        setReducibilityStatus name .instanceReducible
       unless isSplitter do
         modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
         addMatcherInfo name mi

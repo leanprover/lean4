@@ -117,6 +117,13 @@ public def main (args : List String) : IO UInt32 := do
   let env := decls.foldl (fun env decl => impureSigExt.addEntry env decl) env
   let env := decls.foldl (fun env decl => setDeclPublic env decl.name) env
 
+  -- Re-localize the target module's `[init]` entries so `mkIRData`/`exportIREntries` writes them
+  -- into the `.ir`. Non-`meta` `initialize`s are excluded from `.olean` (`filterExport`) and are
+  -- meant to live in the `.ir`; without this, a module loaded only via `.ir` (transitive
+  -- `meta import`) has no initializers to run, and the interpreter then hits a dummy `Unreachable`.
+  let initEntries := regularInitAttr.ext.getModuleEntries env modIdx
+  let env := initEntries.foldl (fun env e => regularInitAttr.ext.addEntry env e) env
+
   -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
   -- unchanged and also for calculation of `extraConstNames` above
   -- TODO: we do manually-added externs only as others need more state sync around ground exprs etc

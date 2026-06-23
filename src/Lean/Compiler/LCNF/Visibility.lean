@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 import Lean.ExtraModUses
 import Lean.Compiler.Options
+import Lean.Compiler.InitAttr
 import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.PassManager
 
@@ -57,6 +58,24 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl pu) : CompilerM Unit 
           if !isDeclPublic (← getEnv) ref then
             trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
             markDeclPublicRec phase refDecl
+
+/--
+Like `markDeclPublicRec`, but unconditionally exports the full body (marks transparent) and recurses
+into *all* local references. Used for declarations the interpreter must be able to *run* during meta
+execution (e.g. `initialize` initializers reachable via `run_meta`/transitive `meta import`): the
+opportunistic-inlining heuristic of `markDeclPublicRec` does not apply, since the entire local
+execution closure needs full bodies, not just the inlinable ones.
+-/
+partial def markDeclRunnableRec (phase : Phase) (decl : Decl pu) : CompilerM Unit := do
+  modifyEnv (setDeclPublic · decl.name)
+  if isDeclTransparent (← getEnv) phase decl.name then
+    return
+  trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it must be runnable for meta execution"
+  modifyEnv (setDeclTransparent · phase decl.name)
+  decl.value.forCodeM fun code =>
+    for ref in collectUsedDecls code do
+      if let some refDecl ← getLocalDeclAt? ref phase then
+        markDeclRunnableRec phase refDecl
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
 partial def checkMeta (origDecl : Decl pu) : CompilerM Unit := do
@@ -164,9 +183,21 @@ def inferVisibility (phase : Phase) : Pass where
   run decls := do
     if (← getEnv).header.isModule then
       for decl in decls do
-        if (← getEnv).setExporting true |>.contains decl.name then
+        let env ← getEnv
+        if env.setExporting true |>.contains decl.name then
           trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
           markDeclPublicRec phase decl
+        -- `initialize`/`@[init]` declarations are run as module-load roots without being referenced
+        -- by any other declaration, so the reference walk above never reaches them. Treat the
+        -- initializer (and any initialized global) as a root so its IR is exported and the
+        -- interpreter can run it during meta execution (e.g. `run_meta` / transitive `meta import`).
+        if isIOUnitInitFn env decl.name || hasInitAttr env decl.name then
+          trace[Compiler.inferVisibility] m!"Marking initializer {decl.name} as runnable"
+          markDeclRunnableRec phase decl
+        if let some initFn := getInitFnNameFor? env decl.name then
+          if let some initDecl ← getLocalDeclAt? initFn phase then
+            trace[Compiler.inferVisibility] m!"Marking init fn {initFn} of {decl.name} as runnable"
+            markDeclRunnableRec phase initDecl
     return decls
 
 builtin_initialize

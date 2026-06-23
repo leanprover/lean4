@@ -29,7 +29,7 @@ theorem test_dsimp_f (n: Nat):
   trace_state
   sorry
 
--- Test with grind internalizer.
+-- Test with grind preprocessing.
 -- Lean v4.30 would fail, because `grind` preprocessing
 -- would leave the goal `n = (f n).fst ∧ 2*n = (f n).snd`
 -- which cannot be proved without inspecting the definition of `f`

@@ -24,6 +24,8 @@ def isSupportedType (α  : Expr) : GoalM Bool := do
 partial def isRelevantPred (e : Expr) : GoalM Bool :=
   match_expr e with
   | Not p => isRelevantPred p
+  | And p q => isRelevantPred p <||> isRelevantPred q
+  | Or p q => isRelevantPred p <||> isRelevantPred q
   | LE.le α _ _ _ => isSupportedType α
   | LT.lt α _ _ _ => isSupportedType α
   | Eq α _ _ => isSupportedType α

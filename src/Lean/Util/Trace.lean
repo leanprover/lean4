@@ -198,6 +198,21 @@ register_builtin_option trace.profiler.output : String := {
     "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
+register_builtin_option trace.profiler.serve : Bool := {
+  defValue := false
+  descr    :=
+    "serve the `trace.profiler` data over HTTP and open it in `https://profiler.firefox.com`; \
+     blocks until interrupted with Ctrl+C"
+}
+
+/--
+True if the `trace.profiler` data should be retained for export - either to a file
+(`trace.profiler.output`) or via the local HTTP server (`trace.profiler.serve`). When true, code
+that would otherwise consume the trace state as messages must leave it intact.
+-/
+@[inline] def trace.profiler.isExporting (opts : Options) : Bool :=
+  (trace.profiler.output.get? opts).isSome || trace.profiler.serve.get opts
+
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
   descr    :=
@@ -260,12 +275,6 @@ def bombEmoji := "💥️"
 def checkEmoji := "✅️"
 def crossEmoji := "❌️"
 
-/-- Convert a `TraceResult` to its emoji representation. -/
-def TraceResult.toEmoji : TraceResult → String
-  | .success => checkEmoji
-  | .failure => crossEmoji
-  | .error   => bombEmoji
-
 /-- Convert an `Except` result to a `TraceResult`.
 `Except.error` always maps to `.error`.
 For `Bool`, `.ok false` maps to `.failure`. For `Option`, `.ok none` maps to `.failure`. -/
@@ -284,6 +293,11 @@ instance : ExceptToTraceResult ε (Option α) where
     | .ok (some _) => .success
     | .ok none => .failure
 
+instance : ExceptToTraceResult ε Expr where
+  toTraceResult
+    | .error _ => .error
+    | .ok e => if e.hasSyntheticSorry then .failure else .success
+
 instance (priority := low) : ExceptToTraceResult ε α where
   toTraceResult
     | .error _ => .error
@@ -301,8 +315,9 @@ then `Lean.withTraceNode'` can be used instead.
 If profiling is enabled, this will also log the runtime of `k`.
 
 The class `ExceptToTraceResult` is used to convert the result produced by `k` into a `TraceResult`
-(success/failure/error), which is stored in `TraceData.result?` and also used to select the
-emoji prefix (✅️/❌️/💥️). A typical invocation might be:
+(success/failure/error), which is stored in `TraceData.result?`. The rendering layer uses
+`TraceResult.toEmoji` to prepend the appropriate emoji (✅️/❌️/💥️) when displaying the trace.
+A typical invocation might be:
 ```lean4
 withTraceNode `isPosTrace
     (msg := fun _ => return m!"checking positivity") do
@@ -336,7 +351,6 @@ where
     let ref ← getRef
     let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
     let result := res.toTraceResult
-    m := m!"{result.toEmoji} {m}"
     let mut data : TraceData := { cls, collapsed, tag, result? := some result }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
@@ -373,7 +387,7 @@ def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name 
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
 
-private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM DoElem := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)
@@ -389,7 +403,8 @@ Similar to `withTraceNode`, but msg is constructed **before** executing `k`.
 This is important when debugging methods such as `isDefEq`, and we want to generate the message
 before `k` updates the metavariable assignment. The class `ExceptToTraceResult` is used to convert
 the result produced by `k` into a `TraceResult` (success/failure/error), which is stored in
-`TraceData.result?` and also used to select the emoji prefix (✅️/❌️/💥️).
+`TraceData.result?`. The rendering layer uses `TraceResult.toEmoji` to prepend the appropriate
+emoji (✅️/❌️/💥️) when displaying the trace.
 
 TODO: find better name for this function.
 -/
@@ -419,7 +434,7 @@ where
       modifyTraces (oldTraces ++ ·)
       return (← MonadExcept.ofExcept res)
     let result := res.toTraceResult
-    let mut msg := m!"{result.toEmoji} {msg}"
+    let mut msg := msg
     let mut data : TraceData := { cls, collapsed, tag, result? := some result }
     if trace.profiler.get opts then
       data := { data with startTime := start, stopTime := stop }
@@ -427,9 +442,10 @@ where
     MonadExcept.ofExcept res
 
 def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
-  if trace.profiler.output.get? (← getOptions) |>.isSome then
-    -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
-    -- pretty printing the trace messages is expensive
+  if trace.profiler.isExporting (← getOptions) then
+    -- do not add trace messages if the profile is being exported (`trace.profiler.output` or
+    -- `trace.profiler.serve`) as it would be redundant, pretty printing the trace messages is
+    -- expensive, and `getResetTraces` would consume the data we want to export
     return
   let traces ← getResetTraces
   if traces.isEmpty then

@@ -55,7 +55,7 @@ v_l_5_ = lean_ctor_get(v_x_2_, 3);
 lean_inc(v_l_5_);
 v_r_6_ = lean_ctor_get(v_x_2_, 4);
 lean_inc(v_r_6_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 5);
 v___x_7_ = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lake_Build_InitFacets_0__Lake_initFacetConfigs_insert_spec__0_spec__0(v_init_1_, v_l_5_);
 v___x_8_ = l_Lake_FacetConfigMap_insert(v_k_3_, v_v_4_, v___x_7_);
 v_init_1_ = v___x_8_;

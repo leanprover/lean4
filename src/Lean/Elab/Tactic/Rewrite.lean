@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.Rewrite
 public import Lean.Meta.Tactic.Replace
 public import Lean.Elab.Tactic.Location
+import Lean.Elab.ConfigEval
 import Lean.Meta.Eqns
 
 public section
@@ -29,7 +30,8 @@ def elabRewrite (mvarId : MVarId) (e : Expr) (stx : Syntax)
     throwAbortTactic
   unless ← occursCheck mvarId thm do
     throwErrorAt stx "Occurs check failed: Expression{indentExpr thm}\ncontains the goal {Expr.mvar mvarId}"
-  let r ← mvarId.rewrite e thm symm (config := config)
+  let r ← withInstancesTypeCheckNote e do
+    mvarId.rewrite e thm symm (config := config)
   let mctx ← getMCtx
   let mvarIds := r.mvarIds.filter fun mvarId => (mctx.getDecl mvarId |>.index) >= mvarCounterSaved
 

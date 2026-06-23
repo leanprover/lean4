@@ -488,7 +488,7 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
           intro pos hp₁ hp₂
           obtain rfl : stackPos = pos.offset := Std.le_antisymm hp₁ hp₂
           simpa [matchesAt_iff_getElem h.isEmpty_eq_false] using fun h => ⟨0, by simpa,
-            by simpa [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte] using Ne.symm h₂⟩
+            by simpa [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte] using! Ne.symm h₂⟩
 
       · cases ht
         simp only [getElem_buildTable] at hit''

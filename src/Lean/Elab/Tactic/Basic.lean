@@ -147,6 +147,15 @@ directly.
 unsafe builtin_initialize tacticElabAttribute : KeyedDeclsAttribute Tactic ←
   mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
+/--
+Disables automatic fallback of this tactic macro/elaborator to other macros/elaborators of the same
+syntax on failure. An elaborator that does not handle the given syntax should still signal this by
+throwing `unsupportedSyntax`, which is not affected by this attribute.
+-/
+@[builtin_doc]
+builtin_initialize noFallbackAttr : TagAttribute ←
+  registerTagAttribute `no_fallback "disables automatic fallback on tactic macro/elab failure"
+
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
     elaborator    := (← read).elaborator
@@ -212,17 +221,22 @@ where
      else
        throwErrorAt stx "Unexpected syntax{indentD stx}"
 
-    @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
+    @[inline] handleEx (declName : Name) (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
+      let noFallback := noFallbackAttr.hasTag (← getEnv) declName
       match ex with
       | .error .. =>
+        if noFallback then throw ex
         trace[Elab.tactic.backtrack] ex.toMessageData
         let failures := failures.push ⟨ex, ← Tactic.saveState⟩
         s.restore (restoreInfo := true); k failures
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then
           -- We do not store `unsupportedSyntaxExceptionId`, see throwExs
+          -- `unsupportedSyntax` is the elaborator declining the syntax before any commit, so
+          -- `[no_fallback]` does not apply here.
           s.restore (restoreInfo := true); k failures
         else if id == abortTacticExceptionId then
+          if noFallback then throw ex
           for msg in (← Core.getMessageLog).toList do
             trace[Elab.tactic.backtrack] msg.data
           let failures := failures.push ⟨ex, ← Tactic.saveState⟩
@@ -280,7 +294,7 @@ where
                     evalTactic stx'
                   return
               evalTactic stx'
-        catch ex => handleEx s failures ex (expandEval s ms evalFns)
+        catch ex => handleEx m.declName s failures ex (expandEval s ms evalFns)
 
     eval (s : SavedState) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit := do
       match evalFns with
@@ -294,7 +308,7 @@ where
             evalFn.value stx
             if !evalFn.isBuiltin then
               recordExtraModUseFromDecl (isMeta := true) evalFn.declName
-        catch ex => handleEx s failures ex (eval s evalFns)
+        catch ex => handleEx evalFn.declName s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=
   throwError "No goals to be solved"

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.FloatArray.Basic
-// Imports: public import Init.Data.Float import Init.Ext public import Init.GetElem public import Init.Data.ToString.Extra
+// Imports: public import Init.Data.Float.Float import Init.Ext public import Init.GetElem public import Init.Data.ToString.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -821,7 +821,7 @@ lean_dec_ref(v_as_277_);
 lean_dec_ref(v_inst_276_);
 v_a_281_ = lean_ctor_get(v_____do__lift_280_, 0);
 lean_inc(v_a_281_);
-lean_dec_ref(v_____do__lift_280_);
+lean_dec_ref_known(v_____do__lift_280_, 1);
 v_toPure_282_ = lean_ctor_get(v_toApplicative_274_, 1);
 lean_inc(v_toPure_282_);
 lean_dec_ref(v_toApplicative_274_);
@@ -834,7 +834,7 @@ lean_object* v_a_284_; size_t v___x_285_; size_t v___x_286_; lean_object* v___x_
 lean_dec_ref(v_toApplicative_274_);
 v_a_284_ = lean_ctor_get(v_____do__lift_280_, 0);
 lean_inc(v_a_284_);
-lean_dec_ref(v_____do__lift_280_);
+lean_dec_ref_known(v_____do__lift_280_, 1);
 v___x_285_ = ((size_t)1ULL);
 v___x_286_ = lean_usize_add(v_i_275_, v___x_285_);
 v___x_287_ = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(v_inst_276_, v_as_277_, v_f_278_, v_sz_279_, v___x_286_, v_a_284_);
@@ -964,7 +964,7 @@ lean_dec_ref(v_as_363_);
 lean_dec_ref(v_inst_362_);
 v_a_367_ = lean_ctor_get(v_____do__lift_366_, 0);
 lean_inc(v_a_367_);
-lean_dec_ref(v_____do__lift_366_);
+lean_dec_ref_known(v_____do__lift_366_, 1);
 v___x_368_ = lean_apply_2(v_toPure_361_, lean_box(0), v_a_367_);
 return v___x_368_;
 }
@@ -974,7 +974,7 @@ lean_object* v_a_369_; lean_object* v___x_370_;
 lean_dec(v_toPure_361_);
 v_a_369_ = lean_ctor_get(v_____do__lift_366_, 0);
 lean_inc(v_a_369_);
-lean_dec_ref(v_____do__lift_366_);
+lean_dec_ref_known(v_____do__lift_366_, 1);
 v___x_370_ = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(v_inst_362_, v_as_363_, v_f_364_, v_n_365_, v_a_369_);
 return v___x_370_;
 }
@@ -1593,7 +1593,7 @@ lean_dec_ref(v_ds_704_);
 return v_res_705_;
 }
 }
-lean_object* runtime_initialize_Init_Data_Float(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
 lean_object* runtime_initialize_Init_GetElem(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Extra(uint8_t builtin);
@@ -1602,7 +1602,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Init_Data_FloatArray_Basic(uint8_t b
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Float(builtin);
+res = runtime_initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Ext(builtin);
@@ -1635,7 +1635,7 @@ l_FloatArray_set___auto__1 = _init_l_FloatArray_set___auto__1();
 lean_mark_persistent(l_FloatArray_set___auto__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_Float(uint8_t builtin);
+lean_object* initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* initialize_Init_Ext(uint8_t builtin);
 lean_object* initialize_Init_GetElem(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Extra(uint8_t builtin);
@@ -1644,7 +1644,7 @@ LEAN_EXPORT lean_object* initialize_Init_Data_FloatArray_Basic(uint8_t builtin) 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Float(builtin);
+res = initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Ext(builtin);

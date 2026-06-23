@@ -342,10 +342,11 @@ namespace InternalSyntax
   This command is for internal use only. It is intended for macros that implicitly introduce new
   scopes, such as `expandInCmd` and `expandNamespacedDeclaration`. It allows local attributes to remain
   accessible beyond those implicit scopes, even though they would normally be hidden from the user.
+  The numeric argument specifies how many scope levels to mark as non-delimiting.
   -/
-  scoped syntax (name := end_local_scope) "end_local_scope" : command
+  scoped syntax (name := end_local_scope) "end_local_scope" num : command
 
-  def endLocalScopeSyntax : Command := Unhygienic.run `(end_local_scope)
+  def endLocalScopeSyntax (depth : Nat) : Command := Unhygienic.run `(end_local_scope $(Syntax.mkNumLit (toString depth)))
 end InternalSyntax
 
 /-- Declares one or more typed variables, or modifies whether already-declared variables are

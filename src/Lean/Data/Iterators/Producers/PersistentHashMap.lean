@@ -124,14 +124,14 @@ private theorem measureEntries_eq_list_sum (es : Array (Entry α β (Node α β)
   unfold Node.measure.measureEntries
   split
   · rename_i h
-    rw [List.drop_eq_getElem_cons (by simpa using h)]
+    rw [List.drop_eq_getElem_cons (by simpa using! h)]
     simp only [List.map_cons, List.sum_cons]
     rw [measureEntries_eq_list_sum es (i + 1)]
     congr 1
     simp only [Array.getElem_toList]
     cases es[i] <;> simp [Entry.measure]
   · rename_i h
-    rw [List.drop_eq_nil_of_le (by simpa using h)]
+    rw [List.drop_eq_nil_of_le (by simpa using! h)]
     simp
   termination_by es.size - i
 

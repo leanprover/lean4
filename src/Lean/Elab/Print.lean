@@ -29,6 +29,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | .irreducible =>   attrs := attrs.push m!"irreducible"
   | .reducible =>     attrs := attrs.push m!"reducible"
   | .implicitReducible => attrs := attrs.push m!"implicit_reducible"
+  | .instanceReducible => attrs := attrs.push m!"instance_reducible"
   | .semireducible => pure ()
 
   let env ← getEnv
@@ -37,6 +38,8 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
 
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
+  else if backwardDefeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"backward_defeq"
 
   let mut m : MessageData := m!""
   unless attrs.isEmpty do

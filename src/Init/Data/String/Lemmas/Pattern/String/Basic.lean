@@ -29,10 +29,10 @@ theorem strictPatternModel {pat : Slice} (hpat : pat.isEmpty = false) : StrictPa
   not_matches_empty := by simpa [PatternModel.Matches]
 
 instance {pat : Slice} : NoPrefixPatternModel pat :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 instance {pat : Slice} : NoSuffixPatternModel pat :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {pat s : Slice} {pos : s.Pos} :
     IsMatch pat pos ↔ (s.sliceTo pos).copy = pat.copy := by
@@ -263,7 +263,7 @@ theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = f
         (pos.offset.byteIdx + pat.copy.toByteArray.size) = pat.copy.toByteArray by
       have h₀ := (((Pos.Raw.isValidUTF8_extract_iff _ _ ?_ ?_).1
         (this ▸ pat.copy.isValidUTF8)).resolve_left ?_).2
-      · exact ⟨by simpa using h₀, (isLongestMatchAt_iff_extract h).2 (by simpa using this)⟩
+      · exact ⟨by simpa using! h₀, (isLongestMatchAt_iff_extract h).2 (by simpa using this)⟩
       · simp [Pos.Raw.le_iff]
       · simpa [Pos.Raw.le_iff] using h₁
       · simpa [Pos.Raw.ext_iff, ← Slice.isEmpty_iff]
@@ -287,10 +287,10 @@ theorem strictPatternModel {pat : String} (h : pat ≠ "") : StrictPatternModel 
   not_matches_empty := by simpa [PatternModel.Matches]
 
 instance {pat : String} : NoPrefixPatternModel pat :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 instance {pat : String} : NoSuffixPatternModel pat :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff_slice {pat : String} {s : Slice} {pos : s.Pos} :
     IsMatch (ρ := String) pat pos ↔ IsMatch (ρ := Slice) pat.toSlice pos := by

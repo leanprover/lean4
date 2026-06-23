@@ -30,7 +30,7 @@ deriving BEq
 /--
 info: Linear.instBEqL.beq.eq_1.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
   instBEqL.beq x✝ x✝¹ =
-    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    match x✝.ctorIdx.decEq x✝¹.ctorIdx with
     | isTrue h =>
       match x✝, x✝¹, h with
       | L.nil, L.nil, ⋯ => true
@@ -54,7 +54,7 @@ end Linear
 namespace A
 inductive L where | nil  : L | cons : Nat → L → L deriving BEq
 -- NB: Instance, op and theorem are private
-/-- info: @[implicit_reducible] private def A.instBEqL : BEq L -/
+/-- info: @[instance_reducible] private def A.instBEqL : BEq L -/
 #guard_msgs in #print sig instBEqL
 /-- info: private def A.instBEqL.beq : L → L → Bool -/
 #guard_msgs in #print sig instBEqL.beq
@@ -66,7 +66,7 @@ end A
 namespace B
 public inductive L where | nil  : L | cons : Nat → L → L deriving BEq
 -- NB: Instance is public and exposed, op and theorem are private
-/-- info: @[implicit_reducible, expose] def B.instBEqL : BEq L -/
+/-- info: @[instance_reducible, expose] def B.instBEqL : BEq L -/
 #guard_msgs in #print sig instBEqL
 /-- info: def B.instBEqL.beq : L → L → Bool -/
 #guard_msgs in #print sig instBEqL.beq
@@ -79,7 +79,7 @@ end B
 namespace C
 public inductive L where | nil  : L | cons : Nat → L → L deriving @[expose] BEq
 -- NB: Public exposed instances, implementation and public theorem
-/-- info: @[implicit_reducible, expose] def C.instBEqL : BEq L -/
+/-- info: @[instance_reducible, expose] def C.instBEqL : BEq L -/
 #guard_msgs in #print sig instBEqL
 /-- info: @[expose] def C.instBEqL.beq : L → L → Bool -/
 #guard_msgs in #print sig instBEqL.beq

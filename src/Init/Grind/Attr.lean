@@ -317,5 +317,23 @@ Like `@[grind!]`, but also prints the pattern(s) selected by `grind`
 as info messages. Combines minimal subexpression selection with debugging output.
 -/
 syntax (name := grind!?) "grind!?" (ppSpace grindMod)? : attr
+
+/--
+Marks a theorem or definition for use by the `lia` (linear integer arithmetic) tactic.
+
+`lia` is `grind` restricted to the `cutsat` solver. It does not use the `@[grind]` lemma
+set, but `cutsat` benefits from a small amount of instantiation, e.g. of `Nat.max_def` and
+`Nat.min_def`. Lemmas tagged with `@[lia]` form a dedicated set that `lia` instantiates via
+E-matching, without enabling the much larger `@[grind]` set.
+
+The modifiers are the same as for `@[grind]`, e.g. `@[lia =]`, `@[lia ←]`, `@[lia →]`.
+-/
+syntax (name := lia) "lia" (ppSpace grindMod)? : attr
+/-- Like `@[lia]`, but enforces the minimal indexable subexpression condition (see `@[grind!]`). -/
+syntax (name := lia!) "lia!" (ppSpace grindMod)? : attr
+/-- Like `@[lia]`, but also prints the pattern(s) selected by `lia` as info messages. -/
+syntax (name := lia?) "lia?" (ppSpace grindMod)? : attr
+/-- Like `@[lia!]`, but also prints the pattern(s) selected by `lia` as info messages. -/
+syntax (name := lia!?) "lia!?" (ppSpace grindMod)? : attr
 end Attr
 end Lean.Parser

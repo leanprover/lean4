@@ -8,8 +8,8 @@ def nonrecfun : Bool → Nat
 
 /--
 info: equations:
-@[defeq] theorem Test1.nonrecfun.eq_1 : nonrecfun false = 0
-@[defeq] theorem Test1.nonrecfun.eq_2 : nonrecfun true = 0
+@[backward_defeq] theorem Test1.nonrecfun.eq_1 : nonrecfun false = 0
+@[backward_defeq] theorem Test1.nonrecfun.eq_2 : nonrecfun true = 0
 -/
 #guard_msgs in
 #print equations nonrecfun
@@ -25,7 +25,7 @@ def nonrecfun : Bool → Nat
 
 /--
 info: equations:
-@[defeq] theorem Test2.nonrecfun.eq_1 : ∀ (x : Bool),
+@[backward_defeq] theorem Test2.nonrecfun.eq_1 : ∀ (x : Bool),
   nonrecfun x =
     match x with
     | false => 0
@@ -47,8 +47,8 @@ set_option backward.eqns.nonrecursive false
 
 /--
 info: equations:
-@[defeq] theorem Test3.nonrecfun.eq_1 : nonrecfun false = 0
-@[defeq] theorem Test3.nonrecfun.eq_2 : nonrecfun true = 0
+@[backward_defeq] theorem Test3.nonrecfun.eq_1 : nonrecfun false = 0
+@[backward_defeq] theorem Test3.nonrecfun.eq_2 : nonrecfun true = 0
 -/
 #guard_msgs in
 #print equations nonrecfun

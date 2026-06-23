@@ -33,6 +33,8 @@ LEAN_EXPORT lean_object* l_System_Platform_getTarget___boxed(lean_object*);
 static lean_once_cell_t l_System_Platform_target___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_System_Platform_target___closed__0;
 LEAN_EXPORT lean_object* l_System_Platform_target;
+uint32_t lean_internal_get_hardware_concurrency(lean_object*);
+LEAN_EXPORT lean_object* l_System_Platform_Internal_getHardwareConcurrency___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object* v_a_00___x40___internal___hyg_2_){
 _start:
 {
@@ -134,6 +136,15 @@ _start:
 lean_object* v___x_27_; 
 v___x_27_ = lean_obj_once(&l_System_Platform_target___closed__0, &l_System_Platform_target___closed__0_once, _init_l_System_Platform_target___closed__0);
 return v___x_27_;
+}
+}
+LEAN_EXPORT lean_object* l_System_Platform_Internal_getHardwareConcurrency___boxed(lean_object* v_a_00___x40___internal___hyg_29_){
+_start:
+{
+uint32_t v_res_30_; lean_object* v_r_31_; 
+v_res_30_ = lean_internal_get_hardware_concurrency(v_a_00___x40___internal___hyg_29_);
+v_r_31_ = lean_box_uint32(v_res_30_);
+return v_r_31_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);

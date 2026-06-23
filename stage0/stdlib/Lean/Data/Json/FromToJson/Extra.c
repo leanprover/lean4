@@ -244,7 +244,7 @@ else
 lean_object* v_a_73_; lean_object* v___f_74_; lean_object* v___x_75_; lean_object* v___x_76_; 
 v_a_73_ = lean_ctor_get(v___x_64_, 0);
 lean_inc(v_a_73_);
-lean_dec_ref(v___x_64_);
+lean_dec_ref_known(v___x_64_, 1);
 v___f_74_ = lean_alloc_closure((void*)(l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg___lam__0), 5, 2);
 lean_closure_set(v___f_74_, 0, v_inst_61_);
 lean_closure_set(v___f_74_, 1, v_cmp_60_);

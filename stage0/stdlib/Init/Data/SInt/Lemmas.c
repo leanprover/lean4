@@ -1986,7 +1986,7 @@ lean_ctor_set(v___x_1108_, 0, v___x_604_);
 lean_ctor_set(v___x_1108_, 1, v___x_605_);
 lean_ctor_set(v___x_1108_, 2, v___x_1107_);
 v___x_1109_ = l_Lean_Syntax_getArgs(v___x_1108_);
-lean_dec_ref(v___x_1108_);
+lean_dec_ref_known(v___x_1108_, 3);
 v___x_1110_ = lean_box(2);
 v___x_1111_ = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(v___x_1111_, 0, v___x_1110_);

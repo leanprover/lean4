@@ -67,6 +67,9 @@ def mkDiagMessages (diag : Simp.Diagnostics) : MetaM (Array MessageData) := do
 
 def reportDiag (diag : Simp.Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
+    -- Diagnostic output may reference private declarations that are not visible
+    -- in exporting mode (issue #13581).
+    withoutExporting do
     let m ← mkDiagMessages diag
     unless m.isEmpty do
       logInfo <| .trace { cls := `simp, collapsed := false } "Diagnostics" m

@@ -16,6 +16,9 @@ import Init.Data.Option.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Omega
 
+-- TODO: remove after stage0 update
+set_option linter.unusedSimpArgs false
+
 public section
 
 set_option doc.verso true
@@ -72,7 +75,7 @@ theorem size_toArray_rco {a b : Int} :
 @[simp]
 theorem size_roc {a b : Int} :
     (a<...=b).size = (b - a).toNat := by
-  simp only [Roc.size, Rxc.HasSize.size]
+  simp only [Roc.size, Rxc.HasSize.size, UpwardEnumerable.succ?]
   omega
 
 @[simp]
@@ -88,7 +91,7 @@ theorem size_toArray_roc {a b : Int} :
 @[simp]
 theorem size_roo {a b : Int} :
     (a<...b).size = (b - a - 1).toNat := by
-  simp only [Roo.size, Rxo.HasSize.size, Rxc.HasSize.size, Int.pred_toNat]
+  simp only [Roo.size, Rxo.HasSize.size, Rxc.HasSize.size, UpwardEnumerable.succ?, Int.pred_toNat]
   omega
 
 @[simp]

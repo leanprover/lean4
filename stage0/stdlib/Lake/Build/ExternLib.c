@@ -530,7 +530,7 @@ _start:
 {
 lean_object* v_toContext_139_; lean_object* v_lakeEnv_140_; lean_object* v_log_141_; uint8_t v_action_142_; uint8_t v_wantsRebuild_143_; lean_object* v_trace_144_; lean_object* v_buildTime_145_; lean_object* v___x_147_; uint8_t v_isShared_148_; uint8_t v_isSharedCheck_196_; 
 v_toContext_139_ = lean_ctor_get(v___y_136_, 1);
-v_lakeEnv_140_ = lean_ctor_get(v_toContext_139_, 1);
+v_lakeEnv_140_ = lean_ctor_get(v_toContext_139_, 0);
 v_log_141_ = lean_ctor_get(v___y_137_, 0);
 v_action_142_ = lean_ctor_get_uint8(v___y_137_, sizeof(void*)*3);
 v_wantsRebuild_143_ = lean_ctor_get_uint8(v___y_137_, sizeof(void*)*3 + 1);
@@ -1440,7 +1440,7 @@ if (lean_obj_tag(v___x_504_) == 1)
 lean_object* v_val_505_; uint8_t v___x_506_; uint8_t v___y_508_; 
 v_val_505_ = lean_ctor_get(v___x_504_, 0);
 lean_inc(v_val_505_);
-lean_dec_ref(v___x_504_);
+lean_dec_ref_known(v___x_504_, 1);
 v___x_506_ = l_System_Platform_isWindows;
 if (v___x_506_ == 0)
 {
@@ -1560,7 +1560,7 @@ lean_ctor_set(v___x_533_, 0, v_val_505_);
 lean_ctor_set(v___x_533_, 1, v___x_531_);
 lean_ctor_set(v___x_533_, 2, v___x_532_);
 v___x_534_ = l_String_Slice_Pos_nextn(v___x_533_, v___x_531_, v___x_530_);
-lean_dec_ref(v___x_533_);
+lean_dec_ref_known(v___x_533_, 3);
 v___x_535_ = lean_string_utf8_extract(v_val_505_, v___x_534_, v___x_532_);
 lean_dec(v___x_534_);
 lean_dec(v_val_505_);

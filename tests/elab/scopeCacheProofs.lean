@@ -301,6 +301,12 @@ Key rewind properties are stated as separate lemmas.
 -/
 namespace Proofs
 
+-- Several `simpa using h` calls below close their goal by unfolding the
+-- semireducible definitions `Imp.EntryOrdered` and `GensConsistent` (both
+-- abbreviations for `List.Pairwise …`). The default `simpa` close at reducible
+-- transparency would reject this, so these sites use `simpa using!` to opt
+-- into the permissive default-transparency close.
+
 /-! ### Rewind helper lemmas
 
 These lemmas capture the essential properties of the `rewind` function needed
@@ -344,7 +350,7 @@ theorem findValidLevel_skip_fresh (eGens cGens : Imp.GenList) (n g resultScope :
     simp [Imp.findValidLevel]
   | cons v vs =>
     -- eGens = v :: vs, head? = some v, tail = vs
-    have hvg : v < g := by have := hFreshHead 0 (by simp); simpa using this
+    have hvg : v < g := by have := hFreshHead 0 (by simp); simpa using! this
     rw [Imp.findValidLevel]
     simp [show (v == g) = false from by simp [Nat.ne_of_lt hvg],
           show ¬(n + 1 ≤ resultScope) from Nat.not_le.mpr (Nat.lt_succ_of_le hRS)]
@@ -704,7 +710,7 @@ theorem rewind_entryOrdered {entries : List Imp.Entry} {n : Nat} {gens : Imp.Gen
       (Imp.rewind.go n gens revEntries acc).Pairwise
         (fun a b => a.scopeLevel < b.resultScope) by
     exact this entries.reverse []
-      (by simpa using hOrd) List.Pairwise.nil
+      (by simpa using! hOrd) List.Pairwise.nil
   intro revEntries acc hAll hAcc
   induction revEntries generalizing acc with
   | nil => simpa [Imp.rewind.go]
@@ -979,7 +985,7 @@ theorem fvl_pop_entry (e : Imp.Entry) (n : Nat) (gens : Imp.GenList)
       simp only [show ¬(n ≤ n - 1) from by omega, ↓reduceIte,
                   show min n (n - 1) = n - 1 from Nat.min_eq_right (Nat.pred_le n)]
       -- By gensSuffix: e.scopeGens.drop(sl-n) = gens, so v :: vs = w :: ws
-      have hveq : v = w := by simpa using heq
+      have hveq : v = w := by simpa using! heq
       have hi : e.scopeLevel - n < e.scopeGens.length := by
         have : (e.scopeGens.drop (e.scopeLevel - n)).length > 0 := by rw [hvvs]; simp
         simp [List.length_drop] at this; omega
@@ -1134,9 +1140,9 @@ theorem rewind_pop_equiv (entries : List Imp.Entry) (n : Nat) (gens : Imp.GenLis
     exact this entries.reverse [] []
       (fun e he => List.mem_reverse.mp he)
       (fun e he => hRSSL e (List.mem_reverse.mp he))
-      (by simpa using hOrd)
+      (by simpa using! hOrd)
       (fun e he => hGensSuffix e (List.mem_reverse.mp he))
-      (by simpa using hGC)
+      (by simpa using! hGC)
       (by simp)
   intro revEntries acc1 acc2 hMem hRSSLrev hOrdRev hGSrev hGCrev hAccEq
   induction revEntries generalizing acc1 acc2 with
@@ -1561,8 +1567,8 @@ private theorem rewind_gens_aligned
         e.scopeGens = gens.drop (n - e.scopeLevel) by
     exact this entries.reverse []
       (fun e he => List.mem_reverse.mp he)
-      (by simpa using hGC)
-      (by simpa using hOrd)
+      (by simpa using! hGC)
+      (by simpa using! hOrd)
       (by simp)
   intro revEntries acc hMem hGCrev hOrdRev hAccAligned
   induction revEntries generalizing acc with

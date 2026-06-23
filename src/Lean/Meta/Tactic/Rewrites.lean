@@ -90,16 +90,12 @@ def droppedKeys : List (List LazyDiscrTree.Key) := [[.star], [.const `Eq 3, .sta
 def createModuleTreeRef : MetaM (LazyDiscrTree.ModuleDiscrTreeRef (Name × RwDirection)) :=
   LazyDiscrTree.createModuleTreeRef addImport droppedKeys
 
-private def ExtState := IO.Ref (Option (LazyDiscrTree (Name × RwDirection)))
-
-private builtin_initialize ExtState.default : IO.Ref (Option (LazyDiscrTree (Name × RwDirection))) ← do
+/-- Process-global cache for the imported-declarations discrimination tree. This must *not* live in
+an environment extension: the snapshot used by `--incr-load` compacts the whole environment object
+(including non-persistent extension state), and a mutable `IO.Ref` baked into the read-only mapped
+region is unsound to read or write. A process-global ref is rebuilt per process instead. -/
+private builtin_initialize ext : IO.Ref (Option (LazyDiscrTree (Name × RwDirection))) ←
   IO.mkRef .none
-
-private instance : Inhabited ExtState where
-  default := ExtState.default
-
-private builtin_initialize ext : EnvExtension ExtState ←
-  registerEnvExtension (IO.mkRef .none)
 
 /--
 The maximum number of constants an individual task may perform.

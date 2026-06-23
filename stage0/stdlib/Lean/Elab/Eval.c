@@ -235,27 +235,27 @@ if (lean_obj_tag(v___x_87_) == 0)
 lean_object* v_a_88_; uint8_t v___x_89_; lean_object* v___x_90_; 
 v_a_88_ = lean_ctor_get(v___x_87_, 0);
 lean_inc(v_a_88_);
-lean_dec_ref(v___x_87_);
+lean_dec_ref_known(v___x_87_, 1);
 v___x_89_ = 0;
 v___x_90_ = l_Lean_Elab_Term_synthesizeSyntheticMVarsNoPostponing(v___x_89_, v___y_80_, v___y_81_, v___y_82_, v___y_83_, v___y_84_, v___y_85_);
 if (lean_obj_tag(v___x_90_) == 0)
 {
 lean_object* v___x_91_; 
-lean_dec_ref(v___x_90_);
+lean_dec_ref_known(v___x_90_, 1);
 v___x_91_ = l_Lean_instantiateMVars___at___00Lean_Elab_Term_evalTerm_spec__0___redArg(v_a_88_, v___y_83_);
 if (lean_obj_tag(v___x_91_) == 0)
 {
 lean_object* v_a_92_; lean_object* v___x_93_; 
 v_a_92_ = lean_ctor_get(v___x_91_, 0);
 lean_inc_n(v_a_92_, 2);
-lean_dec_ref(v___x_91_);
+lean_dec_ref_known(v___x_91_, 1);
 v___x_93_ = l_Lean_Meta_getMVars(v_a_92_, v___y_82_, v___y_83_, v___y_84_, v___y_85_);
 if (lean_obj_tag(v___x_93_) == 0)
 {
 lean_object* v_a_94_; lean_object* v___x_95_; lean_object* v___x_96_; 
 v_a_94_ = lean_ctor_get(v___x_93_, 0);
 lean_inc(v_a_94_);
-lean_dec_ref(v___x_93_);
+lean_dec_ref_known(v___x_93_, 1);
 v___x_95_ = lean_box(0);
 v___x_96_ = l_Lean_Elab_Term_logUnassignedUsingErrorInfos(v_a_94_, v___x_95_, v___y_80_, v___y_81_, v___y_82_, v___y_83_, v___y_84_, v___y_85_);
 lean_dec(v_a_94_);
@@ -264,7 +264,7 @@ if (lean_obj_tag(v___x_96_) == 0)
 lean_object* v_a_97_; uint8_t v___x_98_; 
 v_a_97_ = lean_ctor_get(v___x_96_, 0);
 lean_inc(v_a_97_);
-lean_dec_ref(v___x_96_);
+lean_dec_ref_known(v___x_96_, 1);
 v___x_98_ = lean_unbox(v_a_97_);
 lean_dec(v_a_97_);
 if (v___x_98_ == 0)
@@ -280,7 +280,7 @@ v___x_100_ = l_Lean_Elab_throwAbortTerm___at___00Lean_Elab_Term_evalTerm_spec__1
 if (lean_obj_tag(v___x_100_) == 0)
 {
 lean_object* v___x_101_; 
-lean_dec_ref(v___x_100_);
+lean_dec_ref_known(v___x_100_, 1);
 v___x_101_ = l_Lean_Meta_evalExpr___redArg(v_type_78_, v_a_92_, v_safety_79_, v___x_76_, v___y_82_, v___y_83_, v___y_84_, v___y_85_);
 return v___x_101_;
 }
@@ -551,10 +551,10 @@ return v___x_147_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_evalTerm___redArg___lam__0___boxed(lean_object* v_value_150_, lean_object* v___x_151_, lean_object* v___x_152_, lean_object* v___x_153_, lean_object* v_type_154_, lean_object* v_safety_155_, lean_object* v___y_156_, lean_object* v___y_157_, lean_object* v___y_158_, lean_object* v___y_159_, lean_object* v___y_160_, lean_object* v___y_161_, lean_object* v___y_162_){
 _start:
 {
-uint8_t v___x_3645__boxed_163_; uint8_t v_safety_boxed_164_; lean_object* v_res_165_; 
-v___x_3645__boxed_163_ = lean_unbox(v___x_152_);
+uint8_t v___x_3646__boxed_163_; uint8_t v_safety_boxed_164_; lean_object* v_res_165_; 
+v___x_3646__boxed_163_ = lean_unbox(v___x_152_);
 v_safety_boxed_164_ = lean_unbox(v_safety_155_);
-v_res_165_ = l_Lean_Elab_Term_evalTerm___redArg___lam__0(v_value_150_, v___x_151_, v___x_3645__boxed_163_, v___x_153_, v_type_154_, v_safety_boxed_164_, v___y_156_, v___y_157_, v___y_158_, v___y_159_, v___y_160_, v___y_161_);
+v_res_165_ = l_Lean_Elab_Term_evalTerm___redArg___lam__0(v_value_150_, v___x_151_, v___x_3646__boxed_163_, v___x_153_, v_type_154_, v_safety_boxed_164_, v___y_156_, v___y_157_, v___y_158_, v___y_159_, v___y_160_, v___y_161_);
 lean_dec(v___y_161_);
 lean_dec_ref(v___y_160_);
 lean_dec(v___y_159_);
@@ -771,7 +771,7 @@ if (lean_obj_tag(v___x_241_) == 0)
 lean_object* v_a_242_; lean_object* v___x_243_; lean_object* v___x_245_; uint8_t v_isShared_246_; uint8_t v_isSharedCheck_250_; 
 v_a_242_ = lean_ctor_get(v___x_241_, 0);
 lean_inc(v_a_242_);
-lean_dec_ref(v___x_241_);
+lean_dec_ref_known(v___x_241_, 1);
 v___x_243_ = l_Lean_setEnv___at___00Lean_withEnv___at___00Lean_Elab_Term_evalTerm_spec__2_spec__2___redArg(v_env_228_, v___y_223_, v___y_225_);
 v_isSharedCheck_250_ = !lean_is_exclusive(v___x_243_);
 if (v_isSharedCheck_250_ == 0)
@@ -818,7 +818,7 @@ else
 lean_object* v_a_252_; 
 v_a_252_ = lean_ctor_get(v___x_241_, 0);
 lean_inc(v_a_252_);
-lean_dec_ref(v___x_241_);
+lean_dec_ref_known(v___x_241_, 1);
 v_a_230_ = v_a_252_;
 goto v___jp_229_;
 }

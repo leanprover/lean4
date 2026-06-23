@@ -405,7 +405,7 @@ lean_ctor_set(v___x_79_, 13, v_inheritedTraceOptions_77_);
 lean_ctor_set_uint8(v___x_79_, sizeof(void*)*14, v_diag_74_);
 lean_ctor_set_uint8(v___x_79_, sizeof(void*)*14 + 1, v_suppressElabErrors_76_);
 v___x_80_ = l_Lean_throwError___at___00__private_Lean_Compiler_IR_UnboxResult_0__Lean_IR_UnboxResult_initFn_00___x40_Lean_Compiler_IR_UnboxResult_1925234477____hygCtx___hyg_2__spec__1___redArg(v_msg_58_, v___x_79_, v___y_60_);
-lean_dec_ref(v___x_79_);
+lean_dec_ref_known(v___x_79_, 14);
 return v___x_80_;
 }
 }
@@ -983,7 +983,7 @@ if (lean_obj_tag(v_a_285_) == 5)
 lean_object* v_val_289_; uint8_t v_isRec_290_; 
 v_val_289_ = lean_ctor_get(v_a_285_, 0);
 lean_inc_ref(v_val_289_);
-lean_dec_ref(v_a_285_);
+lean_dec_ref_known(v_a_285_, 1);
 v_isRec_290_ = lean_ctor_get_uint8(v_val_289_, sizeof(void*)*6);
 lean_dec_ref(v_val_289_);
 if (v_isRec_290_ == 0)

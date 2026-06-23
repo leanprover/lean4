@@ -13,6 +13,7 @@ import Lean.Compiler.InitAttr
 import all Lean.Compiler.ModPkgExt
 import Init.Data.Format.Macro
 import Lean.Compiler.LCNF.Basic
+import Lean.PrivateName
 
 public section
 
@@ -117,6 +118,24 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.name) (fun s d => s.insert d.name d)
   }
 
+/-- Names called (via `fap`/`pap`) by an IR function body. -/
+private partial def collectIRBodyRefs : FnBody → NameSet → NameSet
+  | .vdecl _ _ v b, s =>
+    collectIRBodyRefs b <| match v with
+      | .fap f _ => s.insert f
+      | .pap f _ => s.insert f
+      | _        => s
+  | .jdecl _ _ v b, s => collectIRBodyRefs b (collectIRBodyRefs v s)
+  | .case _ _ _ alts, s => alts.foldl (fun s alt => collectIRBodyRefs alt.body s) s
+  | e, s => if e.isTerminal then s else collectIRBodyRefs e.body s
+
+/-- Names called by the given IR declarations' bodies. -/
+private def collectIRDeclRefs (decls : Array Decl) : NameSet :=
+  decls.foldl (init := {}) fun s decl =>
+    match decl with
+    | .fdecl (body := b) .. => collectIRBodyRefs b s
+    | .extern .. => s
+
 @[export lean_ir_export_entries]
 private def exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
   let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
@@ -135,9 +154,25 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- safety: cast to erased type
   let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
 
+  -- For every code-generator auxiliary or private symbol this module's IR references in another
+  -- module, record its defining module, so the interpreter can resolve such cross-module references
+  -- (which are absent from `const2ModIdx`, and whose defining module might otherwise never be loaded)
+  -- by loading the right `.ir` on demand. `const2ModIdx` is complete here: code generation has already
+  -- resolved every reference.
+  let irRefModules : Array (Name × Name) := Id.run do
+    let mut tbl := #[]
+    for sym in (collectIRDeclRefs irDecls).toList do
+      if let some idx := env.getModuleIdxFor? sym then
+        if !env.contains sym || isPrivateName sym then
+          tbl := tbl.push (sym, env.header.moduleNames[idx.toNat]!)
+    return tbl
+  -- safety: cast to erased type
+  let irRefModules : Array EnvExtensionEntry := unsafe unsafeCast irRefModules
+
   #[(declMapExt.name, irEntries),
     (Lean.regularInitAttr.ext.name, initDecls),
-    (modPkgExt.name, modPkg)]
+    (modPkgExt.name, modPkg),
+    (Lean.irReferencedModulesEntryName, irRefModules)]
 
 def findEnvDecl (env : Environment) (declName : Name) : BaseIO (Option Decl) :=
   Compiler.LCNF.findIRExtEntry? env declMapExt declName findAtSorted? (·.2.find?)

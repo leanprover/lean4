@@ -1805,6 +1805,21 @@ private def extractIREntries {α β σ : Type} (ext : PersistentEnvExtension α 
   | none => #[]
 
 /--
+Reserved `ModuleData.entries` key under which a `.ir` carries its referenced-symbol → defining-module
+side table: for every code-generator auxiliary or private symbol the module's IR references in another
+module, the module that defines it. This lets the interpreter resolve such cross-module references
+(which are absent from `const2ModIdx`, and whose defining module might otherwise never be loaded) by
+loading the right `.ir` on demand. It is not a real extension, so `setImportedEntries` ignores it.
+-/
+def irReferencedModulesEntryName : Name := `_irReferencedModules
+
+/-- Extracts the referenced-symbol → defining-module side table from a loaded `.ir` `ModuleData`. -/
+private def extractIRRefModules (data : ModuleData) : Array (Name × Name) :=
+  match data.entries.find? (·.1 == irReferencedModulesEntryName) with
+  | some (_, e) => unsafe unsafeCast e
+  | none => #[]
+
+/--
 Retrieves extension `ext`'s interpreter IR entries for imported module `m`, loading the module's `.ir`
 on demand. For modules whose interpreter IR is the imported `.olean` data this is `getModuleEntries`;
 module-system modules with a separate `.ir` are loaded lazily (and cached) on first access.
@@ -1823,14 +1838,23 @@ def PersistentEnvExtension.getModuleIREntries {α β σ : Type} [Inhabited σ]
     let data ← match ← (readModuleDataParts paths).toBaseIO with
       | .ok parts =>
         let some (data, _) := parts.back? | pure default
+        let refModules := extractIRRefModules data
         lazy.ref.modifyGet fun st =>
           match st.loaded.get? m with
           | some (some data') => (data', st)
-          | _ => (data, { st with
+          | _ =>
+            -- `m`'s own code-generator auxiliaries map to `m`; symbols `m`'s IR references in other
+            -- modules map to their defining module via the `.ir`'s side table.
+            let extraIdx := data.extraConstNames.foldl (·.insert · m) st.extraIdx
+            let extraIdx := refModules.foldl (init := extraIdx) fun extraIdx (sym, modName) =>
+              match env.getModuleIdx? modName with
+              | some i => extraIdx.insert sym i
+              | none   => extraIdx
+            (data, { st with
               loaded := st.loaded.set m (some data)
               -- keep *all* part regions alive: the `.ir` data references the `.ir.sig` region
               regions := parts.foldl (fun rs p => rs.push p.2) st.regions
-              extraIdx := data.extraConstNames.foldl (·.insert · m) st.extraIdx })
+              extraIdx })
       | .error _ => pure default
     return extractIREntries ext data
   | _ => return ext.getModuleEntries env m

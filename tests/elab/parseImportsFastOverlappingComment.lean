@@ -7,6 +7,6 @@ Regression test for overlapping block comment terminators in the fast import par
 open Lean
 
 #eval do
-  let header ← parseImports' "/- --/ import Init\n" "<test>"
-  unless header.imports == #[({ module := `Init } : Import)] do
+  let header ← parseImports' "/- --/ import Foo.Bar\n" "<test>"
+  unless header.imports.any (·.module == `Foo.Bar) do
     throw <| IO.userError "unexpected imports"

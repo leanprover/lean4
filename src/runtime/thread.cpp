@@ -138,7 +138,7 @@ struct lthread::imp {
         if (int err = pthread_attr_setstacksize(&m_attr, m_thread_stack_size); err != 0) {
             throw exception((sstream() << "failed to set thread stack size: " << strerror(err)).str());
         }
-        auto f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
+        std::unique_ptr<runnable> f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
         if (int err = pthread_create(&m_thread, &m_attr, _main, f.get()); err != 0) {
             throw exception((sstream() << "failed to create thread: " << strerror(err)).str());
         }

@@ -17,7 +17,7 @@ open Lean.Elab.Tactic.Do.SpecAttr
 namespace Lean.Elab.Tactic.Do.Internal
 
 /-!
-Worklist driver for `mvcgen'`. Wraps `solve` with a queue of pending goals
+Worklist driver for `vcgen`. Wraps `solve` with a queue of pending goals
 and emits VCs (or invariant holes) for those `solve` cannot decompose further.
 -/
 

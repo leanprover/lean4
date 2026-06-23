@@ -200,7 +200,7 @@ lean_object* l_Lean_Meta_Grind_Solvers_internalize(lean_object*, lean_object*, l
 lean_object* l_Lean_Meta_Grind_propagateBetaForNewApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_mkInjEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_hasFunCCModifier___redArg(lean_object*, lean_object*);
-uint8_t l_Lean_isImplicitReducibleCore(lean_object*, lean_object*);
+uint8_t l_Lean_isInstanceReducibleCore(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
@@ -992,10 +992,10 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addSplitCandidatesForFunext___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_tryEta(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_tryEta___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__1___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -24304,7 +24304,7 @@ lean_dec(v_a_8023_);
 return v_res_8034_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(lean_object* v_declName_8035_, lean_object* v___y_8036_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(lean_object* v_declName_8035_, lean_object* v___y_8036_){
 _start:
 {
 lean_object* v___x_8038_; lean_object* v_env_8039_; uint8_t v___x_8040_; lean_object* v___x_8041_; lean_object* v___x_8042_; 
@@ -24312,35 +24312,35 @@ v___x_8038_ = lean_st_ref_get(v___y_8036_);
 v_env_8039_ = lean_ctor_get(v___x_8038_, 0);
 lean_inc_ref(v_env_8039_);
 lean_dec(v___x_8038_);
-v___x_8040_ = l_Lean_isImplicitReducibleCore(v_env_8039_, v_declName_8035_);
+v___x_8040_ = l_Lean_isInstanceReducibleCore(v_env_8039_, v_declName_8035_);
 v___x_8041_ = lean_box(v___x_8040_);
 v___x_8042_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_8042_, 0, v___x_8041_);
 return v___x_8042_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg___boxed(lean_object* v_declName_8043_, lean_object* v___y_8044_, lean_object* v___y_8045_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg___boxed(lean_object* v_declName_8043_, lean_object* v___y_8044_, lean_object* v___y_8045_){
 _start:
 {
 lean_object* v_res_8046_; 
-v_res_8046_ = l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(v_declName_8043_, v___y_8044_);
+v_res_8046_ = l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(v_declName_8043_, v___y_8044_);
 lean_dec(v___y_8044_);
 return v_res_8046_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0(lean_object* v_declName_8047_, lean_object* v___y_8048_, lean_object* v___y_8049_, lean_object* v___y_8050_, lean_object* v___y_8051_, lean_object* v___y_8052_, lean_object* v___y_8053_, lean_object* v___y_8054_, lean_object* v___y_8055_, lean_object* v___y_8056_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0(lean_object* v_declName_8047_, lean_object* v___y_8048_, lean_object* v___y_8049_, lean_object* v___y_8050_, lean_object* v___y_8051_, lean_object* v___y_8052_, lean_object* v___y_8053_, lean_object* v___y_8054_, lean_object* v___y_8055_, lean_object* v___y_8056_){
 _start:
 {
 lean_object* v___x_8058_; 
-v___x_8058_ = l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(v_declName_8047_, v___y_8056_);
+v___x_8058_ = l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(v_declName_8047_, v___y_8056_);
 return v___x_8058_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___boxed(lean_object* v_declName_8059_, lean_object* v___y_8060_, lean_object* v___y_8061_, lean_object* v___y_8062_, lean_object* v___y_8063_, lean_object* v___y_8064_, lean_object* v___y_8065_, lean_object* v___y_8066_, lean_object* v___y_8067_, lean_object* v___y_8068_, lean_object* v___y_8069_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___boxed(lean_object* v_declName_8059_, lean_object* v___y_8060_, lean_object* v___y_8061_, lean_object* v___y_8062_, lean_object* v___y_8063_, lean_object* v___y_8064_, lean_object* v___y_8065_, lean_object* v___y_8066_, lean_object* v___y_8067_, lean_object* v___y_8068_, lean_object* v___y_8069_){
 _start:
 {
 lean_object* v_res_8070_; 
-v_res_8070_ = l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0(v_declName_8059_, v___y_8060_, v___y_8061_, v___y_8062_, v___y_8063_, v___y_8064_, v___y_8065_, v___y_8066_, v___y_8067_, v___y_8068_);
+v_res_8070_ = l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0(v_declName_8059_, v___y_8060_, v___y_8061_, v___y_8062_, v___y_8063_, v___y_8064_, v___y_8065_, v___y_8066_, v___y_8067_, v___y_8068_);
 lean_dec(v___y_8068_);
 lean_dec_ref(v___y_8067_);
 lean_dec(v___y_8066_);
@@ -25274,7 +25274,7 @@ if (v___x_8568_ == 0)
 lean_object* v___x_8569_; lean_object* v_a_8570_; lean_object* v___x_8572_; uint8_t v_isShared_8573_; uint8_t v_isSharedCheck_8615_; 
 lean_dec_ref_known(v___x_8566_, 1);
 lean_inc(v_declName_8555_);
-v___x_8569_ = l_Lean_isImplicitReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(v_declName_8555_, v_a_8564_);
+v___x_8569_ = l_Lean_isInstanceReducible___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__0___redArg(v_declName_8555_, v_a_8564_);
 v_a_8570_ = lean_ctor_get(v___x_8569_, 0);
 v_isSharedCheck_8615_ = !lean_is_exclusive(v___x_8569_);
 if (v_isSharedCheck_8615_ == 0)

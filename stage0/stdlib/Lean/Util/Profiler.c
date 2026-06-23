@@ -20032,6 +20032,7 @@ v_resetjp_5766_:
 {
 uint8_t v___x_5769_; double v___x_5770_; double v___x_5771_; double v___x_5772_; lean_object* v___x_5773_; lean_object* v___x_5774_; lean_object* v___x_5775_; lean_object* v___x_5776_; lean_object* v___x_5777_; lean_object* v___x_5778_; size_t v_sz_5779_; lean_object* v___x_5780_; lean_object* v___x_5781_; lean_object* v___x_5783_; 
 v___x_5769_ = 1;
+lean_inc(v___y_5759_);
 v___x_5770_ = l_Float_ofScientific(v___y_5759_, v___x_5769_, v___y_5760_);
 v___x_5771_ = lean_float_once(&l_Lean_Firefox_instCoeFloatMilliseconds___lam__0___closed__0, &l_Lean_Firefox_instCoeFloatMilliseconds___lam__0___closed__0_once, _init_l_Lean_Firefox_instCoeFloatMilliseconds___lam__0___closed__0);
 v___x_5772_ = lean_float_mul(v_startTime_5746_, v___x_5771_);

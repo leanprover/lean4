@@ -244,18 +244,12 @@ where
         /-
         A module system `import` may need to be promoted to a
         wider import (`meta import`, `import all`) on another branch.
-
-        The size of import artifacts implies the following:
-        * `1`: non-module `import` (`.olean` only)
-        * `3`: module `import` (`.olean`, `.olean.server`, `.ir`)
-        * `4`: `import all` (module + `.olean.private`)
-
-        Sizes `1` and `4` imply all imports were already enqueued,
-        so re-visiting them for `meta import` or `import all` is redundant.
-        A module already visited with `needsMeta` need not be re-visited.
         -/
+        -- Only re-process a module sitting at the plain public-module level: `.server` present =>
+        -- module, no `.private` => not already `import all`. An entry already at `import all` (with
+        -- `.private`) or a non-module (no `.server`) must not be re-inserted, as that would demote it.
         let needsMeta := needsMeta && !metaVisited.contains mod.name
-        unless (importAll || needsMeta) && arts.size == 3 do
+        unless (importAll || needsMeta) && arts.oleanServer?.isSome && arts.oleanPrivate?.isNone do
           return ← walk s metaVisited q
       let info ← (← mod.exportInfo.fetch).await
       let arts := if importAll then info.allArts else info.arts
@@ -477,18 +471,22 @@ def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := d
     if input.header.isModule then
       let some oleanServer := arts.oleanServer?
         | error noServerOLeanError
+      let some irSig := arts.irSig?
+        | error noIRError
       let some ir := arts.ir?
         | error noIRError
       let some oleanPrivate := arts.oleanPrivate?
         | error noPrivateOLeanError
       return {
         srcTrace := input.trace
-        arts := .ofArray #[olean.path, ir.path, oleanServer.path]
+        -- NOTE: always includes `.server` and full `.ir` as this data is used by the server and we
+        -- do not distinguish between it and cmdline build here (TODO: this is too dangerous!)
+        arts := .ofArrays #[#[olean.path, oleanServer.path], #[irSig.path, ir.path]]
         artsTrace := artsTrace.mix olean.trace
-        metaArtsTrace := metaArtsTrace.mix olean.trace |>.mix ir.trace
-        allArts := .ofArray #[olean.path, ir.path, oleanServer.path, oleanPrivate.path]
+        metaArtsTrace := metaArtsTrace.mix olean.trace |>.mix irSig.trace |>.mix ir.trace
+        allArts := .ofArrays #[#[olean.path, oleanServer.path, oleanPrivate.path], #[irSig.path, ir.path]]
         allArtsTrace := allArtsTrace.mix
-          olean.trace |>.mix ir.trace |>.mix oleanServer.trace |>.mix oleanPrivate.trace
+          olean.trace |>.mix oleanServer.trace |>.mix oleanPrivate.trace |>.mix irSig.trace |>.mix ir.trace
         transTrace := importInfo.transTrace
         metaTransTrace := importInfo.metaTransTrace
         allTransTrace := importInfo.allTransTrace
@@ -497,10 +495,10 @@ def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := d
     else
       return {
         srcTrace := input.trace
-        arts := ⟨#[olean.path]⟩
+        arts := ⟨#[#[olean.path]]⟩
         artsTrace := artsTrace.mix olean.trace
         metaArtsTrace := metaArtsTrace.mix olean.trace
-        allArts := ⟨#[olean.path]⟩
+        allArts := ⟨#[#[olean.path]]⟩
         allArtsTrace:= allArtsTrace.mix olean.trace
         transTrace := importInfo.transTrace
         metaTransTrace := importInfo.metaTransTrace
@@ -579,10 +577,16 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     let depTrace := trace.mix extraDepJob.getTrace |>.mix info.trace
     setTraceCaption s!"{mod.name.toString}:deps"
     let libTrace := libTrace.withCaption "libs"
+    let nilLibTrace :=
+      BuildTrace.nil "libs"
+      |>.mix (.nil "import dynlibs")
+      |>.mix (.nil "package external libraries")
+      |>.mix (.nil "module dynlibs")
+      |>.mix (.nil "module plugins")
     match mod.platformIndependent with
     | none => addTrace depTrace; addTrace libTrace
     | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
-    | some true => addTrace depTrace
+    | some true => addTrace depTrace; addTrace nilLibTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
     let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
     return {
@@ -612,6 +616,7 @@ public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
     removeFileIfExists mod.oleanServerFile
     removeFileIfExists mod.oleanPrivateFile
     removeFileIfExists mod.ileanFile
+    removeFileIfExists mod.irSigFile
     removeFileIfExists mod.irFile
     removeFileIfExists mod.cFile
     removeFileIfExists mod.bcFile
@@ -626,6 +631,7 @@ public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
     clearFileHash mod.oleanServerFile
     clearFileHash mod.oleanPrivateFile
     clearFileHash mod.ileanFile
+    clearFileHash mod.irSigFile
     clearFileHash mod.irFile
     clearFileHash mod.cFile
     clearFileHash mod.bcFile
@@ -642,6 +648,8 @@ public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
   if (← mod.oleanPrivateFile.pathExists)  then
     cacheFileHash mod.oleanPrivateFile
   cacheFileHash mod.ileanFile
+  if (← mod.irSigFile.pathExists) then
+    cacheFileHash mod.irSigFile
   if (← mod.irFile.pathExists)  then
     cacheFileHash mod.irFile
   cacheFileHash mod.cFile
@@ -656,6 +664,7 @@ def ModuleOutputDescrs.resolve
     olean := ← resolve descrs.olean
     oleanServer? := ← descrs.oleanServer?.mapM resolve
     oleanPrivate? := ← descrs.oleanPrivate?.mapM resolve
+    irSig? := ← descrs.irSig?.mapM resolve
     ir? := ← descrs.ir?.mapM resolve
     ilean := ← resolve descrs.ilean
     c := ← resolve descrs.c
@@ -713,6 +722,7 @@ def Module.cacheOutputArtifacts
     olean := ← cache mod.oleanFile "olean"
     oleanServer? := ← cacheIf? isModule mod.oleanServerFile "olean.server"
     oleanPrivate? := ← cacheIf? isModule mod.oleanPrivateFile "olean.private"
+    irSig? := ← cacheIf? isModule mod.irSigFile "ir.sig"
     ir? := ← cacheIf? isModule mod.irFile "ir"
     ilean := ← cache mod.ileanFile "ilean"
     c := ← cache mod.cFile "c"
@@ -742,6 +752,7 @@ def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArtifacts) :
     oleanServer? := ← restoreSome mod.oleanServerFile cached.oleanServer?
     oleanPrivate? := ← restoreSome mod.oleanPrivateFile cached.oleanPrivate?
     ilean := ← restoreArtifact mod.ileanFile cached.ilean
+    irSig? := ← restoreSome mod.irSigFile cached.irSig?
     ir? := ← restoreSome mod.irFile cached.ir?
     c := ← restoreArtifact mod.cFile cached.c
     bc? := ← restoreSome mod.bcFile cached.bc?
@@ -759,6 +770,7 @@ public def Module.checkArtifactsExist (self : Module) (isModule : Bool) : BaseIO
   if isModule then
     unless (← self.oleanServerFile.pathExists) do return false
     unless (← self.oleanPrivateFile.pathExists) do return false
+    unless (← self.irSigFile.pathExists) do return false
     unless (← self.irFile.pathExists) do return false
   return true
 
@@ -780,6 +792,7 @@ public protected def Module.getMTime (self : Module) (isModule : Bool) : IO MTim
       mtime := mtime
       |> max (← getMTime self.oleanServerFile)
       |> max (← getMTime self.oleanPrivateFile)
+      |> max (← getMTime self.irSigFile)
       |> max (← getMTime self.irFile)
     return mtime
   catch e =>
@@ -796,6 +809,7 @@ def ModuleOutputArtifacts.setMTime (self : ModuleOutputArtifacts) (mtime : MTime
     oleanServer? := self.oleanServer?.map ({· with mtime})
     oleanPrivate? := self.oleanPrivate?.map ({· with mtime})
     ilean := {self.ilean with mtime}
+    irSig? := self.irSig?.map ({· with mtime})
     ir? := self.ir?.map ({· with mtime})
     c := {self.c with mtime}
     bc? := self.bc?.map ({· with mtime})
@@ -807,6 +821,7 @@ def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : Bool) : M
   oleanServer? := if isModule then some mod.oleanServerFile else none
   oleanPrivate? := if isModule then some mod.oleanPrivateFile else none
   ilean? := mod.ileanFile
+  irSig? := if isModule then some mod.irSigFile else none
   ir? := if isModule then some mod.irFile else none
   c? := mod.cFile
   bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
@@ -818,6 +833,7 @@ def Module.computeArtifacts (mod : Module) (isModule : Bool) : FetchM ModuleOutp
     oleanServer? := ← computeIf isModule mod.oleanServerFile "olean.server"
     oleanPrivate? := ← computeIf isModule mod.oleanPrivateFile "olean.private"
     ilean := ← compute mod.ileanFile "ilean"
+    irSig? := ← computeIf isModule mod.irSigFile "ir.sig"
     ir? := ← computeIf isModule mod.irFile "ir"
     c := ← compute mod.cFile "c"
     bc? := ← computeIf (Lean.Internal.hasLLVMBackend ()) mod.bcFile "bc"
@@ -852,6 +868,8 @@ def Module.packLtar (self : Module) (arts : ModuleOutputArtifacts) : JobM Artifa
     if let some art := arts.oleanPrivate? then
       args := addArt args "0" art
     args := addArt args "0" arts.ilean
+    if let some art := arts.irSig? then
+      args := addArt args "0" art
     if let some art := arts.ir? then
       args := addArt args "0" art
     args := addArt args "1" arts.c
@@ -1091,6 +1109,10 @@ public def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
       addTrace art.trace
       return art.path
 
+/-- The `ModuleFacetConfig` for the builtin `irSigFacet`. -/
+public def Module.irSigFacetConfig : ModuleFacetConfig irSigFacet :=
+  mkFacetJobConfig <| fetchOLeanCore "ir.sig" (·.irSig?) noIRError
+
 /-- The `ModuleFacetConfig` for the builtin `irFacet`. -/
 public def Module.irFacetConfig : ModuleFacetConfig irFacet :=
   mkFacetJobConfig <| fetchOLeanCore "ir" (·.ir?) noIRError
@@ -1247,6 +1269,7 @@ public def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert oleanServerFacet oleanServerFacetConfig
   |>.insert oleanPrivateFacet oleanPrivateFacetConfig
   |>.insert ileanFacet ileanFacetConfig
+  |>.insert irSigFacet irSigFacetConfig
   |>.insert irFacet irFacetConfig
   |>.insert cFacet cFacetConfig
   |>.insert bcFacet bcFacetConfig

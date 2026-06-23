@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Float.Model.Unpacked.Operations
-// Imports: public import Init.Data.Float.Model.Unpacked.Operations.Add public import Init.Data.Float.Model.Unpacked.Operations.Mul public import Init.Data.Float.Model.Unpacked.Operations.Sub public import Init.Data.Float.Model.Unpacked.Operations.Div public import Init.Data.Float.Model.Unpacked.Operations.Sqrt public import Init.Data.Float.Model.Unpacked.Operations.Compare public import Init.Data.Float.Model.Unpacked.Operations.Sign public import Init.Data.Float.Model.Unpacked.Operations.Status public import Init.Data.Float.Model.Unpacked.Operations.OfNat public import Init.Data.Float.Model.Unpacked.Operations.ToNat
+// Imports: public import Init.Data.Float.Model.Unpacked.Operations.Add public import Init.Data.Float.Model.Unpacked.Operations.Mul public import Init.Data.Float.Model.Unpacked.Operations.Sub public import Init.Data.Float.Model.Unpacked.Operations.Div public import Init.Data.Float.Model.Unpacked.Operations.Sqrt public import Init.Data.Float.Model.Unpacked.Operations.Compare public import Init.Data.Float.Model.Unpacked.Operations.Sign public import Init.Data.Float.Model.Unpacked.Operations.Status public import Init.Data.Float.Model.Unpacked.Operations.OfNat public import Init.Data.Float.Model.Unpacked.Operations.ToNat public import Init.Data.Float.Model.Unpacked.Operations.OfScientific
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_Sign(u
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_Status(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_OfNat(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_ToNat(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_OfScientific(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Operations(uint8_t builtin) {
 lean_object * res;
@@ -58,6 +59,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_ToNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Float_Model_Unpacked_Operations_OfScientific(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -77,6 +81,7 @@ lean_object* initialize_Init_Data_Float_Model_Unpacked_Operations_Sign(uint8_t b
 lean_object* initialize_Init_Data_Float_Model_Unpacked_Operations_Status(uint8_t builtin);
 lean_object* initialize_Init_Data_Float_Model_Unpacked_Operations_OfNat(uint8_t builtin);
 lean_object* initialize_Init_Data_Float_Model_Unpacked_Operations_ToNat(uint8_t builtin);
+lean_object* initialize_Init_Data_Float_Model_Unpacked_Operations_OfScientific(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Float_Model_Unpacked_Operations(uint8_t builtin) {
 lean_object * res;
@@ -110,6 +115,9 @@ res = initialize_Init_Data_Float_Model_Unpacked_Operations_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Float_Model_Unpacked_Operations_ToNat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Float_Model_Unpacked_Operations_OfScientific(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Float_Model_Unpacked_Operations(builtin);

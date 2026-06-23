@@ -39,6 +39,7 @@ lean_object* l_Float_Model_UnpackedFloat_ofInt64(lean_object*, uint64_t);
 lean_object* l_Float_Model_UnpackedFloat_abs(lean_object*);
 lean_object* l_Float_Model_UnpackedFloat_ofInt(lean_object*, lean_object*);
 uint32_t l_Float_Model_UnpackedFloat_toInt32(lean_object*);
+lean_object* l_Float_Model_UnpackedFloat_ofScientific(lean_object*, lean_object*, lean_object*);
 lean_object* l_Float_Model_UnpackedFloat_ofNat(lean_object*, lean_object*);
 lean_object* l_Float_Model_UnpackedFloat_neg(lean_object*);
 uint32_t l_Float_Model_UnpackedFloat_toUInt32(lean_object*);
@@ -167,6 +168,8 @@ LEAN_EXPORT uint64_t l_Float32_Model_toInt64(uint32_t);
 LEAN_EXPORT lean_object* l_Float32_Model_toInt64___boxed(lean_object*);
 LEAN_EXPORT size_t l_Float32_Model_toISize(uint32_t);
 LEAN_EXPORT lean_object* l_Float32_Model_toISize___boxed(lean_object*);
+LEAN_EXPORT uint32_t l_Float32_Model_ofScientific(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Float32_Model_ofScientific___boxed(lean_object*, lean_object*);
 static lean_once_cell_t l_Float32_Model_instInhabited___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint32_t l_Float32_Model_instInhabited___closed__0;
 LEAN_EXPORT uint32_t l_Float32_Model_instInhabited;
@@ -1150,21 +1153,42 @@ v_r_385_ = lean_box_usize(v_res_384_);
 return v_r_385_;
 }
 }
+LEAN_EXPORT uint32_t l_Float32_Model_ofScientific(lean_object* v_m_386_, lean_object* v_e_387_){
+_start:
+{
+lean_object* v___x_388_; lean_object* v___x_389_; uint32_t v___x_390_; 
+v___x_388_ = ((lean_object*)(l_Float32_Model_unpack___closed__0));
+v___x_389_ = l_Float_Model_UnpackedFloat_ofScientific(v___x_388_, v_m_386_, v_e_387_);
+v___x_390_ = l_Float32_Model_pack(v___x_389_);
+lean_dec(v___x_389_);
+return v___x_390_;
+}
+}
+LEAN_EXPORT lean_object* l_Float32_Model_ofScientific___boxed(lean_object* v_m_391_, lean_object* v_e_392_){
+_start:
+{
+uint32_t v_res_393_; lean_object* v_r_394_; 
+v_res_393_ = l_Float32_Model_ofScientific(v_m_391_, v_e_392_);
+lean_dec(v_e_392_);
+v_r_394_ = lean_box_uint32(v_res_393_);
+return v_r_394_;
+}
+}
 static uint32_t _init_l_Float32_Model_instInhabited___closed__0(void){
 _start:
 {
-lean_object* v___x_386_; uint32_t v___x_387_; 
-v___x_386_ = lean_unsigned_to_nat(0u);
-v___x_387_ = l_Float32_Model_ofNat(v___x_386_);
-return v___x_387_;
+lean_object* v___x_395_; uint32_t v___x_396_; 
+v___x_395_ = lean_unsigned_to_nat(0u);
+v___x_396_ = l_Float32_Model_ofNat(v___x_395_);
+return v___x_396_;
 }
 }
 static uint32_t _init_l_Float32_Model_instInhabited(void){
 _start:
 {
-uint32_t v___x_388_; 
-v___x_388_ = lean_uint32_once(&l_Float32_Model_instInhabited___closed__0, &l_Float32_Model_instInhabited___closed__0_once, _init_l_Float32_Model_instInhabited___closed__0);
-return v___x_388_;
+uint32_t v___x_397_; 
+v___x_397_ = lean_uint32_once(&l_Float32_Model_instInhabited___closed__0, &l_Float32_Model_instInhabited___closed__0_once, _init_l_Float32_Model_instInhabited___closed__0);
+return v___x_397_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Format_Valid(uint8_t builtin);

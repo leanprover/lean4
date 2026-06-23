@@ -184,9 +184,22 @@ def EnvironmentHeader.moduleNames (header : EnvironmentHeader) : Array Name :=
 
 namespace Kernel
 
-/-- Per-module loaded IR for on-demand interpreter IR (see `LazyIR`). -/
+/--
+Per-module interpreter-IR source: `.loaded` for eagerly-imported IR (leanir signatures, IR-only and
+`import all` modules), `.deferred` for a module-system `.ir` loaded on demand, and `.absent` when the
+IR is read from the imported `.olean` data via `getModuleEntries`.
+-/
+inductive IRSource where
+  | loaded (data : ModuleData)
+  /-- The module's IR part files (`.ir.sig`, `.ir`), loaded on demand and chained so the `.ir`'s
+  cross-region pointers into the `.ir.sig` region resolve correctly (as in `readModuleDataParts`). -/
+  | deferred (paths : Array System.FilePath)
+  | absent
+  deriving Inhabited
+
+/-- Cache of on-demand-loaded IR (see `LazyIR`). -/
 structure LazyIRState where
-  /-- `loaded[m]` is module `m`'s `.ir` `ModuleData` once loaded on demand, else `none`. -/
+  /-- `loaded[m]` is a deferred module `m`'s `.ir` `ModuleData` once loaded on demand, else `none`. -/
   loaded  : PArray (Option ModuleData) := {}
   /-- Compacted regions of lazily-loaded `.ir` files, freed with the environment. -/
   regions : PArray CompactedRegion := {}
@@ -200,13 +213,12 @@ structure LazyIRState where
   deriving Inhabited
 
 /--
-On-demand interpreter-IR loading. `paths[m]` is module `m`'s `.ir` file when its IR is loaded lazily
-(a module-system module whose interpreter IR lives in a separate `.ir`); for all other modules it is
-`none` and `getModuleIREntries` reads the eagerly-imported state via `getModuleEntries`.
+On-demand interpreter-IR loading. `sources[m]` is module `m`'s IR source; deferred modules are loaded
+into `ref` on first use.
 -/
 structure LazyIR where
-  paths : Array (Option System.FilePath)
-  ref   : IO.Ref LazyIRState
+  sources : Array IRSource
+  ref     : IO.Ref LazyIRState
 
 structure Diagnostics where
   /-- Number of times each declaration has been unfolded by the kernel. -/
@@ -1800,21 +1812,28 @@ module-system modules with a separate `.ir` are loaded lazily (and cached) on fi
 def PersistentEnvExtension.getModuleIREntries {α β σ : Type} [Inhabited σ]
     (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : BaseIO (Array α) := do
   let some lazy := env.base.private.irData | return ext.getModuleEntries env m
-  let some (some path) := lazy.paths[m]? | return ext.getModuleEntries env m
-  -- Fast path: already loaded (non-atomic, as in `realizeMapRef`).
-  if let some (some data) := (← lazy.ref.get).loaded.get? m then
+  match lazy.sources[m]? with
+  | some (.loaded data) => return extractIREntries ext data
+  | some (.deferred paths) =>
+    -- Fast path: already loaded (non-atomic, as in `realizeMapRef`).
+    if let some (some data) := (← lazy.ref.get).loaded.get? m then
+      return extractIREntries ext data
+    -- Load `m`'s IR parts (chained, so the `.ir`'s pointers into the `.ir.sig` region stay valid) and
+    -- cache the full `.ir` (the last part), keeping the winner on a concurrent race.
+    let data ← match ← (readModuleDataParts paths).toBaseIO with
+      | .ok parts =>
+        let some (data, _) := parts.back? | pure default
+        lazy.ref.modifyGet fun st =>
+          match st.loaded.get? m with
+          | some (some data') => (data', st)
+          | _ => (data, { st with
+              loaded := st.loaded.set m (some data)
+              -- keep *all* part regions alive: the `.ir` data references the `.ir.sig` region
+              regions := parts.foldl (fun rs p => rs.push p.2) st.regions
+              extraIdx := data.extraConstNames.foldl (·.insert · m) st.extraIdx })
+      | .error _ => pure default
     return extractIREntries ext data
-  -- Load `m`'s `.ir` and cache it, keeping the winner on a concurrent race.
-  let data ← match ← (readModuleData path).toBaseIO with
-    | .ok (data, region) =>
-      lazy.ref.modifyGet fun st =>
-        match st.loaded.get? m with
-        | some (some data') => (data', st)
-        | _ => (data, { st with
-            loaded := st.loaded.set m (some data), regions := st.regions.push region
-            extraIdx := data.extraConstNames.foldl (·.insert · m) st.extraIdx })
-    | .error _ => pure default
-  return extractIREntries ext data
+  | _ => return ext.getModuleEntries env m
 
 /--
 Module index of a code-generator auxiliary constant discovered while loading IR on demand, if any.
@@ -1945,8 +1964,11 @@ def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) 
       (← mkPart .server),
       (← mkPart .private)]
     if writeIR then
+      let irData := mkIRData env
       -- Make sure to change the module name so we derive a different base address
-      saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
+      saveModuleDataParts (env.mainModule ++ `ir) #[
+        (fname.withExtension "ir.sig", default),  -- to be filled by leanir instead
+        (fname.withExtension "ir", irData)]
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -2039,12 +2061,14 @@ where
       return env
 
 private structure ImportedModule extends EffectiveImport where
-  /-- All loaded incremental compacted regions from `.olean*`. -/
+  /-- `.olean` + `.olean.server` (optional) + `.olean.private` (optional). -/
   parts     : Array (ModuleData × CompactedRegion)
-  /-- `.ir` data, eagerly loaded only for IR-only modules (no `.olean` data of their own). -/
-  irData?   : Option (ModuleData × CompactedRegion)
-  /-- Resolved `.ir` path of a module with `.olean` data, whose IR is loaded on demand. -/
-  irFile?   : Option System.FilePath
+  /-- `.ir.sig` (optional) + `.ir` (optional), eagerly loaded. Empty for a `lean` module with `.olean`
+  data whose IR is loaded on demand; its part paths are then in `irFiles`. -/
+  irParts   : Array (ModuleData × CompactedRegion)
+  /-- IR part paths (`.ir.sig`, `.ir`) of a module (with `.olean` data, under `lean`) whose IR is loaded
+  on demand. Empty unless the module is deferred. -/
+  irFiles   : Array System.FilePath
   /-- If true, IR is loaded transitively. -/
   needsIRTrans : Bool
 
@@ -2054,7 +2078,7 @@ private def ImportedModule.publicModule? (self : ImportedModule) : Option Module
     self.parts[0]?.map (·.1)
   else
     -- (should not have any constants)
-    self.irData?.map (·.1)
+    self.irParts.back?.map (·.1)
 
 private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel) : Option ModuleData := do
   -- Without the module system, we only have the exported level.
@@ -2066,21 +2090,27 @@ private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleDa
   if self.hasData then
     self.getData? (if self.importAll then .private else .exported)
   else
-    self.irData?.map (·.1)
+    self.irParts.back?.map (·.1)
 
 /-- The module data that should be used for server purposes. -/
 private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLevel) :
     Option ModuleData :=
-  -- fall back to `exported` outside the server
-  self.getData? (if level ≥ .server then level else .exported)
+  -- allow unconditional access under `import all`, otherwise fall back to `exported` outside the
+  -- server
+  self.getData? (if self.importAll then .private else if level ≥ .server then level else .exported)
 
-/-- The module data that should be used for accessing IR for interpretation. -/
-private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLevel) :
-    Option ModuleData :=
-  if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
+/--
+The module data that should be used for accessing IR for interpretation (lean) or compilation
+(leanir; loadIRSig = true). -/
+private def ImportedModule.irData? (self : ImportedModule) (loadIRSig : Bool := false) : Option ModuleData :=
+  if self.irParts.isEmpty || !self.mainModule?.any (·.isModule) then
     self.mainModule?
   else
-    self.irData?.map (·.1)
+    -- leanir: for `import all` modules, use `.ir`; otherwise prefer `.ir.sig`
+    if !loadIRSig || self.importAll then
+      self.irParts.back?.map (·.1)
+    else
+      self.irParts[0]?.map (·.1)
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -2120,9 +2150,26 @@ private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × Com
   let priv ← unsafe CompactedRegion.read (α := ModuleData) pFile #[main.2, server.2]
   return #[main, server, priv]
 
+private def readIRPartsOfMod (mod : Name) : IO (Array (ModuleData × CompactedRegion)) := do
+  let mFile ← findOLean mod
+  let irSigFile := mFile.withExtension "ir.sig"
+  -- TODO: we don't (necessarily) know whether the module is a `module` or not, but file existence
+  -- checks are not great in the face of module-ness changes
+  unless (← irSigFile.pathExists) do
+    return #[]
+  let irSig ← unsafe CompactedRegion.read (α := ModuleData) irSigFile #[]
+  -- Opportunistically load all available parts.
+  -- Necessary because the import level may be upgraded a later import.
+  let irFile := mFile.withExtension "ir"
+  let ir ← unsafe CompactedRegion.read (α := ModuleData) irFile #[irSig.2]
+  return #[irSig, ir]
+
 partial def importModulesCore
     (imports : Array Import) (globalLevel : OLeanLevel := .private)
-    (arts : NameMap ImportArtifacts := {}) (isExported : Bool := globalLevel < .private) :
+    (arts : NameMap ImportArtifacts := {}) (isExported : Bool := globalLevel < .private)
+    -- leanir: ensure (at least) `.ir.sig` is loaded for every module with data; also ignore `meta`
+    -- on imports
+    (loadIRSig : Bool := false) :
     ImportStateM Unit := do
   go imports (importAll := true) (isExported := isExported) (needsData := true) (needsIRTrans := false)
   if globalLevel < .private then
@@ -2195,8 +2242,12 @@ where
       let importAll := globalLevel == .private || importAll && i.importAll
       -- `B ≥ public`?
       let isExported := isExported && i.isExported
-      let needsIRTrans := needsIRTrans || needsData && i.isMeta
-      let needsIR := needsIRTrans || importAll || globalLevel > .exported
+      -- `leanir` (`loadIRSig`) only needs `.ir.sig` of direct imports, not transitive `.ir`
+      -- through `meta` imports, so ignore the `meta` modifier under `loadIRSig`.
+      let needsIRTrans := needsIRTrans || (!loadIRSig && needsData && i.isMeta)
+      -- `loadIRSig` only loads `.ir.sig` for modules whose `.olean` is also loaded
+      -- (i.e., `needsData`), preserving the invariant that IR is never present without its olean.
+      let needsIR := needsIRTrans || importAll || globalLevel > .exported || (loadIRSig && needsData)
       if !needsData && !needsIR then
         continue
 
@@ -2215,29 +2266,31 @@ where
         let isExported := isExported || mod.isExported
         let needsData := needsData || mod.hasData
         let needsIRTrans := needsIRTrans || mod.needsIRTrans
-        let needsIR := needsIRTrans || importAll
+        let needsIR := needsIRTrans || importAll || (loadIRSig && needsData)
         let irPhases := if irPhases == mod.irPhases then irPhases else .all
         let parts ← if needsData && mod.parts.isEmpty then loadData i else pure mod.parts
-        let irFile? ← if needsIR && mod.irFile?.isNone then resolveIR? i else pure mod.irFile?
-        let irData? ← if needsIR && !needsData && mod.irData?.isNone then irFile?.mapM (readModuleData ·) else pure mod.irData?
+        let defer := needsData && !importAll && !loadIRSig
+        let (irParts, irFiles) ← if needsIR && mod.irParts.isEmpty && mod.irFiles.isEmpty then loadIR defer i
+          else pure (mod.irParts, mod.irFiles)
         if importAll != mod.importAll || isExported != mod.isExported ||
             needsIRTrans != mod.needsIRTrans || needsData != mod.hasData || irPhases != mod.irPhases then
           modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-            importAll, isExported, irPhases, parts, irData?, irFile?, hasData := needsData, needsIRTrans }}
+            importAll, isExported, irPhases, parts, irParts, irFiles, hasData := needsData, needsIRTrans }}
           -- bump entire closure
           goRec mod
         continue
 
       -- newly discovered module
       let parts ← if needsData then loadData i else pure #[]
-      let irFile? ← if needsIR then resolveIR? i else pure none
-      let irData? ← if needsIR && !needsData then irFile?.mapM (readModuleData ·) else pure none
-      let mod := { i with importAll, isExported, irPhases, parts, irData?, irFile?, needsIRTrans, hasData := needsData }
+      let defer := needsData && !importAll && !loadIRSig
+      let (irParts, irFiles) ← if needsIR then loadIR defer i else pure (#[], #[])
+      let mod := { i with importAll, isExported, irPhases, parts, irParts, irFiles, needsIRTrans, hasData := needsData }
       goRec mod
       modify fun s => { s with
         moduleNameMap := s.moduleNameMap.insert i.module mod
         moduleNames := s.moduleNames.push i.module
       }
+  -- .olean + .olean.server (optional) + .olean.private (optional)
   loadData i := do
     if let some arts := arts.find? i.module then
       -- Opportunistically load all available parts.
@@ -2246,12 +2299,23 @@ where
       readModuleDataParts fnames
     else
       readModuleDataPartsOfMod i.module
-  resolveIR? i := do
-    if let some arts := arts.find? i.module then
-      pure arts.ir?
+  -- `.ir.sig` + `.ir` (optional). When `defer`, the IR parts are loaded on demand: only their paths
+  -- are recorded (in `irFiles`) and nothing is read eagerly.
+  loadIR (defer : Bool) i : ImportStateM (Array (ModuleData × CompactedRegion) × Array System.FilePath) := do
+    if defer then
+      let irFiles ← if let some arts := arts.find? i.module then
+        pure arts.irParts
+      else
+        let mFile ← findOLean i.module
+        let irSig := mFile.withExtension "ir.sig"
+        if ← irSig.pathExists then pure #[irSig, mFile.withExtension "ir"] else pure #[]
+      return (#[], irFiles)
     else
-      let irFile := (← findOLean i.module).withExtension "ir"
-      pure (guard (← irFile.pathExists) *> irFile)
+      let irParts ← if let some arts := arts.find? i.module then
+        readModuleDataParts arts.irParts
+      else
+        readIRPartsOfMod i.module
+      return (irParts, #[])
 
 /--
 Returns `true` if `cinfo₁` and `cinfo₂` represent the same theorem/axiom, with `cinfo₁` potentially
@@ -2313,7 +2377,9 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (isModule := level != .private) :
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (isModule := level != .private)
+    -- If true, prefer loading `.ir.sig` over `.ir` unless `import all`ed; used by leanir
+    (loadIRSig := false) :
     IO Environment := do
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
   let moduleData ← modules.mapM fun mod => do
@@ -2331,6 +2397,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numExtraConsts)
   let mut privateConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
   let mut publicConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPublicConsts)
+  -- Per-module interpreter-IR source: a deferred module's `.ir` is loaded on demand; eagerly-loaded IR
+  -- is in `irParts` (leanir signatures, IR-only and `import all` modules); otherwise the module's
+  -- interpreter IR is the imported `.olean` data, read via `getModuleEntries`.
+  let irSources : Array Kernel.IRSource := modules.mapIdx fun _ mod =>
+    if !mod.irFiles.isEmpty then .deferred mod.irFiles
+    else if mod.irParts.isEmpty then .absent
+    else match mod.irData? loadIRSig with
+      | some data => .loaded data
+      | none => .absent
   for h : modIdx in *...moduleData.size do
     let data := moduleData[modIdx]
     for cname in data.constNames, cinfo in data.constants do
@@ -2344,7 +2419,13 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
           else if !subsumesInfo privateConstantMap cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-    for cname in data.extraConstNames do
+    -- For eagerly-loaded IR, take the code-generator auxiliaries (including private ones) from the `.ir`,
+    -- which all `const2ModIdx` consumers need; the `.olean`'s set is level-filtered and omits private
+    -- auxiliaries. Deferred modules register theirs in `extraIdx` when their `.ir` is loaded on demand.
+    let extraConstNames := match irSources[modIdx]! with
+      | .loaded irData => irData.extraConstNames
+      | _ => data.extraConstNames
+    for cname in extraConstNames do
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
 
   if isModule then
@@ -2368,7 +2449,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     header     := {
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)
-      regions      := modules.flatMap (·.parts.map (·.2)) ++ modules.filterMap (·.irData?.map (·.2))
+      regions      := modules.flatMap (·.parts.map (·.2)) ++ modules.flatMap (·.irParts.map (·.2))
     }
   }
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
@@ -2376,18 +2457,8 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let extensions ← setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
-  -- Defer loading a module's separate `.ir` (loaded on demand in `getModuleIREntries`) when it has its
-  -- own `.olean` data and its interpreter IR lives in a separate `.ir` (the `interpData?` `.ir`-branch:
-  -- a module-system module at server level or used at comptime). Other modules read their IR from the
-  -- eagerly-imported `.olean` data via `getModuleEntries`.
-  let irPaths := modules.mapIdx fun modIdx mod =>
-    if mod.hasData && (moduleData[modIdx]?.any (·.isModule)) &&
-        !(level < .server && mod.irPhases == .runtime) then
-      mod.irFile?
-    else
-      none
   let lazyIR : Kernel.LazyIR := {
-    paths := irPaths
+    sources := irSources
     ref := ← IO.mkRef { loaded := moduleData.size.fold (init := {}) (fun _ _ c => c.push none) }
   }
   let privateBase := { privateBase with
@@ -2400,6 +2471,13 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     importRealizationCtx? := none
     serverBaseExts := (← setImportedEntries privateBase.extensions serverData)
   }
+  -- The lazy-IR cache is a mutable `IO.Ref`, but `markPersistent` marks it (and the state it points to)
+  -- persistent, and a persistent ref cannot be mutated: the interpreter would deadlock taking it on its
+  -- first on-demand load. So after each `markPersistent`, swap in a fresh, non-persistent ref (any
+  -- previously cached loads are dropped and simply re-loaded), mirroring how `realizeMapRef` is created
+  -- only after the final `markPersistent` below.
+  let freshLazyIRState : Kernel.LazyIRState :=
+    { loaded := moduleData.size.fold (init := {}) (fun _ _ c => c.push none) }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistentExtensions`, which
        avoids costly MT markings when e.g. an interpreter closure (which
@@ -2414,6 +2492,11 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
        Safety: There are no concurrent accesses to `env` at this point. -/
     env ← unsafe Runtime.markPersistent env
+    let r ← IO.mkRef freshLazyIRState
+    env := { env with
+      base.private.irData := env.base.private.irData.map ({ · with ref := r })
+      checked := env.checked.map (sync := true) fun kenv =>
+        { kenv with irData := kenv.irData.map ({ · with ref := r }) } }
   if loadExts then
     env ← finalizePersistentExtensions env moduleData opts
     if leakEnv then
@@ -2423,6 +2506,11 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         Safety: There are no concurrent accesses to `env` at this point, assuming
         extensions' `addImportFn`s did not spawn any unbound tasks. -/
       env ← unsafe Runtime.markPersistent env
+      let r ← IO.mkRef freshLazyIRState
+      env := { env with
+        base.private.irData := env.base.private.irData.map ({ · with ref := r })
+        checked := env.checked.map (sync := true) fun kenv =>
+          { kenv with irData := kenv.irData.map ({ · with ref := r }) } }
   return { env with importRealizationCtx? := some {
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env

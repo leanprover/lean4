@@ -258,7 +258,7 @@ public def id? (self : Package) : Option PkgId :=
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] public def remoteUrl? (self : Package) : Option String :=
-  if self.remoteUrl.isEmpty then some self.remoteUrl else none
+  if self.remoteUrl.isEmpty then none else some self.remoteUrl
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] public def buildArchiveFile (self : Package) : FilePath :=

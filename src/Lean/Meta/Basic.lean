@@ -32,12 +32,14 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
+/-- NOTE: value purely intended for equality comparison, *NOT* following the transparency lattice. -/
 def TransparencyMode.toUInt64 : TransparencyMode → UInt64
   | .all       => 0
   | .default   => 1
   | .reducible => 2
   | .instances => 3
   | .none      => 4
+  | .implicit  => 5
 
 def EtaStructMode.toUInt64 : EtaStructMode → UInt64
   | .all        => 0
@@ -1282,14 +1284,24 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 
 /--
 `withReducibleAndInstances x` executes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
-or type class instances are unfolded.
+or `[instance_reducible]` (e.g. instances) are unfolded. `[implicit_reducible]` is **not** unfolded — use
+`withImplicit` for that.
 -/
 @[inline] def withReducibleAndInstances (x : n α) : n α :=
   withTransparency TransparencyMode.instances x
 
 /--
+`withImplicit x` executes `x` using the `.implicit` transparency setting. In this setting `[reducible]`,
+`[instance_reducible]`, and `[implicit_reducible]` definitions are all unfolded. Used for
+definitional equality checks on implicit *value* arguments, where `[implicit_reducible]` definitions
+need to unfold in addition to what `.instances` already unfolds.
+-/
+@[inline] def withImplicit (x : n α) : n α :=
+  withTransparency TransparencyMode.implicit x
+
+/--
 Execute `x` ensuring the transparency setting is at least `mode`.
-Recall that `.none < .reducible < .instances < .default < .all`.
+Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
@@ -2112,7 +2124,7 @@ def whnfI (e : Expr) : MetaM Expr :=
 /-- `whnf` with at most instances transparency. -/
 def whnfAtMostI (e : Expr) : MetaM Expr := do
   match (← getTransparency) with
-  | .all | .default => withTransparency TransparencyMode.instances <| whnf e
+  | .all | .default | .implicit => withTransparency TransparencyMode.instances <| whnf e
   | _ => whnf e
 
 /--

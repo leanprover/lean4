@@ -67,27 +67,30 @@ Module data files used for an {lit}`import` statement.
 This structure is designed for efficient JSON serialization.
 -/
 structure ImportArtifacts where
-  ofArray ::
-    toArray : Array System.FilePath
+  ofArrays ::
+    /--
+    Two nested arrays of variable size: {lit}`#[#[olean, oleanServer?, oleanPrivate?], #[irSig, ir?]]`
+    -/
+    toArrays : Array (Array System.FilePath)
   deriving Repr, Inhabited
 
-instance : ToJson ImportArtifacts := ⟨(toJson ·.toArray)⟩
-instance : FromJson ImportArtifacts := ⟨(.ofArray <$> fromJson? ·)⟩
+instance : ToJson ImportArtifacts := ⟨(toJson ·.toArrays)⟩
+instance : FromJson ImportArtifacts := ⟨(.ofArrays <$> fromJson? ·)⟩
 
-def ImportArtifacts.size (arts : ImportArtifacts) :=
-  arts.toArray.size
+def ImportArtifacts.olean? (arts : ImportArtifacts) : Option System.FilePath :=
+  arts.toArrays[0]?.bind (·[0]?)
 
-def ImportArtifacts.olean? (arts : ImportArtifacts) :=
-  arts.toArray[0]?
+def ImportArtifacts.oleanServer? (arts : ImportArtifacts) : Option System.FilePath :=
+  arts.toArrays[0]?.bind (·[1]?)
 
-def ImportArtifacts.ir? (arts : ImportArtifacts) :=
-  arts.toArray[1]?
+def ImportArtifacts.oleanPrivate? (arts : ImportArtifacts) : Option System.FilePath :=
+  arts.toArrays[0]?.bind (·[2]?)
 
-def ImportArtifacts.oleanServer? (arts : ImportArtifacts) :=
-  arts.toArray[2]?
+def ImportArtifacts.irSig? (arts : ImportArtifacts) : Option System.FilePath :=
+  arts.toArrays[1]?.bind (·[0]?)
 
-def ImportArtifacts.oleanPrivate? (arts : ImportArtifacts) :=
-  arts.toArray[3]?
+def ImportArtifacts.ir? (arts : ImportArtifacts) : Option System.FilePath :=
+  arts.toArrays[1]?.bind (·[1]?)
 
 def ImportArtifacts.oleanParts (inServer : Bool) (arts : ImportArtifacts) : Array System.FilePath := Id.run do
   let mut fnames := #[]
@@ -102,6 +105,9 @@ def ImportArtifacts.oleanParts (inServer : Bool) (arts : ImportArtifacts) : Arra
         fnames := fnames.push pFile
   return fnames
 
+def ImportArtifacts.irParts (arts : ImportArtifacts) : Array System.FilePath :=
+  arts.toArrays[1]?.getD #[]
+
 /-- Files containing data for a single module. -/
 structure ModuleArtifacts where
   lean? : Option System.FilePath := none
@@ -109,6 +115,7 @@ structure ModuleArtifacts where
   oleanServer? : Option System.FilePath := none
   oleanPrivate? : Option System.FilePath := none
   ilean? : Option System.FilePath := none
+  irSig? : Option System.FilePath := none
   ir? : Option System.FilePath := none
   c? : Option System.FilePath := none
   bc? : Option System.FilePath := none
@@ -122,6 +129,14 @@ def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath 
       fnames := fnames.push sFile
       if let some pFile := arts.oleanPrivate? then
         fnames := fnames.push pFile
+  return fnames
+
+def ModuleArtifacts.irParts (arts : ModuleArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  if let some irSigFile := arts.irSig? then
+    fnames := fnames.push irSigFile
+    if let some irFile := arts.ir? then
+      fnames := fnames.push irFile
   return fnames
 
 /-- A Lean plugin. Plugins are shared libraries with an initialization function. -/

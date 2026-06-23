@@ -82803,7 +82803,7 @@ goto v___jp_29194_;
 else
 {
 uint8_t v___x_29209_; lean_object* v___x_29210_; 
-v___x_29209_ = 3;
+v___x_29209_ = 4;
 lean_inc(v_declName_29203_);
 v___x_29210_ = l_Lean_setReducibilityStatus___at___00Lean_Elab_Command_Structure_elabStructureCommand_spec__4___redArg(v_declName_29203_, v___x_29209_, v___y_29190_, v___y_29192_);
 if (lean_obj_tag(v___x_29210_) == 0)

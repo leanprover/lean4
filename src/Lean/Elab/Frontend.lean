@@ -173,26 +173,25 @@ private def regionsToModuleArtifacts (regions : Array CompactedRegion) : Array M
         | some "server"  => (p.withExtension "" |>.toString, fun a => { a with oleanServer? := p })
         | some "private" => (p.withExtension "" |>.toString, fun a => { a with oleanPrivate? := p })
         | some "ir"      => (p.withExtension "olean" |>.toString, fun a => { a with ir? := p })
+        | some "sig"     => (p.withExtension "" |>.withExtension "olean" |>.toString, fun a => { a with irSig? := p })
         | _              => (p.toString, fun a => { a with olean? := p })
       unless byBase.contains base do
         order := order.push base
       byBase := byBase.insert base (upd (byBase.getD base {}))
     return order.map (byBase[·]!)
 
-/--
-Reads all the regions of one module's `ModuleArtifacts`: the `.olean` variant chain (each variant
-read with only its prior siblings as deps) plus the `.ir` region (no deps, as in regular import).
--/
 private unsafe def readModuleArtifactRegions (arts : ModuleArtifacts) :
     IO (Array CompactedRegion) := do
-  let mut chainDeps : Array CompactedRegion := #[]
+  let mut oleanRegions : Array CompactedRegion := #[]
   for partPath in arts.oleanParts do
-    let (_, region) ← CompactedRegion.read (α := ModuleData) partPath chainDeps
-    chainDeps := chainDeps.push region
-  if let some irPath := arts.ir? then
-    let (_, region) ← CompactedRegion.read (α := ModuleData) irPath #[]
-    chainDeps := chainDeps.push region
-  return chainDeps
+    let (_, region) ← CompactedRegion.read (α := ModuleData) partPath oleanRegions
+    oleanRegions := oleanRegions.push region
+  let mut irRegions : Array CompactedRegion := #[]
+  for partPath in arts.irParts do
+    let (_, region) ← CompactedRegion.read (α := ModuleData) partPath irRegions
+    -- accumulate so `.ir` is read with `.ir.sig` as a dep (its cross-part pointers); cf. olean chain
+    irRegions := irRegions.push region
+  return oleanRegions ++ irRegions
 
 /-- Loads a snapshot saved by `--incr-(header-)save`. -/
 private unsafe def loadIncrSnapshot (fname : System.FilePath) :
@@ -239,6 +238,33 @@ private partial def resolveCancelTokensForSave (s : Language.SnapshotTree) : Bas
     if let some tk := child.cancelTk? then
       tk.set
     resolveCancelTokensForSave child.get
+
+/--
+Updates the post-import `cmdState`'s `Environment.mainModule` so that subsequent commands
+elaborated on top of `snap` produce names under the correct module. Needed when the loader's
+main module name differs from the one baked into the saved snapshot (e.g. the snapshot was
+saved from `--stdin` but is loaded for a real file). For non-truncated snapshots whose
+`mainModule` already matches, this is effectively a no-op.
+-/
+private def setMainModule (snap : Language.Lean.InitialSnapshot) (m : Name) :
+    Language.Lean.InitialSnapshot := Id.run do
+  let some parsed := snap.result? | return snap
+  let processed := parsed.processedSnap.get
+  let some hps := processed.result? | return snap
+  if hps.cmdState.env.header.mainModule == m then
+    return snap
+  let newEnv := hps.cmdState.env.setMainModule m
+  -- `Command.mkState` derives `auxDeclNGen.namePrefix` from `mkPrivateName env .anonymous`, which
+  -- bakes in `env.mainModule`. Re-derive so aux decls land in the new module's private namespace
+  -- (otherwise `delabConst` flags them as inaccessible and pretty-prints them with `✝`).
+  let newCmdState := { hps.cmdState with
+    env := newEnv
+    auxDeclNGen := { hps.cmdState.auxDeclNGen with namePrefix := mkPrivateName newEnv .anonymous } }
+  let newProcessed : Language.Lean.HeaderProcessedSnapshot := { processed with
+    result? := some { hps with cmdState := newCmdState } }
+  { snap with
+    result? := some { parsed with
+      processedSnap := .finished none newProcessed } }
 
 def runFrontend
     (input : String)
@@ -287,7 +313,11 @@ def runFrontend
       }
   let old? ← incrLoadFileName?.mapM fun incrFile => do
     let incr ← unsafe loadIncrSnapshot incrFile
-    if let some res := incr.snap.processedResult.get then
+    -- A loaded snapshot may have been saved from a different file (e.g. via `--incr-header-save`
+    -- on stdin) and so bake in a different `mainModule`. Patch it to match this invocation
+    -- so generated names like `_private.<mainModule>.<hash>...` stay consistent.
+    let snap := setMainModule incr.snap mainModuleName
+    if let some res := snap.processedResult.get then
       withImporting do
         -- The central incr HACK:
         -- Initializers roughly perform one of two functions: initializing their own variable, or
@@ -301,7 +331,7 @@ def runFrontend
       -- `Language.Lean.process` (taken when the loaded header doesn't match the new file's
       -- imports) calls `importModules`, which in turn requires the flag to be set. Restore it.
       unsafe enableInitializersExecution
-    return incr.snap
+    return snap
   let processor := Language.Lean.process
   let snap ← processor setup old? ctx
   let snaps := Language.toSnapshotTree snap

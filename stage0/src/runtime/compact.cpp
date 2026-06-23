@@ -180,12 +180,14 @@ void * object_compactor::alloc(size_t sz) {
     return r;
 }
 
-void object_compactor::save(object * o, object * new_o) {
+object_offset object_compactor::save(object * o, object * new_o) {
     lean_assert(m_begin <= new_o && new_o < m_end);
-    m_obj_table.insert(std::make_pair(o, reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin) + reinterpret_cast<size_t>(m_base_addr))));
+    object_offset off = reinterpret_cast<object_offset>(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin) + reinterpret_cast<size_t>(m_base_addr));
+    m_obj_table.insert(std::make_pair(o, off));
+    return off;
 }
 
-void object_compactor::save_max_sharing(object * o, object * new_o, size_t new_o_sz) {
+object_offset object_compactor::save_max_sharing(object * o, object * new_o, size_t new_o_sz) {
     max_sharing_key k(reinterpret_cast<char*>(new_o) - reinterpret_cast<char*>(m_begin), new_o_sz);
     auto it = m_max_sharing_table->m_table.find(k);
     if (it != m_max_sharing_table->m_table.end()) {
@@ -194,7 +196,7 @@ void object_compactor::save_max_sharing(object * o, object * new_o, size_t new_o
     } else {
         m_max_sharing_table->m_table.insert(k);
     }
-    save(o, new_o);
+    return save(o, new_o);
 }
 
 object_offset object_compactor::to_offset(object * o) {
@@ -225,8 +227,28 @@ object_offset object_compactor::to_offset(object * o) {
                 }
             }
         }
-        m_todo.push_back(o);
-        return g_null_offset;
+        return compact(o);
+    }
+}
+
+object_offset object_compactor::compact(object * o) {
+    lean_assert(!lean_is_scalar(o));
+#ifdef LEAN_TAG_COUNTERS
+    g_tag_counters[lean_ptr_tag(o)]++;
+#endif
+    switch (lean_ptr_tag(o)) {
+    case LeanClosure:         return insert_closure(o);
+    case LeanArray:           return insert_array(o);
+    case LeanScalarArray:     return insert_sarray(o);
+    case LeanString:          return insert_string(o);
+    case LeanMPZ:             return insert_mpz(o);
+    case LeanThunk:           return insert_thunk(o);
+    case LeanTask:            return insert_task(o);
+    case LeanPromise:         return insert_promise(o);
+    case LeanRef:             return insert_ref(o);
+    case LeanExternal:        throw exception("external objects cannot be compacted");
+    case LeanReserved:        lean_unreachable();
+    default:                  return insert_constructor(o);
     }
 }
 
@@ -242,7 +264,7 @@ object * object_compactor::copy_object(object * o, size_t sz) {
     return r;
 }
 
-void object_compactor::insert_sarray(object * o) {
+object_offset object_compactor::insert_sarray(object * o) {
     size_t sz        = lean_sarray_size(o);
     unsigned elem_sz = lean_sarray_elem_size(o);
     size_t obj_sz = lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_sz, sz));
@@ -251,10 +273,10 @@ void object_compactor::insert_sarray(object * o) {
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
     memcpy(new_o->m_data, lean_to_sarray(o)->m_data, elem_sz*sz);
-    save_max_sharing(o, (lean_object*)new_o, obj_sz);
+    return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
 
-void object_compactor::insert_string(object * o) {
+object_offset object_compactor::insert_string(object * o) {
     size_t sz        = lean_string_size(o);
     size_t len       = lean_string_len(o);
     size_t obj_sz = lean_usize_add_checked(sizeof(lean_string_object), sz);
@@ -264,148 +286,108 @@ void object_compactor::insert_string(object * o) {
     new_o->m_capacity = sz;
     new_o->m_length   = len;
     memcpy(new_o->m_data, lean_to_string(o)->m_data, sz);
-    save_max_sharing(o, (lean_object*)new_o, obj_sz);
+    return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
 
 // #define ShowCtors
 
-bool object_compactor::insert_constructor(object * o) {
-    std::vector<object_offset> & offsets = m_tmp;
-    bool missing_children = false;
-    unsigned num_objs     = lean_ctor_num_objs(o);
-    offsets.resize(num_objs);
-    unsigned i = num_objs;
-    while (i > 0) {
-        i--;
+// `m_tmp` is used as a recursion stack: each `insert_*` with children reserves a
+// window `[base, base + n)` for its child offsets and pops it before returning, so
+// nested calls never share slots and arbitrarily large arrays stay off the C stack.
+object_offset object_compactor::insert_constructor(object * o) {
+    unsigned num_objs = lean_ctor_num_objs(o);
+    size_t base = m_tmp.size();
+    m_tmp.resize(base + num_objs);
+    for (unsigned i = 0; i < num_objs; i++) {
         object_offset c = to_offset(cnstr_get(o, i));
-        if (c == g_null_offset)
-            missing_children = true;
-        offsets[i] = c;
+        m_tmp[base + i] = c;
     }
-    if (missing_children)
-        return false;
-#ifdef ShowCtors
-    if (lean_object_byte_size(o) == sizeof(lean_object) + sizeof(void*)*lean_ctor_num_objs(o)) {
-        std::cout << "ctor " << (unsigned)lean_ptr_tag(o);
-        for (unsigned i = 0; i < num_objs; i++) {
-            std::cout << " " << (size_t)offsets[i];
-        }
-        std::cout << "\n";
-    }
-#endif
     object * new_o = copy_object(o);
-    for (unsigned i = 0; i < lean_ctor_num_objs(o); i++)
-        lean_ctor_set(new_o, i, offsets[i]);
-    save_max_sharing(o, new_o, lean_object_byte_size(o));
-    return true;
+    for (unsigned i = 0; i < num_objs; i++)
+        lean_ctor_set(new_o, i, m_tmp[base + i]);
+    m_tmp.resize(base);
+    return save_max_sharing(o, new_o, lean_object_byte_size(o));
 }
 
-bool object_compactor::insert_array(object * o) {
-    std::vector<object_offset> & offsets = m_tmp;
-    bool missing_children = false;
+object_offset object_compactor::insert_array(object * o) {
     size_t sz = array_size(o);
-    offsets.resize(sz);
-    // std::cout << sz << " array\n";
-    size_t i = sz;
-    while (i > 0) {
-        i--;
+    size_t base = m_tmp.size();
+    m_tmp.resize(base + sz);
+    for (size_t i = 0; i < sz; i++) {
         object_offset c = to_offset(array_get(o, i));
-        if (c == g_null_offset)
-            missing_children = true;
-        offsets[i] = c;
+        m_tmp[base + i] = c;
     }
-    if (missing_children)
-        return false;
     size_t obj_sz = lean_usize_add_checked(sizeof(lean_array_object), lean_usize_mul_checked(sizeof(void*), sz));
     lean_array_object * new_o = (lean_array_object*)alloc(obj_sz);
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanArray, 0);
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
-    for (size_t i = 0; i < sz; i++) {
-        lean_array_set_core((lean_object*)new_o, i, offsets[i]);
-    }
-    save_max_sharing(o, (lean_object*)new_o, obj_sz);
-    return true;
+    for (size_t i = 0; i < sz; i++)
+        lean_array_set_core((lean_object*)new_o, i, m_tmp[base + i]);
+    m_tmp.resize(base);
+    return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
 
-bool object_compactor::insert_thunk(object * o) {
-    object * v = lean_thunk_get(o);
-    object_offset c = to_offset(v);
-    if (c == g_null_offset)
-        return false;
+object_offset object_compactor::insert_thunk(object * o) {
+    object_offset c = to_offset(lean_thunk_get(o));
     size_t sz = sizeof(lean_thunk_object);
     object * r = copy_object(o, sz);
     lean_to_thunk(r)->m_value = c;
-    save_max_sharing(o, r, sz);
-    return true;
+    return save_max_sharing(o, r, sz);
 }
 
-bool object_compactor::insert_ref(object * o) {
-    object * v = lean_to_ref(o)->m_value;
-    object_offset c = to_offset(v);
-    if (c == g_null_offset)
-        return false;
+object_offset object_compactor::insert_ref(object * o) {
+    object_offset c = to_offset(lean_to_ref(o)->m_value);
     size_t sz = sizeof(lean_ref_object);
     object * r = copy_object(o, sz);
     lean_to_ref(r)->m_value = c;
     // must NOT be max-shared
-    save(o, r);
-    return true;
+    return save(o, r);
 }
 
-bool object_compactor::insert_task(object * o) {
-    object * v = lean_task_get(o);
-    object_offset c = to_offset(v);
-    if (c == g_null_offset)
-        return false;
+object_offset object_compactor::insert_task(object * o) {
+    object_offset c = to_offset(lean_task_get(o));
     size_t sz = sizeof(lean_task_object);
     object * r = copy_object(o, sz);
     lean_assert(lean_to_task(r)->m_imp == nullptr);
     lean_to_task(r)->m_value = c;
-    save_max_sharing(o, r, sz);
-    return true;
+    return save_max_sharing(o, r, sz);
 }
 
-bool object_compactor::insert_closure(object * o) {
+object_offset object_compactor::insert_closure(object * o) {
     if (!m_allow_closures) {
         throw exception("Closures cannot be compacted (unless explicitly calling "
                         "`CompactedRegion.save (allowClosures := true)`). One possible cause of this error is "
                         "trying to store a function in a persistent environment extension.");
     }
-    std::vector<object_offset> & offsets = m_tmp;
-    bool missing = false;
     unsigned n = lean_closure_num_fixed(o);
-    offsets.resize(n);
-    for (unsigned i = n; i-- > 0;) {
-        offsets[i] = to_offset(lean_closure_arg_cptr(o)[i]);
-        if (offsets[i] == g_null_offset) missing = true;
+    size_t base = m_tmp.size();
+    m_tmp.resize(base + n);
+    for (unsigned i = 0; i < n; i++) {
+        object_offset c = to_offset(lean_closure_arg_cptr(o)[i]);
+        m_tmp[base + i] = c;
     }
-    if (missing) return false;
     object * r = copy_object(o);
     for (unsigned i = 0; i < n; i++)
-        lean_closure_arg_cptr(r)[i] = offsets[i];
+        lean_closure_arg_cptr(r)[i] = m_tmp[base + i];
+    m_tmp.resize(base);
     // Record the buffer-relative offset of `r`'s `m_fun` field so the reader can patch
     // closure fn pointers on load without scanning the compacted region.
     size_t fn_field_off = reinterpret_cast<char *>(&lean_to_closure(r)->m_fun)
                           - reinterpret_cast<char *>(m_begin);
     m_closure_offsets.push_back(fn_field_off);
-    save(o, r);
-    return true;
+    return save(o, r);
 }
 
-bool object_compactor::insert_promise(object * o) {
-    object * t = (object *)lean_to_promise(o)->m_result;
-    object_offset c = to_offset(t);
-    if (c == g_null_offset)
-        return false;
+object_offset object_compactor::insert_promise(object * o) {
+    object_offset c = to_offset((object *)lean_to_promise(o)->m_result);
     size_t sz = sizeof(lean_promise_object);
     object * r = copy_object(o, sz);
     lean_to_promise(r)->m_result = (lean_task_object *)c;
-    save_max_sharing(o, r, sz);
-    return true;
+    return save_max_sharing(o, r, sz);
 }
 
-void object_compactor::insert_mpz(object * o) {
+object_offset object_compactor::insert_mpz(object * o) {
 #ifdef LEAN_USE_GMP
     size_t nlimbs = mpz_size(to_mpz(o)->m_value.m_val);
     size_t data_sz = lean_usize_mul_checked(sizeof(mp_limb_t), nlimbs);
@@ -419,7 +401,7 @@ void object_compactor::insert_mpz(object * o) {
     memcpy(data, m._mp_d, data_sz);
     m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin) + reinterpret_cast<ptrdiff_t>(m_base_addr));
     m._mp_alloc = nlimbs;
-    save(o, (lean_object*)new_o);
+    return save(o, (lean_object*)new_o);
 #else
     size_t data_sz = lean_usize_mul_checked(sizeof(mpn_digit), to_mpz(o)->m_value.m_size);
     size_t sz      = lean_usize_add_checked(sizeof(mpz_object), data_sz);
@@ -434,7 +416,7 @@ void object_compactor::insert_mpz(object * o) {
     void * data = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, to_mpz(o)->m_value.m_digits, data_sz);
     new_o->m_value.m_digits = reinterpret_cast<mpn_digit *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin) + reinterpret_cast<ptrdiff_t>(m_base_addr));
-    save(o, (lean_object*)new_o);
+    return save(o, (lean_object*)new_o);
 #endif
 }
 
@@ -477,45 +459,14 @@ tag_counter_manager g_tag_counter_manager;
 #endif
 
 void object_compactor::operator()(object * o) {
-    lean_assert(m_todo.empty());
-    // allocate for root address, see end of function
-    // NOTE: we must store an offset instead of the pointer itself as `m_begin` may have been
-    //  reallocated in the meantime
+    lean_assert(m_tmp.empty());
+    // Allocate the root-address slot first (see below). We store an offset rather
+    // than a pointer because `m_begin` may be reallocated while compacting `o`.
     size_t root_offset =
       static_cast<char *>(alloc(sizeof(object_offset))) - static_cast<char *>(m_begin);
-    if (!lean_is_scalar(o)) {
-        m_todo.push_back(o);
-        while (!m_todo.empty()) {
-            object * curr = m_todo.back();
-            if (m_obj_table.find(curr) != m_obj_table.end()) {
-                m_todo.pop_back();
-                continue;
-            }
-            lean_assert(!lean_is_scalar(curr));
-            bool r = true;
-#ifdef LEAN_TAG_COUNTERS
-            g_tag_counters[lean_ptr_tag(curr)]++;
-#endif
-            switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         r = insert_closure(curr); break;
-            case LeanArray:           r = insert_array(curr); break;
-            case LeanScalarArray:     insert_sarray(curr); break;
-            case LeanString:          insert_string(curr); break;
-            case LeanMPZ:             insert_mpz(curr); break;
-            case LeanThunk:           r = insert_thunk(curr); break;
-            case LeanTask:            r = insert_task(curr); break;
-            case LeanPromise:         r = insert_promise(curr); break;
-            case LeanRef:             r = insert_ref(curr); break;
-            case LeanExternal:        throw exception("external objects cannot be compacted");
-            case LeanReserved:        lean_unreachable();
-            default:                  r = insert_constructor(curr); break;
-            }
-            if (r) m_todo.pop_back();
-        }
-        m_tmp.clear();
-    }
+    object_offset off = to_offset(o);
     object_offset * root = reinterpret_cast<object_offset *>(static_cast<char *>(m_begin) + root_offset);
-    *root = to_offset(o);
+    *root = off;
 }
 
 region_reader::region_reader(size_t sz, void * data, void * base_addr,

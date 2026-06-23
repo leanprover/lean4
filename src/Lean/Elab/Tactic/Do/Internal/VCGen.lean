@@ -19,7 +19,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Driver
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Frontend
 
 /-!
-The `mvcgen'` tactic, split across the modules above.
+The `vcgen` tactic, split across the modules above.
 
 - `VCGen.Reduce` — SymM head-redex reducer.
 - `VCGen.SpecDB` — `SpecTheorem` instantiation, simp-side migration, and `findSpecs` lookup.
@@ -31,5 +31,5 @@ The `mvcgen'` tactic, split across the modules above.
 - `VCGen.Entails` — entailment-shaped goal decomposition (Triple unfolding, state/precondition intro, EPost and lattice steps).
 - `VCGen.Solve` — the main `solve` step / `SolveResult`.
 - `VCGen.Driver` — the worklist driver (`work`, `emitVC`, `main`, `Result`).
-- `VCGen.Frontend` — the `mvcgen'` syntax + tactic elaborator + `mkSpecContext`.
+- `VCGen.Frontend` — the `vcgen` syntax + tactic elaborator + `mkSpecContext`.
 -/

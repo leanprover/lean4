@@ -364,6 +364,13 @@ In this setting only definitions tagged as `[reducible]` or type class instances
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
 
 /--
+`withImplicit tacs` executes `tacs` using the `.implicit` transparency setting.
+In this setting only definitions tagged as `[reducible]`, `[instance_reducible]` or
+`[implicit_reducible]` are unfolded.
+-/
+syntax (name := withImplicit) "with_implicit " tacticSeq : tactic
+
+/--
 `with_unfolding_all tacs` executes `tacs` using the `.all` transparency setting.
 In this setting all definitions that are not opaque are unfolded.
 -/
@@ -2356,8 +2363,8 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
 /-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
-macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
-  Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
+macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
+  Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"
 
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.

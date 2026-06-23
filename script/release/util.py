@@ -235,7 +235,7 @@ class LocalRepo:
         self.git("switch", "-C", branch, f"{remote}/{branch}")
 
     def create_branch(
-        self, branch: str, remote: str = "origin", remote_branch: str | None = None
+        self, branch: str, *, remote: str = "origin", remote_branch: str | None = None
     ) -> None:
         if remote_branch is None:
             self.git("switch", "-C", branch, remote)  # Default branch
@@ -344,10 +344,14 @@ def get_file_contents(grepo: Repository, ref: str, path: str | Path) -> str:
 
 
 def edit(
-    path: Path, pattern: Pattern[str] | str, repl: Callable[[Match[str]], str] | str
+    path: Path,
+    pattern: Pattern[str] | str,
+    repl: Callable[[Match[str]], str] | str,
+    count: int = 0,
 ) -> None:
+    print(f"[bright_black]Editing {path}[/]")
     text = path.read_text()
-    text = re.sub(pattern, repl, text)
+    text = re.sub(pattern, repl, text, count=count)
     path.write_text(text)
 
 
@@ -441,9 +445,20 @@ def set_cmake_version(lrepo: LocalRepo, version: CMakeVersion) -> None:
 ###################
 
 
+def get_release_notes_stem_for(version: Version) -> str:
+    return str(version.stable).replace(".", "_")
+
+
 def get_release_notes_path_for(version: Version) -> str:
-    stem = str(version.stable).replace(".", "_")
-    return f"Manual/Releases/{stem}.lean"
+    return f"Manual/Releases/{get_release_notes_stem_for(version)}.lean"
+
+
+def get_release_notes_module_for(version: Version) -> str:
+    return f"Manual.Releases.«{get_release_notes_stem_for(version)}»"
+
+
+def get_release_notes_index_path() -> str:
+    return "Manual/Releases.lean"
 
 
 def get_release_notes_title_for(version: Version, release: GitRelease) -> str:

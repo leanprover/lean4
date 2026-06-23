@@ -46961,7 +46961,7 @@ v___x_14379_ = l_Lean_isPrivateName(v_name_14301_);
 if (v___x_14379_ == 0)
 {
 uint8_t v___x_14380_; lean_object* v___x_14381_; 
-v___x_14380_ = 3;
+v___x_14380_ = 4;
 lean_inc(v_name_14301_);
 v___x_14381_ = l_Lean_setReducibilityStatus___at___00Lean_Meta_Match_mkMatcherAuxDefinition_spec__4___redArg(v_name_14301_, v___x_14380_, v___y_14308_, v___y_14310_);
 lean_dec_ref(v___x_14381_);

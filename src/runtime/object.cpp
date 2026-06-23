@@ -785,8 +785,8 @@ class task_manager {
         lean_task_object * it   = imp->m_head_dep;
         imp->m_closure     = nullptr;
         imp->m_head_dep    = nullptr;
-        imp->m_canceled    = true;
         imp->m_deleted     = true;
+        imp->m_canceled.store(true, std::memory_order_relaxed);
         lock.unlock();
         while (it) {
             lean_task_imp* imp = it->m_imp.load(std::memory_order_relaxed);
@@ -911,8 +911,8 @@ class task_manager {
         imp->m_head_dep = nullptr;
         while (it) {
             lean_task_imp* it_imp = it->m_imp.load(std::memory_order_relaxed);
-            if (imp->m_canceled)
-                it_imp->m_canceled = true;
+            if (imp->m_canceled.load(std::memory_order_relaxed))
+                it_imp->m_canceled.store(true, std::memory_order_relaxed);
             lean_task_object * next_it = it_imp->m_next_dep;
             it_imp->m_next_dep = nullptr;
             if (it_imp->m_deleted) {
@@ -1046,7 +1046,7 @@ public:
         unique_lock<mutex> lock(m_mutex);
         lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
         if (imp)
-            imp->m_canceled = true;
+            imp->m_canceled.store(true, std::memory_order_relaxed);
     }
 
     bool shutting_down() const {
@@ -1256,7 +1256,7 @@ extern "C" LEAN_EXPORT bool lean_io_check_canceled_core() {
     if (lean_task_object * t = g_current_task_object) {
         lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
         lean_assert(imp); // task is being executed
-        return imp->m_canceled || g_task_manager->shutting_down();
+        return imp->m_canceled.load(std::memory_order_relaxed) || g_task_manager->shutting_down();
     }
     return false;
 }

@@ -59,7 +59,7 @@ double lean_float_of_nat(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_constants(lean_object*);
-uint8_t l_Lean_isImplicitReducibleCore(lean_object*, lean_object*);
+uint8_t l_Lean_isInstanceReducibleCore(lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l_Lean_Elab_Tactic_addEMatchTheorem(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
@@ -736,10 +736,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabGrindSuggestions(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabGrindSuggestions___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_elabGrindSuggestions_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_elabGrindSuggestions_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_foldlMAux_traverse___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toList___at___00Lean_Elab_Tactic_elabGrindLocals_spec__1_spec__1_spec__2_spec__4_spec__6___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_foldlMAux_traverse___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toList___at___00Lean_Elab_Tactic_elabGrindLocals_spec__1_spec__1_spec__2_spec__4_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toList___at___00Lean_Elab_Tactic_elabGrindLocals_spec__1_spec__1_spec__2_spec__4___redArg(lean_object*, lean_object*, lean_object*);
@@ -9012,7 +9012,7 @@ lean_dec_ref(v___y_2889_);
 return v_res_2894_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(lean_object* v_declName_2895_, lean_object* v___y_2896_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(lean_object* v_declName_2895_, lean_object* v___y_2896_){
 _start:
 {
 lean_object* v___x_2898_; lean_object* v_env_2899_; uint8_t v___x_2900_; lean_object* v___x_2901_; lean_object* v___x_2902_; 
@@ -9020,35 +9020,35 @@ v___x_2898_ = lean_st_ref_get(v___y_2896_);
 v_env_2899_ = lean_ctor_get(v___x_2898_, 0);
 lean_inc_ref(v_env_2899_);
 lean_dec(v___x_2898_);
-v___x_2900_ = l_Lean_isImplicitReducibleCore(v_env_2899_, v_declName_2895_);
+v___x_2900_ = l_Lean_isInstanceReducibleCore(v_env_2899_, v_declName_2895_);
 v___x_2901_ = lean_box(v___x_2900_);
 v___x_2902_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2902_, 0, v___x_2901_);
 return v___x_2902_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg___boxed(lean_object* v_declName_2903_, lean_object* v___y_2904_, lean_object* v___y_2905_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg___boxed(lean_object* v_declName_2903_, lean_object* v___y_2904_, lean_object* v___y_2905_){
 _start:
 {
 lean_object* v_res_2906_; 
-v_res_2906_ = l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(v_declName_2903_, v___y_2904_);
+v_res_2906_ = l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(v_declName_2903_, v___y_2904_);
 lean_dec(v___y_2904_);
 return v_res_2906_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0(lean_object* v_declName_2907_, lean_object* v___y_2908_, lean_object* v___y_2909_, lean_object* v___y_2910_, lean_object* v___y_2911_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0(lean_object* v_declName_2907_, lean_object* v___y_2908_, lean_object* v___y_2909_, lean_object* v___y_2910_, lean_object* v___y_2911_){
 _start:
 {
 lean_object* v___x_2913_; 
-v___x_2913_ = l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(v_declName_2907_, v___y_2911_);
+v___x_2913_ = l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(v_declName_2907_, v___y_2911_);
 return v___x_2913_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___boxed(lean_object* v_declName_2914_, lean_object* v___y_2915_, lean_object* v___y_2916_, lean_object* v___y_2917_, lean_object* v___y_2918_, lean_object* v___y_2919_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___boxed(lean_object* v_declName_2914_, lean_object* v___y_2915_, lean_object* v___y_2916_, lean_object* v___y_2917_, lean_object* v___y_2918_, lean_object* v___y_2919_){
 _start:
 {
 lean_object* v_res_2920_; 
-v_res_2920_ = l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0(v_declName_2914_, v___y_2915_, v___y_2916_, v___y_2917_, v___y_2918_);
+v_res_2920_ = l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0(v_declName_2914_, v___y_2915_, v___y_2916_, v___y_2917_, v___y_2918_);
 lean_dec(v___y_2918_);
 lean_dec_ref(v___y_2917_);
 lean_dec(v___y_2916_);
@@ -9380,7 +9380,7 @@ v___jp_3039_:
 {
 lean_object* v___x_3040_; lean_object* v_a_3041_; uint8_t v___x_3042_; 
 lean_inc(v_fst_3028_);
-v___x_3040_ = l_Lean_isImplicitReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(v_fst_3028_, v___y_3018_);
+v___x_3040_ = l_Lean_isInstanceReducible___at___00Lean_Elab_Tactic_elabGrindLocals_spec__0___redArg(v_fst_3028_, v___y_3018_);
 v_a_3041_ = lean_ctor_get(v___x_3040_, 0);
 lean_inc(v_a_3041_);
 lean_dec_ref(v___x_3040_);

@@ -1703,7 +1703,6 @@ v___x_431_ = lean_nat_abs(v_mantissa_427_);
 lean_dec(v_mantissa_427_);
 v___x_432_ = 1;
 v___x_433_ = l_Float_ofScientific(v___x_431_, v___x_432_, v_exponent_428_);
-lean_dec(v___x_431_);
 v___x_434_ = lean_float_mul(v___y_430_, v___x_433_);
 return v___x_434_;
 }

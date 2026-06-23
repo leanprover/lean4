@@ -22,7 +22,9 @@ def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
     let status ← getReducibilityStatus info.name
     if status == .reducible then
       return true
-    else if m == .instances && status == .implicitReducible then
+    else if status == .instanceReducible && (m == .instances || m == .implicit) then
+      return true
+    else if status == .implicitReducible && m == .implicit then
       return true
     else
       return false

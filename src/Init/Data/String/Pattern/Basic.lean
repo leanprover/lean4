@@ -287,7 +287,7 @@ the given {name}`ForwardPattern` instance.
 It is sometimes possible to give a more efficient implementation; see {name}`ToForwardSearcher`
 for more details.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def defaultImplementation [ForwardPattern pat] :
     ToForwardSearcher pat (DefaultForwardSearcher pat) where
   toSearcher := DefaultForwardSearcher.iter pat
@@ -492,7 +492,7 @@ the given {name}`BackwardPattern` instance.
 It is sometimes possible to give a more efficient implementation; see {name}`ToBackwardSearcher`
 for more details.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def defaultImplementation [BackwardPattern pat] :
     ToBackwardSearcher pat (DefaultBackwardSearcher pat) where
   toSearcher := DefaultBackwardSearcher.iter pat

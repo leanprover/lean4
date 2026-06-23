@@ -4766,9 +4766,9 @@ v___jp_1690_:
 {
 lean_object* v___x_1694_; lean_object* v___x_1695_; 
 v___x_1694_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_1694_, 0, v___y_1692_);
+lean_ctor_set(v___x_1694_, 0, v___y_1691_);
 lean_ctor_set(v___x_1694_, 1, v_a_1693_);
-lean_ctor_set(v___x_1694_, 2, v___y_1691_);
+lean_ctor_set(v___x_1694_, 2, v___y_1692_);
 v___x_1695_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1695_, 0, v___x_1694_);
 return v___x_1695_;
@@ -4875,8 +4875,8 @@ v___x_1728_ = lean_nat_dec_lt(v___x_1709_, v___x_1725_);
 if (v___x_1728_ == 0)
 {
 lean_dec_ref(v_vcs_1720_);
-v___y_1691_ = v_inlineHandledInvariants_1721_;
-v___y_1692_ = v_invariants_1719_;
+v___y_1691_ = v_invariants_1719_;
+v___y_1692_ = v_inlineHandledInvariants_1721_;
 v_a_1693_ = v___x_1711_;
 goto v___jp_1690_;
 }
@@ -4889,8 +4889,8 @@ if (v___x_1729_ == 0)
 if (v___x_1728_ == 0)
 {
 lean_dec_ref(v_vcs_1720_);
-v___y_1691_ = v_inlineHandledInvariants_1721_;
-v___y_1692_ = v_invariants_1719_;
+v___y_1691_ = v_invariants_1719_;
+v___y_1692_ = v_inlineHandledInvariants_1721_;
 v_a_1693_ = v___x_1711_;
 goto v___jp_1690_;
 }
@@ -4901,8 +4901,8 @@ v___x_1730_ = ((size_t)0ULL);
 v___x_1731_ = lean_usize_of_nat(v___x_1725_);
 v___x_1732_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Tactic_Do_Internal_VCGen_run_spec__3(v_vcs_1720_, v___x_1730_, v___x_1731_, v___x_1711_, v_a_1680_, v_a_1681_, v_a_1682_, v_a_1683_, v_a_1684_, v_a_1685_, v_a_1686_, v_a_1687_, v_a_1688_);
 lean_dec_ref(v_vcs_1720_);
-v___y_1697_ = v_inlineHandledInvariants_1721_;
-v___y_1698_ = v_invariants_1719_;
+v___y_1697_ = v_invariants_1719_;
+v___y_1698_ = v_inlineHandledInvariants_1721_;
 v___y_1699_ = v___x_1732_;
 goto v___jp_1696_;
 }
@@ -4914,8 +4914,8 @@ v___x_1733_ = ((size_t)0ULL);
 v___x_1734_ = lean_usize_of_nat(v___x_1725_);
 v___x_1735_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Tactic_Do_Internal_VCGen_run_spec__3(v_vcs_1720_, v___x_1733_, v___x_1734_, v___x_1711_, v_a_1680_, v_a_1681_, v_a_1682_, v_a_1683_, v_a_1684_, v_a_1685_, v_a_1686_, v_a_1687_, v_a_1688_);
 lean_dec_ref(v_vcs_1720_);
-v___y_1697_ = v_inlineHandledInvariants_1721_;
-v___y_1698_ = v_invariants_1719_;
+v___y_1697_ = v_invariants_1719_;
+v___y_1698_ = v_inlineHandledInvariants_1721_;
 v___y_1699_ = v___x_1735_;
 goto v___jp_1696_;
 }

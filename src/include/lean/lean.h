@@ -236,7 +236,8 @@ typedef struct {
     struct lean_task *   m_head_dep;
     struct lean_task *   m_next_dep;
     unsigned             m_prio;
-    uint8_t              m_canceled;
+    // This field is atomic as we access it both with and without holding the task_manager mutex.
+    _Atomic(uint8_t)     m_canceled;
     // If true, task will not be freed until finished
     uint8_t              m_keep_alive;
     uint8_t              m_deleted;

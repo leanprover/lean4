@@ -91,21 +91,21 @@ class Version:
         return f"v{self.raw}"
 
     @property
-    def base(self) -> Self:
+    def base(self) -> "Version":
         return Version(major=self.major, minor=self.minor, patch=0, rc=None)
 
     @property
-    def next_minor(self) -> Self:
+    def next_minor(self) -> "Version":
         return Version(major=self.major, minor=self.minor + 1, patch=0, rc=None)
 
     @property
-    def prev(self) -> Self:
+    def prev(self) -> "Version":
         if self.patch > 0:
             return Version(major=self.major, minor=self.minor, patch=self.patch - 1)
         return Version(major=self.major, minor=self.minor - 1, patch=0)
 
     @property
-    def stable(self) -> Self:
+    def stable(self) -> "Version":
         return Version(major=self.major, minor=self.minor, patch=self.patch, rc=None)
 
     @property

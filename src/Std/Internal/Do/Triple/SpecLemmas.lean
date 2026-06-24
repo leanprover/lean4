@@ -45,7 +45,7 @@ namespace Std.Internal.Do
 
 open Lean.Order
 
-universe u v
+universe u v w w'
 variable {m : Type u → Type v} {Pred : Type u} {EPred : Type u}
 
 /-! # `Monad` -/
@@ -260,6 +260,9 @@ theorem Spec.adapt_ReaderT (f : ρ → ρ') (x : ReaderT ρ' m α) (post : α �
 
 /-! # `StateT` -/
 
+section StateTSpec
+variable {Pred : Type w} {EPred : Type w'} [Assertion Pred] [Assertion EPred]
+  [WPMonad m Pred EPred] {epost : EPred}
 
 @[spec]
 theorem Spec.get_StateT (post : σ → σ → Pred) :
@@ -286,6 +289,8 @@ theorem Spec.modifyGet_StateT (f : σ → α × σ) (post : α → σ → Pred) 
   Triple.intro (by intro s; simpa [MonadStateOf.modifyGet] using!
     (WPMonad.pure_le_wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (epost := epost)))
+
+end StateTSpec
 
 /-! # Lifting `MonadStateOf` -/
 

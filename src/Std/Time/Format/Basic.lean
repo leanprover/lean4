@@ -1410,13 +1410,13 @@ def builderParser (format: FormatString) (config : FormatConfig) (func: FormatTy
   go format func
 
 /--
-Parses the input string into a `ZoneDateTime`.
+Parses the input string into a `DateTime`.
 -/
 def parse (format : GenericFormat aw) (input : String) : Except String DateTime :=
   (parser format.string format.config aw <* eof).run input
 
 /--
-Parses the input string into a `ZoneDateTime` and panics if its wrong.
+Parses the input string into a `DateTime` and panics if its wrong.
 -/
 def parse! (format : GenericFormat aw) (input : String) : DateTime :=
   match parse format input with

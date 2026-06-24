@@ -46,8 +46,8 @@ jobs:
         uses: actions/create-github-app-token@v3
         id: app-token
         with:
-          client-id: ${{ vars.DOWNSTREAM_APP_CLIENT_ID }}
-          private-key: ${{ secrets.DOWNSTREAM_APP_PRIVATE_KEY }}
+          client-id: ${{ vars.DOWNSTREAM_LEAN4_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DOWNSTREAM_LEAN4_APP_PRIVATE_KEY }}
           repositories: lean4,downstream-lean4
 
       - name: Configure git

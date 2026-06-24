@@ -106,6 +106,13 @@ public def main (args : List String) : IO UInt32 := do
   let some modIdx := env.getModuleIdx? modName
     | throw <| IO.userError s!"module '{modName}' not found"
 
+  -- leanir loads the target module as an import, so the *current* module's package
+  -- (`getModulePackage?`) is unset. Restore it from the imported module data so that locally
+  -- re-generated symbols — the module's initialization function and freshly created decls such as
+  -- `_boxed` wrappers and specializations — get the same package-qualified mangling that importers
+  -- use (see `getSymbolStem`/`mkModuleInitializationFunctionName`); otherwise they fail to link.
+  let env := env.setModulePackage (env.getModulePackageByIdx? modIdx)
+
   -- Drop stale loaded LCNF/IR entries for the current module. `lean` elab may have written
   -- partial/stale state (e.g. specialization auxiliaries with different arity than leanir would
   -- produce); leanir re-runs the full pipeline, so its in-session state must be authoritative.

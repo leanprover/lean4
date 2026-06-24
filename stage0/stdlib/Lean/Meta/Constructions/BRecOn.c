@@ -723,9 +723,9 @@ return v___x_90_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___lam__0___boxed(lean_object* v_rlvl_91_, lean_object* v___x_92_, lean_object* v_args_93_, lean_object* v_x_94_, lean_object* v___y_95_, lean_object* v___y_96_, lean_object* v___y_97_, lean_object* v___y_98_, lean_object* v___y_99_){
 _start:
 {
-uint8_t v___x_2106__boxed_100_; lean_object* v_res_101_; 
-v___x_2106__boxed_100_ = lean_unbox(v___x_92_);
-v_res_101_ = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___lam__0(v_rlvl_91_, v___x_2106__boxed_100_, v_args_93_, v_x_94_, v___y_95_, v___y_96_, v___y_97_, v___y_98_);
+uint8_t v___x_2104__boxed_100_; lean_object* v_res_101_; 
+v___x_2104__boxed_100_ = lean_unbox(v___x_92_);
+v_res_101_ = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___lam__0(v_rlvl_91_, v___x_2104__boxed_100_, v_args_93_, v_x_94_, v___y_95_, v___y_96_, v___y_97_, v___y_98_);
 lean_dec(v___y_98_);
 lean_dec_ref(v___y_97_);
 lean_dec(v___y_96_);
@@ -1037,10 +1037,10 @@ return v___x_225_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___lam__1___boxed(lean_object* v_arg__args_237_, lean_object* v_arg__type_238_, lean_object* v___x_239_, lean_object* v___x_240_, lean_object* v_prods_241_, lean_object* v_rlvl_242_, lean_object* v_motives_243_, lean_object* v_tail_244_, lean_object* v_arg_x27_245_, lean_object* v___y_246_, lean_object* v___y_247_, lean_object* v___y_248_, lean_object* v___y_249_, lean_object* v___y_250_){
 _start:
 {
-uint8_t v___x_2261__boxed_251_; uint8_t v___x_2262__boxed_252_; lean_object* v_res_253_; 
-v___x_2261__boxed_251_ = lean_unbox(v___x_239_);
-v___x_2262__boxed_252_ = lean_unbox(v___x_240_);
-v_res_253_ = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___lam__1(v_arg__args_237_, v_arg__type_238_, v___x_2261__boxed_251_, v___x_2262__boxed_252_, v_prods_241_, v_rlvl_242_, v_motives_243_, v_tail_244_, v_arg_x27_245_, v___y_246_, v___y_247_, v___y_248_, v___y_249_);
+uint8_t v___x_2259__boxed_251_; uint8_t v___x_2260__boxed_252_; lean_object* v_res_253_; 
+v___x_2259__boxed_251_ = lean_unbox(v___x_239_);
+v___x_2260__boxed_252_ = lean_unbox(v___x_240_);
+v_res_253_ = l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___lam__1(v_arg__args_237_, v_arg__type_238_, v___x_2259__boxed_251_, v___x_2260__boxed_252_, v_prods_241_, v_rlvl_242_, v_motives_243_, v_tail_244_, v_arg_x27_245_, v___y_246_, v___y_247_, v___y_248_, v___y_249_);
 lean_dec(v___y_249_);
 lean_dec_ref(v___y_248_);
 lean_dec(v___y_247_);
@@ -6850,11 +6850,11 @@ return v___x_2311_;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBRecOnMinorPremise_go_spec__3___lam__0___boxed(lean_object* v_prods_2317_, lean_object* v_rlvl_2318_, lean_object* v_motives_2319_, lean_object* v_belows_2320_, lean_object* v_fs_2321_, lean_object* v_minor__type_2322_, lean_object* v_tail_2323_, lean_object* v___x_2324_, lean_object* v___x_2325_, lean_object* v___x_2326_, lean_object* v_arg_x27_2327_, lean_object* v___y_2328_, lean_object* v___y_2329_, lean_object* v___y_2330_, lean_object* v___y_2331_, lean_object* v___y_2332_){
 _start:
 {
-uint8_t v___x_1776__boxed_2333_; uint8_t v___x_1777__boxed_2334_; uint8_t v___x_1778__boxed_2335_; lean_object* v_res_2336_; 
-v___x_1776__boxed_2333_ = lean_unbox(v___x_2324_);
-v___x_1777__boxed_2334_ = lean_unbox(v___x_2325_);
-v___x_1778__boxed_2335_ = lean_unbox(v___x_2326_);
-v_res_2336_ = l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBRecOnMinorPremise_go_spec__3___lam__0(v_prods_2317_, v_rlvl_2318_, v_motives_2319_, v_belows_2320_, v_fs_2321_, v_minor__type_2322_, v_tail_2323_, v___x_1776__boxed_2333_, v___x_1777__boxed_2334_, v___x_1778__boxed_2335_, v_arg_x27_2327_, v___y_2328_, v___y_2329_, v___y_2330_, v___y_2331_);
+uint8_t v___x_1774__boxed_2333_; uint8_t v___x_1775__boxed_2334_; uint8_t v___x_1776__boxed_2335_; lean_object* v_res_2336_; 
+v___x_1774__boxed_2333_ = lean_unbox(v___x_2324_);
+v___x_1775__boxed_2334_ = lean_unbox(v___x_2325_);
+v___x_1776__boxed_2335_ = lean_unbox(v___x_2326_);
+v_res_2336_ = l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBRecOnMinorPremise_go_spec__3___lam__0(v_prods_2317_, v_rlvl_2318_, v_motives_2319_, v_belows_2320_, v_fs_2321_, v_minor__type_2322_, v_tail_2323_, v___x_1774__boxed_2333_, v___x_1775__boxed_2334_, v___x_1776__boxed_2335_, v_arg_x27_2327_, v___y_2328_, v___y_2329_, v___y_2330_, v___y_2331_);
 lean_dec(v___y_2331_);
 lean_dec_ref(v___y_2330_);
 lean_dec(v___y_2329_);

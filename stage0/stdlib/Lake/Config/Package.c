@@ -2882,15 +2882,15 @@ v___x_697_ = lean_nat_dec_eq(v___x_695_, v___x_696_);
 if (v___x_697_ == 0)
 {
 lean_object* v___x_698_; 
-v___x_698_ = lean_box(0);
+lean_inc_ref(v_remoteUrl_694_);
+v___x_698_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_698_, 0, v_remoteUrl_694_);
 return v___x_698_;
 }
 else
 {
 lean_object* v___x_699_; 
-lean_inc_ref(v_remoteUrl_694_);
-v___x_699_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_699_, 0, v_remoteUrl_694_);
+v___x_699_ = lean_box(0);
 return v___x_699_;
 }
 }

@@ -1878,9 +1878,9 @@ return v___x_545_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine_match__1_splitter___redArg___boxed(lean_object* v_x_546_, lean_object* v_h__1_547_, lean_object* v_h__2_548_, lean_object* v_h__3_549_){
 _start:
 {
-uint8_t v_x_36__boxed_550_; lean_object* v_res_551_; 
-v_x_36__boxed_550_ = lean_unbox(v_x_546_);
-v_res_551_ = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine_match__1_splitter___redArg(v_x_36__boxed_550_, v_h__1_547_, v_h__2_548_, v_h__3_549_);
+uint8_t v_x_33__boxed_550_; lean_object* v_res_551_; 
+v_x_33__boxed_550_ = lean_unbox(v_x_546_);
+v_res_551_ = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine_match__1_splitter___redArg(v_x_33__boxed_550_, v_h__1_547_, v_h__2_548_, v_h__3_549_);
 return v_res_551_;
 }
 }
@@ -1922,9 +1922,9 @@ return v___x_562_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine_match__1_splitter___boxed(lean_object* v_motive_563_, lean_object* v_x_564_, lean_object* v_h__1_565_, lean_object* v_h__2_566_, lean_object* v_h__3_567_){
 _start:
 {
-uint8_t v_x_51__boxed_568_; lean_object* v_res_569_; 
-v_x_51__boxed_568_ = lean_unbox(v_x_564_);
-v_res_569_ = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine_match__1_splitter(v_motive_563_, v_x_51__boxed_568_, v_h__1_565_, v_h__2_566_, v_h__3_567_);
+uint8_t v_x_48__boxed_568_; lean_object* v_res_569_; 
+v_x_48__boxed_568_ = lean_unbox(v_x_564_);
+v_res_569_ = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine_match__1_splitter(v_motive_563_, v_x_48__boxed_568_, v_h__1_565_, v_h__2_566_, v_h__3_567_);
 return v_res_569_;
 }
 }
@@ -4929,8 +4929,8 @@ return v___x_1476_;
 }
 else
 {
-lean_dec_ref_known(v___x_1476_, 1);
 lean_dec(v_a_1477_);
+lean_dec_ref_known(v___x_1476_, 1);
 v_p_1452_ = v_p_1475_;
 goto _start;
 }

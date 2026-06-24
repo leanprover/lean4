@@ -295,6 +295,10 @@ Converts a `Float.Model` to an `ISize`, truncating after the decimal point, send
 -/
 def toISize (f : Float.Model) : ISize := f.unpack.toISize
 
+/-- Computes `m * 10^e`. -/
+def ofScientific (m : Nat) (e : Int) : Float.Model :=
+  .pack (UnpackedFloat.ofScientific Format.binary64 m e)
+
 instance : Inhabited Float.Model where
   default := ofNat 0
 

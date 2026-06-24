@@ -2055,7 +2055,6 @@ v___x_580_ = lean_int_dec_lt(v_snd_578_, v___x_579_);
 v___x_581_ = lean_nat_abs(v_snd_578_);
 lean_dec(v_snd_578_);
 v_flt_582_ = l_Float_ofScientific(v_fst_577_, v___x_580_, v___x_581_);
-lean_dec(v_fst_577_);
 v___x_583_ = lean_unbox(v_fst_570_);
 lean_dec(v_fst_570_);
 if (v___x_583_ == 0)

@@ -10507,9 +10507,9 @@ return v___x_3884_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_dsimpLocation_x27___lam__1___boxed(lean_object* v_hypotheses_3887_, lean_object* v_ctx_3888_, lean_object* v_simprocs_3889_, lean_object* v_type_3890_, lean_object* v___y_3891_, lean_object* v___y_3892_, lean_object* v___y_3893_, lean_object* v___y_3894_, lean_object* v___y_3895_, lean_object* v___y_3896_, lean_object* v___y_3897_, lean_object* v___y_3898_, lean_object* v___y_3899_){
 _start:
 {
-uint8_t v_type_635__boxed_3900_; lean_object* v_res_3901_; 
-v_type_635__boxed_3900_ = lean_unbox(v_type_3890_);
-v_res_3901_ = l_Lean_Elab_Tactic_dsimpLocation_x27___lam__1(v_hypotheses_3887_, v_ctx_3888_, v_simprocs_3889_, v_type_635__boxed_3900_, v___y_3891_, v___y_3892_, v___y_3893_, v___y_3894_, v___y_3895_, v___y_3896_, v___y_3897_, v___y_3898_);
+uint8_t v_type_633__boxed_3900_; lean_object* v_res_3901_; 
+v_type_633__boxed_3900_ = lean_unbox(v_type_3890_);
+v_res_3901_ = l_Lean_Elab_Tactic_dsimpLocation_x27___lam__1(v_hypotheses_3887_, v_ctx_3888_, v_simprocs_3889_, v_type_633__boxed_3900_, v___y_3891_, v___y_3892_, v___y_3893_, v___y_3894_, v___y_3895_, v___y_3896_, v___y_3897_, v___y_3898_);
 lean_dec(v___y_3898_);
 lean_dec_ref(v___y_3897_);
 lean_dec(v___y_3896_);

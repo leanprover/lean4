@@ -1,3 +1,4 @@
+import time
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
@@ -133,18 +134,6 @@ class DownstreamChecker(RepoChecker):
     def _bump_toolchain_mathlib4(self) -> None:
         self._bump_toolchain(self.lrepo.path)
 
-        pw = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
-        tag = util.get_proofwidgets_release_for(pw, self.version)
-        if not tag:
-            raise SystemExit(1)
-
-        # For both normal and rc1 PRs
-        util.edit(
-            self.lrepo.path / "lakefile.lean",
-            r'"proofwidgets" @ git ".*"',
-            f'"proofwidgets" @ git "{tag.name}"',
-        )
-
         # For rc1 PRs
         util.edit(
             self.lrepo.path / "lakefile.lean",
@@ -184,18 +173,6 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain(mathlib)
         self._bump_toolchain_deps(mathlib)
 
-        if self.prompt("Run tests?"):
-            try:
-                util.run("./test.sh", cwd=self.lrepo.path)
-                print("#####################")
-                print("## Tests succeeded ##")
-                print("#####################")
-            except SystemExit as e:
-                print("###################")
-                print("## Tests failed! ##")
-                print("###################")
-                raise e
-
     def _bump_toolchain_verso(self) -> None:
         self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
@@ -215,6 +192,24 @@ class DownstreamChecker(RepoChecker):
         util.run(
             "uv", "run", "release_notes.py", self.version.tag, self.lrepo.path, cwd=here
         )
+
+        if self.version.rc == 1:
+            module = util.get_release_notes_module_for(self.version)
+            index = self.lrepo.path / util.get_release_notes_index_path()
+
+            util.edit(
+                index,
+                r"(?m)^(import Manual\.Releases\..*)$",
+                f"import {module}\n\\1",
+                count=1,
+            )
+
+            util.edit(
+                index,
+                r"(?m)^(\{include 0 Manual\.Releases\..*\})$",
+                f"{{include 0 {module}}}\n\n\\1",
+                count=1,
+            )
 
         self.prompt("Check release notes before commit")
 
@@ -405,6 +400,7 @@ class DownstreamChecker(RepoChecker):
             self.cl.fatal(f"{what} does not exist")
         self.lrepo.push(tag_name, upstream=False)
 
+        time.sleep(5)  # Sometimes it takes GitHub a while to update
         tag = self.grepo.get_git_ref(f"tags/{tag_name}")
         self.cl.success(f"{what} created")
         return tag
@@ -562,7 +558,7 @@ class LeanChecker(RepoChecker):
             self.cl.fatal(f"{what} does not exist")
 
         self.lrepo.prepare()
-        self.lrepo.create_branch(branch_name)
+        self.lrepo.create_branch(branch_name, remote_branch="nightly-with-mathlib")
 
         if not self.prompt(f"Push branch [b]{e(branch_name)}[/b]?"):
             self.cl.fatal(f"{what} does not exist")
@@ -616,7 +612,7 @@ class LeanChecker(RepoChecker):
             return  # Not fatal
 
         self.lrepo.prepare()
-        self.lrepo.create_branch(head, branch_name)
+        self.lrepo.create_branch(head, remote_branch=branch_name)
         util.set_cmake_version(self.lrepo, target)
         self.lrepo.commit(title)
 
@@ -671,7 +667,8 @@ class LeanChecker(RepoChecker):
         self.lrepo.push(tag_name, upstream=False)
 
         tag = self.grepo.get_git_ref(f"tags/{tag_name}")
-        self.cl.success(f"{what} created")
+        self.cl.success(f"{what} created, waiting a few seconds for release CI...")
+        time.sleep(10)
         return tag
 
     def check_release_ci(self, release_tag: GitRef) -> None:

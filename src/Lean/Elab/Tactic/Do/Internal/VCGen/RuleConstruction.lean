@@ -270,9 +270,9 @@ verification conditions for the generalization.
 
 ### General idea
 
-Consider the spec theorem `WPMonad.wp_bind`:
+Consider the spec theorem `WPMonad.bind_le_wp_bind`:
 ```
-WPMonad.wp_bind :
+WPMonad.bind_le_wp_bind :
   wp x (fun a => wp (f a) post epost) epost ⊑ wp (x >>= f) post epost
 ```
 This theorem is already in WP-form, so `post` and `epost` are schematic. However, its precondition
@@ -282,7 +282,7 @@ prf : ∀ {α β} (x : m α) (f : α → m β) (post : β → Pred) (epost : EPr
   (pre : Pred) (hpre : pre ⊑ wp x (fun a => wp (f a) post epost) epost),
   pre ⊑ wp (x >>= f) post epost
 ```
-The proof term is constructed with `PartialOrder.rel_trans hpre WPMonad.wp_bind`.
+The proof term is constructed with `PartialOrder.rel_trans hpre WPMonad.bind_le_wp_bind`.
 
 #### Postcondition VCs
 
@@ -298,7 +298,7 @@ prf : ∀ (n : Nat) (pre : Prop) (hpre : pre ⊑ True)
   pre ⊑ wp (myPure n) post epost
 ```
 The postcondition VC is pointwise over the return value and over any excess state arguments. The
-proof is generalized with `WPMonad.wp_consequence_le`.
+proof is generalized with `WP.wp_consequence_le`.
 
 #### Exception postcondition VCs
 
@@ -308,8 +308,8 @@ value, the relation `epostSpec ⊑ epost` is decomposed component by component:
 ∀ e s₁ ... sₙ, epostSpec.head e s₁ ... sₙ ⊑ epost.head e s₁ ... sₙ
 ```
 and recursively for the tail. `decomposeEPostRel` assembles these component VCs using
-`EPost.Cons.mk_le` and `EPost.Nil.le`; the proof is then generalized with `WPMonad.wp_econs_le`.
-When the spec exception postcondition is `⊥`, no VC is needed and `WPMonad.wp_econs_bot_le` is
+`EPost.Cons.mk_le` and `EPost.Nil.le`; the proof is then generalized with `WP.wp_econs_le`.
+When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_econs_bot_le` is
 used instead.
 
 #### Excess state arguments
@@ -343,7 +343,7 @@ it for the particular predicate type, exception postcondition type and `WPMonad`
 `tryMkBackwardRuleFromSpec` does that by instantiating the spec theorem and checking that its
 `Pred` and `WPMonad` arguments match the ones from the use site.
 
-For `StateM Nat` and one excess state arg `s`, the type produced for `WPMonad.wp_bind` becomes
+For `StateM Nat` and one excess state arg `s`, the type produced for `WPMonad.bind_le_wp_bind` becomes
 ```
 prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   (f : α → StateT Nat Id β) (post : β → Nat → Prop) (epost : EPost⟨⟩) (s : Nat),
@@ -383,7 +383,7 @@ private def mkSpecBackwardProof
     let hpostRel ← mkExpectedTypeHint hpost relTy
     /- get the proof of `pre ⊑ wp prog postAbstract epostSpec`, where `post` is abstracted.
        Uses wp_consequence_le: post ⊑ post' → pre ⊑ wp x post epost → pre ⊑ wp x post' epost -/
-    specApplied ← mkAppM ``WPMonad.wp_consequence_le #[prog, postSpec, postAbstract, epostSpec, hpostRel, specApplied]
+    specApplied ← mkAppM ``WP.wp_consequence_le #[prog, postSpec, postAbstract, epostSpec, hpostRel, specApplied]
 
   /- abstract concrete `epost` if it is not already abstract -/
   unless epostAbstract.isMVar do
@@ -392,7 +392,7 @@ private def mkSpecBackwardProof
     /- mvar `epostAbstract` for new abstract `epost` -/
     epostAbstract ← mkFreshExprMVar (userName := `EPost) epostTy
     /- if `epost` is `⊥`, then `epost ⊑ epostAbstract` holds trivially and
-      abstracting `epost` can be simply done by `WPMonad.wp_econs_bot_le` without
+      abstracting `epost` can be simply done by `WP.wp_econs_bot_le` without
       introducing a new premise. This case is quite common, that's why we handle
       it specially. -/
     let isBot ← try
@@ -402,12 +402,12 @@ private def mkSpecBackwardProof
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostAbstract`, where `epost (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostImpl` premise -/
-      specApplied ← mkAppM ``WPMonad.wp_econs_bot_le #[prog, postAbstract, epostAbstract, specApplied]
+      specApplied ← mkAppM ``WP.wp_econs_bot_le #[prog, postAbstract, epostAbstract, specApplied]
     else
       /- Decompose `epostSpec ⊑ epostAbstract` into per-component proofs
         using `EPost.Cons.mk_le` and `EPost.Nil.le` -/
       let hepost ← decomposeEPostRel EPred epostSpec epostAbstract stateArgNames
-      specApplied ← mkAppM ``WPMonad.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
+      specApplied ← mkAppM ``WP.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
     `pre` is not schematic. In exceptional cases, where `pre` is schematic, it
@@ -454,8 +454,11 @@ private def eqSpecToWp? (info : WPInfo) (xs : Array Expr) (eqPrf eqType : Expr) 
   -- monad's domain sort so the equation's element type stays well-formed.
   let α ← mkFreshExprMVar (← inferType info.m).bindingDomain!
   guard <| ← isDefEqGuarded eqα (mkApp info.m α)
-  -- Synthesize leftover dictionary metavariables (e.g. for an abstract-monad lift equation) so the
-  -- projections in `rhs` reduce against concrete instances.
+  -- Pin the schematic instance and state metavariables by unifying the equation's LHS with the goal's
+  -- concrete program, so dictionary projections in `rhs` reduce against the real instance.
+  let _ ← show MetaM Bool from commitWhen <| isDefEqGuarded lhs info.prog
+  -- Synthesize leftover dictionary metavariables (e.g. for an abstract-monad lift equation, whose LHS
+  -- does not unify with a concrete program) so the projections in `rhs` reduce against instances.
   for x in xs do
     if x.isMVar && !(← x.mvarId!.isAssigned) then
       try x.mvarId!.assign (← Meta.synthInstance (← Meta.inferType x))
@@ -475,7 +478,7 @@ private def eqSpecToWp? (info : WPInfo) (xs : Array Expr) (eqPrf eqType : Expr) 
   -- so non-monadic equations like `Option.getD.eq_1` would fail to unify. With `m` fixed, the value
   -- type is inferred from the equation proof.
   let specProof ← mkAppOptM ``Std.Internal.Do.wp_le_wp_of_eq <|
-    (info.args.extract 0 7).map some ++ #[none, none, none, some eqPrf, some post, some epost]
+    (info.args.extract 0 7).map some ++ #[none, none, some eqPrf, some post, some epost]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
 /--
@@ -503,7 +506,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPInfo)
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
     | throwError "target not a partial order ⊑ application {specType}"
   guard <| ← isDefEqGuarded info.Pred Pred'
-  let_expr Std.Internal.Do.wp _m' _Pred' _EPred' _monadInst' _instAL' _instEAL' instWP' _α prog postSpec epostSpec := rhs
+  let_expr Std.Internal.Do.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
     | throwError "target not a wp application {rhs}"
   guard <| ← isDefEqGuarded info.instWP instWP'
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
@@ -527,13 +530,10 @@ then `SplitInfo.splitWith` to build the splitting proof. Hypothesis types are
 discovered via `rwIfOrMatcher` inside the splitter telescope. -/
 public def mkBackwardRuleForSplit
     (splitInfo : SplitInfo) (info : WPInfo) : MetaM BackwardRule := do
-  let m := info.m
-  let mTy ← Meta.inferType m
-  let some aTy := if mTy.isForall then some mTy.bindingDomain! else none
-    | throwError "Expected monad type constructor at {indentExpr m}"
+  -- The split value type is the goal's, so reuse the goal's program type and `WP` instance directly.
+  let a := info.Value
+  let ma := info.progTy
   let prf ←
-    withLocalDeclD `a aTy fun a => do
-    let ma := mkApp m a
     splitInfo.withAbstract ma fun abstractInfo splitFVars => do
     -- Eta-reduce matcher alts for the backward rule pattern to avoid expensive
     -- higher-order unification. The alts are eta-expanded by `withAbstract` so that
@@ -548,7 +548,7 @@ public def mkBackwardRuleForSplit
     withLocalDeclD `Post (← mkArrow a info.Pred) fun post => do
     withLocalDeclD `EPost info.EPred fun epost => do
     let mkWP (prog : Expr) : Expr :=
-      let args := info.args.take 7 ++ #[a, prog, post, epost]
+      let args := info.args.take 7 ++ #[prog, post, epost]
       mkAppN (mkAppN info.head args) ss
     let Pred' ← Meta.inferType (mkWP abstractProg)
     withLocalDeclD `Pre Pred' fun pre => do
@@ -572,7 +572,7 @@ public def mkBackwardRuleForSplit
           -- pattern (e.g., `Nat.zero` instead of `discr`), which is required for
           -- `rwMatcher` to discharge the equality hypotheses of congr equation theorems.
           -- For ite/dite, `bodyType` equals `mkGoal abstractProg` so this is equivalent.
-          let prog := bodyType.getArg! 3 |>.getArg! 8
+          let prog := bodyType.getArg! 3 |>.getArg! 7
           let res ← rwIfOrMatcher idx prog
           if res.proof?.isNone then
             throwError "mkBackwardRuleForSplit: rwIfOrMatcher failed for alt {idx}"
@@ -583,7 +583,7 @@ public def mkBackwardRuleForSplit
           let eqProof ← mkAppM ``congrArg #[context, res.proof?.get!]
           mkEqMPR eqProof (mkAppN subgoalHyps[idx]! altParams))
     let prf ← instantiateMVars prf
-    mkLambdaFVars (#[a] ++ splitFVars ++ ss ++ #[post, epost, pre] ++ subgoalHyps) prf
+    mkLambdaFVars (splitFVars ++ ss ++ #[post, epost, pre] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList

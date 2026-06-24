@@ -2025,7 +2025,7 @@ return v___x_620_;
 LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1(lean_object* v_buffer_664_, lean_object* v_req_665_){
 _start:
 {
-uint8_t v_method_666_; uint8_t v_version_667_; lean_object* v_uri_668_; lean_object* v_headers_669_; lean_object* v___f_670_; lean_object* v___f_671_; lean_object* v___f_672_; lean_object* v___y_674_; lean_object* v___y_675_; lean_object* v___y_676_; lean_object* v___y_699_; lean_object* v___y_700_; lean_object* v___y_701_; lean_object* v___y_702_; lean_object* v___y_703_; lean_object* v___y_715_; lean_object* v___y_716_; lean_object* v___y_717_; lean_object* v___y_718_; lean_object* v___y_719_; lean_object* v___y_720_; lean_object* v___y_734_; lean_object* v___y_735_; lean_object* v___y_736_; lean_object* v___y_737_; lean_object* v___y_738_; lean_object* v___y_739_; lean_object* v___y_740_; lean_object* v___y_741_; lean_object* v___y_742_; lean_object* v___y_750_; lean_object* v___y_751_; lean_object* v___y_752_; lean_object* v___y_753_; lean_object* v___y_754_; lean_object* v___y_755_; lean_object* v___y_756_; lean_object* v___y_757_; lean_object* v___y_758_; lean_object* v___y_766_; lean_object* v___y_767_; lean_object* v___y_768_; lean_object* v___y_769_; lean_object* v___y_770_; lean_object* v___y_771_; lean_object* v___y_772_; lean_object* v___y_776_; lean_object* v___y_777_; lean_object* v___y_778_; lean_object* v_port_779_; lean_object* v___y_780_; lean_object* v___y_781_; lean_object* v___y_782_; lean_object* v___y_791_; lean_object* v___y_792_; lean_object* v_host_793_; lean_object* v_port_794_; lean_object* v___y_795_; lean_object* v___y_796_; lean_object* v___y_797_; lean_object* v___y_808_; lean_object* v___y_809_; lean_object* v___y_810_; lean_object* v___y_811_; lean_object* v___y_812_; lean_object* v___y_813_; lean_object* v___y_814_; lean_object* v___y_815_; lean_object* v___y_816_; lean_object* v___y_829_; lean_object* v___y_830_; lean_object* v___y_831_; lean_object* v___y_832_; lean_object* v___y_833_; lean_object* v___y_834_; lean_object* v___y_835_; lean_object* v___y_836_; lean_object* v___y_837_; lean_object* v___y_849_; lean_object* v___y_850_; lean_object* v___y_851_; lean_object* v___y_852_; lean_object* v___y_853_; lean_object* v___y_854_; lean_object* v___y_855_; lean_object* v___y_856_; lean_object* v___y_857_; lean_object* v___y_858_; lean_object* v___y_859_; lean_object* v___y_860_; lean_object* v___y_865_; lean_object* v___y_866_; lean_object* v___y_867_; lean_object* v_port_868_; lean_object* v___y_869_; lean_object* v___y_870_; lean_object* v___y_871_; lean_object* v___y_872_; lean_object* v___y_873_; lean_object* v___y_874_; lean_object* v___y_875_; lean_object* v___y_876_; lean_object* v___y_885_; lean_object* v___y_886_; lean_object* v___y_887_; lean_object* v___y_888_; lean_object* v___y_889_; lean_object* v_host_890_; lean_object* v_port_891_; lean_object* v___y_892_; lean_object* v___y_893_; lean_object* v___y_894_; lean_object* v___y_895_; lean_object* v___y_896_; lean_object* v___y_907_; 
+uint8_t v_method_666_; uint8_t v_version_667_; lean_object* v_uri_668_; lean_object* v_headers_669_; lean_object* v___f_670_; lean_object* v___f_671_; lean_object* v___f_672_; lean_object* v___y_674_; lean_object* v___y_675_; lean_object* v___y_676_; lean_object* v___y_699_; lean_object* v___y_700_; lean_object* v___y_701_; lean_object* v___y_702_; lean_object* v___y_703_; lean_object* v___y_715_; lean_object* v___y_716_; lean_object* v___y_717_; lean_object* v___y_718_; lean_object* v___y_719_; lean_object* v___y_720_; lean_object* v___y_734_; lean_object* v___y_735_; lean_object* v___y_736_; lean_object* v___y_737_; lean_object* v___y_738_; lean_object* v___y_739_; lean_object* v___y_740_; lean_object* v___y_741_; lean_object* v___y_742_; lean_object* v___y_750_; lean_object* v___y_751_; lean_object* v___y_752_; lean_object* v___y_753_; lean_object* v___y_754_; lean_object* v___y_755_; lean_object* v___y_756_; lean_object* v___y_757_; lean_object* v___y_758_; lean_object* v___y_766_; lean_object* v___y_767_; lean_object* v___y_768_; lean_object* v___y_769_; lean_object* v___y_770_; lean_object* v___y_771_; lean_object* v___y_772_; lean_object* v___y_776_; lean_object* v_port_777_; lean_object* v___y_778_; lean_object* v___y_779_; lean_object* v___y_780_; lean_object* v___y_781_; lean_object* v___y_782_; lean_object* v___y_791_; lean_object* v_host_792_; lean_object* v_port_793_; lean_object* v___y_794_; lean_object* v___y_795_; lean_object* v___y_796_; lean_object* v___y_797_; lean_object* v___y_808_; lean_object* v___y_809_; lean_object* v___y_810_; lean_object* v___y_811_; lean_object* v___y_812_; lean_object* v___y_813_; lean_object* v___y_814_; lean_object* v___y_815_; lean_object* v___y_816_; lean_object* v___y_829_; lean_object* v___y_830_; lean_object* v___y_831_; lean_object* v___y_832_; lean_object* v___y_833_; lean_object* v___y_834_; lean_object* v___y_835_; lean_object* v___y_836_; lean_object* v___y_837_; lean_object* v___y_849_; lean_object* v___y_850_; lean_object* v___y_851_; lean_object* v___y_852_; lean_object* v___y_853_; lean_object* v___y_854_; lean_object* v___y_855_; lean_object* v___y_856_; lean_object* v___y_857_; lean_object* v___y_858_; lean_object* v___y_859_; lean_object* v___y_860_; lean_object* v___y_865_; lean_object* v___y_866_; lean_object* v___y_867_; lean_object* v___y_868_; lean_object* v___y_869_; lean_object* v___y_870_; lean_object* v___y_871_; lean_object* v___y_872_; lean_object* v___y_873_; lean_object* v_port_874_; lean_object* v___y_875_; lean_object* v___y_876_; lean_object* v___y_885_; lean_object* v___y_886_; lean_object* v___y_887_; lean_object* v___y_888_; lean_object* v___y_889_; lean_object* v___y_890_; lean_object* v___y_891_; lean_object* v___y_892_; lean_object* v_host_893_; lean_object* v_port_894_; lean_object* v___y_895_; lean_object* v___y_896_; lean_object* v___y_907_; 
 v_method_666_ = lean_ctor_get_uint8(v_req_665_, sizeof(void*)*2);
 v_version_667_ = lean_ctor_get_uint8(v_req_665_, sizeof(void*)*2 + 1);
 v_uri_668_ = lean_ctor_get(v_req_665_, 0);
@@ -2324,11 +2324,11 @@ v___jp_673_:
 lean_object* v___x_677_; lean_object* v___x_678_; lean_object* v___x_679_; lean_object* v___x_680_; lean_object* v___x_681_; lean_object* v___x_682_; lean_object* v___x_683_; lean_object* v___x_684_; lean_object* v_buffer_685_; lean_object* v_buffer_686_; lean_object* v_data_687_; lean_object* v_size_688_; lean_object* v___x_690_; uint8_t v_isShared_691_; uint8_t v_isSharedCheck_697_; 
 v___x_677_ = lean_string_to_utf8(v___y_676_);
 lean_inc_ref(v___x_677_);
-v___x_678_ = lean_array_push(v___y_674_, v___x_677_);
+v___x_678_ = lean_array_push(v___y_675_, v___x_677_);
 v___x_679_ = lean_byte_array_size(v___x_677_);
 lean_dec_ref(v___x_677_);
-v___x_680_ = lean_nat_add(v___y_675_, v___x_679_);
-lean_dec(v___y_675_);
+v___x_680_ = lean_nat_add(v___y_674_, v___x_679_);
+lean_dec(v___y_674_);
 v___x_681_ = lean_obj_once(&l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__3, &l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__3_once, _init_l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__3);
 v___x_682_ = lean_array_push(v___x_678_, v___x_681_);
 v___x_683_ = lean_obj_once(&l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__4, &l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__4_once, _init_l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__4);
@@ -2391,12 +2391,12 @@ lean_object* v___x_704_; lean_object* v___x_705_; lean_object* v___x_706_; lean_
 v___x_704_ = lean_string_to_utf8(v___y_703_);
 lean_dec_ref(v___y_703_);
 lean_inc_ref(v___x_704_);
-v___x_705_ = lean_array_push(v___y_699_, v___x_704_);
+v___x_705_ = lean_array_push(v___y_700_, v___x_704_);
 v___x_706_ = lean_byte_array_size(v___x_704_);
 lean_dec_ref(v___x_704_);
-v___x_707_ = lean_nat_add(v___y_702_, v___x_706_);
-lean_dec(v___y_702_);
-v___x_708_ = lean_array_push(v___x_705_, v___y_700_);
+v___x_707_ = lean_nat_add(v___y_699_, v___x_706_);
+lean_dec(v___y_699_);
+v___x_708_ = lean_array_push(v___x_705_, v___y_702_);
 v___x_709_ = lean_nat_add(v___x_707_, v___y_701_);
 lean_dec(v___x_707_);
 switch(v_version_667_)
@@ -2405,8 +2405,8 @@ case 0:
 {
 lean_object* v___x_710_; 
 v___x_710_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__5));
-v___y_674_ = v___x_708_;
-v___y_675_ = v___x_709_;
+v___y_674_ = v___x_709_;
+v___y_675_ = v___x_708_;
 v___y_676_ = v___x_710_;
 goto v___jp_673_;
 }
@@ -2414,8 +2414,8 @@ case 1:
 {
 lean_object* v___x_711_; 
 v___x_711_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__6));
-v___y_674_ = v___x_708_;
-v___y_675_ = v___x_709_;
+v___y_674_ = v___x_709_;
+v___y_675_ = v___x_708_;
 v___y_676_ = v___x_711_;
 goto v___jp_673_;
 }
@@ -2423,8 +2423,8 @@ case 2:
 {
 lean_object* v___x_712_; 
 v___x_712_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__7));
-v___y_674_ = v___x_708_;
-v___y_675_ = v___x_709_;
+v___y_674_ = v___x_709_;
+v___y_675_ = v___x_708_;
 v___y_676_ = v___x_712_;
 goto v___jp_673_;
 }
@@ -2432,8 +2432,8 @@ default:
 {
 lean_object* v___x_713_; 
 v___x_713_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__8));
-v___y_674_ = v___x_708_;
-v___y_675_ = v___x_709_;
+v___y_674_ = v___x_709_;
+v___y_675_ = v___x_708_;
 v___y_676_ = v___x_713_;
 goto v___jp_673_;
 }
@@ -2441,11 +2441,11 @@ goto v___jp_673_;
 }
 v___jp_714_:
 {
-if (lean_obj_tag(v___y_718_) == 0)
+if (lean_obj_tag(v___y_715_) == 0)
 {
-v___y_699_ = v___y_715_;
-v___y_700_ = v___y_716_;
-v___y_701_ = v___y_717_;
+v___y_699_ = v___y_716_;
+v___y_700_ = v___y_717_;
+v___y_701_ = v___y_718_;
 v___y_702_ = v___y_719_;
 v___y_703_ = v___y_720_;
 goto v___jp_698_;
@@ -2453,9 +2453,9 @@ goto v___jp_698_;
 else
 {
 lean_object* v_val_721_; lean_object* v___x_722_; lean_object* v___x_723_; uint8_t v___x_724_; 
-v_val_721_ = lean_ctor_get(v___y_718_, 0);
+v_val_721_ = lean_ctor_get(v___y_715_, 0);
 lean_inc(v_val_721_);
-lean_dec_ref_known(v___y_718_, 1);
+lean_dec_ref_known(v___y_715_, 1);
 v___x_722_ = lean_array_get_size(v_val_721_);
 v___x_723_ = lean_unsigned_to_nat(0u);
 v___x_724_ = lean_nat_dec_eq(v___x_722_, v___x_723_);
@@ -2472,9 +2472,9 @@ v___x_731_ = lean_string_append(v___x_728_, v___x_730_);
 lean_dec_ref(v___x_730_);
 v___x_732_ = lean_string_append(v___y_720_, v___x_731_);
 lean_dec_ref(v___x_731_);
-v___y_699_ = v___y_715_;
-v___y_700_ = v___y_716_;
-v___y_701_ = v___y_717_;
+v___y_699_ = v___y_716_;
+v___y_700_ = v___y_717_;
+v___y_701_ = v___y_718_;
 v___y_702_ = v___y_719_;
 v___y_703_ = v___x_732_;
 goto v___jp_698_;
@@ -2482,9 +2482,9 @@ goto v___jp_698_;
 else
 {
 lean_dec(v_val_721_);
-v___y_699_ = v___y_715_;
-v___y_700_ = v___y_716_;
-v___y_701_ = v___y_717_;
+v___y_699_ = v___y_716_;
+v___y_700_ = v___y_717_;
+v___y_701_ = v___y_718_;
 v___y_702_ = v___y_719_;
 v___y_703_ = v___y_720_;
 goto v___jp_698_;
@@ -2495,16 +2495,16 @@ v___jp_733_:
 {
 lean_object* v___x_743_; lean_object* v___x_744_; lean_object* v___x_745_; lean_object* v___x_746_; lean_object* v___x_747_; lean_object* v___x_748_; 
 v___x_743_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__11));
-v___x_744_ = lean_string_append(v___y_736_, v___x_743_);
-v___x_745_ = lean_string_append(v___x_744_, v___y_735_);
-lean_dec_ref(v___y_735_);
-v___x_746_ = lean_string_append(v___x_745_, v___y_740_);
+v___x_744_ = lean_string_append(v___y_738_, v___x_743_);
+v___x_745_ = lean_string_append(v___x_744_, v___y_734_);
+lean_dec_ref(v___y_734_);
+v___x_746_ = lean_string_append(v___x_745_, v___y_736_);
+lean_dec_ref(v___y_736_);
+v___x_747_ = lean_string_append(v___x_746_, v___y_740_);
 lean_dec_ref(v___y_740_);
-v___x_747_ = lean_string_append(v___x_746_, v___y_738_);
-lean_dec_ref(v___y_738_);
 v___x_748_ = lean_string_append(v___x_747_, v___y_742_);
 lean_dec_ref(v___y_742_);
-v___y_699_ = v___y_734_;
+v___y_699_ = v___y_735_;
 v___y_700_ = v___y_737_;
 v___y_701_ = v___y_739_;
 v___y_702_ = v___y_741_;
@@ -2513,17 +2513,17 @@ goto v___jp_698_;
 }
 v___jp_749_:
 {
-if (lean_obj_tag(v___y_752_) == 0)
+if (lean_obj_tag(v___y_750_) == 0)
 {
 lean_object* v___x_759_; 
 v___x_759_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___lam__3___closed__5));
 v___y_734_ = v___y_751_;
-v___y_735_ = v___y_750_;
+v___y_735_ = v___y_752_;
 v___y_736_ = v___y_753_;
-v___y_737_ = v___y_754_;
-v___y_738_ = v___y_758_;
-v___y_739_ = v___y_755_;
-v___y_740_ = v___y_756_;
+v___y_737_ = v___y_755_;
+v___y_738_ = v___y_754_;
+v___y_739_ = v___y_756_;
+v___y_740_ = v___y_758_;
 v___y_741_ = v___y_757_;
 v___y_742_ = v___x_759_;
 goto v___jp_733_;
@@ -2531,9 +2531,9 @@ goto v___jp_733_;
 else
 {
 lean_object* v_val_760_; lean_object* v___x_761_; lean_object* v___x_762_; lean_object* v___x_763_; lean_object* v___x_764_; 
-v_val_760_ = lean_ctor_get(v___y_752_, 0);
+v_val_760_ = lean_ctor_get(v___y_750_, 0);
 lean_inc(v_val_760_);
-lean_dec_ref_known(v___y_752_, 1);
+lean_dec_ref_known(v___y_750_, 1);
 v___x_761_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__12));
 v___x_762_ = l_Std_Http_URI_EncodedFragment_encode(v_val_760_);
 lean_dec(v_val_760_);
@@ -2541,12 +2541,12 @@ v___x_763_ = lean_string_from_utf8_unchecked(v___x_762_);
 v___x_764_ = lean_string_append(v___x_761_, v___x_763_);
 lean_dec_ref(v___x_763_);
 v___y_734_ = v___y_751_;
-v___y_735_ = v___y_750_;
+v___y_735_ = v___y_752_;
 v___y_736_ = v___y_753_;
-v___y_737_ = v___y_754_;
-v___y_738_ = v___y_758_;
-v___y_739_ = v___y_755_;
-v___y_740_ = v___y_756_;
+v___y_737_ = v___y_755_;
+v___y_738_ = v___y_754_;
+v___y_739_ = v___y_756_;
+v___y_740_ = v___y_758_;
 v___y_741_ = v___y_757_;
 v___y_742_ = v___x_764_;
 goto v___jp_733_;
@@ -2555,31 +2555,31 @@ goto v___jp_733_;
 v___jp_765_:
 {
 lean_object* v___x_773_; lean_object* v___x_774_; 
-v___x_773_ = lean_string_append(v___y_767_, v___y_770_);
-lean_dec_ref(v___y_770_);
+v___x_773_ = lean_string_append(v___y_771_, v___y_768_);
+lean_dec_ref(v___y_768_);
 v___x_774_ = lean_string_append(v___x_773_, v___y_772_);
 lean_dec_ref(v___y_772_);
 v___y_699_ = v___y_766_;
-v___y_700_ = v___y_768_;
+v___y_700_ = v___y_767_;
 v___y_701_ = v___y_769_;
-v___y_702_ = v___y_771_;
+v___y_702_ = v___y_770_;
 v___y_703_ = v___x_774_;
 goto v___jp_698_;
 }
 v___jp_775_:
 {
-switch(lean_obj_tag(v_port_779_))
+switch(lean_obj_tag(v_port_777_))
 {
 case 0:
 {
 lean_object* v___x_783_; 
 v___x_783_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___lam__3___closed__5));
 v___y_766_ = v___y_776_;
-v___y_767_ = v___y_777_;
-v___y_768_ = v___y_778_;
-v___y_769_ = v___y_780_;
-v___y_770_ = v___y_782_;
-v___y_771_ = v___y_781_;
+v___y_767_ = v___y_778_;
+v___y_768_ = v___y_782_;
+v___y_769_ = v___y_779_;
+v___y_770_ = v___y_781_;
+v___y_771_ = v___y_780_;
 v___y_772_ = v___x_783_;
 goto v___jp_765_;
 }
@@ -2588,30 +2588,30 @@ case 1:
 lean_object* v___x_784_; 
 v___x_784_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__11));
 v___y_766_ = v___y_776_;
-v___y_767_ = v___y_777_;
-v___y_768_ = v___y_778_;
-v___y_769_ = v___y_780_;
-v___y_770_ = v___y_782_;
-v___y_771_ = v___y_781_;
+v___y_767_ = v___y_778_;
+v___y_768_ = v___y_782_;
+v___y_769_ = v___y_779_;
+v___y_770_ = v___y_781_;
+v___y_771_ = v___y_780_;
 v___y_772_ = v___x_784_;
 goto v___jp_765_;
 }
 default: 
 {
 uint16_t v_port_785_; lean_object* v___x_786_; lean_object* v___x_787_; lean_object* v___x_788_; lean_object* v___x_789_; 
-v_port_785_ = lean_ctor_get_uint16(v_port_779_, 0);
-lean_dec_ref_known(v_port_779_, 0);
+v_port_785_ = lean_ctor_get_uint16(v_port_777_, 0);
+lean_dec_ref_known(v_port_777_, 0);
 v___x_786_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__11));
 v___x_787_ = lean_uint16_to_nat(v_port_785_);
 v___x_788_ = l_Nat_reprFast(v___x_787_);
 v___x_789_ = lean_string_append(v___x_786_, v___x_788_);
 lean_dec_ref(v___x_788_);
 v___y_766_ = v___y_776_;
-v___y_767_ = v___y_777_;
-v___y_768_ = v___y_778_;
-v___y_769_ = v___y_780_;
-v___y_770_ = v___y_782_;
-v___y_771_ = v___y_781_;
+v___y_767_ = v___y_778_;
+v___y_768_ = v___y_782_;
+v___y_769_ = v___y_779_;
+v___y_770_ = v___y_781_;
+v___y_771_ = v___y_780_;
 v___y_772_ = v___x_789_;
 goto v___jp_765_;
 }
@@ -2619,19 +2619,19 @@ goto v___jp_765_;
 }
 v___jp_790_:
 {
-switch(lean_obj_tag(v_host_793_))
+switch(lean_obj_tag(v_host_792_))
 {
 case 0:
 {
 lean_object* v_name_798_; 
-v_name_798_ = lean_ctor_get(v_host_793_, 0);
+v_name_798_ = lean_ctor_get(v_host_792_, 0);
 lean_inc_ref(v_name_798_);
-lean_dec_ref_known(v_host_793_, 1);
+lean_dec_ref_known(v_host_792_, 1);
 v___y_776_ = v___y_791_;
-v___y_777_ = v___y_797_;
-v___y_778_ = v___y_792_;
-v_port_779_ = v_port_794_;
-v___y_780_ = v___y_795_;
+v_port_777_ = v_port_793_;
+v___y_778_ = v___y_794_;
+v___y_779_ = v___y_795_;
+v___y_780_ = v___y_797_;
 v___y_781_ = v___y_796_;
 v___y_782_ = v_name_798_;
 goto v___jp_775_;
@@ -2639,16 +2639,16 @@ goto v___jp_775_;
 case 1:
 {
 lean_object* v_ipv4_799_; lean_object* v___x_800_; 
-v_ipv4_799_ = lean_ctor_get(v_host_793_, 0);
+v_ipv4_799_ = lean_ctor_get(v_host_792_, 0);
 lean_inc_ref(v_ipv4_799_);
-lean_dec_ref_known(v_host_793_, 1);
+lean_dec_ref_known(v_host_792_, 1);
 v___x_800_ = lean_uv_ntop_v4(v_ipv4_799_);
 lean_dec_ref(v_ipv4_799_);
 v___y_776_ = v___y_791_;
-v___y_777_ = v___y_797_;
-v___y_778_ = v___y_792_;
-v_port_779_ = v_port_794_;
-v___y_780_ = v___y_795_;
+v_port_777_ = v_port_793_;
+v___y_778_ = v___y_794_;
+v___y_779_ = v___y_795_;
+v___y_780_ = v___y_797_;
 v___y_781_ = v___y_796_;
 v___y_782_ = v___x_800_;
 goto v___jp_775_;
@@ -2656,9 +2656,9 @@ goto v___jp_775_;
 default: 
 {
 lean_object* v_ipv6_801_; lean_object* v___x_802_; lean_object* v___x_803_; lean_object* v___x_804_; lean_object* v___x_805_; lean_object* v___x_806_; 
-v_ipv6_801_ = lean_ctor_get(v_host_793_, 0);
+v_ipv6_801_ = lean_ctor_get(v_host_792_, 0);
 lean_inc_ref(v_ipv6_801_);
-lean_dec_ref_known(v_host_793_, 1);
+lean_dec_ref_known(v_host_792_, 1);
 v___x_802_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__13));
 v___x_803_ = lean_uv_ntop_v6(v_ipv6_801_);
 lean_dec_ref(v_ipv6_801_);
@@ -2667,10 +2667,10 @@ lean_dec_ref(v___x_803_);
 v___x_805_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__14));
 v___x_806_ = lean_string_append(v___x_804_, v___x_805_);
 v___y_776_ = v___y_791_;
-v___y_777_ = v___y_797_;
-v___y_778_ = v___y_792_;
-v_port_779_ = v_port_794_;
-v___y_780_ = v___y_795_;
+v_port_777_ = v_port_793_;
+v___y_778_ = v___y_794_;
+v___y_779_ = v___y_795_;
+v___y_780_ = v___y_797_;
 v___y_781_ = v___y_796_;
 v___y_782_ = v___x_806_;
 goto v___jp_775_;
@@ -2680,13 +2680,13 @@ goto v___jp_775_;
 v___jp_807_:
 {
 lean_object* v___x_817_; lean_object* v___x_818_; uint8_t v___x_819_; 
-v___x_817_ = lean_array_get_size(v___y_813_);
+v___x_817_ = lean_array_get_size(v___y_811_);
 v___x_818_ = lean_unsigned_to_nat(0u);
 v___x_819_ = lean_nat_dec_eq(v___x_817_, v___x_818_);
 if (v___x_819_ == 0)
 {
 lean_object* v___x_820_; lean_object* v___x_821_; lean_object* v_encodedParams_822_; lean_object* v___x_823_; lean_object* v___x_824_; lean_object* v___x_825_; lean_object* v___x_826_; 
-v___x_820_ = lean_array_to_list(v___y_813_);
+v___x_820_ = lean_array_to_list(v___y_811_);
 v___x_821_ = lean_box(0);
 v_encodedParams_822_ = l_List_mapTR_loop___redArg(v___f_671_, v___x_820_, v___x_821_);
 v___x_823_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__9));
@@ -2697,10 +2697,10 @@ lean_dec_ref(v___x_825_);
 v___y_750_ = v___y_809_;
 v___y_751_ = v___y_808_;
 v___y_752_ = v___y_810_;
-v___y_753_ = v___y_811_;
-v___y_754_ = v___y_812_;
-v___y_755_ = v___y_814_;
-v___y_756_ = v___y_816_;
+v___y_753_ = v___y_816_;
+v___y_754_ = v___y_813_;
+v___y_755_ = v___y_812_;
+v___y_756_ = v___y_814_;
 v___y_757_ = v___y_815_;
 v___y_758_ = v___x_826_;
 goto v___jp_749_;
@@ -2708,15 +2708,15 @@ goto v___jp_749_;
 else
 {
 lean_object* v___x_827_; 
-lean_dec_ref(v___y_813_);
+lean_dec_ref(v___y_811_);
 v___x_827_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___lam__3___closed__5));
 v___y_750_ = v___y_809_;
 v___y_751_ = v___y_808_;
 v___y_752_ = v___y_810_;
-v___y_753_ = v___y_811_;
-v___y_754_ = v___y_812_;
-v___y_755_ = v___y_814_;
-v___y_756_ = v___y_816_;
+v___y_753_ = v___y_816_;
+v___y_754_ = v___y_813_;
+v___y_755_ = v___y_812_;
+v___y_756_ = v___y_814_;
 v___y_757_ = v___y_815_;
 v___y_758_ = v___x_827_;
 goto v___jp_749_;
@@ -2725,10 +2725,10 @@ goto v___jp_749_;
 v___jp_828_:
 {
 lean_object* v_segments_838_; uint8_t v_absolute_839_; lean_object* v___x_840_; lean_object* v___x_841_; size_t v_sz_842_; size_t v___x_843_; lean_object* v___x_844_; lean_object* v___x_845_; lean_object* v_result_846_; 
-v_segments_838_ = lean_ctor_get(v___y_831_, 0);
+v_segments_838_ = lean_ctor_get(v___y_830_, 0);
 lean_inc_ref(v_segments_838_);
-v_absolute_839_ = lean_ctor_get_uint8(v___y_831_, sizeof(void*)*1);
-lean_dec_ref(v___y_831_);
+v_absolute_839_ = lean_ctor_get_uint8(v___y_830_, sizeof(void*)*1);
+lean_dec_ref(v___y_830_);
 v___x_840_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__15));
 v___x_841_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__25));
 v_sz_842_ = lean_array_size(v_segments_838_);
@@ -2738,13 +2738,13 @@ v___x_845_ = lean_array_to_list(v___x_844_);
 v_result_846_ = l_String_intercalate(v___x_840_, v___x_845_);
 if (v_absolute_839_ == 0)
 {
-v___y_808_ = v___y_829_;
-v___y_809_ = v___y_837_;
-v___y_810_ = v___y_830_;
+v___y_808_ = v___y_837_;
+v___y_809_ = v___y_829_;
+v___y_810_ = v___y_831_;
 v___y_811_ = v___y_832_;
-v___y_812_ = v___y_833_;
-v___y_813_ = v___y_835_;
-v___y_814_ = v___y_834_;
+v___y_812_ = v___y_834_;
+v___y_813_ = v___y_833_;
+v___y_814_ = v___y_835_;
 v___y_815_ = v___y_836_;
 v___y_816_ = v_result_846_;
 goto v___jp_807_;
@@ -2754,13 +2754,13 @@ else
 lean_object* v___x_847_; 
 v___x_847_ = lean_string_append(v___x_840_, v_result_846_);
 lean_dec_ref(v_result_846_);
-v___y_808_ = v___y_829_;
-v___y_809_ = v___y_837_;
-v___y_810_ = v___y_830_;
+v___y_808_ = v___y_837_;
+v___y_809_ = v___y_829_;
+v___y_810_ = v___y_831_;
 v___y_811_ = v___y_832_;
-v___y_812_ = v___y_833_;
-v___y_813_ = v___y_835_;
-v___y_814_ = v___y_834_;
+v___y_812_ = v___y_834_;
+v___y_813_ = v___y_833_;
+v___y_814_ = v___y_835_;
 v___y_815_ = v___y_836_;
 v___y_816_ = v___x_847_;
 goto v___jp_807_;
@@ -2769,27 +2769,27 @@ goto v___jp_807_;
 v___jp_848_:
 {
 lean_object* v___x_861_; lean_object* v___x_862_; lean_object* v___x_863_; 
-v___x_861_ = lean_string_append(v___y_855_, v___y_854_);
-lean_dec_ref(v___y_854_);
+v___x_861_ = lean_string_append(v___y_850_, v___y_859_);
+lean_dec_ref(v___y_859_);
 v___x_862_ = lean_string_append(v___x_861_, v___y_860_);
 lean_dec_ref(v___y_860_);
-lean_inc_ref(v___y_851_);
-v___x_863_ = lean_string_append(v___y_851_, v___x_862_);
+lean_inc_ref(v___y_853_);
+v___x_863_ = lean_string_append(v___y_853_, v___x_862_);
 lean_dec_ref(v___x_862_);
 v___y_829_ = v___y_849_;
-v___y_830_ = v___y_850_;
-v___y_831_ = v___y_853_;
-v___y_832_ = v___y_852_;
+v___y_830_ = v___y_852_;
+v___y_831_ = v___y_851_;
+v___y_832_ = v___y_854_;
 v___y_833_ = v___y_856_;
-v___y_834_ = v___y_858_;
+v___y_834_ = v___y_855_;
 v___y_835_ = v___y_857_;
-v___y_836_ = v___y_859_;
+v___y_836_ = v___y_858_;
 v___y_837_ = v___x_863_;
 goto v___jp_828_;
 }
 v___jp_864_:
 {
-switch(lean_obj_tag(v_port_868_))
+switch(lean_obj_tag(v_port_874_))
 {
 case 0:
 {
@@ -2797,15 +2797,15 @@ lean_object* v___x_877_;
 v___x_877_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___lam__3___closed__5));
 v___y_849_ = v___y_865_;
 v___y_850_ = v___y_866_;
-v___y_851_ = v___y_867_;
-v___y_852_ = v___y_870_;
-v___y_853_ = v___y_869_;
-v___y_854_ = v___y_876_;
-v___y_855_ = v___y_871_;
-v___y_856_ = v___y_872_;
-v___y_857_ = v___y_874_;
-v___y_858_ = v___y_873_;
-v___y_859_ = v___y_875_;
+v___y_851_ = v___y_869_;
+v___y_852_ = v___y_868_;
+v___y_853_ = v___y_867_;
+v___y_854_ = v___y_870_;
+v___y_855_ = v___y_872_;
+v___y_856_ = v___y_871_;
+v___y_857_ = v___y_873_;
+v___y_858_ = v___y_875_;
+v___y_859_ = v___y_876_;
 v___y_860_ = v___x_877_;
 goto v___jp_848_;
 }
@@ -2815,23 +2815,23 @@ lean_object* v___x_878_;
 v___x_878_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__11));
 v___y_849_ = v___y_865_;
 v___y_850_ = v___y_866_;
-v___y_851_ = v___y_867_;
-v___y_852_ = v___y_870_;
-v___y_853_ = v___y_869_;
-v___y_854_ = v___y_876_;
-v___y_855_ = v___y_871_;
-v___y_856_ = v___y_872_;
-v___y_857_ = v___y_874_;
-v___y_858_ = v___y_873_;
-v___y_859_ = v___y_875_;
+v___y_851_ = v___y_869_;
+v___y_852_ = v___y_868_;
+v___y_853_ = v___y_867_;
+v___y_854_ = v___y_870_;
+v___y_855_ = v___y_872_;
+v___y_856_ = v___y_871_;
+v___y_857_ = v___y_873_;
+v___y_858_ = v___y_875_;
+v___y_859_ = v___y_876_;
 v___y_860_ = v___x_878_;
 goto v___jp_848_;
 }
 default: 
 {
 uint16_t v_port_879_; lean_object* v___x_880_; lean_object* v___x_881_; lean_object* v___x_882_; lean_object* v___x_883_; 
-v_port_879_ = lean_ctor_get_uint16(v_port_868_, 0);
-lean_dec_ref_known(v_port_868_, 0);
+v_port_879_ = lean_ctor_get_uint16(v_port_874_, 0);
+lean_dec_ref_known(v_port_874_, 0);
 v___x_880_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__11));
 v___x_881_ = lean_uint16_to_nat(v_port_879_);
 v___x_882_ = l_Nat_reprFast(v___x_881_);
@@ -2839,15 +2839,15 @@ v___x_883_ = lean_string_append(v___x_880_, v___x_882_);
 lean_dec_ref(v___x_882_);
 v___y_849_ = v___y_865_;
 v___y_850_ = v___y_866_;
-v___y_851_ = v___y_867_;
-v___y_852_ = v___y_870_;
-v___y_853_ = v___y_869_;
-v___y_854_ = v___y_876_;
-v___y_855_ = v___y_871_;
-v___y_856_ = v___y_872_;
-v___y_857_ = v___y_874_;
-v___y_858_ = v___y_873_;
-v___y_859_ = v___y_875_;
+v___y_851_ = v___y_869_;
+v___y_852_ = v___y_868_;
+v___y_853_ = v___y_867_;
+v___y_854_ = v___y_870_;
+v___y_855_ = v___y_872_;
+v___y_856_ = v___y_871_;
+v___y_857_ = v___y_873_;
+v___y_858_ = v___y_875_;
+v___y_859_ = v___y_876_;
 v___y_860_ = v___x_883_;
 goto v___jp_848_;
 }
@@ -2855,24 +2855,24 @@ goto v___jp_848_;
 }
 v___jp_884_:
 {
-switch(lean_obj_tag(v_host_890_))
+switch(lean_obj_tag(v_host_893_))
 {
 case 0:
 {
 lean_object* v_name_897_; 
-v_name_897_ = lean_ctor_get(v_host_890_, 0);
+v_name_897_ = lean_ctor_get(v_host_893_, 0);
 lean_inc_ref(v_name_897_);
-lean_dec_ref_known(v_host_890_, 1);
+lean_dec_ref_known(v_host_893_, 1);
 v___y_865_ = v___y_885_;
-v___y_866_ = v___y_886_;
-v___y_867_ = v___y_887_;
-v_port_868_ = v_port_891_;
-v___y_869_ = v___y_889_;
-v___y_870_ = v___y_888_;
-v___y_871_ = v___y_896_;
-v___y_872_ = v___y_892_;
-v___y_873_ = v___y_894_;
-v___y_874_ = v___y_893_;
+v___y_866_ = v___y_896_;
+v___y_867_ = v___y_888_;
+v___y_868_ = v___y_887_;
+v___y_869_ = v___y_886_;
+v___y_870_ = v___y_889_;
+v___y_871_ = v___y_891_;
+v___y_872_ = v___y_890_;
+v___y_873_ = v___y_892_;
+v_port_874_ = v_port_894_;
 v___y_875_ = v___y_895_;
 v___y_876_ = v_name_897_;
 goto v___jp_864_;
@@ -2880,21 +2880,21 @@ goto v___jp_864_;
 case 1:
 {
 lean_object* v_ipv4_898_; lean_object* v___x_899_; 
-v_ipv4_898_ = lean_ctor_get(v_host_890_, 0);
+v_ipv4_898_ = lean_ctor_get(v_host_893_, 0);
 lean_inc_ref(v_ipv4_898_);
-lean_dec_ref_known(v_host_890_, 1);
+lean_dec_ref_known(v_host_893_, 1);
 v___x_899_ = lean_uv_ntop_v4(v_ipv4_898_);
 lean_dec_ref(v_ipv4_898_);
 v___y_865_ = v___y_885_;
-v___y_866_ = v___y_886_;
-v___y_867_ = v___y_887_;
-v_port_868_ = v_port_891_;
-v___y_869_ = v___y_889_;
-v___y_870_ = v___y_888_;
-v___y_871_ = v___y_896_;
-v___y_872_ = v___y_892_;
-v___y_873_ = v___y_894_;
-v___y_874_ = v___y_893_;
+v___y_866_ = v___y_896_;
+v___y_867_ = v___y_888_;
+v___y_868_ = v___y_887_;
+v___y_869_ = v___y_886_;
+v___y_870_ = v___y_889_;
+v___y_871_ = v___y_891_;
+v___y_872_ = v___y_890_;
+v___y_873_ = v___y_892_;
+v_port_874_ = v_port_894_;
 v___y_875_ = v___y_895_;
 v___y_876_ = v___x_899_;
 goto v___jp_864_;
@@ -2902,9 +2902,9 @@ goto v___jp_864_;
 default: 
 {
 lean_object* v_ipv6_900_; lean_object* v___x_901_; lean_object* v___x_902_; lean_object* v___x_903_; lean_object* v___x_904_; lean_object* v___x_905_; 
-v_ipv6_900_ = lean_ctor_get(v_host_890_, 0);
+v_ipv6_900_ = lean_ctor_get(v_host_893_, 0);
 lean_inc_ref(v_ipv6_900_);
-lean_dec_ref_known(v_host_890_, 1);
+lean_dec_ref_known(v_host_893_, 1);
 v___x_901_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__13));
 v___x_902_ = lean_uv_ntop_v6(v_ipv6_900_);
 lean_dec_ref(v_ipv6_900_);
@@ -2913,15 +2913,15 @@ lean_dec_ref(v___x_902_);
 v___x_904_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__14));
 v___x_905_ = lean_string_append(v___x_903_, v___x_904_);
 v___y_865_ = v___y_885_;
-v___y_866_ = v___y_886_;
-v___y_867_ = v___y_887_;
-v_port_868_ = v_port_891_;
-v___y_869_ = v___y_889_;
-v___y_870_ = v___y_888_;
-v___y_871_ = v___y_896_;
-v___y_872_ = v___y_892_;
-v___y_873_ = v___y_894_;
-v___y_874_ = v___y_893_;
+v___y_866_ = v___y_896_;
+v___y_867_ = v___y_888_;
+v___y_868_ = v___y_887_;
+v___y_869_ = v___y_886_;
+v___y_870_ = v___y_889_;
+v___y_871_ = v___y_891_;
+v___y_872_ = v___y_890_;
+v___y_873_ = v___y_892_;
+v_port_874_ = v_port_894_;
 v___y_875_ = v___y_895_;
 v___y_876_ = v___x_905_;
 goto v___jp_864_;
@@ -2971,11 +2971,11 @@ v___x_927_ = lean_array_to_list(v___x_926_);
 v_result_928_ = l_String_intercalate(v___x_922_, v___x_927_);
 if (v_absolute_921_ == 0)
 {
-v___y_715_ = v___x_915_;
-v___y_716_ = v___x_914_;
-v___y_717_ = v___x_916_;
-v___y_718_ = v_query_919_;
-v___y_719_ = v___x_917_;
+v___y_715_ = v_query_919_;
+v___y_716_ = v___x_917_;
+v___y_717_ = v___x_915_;
+v___y_718_ = v___x_916_;
+v___y_719_ = v___x_914_;
 v___y_720_ = v_result_928_;
 goto v___jp_714_;
 }
@@ -2984,11 +2984,11 @@ else
 lean_object* v___x_929_; 
 v___x_929_ = lean_string_append(v___x_922_, v_result_928_);
 lean_dec_ref(v_result_928_);
-v___y_715_ = v___x_915_;
-v___y_716_ = v___x_914_;
-v___y_717_ = v___x_916_;
-v___y_718_ = v_query_919_;
-v___y_719_ = v___x_917_;
+v___y_715_ = v_query_919_;
+v___y_716_ = v___x_917_;
+v___y_717_ = v___x_915_;
+v___y_718_ = v___x_916_;
+v___y_719_ = v___x_914_;
 v___y_720_ = v___x_929_;
 goto v___jp_714_;
 }
@@ -3013,14 +3013,14 @@ v_fragment_935_ = lean_ctor_get(v_uri_930_, 4);
 lean_inc(v_fragment_935_);
 lean_dec_ref(v_uri_930_);
 v___x_936_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___lam__3___closed__5));
-v___y_829_ = v___x_915_;
-v___y_830_ = v_fragment_935_;
-v___y_831_ = v_path_933_;
-v___y_832_ = v_scheme_932_;
-v___y_833_ = v___x_914_;
-v___y_834_ = v___x_916_;
-v___y_835_ = v_query_934_;
-v___y_836_ = v___x_917_;
+v___y_829_ = v_fragment_935_;
+v___y_830_ = v_path_933_;
+v___y_831_ = v___x_917_;
+v___y_832_ = v_query_934_;
+v___y_833_ = v_scheme_932_;
+v___y_834_ = v___x_915_;
+v___y_835_ = v___x_916_;
+v___y_836_ = v___x_914_;
 v___y_837_ = v___x_936_;
 goto v___jp_828_;
 }
@@ -3050,17 +3050,17 @@ if (lean_obj_tag(v_userInfo_942_) == 0)
 {
 lean_object* v___x_946_; 
 v___x_946_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___lam__3___closed__5));
-v___y_885_ = v___x_915_;
-v___y_886_ = v_fragment_941_;
-v___y_887_ = v___x_945_;
-v___y_888_ = v_scheme_938_;
-v___y_889_ = v_path_939_;
-v_host_890_ = v_host_943_;
-v_port_891_ = v_port_944_;
-v___y_892_ = v___x_914_;
-v___y_893_ = v_query_940_;
-v___y_894_ = v___x_916_;
-v___y_895_ = v___x_917_;
+v___y_885_ = v_fragment_941_;
+v___y_886_ = v___x_917_;
+v___y_887_ = v_path_939_;
+v___y_888_ = v___x_945_;
+v___y_889_ = v_query_940_;
+v___y_890_ = v___x_915_;
+v___y_891_ = v_scheme_938_;
+v___y_892_ = v___x_916_;
+v_host_893_ = v_host_943_;
+v_port_894_ = v_port_944_;
+v___y_895_ = v___x_914_;
 v___y_896_ = v___x_946_;
 goto v___jp_884_;
 }
@@ -3080,17 +3080,17 @@ lean_dec(v_val_947_);
 v___x_950_ = lean_string_from_utf8_unchecked(v_username_949_);
 v___x_951_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__30));
 v___x_952_ = lean_string_append(v___x_950_, v___x_951_);
-v___y_885_ = v___x_915_;
-v___y_886_ = v_fragment_941_;
-v___y_887_ = v___x_945_;
-v___y_888_ = v_scheme_938_;
-v___y_889_ = v_path_939_;
-v_host_890_ = v_host_943_;
-v_port_891_ = v_port_944_;
-v___y_892_ = v___x_914_;
-v___y_893_ = v_query_940_;
-v___y_894_ = v___x_916_;
-v___y_895_ = v___x_917_;
+v___y_885_ = v_fragment_941_;
+v___y_886_ = v___x_917_;
+v___y_887_ = v_path_939_;
+v___y_888_ = v___x_945_;
+v___y_889_ = v_query_940_;
+v___y_890_ = v___x_915_;
+v___y_891_ = v_scheme_938_;
+v___y_892_ = v___x_916_;
+v_host_893_ = v_host_943_;
+v_port_894_ = v_port_944_;
+v___y_895_ = v___x_914_;
 v___y_896_ = v___x_952_;
 goto v___jp_884_;
 }
@@ -3112,17 +3112,17 @@ v___x_959_ = lean_string_append(v___x_957_, v___x_958_);
 lean_dec_ref(v___x_958_);
 v___x_960_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__30));
 v___x_961_ = lean_string_append(v___x_959_, v___x_960_);
-v___y_885_ = v___x_915_;
-v___y_886_ = v_fragment_941_;
-v___y_887_ = v___x_945_;
-v___y_888_ = v_scheme_938_;
-v___y_889_ = v_path_939_;
-v_host_890_ = v_host_943_;
-v_port_891_ = v_port_944_;
-v___y_892_ = v___x_914_;
-v___y_893_ = v_query_940_;
-v___y_894_ = v___x_916_;
-v___y_895_ = v___x_917_;
+v___y_885_ = v_fragment_941_;
+v___y_886_ = v___x_917_;
+v___y_887_ = v_path_939_;
+v___y_888_ = v___x_945_;
+v___y_889_ = v_query_940_;
+v___y_890_ = v___x_915_;
+v___y_891_ = v_scheme_938_;
+v___y_892_ = v___x_916_;
+v_host_893_ = v_host_943_;
+v_port_894_ = v_port_944_;
+v___y_895_ = v___x_914_;
 v___y_896_ = v___x_961_;
 goto v___jp_884_;
 }
@@ -3145,12 +3145,12 @@ v_port_965_ = lean_ctor_get(v_authority_962_, 2);
 lean_inc(v_port_965_);
 lean_dec_ref(v_authority_962_);
 v___x_966_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___lam__3___closed__5));
-v___y_791_ = v___x_915_;
-v___y_792_ = v___x_914_;
-v_host_793_ = v_host_964_;
-v_port_794_ = v_port_965_;
+v___y_791_ = v___x_917_;
+v_host_792_ = v_host_964_;
+v_port_793_ = v_port_965_;
+v___y_794_ = v___x_915_;
 v___y_795_ = v___x_916_;
-v___y_796_ = v___x_917_;
+v___y_796_ = v___x_914_;
 v___y_797_ = v___x_966_;
 goto v___jp_790_;
 }
@@ -3174,12 +3174,12 @@ lean_dec(v_val_967_);
 v___x_972_ = lean_string_from_utf8_unchecked(v_username_971_);
 v___x_973_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__30));
 v___x_974_ = lean_string_append(v___x_972_, v___x_973_);
-v___y_791_ = v___x_915_;
-v___y_792_ = v___x_914_;
-v_host_793_ = v_host_969_;
-v_port_794_ = v_port_970_;
+v___y_791_ = v___x_917_;
+v_host_792_ = v_host_969_;
+v_port_793_ = v_port_970_;
+v___y_794_ = v___x_915_;
 v___y_795_ = v___x_916_;
-v___y_796_ = v___x_917_;
+v___y_796_ = v___x_914_;
 v___y_797_ = v___x_974_;
 goto v___jp_790_;
 }
@@ -3206,12 +3206,12 @@ v___x_983_ = lean_string_append(v___x_981_, v___x_982_);
 lean_dec_ref(v___x_982_);
 v___x_984_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__30));
 v___x_985_ = lean_string_append(v___x_983_, v___x_984_);
-v___y_791_ = v___x_915_;
-v___y_792_ = v___x_914_;
-v_host_793_ = v_host_975_;
-v_port_794_ = v_port_976_;
+v___y_791_ = v___x_917_;
+v_host_792_ = v_host_975_;
+v_port_793_ = v_port_976_;
+v___y_794_ = v___x_915_;
 v___y_795_ = v___x_916_;
-v___y_796_ = v___x_917_;
+v___y_796_ = v___x_914_;
 v___y_797_ = v___x_985_;
 goto v___jp_790_;
 }
@@ -3221,10 +3221,10 @@ default:
 {
 lean_object* v___x_986_; 
 v___x_986_ = ((lean_object*)(l_Std_Http_Protocol_H1_instEncodeV11Head___aux__1___closed__31));
-v___y_699_ = v___x_915_;
-v___y_700_ = v___x_914_;
+v___y_699_ = v___x_917_;
+v___y_700_ = v___x_915_;
 v___y_701_ = v___x_916_;
-v___y_702_ = v___x_917_;
+v___y_702_ = v___x_914_;
 v___y_703_ = v___x_986_;
 goto v___jp_698_;
 }

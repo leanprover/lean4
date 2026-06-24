@@ -35,11 +35,12 @@ Cache key: `(proof key, instWP, excessArgs.size)`.
 -/
 public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPInfo) :
     OptionT VCGenM BackwardRule := do
-  let key := (specThm.proof.key, info.instWP, info.excessArgs.size)
+  let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).specBackwardRuleCache
   if let some rule := s[key]? then return rule
   let some rule ← withNewMCtxDepth <| tryMkBackwardRuleFromSpec specThm info |>.run
     | failure
+  let rule ← rule.shareCommon
   modify fun st => { st with specBackwardRuleCache := st.specBackwardRuleCache.insert key rule }
   return rule
 
@@ -55,10 +56,11 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) 
     | .ite .. => ``ite
     | .dite .. => ``dite
     | .matcher matcherApp => matcherApp.matcherName
-  let key := (cacheKey, info.instWP, info.excessArgs.size)
+  let key := (cacheKey, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).splitBackwardRuleCache
   if let some rule := s[key]? then return rule
   let rule ← mkBackwardRuleForSplit splitInfo info
+  let rule ← rule.shareCommon
   modify fun st =>
     { st with splitBackwardRuleCache := st.splitBackwardRuleCache.insert key rule }
   return rule
@@ -72,9 +74,10 @@ public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (as excessArgs : Ar
     (resultType? : Option Expr := none) : VCGenM BackwardRule := do
   let s := (← get).latticeBackwardRuleCache
   let asTypes ← (as.mapM Sym.inferType : SymM (Array Expr))
-  let key := (c.applyLemma, asTypes, excessArgs.size)
+  let key := (c.applyLemma, asTypes.map ExprPtr.mk, excessArgs.size)
   if let some rule := s[key]? then return rule
   let rule ← c.mkBackwardRuleForLattice as excessArgs resultType?
+  let rule ← rule.shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
   return rule
 

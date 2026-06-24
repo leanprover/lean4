@@ -46,7 +46,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Std_Async_Selectable_one___redArg(lean_object*);
 lean_object* l_Std_Semaphore_acquire(lean_object*);
 lean_object* l_IO_Promise_result_x21___redArg(lean_object*);
-lean_object* l___private_Init_While_0__whileM_erased___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_While_0__repeatM_erased___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Async_ContextAsync_instMonad;
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -3924,7 +3924,7 @@ LEAN_EXPORT lean_object* l_Std_Http_Server_serve___redArg___lam__25(lean_object*
 _start:
 {
 lean_object* v___x_13260__overap_1326_; lean_object* v___x_1327_; lean_object* v___x_1328_; lean_object* v___x_1329_; 
-v___x_13260__overap_1326_ = l___private_Init_While_0__whileM_erased___redArg(v___x_1319_, v___f_1320_, v___x_1321_);
+v___x_13260__overap_1326_ = l___private_Init_While_0__repeatM_erased___redArg(v___x_1319_, v___f_1320_, v___x_1321_);
 v___x_1327_ = lean_apply_2(v___x_13260__overap_1326_, v___y_1324_, lean_box(0));
 v___x_1328_ = lean_unsigned_to_nat(0u);
 v___x_1329_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1328_, v___x_1322_, v___x_1327_, v___f_1323_);

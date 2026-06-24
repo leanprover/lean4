@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_While_0__whileM_erased___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_While_0__repeatM_erased___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonad___redArg(lean_object*);
 lean_object* l_instMonadLiftT___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_lift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -364,7 +364,7 @@ lean_closure_set(v___f_113_, 3, v___f_110_);
 v___f_114_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__4), 3, 2);
 lean_closure_set(v___f_114_, 0, v_toPure_108_);
 lean_closure_set(v___f_114_, 1, v___x_109_);
-v___x_115_ = l___private_Init_While_0__whileM_erased___redArg(v_inst_101_, v___f_113_, v___x_109_);
+v___x_115_ = l___private_Init_While_0__repeatM_erased___redArg(v_inst_101_, v___f_113_, v___x_109_);
 v___x_116_ = lean_apply_4(v_toBind_107_, lean_box(0), lean_box(0), v___x_115_, v___f_114_);
 return v___x_116_;
 }

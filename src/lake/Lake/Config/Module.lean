@@ -110,6 +110,9 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
+@[inline] public def irSigFile (self : Module) : FilePath :=
+  self.leanLibPath "ir.sig"
+
 @[inline] public def irFile (self : Module) : FilePath :=
   self.leanLibPath "ir"
 

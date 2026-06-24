@@ -1308,7 +1308,7 @@ export Max (max)
 Constructs a `Max` instance from a decidable `≤` operation.
 -/
 -- Marked inline so that `min x y + max x y` can be optimized to a single branch.
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def maxOfLe [LE α] [DecidableRel (@LE.le α _)] : Max α where
   max x y := ite (LE.le x y) y x
 
@@ -1325,7 +1325,7 @@ export Min (min)
 Constructs a `Min` instance from a decidable `≤` operation.
 -/
 -- Marked inline so that `min x y + max x y` can be optimized to a single branch.
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def minOfLe [LE α] [DecidableRel (@LE.le α _)] : Min α where
   min x y := ite (LE.le x y) x y
 
@@ -1753,7 +1753,9 @@ Addition of natural numbers, typically used via the `+` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_add", implicit_reducible]
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, the test `tests/elab/whnfProj.lean` fails if we make this change. -/
+@[extern "lean_nat_add", instance_reducible]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
   | a, Nat.zero   => a
   | a, Nat.succ b => Nat.succ (Nat.add a b)
@@ -1772,7 +1774,9 @@ Multiplication of natural numbers, usually accessed via the `*` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
-@[extern "lean_nat_mul", implicit_reducible]
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, the stage 2 build fails in `Init/Grind/Ring/Basic.lean` if we make this change. -/
+@[extern "lean_nat_mul", instance_reducible]
 protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
   | _, 0          => 0
   | a, Nat.succ b => Nat.add (Nat.mul a b) a
@@ -2103,7 +2107,9 @@ Examples:
 * `8 - 8 = 0`
 * `8 - 20 = 0`
 -/
-@[extern "lean_nat_sub", implicit_reducible]
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, the stage 2 build fails in `Init/Data/BitVec/Lemmas.lean` if we make this change. -/
+@[extern "lean_nat_sub", instance_reducible]
 protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
@@ -2504,7 +2510,7 @@ Examples:
  * `(if (5 : UInt8) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : UInt8) < 7) by decide`
 -/
-@[extern "lean_uint8_dec_lt", implicit_reducible]
+@[extern "lean_uint8_dec_lt", instance_reducible]
 def UInt8.decLt (a b : UInt8) : Decidable (LT.lt a b) :=
   inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
 
@@ -2520,7 +2526,7 @@ Examples:
  * `(if (5 : UInt8) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : UInt8) ≤ 7 by decide`
 -/
-@[extern "lean_uint8_dec_le", implicit_reducible]
+@[extern "lean_uint8_dec_le", instance_reducible]
 def UInt8.decLe (a b : UInt8) : Decidable (LE.le a b) :=
   inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
@@ -2664,7 +2670,7 @@ Examples:
  * `(if (5 : UInt32) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : UInt32) < 7) by decide`
 -/
-@[extern "lean_uint32_dec_lt", implicit_reducible]
+@[extern "lean_uint32_dec_lt", instance_reducible]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
   inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
 
@@ -2680,7 +2686,7 @@ Examples:
  * `(if (5 : UInt32) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : UInt32) ≤ 7 by decide`
 -/
-@[extern "lean_uint32_dec_le", implicit_reducible]
+@[extern "lean_uint32_dec_le", instance_reducible]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
   inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
@@ -3024,7 +3030,9 @@ Examples:
  * `([] : List String).length = 0`
  * `["green", "brown"].length = 2`
 -/
-@[implicit_reducible] def List.length : List α → Nat
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, the test `tests/elab/implicit_reducible_list_length.lean` fails if we make this change. -/
+@[instance_reducible] def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (length as) 1
 
@@ -3234,7 +3242,9 @@ This is a cached value, so it is `O(1)` to access. The space allocated for an ar
 its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
 internal detail that's not observable by Lean code.
 -/
-@[extern "lean_array_get_size", tagged_return, implicit_reducible]
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, the stage 2 build fails in `Init/Data/List/MapIdx.lean` if we make this change. -/
+@[extern "lean_array_get_size", tagged_return, instance_reducible]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 

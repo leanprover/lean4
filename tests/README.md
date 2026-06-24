@@ -199,6 +199,7 @@ The most notable environment variables are:
 - `TEST_DIR`: Absolute path to the `tests` directory.
 - `SCRIPT_DIR`: Absolute path to the `script` directory.
 - `TEST_BENCH`: Set to `1` if we're currently executing a benchmark, unset otherwise.
+- `TEST_CTEST`: Set to `1` if the test is run under ctest, unset otherwise.
 
 The definitions come from `util.sh`,
 which provides a few utility functions and also uses `set` to set sensible bash defaults.
@@ -247,6 +248,14 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_EXIT`:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
+
+For performance reasons, elab tests can use prebuilt header snapshots.
+Use of the snapshots is controlled by `LEAN_HEADER_SNAPSHOTS`:
+set it to `0` to force them off, or to `1` to force them on.
+By default, they are turned on only when running under ctest.
+To use the pre-built snapshots when manually running tests,
+run `tests/with_stage1_test_env.sh tests/build_lean_header_snapshots.sh`
+before running the test itself with `LEAN_HEADER_SNAPSHOTS=1` set.
 
 ## The `compile*` test pile
 

@@ -889,9 +889,9 @@ return v___x_212_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter___redArg___boxed(lean_object* v_op_213_, lean_object* v_h__1_214_, lean_object* v_h__2_215_, lean_object* v_h__3_216_, lean_object* v_h__4_217_, lean_object* v_h__5_218_, lean_object* v_h__6_219_, lean_object* v_h__7_220_){
 _start:
 {
-uint8_t v_op_76__boxed_221_; lean_object* v_res_222_; 
-v_op_76__boxed_221_ = lean_unbox(v_op_213_);
-v_res_222_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter___redArg(v_op_76__boxed_221_, v_h__1_214_, v_h__2_215_, v_h__3_216_, v_h__4_217_, v_h__5_218_, v_h__6_219_, v_h__7_220_);
+uint8_t v_op_69__boxed_221_; lean_object* v_res_222_; 
+v_op_69__boxed_221_ = lean_unbox(v_op_213_);
+v_res_222_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter___redArg(v_op_69__boxed_221_, v_h__1_214_, v_h__2_215_, v_h__3_216_, v_h__4_217_, v_h__5_218_, v_h__6_219_, v_h__7_220_);
 return v_res_222_;
 }
 }
@@ -997,9 +997,9 @@ return v___x_245_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter___boxed(lean_object* v_motive_246_, lean_object* v_op_247_, lean_object* v_h__1_248_, lean_object* v_h__2_249_, lean_object* v_h__3_250_, lean_object* v_h__4_251_, lean_object* v_h__5_252_, lean_object* v_h__6_253_, lean_object* v_h__7_254_){
 _start:
 {
-uint8_t v_op_107__boxed_255_; lean_object* v_res_256_; 
-v_op_107__boxed_255_ = lean_unbox(v_op_247_);
-v_res_256_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter(v_motive_246_, v_op_107__boxed_255_, v_h__1_248_, v_h__2_249_, v_h__3_250_, v_h__4_251_, v_h__5_252_, v_h__6_253_, v_h__7_254_);
+uint8_t v_op_100__boxed_255_; lean_object* v_res_256_; 
+v_op_100__boxed_255_ = lean_unbox(v_op_247_);
+v_res_256_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter(v_motive_246_, v_op_100__boxed_255_, v_h__1_248_, v_h__2_249_, v_h__3_250_, v_h__4_251_, v_h__5_252_, v_h__6_253_, v_h__7_254_);
 return v_res_256_;
 }
 }

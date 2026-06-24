@@ -68,7 +68,7 @@ private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List 
 
 private def throwIfUnsupportedJP (name : Name) (val : Expr) : VCGenM Unit := do
   if (← read).useJP && Lean.Elab.Tactic.Do.isJP name && val.isLambda then
-    throwError "mvcgen': shared-continuation handling for `__do_jp` is not yet \
+    throwError "vcgen: shared-continuation handling for `__do_jp` is not yet \
       implemented. Detection point reached at {name}; the upstream \
       `Lean.Elab.Tactic.Do.onJoinPoint` (`src/Lean/Elab/Tactic/Do/VCGen.lean:215`) \
       needs to be ported to the worklist style. Drop `(jp := true)` to fall back \
@@ -94,8 +94,8 @@ private def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
 /-- Extract the weakest-precondition metadata from the RHS of a lattice entailment. -/
 private def getWPInfo? (rhs : Expr) : Option WPInfo :=
   rhs.withApp fun head args =>
-    if head.isConstOf ``Std.Internal.Do.wp && args.size ≥ 11 then
-      some { head, args := args.take 11, excessArgs := args.drop 11 }
+    if head.isConstOf ``Std.Internal.Do.wp && args.size ≥ 10 then
+      some { head, args := args.take 10, excessArgs := args.drop 10 }
     else
       none
 
@@ -209,7 +209,7 @@ private def normalizePre? (scope : VCGen.Scope) (goal : MVarId) (α pre target :
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/
 private def replaceProgDefEq (goal : MVarId) (target : Expr) (info : WPInfo) (prog : Expr) :
     VCGenM MVarId := do
-  let wp ← mkAppNS info.head <| info.args.set! 8 prog
+  let wp ← mkAppNS info.head <| info.args.set! 7 prog
   let rhs ← mkAppNS wp info.excessArgs
   let relArgs := target.getAppArgs
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
@@ -228,7 +228,7 @@ private def wpLet? (goal : MVarId) (target : Expr) (info : WPInfo) : VCGenM (Opt
   else
     trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
     let prog ← mkAppRevS body appArgs
-    let wp ← mkAppNS info.head <| info.args.set! 8 prog
+    let wp ← mkAppNS info.head <| info.args.set! 7 prog
     let rhs ← mkAppNS wp info.excessArgs
     let relArgs := target.getAppArgs
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
@@ -294,7 +294,13 @@ and apply its cached backward rule. -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (info : WPInfo) :
     VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying a spec for {info.prog}. Excess args: {info.excessArgs}"
-  match ← SpecTheorems.findSpecs scope.specs info.prog with
+  -- Hand `findSpecs` the sole reference to the database so its in-place pattern internalization
+  -- does not copy the discrimination tree, then thread the updated database back into the scope.
+  let specs := scope.specs
+  let scope := { scope with specs := default }
+  let (result, specs) ← SpecTheorems.findSpecs specs info.prog
+  let scope := { scope with specs }
+  match result with
   | .error thms => stopOrErrorOnMissingSpec info.prog info.m thms
   | .ok thm =>
   trace[Elab.Tactic.Do.vcgen] "Spec for {info.prog}: {thm.proof}"

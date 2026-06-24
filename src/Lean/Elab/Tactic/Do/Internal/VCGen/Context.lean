@@ -46,29 +46,35 @@ public def UntilPatternThunk.force (ref : IO.Ref UntilPatternThunk) (m : Expr) :
 
 /--
 Common metadata for a goal whose right-hand side is a weakest-precondition application
-`pre ⊑ wp m Pred EPred monadInst instAL instEAL instWP α prog post epost s₁ ... sₙ`.
+`pre ⊑ wp Prog Value Pred EPred instAL instEAL instWP prog post epost s₁ ... sₙ`.
 -/
 public structure VCGen.WPInfo where
   /-- The `wp` function head, separated from its explicit core arguments. -/
   head : Expr
   /-- The ordered core arguments of the `wp` application:
-  `#[m, Pred, EPred, monadInst, instAL, instEAL, instWP, α, prog, post, epost]`. -/
+  `#[Prog, Value, Pred, EPred, instAL, instEAL, instWP, prog, post, epost]`. -/
   args : Array Expr
   /-- Extra arguments applied after `wp … prog post epost`, usually concrete state arguments. -/
   excessArgs : Array Expr
 
 namespace VCGen.WPInfo
 
-/-- Monad type constructor argument of `wp`. -/
-public def m (info : WPInfo) : Expr := info.args[0]!
+/-- Program type argument of `wp` (e.g. `m α` or a non-monadic program type). -/
+public def progTy (info : WPInfo) : Expr := info.args[0]!
+/-- The monad of an `m α`-shaped program type, obtained by dropping the value type `α`. For a
+non-monadic program type the type itself is returned. -/
+public def m (info : WPInfo) : Expr :=
+  if info.args[0]!.isApp then info.args[0]!.appFn! else info.args[0]!
+/-- Result/value type argument of `wp`. -/
+public def Value (info : WPInfo) : Expr := info.args[1]!
 /-- Predicate/lattice type argument of `wp`. -/
-public def Pred (info : WPInfo) : Expr := info.args[1]!
+public def Pred (info : WPInfo) : Expr := info.args[2]!
 /-- Exception postcondition type argument of `wp`. -/
-public def EPred (info : WPInfo) : Expr := info.args[2]!
-/-- `WPMonad` instance argument of `wp`. -/
+public def EPred (info : WPInfo) : Expr := info.args[3]!
+/-- `WP` instance argument of `wp`. -/
 public def instWP (info : WPInfo) : Expr := info.args[6]!
 /-- Program expression classified by VCGen. -/
-public def prog (info : WPInfo) : Expr := info.args[8]!
+public def prog (info : WPInfo) : Expr := info.args[7]!
 
 end VCGen.WPInfo
 
@@ -130,12 +136,12 @@ public structure VCGen.Context where
   useJP : Bool := false
   /-- The `errorOnMissingSpec` config option: when `true` (default), a program with no matching
   spec raises a hard error. When `false`, the goal is emitted as an unsolved VC for the user to
-  discharge — useful with `mvcgen' [-some_spec]` patterns where the user knows the spec is
+  discharge — useful with `vcgen [-some_spec]` patterns where the user knows the spec is
   intentionally removed and wants to handle the residual goal by hand. -/
   errorOnMissingSpec : Bool := true
   /-- The `debug` config option: when `true`, `tryApplyRule` retries failed
   `BackwardRule.apply` calls after `unfoldReducible` and reports an error when the
-  retry succeeds, pinpointing missing normalization steps in `mvcgen'`. -/
+  retry succeeds, pinpointing missing normalization steps in `vcgen`. -/
   debug : Bool := false
   /-- The `internalize` config option: when `true` (default), `emitVC` and the
   multi-subgoal fork in `Driver.work` call `Grind.processHypotheses`. The tactic-mode
@@ -167,20 +173,29 @@ public structure VCGen.State where
   A cache mapping registered SpecThms to their backward rule to apply.
   The particular rule depends on the theorem name, the `WPMonad` instance and the number of
   excess state arguments that the weakest precondition target is applied to.
+
+  The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
+  This is sound because the instance is a subterm of the hash-consed goal target.
   -/
-  specBackwardRuleCache : Std.HashMap (Name × Expr × Nat) BackwardRule := {}
+  specBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
   /--
   A cache mapping matchers to their splitting backward rule to apply.
   The particular rule depends on the matcher name, the monad and the number of excess state
   arguments that the weakest precondition target is applied to.
+
+  The instance is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
+  This is sound because the instance is a subterm of the hash-consed goal target.
   -/
-  splitBackwardRuleCache : Std.HashMap (Name × Expr × Nat) BackwardRule := {}
+  splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
   /--
   A cache mapping lattice connectives to their backward rule to apply.
   The particular rule depends on the rule name, the monad, and the number of excess state
   arguments that the weakest precondition target is applied to.
+
+  The argument types are keyed by `ExprPtr`, so lookups compare them by pointer rather than
+  structurally. This is sound because they are subterms of the hash-consed goal target.
   -/
-  latticeBackwardRuleCache : Std.HashMap (Name × Array Expr × Nat) BackwardRule := {}
+  latticeBackwardRuleCache : Std.HashMap (Name × Array ExprPtr × Nat) BackwardRule := {}
   /--
   Holes of type `Invariant` that have been generated so far.
   -/

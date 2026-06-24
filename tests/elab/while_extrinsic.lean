@@ -7,9 +7,9 @@ set_option mvcgen.warning false
 open Std.Do
 
 /-!
-# Tests for `Loop`-based `repeat`/`while` loops with `whileM`
+# Tests for `Loop`-based `repeat`/`while` loops with `repeatM`
 
-These tests verify that the `Loop.forIn` implementation using `whileM` and its
+These tests verify that the `Loop.forIn` implementation using `repeatM` and its
 verification infrastructure work correctly with `MonadTail`.
 -/
 

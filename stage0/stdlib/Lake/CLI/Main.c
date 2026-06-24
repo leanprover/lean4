@@ -6102,10 +6102,10 @@ return v___x_1495_;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Main_0__Lake_lakeShortOption___boxed(lean_object* v_x_1498_, lean_object* v_a_1499_, lean_object* v_a_1500_, lean_object* v_a_1501_){
 _start:
 {
-uint32_t v_x_14296__boxed_1502_; lean_object* v_res_1503_; 
-v_x_14296__boxed_1502_ = lean_unbox_uint32(v_x_1498_);
+uint32_t v_x_14274__boxed_1502_; lean_object* v_res_1503_; 
+v_x_14274__boxed_1502_ = lean_unbox_uint32(v_x_1498_);
 lean_dec(v_x_1498_);
-v_res_1503_ = l___private_Lake_CLI_Main_0__Lake_lakeShortOption(v_x_14296__boxed_1502_, v_a_1499_, v_a_1500_);
+v_res_1503_ = l___private_Lake_CLI_Main_0__Lake_lakeShortOption(v_x_14274__boxed_1502_, v_a_1499_, v_a_1500_);
 return v_res_1503_;
 }
 }

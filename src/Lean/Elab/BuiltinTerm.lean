@@ -157,6 +157,13 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
+@[builtin_term_elab «waitForExpectedType»] def elabWaitForExpectedType : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(wait_for_expected_type% $e) =>
+    tryPostponeIfNoneOrMVar expectedType?
+    elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
+
 register_builtin_option tactic.tryOnEmptyBy : Bool := {
   defValue := false
   descr    := "when an empty `by` block is encountered interactively, run `try?` to suggest \

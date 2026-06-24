@@ -871,7 +871,7 @@ Examples:
 -/
 protected abbrev min (n m : Nat) := min n m
 
-@[grind =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+@[grind =, lia =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
 
 instance : Max Nat := maxOfLe
 
@@ -888,7 +888,7 @@ Examples:
 -/
 protected abbrev max (n m : Nat) := max n m
 
-@[grind =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+@[grind =, lia =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
 
 
 /-! # Auxiliary theorems for well-founded recursion -/

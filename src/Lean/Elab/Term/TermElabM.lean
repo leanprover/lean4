@@ -256,19 +256,16 @@ instance : Inhabited (TacticParsedSnapshotInner α) where
   default := { toSnapshot := default, stx := default, finished := default }
 
 partial instance [ToSnapshotTree α] : ToSnapshotTree (TacticParsedSnapshotInner α) where
-  toSnapshotTreeM := go where
-    go s := withReader id do
-      return ⟨← Snapshot.transform s.toSnapshot,
-        (← s.inner?.toArray.mapM (·.transform)) ++
-        #[← s.finished.transform]⟩
+  toSnapshotTreeM s :=
+    return ⟨← Snapshot.transform s.toSnapshot,
+      (← s.inner?.toArray.mapM (·.transform)) ++
+      #[← s.finished.transform]⟩
 
 structure TacticParsedSnapshot where
   transformed : TransformedSnap (TacticParsedSnapshotInner TacticParsedSnapshot)
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
-
-instance : Inhabited TacticParsedSnapshot where
-  default := { transformed := default }
+deriving Inhabited
 
 /--
 Pushes the transformation inwards by one level, allowing transformation-correct access to fields.
@@ -282,10 +279,13 @@ def TacticParsedSnapshot.applyTransform (s : TacticParsedSnapshot) :
 
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTreeM := go
-  where go s :=
-    withReader (·.compose s.transformed.transform) do
-      let _ : ToSnapshotTree TacticParsedSnapshot := ⟨go⟩
+where
+  go s := do
+    let _ : ToSnapshotTree TacticParsedSnapshot := ⟨go⟩
+    let inner ← withReader (·.compose s.transformed.transform) do
       toSnapshotTreeM s.transformed.raw
+    let next ← s.next.mapM (·.transform)
+    return { inner with children := inner.children ++ next }
 
 end Snapshot
 end Tactic

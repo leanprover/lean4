@@ -7,3 +7,5 @@ only an expectation that breaking changes will be documented in the release note
 [Release notes](https://lean-lang.org/doc/reference/latest/releases/#release-notes) are available in the Lean language reference.
 
 Release notes for the current release candidate are available on the GitHub [releases](https://github.com/leanprover/lean4/releases) page.
+
+This is a test!

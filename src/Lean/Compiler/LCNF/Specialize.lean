@@ -31,12 +31,29 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
-    exportEntriesFnEx? := some fun _ _ entries =>
-      { exported := #[], server := #[], «private» := entries.toArray }
+    exportEntriesFnEx? := some fun env _ entries =>
+      -- Under the module system `leanir` is authoritative for spec decl names: its `mkSpecDecl`
+      -- numbering differs from the frontend's (the counter depends on compilation order), so the
+      -- frontend's `.olean` names disagree with the actual IR leanir writes to `.ir`. Exporting the
+      -- cache here would leak the frontend's stale names to importers, leaving them with dangling
+      -- references. Instead leanir writes the cache into `.ir` via `exportSpecCacheIREntries`.
+      if env.header.isModule then
+        .uniform #[]
+      else
+        { exported := #[], server := #[], «private» := entries.toArray }
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (!·.contains ·.key) addEntry
   }
+
+/--
+IR export entry for the specialization cache, written into `.ir` by `leanir` so importers read the
+authoritative leanir-generated spec names (see the exporter on `specCacheExt`). Returns the local
+(leanir-session) cache entries only.
+-/
+public def exportSpecCacheIREntries (env : Environment) : Name × Array EnvExtensionEntry :=
+  -- safety: cast to erased type, mirroring `IR.exportIREntries`
+  (specCacheExt.name, unsafe unsafeCast (specCacheExt.getEntries env).toArray)
 
 public def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
   modifyEnv fun env => specCacheExt.addEntry env { key, declName }

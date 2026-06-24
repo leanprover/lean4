@@ -17,6 +17,7 @@ import Lean.Compiler.LCNF.EmitC
 import Lean.Language.Lean
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.Main
+import Lean.Compiler.LCNF.Specialize
 
 /-! Lean codegen as a separate process. -/
 
@@ -34,8 +35,9 @@ def mkIRData (env : Environment) : IO ModuleData := do
 
   -- `exportIREntries` provides full IR for `declMapExt` and `regularInitAttr`; filter them from
   -- `mkModuleData` to prevent the latter's opaque-extern entries from overwriting the full IR
-  -- in `setImportedEntries`
-  let irEntries := exportIREntries env
+  -- in `setImportedEntries`. The spec cache is appended likewise so importers read leanir's
+  -- authoritative spec names rather than the frontend's stale `.olean` names.
+  let irEntries := exportIREntries env |>.push (Specialize.exportSpecCacheIREntries env)
   let irExtNames := irEntries.map (·.1)
   let modEntries := (← mkModuleData env .private).entries.filter (!irExtNames.contains ·.1)
   return { env.header with

@@ -15,28 +15,32 @@ jobs:
       # produced) and whether the corresponding release already exists in
       # `leanprover/lean4-pr-releases`.
       - name: Check if PR toolchain exists
-        id: pr-info
+        id: toolchain
         uses: actions/github-script@v9
         with:
           script: |
             const number = context.payload.pull_request.number;
             const shortSha = context.payload.pull_request.head.sha.substring(0, 7);
             const tag = `pr-release-${number}-${shortSha}`;
+            const toolchain = `leanprover/lean4-pr-releases:${tag}`;
 
-            let green = false;
+            let exists = false;
             try {
               await github.rest.repos.getReleaseByTag({
                 owner: 'leanprover',
                 repo: 'lean4-pr-releases',
                 tag,
               });
-              green = true;
+              exists = true;
             } catch (e) {
               if (e.status !== 404) throw e;
             }
 
-            core.setOutput('override-toolchain', `leanprover/lean4-pr-releases:${tag}`);
-            core.setOutput('upstream-ci-green', green);
+            if (exists) core.info(`Toolchain ${toolchain} exists`);
+            else core.info(`Toolchain ${toolchain} does not exist yet`);
+
+            core.setOutput('toolchain', toolchain);
+            core.setOutput('exists', exists);
 
       - name: Create GitHub App token
         uses: actions/create-github-app-token@v3
@@ -67,8 +71,8 @@ jobs:
           app-token: ${{ steps.app-token.outputs.token }}
           app-slug: ${{ steps.app-token.outputs.app-slug }}
           upstream-pr: ${{ github.event.pull_request.number }}
-          upstream-ci-green: ${{ steps.pr-info.outputs.upstream-ci-green }}
+          upstream-ci-green: ${{ steps.toolchain.outputs.exists }}
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
           downstream-label: adaptation
-          override-toolchain: ${{ steps.pr-info.outputs.override-toolchain }}
+          override-toolchain: ${{ steps.toolchain.outputs.toolchain }}

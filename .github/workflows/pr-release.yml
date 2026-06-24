@@ -644,7 +644,7 @@ jobs:
 
       - name: Checkout downstream repo
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: leanprover/downstream-lean4
           ref: green

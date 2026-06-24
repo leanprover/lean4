@@ -9,7 +9,7 @@ on:
 jobs:
   main:
     runs-on: ubuntu-slim
-    if: github.repository == 'leanprover/lean4'
+    if: github.event.label.name == 'downstream' && github.repository == 'leanprover/lean4'
     steps:
       # Determine the PR toolchain tag (see `pr-release.yml` for how it is
       # produced) and whether the corresponding release already exists in
@@ -56,7 +56,7 @@ jobs:
           name: ${{ steps.app-token.outputs.app-slug }}[bot]
 
       - name: Checkout downstream repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: leanprover/downstream-lean4
           ref: green

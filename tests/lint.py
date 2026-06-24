@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import glob as glob_
 import os
 import re
 import subprocess
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 # Run in repo root
@@ -26,14 +26,36 @@ TRACKED_LIST = sorted(
 TRACKED_SET = {Path(name) for name in TRACKED_LIST}
 
 
-def glob(*patterns: str):
-    # `Path.full_match` recompiles the pattern on every call, which makes this
-    # script a lot slower than it needs to be.
-    compiled = [
-        re.compile(glob_.translate(pattern, recursive=True, include_hidden=True))
-        for pattern in patterns
-    ]
+# Manual reimplementation of
+#
+# re.compile(glob.translate(pattern, recursive=True, include_hidden=True))
+#
+# because glob.translate is only available in Python 3.13, which we can't use
+# here yet.
+@lru_cache(maxsize=None)
+def _compile(pattern: str) -> re.Pattern:
+    i, n, regex = 0, len(pattern), ""
+    while i < n:
+        if pattern.startswith("**/", i):
+            regex += "(?:[^/]+/)*"
+            i += 3
+        elif pattern.startswith("**", i):
+            regex += ".*"
+            i += 2
+        elif pattern[i] == "*":
+            regex += "[^/]*"
+            i += 1
+        elif pattern[i] == "?":
+            regex += "[^/]"
+            i += 1
+        else:
+            regex += re.escape(pattern[i])
+            i += 1
+    return re.compile(regex + r"\Z")
 
+
+def glob(*patterns: str):
+    compiled = [_compile(pattern) for pattern in patterns]
     for name in TRACKED_LIST:
         if any(regex.match(name) for regex in compiled):
             yield Path(name)

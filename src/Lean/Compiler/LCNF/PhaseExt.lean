@@ -162,6 +162,18 @@ def getBaseDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
 def getMonoDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
   return getDeclCore? (← getEnv) monoExt declName
 
+/-- Names of a module's mono-phase declarations, read from its loaded module data. `monoExt` keeps
+all declarations in `.olean.private` (so inlineable bodies referencing them stay resolvable), so this
+recovers the code-generator auxiliaries — e.g. private specializations — that `declMapExt`'s
+public-only export omits. Used by the importer to fill `const2ModIdx`. -/
+@[export lean_extract_mono_const_names]
+def extractMonoConstNames (data : ModuleData) : Array Name :=
+  match data.entries.find? (·.1 == monoExt.name) with
+  | some (_, entries) =>
+    let decls : Array (Decl .pure) := unsafe unsafeCast entries
+    decls.map (·.name)
+  | none => #[]
+
 def getLocalImpureDecl? (declName : Name) : CoreM (Option (Decl .impure)) := do
   return impureExt.getState (← getEnv) |>.find? declName
 

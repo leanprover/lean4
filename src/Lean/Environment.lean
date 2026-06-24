@@ -118,12 +118,6 @@ structure ModuleData where
   -/
   constNames      : Array Name
   constants       : Array ConstantInfo
-  /--
-  Extra entries for the `const2ModIdx` map in the `Environment` object.
-  The code generator creates auxiliary declarations that are not in the
-  mapping `constants`, but we want to know in which module they were generated.
-  -/
-  extraConstNames : Array Name
   entries         : Array (Name × Array EnvExtensionEntry)
   deriving Inhabited
 
@@ -1819,6 +1813,18 @@ private def extractIRRefModules (data : ModuleData) : Array (Name × Name) :=
   | some (_, e) => unsafe unsafeCast e
   | none => #[]
 
+/-- Names of a module's `declMapExt` declarations, read from its loaded `.olean`/`.ir` module data.
+Implemented in `Lean.IR.CompilerM`, which can see `declMapExt`; lets the importer fill
+`const2ModIdx`/`extraIdx` from the loaded IR entries instead of a stored side list. -/
+@[extern "lean_extract_ir_const_names"]
+private opaque extractIRConstNames (data : ModuleData) : Array Name
+
+/-- Names of a module's mono-phase declarations, read from its loaded module data. Implemented in
+`Lean.Compiler.LCNF.PhaseExt`; recovers the private specializations that `declMapExt`'s public-only
+export omits but which deferred modules need in `const2ModIdx` for code generation. -/
+@[extern "lean_extract_mono_const_names"]
+private opaque extractMonoConstNames (data : ModuleData) : Array Name
+
 /--
 Retrieves extension `ext`'s interpreter IR entries for imported module `m`, loading the module's `.ir`
 on demand. For modules whose interpreter IR is the imported `.olean` data this is `getModuleEntries`;
@@ -1843,9 +1849,9 @@ def PersistentEnvExtension.getModuleIREntries {α β σ : Type} [Inhabited σ]
           match st.loaded.get? m with
           | some (some data') => (data', st)
           | _ =>
-            -- `m`'s own code-generator auxiliaries map to `m`; symbols `m`'s IR references in other
-            -- modules map to their defining module via the `.ir`'s side table.
-            let extraIdx := data.extraConstNames.foldl (·.insert · m) st.extraIdx
+            -- `m`'s own code-generator auxiliaries (read from its `.ir`'s `declMapExt`) map to `m`;
+            -- symbols it references in other modules map to their defining module via the side table.
+            let extraIdx := (extractIRConstNames data).foldl (·.insert · m) st.extraIdx
             let extraIdx := refModules.foldl (init := extraIdx) fun extraIdx (sym, modName) =>
               match env.getModuleIdx? modName with
               | some i => extraIdx.insert sym i
@@ -1906,10 +1912,6 @@ private def looksLikeOldCodegenName : Name → Bool
   | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
   | _        => false
 
-set_option compiler.ignoreBorrowAnnotation true in
-@[extern "lean_get_ir_extra_const_names"]
-private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
-
 /--
 Compute extension entries for all levels at once by calling `exportEntriesFn` once per extension.
 Returns an `OLeanEntries` of arrays mapping extension names to their exported data.
@@ -1960,7 +1962,6 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private)
       |>.qsort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
   let constNames := constants.map (·.name)
   return { env.header with
-    extraConstNames := getIRExtraConstNames env level
     constNames, constants, entries
   }
 
@@ -1974,8 +1975,6 @@ private def mkIRData (env : Environment) : ModuleData :=
     entries := exportIREntries env
     constants := default
     constNames := default
-    -- make sure to include all names in case only `.ir` is loaded
-    extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
 def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) : IO Unit := do
@@ -2412,13 +2411,11 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     return data
   let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data =>
     numPrivateConsts + data.constants.size
-  let numExtraConsts := moduleData.foldl (init := 0) fun numExtraConsts data =>
-    numExtraConsts + data.extraConstNames.size
   let numPublicConsts := modules.foldl (init := 0) fun numPublicConsts mod => Id.run do
     if !mod.isExported then numPublicConsts else
       let some data := mod.publicModule? | numPublicConsts
       numPublicConsts + data.constants.size
-  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numExtraConsts)
+  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
   let mut privateConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
   let mut publicConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPublicConsts)
   -- Per-module interpreter-IR source: a deferred module's `.ir` is loaded on demand; eagerly-loaded IR
@@ -2443,13 +2440,14 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
           else if !subsumesInfo privateConstantMap cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-    -- For eagerly-loaded IR, take the code-generator auxiliaries (including private ones) from the `.ir`,
-    -- which all `const2ModIdx` consumers need; the `.olean`'s set is level-filtered and omits private
-    -- auxiliaries. Deferred modules register theirs in `extraIdx` when their `.ir` is loaded on demand.
-    let extraConstNames := match irSources[modIdx]! with
-      | .loaded irData => irData.extraConstNames
-      | _ => data.extraConstNames
-    for cname in extraConstNames do
+    -- Fill `const2ModIdx`'s code-generator auxiliaries from the module's already-loaded entries:
+    -- for eagerly-loaded IR, the full `.ir` `declMapExt`; for a deferred module, its `.olean`
+    -- (`declMapExt`'s public IR plus `monoExt`'s private specializations, which inlineable bodies
+    -- reference). Remaining private auxiliaries are registered in `extraIdx` when the `.ir` loads.
+    let auxNames := match irSources[modIdx]! with
+      | .loaded irData => extractIRConstNames irData
+      | _ => extractIRConstNames data ++ extractMonoConstNames data
+    for cname in auxNames do
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
 
   if isModule then

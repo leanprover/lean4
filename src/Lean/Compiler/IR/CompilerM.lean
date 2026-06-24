@@ -268,13 +268,16 @@ def getSorryDep (env : Environment) (declName : Name) : BaseIO (Option Name) := 
   | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => return dep?
   | _ => return none
 
-/-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
-@[export lean_get_ir_extra_const_names]
-private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name :=
-  let env := env.setExporting (level == .exported)
-  declMapExt.getEntries env |>.toArray.map (·.name)
-    |>.filter fun n => (includeDecls || !env.contains n) &&
-      (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n)
+/-- Names of the declarations a module contributes to `declMapExt`, read from its already-loaded
+`.olean`/`.ir` module data. Used by the importer to fill `const2ModIdx`/the lazy IR index from the
+loaded entries rather than a stored side list. -/
+@[export lean_extract_ir_const_names]
+def extractIRConstNames (data : ModuleData) : Array Name :=
+  match data.entries.find? (·.1 == declMapExt.name) with
+  | some (_, entries) =>
+    let decls : Array Decl := unsafe unsafeCast entries
+    decls.map (·.name)
+  | none => #[]
 
 end IR
 end Lean

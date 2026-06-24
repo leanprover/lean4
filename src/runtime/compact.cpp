@@ -233,23 +233,212 @@ object_offset object_compactor::to_offset(object * o) {
 
 object_offset object_compactor::compact(object * o) {
     lean_assert(!lean_is_scalar(o));
+    enum class frame_kind { ctor, array, thunk, task, promise, ref, closure };
+    struct frame {
+        object * m_obj;
+        frame_kind m_kind;
+        size_t m_next;
+        size_t m_base;
+    };
+    std::vector<frame> stack;
+    auto push = [&](object * o) {
+        lean_assert(!lean_is_scalar(o));
+        lean_assert(m_obj_table.find(o) == m_obj_table.end());
 #ifdef LEAN_TAG_COUNTERS
-    g_tag_counters[lean_ptr_tag(o)]++;
+        g_tag_counters[lean_ptr_tag(o)]++;
 #endif
-    switch (lean_ptr_tag(o)) {
-    case LeanClosure:         return insert_closure(o);
-    case LeanArray:           return insert_array(o);
-    case LeanScalarArray:     return insert_sarray(o);
-    case LeanString:          return insert_string(o);
-    case LeanMPZ:             return insert_mpz(o);
-    case LeanThunk:           return insert_thunk(o);
-    case LeanTask:            return insert_task(o);
-    case LeanPromise:         return insert_promise(o);
-    case LeanRef:             return insert_ref(o);
-    case LeanExternal:        throw exception("external objects cannot be compacted");
-    case LeanReserved:        lean_unreachable();
-    default:                  return insert_constructor(o);
+        switch (lean_ptr_tag(o)) {
+        case LeanClosure: {
+            if (!m_allow_closures) {
+                throw exception("Closures cannot be compacted (unless explicitly calling "
+                                "`CompactedRegion.save (allowClosures := true)`). One possible cause of this error is "
+                                "trying to store a function in a persistent environment extension.");
+            }
+            size_t base = m_tmp.size();
+            m_tmp.resize(base + lean_closure_num_fixed(o));
+            stack.push_back({o, frame_kind::closure, 0, base});
+            break;
+        }
+        case LeanArray: {
+            size_t base = m_tmp.size();
+            m_tmp.resize(base + array_size(o));
+            stack.push_back({o, frame_kind::array, 0, base});
+            break;
+        }
+        case LeanScalarArray: insert_sarray(o); break;
+        case LeanString:      insert_string(o); break;
+        case LeanMPZ:         insert_mpz(o); break;
+        case LeanThunk: {
+            size_t base = m_tmp.size();
+            m_tmp.resize(base + 1);
+            stack.push_back({o, frame_kind::thunk, 0, base});
+            break;
+        }
+        case LeanTask: {
+            size_t base = m_tmp.size();
+            m_tmp.resize(base + 1);
+            stack.push_back({o, frame_kind::task, 0, base});
+            break;
+        }
+        case LeanPromise: {
+            size_t base = m_tmp.size();
+            m_tmp.resize(base + 1);
+            stack.push_back({o, frame_kind::promise, 0, base});
+            break;
+        }
+        case LeanRef: {
+            size_t base = m_tmp.size();
+            m_tmp.resize(base + 1);
+            stack.push_back({o, frame_kind::ref, 0, base});
+            break;
+        }
+        case LeanExternal: throw exception("external objects cannot be compacted");
+        case LeanReserved: lean_unreachable();
+        default: {
+            unsigned num_objs = lean_ctor_num_objs(o);
+            size_t base = m_tmp.size();
+            m_tmp.resize(base + num_objs);
+            stack.push_back({o, frame_kind::ctor, 0, base});
+            break;
+        }
+        }
+    };
+    auto get_child_offset = [&](object * child, object_offset & off) {
+        if (lean_is_scalar(child)) {
+            off = child;
+            return true;
+        }
+        auto it = m_obj_table.find(child);
+        if (it != m_obj_table.end()) {
+            off = it->second;
+            return true;
+        }
+        if (!m_dep_regions.empty() && !lean_has_rc(child)) {
+            char * addr = reinterpret_cast<char *>(child);
+            std::vector<region_view>::iterator upper = std::upper_bound(
+                m_dep_regions.begin(), m_dep_regions.end(), addr,
+                [](char * a, region_view const & r) { return a < static_cast<char *>(r.begin); });
+            if (upper != m_dep_regions.begin()) {
+                region_view const & region = *(upper - 1);
+                char * region_end = static_cast<char *>(region.begin) + region.size;
+                if (addr < region_end) {
+                    off = reinterpret_cast<object_offset>(
+                        reinterpret_cast<size_t>(region.base_addr) + (addr - static_cast<char *>(region.begin)));
+                    m_obj_table.insert(std::make_pair(child, off));
+                    return true;
+                }
+            }
+        }
+        push(child);
+        return false;
+    };
+    push(o);
+    while (!stack.empty()) {
+        frame & f = stack.back();
+        object * curr = f.m_obj;
+        object_offset c;
+        switch (f.m_kind) {
+        case frame_kind::ctor: {
+            unsigned num_objs = lean_ctor_num_objs(curr);
+            if (f.m_next < num_objs) {
+                object * child = cnstr_get(curr, f.m_next);
+                if (get_child_offset(child, c))
+                    m_tmp[f.m_base + f.m_next++] = c;
+                break;
+            }
+            object * new_o = copy_object(curr);
+            for (unsigned i = 0; i < num_objs; i++)
+                lean_ctor_set(new_o, i, m_tmp[f.m_base + i]);
+            m_tmp.resize(f.m_base);
+            save_max_sharing(curr, new_o, lean_object_byte_size(curr));
+            stack.pop_back();
+            break;
+        }
+        case frame_kind::array: {
+            size_t sz = array_size(curr);
+            if (f.m_next < sz) {
+                object * child = array_get(curr, f.m_next);
+                if (get_child_offset(child, c))
+                    m_tmp[f.m_base + f.m_next++] = c;
+                break;
+            }
+            size_t obj_sz = lean_usize_add_checked(sizeof(lean_array_object), lean_usize_mul_checked(sizeof(void*), sz));
+            lean_array_object * new_o = (lean_array_object*)alloc(obj_sz);
+            lean_set_non_heap_header_for_big((lean_object*)new_o, LeanArray, 0);
+            new_o->m_size     = sz;
+            new_o->m_capacity = sz;
+            for (size_t i = 0; i < sz; i++)
+                lean_array_set_core((lean_object*)new_o, i, m_tmp[f.m_base + i]);
+            m_tmp.resize(f.m_base);
+            save_max_sharing(curr, (lean_object*)new_o, obj_sz);
+            stack.pop_back();
+            break;
+        }
+        case frame_kind::thunk:
+        case frame_kind::task:
+        case frame_kind::promise:
+        case frame_kind::ref: {
+            object * child = f.m_kind == frame_kind::thunk ? lean_thunk_get(curr) :
+                f.m_kind == frame_kind::task ? lean_task_get(curr) :
+                f.m_kind == frame_kind::promise ? (object *)lean_to_promise(curr)->m_result :
+                lean_to_ref(curr)->m_value;
+            if (f.m_next == 0) {
+                if (get_child_offset(child, c)) {
+                    m_tmp[f.m_base] = c;
+                    f.m_next = 1;
+                }
+                break;
+            }
+            if (f.m_kind == frame_kind::thunk) {
+                size_t sz = sizeof(lean_thunk_object);
+                object * r = copy_object(curr, sz);
+                lean_to_thunk(r)->m_value = m_tmp[f.m_base];
+                save_max_sharing(curr, r, sz);
+            } else if (f.m_kind == frame_kind::task) {
+                size_t sz = sizeof(lean_task_object);
+                object * r = copy_object(curr, sz);
+                lean_assert(lean_to_task(r)->m_imp == nullptr);
+                lean_to_task(r)->m_value = m_tmp[f.m_base];
+                save_max_sharing(curr, r, sz);
+            } else if (f.m_kind == frame_kind::promise) {
+                size_t sz = sizeof(lean_promise_object);
+                object * r = copy_object(curr, sz);
+                lean_to_promise(r)->m_result = (lean_task_object *)m_tmp[f.m_base];
+                save_max_sharing(curr, r, sz);
+            } else {
+                size_t sz = sizeof(lean_ref_object);
+                object * r = copy_object(curr, sz);
+                lean_to_ref(r)->m_value = m_tmp[f.m_base];
+                save(curr, r);
+            }
+            m_tmp.resize(f.m_base);
+            stack.pop_back();
+            break;
+        }
+        case frame_kind::closure: {
+            unsigned n = lean_closure_num_fixed(curr);
+            if (f.m_next < n) {
+                object * child = lean_closure_arg_cptr(curr)[f.m_next];
+                if (get_child_offset(child, c))
+                    m_tmp[f.m_base + f.m_next++] = c;
+                break;
+            }
+            object * r = copy_object(curr);
+            for (unsigned i = 0; i < n; i++)
+                lean_closure_arg_cptr(r)[i] = m_tmp[f.m_base + i];
+            m_tmp.resize(f.m_base);
+            size_t fn_field_off = reinterpret_cast<char *>(&lean_to_closure(r)->m_fun)
+                                  - reinterpret_cast<char *>(m_begin);
+            m_closure_offsets.push_back(fn_field_off);
+            save(curr, r);
+            stack.pop_back();
+            break;
+        }
+        }
     }
+    auto it = m_obj_table.find(o);
+    lean_assert(it != m_obj_table.end());
+    return it->second;
 }
 
 object * object_compactor::copy_object(object * o, size_t sz) {

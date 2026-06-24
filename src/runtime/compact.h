@@ -63,8 +63,7 @@ class LEAN_EXPORT object_compactor {
     object_offset save(object * o, object * new_o);
     object_offset save_max_sharing(object * o, object * new_o, size_t new_o_sz);
     object_offset to_offset(object * o);
-    // Compacts a not-yet-seen heap object (and, recursively, its children),
-    // returning its offset. Dispatches on the object's tag.
+    // Compacts a not-yet-seen heap object and its children, returning its offset.
     object_offset compact(object * o);
     void insert_terminator(object * o);
     object * copy_object(object * o, size_t sz = 0);

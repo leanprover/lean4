@@ -52,6 +52,8 @@ class LEAN_EXPORT object_compactor {
     // Buffer-relative byte offsets of every compacted closure's `m_fun` field
     std::vector<size_t> m_closure_offsets;
     bool m_allow_closures = false;
+    // Current recursive compaction depth before falling back to the explicit work stack.
+    size_t m_compact_depth = 0;
     // On-disk base address used for `mmap`ing compacted regions without relocations
     // References within the compacted region are rewritten by subtracting `m_begin` and adding `m_base_addr`
     // In the simplest case `base_addr == nullptr`, we get region-relative pointers
@@ -65,6 +67,7 @@ class LEAN_EXPORT object_compactor {
     object_offset to_offset(object * o);
     // Compacts a not-yet-seen heap object and its children, returning its offset.
     object_offset compact(object * o);
+    object_offset compact_iterative(object * o);
     void insert_terminator(object * o);
     object * copy_object(object * o, size_t sz = 0);
     object_offset insert_constructor(object * o);

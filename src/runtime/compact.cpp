@@ -37,6 +37,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+static constexpr size_t g_compactor_max_recursion_depth = 1024;
+
 struct max_sharing_key {
     size_t m_offset;
     size_t m_size;
@@ -232,6 +234,36 @@ object_offset object_compactor::to_offset(object * o) {
 }
 
 object_offset object_compactor::compact(object * o) {
+    lean_assert(!lean_is_scalar(o));
+    if (m_compact_depth < g_compactor_max_recursion_depth) {
+        struct depth_scope {
+            size_t & m_depth;
+            depth_scope(size_t & depth): m_depth(depth) { m_depth++; }
+            ~depth_scope() { m_depth--; }
+        };
+        depth_scope scope(m_compact_depth);
+#ifdef LEAN_TAG_COUNTERS
+        g_tag_counters[lean_ptr_tag(o)]++;
+#endif
+        switch (lean_ptr_tag(o)) {
+        case LeanClosure:         return insert_closure(o);
+        case LeanArray:           return insert_array(o);
+        case LeanScalarArray:     return insert_sarray(o);
+        case LeanString:          return insert_string(o);
+        case LeanMPZ:             return insert_mpz(o);
+        case LeanThunk:           return insert_thunk(o);
+        case LeanTask:            return insert_task(o);
+        case LeanPromise:         return insert_promise(o);
+        case LeanRef:             return insert_ref(o);
+        case LeanExternal:        throw exception("external objects cannot be compacted");
+        case LeanReserved:        lean_unreachable();
+        default:                  return insert_constructor(o);
+        }
+    }
+    return compact_iterative(o);
+}
+
+object_offset object_compactor::compact_iterative(object * o) {
     lean_assert(!lean_is_scalar(o));
     enum class frame_kind { ctor, array, thunk, task, promise, ref, closure };
     struct frame {

@@ -1,0 +1,1 @@
+Interpreter-only: this test exercises `lean --incr-*` subprocess behavior.

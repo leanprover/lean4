@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
+import Init.Data.ByteArray.Basic
 import Init.System.Platform
 public import Lean.Language.Lean
 public import Lean.Server.References
@@ -180,6 +181,25 @@ private def regionsToModuleArtifacts (regions : Array CompactedRegion) : Array M
       byBase := byBase.insert base (upd (byBase.getD base {}))
     return order.map (byBase[·]!)
 
+private structure IncrSnapshotDep where
+  path : System.FilePath
+  hash : UInt64
+  deriving Inhabited, ToJson, FromJson
+
+/-- Incremental snapshot dependency metadata saved next to the snapshot itself. -/
+private structure IncrSnapshotDeps where
+  /-- Imported module artifacts whose compacted regions must be mapped before loading the snapshot. -/
+  modules : Array ModuleArtifacts
+  /-- Hashes of the imported region files used to reject stale snapshots before mapping them. -/
+  files : Array IncrSnapshotDep
+  deriving Inhabited, ToJson, FromJson
+
+private def computeIncrSnapshotDep (path : System.FilePath) : IO IncrSnapshotDep := do
+  return { path, hash := hash (← IO.FS.readBinFile path) }
+
+private def moduleArtifactRegionParts (arts : ModuleArtifacts) : Array System.FilePath :=
+  arts.oleanParts ++ arts.irParts
+
 private unsafe def readModuleArtifactRegions (arts : ModuleArtifacts) :
     IO (Array CompactedRegion) := do
   let mut oleanRegions : Array CompactedRegion := #[]
@@ -197,10 +217,14 @@ private unsafe def readModuleArtifactRegions (arts : ModuleArtifacts) :
 private unsafe def loadIncrSnapshot (fname : System.FilePath) :
     IO IncrSnapshot := do
   let depsFile := fname.addExtension "deps"
-  let moduleArts : Array ModuleArtifacts ←
+  let deps : IncrSnapshotDeps ←
     match Json.parse (← IO.FS.readFile depsFile) >>= fromJson? with
-    | .ok arts => pure arts
+    | .ok deps => pure deps
     | .error e => throw <| IO.userError s!"failed to parse snapshot deps file {depsFile}: {e}"
+  for dep in deps.files do
+    let actual ← computeIncrSnapshotDep dep.path
+    unless actual.hash == dep.hash do
+      throw <| IO.userError s!"incremental snapshot dependency has changed: {dep.path}"
   -- Modules are mutually independent (cross-module references go through the constant map, not
   -- region pointers), so read them in parallel. Spawn exactly `numWorkers` striped tasks.
   -- Parallelism overlaps each region's cold root-page fault I/O: for an `import Mathlib` snapshot,
@@ -217,11 +241,11 @@ private unsafe def loadIncrSnapshot (fname : System.FilePath) :
     chunkTasks := chunkTasks.push (← IO.asTask (do
       let mut regions : Array CompactedRegion := #[]
       let mut i := w
-      while i < moduleArts.size do
-        regions := regions ++ (← readModuleArtifactRegions moduleArts[i]!)
+      while i < deps.modules.size do
+        regions := regions ++ (← readModuleArtifactRegions deps.modules[i]!)
         i := i + numWorkers
       return regions))
-  let mut depRegions : Array CompactedRegion := Array.emptyWithCapacity (moduleArts.size * 4)
+  let mut depRegions : Array CompactedRegion := Array.emptyWithCapacity (deps.modules.size * 4)
   for t in chunkTasks do
     depRegions := depRegions ++ (← IO.ofExcept t.get)
   -- The snapshot region itself references every loaded dep region.
@@ -347,15 +371,19 @@ def runFrontend
 
   -- Saves `snapToSave` wrapped with the init-mod indices used by `runInitAttrsForModules` on load.
   -- Writes a `<incrFile>.deps` JSON helper alongside: the dep regions grouped per module (see
-  -- `regionsToModuleArtifacts`), needed to map the snapshot back in before we can access `env`.
+  -- `regionsToModuleArtifacts`) and hashes of the region files used to reject stale snapshots.
   let saveSnap (incrFile : System.FilePath) (snapToSave : Language.Lean.InitialSnapshot) :
       IO Unit := do
     let toSave : IncrSnapshot :=
       { snap := snapToSave, initModIdxs := getRegularInitAttrModIdxs env }
     let compactor ← (unsafe CompactedRegion.save incrFile `_snap toSave
       env.header.regions none (allowClosures := true))
-    let moduleArts := regionsToModuleArtifacts env.header.regions
-    IO.FS.writeFile (incrFile.addExtension "deps") (toJson moduleArts).compress
+    let modules := regionsToModuleArtifacts env.header.regions
+    let mut files := #[]
+    for arts in modules do
+      for path in moduleArtifactRegionParts arts do
+        files := files.push (← computeIncrSnapshotDep path)
+    IO.FS.writeFile (incrFile.addExtension "deps") (toJson ({ modules, files } : IncrSnapshotDeps)).compress
     Runtime.forget compactor
 
   -- save full incremental snapshot for next invocation

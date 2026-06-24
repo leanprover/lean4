@@ -1,0 +1,74 @@
+# One half of the adaptation PR CI; the other half lives in `pr-release.yml`.
+name: Adaptation PR CI
+
+on:
+  pull_request:
+    types: [labeled]
+    branches: [master]
+
+jobs:
+  on-success:
+    runs-on: ubuntu-slim
+    if: github.repository == 'leanprover/lean4'
+    steps:
+      # Determine the PR toolchain tag (see `pr-release.yml` for how it is
+      # produced) and whether the corresponding release already exists in
+      # `leanprover/lean4-pr-releases`.
+      - name: Check if PR toolchain exists
+        id: pr-info
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const number = context.payload.pull_request.number;
+            const shortSha = context.payload.pull_request.head.sha.substring(0, 7);
+            const tag = `pr-release-${number}-${shortSha}`;
+
+            let green = false;
+            try {
+              await github.rest.repos.getReleaseByTag({
+                owner: 'leanprover',
+                repo: 'lean4-pr-releases',
+                tag,
+              });
+              green = true;
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+
+            core.setOutput('override-toolchain', `leanprover/lean4-pr-releases:${tag}`);
+            core.setOutput('upstream-ci-green', green);
+
+      - name: Create GitHub App token
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.DOWNSTREAM_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DOWNSTREAM_APP_PRIVATE_KEY }}
+          repositories: lean4,downstream-lean4
+
+      - name: Configure git
+        uses: leanprover/downstream-lean4/.downstream/actions/configure-git@master
+        with:
+          name: ${{ steps.app-token.outputs.app-slug }}[bot]
+
+      - name: Checkout downstream repo
+        uses: actions/checkout@v7
+        with:
+          repository: leanprover/downstream-lean4
+          ref: green
+          token: ${{ steps.app-token.outputs.token }}
+          path: downstream
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: Create adaptation PR
+        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr@master
+        with:
+          app-token: ${{ steps.app-token.outputs.token }}
+          app-slug: ${{ steps.app-token.outputs.app-slug }}
+          upstream-pr: ${{ github.event.pull_request.number }}
+          upstream-ci-green: ${{ steps.pr-info.outputs.upstream-ci-green }}
+          downstream-repo: leanprover/downstream-lean4
+          downstream-clone: downstream
+          downstream-label: adaptation
+          override-toolchain: ${{ steps.pr-info.outputs.override-toolchain }}

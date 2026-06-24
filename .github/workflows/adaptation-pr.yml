@@ -2,12 +2,12 @@
 name: Adaptation PR CI
 
 on:
-  pull_request:
+  pull_request_target:
     types: [labeled]
     branches: [master]
 
 jobs:
-  on-success:
+  main:
     runs-on: ubuntu-slim
     if: github.repository == 'leanprover/lean4'
     steps:

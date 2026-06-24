@@ -24,25 +24,47 @@ The `VCGenM` monad: its read-only `Context` (a fixed bundle of pre-built
 (rule caches, accumulated invariants/VCs, simp cache).
 -/
 
-/-- A lazily elaborated `until` pattern, stored behind an `IO.Ref` so the first `force` caches its
-result. The pattern is elaborated against the monad of the first program encountered in `solve`
-(supplied as the expected type). -/
-public inductive UntilPatternThunk where
-  /-- Not yet elaborated; `elabFn m` elaborates the pattern against the program monad `m`. -/
-  | deferred (elabFn : Expr → MetaM Sym.Pattern)
+/-- A value elaborated lazily in `MetaM` against the monad of the first program encountered in
+`solve` (supplied as the expected type), then cached. Used for the `until` pattern
+(`Deferred Sym.Pattern`, behind an `IO.Ref` in the `Context`) and the `frames` database
+(`Deferred FrameDB`, in the `State`). -/
+public inductive Deferred (α : Type) where
+  /-- Not yet elaborated; `elabFn m` elaborates against the program monad `m`. -/
+  | deferred (elabFn : Expr → MetaM α)
   /-- Already elaborated and cached. -/
-  | elaborated (pat : Sym.Pattern)
+  | elaborated (value : α)
 
-/-- Force the thunk in `ref` against the program monad `m`, elaborating, tracing, and caching the
-pattern on first use; later calls return the cached pattern. -/
-public def UntilPatternThunk.force (ref : IO.Ref UntilPatternThunk) (m : Expr) : MetaM Sym.Pattern := do
-  match ← ref.get with
-  | .elaborated pat => return pat
+/-- Force `d` against the program monad `m`, elaborating on first use and caching the result via
+`writeback`; later calls return the cached value. `writeback` stores into the slot `d` came from:
+an `IO.Ref.set` for the `until` pattern in the `Context`, a `modify` for the `frames` `State` field. -/
+public def Deferred.force {α : Type} {n : Type → Type} [Monad n] [MonadLiftT MetaM n]
+    (d : Deferred α) (writeback : Deferred α → n Unit) (m : Expr) : n α := do
+  match d with
+  | .elaborated a => return a
   | .deferred elabFn =>
-    let pat ← elabFn m
-    trace[Elab.Tactic.Do.vcgen] "`until` pattern elaborated to {pat.pattern}"
-    ref.set (.elaborated pat)
-    return pat
+    let a ← elabFn m
+    writeback (.elaborated a)
+    return a
+
+/-- A single elaborated `frames` alternative: its program pattern, the binder name of each pattern
+variable (`none` for `_`, index-aligned with `pat.varTypes`), the raw frame term (elaborated in the
+matched goal's context), the source position (a precedence tiebreak among matches, and its index
+into `FrameDB.entries`), and whether it has already been applied. -/
+public structure FrameEntry where
+  pat : Sym.Pattern
+  varNames : Array (Option Name)
+  frameStx : Syntax
+  srcIdx : Nat
+  /-- Set once this alternative has been applied, so it frames at most one occurrence. -/
+  retired : Bool := false
+  deriving Inhabited
+
+/-- The materialized frame database: program patterns keyed in a discrimination tree to the `srcIdx`
+of the matching alternative, alongside the alternatives themselves in source order. Materialized once
+in `State.frameDB?`; thereafter only the `retired` flags of `entries` change. -/
+public structure FrameDB where
+  tree : DiscrTree Nat := .empty
+  entries : Array FrameEntry := #[]
 
 /--
 Common metadata for a goal whose right-hand side is a weakest-precondition application
@@ -154,7 +176,7 @@ public structure VCGen.Context where
   invariantAlts : Std.HashMap Nat Syntax := {}
   /-- The `until` pattern: when `some ref`, VC generation stops and emits the current goal as a VC
   once the program in `wp⟦e⟧` matches the (lazily elaborated) pattern, before applying a spec. -/
-  untilPat? : Option (IO.Ref UntilPatternThunk) := none
+  untilPat? : Option (IO.Ref (Deferred Sym.Pattern)) := none
 
 public structure VCGen.Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
@@ -196,6 +218,13 @@ public structure VCGen.State where
   structurally. This is sound because they are subterms of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (Name × Array ExprPtr × Nat) BackwardRule := {}
+  /--
+  The frame database, elaborated lazily against the first program's monad on first use. The
+  discrimination tree is fixed; a matched alternative is retired in place by setting
+  `FrameEntry.retired`, so each applies at most once (first match wins) and a program whose
+  alternative is retired is framed no further and reaches the normal `applySpec` path.
+  -/
+  frameDB? : Option (Deferred FrameDB) := none
   /--
   Holes of type `Invariant` that have been generated so far.
   -/

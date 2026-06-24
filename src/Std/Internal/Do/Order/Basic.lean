@@ -150,12 +150,12 @@ theorem iSup_le {ι : Type v} (f : ι → α) (x : α) : (∀ i, f i ⊑ x) → 
 /-- Pointwise characterization of `CompleteLattice.sup` on function lattices:
 `(sup c) s = sup (fun y => ∃ f, c f ∧ f s = y)`. -/
 theorem sup_apply
-    {σ : Type v} {β : Type w} [CompleteLattice β]
-    (c : (σ → β) → Prop) (s : σ) :
+    {σ : Type v} {β : σ → Type w} [∀ s, CompleteLattice (β s)]
+    (c : (∀ s, β s) → Prop) (s : σ) :
     CompleteLattice.sup c s = CompleteLattice.sup (fun y => ∃ f, c f ∧ f s = y) := by
   apply PartialOrder.rel_antisymm
   · -- sup c s ⊑ sup {y | ∃ f ∈ c, f s = y}
-    let g : σ → β := fun t => CompleteLattice.sup (fun y => ∃ f, c f ∧ f t = y)
+    let g : ∀ t, β t := fun t => CompleteLattice.sup (fun y => ∃ f, c f ∧ f t = y)
     have hg : CompleteLattice.sup c ⊑ g := by
       apply sup_le
       intro f hf t
@@ -170,15 +170,15 @@ theorem sup_apply
 
 /-- Pointwise characterization of binary meet on function lattices. -/
 @[simp] theorem meet_apply
-    {σ : Type v} {β : Type w} [CompleteLattice β]
-    (a b : σ → β) (s : σ) :
+    {σ : Type v} {β : σ → Type w} [∀ s, CompleteLattice (β s)]
+    (a b : ∀ s, β s) (s : σ) :
     (a ⊓ b) s = a s ⊓ b s := by
   apply PartialOrder.rel_antisymm
   · apply le_meet
     · exact (meet_le_left a b) s
     · exact (meet_le_right a b) s
   · classical
-    let f : σ → β := fun t => if t = s then a t ⊓ b t else ⊥
+    let f : ∀ t, β t := fun t => if t = s then a t ⊓ b t else ⊥
     have hf_left : f ⊑ a := by
       intro t
       simp only [f]

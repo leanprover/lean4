@@ -207,16 +207,17 @@ private def normalizePre? (scope : VCGen.Scope) (goal : MVarId) (α pre target :
   return none
 
 /-- Replace the program in `goal`'s target with `prog` (which must be definitionally equal). -/
-private def replaceProgDefEq (goal : MVarId) (target : Expr) (info : WPInfo) (prog : Expr) :
+private def replaceProgDefEq (goal : MVarId) (info : WPInfo) (prog : Expr) :
     VCGenM MVarId := do
   let wp ← mkAppNS info.head <| info.args.set! 7 prog
   let rhs ← mkAppNS wp info.excessArgs
+  let target ← goal.getType
   let relArgs := target.getAppArgs
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
   goal.replaceTargetDefEq newTarget
 
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
-private def wpLet? (goal : MVarId) (target : Expr) (info : WPInfo) : VCGenM (Option MVarId) := do
+private def wpLet? (goal : MVarId) (info : WPInfo) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
   throwIfUnsupportedJP name val
@@ -224,12 +225,13 @@ private def wpLet? (goal : MVarId) (target : Expr) (info : WPInfo) : VCGenM (Opt
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
     let prog ← mkAppRevS body' appArgs
-    return some (← replaceProgDefEq goal target info prog)
+    return some (← replaceProgDefEq goal info prog)
   else
     trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
     let prog ← mkAppRevS body appArgs
     let wp ← mkAppNS info.head <| info.args.set! 7 prog
     let rhs ← mkAppNS wp info.excessArgs
+    let target ← goal.getType
     let relArgs := target.getAppArgs
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
     let target := Expr.letE name type val target nondep
@@ -240,12 +242,12 @@ private def wpLet? (goal : MVarId) (target : Expr) (info : WPInfo) : VCGenM (Opt
 
 /-- Strategy 11b: split an `ite`/`dite`/match program, or iota-reduce a matcher with a concrete
 discriminant. -/
-private def wpMatch? (goal : MVarId) (target : Expr) (info : WPInfo) :
+private def wpMatch? (goal : MVarId) (info : WPInfo) :
     VCGenM (Option (List MVarId)) := do
   let some splitInfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info.prog | return none
   if splitInfo matches .matcher .. then
     if let some prog ← liftMetaM <| withReducible <| reduceRecMatcher? info.prog then
-      return some [← replaceProgDefEq goal target info (← shareCommonInc prog)]
+      return some [← replaceProgDefEq goal info (← shareCommonInc prog)]
   let rule ← mkBackwardRuleForSplitCached splitInfo info
   let .goals goals ← rule.applyChecked goal m!"split rule for{indentExpr info.prog}"
     | throwError "Failed to apply split rule for {indentExpr info.prog}"
@@ -258,24 +260,24 @@ private def wpMatch? (goal : MVarId) (target : Expr) (info : WPInfo) :
   return some simpGoals.toList
 
 /-- Strategy 11c: zeta-unfold a local let-bound fvar used as the program head. -/
-private def wpFVarZeta? (goal : MVarId) (target : Expr) (info : WPInfo) :
+private def wpFVarZeta? (goal : MVarId) (info : WPInfo) :
     VCGenM (Option MVarId) := do
   let f := info.prog.getAppFn
   let some fvarId := f.fvarId? | return none
   let some val ← fvarId.getValue? | return none
   trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
   let prog ← shareCommonInc (val.betaRev info.prog.getAppRevArgs)
-  return some (← replaceProgDefEq goal target info prog)
+  return some (← replaceProgDefEq goal info prog)
 
 /-- Strategy 11d: reduce a projection head in the program. -/
-private def wpHeadReduce? (goal : MVarId) (target : Expr) (info : WPInfo) :
+private def wpHeadReduce? (goal : MVarId) (info : WPInfo) :
     VCGenM (Option MVarId) := do
   let f := info.prog.getAppFn
   unless f matches .proj .. do return none
   let some f' ← withReducibleAndInstances (reduceProj? f) | return none
   let f' ← shareCommon (← liftMetaM <| unfoldReducible f')
   let prog ← betaRevS f' info.prog.getAppRevArgs
-  return some (← replaceProgDefEq goal target info prog)
+  return some (← replaceProgDefEq goal info prog)
 
 /-- Stop or raise on a program with no matching spec. With `errorOnMissingSpec` (default), raise a
 hard error naming the program and any candidate specs; otherwise stop and emit the goal as a VC. -/
@@ -291,7 +293,7 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
 
 /-- Strategy 11e: look up a registered `@[spec]` theorem (triple or simp) for the program head
 and apply its cached backward rule. -/
-private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (info : WPInfo) :
+private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPInfo) :
     VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying a spec for {info.prog}. Excess args: {info.excessArgs}"
   -- Hand `findSpecs` the sole reference to the database so its in-place pattern internalization
@@ -310,7 +312,7 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (inf
     catch ex =>
       throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
         error: {ex.toMessageData}\n\
-        target:{indentExpr target}\n\
+        target:{indentExpr (← goal.getType)}\n\
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
     | stopOrErrorOnMissingSpec info.prog info.m #[thm]
@@ -318,7 +320,7 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (inf
     | do
       let ruleType ← Meta.inferType rule.expr
       throwError "Failed to apply rule {thm.proof} for {indentExpr info.prog}\n\
-        target:{indentExpr target}\n\
+        target:{indentExpr (← goal.getType)}\n\
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}\n\
         rule type:{indentExpr ruleType}"
@@ -328,11 +330,109 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (target : Expr) (inf
 monad), in which case VC generation stops at this goal. -/
 private def matchesUntilPattern (m prog : Expr) : VCGenM Bool := do
   let some ref := (← read).untilPat? | return false
-  let pat ← UntilPatternThunk.force ref m
+  let pat ← (← ref.get).force ref.set m
   if (← pat.match? prog).isSome then
     trace[Elab.Tactic.Do.vcgen] "`until` pattern matched program {prog}; stopping"
     return true
   return false
+
+/-- `let`-declaration analogue of `withLocalDeclsDND`: brings each `name : type := value` into scope
+(types and values mutually independent), then runs `k` with the new free variables. -/
+@[inline] private def withLetDeclsDND (declInfos : Array (Name × Expr × Expr))
+    (k : Array Expr → VCGenM Expr) : VCGenM Expr :=
+  loop #[]
+where
+  loop (acc : Array Expr) : VCGenM Expr := do
+    if h : acc.size < declInfos.size then
+      let (name, type, value) := declInfos[acc.size]
+      Meta.withLetDecl name type value fun fv => loop (acc.push fv)
+    else
+      k acc
+  termination_by declInfos.size - acc.size
+
+/-- Elaborate a matched `frames` alternative's frame term at type `info.Pred`, with each named
+pattern variable bound to the subterm the pattern matched. The bindings are introduced as
+`let`-declarations carrying the matched value, so the resulting frame records the pattern-variable
+assignments and the user sees them in the side goals. -/
+private def elabFrame (entry : FrameEntry) (res : Sym.MatchUnifyResult) (info : WPInfo) :
+    VCGenM Expr := do
+  let mut named : Array (Name × Expr) := #[]
+  for h : i in [0:entry.varNames.size] do
+    if let some nm := entry.varNames[i] then
+      if h2 : i < res.args.size then
+        named := named.push (nm, res.args[i])
+  let declInfos ← named.mapM fun (nm, v) => do return (nm, ← Meta.inferType v, v)
+  Meta.withDefault <| withLetDeclsDND declInfos fun fvs => do
+    let frameExpr ← Lean.Elab.Term.TermElabM.run' do
+      let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some info.Pred)
+      Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
+      instantiateMVars e
+    mkLetFVars fvs frameExpr
+
+/-- Find an unretired `frames` alternative matching the program (earliest source order wins) and
+elaborate its frame, retiring the alternative so it applies at most once. The frame DB is
+materialized into `State` on first use; retirement sets `FrameEntry.retired` in place. -/
+private def matchFrame? (info : WPInfo) : VCGenM (Option Expr) := do
+  let some deferred := (← get).frameDB? | return none
+  let db ← deferred.force (fun d => modify fun s => { s with frameDB? := some d }) info.m
+  let mut best : Option (FrameEntry × Sym.MatchUnifyResult) := none
+  for srcIdx in Sym.getMatch db.tree info.prog do
+    let entry := db.entries[srcIdx]!
+    if entry.retired then continue
+    if let some res ← entry.pat.match? info.prog then
+      match best with
+      | none => best := some (entry, res)
+      | some (b, _) => if entry.srcIdx < b.srcIdx then best := some (entry, res)
+  let some (entry, res) := best | return none
+  modify fun s => { s with frameDB? := s.frameDB?.map fun
+    | .elaborated db =>
+      .elaborated { db with entries := db.entries.set! entry.srcIdx { entry with retired := true } }
+    | d => d }
+  let F ← elabFrame entry res info
+  trace[Elab.Tactic.Do.vcgen] "`frames` matched {info.prog}; frame:{indentExpr F}"
+  return some F
+
+/-- The outcome of the frame dispatcher `applyFrame`. -/
+inductive FrameResult where
+  /-- A `frames` alternative matched `info.prog` and was applied; these are its subgoals. -/
+  | framed (scope : VCGen.Scope) (subgoals : List MVarId)
+  /-- No frame applies: either no alternative matched, or a `skipFrame` residual was stripped.
+  The caller applies the program's own spec to `goal` with the (possibly updated) `info`. -/
+  | notFramed (goal : MVarId) (info : WPInfo)
+
+/-- Frame dispatcher for a spec-ready program `info.prog`:
+* if the program is `skipFrame x` (the residual of an already-applied frame), strip the marker by
+  updating `info.prog` to `x` and report `.notFramed`, so framing happens at most once per
+  occurrence;
+* otherwise, if a `frames` alternative matches, apply `meet_wp_imp_le_wp_skipFrame` with the matched
+  frame pinned as an artificial per-call spec (built through `tryMkBackwardRuleFromSpec`, so excess
+  args are baked in at base level): the precondition `F ⊓ wp (skipFrame prog) (F ⇨ Q)` splits into the
+  frame VC `· ⊑ F` and the `skipFrame`-marked residual, and `Preserving prog (F ⊓ ·)` becomes a VC;
+  reported as `.framed`;
+* otherwise report `.notFramed`. -/
+private def applyFrame (scope : VCGen.Scope) (goal : MVarId) (info : WPInfo) :
+    VCGenM FrameResult := goal.withContext do
+  if info.prog.getAppFn.isConstOf ``Std.Internal.Do.WP.skipFrame then
+    let strippedProg := info.prog.appArg!
+    let goal ← replaceProgDefEq goal info strippedProg
+    return .notFramed goal { info with args := info.args.set! 7 strippedProg }
+  let some F ← matchFrame? info
+    | return .notFramed goal info
+  -- Pin the matched frame `F` (and the `Frame` instance) in `meet_wp_imp_le_wp_skipFrame`, leaving the
+  -- program, postcondition, and frame condition schematic, then run the result through the ordinary
+  -- spec-to-rule machinery as an artificial per-call spec.
+  -- Apply the program's own `wp` arguments (`info.args.take 7`: program type, value, assertions,
+  -- `WP` instance) and the matched frame `F`, letting `mkAppOptM` synthesize the `Frame` instance
+  -- against the assertion's own `CompleteLattice` so it shares the structure the program's `wp` uses.
+  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.WP.meet_wp_imp_le_wp_skipFrame
+    ((info.args.take 7).map some ++ #[none, some F])
+  let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
+    | throwError "frame: could not build spec from meet_wp_imp_le_wp_skipFrame for{indentExpr info.prog}"
+  let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
+    | throwError "frame: failed to build rule for{indentExpr info.prog}"
+  let .goals subgoals ← rule.applyChecked goal m!"frame rule for{indentExpr info.prog}"
+    | throwError "frame: failed to apply rule for{indentExpr info.prog}"
+  return .framed scope subgoals
 
 /--
 The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.
@@ -403,22 +503,24 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     -- Stop if the program matches the `until` pattern.
     if ← matchesUntilPattern info.m info.prog then
       return .stop (.untilPatternMatched info.m)
-    if let some g ← wpLet? goal target info then
+    if let some g ← wpLet? goal info then
       VCGen.burnOne
       return .goals scope [g]
-    if let some gs ← wpMatch? goal target info then
+    if let some gs ← wpMatch? goal info then
       VCGen.burnOne
       return .goals scope gs
-    if let some g ← wpFVarZeta? goal target info then
+    if let some g ← wpFVarZeta? goal info then
       VCGen.burnOne
       return .goals scope [g]
-    if let some g ← wpHeadReduce? goal target info then
+    if let some g ← wpHeadReduce? goal info then
       VCGen.burnOne
       return .goals scope [g]
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne
-      return ← applySpec scope goal target info
+      match ← applyFrame scope goal info with
+      | .framed scope subgoals => return .goals scope subgoals
+      | .notFramed goal info => return ← applySpec scope goal info
     throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
 
   return .stop (.noProgress pre rhs)

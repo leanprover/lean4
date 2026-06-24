@@ -136,6 +136,8 @@ public structure Result where
   avoid spurious "alt does not match any invariant" warnings for inline-consumed
   alts. -/
   inlineHandledInvariants : Std.HashSet Nat := {}
+  /-- Frame terms of `frames` alternatives whose program pattern matched no program. -/
+  unmatchedFrames : Array Syntax := #[]
 
 /--
 Generate verification conditions for a goal of the form `pre ⊑ wp e post epost s₁ ... sₙ` by repeatedly
@@ -145,18 +147,24 @@ Return the VCs and invariant goals.
 `stepLimit?`, when `some n`, seeds the fuel counter to `n`; when `none`, fuel is unlimited.
 -/
 public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
-    (stepLimit? : Option Nat := none) : Grind.GrindM Result := do
-  let initState : State := { fuel := match stepLimit? with | some n => .limited n | none => .unlimited }
+    (stepLimit? : Option Nat := none) (frameDB? : Option (Deferred FrameDB) := none) :
+    Grind.GrindM Result := do
+  let initState : State :=
+    { fuel := match stepLimit? with | some n => .limited n | none => .unlimited, frameDB? }
   let ((), state) ← StateRefT'.run (ReaderT.run (work scope goal) ctx) initState
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
   _ ← state.vcs.mapIdxM fun idx g => do
     g.mvarId.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← g.mvarId.getTag).eraseMacroScopes)
   let vcs ← state.vcs.filterM (not <$> ·.mvarId.isAssigned)
+  let unmatchedFrames := match state.frameDB? with
+    | some (.elaborated db) => db.entries.filterMap fun e => if e.retired then none else some e.frameStx
+    | _ => #[]
   return {
     invariants := state.invariants,
     vcs,
-    inlineHandledInvariants := state.inlineHandledInvariants }
+    inlineHandledInvariants := state.inlineHandledInvariants,
+    unmatchedFrames }
 
 end VCGen
 

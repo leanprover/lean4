@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+import glob as glob_
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -11,8 +13,8 @@ os.chdir(Path(__file__).parent.parent)
 
 # We only inspect files tracked by git, and those should never be modified by
 # tests, so this should safely run in parallel with other tests.
-TRACKED = {
-    Path(name)
+TRACKED_LIST = sorted(
+    name
     for name in subprocess.run(
         ["git", "ls-files", "-z"],
         capture_output=True,
@@ -20,15 +22,21 @@ TRACKED = {
         check=True,
     ).stdout.split("\0")
     if name
-}
+)
+TRACKED_SET = {Path(name) for name in TRACKED_LIST}
 
 
 def glob(*patterns: str):
-    for file in sorted(TRACKED):
-        for pattern in patterns:
-            if file.full_match(pattern):
-                yield file
-                break
+    # `Path.full_match` recompiles the pattern on every call, which makes this
+    # script a lot slower than it needs to be.
+    compiled = [
+        re.compile(glob_.translate(pattern, recursive=True, include_hidden=True))
+        for pattern in patterns
+    ]
+
+    for name in TRACKED_LIST:
+        if any(regex.match(name) for regex in compiled):
+            yield Path(name)
 
 
 ERROR = False
@@ -124,7 +132,7 @@ for pattern, drop in (
         basefile = file
         for _ in range(drop):
             basefile = basefile.with_suffix("")
-        if basefile in TRACKED:
+        if basefile in TRACKED_SET:
             continue
         if basefile == Path(
             "tests/pkg/leanchecker/LeanCheckerTests/PrivateConflictC.lean.fresh"
@@ -154,16 +162,16 @@ for file in glob("**/*.out.expected"):
 # .out.ignored and .out.expected collision
 
 for file in glob("**/*.out.ignored"):
-    if file.with_suffix(".expected") in TRACKED:
+    if file.with_suffix(".expected") in TRACKED_SET:
         nag("has .expected", file)
 
 
 # .no_test but .out.expected/.out.ignored
 
 for file in glob("**/*.no_test"):
-    if file.with_suffix(".out.expected") in TRACKED:
+    if file.with_suffix(".out.expected") in TRACKED_SET:
         nag("has .no_test", file)
-    if file.with_suffix(".out.ignored") in TRACKED:
+    if file.with_suffix(".out.ignored") in TRACKED_SET:
         nag("has .no_test", file)
 
 

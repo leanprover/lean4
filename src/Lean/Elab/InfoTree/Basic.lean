@@ -179,12 +179,10 @@ private def Info.setStx (stx : Syntax) : Info → Info
 partial def InfoTree.addTrailing (trailing : Substring.Raw) : Elab.InfoTree → Elab.InfoTree
   | .context i t => .context i (t.addTrailing trailing)
   | .node info children =>
-    if let some stx := info.stx.addTrailing? trailing then
-      let info := info.setStx stx
-      let newChildren := children.map (·.addTrailing (stx.getTrailing?.getD trailing))
-      .node info newChildren
-    else
-      -- We assume proper nesting that precludes trailing whitespace being applicable to children
-      -- without being so to the parent node.
-      .node info children
+    let stx := info.stx.addTrailing trailing
+    let info := info.setStx stx
+    -- NOTE: we need to visit the children even if `stx` was not actually changed as info trees are
+    -- not necessarily properly nested regarding syntax ranges!
+    let newChildren := children.map (·.addTrailing (stx.getTrailing?.getD trailing))
+    .node info newChildren
   | .hole mvarId => .hole mvarId

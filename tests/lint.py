@@ -1,11 +1,34 @@
 #!/usr/bin/env python3
 
 import os
+import subprocess
 import sys
 from pathlib import Path
 
 # Run in repo root
 os.chdir(Path(__file__).parent.parent)
+
+
+# We only inspect files tracked by git, and those should never be modified by
+# tests, so this should safely run in parallel with other tests.
+TRACKED = {
+    Path(name)
+    for name in subprocess.run(
+        ["git", "ls-files", "-z"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split("\0")
+    if name
+}
+
+
+def glob(*patterns: str):
+    for file in sorted(TRACKED):
+        for pattern in patterns:
+            if file.full_match(pattern):
+                yield file
+                break
 
 
 ERROR = False
@@ -20,7 +43,7 @@ def nag(reason: str, path: Path, fatal: bool = True) -> None:
 
 # Files and directories that will no longer work.
 
-for pattern in (
+for file in glob(
     "**/*.exit.expected",
     "**/*.expected.out",
     "**/*.expected.ret",
@@ -29,32 +52,24 @@ for pattern in (
     "**/run_test",
     "tests/speedcenter.exec.velcom.yaml",
 ):
-    for file in Path().glob(pattern):
-        nag("removed file", file)
+    nag("removed file", file)
 
-for dir in (
-    "tests/bench-radar",
-    "tests/bench/cbv",
-    "tests/bench/inundation",
-    "tests/compiler",
-    "tests/lean/docparse",
-    "tests/lean/interactive",
-    "tests/lean/run",
-    "tests/lean/server",
-    "tests/lean/trust0",
-    "tests/plugin",
+for file in glob(
+    "tests/bench-radar/*",
+    "tests/bench/cbv/*",
+    "tests/bench/inundation/*",
+    "tests/compiler/*",
+    "tests/lean/docparse/*",
+    "tests/lean/interactive/*",
+    "tests/lean/run/*",
+    "tests/lean/server/*",
+    "tests/lean/trust0/*",
+    "tests/plugin/*",
+    "tests/lean/*.lean",
+    "tests/lean/*.expected.out",
+    "tests/lean/*.expected.ret",
 ):
-    for file in Path().glob(f"{dir}/*"):
-        nag("removed dir", file)
-
-for dir in ("tests/lean",):
-    for pattern in (
-        f"{dir}/*.lean",
-        f"{dir}/*.expected.out",
-        f"{dir}/*.expected.ret",
-    ):
-        for file in Path().glob(pattern):
-            nag("removed dir", file)
+    nag("removed dir", file)
 
 
 # Files that use the old naming convention in the new directories.
@@ -72,13 +87,12 @@ for dir in (
     "tests/server",
     "tests/server_interactive",
 ):
-    for pattern in (
+    for file in glob(
         f"{dir}/*.no_interpreter",
         f"{dir}/*.expected.out",
         f"{dir}/*.expected.ret",
     ):
-        for file in Path().glob(pattern):
-            nag("old suffix", file)
+        nag("old suffix", file)
 
 
 # Files that expect a corresponding base file
@@ -106,11 +120,11 @@ for pattern, drop in (
     ("**/*.out.expected", 2),
     ("**/*.out.ignored", 2),
 ):
-    for file in Path().glob(pattern):
+    for file in glob(pattern):
         basefile = file
         for _ in range(drop):
             basefile = basefile.with_suffix("")
-        if basefile.exists():
+        if basefile in TRACKED:
             continue
         if basefile == Path(
             "tests/pkg/leanchecker/LeanCheckerTests/PrivateConflictC.lean.fresh"
@@ -121,18 +135,17 @@ for pattern, drop in (
 
 # Files that shouldn't be empty
 
-for pattern in (
+for file in glob(
     "**/*.init.sh",
     "**/*.before.sh",
     "**/*.after.sh",
 ):
-    for file in Path().glob(pattern):
-        if file.read_text().strip():
-            continue
-        nag("empty", file)
+    if file.read_text().strip():
+        continue
+    nag("empty", file)
 
 # We need to be a bit more peculiar about whitespace here
-for file in Path().glob("**/*.out.expected"):
+for file in glob("**/*.out.expected"):
     if file.read_bytes():
         continue
     nag("empty", file)
@@ -140,35 +153,34 @@ for file in Path().glob("**/*.out.expected"):
 
 # .out.ignored and .out.expected collision
 
-for file in Path().glob("**/*.out.ignored"):
-    if file.with_suffix(".expected").exists():
+for file in glob("**/*.out.ignored"):
+    if file.with_suffix(".expected") in TRACKED:
         nag("has .expected", file)
 
 
 # .no_test but .out.expected/.out.ignored
 
-for file in Path().glob("**/*.no_test"):
-    if file.with_suffix(".out.expected").exists():
+for file in glob("**/*.no_test"):
+    if file.with_suffix(".out.expected") in TRACKED:
         nag("has .no_test", file)
-    if file.with_suffix(".out.ignored").exists():
+    if file.with_suffix(".out.ignored") in TRACKED:
         nag("has .no_test", file)
 
 
 # Special rules for certain directories
 
-for pattern in (
+for file in glob(
     "tests/compile_bench/*.no_bench",
     "tests/elab_bench/*.no_bench",
     "tests/misc_bench/*.no_bench",
 ):
-    for file in Path().glob(pattern):
-        nag("forbidden", file)
+    nag("forbidden", file)
 
 
 # File confusion by case insensitive filesystems
 
 seen: set[str] = set()
-for file in Path().glob("**/*"):
+for file in glob("**/*"):
     path = str(file).lower()
     if path in seen:
         nag("case sensitive", file)

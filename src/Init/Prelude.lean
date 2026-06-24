@@ -518,7 +518,7 @@ Given a relation `r : α → α → Prop` and a quotient `Quot r`, applying a fu
 requires a proof `a` that `f` respects `r`. In this case, `Quot.lift f a : Quot r → β` computes the
 same values as `f`.
 
-Lean's type theory includes a [definitional reduction](lean-manual://section/type-theory) from
+Lean's type theory includes a [definitional reduction](lean-manual://section/quotient-reduction) from
 `Quot.lift f h (Quot.mk r v)` to `f v`.
 
 `Quot.lift` is a built-in primitive:
@@ -4320,7 +4320,7 @@ In this class, `σ` is a `semiOutParam`, which means that it can influence the c
 `MonadState σ` provides the same operations, but requires that `σ` be inferable from `m`.
 
 The mutable state of a state monad is visible between multiple `do`-blocks or functions, unlike
-[local mutable state](lean-manual://section/do-notation-let-mut) in `do`-notation.
+[local mutable state](lean-manual://section/let-mut) in `do`-notation.
 -/
 class MonadStateOf (σ : semiOutParam (Type u)) (m : Type u → Type v) where
   /--
@@ -4385,7 +4385,7 @@ In this class, `σ` is an `outParam`, which means that it is inferred from `m`. 
 provides the same operations, but allows `σ` to influence instance synthesis.
 
 The mutable state of a state monad is visible between multiple `do`-blocks or functions, unlike
-[local mutable state](lean-manual://section/do-notation-let-mut) in `do`-notation.
+[local mutable state](lean-manual://section/let-mut) in `do`-notation.
 -/
 class MonadState (σ : outParam (Type u)) (m : Type u → Type v) where
   /--

@@ -53,8 +53,6 @@ uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 uint8_t lean_level_eq(lean_object*, lean_object*);
-lean_object* lean_st_ref_get(lean_object*);
-uint8_t l_Lean_isImplicitReducibleCore(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,6 +66,8 @@ uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 uint8_t l_Lean_BinderInfo_isImplicit(uint8_t);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsNoCache(lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_ref_get(lean_object*);
+uint8_t l_Lean_isInstanceReducibleCore(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
@@ -1328,10 +1328,10 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hasLocalInst___redArg(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hasLocalInst___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hasLocalInst(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hasLocalInst___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_isTemplateLike___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_isTemplateLike___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_isTemplateLike(uint8_t, lean_object*, lean_object*, lean_object*);
@@ -22201,7 +22201,7 @@ lean_dec_ref(v_a_7022_);
 return v_res_7025_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(lean_object* v_declName_7026_, lean_object* v___y_7027_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(lean_object* v_declName_7026_, lean_object* v___y_7027_){
 _start:
 {
 lean_object* v___x_7029_; lean_object* v_env_7030_; uint8_t v___x_7031_; lean_object* v___x_7032_; lean_object* v___x_7033_; 
@@ -22209,35 +22209,35 @@ v___x_7029_ = lean_st_ref_get(v___y_7027_);
 v_env_7030_ = lean_ctor_get(v___x_7029_, 0);
 lean_inc_ref(v_env_7030_);
 lean_dec(v___x_7029_);
-v___x_7031_ = l_Lean_isImplicitReducibleCore(v_env_7030_, v_declName_7026_);
+v___x_7031_ = l_Lean_isInstanceReducibleCore(v_env_7030_, v_declName_7026_);
 v___x_7032_ = lean_box(v___x_7031_);
 v___x_7033_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_7033_, 0, v___x_7032_);
 return v___x_7033_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg___boxed(lean_object* v_declName_7034_, lean_object* v___y_7035_, lean_object* v___y_7036_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg___boxed(lean_object* v_declName_7034_, lean_object* v___y_7035_, lean_object* v___y_7036_){
 _start:
 {
 lean_object* v_res_7037_; 
-v_res_7037_ = l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(v_declName_7034_, v___y_7035_);
+v_res_7037_ = l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(v_declName_7034_, v___y_7035_);
 lean_dec(v___y_7035_);
 return v_res_7037_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0(lean_object* v_declName_7038_, lean_object* v___y_7039_, lean_object* v___y_7040_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0(lean_object* v_declName_7038_, lean_object* v___y_7039_, lean_object* v___y_7040_){
 _start:
 {
 lean_object* v___x_7042_; 
-v___x_7042_ = l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(v_declName_7038_, v___y_7040_);
+v___x_7042_ = l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(v_declName_7038_, v___y_7040_);
 return v___x_7042_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___boxed(lean_object* v_declName_7043_, lean_object* v___y_7044_, lean_object* v___y_7045_, lean_object* v___y_7046_){
+LEAN_EXPORT lean_object* l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___boxed(lean_object* v_declName_7043_, lean_object* v___y_7044_, lean_object* v___y_7045_, lean_object* v___y_7046_){
 _start:
 {
 lean_object* v_res_7047_; 
-v_res_7047_ = l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0(v_declName_7043_, v___y_7044_, v___y_7045_);
+v_res_7047_ = l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0(v_declName_7043_, v___y_7044_, v___y_7045_);
 lean_dec(v___y_7045_);
 lean_dec_ref(v___y_7044_);
 return v_res_7047_;
@@ -22326,7 +22326,7 @@ v___jp_7062_:
 {
 lean_object* v___x_7063_; lean_object* v_a_7064_; lean_object* v___x_7066_; uint8_t v_isShared_7067_; uint8_t v_isSharedCheck_7088_; 
 lean_inc(v_name_7054_);
-v___x_7063_ = l_Lean_isImplicitReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(v_name_7054_, v_a_7050_);
+v___x_7063_ = l_Lean_isInstanceReducible___at___00Lean_Compiler_LCNF_Decl_isTemplateLike_spec__0___redArg(v_name_7054_, v_a_7050_);
 v_a_7064_ = lean_ctor_get(v___x_7063_, 0);
 v_isSharedCheck_7088_ = !lean_is_exclusive(v___x_7063_);
 if (v_isSharedCheck_7088_ == 0)

@@ -20,7 +20,7 @@ set_option backward.inferInstanceAs.wrap false in
 #check inferInstanceAs (C D)
 
 /--
-info: @[implicit_reducible] private def instCD : C D :=
+info: @[instance_reducible] private def instCD : C D :=
 { c := instCD._aux_1 }
 -/
 #guard_msgs in
@@ -40,7 +40,7 @@ def D2 := I2
 
 instance : C D2 := inferInstanceAs (C I2)
 /--
-info: @[implicit_reducible] private def instCD2 : C D2 :=
+info: @[instance_reducible] private def instCD2 : C D2 :=
 instCD2._aux_1
 -/
 #guard_msgs in
@@ -78,7 +78,7 @@ theorem zou : instFooBarMyNat.toBar = instBarMyNat := by
 
 /-! Non-constructor instances should be used as is. -/
 
-@[macro_inline, implicit_reducible]
+@[macro_inline, instance_reducible]
 def dite' {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
   h.casesOn e t
 
@@ -134,7 +134,7 @@ example (α : Type) [Super α] :
   with_reducible_and_instances rfl
 
 /--
-info: @[implicit_reducible] private def iSuper : (α : Type) → [Super α] → Super (MyCopy α) :=
+info: @[instance_reducible] private def iSuper : (α : Type) → [Super α] → Super (MyCopy α) :=
 fun α [Super α] => { toMain0 := iMain0 α, c := Main1.c }
 -/
 #guard_msgs in

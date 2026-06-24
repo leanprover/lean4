@@ -3859,9 +3859,9 @@ return v___x_980_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter___redArg___boxed(lean_object* v_g_981_, lean_object* v_h__1_982_, lean_object* v_h__2_983_, lean_object* v_h__3_984_, lean_object* v_h__4_985_){
 _start:
 {
-uint8_t v_g_46__boxed_986_; lean_object* v_res_987_; 
-v_g_46__boxed_986_ = lean_unbox(v_g_981_);
-v_res_987_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter___redArg(v_g_46__boxed_986_, v_h__1_982_, v_h__2_983_, v_h__3_984_, v_h__4_985_);
+uint8_t v_g_42__boxed_986_; lean_object* v_res_987_; 
+v_g_42__boxed_986_ = lean_unbox(v_g_981_);
+v_res_987_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter___redArg(v_g_42__boxed_986_, v_h__1_982_, v_h__2_983_, v_h__3_984_, v_h__4_985_);
 return v_res_987_;
 }
 }
@@ -3916,9 +3916,9 @@ return v___x_1001_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter___boxed(lean_object* v_motive_1002_, lean_object* v_g_1003_, lean_object* v_h__1_1004_, lean_object* v_h__2_1005_, lean_object* v_h__3_1006_, lean_object* v_h__4_1007_){
 _start:
 {
-uint8_t v_g_65__boxed_1008_; lean_object* v_res_1009_; 
-v_g_65__boxed_1008_ = lean_unbox(v_g_1003_);
-v_res_1009_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter(v_motive_1002_, v_g_65__boxed_1008_, v_h__1_1004_, v_h__2_1005_, v_h__3_1006_, v_h__4_1007_);
+uint8_t v_g_61__boxed_1008_; lean_object* v_res_1009_; 
+v_g_61__boxed_1008_ = lean_unbox(v_g_1003_);
+v_res_1009_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter(v_motive_1002_, v_g_61__boxed_1008_, v_h__1_1004_, v_h__2_1005_, v_h__3_1006_, v_h__4_1007_);
 return v_res_1009_;
 }
 }

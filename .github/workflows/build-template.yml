@@ -213,7 +213,8 @@ jobs:
       - name: Verify Lake Cache
         if: steps.upload-lake-cache.outcome == 'success'
         run: |
-          mv build/stage1/lib/lean build/stage1/lib/lean.bak
+          cp -r build/stage1 build/stage1.bak
+          rm -rf build/stage1/lib
           cd src
           ../build/stage0/bin/lake cache clean
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
@@ -222,8 +223,9 @@ jobs:
       - name: Restore Build
         if: steps.upload-lake-cache.outcome == 'success'
         run: |
-          rm -rf build/stage1/lib/lean
-          mv build/stage1/lib/lean.bak build/stage1/lib/lean
+          build/stage0/bin/lake cache clean
+          rm -rf build/stage1
+          mv build/stage1.bak build/stage1
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

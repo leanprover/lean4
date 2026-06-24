@@ -8424,13 +8424,13 @@ if (lean_obj_tag(v_a_3182_) == 0)
 {
 lean_object* v___x_3202_; 
 v___x_3202_ = ((lean_object*)(l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__22));
-v___y_3150_ = v___x_3188_;
-v___y_3151_ = v___x_3186_;
-v___y_3152_ = v___x_3185_;
+v___y_3150_ = v___x_3186_;
+v___y_3151_ = v___x_3201_;
+v___y_3152_ = v___x_3191_;
 v___y_3153_ = v___x_3190_;
-v___y_3154_ = v___x_3201_;
-v___y_3155_ = v___x_3193_;
-v___y_3156_ = v___x_3191_;
+v___y_3154_ = v___x_3193_;
+v___y_3155_ = v___x_3185_;
+v___y_3156_ = v___x_3188_;
 v___y_3157_ = v___x_3202_;
 goto v___jp_3149_;
 }
@@ -8442,13 +8442,13 @@ lean_inc(v_val_3203_);
 lean_dec_ref_known(v_a_3182_, 1);
 v___x_3204_ = ((lean_object*)(l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__22));
 v___x_3205_ = lean_array_push(v___x_3204_, v_val_3203_);
-v___y_3150_ = v___x_3188_;
-v___y_3151_ = v___x_3186_;
-v___y_3152_ = v___x_3185_;
+v___y_3150_ = v___x_3186_;
+v___y_3151_ = v___x_3201_;
+v___y_3152_ = v___x_3191_;
 v___y_3153_ = v___x_3190_;
-v___y_3154_ = v___x_3201_;
-v___y_3155_ = v___x_3193_;
-v___y_3156_ = v___x_3191_;
+v___y_3154_ = v___x_3193_;
+v___y_3155_ = v___x_3185_;
+v___y_3156_ = v___x_3188_;
 v___y_3157_ = v___x_3205_;
 goto v___jp_3149_;
 }
@@ -8577,16 +8577,16 @@ goto v___jp_3127_;
 v___jp_3149_:
 {
 lean_object* v___x_3158_; lean_object* v___x_3159_; lean_object* v___x_3160_; lean_object* v___x_3161_; lean_object* v___x_3162_; lean_object* v___x_3163_; lean_object* v___x_3164_; lean_object* v___x_3165_; 
-v___x_3158_ = l_Array_append___redArg(v___y_3156_, v___y_3157_);
+v___x_3158_ = l_Array_append___redArg(v___y_3152_, v___y_3157_);
 lean_dec_ref(v___y_3157_);
 lean_inc(v___y_3153_);
-lean_inc(v___y_3152_);
+lean_inc(v___y_3155_);
 v___x_3159_ = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(v___x_3159_, 0, v___y_3152_);
+lean_ctor_set(v___x_3159_, 0, v___y_3155_);
 lean_ctor_set(v___x_3159_, 1, v___y_3153_);
 lean_ctor_set(v___x_3159_, 2, v___x_3158_);
-lean_inc(v___y_3151_);
-v___x_3160_ = l_Lean_Syntax_node4(v___y_3152_, v___y_3151_, v___y_3150_, v___y_3155_, v___y_3154_, v___x_3159_);
+lean_inc(v___y_3150_);
+v___x_3160_ = l_Lean_Syntax_node4(v___y_3155_, v___y_3150_, v___y_3156_, v___y_3154_, v___y_3151_, v___x_3159_);
 v___x_3161_ = lean_box(0);
 v___x_3162_ = l_List_mapTR_loop___at___00Lean_Meta_Tactic_TryThis_addRewriteSuggestion_spec__1(v_rules_3120_, v___x_3161_);
 v___x_3163_ = lean_obj_once(&l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__7, &l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__7_once, _init_l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___lam__0___closed__7);

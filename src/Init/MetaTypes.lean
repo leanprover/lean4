@@ -40,21 +40,53 @@ too many definitions is a performance footgun. This is why `.reducible` exists.
 
 ## The transparency hierarchy
 
-The levels form a linear order: `none < reducible < instances < default < all`.
+The levels form a linear order: `none < reducible < instances < implicit < default < all`.
 Each level unfolds everything the previous level does, plus more:
 
 - **`reducible`**: Only unfolds `[reducible]` definitions. Used for speculative `isDefEq` checks
   (e.g., discrimination tree lookups in `simp`, type class resolution). Think of `[reducible]` as
   `[inline]` for type checking and indexing.
 
-- **`instances`**: Also unfolds `[implicit_reducible]` definitions. Instance diamonds are common:
-  for example, `Add Nat` can come from a direct instance or via `Semiring`. These instances are all
-  definitionally equal but structurally different, so `isDefEq` must unfold them to confirm equality.
-  This level also handles definitions used in types that appear in implicit arguments (e.g.,
-  `Nat.add`, `Array.size`). However, these definitions must not be *eagerly* reduced (instances
-  become huge terms), and discrimination trees do not index them. This makes `.instances` safe for
-  speculative checks involving implicit arguments without the performance cost of `.default`.
+- **`instances`**: Also unfolds `[instance_reducible]` definitions (auto-applied to type class
+  instances by the `instance` command). Primarily but not exclusively used during type class synthesis
+  when unifying an instance's type with the expected type. Constants that play a role in an instance's
+  discrimination pattern must not be instance-reducible; they must at least be implicit-reducible.
+  For example, if `id : α → α` was instance-reducible, unter some circumstances an instance of type
+  `C (id x)` can be applied when an instance of type `C x` is requested. If this is undesirable,
+  `id` (in this example) should be at most implicit-reducible.
+  Most users should follow a simple rule: Make declarations that are meant to return instances but
+  were not declared using the `instance` command instance-reducible.
+  Most users will never need to manually annotate anything else with `[instance_reducible]` and they
+  should not unless they understand what they do. There are some more subtle corners of the
+  elaborator where instance-reducible constants have a special role, such as in the lazy WHNF
+  mechanism and the generation of `sizeOf` equational lemmas. `[instance_reducible]` also affects
+  the compiler's specialization and inlining behavior.
 
+- **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Implicit arguments and instance
+  arguments are always checked at implicit transparency, even if the ambient transparency is `reducible`
+  or `instances`. It is usually cheaper to compare terms at implicit transparency than it is to
+  compare them at default transparency (see below) because it is more restrictive at unfolding.
+  Tactics such as `simp` unify lemmas with subterms at `reducible` transparency. For example, when
+  `simp` applies a lemma to a subterm, it puts metavariables in the place of its parameters and then
+  unifies the lemma's conclusion with the subterm at `reducible` transparency, bumping the
+  transparency to `implicit` for implicit and instance arguments. When `simp` does not apply a lemma
+  that it should, it can be because `simp` would need to unfold a semireducible declaration during
+  the unification process. In that case, marking that declaration `[implicit_reducible]` can be a
+  solution.
+
+  `[implicit_reducible]` is the right annotation in several situations, such as the following ones.
+
+  - Because instance arguments are always compared at (at least) implicit transparency,
+    marking constants as `[implicit_reducible]` can prevent instance diamonds.
+  - Operations used in type parameters (such as in the `n` of `Fin n`) should, as a basic rule,
+    be implicit-reducible, at least as soon as `backward.isDefEq.respectTransparency.types` is
+    enabled, because types during metavariable assignments are then compared at implicit
+    transparency.
+  - The left-hand side and right-hand side of a `rfl` lemma should be definitionally equal at
+    implicit transparency. Marking constants as `[implicit_reducible]` allows for more `rfl` lemmas.
+
+  The downside is that every implicit-reducible constant makes the definitional equality checker
+  do more unfolding, which can get expensive.
 - **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
   Used for type checking user input where we want to try hard.
 
@@ -66,14 +98,16 @@ When proof automation (e.g., `simp`, `rw`) applies a lemma, explicit arguments a
 caller's transparency (typically `.reducible`). But implicit arguments are often "invisible" to the
 user — if a lemma fails to apply because of an implicit argument mismatch, the user is confused.
 Historically, Lean bumped transparency to `.default` for implicit arguments, but this eventually
-became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency`
-(default: `true`) disables this bump. Instead, instance-implicit arguments (`[..]`) are checked at
-`.instances`, and other implicit arguments are checked at the caller's transparency.
+became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency true`
+(default: `true`) disables this bump. Instead, implicit arguments (`{..}`) and instance-implicit
+arguments (`[..]`) are checked at `.implicit` (so implicit-reducible definitions additionally unfold
+and instance diamonds resolve), or at the
+caller's transparency when `backward.isDefEq.implicitBump` is `false`.
 
 See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,
 `backward.whnf.reducibleClassField`.
 -/
--- Note: the constructors below are not in the `none < reducible < instances < default < all`
+-- Note: the constructors below are not in the `none < reducible < instances < implicit < default < all`
 -- order described in the docstring above. Reordering them induces a bootstrap problem that is
 -- non-trivial to repair.
 inductive TransparencyMode where
@@ -86,14 +120,16 @@ inductive TransparencyMode where
   `isDefEq` in proof automation (`simp`, `rw`, type class resolution) where most checks fail
   and we must not try too hard. -/
   | reducible
-  /-- Unfolds reducible constants and constants tagged with `@[implicit_reducible]`.
-  Used for checking implicit arguments during proof automation, and for unfolding
-  class projections applied to instances. Instance diamonds (e.g., `Add Nat` from a direct instance
-  vs from `Semiring`) are definitionally equal but structurally different, so `isDefEq` must unfold
-  them. Also handles definitions used in types of implicit arguments (e.g., `Nat.add`, `Array.size`). -/
+  /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]` (e.g. type
+  class instances). Does *not* unfold `[implicit_reducible]`. -/
   | instances
   /-- Do not unfold anything. -/
   | none
+  /--
+  Unfolds reducible, `[instance_reducible]`, and `[implicit_reducible]` constants.
+  Used for checking definitional equality of implicit and instance-implicit arguments.
+  -/
+  | implicit
   deriving Inhabited, BEq
 
 /-- Which structure types should eta be used with? -/

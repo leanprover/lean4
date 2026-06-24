@@ -866,6 +866,10 @@ If `x` cannot be cleared (due to dependencies), it will keep `x` without failing
   "wait_if_type_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 @[builtin_term_parser] def waitIfContainsMVar := leading_parser
   "wait_if_contains_mvar% " >> "?" >> ident >> "; " >> termParser
+/-- `wait_for_expected_type% e` elaborates `e` against its expected type, postponing while that type
+is an unassigned metavariable so an `outParam` determined by instance synthesis is resolved first. -/
+@[builtin_term_parser] def waitForExpectedType := leading_parser
+  "wait_for_expected_type% " >> termParser
 
 @[builtin_term_parser] def defaultOrOfNonempty := leading_parser
   "default_or_ofNonempty% " >> optional "unsafe"

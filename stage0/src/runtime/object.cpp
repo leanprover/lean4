@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <atomic>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -716,7 +717,8 @@ static void free_task_imp(lean_task_imp * imp) {
 }
 
 static void free_task(lean_task_object * t) {
-    if (t->m_imp) free_task_imp(t->m_imp);
+    lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
+    if (imp) free_task_imp(imp);
     lean_free_small_object((lean_object*)t);
 }
 
@@ -756,8 +758,9 @@ class task_manager {
     }
 
     void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t) {
-        lean_assert(t->m_imp);
-        unsigned prio = t->m_imp->m_prio;
+        lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
+        lean_assert(imp);
+        unsigned prio = imp->m_prio;
         if (prio == LEAN_SYNC_PRIO) {
             run_task(lock, t);
             return;
@@ -777,16 +780,18 @@ class task_manager {
     }
 
     void deactivate_task_core(unique_lock<mutex> & lock, lean_task_object * t) {
-        object * c              = t->m_imp->m_closure;
-        lean_task_object * it   = t->m_imp->m_head_dep;
-        t->m_imp->m_closure     = nullptr;
-        t->m_imp->m_head_dep    = nullptr;
-        t->m_imp->m_canceled    = true;
-        t->m_imp->m_deleted     = true;
+        lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
+        object * c              = imp->m_closure;
+        lean_task_object * it   = imp->m_head_dep;
+        imp->m_closure     = nullptr;
+        imp->m_head_dep    = nullptr;
+        imp->m_deleted     = true;
+        imp->m_canceled.store(true, std::memory_order_relaxed);
         lock.unlock();
         while (it) {
-            lean_assert(it->m_imp->m_deleted);
-            lean_task_object * next_it = it->m_imp->m_next_dep;
+            lean_task_imp* imp = it->m_imp.load(std::memory_order_relaxed);
+            lean_assert(imp->m_deleted);
+            lean_task_object * next_it = imp->m_next_dep;
             free_task(it);
             it = next_it;
         }
@@ -849,8 +854,9 @@ class task_manager {
     }
 
     void run_task(unique_lock<mutex> & lock, lean_task_object * t) {
-        lean_assert(t->m_imp);
-        if (t->m_imp->m_deleted) {
+        lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
+        lean_assert(imp);
+        if (imp->m_deleted) {
             free_task(t);
             return;
         }
@@ -858,31 +864,31 @@ class task_manager {
         object * v = nullptr;
         {
             scoped_current_task_object scope_cur_task(t);
-            object * c = t->m_imp->m_closure;
-            t->m_imp->m_closure = nullptr;
+            object * c = imp->m_closure;
+            imp->m_closure = nullptr;
             lock.unlock();
             v = lean_apply_1(c, box(0));
             // If deactivation was delayed by `m_keep_alive`, deactivate after the final execution (`v != nulltpr`)
-            if (v != nullptr && t->m_imp->m_keep_alive) {
+            if (v != nullptr && imp->m_keep_alive) {
                 lean_dec_ref((lean_object*)t);
             }
             lock.lock();
         }
-        lean_assert(t->m_imp);
-        if (t->m_imp->m_deleted) {
+        lean_assert(imp);
+        if (imp->m_deleted) {
             lock.unlock();
             if (v) lean_dec(v);
             free_task(t);
             lock.lock();
         } else if (v != nullptr) {
-            lean_assert(t->m_imp->m_closure == nullptr);
+            lean_assert(imp->m_closure == nullptr);
             resolve_core(lock, t, v);
         } else {
             // `bind` task has not finished yet, re-add as dependency of nested task
             // NOTE: closure MUST be extracted before unlocking the mutex as otherwise
             // another thread could deactivate the task and empty `m_clousure` in
             // between.
-            object * c = t->m_imp->m_closure;
+            object * c = imp->m_closure;
             lock.unlock();
             add_dep(lean_to_task(closure_arg_cptr(c)[0]), t);
             lock.lock();
@@ -892,8 +898,7 @@ class task_manager {
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
         t->m_value = v;
-        lean_task_imp * imp = t->m_imp;
-        t->m_imp   = nullptr;
+        lean_task_imp * imp = t->m_imp.exchange(nullptr, std::memory_order_relaxed);
         handle_finished(lock, t, imp);
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
@@ -905,11 +910,12 @@ class task_manager {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
-            if (imp->m_canceled)
-                it->m_imp->m_canceled = true;
-            lean_task_object * next_it = it->m_imp->m_next_dep;
-            it->m_imp->m_next_dep = nullptr;
-            if (it->m_imp->m_deleted) {
+            lean_task_imp* it_imp = it->m_imp.load(std::memory_order_relaxed);
+            if (imp->m_canceled.load(std::memory_order_relaxed))
+                it_imp->m_canceled.store(true, std::memory_order_relaxed);
+            lean_task_object * next_it = it_imp->m_next_dep;
+            it_imp->m_next_dep = nullptr;
+            if (it_imp->m_deleted) {
                 free_task(it);
             } else {
                 enqueue_core(lock, it);
@@ -983,8 +989,8 @@ public:
             enqueue_core(lock, t2);
             return;
         }
-        t2->m_imp->m_next_dep = t1->m_imp->m_head_dep;
-        t1->m_imp->m_head_dep = t2;
+        t2->m_imp.load(std::memory_order_relaxed)->m_next_dep = t1->m_imp.load(std::memory_order_relaxed)->m_head_dep;
+        t1->m_imp.load(std::memory_order_relaxed)->m_head_dep = t2;
     }
 
     void wait_for(lean_task_object * t) {
@@ -994,8 +1000,8 @@ public:
         if (t->m_value)
             return;
         // see `Task.get`
-        bool in_pool = g_current_task_object && g_current_task_object->m_imp->m_prio <= LEAN_MAX_PRIO;
-        if (g_current_task_object && g_current_task_object->m_imp->m_prio == LEAN_SYNC_PRIO) {
+        bool in_pool = g_current_task_object && g_current_task_object->m_imp.load(std::memory_order_relaxed)->m_prio <= LEAN_MAX_PRIO;
+        if (g_current_task_object && g_current_task_object->m_imp.load(std::memory_order_relaxed)->m_prio == LEAN_SYNC_PRIO) {
             lean_panic("`Task.get` called from a `(sync := true)` task");
         }
         if (in_pool) {
@@ -1025,21 +1031,22 @@ public:
     void deactivate_task(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
-            lean_assert(t->m_imp == nullptr);
+            lean_assert(t->m_imp.load(std::memory_order_relaxed) == nullptr);
             lock.unlock();
             lean_dec(v);
             free_task(t);
             return;
         } else {
-            lean_assert(t->m_imp);
+            lean_assert(t->m_imp.load(std::memory_order_relaxed));
             deactivate_task_core(lock, t);
         }
     }
 
     void cancel(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
-        if (t->m_imp)
-            t->m_imp->m_canceled = true;
+        lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
+        if (imp)
+            imp->m_canceled.store(true, std::memory_order_relaxed);
     }
 
     bool shutting_down() const {
@@ -1048,8 +1055,9 @@ public:
 
     uint8_t get_task_state(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
-        if (t->m_imp) {
-            if (t->m_imp->m_closure) {
+        lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
+        if (imp) {
+            if (imp->m_closure) {
                 return 0; // waiting (waiting/queued)
             } else {
                 return 1; // running (running/promised)
@@ -1223,11 +1231,12 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
         lean_dec_ref(new_task);
         return v;
     } else {
-        lean_assert(g_current_task_object->m_imp);
-        lean_assert(g_current_task_object->m_imp->m_closure == nullptr);
+        lean_task_imp* imp = g_current_task_object->m_imp.load(std::memory_order::relaxed);
+        lean_assert(imp);
+        lean_assert(imp->m_closure == nullptr);
         obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
         mark_mt(c);
-        g_current_task_object->m_imp->m_closure = c;
+        imp->m_closure = c;
         return nullptr; /* notify queue that task did not finish yet. */
     }
 }
@@ -1245,8 +1254,9 @@ extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigne
 
 extern "C" LEAN_EXPORT bool lean_io_check_canceled_core() {
     if (lean_task_object * t = g_current_task_object) {
-        lean_assert(t->m_imp); // task is being executed
-        return t->m_imp->m_canceled || g_task_manager->shutting_down();
+        lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
+        lean_assert(imp); // task is being executed
+        return imp->m_canceled.load(std::memory_order_relaxed) || g_task_manager->shutting_down();
     }
     return false;
 }
@@ -1259,7 +1269,7 @@ extern "C" LEAN_EXPORT void lean_io_cancel_core(b_obj_arg t) {
 
 extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
     lean_task_object * o = lean_to_task(t);
-    if (!o->m_imp)
+    if (!o->m_imp.load(std::memory_order::relaxed))
         return 2; // finished
     return g_task_manager->get_task_state(o);
 }
@@ -1890,20 +1900,20 @@ extern "C" LEAN_EXPORT obj_res lean_float_frexp(double a) {
 extern "C" LEAN_EXPORT double lean_float_of_bits(uint64_t u)
 {
     static_assert(sizeof(double) == sizeof(u), "`double` unexpected size.");
-    double ret;
-    std::memcpy(&ret, &u, sizeof(double));
-    if (isnan(ret))
-        ret = std::numeric_limits<double>::quiet_NaN();
+    double ret = std::bit_cast<double>(u);
+    if (isnan(ret)) return std::numeric_limits<double>::quiet_NaN();
     return ret;
 }
 
+// We use a specific bit pattern instead of `std::numeric_limits<double>::quiet_NaN()` because
+// the returned bit pattern needs to match exactly with what we return in the logical model and
+// the exact value of `quiet_NaN` is implementation-defined.
+constexpr uint64_t quietNaN64 = 0x7ff8000000000000;
+
 extern "C" LEAN_EXPORT uint64_t lean_float_to_bits(double d)
 {
-    uint64_t ret;
-    if (isnan(d))
-        d = std::numeric_limits<double>::quiet_NaN();
-    std::memcpy(&ret, &d, sizeof(double));
-    return ret;
+    if (isnan(d)) return quietNaN64;
+    return std::bit_cast<uint64_t>(d);
 }
 
 // =======================================
@@ -1942,20 +1952,20 @@ extern "C" LEAN_EXPORT obj_res lean_float32_frexp(float a) {
 extern "C" LEAN_EXPORT float lean_float32_of_bits(uint32_t u)
 {
     static_assert(sizeof(float) == sizeof(u), "`float` unexpected size.");
-    float ret;
-    std::memcpy(&ret, &u, sizeof(float));
-    if (isnan(ret))
-        ret = std::numeric_limits<float>::quiet_NaN();
+    float ret = std::bit_cast<float>(u);
+    if (isnan(ret)) ret = std::numeric_limits<float>::quiet_NaN();
     return ret;
 }
 
+// We use a specific bit pattern instead of `std::numeric_limits<float>::quiet_NaN()` because
+// the returned bit pattern needs to match exactly with what we return in the logical model and
+// the exact value of `quiet_NaN` is implementation-defined.
+constexpr uint32_t quietNaN32 = 0x7fc00000;
+
 extern "C" LEAN_EXPORT uint32_t lean_float32_to_bits(float d)
 {
-    uint32_t ret;
-    if (isnan(d))
-        d = std::numeric_limits<float>::quiet_NaN();
-    std::memcpy(&ret, &d, sizeof(float));
-    return ret;
+    if (isnan(d)) return quietNaN32;
+    return std::bit_cast<uint32_t>(d);
 }
 
 // =======================================

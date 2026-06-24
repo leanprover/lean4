@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Graf
+Authors: Sebastian Graf, Vladimir Gladshtein
 -/
 module
 
@@ -21,13 +21,12 @@ public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Sym.ProofInstInfo
 
 open Lean Parser Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
-open Std.Do
+open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.Internal.SpecAttr
 
 namespace Lean.Elab.Tactic.Do.Internal
 
 /-!
-`mvcgen'` tactic frontend: parse the user-facing argument syntax into a
+`vcgen` tactic frontend: parse the user-facing argument syntax into a
 `VCGen.Context`, run `VCGen.run`, and replace the main goal with the
 resulting invariants and VCs.
 -/
@@ -39,7 +38,7 @@ private def runTacticM (x : TacticM α) (goals : List MVarId := [])  : TermElabM
 namespace VCGen
 
 /--
-Parse the optional `[...]` argument list for `mvcgen'`, partitioning entries into
+Parse the optional `[...]` argument list for `vcgen`, partitioning entries into
 spec theorems and simp lemmas. Follows the same approach as
 `Lean.Elab.Tactic.Do.VCGen.mkContext`: each entry is first tried as a spec theorem,
 and on failure falls back to a simp/unfold lemma processed via `mkSimpContext`.
@@ -51,19 +50,24 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   let mut starArg := false
   for arg in lemmas[1].getSepArgs do
     if arg.getKind == ``simpErase then
+      -- Try to interpret as a spec theorem erasure; fall back to simp erasure. A definition
+      -- registered with `attribute [spec] foo` contributes its unfold equations to the database, so
+      -- `[-foo]` must erase each of those proofs, not just a proof named `foo`.
+      let mut erased := false
       try
-        -- Try to interpret as a spec theorem erasure; fall back to simp erasure.
-        let specThm ←
-          if let some fvar ← Term.isLocalIdent? arg[1] then
-            mkSpecTheoremFromLocal fvar.fvarId!
-          else
-            let id := arg[1]
-            if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
-              mkSpecTheoremFromConst declName
-            else
-              withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
-        specThms := specThms.erase specThm.proof
-      catch _ =>
+        if let some fvar ← Term.isLocalIdent? arg[1] then
+          if let some specThm ← mkSpecTheoremFromLocal fvar.fvarId! then
+            specThms := specThms.erase specThm.proof
+            erased := true
+        else
+          let id := arg[1]
+          let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id)
+            | withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
+          for proof in (← specEraseProofs declName) do
+            specThms := specThms.erase proof
+            erased := true
+      catch _ => pure ()
+      unless erased do
         simpStuff := simpStuff.push ⟨arg⟩ -- simp tracks its own erase stuff
     else if arg.getKind == ``simpLemma then
       unless arg[0].isNone && arg[1].isNone do
@@ -74,13 +78,15 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
       match ← Term.resolveId? term (withInfo := true) <|> Term.elabCDotFunctionAlias? ⟨term⟩ with
       | some (.const declName _) =>
         try
-          let thm ← mkSpecTheoremFromConst declName
+          let some thm ← mkSpecTheoremFromConst declName
+            | throwError "not a spec theorem"
           specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         try
-          let thm ← mkSpecTheoremFromLocal fvar
+          let some thm ← mkSpecTheoremFromLocal fvar
+            | throwError "not a spec theorem"
           specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
@@ -90,13 +96,13 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
       simpStuff := simpStuff.push ⟨arg⟩
     else
       throwUnsupportedSyntax
-  -- Build a simp context from the collected simp/unfold arguments, seeded with the
-  -- spec simp theorems database (which contains `@[spec]`-registered simp equations
-  -- and definitions to unfold).
+  -- Build a simp context from the collected per-call simp/unfold arguments only. Global
+  -- `@[spec]`-registered equations and unfold definitions already live in the internal spec
+  -- database (inserted at annotation time), so the context is not seeded from `mvcgen_simp`.
   let stx ← `(tactic| simp +unfoldPartialApp -zeta [$(Syntax.TSepArray.ofElems simpStuff),*])
   let res ← runTacticM (goals := [goal]) <| mkSimpContext stx.raw
     (eraseLocal := false)
-    (simpTheorems := getSpecSimpTheorems)
+    (simpTheorems := pure {})
     (ignoreStarArg := ignoreStarArg)
   let simpThms := res.ctx.simpTheorems[0]?.getD {}
   -- Add local spec hypotheses when `*` is used.
@@ -105,56 +111,24 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
     for fvar in fvars do
       unless specThms.isErased (.local fvar) do
         try
-          let thm ← mkSpecTheoremFromLocal fvar
-          specThms := specThms.insert thm
+          if let some thm ← mkSpecTheoremFromLocal fvar then
+            specThms := specThms.insert thm
         catch _ => continue
-  let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
-  let entailsNilPureIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_pure_intro
-  let entailsNilIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_intro
-  let applyPureConsEntailsLRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_l
-  let applyPureConsEntailsRRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_r
-  let downPureIntroRule ← mkBackwardRuleFromDecl ``SPred.down_pure_intro
-  let pureElimRule ← mkBackwardRuleFromDecl ``SPred.pure_elim'
-  let pureIntroRule ← mkBackwardRuleFromDecl ``SPred.pure_intro
-  let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
-  let postCondEntailsMkRule ← mkBackwardRuleFromDecl ``PostCond.entails.mk
-  let exceptCondsEntailsRflRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.rfl
-  let exceptCondsEntailsPureRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.pure
-  let exceptCondsEntailsFalseRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_false
-  let exceptCondsEntailsTrueRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_true
-  let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
-  let andIntroRule ← mkBackwardRuleFromDecl ``And.intro
-  let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
-  let ctx : VCGen.Context := {
-    entailsConsIntroRule,
-    entailsNilPureIntroRule,
-    entailsNilIntroRule,
-    applyPureConsEntailsLRule,
-    applyPureConsEntailsRRule,
-    downPureIntroRule,
-    pureElimRule,
-    pureIntroRule,
-    postCondEntailsRflRule,
-    postCondEntailsMkRule,
-    exceptCondsEntailsRflRule,
-    exceptCondsEntailsPureRule,
-    exceptCondsEntailsFalseRule,
-    exceptCondsEntailsTrueRule,
-    tripleOfEntailsWPRule,
-    andIntroRule,
-  }
-  return (ctx, { specs := specThmsNew })
+  let backwardRules ← VCGen.mkBackwardRules
+  let allSpecThms ← extendWithSimpSpecs specThms simpThms
+  let ctx : VCGen.Context := { backwardRules }
+  return (ctx, { specs := allSpecThms })
 
 end VCGen
 
-/-- Warn about `mvcgen'` config options that are accepted by the parser but currently
+/-- Warn about `vcgen` config options that are accepted by the parser but currently
 ignored at runtime. As more options gain implementation support, drop their checks
 here. Options with implemented semantics (`trivial`, `elimLets`, `stepLimit`,
 `invariants?`) are silently accepted. -/
 private def warnIgnoredConfig (config : VCGen.Config) : MetaM Unit := do
   let default : VCGen.Config := {}
   if config.leave != default.leave then
-    logWarning "mvcgen': the `leave` config option is currently ignored."
+    logWarning "vcgen: the `leave` config option is currently ignored."
 
 /--
 Build `Sym.Simp.Methods` from a variant name and extra theorems.
@@ -173,8 +147,8 @@ private def elabSymSimpParts
     --   `public def elabSymSimp (syn : Syntax) : GrindTacticM (Sym.Simp.Methods × ...)`
     -- exposed from that module, plus a lightweight `GrindTacticM` runner
     -- (the simproc elaborators only use `CoreM`/`MetaM` capabilities).
-    throwError "named Sym.simp variants are not yet supported in `mvcgen'`; \
-      use `mvcgen' simplifying_assumptions [thm₁, thm₂, ...]` with the default variant instead"
+    throwError "named Sym.simp variants are not yet supported in `vcgen`; \
+      use `vcgen simplifying_assumptions [thm₁, thm₂, ...]` with the default variant instead"
   -- Resolve extra theorems (local hypotheses first, then global constants)
   let mut extraThms : Array Sym.Simp.Theorem := #[]
   if let some ids := extraIds? then
@@ -271,7 +245,7 @@ private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
     unless handled.contains n do
       logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
 
-/-- Parsed `mvcgen'` arguments shared by the two entry points. -/
+/-- Parsed `vcgen` arguments shared by the two entry points. -/
 private structure ParsedArgs where
   config : VCGen.Config
   ctx : VCGen.Context
@@ -310,14 +284,14 @@ private def elabUntilPattern (p : Term) : TermElabM (IO.Ref UntilPatternThunk) :
         let xs := (e.collectMVars {}).result.map Expr.mvar
         mkUntilPattern xs e
 
-/-- Parse `mvcgen'` arguments. -/
+/-- Parse `vcgen` arguments. -/
 private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
   if mvcgen.warning.get (← getOptions) then
-    logWarningAt stx "The `mvcgen'` tactic is an experimental drop-in replacement for `mvcgen` \
+    logWarningAt stx "The `vcgen` tactic is an experimental drop-in replacement for `mvcgen` \
       that will eventually replace it. Avoid using it in production projects."
   let config ← runTacticM <| elabConfig stx[1]
   warnIgnoredConfig config
-  -- `elimLets` defaults to `false` in `mvcgen'` (vs. `true` in upstream `mvcgen`):
+  -- `elimLets` defaults to `false` in `vcgen` (vs. `true` in upstream `mvcgen`):
   -- existing tests rely on let-bindings being preserved in VC local contexts so that
   -- `case vcN bs* =>` patterns line up. Re-enabling on opt-in would require detecting
   -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
@@ -337,9 +311,9 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
     untilPat? }
   return { config, ctx, scope, invariantAlts? }
 
-/-- `mvcgen'` step inside `sym => …` blocks. -/
-@[builtin_grind_tactic Lean.Parser.Tactic.Grind.mvcgen']
-def evalSymMVCGen' : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
+/-- `vcgen` step inside `sym => …` blocks. -/
+@[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
+def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM do
@@ -356,26 +330,43 @@ def evalSymMVCGen' : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
     return invGoals ++ result.vcs.toList
   Lean.Elab.Tactic.Grind.replaceMainGoal newGoals
 
-/-- Tactic-level `mvcgen'`. Reuses the grind-mode implementation by re-quoting the
-input as `Grind.mvcgen' …` and running it inside a `GrindTacticM` context built
+/-- Validate the optional `with` clause of `vcgen`. It must be a `grind`-mode step so it can share
+`vcgen`'s internalised E-graph; the `vcgenDischarge` category's `tactic` alternative is a catch-all
+that exists only so a non-`grind` step is reported here with a helpful error rather than a raw
+`expected grind` parser error. -/
+private def elabVCGenDischarge (w? : Option (TSyntax `vcgenDischarge)) :
+    TacticM (Option (TSyntax `grind)) :=
+  match w? with
+  | none   => return none
+  | some w =>
+    if w.raw.getKind == ``Lean.Parser.Tactic.vcgenDischargeGrind then
+      return some ⟨w.raw[0]⟩
+    else
+      throwErrorAt w
+        m!"`vcgen … with` expects a `grind`-mode discharging step, not a general tactic"
+          ++ MessageData.hint' m!"Examples: `vcgen … with finish`, `vcgen … with intro`."
+
+/-- Tactic-level `vcgen`. Reuses the grind-mode implementation by re-quoting the
+input as `Grind.vcgen …` and running it inside a `GrindTacticM` context built
 without `withProtectedMCtx`, so leftover `Grind.Goal`s flow back as the new tactic
 goals. The optional `with $g:grind` clause runs as `<;> $g` and lets the user-supplied
-grind step share an internalised E-graph with `mvcgen'`. -/
-@[builtin_tactic Lean.Parser.Tactic.mvcgen']
-public def elabMVCGen' : Tactic := fun stx => withMainContext do
-  let `(tactic| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
-        $[simplifying_assumptions $(sa)? $[[$thms,*]]?]? $[with $g:grind]?) := stx
+grind step share an internalised E-graph with `vcgen`. -/
+@[builtin_tactic Lean.Parser.Tactic.vcgen]
+public def elabVCGen : Tactic := fun stx => withMainContext do
+  let `(tactic| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
+        $[simplifying_assumptions $(sa)? $[[$thms,*]]?]? $[with $w:vcgenDischarge]?) := stx
     | throwUnsupportedSyntax
+  let g? ← elabVCGenDischarge w
   -- Without `with`, no downstream grind step will read the E-graph, so opt out of
   -- internalisation; `with` keeps the default `internalize := true`.
-  let cfg ← match g with
+  let cfg ← match g? with
     | some _ => pure cfg
     | none   => do
         let off ← `(optConfig| -internalize)
         pure (Lean.Parser.Tactic.appendConfig off cfg)
-  let core ← `(grind| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
+  let core ← `(grind| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
         $[simplifying_assumptions $(sa)? $[[$thms,*]]?]?)
-  let step ← match g with
+  let step ← match g? with
     | some g => `(grind| $core <;> $g)
     | none   => pure core
   let goal ← getMainGoal

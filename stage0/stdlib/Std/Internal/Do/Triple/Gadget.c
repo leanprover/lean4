@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Do.Triple.Gadget
-// Imports: public import Std.Internal.Do.Triple.Basic public import Std.Internal.Do.Frame
+// Imports: public import Std.Internal.Do.Triple.Basic public import Std.Internal.Do.Order.Frame
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -51,7 +51,7 @@ return v_res_25_;
 }
 }
 lean_object* runtime_initialize_Std_Internal_Do_Triple_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Internal_Do_Frame(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Do_Order_Frame(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Do_Triple_Gadget(uint8_t builtin) {
 lean_object * res;
@@ -60,7 +60,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Std_Internal_Do_Triple_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Do_Frame(builtin);
+res = runtime_initialize_Std_Internal_Do_Order_Frame(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -73,7 +73,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Internal_Do_Triple_Basic(uint8_t builtin);
-lean_object* initialize_Std_Internal_Do_Frame(uint8_t builtin);
+lean_object* initialize_Std_Internal_Do_Order_Frame(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Do_Triple_Gadget(uint8_t builtin) {
 lean_object * res;
@@ -82,7 +82,7 @@ _G_initialized = true;
 res = initialize_Std_Internal_Do_Triple_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Do_Frame(builtin);
+res = initialize_Std_Internal_Do_Order_Frame(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Do_Triple_Gadget(builtin);

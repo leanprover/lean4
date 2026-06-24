@@ -1972,9 +1972,9 @@ return v___x_561_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchOld_mkSameCtorRhs___lam__1___boxed(lean_object* v_snd_630_, lean_object* v_tail_631_, lean_object* v_a_632_, lean_object* v_a_633_, lean_object* v_a_634_, lean_object* v_a_635_, lean_object* v_fst_636_, lean_object* v_fst_637_, lean_object* v___f_638_, lean_object* v___y_639_, lean_object* v___y_640_, lean_object* v___y_641_){
 _start:
 {
-uint8_t v_snd_15622__boxed_642_; lean_object* v_res_643_; 
-v_snd_15622__boxed_642_ = lean_unbox(v_snd_630_);
-v_res_643_ = l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchOld_mkSameCtorRhs___lam__1(v_snd_15622__boxed_642_, v_tail_631_, v_a_632_, v_a_633_, v_a_634_, v_a_635_, v_fst_636_, v_fst_637_, v___f_638_, v___y_639_, v___y_640_);
+uint8_t v_snd_15620__boxed_642_; lean_object* v_res_643_; 
+v_snd_15620__boxed_642_ = lean_unbox(v_snd_630_);
+v_res_643_ = l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchOld_mkSameCtorRhs___lam__1(v_snd_15620__boxed_642_, v_tail_631_, v_a_632_, v_a_633_, v_a_634_, v_a_635_, v_fst_636_, v_fst_637_, v___f_638_, v___y_639_, v___y_640_);
 lean_dec(v_a_635_);
 lean_dec_ref(v_a_634_);
 lean_dec(v_a_633_);
@@ -5960,9 +5960,9 @@ return v___x_2252_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchNew_mkSameCtorRhs___lam__1___boxed(lean_object* v_snd_2321_, lean_object* v_tail_2322_, lean_object* v_a_2323_, lean_object* v_a_2324_, lean_object* v_a_2325_, lean_object* v_a_2326_, lean_object* v_fst_2327_, lean_object* v_fst_2328_, lean_object* v___f_2329_, lean_object* v___y_2330_, lean_object* v___y_2331_, lean_object* v___y_2332_){
 _start:
 {
-uint8_t v_snd_15153__boxed_2333_; lean_object* v_res_2334_; 
-v_snd_15153__boxed_2333_ = lean_unbox(v_snd_2321_);
-v_res_2334_ = l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchNew_mkSameCtorRhs___lam__1(v_snd_15153__boxed_2333_, v_tail_2322_, v_a_2323_, v_a_2324_, v_a_2325_, v_a_2326_, v_fst_2327_, v_fst_2328_, v___f_2329_, v___y_2330_, v___y_2331_);
+uint8_t v_snd_15151__boxed_2333_; lean_object* v_res_2334_; 
+v_snd_15151__boxed_2333_ = lean_unbox(v_snd_2321_);
+v_res_2334_ = l___private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkMatchNew_mkSameCtorRhs___lam__1(v_snd_15151__boxed_2333_, v_tail_2322_, v_a_2323_, v_a_2324_, v_a_2325_, v_a_2326_, v_fst_2327_, v_fst_2328_, v___f_2329_, v___y_2330_, v___y_2331_);
 lean_dec(v_a_2326_);
 lean_dec_ref(v_a_2325_);
 lean_dec(v_a_2324_);

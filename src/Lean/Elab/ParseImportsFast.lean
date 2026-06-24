@@ -64,7 +64,7 @@ partial def finishCommentBlock (nesting : Nat) : Parser := fun input s =>
           if nesting == 1 then s.next input i
           else finishCommentBlock (nesting-1) input (s.next' input i h)
         else
-          finishCommentBlock nesting input (s.next' input i h)
+          finishCommentBlock nesting input (s.setPos i)
     else if curr == '/' then
       if h : i.atEnd input then eoi s
       else

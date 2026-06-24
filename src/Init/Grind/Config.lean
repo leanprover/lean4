@@ -271,16 +271,24 @@ structure NoopConfig extends Config where
   mbtc      := false
 
 /--
-A `grind` configuration that only uses `cutsat` and splitting.
+A `grind` configuration that only uses `cutsat`, splitting, and the `@[lia]` lemma set.
 
 Note: `cutsat` benefits from some amount of instantiation, e.g. `Nat.max_def`.
-We don't currently have a mechanism to enable only a small set of lemmas.
+Lemmas tagged with the `@[lia]` attribute are instantiated via E-matching when running
+`lia`, while the much larger `@[grind]` lemma set is left disabled. Tag lemmas with
+`@[lia =] theorem ...` (or `attribute [lia =] ...`) to add them to this set.
 -/
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
   -- Allow the default number of splits.
   splits := ({} : Config).splits
+  -- Re-enable E-matching, so the `@[lia]` lemma set is instantiated.
+  -- The active theorem set is restricted to lemmas tagged `@[lia]`, not the full `@[grind]` set.
+  ematch := ({} : Config).ematch
+  -- despite having e-matching for @[lia] we do not want (potentially runaway) local theorem
+  -- instantiation
+  genLocal := 0
 
 /--
 A `grind` configuration that only uses `linarith`.

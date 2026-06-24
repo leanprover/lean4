@@ -194,6 +194,11 @@ theorem eq_of_testBit_eq {x y : Nat} (pred : ∀i, testBit x i = testBit y i) : 
     have p := pred i
     contradiction
 
+theorem eq_iff_testBit_eq {n m : Nat} : n = m ↔ ∀ i, Nat.testBit n i = Nat.testBit m i := by
+  refine ⟨?_, Nat.eq_of_testBit_eq⟩
+  rintro rfl
+  simp
+
 theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i ≥ n, testBit x i := by
   induction x using div2Induction generalizing n with
   | ind x hyp =>
@@ -630,6 +635,15 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 :=
 theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
   bitwise_mod_two_pow
 
+@[simp]
+theorem or_eq_zero_iff {n m : Nat} : n ||| m = 0 ↔ n = 0 ∧ m = 0 := by
+  simp [Nat.eq_iff_testBit_eq, forall_and]
+
+@[simp]
+theorem or_pos_iff {n m : Nat} : 0 < n ||| m ↔ 0 < n ∨ 0 < m := by
+  rw [Nat.pos_iff_ne_zero, ne_eq, Nat.or_eq_zero_iff, Decidable.not_and_iff_not_or_not,
+    Nat.pos_iff_ne_zero, Nat.pos_iff_ne_zero]
+
 /-! ### xor -/
 
 @[simp, grind =] theorem testBit_xor (x y i : Nat) :
@@ -842,6 +856,10 @@ theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
 @[simp]
 theorem shiftLeft_eq_zero_iff {a n : Nat} : a <<< n = 0 ↔ a = 0 := by
   simp [shiftLeft_eq, mul_eq_zero]
+
+@[simp]
+theorem shiftLeft_pos_iff {n m : Nat} : 0 < n <<< m ↔ 0 < n := by
+  simp [Nat.pos_iff_ne_zero]
 
 instance {a n : Nat} [NeZero a] : NeZero (a <<< n) := ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
 

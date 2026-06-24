@@ -15,8 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Except_toBool_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Except_toBool_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_instWPMonad_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_instWPMonad_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_wpInst_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_wpInst_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__ExceptT_bindCont_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__ExceptT_bindCont_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__ExceptT_run__tryCatch_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -25,8 +25,8 @@ LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Option_isSome_
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Option_isSome_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__EStateM_tryCatch_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__EStateM_tryCatch_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_instWPMonad_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_instWPMonad_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_wpInst_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_wpInst_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__OptionT_orElse_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__OptionT_orElse_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__EStateM_adaptExcept_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -83,7 +83,7 @@ return v___x_17_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_instWPMonad_match__1_splitter___redArg(lean_object* v_x_18_, lean_object* v_h__1_19_, lean_object* v_h__2_20_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_wpInst_match__1_splitter___redArg(lean_object* v_x_18_, lean_object* v_h__1_19_, lean_object* v_h__2_20_){
 _start:
 {
 if (lean_obj_tag(v_x_18_) == 0)
@@ -108,7 +108,7 @@ return v___x_24_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_instWPMonad_match__1_splitter(lean_object* v_00_u03b5_25_, lean_object* v_00_u03b1_26_, lean_object* v_motive_27_, lean_object* v_x_28_, lean_object* v_h__1_29_, lean_object* v_h__2_30_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_Except_wpInst_match__1_splitter(lean_object* v_00_u03b5_25_, lean_object* v_00_u03b1_26_, lean_object* v_motive_27_, lean_object* v_x_28_, lean_object* v_h__1_29_, lean_object* v_h__2_30_){
 _start:
 {
 if (lean_obj_tag(v_x_28_) == 0)
@@ -327,7 +327,7 @@ return v___x_102_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_instWPMonad_match__1_splitter___redArg(lean_object* v_x_103_, lean_object* v_h__1_104_, lean_object* v_h__2_105_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_wpInst_match__1_splitter___redArg(lean_object* v_x_103_, lean_object* v_h__1_104_, lean_object* v_h__2_105_){
 _start:
 {
 if (lean_obj_tag(v_x_103_) == 0)
@@ -356,7 +356,7 @@ return v___x_111_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_instWPMonad_match__1_splitter(lean_object* v_00_u03b5_112_, lean_object* v_00_u03c3_113_, lean_object* v_00_u03b1_114_, lean_object* v_motive_115_, lean_object* v_x_116_, lean_object* v_h__1_117_, lean_object* v_h__2_118_){
+LEAN_EXPORT lean_object* l___private_Std_Internal_Do_WP_Lemmas_0__Std_Internal_Do_EStateM_wpInst_match__1_splitter(lean_object* v_00_u03b5_112_, lean_object* v_00_u03c3_113_, lean_object* v_00_u03b1_114_, lean_object* v_motive_115_, lean_object* v_x_116_, lean_object* v_h__1_117_, lean_object* v_h__2_118_){
 _start:
 {
 if (lean_obj_tag(v_x_116_) == 0)

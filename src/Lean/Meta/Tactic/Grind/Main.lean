@@ -44,6 +44,17 @@ def getOnlyExtensionState : MetaM ExtensionState := do
     casesTypes, funCC, extThms
   }
 
+/--
+Returns the extensions used by the `lia` tactic.
+
+`lia` keeps the structural part of the default `grind` attribute (cases types, `funCC`,
+and extensionality theorems), but instead of the full `@[grind]` E-matching lemma set it
+only uses the dedicated `@[lia]` lemma set. This lets `cutsat` benefit from a small amount
+of instantiation (e.g. `Nat.max_def`) without pulling in everything tagged `@[grind]`.
+-/
+def getLiaExtensions : MetaM ExtensionStateArray := do
+  return #[← getOnlyExtensionState, liaExt.getState (← getEnv)]
+
 structure Params where
   config      : Grind.Config
   extensions  : ExtensionStateArray := #[]

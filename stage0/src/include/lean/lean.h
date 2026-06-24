@@ -236,7 +236,8 @@ typedef struct {
     struct lean_task *   m_head_dep;
     struct lean_task *   m_next_dep;
     unsigned             m_prio;
-    uint8_t              m_canceled;
+    // This field is atomic as we access it both with and without holding the task_manager mutex.
+    _Atomic(uint8_t)     m_canceled;
     // If true, task will not be freed until finished
     uint8_t              m_keep_alive;
     uint8_t              m_deleted;
@@ -294,9 +295,10 @@ typedef struct {
      * invariant: m_imp == nullptr
      * transition: RC becomes 0 ==> freed (`deactivate_task` lock) */
 typedef struct lean_task {
-    lean_object            m_header;
-    _Atomic(lean_object *) m_value;
-    lean_task_imp *        m_imp;
+    lean_object              m_header;
+    _Atomic(lean_object *)   m_value;
+    // This field is atomic as we access it both with and without holding the task_manager mutex.
+    _Atomic(lean_task_imp *) m_imp;
 } lean_task_object;
 
 typedef struct lean_promise {
@@ -689,7 +691,7 @@ static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {
 }
 
 static inline void lean_dec_ref_known(lean_object * o, unsigned objs) {
-    assert(lean_is_ref(o));
+    assert(!lean_is_scalar(o));
     if (lean_is_exclusive(o)) {
         for(unsigned i = 0; i < objs; i++) {
             lean_dec(lean_ctor_get(o, i));

@@ -261,6 +261,11 @@ theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
     Q := by simp [Triple.iff, SPred.entails.refl]
 
+@[spec]
+theorem Spec.monadLift_Id [Monad m] [WPMonad m ps] {α} (x : Id α) (Q : PostCond α ps) :
+    Triple (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) (spred(Q.1 x.run)) Q :=
+  Spec.pure' .rfl
+
 /-! # `MonadLiftT` -/
 
 @[spec]
@@ -2205,14 +2210,14 @@ open Std.Do
 variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
 
 /--
-An invariant for a `whileM` loop, given as a `PostCond` over the `α ⊕ β` cursor:
+An invariant for a `repeatM` loop, given as a `PostCond` over the `α ⊕ β` cursor:
 `.inl a` is the `continue` case at `a`; `.inr b` is the `break` case with result `b`.
 -/
 @[spec_invariant_type]
 def WhileInvariant (α β : Type u) (ps : PostShape.{u}) :=
   PostCond (α ⊕ β) ps
 
-/-- A termination measure for a `whileM` loop, SVal-typed so it can read monadic state. -/
+/-- A termination measure for a `repeatM` loop, SVal-typed so it can read monadic state. -/
 @[spec_invariant_type]
 def WhileVariant (α : Type u) (ps : PostShape.{u}) :=
   α → SVal ps.args (ULift Nat)
@@ -2237,13 +2242,13 @@ private theorem WhileVariant.add_eval {P Q : SPred ps.args} (variant : WhileVari
 variable [Monad m] [Lean.Order.MonadTail m] [WPMonad m ps]
 
 /--
-Specification for `whileM`. The user supplies a (possibly state-dependent) termination
+Specification for `repeatM`. The user supplies a (possibly state-dependent) termination
 `measure`, an invariant, and a step `Triple` whose pre asserts the variant evaluates to `ma`
 and the in-progress invariant holds, and whose post either continues with a strictly smaller
 variant value (the invariant still holding) or finishes with the `.inr` invariant.
 -/
 @[spec]
-theorem Spec.whileM
+theorem Spec.repeatM
     {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
     (measure : WhileVariant α ps)
     (inv : WhileInvariant α β ps)
@@ -2254,22 +2259,22 @@ theorem Spec.whileM
           | .inl a' => spred(∃ ma', WhileVariant.eval measure a' ma' ∧ ⌜ma' < ma⌝ ∧ inv.1 (.inl a'))
           | .inr b  => inv.1 (.inr b),
          inv.2)) :
-    Triple (whileM f init) spred(inv.1 (.inl init))
+    Triple (repeatM f init) spred(inv.1 (.inl init))
       (fun b => inv.1 (.inr b), inv.2) := by
   apply WhileVariant.add_eval measure init
   apply SPred.exists_elim
   intro minit
   suffices key : ∀ (n : Nat) (a : α),
       (spred(WhileVariant.eval measure a n ∧ inv.1 (.inl a)) ⊢ₛ
-       wp⟦(_root_.whileM f a : m β)⟧ (fun b => inv.1 (.inr b), inv.2)) from
+       wp⟦(_root_.repeatM f a : m β)⟧ (fun b => inv.1 (.inr b), inv.2)) from
     key minit init
   intro n
   induction n using Nat.strongRecOn with
   | _ n ih =>
     intro a
-    rw [whileM_eq_of_monadTail (f := f) a]
+    rw [repeatM_eq_of_monadTail (f := f) a]
     refine Triple.bind (f := fun x => match x with
-      | .inl a' => _root_.whileM f a' | .inr a' => Pure.pure a')
+      | .inl a' => _root_.repeatM f a' | .inr a' => Pure.pure a')
       (f a) (step a n) ?_
     rintro (a' | b)
     · refine Triple.iff.mpr ?_
@@ -2301,7 +2306,7 @@ theorem Spec.forIn_loop
   haveI : Nonempty β := ⟨init⟩
   change Triple (_root_.Lean.Loop.forIn l init f) _ _
   simp only [_root_.Lean.Loop.forIn]
-  apply Spec.whileM (β := β) (measure := measure) (inv := inv)
+  apply Spec.repeatM (β := β) (measure := measure) (inv := inv)
   intro b mb
   apply Triple.bind
   · exact step b mb

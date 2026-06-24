@@ -861,10 +861,10 @@ return v___y_166_;
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Elab_TerminationHints_ensureNone_spec__0_spec__0___lam__0___boxed(lean_object* v___y_194_, lean_object* v_suppressElabErrors_195_, lean_object* v_x_196_){
 _start:
 {
-uint8_t v___y_3124__boxed_197_; uint8_t v_suppressElabErrors_boxed_198_; uint8_t v_res_199_; lean_object* v_r_200_; 
-v___y_3124__boxed_197_ = lean_unbox(v___y_194_);
+uint8_t v___y_3122__boxed_197_; uint8_t v_suppressElabErrors_boxed_198_; uint8_t v_res_199_; lean_object* v_r_200_; 
+v___y_3122__boxed_197_ = lean_unbox(v___y_194_);
 v_suppressElabErrors_boxed_198_ = lean_unbox(v_suppressElabErrors_195_);
-v_res_199_ = l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Elab_TerminationHints_ensureNone_spec__0_spec__0___lam__0(v___y_3124__boxed_197_, v_suppressElabErrors_boxed_198_, v_x_196_);
+v_res_199_ = l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Elab_TerminationHints_ensureNone_spec__0_spec__0___lam__0(v___y_3122__boxed_197_, v_suppressElabErrors_boxed_198_, v_x_196_);
 lean_dec(v_x_196_);
 v_r_200_ = lean_box(v_res_199_);
 return v_r_200_;

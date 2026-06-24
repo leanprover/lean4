@@ -233,7 +233,7 @@ lean_object* v_binderName_165_; lean_object* v_binderType_166_; lean_object* v_b
 v_binderName_165_ = lean_ctor_get(v_e_152_, 0);
 lean_inc(v_binderName_165_);
 v_binderType_166_ = lean_ctor_get(v_e_152_, 1);
-lean_inc_ref_n(v_binderType_166_, 2);
+lean_inc_ref(v_binderType_166_);
 v_body_167_ = lean_ctor_get(v_e_152_, 2);
 lean_inc_ref(v_body_167_);
 v_binderInfo_168_ = lean_ctor_get_uint8(v_e_152_, sizeof(void*)*3 + 8);
@@ -243,7 +243,7 @@ if (lean_obj_tag(v___x_169_) == 0)
 {
 lean_object* v_a_170_; lean_object* v___x_171_; 
 v_a_170_ = lean_ctor_get(v___x_169_, 0);
-lean_inc(v_a_170_);
+lean_inc_n(v_a_170_, 2);
 lean_dec_ref_known(v___x_169_, 1);
 lean_inc(v_a_163_);
 lean_inc_ref(v_a_162_);
@@ -271,13 +271,13 @@ lean_closure_set(v___f_174_, 0, v_fvars_153_);
 lean_closure_set(v___f_174_, 1, v_body_167_);
 lean_closure_set(v___f_174_, 2, v___x_173_);
 v___x_175_ = 0;
-v___x_176_ = l_Lean_Meta_withLocalDecl___at___00__private_Lean_Meta_Sym_DSimp_Lambda_0__Lean_Meta_Sym_DSimp_dsimpLambda_go_spec__0___redArg(v_binderName_165_, v_binderInfo_168_, v_binderType_166_, v___f_174_, v___x_175_, v_a_155_, v_a_156_, v_a_157_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
+v___x_176_ = l_Lean_Meta_withLocalDecl___at___00__private_Lean_Meta_Sym_DSimp_Lambda_0__Lean_Meta_Sym_DSimp_dsimpLambda_go_spec__0___redArg(v_binderName_165_, v_binderInfo_168_, v_a_170_, v___f_174_, v___x_175_, v_a_155_, v_a_156_, v_a_157_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
 return v___x_176_;
 }
 else
 {
 lean_object* v_e_x27_177_; lean_object* v___f_178_; uint8_t v___x_179_; lean_object* v___x_180_; 
-lean_dec_ref(v_binderType_166_);
+lean_dec(v_a_170_);
 v_e_x27_177_ = lean_ctor_get(v_a_172_, 0);
 lean_inc_ref(v_e_x27_177_);
 lean_dec_ref_known(v_a_172_, 1);
@@ -291,8 +291,8 @@ return v___x_180_;
 }
 else
 {
+lean_dec(v_a_170_);
 lean_dec_ref(v_body_167_);
-lean_dec_ref(v_binderType_166_);
 lean_dec(v_binderName_165_);
 lean_dec_ref(v_fvars_153_);
 return v___x_171_;
@@ -302,7 +302,6 @@ else
 {
 lean_object* v_a_181_; lean_object* v___x_183_; uint8_t v_isShared_184_; uint8_t v_isSharedCheck_188_; 
 lean_dec_ref(v_body_167_);
-lean_dec_ref(v_binderType_166_);
 lean_dec(v_binderName_165_);
 lean_dec_ref(v_fvars_153_);
 v_a_181_ = lean_ctor_get(v___x_169_, 0);

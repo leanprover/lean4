@@ -309,13 +309,15 @@ error: Unknown attribute `int`
 Hint: Use a known attribute:
   • ini̲t
   • i̵n̵e̲x̲t
+  • i̵n̵t̵l̲i̲a̲
 ---
 error: Unknown attribute `samp`
 
 Hint: Use a known attribute:
   • s̵a̵m̵p̵s̲i̲m̲p̲
-  • s̵a̵m̵p̵s̲y̲m̲m̲
   • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵l̲i̲a̲
 ---
 error: Unknown attribute `inlone`
 

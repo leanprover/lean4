@@ -144,6 +144,8 @@ theorem le_iff_join_eq_right : (P ⊑ Q) ↔ P ⊔ Q = Q :=
 theorem top_meet : (⊤ : l) ⊓ P = P :=
   rel_antisymm (meet_le_right _ _) (le_meet _ _ _ (le_top _) rel_refl)
 theorem meet_top : P ⊓ (⊤ : l) = P := meet_comm.trans top_meet
+/-- Cancel a redundant `⊓ ⊤` on the left of an entailment. -/
+theorem meet_top_le_of_le (h : P ⊑ Q) : P ⊓ ⊤ ⊑ Q := by rw [meet_top]; exact h
 theorem bot_meet : (⊥ : l) ⊓ P = ⊥ :=
   rel_antisymm (meet_le_of_left_le (bot_le _)) (bot_le _)
 theorem meet_bot : P ⊓ (⊥ : l) = ⊥ := meet_comm.trans bot_meet

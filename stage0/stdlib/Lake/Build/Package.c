@@ -3381,16 +3381,16 @@ v___x_1285_ = lean_unsigned_to_nat(0u);
 v___x_1286_ = lean_nat_dec_eq(v___x_1284_, v___x_1285_);
 if (v___x_1286_ == 0)
 {
-lean_dec_ref(v_remoteUrl_1224_);
-v___y_1252_ = v_releaseRepo_1283_;
-goto v___jp_1251_;
-}
-else
-{
 lean_object* v___x_1287_; 
 v___x_1287_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1287_, 0, v_remoteUrl_1224_);
 v___y_1252_ = v___x_1287_;
+goto v___jp_1251_;
+}
+else
+{
+lean_dec_ref(v_remoteUrl_1224_);
+v___y_1252_ = v_releaseRepo_1283_;
 goto v___jp_1251_;
 }
 }

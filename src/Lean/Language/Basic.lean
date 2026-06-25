@@ -225,6 +225,10 @@ structure SnapshotTreeTransform where
   addTrailing : Substring.Raw := "".toRawSubstring
 deriving Inhabited
 
+/-- Whether the transformation is the identity transformation. -/
+def SnapshotTreeTransform.isIdentity (trans : SnapshotTreeTransform) : Bool :=
+  trans.addTrailing.isEmpty
+
 /-- Applies the transformation to the given syntax tree. -/
 def SnapshotTreeTransform.transformSyntax (trans : SnapshotTreeTransform) (stx : Syntax) : Syntax :=
   stx.addTrailing trans.addTrailing
@@ -244,11 +248,15 @@ def SnapshotTreeTransform.compose (outer inner : SnapshotTreeTransform) : Snapsh
 abbrev ToSnapshotTreeM (α : Type) := ReaderT SnapshotTreeTransform Id α
 
 /-- Applies the current `SnapshotTreeTransform` to a `Snapshot`. -/
-def Snapshot.transform (s : Snapshot) : ToSnapshotTreeM Snapshot :=
+def Snapshot.transform (s : Snapshot) : ToSnapshotTreeM Snapshot := do
+  if (← read).isIdentity then
+    return s
   return { s with infoTree? := s.infoTree?.map ((← read).transformInfoTree) }
 
 /-- Applies the current `SnapshotTreeTransform` to a `SnapshotTree` and recursively to its children. -/
 partial def SnapshotTree.transform (t : SnapshotTree) : ToSnapshotTreeM SnapshotTree := do
+  if (← read).isIdentity then
+    return t
   let element ← Snapshot.transform t.element
   let trans ← read
   let children := t.children.map (·.map (sync := true) (·.transform trans))

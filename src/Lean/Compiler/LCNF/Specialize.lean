@@ -9,6 +9,7 @@ public import Lean.Compiler.LCNF.SpecInfo
 public import Lean.Compiler.LCNF.MonadScope
 public import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.Simp
+import Lean.Compiler.Options
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.Closure
@@ -60,6 +61,25 @@ public def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
 
 public def findSpecCache? (key : Expr) : CoreM (Option Name) :=
   return specCacheExt.getState (← getEnv) |>.find? key
+
+/--
+Whether the cached spec `declName` may be reused at the current point. In a module build, reusing a
+spec defined in a non-exported (privately/`meta`-only imported) module would create a reference that
+`checkMeta`/`checkTemplateVisibility` reject (and that may fail to link); the caller re-specializes
+locally instead. `leanir` is authoritative for spec names and performs the accessibility check
+itself, so it always reuses.
+-/
+def canReuseSpec (declName : Name) : CoreM Bool := do
+  let env ← getEnv
+  if !env.header.isModule then return true
+  if (← compiler.inLeanIR.getM) then return true
+  let some modIdx := env.getModuleIdxFor? declName | return true
+  return !(env.header.modules[modIdx]?.any (!·.isExported))
+
+/-- Like `findSpecCache?` but only returns a cached spec that may be reused here (`canReuseSpec`). -/
+def findReusableSpecCache? (key : Expr) : CoreM (Option Name) := do
+  let some declName ← findSpecCache? key | return none
+  if ← canReuseSpec declName then return some declName else return none
 
 structure Context where
   /--
@@ -430,7 +450,7 @@ mutual
     assert! !key.hasFVar
     let usNew := levelParamsNew.map mkLevelParam
     let argsNew := params.map (.fvar ·.fvarId) ++ getRemainingArgs paramsInfo args
-    if let some declName ← findSpecCache? key then
+    if let some declName ← findReusableSpecCache? key then
       trace[Compiler.specialize.step] "cached: {declName}"
       return some (.const declName usNew argsNew)
     else

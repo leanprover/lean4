@@ -15,14 +15,22 @@ make -C build/release stage2 -j$(nproc)
 ```
 
 Stage 2 is *not* automatically invalidated by changes to `src/`, which allows for faster iteration
-when fixing a specific file in the stage 2 build. But to invalidate any files that already passed the
-stage 2 build (as well as for final validation),
+when fixing a specific file in the stage 2 build.
+
+**Trap: this means a plain `make stage2` after editing `src/` does NOT reflect your change.** The
+already-built stage2 stdlib and `bin/lean` keep using the *old* code (Lake traces the toolchain by
+git commit hash, which local edits don't change), so any tests run afterward silently exercise the
+old behavior — their pass/fail is meaningless. This bites hardest for **compiler changes**
+(`src/Lean/**`, codegen/elaboration/IR), which affect how the *whole* stdlib is built.
+
+So before running tests to validate any change — and always for final validation — invalidate first:
 
 ```bash
 make -C build/release/stage2 clean-stdlib
 ```
 
-must be run manually before building.
+then build. Only skip `clean-stdlib` while iterating on a single file whose output you inspect
+directly; never when trusting test results.
 
 To rebuild individual stage 2 modules without a full `make stage2`, use Lake directly:
 

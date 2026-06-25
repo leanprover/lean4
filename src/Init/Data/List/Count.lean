@@ -259,9 +259,10 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
-@[grind =]
 theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
   simp [count, countP_eq_length_filter]
+
+grind_pattern count_eq_length_filter => count a l, (filter _ l).length
 
 @[grind =]
 theorem count_tail : ∀ {l : List α} {a : α},

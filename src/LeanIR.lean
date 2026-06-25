@@ -86,8 +86,10 @@ public def main (args : List String) : IO UInt32 := do
   let env ← profileitIO "import" opts <| withImporting do
     -- `importAll` so we have access to all private data
     let imports := #[{ module := modName, importAll := true : Import }]
-    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true)
-      (arts := setup.importArts) imports |>.run
+    -- Do NOT pass `setup.importArts`: Lake's elab-oriented setup only has IR paths for
+    -- meta/importAll deps. leanir needs `.ir.sig` for ALL deps, found via `findIRParts` on disk
+    -- (deps' `leanIR` has already run per `depBarrier` in `recBuildLeanIR`).
+    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true) imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => { m with irPhases := .runtime } }
     -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) (loadIRSig := true) s imports opts
@@ -113,14 +115,6 @@ public def main (args : List String) : IO UInt32 := do
   -- use (see `getSymbolStem`/`mkModuleInitializationFunctionName`); otherwise they fail to link.
   let env := env.setModulePackage (env.getModulePackageByIdx? modIdx)
 
-  -- Drop stale loaded LCNF/IR entries for the current module. `lean` elab may have written
-  -- partial/stale state (e.g. specialization auxiliaries with different arity than leanir would
-  -- produce); leanir re-runs the full pipeline, so its in-session state must be authoritative.
-  let env := Lean.IR.declMapExt.clearModuleEntries env modIdx
-  let env := baseExt.clearModuleEntries env modIdx
-  let env := monoExt.clearModuleEntries env modIdx
-  let env := impureSigExt.clearModuleEntries env modIdx
-
   let decls := impureSigExt.getModuleEntries env modIdx
   let decls := decls.filter (isExtern env ·.name)
   let env := decls.foldl (fun env decl => impureSigExt.addEntry env decl) env
@@ -142,6 +136,15 @@ public def main (args : List String) : IO UInt32 := do
     | f => f
   let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d => if isExtern env (unbox d.name) then (d::decls, m.insert d.name d) else (decls, m)) is.state
   let env := Lean.IR.declMapExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+
+  -- Drop stale loaded LCNF/IR entries for the current module. `lean` elab may have written
+  -- partial/stale state (e.g. specialization auxiliaries with different arity than leanir would
+  -- produce); leanir re-runs the full pipeline, so its in-session state must be authoritative.
+  -- Must happen AFTER the extern re-add above which reads from the imported entries.
+  let env := Lean.IR.declMapExt.clearModuleEntries env modIdx
+  let env := baseExt.clearModuleEntries env modIdx
+  let env := monoExt.clearModuleEntries env modIdx
+  let env := impureSigExt.clearModuleEntries env modIdx
 
   let some mod := env.header.moduleData[modIdx]? | unreachable!
   -- Make sure we record the actual IR dependencies, not ourselves

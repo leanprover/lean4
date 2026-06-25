@@ -213,9 +213,10 @@ theorem count_le_size {a : α} {xs : Array α} : count a xs ≤ xs.size := count
 
 grind_pattern count_le_size => count a xs, xs.size
 
-@[grind =]
 theorem count_eq_size_filter {a : α} {xs : Array α} : count a xs = (filter (· == a) xs).size := by
   simp [count, countP_eq_size_filter]
+
+grind_pattern count_eq_size_filter => count a xs, (filter _ xs).size
 
 theorem count_le_count_push {a b : α} {xs : Array α} : count a xs ≤ count a (xs.push b) := by
   simp [count_push]

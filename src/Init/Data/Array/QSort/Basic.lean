@@ -128,6 +128,7 @@ def dnfstage1 [Ord α]
       [mid...hi) -- elements equal to the pivot
       [hi...slhi) - elemts that are greater than the pivot
 -/
+@[inline]
 def dnfstaged [Ord α]
   (xs : Vector α size) (pvt : Nat) (sllo slhi : Nat)
   (hlohi : slhi - sllo > 1) (hhi : slhi ≤ size)
@@ -165,7 +166,7 @@ termination_by slhi - sllo
   Uses a lt function to create a Ord instance for the actual algorithm
     Necessary for compatibility reasons
 -/
-@[reducible]
+@[inline, reducible]
 def ordOfLt (lt : α → α → Bool) : Ord α where
   compare a b :=
     if lt a b then .lt

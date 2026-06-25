@@ -23,6 +23,7 @@ options get_default_options() {
 
     opts = opts.update({"pp", "rawOnError"}, true);
 
+    // trigger stage2 rebootstrap
 #endif
     return opts;
 }

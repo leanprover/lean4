@@ -351,6 +351,8 @@ theorem not_mem_of_count_eq_zero {a : α} {l : List α} (h : count a l = 0) : a 
 theorem count_eq_zero {l : List α} : count a l = 0 ↔ a ∉ l :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
 
+grind_pattern count_eq_zero => a ∈ l, count a l
+
 theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a = b := by
   rw [count, countP_eq_length]
   refine ⟨fun h b hb => Eq.symm ?_, fun h b hb => ?_⟩

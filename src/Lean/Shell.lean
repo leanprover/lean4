@@ -551,7 +551,15 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
           throw e
     else
       pure `_stdin
-  let env? ← Elab.runFrontend contents opts.leanOpts fileName mainModuleName
+  -- In-process codegen/interpretation (`--c`/`--bc`/`--run`) needs imported modules' IR
+  -- (signatures/bodies) to resolve imported declarations during compilation, so have the frontend
+  -- load it; otherwise module files import at `.exported` and would load no IR.
+  let leanOpts :=
+    if opts.cFileName?.isSome || opts.bcFileName?.isSome || opts.run then
+      Compiler.compiler.loadImportedIR.set opts.leanOpts true
+    else
+      opts.leanOpts
+  let env? ← Elab.runFrontend contents leanOpts fileName mainModuleName
     opts.trustLevel opts.oleanFileName? opts.ileanFileName? opts.jsonOutput opts.errorOnKinds
     #[] opts.printStats setup?
     (incrSaveFileName? := opts.incrSaveFileName?)

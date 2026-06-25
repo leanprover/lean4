@@ -30,5 +30,7 @@ trace: [Compiler.result] size: 1
       return res
 -/
 #guard_msgs in
+-- compile in-process so the `Compiler.result` trace fires here rather than in `leanir`
+set_option compiler.postponeCompile false in
 set_option trace.Compiler.result true in
 def mkSwpift2 (n : UInt8) : StructWithPrivImportedFieldType := mkSwpift n

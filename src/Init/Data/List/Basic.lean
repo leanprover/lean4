@@ -1700,7 +1700,7 @@ Examples:
   | [], n => n
   | a :: l, n => bif p a then n else go l (n + 1)
 
-@[simp] theorem findIdx_nil {p : α → Bool} : [].findIdx p = 0 := rfl
+@[simp, grind =] theorem findIdx_nil {p : α → Bool} : [].findIdx p = 0 := rfl
 
 /-! ### idxOf -/
 

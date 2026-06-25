@@ -55,6 +55,7 @@ theorem frames_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (mkFreshNat : StateT AppState m Nat) P := by
   refine .of_wp_conjunctive (fun E => ?_)
+  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold mkFreshNat
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
@@ -113,6 +114,7 @@ theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (mkFreshSnd : StateT AppState m Nat) P := by
   refine .of_wp_conjunctive (fun E => ?_)
+  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold mkFreshSnd
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
@@ -178,6 +180,7 @@ theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (addFst k : StateT AppState m Nat) P := by
   refine .of_wp_conjunctive (fun E => ?_)
+  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold addFst
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
@@ -227,6 +230,7 @@ theorem frames_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPred]
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (bumpSnd : StateT (σ × Nat) m Nat) P := by
   refine .of_wp_conjunctive (fun E => ?_)
+  -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold bumpSnd
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,

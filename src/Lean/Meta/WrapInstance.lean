@@ -144,7 +144,8 @@ Wrap an instance value so its type matches the expected type exactly.
 See the module docstring for the full algorithm specification.
 -/
 public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := true)
-    (logCompileErrors : Bool := true) (isMeta : Bool := false) : MetaM Expr :=
+    (logCompileErrors : Bool := true) (isMeta : Bool := false) (exposeAux : Bool := true) :
+    MetaM Expr :=
   withTransparency .instances do
     return (← go (isEta := false) inst expectedType).get!
 -- If `isEta` is true, will return `none` if no sub-instance was found, i.e. eta-expansion had no
@@ -183,6 +184,7 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
         if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
           let name ← mkAuxDeclName
           let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
+            (exposeBody := exposeAux)
           setReducibilityStatus name <|
             if (← withImplicit <| isDefEq expectedType instType) then
               .implicitReducible
@@ -277,7 +279,8 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
             mvarId.assign arg
           else
             let name ← mkAuxDeclName
-            mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := false))
+            mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := false)
+              (exposeBody := exposeAux))
             setReducibilityStatus name <|
               if (← withImplicit <| isDefEq argExpectedType argType) then
                 .implicitReducible

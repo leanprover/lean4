@@ -2033,12 +2033,14 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
 /--
 The module data that should be used for accessing IR for interpretation (lean) or compilation
 (leanir; loadIRSig = true). -/
-private def ImportedModule.irData? (self : ImportedModule) (loadIRSig : Bool := false) : Option ModuleData :=
+private def ImportedModule.irData? (self : ImportedModule) (loadIRSig : Bool := false) (loadCodegenIR : Bool := false) : Option ModuleData :=
   if self.irParts.isEmpty || !self.mainModule?.any (·.isModule) then
     self.mainModule?
   else
-    -- leanir: for `import all` modules, use `.ir`; otherwise prefer `.ir.sig`
-    if !loadIRSig || self.importAll then
+    -- leanir/in-process codegen: prefer the leaner `.ir.sig` (signatures + opaque stubs, matching the
+    -- `.olean` view) for runtime-only modules; `import all` and any module needing comptime (`meta`)
+    -- IR require the full `.ir`, which retains the comptime/private declarations the interpreter needs.
+    if (!loadIRSig && !loadCodegenIR) || self.importAll || self.irPhases != .runtime then
       self.irParts.back?.map (·.1)
     else
       self.irParts[0]?.map (·.1)
@@ -2100,7 +2102,11 @@ partial def importModulesCore
     (arts : NameMap ImportArtifacts := {}) (isExported : Bool := globalLevel < .private)
     -- leanir: ensure (at least) `.ir.sig` is loaded for every module with data; also ignore `meta`
     -- on imports
-    (loadIRSig : Bool := false) :
+    (loadIRSig : Bool := false)
+    -- in-process codegen (`compiler.postponeCompile = false`): like `loadIRSig`, load `.ir.sig` for
+    -- every module with data so imported LCNF signatures/bodies are available, but *keep* loading
+    -- transitive `meta` IR (do not suppress `needsIRTrans`) since elaboration still runs meta code
+    (loadCodegenIR : Bool := false) :
     ImportStateM Unit := do
   go imports (importAll := true) (isExported := isExported) (needsData := true) (needsIRTrans := false)
   if globalLevel < .private then
@@ -2178,7 +2184,7 @@ where
       let needsIRTrans := needsIRTrans || (!loadIRSig && needsData && i.isMeta)
       -- `loadIRSig` only loads `.ir.sig` for modules whose `.olean` is also loaded
       -- (i.e., `needsData`), preserving the invariant that IR is never present without its olean.
-      let needsIR := needsIRTrans || importAll || globalLevel > .exported || (loadIRSig && needsData)
+      let needsIR := needsIRTrans || importAll || globalLevel > .exported || ((loadIRSig || loadCodegenIR) && needsData)
       if !needsData && !needsIR then
         continue
 
@@ -2197,7 +2203,7 @@ where
         let isExported := isExported || mod.isExported
         let needsData := needsData || mod.hasData
         let needsIRTrans := needsIRTrans || mod.needsIRTrans
-        let needsIR := needsIRTrans || importAll || (loadIRSig && needsData)
+        let needsIR := needsIRTrans || importAll || ((loadIRSig || loadCodegenIR) && needsData)
         let irPhases := if irPhases == mod.irPhases then irPhases else .all
         let parts ← if needsData && mod.parts.isEmpty then loadData i else pure mod.parts
         let irParts ← if needsIR && mod.irParts.isEmpty then loadIR i else pure mod.irParts
@@ -2298,7 +2304,9 @@ See also `importModules` for parameter documentation.
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (leakEnv loadExts : Bool) (level := OLeanLevel.private) (isModule := level != .private)
     -- If true, prefer loading `.ir.sig` over `.ir` unless `import all`ed; used by leanir
-    (loadIRSig := false) :
+    (loadIRSig := false)
+    -- In-process native codegen: prefer `.ir.sig` for runtime-only modules, see `importModulesCore`
+    (loadCodegenIR := false) :
     IO Environment := do
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
   let moduleData ← modules.mapM fun mod => do
@@ -2306,7 +2314,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       throw <| IO.userError s!"missing data file for module {mod.module}"
     return data
   let irData ← modules.mapM fun mod => do
-    let some data := mod.irData? loadIRSig |
+    let some data := mod.irData? loadIRSig loadCodegenIR |
       throw <| IO.userError s!"missing IR data file for module {mod.module}"
     return data
   let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data =>
@@ -2428,15 +2436,15 @@ as if no `module` annotations were present in the imports.
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
     (plugins : Array Plugin := #[]) (leakEnv := false) (loadExts := false)
-    (level := OLeanLevel.private) (arts : NameMap ImportArtifacts := {})
+    (level := OLeanLevel.private) (arts : NameMap ImportArtifacts := {}) (loadCodegenIR := false)
     : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM fun {path, initFn?} => Lean.loadPlugin path initFn?
-    let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run
-    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
+    let (_, s) ← importModulesCore (globalLevel := level) (loadCodegenIR := loadCodegenIR) imports arts |>.run
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level) (loadCodegenIR := loadCodegenIR)
       s imports opts trustLevel
 
 /--

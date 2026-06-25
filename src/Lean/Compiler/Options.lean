@@ -51,4 +51,10 @@ register_builtin_option compiler.inLeanIR : Bool := {
   descr := "Internal. Indicates whether the compiler is currently running in `leanir`."
 }
 
+register_builtin_option compiler.loadImportedIR : Bool := {
+  defValue := false
+  descr := "Internal. Load imported modules' IR at import time so in-process native codegen \
+    (e.g. `--c`/`--bc`) can resolve imported declarations. Set automatically by the `lean` driver."
+}
+
 end Lean.Compiler

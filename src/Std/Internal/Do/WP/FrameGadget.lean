@@ -16,8 +16,6 @@ open Lean.Order
 
 namespace Std.Internal.Do
 
-namespace WP
-
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
   [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
 
@@ -31,10 +29,8 @@ partially apply it (pinning `F`) and feed the result through the ordinary spec m
 `x`, `epost`, `Q`, and `hframe` schematic. -/
 theorem meet_wp_imp_le_wp_skipFrame [Frame Pred] (F : Pred) (x : Prog)
   (epost : EPred) (Q : Value → Pred)
-    (hframe : Preserving x (F ⊓ ·)) :
+    (hframe : WP.Preserving x F) :
     F ⊓ wp (skipFrame x) (fun a => F ⇨ Q a) epost ⊑ wp x Q epost :=
   meet_wp_imp_le_wp (Q := Q) hframe
-
-end WP
 
 end Std.Internal.Do

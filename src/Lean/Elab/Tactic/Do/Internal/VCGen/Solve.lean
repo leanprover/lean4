@@ -412,7 +412,7 @@ inductive FrameResult where
 * otherwise report `.notFramed`. -/
 private def applyFrame (scope : VCGen.Scope) (goal : MVarId) (info : WPInfo) :
     VCGenM FrameResult := goal.withContext do
-  if info.prog.getAppFn.isConstOf ``Std.Internal.Do.WP.skipFrame then
+  if info.prog.getAppFn.isConstOf ``Std.Internal.Do.skipFrame then
     let strippedProg := info.prog.appArg!
     let goal ← replaceProgDefEq goal info strippedProg
     return .notFramed goal { info with args := info.args.set! 7 strippedProg }
@@ -424,7 +424,7 @@ private def applyFrame (scope : VCGen.Scope) (goal : MVarId) (info : WPInfo) :
   -- Apply the program's own `wp` arguments (`info.args.take 7`: program type, value, assertions,
   -- `WP` instance) and the matched frame `F`, letting `mkAppOptM` synthesize the `Frame` instance
   -- against the assertion's own `CompleteLattice` so it shares the structure the program's `wp` uses.
-  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.WP.meet_wp_imp_le_wp_skipFrame
+  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.meet_wp_imp_le_wp_skipFrame
     ((info.args.take 7).map some ++ #[none, some F])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build spec from meet_wp_imp_le_wp_skipFrame for{indentExpr info.prog}"

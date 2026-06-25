@@ -50,8 +50,8 @@ theorem mkFreshNat_spec_lossy [Monad m] [Assertion Pred] [Assertion EPred] [WPMo
 theorem preserving_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : AppState → Pred}
     (h : ∀ s a, P { s with fst := a } = P s) :
-    WP.Preserving (mkFreshNat : StateT AppState m Nat) (P ⊓ ·) := by
-  refine .of_meet (mkFreshNat : StateT AppState m Nat) P (fun E => ?_)
+    WP.Preserving (mkFreshNat : StateT AppState m Nat) P := by
+  refine .of_meet (fun E => ?_)
   intro s
   unfold mkFreshNat
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
@@ -68,8 +68,8 @@ theorem recovers_snd [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pre
     ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝ ⦄ := by
   fail_if_success (vcgen <;> grind)
-  vcgen frames | mkFreshNat => fun s => ⌜s.2 = 7⌝ <;>
-    first | exact preserving_mkFreshNat (by grind) | grind
+  vcgen frames | mkFreshNat => fun s => ⌜s.2 = 7⌝ with try finish
+  exact preserving_mkFreshNat (by grind)
 
 /-- Two calls, two alternatives: consume-once frames each `mkFreshNat` exactly once. -/
 theorem recovers_snd_pair [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
@@ -100,8 +100,8 @@ theorem mkFreshSnd_spec_lossy [Monad m] [Assertion Pred] [Assertion EPred] [WPMo
 theorem preserving_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : AppState → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
-    WP.Preserving (mkFreshSnd : StateT AppState m Nat) (P ⊓ ·) := by
-  refine .of_meet (mkFreshSnd : StateT AppState m Nat) P (fun E => ?_)
+    WP.Preserving (mkFreshSnd : StateT AppState m Nat) P := by
+  refine .of_meet (fun E => ?_)
   intro s
   unfold mkFreshSnd
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
@@ -162,8 +162,8 @@ theorem addFst_spec_lossy [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad 
 theorem preserving_addFst [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : AppState → Pred} {k : Nat}
     (h : ∀ s a, P { s with fst := a } = P s) :
-    WP.Preserving (addFst k : StateT AppState m Nat) (P ⊓ ·) := by
-  refine .of_meet (addFst k : StateT AppState m Nat) P (fun E => ?_)
+    WP.Preserving (addFst k : StateT AppState m Nat) P := by
+  refine .of_meet (fun E => ?_)
   intro s
   unfold addFst
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,
@@ -204,8 +204,8 @@ theorem bumpSnd_spec_lossy {σ : Type} [Monad m] [Assertion Pred] [Assertion EPr
 theorem preserving_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : σ × Nat → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
-    WP.Preserving (bumpSnd : StateT (σ × Nat) m Nat) (P ⊓ ·) := by
-  refine .of_meet (bumpSnd : StateT (σ × Nat) m Nat) P (fun E => ?_)
+    WP.Preserving (bumpSnd : StateT (σ × Nat) m Nat) P := by
+  refine .of_meet (fun E => ?_)
   intro s
   unfold bumpSnd
   simp only [StateT.wp_apply_eq, StateT.run_bind, StateT.run_get, StateT.run_modify,

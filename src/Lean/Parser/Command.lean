@@ -862,7 +862,7 @@ def initializeKeyword := leading_parser
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser
-  withOpen (ppDedent (" in" >> ppLine >> commandParser))
+  withOpen (withSetOption (ppDedent (" in" >> ppLine >> commandParser)))
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.
@@ -1023,7 +1023,8 @@ It makes the given namespaces available in the term `e`.
 It sets the option `opt` to the value `val` in the term `e`.
 -/
 @[builtin_term_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> termParser
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >>
+    withSetOptionValue (" in " >> termParser)
 end Term
 
 namespace Tactic
@@ -1035,7 +1036,8 @@ but it opens a namespace only within the tactics `tacs`. -/
 /-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
 @[builtin_tactic_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >>
+    withSetOptionValue (" in " >> tacticSeq)
 end Tactic
 
 end Parser

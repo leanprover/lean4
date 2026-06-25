@@ -103,16 +103,10 @@ info: instantiating `Array.back?_empty` triggers 17 additional `grind` theorem i
 ---
 info: instantiating `Array.count_empty` triggers 19 additional `grind` theorem instantiations
 ---
-info: instantiating `Array.findIdx_empty` triggers 20 additional `grind` theorem instantiations
----
-info: instantiating `Array.findIdx_singleton` triggers 16 additional `grind` theorem instantiations
----
 info: Try this:
   [apply] #grind_lint check  (min := 15) in Array
   #grind_lint inspect Array.back?_empty
   #grind_lint inspect Array.count_empty
-  #grind_lint inspect Array.findIdx_empty
-  #grind_lint inspect Array.findIdx_singleton
 -/
 #guard_msgs in
 #grind_lint check (min := 15) in Array

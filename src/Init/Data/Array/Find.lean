@@ -595,11 +595,12 @@ theorem findIdx?_eq_none_of_findIdx?_eq_none {xs : Array α} {p q : α → Bool}
   rcases xs with ⟨xs⟩
   simpa using List.findIdx?_eq_none_of_findIdx?_eq_none (by simpa using w)
 
-@[grind =]
 theorem findIdx_eq_getD_findIdx? {xs : Array α} {p : α → Bool} :
     xs.findIdx p = (xs.findIdx? p).getD xs.size := by
   rcases xs with ⟨xs⟩
   simp [List.findIdx_eq_getD_findIdx?]
+
+grind_pattern findIdx_eq_getD_findIdx? => xs.findIdx p, xs.findIdx? p
 
 theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bool} (w : ∀ x ∈ xs, p x → q x) {i : Nat}
     (h : xs.findIdx? p = some i) : ∃ j, j ≤ i ∧ xs.findIdx? q = some j := by

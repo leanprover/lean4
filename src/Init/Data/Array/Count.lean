@@ -270,6 +270,8 @@ theorem not_mem_of_count_eq_zero {a : α} {xs : Array α} (h : count a xs = 0) :
 theorem count_eq_zero {xs : Array α} : count a xs = 0 ↔ a ∉ xs :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
 
+grind_pattern count_eq_zero => a ∈ xs, count a xs
+
 theorem count_eq_size {xs : Array α} : count a xs = xs.size ↔ ∀ b ∈ xs, a = b := by
   rw [count, countP_eq_size]
   refine ⟨fun h b hb => Eq.symm ?_, fun h b hb => ?_⟩

@@ -234,6 +234,8 @@ theorem not_mem_of_count_eq_zero {a : α} {xs : Vector α n} (h : count a xs = 0
 theorem count_eq_zero {xs : Vector α n} : count a xs = 0 ↔ a ∉ xs :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
 
+grind_pattern count_eq_zero => a ∈ xs, count a xs
+
 theorem count_eq_size {xs : Vector α n} : count a xs = n ↔ ∀ b ∈ xs, a = b := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_eq_size]

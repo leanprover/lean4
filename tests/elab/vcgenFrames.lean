@@ -17,10 +17,13 @@ A `frames` alternative attaches a state assertion `F` to a matched program whose
 *lossy* (drops a fact about state it does not touch). `vcgen` applies the framed spec, emits the
 frame precondition and the `Preserving` side goal, and recovers `F` in the postcondition.
 
-The base monad is polymorphic, so the only handle on `mkFreshNat` is its lossy spec. The
-`Preserving` side goal is discharged by `preserving_mkFreshNat`, which reduces it through
+The `Preserving` side goal is established by `preserving_mkFreshNat`, which reduces it through
 `WP.Preserving.of_meet` to a preservation triple `F ⊑ wp x (fun _ => F)` (using `WPConjunctive`
 for the monad); `mkFreshNat` writes only `fst`, so it preserves any `snd`-fact.
+
+The `recovers_*` proofs run at the `Id` base monad and register the `_Id` specializations of these
+lemmas with `grind`. With the monad ground, `grind` derives a usable E-matching pattern, so the
+discharge step `with finish` closes every VC, including the `Preserving` side goal.
 -/
 
 open Lean Order Meta Elab Tactic Sym Std Internal.Do
@@ -61,25 +64,34 @@ theorem preserving_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPred]
   show P s ⊑ P (s.fst + 1, s.snd)
   rw [h s (s.fst + 1)]
 
+/-- `Id`-specialized `preserving_mkFreshNat`. With the base monad ground, `grind` can derive a
+usable pattern, so registering it lets `finish` discharge the preservation VC. -/
+theorem preserving_mkFreshNat_Id [Assertion Pred] [Assertion EPred]
+    [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : AppState → Pred}
+    (h : ∀ s a, P { s with fst := a } = P s) :
+    WP.Preserving (mkFreshNat : StateT AppState Id Nat) P :=
+  preserving_mkFreshNat h
+
+grind_pattern preserving_mkFreshNat_Id => WP.Preserving (mkFreshNat : StateT AppState Id Nat) P
+
 /-- The frame recovers `s.2`, which the lossy spec dropped. The `fail_if_success` confirms the frame
 is doing the work: without it, `grind` cannot close the lost `s.2 = 7`. -/
-theorem recovers_snd [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [∀ β, WPConjunctive (m β) β Pred EPred] [Frame Pred] :
-    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
+theorem recovers_snd [Assertion Pred] [Assertion EPred] [WPMonad Id Pred EPred]
+    [∀ β, WPConjunctive (Id β) β Pred EPred] [Frame Pred] :
+    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateT AppState Id Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝ ⦄ := by
   fail_if_success (vcgen <;> grind)
-  vcgen frames | mkFreshNat => fun s => ⌜s.2 = 7⌝ with try finish
-  exact preserving_mkFreshNat (by grind)
+  vcgen frames | mkFreshNat => fun s => ⌜s.2 = 7⌝ with finish
 
 /-- Two calls, two alternatives: consume-once frames each `mkFreshNat` exactly once. -/
-theorem recovers_snd_pair [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [∀ β, WPConjunctive (m β) β Pred EPred] [Frame Pred] :
-    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshPair : StateT AppState m (Nat × Nat))
+theorem recovers_snd_pair [Assertion Pred] [Assertion EPred] [WPMonad Id Pred EPred]
+    [∀ β, WPConjunctive (Id β) β Pred EPred] [Frame Pred] :
+    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshPair : StateT AppState Id (Nat × Nat))
     ⦃ fun p s => ⌜p.1 = 0 ∧ s.2 = 7⌝ ⦄ := by
   vcgen [mkFreshPair] frames
   | mkFreshNat => fun s => ⌜s.2 = 7⌝
   | mkFreshNat => fun s => ⌜s.2 = 7⌝
-  all_goals first | exact preserving_mkFreshNat (by grind) | grind
+  with finish
 
 /-! ## Complementary footprint: an operation that writes `snd` -/
 
@@ -111,14 +123,22 @@ theorem preserving_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
   show P s ⊑ P (s.fst, s.snd + 1)
   rw [h s (s.snd + 1)]
 
+/-- `Id`-specialized `preserving_mkFreshSnd`, registered so `finish` discharges the preservation VC. -/
+theorem preserving_mkFreshSnd_Id [Assertion Pred] [Assertion EPred]
+    [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : AppState → Pred}
+    (h : ∀ s a, P { s with snd := a } = P s) :
+    WP.Preserving (mkFreshSnd : StateT AppState Id Nat) P :=
+  preserving_mkFreshSnd h
+
+grind_pattern preserving_mkFreshSnd_Id => WP.Preserving (mkFreshSnd : StateT AppState Id Nat) P
+
 /-- Mirror of `recovers_snd`: frame the complementary (`fst`) footprint. -/
-theorem recovers_fst [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [∀ β, WPConjunctive (m β) β Pred EPred] [Frame Pred] :
-    ⦃ fun s => ⌜s.1 = 5 ∧ s.2 = 0⌝ ⦄ (mkFreshSnd : StateT AppState m Nat)
+theorem recovers_fst [Assertion Pred] [Assertion EPred] [WPMonad Id Pred EPred]
+    [∀ β, WPConjunctive (Id β) β Pred EPred] [Frame Pred] :
+    ⦃ fun s => ⌜s.1 = 5 ∧ s.2 = 0⌝ ⦄ (mkFreshSnd : StateT AppState Id Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.1 = 5⌝ ⦄ := by
   fail_if_success (vcgen <;> grind)
-  vcgen frames | mkFreshSnd => fun s => ⌜s.1 = 5⌝ <;>
-    first | exact preserving_mkFreshSnd (by grind) | grind
+  vcgen frames | mkFreshSnd => fun s => ⌜s.1 = 5⌝ with finish
 
 /-! ## Two distinct framed operations in one program -/
 
@@ -129,18 +149,14 @@ def mkFreshMixed [Monad m] [MonadStateOf AppState m] : m (Nat × Nat) := do
 
 /-- `mkFreshNat` (writes `fst`) and `mkFreshSnd` (writes `snd`) are framed by different alternatives:
 each recovers the component the other op's lossy spec would drop. -/
-theorem recovers_both [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [∀ β, WPConjunctive (m β) β Pred EPred] [Frame Pred] :
-    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshMixed : StateT AppState m (Nat × Nat))
+theorem recovers_both [Assertion Pred] [Assertion EPred] [WPMonad Id Pred EPred]
+    [∀ β, WPConjunctive (Id β) β Pred EPred] [Frame Pred] :
+    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshMixed : StateT AppState Id (Nat × Nat))
     ⦃ fun p s => ⌜s.1 = 1 ∧ s.2 = 8⌝ ⦄ := by
   vcgen [mkFreshMixed] frames
   | mkFreshNat => fun s => ⌜s.2 = 7⌝
   | mkFreshSnd => fun s => ⌜s.1 = 1⌝
-  all_goals
-    first
-      | exact preserving_mkFreshNat (by grind)
-      | exact preserving_mkFreshSnd (by grind)
-      | grind
+  with finish
 
 /-! ## Named pattern variable referenced by the frame -/
 
@@ -173,15 +189,23 @@ theorem preserving_addFst [Monad m] [Assertion Pred] [Assertion EPred]
   show P s ⊑ P (s.fst + k, s.snd)
   rw [h s (s.fst + k)]
 
+/-- `Id`-specialized `preserving_addFst`, registered so `finish` discharges the preservation VC. -/
+theorem preserving_addFst_Id [Assertion Pred] [Assertion EPred]
+    [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : AppState → Pred} {k : Nat}
+    (h : ∀ s a, P { s with fst := a } = P s) :
+    WP.Preserving (addFst k : StateT AppState Id Nat) P :=
+  preserving_addFst h
+
+grind_pattern preserving_addFst_Id => WP.Preserving (addFst k : StateT AppState Id Nat) P
+
 /-- The frame `fun s => ⌜s.2 = j⌝` references the matched argument `j`, so `elabFrame` introduces
 `let j := k` and the assignment is recovered in the postcondition. -/
-theorem recovers_with_arg [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    [∀ β, WPConjunctive (m β) β Pred EPred] [Frame Pred] :
-    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = k⌝ ⦄ (addFst k : StateT AppState m Nat)
+theorem recovers_with_arg [Assertion Pred] [Assertion EPred] [WPMonad Id Pred EPred]
+    [∀ β, WPConjunctive (Id β) β Pred EPred] [Frame Pred] :
+    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = k⌝ ⦄ (addFst k : StateT AppState Id Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.2 = k⌝ ⦄ := by
   fail_if_success (vcgen <;> grind)
-  vcgen frames | addFst j => fun s => ⌜s.2 = j⌝ <;>
-    first | exact preserving_addFst (by grind) | grind
+  vcgen frames | addFst j => fun s => ⌜s.2 = j⌝ with finish
 
 /-! ## Polymorphic state type at a fixed universe -/
 
@@ -215,14 +239,23 @@ theorem preserving_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPr
   show P s ⊑ P (s.fst, s.snd + 1)
   rw [h s (s.snd + 1)]
 
+/-- `Id`-specialized `preserving_bumpSnd` over an abstract state `σ`, registered so `finish`
+discharges the preservation VC. -/
+theorem preserving_bumpSnd_Id {σ : Type} [Assertion Pred] [Assertion EPred]
+    [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : σ × Nat → Pred}
+    (h : ∀ s a, P { s with snd := a } = P s) :
+    WP.Preserving (bumpSnd : StateT (σ × Nat) Id Nat) P :=
+  preserving_bumpSnd h
+
+grind_pattern preserving_bumpSnd_Id => WP.Preserving (bumpSnd : StateT (σ × Nat) Id Nat) P
+
 /-- The frame recovers `s.1 = a` for an abstract `a : σ`, which the lossy spec dropped. -/
-theorem recovers_fst_poly {σ : Type} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] [Frame Pred] {a : σ} :
-    ⦃ fun s => ⌜s.1 = a ∧ s.2 = 0⌝ ⦄ (bumpSnd : StateT (σ × Nat) m Nat)
+theorem recovers_fst_poly {σ : Type} [Assertion Pred] [Assertion EPred]
+    [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] [Frame Pred] {a : σ} :
+    ⦃ fun s => ⌜s.1 = a ∧ s.2 = 0⌝ ⦄ (bumpSnd : StateT (σ × Nat) Id Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.1 = a⌝ ⦄ := by
   fail_if_success (vcgen <;> grind)
-  vcgen frames | bumpSnd => fun s => ⌜s.1 = a⌝ <;>
-    first | exact preserving_bumpSnd (by grind) | grind
+  vcgen frames | bumpSnd => fun s => ⌜s.1 = a⌝ with finish
 
 /-! ## Unmatched frame alternatives are rejected -/
 

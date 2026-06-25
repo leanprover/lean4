@@ -66,13 +66,12 @@ theorem frames_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPred]
 
 /-- `Id`-specialized `frames_mkFreshNat`. With the base monad ground, `grind` can derive a
 usable pattern, so registering it lets `finish` discharge the preservation VC. -/
+@[grind .]
 theorem frames_mkFreshNat_Id [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : AppState → Pred}
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (mkFreshNat : StateT AppState Id Nat) P :=
   frames_mkFreshNat h
-
-grind_pattern frames_mkFreshNat_Id => WP.Frames (mkFreshNat : StateT AppState Id Nat) P
 
 /-- The frame recovers `s.2`, which the lossy spec dropped. The `fail_if_success` confirms the frame
 is doing the work: without it, `grind` cannot close the lost `s.2 = 7`. -/
@@ -124,13 +123,12 @@ theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
   rw [h s (s.snd + 1)]
 
 /-- `Id`-specialized `frames_mkFreshSnd`, registered so `finish` discharges the preservation VC. -/
+@[grind .]
 theorem frames_mkFreshSnd_Id [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : AppState → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (mkFreshSnd : StateT AppState Id Nat) P :=
   frames_mkFreshSnd h
-
-grind_pattern frames_mkFreshSnd_Id => WP.Frames (mkFreshSnd : StateT AppState Id Nat) P
 
 /-- Mirror of `recovers_snd`: frame the complementary (`fst`) footprint. -/
 theorem recovers_fst [Assertion Pred] [Assertion EPred] [WPMonad Id Pred EPred]
@@ -190,13 +188,12 @@ theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPred]
   rw [h s (s.fst + k)]
 
 /-- `Id`-specialized `frames_addFst`, registered so `finish` discharges the preservation VC. -/
+@[grind .]
 theorem frames_addFst_Id [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : AppState → Pred} {k : Nat}
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (addFst k : StateT AppState Id Nat) P :=
   frames_addFst h
-
-grind_pattern frames_addFst_Id => WP.Frames (addFst k : StateT AppState Id Nat) P
 
 /-- The frame `fun s => ⌜s.2 = j⌝` references the matched argument `j`, so `elabFrame` introduces
 `let j := k` and the assignment is recovered in the postcondition. -/
@@ -241,13 +238,12 @@ theorem frames_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPred]
 
 /-- `Id`-specialized `frames_bumpSnd` over an abstract state `σ`, registered so `finish`
 discharges the preservation VC. -/
+@[grind .]
 theorem frames_bumpSnd_Id {σ : Type} [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β, WPConjunctive (Id β) β Pred EPred] {P : σ × Nat → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (bumpSnd : StateT (σ × Nat) Id Nat) P :=
   frames_bumpSnd h
-
-grind_pattern frames_bumpSnd_Id => WP.Frames (bumpSnd : StateT (σ × Nat) Id Nat) P
 
 /-- The frame recovers `s.1 = a` for an abstract `a : σ`, which the lossy spec dropped. -/
 theorem recovers_fst_poly {σ : Type} [Assertion Pred] [Assertion EPred]

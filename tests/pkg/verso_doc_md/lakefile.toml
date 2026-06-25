@@ -1,5 +1,5 @@
 name = "verso_doc_md"
-defaultTargets = ["VersoDocMd", "VersoDocMdTest"]
+defaultTargets = ["VersoDocMd", "VersoDocMdTest", "VersoDocMdTestImportAll"]
 
 # Defines a docstring role and its Markdown renderer (`Defs`), a declaration whose docstring is the
 # inclusion target (`A`), and a declaration whose docstring includes it via the custom role (`B`).
@@ -13,3 +13,9 @@ roots = ["VersoDocMd.Defs", "VersoDocMd.A", "VersoDocMd.B"]
 name = "VersoDocMdTest"
 leanOptions = { Elab.inServer = true }
 roots = ["VersoDocMd.C"]
+
+# Includes an `import all`'d declaration's docstring through a role that reads it straight from the
+# environment as it elaborates. The target is reached through `import all` instead of `Elab.inServer`.
+[[lean_lib]]
+name = "VersoDocMdTestImportAll"
+roots = ["VersoDocMd.D"]

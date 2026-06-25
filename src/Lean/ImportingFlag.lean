@@ -67,7 +67,7 @@ As with `withImporting`, users must make sure there is only one execution thread
 the global references.
 -/
 @[export lean_set_initializing]
-private def setInitializing (b : Bool) : IO Unit :=
+private def setInitializing (b : Bool) : BaseIO Unit :=
   importingRef.set b
 
 end Lean

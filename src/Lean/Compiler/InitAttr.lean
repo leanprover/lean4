@@ -184,7 +184,7 @@ private unsafe def runInitAttrForMod
   -- so deduplicate (these lists should be very short).
   -- If we have both, we should not need to worry about their relative ordering as `meta` and
   -- non-`meta` initialize should not have interdependencies.
-  let modEntries := modEntries ++ (regularInitAttr.ext.getModuleIREntries env modIdx).filter (!modEntries.contains ·)
+  let modEntries := modEntries ++ (← regularInitAttr.ext.getModuleIREntries env modIdx).filter (!modEntries.contains ·)
   for (decl, initDecl) in modEntries do
     if !initRuntime && getIRPhases env decl == .runtime then
       continue
@@ -222,12 +222,12 @@ Returns the indices of modules in `env.header.modules` whose `regularInitAttr` h
 entries. Computed at `--incr-(header-)save` time and consumed by `runInitAttrsForModules` on
 `--incr-load`.
 -/
-def getRegularInitAttrModIdxs (env : Environment) : Array Nat := Id.run do
+def getRegularInitAttrModIdxs (env : Environment) : BaseIO (Array Nat) := do
   let mut idxs := Array.emptyWithCapacity env.header.modules.size
   for modIdx in 0...env.header.modules.size do
     if !(regularInitAttr.ext.getModuleEntries env modIdx).isEmpty
-        || !(regularInitAttr.ext.getModuleIREntries env modIdx).isEmpty then
+        || !(← regularInitAttr.ext.getModuleIREntries env modIdx).isEmpty then
       idxs := idxs.push modIdx
-  idxs
+  return idxs
 
 end Lean

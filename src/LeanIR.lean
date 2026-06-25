@@ -23,11 +23,8 @@ import Lean.Compiler.LCNF.Main
 open Lean Compiler LCNF
 
 /-- Leaner alternative to `.ir` for non-`import all` compilation. -/
-def mkIRSigData (env : Environment) : IO ModuleData := do
-  let data ← mkModuleData env .exported
-  return { data with
-    extraConstNames := getIRExtraConstNames env .exported
-  }
+def mkIRSigData (env : Environment) : IO ModuleData :=
+  mkModuleData env .exported
 
 def mkIRData (env : Environment) : IO ModuleData := do
   -- TODO: should we use a more specific/efficient data format for IR?
@@ -42,9 +39,6 @@ def mkIRData (env : Environment) : IO ModuleData := do
     entries := irEntries ++ modEntries
     constants := default
     constNames := default
-    -- make sure to include all names in case only `.ir` is loaded
-    -- TODO: `.private` because `import all` may require otherwise unreachable IR entries
-    extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
 def setConfigOption (opts : Options) (arg : String) : IO Options := do
@@ -110,7 +104,7 @@ public def main (args : List String) : IO UInt32 := do
   let env := decls.foldl (fun env decl => setDeclPublic env decl.name) env
 
   -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
-  -- unchanged and also for calculation of `extraConstNames` above
+  -- unchanged
   -- TODO: we do manually-added externs only as others need more state sync around ground exprs etc
   let is := Lean.IR.declMapExt.toEnvExtension.getState env
   let unbox : Name → Name

@@ -10,6 +10,7 @@ public import Lean.DeclarationRange
 public import Lean.DocString.Markdown
 public import Init.Data.String.Extra
 import Init.Omega
+import Lean.PrivateName
 
 public section
 
@@ -134,15 +135,6 @@ def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m
   | some docString => addDocStringCore declName docString
   | none => return ()
 
-def addInheritedDocString [Monad m] [MonadError m] [MonadEnv m] (declName target : Name) : m Unit := do
-  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` is in an imported module"
-  if inheritDocStringExt.find? (level := .server) (← getEnv) declName |>.isSome then
-    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` already has an `[inherit_doc]` attribute"
-  if inheritDocStringExt.find? (level := .server) (← getEnv) target == some declName then
-    throwError "invalid `[inherit_doc]` attribute, cycle detected"
-  modifyEnv fun env => inheritDocStringExt.insert env declName target
-
 /--
 Finds a docstring without performing any alias resolution or enrichment with extra metadata.
 For Markdown docstrings, the result is a string; for Verso docstrings, it's a `VersoDocString`.
@@ -164,6 +156,25 @@ partial def findInternalDocString? (env : Environment) (declName : Name) (includ
     else if let some doc := (← builtinVersoDocStrings.get).find? declName then
       return some (.inr doc)
   return none
+
+def addInheritedDocString [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT IO m]
+    (declName target : Name) : m Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` is in an imported module"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) declName |>.isSome then
+    throwError "invalid `[inherit_doc]` attribute, declaration `{.ofConstName declName}` already has an `[inherit_doc]` attribute"
+  if inheritDocStringExt.find? (level := .server) (← getEnv) target == some declName then
+    throwError "invalid `[inherit_doc]` attribute, cycle detected"
+  -- A public declaration cannot alias the docstring of a private one: the private target is not
+  -- exported, so importers have no module index for it and cannot resolve the alias. Copy the
+  -- resolved docstring eagerly instead (the target is local here, so it is available).
+  if !isPrivateName declName && isPrivateName target then
+    match ← findInternalDocString? (← getEnv) target with
+    | some (.inl md)    => modifyEnv (docStringExt.insert · declName md)
+    | some (.inr verso) => modifyEnv (versoDocStringExt.insert · declName verso)
+    | none              => modifyEnv (inheritDocStringExt.insert · declName target)
+  else
+    modifyEnv (inheritDocStringExt.insert · declName target)
 
 /--
 Finds a docstring without performing any alias resolution or enrichment with extra metadata. The

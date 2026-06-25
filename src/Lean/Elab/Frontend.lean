@@ -351,7 +351,7 @@ def runFrontend
   let saveSnap (incrFile : System.FilePath) (snapToSave : Language.Lean.InitialSnapshot) :
       IO Unit := do
     let toSave : IncrSnapshot :=
-      { snap := snapToSave, initModIdxs := getRegularInitAttrModIdxs env }
+      { snap := snapToSave, initModIdxs := ← getRegularInitAttrModIdxs env }
     let compactor ← (unsafe CompactedRegion.save incrFile `_snap toSave
       env.header.regions none (allowClosures := true))
     let moduleArts := regionsToModuleArtifacts env.header.regions

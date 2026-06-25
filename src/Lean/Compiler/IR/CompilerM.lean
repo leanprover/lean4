@@ -13,6 +13,7 @@ import Lean.Compiler.InitAttr
 import all Lean.Compiler.ModPkgExt
 import Init.Data.Format.Macro
 import Lean.Compiler.LCNF.Basic
+import Lean.PrivateName
 
 public section
 
@@ -117,6 +118,24 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.name) (fun s d => s.insert d.name d)
   }
 
+/-- Names called (via `fap`/`pap`) by an IR function body. -/
+private partial def collectIRBodyRefs : FnBody → NameSet → NameSet
+  | .vdecl _ _ v b, s =>
+    collectIRBodyRefs b <| match v with
+      | .fap f _ => s.insert f
+      | .pap f _ => s.insert f
+      | _        => s
+  | .jdecl _ _ v b, s => collectIRBodyRefs b (collectIRBodyRefs v s)
+  | .case _ _ _ alts, s => alts.foldl (fun s alt => collectIRBodyRefs alt.body s) s
+  | e, s => if e.isTerminal then s else collectIRBodyRefs e.body s
+
+/-- Names called by the given IR declarations' bodies. -/
+private def collectIRDeclRefs (decls : Array Decl) : NameSet :=
+  decls.foldl (init := {}) fun s decl =>
+    match decl with
+    | .fdecl (body := b) .. => collectIRBodyRefs b s
+    | .extern .. => s
+
 @[export lean_ir_export_entries]
 private def exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
   let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
@@ -135,27 +154,48 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- safety: cast to erased type
   let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
 
+  -- For every code-generator auxiliary or private symbol this module's IR references in another
+  -- module, record its defining module, so the interpreter can resolve such cross-module references
+  -- (which are absent from `const2ModIdx`, and whose defining module might otherwise never be loaded)
+  -- by loading the right `.ir` on demand. `const2ModIdx` is complete here: code generation has already
+  -- resolved every reference.
+  let irRefModules : Array (Name × Name) := Id.run do
+    let mut tbl := #[]
+    for sym in (collectIRDeclRefs irDecls).toList do
+      if let some idx := env.getModuleIdxFor? sym then
+        if !env.contains sym || isPrivateName sym then
+          tbl := tbl.push (sym, env.header.moduleNames[idx.toNat]!)
+    return tbl
+  -- safety: cast to erased type
+  let irRefModules : Array EnvExtensionEntry := unsafe unsafeCast irRefModules
+
   #[(declMapExt.name, irEntries),
     (Lean.regularInitAttr.ext.name, initDecls),
-    (modPkgExt.name, modPkg)]
+    (modPkgExt.name, modPkg),
+    (Lean.irReferencedModulesEntryName, irRefModules)]
 
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
+def findEnvDecl (env : Environment) (declName : Name) : BaseIO (Option Decl) :=
+  Compiler.LCNF.findIRExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
 
 @[export lean_ir_find_env_decl]
-private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDecl (env : Environment) (declName : Name) : BaseIO (Option Decl) := do
   -- This function is never used in `leanir`, so no need for `findExtEntry?`
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     -- `meta import/import all` and additional server-mode IR
-    findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
-    -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
-    findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
-  | none => declMapExt.getState env |>.find? declName
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) declName <|>
+      -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
+      findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
+  | none =>
+    if let some decl := declMapExt.getState env |>.find? declName then
+      return some decl
+    -- imported code-generator auxiliary (not in `const2ModIdx`) discovered during on-demand IR loading
+    let some modIdx ← env.lazyIRModuleIdxFor? declName | return none
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) declName
 
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]
-private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option Decl :=
+private def findInterpDeclBoxed (env : Environment) (declName : Name) : BaseIO (Option Decl) := do
   let boxed := Compiler.LCNF.mkBoxedName declName
   -- Important: get module index of base name, not boxed version. Usually the interpreter never
   -- does negative lookups except in the case of `call_boxed` which must check whether a boxed
@@ -165,9 +205,13 @@ private def findInterpDeclBoxed (env : Environment) (declName : Name) : Option D
   -- not a local declaration.
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    findAtSorted? (declMapExt.getModuleIREntries env modIdx) boxed <|>
-    findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
-  | none => declMapExt.getState env |>.find? boxed
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) boxed <|>
+      findAtSorted? (declMapExt.getModuleEntries env modIdx) boxed
+  | none =>
+    if let some decl := declMapExt.getState env |>.find? boxed then
+      return some decl
+    let some modIdx ← env.lazyIRModuleIdxFor? declName | return none
+    return findAtSorted? (← declMapExt.getModuleIREntries env modIdx) boxed
 
 @[export lean_has_compile_error]
 private def hasCompileError (env : Environment) (constName : Name) : Bool :=
@@ -177,8 +221,8 @@ private def hasCompileError (env : Environment) (constName : Name) : Bool :=
   -- evaluate constants previously called `compileDecl` on.
   | none => !(declMapExt.getState env |>.contains constName)
 
-def findDecl (n : Name) : CompilerM (Option Decl) :=
-  return findEnvDecl (← getEnv) n
+def findDecl (n : Name) : CompilerM (Option Decl) := do
+  findEnvDecl (← getEnv) n
 
 def containsDecl (n : Name) : CompilerM Bool :=
   return (← findDecl n).isSome
@@ -200,13 +244,13 @@ def addDecl (decl : Decl) : CompilerM Unit := do
 def addDecls (decls : Array Decl) : CompilerM Unit :=
   decls.forM addDecl
 
-def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
+def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : BaseIO (Option Decl) :=
   match decls.find? (fun decl => decl.name == n) with
-  | some decl => some decl
+  | some decl => pure (some decl)
   | none      => findEnvDecl env n
 
-def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
-  return findEnvDecl' (← getEnv) n decls
+def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) := do
+  findEnvDecl' (← getEnv) n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
   if decls.any fun decl => decl.name == n then
@@ -219,18 +263,21 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
   return decl
 
 @[export lean_decl_get_sorry_dep]
-def getSorryDep (env : Environment) (declName : Name) : Option Name :=
-  match findEnvDecl env declName with
-  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
-  | _ => none
+def getSorryDep (env : Environment) (declName : Name) : BaseIO (Option Name) := do
+  match ← findEnvDecl env declName with
+  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => return dep?
+  | _ => return none
 
-/-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
-@[export lean_get_ir_extra_const_names]
-private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name :=
-  let env := env.setExporting (level == .exported)
-  declMapExt.getEntries env |>.toArray.map (·.name)
-    |>.filter fun n => (includeDecls || !env.contains n) &&
-      (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n)
+/-- Names of the declarations a module contributes to `declMapExt`, read from its already-loaded
+`.olean`/`.ir` module data. Used by the importer to fill `const2ModIdx`/the lazy IR index from the
+loaded entries rather than a stored side list. -/
+@[export lean_extract_ir_const_names]
+def extractIRConstNames (data : ModuleData) : Array Name :=
+  match data.entries.find? (·.1 == declMapExt.name) with
+  | some (_, entries) =>
+    let decls : Array Decl := unsafe unsafeCast entries
+    decls.map (·.name)
+  | none => #[]
 
 end IR
 end Lean

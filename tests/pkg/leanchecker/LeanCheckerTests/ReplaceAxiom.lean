@@ -21,7 +21,7 @@ open Lean Elab Meta in
     env.toKernelEnv.diagnostics
     env.toKernelEnv.const2ModIdx
     (Lean.Kernel.Environment.extensions env.toKernelEnv)
-    {}
+    none
     env.header
   Lean.Environment.setCheckedSync env kenv
 

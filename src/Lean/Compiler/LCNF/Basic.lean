@@ -1244,11 +1244,28 @@ with avoiding unnecessary task blocks.
     (findAtSorted? : Array α → Name → Option α')
     (findInState? : σ → Name → Option α') : Option α' :=
   (env.getModuleIdxFor? declName).bind (fun modIdx =>
-    -- non-meta defs with leanir
-    findAtSorted? (ext.getModuleIREntries env modIdx) declName <|>
-    -- meta defs with leanir and all defs without leanir
     findAtSorted? (ext.getModuleEntries env modIdx) declName) <|>
   -- In `leanir`, the current module has a module index, so we need to check the local state always
   findInState? (ext.getState env) declName
+
+/--
+Like `findExtEntry?`, but also consults the on-demand IR entries (`getModuleIREntries`). Use this for
+extensions whose IR is stored separately (e.g. `declMapExt`); `findExtEntry?` suffices for extensions
+that never carry IR.
+-/
+@[inline] def findIRExtEntry? [Inhabited σ] (env : Environment) (ext : PersistentEnvExtension α β σ) (declName : Name)
+    (findAtSorted? : Array α → Name → Option α')
+    (findInState? : σ → Name → Option α') : BaseIO (Option α') := do
+  if let some modIdx := env.getModuleIdxFor? declName then
+    -- non-meta defs with leanir
+    if let some r := findAtSorted? (← ext.getModuleIREntries env modIdx) declName then
+      return some r
+    -- meta defs with leanir and all defs without leanir
+    if let some r := findAtSorted? (ext.getModuleEntries env modIdx) declName then
+      return some r
+  -- In `leanir`, the current module has a module index, so we need to check the local state always.
+  -- No `lazyIRModuleIdxFor?` fallback is needed here: unlike the interpreter, code generation (the only
+  -- caller) only references kernel constants (in `const2ModIdx`) and current-module declarations.
+  return findInState? (ext.getState env) declName
 
 end Lean.Compiler.LCNF

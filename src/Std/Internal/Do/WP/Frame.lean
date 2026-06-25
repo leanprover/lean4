@@ -29,9 +29,8 @@ For stateful `Pred`, this means that running `x` preserves the state identified 
 def WP.Frames (x : Prog) (F : Pred) : Prop :=
   ∀ (Q : Value → Pred) (E : EPred), F ⊓ wp x Q E ⊑ wp x (fun a => F ⊓ Q a) E
 
-/-- `x` frames a meet frame `F` when `x` frames `F` and `wp x` is conjunctive:
-the side condition reduces to the preservation triple `F ⊑ wp x (fun _ => F)`. -/
-theorem WP.Frames.of_meet {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
+/-- If `wp x` is conjunctive, then `x` frames `F` when `F` holds before and after running `x`. -/
+theorem WP.Frames.of_wp_conjunctive {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
     [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
     [WPConjunctive Prog Value Pred EPred] {x : Prog} {F : Pred} (h : ∀ E, F ⊑ wp x (fun _ => F) E) :
     WP.Frames x F := by

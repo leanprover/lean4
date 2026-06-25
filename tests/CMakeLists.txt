@@ -39,13 +39,17 @@ string(APPEND TEST_VARS " LEANC_OPTS='${LEANC_OPTS}'")
 # LEANC_OPTS in CXX is necessary for macOS c++ to find its headers
 string(APPEND TEST_VARS " CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
 
-# Pre-elaborated header snapshots reused by tests with matching imports. The
-# `_lean` snapshot is for tests whose only import is `Lean`; the `_init`
-# snapshot is for tests with no imports at all (auto-imports `Init`). Built by
-# the `build_lean_header_snapshots.sh` fixture below; absent for manual
-# `run_test.sh` runs, where `maybe_use_lean_header_snapshot` skips them.
-string(APPEND TEST_VARS " LEAN_HEADER_SNAPSHOT_LEAN='${MANGLED_CURRENT_BINARY_DIR}/lean_header_lean.snap'")
-string(APPEND TEST_VARS " LEAN_HEADER_SNAPSHOT_INIT='${MANGLED_CURRENT_BINARY_DIR}/lean_header_init.snap'")
+# Pre-elaborated header snapshots reused by tests with matching imports, gated
+# by the `LEAN_HEADER_SNAPSHOTS` option. The `_lean` snapshot is for tests whose
+# only import is `Lean`; the `_init` snapshot is for tests with no imports at
+# all (auto-imports `Init`). Built by the `build_lean_header_snapshots.sh`
+# fixture below; absent for manual `run_test.sh` runs, where
+# `maybe_use_lean_header_snapshot` skips them.
+option(LEAN_HEADER_SNAPSHOTS "Pre-elaborate Lean/Init header snapshots to speed up the elab test suites" OFF)
+if(LEAN_HEADER_SNAPSHOTS)
+  string(APPEND TEST_VARS " LEAN_HEADER_SNAPSHOT_LEAN='${MANGLED_CURRENT_BINARY_DIR}/lean_header_lean.snap'")
+  string(APPEND TEST_VARS " LEAN_HEADER_SNAPSHOT_INIT='${MANGLED_CURRENT_BINARY_DIR}/lean_header_init.snap'")
+endif()
 
 set(WITH_TEST_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_test_env.sh")
 set(WITH_BENCH_ENV "${CMAKE_CURRENT_SOURCE_DIR}/with_stage${STAGE}_bench_env.sh")
@@ -257,11 +261,14 @@ endfunction()
 # fixture (not in `ALL`) so it runs only after `lean` is built, never blocking
 # `make`. The script itself skips the rebuild unless `lean` is newer than the
 # snapshots, keeping single-test runs cheap.
-add_test(
-  NAME build_lean_header_snapshots.sh
-  COMMAND bash "${WITH_TEST_ENV}" "${CMAKE_CURRENT_SOURCE_DIR}/build_lean_header_snapshots.sh"
-)
-set_tests_properties(build_lean_header_snapshots.sh PROPERTIES FIXTURES_SETUP lean_header_snapshot)
+if(LEAN_HEADER_SNAPSHOTS)
+  add_test(
+    NAME build_lean_header_snapshots.sh
+    COMMAND bash "${WITH_TEST_ENV}" "${CMAKE_CURRENT_SOURCE_DIR}/build_lean_header_snapshots.sh"
+  )
+  set_tests_properties(build_lean_header_snapshots.sh PROPERTIES FIXTURES_SETUP lean_header_snapshot)
+  set(ELAB_FIXTURES FIXTURES_REQUIRED lean_header_snapshot)
+endif()
 
 # Benchmarks are split into two parts which should be roughly equal in total runtime.
 # In radar, each part is run on a different runner.
@@ -314,10 +321,10 @@ add_test_pile(
   EXCEPT
     async_select_channel.lean # Flaky
     sync_mutex.lean # Flaky
-  FIXTURES_REQUIRED lean_header_snapshot
+  ${ELAB_FIXTURES}
 )
-add_test_pile(elab_bench *.lean BENCH PART2 FIXTURES_REQUIRED lean_header_snapshot)
-add_test_pile(elab_fail *.lean FIXTURES_REQUIRED lean_header_snapshot)
+add_test_pile(elab_bench *.lean BENCH PART2 ${ELAB_FIXTURES})
+add_test_pile(elab_fail *.lean ${ELAB_FIXTURES})
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
 add_test_pile(server *.lean)

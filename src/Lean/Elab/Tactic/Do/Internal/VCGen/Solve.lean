@@ -409,7 +409,7 @@ Frame dispatcher for a spec-ready program `info.prog`:
   frame as an artificial per-call spec.
   The precondition `F ⊓ wp (skipFrame prog) (F ⇨ Q)` splits into the
   frame VC `· ⊑ F` and the `skipFrame`-marked Frame-enhanced program,
-  and the frame condition VC `Preserving prog (F ⊓ ·)` becomes another VC, reported as `.framed`.
+  and the frame condition VC `Frames prog F` becomes another VC, reported as `.framed`.
 -/
 private def applyFrame (scope : VCGen.Scope) (goal : MVarId) (info : WPInfo) :
     VCGenM FrameResult := goal.withContext do

@@ -29,7 +29,7 @@ partially apply it (pinning `F`) and feed the result through the ordinary spec m
 `x`, `epost`, `Q`, and `hframe` schematic. -/
 theorem meet_wp_imp_le_wp_skipFrame [Frame Pred] (F : Pred) (x : Prog)
   (E : EPred) (Q : Value → Pred)
-    (hframe : WP.Preserving x F) :
+    (hframe : WP.Frames x F) :
     F ⊓ wp (skipFrame x) (fun a => F ⇨ Q a) E ⊑ wp x Q E :=
   meet_wp_imp_le_wp hframe
 

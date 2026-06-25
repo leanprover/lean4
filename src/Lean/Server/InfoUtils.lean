@@ -326,25 +326,18 @@ def Info.type? (i : Info) : MetaM (Option Expr) :=
   | _ => return none
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
-  let env ← getEnv
-  -- Docstrings are rendered with default options, rather than the local set of options, for the
-  -- sake of consistency.
-  let currNamespace ← getCurrNamespace
-  let openDecls ← getOpenDecls
-  let find (declName : Name) : IO (Option String) :=
-    findDocString? env declName (currNamespace := currNamespace) (openDecls := openDecls)
   match i with
   | .ofTermInfo ti =>
     if let some n := ti.expr.constName? then
-      return (← find n)
+      return (← findMarkdownDocString? n)
   | .ofDelabTermInfo ti =>
     if let some doc ← ti.docString? (← Meta.getPPContext) then
       return doc
     else if let some n := ti.expr.constName? then
-      return (← find n)
-  | .ofFieldInfo fi => return ← find fi.projName
+      return (← findMarkdownDocString? n)
+  | .ofFieldInfo fi => return ← findMarkdownDocString? fi.projName
   | .ofOptionInfo oi =>
-    if let some doc ← find oi.declName then
+    if let some doc ← findMarkdownDocString? oi.declName then
       return doc
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.fullDescr
@@ -353,12 +346,12 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     let some errorExplanation ← getErrorExplanation? eni.errorName | return none
     return errorExplanation.summaryWithSeverity
   | .ofDocInfo di =>
-    return (← find di.stx.getKind)
+    return (← findMarkdownDocString? di.stx.getKind)
   | .ofDocElabInfo dei =>
-    return (← find dei.name)
+    return (← findMarkdownDocString? dei.name)
   | _ => pure ()
   if let some ei := i.toElabInfo? then
-    return ← find ei.stx.getKind <||> find ei.elaborator
+    return ← findMarkdownDocString? ei.stx.getKind <||> findMarkdownDocString? ei.elaborator
   return none
 
 /-- Construct a hover popup, if any, from an info node in a context.-/

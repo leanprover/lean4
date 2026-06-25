@@ -28,8 +28,8 @@ public structure MarkdownM.State where
   private footnotes : Array (String × String) := #[]
 
 /--
-The monad in which docstring Markdown is rendered. This is used when showing Verso docstrings in the
-language server or in other contexts that don't support the full Verso syntax.
+The monad in which docstring Markdown is rendered. This is used when showing Verso docstrings as
+plain Markdown, such as in the language server.
 -/
 public abbrev MarkdownM := StateRefT MarkdownM.State CoreM
 
@@ -446,23 +446,6 @@ public instance [MarkdownInline i] [MarkdownBlock i b] : ToMarkdown (Part i b p)
   toMarkdown part := partMarkdown 0 part
 
 /--
-Renders a custom inline element to Markdown. It receives a renderer for inline content, the saved
-`Dynamic` description of the custom element, and the element's fallback content.
--/
-public abbrev InlineMdRenderer :=
-  (Inline ElabInline → MarkdownM (Array String)) → Dynamic → Array (Inline ElabInline) →
-    MarkdownM (Array String)
-
-/--
-Renders a custom block element to Markdown. It receives renderers for inline and block content, the
-saved `Dynamic` description of the custom element, and the element's fallback content.
--/
-public abbrev BlockMdRenderer :=
-  (Inline ElabInline → MarkdownM (Array String)) →
-    (Block ElabInline ElabBlock → MarkdownM (Array String)) →
-    Dynamic → Array (Block ElabInline ElabBlock) → MarkdownM (Array String)
-
-/--
 A renderer for custom inline elements of type `α`. It receives a renderer for inline content, the
 custom element, and the element's fallback content.
 -/
@@ -478,6 +461,18 @@ public abbrev BlockMdRendererOf (α : Type) :=
   (Inline ElabInline → MarkdownM (Array String)) →
     (Block ElabInline ElabBlock → MarkdownM (Array String)) →
     α → Array (Block ElabInline ElabBlock) → MarkdownM (Array String)
+
+/--
+Renders a custom inline element to Markdown. It receives a renderer for inline content, the saved
+`Dynamic` description of the custom element, and the element's fallback content.
+-/
+public abbrev InlineMdRenderer := InlineMdRendererOf Dynamic
+
+/--
+Renders a custom block element to Markdown. It receives renderers for inline and block content, the
+saved `Dynamic` description of the custom element, and the element's fallback content.
+-/
+public abbrev BlockMdRenderer := BlockMdRendererOf Dynamic
 
 /--
 Wraps a typed inline renderer as an `InlineMdRenderer` by decoding the `Dynamic` custom element as
@@ -578,7 +573,7 @@ public def mdRendererHeartbeats : Nat := 200000
 /--
 Runs an element renderer with a fresh `mdRendererHeartbeats` budget.
 
-Each renderer is bounded independently rather than sharing one docstring-wide budget.
+The budget applies to each renderer separately.
 -/
 public def withMdRendererBudget (x : MarkdownM α) : MarkdownM α := do
   let now ← IO.getNumHeartbeats

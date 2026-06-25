@@ -11,6 +11,7 @@ public import Lean.DocString.Markdown
 public import Lean.DocString.Links
 public import Lean.Parser.Tactic.Doc
 public import Lean.Parser.Term.Doc
+public import Lean.ResolveName
 
 public section
 
@@ -41,3 +42,14 @@ def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true
       (options := options) (currNamespace := currNamespace) (openDecls := openDecls)).map
     (· ++ exts ++ spellings)
   str.mapM (rewriteManualLinks ·)
+
+/--
+Finds the docstring for a name, taking the current namespace and open declarations from the ambient
+monad. Tactic alternate forms and documentation extensions are taken into account.
+
+Docstrings are rendered with the default options.
+-/
+def findMarkdownDocString? [Monad m] [MonadEnv m] [MonadResolveName m] [MonadLiftT IO m]
+    (declName : Name) (includeBuiltin := true) : m (Option String) := do
+  findDocString? (← getEnv) declName (includeBuiltin := includeBuiltin)
+    (currNamespace := ← getCurrNamespace) (openDecls := ← getOpenDecls)

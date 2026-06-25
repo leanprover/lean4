@@ -980,7 +980,6 @@ theorem IsInfix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l�
 grind_pattern IsInfix.findIdx?_eq_none => l₁ <:+: l₂, l₁.findIdx? p
 grind_pattern IsInfix.findIdx?_eq_none => l₁ <:+: l₂, l₂.findIdx? p
 
-@[grind =]
 theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
     xs.findIdx p = (xs.findIdx? p).getD xs.length := by
   induction xs with
@@ -988,6 +987,8 @@ theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
   | cons x xs ih =>
     simp only [findIdx_cons, findIdx?_cons]
     split <;> simp_all
+
+grind_pattern findIdx_eq_getD_findIdx? => xs.findIdx p, xs.findIdx? p
 
 @[simp] theorem findIdx?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :

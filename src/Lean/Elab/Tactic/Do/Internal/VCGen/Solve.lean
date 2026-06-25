@@ -338,7 +338,8 @@ private def matchesUntilPattern (m prog : Expr) : VCGenM Bool := do
 
 /-- `let`-declaration analogue of `withLocalDeclsDND`: brings each `name : type := value` into scope
 (types and values mutually independent), then runs `k` with the new free variables. -/
-@[inline] private def withLetDeclsDND (declInfos : Array (Name × Expr × Expr))
+@[inline]
+private def withLetDeclsDND (declInfos : Array (Name × Expr × Expr))
     (k : Array Expr → VCGenM Expr) : VCGenM Expr :=
   loop #[]
 where
@@ -356,13 +357,12 @@ pattern variable bound to the subterm the pattern matched. The bindings are intr
 assignments and the user sees them in the side goals. -/
 private def elabFrame (entry : FrameEntry) (res : Sym.MatchUnifyResult) (info : WPInfo) :
     VCGenM Expr := do
-  let mut named : Array (Name × Expr) := #[]
+  let mut decls : Array (Name × Expr × Expr) := #[]
   for h : i in [0:entry.varNames.size] do
     if let some nm := entry.varNames[i] then
       if h2 : i < res.args.size then
-        named := named.push (nm, res.args[i])
-  let declInfos ← named.mapM fun (nm, v) => do return (nm, ← Meta.inferType v, v)
-  Meta.withDefault <| withLetDeclsDND declInfos fun fvs => do
+        decls := decls.push (nm, ← Meta.inferType res.args[i]!, res.args[i]!)
+  Meta.withDefault <| withLetDeclsDND decls fun fvs => do
     let frameExpr ← Lean.Elab.Term.TermElabM.run' do
       let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some info.Pred)
       Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
@@ -400,31 +400,29 @@ inductive FrameResult where
   The caller applies the program's own spec to `goal` with the (possibly updated) `info`. -/
   | notFramed (goal : MVarId) (info : WPInfo)
 
-/-- Frame dispatcher for a spec-ready program `info.prog`:
-* if the program is `skipFrame x` (the residual of an already-applied frame), strip the marker by
-  updating `info.prog` to `x` and report `.notFramed`, so framing happens at most once per
-  occurrence;
-* otherwise, if a `frames` alternative matches, apply `meet_wp_imp_le_wp_skipFrame` with the matched
-  frame pinned as an artificial per-call spec (built through `tryMkBackwardRuleFromSpec`, so excess
-  args are baked in at base level): the precondition `F ⊓ wp (skipFrame prog) (F ⇨ Q)` splits into the
-  frame VC `· ⊑ F` and the `skipFrame`-marked residual, and `Preserving prog (F ⊓ ·)` becomes a VC;
-  reported as `.framed`;
-* otherwise report `.notFramed`. -/
+/--
+Frame dispatcher for a spec-ready program `info.prog`:
+* If the program is `skipFrame x` (the residual of an already-applied frame), strip the marker and
+  report `.notFramed`, so framing happens at most once per occurrence.
+* If no `frames` alternative matches, report `.notFramed`.
+* Otherwise, apply `meet_wp_imp_le_wp_skipFrame` with the matched
+  frame as an artificial per-call spec.
+  The precondition `F ⊓ wp (skipFrame prog) (F ⇨ Q)` splits into the
+  frame VC `· ⊑ F` and the `skipFrame`-marked Frame-enhanced program,
+  and the frame condition VC `Preserving prog (F ⊓ ·)` becomes another VC, reported as `.framed`.
+-/
 private def applyFrame (scope : VCGen.Scope) (goal : MVarId) (info : WPInfo) :
     VCGenM FrameResult := goal.withContext do
-  if info.prog.getAppFn.isConstOf ``Std.Internal.Do.skipFrame then
+  if info.prog.getAppFn.isConstOf ``Std.Internal.Do.Gadget.skipFrame then
     let strippedProg := info.prog.appArg!
     let goal ← replaceProgDefEq goal info strippedProg
     return .notFramed goal { info with args := info.args.set! 7 strippedProg }
   let some F ← matchFrame? info
     | return .notFramed goal info
-  -- Pin the matched frame `F` (and the `Frame` instance) in `meet_wp_imp_le_wp_skipFrame`, leaving the
-  -- program, postcondition, and frame condition schematic, then run the result through the ordinary
-  -- spec-to-rule machinery as an artificial per-call spec.
   -- Apply the program's own `wp` arguments (`info.args.take 7`: program type, value, assertions,
   -- `WP` instance) and the matched frame `F`, letting `mkAppOptM` synthesize the `Frame` instance
   -- against the assertion's own `CompleteLattice` so it shares the structure the program's `wp` uses.
-  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.meet_wp_imp_le_wp_skipFrame
+  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.Gadget.meet_wp_imp_le_wp_skipFrame
     ((info.args.take 7).map some ++ #[none, some F])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build spec from meet_wp_imp_le_wp_skipFrame for{indentExpr info.prog}"

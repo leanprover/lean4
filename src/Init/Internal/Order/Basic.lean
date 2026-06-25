@@ -52,7 +52,7 @@ class PartialOrder (α : Sort u) where
 
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 
-attribute [grind ←] PartialOrder.rel_refl
+attribute [grind .] PartialOrder.rel_refl
 
 section PartialOrder
 

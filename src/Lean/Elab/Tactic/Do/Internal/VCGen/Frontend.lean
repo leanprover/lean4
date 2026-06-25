@@ -251,7 +251,6 @@ private structure ParsedArgs where
   ctx : VCGen.Context
   scope : VCGen.Scope
   invariantAlts? : Option (Std.HashMap Nat Syntax)
-  /-- Deferred `frames` database, seeded into `State.frameDB?` so retirement can mutate it. -/
   frameDB? : Option (Deferred FrameDB)
 
 /-- Build a `Sym.Pattern` from `e` by abstracting the metavariables `xs` into pattern variables.

@@ -49,8 +49,8 @@ theorem meet_wp_le_wp_meet {x : Prog} {F : Pred} {Q : Value → Pred} {E : EPred
     F ⊓ wp x Q E ⊑ wp x (fun r => F ⊓ Q r) E :=
   hframe Q E
 
-/-- The framed spec `vcgen` applies for `x`: residualizing the postcondition through `F ⇨ ·` makes
-`F ⊓ wp x (F ⇨ Q)` a precondition for `wp x Q`. -/
+/-- The framed spec `vcgen` applies for `x`: `F ⊓ wp x (fun a => F ⇨ Q a)` is a precondition for
+`wp x Q`. -/
 theorem meet_wp_imp_le_wp [Frame Pred] {x : Prog} {F : Pred} {Q : Value → Pred} {E : EPred}
     (hframe : WP.Frames x F) :
     F ⊓ wp x (fun a => F ⇨ Q a) E ⊑ wp x Q E :=

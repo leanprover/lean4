@@ -396,13 +396,13 @@ private def matchFrame? (info : WPInfo) : VCGenM (Option Expr) := do
 inductive FrameResult where
   /-- A `frames` alternative matched `info.prog` and was applied; these are its subgoals. -/
   | framed (scope : VCGen.Scope) (subgoals : List MVarId)
-  /-- No frame applies: either no alternative matched, or a `skipFrame` residual was stripped.
+  /-- No frame applies: either no alternative matched, or a `skipFrame` marker was stripped.
   The caller applies the program's own spec to `goal` with the (possibly updated) `info`. -/
   | notFramed (goal : MVarId) (info : WPInfo)
 
 /--
 Frame dispatcher for a spec-ready program `info.prog`:
-* If the program is `skipFrame x` (the residual of an already-applied frame), strip the marker and
+* If the program is `skipFrame x` (an already-framed program), strip the marker and
   report `.notFramed`, so framing happens at most once per occurrence.
 * If no `frames` alternative matches, report `.notFramed`.
 * Otherwise, apply `meet_wp_imp_le_wp_skipFrame` with the matched

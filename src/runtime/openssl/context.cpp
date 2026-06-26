@@ -14,6 +14,19 @@ Author: Sofia Rodrigues
 #if defined(__APPLE__)
 #include <Security/Security.h>
 #include <CoreFoundation/CoreFoundation.h>
+#elif defined(_WIN32)
+#include <windows.h>
+#include <wincrypt.h>
+// wincrypt.h defines these as object-like macros that collide with OpenSSL's identically named
+// types (e.g. X509_NAME). We only need the certificate-store API from it, so drop the macros; the
+// OpenSSL types were already declared by the headers above and remain intact.
+#undef X509_NAME
+#undef X509_EXTENSIONS
+#undef X509_CERT_PAIR
+#undef PKCS7_ISSUER_AND_SERIAL
+#undef PKCS7_SIGNER_INFO
+#undef OCSP_REQUEST
+#undef OCSP_RESPONSE
 #endif
 
 namespace lean {

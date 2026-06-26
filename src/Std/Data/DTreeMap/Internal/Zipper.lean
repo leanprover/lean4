@@ -443,7 +443,7 @@ public def RxcIterator.step [Ord α] : RxcIterator α β → IterStep (IterM (α
     else
       .done
 
-public instance [Ord α] : Iterator (RxcIterator α β) Id ((a : α) × β a) where
+public instance {_ : Ord α} : Iterator (RxcIterator α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
   step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
@@ -576,7 +576,7 @@ public def RxoIterator.step [Ord α] : RxoIterator α β → IterStep (IterM (α
     else
       .done
 
-public instance [Ord α] : Iterator (RxoIterator α β) Id ((a : α) × β a) where
+public instance {_ : Ord α} : Iterator (RxoIterator α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
   step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
@@ -697,7 +697,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Ric.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RicSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RicSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (Internal.RicSliceData α β)) (β := ((a : α) × β a)) _
     (fun s => ⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩)
 attribute [instance] RicSlice.instToIterator
@@ -726,7 +726,7 @@ public instance {α : Type u} [Ord α] : Ric.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RicSlice.instToIterator [Ord α] :=
+public def RicSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RicSliceData α)) (β := α) _ fun s =>
     (⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RicSlice.instToIterator
@@ -760,7 +760,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Ric.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RicSlice.instToIterator {β : Type v} [Ord α] :=
+public def RicSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RicSliceData α β)) _ fun s =>
     (⟨RxcIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RicSlice.instToIterator
@@ -794,7 +794,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Rio.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RioSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RioSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RioSliceData α β)) (β := (a : α) × β a) _ fun s =>
     ⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩
 attribute [instance] RioSlice.instToIterator
@@ -824,7 +824,7 @@ public instance {α : Type u} [Ord α] : Rio.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RioSlice.instToIterator [Ord α] :=
+public def RioSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RioSliceData α)) _ fun s =>
     (⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RioSlice.instToIterator
@@ -858,7 +858,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rio.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RioSlice.instToIterator {β : Type v} [Ord α] :=
+public def RioSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RioSliceData α β)) _ fun s =>
     (⟨RxoIterator.mk (Zipper.prependMap s.1.treeMap Zipper.done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RioSlice.instToIterator
@@ -925,7 +925,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Rcc.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RccSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RccSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RccSliceData α β)) (β := (a : α) × β a) _ fun s =>
     (rccIterator s.1.treeMap s.1.range.lower s.1.range.upper)
 attribute [instance] RccSlice.instToIterator
@@ -952,7 +952,7 @@ public instance {α : Type u} [Ord α] : Rcc.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RccSlice.instToIterator [Ord α] :=
+public def RccSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RccSliceData α)) _ fun s =>
     (⟨RxcIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RccSlice.instToIterator
@@ -988,7 +988,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rcc.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RccSlice.instToIterator {β : Type v} [Ord α] :=
+public def RccSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RccSliceData α β)) _ fun s =>
     (⟨RxcIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RccSlice.instToIterator
@@ -1059,7 +1059,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Rco.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RcoSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RcoSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RcoSliceData α β)) (β := (a : α) × β a) _ fun s =>
     rcoIterator s.1.treeMap s.1.range.lower s.1.range.upper
 attribute [instance] RcoSlice.instToIterator
@@ -1086,7 +1086,7 @@ public instance {α : Type u} [Ord α] : Rco.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RcoSlice.instToIterator [Ord α] :=
+public def RcoSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RcoSliceData α)) _ fun s =>
     (⟨RxoIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RcoSlice.instToIterator
@@ -1122,7 +1122,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rco.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RcoSlice.instToIterator {β : Type v} [Ord α] :=
+public def RcoSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RcoSliceData α β)) _ fun s =>
     (⟨RxoIterator.mk (Zipper.prependMapGE s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RcoSlice.instToIterator
@@ -1192,7 +1192,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Roo.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RooSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RooSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RooSliceData α β)) (β := (a : α) × β a) _ fun s =>
     rooIterator s.1.treeMap s.1.range.lower s.1.range.upper
 attribute [instance] RooSlice.instToIterator
@@ -1219,7 +1219,7 @@ public instance {α : Type u} [Ord α] : Roo.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RooSlice.instToIterator [Ord α] :=
+public def RooSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RooSliceData α)) _ fun s =>
     (⟨RxoIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RooSlice.instToIterator
@@ -1255,7 +1255,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Roo.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RooSlice.instToIterator {β : Type v} [Ord α] :=
+public def RooSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RooSliceData α β)) _ fun s =>
     (⟨RxoIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RooSlice.instToIterator
@@ -1326,7 +1326,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Roc.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RocSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RocSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RocSliceData α β)) (β := (a : α) × β a) _ fun s =>
     rocIterator s.1.treeMap s.1.range.lower s.1.range.upper
 attribute [instance] RocSlice.instToIterator
@@ -1353,7 +1353,7 @@ public instance {α : Type u} [Ord α] : Roc.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RocSlice.instToIterator [Ord α] :=
+public def RocSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RocSliceData α)) _ fun s =>
     (⟨RxcIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RocSlice.instToIterator
@@ -1389,7 +1389,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Roc.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RocSlice.instToIterator {β : Type v} [Ord α] :=
+public def RocSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RocSliceData α β)) _ fun s =>
     (⟨RxcIterator.mk (Zipper.prependMapGT s.1.treeMap s.1.range.lower .done) s.1.range.upper⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RocSlice.instToIterator
@@ -1445,7 +1445,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Rci.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RciSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RciSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RciSliceData α β)) (β := (a : α) × β a) _ fun s =>
     rciIterator s.1.treeMap s.1.range.lower
 attribute [instance] RciSlice.instToIterator
@@ -1472,7 +1472,7 @@ public instance {α : Type u} [Ord α] : Rci.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RciSlice.instToIterator [Ord α] :=
+public def RciSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RciSliceData α)) _ fun s =>
     (⟨Zipper.prependMapGE s.1.treeMap s.1.range.lower Zipper.done⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RciSlice.instToIterator
@@ -1511,7 +1511,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Rci.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RciSlice.instToIterator {β : Type v} [Ord α] :=
+public def RciSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RciSliceData α β)) _ fun s =>
     (⟨(Zipper.prependMapGE s.1.treeMap s.1.range.lower Zipper.done)⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RciSlice.instToIterator
@@ -1568,7 +1568,7 @@ public instance {α : Type u} {β : α → Type v} [Ord α] : Roi.Sliceable (Imp
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RoiSlice.instToIterator {β : α → Type v} [Ord α] :=
+public def RoiSlice.instToIterator {β : α → Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RoiSliceData α β)) (β := (a : α) × β a) _ fun s =>
     roiIterator s.1.treeMap s.1.range.lower
 attribute [instance] RoiSlice.instToIterator
@@ -1595,7 +1595,7 @@ public instance {α : Type u} [Ord α] : Roi.Sliceable (Impl α (fun _ => Unit))
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RoiSlice.instToIterator [Ord α] :=
+public def RoiSlice.instToIterator {_ : Ord α} :=
   ToIterator.of (γ := Slice (RoiSliceData α)) _ fun s =>
     (⟨Zipper.prependMapGT s.1.treeMap s.1.range.lower Zipper.done⟩ : Iter _ ).map fun e => (e.1)
 attribute [instance] RoiSlice.instToIterator
@@ -1634,7 +1634,7 @@ public instance {α : Type u} {β : Type v} [Ord α] : Roi.Sliceable (Impl α (f
   mkSlice carrier range := ⟨carrier, range⟩
 
 @[inline, expose, instance_reducible]
-public def RoiSlice.instToIterator {β : Type v} [Ord α] :=
+public def RoiSlice.instToIterator {β : Type v} {_ : Ord α} :=
   ToIterator.of (γ := Slice (RoiSliceData α β)) _ fun s =>
     (⟨(Zipper.prependMapGT s.1.treeMap s.1.range.lower .done)⟩ : Iter ((_ : α) × β)).map fun e => (e.1, e.2)
 attribute [instance] RoiSlice.instToIterator

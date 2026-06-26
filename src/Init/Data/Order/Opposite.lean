@@ -259,7 +259,7 @@ scoped instance (priority := low) instIsLinearPreorderOpposite {i : LE α} [IsLi
 scoped instance (priority := low) instIsLinearOrderOpposite {i : LE α} [IsLinearOrder α] :
     haveI := i.opposite
     IsLinearOrder α :=
-  letI := i.opposite; {}
+  @IsLinearOrder.mk _ i.opposite inferInstance (inferInstance : Total _).total
 
 scoped instance (priority := low) instLawfulOrderOrdOpposite {il : LE α} {io : Ord α}
     [LawfulOrderOrd α] :

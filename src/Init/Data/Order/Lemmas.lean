@@ -71,19 +71,19 @@ public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (�
     | .inl hba => .inl <| i.asymm b a hba
     | .inr hba => .inr hba
 
-public instance {α : Type u} [LE α] [IsPartialOrder α] :
+public instance {α : Type u} {_ : LE α} [IsPartialOrder α] :
     Antisymm (α := α) (· ≤ ·) where
   antisymm := IsPartialOrder.le_antisymm
 
-public instance {α : Type u} [LE α] [IsPreorder α] :
+public instance {α : Type u} {_ : LE α} [IsPreorder α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
       trans := IsPreorder.le_trans _ _ _
 
-public instance {α : Type u} [LE α] [IsPreorder α] :
+public instance {α : Type u} {_ : LE α} [IsPreorder α] :
     Refl (α := α) (· ≤ ·) where
   refl := IsPreorder.le_refl
 
-public instance {α : Type u} [LE α] [IsLinearPreorder α] :
+public instance {α : Type u} {_ : LE α} [IsLinearPreorder α] :
     Total (α := α) (· ≤ ·) where
   total := IsLinearPreorder.le_total
 

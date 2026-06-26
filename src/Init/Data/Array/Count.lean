@@ -82,6 +82,8 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
   simp only [countP_eq_size_filter]
   apply size_filter_le
 
+grind_pattern countP_le_size => countP p xs, xs.size
+
 @[simp, grind =] theorem countP_append {xs ys : Array α} : countP p (xs ++ ys) = countP p xs + countP p ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
@@ -209,7 +211,7 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 
 theorem count_le_size {a : α} {xs : Array α} : count a xs ≤ xs.size := countP_le_size
 
-grind_pattern count_le_size => count a xs
+grind_pattern count_le_size => count a xs, xs.size
 
 @[grind =]
 theorem count_eq_size_filter {a : α} {xs : Array α} : count a xs = (filter (· == a) xs).size := by

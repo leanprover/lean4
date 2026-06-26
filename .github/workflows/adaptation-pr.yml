@@ -66,7 +66,7 @@ jobs:
           fetch-depth: 0
 
       - name: Create adaptation PR
-        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr@master
+        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@master
         with:
           app-token: ${{ steps.app-token.outputs.token }}
           app-slug: ${{ steps.app-token.outputs.app-slug }}

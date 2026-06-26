@@ -623,10 +623,10 @@ jobs:
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
 
       # Finally, create/update the adaptation PR in the downstream repo. This is
-      # the second entry point into the adaptation-pr action; the other lives in
-      # `adaptation-pr.yml`. Unlike there, the toolchain release was just
-      # created above, so it is known to exist and there is no need to look it
-      # up first.
+      # the second entry point into the adaptation-pr-create action; the other
+      # lives in `adaptation-pr.yml`. Unlike there, the toolchain release was
+      # just created above, so it is known to exist and there is no need to look
+      # it up first.
       - name: Create GitHub App token
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: actions/create-github-app-token@v3
@@ -655,7 +655,7 @@ jobs:
 
       - name: Create adaptation PR
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr@master
+        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@master
         with:
           app-token: ${{ steps.app-token.outputs.token }}
           app-slug: ${{ steps.app-token.outputs.app-slug }}

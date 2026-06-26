@@ -22,7 +22,7 @@ lean_object * mk_openssl_error(char const * where, int ssl_err = 0) {
 
     if (ssl_err != 0) msg += " (ssl_error=" + std::to_string(ssl_err) + ")";
 
-    // Drain the full OpenSSL error queue.
+    // Drain up to 10 entries from the OpenSSL error queue; mark with "(truncated)" if more remain.
     unsigned long err;
     bool first = true;
     int cap = 10;
@@ -87,6 +87,8 @@ static bool configure_ctx_options(SSL_CTX * ctx) {
 }
 
 static lean_obj_res mk_ssl_context(const SSL_METHOD * method, bool default_verify) {
+    ERR_clear_error();
+
     SSL_CTX * ctx = SSL_CTX_new(method);
 
     if (ctx == nullptr) {
@@ -125,18 +127,18 @@ static lean_obj_res mk_ssl_context(const SSL_METHOD * method, bool default_verif
     return lean_io_result_mk_ok(lean_obj);
 }
 
-/* Std.Internal.SSL.Context.mkServer : IO Context */
+/* Std.Internal.SSL.Context.Server.mk (defaultVerify : Bool) : IO Context.Server */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(uint8_t default_verify) {
     return mk_ssl_context(TLS_server_method(), default_verify != 0);
 }
 
-/* Std.Internal.SSL.Context.mkClient : IO Context */
+/* Std.Internal.SSL.Context.Client.mk (defaultVerify : Bool) : IO Context.Client */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(uint8_t default_verify) {
-    // Client contexts default to SSL_VERIFY_PEER with system trust anchors.
+    // With default_verify set, the client verifies the peer against system trust anchors.
     return mk_ssl_context(TLS_client_method(), default_verify != 0);
 }
 
-/* Std.Internal.SSL.Context.configureServer (ctx : @& Context) (certFile keyFile : @& String) : IO Unit */
+/* Std.Internal.SSL.Context.Server.configure (ctx : @& Context.Server) (certFile keyFile : @& String) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg ctx_obj, b_obj_arg cert_file, b_obj_arg key_file) {
     ERR_clear_error();
 
@@ -161,7 +163,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg ctx_
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.SSL.Context.configureClient (ctx : @& Context) (caFile : @& String) (verifyPeer : Bool) : IO Unit */
+/* Std.Internal.SSL.Context.Client.configure (ctx : @& Context.Client) (caFile : @& String) (verifyPeer : Bool) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg ctx_obj, b_obj_arg ca_file, uint8_t verify_peer) {
     ERR_clear_error();
 
@@ -182,7 +184,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg ctx_
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.SSL.Context.configureClientFromPEM (ctx : @& Context) (caPEM : @& String) (verifyPeer : Bool) : IO Unit */
+/* Std.Internal.SSL.Context.Client.configureFromPEM (ctx : @& Context.Client) (caPEM : @& String) (verifyPeer : Bool) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj_arg ctx_obj, b_obj_arg ca_pem, uint8_t verify_peer) {
     ERR_clear_error();
 

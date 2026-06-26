@@ -73,7 +73,7 @@ public structure LakeOptions where
   platform? : Option CachePlatform := none
   toolchain? : Option CacheToolchain := none
   rev? : Option GitRev := none
-  maxRevs : Nat := 100
+  maxRevs? : Option Nat := none
   shake : Shake.Args := {}
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
@@ -318,7 +318,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--max-revs" => do
   let some n ← (·.toNat?) <$> takeOptArg "--max-revs" "number of revisions"
     | error "argument to `--max-revs` should be a natural number"
-  modifyThe LakeOptions ({· with maxRevs := n})
+  modifyThe LakeOptions ({· with maxRevs? := some n})
 | "--log-level"   => do
   let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
   modifyThe LakeOptions ({· with outLv? := outLv})
@@ -462,6 +462,9 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
+/-- Default number of revisions `cache get` backtracks when discovering a mapping. -/
+def defaultMaxRevs : Nat := 100
+
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -578,13 +581,23 @@ where
         only artifacts for committed code will be downloaded"
       if opts.failLv ≤ .warning then
         failure
-    let n := opts.maxRevs
+    -- A `head` service is SHA-isolated: only `HEAD` is looked up and `--max-revs`
+    -- does not apply, so the policy is always respected.
+    let headOnly := service.revDiscovery matches .head
+    if headOnly && opts.maxRevs?.isSome then
+      logWarning s!"{pkg.prettyName}: `--max-revs` is ignored for a `head` service; \
+        only the current revision is consulted"
+      if opts.failLv ≤ .warning then
+        failure
+    let n := if headOnly then 1 else opts.maxRevs?.getD defaultMaxRevs
     let revs ← repo.getHeadRevisions n
     let map? ← revs.findSomeM? fun rev =>
       service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
     let some map := map?
       | let revisions :=
-          if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
+          if headOnly then "for the current revision"
+          else if n = 0 || revs.size < n then "for any revision"
+          else s!"in {n} revisions from HEAD"
         error s!"{remoteScope}: no outputs found {revisions}"
     return map
 

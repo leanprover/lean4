@@ -547,6 +547,23 @@ instance : ToString CacheToolchain := ⟨CacheToolchain.toString⟩
 
 end CacheToolchain
 
+/-! ## Cache Service Revision Discovery -/
+
+/-- How `cache get` selects which revision's mapping to download when no `--rev` is given. -/
+public inductive RevDiscovery
+  /-- Walk the Git history from `HEAD`, taking the first revision with a mapping. -/
+  | nearest
+  /-- Use only `HEAD`'s mapping; never walk the history. Isolates `get`s by SHA. -/
+  | head
+deriving Inhabited, DecidableEq
+
+@[inline]
+public def RevDiscovery.ofString? (s : String) : Option RevDiscovery :=
+  match s with
+  | "nearest" => some .nearest
+  | "head" => some .head
+  | _ => none
+
 /-! ## Remote Cache Service -/
 
 /-- **For internal use only.** -/
@@ -594,6 +611,7 @@ structure CacheServiceImpl where
     /- Reservoir -/
     isReservoir : Bool := false
     apiEndpoint : String := ""
+    revDiscovery : RevDiscovery := .nearest
     deriving Nonempty
 
 /--
@@ -619,12 +637,17 @@ namespace CacheService
 @[inline] public def isReservoir (service : CacheService) : Bool :=
   service.impl.isReservoir
 
+/-- Returns the revision discovery policy for this service. -/
+@[inline] public def revDiscovery (service : CacheService) : RevDiscovery :=
+  service.impl.revDiscovery
+
 /-! ### Constructors -/
 
 /-- Constructs a `CacheService` for a Reservoir endpoint. -/
 @[inline] public def reservoirService
   (apiEndpoint : String) (name? := some CacheServiceName.reservoir)
-: CacheService := .mk {name?, isReservoir := true, apiEndpoint}
+  (revDiscovery : RevDiscovery := .nearest)
+: CacheService := .mk {name?, isReservoir := true, apiEndpoint, revDiscovery}
 
 /-- Constructs a `CacheService` to upload artifacts and/or outputs to an S3 endpoint. -/
 @[inline] public def uploadService
@@ -634,7 +657,8 @@ namespace CacheService
 /-- Constructs a `CacheService` to download artifacts and/or outputs from an S3 endpoint. -/
 @[inline] public def downloadService
   (artifactEndpoint revisionEndpoint : String) (name? : Option CacheServiceName := none)
-: CacheService := .mk {name?, artifactEndpoint, revisionEndpoint}
+  (revDiscovery : RevDiscovery := .nearest)
+: CacheService := .mk {name?, artifactEndpoint, revisionEndpoint, revDiscovery}
 
 /-- Constructs a `CacheService` to download just artifacts from an S3 endpoint. -/
 @[inline] public def downloadArtsService

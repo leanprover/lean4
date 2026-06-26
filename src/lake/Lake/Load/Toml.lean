@@ -342,6 +342,13 @@ public protected def CacheServiceKind.decodeToml (v : Value) : EDecodeM CacheSer
 
 public instance : DecodeToml CacheServiceKind := ⟨CacheServiceKind.decodeToml⟩
 
+public protected def RevDiscovery.decodeToml (v : Value) : EDecodeM RevDiscovery := do
+  match RevDiscovery.ofString? (← v.decodeString) with
+  | some v => return v
+  | none => throwDecodeErrorAt v.ref "expected one of 'nearest' or 'head'"
+
+public instance : DecodeToml RevDiscovery := ⟨RevDiscovery.decodeToml⟩
+
 /-! ## Package & Target Configuration Decoders -/
 
 public structure TomlFieldInfo (σ : Type) where
@@ -528,12 +535,13 @@ def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO LoadedLake
         match cfg.kind with
         | .reservoir => do
           let apiEndpoint ← validateUrl cfg.name "apiEndpoint" cfg.apiEndpoint
-          let service := .reservoirService apiEndpoint (some (.ofString cfg.name))
+          let service := .reservoirService apiEndpoint (some (.ofString cfg.name)) cfg.revDiscovery
           return map.insert (.mkSimple cfg.name) service
         | .s3 => do
           let artifactEndpoint ← validateUrl cfg.name "artifactEndpoint" cfg.artifactEndpoint
           let revisionEndpoint ← validateUrl cfg.name "revisionEndpoint" cfg.revisionEndpoint
-          let service :=  .downloadService artifactEndpoint revisionEndpoint (some (.ofString cfg.name))
+          let service := .downloadService artifactEndpoint revisionEndpoint
+            (some (.ofString cfg.name)) cfg.revDiscovery
           return map.insert (.mkSimple cfg.name) service
         | _ =>
           error s!"cache service `{cfg.name}` is missing field `kind`"

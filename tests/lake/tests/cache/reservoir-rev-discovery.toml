@@ -1,0 +1,5 @@
+[[cache.service]]
+name = "reservoir-head"
+kind = "reservoir"
+apiEndpoint = "https://example.com/api/v0"
+revDiscovery = "head"

@@ -1,0 +1,6 @@
+[[cache.service]]
+name = "bad"
+type = "s3"
+artifactEndpoint = "http://example.com"
+revisionEndpoint = "http://example.com"
+revDiscovery = "bogus"

@@ -172,6 +172,14 @@ LAKE_CONFIG=services.toml test_out "downloading" \
   cache get --scope='!/test' --force-download --service=cdn
 test_run build +Test --no-build
 
+# Test `head` revision discovery when HEAD itself has a mapping.
+# (`cdn-head` is `cdn` with `revDiscovery = "head"`; the SHA-isolated lookup
+# finds HEAD's mapping without walking history. The no-fallback case, where
+# HEAD lacks a mapping, is tested below after a commit.)
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+LAKE_CONFIG=services.toml test_run cache get --scope='!/test' --service=cdn-head
+test_run build +Test --no-build
+
 # Test cache put/get with a set platform/toolchain
 with_upload_endpoints test_run cache put .lake/outputs.jsonl \
   --repo='leanprover/test' --platform=foo --toolchain=bar
@@ -200,6 +208,18 @@ with_cdn_endpoints test_err "no outputs found" \
   --wfail cache get --scope='!/test' --max-revs=1
 with_cdn_endpoints test_run cache get --scope='!/test'
 test_run build +Test --no-build
+
+# A `head` service does not fall back to another revision when the current
+# commit has no mapping.
+test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
+LAKE_CONFIG=services.toml test_err "no outputs found for the current revision" \
+  cache get --scope='!/test' --service=cdn-head
+# `--max-revs` does not override `head`: it is ignored (no walk), with a warning
+# that `--wfail` escalates to an error.
+LAKE_CONFIG=services.toml test_err "no outputs found for the current revision" \
+  cache get --scope='!/test' --service=cdn-head --max-revs=0
+LAKE_CONFIG=services.toml test_err "\`--max-revs\` is ignored for a \`head\` service" \
+  --wfail cache get --scope='!/test' --service=cdn-head --max-revs=0
 
 # Test Reservoir download
 test_run -f reservoir2.toml update --keep-toolchain

@@ -15,10 +15,22 @@ export LAKE_CACHE_DIR="$CACHE_DIR"
 test_exp ! -d "$CACHE_DIR"
 test_run cache clean
 
-# Test `lake cache services`
+# Test `lake cache services` (also covers parsing the `revDiscovery` field)
 LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
 cdn
 bogus
+cdn-head
+reservoir
+EOF
+) cache services
+
+# Verify an invalid `revDiscovery` value is rejected
+LAKE_CONFIG=bad-rev-discovery.toml \
+  test_err "expected one of 'nearest' or 'head'" cache services
+
+# Verify `revDiscovery` is accepted on a `reservoir` service too
+LAKE_CONFIG=reservoir-rev-discovery.toml test_out_diff <(cat << EOF
+reservoir-head
 reservoir
 EOF
 ) cache services

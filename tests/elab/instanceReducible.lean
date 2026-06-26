@@ -3,7 +3,8 @@ module
 /-! Applying `[instance]` after the fact should check for appropriate reducibility. -/
 
 /--
-warning: Definition `unexposed` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`
+warning: Definition `unexposed` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
 -/
 #guard_msgs in
 public def unexposed : Inhabited Nat := inferInstance
@@ -19,7 +20,8 @@ warning: instance `unexposed` must be marked with `@[reducible]`, `@[instance_re
 attribute [local instance] unexposed
 
 /--
-warning: Definition `exposed` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`
+warning: Definition `exposed` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
 -/
 #guard_msgs in
 @[expose]

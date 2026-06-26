@@ -1287,12 +1287,12 @@ private def Module.recBuildLeanIR (mod : Module) : FetchM (Job ModuleOutputArtif
   let elabJob ← mod.leanArts.fetch
   let irSetupJob ← mod.irSetup.fetch
   (elabJob.zipWith (sync := true) (fun arts _ => arts) irSetupJob).mapM fun elabArts => do
-    buildAction (← getTrace) (mod.irFile.addExtension "trace") do
-      if elabArts.isModule then
-        -- Skip if outputs already exist (incremental rebuild obviously broken)
-        unless (← mod.irFile.pathExists) && (← mod.cFile.pathExists) do
-          compileLeanIR mod.setupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)
-      mod.computeArtifacts elabArts.isModule
+    if elabArts.isModule then
+      -- Up-to-date check on the IR output's trace so `--no-build` does not spuriously report
+      -- `:leanIR` stale; `leanir` re-runs only when the (elab + setup) inputs actually change.
+      buildUnlessUpToDate mod.irFile (← getTrace) (mod.irFile.addExtension "trace") do
+        compileLeanIR mod.setupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)
+    mod.computeArtifacts elabArts.isModule
 
 /-- The `ModuleFacetConfig` for the builtin `leanIRFacet`. -/
 public def Module.leanIRFacetConfig : ModuleFacetConfig leanIRFacet :=

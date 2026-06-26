@@ -9,9 +9,9 @@ public import Module.PrivateImported
 #guard_msgs in
 #check f
 
-/-- info: 5 -/
-#guard_msgs in
-#eval publicDefOfPrivatelyInitialized
+/-! The `#eval` of `publicDefOfPrivatelyInitialized` (which needs the IR at comptime) lives in
+`MetaImportedPrivateImported.lean`, since a plain `public import` does not load IR under separate
+codegen. -/
 
 /-! #12833: namespaces privately imported but publicly used must be re-exported. -/
 open Namespaced

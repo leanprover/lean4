@@ -3,6 +3,7 @@ import Module.Basic
 import Module.Imported
 import Module.ImportedAll
 import Module.ImportedPrivateImported
+import Module.MetaImportedPrivateImported
 import Module.PrivateImported
 import Module.ImportedAllPrivateImported
 import Module.ImportedAllImportedAll

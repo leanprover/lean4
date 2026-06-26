@@ -8,7 +8,13 @@ Author: Sofia Rodrigues
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
+#include <openssl/x509v3.h>
 #include <limits.h>
+
+#if defined(__APPLE__)
+#include <Security/Security.h>
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 
 namespace lean {
 
@@ -16,8 +22,7 @@ lean_external_class * g_ssl_context_external_class = NULL;
 
 #ifndef LEAN_EMSCRIPTEN
 
-// This function drains at maximum 10 error messages from the Error queue.
-lean_object * mk_openssl_error(char const * where, int ssl_err = 0) {
+lean_object * mk_openssl_error(char const * where, int ssl_err) {
     std::string msg(where);
 
     if (ssl_err != 0) msg += " (ssl_error=" + std::to_string(ssl_err) + ")";
@@ -80,10 +85,95 @@ static bool configure_ctx_options(SSL_CTX * ctx) {
     // version; TLS 1.3 is preferred and used automatically when both peers support it.
     if (SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION) != 1) return false;
 
-    // Allow SSL_write to be retried with a different pointer when the same
-    // payload is copied into pending_writes and replayed after WANT_READ/WANT_WRITE.
+    // Permit retrying SSL_write() after WANT_READ/WANT_WRITE with the payload at a moved buffer
+    // address (its contents must stay identical). This lets a session layer relocate a buffered
+    // write between retries without tripping OpenSSL's buffer-stability check.
     SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
+    // Secure hostname-matching default, inherited by every session (SSL) created from this context.
+    // It is inert until a peer hostname is bound per-connection via SSL_set1_host in the session
+    // layer; recording it here ensures that check, once wired, rejects partial wildcards such as
+    // `f*.example.com` (disallowed by RFC 6125 §6.4.3).
+    X509_VERIFY_PARAM_set_hostflags(SSL_CTX_get0_param(ctx), X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
     return true;
+}
+
+// Loads the platform's system root certificates into the context's trust store so clients verify
+// public servers out of the box (like a browser), independent of where OpenSSL was built to look
+// for its default certificate bundle.
+static bool load_system_trust_store(SSL_CTX * ctx) {
+#if defined(_WIN32)
+    if (ctx == nullptr) return false;
+
+    X509_STORE * store = SSL_CTX_get_cert_store(ctx);
+    if (store == nullptr) return false;
+
+    HCERTSTORE win_store = CertOpenSystemStoreA(0, "ROOT");
+    if (win_store == nullptr) {
+        return false;
+    }
+
+    PCCERT_CONTEXT cert = nullptr;
+    while ((cert = CertEnumCertificatesInStore(win_store, cert)) != nullptr) {
+        const unsigned char * data = cert->pbCertEncoded;
+
+        X509 * x509 = d2i_X509(
+            nullptr,
+            &data,
+            static_cast<long>(cert->cbCertEncoded)
+        );
+
+        if (x509 == nullptr) {
+            continue;
+        }
+
+        X509_STORE_add_cert(store, x509);
+        X509_free(x509);
+    }
+
+    CertCloseStore(win_store, 0);
+
+    // Ignore duplicate-cert errors left in OpenSSL's error queue.
+    ERR_clear_error();
+    return true;
+#elif defined(__APPLE__)
+    // On macOS OpenSSL's compiled-in default paths usually don't point at the Keychain, so pull the
+    // trusted anchor certificates directly from the Security framework instead.
+    X509_STORE * store = SSL_CTX_get_cert_store(ctx);
+
+    CFArrayRef anchors = nullptr;
+    if (SecTrustCopyAnchorCertificates(&anchors) != errSecSuccess || anchors == nullptr) {
+        return false;
+    }
+
+    for (CFIndex i = 0, n = CFArrayGetCount(anchors); i < n; i++) {
+        SecCertificateRef cert = (SecCertificateRef)CFArrayGetValueAtIndex(anchors, i);
+        if (cert == nullptr) continue;
+
+        CFDataRef der = SecCertificateCopyData(cert);
+        if (der == nullptr) continue;
+
+        const unsigned char * data = CFDataGetBytePtr(der);
+        X509 * x509 = d2i_X509(nullptr, &data, CFDataGetLength(der));
+        CFRelease(der);
+        if (x509 == nullptr) continue;
+
+        // X509_STORE_add_cert bumps the certificate's refcount, so drop our own reference after.
+        // Duplicate anchors are harmless and ignored.
+        X509_STORE_add_cert(store, x509);
+        X509_free(x509);
+    }
+
+    CFRelease(anchors);
+    // Drop any "already in hash table" errors left by duplicate anchors so they don't leak into a
+    // later error message.
+    ERR_clear_error();
+    return true;
+#else
+    // Linux/BSD (and any other platform): OpenSSL's default verify paths already resolve to the
+    // system certificate bundle.
+    return SSL_CTX_set_default_verify_paths(ctx) == 1;
+#endif
 }
 
 static lean_obj_res mk_ssl_context(const SSL_METHOD * method, bool default_verify) {
@@ -102,12 +192,12 @@ static lean_obj_res mk_ssl_context(const SSL_METHOD * method, bool default_verif
 
     if (default_verify) {
 
-        // Secure default: verify the peer certificate against system trust anchors.
-        // Callers that need to skip verification must call configure() with verifyPeer=false,
-        // which calls SSL_CTX_set_verify(SSL_VERIFY_NONE) and overrides this setting.
-        if (SSL_CTX_set_default_verify_paths(ctx) != 1) {
+        // Secure default: verify the peer certificate against the system trust store. A later
+        // configure call can override this (e.g. the client's verifyPeer=false re-runs
+        // SSL_CTX_set_verify with SSL_VERIFY_NONE).
+        if (!load_system_trust_store(ctx)) {
             SSL_CTX_free(ctx);
-            return mk_openssl_io_error("SSL_CTX_set_default_verify_paths failed");
+            return mk_openssl_io_error("failed to load system trust store");
         }
 
         SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
@@ -127,9 +217,10 @@ static lean_obj_res mk_ssl_context(const SSL_METHOD * method, bool default_verif
     return lean_io_result_mk_ok(lean_obj);
 }
 
-/* Std.Internal.SSL.Context.Server.mk (defaultVerify : Bool) : IO Context.Server */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(uint8_t default_verify) {
-    return mk_ssl_context(TLS_server_method(), default_verify != 0);
+/* Std.Internal.SSL.Context.Server.mk : IO Context.Server */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server() {
+    // The server presents its certificate but never authenticates the client (no mutual TLS).
+    return mk_ssl_context(TLS_server_method(), false);
 }
 
 /* Std.Internal.SSL.Context.Client.mk (defaultVerify : Bool) : IO Context.Client */
@@ -146,8 +237,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg ctx_
     const char * cert = lean_string_cstr(cert_file);
     const char * key = lean_string_cstr(key_file);
 
-    // use_certificate_chain_file loads the leaf + any intermediates from the PEM file,
-    // so clients receive the full chain and can build OCSP cert IDs without a separate CA fetch.
+    // Load the leaf certificate plus any intermediates from the PEM file (unlike
+    // SSL_CTX_use_certificate_file, which loads only the leaf), so the server presents the full
+    // chain and clients can build a path to a trusted root.
     if (SSL_CTX_use_certificate_chain_file(obj->ctx, cert) <= 0) {
         return mk_openssl_io_error("SSL_CTX_use_certificate_chain_file failed");
     }
@@ -170,17 +262,25 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg ctx_
     lean_ssl_context_object * obj = lean_to_ssl_context_object(ctx_obj);
     const char * ca = lean_string_cstr(ca_file);
 
+    if (!verify_peer) {
+        SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_NONE, nullptr);
+        return lean_io_result_mk_ok(lean_box(0));
+    }
+
+    // Trust the platform's system roots (so public servers verify out of the box, like a browser),
+    // then add the caller's CA file on top if one was supplied. The supplied CA is additive: it
+    // never replaces the system trust anchors.
+    if (!load_system_trust_store(obj->ctx)) {
+        return mk_openssl_io_error("failed to load system trust store");
+    }
+
     if (ca != nullptr && ca[0] != '\0') {
         if (SSL_CTX_load_verify_locations(obj->ctx, ca, nullptr) != 1) {
             return mk_openssl_io_error("SSL_CTX_load_verify_locations failed");
         }
-    } else if (verify_peer) {
-        if (SSL_CTX_set_default_verify_paths(obj->ctx) != 1) {
-            return mk_openssl_io_error("SSL_CTX_set_default_verify_paths failed");
-        }
     }
 
-    SSL_CTX_set_verify(obj->ctx, verify_peer ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, nullptr);
+    SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_PEER, nullptr);
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -192,36 +292,26 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
     const char * pem = lean_string_cstr(ca_pem);
     size_t pem_size = lean_string_size(ca_pem) - 1;
 
+    // Without peer verification the supplied CA certificates would never be consulted, so skip
+    // parsing them and just disable verification (mirrors the file-based `configure`).
+    if (!verify_peer) {
+        SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_NONE, nullptr);
+        return lean_io_result_mk_ok(lean_box(0));
+    }
+
+    // Trust the platform's system roots; any PEM certificates below are added on top of them.
+    if (!load_system_trust_store(obj->ctx)) {
+        return mk_openssl_io_error("failed to load system trust store");
+    }
+
+    // An empty PEM leaves the client with just the system trust anchors.
     if (pem_size == 0) {
-        if (!verify_peer) {
-            SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_NONE, nullptr);
-            return lean_io_result_mk_ok(lean_box(0));
-        }
-
-        X509_STORE * store = X509_STORE_new();
-        if (store == nullptr) {
-            return mk_openssl_io_error("X509_STORE_new failed");
-        }
-
-        if (X509_STORE_set_default_paths(store) != 1) {
-            X509_STORE_free(store);
-            return mk_openssl_io_error("X509_STORE_set_default_paths failed");
-        }
-
-        SSL_CTX_set_cert_store(obj->ctx, store);
         SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_PEER, nullptr);
         return lean_io_result_mk_ok(lean_box(0));
     }
 
     if (pem_size > INT_MAX) {
         return mk_openssl_io_error("CA PEM string is too large");
-    }
-
-    // Without peer verification the supplied CA certificates would never be consulted, so skip
-    // parsing them and just disable verification (mirrors the empty-PEM and file-based paths).
-    if (!verify_peer) {
-        SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_NONE, nullptr);
-        return lean_io_result_mk_ok(lean_box(0));
     }
 
     BIO * bio = BIO_new_mem_buf(pem, (int)pem_size);
@@ -238,16 +328,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
         return mk_openssl_io_error("PEM_X509_INFO_read_bio failed");
     }
 
-    // Store so we can rollback in case something fails!
-    X509_STORE * store = X509_STORE_new();
-
-    if (store == nullptr) {
-        sk_X509_INFO_pop_free(infos, X509_INFO_free);
-        return mk_openssl_io_error("X509_STORE_new failed");
-    }
-
-    // A non-empty CA bundle pins trust to exactly these certificates; system trust anchors are
-    // intentionally not added, matching the file-based `configure` ("only this CA") behavior.
+    // Add the parsed certificates to the context's existing verification store, which already holds
+    // the system roots; the store is owned by the context, so it must not be freed here.
+    X509_STORE * store = SSL_CTX_get_cert_store(obj->ctx);
     int cert_count = 0;
 
     for (int i = 0; i < sk_X509_INFO_num(infos); i++) {
@@ -263,7 +346,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
             }
 
             sk_X509_INFO_pop_free(infos, X509_INFO_free);
-            X509_STORE_free(store);
             return mk_openssl_io_error("X509_STORE_add_cert failed");
         }
     }
@@ -271,11 +353,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
     sk_X509_INFO_pop_free(infos, X509_INFO_free);
 
     if (cert_count == 0) {
-        X509_STORE_free(store);
         return mk_openssl_io_error("no certificates found in CA PEM");
     }
 
-    SSL_CTX_set_cert_store(obj->ctx, store);
     SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_PEER, nullptr);
     return lean_io_result_mk_ok(lean_box(0));
 }
@@ -284,7 +364,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
 
 void initialize_openssl_context() {}
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(uint8_t /*default_verify*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server() {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 

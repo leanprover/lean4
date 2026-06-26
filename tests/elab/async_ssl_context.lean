@@ -9,7 +9,7 @@ behaviour are exercised in separate test files.
 
 open Std.Internal.SSL
 
--- Generate a self-signed certificate for testing (cached: skips generation if files exist).
+-- Generates a fresh self-signed certificate in a temporary directory for testing.
 def setupTestCerts : IO (String × String) := do
   let dir ← IO.FS.createTempDir
   let keyFile  := toString (dir / "key.pem")
@@ -36,12 +36,18 @@ def testContextCreation (certFile keyFile : String) : IO Unit := do
   let serverCtx ← Context.Server.mk
   serverCtx.configure certFile keyFile
 
+  -- Empty CA with `verifyPeer := false` disables verification without parsing any CA material.
   let clientCtx ← Context.Client.mk
   clientCtx.configure "" false
 
-  -- Configuring with a CA file path (non-empty) exercises the other branch.
+  -- Non-empty CA file with `verifyPeer := true` exercises the additive trust path: the system
+  -- roots plus the supplied CA (via `SSL_CTX_load_verify_locations`).
   let clientCtx2 ← Context.Client.mk
-  clientCtx2.configure certFile false
+  clientCtx2.configure certFile true
+
+  -- A non-empty CA path with `verifyPeer := false` is accepted, but the CA file is not parsed.
+  let clientCtx3 ← Context.Client.mk
+  clientCtx3.configure certFile false
 
 -- Configuring a client from an in-memory PEM string.
 def testConfigureClientFromPEM (certFile : String) : IO Unit := do
@@ -77,6 +83,12 @@ def testConfigureFromPEMRejectsEmptyBlock : IO Unit := do
   assertThrows "PEM without certificates"
     (clientCtx.configureFromPEM "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n" true)
 
+-- A non-existent CA file with `verifyPeer := true` is rejected (the file-based additive path fails).
+def testConfigureRejectsMissingCAFile : IO Unit := do
+  let clientCtx ← Context.Client.mk
+  assertThrows "missing CA file"
+    (clientCtx.configure "/nonexistent/path/to/ca.pem" true)
+
 #eval do
   let (certFile, keyFile) ← setupTestCerts
   testContextCreation certFile keyFile
@@ -94,3 +106,5 @@ def testConfigureFromPEMRejectsEmptyBlock : IO Unit := do
 #eval testConfigureFromPEMRejectsGarbage
 
 #eval testConfigureFromPEMRejectsEmptyBlock
+
+#eval testConfigureRejectsMissingCAFile

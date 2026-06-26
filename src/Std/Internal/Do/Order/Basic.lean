@@ -88,6 +88,10 @@ theorem join_le (x y z : α) : x ⊑ z → y ⊑ z → x ⊔ y ⊑ z := by
 /-- Indexed infimum -/
 noncomputable def iInf {ι : Type v} (f : ι → α) : α := inf (fun x => ∃ i, f i = x)
 
+open Lean in
+@[inherit_doc iInf] scoped macro "⨅ " bs:Lean.explicitBinders ", " b:term : term => do
+  return ⟨← Lean.expandExplicitBinders ``iInf bs b⟩
+
 theorem iInf_le {ι : Type v} (f : ι → α) (i : ι) : iInf f ⊑ f i := by
   apply inf_le
   exact ⟨i, rfl⟩
@@ -119,6 +123,10 @@ theorem le_iInf {ι : Type v} (f : ι → α) (x : α) : (∀ i, x ⊑ f i) → 
 
 /-- Indexed supremum -/
 noncomputable def iSup {ι : Type v} (f : ι → α) : α := CompleteLattice.sup (fun x => ∃ i, f i = x)
+
+open Lean in
+@[inherit_doc iSup] scoped macro "⨆ " bs:Lean.explicitBinders ", " b:term : term => do
+  return ⟨← Lean.expandExplicitBinders ``iSup bs b⟩
 
 theorem le_iSup {ι : Type v} (f : ι → α) (i : ι) : f i ⊑ iSup f := by
   apply le_sup

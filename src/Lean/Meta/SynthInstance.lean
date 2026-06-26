@@ -353,6 +353,9 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
     let { subgoals, instVal, instTypeBody } ← getSubgoals lctx localInsts xs inst
     withTraceNode `Meta.synthInstance.tryResolve (fun _ => do withMCtx (← getMCtx) do
         return m!"{← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
+    -- Keep the instance arguments non-assignable during unification: a would-be assignment (e.g. from
+    -- defeq abuse picking an instance for the wrong type) triggers synthesis instead. Resolves #9077.
+    withSynthesizableNonAssignable (.ofList (subgoals.map (·.mvarId!))) do
     if (← isDefEq mvarTypeBody instTypeBody) then
       /-
       We set `etaReduce := true`.

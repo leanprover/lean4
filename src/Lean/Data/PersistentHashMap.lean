@@ -63,7 +63,7 @@ def empty [BEq α] [Hashable α] : PersistentHashMap α β := {}
 def isEmpty {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → Bool
   | { root } => root.isEmpty
 
-instance [BEq α] [Hashable α] : Inhabited (PersistentHashMap α β) := ⟨{}⟩
+instance {_ : BEq α} {_ : Hashable α} : Inhabited (PersistentHashMap α β) := ⟨{}⟩
 
 def mkEmptyEntries {α β} : Node α β :=
   Node.entries mkEmptyEntriesArray

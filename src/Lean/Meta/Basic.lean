@@ -516,6 +516,13 @@ structure Context where
   -/
   inTypeClassResolution : Bool := false
   /--
+  Metavariables that `isDefEq` must treat as non-assignable even at the current depth, so that a
+  would-be assignment instead triggers synthesis via `unstuckMVar`. Used by type class resolution to
+  stop unification from supplying instance arguments for the wrong expected type. Like `zetaDeltaSet`,
+  it is not part of `Config` because it affects `isDefEq` results; the cache is reset while it is set.
+  -/
+  synthesizableNonAssignableMVars : MVarIdSet := {}
+  /--
   When `cacheInferType := true`, the `inferType` results are cached if the input term does not contain
   metavariables
   -/
@@ -980,6 +987,8 @@ def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Boo
   let mvarDecl ← mvarId.getDecl
   if mvarDecl.depth != (← getMCtx).depth then
     return true
+  else if (← read).synthesizableNonAssignableMVars.contains mvarId then
+    return true
   else
     match mvarDecl.kind with
     | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
@@ -1311,6 +1320,16 @@ Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=
   withConfig (fun config => { config with assignSyntheticOpaque := true }) x
+
+/--
+Execute `x` with `mvars` treated as non-assignable by `isDefEq`, even at the current depth, so that a
+would-be assignment triggers synthesis (via `unstuckMVar`) instead. The cache is reset while `mvars`
+is nonempty, since the set changes `isDefEq` outcomes. See `Context.synthesizableNonAssignableMVars`.
+-/
+@[inline] def withSynthesizableNonAssignable (mvars : MVarIdSet) : n α → n α :=
+  mapMetaM fun x =>
+    if mvars.isEmpty then x
+    else withFreshCache <| withReader (fun ctx => { ctx with synthesizableNonAssignableMVars := mvars }) x
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] private def savingCacheImpl (x : MetaM α) : MetaM α := do

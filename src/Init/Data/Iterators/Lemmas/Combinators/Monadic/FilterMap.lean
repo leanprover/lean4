@@ -560,6 +560,22 @@ theorem IterM.toList_mapM_filterMapM {α β γ δ : Type w}
         | some fb => some <$> g fb)).toList := by
   simp [toList_mapM_eq_toList_filterMapM, toList_filterMapM_filterMapM]
 
+section
+
+universe u v w x
+
+variable {m : Type u → Type v} {n : Type u → Type w} {o : Type u → Type x}
+
+variable (m n o) in
+instance {_ : Monad m} [Monad n] {_ : Monad o} {_ : MonadLift n o} {_ : MonadLiftT m n}
+    [LawfulMonadLift n o] [LawfulMonadLiftT m n] : LawfulMonadLiftT m o where
+  monadLift_pure := fun a => by
+    simp only [monadLift, LawfulMonadLift.monadLift_pure, liftM_pure]
+  monadLift_bind := fun ma f => by
+    simp only [monadLift, LawfulMonadLift.monadLift_bind, liftM_bind]
+
+end
+
 @[simp]
 theorem IterM.toList_mapM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}

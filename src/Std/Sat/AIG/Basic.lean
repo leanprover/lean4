@@ -307,7 +307,7 @@ The atom `a` occurs in `aig`.
 -/
 def Mem (aig : AIG α) (a : α) : Prop := (.atom a) ∈ aig.decls
 
-instance : Membership α (AIG α) where
+instance {_ : Hashable α} {_ : DecidableEq α} : Membership α (AIG α) where
   mem := Mem
 
 /--

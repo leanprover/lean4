@@ -660,15 +660,21 @@ private def optionValueToDataValue? (val : Syntax) : Option DataValue :=
   else if let .atom _ "false" := val then some (.ofBool false)
   else none
 
-/-- Sets the option named by `nameStx` to the value parsed from `valStx` in the parser context. -/
+/--
+Sets the option named by `nameStx` to the value parsed from `valStx` in the parser context if
+the option's name starts with `doc.verso` (other options do not affect parsing).
+-/
 private def withSetOptionValueFnCore (nameStx valStx : Syntax) (p : ParserFn) : ParserFn :=
-  match optionValueToDataValue? valStx with
-  | some v =>
-    adaptUncacheableContextFn (insertOption v) p
-  | none => p
+  let optName := nameStx.getId.eraseMacroScopes
+  if `doc.verso |>.isPrefixOf optName then
+    match optionValueToDataValue? valStx with
+    | some v =>
+      adaptUncacheableContextFn (insertOption optName v) p
+    | none => p
+  else p
 where
-  insertOption v c := { c with
-    options := c.options.insert nameStx.getId.eraseMacroScopes v
+  insertOption optName v c := { c with
+    options := c.options.insert optName v
   }
 
 /--

@@ -12,8 +12,8 @@ OpenSSL context types for server and client TLS sessions. Contexts configure the
 certificate/key, peer-verification mode, and protocol options shared across all sessions created
 from the same context.
 
-For clients session tickets and TLS compression are disabled globally; TLS 1.2 is the minimum version.
-Session resumption and client certificate authentication (mutual TLS) are not supported.
+For every context session tickets and TLS compression are disabled and TLS 1.2 is the minimum
+version. Session resumption is therefore not supported.
 -/
 
 public section

@@ -28,9 +28,7 @@ typedef struct {
     SSL_CTX * ctx;
 } lean_ssl_context_object;
 
-// This function drains the openssl error queue and return a single error message with a bunch of
-// them.
-
+// Drains the OpenSSL error queue and returns a single error message combining up to 10 entries.
 lean_object * mk_openssl_error(char const * where, int ssl_err);
 static inline lean_obj_res mk_openssl_io_error(char const * where, int ssl_err = 0) { return lean_io_result_mk_error(mk_openssl_error(where, ssl_err)); }
 static inline lean_object * lean_ssl_context_object_new(lean_ssl_context_object * c) { return lean_alloc_external(g_ssl_context_external_class, c); }

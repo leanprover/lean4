@@ -152,11 +152,11 @@ def processHeaderCore
       .exported
   else
     .private
-  -- A module that runs native codegen in-process (set by the `lean` driver for `--c`/`--bc`) does
-  -- its own codegen instead of postponing it to `leanir`, so it needs the imported LCNF
-  -- signatures/bodies that live in `.ir` under separate codegen. Module files import at `.exported`,
-  -- which would otherwise not load any IR.
-  let loadCodegenIR := isModule && Compiler.compiler.loadImportedIR.get opts
+  -- A file that runs native codegen in-process (set by the `lean` driver for `--c`/`--bc`/`--run`)
+  -- does its own codegen instead of postponing it to `leanir`, so it needs the imported LCNF
+  -- signatures/bodies that live in `.ir` under separate codegen. This includes non-module legacy
+  -- executables (e.g. `leanc`/`leanchecker`), so it is not gated on `isModule`.
+  let loadCodegenIR := Compiler.compiler.loadImportedIR.get opts
   let (env, messages) ← try
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level)

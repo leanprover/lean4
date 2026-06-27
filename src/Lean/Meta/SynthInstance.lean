@@ -371,8 +371,8 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
       we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
       -/
       let instVal ← mkLambdaFVars xs instVal (etaReduce := true)
-      if (← isDefEq mvar instVal) then
-        return some ((← getMCtx), subgoals)
+      mvar.mvarId!.assign instVal
+      return some ((← getMCtx), subgoals)
     return none
 
 /--

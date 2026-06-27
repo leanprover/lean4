@@ -2,11 +2,7 @@ import Lean
 /-!
 # Verso docstrings on macro-generated declarations
 
-A docstring produced by a macro is already parsed as Verso but carries no source positions, so it
-is elaborated from the stored syntax and its contents are parsed from their text. Role names refer
-to a global vocabulary, so macro scopes introduced by the quotation are ignored when resolving them.
-References to globals resolve and code is highlighted; references to the declaration's own
-parameters do not resolve, since the reference text does not share the binders' hygiene.
+This test ensures that Verso docstrings in macro-generated definitions respect hygiene for role names.
 -/
 
 section

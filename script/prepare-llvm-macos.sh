@@ -51,7 +51,10 @@ if [[ -L llvm-host ]]; then
   gcp $GMP/lib/libgmp.a stage1/lib/
   gcp $LIBUV/lib/libuv.a stage1/lib/
   gcp $OPENSSL/lib/libssl.a $OPENSSL/lib/libcrypto.a stage1/lib/
-  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lssl -lcrypto'"
+  # macOS reads its trust store from the Keychain via the Security framework (and its
+  # CoreFoundation dependency); standalone builds skip the `NOT LEAN_STANDALONE` block in
+  # `src/CMakeLists.txt`, so the frameworks must be linked here.
+  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lssl -lcrypto -framework CoreFoundation -framework Security'"
 else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
 fi

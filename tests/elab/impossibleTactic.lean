@@ -33,6 +33,12 @@ example (n : Nat) : n = n + 1 := by
     intro h
     exact Nat.succ_ne_zero _ ((h 0).symm)
 
+-- The `impossible` tactic must not succeed on provable goals.
+#guard_msgs (drop error) in
+example (xs : List α) (h : xs.length > 0) : xs ≠ [] := by
+  intro h_empty
+  impossible by simp
+
 -- Expression metavariables in the goal are abstracted as additional binders;
 -- those are introduced into the local context *before* the user's tactic runs,
 -- with the negation pushed under the mvar binders but over the reverted ones.

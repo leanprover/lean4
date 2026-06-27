@@ -93,6 +93,12 @@ static bool configure_ctx_options(SSL_CTX * ctx) {
         SSL_OP_NO_TICKET
     );
 
+    // Disable the internal session cache as well. SSL_OP_NO_TICKET only suppresses ticket-based
+    // resumption (RFC 5077 and TLS 1.3 PSK); a TLS 1.2 server still offers session-ID resumption
+    // through the cache, which defaults to SSL_SESS_CACHE_SERVER. Turning the cache off makes the
+    // "no session resumption" guarantee hold for both client and server contexts.
+    SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
+
     // Reject TLS 1.0 and 1.1. Both are deprecated (RFC 8996) and have known
     // protocol-level weaknesses (BEAST, POODLE). TLS 1.2 is the minimum acceptable
     // version; TLS 1.3 is preferred and used automatically when both peers support it.
@@ -153,6 +159,7 @@ static bool load_system_trust_store(SSL_CTX * ctx) {
     // On macOS OpenSSL's compiled-in default paths usually don't point at the Keychain, so pull the
     // trusted anchor certificates directly from the Security framework instead.
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
+    if (store == nullptr) return false;
 
     CFArrayRef anchors = nullptr;
     if (SecTrustCopyAnchorCertificates(&anchors) != errSecSuccess || anchors == nullptr) {

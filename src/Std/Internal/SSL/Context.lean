@@ -79,7 +79,7 @@ Trust-anchor semantics:
   root store). A non-empty `caFile` is trusted *in addition* to those system anchors, so public
   servers keep working while a private or self-signed CA also becomes trusted.
 - An empty `caFile` with `verifyPeer := true` uses just the platform default trust anchors.
-- `verifyPeer := false` disables peer verification entirely.
+- `verifyPeer := false` disables peer verification entirely (the CA file is not parsed).
 -/
 @[extern "lean_ssl_ctx_configure_client"]
 opaque configure (ctx : @& Context.Client) (caFile : @& String) (verifyPeer : Bool) : IO Unit

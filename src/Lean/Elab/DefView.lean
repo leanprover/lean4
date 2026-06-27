@@ -114,8 +114,8 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
-  /-- The docstring, if present, and whether it's Verso -/
-  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /-- The docstring, if present. -/
+  docString?    : Option (TSyntax ``Parser.Command.docComment)
   /--
   Snapshot for incremental processing of this definition.
 

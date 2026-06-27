@@ -190,6 +190,12 @@ def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Comman
   | _ =>
     throwErrorAt stx "unexpected doc string{indentD stx}"
 
+/--
+Checks whether `stx` is a docstring that was parsed as Verso rather than Markdown.
+-/
+def isVersoDocComment (stx : TSyntax `Lean.Parser.Command.docComment) : Bool :=
+  stx.raw[1].isOfKind `Lean.Parser.Command.versoCommentBody
+
 
 
 /--

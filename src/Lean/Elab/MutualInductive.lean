@@ -104,8 +104,8 @@ structure InductiveView where
   ctors           : Array CtorView
   computedFields  : Array ComputedFieldView
   derivingClasses : Array DerivingClassView
-  /-- The declaration docstring, and whether it's Verso -/
-  docString?      : Option (TSyntax ``Lean.Parser.Command.docComment × Bool)
+  /-- The declaration docstring. -/
+  docString?      : Option (TSyntax ``Lean.Parser.Command.docComment)
   isCoinductive : Bool := false
   deriving Inhabited
 
@@ -1678,12 +1678,12 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) :
   liftTermElabM <| Term.withDeclName view0.declName do withRef ref do
     for view in views do
       withRef view.declId do
-        if let some (doc, verso) := view.docString? then
-          addDocStringOf verso view.declName view.binders doc
+        if let some doc := view.docString? then
+          addDocString view.declName view.binders doc
       for ctor in view.ctors do
         withRef ctor.declId do
-          if let some (doc, verso) := ctor.modifiers.docString? then
-            addDocStringOf verso ctor.declName ctor.binders doc
+          if let some doc := ctor.modifiers.docString? then
+            addDocString ctor.declName ctor.binders doc
 
     for view in views do withRef view.declId <|
       unless (views.any (·.isCoinductive)) do

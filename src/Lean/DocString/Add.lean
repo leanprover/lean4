@@ -388,9 +388,10 @@ def makeDocStringVerso (declName : Name) : TermElabM Unit := do
 /--
 Adds a docstring to the environment.
 
-If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring. Otherwise, it
-is considered a Markdown docstring, and documentation links are validated. To explicitly control
-whether the docstring is in Verso format, use `addDocStringOf` instead.
+Whether the docstring is processed as Verso or as Markdown is determined by the form of its syntax
+tree. To explicitly control whether the docstring is in Verso format, use `addDocStringOf` instead.
+
+Markdown docstrings have their documentation links validated.
 
 For Verso docstrings, `binders` should be the syntax of the parameters to the constant that is being
 documented, as a null node that contains a sequence of bracketed binders. It is used to allow
@@ -401,15 +402,17 @@ parameters. If no parameter binders are available, pass `Syntax.missing` or an e
 def addDocString
     (declName : Name) (binders : Syntax) (docComment : TSyntax `Lean.Parser.Command.docComment) :
     TermElabM Unit := do
-  addDocStringOf (doc.verso.get (← getOptions)) declName binders docComment
+  addDocStringOf (isVersoDocComment docComment) declName binders docComment
 
 /--
 Adds a docstring to the environment, if it is provided. If no docstring is provided, nothing
 happens.
 
-If the option `doc.verso` is `true`, the docstring is processed as a Verso docstring. Otherwise, it
-is considered a Markdown docstring, and documentation links are validated. To explicitly control
-whether the docstring is in Verso format, use `addDocStringOf` instead.
+Whether the docstring is processed as Verso or as Markdown is determined by its syntax tree, which
+reflects the `doc.verso` option at the docstring's parse site.  To explicitly control whether the
+docstring is in Verso format, use `addDocStringOf` instead.
+
+Markdown docstrings have their documentation links validated.
 
 For Verso docstrings, `binders` should be the syntax of the parameters to the constant that is being
 documented, as a null node that contains a sequence of bracketed binders. It is used to allow

@@ -173,48 +173,43 @@ def reportVersoParseFailure
     }
 
 open Lean.Doc in
-open Lean.Parser.Command in
 /--
-Elaborates a Verso docstring for the specified declaration, which should already be present in the
-environment.
-
-`binders` should be the syntax of the parameters to the constant that is being documented, as a null
-node that contains a sequence of bracketed binders. It is used to allow interactive features such as
-document highlights and “find references” to work for documented parameters. If no parameter binders
-are available, pass `Syntax.missing` or an empty null node.
+Elaborates already-parsed Verso `blocks` for the specified declaration with interactive features
+disabled, reporting any elaboration messages at the current reference. When `fileMap?` is provided,
+message positions are interpreted against it.
 -/
-
-def versoDocString
-    (declName : Name) (binders : Syntax) (docComment : TSyntax ``docComment) :
+private def execVersoBlocks
+    (declName : Name) (binders : Syntax) (blocks : Array Syntax) (fileMap? : Option FileMap) :
     TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
-  if let some stx ← parseVersoDocString docComment then
-    Doc.elabBlocks (stx.getArgs.map (⟨·⟩)) |>.exec declName binders
-  else return (#[], #[])
-
-open Lean.Doc Parser in
-open Lean.Parser.Command in
-/--
-Parses and elaborates a Verso module docstring.
--/
-def versoModDocString
-    (range : DeclarationRange) (doc : TSyntax ``document) :
-    TermElabM VersoModuleDocs.Snippet := do
-  let level := getMainVersoModuleDocs (← getEnv) |>.terminalNesting |>.map (· + 1)
-  Doc.elabModSnippet range (doc.raw.getArgs.map (⟨·⟩)) (level.getD 0) |>.execForModule
-
-
+  let msgs ← Core.getAndEmptyMessageLog
+  let (val, msgs') ←
+    try
+      let act := (Doc.elabBlocks (blocks.map (⟨·⟩))).exec declName binders (suggestionMode := .batch)
+      let val ←
+        Elab.withEnableInfoTree false <|
+          match fileMap? with
+          | some fileMap => withTheReader Core.Context ({· with fileMap }) act
+          | none => act
+      pure (val, ← Core.getAndEmptyMessageLog)
+    finally
+      Core.setMessageLog msgs
+  for msg in msgs'.toArray do
+    logAt (← getRef) msg.data (severity := msg.severity) (isSilent := msg.isSilent)
+  pure val
 
 open Lean.Doc in
 open Parser in
 /--
-Adds a Verso docstring to the specified declaration, which should already be present in the
-environment. The docstring is added from a string value, rather than syntax, which means that the
-interactive features are disabled.
--/
-def versoDocStringFromString
-    (declName : Name) (docComment : String) :
-    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+Parses a Verso docstring from its text and elaborates it for the specified declaration. Because the
+text carries no source positions, interactive features are disabled and any messages are reported at
+the current reference.
 
+`binders` should be the syntax of the parameters to the constant that is being documented, as a null
+node that contains a sequence of bracketed binders, or an empty null node when none are available.
+-/
+def versoDocStringOfText
+    (declName : Name) (binders : Syntax) (docComment : String) :
+    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
   let env ← getEnv
   let ictx : InputContext := .mk docComment (← getFileName)
   let text := ictx.fileMap
@@ -229,27 +224,68 @@ def versoDocStringFromString
   let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
   if !s.allErrors.isEmpty then
-    for (pos, _, err) in s.allErrors do
+    for (_, _, err) in s.allErrors do
       logError err.toString
     return (#[], #[])
   else
-    let stx := s.stxStack.back
-    let stx := stx.getArgs
-    let msgs ← Core.getAndEmptyMessageLog
-    let (val, msgs') ←
-      try
-        let range? := (← getRef).getRange?
-        let val ←
-          Elab.withEnableInfoTree false <| withTheReader Core.Context ({· with fileMap := text}) <|
-            (Doc.elabBlocks (stx.map (⟨·⟩))).exec declName (mkNullNode #[]) (suggestionMode := .batch)
-        let msgs' ← Core.getAndEmptyMessageLog
-        pure (val, msgs')
-      finally
-        Core.setMessageLog msgs
-    -- Adjust messages to show them at the call site
-    for msg in msgs'.toArray do
-      logAt (← getRef) msg.data (severity := msg.severity)
-    pure val
+    execVersoBlocks declName binders s.stxStack.back.getArgs (fileMap? := some text)
+
+open Lean.Doc in
+open Lean.Parser.Command in
+/--
+Elaborates a Verso docstring for the specified declaration, which should already be present in the
+environment.
+
+`binders` should be the syntax of the parameters to the constant that is being documented, as a null
+node that contains a sequence of bracketed binders. It is used to allow interactive features such as
+document highlights and “find references” to work for documented parameters. If no parameter binders
+are available, pass `Syntax.missing` or an empty null node.
+-/
+
+def versoDocString
+    (declName : Name) (binders : Syntax) (docComment : TSyntax ``docComment) :
+    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+  -- A docstring already parsed as Verso, or one re-parsable from its source range, supports
+  -- interactive features. A macro-generated docstring has neither, so fall back to its text.
+  let body := docComment.raw[1]
+  if (body.getPos? (canonicalOnly := true)).isSome then
+    -- Source positions are available, so re-parse from source for interactive features.
+    if let some stx ← parseVersoDocString docComment then
+      Doc.elabBlocks (stx.getArgs.map (⟨·⟩)) |>.exec declName binders
+    else return (#[], #[])
+  else if body.isOfKind ``versoCommentBody then
+    if body[0].isOfKind `Lean.Doc.Syntax.parseFailure then
+      -- The markup failed to parse, so re-parse its text to report the error.
+      versoDocStringOfText declName binders body[0][0].getAtomVal
+    else
+      -- A docstring parsed as Verso by a macro, with positions stripped.
+      execVersoBlocks declName binders body[0].getArgs (fileMap? := none)
+  else
+    -- A plain-text doc comment without source positions; parse and elaborate from its text.
+    versoDocStringOfText declName binders docComment.getDocString
+
+open Lean.Doc Parser in
+open Lean.Parser.Command in
+/--
+Parses and elaborates a Verso module docstring.
+-/
+def versoModDocString
+    (range : DeclarationRange) (doc : TSyntax ``document) :
+    TermElabM VersoModuleDocs.Snippet := do
+  let level := getMainVersoModuleDocs (← getEnv) |>.terminalNesting |>.map (· + 1)
+  Doc.elabModSnippet range (doc.raw.getArgs.map (⟨·⟩)) (level.getD 0) |>.execForModule
+
+
+
+/--
+Adds a Verso docstring to the specified declaration, which should already be present in the
+environment. The docstring is added from a string value, rather than syntax, which means that the
+interactive features are disabled.
+-/
+def versoDocStringFromString
+    (declName : Name) (docComment : String) :
+    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) :=
+  versoDocStringOfText declName (mkNullNode #[]) docComment
 
 /--
 Adds a Markdown docstring to the environment, validating documentation links.

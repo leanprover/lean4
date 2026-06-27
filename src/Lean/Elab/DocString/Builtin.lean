@@ -907,6 +907,20 @@ deriving TypeName
 
 
 /--
+Runs `act` with info trees enabled, returning its result together with the info trees it produced.
+The document's prior info trees are restored afterward; the trees from `act` are added to the
+document only when its info trees were already enabled.
+-/
+def withHighlightingInfoTrees (act : DocM α) : DocM (α × PersistentArray InfoTree) := do
+  let enabled := (← getInfoState).enabled
+  let outer ← getResetInfoTrees
+  let a ← withEnableInfoTree true <| withSaveInfoContext act
+  let trees ← getInfoTrees
+  modifyInfoState fun st => { st with trees := if enabled then outer ++ trees else outer }
+  return (a, trees)
+
+
+/--
 Elaborates a sequence of Lean commands as examples.
 
 To make examples self-contained, elaboration ignores the surrounding section scopes. Modifications
@@ -920,19 +934,24 @@ The flags `error` and `warning` indicate that an error or warning is expected in
 @[builtin_doc_code_block]
 def lean (name : Option Ident := none) (error warning : flag false) («show» : flag true) (code : StrLit) :
     DocM (Block ElabInline ElabBlock) := do
-  let text ← getFileMap
   let env ← getEnv
-  let p := andthenFn whitespace (categoryParserFnImpl `command)
-  -- TODO fallback for non-original syntax
-  let pos := code.raw.getPos? true |>.get!
-  let endPos := code.raw.getTailPos? true |>.get!
-  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
-  let ictx :=
-    mkInputContext text.source (← getFileName)
-      (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
+  -- Parse from the file when source positions are available, otherwise from the literal's own
+  -- contents (e.g. for a docstring that came from a macro).
+  let (text, ictx, pos) ←
+    if let some pos := code.raw.getPos? true then
+      let text ← getFileMap
+      let endPos := code.raw.getTailPos? true |>.getD text.source.rawEndPos
+      let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
+      pure (text,
+        mkInputContext text.source (← getFileName)
+          (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*]),
+        pos)
+    else
+      let ictx := mkInputContext code.getString (← getFileName)
+      pure (ictx.fileMap, ictx, (0 : String.Pos.Raw))
   let cctx : Command.Context := {fileName := ← getFileName, fileMap := text, snap? := none, cancelTk? := none}
   let scopes := (← get).scopes
-  let (cmds, cmdState, trees) ← withSaveInfoContext do
+  let ((cmds, cmdState), trees) ← withHighlightingInfoTrees do
     let mut cmdState : Command.State := { env, maxRecDepth := ← MonadRecDepth.getMaxRecDepth, scopes }
     let mut pstate : Parser.ModuleParserState := {
       pos
@@ -954,8 +973,7 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
 
     for t in cmdState.infoState.trees do
       pushInfoTree t
-    let trees := (← getInfoTrees)
-    pure (cmds, cmdState, trees)
+    pure (cmds, cmdState)
 
   let mut output := #[]
   for msg in cmdState.messages.toArray do
@@ -1098,7 +1116,7 @@ Treats the provided term as Lean syntax in the documentation's scope.
 def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let stx ← parseStrLit leanTermContents s
-  withSaveInfoContext do
+  let (_, trees) ← withHighlightingInfoTrees do
     let ty? ←
       withoutErrToSorry <| do
       if stx[1][1].isMissing then -- no colon
@@ -1111,7 +1129,6 @@ def leanRole (type : Option StrLit := none) (xs : TSyntaxArray `inline) : DocM (
           logErrorAt t m!"Ignoring `{s.getString}` in favor of type provided after colon"
         some <$> elabType stx[1][1]
     withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
-  let trees := (← getInfoTrees)
   if h : trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
     return .other {val := .mk tm} #[.code s.getString]
@@ -1125,7 +1142,7 @@ Treats the provided term as Lean syntax in the documentation's scope.
 @[builtin_doc_code_block]
 def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
   let stx ← parseStrLit leanTermContents code
-  withSaveInfoContext do
+  let (_, trees) ← withHighlightingInfoTrees do
     let ty? ←
       withoutErrToSorry <|
       if stx[1][1].isMissing then -- no colon
@@ -1133,7 +1150,6 @@ def leanTerm (code : StrLit) : DocM (Block ElabInline ElabBlock) := do
       else -- type after colon
         some <$> elabType stx[1][1]
     withoutErrToSorry <| discard <| elabExtraTerm stx[0] ty?
-  let trees := (← getInfoTrees)
   if h : trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
     return .other {val := .mk tm} #[.code code.getString]
@@ -1249,7 +1265,7 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let lhsStx ← parseStrLit assertTermContents lhsCode
   let rhsStx ← parseStrLit assertTermContents rhsCode
   let tyStx? ← tyCode?.mapM (parseStrLit assertTermContents)
-  withSaveInfoContext do
+  let (_, trees) ← withHighlightingInfoTrees do
     let ty? ← withoutErrToSorry <|
       match tyStx? with
       | some tyStx => some <$> elabType tyStx
@@ -1260,7 +1276,6 @@ def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       throwError m!"Expected {lhs} = {rhs}, which is {← Meta.whnf lhs} = {← Meta.whnf rhs}, reducing to {← Meta.reduceAll lhs} = {← Meta.reduceAll rhs} but they are not equal."
   let str := lhsCode.getString ++ " = " ++ rhsCode.getString ++
     (tyCode?.map (" : " ++ ·.getString) |>.getD "")
-  let trees ← getInfoTrees
   if trees.size > 0 then
     let mut code := (← highlightSyntax trees lhsStx) ++ " = " ++ (← highlightSyntax trees rhsStx)
     if let some tyStx := tyStx? then
@@ -1277,14 +1292,13 @@ Asserts that an equality holds.
 def assert (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let stx ← parseStrLit termParser.fn s
-  withSaveInfoContext do
+  let (_, trees) ← withHighlightingInfoTrees do
     let ty ← withoutErrToSorry <| elabType stx
     match_expr (← Meta.whnf ty) with
     | Eq _ lhs rhs =>
       unless (← Meta.isDefEq lhs rhs) do
         throwErrorAt stx m!"Expected {lhs} = {rhs}, but they are not definitionally equal"
     | _ => throwErrorAt stx m!"Expected equality type"
-  let trees ← getInfoTrees
   if trees.size > 0 then
     let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
     return .other {val := .mk tm} #[.code s.getString]

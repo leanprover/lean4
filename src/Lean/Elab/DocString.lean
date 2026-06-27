@@ -274,7 +274,12 @@ where
           localInstances := localInstances.push {className := c, fvar := .fvar fv}
 
         if let some (some x') := x then
-          if x'.getId == y then
+          if x'.getKind == ``hole then
+            -- A `_` parameter has no name, so it matches no binder. Drop it from the cursor
+            -- and align the remaining parameters by name; each lifted binder, including
+            -- captured variables, is introduced under its own name below.
+            x := none
+          else if x'.getId == y then
             lctx := lctx.mkLocalDecl fv y ty
             Meta.withLCtx lctx localInstances <|
               addTermInfo' x' (.fvar fv) (lctx? := some lctx) (expectedType? := ty)
@@ -301,7 +306,10 @@ where
     | ``instBinder =>
       let x := binderStx[1][0]
       if x.isMissing then pure #[none] else pure #[some x]
-    | _ => throwErrorAt binderStx "Couldn't interpret binder {binderStx}"
+    | k =>
+      -- A parameter bound by an unbracketed identifier or `_`, as in `def f x` or `where go _`.
+      if k == identKind || k == ``hole then pure #[some binderStx]
+      else throwErrorAt binderStx "Couldn't interpret binder {binderStx}"
   getNames (ids : Syntax) : TermElabM (Array (Option Syntax)) :=
     ids.getArgs.mapM fun x =>
       if x.getKind == identKind || x.getKind == ``hole then
@@ -1209,7 +1217,11 @@ unsafe def roleExpandersForUnsafe (roleName : Ident) :
     let builtins := (← builtinDocRoles.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ builtins
   else
-    let x := roleName.getId
+    -- Builtin roles are not necessarily in the environment at a
+    -- quotation site, so they aren't in the preresolved list. They
+    -- must also be looked up by their plain name, erasing any macro
+    -- scopes a quotation introduced.
+    let x := roleName.getId.eraseMacroScopes
     let hasBuiltin ← resolveBuiltinDocName (← builtinDocRoles.get) x
     return hasBuiltin.toArray.flatten
 
@@ -1228,7 +1240,7 @@ unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
     let names' := (← builtinDocCodeBlocks.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
-    let x := codeBlockName.getId
+    let x := codeBlockName.getId.eraseMacroScopes
     let hasBuiltin ← resolveBuiltinDocName (← builtinDocCodeBlocks.get) x
     return hasBuiltin.toArray.flatten
 
@@ -1247,7 +1259,7 @@ unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
     let names' := (← builtinDocDirectives.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
-    let x := directiveName.getId
+    let x := directiveName.getId.eraseMacroScopes
     let hasBuiltin ← resolveBuiltinDocName (← builtinDocDirectives.get) x
     return hasBuiltin.toArray.flatten
 
@@ -1265,7 +1277,7 @@ unsafe def commandExpandersForUnsafe (commandName : Ident) :
     let names' := (← builtinDocCommands.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
-    let x := commandName.getId
+    let x := commandName.getId.eraseMacroScopes
     let hasBuiltin :=
       (← builtinDocCommands.get).get? x <|> (← builtinDocCommands.get).get? (`Lean.Doc ++ x)
     return hasBuiltin.toArray.flatten

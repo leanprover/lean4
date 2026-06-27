@@ -89,6 +89,19 @@ def testConfigureRejectsMissingCAFile : IO Unit := do
   assertThrows "missing CA file"
     (clientCtx.configure "/nonexistent/path/to/ca.pem" true)
 
+-- A server context with non-existent certificate/key files is rejected.
+def testConfigureServerRejectsMissingFiles : IO Unit := do
+  let serverCtx ← Context.Server.mk
+  assertThrows "missing server cert"
+    (serverCtx.configure "/nonexistent/cert.pem" "/nonexistent/key.pem")
+
+-- A server context whose certificate and key do not match is rejected (here by swapping the file
+-- arguments so neither parses as the expected PEM object).
+def testConfigureServerRejectsSwappedFiles (certFile keyFile : String) : IO Unit := do
+  let serverCtx ← Context.Server.mk
+  assertThrows "swapped server cert/key"
+    (serverCtx.configure keyFile certFile)
+
 #eval do
   let (certFile, keyFile) ← setupTestCerts
   testContextCreation certFile keyFile
@@ -108,3 +121,9 @@ def testConfigureRejectsMissingCAFile : IO Unit := do
 #eval testConfigureFromPEMRejectsEmptyBlock
 
 #eval testConfigureRejectsMissingCAFile
+
+#eval testConfigureServerRejectsMissingFiles
+
+#eval do
+  let (certFile, keyFile) ← setupTestCerts
+  testConfigureServerRejectsSwappedFiles certFile keyFile

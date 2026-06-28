@@ -600,16 +600,22 @@ public def withRendererFallback (fallback : MarkdownM (Array String)) (act : Mar
 public instance : MarkdownInline ElabInline where
   toMarkdown go container content := do
     let fallback := do return joinInlines (← content.mapM go)
-    match (← inlineRendererFor container.val.typeName) with
-    | some r => withRendererFallback fallback (r go container.val content)
-    | none => fallback
+    match container with
+    | .deferred _ => fallback
+    | .custom val =>
+      match (← inlineRendererFor val.typeName) with
+      | some r => withRendererFallback fallback (r go val content)
+      | none => fallback
 
 public instance : MarkdownBlock ElabInline ElabBlock where
   toMarkdown goI goB container content := do
     let fallback := do return joinBlocks (← content.mapM goB)
-    match (← blockRendererFor container.val.typeName) with
-    | some r => withRendererFallback fallback (r goI goB container.val content)
-    | none => fallback
+    match container with
+    | .deferred _ => fallback
+    | .custom val =>
+      match (← blockRendererFor val.typeName) with
+      | some r => withRendererFallback fallback (r goI goB val content)
+      | none => fallback
 
 open Lean Doc ToMarkdown in
 public instance : ToMarkdown Lean.VersoDocString where

@@ -27,23 +27,23 @@ private structure ElabLink where
   name : StrLit
 deriving TypeName
 
-private def delayLink (name : StrLit) : ElabInline where
-  val := .mk (ElabLink.mk name)
+private def delayLink (name : StrLit) : ElabInline :=
+  .custom (.mk (ElabLink.mk name))
 
 private structure ElabImage where
   alt : String
   name : StrLit
 deriving TypeName
 
-private def delayImage (alt : String) (name : StrLit) : ElabInline where
-  val := .mk (ElabImage.mk alt name)
+private def delayImage (alt : String) (name : StrLit) : ElabInline :=
+  .custom (.mk (ElabImage.mk alt name))
 
 private structure ElabFootnote where
   name : StrLit
 deriving TypeName
 
-private def delayFootnote (name : StrLit) : ElabInline where
-  val := .mk (ElabFootnote.mk name)
+private def delayFootnote (name : StrLit) : ElabInline :=
+  .custom (.mk (ElabFootnote.mk name))
 
 private structure Ref (α) where
   content : α
@@ -54,6 +54,8 @@ private structure Ref (α) where
 structure InternalState where
   private footnotes : HashMap String (Ref (Inline ElabInline)) := {}
   private urls : HashMap String (Ref String) := {}
+  /-- Deferred checks accumulated while elaborating the current docstring, in source order. -/
+  private deferred : Array DeferredCheck := #[]
 
 /--
 The state used by `DocM`.
@@ -140,9 +142,39 @@ instance : MonadLift TermElabM DocM where
       act
     return v
 
+/--
+Records a deferred check. Deferred checks represent a docstring task that can't be carried out at
+the elaboration site, such as resolving a forward reference. Recorded checks include the current
+namespace, open namespaces, and options, but not the local context.
+
+The origin site `ref` is used to record the origin of the deferred check. Returns the check's index
+within the current docstring, which the docstring's AST stores to refer back to it.
+
+The saved deferred check is not associated with the docstring or module doc until it is actually
+added to the environment. After this call, the internal state stores `Name.anonymous`.
+-/
+def addDeferredCheck (check : Dynamic) (imports : Array Name) (ref : Syntax) : DocM Nat := do
+  let fileMap ← getFileMap
+  let sourceString :=
+    match ref.getRange? with
+    | some ⟨s, e⟩ => String.Pos.Raw.extract fileMap.source s e
+    | none => ""
+  let index := (← getThe InternalState).deferred.size
+  let entry : DeferredCheck := {
+    site := .decl .anonymous
+    index
+    sourceString
+    imports
+    currNamespace := ← getCurrNamespace
+    openDecls := ← getOpenDecls
+    options := ← getOptions
+    check
+  }
+  modifyThe InternalState fun s => { s with deferred := s.deferred.push entry }
+  return index
+
 private structure ModuleDocstringState extends Lean.Doc.State where
   scopedExts : Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)
-
 
 private builtin_initialize modDocstringStateExt : EnvExtension (Option ModuleDocstringState) ←
   registerEnvExtension (pure none)
@@ -203,16 +235,16 @@ private def withSaveRestoreTermState (act : TermElabM α) : TermElabM α := do
 Runs a documentation elaborator in the module docstring context.
 -/
 def DocM.execForModule (act : DocM α) (suggestionMode : SuggestionMode := .interactive) :
-    TermElabM α := withoutModifyingEnv do
+    TermElabM (α × Array DeferredCheck) := withoutModifyingEnv do
   let sc ← scopedEnvExtensionsRef.get
   let st ← getModState
   withSaveRestoreTermState do
     try
       scopedEnvExtensionsRef.set st.scopedExts
-      let ((v, _), docState) ←
+      let ((v, internalSt), docState) ←
         act.run { suggestionMode } |>.run {} |>.run st.toState
       checkUnsolvedDocMVars st.toState.lctx docState
-      pure v
+      pure (v, internalSt.deferred)
     finally
       scopedEnvExtensionsRef.set sc
 
@@ -223,7 +255,7 @@ environment.
 -/
 def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
     (suggestionMode : SuggestionMode := .interactive) :
-    TermElabM α := withoutModifyingEnv do
+    TermElabM (α × Array DeferredCheck) := withoutModifyingEnv do
   let some ci := (← getEnv).constants.find? declName
     | throwError "Unknown constant {declName} when building docstring"
   withSaveRestoreTermState do
@@ -233,10 +265,10 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
       let openDecls ← getOpenDecls
       let options ← getOptions
       let scopes := [{header := "", isPublic := true}]
-      let ((v, _), docState) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
+      let ((v, internalSt), docState) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
         act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
       checkUnsolvedDocMVars lctx docState
-      pure v
+      pure (v, internalSt.deferred)
     finally
       scopedEnvExtensionsRef.set sc
 where
@@ -1752,8 +1784,10 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
   | .code s => pure (.code s)
   | .math mode s => pure (.math mode s)
   | .linebreak s => pure (.linebreak s)
-  | .other i@{ val } xs =>
-    if let some {name} := val.get? ElabLink then
+  | .other i xs =>
+    let some val := getCustom i
+      | .other i <$> xs.mapM fixupInline
+    if let some { name } := val.get? ElabLink then
       let nameStr := name.getString
       if let some r@{content := url, seen, .. } := (← getThe InternalState).urls[nameStr]? then
         unless seen do modifyThe InternalState fun st => { st with urls := st.urls.insert nameStr { r with seen := true } }
@@ -1761,7 +1795,7 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
       else
         logErrorAt name "Reference not found"
         return .concat (← xs.mapM fixupInline)
-    else if let some {alt, name} := val.get? ElabImage then
+    else if let some { alt, name } := val.get? ElabImage then
       let nameStr := name.getString
       if let some r@{content := url, seen, ..} := (← getThe InternalState).urls[nameStr]? then
         unless seen do modifyThe InternalState fun st => { st with urls := st.urls.insert nameStr { r with seen := true } }
@@ -1769,9 +1803,9 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
       else
         logErrorAt name "Reference not found"
         return .empty
-    else if let some {name} := val.get? ElabFootnote then
+    else if let some { name } := val.get? ElabFootnote then
       let nameStr := name.getString
-      if let some r@{content, seen, ..} := (← getThe InternalState).footnotes[nameStr]? then
+      if let some r@{ content, seen, .. } := (← getThe InternalState).footnotes[nameStr]? then
         unless seen do modifyThe InternalState fun st =>
           { st with footnotes := st.footnotes.insert nameStr { r with seen := true } }
         return .footnote nameStr #[← fixupInline content]
@@ -1780,6 +1814,10 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
         return .empty
     else
       .other i <$> xs.mapM fixupInline
+where
+  getCustom : ElabInline → Option Dynamic
+    | .custom c => some c
+    | .deferred _ => none
 
 partial def fixupBlock (block : Block ElabInline ElabBlock) : DocM (Block ElabInline ElabBlock) := do
   match block with

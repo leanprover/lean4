@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.DeclarationRange
 public import Lean.DocString.Types
+public import Lean.DocString.DeferredCheck
 public import Init.Data.String.Extra
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Search
@@ -30,13 +31,24 @@ Saved data that describes a custom inline element.
 The type of value contained within the `Dynamic` determines the interpretation of the custom
 element, including how it is rendered to Markdown for the language server.
 -/
-structure ElabInline where
-  val : Dynamic
+inductive ElabInline where
+  /--
+  A custom inline element. The type of the value in the `Dynamic` determines how it is interpreted
+  and rendered.
+  -/
+  | custom (val : Dynamic)
+  /--
+  A deferred check that lacked sufficient information when it was used (e.g. a forward references to
+  a name in a downstream module). The `index` identifies it among the docstring's deferred checks
+  that are stored in an environment extension. Inline and block deferred checks use the same
+  counter.
+  -/
+  | deferred (index : Nat)
 
 instance : Repr ElabInline where
-  reprPrec v _ :=
-    .group <| .nestD <|
-      .group (.nestD ("{ val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
+  reprPrec v _ := match v with
+    | .custom val => .group <| "ElabInline.custom" ++ .line ++ "(.mk " ++ repr val.typeName ++ " _)"
+    | .deferred index => .group <| "ElabInline.deferred" ++ .line ++ repr index
 
 /--
 Saved data that describes a custom block element.
@@ -44,13 +56,56 @@ Saved data that describes a custom block element.
 The type of value contained within the `Dynamic` determines the interpretation of the custom
 element, including how it is rendered to Markdown for the language server.
 -/
-structure ElabBlock where
-  val : Dynamic
+inductive ElabBlock where
+  /--
+  A custom block element. The type of the value in the `Dynamic` determines how it is interpreted
+  and rendered.
+  -/
+  | custom (val : Dynamic)
+  /--
+  A deferred check that lacked sufficient information when it was used (e.g. a forward references to
+  a name in a downstream module). The `index` identifies it among the docstring's deferred checks
+  that are stored in an environment extension. Inline and block deferred checks use the same
+  counter.
+  -/
+  | deferred (index : Nat)
 
 instance : Repr ElabBlock where
-  reprPrec v _ :=
-    .group <| .nestD <|
-      .group (.nestD ("{ val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
+  reprPrec v _ := match v with
+    | .custom val => .group <| "ElabBlock.custom" ++ .line ++ "(.mk " ++ repr val.typeName ++ " _)"
+    | .deferred index => .group <| "ElabBlock.deferred" ++ .line ++ repr index
+
+/--
+A custom inline element `val`. The type `α` determines how it is interpreted. In contexts where `α`
+is not understood, `content` is used as a fallback.
+-/
+@[inline] def Doc.Inline.custom {α} [TypeName α] (val : α)
+    (content : Array (Doc.Inline ElabInline)) : Doc.Inline ElabInline :=
+  .other (.custom (.mk val)) content
+
+/--
+An inline element with a deferred check. The `index` is a 0-based index into the current docstring's
+deferred checks, in source order. Block and inline deferred elements share a counter.
+-/
+@[inline] def Doc.Inline.deferred (index : Nat)
+    (content : Array (Doc.Inline ElabInline)) : Doc.Inline ElabInline :=
+  .other (.deferred index) content
+
+/--
+A custom block element `val`. The type `α` determines how it is interpreted. In contexts where `α`
+is not understood, `content` is used as a fallback.
+-/
+@[inline] def Doc.Block.custom {α} [TypeName α] (val : α)
+    (content : Array (Doc.Block ElabInline ElabBlock)) : Doc.Block ElabInline ElabBlock :=
+  .other (.custom (.mk val)) content
+
+/--
+A block element with a deferred check. The `index` is a 0-based index into the current docstring's
+deferred checks, in source order. Block and inline deferred elements share a counter.
+-/
+@[inline] def Doc.Block.deferred (index : Nat)
+    (content : Array (Doc.Block ElabInline ElabBlock)) : Doc.Block ElabInline ElabBlock :=
+  .other (.deferred index) content
 
 structure VersoDocString where
   text : Array (Doc.Block ElabInline ElabBlock)

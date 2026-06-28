@@ -28,8 +28,17 @@ abbrev insert (s : SSet α) (a : α) : SSet α :=
 abbrev contains (s : SSet α) (a : α) : Bool :=
   SMap.contains s a
 
+instance : Membership α (SSet α) := ⟨fun (s : SSet α) (a : α) => s.contains a = true⟩
+
 abbrev forM [Monad m] (s : SSet α) (f : α → m PUnit) : m PUnit :=
   SMap.forM s fun a _ => f a
+
+protected def forIn [Monad m] (s : SSet α) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ := do
+  let inst : ForIn m (SMap α Unit) (α × Unit) := inferInstance
+  inst.forIn s init fun (a, _) acc => f a acc
+
+instance [Monad m] : ForIn m (SSet α) α where
+  forIn := SSet.forIn
 
 /-- Move from stage 1 into stage 2. -/
 abbrev switch (s : SSet α) : SSet α :=

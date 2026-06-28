@@ -82,6 +82,8 @@ def all (pred : Nat → Bool) (p : Pos) : Bool :=
 
 def append : Pos → Pos → Pos := foldl push
 
+instance : Append Pos := ⟨append⟩
+
 /-- Creates a subexpression `Pos` from an array of 'coordinates'.
 Each coordinate is a number {0,1,2} expressing which child subexpression should be explored.
 The first coordinate in the array corresponds to the root of the expression tree.  -/

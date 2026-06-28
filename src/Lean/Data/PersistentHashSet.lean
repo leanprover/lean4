@@ -51,6 +51,9 @@ variable {_ : BEq α} {_ : Hashable α}
 @[inline] def contains (s : PersistentHashSet α) (a : α) : Bool :=
   s.set.contains a
 
+instance {_ : BEq α} {_ : Hashable α} : Membership α (PersistentHashSet α) :=
+  ⟨fun (s : PersistentHashSet α) (a : α) => s.contains a = true⟩
+
 @[inline] def foldM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (s : PersistentHashSet α) : m β :=
   s.set.foldlM (init := init) fun d a _ => f d a
 

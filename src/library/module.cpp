@@ -332,10 +332,6 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
             out.write(reinterpret_cast<char *>(&header), sizeof(header));
 
             compactor(odata);
-
-            if (out.fail()) {
-                throw exception((sstream() << "failed to create file '" << olean_fn << "'").str());
-            }
             out.write(static_cast<char const *>(compactor.data()) + file_offset + sizeof(olean_header),
                       compactor.size() - file_offset - sizeof(olean_header));
             out.close();
@@ -396,10 +392,12 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
             compactor.alloc(lib_table_size(used_libs));
             write_lib_table(out, used_libs);
 
-            if (out.fail()) {
-                throw exception((sstream() << "failed to create file '" << olean_fn << "'").str());
-            }
             out.close();
+        }
+        if (out.fail()) {
+            int err = errno;
+            std::remove(olean_tmp_fn.c_str());
+            return decode_io_error(err, ofname);
         }
     } catch (exception & ex) {
         std::remove(olean_tmp_fn.c_str());

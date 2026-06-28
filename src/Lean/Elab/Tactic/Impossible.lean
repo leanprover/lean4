@@ -32,9 +32,13 @@ private def mkImpossibleNegType (mainGoal : MVarId) (goalType : Expr)
     MetaM (Expr × Array Name) := mainGoal.withContext do
   let dummy ← mkFreshExprSyntheticOpaqueMVar goalType
   let dummyMVarId := dummy.mvarId!
-  let (_, reverted) ← dummyMVarId.revert
+  let mut toRevert : Array FVarId := #[]
+  for fvarId in (← dummyMVarId.getDecl).lctx.getFVarIds do
+    unless (← fvarId.getDecl).isAuxDecl do
+      toRevert := toRevert.push fvarId
+  let (_, reverted) ← dummyMVarId.revert toRevert
+    (preserveOrder := true)
     (clearAuxDeclsInsteadOfRevert := true)
-    (← dummyMVarId.getDecl).lctx.getFVarIds
   let revertedType ← reverted.getType
   let r ← Closure.mkValueTypeClosure revertedType (mkConst ``True)
     (zetaDelta := false)

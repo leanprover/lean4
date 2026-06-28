@@ -34,7 +34,11 @@ example (n : Nat) : n = n + 1 := by
     exact Nat.succ_ne_zero _ ((h 0).symm)
 
 -- The `impossible` tactic must not succeed on provable goals.
-#guard_msgs (drop error) in
+/--
+error: unsolved goals
+⊢ False
+-/
+#guard_msgs in
 example (xs : List α) (h : xs.length > 0) : xs ≠ [] := by
   intro h_empty
   impossible by simp

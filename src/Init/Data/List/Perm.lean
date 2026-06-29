@@ -472,6 +472,16 @@ theorem perm_insert_swap (x y : α) (l : List α) :
 
 end LawfulBEq
 
+/-- Two lists without duplicates are permutations of each other if and only if
+they have the same elements. -/
+theorem perm_ext_iff_of_nodup {l₁ l₂ : List α} (d₁ : Nodup l₁) (d₂ : Nodup l₂) :
+    l₁ ~ l₂ ↔ ∀ a, a ∈ l₁ ↔ a ∈ l₂ := by
+  classical
+  rw [perm_iff_count]
+  refine ⟨fun h a => by rw [← count_pos_iff, ← count_pos_iff, h], fun h a => ?_⟩
+  rw [d₁.count, d₂.count]
+  simp only [h a]
+
 theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) :
     ∀ {l₁ l₂ : List α} (_p : l₁ ~ l₂), Pairwise R l₁ ↔ Pairwise R l₂ :=
   suffices ∀ {l₁ l₂}, l₁ ~ l₂ → Pairwise R l₁ → Pairwise R l₂

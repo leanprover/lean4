@@ -12,6 +12,7 @@ import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
+public import Init.Data.List.FinRange
 
 public section
 
@@ -74,5 +75,23 @@ theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
     rcases is with ⟨⟩ | ⟨a', ⟨⟩ | ⟨b', ⟨⟩⟩⟩ <;> simp at h'
     rcases h' with ⟨rfl, rfl⟩
     apply h; simpa using! hij
+
+/-- The list `List.finRange n` is strictly increasing. -/
+theorem pairwise_lt_finRange (n : Nat) : Pairwise (· < ·) (finRange n) := by
+  rw [pairwise_iff_getElem]
+  intro i j hi hj hlt
+  simp only [getElem_finRange]
+  exact hlt
+
+/-- The list `List.finRange n` is increasing. -/
+theorem pairwise_le_finRange (n : Nat) : Pairwise (· ≤ ·) (finRange n) := by
+  rw [pairwise_iff_getElem]
+  intro i j hi hj hlt
+  simp only [getElem_finRange]
+  exact Fin.le_of_lt hlt
+
+/-- The list `List.finRange n` has no duplicate entries. -/
+theorem nodup_finRange (n : Nat) : (finRange n).Nodup :=
+  (pairwise_lt_finRange n).imp Fin.ne_of_lt
 
 end List

@@ -1,9 +1,10 @@
 true
-[Compiler.result] size: 2
+[Compiler.result] size: 3
     def _private.elab.«9806».0._eval._closed_0 : tobj :=
-      let _x.1 := 1;
-      let _x.2 := Bool.repr._redArg _x.1;
-      return _x.2
+      let _x.1 := bar;
+      let _x.2 := unbox _x.1;
+      let _x.3 := Bool.repr._redArg _x.2;
+      return _x.3
 [Compiler.result] size: 2
     def _private.elab.«9806».0._eval : tobj :=
       let _x.1 := _private.elab.«9806».0._eval._closed_0;

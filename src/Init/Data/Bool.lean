@@ -25,7 +25,7 @@ Examples:
  * `false ^^ true = true`
  * `true ^^ true = false`
 -/
-abbrev xor : Bool → Bool → Bool := bne
+@[extern "lean_bool_xor"] abbrev xor : Bool → Bool → Bool := bne
 
 @[inherit_doc] infixl:33 " ^^ " => xor
 
@@ -385,7 +385,8 @@ theorem and_or_inj_left_iff :
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[expose, implicit_reducible] def toNat (b : Bool) : Nat := cond b 1 0
+@[expose, implicit_reducible, extern "lean_bool_to_nat", tagged_return]
+def toNat (b : Bool) : Nat := cond b 1 0
 
 @[simp, bitvec_to_nat, grind =] theorem toNat_false : false.toNat = 0 := rfl
 

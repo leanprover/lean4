@@ -24,44 +24,44 @@ redundant top level hypotheses.
 -/
 public def embeddedConstraintPass : Pass where
   name := `embeddedConstraintSubstitution
-  run' goal := do
+  run' := do
+    let goal ← PreProcessM.getGoal
     goal.withContext do
-      let hyps ← getPropHyps
+      let hyps ← PreProcessM.getHyps
       let mut relevantHyps : SimpTheoremsArray := #[]
+      -- TODO: make me exprptr based
       let mut seen : Std.HashSet Expr := {}
-      let mut duplicates : Array FVarId := #[]
-      for hyp in hyps do
-        let typ ← hyp.getType
-        let_expr Eq _ lhs rhs := typ | continue
+      for h : idx in 0...hyps.size do
+        let hyp := hyps[idx]
+        let type := hyp.type
+        let_expr Eq _ lhs rhs := type | continue
         let_expr Bool.true := rhs | continue
-        if seen.contains lhs then
-          duplicates := duplicates.push hyp
-        else
+        if !seen.contains lhs then
           seen := seen.insert lhs
-          let localDecl ← hyp.getDecl
-          let proof := localDecl.toExpr
-          relevantHyps ← relevantHyps.addTheorem (.fvar hyp) proof
-
-      let goal ← goal.tryClearMany duplicates
+          relevantHyps ← relevantHyps.addTheorem (.other (.num .anonymous idx)) hyp.value
 
       if relevantHyps.isEmpty then
-        return goal
+        return false
 
       let cfg ← PreProcessM.getConfig
-      let targets ← goal.withContext getPropHyps
-      let simpCtx ← Simp.mkContext
-        (config := {
-          failIfUnchanged := false,
-          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
-          maxSteps := cfg.maxSteps,
-          instances := true
-        })
-        (simpTheorems := relevantHyps)
-        (congrTheorems := (← getSimpCongrTheorems))
-      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := targets)
-      let some (_, newGoal) := result? | return none
-      return newGoal
-
+      PreProcessM.mapIdxHyps fun idx hyp => do
+        let relevantHyps := relevantHyps.eraseTheorem (.other (.num .anonymous idx))
+        let simpCtx ← Simp.mkContext
+          (config := {
+            failIfUnchanged := false,
+            implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+            maxSteps := cfg.maxSteps,
+            instances := true
+          })
+          (simpTheorems := relevantHyps)
+          (congrTheorems := (← getSimpCongrTheorems))
+        let (res, _) ← simp hyp.type simpCtx
+        let some (value, type) ← applySimpResult goal hyp.value hyp.type res false | unreachable!
+        return {
+          name := hyp.name
+          type := type
+          value := value
+        }
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

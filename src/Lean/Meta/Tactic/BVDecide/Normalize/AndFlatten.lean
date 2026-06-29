@@ -18,14 +18,21 @@ hypotheses of the form `h : x && y = true` and splitting them into `h1 : x = tru
 namespace Lean.Meta.Tactic.BVDecide
 namespace Normalize
 
-structure AndHyp where
-  hyp : Hypothesis
-  original : FVarId
+structure AndFlattenCache where
+  -- TODO: make me ptr based
+  cache : Std.HashSet Expr := {}
+
+abbrev FlattenM := StateRefT AndFlattenCache PreProcessM
+
+@[inline]
+def FlattenM.isCached (e : Expr) : FlattenM Bool := return (← get).cache.contains e
+
+@[inline]
+def FlattenM.cache (e : Expr) : FlattenM Unit :=
+  modify fun s => { s with cache := s.cache.insert e }
 
 structure AndFlattenState where
-  hypsToDelete : Array FVarId := #[]
-  hypsToAdd : Array AndHyp := #[]
-  cache : Std.HashSet Expr := {}
+  hypsToAdd : Array Hyp := #[]
 
 /--
 Flatten out ands. That is look for hypotheses of the form `h : (x && y) = true` and replace them
@@ -34,79 +41,55 @@ in embedded constraint substitution.
 -/
 public partial def andFlatteningPass : Pass where
   name := `andFlattening
-  run' goal := do
-    let (_, { hypsToDelete, hypsToAdd, .. }) ← processGoal goal |>.run {}
-    if hypsToAdd.isEmpty then
-      return goal
-    else
-      let (newFVars, goal) ← goal.assertHypotheses <| hypsToAdd.map (·.hyp)
-      for h : i in 0...hypsToAdd.size do
-        let orig := hypsToAdd[i].original
-        let new := newFVars[i]!
-        if ← PreProcessM.checkRewritten orig then
-          PreProcessM.rewriteFinished new
-        if ← PreProcessM.checkAcNf orig then
-          PreProcessM.acNfFinished new
-
-      -- Given that we collected the hypotheses in the correct order above the invariant is given
-      let goal ← goal.tryClearMany hypsToDelete
-      return goal
+  run' := do
+    discard <| process (← PreProcessM.getGoal) |>.run {}
+    return false
 where
-  processGoal (goal : MVarId) : StateRefT AndFlattenState MetaM Unit := do
-    goal.withContext do
-      let hyps ← getPropHyps
-      hyps.forM processFVar
+  process (g : MVarId) : FlattenM Unit :=
+    g.withContext do
+      PreProcessM.flatMapHyps fun hyp => do
+        let (_, newHyps) ← (processHyp hyp).run {}
+        return newHyps.hypsToAdd
 
-  processFVar (fvar : FVarId) : StateRefT AndFlattenState MetaM Unit := do
-    let type ← fvar.getType
-    if (← get).cache.contains type then
-      modify (fun s => { s with hypsToDelete := s.hypsToDelete.push fvar })
+  processHyp (hyp : Hyp) : StateRefT AndFlattenState FlattenM Unit := do
+    if let some (lhs, rhs) ← trySplit hyp then
+      splitAnds [lhs, rhs]
     else
-      let hyp := {
-        hyp := {
-          userName := (← fvar.getDecl).userName
-          type := type
-          value := mkFVar fvar
-        },
-        original := fvar
-      }
-      let some (lhs, rhs) ← trySplit hyp | return ()
-      modify (fun s => { s with hypsToDelete := s.hypsToDelete.push fvar })
-      splitAnds fvar [lhs, rhs]
+      modify fun s => { s with hypsToAdd := #[hyp] }
 
-  splitAnds (fvar : FVarId)  (worklist : List AndHyp) : StateRefT AndFlattenState MetaM Unit := do
+  splitAnds (worklist : List Hyp) : StateRefT AndFlattenState FlattenM Unit := do
     match worklist with
     | [] => return ()
     | hyp :: worklist =>
       match ← trySplit hyp with
-      | some (left, right) => splitAnds fvar <| left :: right :: worklist
+      | some (left, right) => splitAnds <| left :: right :: worklist
       | none =>
         modify (fun s => { s with hypsToAdd := s.hypsToAdd.push hyp })
-        splitAnds fvar worklist
+        splitAnds worklist
 
-  trySplit (hyp : AndHyp) :
-      StateRefT AndFlattenState MetaM (Option (AndHyp × AndHyp)) := do
-    let typ := hyp.hyp.type
-    if (← get).cache.contains typ then
+  trySplit (hyp : Hyp) :
+      StateRefT AndFlattenState FlattenM (Option (Hyp × Hyp)) := do
+    let typ := hyp.type
+    if ← FlattenM.isCached typ then
       return none
     else
-      modify (fun s => { s with cache := s.cache.insert typ })
+      FlattenM.cache typ
       let_expr Eq _ eqLhs eqRhs := typ | return none
       let_expr Bool.and lhs rhs := eqLhs | return none
       let_expr Bool.true := eqRhs | return none
       let mkEqTrue (lhs : Expr) : Expr :=
         mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) lhs (mkConst ``Bool.true)
-      let leftHyp : Hypothesis := {
-        userName := hyp.hyp.userName,
+      let leftHyp : Hyp := {
+        name := hyp.name,
         type := mkEqTrue lhs,
-        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hyp.hyp.value
+        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hyp.value
       }
-      let rightHyp : Hypothesis := {
-        userName := hyp.hyp.userName,
+      let rightHyp : Hyp := {
+        name := hyp.name,
         type := mkEqTrue rhs,
-        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hyp.hyp.value
+        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hyp.value
       }
-      return some (⟨leftHyp, hyp.original⟩, ⟨rightHyp, hyp.original⟩)
+      return some (leftHyp, rightHyp)
 
 
 end Normalize

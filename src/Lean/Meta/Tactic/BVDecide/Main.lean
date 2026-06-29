@@ -34,11 +34,22 @@ Try to close `g` using a bitblaster. Return either a `CounterExample` if one is 
 if `g` is proven.
 -/
 public def bvDecide' (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample Result) := do
-  let g? ← Normalize.bvNormalize g ctx.config
-  let some g := g? | return .ok ⟨none⟩
-  match ← bvUnsat g ctx with
-  | .ok lratCert => return .ok ⟨some lratCert⟩
-  | .error counterExample => return .error counterExample
+  Normalize.PreProcessM.run' ctx.config g do
+    let solved ← Normalize.bvNormalize
+    if solved then return .ok ⟨none⟩
+
+    -- TODO: test run
+    let hyps := (← Normalize.PreProcessM.getHyps).map fun hyp => {
+      userName := hyp.name
+      type := hyp.type
+      value := hyp.value
+    }
+    let (_, goal) ← MVarId.assertHypotheses (← Normalize.PreProcessM.getGoal) hyps
+    trace[Meta.Tactic.bv] m!"Goal handed to bvUnsat:\n{goal}"
+
+    match ← bvUnsat goal ctx with
+    | .ok lratCert => return .ok ⟨some lratCert⟩
+    | .error counterExample => return .error counterExample
 
 /--
 Call `bvDecide'` and throw a pretty error if a counter example ends up being produced.

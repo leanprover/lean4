@@ -79,9 +79,10 @@ where
 
 public partial def structuresPass : Pass where
   name := `structures
-  run' goal := do
+  run' := do
     let interesting := (← PreProcessM.getTypeAnalysis).interestingStructures
-    if interesting.isEmpty then return goal
+    if interesting.isEmpty then return false
+    let goal ← PreProcessM.getGoal
     goal.withContext do
       let mut worklist := #[]
       for decl in ← getLCtx do
@@ -91,7 +92,7 @@ public partial def structuresPass : Pass where
         if interesting.contains const then
           worklist := worklist.push (mkFVar decl.fvarId, const, us, decl.type.getAppArgs)
 
-      let mut newHyps : Array Hypothesis := #[]
+      let mut newHyps : Array Hyp := #[]
       let env ← getEnv
       while h : 0 < worklist.size do
         let (value, structConst, us, params) := worklist.back
@@ -104,7 +105,7 @@ public partial def structuresPass : Pass where
           let projType ← inferType projValue
           if ← Meta.isProp projType then
             newHyps := newHyps.push {
-              userName := `h
+              name := `h
               type := projType
               value := projValue
             }
@@ -113,10 +114,10 @@ public partial def structuresPass : Pass where
             if interesting.contains const then
               worklist := worklist.push (projValue, const, us, projType.getAppArgs)
 
-      let (_, goal) ← goal.assertHypotheses newHyps
+      PreProcessM.addHyps newHyps
       postprocess goal
 where
-  postprocess (goal : MVarId) : PreProcessM (Option MVarId) := do
+  postprocess (goal : MVarId) : PreProcessM Bool := do
     goal.withContext do
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
@@ -131,14 +132,15 @@ where
         })
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
-      let ⟨result?, _⟩ ←
-        simpGoal
-          goal
-          (ctx := simpCtx)
-          (simprocs := #[simprocs])
-          (fvarIdsToSimp := ← getPropHyps)
-      let some (_, newGoal) := result? | return none
-      return newGoal
+      
+      PreProcessM.mapHyps fun hyp => do
+        let (res, _) ← simp hyp.type simpCtx (simprocs := #[simprocs])
+        let some (value, type) ← applySimpResult goal hyp.value hyp.type res false | unreachable!
+        return {
+          name := hyp.name
+          type := type
+          value := value
+        }
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

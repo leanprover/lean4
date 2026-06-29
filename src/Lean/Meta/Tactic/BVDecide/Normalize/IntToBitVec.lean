@@ -52,37 +52,43 @@ end M
 
 public def intToBitVecPass : Pass where
   name := `intToBitVec
-  run' goal := do
-    let intToBvThms ← intToBitVecExt.getTheorems
-    let cfg ← PreProcessM.getConfig
-    let simpCtx ← Simp.mkContext
-      (config := {
-        failIfUnchanged := false,
-        zetaDelta := true,
-        implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
-        maxSteps := cfg.maxSteps,
-        instances := true
-      })
-      (simpTheorems := #[intToBvThms])
-      (congrTheorems := (← getSimpCongrTheorems))
+  run' := do
+    let goal ← PreProcessM.getGoal
+    goal.withContext do
+      let intToBvThms ← intToBitVecExt.getTheorems
+      let cfg ← PreProcessM.getConfig
+      let simpCtx ← Simp.mkContext
+        (config := {
+          failIfUnchanged := false,
+          zetaDelta := true,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+          maxSteps := cfg.maxSteps,
+          instances := true
+        })
+        (simpTheorems := #[intToBvThms])
+        (congrTheorems := (← getSimpCongrTheorems))
 
-    let numBitsEq? ← findNumBitsEq goal
-    let discharge? :=
-      if let some (width, proof) := numBitsEq? then
-        some <| fun prop => do
-          let prop ← instantiateMVars prop
-          let_expr Eq _ lhs rhs := prop | return none
-          unless lhs.isConstOf ``System.Platform.numBits do return none
-          let some val ← getNatValue? rhs | return none
-          unless width == val do return none
-          return some proof
-      else
-        none
+      let numBitsEq? ← findNumBitsEq (← PreProcessM.getGoal)
+      let discharge? :=
+        if let some (width, proof) := numBitsEq? then
+          some <| fun prop => do
+            let prop ← instantiateMVars prop
+            let_expr Eq _ lhs rhs := prop | return none
+            unless lhs.isConstOf ``System.Platform.numBits do return none
+            let some val ← getNatValue? rhs | return none
+            unless width == val do return none
+            return some proof
+        else
+          none
 
-    let hyps ← goal.getNondepPropHyps
-    let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps) (discharge? := discharge?)
-    let some (_, goal) := result? | return none
-    return goal
+      PreProcessM.mapHyps fun hyp => do
+        let (res, _) ← simp hyp.type simpCtx (discharge? := discharge?)
+        let some (value, type) ← applySimpResult goal hyp.value hyp.type res false | unreachable!
+        return {
+          name := hyp.name
+          type := type
+          value := value
+        }
 where
   /--
   Builds an expression of type: `System.Platform.numBits = const` from the hypotheses in the context

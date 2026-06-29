@@ -44,21 +44,18 @@ def passPipeline : PreProcessM (List Pass) := do
 
   return passPipeline
 
-public def bvNormalize (g : MVarId) (cfg : Elab.Tactic.BVDecide.BVDecideConfig) :
-    MetaM (Option MVarId) := do
+public def bvNormalize : PreProcessM Bool := do
   withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
-    (go g).run cfg g
-where
-  go (g : MVarId) : PreProcessM (Option MVarId) := do
-    let some g' ← g.falseOrByContra | return none
-    let mut g := g'
+    let g ← PreProcessM.getGoal
+    let some g ← g.falseOrByContra | return true
+    PreProcessM.setGoal g
+    PreProcessM.collectHypsFromGoal
 
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
     let cfg ← PreProcessM.getConfig
 
     if cfg.structures || cfg.enums then
-      let some g' ← typeAnalysisPass.run g | return none
-      g := g'
+      if ← typeAnalysisPass.run then return true
 
     /-
     There is a tension between the structures and enums pass at play:
@@ -77,28 +74,23 @@ where
        invocation that is going to happen in the enums pass anyway and should thus be cheap.
     -/
     if cfg.structures then
-      let some g' ← structuresPass.run g | return none
-      g := g'
+      if ← structuresPass.run then return true
 
     if cfg.enums then
-      let some g' ← enumsPass.run g | return none
-      g := g'
+      if ← enumsPass.run then return true
 
     if cfg.fixedInt then
-      let some g' ← intToBitVecPass.run g | return none
-      g := g'
+      if ← intToBitVecPass.run then return true
 
-    trace[Meta.Tactic.bv] m!"Running fixpoint pipeline on:\n{g}"
     let pipeline ← passPipeline
-    let some g' ← Pass.fixpointPipeline pipeline g | return none
+    if ← Pass.fixpointPipeline pipeline then return true
     /-
     Run short circuiting once post fixpoint, as it increases the size of terms with
     the aim of exposing potential short-circuit reasoning to the solver.
     -/
     if cfg.shortCircuit then
-      shortCircuitPass |>.run g'
-    else
-      return g'
+      if ← shortCircuitPass.run then return true
+    return false
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

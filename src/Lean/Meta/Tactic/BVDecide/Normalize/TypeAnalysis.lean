@@ -134,13 +134,13 @@ public def addDefaultTypeAnalysisLemmas (lemmas : SimpTheoremsArray) : PreProces
 
 public partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
-  run' goal := do
-    checkContext goal
+  run' := do
+    checkContext (← PreProcessM.getGoal)
     let analysis ← PreProcessM.getTypeAnalysis
     trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found matchers: {analysis.interestingMatchers.keys}"
-    return goal
+    return false
 where
   checkContext (goal : MVarId) : PreProcessM Unit := do
     goal.withContext do

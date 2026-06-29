@@ -296,10 +296,11 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
     let rNew := Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.neutralElement
 
     let oldExpr := mkApp2 P lhs rhs
-    let expr := mkApp2 P lNew rNew
-    let proof ← proveEqualityByAC oldExpr expr
+    let newExpr := mkApp2 P lNew rNew
+    if oldExpr == newExpr then return .continue
+    let proof ← proveEqualityByAC oldExpr newExpr
 
-    return .continue <| some { expr := expr, proof? := some proof }
+    return .continue <| some { expr := newExpr, proof? := some proof }
 
 def bvAcNfpost : Simp.Simproc := fun e => do
   match_expr e with
@@ -322,40 +323,25 @@ def bvAcNfpost : Simp.Simproc := fun e => do
 
 open Tactic
 
-def bvAcNfTarget (mvarId : MVarId)
-    (maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps) : MetaM MVarId := do
-  let simpCtx ← Simp.mkContext
-      (simpTheorems  := {})
-      (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with maxSteps, instances := true })
-  let tgt ← instantiateMVars (← mvarId.getType)
-  let (res, _) ← Simp.main tgt simpCtx (methods := { post := bvAcNfpost })
-  applySimpResultToTarget mvarId tgt res
-
-
-def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId)
-    (maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps) : MetaM (Option MVarId) := do
-  goal.withContext do
+public def bvAcNormalizePass : Pass where
+  name := `bv_ac_nf
+  run' := do
+    let goal ← PreProcessM.getGoal
+    let cfg ← PreProcessM.getConfig
     let simpCtx ← Simp.mkContext
       (simpTheorems  := {})
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with maxSteps, instances := true })
-    let tgt ← instantiateMVars (← fvarId.getType)
-    let (res, _) ← Simp.main tgt simpCtx (methods := { post := bvAcNfpost })
-    return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
+      (config        := { Simp.neutralConfig with maxSteps := cfg.maxSteps, instances := true })
 
-public def bvAcNormalizePass : Pass where
-  name := `bv_ac_nf
-  run' goal := goal.withContext do
-    let hyps ← (← getPropHyps) |>.filterM fun hyp => do
-      return !(← PreProcessM.checkAcNf hyp)
-    let mut newGoal := goal
-    for hyp in hyps do
-      if let .some nextGoal ← bvAcNfHypMeta newGoal hyp (← read).maxSteps then
-        newGoal := nextGoal
-    newGoal.withContext do
-      (← getPropHyps).forM PreProcessM.acNfFinished
-    return newGoal
+    goal.withContext do
+      PreProcessM.mapHyps fun hyp => do
+        let (res, _) ← Simp.main hyp.type simpCtx (methods := { post := bvAcNfpost })
+        let some (value, type) ← applySimpResult goal hyp.value hyp.type res false | unreachable!
+        return {
+          name := hyp.name
+          type := type
+          value := value
+        }
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

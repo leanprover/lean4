@@ -26,33 +26,35 @@ translating `x1 * y == x2 * y` to `!(!x1 == x2 && !x1 * y == x2 * y)`.
 -/
 public def shortCircuitPass : Pass where
   name := `shortCircuitPass
-  run' goal := do
+  run' := do
+    let mut theorems : SimpTheoremsArray := #[]
+    theorems ← theorems.addTheorem
+      (Lean.Meta.Origin.decl ``mul_beq_mul_short_circuit_left)
+      (mkConst ``mul_beq_mul_short_circuit_left)
+    theorems ← theorems.addTheorem
+      (Lean.Meta.Origin.decl ``mul_beq_mul_short_circuit_right)
+      (mkConst ``mul_beq_mul_short_circuit_right)
+
+    let simpCtx ← Simp.mkContext
+      (config := {
+        failIfUnchanged := false,
+        zetaDelta := true,
+        singlePass := true,
+        maxSteps := (← PreProcessM.getConfig).maxSteps
+      })
+      (simpTheorems := theorems)
+      (congrTheorems := (← getSimpCongrTheorems))
+
+    let goal ← PreProcessM.getGoal
     goal.withContext do
-      let mut theorems : SimpTheoremsArray := #[]
-      theorems ← theorems.addTheorem
-        (Lean.Meta.Origin.decl ``mul_beq_mul_short_circuit_left)
-        (mkConst ``mul_beq_mul_short_circuit_left)
-      theorems ← theorems.addTheorem
-        (Lean.Meta.Origin.decl ``mul_beq_mul_short_circuit_right)
-        (mkConst ``mul_beq_mul_short_circuit_right)
-
-      let simpCtx ← Simp.mkContext
-        (config := {
-          failIfUnchanged := false,
-          zetaDelta := true,
-          singlePass := true,
-          maxSteps := (← PreProcessM.getConfig).maxSteps
-        })
-        (simpTheorems := theorems)
-        (congrTheorems := (← getSimpCongrTheorems))
-
-      let hyps ← getPropHyps
-      let ⟨result?, _⟩ ← simpGoal goal
-        (ctx := simpCtx)
-        (simprocs := #[])
-        (fvarIdsToSimp := hyps)
-      let some (_, newGoal) := result? | return none
-      return newGoal
+      PreProcessM.mapHyps fun hyp => do
+        let (res, _) ← simp hyp.type simpCtx
+        let some (value, type) ← applySimpResult goal hyp.value hyp.type res false | unreachable!
+        return {
+          name := hyp.name
+          type := type
+          value := value
+        }
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

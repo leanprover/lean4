@@ -394,22 +394,19 @@ The state used for the post processing part of `enumsPass`.
 -/
 private structure PostProcessState where
   /--
-  Hypotheses that bound results of `enumToBitVec` applications as appropriate.
-  -/
-  hyps : Array Hypothesis := #[]
-  /--
   A cache of terms we have already collected bounds for such that they don't get duplicated.
   -/
   seen : Std.HashSet Expr := {}
 
 public partial def enumsPass : Pass where
   name := `enums
-  run' goal :=
+  run' := do
+    let goal ← PreProcessM.getGoal
     goal.withContext do
       let analysis ← PreProcessM.getTypeAnalysis
       let interestingEnums := analysis.interestingEnums
       -- invariant: if there is no interesting enums there also can't be interesting matchers
-      if interestingEnums.isEmpty then return goal
+      if interestingEnums.isEmpty then return false
 
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
@@ -453,16 +450,20 @@ public partial def enumsPass : Pass where
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
 
-      let ⟨result?, _⟩ ←
-        simpGoal
-          goal
-          (ctx := simpCtx)
-          (simprocs := #[simprocs])
-          (fvarIdsToSimp := ← getPropHyps)
-      let some (_, newGoal) := result? | return none
-      postprocess newGoal |>.run' {}
+      
+      let solved ← PreProcessM.mapHyps fun hyp => do
+        let (res, _) ← simp hyp.type simpCtx (simprocs := #[simprocs])
+        let some (value, type) ← applySimpResult goal hyp.value hyp.type res false | unreachable!
+        return {
+          name := hyp.name
+          type := type
+          value := value
+        }
+      if solved then return true
+      discard <| postprocess goal |>.run' {}
+      return false
 where
-  postprocess (goal : MVarId) : StateRefT PostProcessState MetaM MVarId :=
+  postprocess (goal : MVarId) : StateRefT PostProcessState PreProcessM Unit :=
     goal.withContext do
       let filter e :=
         if let .app (.const (.str _ s) ..) _ := e then
@@ -481,18 +482,12 @@ where
         let .app (.const (.str enumType _) ..) val := e | unreachable!
         let value ← mkAppM (← getEnumToBitVecLeFor enumType) #[val]
         let type ← inferType value
-        let hyp := { userName := .anonymous, type, value }
-        modify fun s => { s with hyps := s.hyps.push hyp, seen := s.seen.insert e }
+        let hyp := { name := .anonymous, type, value }
+        PreProcessM.pushHyp hyp
+        modify fun s => { s with seen := s.seen.insert e }
 
-      for hyp in ← getPropHyps do
-        (← instantiateMVars (← hyp.getType)).forEachWhere (stopWhenVisited := true) filter processor
-
-      let newHyps := (← get).hyps
-      if newHyps.isEmpty then
-        return goal
-      else
-        let (_, goal) ← goal.assertHypotheses newHyps
-        return goal
+      PreProcessM.forHyps fun hyp =>
+        hyp.type.forEachWhere (stopWhenVisited := true) filter processor
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

@@ -50,13 +50,21 @@ def evalBvCheck : Tactic := fun
     let cfg ← elabBVDecideConfig cfgStx
     let ctx ← mkContext path.getString cfg
     liftMetaFinishingTactic fun g => do
-      let g'? ← Normalize.bvNormalize g cfg
-      match g'? with
-      | some g' => bvCheck g' ctx
-      | none =>
-        let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx)
-        logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
-        TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
+      Normalize.PreProcessM.run' cfg g do
+        if ← Normalize.bvNormalize then
+          let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx)
+          logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
+          TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
+        else
+          -- TODO: test run
+          let hyps := (← Normalize.PreProcessM.getHyps).map fun hyp => {
+            userName := hyp.name
+            type := hyp.type
+            value := hyp.value
+          }
+          let (_, goal) ← MVarId.assertHypotheses (← Normalize.PreProcessM.getGoal) hyps
+
+          bvCheck goal ctx
   | _ => throwUnsupportedSyntax
 
 end BVCheck

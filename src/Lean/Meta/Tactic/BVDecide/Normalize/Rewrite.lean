@@ -21,7 +21,7 @@ Responsible for applying the Bitwuzla style rewrite rules.
 -/
 public def rewriteRulesPass : Pass where
   name := `rewriteRules
-  run' goal := do
+  run' := do
     let bvThms ← bvNormalizeExt.getTheorems
     let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
     let sevalThms ← getSEvalTheorems
@@ -39,27 +39,16 @@ public def rewriteRulesPass : Pass where
       (simpTheorems := #[bvThms, sevalThms])
       (congrTheorems := (← getSimpCongrTheorems))
 
-    let hyps ← getHyps goal
-    if hyps.isEmpty then
-      return goal
-    else
-      let ⟨result?, _⟩ ← simpGoal goal
-        (ctx := simpCtx)
-        (simprocs := #[bvSimprocs, sevalSimprocs])
-        (fvarIdsToSimp := hyps)
-
-      let some (_, newGoal) := result? | return none
-      newGoal.withContext do
-        (← getPropHyps).forM PreProcessM.rewriteFinished
-      return newGoal
-where
-  getHyps (goal : MVarId) : PreProcessM (Array FVarId) := do
+    let goal ← PreProcessM.getGoal
     goal.withContext do
-      let hyps ← getPropHyps
-      let filter hyp := do
-        return !(← PreProcessM.checkRewritten hyp)
-      hyps.filterM filter
-
+      PreProcessM.mapHyps fun hyp => do
+        let (res, _) ← simp hyp.type simpCtx (simprocs := #[bvSimprocs, sevalSimprocs])
+        let some (value, type) ← applySimpResult goal hyp.value hyp.type res false | unreachable!
+        return {
+          name := hyp.name
+          type := type
+          value := value
+        }
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

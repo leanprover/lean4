@@ -15,8 +15,9 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
-  closeWithBVReflection g (lratBitblaster ctx)
+def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) :=
+  Sym.SymM.run <| M.run do
+    closeWithBVReflection g (lratBitblaster ctx)
 
 /--
 The result of calling `bv_decide`.

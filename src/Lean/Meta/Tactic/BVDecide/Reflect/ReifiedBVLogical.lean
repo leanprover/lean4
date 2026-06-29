@@ -6,7 +6,9 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVPred
+public import Lean.Meta.Tactic.BVDecide.Reflect.Basic
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVPred
+import Std.Tactic.BVDecide.Reflect
 
 /-!
 Provides the logic for reifying `BitVec` problems with boolean substructure.
@@ -15,7 +17,6 @@ Provides the logic for reifying `BitVec` problems with boolean substructure.
 namespace Lean.Meta.Tactic.BVDecide
 
 open Std.Tactic.BVDecide
-open Lean.Meta
 
 namespace ReifiedBVLogical
 
@@ -26,14 +27,14 @@ public def mkTrans (x y z : Expr) (hxy hyz : Expr) : Expr :=
   mkApp6 (mkConst ``Eq.trans [1]) (mkConst ``Bool) x y z hxy hyz
 
 public def mkEvalExpr (expr : Expr) : M Expr := do
-  return mkApp2 (mkConst ``BVLogicalExpr.eval) (← M.atomsAssignment) expr
+  Sym.share <| mkApp2 (mkConst ``BVLogicalExpr.eval) (← M.atomsAssignment) expr
 
 /--
 Construct a `ReifiedBVLogical` from `ReifiedBVPred` by wrapping it as an atom.
 -/
 public def ofPred (bvPred : ReifiedBVPred) : M ReifiedBVLogical := do
   let boolExpr := .literal bvPred.bvPred
-  let expr := mkApp2 (mkConst ``BoolExpr.literal) (mkConst ``BVPred) bvPred.expr
+  let expr ← Sym.share <| mkApp2 (mkConst ``BoolExpr.literal) (mkConst ``BVPred) bvPred.expr
   -- important: This must be the same proof as the bvPred one in order for the cache to be correct
   let proof := bvPred.evalsAtAtoms
   return ⟨boolExpr, bvPred.originalExpr, proof, expr⟩
@@ -50,7 +51,7 @@ Build a reified version of the constant `val`.
 -/
 public def mkBoolConst (val : Bool) : M ReifiedBVLogical := do
   let boolExpr := .const val
-  let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr val)
+  let expr ← Sym.share <| mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr val)
   -- This is safe because this proof always holds definitionally.
   let proof := pure none
   return ⟨boolExpr, toExpr val, proof, expr⟩
@@ -64,13 +65,7 @@ public def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : 
     M ReifiedBVLogical := do
   let congrThm := congrThmOfGate gate
   let boolExpr := .gate gate lhs.bvExpr rhs.bvExpr
-  let expr :=
-    mkApp4
-      (mkConst ``BoolExpr.gate)
-      (mkConst ``BVPred)
-      (toExpr gate)
-      lhs.expr
-      rhs.expr
+  let expr ← Sym.share <| mkApp4 (mkConst ``BoolExpr.gate) (mkConst ``BVPred) (toExpr gate) lhs.expr rhs.expr
   let proof := do
     let lhsEvalExpr ← ReifiedBVLogical.mkEvalExpr lhs.expr
     let rhsEvalExpr ← ReifiedBVLogical.mkEvalExpr rhs.expr
@@ -101,7 +96,7 @@ This function assumes that `subExpr` is the expression corresponding to `sub`.
 -/
 public def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) (origExpr : Expr) : M ReifiedBVLogical := do
   let boolExpr := .not sub.bvExpr
-  let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
+  let expr ← Sym.share <| mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
   let proof := do
     -- This is safe as `not_congr` holds definitionally if the arguments are defeq.
     let some subProof ← sub.evalsAtAtoms | return none
@@ -117,13 +112,7 @@ This function assumes that `discrExpr`, lhsExpr` and `rhsExpr` are the correspon
 public def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) (origExpr : Expr) :
     M ReifiedBVLogical := do
   let boolExpr := .ite discr.bvExpr lhs.bvExpr rhs.bvExpr
-  let expr :=
-    mkApp4
-      (mkConst ``BoolExpr.ite)
-      (mkConst ``BVPred)
-      discr.expr
-      lhs.expr
-      rhs.expr
+  let expr ← Sym.share <| mkApp4 (mkConst ``BoolExpr.ite) (mkConst ``BVPred) discr.expr lhs.expr rhs.expr
   let proof := do
     let discrEvalExpr ← ReifiedBVLogical.mkEvalExpr discr.expr
     let lhsEvalExpr ← ReifiedBVLogical.mkEvalExpr lhs.expr

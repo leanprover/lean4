@@ -6,7 +6,12 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Meta.Tactic.BVDecide.Reflect.Reify
+public import Lean.Meta.Tactic.BVDecide.Reflect.Basic
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
+import Lean.Meta.Tactic.BVDecide.Reflect.Reify
+import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateMVarsS
+import Std.Tactic.BVDecide.Reflect
 
 /-!
 This module is the main entry point for reifying `BitVec` problems with boolean substructure.
@@ -25,7 +30,7 @@ namespace SatAtBVLogical
 Reify an `Expr` that is a proof of some boolean structure on top of predicates about `BitVec`s.
 -/
 public partial def of (h : Expr) : LemmaM (Option SatAtBVLogical) := do
-  let t ← instantiateMVars (← whnfR (← inferType h))
+  let t ← Sym.instantiateMVarsS (← Sym.inferType h)
   match_expr t with
   | Eq α lhsExpr rhsExpr =>
     let_expr Bool := α | return none
@@ -47,10 +52,10 @@ public partial def of (h : Expr) : LemmaM (Option SatAtBVLogical) := do
 /--
 Logical conjunction of two `ReifiedBVLogical`.
 -/
-public def and (x y : SatAtBVLogical) : SatAtBVLogical where
-  bvExpr := .gate .and x.bvExpr y.bvExpr
-  expr := mkApp4 (mkConst ``BoolExpr.gate) (mkConst ``BVPred) (mkConst ``Gate.and) x.expr y.expr
-  satAtAtoms :=
+public def and (x y : SatAtBVLogical) : M SatAtBVLogical := do
+  let bvExpr := .gate .and x.bvExpr y.bvExpr
+  let expr ← Sym.share <| mkApp4 (mkConst ``BoolExpr.gate) (mkConst ``BVPred) (mkConst ``Gate.and) x.expr y.expr
+  let proof := do
     return mkApp5
       (mkConst ``BVLogicalExpr.sat_and)
       x.expr
@@ -58,6 +63,7 @@ public def and (x y : SatAtBVLogical) : SatAtBVLogical where
       (← M.atomsAssignment)
       (← x.satAtAtoms)
       (← y.satAtAtoms)
+  return ⟨bvExpr, proof, expr⟩
 
 /-- Given a proof that `x.expr.Unsat`, produce a proof of `False`. -/
 public def proveFalse (x : SatAtBVLogical) (h : Expr) : M Expr := do
@@ -65,7 +71,7 @@ public def proveFalse (x : SatAtBVLogical) (h : Expr) : M Expr := do
     throwError "Unable to identify any relevant atoms."
   else
     let atomsList ← M.atomsAssignment
-    let evalExpr := mkApp2 (mkConst ``BVLogicalExpr.eval) atomsList x.expr
+    let evalExpr ← Sym.share <| mkApp2 (mkConst ``BVLogicalExpr.eval) atomsList x.expr
     return mkApp3
       (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.false_of_eq_true_of_eq_false)
       evalExpr

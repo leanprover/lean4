@@ -16,9 +16,7 @@ This module contains the implementation of counterexample recovery and explanati
 
 namespace Lean.Meta.Tactic.BVDecide
 
-open Std.Sat
 open Std.Tactic.BVDecide
-open Std.Tactic.BVDecide.Reflect
 
 /--
 Given:

@@ -5,8 +5,14 @@ Authors: Henrik Böving
 -/
 module
 prelude
-public import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedLemmas
-import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.BVDecide.Reflect.Basic
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedLemmas
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVExpr
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVPred
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
+import Lean.Meta.Sym.LitValues
+import Lean.Meta.AppBuilder
+import Std.Tactic.BVDecide.Reflect
 
 
 /-!
@@ -51,7 +57,7 @@ where
     | HShiftLeft.hShiftLeft α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (← getNatValue? wExpr).isSome && distance?.isSome then
+      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
@@ -64,7 +70,7 @@ where
     | HShiftRight.hShiftRight α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
       let_expr BitVec wExpr := α | return none
-      if (← getNatValue? wExpr).isSome && distance?.isSome then
+      if (Sym.getNatValue? wExpr).isSome && distance?.isSome then
         throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
@@ -75,7 +81,7 @@ where
         ``Std.Tactic.BVDecide.Reflect.BitVec.shiftRight_congr
         origExpr
     | BitVec.sshiftRight _ innerExpr distanceExpr =>
-      let some distance ← getNatValue? distanceExpr | return none
+      let some distance := Sym.getNatValue? distanceExpr | return none
       shiftConstLikeReflection
         distance
         innerExpr
@@ -96,7 +102,7 @@ where
       let some rhs ← goOrAtom rhsExpr | return none
       let bvExpr := .append lhs.bvExpr rhs.bvExpr rfl
       let wExpr := toExpr (lhs.width + rhs.width)
-      let expr :=
+      let expr ← Sym.share <|
         mkApp6 (mkConst ``BVExpr.append)
           (toExpr lhs.width)
           (toExpr rhs.width)
@@ -121,10 +127,10 @@ where
       return some ⟨lhs.width + rhs.width, bvExpr, origExpr, proof, expr⟩
     | BitVec.replicate _ nExpr innerExpr =>
       let some inner ← goOrAtom innerExpr | return none
-      let some n ← getNatValue? nExpr | return none
+      let some n := Sym.getNatValue? nExpr | return none
       let bvExpr := .replicate n inner.bvExpr rfl
       let newWExpr := toExpr (inner.width * n)
-      let expr :=
+      let expr ← Sym.share <|
         mkApp5 (mkConst ``BVExpr.replicate)
           (toExpr inner.width)
           newWExpr
@@ -143,15 +149,11 @@ where
           innerProof
       return some ⟨inner.width * n, bvExpr, origExpr, proof, expr⟩
     | BitVec.extractLsb' _ startExpr lenExpr innerExpr =>
-      let some start ← getNatValue? startExpr | return none
-      let some len ← getNatValue? lenExpr | return none
+      let some start := Sym.getNatValue? startExpr | return none
+      let some len := Sym.getNatValue? lenExpr | return none
       let some inner ← goOrAtom innerExpr | return none
       let bvExpr := .extract start len inner.bvExpr
-      let expr := mkApp4 (mkConst ``BVExpr.extract)
-        (toExpr inner.width)
-        startExpr
-        lenExpr
-        inner.expr
+      let expr ← Sym.share <| mkApp4 (mkConst ``BVExpr.extract) (toExpr inner.width) startExpr lenExpr inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
         -- This is safe as `extract_congr` holds definitionally if the arguments are defeq.
@@ -212,23 +214,15 @@ where
       LemmaM (Option ReifiedBVExpr) := do
     let some inner ← goOrAtom innerExpr | return none
     let bvExpr : BVExpr inner.width := .un (shiftOp distance) inner.bvExpr
-    let expr :=
-      mkApp3
-        (mkConst ``BVExpr.un)
-        (toExpr inner.width)
-        (mkApp (mkConst shiftOpName) (toExpr distance))
-        inner.expr
-    let congrProof :=
-      mkApp
-        (mkConst congrThm)
-        (toExpr distance)
+    let expr ← Sym.share <| mkApp3 (mkConst ``BVExpr.un) (toExpr inner.width) (mkApp (mkConst shiftOpName) (toExpr distance)) inner.expr
+    let congrProof := mkApp (mkConst congrThm) (toExpr distance)
     let proof := unaryCongrProof inner innerExpr congrProof
     return some ⟨inner.width, bvExpr, origExpr, proof, expr⟩
 
   rotateReflection (distanceExpr : Expr) (innerExpr : Expr) (rotateOp : Nat → BVUnOp)
       (rotateOpName : Name) (congrThm : Name) (origExpr : Expr) :
       LemmaM (Option ReifiedBVExpr) := do
-    let some distance ← getNatValue? distanceExpr | return none
+    let some distance := Sym.getNatValue? distanceExpr | return none
     shiftConstLikeReflection distance innerExpr rotateOp rotateOpName congrThm origExpr
 
   shiftReflection (distanceExpr : Expr) (innerExpr : Expr)
@@ -238,13 +232,7 @@ where
     let some inner ← goOrAtom innerExpr | return none
     let some distance ← goOrAtom distanceExpr | return none
     let bvExpr : BVExpr inner.width := shiftOp inner.bvExpr distance.bvExpr
-    let expr :=
-      mkApp4
-        (mkConst shiftOpName)
-        (toExpr inner.width)
-        (toExpr distance.width)
-        inner.expr
-        distance.expr
+    let expr ← Sym.share <| mkApp4 (mkConst shiftOpName) (toExpr inner.width) (toExpr distance.width) inner.expr distance.expr
     let congrProof :=
       mkApp2
         (mkConst congrThm)
@@ -258,8 +246,8 @@ where
     let some lhs ← goOrAtom lhsExpr | return none
     let some rhs ← goOrAtom rhsExpr | return none
     if h : rhs.width = lhs.width then
-      let bvExpr : BVExpr lhs.width := .bin lhs.bvExpr op (h ▸ rhs.bvExpr)
-      let expr := mkApp4 (mkConst ``BVExpr.bin) (toExpr lhs.width) lhs.expr (toExpr op) rhs.expr
+      let bvExpr := .bin lhs.bvExpr op (h ▸ rhs.bvExpr)
+      let expr ← Sym.share <| mkApp4 (mkConst ``BVExpr.bin) (toExpr lhs.width) lhs.expr (toExpr op) rhs.expr
       let congrThm := mkApp (mkConst congrThm) (toExpr lhs.width)
       let proof := binaryCongrProof lhs rhs lhsExpr rhsExpr congrThm
       return some ⟨lhs.width, bvExpr, origExpr, proof, expr⟩
@@ -283,7 +271,7 @@ where
       LemmaM (Option ReifiedBVExpr) := do
     let some inner ← goOrAtom innerExpr | return none
     let bvExpr := .un op inner.bvExpr
-    let expr := mkApp3 (mkConst ``BVExpr.un) (toExpr inner.width) (toExpr op) inner.expr
+    let expr ← Sym.share <| mkApp3 (mkConst ``BVExpr.un) (toExpr inner.width) (toExpr op) inner.expr
     let proof := unaryCongrProof inner innerExpr (mkConst congrThm)
     return some ⟨inner.width, bvExpr, origExpr, proof, expr⟩
 
@@ -293,7 +281,7 @@ where
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
   goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
-    let some ⟨_, bvVal⟩ ← getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
+    let some ⟨_, bvVal⟩ := Sym.getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
     ReifiedBVExpr.mkBVConst bvVal
 
 /--
@@ -318,7 +306,7 @@ where
       binaryReflection lhsExpr rhsExpr .ult origExpr
     | BitVec.getLsbD _ subExpr idxExpr =>
       let some sub ← ReifiedBVExpr.of subExpr | return none
-      let some idx ← getNatValue? idxExpr | return none
+      let some idx := Sym.getNatValue? idxExpr | return none
       return some (← ReifiedBVPred.mkGetLsbD sub subExpr idx origExpr)
     | _ => return none
 

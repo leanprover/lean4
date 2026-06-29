@@ -431,10 +431,12 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
   if rfl && simp.rfl.checkTransparency.get (← getOptions) then
     forallTelescopeReducing type fun _ type => do
       let checkDefEq (lhs rhs : Expr) := do
-        unless (← withTransparency .instances <| isDefEq lhs rhs) do
+        unless (← withConfig
+            (fun ctx => { ctx with proj := .yesWithDelta, transparency := .implicit })
+            (isDefEq lhs rhs)) do
           logWarning m!"`{origin.key}` is a `[defeq]` simp theorem, but its left-hand side{indentExpr lhs}\n\
             is not definitionally equal to the right-hand side{indentExpr rhs}\n\
-            at `.instances` transparency. Possible solutions:\n\
+            at `.implicit` transparency. Possible solutions:\n\
             1- use `(rfl)` as the proof\n\
             2- mark constants occurring in the lhs and rhs as `[implicit_reducible]`"
       match_expr type with
@@ -732,7 +734,7 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
     name     := name
     initial  := {}
     addEntry := fun d e => d.addSimpEntry e
-    exportEntry? := fun lvl e => do
+    exportEntry? := fun _ e =>
       -- export only annotations on public decls
       let declName := match e with
         | .thm t => match t.origin with
@@ -740,8 +742,8 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
           | _ => unreachable!
         | .toUnfold n => n
         | .toUnfoldThms n _ => n
-      guard (lvl == .private || !isPrivateName declName)
-      return e
+      if isPrivateName declName then ⟨none, none, some e⟩
+      else .uniform (some e)
   }
 
 abbrev SimpExtensionMap := Std.HashMap Name SimpExtension

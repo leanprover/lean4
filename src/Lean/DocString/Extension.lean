@@ -7,8 +7,11 @@ module
 
 prelude
 public import Lean.DeclarationRange
-public import Lean.DocString.Markdown
+public import Lean.DocString.Types
 public import Init.Data.String.Extra
+public import Init.Data.String.TakeDrop
+public import Init.Data.String.Search
+public import Init.Data.String.Length
 import Init.Omega
 
 public section
@@ -22,42 +25,32 @@ namespace Lean
 
 
 /--
-Saved data that describes the contents. The `name` should determine both the type of the value and
-its interpretation; if in doubt, use the name of the elaborator that produces the data.
+Saved data that describes a custom inline element.
+
+The type of value contained within the `Dynamic` determines the interpretation of the custom
+element, including how it is rendered to Markdown for the language server.
 -/
 structure ElabInline where
-  name : Name
   val : Dynamic
 
 instance : Repr ElabInline where
   reprPrec v _ :=
     .group <| .nestD <|
-      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
-      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
-
-instance : Doc.MarkdownInline ElabInline where
-  -- TODO extensibility
-  toMarkdown go _i content := content.forM go
-
+      .group (.nestD ("{ val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
 
 /--
-Saved data that describes the contents. The `name` should determine both the type of the value and
-its interpretation; if in doubt, use the name of the elaborator that produces the data.
+Saved data that describes a custom block element.
+
+The type of value contained within the `Dynamic` determines the interpretation of the custom
+element, including how it is rendered to Markdown for the language server.
 -/
 structure ElabBlock where
-  name : Name
   val : Dynamic
 
 instance : Repr ElabBlock where
   reprPrec v _ :=
     .group <| .nestD <|
-      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
-      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
-
-
--- TODO extensible toMarkdown
-instance : Doc.MarkdownBlock ElabInline ElabBlock where
-  toMarkdown _goI goB _b content := content.forM goB
+      .group (.nestD ("{ val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
 
 structure VersoDocString where
   text : Array (Doc.Block ElabInline ElabBlock)
@@ -161,27 +154,6 @@ partial def findInternalDocString? (env : Environment) (declName : Name) (includ
       return some (.inr doc)
   return none
 
-/--
-Finds a docstring without performing any alias resolution or enrichment with extra metadata. The
-result is rendered as Markdown.
-
-Docstrings to be shown to a user should be looked up with `Lean.findDocString?` instead.
--/
-def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) := do
-  match (← findInternalDocString? env declName (includeBuiltin := includeBuiltin)) with
-  | some (.inl str) => return some str
-  | some (.inr verso) => return some (toMarkdown verso)
-  | none => return none
-
-where
-  toMarkdown : VersoDocString → String
-  | .mk bs ps => Doc.MarkdownM.run' do
-      for b in bs do
-        Doc.ToMarkdown.toMarkdown b
-      for p in ps do
-        Doc.ToMarkdown.toMarkdown p
-
-
 structure ModuleDoc where
   doc : String
   declarationRange : DeclarationRange
@@ -217,6 +189,12 @@ def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Comman
       throwErrorAt stx "unexpected doc string{indentD stx}"
   | _ =>
     throwErrorAt stx "unexpected doc string{indentD stx}"
+
+/--
+Checks whether `stx` is a docstring that was parsed as Verso rather than Markdown.
+-/
+def isVersoDocComment (stx : TSyntax `Lean.Parser.Command.docComment) : Bool :=
+  stx.raw[1].isOfKind `Lean.Parser.Command.versoCommentBody
 
 
 
@@ -272,20 +250,6 @@ def addPart (snippet : Snippet) (level : Nat) (range : DeclarationRange) (part :
     sections := snippet.sections.push (level, range, part) }
 
 end VersoModuleDocs.Snippet
-
-open Lean Doc ToMarkdown MarkdownM in
-instance : ToMarkdown VersoModuleDocs.Snippet where
-  toMarkdown
-    | {text, sections, ..} => do
-      text.forM toMarkdown
-      endBlock
-      for (level, _, part) in sections do
-        push ("".pushn '#' (level + 1))
-        push " "
-        for i in part.title do toMarkdown i
-        endBlock
-        for b in part.content do toMarkdown b
-        endBlock
 
 structure VersoModuleDocs where
   snippets : PersistentArray VersoModuleDocs.Snippet := {}

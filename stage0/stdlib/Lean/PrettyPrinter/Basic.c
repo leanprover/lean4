@@ -396,7 +396,7 @@ if (lean_obj_tag(v_x_73_) == 0)
 lean_object* v_a_77_; lean_object* v___x_78_; lean_object* v___x_79_; 
 v_a_77_ = lean_ctor_get(v_x_73_, 0);
 lean_inc(v_a_77_);
-lean_dec_ref(v_x_73_);
+lean_dec_ref_known(v_x_73_, 1);
 v___x_78_ = l_Lean_stringToMessageData(v_a_77_);
 v___x_79_ = l_Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1___redArg(v___x_78_, v___y_74_, v___y_75_);
 return v___x_79_;
@@ -486,7 +486,7 @@ v___x_106_ = l_Lean_Elab_throwAbortCommand___at___00Lean_evalConst___at___00Lean
 if (lean_obj_tag(v___x_106_) == 0)
 {
 lean_object* v___x_107_; lean_object* v_env_108_; lean_object* v_options_109_; lean_object* v___x_110_; lean_object* v___x_111_; 
-lean_dec_ref(v___x_106_);
+lean_dec_ref_known(v___x_106_, 1);
 v___x_107_ = lean_st_ref_get(v___y_96_);
 v_env_108_ = lean_ctor_get(v___x_107_, 0);
 lean_inc_ref(v_env_108_);
@@ -606,7 +606,7 @@ lean_ctor_set(v___x_149_, 13, v_inheritedTraceOptions_147_);
 lean_ctor_set_uint8(v___x_149_, sizeof(void*)*14, v_diag_144_);
 lean_ctor_set_uint8(v___x_149_, sizeof(void*)*14 + 1, v_suppressElabErrors_146_);
 v___x_150_ = l_Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1___redArg(v_msg_128_, v___x_149_, v___y_130_);
-lean_dec_ref(v___x_149_);
+lean_dec_ref_known(v___x_149_, 14);
 return v___x_150_;
 }
 }
@@ -1160,7 +1160,7 @@ lean_dec(v_k_357_);
 lean_dec_ref(v_attr_356_);
 v_head_365_ = lean_ctor_get(v___x_364_, 0);
 lean_inc(v_head_365_);
-lean_dec_ref(v___x_364_);
+lean_dec_ref_known(v___x_364_, 2);
 v___x_366_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_366_, 0, v_head_365_);
 return v___x_366_;
@@ -1176,7 +1176,7 @@ if (lean_obj_tag(v___x_367_) == 0)
 lean_object* v_a_368_; uint8_t v___y_370_; lean_object* v___x_394_; lean_object* v___x_395_; uint8_t v___x_396_; 
 v_a_368_ = lean_ctor_get(v___x_367_, 0);
 lean_inc(v_a_368_);
-lean_dec_ref(v___x_367_);
+lean_dec_ref_known(v___x_367_, 1);
 v___x_394_ = l_Lean_ConstantInfo_type(v_a_368_);
 lean_dec(v_a_368_);
 v___x_395_ = ((lean_object*)(l_Lean_PrettyPrinter_runForNodeKind___redArg___closed__6));
@@ -1238,7 +1238,7 @@ if (lean_obj_tag(v___x_383_) == 0)
 lean_object* v_a_384_; lean_object* v___x_385_; 
 v_a_384_ = lean_ctor_get(v___x_383_, 0);
 lean_inc(v_a_384_);
-lean_dec_ref(v___x_383_);
+lean_dec_ref_known(v___x_383_, 1);
 lean_inc(v_a_360_);
 lean_inc_ref(v_a_359_);
 v___x_385_ = lean_apply_4(v_interp_358_, v_a_384_, v_a_359_, v_a_360_, lean_box(0));

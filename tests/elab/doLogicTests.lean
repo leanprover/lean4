@@ -13,7 +13,6 @@ open Std.Do
 set_option grind.warning false
 set_option mvcgen.warning false
 set_option warn.sorry false
-set_option backward.do.legacy false
 
 namespace Code
 
@@ -830,3 +829,83 @@ theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
   mvcgen
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
   all_goals grind
+
+/-! ### The partial correctness trick
+
+Specifications are written in the object language as boolean monadic predicates. A triple
+hypothesis is consumed by observing its program via `Triple.observe`
+and stepping through it with `mvcgen`. -/
+
+namespace PartialCorrectnessTrick
+
+inductive RustError where
+  | rustPanic
+  | integerOverflow
+
+abbrev RustM := Except RustError
+
+/-- A boolean monadic predicate holds when it returns `true` without throwing. -/
+abbrev RustM.holds (p : RustM Bool) : Prop := ⦃⌜True⌝⦄ p ⦃⇓ r => ⌜r⌝⦄
+
+/-- Running an `Except` program and discarding its result preserves any goal. -/
+theorem wp_const (p : RustM α) (C : Assertion (.except RustError .pure)) :
+    wp⟦p⟧ (⇓ _ => C) ⊢ₛ C := by
+  cases p with
+  | ok a => exact SPred.entails.refl _
+  | error e => exact SPred.false_elim
+
+namespace Unfoldable
+
+def panicAdd (x y : Nat) : RustM Nat := do
+  if (x + y) ≤ 100 then pure (x + y) else Except.error .integerOverflow
+
+def pre (x : Nat) : RustM Bool := do
+  if x ≤ 10 then
+    pure ((← panicAdd x 10) == 15)
+  else
+    pure false
+
+def f (x : Nat) : RustM Nat := do
+  panicAdd x 5
+
+def post (x : Nat) (res : Nat) : RustM Bool := do
+  pure (res == 10)
+
+example (x : Nat) :
+    (pre x).holds → ⦃⌜True⌝⦄ f x ⦃⇓ res => ⌜(post x res).holds⌝⦄ := by
+  intro h
+  apply Triple.observe (wp_const (pre x)) h
+  mvcgen [pre, panicAdd] <;> try grind
+  intro hx
+  mvcgen [f, post, panicAdd] <;> try grind
+  mvcgen [post] <;> grind
+
+end Unfoldable
+
+namespace Opaque
+
+opaque g : Nat → RustM Nat
+
+def pre (x : Nat) : RustM Bool := do pure (x == (← g 0))
+
+def f (x : Nat) : RustM Nat := pure (x + 1)
+
+def post (x : Nat) (res : Nat) : RustM Bool := do pure (res - 1 == (← g 0))
+
+/-- Partial-correctness self-specification: if `p` succeeds with `r`, then `p = .ok r`. -/
+theorem self_spec (p : RustM α) : ⦃⌜True⌝⦄ p ⦃⇓? r => ⌜p = .ok r⌝⦄ := by
+  cases p with
+  | ok a => exact Triple.pure a (by simp)
+  | error e => apply Triple.of_entails_wp; intro _; exact True.intro
+
+example (x : Nat) :
+    (pre x).holds → ⦃⌜True⌝⦄ f x ⦃⇓ res => ⌜(post x res).holds⌝⦄ := by
+  intro h
+  apply Triple.observe (wp_const (pre x)) h
+  have hg := self_spec (g 0)
+  mvcgen [pre, hg, f] <;> try grind
+  simp
+
+end Opaque
+
+end PartialCorrectnessTrick

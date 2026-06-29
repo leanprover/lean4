@@ -248,6 +248,13 @@ def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Exte
 
 builtin_initialize grindExt : Extension ← registerAttr `grind
 
+/--
+Extension backing the `@[lia]` attribute. It uses the same recording mechanism as `@[grind]`
+(see `registerAttr`), but provides a separate, smaller E-matching lemma set that the `lia`
+tactic instantiates (e.g. `Nat.max_def`), without enabling the full `@[grind]` set.
+-/
+builtin_initialize liaExt : Extension ← registerAttr `lia
+
 /-- Returns `true` is `declName` is a builtin split or has been tagged with `[grind]` attribute. -/
 def isGlobalSplit (declName : Name) : CoreM Bool := do
   let s := grindExt.getState (← getEnv)

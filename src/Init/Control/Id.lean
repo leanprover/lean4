@@ -49,7 +49,7 @@ instance : Monad Id where
 /--
 The identity monad has a `bind` operator.
 -/
-@[implicit_reducible]
+@[instance_reducible]
 def hasBind : Bind Id :=
   inferInstance
 

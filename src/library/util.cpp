@@ -57,7 +57,7 @@ optional<expr> is_optional_param(expr const & e) {
 
 optional<expr_pair> is_auto_param(expr const & e) {
     if (is_app_of(e, get_auto_param_name(), 2)) {
-        return optional<expr_pair>(app_arg(app_fn(e)), app_arg(e));
+        return optional<expr_pair>(std::in_place, app_arg(app_fn(e)), app_arg(e));
     } else {
         return optional<expr_pair>();
     }

@@ -592,7 +592,7 @@ theorem anyM_loop_cons [Monad m] {p : α → m Bool} {a : α} {as : List α} {st
     · simp
     · simp only [Bool.false_eq_true, ↓reduceIte]
       rw [anyM_loop_cons]
-      simpa [anyM] using anyM_toList
+      simpa [anyM] using! anyM_toList
 
 -- Auxiliary for `any_iff_exists`.
 theorem anyM_loop_iff_exists {p : α → Bool} {as : Array α} {start stop} (h : stop ≤ as.size) :
@@ -1072,7 +1072,7 @@ theorem mem_or_eq_of_mem_setIfInBounds
   simp only [setIfInBounds]
   split <;> rename_i h
   · simp
-  · simp [List.set_eq_of_length_le (by simpa using h)]
+  · simp [List.set_eq_of_length_le (by simpa using! h)]
 
 /-! ### BEq -/
 
@@ -1308,7 +1308,7 @@ theorem map_eq_iff {f : α → β} {xs : Array α} {ys : Array β} :
 
 theorem map_eq_foldl {f : α → β} {xs : Array α} :
     map f xs = foldl (fun bs a => bs.push (f a)) #[] xs := by
-  simpa using mapM_eq_foldlM
+  simpa using! mapM_eq_foldlM
 
 @[simp] theorem map_set {f : α → β} {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} :
     (xs.set i a).map f = (xs.map f).set i (f a) (by simpa using h) := by
@@ -2300,7 +2300,7 @@ theorem flatMap_toArray_cons {β} {f : α → Array β} {a : α} {as : List α} 
   suffices ∀ cs, List.foldl (fun bs a => bs ++ f a) (f a ++ cs) as =
       f a ++ List.foldl (fun bs a => bs ++ f a) cs as by
     erw [empty_append] -- Why doesn't this work via `simp`?
-    simpa using this #[]
+    simpa using! this #[]
   intro cs
   induction as generalizing cs <;> simp_all
 
@@ -2432,7 +2432,7 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
 
 theorem eq_replicate_of_mem {a : α} {xs : Array α} (h : ∀ (b) (_ : b ∈ xs), b = a) : xs = replicate xs.size a := by
   rw [← toList_inj]
-  simpa using List.eq_replicate_of_mem (by simpa using h)
+  simpa using! List.eq_replicate_of_mem (by simpa using h)
 
 theorem eq_replicate_iff {a : α} {n} {xs : Array α} :
     xs = replicate n a ↔ xs.size = n ∧ ∀ (b) (_ : b ∈ xs), b = a := by
@@ -3189,7 +3189,7 @@ theorem foldl_induction
       · cases Nat.not_le_of_gt (by simp [hj]) h₂
       · exact go hj (by rwa [Nat.succ_add] at h₂) (hf ⟨j, hj⟩ b H)
     next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
-  simpa [foldl, foldlM] using go (Nat.zero_le _) (Nat.le_refl _) h0
+  simpa [foldl, foldlM] using! go (Nat.zero_le _) (Nat.le_refl _) h0
 
 theorem foldr_induction
     {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive as.size init) {f : α → β → β}
@@ -4348,6 +4348,7 @@ theorem sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum :
   cases as
   simp [Array.sum, List.sum]
 
+set_option linter.defProp false in
 @[deprecated sum_toList (since := "2026-01-14")]
 def sum_eq_sum_toList := @sum_toList
 
@@ -4691,6 +4692,29 @@ theorem toList_fst_unzip {xs : Array (α × β)} :
 
 theorem toList_snd_unzip {xs : Array (α × β)} :
     xs.unzip.2.toList = xs.toList.unzip.2 := by simp
+
+theorem getElem?_eq_some_getElem! [Inhabited α] (xs : Array α) (i : Nat)
+    (h : i < xs.size) : xs[i]? = some xs[i]! := by
+  rw [getElem!_pos xs i h]
+  exact getElem?_pos xs i h
+
+theorem size_set! (xs : Array α) (i : Nat) (x : α) :
+    (xs.set! i x).size = xs.size := by
+  simp only [set!_eq_setIfInBounds, size_setIfInBounds]
+
+theorem getElem!_set!_self [Inhabited α] (xs : Array α) (i : Nat) (x : α) (hi : i < xs.size) :
+    (xs.set! i x)[i]! = x := by
+  simp only [set!_eq_setIfInBounds, getElem!_eq_getD, getD_eq_getD_getElem?,
+    getElem?_setIfInBounds_self_of_lt hi, Option.getD_some]
+
+theorem getElem!_set!_ne [Inhabited α] (xs : Array α) (i j : Nat) (x : α) (hij : i ≠ j) :
+    (xs.set! i x)[j]! = xs[j]! := by
+  simp only [set!_eq_setIfInBounds, getElem!_eq_getD, getD_eq_getD_getElem?,
+    getElem?_setIfInBounds_ne hij]
+
+@[simp] theorem toList_set! {xs : Array α} {i : Nat} {x : α} :
+    (xs.set! i x).toList = xs.toList.set i x := by
+  simp [set!_eq_setIfInBounds]
 
 end Array
 

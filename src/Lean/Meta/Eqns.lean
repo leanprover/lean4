@@ -78,7 +78,7 @@ def declFromEqLikeName (env : Environment) (name : Name) : Option (Name × Strin
   return none
 
 def mkEqLikeNameFor (env : Environment) (declName : Name) (suffix : String) : Name :=
-  let isExposed := !env.header.isModule || ((env.setExporting true).find? declName).elim false (·.hasValue)
+  let isExposed := env.hasExposedBody declName
   let name := .str declName suffix
   let name := if isExposed then name else mkPrivateName env name
   name

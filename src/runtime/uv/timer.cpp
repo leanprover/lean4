@@ -41,7 +41,7 @@ void initialize_libuv_timer() {
 }
 
 static bool timer_promise_is_finished(lean_uv_timer_object * timer) {
-    return lean_io_get_task_state_core((lean_object *)lean_to_promise(timer->m_promise)->m_result) == 2;
+    return promise_is_resolved(timer->m_promise);
 }
 
 void handle_timer_event(uv_timer_t* handle) {

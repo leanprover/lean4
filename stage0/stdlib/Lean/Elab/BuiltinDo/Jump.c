@@ -248,7 +248,7 @@ v___x_58_ = l_Lean_Elab_Do_DoElemCont_elabAsSyntacticallyDeadCode(v_dec_39_, v__
 if (lean_obj_tag(v___x_58_) == 0)
 {
 lean_object* v_k_59_; lean_object* v___x_60_; 
-lean_dec_ref(v___x_58_);
+lean_dec_ref_known(v___x_58_, 1);
 v_k_59_ = lean_ctor_get(v___y_49_, 1);
 lean_inc_ref(v_k_59_);
 lean_dec_ref(v___y_49_);
@@ -317,7 +317,7 @@ if (lean_obj_tag(v_e_x3f_72_) == 0)
 lean_object* v_a_81_; lean_object* v___x_82_; 
 v_a_81_ = lean_ctor_get(v___x_80_, 0);
 lean_inc(v_a_81_);
-lean_dec_ref(v___x_80_);
+lean_dec_ref_known(v___x_80_, 1);
 v___x_82_ = l_Lean_Elab_Do_mkPUnitUnit___redArg(v___y_73_);
 if (lean_obj_tag(v___x_82_) == 0)
 {
@@ -368,7 +368,7 @@ if (lean_obj_tag(v___x_91_) == 0)
 lean_object* v_a_92_; 
 v_a_92_ = lean_ctor_get(v___x_91_, 0);
 lean_inc(v_a_92_);
-lean_dec_ref(v___x_91_);
+lean_dec_ref_known(v___x_91_, 1);
 v___y_49_ = v_a_81_;
 v_e_50_ = v_a_92_;
 v___y_51_ = v___y_73_;
@@ -401,7 +401,7 @@ else
 lean_object* v_a_95_; lean_object* v_val_96_; lean_object* v___x_98_; uint8_t v_isShared_99_; uint8_t v_isSharedCheck_107_; 
 v_a_95_ = lean_ctor_get(v___x_80_, 0);
 lean_inc(v_a_95_);
-lean_dec_ref(v___x_80_);
+lean_dec_ref_known(v___x_80_, 1);
 v_val_96_ = lean_ctor_get(v_e_x3f_72_, 0);
 v_isSharedCheck_107_ = !lean_is_exclusive(v_e_x3f_72_);
 if (v_isSharedCheck_107_ == 0)
@@ -447,7 +447,7 @@ if (lean_obj_tag(v___x_104_) == 0)
 lean_object* v_a_105_; 
 v_a_105_ = lean_ctor_get(v___x_104_, 0);
 lean_inc(v_a_105_);
-lean_dec_ref(v___x_104_);
+lean_dec_ref_known(v___x_104_, 1);
 v___y_49_ = v_a_95_;
 v_e_50_ = v_a_105_;
 v___y_51_ = v___y_73_;
@@ -673,18 +673,18 @@ if (lean_obj_tag(v___x_211_) == 0)
 lean_object* v_a_212_; 
 v_a_212_ = lean_ctor_get(v___x_211_, 0);
 lean_inc(v_a_212_);
-lean_dec_ref(v___x_211_);
+lean_dec_ref_known(v___x_211_, 1);
 if (lean_obj_tag(v_a_212_) == 1)
 {
 lean_object* v_val_213_; lean_object* v___x_214_; 
 v_val_213_ = lean_ctor_get(v_a_212_, 0);
 lean_inc(v_val_213_);
-lean_dec_ref(v_a_212_);
+lean_dec_ref_known(v_a_212_, 1);
 v___x_214_ = l_Lean_Elab_Do_DoElemCont_elabAsSyntacticallyDeadCode(v_dec_202_, v_a_203_, v_a_204_, v_a_205_, v_a_206_, v_a_207_, v_a_208_, v_a_209_);
 if (lean_obj_tag(v___x_214_) == 0)
 {
 lean_object* v___x_215_; 
-lean_dec_ref(v___x_214_);
+lean_dec_ref_known(v___x_214_, 1);
 lean_inc(v_a_209_);
 lean_inc_ref(v_a_208_);
 lean_inc(v_a_207_);
@@ -893,18 +893,18 @@ if (lean_obj_tag(v___x_320_) == 0)
 lean_object* v_a_321_; 
 v_a_321_ = lean_ctor_get(v___x_320_, 0);
 lean_inc(v_a_321_);
-lean_dec_ref(v___x_320_);
+lean_dec_ref_known(v___x_320_, 1);
 if (lean_obj_tag(v_a_321_) == 1)
 {
 lean_object* v_val_322_; lean_object* v___x_323_; 
 v_val_322_ = lean_ctor_get(v_a_321_, 0);
 lean_inc(v_val_322_);
-lean_dec_ref(v_a_321_);
+lean_dec_ref_known(v_a_321_, 1);
 v___x_323_ = l_Lean_Elab_Do_DoElemCont_elabAsSyntacticallyDeadCode(v_dec_311_, v_a_312_, v_a_313_, v_a_314_, v_a_315_, v_a_316_, v_a_317_, v_a_318_);
 if (lean_obj_tag(v___x_323_) == 0)
 {
 lean_object* v___x_324_; 
-lean_dec_ref(v___x_323_);
+lean_dec_ref_known(v___x_323_, 1);
 lean_inc(v_a_318_);
 lean_inc_ref(v_a_317_);
 lean_inc(v_a_316_);

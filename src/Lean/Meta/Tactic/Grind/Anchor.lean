@@ -97,7 +97,11 @@ public class HasAnchor (α : Type u) where
   getAnchor : α → UInt64
 
 /--
-Returns the number of digits needed to distinguish the anchors in `es`
+Returns the number of digits needed to distinguish the anchors in `es`.
+
+Elements with identical (full) anchors cannot be distinguished by adding more digits.
+Thus, they are ignored by this function. Callers must handle these collisions separately
+(e.g., the `cases` tactic uses ordinal references such as `#a56e/2`).
 -/
 public def getNumDigitsForAnchors [HasAnchor α] (es : Array α) : Nat :=
   go 4
@@ -105,14 +109,16 @@ where
   go (numDigits : Nat) : Nat := Id.run do
     if 4*numDigits  < 64 then
       let shift := 64 - 4*numDigits
-      let mut found : Std.HashSet UInt64 := {}
+      let mut found : Std.HashMap UInt64 UInt64 := {}
       for e in es do
         let a := HasAnchor.getAnchor e
         let a' := a >>> shift.toUInt64
-        if found.contains a' then
-          return (← go (numDigits+1))
+        if let some b := found[a']? then
+          -- **Note**: if the full anchors are equal, expanding the number of digits does not help.
+          if b != a then
+            return (← go (numDigits+1))
         else
-          found  := found.insert a'
+          found  := found.insert a' a
       return numDigits
     else
       return numDigits

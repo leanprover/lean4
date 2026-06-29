@@ -309,13 +309,15 @@ error: Unknown attribute `int`
 Hint: Use a known attribute:
   • ini̲t
   • i̵n̵e̲x̲t
+  • i̵n̵t̵l̲i̲a̲
 ---
 error: Unknown attribute `samp`
 
 Hint: Use a known attribute:
   • s̵a̵m̵p̵s̲i̲m̲p̲
-  • s̵a̵m̵p̵s̲y̲m̲m̲
   • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵l̲i̲a̲
 ---
 error: Unknown attribute `inlone`
 
@@ -565,7 +567,7 @@ def testQualifiedLit := 1
 
 -- {lit} fails when shadowed
 /--
-error: `lit : Type` is not registered as a a role
+error: `lit : Type` is not registered as a role
 
 Hint: `lit` shadows a role. Use the full name of the shadowed role:
   L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
@@ -593,7 +595,7 @@ namespace ShadowedNonBuiltin
 def r := 15
 
 /--
-error: `r : Nat` is not registered as a a role
+error: `r : Nat` is not registered as a role
 
 Hint: `r` shadows a role. Use the full name of the shadowed role:
   _̲ro̲o̲t̲_̲.̲r̲
@@ -614,7 +616,7 @@ namespace Inner
 def lit := 5
 
 /--
-error: `lit : Nat` is not registered as a a role
+error: `lit : Nat` is not registered as a role
 
 Hint: `lit` shadows a role. Use the full name of the shadowed role:
   • l̵i̵t̵D̲o̲u̲b̲l̲e̲S̲h̲a̲d̲o̲w̲e̲d̲.̲l̲i̲t̲
@@ -668,7 +670,7 @@ private def docCodeStr (dc : DocCode) : String :=
 
 private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if container.name == name then
+    if container.val.typeName == name then
       if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
         #[lt.term]
       else #[]
@@ -679,7 +681,7 @@ private partial def findInInline (name : Name) : Inline ElabInline → Array Doc
 
 private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
   | .other container _ =>
-    if container.name == name then
+    if container.val.typeName == name then
       if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
         #[lb.commands]
       else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
@@ -754,3 +756,147 @@ info:  <kw>(</kw> <lit kind="num" type="Nat">2</lit>  <kw>*</kw>  <kw>(</kw>
   doc.text.flatMap (findInBlock ``Data.LeanTerm) |>.map docCodeStr |>.forM (IO.println ·)
 
 end HygieneInfoTests
+
+/-!
+Test that the {lit}`{option}` role, when given full {lit}`set_option` syntax, stores the actual
+option name and value in its {lit}`Data.SetOption` display code.
+-/
+
+section SetOptionRoleTests
+open Doc Elab
+
+private partial def findSetOptionInInline : Inline ElabInline → Array DocCode
+  | .other container _ =>
+    if let some (so : Data.SetOption) := container.val.get? Data.SetOption then
+      #[so.term]
+    else #[]
+  | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
+    xs.flatMap findSetOptionInInline
+  | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
+
+private partial def findSetOptionInBlock : Block ElabInline ElabBlock → Array DocCode
+  | .para inlines => inlines.flatMap findSetOptionInInline
+  | .concat blocks | .blockquote blocks => blocks.flatMap findSetOptionInBlock
+  | .dl items => items.flatMap fun ⟨x, y⟩ =>
+    x.flatMap findSetOptionInInline ++ y.flatMap findSetOptionInBlock
+  | .ol _ xs | .ul xs => xs.flatMap fun ⟨x⟩ => x.flatMap findSetOptionInBlock
+  | .other .. | .code .. => #[]
+
+/--
+Setting options:
+ * {option}`set_option pp.all true`
+ * {option}`set_option maxHeartbeats 1000`
+ * {option}`set_option trace.profiler.output "out.json"`
+-/
+def setOptionDisplay := ()
+
+/--
+info:  <kw>set_option</kw> ⏎
+<option name="pp.all" decl="Lean.pp.all">pp.all</option> ⏎
+<const name="Bool.true" sig="Bool.true : Bool">true</const>
+ <kw>set_option</kw> ⏎
+<option name="maxHeartbeats" decl="Lean.maxHeartbeats">maxHeartbeats</option> ⏎
+<lit kind="num" type=none>1000</lit>
+ <kw>set_option</kw> ⏎
+<option name="trace.profiler.output" decl="Lean.trace.profiler.output">trace.profiler.output</option> ⏎
+<lit kind="str" type=none>"out.json"</lit>
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``setOptionDisplay
+    | throwError "expected verso doc"
+  doc.text.flatMap findSetOptionInBlock |>.map docCodeStr |>.forM (IO.println ·)
+
+end SetOptionRoleTests
+
+/-!
+Test that the {lit}`assert` and {lit}`assert'` roles save elaboration info and store highlighted
+{lit}`Data.LeanTerm` payloads (previously they returned bare code with no hover information), and
+that {lit}`assert'` takes the two sides of the equality (and optionally the type at which they are
+compared) as separate code elements, so that it can be used without the {lit}`=` notation.
+-/
+
+section AssertRoleTests
+open Doc Elab
+
+/--
+{assert}`Nat.zero = Nat.zero`
+
+{assert'}[`Nat.zero` `Nat.zero`]
+
+{assert'}[`Nat.zero` `Nat.zero` `Nat`]
+-/
+def assertDisplay := ()
+
+/--
+info:  <const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> ⏎
+<kw>=</kw> ⏎
+<const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const>
+ <const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> = ⏎
+<const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const>
+ <const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> = ⏎
+<const name="Nat.zero" sig="Nat.zero : Nat">Nat.zero</const> : ⏎
+<const name="Nat" sig="Nat : Type">Nat</const>
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``assertDisplay
+    | throwError "expected verso doc"
+  doc.text.flatMap (findInBlock ``Data.LeanTerm) |>.map docCodeStr |>.forM (IO.println ·)
+
+/--
+error: Expected Nat.zero = Nat.zero.succ, which is Nat.zero = 1, reducing to Nat.zero = 1 but they are not equal.
+-/
+#guard_msgs in
+/-! {assert'}[`Nat.zero` `Nat.succ Nat.zero`] -/
+
+/--
+error: Expected two or three code arguments: the two sides of the equality, optionally followed by their type, but got 1 arguments.
+-/
+#guard_msgs in
+/-! {assert'}[`Nat.zero`] -/
+
+end AssertRoleTests
+
+/-!
+Test that the {name}`kw` and {name}`kw?` roles store their payloads as {name}`Lean.Doc.Data.Atom`.
+-/
+
+section KwAtomPublicTests
+open Doc Elab
+
+private partial def findAtomInInline : Inline ElabInline → Array (Name × Data.Atom)
+  | .other container _ =>
+    if let some (a : Data.Atom) := container.val.get? Data.Atom then
+      #[(container.val.typeName, a)]
+    else #[]
+  | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
+    xs.flatMap findAtomInInline
+  | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
+
+private partial def findAtomInBlock : Block ElabInline ElabBlock → Array (Name × Data.Atom)
+  | .para inlines => inlines.flatMap findAtomInInline
+  | .concat blocks | .blockquote blocks => blocks.flatMap findAtomInBlock
+  | .dl items => items.flatMap fun ⟨x, y⟩ =>
+    x.flatMap findAtomInInline ++ y.flatMap findAtomInBlock
+  | .ol _ xs | .ul xs => xs.flatMap fun ⟨x⟩ => x.flatMap findAtomInBlock
+  | .other .. | .code .. => #[]
+
+/--
+{kw (cat := term)}`Type`
+-/
+def kwAtomDisplay := ()
+
+/--
+info: container: Lean.Doc.Data.Atom
+category: term
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``kwAtomDisplay
+    | throwError "expected verso doc"
+  for (containerName, atom) in doc.text.flatMap findAtomInBlock do
+    IO.println s!"container: {containerName}"
+    IO.println s!"category: {atom.category}"
+
+end KwAtomPublicTests

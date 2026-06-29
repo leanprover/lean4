@@ -9,6 +9,7 @@ import Lean.Compiler.Options
 import Lean.Compiler.IR
 import Lean.Compiler.LCNF.Passes
 import Lean.Compiler.LCNF.ToDecl
+import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.Check
 import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.LCNF.SplitSCC
@@ -125,16 +126,33 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
   and it often creates a very deep recursion.
   Moreover, some declarations get very big during simplification.
   -/
+
+  if (← declNames.anyM isInductive) then
+    -- Eagerly compute and persist the cross-module inductive infos for these inductive types in
+    -- their defining module. The computation walks each constructor's field types, which can
+    -- reference constants from non-transitively (privately) imported modules; the defining module is
+    -- the only place where that walk is guaranteed to succeed, so consumers rely on the persisted
+    -- result. This could be postponed as well but the added complexity is likely not worth the
+    -- slight gain in rebuild avoidance/parallelism.
+    compileInductives declNames
+    return
+
   for declName in declNames do
     if let some fnName := Compiler.getImplementedBy? (← getEnv) declName then
-      if !isDeclPublic (← getEnv) fnName then
-        if let some decl ← getLocalDeclAt? fnName .base then
-          trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
-          LCNF.markDeclPublicRec .base decl
-          if let some decl ← getLocalDeclAt? fnName .mono then
-            LCNF.markDeclPublicRec .mono decl
-            if let some decl ← getLocalDeclAt? fnName .impure then
-              LCNF.markDeclPublicRec .impure decl
+      if (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
+        -- must postpone here as well so that visibility marking happens in the correct process
+        modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := #[declName], options := ← getOptions })
+      else
+        -- Ensure the impl target is compiled first so `getLocalDeclAt?` succeeds
+        resumeCompilation fnName baseOpts
+        if !isDeclPublic (← getEnv) fnName then
+          if let some decl ← getLocalDeclAt? fnName .base then
+            trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
+            LCNF.markDeclPublicRec .base decl
+            if let some decl ← getLocalDeclAt? fnName .mono then
+              LCNF.markDeclPublicRec .mono decl
+              if let some decl ← getLocalDeclAt? fnName .impure then
+                LCNF.markDeclPublicRec .impure decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return
   for declName in declNames do

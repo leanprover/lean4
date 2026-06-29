@@ -21,7 +21,7 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l_Lean_Elab_Do_mkMonadicType___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Do_mkMonadApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -733,7 +733,7 @@ v___jp_285_:
 lean_object* v_doBlockResultType_287_; lean_object* v___x_288_; 
 v_doBlockResultType_287_ = lean_ctor_get(v___y_277_, 3);
 lean_inc_ref(v_doBlockResultType_287_);
-v___x_288_ = l_Lean_Elab_Do_mkMonadicType___redArg(v_doBlockResultType_287_, v___y_277_);
+v___x_288_ = l_Lean_Elab_Do_mkMonadApp(v_doBlockResultType_287_, v___y_277_, v___y_278_, v___y_279_, v___y_280_, v___y_281_, v___y_282_, v___y_283_);
 if (lean_obj_tag(v___x_288_) == 0)
 {
 lean_object* v_a_289_; lean_object* v___x_291_; uint8_t v_isShared_292_; uint8_t v_isSharedCheck_306_; 
@@ -999,13 +999,13 @@ if (lean_obj_tag(v___x_426_) == 0)
 lean_object* v_a_427_; lean_object* v___x_428_; 
 v_a_427_ = lean_ctor_get(v___x_426_, 0);
 lean_inc(v_a_427_);
-lean_dec_ref(v___x_426_);
+lean_dec_ref_known(v___x_426_, 1);
 v___x_428_ = l_Lean_Elab_Do_checkMutVarsForShadowing(v_a_427_, v_a_395_, v_a_396_, v_a_397_, v_a_398_, v_a_399_, v_a_400_, v_a_401_);
 lean_dec(v_a_427_);
 if (lean_obj_tag(v___x_428_) == 0)
 {
 lean_object* v___f_429_; lean_object* v___x_430_; lean_object* v___x_431_; lean_object* v___x_432_; lean_object* v___x_433_; lean_object* v___x_434_; lean_object* v___x_435_; lean_object* v___x_436_; lean_object* v___x_437_; 
-lean_dec_ref(v___x_428_);
+lean_dec_ref_known(v___x_428_, 1);
 lean_inc_ref(v_dec_392_);
 lean_inc(v_pattern_425_);
 v___f_429_ = lean_alloc_closure((void*)(l___private_Lean_Elab_BuiltinDo_MatchExpr_0__Lean_Elab_Do_elabDoMatchExpr_elabDoMatchExprNoMeta_elabMatch___lam__1___boxed), 17, 8);
@@ -1356,7 +1356,7 @@ if (lean_obj_tag(v___x_622_) == 0)
 lean_object* v_a_623_; lean_object* v___x_624_; lean_object* v_discr_625_; lean_object* v___x_626_; lean_object* v_alts_627_; 
 v_a_623_ = lean_ctor_get(v___x_622_, 0);
 lean_inc(v_a_623_);
-lean_dec_ref(v___x_622_);
+lean_dec_ref_known(v___x_622_, 1);
 v___x_624_ = lean_unsigned_to_nat(2u);
 v_discr_625_ = l_Lean_Syntax_getArg(v_stx_601_, v___x_624_);
 v___x_626_ = lean_unsigned_to_nat(4u);
@@ -1380,7 +1380,7 @@ if (lean_obj_tag(v___x_630_) == 0)
 lean_object* v_a_631_; lean_object* v_ref_632_; lean_object* v_quotContext_633_; lean_object* v_currMacroScope_634_; uint8_t v___x_635_; lean_object* v___x_636_; lean_object* v___x_637_; lean_object* v___x_638_; lean_object* v___x_639_; lean_object* v___x_640_; lean_object* v___x_641_; lean_object* v___x_642_; lean_object* v___x_643_; lean_object* v___x_644_; lean_object* v___x_645_; lean_object* v___x_646_; lean_object* v___x_647_; lean_object* v___x_648_; lean_object* v___x_649_; lean_object* v___x_650_; uint8_t v___x_651_; lean_object* v___x_652_; 
 v_a_631_ = lean_ctor_get(v___x_630_, 0);
 lean_inc(v_a_631_);
-lean_dec_ref(v___x_630_);
+lean_dec_ref_known(v___x_630_, 1);
 v_ref_632_ = lean_ctor_get(v___y_620_, 5);
 v_quotContext_633_ = lean_ctor_get(v___y_620_, 10);
 v_currMacroScope_634_ = lean_ctor_get(v___y_620_, 11);
@@ -1466,7 +1466,7 @@ return v___x_658_;
 else
 {
 lean_object* v___x_661_; 
-lean_dec_ref(v_metaFalseTk_x3f_614_);
+lean_dec_ref_known(v_metaFalseTk_x3f_614_, 1);
 v___x_661_ = l___private_Lean_Elab_BuiltinDo_MatchExpr_0__Lean_Elab_Do_elabDoMatchExpr_elabDoMatchExprNoMeta(v_a_623_, v_discr_625_, v_alts_627_, v_dec_602_, v___y_615_, v___y_616_, v___y_617_, v___y_618_, v___y_619_, v___y_620_, v___y_621_);
 return v___x_661_;
 }

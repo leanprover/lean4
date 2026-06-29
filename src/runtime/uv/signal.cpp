@@ -39,7 +39,7 @@ void initialize_libuv_signal() {
 }
 
 static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
-    return signal->m_promise == NULL || lean_io_get_task_state_core((lean_object *)lean_to_promise(signal->m_promise)->m_result) == 2;
+    return signal->m_promise == NULL || promise_is_resolved(signal->m_promise);
 }
 
 void handle_signal_event(uv_signal_t* handle, int signum) {

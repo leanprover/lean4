@@ -131,6 +131,55 @@ def getUInt64Value? (e : Expr) : MetaM (Option UInt64) := OptionT.run do
   let (n, _) ← getOfNatValue? e ``UInt64
   return UInt64.ofNat n
 
+/-- Return `some b` if `e` is the boolean literal `true` or `false`. -/
+private def getBoolLit? (e : Expr) : Option Bool :=
+  match e.consumeMData with
+  | .const ``Bool.true _  => some true
+  | .const ``Bool.false _ => some false
+  | _ => none
+
+/-- Recognize a non-negated `Float` literal: an `OfScientific` or `OfNat` application. -/
+private def getFloatLit? (e : Expr) : MetaM (Option Float) := OptionT.run do
+  match_expr e with
+  | OfScientific.ofScientific type _ m s exp =>
+    guard ((← whnfD type).isConstOf ``Float)
+    let some s := getBoolLit? s | failure
+    return Float.ofScientific (← getNatValue? m) s (← getNatValue? exp)
+  | _ =>
+    let (n, _) ← getOfNatValue? e ``Float
+    return Float.ofNat n
+
+/--
+Return `some v` if `e` is a `Float` literal: an `OfScientific` or `OfNat` application, or `Neg.neg`
+of either (e.g. `-1.5`).
+-/
+def getFloatValue? (e : Expr) : MetaM (Option Float) := do
+  if let some v ← getFloatLit? e then return some v
+  let_expr Neg.neg _ _ a ← e | return none
+  let some v ← getFloatLit? a | return none
+  return some (-v)
+
+/-- Recognize a non-negated `Float32` literal: an `OfScientific` or `OfNat` application. -/
+private def getFloat32Lit? (e : Expr) : MetaM (Option Float32) := OptionT.run do
+  match_expr e with
+  | OfScientific.ofScientific type _ m s exp =>
+    guard ((← whnfD type).isConstOf ``Float32)
+    let some s := getBoolLit? s | failure
+    return Float32.ofScientific (← getNatValue? m) s (← getNatValue? exp)
+  | _ =>
+    let (n, _) ← getOfNatValue? e ``Float32
+    return Float32.ofNat n
+
+/--
+Return `some v` if `e` is a `Float32` literal: an `OfScientific` or `OfNat` application, or `Neg.neg`
+of either (e.g. `-1.5`).
+-/
+def getFloat32Value? (e : Expr) : MetaM (Option Float32) := do
+  if let some v ← getFloat32Lit? e then return some v
+  let_expr Neg.neg _ _ a ← e | return none
+  let some v ← getFloat32Lit? a | return none
+  return some (-v)
+
 -- TODO: extensibility
 
 /--
@@ -149,6 +198,8 @@ def normLitValue (e : Expr) : MetaM Expr := do
   if let some n ← getUInt16Value? e then return toExpr n
   if let some n ← getUInt32Value? e then return toExpr n
   if let some n ← getUInt64Value? e then return toExpr n
+  -- `Float`/`Float32` literals are left untouched: there is no `ToExpr` instance for them, and their
+  -- only canonical form would be `Float.ofBits`, which is less legible than the original literal.
   return e
 
 /--
@@ -166,6 +217,8 @@ def isLitValue (e : Expr) : MetaM Bool := do
   if (← getUInt16Value? e).isSome then return true
   if (← getUInt32Value? e).isSome then return true
   if (← getUInt64Value? e).isSome then return true
+  if (← getFloatValue? e).isSome then return true
+  if (← getFloat32Value? e).isSome then return true
   return false
 
 /--

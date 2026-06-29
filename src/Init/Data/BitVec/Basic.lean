@@ -651,6 +651,23 @@ def replicate : (i : Nat) → BitVec w → BitVec (w*i)
   | n+1, x =>
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega)
 
+/-! ### flatten -/
+
+/--
+Flatten a list of bitvectors into one bitvector.
+
+This is `noncomputable` so that the only compiled implementation is the
+divide-and-conquer `BitVec.flattenListFast`, installed via `@[csimp]`; see there
+for the cost analysis.
+-/
+protected noncomputable def flattenList {n : Nat} (xs : List (BitVec n)) : BitVec (n * xs.length) :=
+  match xs with
+  | [] => 0#0
+  | x :: rest =>
+    have h : n + n * List.length rest = n * List.length (x :: rest) := by
+      simp [List.length_cons, Nat.mul_add, Nat.add_comm]
+    BitVec.cast h (x ++ (BitVec.flattenList rest))
+
 /-!
 ### Cons and Concat
 We give special names to the operations of adding a single bit to either end of a bitvector.

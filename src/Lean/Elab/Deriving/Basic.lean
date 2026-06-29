@@ -181,7 +181,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
   let decl ← whnfCore decl
   let .const declName _ := decl.getAppFn
     | throwError "Failed to delta derive instance, expecting a term of the form `C ...` where `C` is a constant, given{indentExpr decl}"
-  let exposed := (← getEnv).setExporting true |>.find? declName |>.any (·.hasValue)
+  let exposed := (← getEnv).hasExposedBody declName
   -- When the definition body is private, the deriving handler will need access to the private scope,
   -- and the instance body will automatically be private as well.
   withExporting (isExporting := exposed) do
@@ -262,7 +262,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
     else
       addAndCompile (Declaration.defnDecl decl) (markMeta := isMeta)
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"
-  -- For Prop-typed instances (theorems), skip `implicit_reducible` since reducibility hints are
+  -- For Prop-typed instances (theorems), skip `instance_reducible` since reducibility hints are
   -- irrelevant for theorems. This matches the behavior of the handwritten `instance` command
   -- (see `MutualDef.lean`).
   if isPropType then

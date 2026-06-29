@@ -126,7 +126,7 @@ v_it_33_ = lean_ctor_get(v_val_32_, 0);
 lean_inc(v_it_33_);
 v_out_34_ = lean_ctor_get(v_val_32_, 1);
 lean_inc(v_out_34_);
-lean_dec_ref(v_val_32_);
+lean_dec_ref_known(v_val_32_, 2);
 v___x_35_ = lean_array_push(v_acc_30_, v_out_34_);
 v___x_36_ = lean_apply_3(v_recur_31_, v_it_33_, v___x_35_, lean_box(0));
 return v___x_36_;
@@ -136,7 +136,7 @@ case 1:
 lean_object* v_it_37_; lean_object* v___x_38_; 
 v_it_37_ = lean_ctor_get(v_val_32_, 0);
 lean_inc(v_it_37_);
-lean_dec_ref(v_val_32_);
+lean_dec_ref_known(v_val_32_, 1);
 v___x_38_ = lean_apply_3(v_recur_31_, v_it_37_, v_acc_30_, lean_box(0));
 return v___x_38_;
 }
@@ -259,7 +259,7 @@ case 1:
 lean_object* v_it_92_; lean_object* v___x_93_; 
 v_it_92_ = lean_ctor_get(v_val_81_, 0);
 lean_inc(v_it_92_);
-lean_dec_ref(v_val_81_);
+lean_dec_ref_known(v_val_81_, 1);
 v___x_93_ = lean_apply_3(v_recur_80_, v_it_92_, v_acc_79_, lean_box(0));
 return v___x_93_;
 }

@@ -287,29 +287,63 @@ def split? (c : SplitInfo) : Action := fun goal kna kp => do
     Action.splitCore c numCases isRec (stopAtFirstFailure := false) (compress := false) >> Action.intros genNew >> Action.assertAll
   a goal kna kp
 
-@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
-  let `(grind| cases #$anchor:hexnum) := stx | throwUnsupportedSyntax
+@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => withMainContext do
+  let (anchor, ordinal) ← match stx with
+    | `(grind| cases #$anchor:hexnum) => pure ((anchor : TSyntax `hexnum), 1)
+    | `(grind| cases #$anchor:hexnum/$i:num) =>
+      if i.getNat == 0 then
+        throwErrorAt i "invalid anchor ordinal, it must be ≥ 1"
+      pure (anchor, i.getNat)
+    | _ => throwUnsupportedSyntax
   let anchorRef ← elabAnchorRef anchor
+  let c? ← liftGoalM do
+    let mut remaining := ordinal
+    let mut firstMatch? := none
+    for c in (← get).split.candidates do
+      let a ← c.getAnchor
+      if anchorRef.matches a then
+        if firstMatch?.isNone then
+          firstMatch? := some c
+        if (← checkSplitStatus c) matches .ready .. then
+          remaining := remaining - 1
+          if remaining == 0 then
+            return some c
+    if ordinal == 1 then
+      /-
+      **Note**: Fall back to a candidate that is not ready so that `split?` can
+      produce a more informative error message.
+      -/
+      return firstMatch?
+    else
+      return none
+  let some c := c? | throwError "`cases` tactic failed, invalid anchor"
   let goal ← getMainGoal
-  let candidates := goal.split.candidates
-  let c ← liftGrindM <| goal.withContext do
-    for c in candidates do
-      let anchor ← c.getAnchor
-      if anchorRef.matches anchor then
-        return c
-    throwError "`cases` tactic failed, invalid anchor"
   goal.withContext <| withRef anchor <| logAnchor c
   liftAction <| split? c
 
 def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits : Nat) : MetaM (Array Tactic.TryThis.Suggestion) := do
-  candidates.mapM fun { anchor, e, .. } => do
+  let shift := (64 - 4*numDigits).toUInt64
+  let mut counts : Std.HashMap UInt64 Nat := {}
+  let mut suggestions := #[]
+  for { anchor, e, .. } in candidates do
     let anchorStx ← mkAnchorSyntax numDigits anchor
-    let tac ← `(grind| cases $anchorStx:anchor)
+    /-
+    **Note**: Distinct candidates may have identical anchors (e.g., they differ only in
+    inaccessible variables). We use ordinal references (e.g., `#a56e/2`) to disambiguate them.
+    -/
+    let anchorPrefix := anchor >>> shift
+    let ordinal := counts.getD anchorPrefix 0
+    counts := counts.insert anchorPrefix (ordinal + 1)
+    let tac ← if ordinal == 0 then
+      `(grind| cases $anchorStx:anchor)
+    else
+      `(grind| cases $anchorStx:anchor/$(quote (ordinal + 1)):num)
     let msg ← addMessageContext m!"{tac} for{indentExpr e}"
-    return {
+    suggestions := suggestions.push {
       suggestion   := .tsyntax tac
       messageData? := some msg
     }
+  return suggestions
 
 @[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => withMainContext do
   let `(grind| cases? $[$filter?]?) := stx | throwUnsupportedSyntax

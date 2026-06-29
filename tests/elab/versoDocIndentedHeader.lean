@@ -162,7 +162,7 @@ def topLevel := 1
 /--
 info: #[]
 #[{ title := #[Lean.Doc.Inline.text "Top-level header"],
-    titleString := "Top\\-level header",
+    titleString := "Top-level header",
     metadata := none,
     content := #[Lean.Doc.Block.para #[Lean.Doc.Inline.text "Content.", Lean.Doc.Inline.linebreak "\n"]],
     subParts := #[] }]

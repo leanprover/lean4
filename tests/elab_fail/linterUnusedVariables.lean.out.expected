@@ -1,82 +1,136 @@
-linterUnusedVariables.lean:18:21-18:22: warning: unused variable `x`
+linterUnusedVariables.lean:18:21-18:22: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:19:6-19:7: warning: unused variable `y`
+linterUnusedVariables.lean:19:6-19:7: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:24:8-24:9: warning: unused variable `x`
+linterUnusedVariables.lean:24:8-24:9: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:40:5-40:6: warning: unused variable `x`
+linterUnusedVariables.lean:40:5-40:6: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:45:5-45:6: warning: unused variable `x`
+linterUnusedVariables.lean:45:5-45:6: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:48:7-48:8: warning: unused variable `x`
+linterUnusedVariables.lean:48:7-48:8: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:51:8-51:9: warning: unused variable `x`
+linterUnusedVariables.lean:51:8-51:9: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:55:9-55:10: warning: unused variable `z`
+linterUnusedVariables.lean:55:9-55:10: warning: Variable name `z` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:57:11-57:12: warning: unused variable `z`
+linterUnusedVariables.lean:57:11-57:12: warning: Variable name `z` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:62:14-62:15: warning: unused variable `y`
+linterUnusedVariables.lean:62:14-62:15: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:68:20-68:21: warning: unused variable `y`
+linterUnusedVariables.lean:68:20-68:21: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:73:34-73:38: warning: unused variable `inst`
+linterUnusedVariables.lean:73:34-73:38: warning: Variable name `inst` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:114:25-114:26: warning: unused variable `x`
+linterUnusedVariables.lean:114:25-114:26: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:115:6-115:7: warning: unused variable `y`
+linterUnusedVariables.lean:115:6-115:7: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:121:6-121:7: warning: unused variable `a`
+linterUnusedVariables.lean:121:6-121:7: warning: Variable name `a` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:131:26-131:27: warning: unused variable `z`
+linterUnusedVariables.lean:131:26-131:27: warning: Variable name `z` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:140:9-140:10: warning: unused variable `h`
+linterUnusedVariables.lean:140:9-140:10: warning: Variable name `h` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:154:8-154:9: warning: unused variable `y`
+linterUnusedVariables.lean:154:8-154:9: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:157:28-157:29: warning: unused variable `β`
+linterUnusedVariables.lean:157:28-157:29: warning: Variable name `β` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:158:7-158:8: warning: unused variable `x`
+linterUnusedVariables.lean:158:7-158:8: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:168:6-168:7: warning: unused variable `s`
+linterUnusedVariables.lean:168:6-168:7: warning: Variable name `s` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:192:6-192:7: warning: unused variable `y`
+linterUnusedVariables.lean:192:6-192:7: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:202:19-202:20: warning: unused variable `x`
+linterUnusedVariables.lean:202:19-202:20: warning: Variable name `x` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:206:6-206:7: warning: unused variable `y`
+linterUnusedVariables.lean:206:6-206:7: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:211:6-211:7: warning: unused variable `y`
+linterUnusedVariables.lean:211:6-211:7: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:216:6-216:7: warning: unused variable `y`
+linterUnusedVariables.lean:216:6-216:7: warning: Variable name `y` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:227:32-227:33: warning: unused variable `b`
+linterUnusedVariables.lean:227:32-227:33: warning: Variable name `b` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
 linterUnusedVariables.lean:245:27-245:28: error: don't know how to synthesize placeholder
@@ -93,6 +147,8 @@ a : Nat
 ⊢ Nat
 linterUnusedVariables.lean:249:0-249:40: error: type of theorem `async` is not a proposition
   Nat → Nat
-linterUnusedVariables.lean:284:41-284:43: warning: unused variable `ha`
+linterUnusedVariables.lean:284:41-284:43: warning: Variable name `ha` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`

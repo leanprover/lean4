@@ -93,7 +93,7 @@ else
 lean_object* v_n_8_; lean_object* v___x_9_; 
 v_n_8_ = lean_ctor_get(v_t_6_, 0);
 lean_inc(v_n_8_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 1);
 v___x_9_ = lean_apply_1(v_k_7_, v_n_8_);
 return v___x_9_;
 }

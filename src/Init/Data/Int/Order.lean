@@ -155,6 +155,7 @@ protected theorem lt_iff_le_and_not_ge {a b : Int} : a < b ↔ a ≤ b ∧ ¬b �
   · exact Int.le_antisymm h h'
   · subst h'; apply Int.le_refl
 
+set_option linter.defProp false in
 @[deprecated Int.lt_iff_le_and_not_ge (since := "2026-02-11")]
 protected def lt_iff_le_not_le := @Int.lt_iff_le_and_not_ge
 
@@ -388,9 +389,9 @@ protected theorem le_iff_lt_add_one {a b : Int} : a ≤ b ↔ a < b + 1 := by
 
 /- ### min and max -/
 
-@[grind =] protected theorem min_def (n m : Int) : min n m = if n ≤ m then n else m := rfl
+@[grind =, lia =] protected theorem min_def (n m : Int) : min n m = if n ≤ m then n else m := rfl
 
-@[grind =] protected theorem max_def (n m : Int) : max n m = if n ≤ m then m else n := rfl
+@[grind =, lia =] protected theorem max_def (n m : Int) : max n m = if n ≤ m then m else n := rfl
 
 end Int
 namespace Lean.Meta.Grind.Lia

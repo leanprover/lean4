@@ -1,4 +1,4 @@
-rm -rf .lake/build
+rm -rf .lake
 lake build
 
 for f in LeanCheckerTests/*.lean; do

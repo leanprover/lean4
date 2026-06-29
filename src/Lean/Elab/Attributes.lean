@@ -59,9 +59,9 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
     else match attr.getKind with
       | .str _ s => pure <| Name.mkSimple s
       | _ => throwErrorAt attr  "Unknown attribute"
-    let .ok _impl := getAttributeImpl (← getEnv) attrName
-      | throwError "Unknown attribute `[{attrName}]`"
-    if let .ok impl := getAttributeImpl (← getEnv) attrName then
+    match getAttributeImpl (← getEnv) attrName with
+      | .error _ => throwError "Unknown attribute `[{attrName}]`. Note, that attributes are impossible to use in the same file they are declared in: consider extracting the declaration into a separate file."
+      | .ok impl =>
       if regularInitAttr.getParam? (← getEnv) impl.ref |>.isSome then  -- skip `builtin_initialize` attributes
         -- Reject attribute uses where the implementation's module has been loaded for IR only as
         -- this would make it `inServer`-dependent and confused shake as well (#13599).

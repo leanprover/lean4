@@ -180,8 +180,10 @@ where
       throw (lib.name :: ps)
     let ps := lib.name :: ps
     let v := v.insert lib.name
-    let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
+    let step := fun (v, o) lib =>
       go lib ps v o
+    let (v, o) ← lib.deps.foldlM step (v, o)
+    let (v, o) ← lib.runtimeOnlyDeps.foldlM step (v, o)
     let o := o.push lib
     return (v, o)
 

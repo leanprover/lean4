@@ -3,8 +3,13 @@ name: Adaptation PR CI
 
 on:
   pull_request_target:
-    types: [labeled]
     branches: [master]
+    types:
+      - labeled
+      - closed
+      - reopened
+      - converted_to_draft
+      - ready_for_review
 
 jobs:
   main:
@@ -74,5 +79,4 @@ jobs:
           upstream-ci-green: ${{ steps.toolchain.outputs.exists }}
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
-          downstream-label: adaptation
           override-toolchain: ${{ steps.toolchain.outputs.toolchain }}

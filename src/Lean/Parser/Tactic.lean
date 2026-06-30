@@ -20,7 +20,9 @@ builtin_initialize
   register_parser_alias tacticSeq
   register_parser_alias tacticSeqIndentGt
 
-/--
+-- Don't make this a docstring, because it shows up at unfortunate places
+-- in hovers and completion:
+/-
 This is a fallback tactic parser for any identifier which exists only
 to improve syntax error messages.
 ```

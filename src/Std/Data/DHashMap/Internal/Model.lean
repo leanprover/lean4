@@ -668,7 +668,7 @@ theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) 
     m.filter f = m.filterₘ f := (rfl)
 
 theorem partition_eq_partitionₘ [BEq α] [Hashable α] (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
-    m.partition f = m.partition f := by rfl
+    m.partition f = m.partitionₘ f := by rfl
 
 theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
   simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]

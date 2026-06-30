@@ -188,8 +188,7 @@ theorem mergeSort_eq_mergeSortTR : @mergeSort = @mergeSortTR := by
   funext
   rw [mergeSortTR, mergeSortTR_run_eq_mergeSort]
 
--- This mutual block is unfortunately quite slow to elaborate.
-set_option maxHeartbeats 400000 in
+set_option backward.isDefEq.respectTransparency false in
 mutual
 private theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR₂.run le l = mergeSort l.1 le
   | 0, ⟨[], _⟩

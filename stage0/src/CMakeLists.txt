@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
-cmake_policy(SET CMP0054 NEW)
-cmake_policy(SET CMP0110 NEW)
+cmake_minimum_required(VERSION 3.21)
 if(NOT CMAKE_GENERATOR MATCHES "Unix Makefiles")
   message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
 endif()
@@ -9,11 +7,17 @@ if(NOT DEFINED STAGE)
 endif()
 include(ExternalProject)
 project(LEAN CXX C)
-set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 29)
-set(LEAN_VERSION_PATCH 0)
-set(LEAN_VERSION_IS_RELEASE 0) # This number is 1 in the release revision, and 0 otherwise.
+set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
+set(LEAN_VERSION_MINOR 33 CACHE STRING "")
+set(LEAN_VERSION_PATCH 0 CACHE STRING "")
+set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
+# project(LEAN) above implicitly creates empty LEAN_VERSION_{MAJOR,MINOR,PATCH}
+# normal variables (CMake sets <PROJECT>_VERSION_* for the project name). These
+# shadow the cache values. Remove them so ${VAR} falls through to the cache.
+unset(LEAN_VERSION_MAJOR)
+unset(LEAN_VERSION_MINOR)
+unset(LEAN_VERSION_PATCH)
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}")
 if(LEAN_SPECIAL_VERSION_DESC)
   string(APPEND LEAN_VERSION_STRING "-${LEAN_SPECIAL_VERSION_DESC}")
@@ -76,6 +80,7 @@ option(CCACHE "use ccache" ON)
 option(SPLIT_STACK "SPLIT_STACK" OFF)
 # When OFF we disable LLVM support
 option(LLVM "LLVM" OFF)
+option(STRIP_BINARIES "Strip produced binaries" ON)
 
 # When ON we include githash in the version string
 option(USE_GITHASH "GIT_HASH" ON)
@@ -83,6 +88,8 @@ option(USE_GITHASH "GIT_HASH" ON)
 option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
 # When ON we install a copy of cadical
 option(INSTALL_CADICAL "Install a copy of cadical" ON)
+# When ON we install a copy of leantar
+option(INSTALL_LEANTAR "Install a copy of leantar" ON)
 
 # FLAGS for disabling optimizations and debugging
 option(FREE_VAR_RANGE_OPT "FREE_VAR_RANGE_OPT" ON)
@@ -103,14 +110,24 @@ option(RUNTIME_STATS "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
 option(USE_MIMALLOC "use mimalloc" ON)
+set(LEAN_MI_SECURE 0 CACHE STRING "Configure mimalloc memory safety mitigations (https://github.com/microsoft/mimalloc/blob/v2.2.7/include/mimalloc/types.h#L56-L60)")
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
 option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
 option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires USE_LAKE)" OFF)
 
-set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to lean --make")
+set(LEAN_EXTRA_OPTS "" CACHE STRING "extra options to lean (via lake or make)")
+set(LEAN_EXTRA_LAKE_OPTS "" CACHE STRING "extra options to lake")
+set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to leanmake")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
+
+# option used by the CI to fail on warnings
+option(WFAIL "Fail build if warnings are emitted by Lean" ON)
+if(WFAIL MATCHES "ON")
+  string(APPEND LEAN_EXTRA_LAKE_OPTS " --wfail")
+  string(APPEND LEAN_EXTRA_MAKE_OPTS " -DwarningAsError=true")
+endif()
 
 if(LAZY_RC MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
@@ -188,11 +205,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
 if((MULTI_THREAD MATCHES "ON") AND (CMAKE_SYSTEM_NAME MATCHES "Darwin"))
-  string(APPEND LEAN_EXTRA_MAKE_OPTS " -s40000")
+  string(APPEND LEAN_EXTRA_OPTS " -s40000")
 endif()
 
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
 string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
+
+# Disable contraction of floating-point operations to ensure predictable semantics
+string(APPEND LEANC_EXTRA_CC_FLAGS " -ffp-contract=off")
+string(APPEND LEAN_EXTRA_CXX_FLAGS " -ffp-contract=off")
 
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
@@ -250,7 +271,7 @@ else()
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUG "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
   if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     # smallest+slower | -Oz .. -Os .. -O3 | largest+faster
@@ -345,6 +366,17 @@ include_directories(${LIBUV_INCLUDE_DIRS})
 if(NOT LEAN_STANDALONE)
   string(JOIN " " LIBUV_LDFLAGS ${LIBUV_LDFLAGS})
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LDFLAGS}")
+endif()
+
+# OpenSSL
+if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  find_package(OpenSSL 3 REQUIRED COMPONENTS Crypto SSL)
+  set(OPENSSL_LIBRARIES ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
+  include_directories(${OPENSSL_INCLUDE_DIR})
+  string(JOIN " " OPENSSL_LIBRARIES_STR ${OPENSSL_LIBRARIES})
+  if(NOT LEAN_STANDALONE)
+    string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${OPENSSL_LIBRARIES_STR}")
+  endif()
 endif()
 
 # Windows SDK (for ICU)
@@ -605,6 +637,38 @@ else()
       OUTPUT_VARIABLE GIT_SHA1
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
+    # Fallback for jj workspaces where git cannot find .git directly.
+    # Use `jj git root` to find the backing git repo, then `jj log` to
+    # resolve the current workspace's commit (git HEAD points to the root
+    # workspace, not the current one).
+    if("${GIT_SHA1}" STREQUAL "")
+      find_program(JJ_EXECUTABLE jj)
+      if(JJ_EXECUTABLE)
+        execute_process(
+          COMMAND "${JJ_EXECUTABLE}" git root
+          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          OUTPUT_VARIABLE _jj_git_dir
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET
+          RESULT_VARIABLE _jj_git_root_result
+        )
+        execute_process(
+          COMMAND "${JJ_EXECUTABLE}" log -r @ --no-graph -T "commit_id"
+          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          OUTPUT_VARIABLE _jj_commit
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET
+          RESULT_VARIABLE _jj_rev_result
+        )
+        if(_jj_git_root_result EQUAL 0 AND _jj_rev_result EQUAL 0)
+          execute_process(
+            COMMAND git --git-dir "${_jj_git_dir}" ls-tree "${_jj_commit}" stage0 --object-only
+            OUTPUT_VARIABLE GIT_SHA1
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+          )
+        endif()
+      endif()
+    endif()
     message(STATUS "stage0 sha1: ${GIT_SHA1}")
     # Now that we've prepared the information for the next stage, we can forget that we will use
     # Lake in the future as we won't use it in this stage
@@ -627,6 +691,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 else()
   set(LEAN_PATH_SEPARATOR ":")
 endif()
+
+# inherit genral options for lean.mk.in and stdlib.make.in
+string(APPEND LEAN_EXTRA_MAKE_OPTS " ${LEAN_EXTRA_OPTS}")
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
@@ -753,6 +820,14 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_dependencies(leancpp copy-cadical)
 endif()
 
+if(LEANTAR AND INSTALL_LEANTAR)
+  add_custom_target(
+    copy-leantar
+    COMMAND cmake -E copy_if_different "${LEANTAR}" "${CMAKE_BINARY_DIR}/bin/leantar${CMAKE_EXECUTABLE_SUFFIX}"
+  )
+  add_dependencies(leancpp copy-leantar)
+endif()
+
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
@@ -780,7 +855,14 @@ if(LLVM AND STAGE GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
-set(STDLIBS Init Std Lean Leanc)
+set(
+  STDLIBS
+  Init
+  Std
+  Lean
+  Leanc
+  LeanIR
+)
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   list(APPEND STDLIBS Lake LeanChecker)
 endif()
@@ -887,9 +969,13 @@ if(PREV_STAGE)
   add_custom_target(update-stage0-commit COMMAND git commit -m "chore: update stage0" DEPENDS update-stage0)
 endif()
 
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+  add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
+endif()
+
 # use Bash version for building, use Lean version in bin/ for tests & distribution
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
-if(STAGE GREATER 0 AND EXISTS "${LEAN_SOURCE_DIR}/Leanc.lean" AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
+if(STAGE GREATER 0 AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(
     leanc
@@ -909,12 +995,23 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   install(PROGRAMS "${CADICAL}" DESTINATION bin)
 endif()
 
+if(LEANTAR AND INSTALL_LEANTAR)
+  install(PROGRAMS "${LEANTAR}" DESTINATION bin)
+endif()
+
 add_custom_target(
   clean-stdlib
   COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" || true
 )
 
 add_custom_target(clean-olean DEPENDS clean-stdlib)
+
+if(USE_LAKE_CACHE)
+  add_custom_target(
+    cache-get
+    COMMAND ${PREV_STAGE}/bin/lake${CMAKE_EXECUTABLE_SUFFIX} cache get --repo=leanprover/lean4
+  )
+endif()
 
 install(
   DIRECTORY "${CMAKE_BINARY_DIR}/lib/"
@@ -924,6 +1021,7 @@ install(
   PATTERN "*.hash" EXCLUDE
   PATTERN "*.trace" EXCLUDE
   PATTERN "*.rsp" EXCLUDE
+  PATTERN "*.filelist" EXCLUDE
 )
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
@@ -978,8 +1076,8 @@ configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make
 
 # hacky
 function(toml_escape IN OUTVAR)
-  if(IN)
-    string(STRIP "${IN}" OUT)
+  string(STRIP "${IN}" OUT)
+  if(OUT)
     string(REPLACE " " "\", \"" OUT "${OUT}")
     set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
   endif()
@@ -988,7 +1086,8 @@ string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
 
-toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
+toml_escape("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_OPTS_TOML)
+toml_escape("${LEANC_INTERNAL_FLAGS} ${LEANC_INTERNAL_LINKER_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
   set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")

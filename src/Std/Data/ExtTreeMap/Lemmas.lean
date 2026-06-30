@@ -148,11 +148,11 @@ theorem erase_empty [TransCmp cmp] {k : α} : (∅ : ExtTreeMap α β cmp).erase
 @[simp]
 theorem erase_eq_empty_iff [TransCmp cmp] {k : α} :
     t.erase k = ∅ ↔ t = ∅ ∨ (t.size = 1 ∧ k ∈ t) := by
-  simpa only [ext_iff] using ExtDTreeMap.erase_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.erase_eq_empty_iff
 
 theorem eq_empty_iff_erase_eq_empty_and_not_mem [TransCmp cmp] (k : α) :
     t = ∅ ↔ t.erase k = ∅ ∧ ¬k ∈ t := by
-  simpa only [ext_iff] using ExtDTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
+  simpa only [ext_iff] using! ExtDTreeMap.eq_empty_iff_erase_eq_empty_and_not_mem k
 
 theorem ne_empty_of_erase_ne_empty [TransCmp cmp] {k : α} (h : t.erase k ≠ ∅) : t ≠ ∅ := by
   simp_all
@@ -1046,7 +1046,7 @@ theorem isEmpty_insertMany_list [TransCmp cmp]
 
 theorem insertMany_list_eq_empty_iff [TransCmp cmp] {l : List (α × β)} :
     t.insertMany l = ∅ ↔ t = ∅ ∧ l = [] := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.insertMany_list_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.insertMany_list_eq_empty_iff
 
 theorem getElem?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α]
     [LawfulBEqCmp cmp] {l : List (α × β)} {k : α}
@@ -1110,6 +1110,12 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp]
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany l).getD k' fallback = v :=
   ExtDTreeMap.Const.getD_insertMany_list_of_mem k_eq distinct mem
+
+theorem insertMany_list_eq_foldl [TransCmp cmp] {l : List (α × β)} :
+    t.insertMany l = l.foldl (init := t) fun acc p => acc.insert p.1 p.2 := by
+  rw [ext_iff, ← List.foldl_hom inner (g₂ := fun acc p => acc.insert p.1 p.2)]
+  · exact ExtDTreeMap.Const.insertMany_list_eq_foldl
+  · exact fun _ _ => rfl
 
 section Unit
 
@@ -1237,7 +1243,7 @@ theorem isEmpty_insertManyIfNewUnit_list [TransCmp cmp] {l : List α} :
 @[simp]
 theorem insertManyIfNewUnit_list_eq_empty_iff [TransCmp cmp] {l : List α} :
     insertManyIfNewUnit t l = ∅ ↔ t = ∅ ∧ l = [] := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.insertManyIfNewUnit_list_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.insertManyIfNewUnit_list_eq_empty_iff
 
 @[simp]
 theorem getElem?_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
@@ -1260,6 +1266,12 @@ theorem getD_insertManyIfNewUnit_list [TransCmp cmp]
     {l : List α} {k : α} {fallback : Unit} :
     getD (insertManyIfNewUnit t l) k fallback = () :=
   rfl
+
+theorem insertManyIfNewUnit_list_eq_foldl [TransCmp cmp] {l : List α} :
+    insertManyIfNewUnit t l = l.foldl (init := t) fun acc a => acc.insertIfNew a () := by
+  rw [ext_iff, ← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact ExtDTreeMap.Const.insertManyIfNewUnit_list_eq_foldl
+  · exact fun _ _ => rfl
 
 end Unit
 
@@ -1405,6 +1417,10 @@ theorem ofList_eq_empty_iff [TransCmp cmp] {l : List (α × β)} :
     ofList l cmp = ∅ ↔ l = [] :=
   ext_iff.trans ExtDTreeMap.Const.ofList_eq_empty_iff
 
+theorem ofList_eq_foldl [TransCmp cmp] {l : List (α × β)} :
+    ofList l cmp = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
+  rw [ofList_eq_insertMany_empty, insertMany_list_eq_foldl]
+
 @[simp]
 theorem unitOfList_nil :
     unitOfList ([] : List α) cmp =
@@ -1420,6 +1436,10 @@ theorem unitOfList_cons [TransCmp cmp] {hd : α} {tl : List α} :
     unitOfList (hd :: tl) cmp =
       insertManyIfNewUnit ((∅ : ExtTreeMap α Unit cmp).insertIfNew hd ()) tl :=
   ext ExtDTreeMap.Const.unitOfList_cons
+
+theorem unitOfList_eq_insertManyIfNewUnit_empty [TransCmp cmp] {l : List α} :
+    unitOfList l cmp = insertManyIfNewUnit ∅ l :=
+  ext ExtDTreeMap.Const.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp]
 theorem contains_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -1510,6 +1530,10 @@ theorem getElem!_unitOfList [TransCmp cmp] {l : List α} {k : α} :
 theorem getD_unitOfList [TransCmp cmp] {l : List α} {k : α} {fallback : Unit} :
     getD (unitOfList l cmp) k fallback = () :=
   rfl
+
+theorem unitOfList_eq_foldl [TransCmp cmp] {l : List α} :
+    unitOfList l cmp = l.foldl (init := ∅) fun acc a => acc.insertIfNew a () := by
+  rw [unitOfList_eq_insertManyIfNewUnit_empty, insertManyIfNewUnit_list_eq_foldl]
 
 section Union
 
@@ -2256,12 +2280,12 @@ section Alter
 theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] {k : α}
     {f : Option β → Option β} :
     alter t k f = ∅ ↔ t.erase k = ∅ ∧ f t[k]? = none := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.alter_eq_empty_iff_erase_eq_empty
+  simpa only [ext_iff] using! ExtDTreeMap.Const.alter_eq_empty_iff_erase_eq_empty
 
 @[simp]
 theorem alter_eq_empty_iff [TransCmp cmp] {k : α} {f : Option β → Option β} :
     alter t k f = ∅ ↔ (t = ∅ ∨ (t.size = 1 ∧ k ∈ t)) ∧ (f t[k]?) = none := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.alter_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.alter_eq_empty_iff
 
 @[grind =]
 theorem contains_alter [TransCmp cmp] {k k' : α} {f : Option β → Option β} :
@@ -2467,7 +2491,7 @@ section Modify
 @[simp]
 theorem modify_eq_empty_iff [TransCmp cmp] {k : α} {f : β → β} :
     t.modify k f = ∅ ↔ t = ∅ := by
-  simpa only [ext_iff] using ExtDTreeMap.Const.modify_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.Const.modify_eq_empty_iff
 
 @[grind =]
 theorem contains_modify [TransCmp cmp] {k k' : α} {f : β → β} :
@@ -4198,7 +4222,7 @@ theorem filterMap_eq_map [TransCmp cmp]
 @[simp]
 theorem map_eq_empty_iff [TransCmp cmp] {f : α → β → γ} :
     t.map f = ∅ ↔ t = ∅ := by
-  simpa only [ext_iff] using ExtDTreeMap.map_eq_empty_iff
+  simpa only [ext_iff] using! ExtDTreeMap.map_eq_empty_iff
 
 @[simp, grind =]
 theorem contains_map [TransCmp cmp]

@@ -125,7 +125,7 @@ protected theorem Sublist.eraseP : l₁ <+ l₂ → l₁.eraseP p <+ l₂.eraseP
     by_cases h : p a
     · simpa [h] using s.eraseP.trans eraseP_sublist
     · simpa [h] using s.eraseP.cons _
-  | .cons₂ a s => by
+  | .cons_cons a s => by
     by_cases h : p a
     · simpa [h] using s
     · simpa [h] using s.eraseP
@@ -573,12 +573,14 @@ theorem length_eraseIdx_of_lt {l : List α} {i} (h : i < length l) :
 
 @[simp, grind =] theorem eraseIdx_zero {l : List α} : eraseIdx l 0 = l.tail := by cases l <;> rfl
 
-@[grind =]
 theorem eraseIdx_eq_take_drop_succ :
     ∀ (l : List α) (i : Nat), l.eraseIdx i = l.take i ++ l.drop (i + 1)
   | nil, _ => by simp
   | a::l, 0 => by simp
   | a::l, i + 1 => by simp [eraseIdx_eq_take_drop_succ l i]
+
+grind_pattern eraseIdx_eq_take_drop_succ => l.eraseIdx i, l.take i
+grind_pattern eraseIdx_eq_take_drop_succ => l.eraseIdx i, l.drop (i + 1)
 
 -- See `Init.Data.List.Nat.Erase` for `getElem?_eraseIdx` and `getElem_eraseIdx`.
 

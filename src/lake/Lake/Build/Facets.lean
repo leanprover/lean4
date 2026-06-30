@@ -126,6 +126,9 @@ Its trace just includes its dependencies.
 -/
 builtin_facet leanArts : Module => ModuleOutputArtifacts
 
+/-- A compressed archive (produced via `leantar`) of the module's build artifacts. -/
+builtin_facet ltar : Module => FilePath
+
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath
 
@@ -137,6 +140,9 @@ builtin_facet oleanPrivateFacet @ olean.private : Module => FilePath
 
 /-- The `ilean` file produced by `lean`. -/
 builtin_facet ilean : Module => FilePath
+
+/-- The `ir.sig` file produced by `lean` (with the module system enabled). -/
+builtin_facet irSigFacet @ ir.sig : Module => FilePath
 
 /-- The `ir` file produced by `lean` (with the module system enabled). -/
 builtin_facet ir : Module => FilePath

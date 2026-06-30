@@ -17,7 +17,7 @@ namespace Lean.Meta
 
 /--
 Tries to rewrite the `ite`, `dite` or `cond` expression `e` with the hypothesis `hc`.
-If it fails, it returns a rewrite with `proof? := none` and unchaged expression.
+If it fails, it returns a rewrite with `proof? := none` and unchanged expression.
 -/
 def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
   match_expr e with
@@ -96,7 +96,7 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
       return { expr := e }
     let eqnThm := eqns[altIdx]!
     try
-      withTraceNode `Meta.Match.debug (pure m!"{exceptEmoji ·} rewriting with {.ofConstName eqnThm} in{indentExpr e}") do
+      withTraceNode `Meta.Match.debug (fun _ => pure m!"rewriting with {.ofConstName eqnThm} in{indentExpr e}") do
       let eqProof := mkAppN (mkConst eqnThm e.getAppFn.constLevels!) e.getAppArgs
       let (hyps, _, eqType) ← forallMetaTelescope (← inferType eqProof)
       trace[Meta.Match.debug] "eqProof has type{indentExpr eqType}"

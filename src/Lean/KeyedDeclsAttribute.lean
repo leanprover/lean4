@@ -28,6 +28,15 @@ namespace KeyedDeclsAttribute
 -- could be a parameter as well, but right now it's all names
 abbrev Key := Name
 
+def evalIdentKey (stx : Syntax) : AttrM Key := do
+  let stx ← Attribute.Builtin.getIdent stx
+  let kind := stx.getId
+  if (← getEnv).contains kind then
+    recordExtraModUseFromDecl (isMeta := false) kind
+    if (← Elab.getInfoState).enabled then
+      Elab.addConstInfo stx kind none
+  pure kind
+
 /--
 `KeyedDeclsAttribute` definition.
 
@@ -41,14 +50,7 @@ structure Def (γ : Type) where
   descr         : String
   valueTypeName : Name
   /-- Convert `Syntax` into a `Key`, the default implementation expects an identifier. -/
-  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := private_decl% (do
-    let stx ← Attribute.Builtin.getIdent stx
-    let kind := stx.getId
-    if (← getEnv).contains kind then
-      recordExtraModUseFromDecl (isMeta := false) kind
-      if (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx kind none
-    pure kind)
+  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := evalIdentKey stx
   onAdded (builtin : Bool) (declName : Name) (key : Key) : AttrM Unit := pure ()
   deriving Inhabited
 
@@ -112,6 +114,7 @@ def ExtensionState.erase (s : ExtensionState γ) (attrName : Name) (declName : N
     throwError "Cannot erase attribute `{attrName}`: `{.ofConstName declName}` does not have this attribute"
   return { s with erased := s.erased.insert declName, declNames := s.declNames.erase declName }
 
+/-- safety: requires that `mkConst df.valueTypeName _` and `γ` are definitionally equal. -/
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) := do
   let tableRef ← IO.mkRef ({} : Table γ)
   let ext : Extension γ ← registerScopedEnvExtension {

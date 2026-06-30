@@ -56,6 +56,8 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.countP_le_size (p := p)]
 
+grind_pattern countP_le_size => countP p xs
+
 @[simp, grind =] theorem countP_append {xs : Vector α n} {ys : Vector α m} : countP p (xs ++ ys) = countP p xs + countP p ys := by
   cases xs
   cases ys
@@ -96,11 +98,13 @@ theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a 
   simp only [replicate_eq_mk_replicate, countP_mk]
   simp [Array.countP_replicate]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.boole_getElem_le_countP]
 
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem countP_set {p : α → Bool} {xs : Vector α n} {a : α} (h : i < n) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
@@ -188,6 +192,7 @@ theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
     (if xs[i] == a then 1 else 0) ≤ xs.count a := by
   rcases xs with ⟨xs, rfl⟩
@@ -196,7 +201,7 @@ theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
 theorem count_set {a b : α} {xs : Vector α n} (h : i < n) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.count_set]
+  simp [Array.count_set]; rfl
 
 @[simp] theorem count_cast {xs : Vector α n} : (xs.cast h).count a = xs.count a := by
   rcases xs with ⟨xs, rfl⟩
@@ -230,6 +235,8 @@ theorem not_mem_of_count_eq_zero {a : α} {xs : Vector α n} (h : count a xs = 0
 
 theorem count_eq_zero {xs : Vector α n} : count a xs = 0 ↔ a ∉ xs :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
+
+grind_pattern count_eq_zero => a ∈ xs, count a xs
 
 theorem count_eq_size {xs : Vector α n} : count a xs = n ↔ ∀ b ∈ xs, a = b := by
   rcases xs with ⟨xs, rfl⟩

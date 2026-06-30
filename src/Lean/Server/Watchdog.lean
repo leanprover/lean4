@@ -1318,7 +1318,7 @@ end NotificationHandling
 
 section MessageHandling
   def forwardRequestToWorker (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    let fileId : FileIdent ←
+    let fileId : DocumentUri ←
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
         pure <| fileSource ps
@@ -1602,6 +1602,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     moduleHierarchyProvider? := some {}
     rpcProvider? := some {
       highlightMatchesProvider? := some {}
+      rpcWireFormat? := some .v1
     }
   }
 }

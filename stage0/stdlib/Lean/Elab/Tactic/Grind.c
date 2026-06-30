@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Grind
-// Imports: public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Tactic.Grind.Basic public import Lean.Elab.Tactic.Grind.BuiltinTactic public import Lean.Elab.Tactic.Grind.ShowState public import Lean.Elab.Tactic.Grind.Have public import Lean.Elab.Tactic.Grind.Trace public import Lean.Elab.Tactic.Grind.Config public import Lean.Elab.Tactic.Grind.Lint public import Lean.Elab.Tactic.Grind.LintExceptions public import Lean.Elab.Tactic.Grind.Annotated
+// Imports: public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Tactic.Grind.Basic public import Lean.Elab.Tactic.Grind.BuiltinTactic public import Lean.Elab.Tactic.Grind.ShowState public import Lean.Elab.Tactic.Grind.Have public import Lean.Elab.Tactic.Grind.Trace public import Lean.Elab.Tactic.Grind.Config public import Lean.Elab.Tactic.Grind.Lint public import Lean.Elab.Tactic.Grind.LintExceptions public import Lean.Elab.Tactic.Grind.Annotated public import Lean.Elab.Tactic.Grind.Sym public import Lean.Elab.Tactic.Grind.SimprocDSL public import Lean.Elab.Tactic.Grind.SimprocDSLBuiltin public import Lean.Elab.Tactic.Grind.RegisterSymSimp public import Lean.Elab.Tactic.Grind.DSimprocDSL public import Lean.Elab.Tactic.Grind.DSimprocDSLBuiltin public import Lean.Elab.Tactic.Grind.RegisterSymDSimp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,6 +13,88 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Main(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_ShowState(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Have(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Trace(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Config(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Lint(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_LintExceptions(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Annotated(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Sym(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_SimprocDSL(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_RegisterSymSimp(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_DSimprocDSL(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_RegisterSymDSimp(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Grind(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Main(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_ShowState(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Have(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Trace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Config(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Lint(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_LintExceptions(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Annotated(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_Sym(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_SimprocDSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_RegisterSymSimp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_DSimprocDSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind_RegisterSymDSimp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Elab_Tactic_Grind(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Elab_Tactic_Grind_Main(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_BuiltinTactic(uint8_t builtin);
@@ -23,6 +105,13 @@ lean_object* initialize_Lean_Elab_Tactic_Grind_Config(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Lint(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_LintExceptions(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Annotated(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_Sym(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_SimprocDSL(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_RegisterSymSimp(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_DSimprocDSL(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Grind_RegisterSymDSimp(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Grind(uint8_t builtin) {
 lean_object * res;
@@ -58,7 +147,34 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Grind_Annotated(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = initialize_Lean_Elab_Tactic_Grind_Sym(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_SimprocDSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_SimprocDSLBuiltin(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_RegisterSymSimp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_DSimprocDSL(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Grind_RegisterSymDSimp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_Grind(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Elab_Tactic_Grind(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Elab_Tactic_Grind(builtin);
 }
 #ifdef __cplusplus
 }

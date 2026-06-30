@@ -1,0 +1,4 @@
+# These files should not have line endings translated on Windows
+# because it throws off parser tests.
+*.txt eol=lf
+*.txt.out.expected eol=lf

@@ -1,0 +1,2 @@
+2079.lean:4:0-4:8: warning: declaration uses `sorry`
+2079.lean:7:0-7:7: warning: declaration uses `sorry`

@@ -326,16 +326,18 @@ def Info.type? (i : Info) : MetaM (Option Expr) :=
   | _ => return none
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
-  let env ← getEnv
   match i with
-  | .ofDelabTermInfo { docString? := some s, .. } => return s
-  | .ofTermInfo ti
-  | .ofDelabTermInfo ti =>
+  | .ofTermInfo ti =>
     if let some n := ti.expr.constName? then
-      return (← findDocString? env n)
-  | .ofFieldInfo fi => return ← findDocString? env fi.projName
+      return (← findMarkdownDocString? n)
+  | .ofDelabTermInfo ti =>
+    if let some doc ← ti.docString? (← Meta.getPPContext) then
+      return doc
+    else if let some n := ti.expr.constName? then
+      return (← findMarkdownDocString? n)
+  | .ofFieldInfo fi => return ← findMarkdownDocString? fi.projName
   | .ofOptionInfo oi =>
-    if let some doc ← findDocString? env oi.declName then
+    if let some doc ← findMarkdownDocString? oi.declName then
       return doc
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.fullDescr
@@ -344,12 +346,12 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     let some errorExplanation ← getErrorExplanation? eni.errorName | return none
     return errorExplanation.summaryWithSeverity
   | .ofDocInfo di =>
-    return (← findDocString? env di.stx.getKind)
+    return (← findMarkdownDocString? di.stx.getKind)
   | .ofDocElabInfo dei =>
-    return (← findDocString? env dei.name)
+    return (← findMarkdownDocString? dei.name)
   | _ => pure ()
   if let some ei := i.toElabInfo? then
-    return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
+    return ← findMarkdownDocString? ei.stx.getKind <||> findMarkdownDocString? ei.elaborator
   return none
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
@@ -461,8 +463,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
           ctxInfo := ctx
           tacticInfo := ti
           useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
-          -- consider every position unindented after an empty `by` to support "hanging" `by` uses
-          indented := (text.toPosition pos).column > (text.toPosition hoverPos).column && !isEmptyBy ti.stx
+          indented := (text.toPosition pos).column > (text.toPosition hoverPos).column
           -- use goals just before cursor as fall-back only
           -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
           -- as there is no state on `)`
@@ -485,9 +486,6 @@ where
     | InfoTree.node (Info.ofMacroExpansionInfo _) cs =>
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
-  isEmptyBy (stx : Syntax) : Bool :=
-    -- there are multiple `by` kinds with the same structure
-    stx.getNumArgs == 2 && stx[0].isToken "by" && stx[1].getNumArgs == 1 && stx[1][0].isMissing
 
 
 partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos.Raw) : Option InfoWithCtx :=

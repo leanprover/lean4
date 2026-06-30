@@ -31,17 +31,20 @@ fi
 
 if [ "$UNAME" = Darwin ] || [ "$UNAME" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
+  stat_ch() { stat -f %l -- "$1"; }
   TAIL=gtail
 else
   sed_i() { sed -i "$@"; }
+  stat_ch() { stat -c %h -- "$1"; }
   TAIL=tail
 fi
 
 if [ "$OS" = Windows_NT ]; then
-  norm_dirname() { cygpath -u "$(dirname -- "$1")";  }
+  norm_path() { cygpath -u "$1";  }
 else
-  norm_dirname() { dirname -- "$1"; }
+  norm_path() { echo "$1";  }
 fi
+norm_dirname() { norm_path "$(dirname -- "$1")";  }
 
 init_git() {
   echo "# initialize test repository"
@@ -251,10 +254,11 @@ check_diff() {
 
 test_out_diff() {
   expected=$1; shift
-  cat "$expected" > produced.expected.out
+  # We avoid a `.expected.out` name here so `lint.py` does not pick up these orphaned files
+  cat "$expected" > produced.expected
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff_core produced.expected.out produced.out; then
+  if check_diff_core produced.expected produced.out; then
     if [ $rc != 0 ]; then
       echo "FAILURE: Program exited with code $rc"
       return 1
@@ -269,10 +273,10 @@ test_out_diff() {
 
 test_err_diff() {
   expected=$1; shift
-  cat "$expected" > produced.expected.out
+  cat "$expected" > produced.expected
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff_core produced.expected.out produced.out; then
+  if check_diff_core produced.expected produced.out; then
     if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
       return 1

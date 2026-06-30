@@ -67,7 +67,7 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
+@[cbv_opaque, inline, inherit_doc DHashMap.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
     HashMap α β :=
   ⟨DHashMap.emptyWithCapacity capacity⟩
 
@@ -84,7 +84,7 @@ structure Equiv (m₁ m₂ : HashMap α β) where
 
 @[inherit_doc] scoped infixl:50 " ~m " => Equiv
 
-@[inline, inherit_doc DHashMap.insert] def insert (m : HashMap α β) (a : α)
+@[cbv_opaque, inline, inherit_doc DHashMap.insert] def insert (m : HashMap α β) (a : α)
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
@@ -178,7 +178,7 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 @[inline, inherit_doc DHashMap.getKey!] def getKey! [Inhabited α] (m : HashMap α β) (a : α) : α :=
   DHashMap.getKey! m.inner a
 
-@[inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
+@[cbv_opaque, inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
     HashMap α β :=
   ⟨m.inner.erase a⟩
 
@@ -229,7 +229,7 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForM m (Has
 instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
+@[cbv_opaque, inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
 
@@ -284,7 +284,7 @@ instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
 
 instance [BEq α] [BEq β] : BEq (HashMap α β) := ⟨beq⟩
 
-@[inherit_doc DHashMap.inter, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+@[inherit_doc DHashMap.diff, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
   ⟨DHashMap.diff m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : SDiff (HashMap α β) := ⟨diff⟩

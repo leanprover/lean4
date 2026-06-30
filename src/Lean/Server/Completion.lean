@@ -42,7 +42,7 @@ partial def find?
   for partition in prioritizedPartitions do
     for (i, completionInfoPos) in partition do
       CancellableM.checkCancelled
-      let completions : Array ScoredCompletionItem ←
+      let completions : Array ResolvableCompletionItem ←
         match i.info with
         | .id stx id danglingDot lctx .. =>
           idCompletion uri pos completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot

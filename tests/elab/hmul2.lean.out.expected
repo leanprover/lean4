@@ -1,0 +1,7 @@
+fun x => x * 2 : Nat → Nat
+fun y =>
+  let x := 1;
+  x * y : Int → Int
+fun y =>
+  let x := 1;
+  x * y : Int → Int

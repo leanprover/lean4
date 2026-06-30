@@ -7,8 +7,10 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Native
 import Lean.Elab.Tactic.ElabTerm
+import Lean.Elab.ConfigEval
 
 public section
 
@@ -155,7 +157,7 @@ where
         .hint' m!"Reduction got stuck on `▸` ({.ofConstName ``Eq.rec}), \
           which suggests that one of the `{.ofConstName ``Decidable}` instances is defined using tactics such as `rw` or `simp`. \
           To avoid tactics, make use of functions such as \
-          `{.ofConstName ``inferInstanceAs}` or `{.ofConstName ``decidable_of_decidable_of_iff}` \
+          `{.ofConstName `inferInstanceAs}` or `{.ofConstName ``decidable_of_decidable_of_iff}` \
           to alter a proposition."
       else if reason.isAppOf ``Classical.choice then
         .hint' m!"Reduction got stuck on `{.ofConstName ``Classical.choice}`, \

@@ -46,6 +46,12 @@ def normalizedRef (ref : RpcRef) : NormalizeM RpcRef := do
       })
   return ⟨ptr⟩
 
+-- Test-only instances using the most recent version of the RPC wire format.
+instance : ToJson RpcRef where
+  toJson r := Json.mkObj [("__rpcref", toJson r.p)]
+instance : FromJson RpcRef where
+  fromJson? j := return ⟨← j.getObjValAs? USize "__rpcref"⟩
+
 structure SubexprInfo where
   info : RpcRef
   subexprPos : String
@@ -265,7 +271,7 @@ def ident : Parser Name := do
   return xs.foldl .str $ .mkSimple head
 
 def patchUri (s : String) : IO String := do
-  let patterns := #["/src/Init/", "/src/Lean/", "/src/Std/", "/tests/lean/interactive/"]
+  let patterns := #["/src/Init/", "/src/Lean/", "/src/Std/", "/tests/misc_dir/"]
   let some path := System.Uri.fileUriToPath? s
     | return s
   let path ← try
@@ -476,9 +482,43 @@ def processSync : RunnerM Unit := do
   advanceRequestNo
   setSynced
 
+/--
+Waits for a `textDocument/publishDiagnostics` notification with a specific message to be emitted.
+Discards all received messages, so should not be combined with `Ipc.collectDiagnostics`. Used to
+implement the `waitFor` test directive.
+
+If the server reports a `$/lean/fileProgress` notification with `fatalError` kind, this aborts
+with an error rather than blocking forever: the message we are waiting for will never be
+produced (the worker either crashed or its header processing failed fatally, so no body
+elaboration will run).
+
+Kept here rather than in `Lean.Lsp.Ipc` because it is specifically a test-driver helper rather
+than a general-purpose IPC primitive.
+-/
+partial def waitForMessage (msg : String) : Ipc.IpcM Unit := do
+  loop
+where
+  loop := do
+    match (← Ipc.readMessage) with
+    | Message.notification "textDocument/publishDiagnostics" (some param) =>
+      match fromJson? (α := PublishDiagnosticsParams) (toJson param) with
+      | Except.ok diagnosticParam =>
+        if diagnosticParam.diagnostics.any (·.message == msg) then
+          return
+        loop
+      | Except.error inner =>
+        throw <| IO.userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
+    | Message.notification "$/lean/fileProgress" (some param) =>
+      if let .ok (p : LeanFileProgressParams) := fromJson? (toJson param) then
+        if p.processing.any (·.kind == .fatalError) then
+          throw <| IO.userError s!"waitForMessage: \
+            server reported fatalError before message {repr msg} was emitted"
+      loop
+    | _ => loop
+
 def processWaitFor : RunnerM Unit := do
   let s ← get
-  let _ ← Ipc.waitForMessage s.params
+  let _ ← waitForMessage s.params
   setSynced
 
 def processCodeAction : RunnerM Unit := do
@@ -635,13 +675,13 @@ def processGenericRequest : RunnerM Unit := do
   let params := params.setObjVal! "position" (toJson s.pos)
   logResponse s.method params
 
-def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : RunnerM Unit := do
+def processDirective (_ws directive : String) (directiveTargetLineNo : Nat)
+    (directiveTargetColumn : Nat) : RunnerM Unit := do
   let directive := directive.drop 1
   let colon := directive.find ':'
   let method := directive.sliceTo colon |>.trimAscii |>.copy
   -- TODO: correctly compute in presence of Unicode
-  let directiveTargetColumn := ws.rawEndPos + "--"
-  let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn.byteIdx }
+  let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn }
   let params :=
     if h : ¬colon.IsAtEnd then
       directive.sliceFrom (colon.next h) |>.trimAscii.copy
@@ -680,10 +720,15 @@ def processLine (line : String) : RunnerM Unit := do
     match directive.front with
     | 'v' => pure <| (← get).lineNo + 1  -- TODO: support subsequent 'v'... or not
     | '^' => pure <| (← get).lastActualLineNo
+    -- `⬑` is like `^` but targets the column of the `--` marker itself (i.e. column 0 when the
+    -- marker is at the start of the line), rather than the column after `--`.
+    | '⬑' => pure <| (← get).lastActualLineNo
     | _ =>
       skipLineWithoutDirective
       return
-  processDirective ws directive directiveTargetLineNo
+  let directiveTargetColumn :=
+    if directive.front == '⬑' then ws.rawEndPos.byteIdx else (ws.rawEndPos + "--").byteIdx
+  processDirective ws directive directiveTargetLineNo (directiveTargetColumn := directiveTargetColumn)
   skipLineWithDirective
 
 
@@ -712,7 +757,9 @@ partial def main (args : List String) : IO Unit := do
         }
       }
       lean? := some {
+        incrementalDiagnosticSupport? := some true
         silentDiagnosticSupport? := some true
+        rpcWireFormat? := some .v1
       }
     }
     Ipc.writeRequest ⟨0, "initialize", { initializationOptions?, capabilities : InitializeParams }⟩

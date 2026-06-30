@@ -252,6 +252,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         withTraceNode `Elab.definition.header (fun _ => pure declName) do
         withRestoreOrSaveFull reusableResult? none do
         withReuseContext view.headerRef do
+        withDeprecationContextFromAttrs view.modifiers.attrs do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
@@ -528,7 +529,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
       withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
-      withDeclName header.declName <| withLevelNames header.levelNames do
+      withDeprecationContextFromAttrs header.modifiers.attrs <| withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       withLCtx' ((← getLCtx).modifyLocalDecls fun decl => decl.setType decl.type.cleanupAnnotations) do
@@ -561,7 +562,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           withExporting do
             let type ← instantiateMVars type
             Meta.check type
-        if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
+        if Linter.getLinterValue linter.unusedSectionVars (← Linter.getLinterOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
             let varDecl ← var.fvarId!.getDecl
             return if sc.includedVars.contains varDecl.userName ||
@@ -669,7 +670,8 @@ private def ExprWithHoles.getHoles (e : ExprWithHoles) : TermElabM (Array MVarId
   let goals ← goals.mapM fun goal => return ((← goal.getDecl).index, goal)
   return goals.insertionSort (·.fst < ·.fst) |>.map (·.snd)
 
-private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (whereFinally : WhereFinallyView) : TermElabM PUnit := do
+private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (whereFinally : WhereFinallyView)
+    (attrs : Array Attribute) : TermElabM PUnit := do
   if whereFinally.isNone then return
   let goals := (← es.mapM fun e => e.getHoles).flatten
 
@@ -689,6 +691,7 @@ private def fillHolesFromWhereFinally (name : Name) (es : Array ExprWithHoles) (
 
   withExporting (isExporting := wasExporting && !isNoLongerExporting) do
   Lean.Elab.Term.TermElabM.run' do
+  withDeprecationContextFromAttrs attrs do
   Term.withDeclName name do
   withRef whereFinally.ref do
     unless goals.isEmpty do
@@ -965,30 +968,18 @@ structure LetRecClosure where
 private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId) : TermElabM LetRecClosure := do
   let lctx := toLift.lctx
   withLCtx lctx toLift.localInstances do
-  lambdaTelescope toLift.val fun xs val => do
-    /-
-      Recall that `toLift.type` and `toLift.value` may have different binder annotations.
-      See issue #1377 for an example.
-    -/
-    let userNameAndBinderInfos ← forallBoundedTelescope toLift.type xs.size fun xs _ =>
-      xs.mapM fun x => do
-        let localDecl ← x.fvarId!.getDecl
-        return (localDecl.userName, localDecl.binderInfo)
-    /- Auxiliary map for preserving binder user-facing names and `BinderInfo` for types. -/
-    let mut userNameBinderInfoMap : FVarIdMap (Name × BinderInfo) := {}
-    for x in xs, (userName, bi) in userNameAndBinderInfos do
-      userNameBinderInfoMap := userNameBinderInfoMap.insert x.fvarId! (userName, bi)
-    let type ← instantiateForall toLift.type xs
+  /-
+    Recall that `toLift.type` and `toLift.value` may have different binder annotations.
+    See issue #1377 for an example.
+  -/
+  let lambdaArity := toLift.val.getNumHeadLambdas
+  forallBoundedTelescope toLift.type lambdaArity fun xs type => do
+    let val := toLift.val.beta xs
     let lctx ← getLCtx
     let s ← mkClosureFor freeVars <| xs.map fun x => lctx.get! x.fvarId!
-    /- Apply original type binder info and user-facing names to local declarations. -/
-    let typeLocalDecls := s.localDecls.map fun localDecl =>
-      if let some (userName, bi) := userNameBinderInfoMap.get? localDecl.fvarId then
-        localDecl.setBinderInfo bi |>.setUserName userName
-      else
-        localDecl
-    let type := Closure.mkForall typeLocalDecls <| Closure.mkForall s.newLetDecls type
-    let val  := Closure.mkLambda s.localDecls <| Closure.mkLambda s.newLetDecls val
+    let cleanLocalDecls := s.localDecls.map fun decl => decl.setType <| decl.type.cleanupAnnotations
+    let type := Closure.mkForall s.localDecls <| Closure.mkForall s.newLetDecls type
+    let val  := Closure.mkLambda cleanLocalDecls <| Closure.mkLambda s.newLetDecls val
     let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs
     toLift.mvarId.assign c
     return {
@@ -1085,6 +1076,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
         return if (← inferType c.toLift.type).isProp then .theorem else .def
     else
       pure kind
+    if modifiers.isMeta then
+      modifyEnv (markMeta · c.toLift.declName)
     return preDefs.push {
       ref         := c.ref
       declName    := c.toLift.declName
@@ -1184,9 +1177,19 @@ private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElab
 structure AsyncBodyInfo where
 deriving TypeName
 
+register_builtin_option warn.classDefReducibility : Bool := {
+  defValue := true
+  descr    := "warn when a `def` of class type is not marked `@[reducible]`, `@[instance_reducible]`, or `@[implicit_reducible]`"
+}
+
 register_builtin_option warn.exposeOnPrivate : Bool := {
   defValue := true
   descr    := "warn about uses of `@[expose]` on private declarations"
+}
+
+register_builtin_option warn.redundantExpose : Bool := {
+  defValue := true
+  descr    := "warn about redundant `@[expose]`/`@[no_expose]` attributes"
 }
 
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
@@ -1225,9 +1228,10 @@ where
     -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.
     for header in headers do
-      if header.kind == .instance && !header.modifiers.anyAttr (·.name matches `reducible | `irreducible) then
-        if !(← isProp header.type) then
-          setReducibilityStatus header.declName .instanceReducible
+      if !header.modifiers.anyAttr (·.name matches `reducible | `instance_reducible | `implicit_reducible | `irreducible) then
+        if header.kind == .instance then
+          if !(← isProp header.type) then
+            setReducibilityStatus header.declName .instanceReducible
 
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&
@@ -1237,6 +1241,18 @@ where
         elabAsync headers[0]! view declId
       else elabSync headers
     else elabSync headers
+
+    -- Warn about class-typed `def`s that aren't marked with a reducibility attribute.
+    -- This check runs after elaboration so that attributes applied by other attributes
+    -- (e.g. `to_additive (attr := implicit_reducible)`) are accounted for.
+    for header in headers do
+      if header.kind == .def then
+        if warn.classDefReducibility.get (← getOptions) &&
+            (← isClass? header.type).isSome /-TODO-/ &&
+            !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then
+          let status ← getReducibilityStatus header.declName
+          unless status matches .reducible | .instanceReducible | .implicitReducible | .irreducible do
+            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`"
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
@@ -1279,6 +1295,8 @@ where
       async.commitSignature { name := header.declName, levelParams, type }
 
     -- attributes should be applied on the main thread; see below
+    -- save before clearing so the deprecation-silencing wrap below can still see `@[deprecated]`
+    let oldAttrs := header.modifiers.attrs
     let header := { header with modifiers.attrs := #[] }
 
     -- insert a hole for the proof info trees in the main info tree
@@ -1294,6 +1312,7 @@ where
     let act ←
       -- NOTE: We must set the decl name before going async to ensure that the `auxDeclNGen` is
       -- forked correctly.
+      withDeprecationContextFromAttrs oldAttrs do
       withDeclName header.declName do
       wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
@@ -1315,39 +1334,54 @@ where
     Core.logSnapshotTask { stx? := none, cancelTk? := none, task := (← getEnv).checked.map fun _ =>
       default
     }
-    applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
-    applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
+    withDeprecationContextFromAttrs view.modifiers.attrs do
+      applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
+      applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
-    if warn.exposeOnPrivate.get (← getOptions) then
-      if env.header.isModule && !env.isExporting then
-        for header in headers do
-          for attr in header.modifiers.attrs do
-            if attr.name == `expose then
-              logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
-                definitions only"
+    let inExposeSection := sc.attrs.any (· matches `(attrInstance| expose))
+    -- Determine whether each header would be exposed without any explicit `@[expose]`/`@[no_expose]`
+    let wouldBeExposed ← headers.mapM fun header => do
+      if header.kind == .abbrev then return true
+      if header.kind == .instance then
+        if !(← isProp header.type) then return true
+      if header.kind == .def && (!header.modifiers.isMeta || sc.isMeta) && inExposeSection then return true
+      return false
+    let hasExpose (header : DefViewElabHeader) := header.modifiers.attrs.any (·.name == `expose)
+    let hasNoExpose (header : DefViewElabHeader) := header.modifiers.attrs.any (·.name == `no_expose)
 
-    -- Switch to private scope if...
+    let opts ← getOptions
+    let warnExposeOnPrivate := warn.exposeOnPrivate.get opts
+    let warnRedundantExpose := warn.redundantExpose.get opts
+    for header in headers, exposed in wouldBeExposed do
+      for attr in header.modifiers.attrs do
+        -- skip macro-generated attributes
+        unless attr.stx.getHeadInfo matches .original .. do continue
+        match attr.name with
+        | `expose =>
+          if warnExposeOnPrivate && env.header.isModule && !env.isExporting then
+            logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
+              definitions only"
+          if warnRedundantExpose then
+            if !env.header.isModule then
+              logWarningAt attr.stx m!"`@[expose]` has no effect outside a `module` file"
+            else if env.isExporting && exposed then
+              logWarningAt attr.stx m!"`@[expose]` has no effect; this declaration would be exposed by default"
+        | `no_expose =>
+          if warnRedundantExpose then
+            if !env.header.isModule then
+              logWarningAt attr.stx m!"`@[no_expose]` has no effect outside a `module` file"
+            else if env.isExporting && !exposed && !hasExpose header then
+              logWarningAt attr.stx m!"`@[no_expose]` has no effect; this declaration would not \
+                be exposed by default"
+        | _ => pure ()
+
     withoutExporting (when :=
-      (← headers.allM (fun header => do
-        -- ... there is a `@[no_expose]` attribute
-        if header.modifiers.attrs.any (·.name == `no_expose) then
-          return true
-        -- ... or NONE of the following:
-        -- ... this is a non-`meta` `def` inside a `@[expose] section`
-        if header.kind == .def && (!header.modifiers.isMeta || sc.isMeta) && sc.attrs.any (· matches `(attrInstance| expose)) then
-          return false
-        -- ... there is an `@[expose]` attribute directly on the def (of any kind or phase)
-        if header.modifiers.attrs.any (·.name == `expose) then
-          return false
-        -- ... this is an `abbrev`
-        if header.kind == .abbrev then
-          return false
-        -- ... this is a data instance
-        if header.kind == .instance then
-          if !(← isProp header.type) then
-            return false
+      (← (headers.zip wouldBeExposed).allM (fun (header, exposed) => do
+        if hasNoExpose header then return true
+        if exposed || hasExpose header then return false
         return true))) do
+
     -- Never export private decls from theorem bodies to make sure they stay irrelevant for rebuilds
     withOptions (fun opts =>
       if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do
@@ -1377,7 +1411,7 @@ where
     for header in headers, value in values do
       let whereFinally ← declValToWhereFinally header.value
       let exprsWithHoles := (exprsWithHoles.getD header.declName #[]).push { ref := header.ref, expr := value }
-      fillHolesFromWhereFinally header.declName exprsWithHoles whereFinally
+      fillHolesFromWhereFinally header.declName exprsWithHoles whereFinally header.modifiers.attrs
     -- Compilation should take place without unused section vars, but all section vars should be
     -- present when elaborating documentation.
     let docCtx := (← getLCtx, ← getLocalInstances)

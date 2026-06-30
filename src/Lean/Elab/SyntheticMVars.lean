@@ -582,6 +582,7 @@ mutual
     -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
     -- It would not be incorrect to use `filterM`.
     let remainingPendingMVars ← pendingMVars.filterRevM fun mvarId => do
+       checkSystem "synthesize pending MVars"
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
        traceM `Elab.postpone (mvarId.withContext do addMessageContext m!"resuming {mkMVar mvarId}")
        let succeeded ← synthesizeSyntheticMVar mvarId postponeOnError runTactics

@@ -1230,6 +1230,13 @@ theorem eq_empty_of_insertMany_eq_empty [EquivBEq α] [LawfulHashable α] {l : �
     m.insertMany l = ∅ → m = ∅ :=
   insertMany_ind m l id fun _ _ _ _ h => absurd h not_insert_eq_empty
 
+theorem insertMany_list_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
+    m.insertMany l = l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  refine m.inductionOn fun m => ?_
+  rw [insertMany_list_mk, List.foldl_hom (g₁ := fun acc p => acc.insert p.1 p.2)]
+  · exact sound DHashMap.insertMany_list_equiv_foldl
+  · exact fun _ _ => rfl
+
 namespace Const
 
 variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}
@@ -1496,6 +1503,13 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
   simp only [insertMany_list_mk]
   exact DHashMap.Const.getD_insertMany_list_of_mem k_beq distinct mem
 
+theorem insertMany_list_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
+    insertMany m l = l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  refine m.inductionOn fun m => ?_
+  rw [insertMany_list_mk, List.foldl_hom (g₁ := fun acc p => acc.insert p.1 p.2)]
+  · exact sound DHashMap.Const.insertMany_list_equiv_foldl
+  · exact fun _ _ => rfl
+
 variable {m : ExtDHashMap α (fun _ => Unit)}
 variable {ρ : Type w} [ForIn Id ρ α]
 
@@ -1713,6 +1727,13 @@ theorem getD_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     getD (insertManyIfNewUnit m l) k fallback = () :=
   rfl
 
+theorem insertManyIfNewUnit_list_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List α} :
+    insertManyIfNewUnit m l = l.foldl (init := m) fun acc a => acc.insertIfNew a () := by
+  refine m.inductionOn fun m => ?_
+  rw [insertManyIfNewUnit_list_mk, List.foldl_hom (g₁ := fun acc a => acc.insertIfNew a ())]
+  · exact sound DHashMap.Const.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
 end Const
 
 end insertMany
@@ -1865,8 +1886,12 @@ grind_pattern size_ofList_le => (ofList l).size
 @[simp]
 theorem ofList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
     ofList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.isEmpty_ofList
+
+theorem ofList_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List ((a : α) × β a)} :
+    ofList l = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
+  rw [ofList_eq_insertMany_empty, insertMany_list_eq_foldl]
 
 namespace Const
 
@@ -2018,8 +2043,12 @@ grind_pattern size_ofList_le => (ofList l).size
 @[simp]
 theorem ofList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
     ofList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_ofList
+
+theorem ofList_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List (α × β)} :
+    ofList l = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
+  rw [ofList_eq_insertMany_empty, insertMany_list_eq_foldl]
 
 @[simp]
 theorem unitOfList_nil [EquivBEq α] [LawfulHashable α] :
@@ -2036,6 +2065,11 @@ theorem unitOfList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List �
       insertManyIfNewUnit ((∅ : ExtDHashMap α (fun _ => Unit)).insertIfNew hd ()) tl := by
   conv => rhs; apply insertManyIfNewUnit_list_mk
   exact congrArg mk DHashMap.Const.unitOfList_cons
+
+theorem unitOfList_eq_insertManyIfNewUnit_empty [EquivBEq α] [LawfulHashable α] {l : List α} :
+    unitOfList l = insertManyIfNewUnit ∅ l := by
+  conv => rhs; apply insertManyIfNewUnit_list_mk
+  exact congrArg mk DHashMap.Const.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
@@ -2108,7 +2142,7 @@ theorem size_unitOfList_le [EquivBEq α] [LawfulHashable α]
 @[simp]
 theorem unitOfList_eq_empty_iff [EquivBEq α] [LawfulHashable α] {l : List α} :
     unitOfList l = ∅ ↔ l = [] := by
-  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← List.isEmpty_iff, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_unitOfList
 
 @[simp]
@@ -2135,6 +2169,10 @@ theorem getD_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} {fallback : Unit} :
     getD (unitOfList l) k fallback = () :=
   DHashMap.Const.getD_unitOfList
+
+theorem unitOfList_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List α} :
+    unitOfList l = l.foldl (init := ∅) fun acc a => acc.insertIfNew a () := by
+  rw [unitOfList_eq_insertManyIfNewUnit_empty, insertManyIfNewUnit_list_eq_foldl]
 
 end Const
 
@@ -3079,7 +3117,7 @@ section Alter
 theorem alter_eq_empty_iff_erase_eq_empty [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     m.alter k f = ∅ ↔ m.erase k = ∅ ∧ f (m.get? k) = none := by
   cases m with | mk m
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DHashMap.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
@@ -3260,7 +3298,7 @@ variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}
 theorem alter_eq_empty_iff_erase_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
     alter m k f = ∅ ↔ m.erase k = ∅ ∧ f (get? m k) = none := by
   cases m with | mk m
-  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using
+  simpa only [← isEmpty_iff, ← Option.isNone_iff_eq_none, ← Bool.and_eq_true, Bool.coe_iff_coe] using!
     DHashMap.Const.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]

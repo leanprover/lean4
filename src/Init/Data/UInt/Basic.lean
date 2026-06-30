@@ -502,12 +502,12 @@ natural numbers. Usually accessed via the `<` operator.
 -/
 -- These need to be exposed as `Init.Prelude` already has an instance for bootstrapping purposes and
 -- they should be defeq
-@[expose] protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
+protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
 /--
 Non-strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `≤` operator.
 -/
-@[expose] protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
+protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Mul UInt32       := ⟨UInt32.mul⟩
 instance : Pow UInt32 Nat   := ⟨UInt32.pow⟩

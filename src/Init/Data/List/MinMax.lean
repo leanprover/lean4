@@ -37,7 +37,7 @@ open Nat
 @[simp, grind =] theorem min?_nil [Min α] : ([] : List α).min? = none := rfl
 
 @[simp, grind =]
-public theorem min?_singleton [Min α] {x : α} : [x].min? = some x :=
+theorem min?_singleton [Min α] {x : α} : [x].min? = some x :=
   (rfl)
 
 -- We don't put `@[simp]` on `min?_cons'`,
@@ -52,7 +52,7 @@ theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = some (foldl min x 
   cases xs <;> simp [min?]
 
 @[simp, grind =]
-public theorem isSome_min?_iff [Min α] {xs : List α} : xs.min?.isSome ↔ xs ≠ [] := by
+theorem isSome_min?_iff [Min α] {xs : List α} : xs.min?.isSome ↔ xs ≠ [] := by
   cases xs <;> simp [min?]
 
 @[grind .]
@@ -180,6 +180,21 @@ theorem min_singleton [Min α] {x : α} :
     [x].min (cons_ne_nil _ _) = x := by
   (rfl)
 
+theorem min_cons_cons [Min α] {a b : α} {l : List α} :
+    (a :: b :: l).min (by simp) = (min a b :: l).min (by simp) :=
+  (rfl)
+
+theorem min_cons [Min α] [Std.Associative (α := α) Min.min] {a : α} {l : List α} {h} :
+    (a :: l).min h = l.min?.elim a (min a ·) :=
+  match l with
+  | nil => by simp
+  | cons hd tl =>
+      Option.some.inj ((min?_cons' (x := a) (xs := hd :: tl)).symm.trans min?_cons)
+
+@[simp]
+theorem min_cons_cons_nil [Min α] {a b : α} : [a, b].min (by simp) = min a b := by
+  simp [min_cons_cons]
+
 theorem min?_eq_some_min [Min α] : {l : List α} → (hl : l ≠ []) →
     l.min? = some (l.min hl)
   | a::as, _ => by simp [List.min, List.min?_cons']
@@ -232,7 +247,7 @@ theorem foldl_min_eq_min [Min α] [Std.IdempotentOp (min : α → α → α)] [S
 @[simp, grind =] theorem max?_nil [Max α] : ([] : List α).max? = none := rfl
 
 @[simp, grind =]
-public theorem max?_singleton [Max α] {x : α} : [x].max? = some x :=
+theorem max?_singleton [Max α] {x : α} : [x].max? = some x :=
   (rfl)
 
 -- We don't put `@[simp]` on `max?_cons'`,
@@ -247,7 +262,7 @@ theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = some (foldl max x 
   cases xs <;> simp [max?]
 
 @[simp, grind =]
-public theorem isSome_max?_iff [Max α] {xs : List α} : xs.max?.isSome ↔ xs ≠ [] := by
+theorem isSome_max?_iff [Max α] {xs : List α} : xs.max?.isSome ↔ xs ≠ [] := by
   cases xs <;> simp [max?]
 
 @[grind .]
@@ -387,6 +402,21 @@ theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Asso
 theorem max_singleton [Max α] {x : α} :
     [x].max (cons_ne_nil _ _) = x := by
   (rfl)
+
+theorem max_cons_cons [Max α] {a b : α} {l : List α} :
+    (a :: b :: l).max (by simp) = (max a b :: l).max (by simp) :=
+  (rfl)
+
+theorem max_cons [Max α] [Std.Associative (α := α) Max.max] {a : α} {l : List α} {h} :
+    (a :: l).max h = l.max?.elim a (max a ·) :=
+  match l with
+  | nil => by simp
+  | cons hd tl =>
+      Option.some.inj ((max?_cons' (x := a) (xs := hd :: tl)).symm.trans max?_cons)
+
+@[simp]
+theorem max_cons_cons_nil [Max α] {a b : α} : [a, b].max (by simp) = max a b := by
+  simp [max_cons_cons]
 
 theorem max?_eq_some_max [Max α] : {l : List α} → (hl : l ≠ []) →
     l.max? = some (l.max hl)

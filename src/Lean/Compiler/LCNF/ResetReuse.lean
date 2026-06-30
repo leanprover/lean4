@@ -11,7 +11,7 @@ public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.LiveVars
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.LCNF.PropagateBorrow
 
 namespace Lean.Compiler.LCNF
 
@@ -28,7 +28,7 @@ inserts addition instructions to attempt to reuse the memory right away instead 
 allocator.
 
 For this the paper defines three functions:
-- `R` (called `Decl.insertResetReuse` here) which looks for candidates that might be elligible for
+- `R` (called `Decl.insertResetReuse` here) which looks for candidates that might be eligible for
   reuse. For these variables it invokes `D`.
 - `D` which looks for code regions in which the target variable is dead (i.e. no longer read from),
   it then invokes `S`. If `S` succeeds it inserts a `reset` instruction to match the `reuse`
@@ -63,6 +63,7 @@ structure Context where
   we first try `relaxedReuse := false`, and then `relaxedReuse := true`.
   -/
   relaxedReuse : Bool
+  ownedness : Std.HashMap FVarId Ownedness
 
 abbrev ReuseM := ReaderT Context CompilerM
 
@@ -121,6 +122,7 @@ where
     | .return .. | .jmp .. | .unreach .. => return (c, false)
     | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ | .let _ k =>
       goK k
+    | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 def isCtorUsing (instr : CodeDecl .impure) (x : FVarId) : Bool :=
   match instr with
@@ -147,10 +149,9 @@ Check how the variable `x` is used in `instr` if at all.
 def classifyUse (instr : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification := do
   match instr with
   | .let { value := e@(.fap f args _), .. } =>
-    -- TODO: change this to getImpureSignature in later refactoring phases
-    if let some decl := IR.findEnvDecl (← getEnv) f then
+    if let some sig := ← getImpureSignature? f then
       let mut result := .none
-      for arg in args, param in decl.params do
+      for arg in args, param in sig.params do
         if let .fvar y := arg then
           if y == x then
             result :=
@@ -205,7 +206,7 @@ where
     | .cases cs =>
       if ← c.isFVarLiveIn x then
         /- If `x` is live in `c`, we recursively process each branch. -/
-        let alts ← cs.alts.mapM (·.mapCodeM (D x info))
+        let alts ← cs.alts.mapMonoM (·.mapCodeM (D x info))
         return (c.updateAlts! alts, true)
       else
         return (c, false)
@@ -243,6 +244,7 @@ where
             return (c.updateCont! k, false)
     | .return .. | .jmp .. | .unreach .. =>
       return (c, ← c.isFVarLiveIn x)
+    | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 end
 
@@ -254,12 +256,13 @@ partial def Code.insertResetReuse (c : Code .impure) : ReuseM (Code .impure) := 
   match c with
   | .cases cs =>
     let alreadyFound := (← read).alreadyFound.contains cs.discr
+    let borrowed := (← read).ownedness.getD cs.discr .bot == .borrow
     withReader (fun ctx => { ctx with alreadyFound := ctx.alreadyFound.insert cs.discr }) do
       let alts ← cs.alts.mapM fun alt => do
         let alt ← alt.mapCodeM (·.insertResetReuse)
         match alt with
         | .ctorAlt info k =>
-          if info.isScalar || alreadyFound then
+          if info.isScalar || alreadyFound || borrowed then
             -- If `alreadyFound`, then we don't try to reuse memory cell to avoid
             -- double reset.
             return alt
@@ -275,6 +278,7 @@ partial def Code.insertResetReuse (c : Code .impure) : ReuseM (Code .impure) := 
   | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _  =>
     return c.updateCont! (← k.insertResetReuse)
   | .return .. | .jmp .. | .unreach .. => return c
+  | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 partial def Decl.insertResetReuseCore (decl : Decl .impure) : ReuseM (Decl .impure) := do
   let value ← decl.value.mapCodeM fun code => do
@@ -297,6 +301,7 @@ where
     | .jp decl k => collectResets decl.value; collectResets k
     | .cases c => c.alts.forM (collectResets ·.getCode)
     | .unreach .. | .return .. | .jmp .. => return ()
+    | .inc .. | .dec .. | .setTag .. | .oset .. | .del .. => unreachable!
 
 
 def Decl.insertResetReuse (decl : Decl .impure) : CompilerM (Decl .impure) := do
@@ -311,8 +316,11 @@ def Decl.insertResetReuse (decl : Decl .impure) : CompilerM (Decl .impure) := do
   The second pass addresses issue #4089.
   -/
   if (← getConfig).resetReuse then
-    let decl ← decl.insertResetReuseCore |>.run { relaxedReuse := false }
-    decl.insertResetReuseCore |>.run { relaxedReuse := true }
+    let ownedness ← decl.analyzePropagatedBorrows
+    let decl ← decl.applyOwnedness ownedness
+    let decl ← decl.insertResetReuseCore |>.run { relaxedReuse := false, ownedness }
+    let decl ← decl.insertResetReuseCore |>.run { relaxedReuse := true, ownedness }
+    return decl
   else
     return decl
 

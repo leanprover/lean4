@@ -49,7 +49,7 @@ def PredTrans.Conjunctive (t : PostCond α ps → Assertion ps) : Prop :=
   ∀ Q₁ Q₂, t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂
 
 /-- Any predicate transformer that is conjunctive is also monotonic. -/
-def PredTrans.Conjunctive.mono (t : PostCond α ps → Assertion ps) (h : PredTrans.Conjunctive t) : PredTrans.Monotonic t := by
+theorem PredTrans.Conjunctive.mono (t : PostCond α ps → Assertion ps) (h : PredTrans.Conjunctive t) : PredTrans.Monotonic t := by
   intro Q₁ Q₂ hq
   replace hq : Q₁ = (Q₁ ∧ₚ Q₂) := PostCond.and_left_of_entails hq
   rw [hq, (h Q₁ Q₂).to_eq]
@@ -127,6 +127,12 @@ The predicate transformer that always returns the same precondition `P`; `(const
 def const (P : Assertion ps) : PredTrans ps α :=
   { trans := fun Q => P, conjunctiveRaw := by intro _ _; simp [SPred.and_self.to_eq] }
 
+/--
+The predicate transformer that asserts the first exception condition.
+-/
+def throw (e : ε) : PredTrans (.except ε ps) α :=
+  { trans := fun Q => Q.2.1 e, conjunctiveRaw := by intro _ _; simp }
+
 instance : Monad (PredTrans ps) where
   pure := pure
   bind := bind
@@ -158,6 +164,10 @@ theorem apply_Seq_seq (f : PredTrans ps (α → β)) (x : PredTrans ps α) (Q : 
 @[simp, grind =]
 theorem apply_const (p : Assertion ps) (Q : PostCond α ps) :
   (PredTrans.const p : PredTrans ps α).apply Q = p := by rfl
+
+@[simp, grind =]
+theorem apply_throw (e : ε) (Q : PostCond α (.except ε ps)) :
+  (PredTrans.throw e).apply Q = Q.2.1 e := by rfl
 
 theorem bind_mono {x y : PredTrans ps α} {f : α → PredTrans ps β}
   (h : x ≤ y) : x >>= f ≤ y >>= f := by intro Q; exact (h (_, Q.2))

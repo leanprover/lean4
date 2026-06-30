@@ -10,6 +10,7 @@ public import Init.Data.Iterators.Internal
 public import Std.Data.Iterators.Producers
 public import Std.Data.Iterators.Combinators
 public import Std.Data.Iterators.Lemmas
+public import Std.Data.Iterators.Consumers
 
 @[expose] public section
 

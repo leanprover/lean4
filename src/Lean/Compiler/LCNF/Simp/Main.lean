@@ -187,6 +187,9 @@ partial def simpCasesOnCtor? (cases : Cases .pure) : SimpM (Option (Code .pure))
     return some ret
   | .fvar discr =>
     let some ctorInfo ← findCtor? discr | return none
+    let some (.ctorInfo ctorVal) := (← getEnv).find? ctorInfo.getName | return none
+    unless cases.typeName == ctorVal.induct do
+      return none
     let (alt, cases) := cases.extractAlt! ctorInfo.getName
     eraseCode (.cases cases)
     markSimplified
@@ -214,6 +217,8 @@ Simplify `code`
 -/
 partial def simp (code : Code .pure) : SimpM (Code .pure) := withIncRecDepth do
   incVisited
+  if (← get).visited % 128 == 0 then
+    checkSystem "LCNF simp"
   match code with
   | .let decl k =>
     let baseDecl := decl

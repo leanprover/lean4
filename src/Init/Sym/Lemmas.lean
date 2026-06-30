@@ -20,9 +20,39 @@ theorem ne_self (a : α) : (a ≠ a) = False := by simp
 theorem not_true_eq : (¬ True) = False := by simp
 theorem not_false_eq : (¬ False) = True := by simp
 
+theorem or_eq_true_left (a b : Prop) (h : a = True) : (a ∨ b) = True := by simp [h]
+theorem or_eq_right (a b : Prop) (h : a = False) : (a ∨ b) = b := by simp [h]
+
+theorem and_eq_false_left (a b : Prop) (h : a = False) : (a ∧ b) = False := by simp [h]
+theorem and_eq_left (a b : Prop) (h : a = True) : (a ∧ b) = b := by simp [h]
+
 theorem ite_cond_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α)
     (c' : Prop) {inst' : Decidable c'} (h : c = c') : @ite α c inst a b = @ite α c' inst' a b := by
   simp [*]
+
+theorem ite_true {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : c} : @ite α c inst a b = a := by
+  simp [*]
+
+theorem ite_true_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {ht : c'} : @ite α c inst a b = a := by
+  simp [*]
+
+theorem ite_false {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : ¬ c} : @ite α c inst a b = b := by
+  simp [*]
+
+theorem ite_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {ht : ¬ c'} : @ite α c inst a b = b := by
+  simp [*]
+
+theorem dite_true {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) {ht : c} : @dite α c inst a b = a ht := by
+  simp [*]
+
+theorem dite_true_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) (c' : Prop) (h : c = c') {ht : c'} : @dite α c inst a b = a (h.mpr_prop ht) := by
+  subst h; simp [*]
+
+theorem dite_false {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) {ht : ¬ c} : @dite α c inst a b = b ht := by
+  simp [*]
+
+theorem dite_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) (c' : Prop) (h : c = c') {ht : ¬ c'} : @dite α c inst a b = b (h.mpr_not ht) := by
+  subst h; simp [*]
 
 theorem dite_cond_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α)
     (c' : Prop) {inst' : Decidable c'} (h : c = c')
@@ -139,5 +169,14 @@ theorem Int.dvd_eq_true (a b : Int) (h : decide (a ∣ b) = true) : (a ∣ b) = 
 
 theorem Nat.dvd_eq_false (a b : Nat) (h : decide (a ∣ b) = false) : (a ∣ b) = False := by simp_all
 theorem Int.dvd_eq_false (a b : Int) (h : decide (a ∣ b) = false) : (a ∣ b) = False := by simp_all
+
+theorem decide_isTrue (p : Prop) {inst : Decidable p} {h : p} : decide p = true := by simp [*]
+theorem decide_isTrue_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {hp : p'} : decide p = true := by simp [*]
+
+theorem decide_isFalse (p : Prop) {inst : Decidable p} {h : ¬p} : decide p = false := by simp [*]
+theorem decide_isFalse_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {hnp : ¬p'} : decide p = false := by simp [*]
+
+theorem decide_prop_eq_true (p : Prop) {inst : Decidable p} (h : p = True) : decide p = true := by simp [*]
+theorem decide_prop_eq_false (p : Prop) {inst : Decidable p} (h : p = False) : decide p = false := by simp [*]
 
 end Lean.Sym

@@ -94,6 +94,8 @@ theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter]
   apply length_filter_le
 
+grind_pattern countP_le_length => countP p l, l.length
+
 @[simp, grind =] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
@@ -132,7 +134,9 @@ theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i
   | nil => simp at h
   | cons x l ih =>
     cases i with
-    | zero => simp [countP_cons]
+    | zero =>
+      set_option backward.isDefEq.respectTransparency false in
+      simp [countP_cons]
     | succ i =>
       simp only [length_cons, add_one_lt_add_one_iff] at h
       simp only [getElem_cons_succ, countP_cons]
@@ -255,19 +259,22 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
-@[grind =]
 theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
   simp [count, countP_eq_length_filter]
+
+grind_pattern count_eq_length_filter => count a l, (filter _ l).length
 
 @[grind =]
 theorem count_tail : ∀ {l : List α} {a : α},
       l.tail.count a = l.count a - if l.head? == some a then 1 else 0
   | [], a => by simp
-  | _ :: _, a => by simp [count_cons]
+  | _ :: _, a => by
+    set_option backward.isDefEq.respectTransparency false in
+    simp [count_cons]
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 
-grind_pattern count_le_length => count a l
+grind_pattern count_le_length => count a l, l.length
 
 theorem Sublist.count_le (a : α) (h : l₁ <+ l₂) : count a l₁ ≤ count a l₂ := h.countP_le
 
@@ -346,6 +353,8 @@ theorem not_mem_of_count_eq_zero {a : α} {l : List α} (h : count a l = 0) : a 
 
 theorem count_eq_zero {l : List α} : count a l = 0 ↔ a ∉ l :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
+
+grind_pattern count_eq_zero => a ∈ l, count a l
 
 theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a = b := by
   rw [count, countP_eq_length]

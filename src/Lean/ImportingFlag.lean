@@ -59,4 +59,15 @@ def withImporting (x : IO α) : IO α :=
     importingRef.set false
     runInitializersRef.set false
 
+/--
+Toggle the "importing" flag.
+
+This is intended for C code that needs to emulate multiple `withImporting` calls.
+As with `withImporting`, users must make sure there is only one execution thread accessing
+the global references.
+-/
+@[export lean_set_initializing]
+private def setInitializing (b : Bool) : BaseIO Unit :=
+  importingRef.set b
+
 end Lean

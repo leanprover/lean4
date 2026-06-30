@@ -17,8 +17,11 @@ import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
+import Lean.Meta.Sym.Util
+import Lean.Meta.HasAssignableMVar
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Linear
+import Std.Do.Triple.Basic
 namespace Lean.Meta.Sym
 open Internal
 
@@ -29,7 +32,9 @@ framework (`Sym`). The design prioritizes performance by using a two-phase appro
 # Phase 1 (Syntactic Matching)
 - Patterns use de Bruijn indices for expression variables and renamed level params (`_uvar.0`, `_uvar.1`, ...) for universe variables
 - Matching is purely structural after reducible definitions are unfolded during preprocessing
-- Universe levels treat `max` and `imax` as uninterpreted functions (no AC reasoning)
+- Universe levels are eagerly normalized in patterns and normalized on the target side during matching
+- `tryApproxMaxMax` handles `max` commutativity when one argument matches structurally. It is relevant
+  for constraints such as `max ?u a =?= max a b`
 - Binders and term metavariables are deferred to Phase 2
 
 # Phase 2 (Pending Constraints)
@@ -105,6 +110,7 @@ def preprocessDeclPattern (declName : Name) : MetaM (List Name × Expr) := do
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
   let type ← preprocessType type
+  let type ← normalizeLevels type
   return (levelParams, type)
 
 def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) : MetaM (List Name × Expr) := do
@@ -113,6 +119,7 @@ def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) : MetaM (List 
   let us := levelParams.map mkLevelParam
   let type := type.instantiateLevelParams levelParams₀ us
   let type ← preprocessType type
+  let type ← normalizeLevels type
   return (levelParams, type)
 
 /--
@@ -206,15 +213,42 @@ public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : 
   let (levelParams, type) ← preprocessExprPattern e levelParams
   mkPatternFromType levelParams type num?
 
-def mkEqPatternFromType (levelParams : List Name) (type : Expr) : MetaM (Pattern × Expr) := do
-  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × Expr) := do
+@[inline]
+def mkPatternFromTypeWithKey (levelParams : List Name) (type : Expr) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
+  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × α) := do
     if let .forallE _ d b _ := pattern then
       return (← go b (varTypes.push d))
     else
-      let_expr Eq _ lhs rhs := pattern | throwError "conclusion is not a equality{indentExpr type}"
-      let pattern ← mkPatternCore type levelParams varTypes lhs
-      return (pattern, rhs)
+      let (key, a) ← selectKey pattern
+      let pattern ← mkPatternCore type levelParams varTypes key
+      return (pattern, a)
   go type #[]
+
+/--
+Creates a `Pattern` from a theorem, using the supplied selection function to extract the key from
+the theorem's result type.
+
+This function is used to implement `mkEqPatternFromDecl`.
+Like `mkPatternFromDecl`, this strips all leading universal quantifiers, recording variable
+types and instance status. However, instead of using the entire resulting type as the pattern,
+it uses the selection function to extract the key.
+
+For a theorem `∀ x₁ ... xₙ, type`, returns a pattern matching the first component of `selectKey type`
+with `n` pattern variables.
+-/
+@[inline]
+public def mkPatternFromDeclWithKey (declName : Name) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
+  let (levelParams, type) ← preprocessDeclPattern declName
+  mkPatternFromTypeWithKey levelParams type selectKey
+
+/--
+Like `mkPatternFromDeclWithKey`, but for a complex proof expression instead of the declaration of a
+theorem.
+-/
+@[inline]
+public def mkPatternFromExprWithKey (e : Expr) (levelParams : List Name := []) (selectKey : Expr → MetaM (Expr × α)) : MetaM (Pattern × α) := do
+  let (levelParams, type) ← preprocessExprPattern e levelParams
+  mkPatternFromTypeWithKey levelParams type selectKey
 
 /--
 Creates a `Pattern` from an equational theorem, using the left-hand side of the equation.
@@ -228,8 +262,9 @@ For a theorem `∀ x₁ ... xₙ, lhs = rhs`, returns a pattern matching `lhs` w
 Throws an error if the theorem's conclusion is not an equality.
 -/
 public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
-  let (levelParams, type) ← preprocessDeclPattern declName
-  mkEqPatternFromType levelParams type
+  mkPatternFromDeclWithKey declName fun type => do
+    let_expr Eq _ lhs rhs := type | throwError "conclusion is not a equality{indentExpr type}"
+    return (lhs, rhs)
 
 structure UnifyM.Context where
   pattern   : Pattern
@@ -296,35 +331,132 @@ def assignLevel (uidx : Nat) (u : Level) : UnifyM Bool := do
     modify fun s => { s with uAssignment := s.uAssignment.set! uidx (some u) }
     return true
 
-def processLevel (u : Level) (v : Level) : UnifyM Bool := do
-  match u, v with
-  | .zero, .zero => return true
-  | .succ u, .succ v => processLevel u v
-  | .zero, .succ _ => return false
-  | .succ _, .zero => return false
-  | .zero, .max v₁ v₂ => processLevel .zero v₁ <&&> processLevel .zero v₂
-  | .max u₁ u₂, .zero => processLevel u₁ .zero <&&> processLevel u₂ .zero
-  | .zero, .imax _ v => processLevel .zero v
-  | .imax _ u, .zero => processLevel u .zero
-  | .max u₁ u₂, .max v₁ v₂ => processLevel u₁ v₁ <&&> processLevel u₂ v₂
-  | .imax u₁ u₂, .imax v₁ v₂ => processLevel u₁ v₁ <&&> processLevel u₂ v₂
-  | .param uName, _ =>
-    if let some uidx := isUVar? uName then
+/-- Returns `true` is `u` has assigned uvars. -/
+def hasAssignedUVars (assignment : Array (Option Level)) (u : Level) : Bool :=
+  go u
+where
+  go (u : Level) : Bool := Id.run do
+    unless u.hasParam do return false
+    match u with
+    | .succ u₁ => go u₁
+    | .max u₁ u₂ | .imax u₁ u₂ => go u₁ || go u₂
+    | .param name =>
+      let some uidx := isUVar? name | return false
+      if h : uidx < assignment.size then return assignment[uidx].isSome
+      return false
+    | _ => false
+
+/-- Substitutes uvars in `u` with their assignments. -/
+def substAssignedUVars (assignment : Array (Option Level)) (u : Level) : Level :=
+  go u
+where
+  go (u : Level) : Level := Id.run do
+    match u with
+    | .succ u₁    => return .succ (go u₁)
+    | .max u₁ u₂  => return .max (go u₁) (go u₂)
+    | .imax u₁ u₂ => return .imax (go u₁) (go u₂)
+    | .param name =>
+      let some uidx := isUVar? name | return u
+      if h : uidx < assignment.size then
+        let some v := assignment[uidx] | return u
+        return v
+      else
+        return u
+    | _ => return u
+
+/-- Substitutes uvars in `u` with their assignments, and then normalize. -/
+def substAssignedUVarsAndNormalize (u : Level) : UnifyM Level := do
+  let assignment := (← get).uAssignment
+  unless hasAssignedUVars assignment u do return u
+  let v := substAssignedUVars assignment u
+  return v.normalize
+
+/--
+Returns true if `u` is `max v ?m` (or variant). That is, we solve `max v ?m =?= v` as `?m := v`.
+This is an approximation. For example, we ignore the solution `?m := 0`.
+
+**Note**: The same approximation is used at LevelDefEq.lean
+-/
+private def tryApproxSelfMax (u v : Level) : UnifyM Bool := do
+  match u with
+  | .max (.param uName) v'
+  | .max v' (.param uName) =>
+    let some uidx := isUVar? uName | return false
+    solve v' uidx
+  | _ => return false
+where
+  solve (v' : Level) (uidx : Nat) : UnifyM Bool := do
+    if v == v' then
       assignLevel uidx v
-    else if u == v then
-      return true
-    else if v.isMVar && (← read).unify then
-      pushLevelPending u v
-      return true
     else
       return false
-  | .mvar _, _ | _, .mvar _ =>
-    if (← read).unify then
-      pushLevelPending u v
-      return true
-    else
+
+/-- Similar to `Meta.decLevel?`, but never assigns metavariables. -/
+partial def decLevel? : Level → Option Level
+  | .zero | .mvar _ | .param _     => none
+  | .succ u => some u
+  | .max u v => processMax u v
+  /- Remark: If `decLevel? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
+  | .imax u v => processMax u v
+where
+  processMax (u v : Level) : Option Level := do
+    let u ← decLevel? u
+    let v ← decLevel? v
+    return mkLevelMax' u v
+
+partial def processLevel (u : Level) (v : Level) : UnifyM Bool := do
+  /-
+  **Note**: If new uvars in `u` have been assigned, we continue replace them, and
+  continue the search. The motivation for using `substAssignedUVarsAndNormalize` is
+  `processLevels [_uvar.0, max _uvar.0 _uvar.1] [0, u_1]`
+  which invokes `processLevel _uvar.0 0` and assigns `_uvar.0` before we invoke
+  `processLevel (max _uvar.0 _uvar.1) u_1`
+  -/
+  let u ← substAssignedUVarsAndNormalize u
+  go u v.normalize
+where
+  go (u : Level) (v : Level) : UnifyM Bool := do
+    match u, v with
+    | .zero, .zero => return true
+    | .succ u, .succ v => go u v
+    | .zero, .succ _ => return false
+    | .succ _, .zero => return false
+    | .zero, .max v₁ v₂ => go .zero v₁ <&&> go .zero v₂
+    | .max u₁ u₂, .zero => go u₁ .zero <&&> go u₂ .zero
+    | .zero, .imax _ v => go .zero v
+    | .imax _ u, .zero => go u .zero
+    | .max u₁ u₂, .max v₁ v₂ =>
+      -- tryApproxMaxMax: find a shared concrete arg between both sides
+      if u₂ == v₁ then go u₁ v₂
+      else if u₁ == v₂ then go u₂ v₁
+      else go u₁ v₁ <&&> go u₂ v₂
+    | .imax u₁ u₂, .imax v₁ v₂ => go u₁ v₁ <&&> go u₂ v₂
+    | .param uName, _ =>
+      if let some uidx := isUVar? uName then
+        assignLevel uidx v
+      else if u == v then
+        return true
+      else if v.isMVar && (← read).unify then
+        pushLevelPending u v
+        return true
+      else
+        return false
+    | .mvar _, _ | _, .mvar _ =>
+      if (← read).unify then
+        pushLevelPending u v
+        return true
+      else
+        return false
+    | _, _ =>
+      if (← tryApproxSelfMax u v) then
+        return true
+      if let .succ u := u then
+        if let some v := decLevel? v then
+          return (← go u v)
+      if let .succ v := v then
+        if let some u := decLevel? u then
+          return (← go u v)
       return false
-  | _, _ => return false
 
 def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   match us, vs with
@@ -473,7 +605,7 @@ def tryAssignLevelMVar (u : Level) (v : Level) : MetaM Bool := do
 
 /--
 Structural definitional equality for universe levels.
-Treats `max` and `imax` as uninterpreted functions (no AC reasoning).
+Uses `tryApproxMaxMax` to handle `max` commutativity when one argument matches structurally.
 Attempts metavariable assignment in both directions if structural matching fails.
 -/
 def isLevelDefEqS (u : Level) (v : Level) : MetaM Bool := do
@@ -487,7 +619,10 @@ def isLevelDefEqS (u : Level) (v : Level) : MetaM Bool := do
   | .max u₁ u₂, .zero => isLevelDefEqS u₁ .zero <&&> isLevelDefEqS u₂ .zero
   | .zero, .imax _ v => isLevelDefEqS .zero v
   | .imax _ u, .zero => isLevelDefEqS u .zero
-  | .max u₁ u₂, .max v₁ v₂ => isLevelDefEqS u₁ v₁ <&&> isLevelDefEqS u₂ v₂
+  | .max u₁ u₂, .max v₁ v₂ =>
+    if u₂ == v₁ then isLevelDefEqS u₁ v₂
+    else if u₁ == v₂ then isLevelDefEqS u₂ v₁
+    else isLevelDefEqS u₁ v₁ <&&> isLevelDefEqS u₂ v₂
   | .imax u₁ u₂, .imax v₁ v₂ => isLevelDefEqS u₁ v₁ <&&> isLevelDefEqS u₂ v₂
   | _, _ => tryAssignLevelMVar u v <||> tryAssignLevelMVar v u
 
@@ -529,6 +664,7 @@ structure DefEqM.Context where
 
 abbrev DefEqM := ReaderT DefEqM.Context SymM
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Structural definitional equality. It is much cheaper than `isDefEq`.
 
@@ -740,6 +876,7 @@ def isDefEqApp (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEq
   let numArgs := t.getAppNumArgs
   isDefEqAppWithInfo t s (numArgs - 1) info
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 `isDefEqMain` implementation.
 -/

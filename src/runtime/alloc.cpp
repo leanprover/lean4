@@ -270,8 +270,8 @@ void heap::export_objs() {
 }
 
 void heap::alloc_segment() {
-    LEAN_RUNTIME_STAT_CODE(g_num_segments++);
     segment * s = new segment();
+    LEAN_RUNTIME_STAT_CODE(g_num_segments++);
     s->m_next   = m_curr_segment;
     m_curr_segment = s;
 }
@@ -283,8 +283,13 @@ static page * alloc_page(heap * h, unsigned obj_size) {
     page * p    = new (s->m_next_page_mem) page();
     s->m_next_page_mem += LEAN_PAGE_SIZE;
     if (s->is_full()) {
-        /* s is full, we need to allocate a new one. */
-        h->alloc_segment();
+        try {
+            /* s is full, we need to allocate a new one. */
+            h->alloc_segment();
+        } catch (std::bad_alloc const&) {
+            /* `s` is now in an inconsistent state so it would be unsafe to propagate the exception */
+            lean_internal_panic_out_of_memory();
+        }
     }
     unsigned slot_idx        = lean_get_slot_idx(obj_size);
     p->m_header.m_heap       = h;

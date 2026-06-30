@@ -105,7 +105,7 @@ def mkLabeledSorry (type : Expr) (synthetic : Bool) (unique : Bool) : MetaM Expr
     return .app e (toExpr tag)
   else
     let e ← mkSorry (mkForall `tag .default (mkConst ``Unit) type) synthetic
-    let tag' := mkApp4 (mkConst ``Function.const [levelOne, levelOne]) (mkConst ``Unit) (mkConst ``Lean.Name) (mkConst ``Unit.unit) (toExpr tag)
+    let tag' := mkApp4 (mkConst ``Function.const [Level.one, Level.one]) (mkConst ``Unit) (mkConst ``Lean.Name) (mkConst ``Unit.unit) (toExpr tag)
     return .app e tag'
 
 /--

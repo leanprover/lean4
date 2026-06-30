@@ -136,7 +136,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
     let nat := mkConst ``Nat
     mkLocalInstances params fun localInsts =>
     mkSizeOfMotives motiveFVars fun motives => do
-      let us := levelOne :: levelParams.map mkLevelParam -- universe level parameters for `rec`-application
+      let us := Level.one :: levelParams.map mkLevelParam -- universe level parameters for `rec`-application
       let recFn := mkConst recName us
       let val := mkAppN recFn (params ++ motives)
       forallBoundedTelescope (← inferType val) recInfo.numMinors fun minorFVars' _ =>
@@ -149,17 +149,15 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
           trace[Meta.sizeOf] "declName: {declName}"
           trace[Meta.sizeOf] "type: {sizeOfType}"
           trace[Meta.sizeOf] "val: {sizeOfValue}"
-          -- We expose the `sizeOf` functions so that the `spec` theorems can be publicly `defeq`
-          withExporting do
-            addDecl <| Declaration.defnDecl {
-              name        := declName
-              levelParams := levelParams
-              type        := sizeOfType
-              value       := sizeOfValue
-              safety      := DefinitionSafety.safe
-              hints       := ReducibilityHints.abbrev
-            }
-            enableRealizationsForConst declName
+          addDecl <| Declaration.defnDecl {
+            name        := declName
+            levelParams := levelParams
+            type        := sizeOfType
+            value       := sizeOfValue
+            safety      := DefinitionSafety.safe
+            hints       := ReducibilityHints.abbrev
+          }
+          enableRealizationsForConst declName
 
 /--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
@@ -294,7 +292,7 @@ mutual
     | some (_, us) =>
       let recName := mkRecName info.name
       let recInfo ← getConstInfoRec recName
-      let r := mkConst recName (levelZero :: us)
+      let r := mkConst recName (Level.zero :: us)
       let r := mkAppN r majorTypeArgs[*...info.numParams]
       forallBoundedTelescope (← inferType r) recInfo.numMotives fun motiveFVars _ => do
         let mut r := r
@@ -435,7 +433,13 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
     let fields := xs[ctorInfo.numParams...*]
     let ctorApp := mkAppN (mkConst ctorName us) xs
     mkLocalInstances params fun localInsts => do
-      let lhs ← mkAppM ``SizeOf.sizeOf #[ctorApp]
+      let ctorAppType ← inferType ctorApp
+      let ctorAppTypeArgs := ctorAppType.getAppArgs
+      let indicesFromType := ctorAppTypeArgs[indInfo.numParams...*]
+      let instDeclName := indInfo.name ++ `_sizeOf_inst
+      let inst := mkAppN (mkConst instDeclName us) (params ++ indicesFromType ++ localInsts)
+      let u ← getLevel ctorAppType
+      let lhs := mkApp3 (mkConst ``SizeOf.sizeOf [u]) ctorAppType inst ctorApp
       let mut rhs ← mkNumeral (mkConst ``Nat) 1
       for field in fields do
         unless (← ignoreField field) do
@@ -447,23 +451,24 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       let thmType ← mkForallFVars thmParams target
       trace[Meta.sizeOf] "sizeOf spec theorem name: {thmName}"
       trace[Meta.sizeOf] "sizeOf spec theorem type: {thmType}"
-      let thmValue ← if indInfo.isNested then
-        SizeOfSpecNested.main lhs rhs |>.run {
-          indInfo, sizeOfFns, ctorName, params, localInsts, recMap
-        }
-      else
-        mkEqRefl rhs
-      let thmValue ← mkLambdaFVars thmParams thmValue
-      trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
-      unless (← isDefEq (← inferType thmValue) thmType) do
-        throwError "type mismatch"
+      let thmValue ← withoutExporting do
+        let thmValue ← if indInfo.isNested then
+          SizeOfSpecNested.main lhs rhs |>.run {
+            indInfo, sizeOfFns, ctorName, params, localInsts, recMap
+          }
+        else
+          mkEqRefl rhs
+        let thmValue ← mkLambdaFVars thmParams thmValue
+        trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
+        unless (← isDefEq (← inferType thmValue) thmType) do
+          throwError "type mismatch"
+        pure thmValue
       addDecl <| Declaration.thmDecl {
         name        := thmName
         levelParams := ctorInfo.levelParams
         type        := thmType
         value       := thmValue
       }
-      inferDefEqAttr thmName
       simpAttr.add thmName default .global
       grindAttr.add thmName grindAttrStx .global
 

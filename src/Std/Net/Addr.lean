@@ -124,6 +124,9 @@ end IPv4Addr
 
 namespace SocketAddressV4
 
+instance : ToString SocketAddressV4 where
+  toString sa := toString sa.addr ++ ":" ++ toString sa.port
+
 instance : Coe SocketAddressV4 SocketAddress where
   coe addr := .v4 addr
 
@@ -161,6 +164,9 @@ end IPv6Addr
 
 namespace SocketAddressV6
 
+instance : ToString SocketAddressV6 where
+  toString sa := "[" ++ toString sa.addr ++ "]:" ++ toString sa.port
+
 instance : Coe SocketAddressV6 SocketAddress where
   coe addr := .v6 addr
 
@@ -185,6 +191,11 @@ instance : ToString IPAddr where
 end IPAddr
 
 namespace SocketAddress
+
+instance : ToString SocketAddress where
+  toString
+    | .v4 sa => toString sa
+    | .v6 sa => toString sa
 
 /--
 Obtain the `AddressFamily` associated with a `SocketAddress`.

@@ -30,7 +30,7 @@ namespace lean {
 using std::thread;
 using std::mutex;
 using std::recursive_mutex;
-using std::shared_timed_mutex;
+using std::shared_mutex;
 using std::atomic;
 using std::atomic_bool;
 using std::atomic_ushort;
@@ -156,7 +156,7 @@ public:
     bool try_lock() { return true; }
     void unlock() {}
 };
-class shared_timed_mutex {
+class shared_mutex {
 public:
     void lock() {}
     bool try_lock() { return true; }
@@ -181,9 +181,11 @@ public:
 template<typename T> class unique_lock {
 public:
     unique_lock(T const &) {}
+    unique_lock(T const &, std::adopt_lock_t) {}
     ~unique_lock() {}
     void lock() {}
     void unlock() {}
+    T * release() { return nullptr; }
 };
 inline unsigned hardware_concurrency() { return 1; }
 }

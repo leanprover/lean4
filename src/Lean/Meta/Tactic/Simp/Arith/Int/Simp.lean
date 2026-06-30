@@ -48,10 +48,12 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else match p with
     | .add 1 x (.add (-1) y (.num 0)) =>
       let r := mkIntEq atoms[x]! atoms[y]!
+      if r == e then return none
       let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr y) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     | .add 1 x (.num k) =>
       let r := mkIntEq atoms[x]! (toExpr (-k))
+      if r == e then return none
       let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var_const) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr (-k)) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     | _ =>
@@ -127,7 +129,7 @@ def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     | _ => pure ()
     let some eNew := eNew? | return none
     let some (eNew', h₂) ← simpLe? eNew (checkIfModified := false) | return (eNew, h₁)
-    let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
+    let h  := mkApp6 (mkConst ``Eq.trans [Level.one]) (mkSort Level.zero) e eNew eNew' h₁ h₂
     return some (eNew', h)
   else
     simpLe? e (checkIfModified := true)

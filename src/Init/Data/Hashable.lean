@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.String.PosRaw
+import Init.Data.Array.Basic
 public import Init.Data.UInt.Basic
 
 public section
@@ -14,9 +14,6 @@ universe u
 
 instance : Hashable Nat where
   hash n := UInt64.ofNat n
-
-instance : Hashable String.Pos.Raw where
-  hash p := UInt64.ofNat p.byteIdx
 
 instance [Hashable α] [Hashable β] : Hashable (α × β) where
   hash | (a, b) => mixHash (hash a) (hash b)

@@ -16,6 +16,7 @@ import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
+import Init.Data.Slice.InternalLemmas
 
 namespace Std.DTreeMap.Internal
 
@@ -343,7 +344,7 @@ def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
     exact Nat.lt_wfRel.wf
   subrelation {it it'} h := by
     obtain ⟨w, h, h'⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorZipperIdSigma] at h' -- TODO
     cases w
     case skip it'' =>
       cases h
@@ -363,7 +364,6 @@ def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
           simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
-@[no_expose]
 public instance Zipper.instFinite : Finite (Zipper α β) Id :=
   .of_finitenessRelation Zipper.FinitenessRelation
 
@@ -389,8 +389,7 @@ theorem Zipper.step_done : (done : Zipper α β).step = .done := rfl
 @[simp]
 theorem Zipper.step_cons : (cons k v t it : Zipper α β).step = .yield ⟨it.prependMap t⟩ ⟨k, v⟩ := rfl
 
-@[simp]
-theorem Zipper.val_run_step_toIterM_iter {z : Zipper α β} : z.iter.toIterM.step.run.inflate.val = z.step := by
+@[simp] theorem Zipper.val_run_step_toIterM_iter {z : Zipper α β} : z.iter.toIterM.step.run.inflate.val = z.step := by
   rw [IterM.step]
   simp only [Iterator.step, Id.run_pure, Shrink.inflate_deflate]
   rfl
@@ -451,7 +450,7 @@ def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α
     exact Nat.lt_wfRel.wf
   subrelation {it it'} h := by
     obtain ⟨w, h, h'⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorRxcIteratorIdSigma] at h' -- TODO
     cases w
     case skip it'' =>
       cases h
@@ -477,7 +476,6 @@ def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α
           simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
-@[no_expose]
 public instance instFinite [Ord α] : Finite (RxcIterator α β) Id :=
   .of_finitenessRelation RxcIterator.FinitenessRelation
 
@@ -580,7 +578,7 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
     exact Nat.lt_wfRel.wf
   subrelation {it it'} h := by
     obtain ⟨w, h, h'⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep] at h'
+    simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorRxoIteratorIdSigma] at h' -- TODO
     cases w
     case skip it'' =>
       cases h
@@ -606,7 +604,6 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
           simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
-@[no_expose]
 public instance Rxo.instFinite [Ord α] : Finite (RxoIterator α β) Id :=
   .of_finitenessRelation RxoIterator.instFinitenessRelation
 
@@ -693,9 +690,8 @@ attribute [instance] RicSlice.instToIterator
 
 public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (bound : α) : t[*...=bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLE) := by
-  simp only [Ric.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
-    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
-    Iter.toIter_toIterM]
+  simp only [Ric.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter_eq_toIteratorIter,
+    ToIterator.iter, ToIterator.iterM_eq, Iter.toIter_toIterM]
   rw [RxcIterator.toList_rxcIter, RxcIterator.takeWhile_eq_filter]
   · rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]

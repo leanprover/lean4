@@ -13,10 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static const lean_string_object l_Lake_usage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3535, .m_capacity = 3535, .m_length = 3534, .m_data = "\n\nUSAGE:\n  lake [OPTIONS] <COMMAND>\n\nCOMMANDS:\n  new <name> <temp>     create a Lean package in a new directory\n  init <name> <temp>    create a Lean package in the current directory\n  build <targets>...    build targets\n  query <targets>...    build targets and output results\n  exe <exe> <args>...   build an exe and run it in Lake's environment\n  check-build           check if any default build targets are configured\n  test                  test the package using the configured test driver\n  check-test            check if there is a properly configured test driver\n  lint                  lint the package using the configured lint driver\n  check-lint            check if there is a properly configured lint driver\n  clean                 remove build outputs\n  shake                 minimize imports in source files\n  env <cmd> <args>...   execute a command in Lake's environment\n  lean <file>           elaborate a Lean file in Lake's context\n  update                update dependencies and save them to the manifest\n  pack                  pack build artifacts into an archive for distribution\n  unpack                unpack build artifacts from an distributed archive\n  upload <tag>          upload build artifacts to a GitHub release\n  cache                 manage the Lake cache\n  script                manage and run workspace scripts\n  scripts               shorthand for `lake script list`\n  run <script>          shorthand for `lake script run`\n  translate-config      change language of the package configuration\n  serve                 start the Lean language server\n\nBASIC OPTIONS:\n  --version             print version and exit\n  --help, -h            print help of the program or a command and exit\n  --dir, -d=file        use the package configuration in a specific directory\n  --file, -f=file       use a specific file for the package configuration\n  -K key[=value]        set the configuration file option named key\n  --old                 only rebuild modified modules (ignore transitive deps)\n  --rehash, -H          hash all files for traces (do not trust `.hash` files)\n  --update              update dependencies on load (e.g., before a build)\n  --packages=file       JSON file of package entries that override the manifest\n  --reconfigure, -R     elaborate configuration files instead of using OLeans\n  --keep-toolchain      do not update toolchain on workspace update\n  --no-build            exit immediately if a build target is not up-to-date\n  --no-cache            build packages locally; do not download build caches\n  --try-cache           attempt to download build caches for supported packages\n  --json, -J            output JSON-formatted results (in `lake query`)\n  --text                output results as plain text (in `lake query`)\n\nOUTPUT OPTIONS:\n  --quiet, -q           hide informational logs and the progress indicator\n  --verbose, -v         show trace logs (command invocations) and built targets\n  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output\n  --log-level=lv        minimum log level to output on success\n                        (levels: trace, info, warning, error)\n  --fail-level=lv       minimum log level to fail a build (default: error)\n  --iofail              fail build if any I/O or other info is logged\n                        (same as --fail-level=info)\n  --wfail               fail build if warnings are logged\n                        (same as --fail-level=warning)\n\n\nSee `lake help <command>` for more information on a specific command."};
-static const lean_object* l_Lake_usage___closed__0 = (const lean_object*)&l_Lake_usage___closed__0_value;
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_Lake_uiVersionString;
 lean_object* lean_string_append(lean_object*, lean_object*);
+static const lean_string_object l_Lake_usage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3580, .m_capacity = 3580, .m_length = 3579, .m_data = "\n\nUSAGE:\n  lake [OPTIONS] <COMMAND>\n\nCOMMANDS:\n  new <name> <temp>     create a Lean package in a new directory\n  init <name> <temp>    create a Lean package in the current directory\n  build <targets>...    build targets\n  query <targets>...    build targets and output results\n  exe <exe> <args>...   build an exe and run it in Lake's environment\n  check-build           check if any default build targets are configured\n  test                  test the package using the configured test driver\n  check-test            check if there is a properly configured test driver\n  lint                  lint the package\n  check-lint            check if there is a properly configured lint driver\n  clean                 remove build outputs\n  shake                 minimize imports in source files\n  env <cmd> <args>...   execute a command in Lake's environment\n  lean <file>           elaborate a Lean file in Lake's context\n  update                update dependencies and save them to the manifest\n  pack                  pack build artifacts into an archive for distribution\n  unpack                unpack build artifacts from an distributed archive\n  upload <tag>          upload build artifacts to a GitHub release\n  cache                 manage the Lake cache\n  script                manage and run workspace scripts\n  scripts               shorthand for `lake script list`\n  run <script>          shorthand for `lake script run`\n  translate-config      change language of the package configuration\n  serve                 start the Lean language server\n\nBASIC OPTIONS:\n  --version             print version and exit\n  --help, -h            print help of the program or a command and exit\n  --dir, -d=file        use the package configuration in a specific directory\n  --file, -f=file       use a specific file for the package configuration\n  -K key[=value]        set the configuration file option named key\n  --old                 only rebuild modified modules (ignore transitive deps)\n  --rehash, -H          hash all files for traces (do not trust `.hash` files)\n  --update              update dependencies on load (e.g., before a build)\n  --packages=file       JSON file of package entries that override the manifest\n  --reconfigure, -R     elaborate configuration files instead of using OLeans\n  --keep-toolchain      do not update toolchain on workspace update\n  --allow-empty         accept bare builds with no default targets configured\n  --no-build            exit immediately if a build target is not up-to-date\n  --no-cache            build packages locally; do not download build caches\n  --try-cache           attempt to download build caches for supported packages\n  --json, -J            output JSON-formatted results (in `lake query`)\n  --text                output results as plain text (in `lake query`)\n\nOUTPUT OPTIONS:\n  --quiet, -q           hide informational logs and the progress indicator\n  --verbose, -v         show trace logs (command invocations) and built targets\n  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output\n  --log-level=lv        minimum log level to output on success\n                        (levels: trace, info, warning, error)\n  --fail-level=lv       minimum log level to fail a build (default: error)\n  --iofail              fail build if any I/O or other info is logged\n                        (same as --fail-level=info)\n  --wfail               fail build if warnings are logged\n                        (same as --fail-level=warning)\n\n\nSee `lake help <command>` for more information on a specific command."};
+static const lean_object* l_Lake_usage___closed__0 = (const lean_object*)&l_Lake_usage___closed__0_value;
+static lean_once_cell_t l_Lake_usage___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_usage___closed__1;
 LEAN_EXPORT lean_object* l_Lake_usage;
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_newInitHelp___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 627, .m_capacity = 627, .m_length = 626, .m_data = "If you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math-lax              library only with a Mathlib dependency\n  math                  library with Mathlib standards for linting and workflows\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML."};
@@ -46,7 +48,7 @@ LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpTest = (con
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 344, .m_capacity = 344, .m_length = 343, .m_data = "Check if there is a properly configured test driver\n\nUSAGE:\n  lake check-test\n\nExits with code 0 if the workspace's root package has a properly\nconfigured lint driver. Errors (with code 1) otherwise.\n\nDoes NOT verify that the configured test driver actually exists in the\npackage or its dependencies. It merely verifies that one is specified.\n"};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCheckTest = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 560, .m_capacity = 560, .m_length = 559, .m_data = "Lint the workspace's root package using its configured lint driver\n\nUSAGE:\n  lake lint [-- <args>...]\n\nA lint driver can be configured by either setting the `lintDriver` package\nconfiguration option by tagging a script or executable `@[lint_driver]`.\nA definition in dependency can be used as a test driver by using the\n`<pkg>/<name>` syntax for the 'testDriver' configuration option.\n\nA script lint driver will be run with the  package configuration's\n`lintDriverArgs` plus the CLI `args`. An executable lint driver will be\nbuilt and then run like a script.\n"};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2996, .m_capacity = 2996, .m_length = 2995, .m_data = "Lint the workspace's root package\n\nUSAGE:\n  lake lint [OPTIONS] [<MODULE>...] [-- <args>...]\n\nBy default, runs the package's configured lint driver. If `builtinLint` is\nset to `true` in the package configuration, builtin lints also run.\n\nBuiltin linting (`--builtin-lint`, `--builtin-only`, `--linters`,\n`--lint-only`, or `builtinLint = true` in the package configuration) drives a\nbuild of the targeted modules with the requested linter options enabled.\nThe lint driver path on its own does not trigger a build.\n\nWhich environment linters run on a declaration is determined by the linter\noptions in effect when that declaration was built (e.g. via `set_option` in\nthe source, or via `--linters`/`--lint-only` below). Both override those\noptions for the lint build; `--lint-only` additionally restricts the reported\noutput to exactly the linters its spec enables.\n\nPositional `MODULE` arguments narrow only the builtin lints; if omitted,\nthe workspace's default target roots are used. The lint driver is invoked\nwith `lintDriverArgs` from the package config plus any arguments after\n`--`; the `MODULE` list is not passed to it.\n\nOPTIONS:\n  --builtin-lint        run builtin environment and text linters\n  --builtin-only        run only builtin linters, skip the lint driver\n  --linters <spec>      override linter options for the lint build; <spec> is a\n                        comma-separated list of linter option names, each\n                        optionally prefixed with `-` to disable it. A name\n                        beginning with `.` is shorthand for the `linter.`\n                        prefix, so `.foo` means `linter.foo`. E.g.\n                        `--linters=.foo,-linter.bar`. Repeatable; later\n                        entries override earlier ones for the same linter\n  --lint-only <spec>    like `--linters`, but report ONLY the linters the spec\n                        positively enables, suppressing every other linter\n                        (including default-on linters that are not named).\n                        Expands `linter.all` and linter sets. Uses the same\n                        `<spec>` syntax as `--linters`; switching between\n                        `--linters` and `--lint-only` replaces the prior spec\n  --record-exceptions   record each linter warning as a\n                        `set_option <linter> false in` exception by editing the\n                        offending source files in place, silencing the warning\n                        for that declaration. Implies `--builtin-lint`.\n\nA lint driver can be configured by either setting the `lintDriver` package\nconfiguration option or by tagging a script or executable `@[lint_driver]`.\nA definition in a dependency can be used as a lint driver by using the\n`<pkg>/<name>` syntax for the 'lintDriver' configuration option.\n\nA script lint driver will be run with the package configuration's\n`lintDriverArgs` plus the CLI `args`. An executable lint driver will be\nbuilt and then run like a script.\n"};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpLint = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0_value;
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 344, .m_capacity = 344, .m_length = 343, .m_data = "Check if there is a properly configured lint driver\n\nUSAGE:\n  lake check-lint\n\nExits with code 0 if the workspace's root package has a properly\nconfigured lint driver. Errors (with code 1) otherwise.\n\nDoes NOT verify that the configured lint driver actually exists in the\npackage or its dependencies. It merely verifies that one is specified.\n"};
@@ -67,15 +69,33 @@ LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpClean = (co
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1473, .m_capacity = 1473, .m_length = 1472, .m_data = "Minimize imports in Lean source files\n\nUSAGE:\n  lake shake [OPTIONS] [<MODULE>...]\n\nChecks the current project for unused imports by analyzing generated `.olean`\nfiles to deduce required imports and ensuring that every import contributes\nsome constant or other elaboration dependency.\n\nARGUMENTS:\n  <MODULE>              A module path like `Mathlib`. All files transitively\n                        reachable from the provided module(s) will be checked.\n                        If not specified, uses the package's default targets.\n\nOPTIONS:\n  --force               Skip the `lake build --no-build` sanity check\n  --keep-implied        Preserve imports implied by other imports\n  --keep-prefix         Prefer parent module imports over specific submodules\n  --keep-public         Preserve all `public` imports for API stability\n  --add-public          Add new imports as `public` if they were in the\n                        original public closure\n  --explain             Show which constants require each import\n  --fix                 Apply suggested fixes directly to source files\n  --gh-style            Output in GitHub problem matcher format\n\nANNOTATIONS:\n  Source files can contain special comments to control shake behavior:\n\n  * `module -- shake: keep-downstream`\n    Preserves this module in all downstream modules\n\n  * `module -- shake: keep-all`\n    Preserves all existing imports in this module\n\n  * `import X -- shake: keep`\n    Preserves this specific import"};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpShake = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 263, .m_capacity = 263, .m_length = 262, .m_data = "Manage the Lake cache\n\nUSAGE:\n  lake cache <COMMAND>\n\nCOMMANDS:\n  get [<mappings>]      download artifacts into the Lake cache\n  put <mappings>        upload artifacts to a remote cache\n\nSee `lake cache help <command>` for more information on a specific command."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 704, .m_capacity = 704, .m_length = 703, .m_data = "Manage the Lake cache\n\nUSAGE:\n  lake cache <COMMAND>\n\nCOMMANDS:\n  get [<mappings>]      download build outputs into the local Lake cache\n  put <mappings>        upload build outputs to a remote cache\n  add <mappings>        add input-to-output mappings to the Lake cache\n  clean                 removes ALL from the local Lake cache\n  services              print configured remote cache services\n\nSTAGING COMMANDS:\n  stage <map> <dir>     copy build outputs from the cache to a directory\n  unstage <dir>         cache build outputs from a staging directory\n  put-staged <dir>      upload build outputs from a staging directory\n\nSee `lake cache help <command>` for more information on a specific command."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheCli = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2518, .m_capacity = 2518, .m_length = 2517, .m_data = "Download artifacts from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>]\n\nOPTIONS:\n  --max-revs=<n>                  backtrack up to n revisions (default: 100)\n  --rev=<commit-hash>             uses this exact revision to lookup artifacts\n  --repo=<github-repo>            GitHub repository of the package or a fork\n  --platform=<target-triple>      with Reservoir or --repo, sets the platform\n  --toolchain=<name>              with Reservoir or --repo, sets the toolchain\n  --scope=<remote-scope>          scope for a custom endpoint\n\nDownloads artifacts for packages in the workspace from a remote cache service.\nThe cache service used can be configured via the environment variables:\n\n  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads\n  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download\n\nIf neither of these are set, Lake will use Reservoir.\n\nIf an input-to-outputs mappings file, `--scope`, or `--repo` is provided,\nLake will download artifacts for the root package. Otherwise, it will use\nReservoir to download artifacts for each dependency in workspace (in order).\nNon-Reservoir dependencies will be skipped.\n\nTo determine the artifacts to download, Lake searches for input-to-output\nmappings for a given build of the package via the cache service. This mapping\nis identified by a Git revision and prefixed with a scope derived from the\npackage's name, GitHub repository, Lean toolchain, and current platform.\nThe exact configuration can be customized using options.\n\nFor Reservoir, setting `--repo` will make Lake lookup artifacts for the root\npackage by a repository name, rather than the package's. This can be used to\ndownload artifacts for a fork of the Reservoir package (if such artifacts are\navailable). The `--platform` and `--toolchain` options can be used to download\nartifacts for a different platform/toolchain configuration than Lake detects.\nFor a custom endpoint, the full prefix Lake uses can be set via  `--scope`.\n\nIf `--rev` is not set, Lake uses the package's current revision to lookup\nartifacts. If no mappings are found, Lake will backtrack the Git history up to\n`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake\nwill search the repository's entire history (or as far as Git will allow).\n\nIf a download for an artifact fails or the download process for a whole\npackage fails, Lake will report this and continue on to the next. Once done,\nif any download failed, Lake will exit with a nonzero status code."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2911, .m_capacity = 2911, .m_length = 2910, .m_data = "Download build outputs from a remote service into the Lake cache\n\nUSAGE:\n  lake cache get [<mappings>]\n\nOPTIONS:\n  --max-revs=<n>                  backtrack up to n revisions (default: 100)\n  --rev=<commit-hash>             uses this exact revision to lookup artifacts\n  --service=<name>                cache service to fetch from\n  --repo=<github-repo>            GitHub repository of the package or a fork\n  --platform=<target-triple>      with Reservoir or --repo, sets the platform\n  --toolchain=<name>              with Reservoir or --repo, sets the toolchain\n  --scope=<remote-scope>          scope for a custom endpoint\n  --mappings-only                 only download mappings, delay artifacts\n  --force-download                redownload existing files\n\nDownloads build outputs for packages in the workspace from a remote cache\nservice. The cache service used can be specified via the `--service` option.\nOtherwise, Lake will the system default, or, if none is configured, Reservoir.\nSee `lake cache services` for more information on how to configure services.\n\nIf an input-to-outputs mappings file, `--scope`, or `--repo` is provided,\nLake will download build outputs for the root package. Otherwise, it will use\nReservoir to download outputs for each dependency in the workspace (in order).\nNon-Reservoir dependencies will be skipped.\n\nTo determine what to download, Lake searches for input-to-output mappings for\na given build of the package via the cache service. This mapping is identified\nby a Git revision and prefixed with a scope derived from the package's name,\nGitHub repository, Lean toolchain, and current platform. The exact configuration\ncan be customized using options.\n\nFor Reservoir, setting `--repo` will cause Lake to lookup outputs for the root\npackage by a repository name, rather than the package's. This can be used to\ndownload outputs for a fork of the Reservoir package (if such artifacts are\navailable). The `--platform` and `--toolchain` options can be used to download\nartifacts for a different platform/toolchain configuration than Lake detects.\nFor a custom endpoint, the full prefix Lake uses can be set via  `--scope`.\n\nIf `--rev` is not set, Lake uses the package's current revision to lookup\nartifacts. If no mappings are found, Lake will backtrack the Git history up to\n`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake\nwill search the repository's entire history (or as far as Git will allow).\n\nBy default, Lake will download both the input-to-output mappings and the\noutput artifacts for a package. By using `--mappings-only`, Lake will only\ndownload the mappings and delay downloading artifacts until they are needed.\n\nIf a download for an artifact fails or the download process for a whole\npackage fails, Lake will report this and continue on to the next. Once done,\nif any download failed, Lake will exit with a nonzero status code."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheGet = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0_value;
-static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1764, .m_capacity = 1764, .m_length = 1763, .m_data = "Upload artifacts from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> <scope-option>\n\nUploads the input-to-outputs mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused is configured via the environment variables:\n\n  LAKE_CACHE_KEY                  authentication key for requests\n  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads\n  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket.\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, uploads to the cache are prefixed with a scope to avoid\nclashes. This scoped is configured with the following options:\n\n  --scope=<remote-scope>          sets a fixed scope\n  --repo=<github-repo>            uses the repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nAt least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake\nwill produce a scope by augmenting the repository with toolchain and platform\ninformation as it deems necessary. If `--scope` is set, Lake will use the\nspecified scope verbatim.\n\nArtifacts are uploaded to the artifact endpoint with a file name derived\nfrom their Lake content hash (and prefixed by the repository or scope).\nThe mappings file is uploaded to the revision endpoint with a file name\nderived from the package's current Git revision (and prefixed by the\nfull scope). As such, the command will warn if the work tree currently\nhas changes."};
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1824, .m_capacity = 1824, .m_length = 1823, .m_data = "Upload build outputs from the Lake cache to a remote service\n\nUSAGE:\n  lake cache put <mappings> <scope-option>\n\nUploads the input-to-output mappings contained in the specified file along\nwith the corresponding output artifacts to a remote cache. The cache service\nused can be specified via the `--service` option. If not specified, Lake will use\nthe system default, or error if none is configured. See the help page of\n`lake cache services` for more information on how to configure services.\n\nFiles are uploaded using the AWS Signature Version 4 authentication protocol\nvia `curl`. Thus, the service should generally be an S3-compatible bucket. The\nauthentication key is set via the `LAKE_CACHE_KEY` environment variable.\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, uploads to the cache are prefixed with a scope to avoid\nclashes. This scope is configured with the following options:\n\n  --scope=<remote-scope>          sets a fixed scope\n  --repo=<github-repo>            uses the repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nAt least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake\nwill produce a scope by augmenting the repository with toolchain and platform\ninformation as it deems necessary. If `--scope` is set, Lake will use the\nspecified scope verbatim.\n\nArtifacts are uploaded to the artifact endpoint with a file name derived\nfrom their Lake content hash (and prefixed by the repository or scope).\nThe mappings file is uploaded to the revision endpoint with a file name\nderived from the package's current Git revision (and prefixed by the\nfull scope). As such, the command will warn if the work tree currently\nhas changes."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePut = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1161, .m_capacity = 1161, .m_length = 1160, .m_data = "Add input-to-output mappings to the Lake cache\n\nUSAGE:\n  lake cache add <mappings>\n\nOPTIONS:\n  --service=<name>                cache service to fetch from on demand\n  --scope=<remote-scope>          the prefix of artifacts within the service\n  --repo=<github-repo>            for Reservoir, a GitHub repository scope\n  --no-overwrite                  do not overwrite existing mappings\n\nReads a list of input-to-output mappings from the provided file and adds\nthem to the local Lake cache. Mappings already in the cache are overwritten\nunless `--no-overwrite` is specified.\n\nIf `--service` is provided, the output artifacts can then be fetched lazily\nfrom that service during a Lake build. The service must either be `reservoir`\nor be configured through the Lake system configuration (see the help page of\n`lake cache services` for details).\n\nSince Lake does not currently use cryptographically secure hashes for\nartifacts and outputs, artifacts in a cache service are prefixed with a scope\nto avoid clashes. For Reservoir, this scope can either be a package (set via\n`--scope`) or a repository (set via `--repo`). For S3 services, both options\nare synonymous."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheAdd = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 475, .m_capacity = 475, .m_length = 474, .m_data = "Copy build outputs from the cache to a staging directory\n\nUSAGE:\n  lake cache stage <mappings> <staging-directory> [--force-overwrite]\n\nCreates the staging directory and copies the mappings file to it. Then,\nit copies all artifacts described within the mappings file from the cache to\nthe staging directory. Artifacts in the staging directory are not overwritten\nunless `--force-overwrite` is specified. Errors if any of the artifacts\ndescribed cannot be found in the cache."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheStage = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 541, .m_capacity = 541, .m_length = 540, .m_data = "Cache build outputs from a staging directory\n\nUSAGE:\n  lake cache unstage <staging-directory> [--force-overwrite]\n\nCopies the mappings and artifacts stored in staging directory (e.g., via\n`lake cache stage`) back into the cache.\n\nReads the mappings file located at `outputs.jsonl` within the staging\ndirectory and writes the mappings to the Lake cache. Then, it copies the\ndescribed artifacts from the staging directory into the cache. Mappings and\nartifacts already in the cache are not overwritten unless `--force-overwrite`\nis specified."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 757, .m_capacity = 757, .m_length = 756, .m_data = "Upload build outputs from a staging directory to a remote service\n\nUSAGE:\n  lake cache put-staged <staging-directory>\n\nOPTIONS:\n  --scope=<remote-scope>          verbatim scope\n  --repo=<github-repo>            scope with repository + toolchain & platform\n  --toolchain=<name>              with --repo, sets the toolchain\n  --platform=<target-triple>      with --repo, sets the platform\n\nWorks like `lake cache put` but uploads outputs from the staging directory\ninstead of the Lake cache. Does not configure the workspace and thus does not\nexecute arbitrary user code. However, because of this, the package's platform\nand toolchain settings will not be automatically detected and must be\nspecified manually via `--platform` and `--toolchain` (if desired)."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 275, .m_capacity = 275, .m_length = 274, .m_data = "Removes ALL files from the local Lake cache\n\nUSAGE:\n  lake cache clean\n\nDeletes the configured Lake cache directory. If a workspace configuration\nexists, this will delete the cache directory it uses. Otherwise, it will\ndelete the default Lake cache directory for the system."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheClean = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 749, .m_capacity = 749, .m_length = 748, .m_data = "Print configured remote cache services\n\nUSAGE:\n  lake cache services\n\nPrints the name of each configured remote cache services (one per line).\nAdditional services can be added by modifying the system Lake configuration.\nThe exact location of the this configuration file is system dependent and can\nbe set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.\n\nThe configuration of the system cache could look something like the following:\n\n  cache.defaultService = \"my-s3\"\n  cache.defaultUploadService = \"my-s3\"\n\n  [[cache.service]]\n  name = \"my-s3\"\n  kind = \"s3\"\n  artifactEndpoint = \"https://my-s3.com/a0\"\n  revisionEndpoint = \"https://my-s3.com/r0\"\n\nIf no `cache.defaultService` is configured, Lake will use Reservoir by default."};
+static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpCacheServices = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0_value;
 static const lean_string_object l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 287, .m_capacity = 287, .m_length = 286, .m_data = "Manage Lake scripts\n\nUSAGE:\n  lake script <COMMAND>\n\nCOMMANDS:\n  list                  list available scripts\n  run <script>          run a script\n  doc <script>          print the docstring of a given script\n\nSee `lake script help <command>` for more information on a specific command."};
 static const lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0 = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lake_CLI_Help_0__Lake_helpScriptCli = (const lean_object*)&l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0_value;
@@ -109,13 +129,24 @@ static const lean_string_object l_Lake_helpScript___closed__1_value = {.m_header
 static const lean_object* l_Lake_helpScript___closed__1 = (const lean_object*)&l_Lake_helpScript___closed__1_value;
 static const lean_string_object l_Lake_helpScript___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "doc"};
 static const lean_object* l_Lake_helpScript___closed__2 = (const lean_object*)&l_Lake_helpScript___closed__2_value;
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_helpScript(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_helpScript___boxed(lean_object*);
 static const lean_string_object l_Lake_helpCache___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "get"};
 static const lean_object* l_Lake_helpCache___closed__0 = (const lean_object*)&l_Lake_helpCache___closed__0_value;
 static const lean_string_object l_Lake_helpCache___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "put"};
 static const lean_object* l_Lake_helpCache___closed__1 = (const lean_object*)&l_Lake_helpCache___closed__1_value;
+static const lean_string_object l_Lake_helpCache___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "add"};
+static const lean_object* l_Lake_helpCache___closed__2 = (const lean_object*)&l_Lake_helpCache___closed__2_value;
+static const lean_string_object l_Lake_helpCache___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "stage"};
+static const lean_object* l_Lake_helpCache___closed__3 = (const lean_object*)&l_Lake_helpCache___closed__3_value;
+static const lean_string_object l_Lake_helpCache___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "unstage"};
+static const lean_object* l_Lake_helpCache___closed__4 = (const lean_object*)&l_Lake_helpCache___closed__4_value;
+static const lean_string_object l_Lake_helpCache___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "put-staged"};
+static const lean_object* l_Lake_helpCache___closed__5 = (const lean_object*)&l_Lake_helpCache___closed__5_value;
+static const lean_string_object l_Lake_helpCache___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "clean"};
+static const lean_object* l_Lake_helpCache___closed__6 = (const lean_object*)&l_Lake_helpCache___closed__6_value;
+static const lean_string_object l_Lake_helpCache___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "services"};
+static const lean_object* l_Lake_helpCache___closed__7 = (const lean_object*)&l_Lake_helpCache___closed__7_value;
 LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object*);
 static const lean_string_object l_Lake_help___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "new"};
@@ -148,468 +179,562 @@ static const lean_string_object l_Lake_help___closed__13_value = {.m_header = {.
 static const lean_object* l_Lake_help___closed__13 = (const lean_object*)&l_Lake_help___closed__13_value;
 static const lean_string_object l_Lake_help___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "check-lint"};
 static const lean_object* l_Lake_help___closed__14 = (const lean_object*)&l_Lake_help___closed__14_value;
-static const lean_string_object l_Lake_help___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "clean"};
+static const lean_string_object l_Lake_help___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "shake"};
 static const lean_object* l_Lake_help___closed__15 = (const lean_object*)&l_Lake_help___closed__15_value;
-static const lean_string_object l_Lake_help___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "shake"};
+static const lean_string_object l_Lake_help___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "script"};
 static const lean_object* l_Lake_help___closed__16 = (const lean_object*)&l_Lake_help___closed__16_value;
-static const lean_string_object l_Lake_help___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "script"};
+static const lean_string_object l_Lake_help___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "scripts"};
 static const lean_object* l_Lake_help___closed__17 = (const lean_object*)&l_Lake_help___closed__17_value;
-static const lean_string_object l_Lake_help___closed__18_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "scripts"};
+static const lean_string_object l_Lake_help___closed__18_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "serve"};
 static const lean_object* l_Lake_help___closed__18 = (const lean_object*)&l_Lake_help___closed__18_value;
-static const lean_string_object l_Lake_help___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "serve"};
+static const lean_string_object l_Lake_help___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "env"};
 static const lean_object* l_Lake_help___closed__19 = (const lean_object*)&l_Lake_help___closed__19_value;
-static const lean_string_object l_Lake_help___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "env"};
+static const lean_string_object l_Lake_help___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "exe"};
 static const lean_object* l_Lake_help___closed__20 = (const lean_object*)&l_Lake_help___closed__20_value;
-static const lean_string_object l_Lake_help___closed__21_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "exe"};
+static const lean_string_object l_Lake_help___closed__21_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "exec"};
 static const lean_object* l_Lake_help___closed__21 = (const lean_object*)&l_Lake_help___closed__21_value;
-static const lean_string_object l_Lake_help___closed__22_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "exec"};
+static const lean_string_object l_Lake_help___closed__22_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "lean"};
 static const lean_object* l_Lake_help___closed__22 = (const lean_object*)&l_Lake_help___closed__22_value;
-static const lean_string_object l_Lake_help___closed__23_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "lean"};
+static const lean_string_object l_Lake_help___closed__23_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "translate-config"};
 static const lean_object* l_Lake_help___closed__23 = (const lean_object*)&l_Lake_help___closed__23_value;
-static const lean_string_object l_Lake_help___closed__24_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "translate-config"};
-static const lean_object* l_Lake_help___closed__24 = (const lean_object*)&l_Lake_help___closed__24_value;
 LEAN_EXPORT lean_object* l_Lake_help(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_help___boxed(lean_object*);
-static lean_object* _init_l_Lake_usage___closed__1() {
+static lean_object* _init_l_Lake_usage___closed__1(void){
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = ((lean_object*)(l_Lake_usage___closed__0));
-x_2 = l_Lake_uiVersionString;
-x_3 = lean_string_append(x_2, x_1);
-return x_3;
+lean_object* v___x_2_; lean_object* v___x_3_; lean_object* v___x_4_; 
+v___x_2_ = ((lean_object*)(l_Lake_usage___closed__0));
+v___x_3_ = l_Lake_uiVersionString;
+v___x_4_ = lean_string_append(v___x_3_, v___x_2_);
+return v___x_4_;
 }
 }
-static lean_object* _init_l_Lake_usage() {
+static lean_object* _init_l_Lake_usage(void){
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lake_usage___closed__1;
-return x_1;
+lean_object* v___x_5_; 
+v___x_5_ = lean_obj_once(&l_Lake_usage___closed__1, &l_Lake_usage___closed__1_once, _init_l_Lake_usage___closed__1);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpScript(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_helpScript(lean_object* v_x_77_){
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = ((lean_object*)(l_Lake_helpScript___closed__0));
-x_3 = lean_string_dec_eq(x_1, x_2);
-if (x_3 == 0)
+lean_object* v___x_78_; uint8_t v___x_79_; 
+v___x_78_ = ((lean_object*)(l_Lake_helpScript___closed__0));
+v___x_79_ = lean_string_dec_eq(v_x_77_, v___x_78_);
+if (v___x_79_ == 0)
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = ((lean_object*)(l_Lake_helpScript___closed__1));
-x_5 = lean_string_dec_eq(x_1, x_4);
-if (x_5 == 0)
+lean_object* v___x_80_; uint8_t v___x_81_; 
+v___x_80_ = ((lean_object*)(l_Lake_helpScript___closed__1));
+v___x_81_ = lean_string_dec_eq(v_x_77_, v___x_80_);
+if (v___x_81_ == 0)
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = ((lean_object*)(l_Lake_helpScript___closed__2));
-x_7 = lean_string_dec_eq(x_1, x_6);
-if (x_7 == 0)
+lean_object* v___x_82_; uint8_t v___x_83_; 
+v___x_82_ = ((lean_object*)(l_Lake_helpScript___closed__2));
+v___x_83_ = lean_string_dec_eq(v_x_77_, v___x_82_);
+if (v___x_83_ == 0)
 {
-lean_object* x_8; 
-x_8 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
-return x_8;
+lean_object* v___x_84_; 
+v___x_84_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
+return v___x_84_;
 }
 else
 {
-lean_object* x_9; 
-x_9 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptDoc___closed__0));
-return x_9;
-}
-}
-else
-{
-lean_object* x_10; 
-x_10 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
-return x_10;
+lean_object* v___x_85_; 
+v___x_85_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptDoc___closed__0));
+return v___x_85_;
 }
 }
 else
 {
-lean_object* x_11; 
-x_11 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
-return x_11;
+lean_object* v___x_86_; 
+v___x_86_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
+return v___x_86_;
+}
+}
+else
+{
+lean_object* v___x_87_; 
+v___x_87_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
+return v___x_87_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpScript___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_helpScript___boxed(lean_object* v_x_88_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_helpScript(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_object* v_res_89_; 
+v_res_89_ = l_Lake_helpScript(v_x_88_);
+lean_dec_ref(v_x_88_);
+return v_res_89_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_helpCache(lean_object* v_x_98_){
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = ((lean_object*)(l_Lake_helpCache___closed__0));
-x_3 = lean_string_dec_eq(x_1, x_2);
-if (x_3 == 0)
+lean_object* v___x_99_; uint8_t v___x_100_; 
+v___x_99_ = ((lean_object*)(l_Lake_helpCache___closed__0));
+v___x_100_ = lean_string_dec_eq(v_x_98_, v___x_99_);
+if (v___x_100_ == 0)
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = ((lean_object*)(l_Lake_helpCache___closed__1));
-x_5 = lean_string_dec_eq(x_1, x_4);
-if (x_5 == 0)
+lean_object* v___x_101_; uint8_t v___x_102_; 
+v___x_101_ = ((lean_object*)(l_Lake_helpCache___closed__1));
+v___x_102_ = lean_string_dec_eq(v_x_98_, v___x_101_);
+if (v___x_102_ == 0)
 {
-lean_object* x_6; 
-x_6 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
-return x_6;
+lean_object* v___x_103_; uint8_t v___x_104_; 
+v___x_103_ = ((lean_object*)(l_Lake_helpCache___closed__2));
+v___x_104_ = lean_string_dec_eq(v_x_98_, v___x_103_);
+if (v___x_104_ == 0)
+{
+lean_object* v___x_105_; uint8_t v___x_106_; 
+v___x_105_ = ((lean_object*)(l_Lake_helpCache___closed__3));
+v___x_106_ = lean_string_dec_eq(v_x_98_, v___x_105_);
+if (v___x_106_ == 0)
+{
+lean_object* v___x_107_; uint8_t v___x_108_; 
+v___x_107_ = ((lean_object*)(l_Lake_helpCache___closed__4));
+v___x_108_ = lean_string_dec_eq(v_x_98_, v___x_107_);
+if (v___x_108_ == 0)
+{
+lean_object* v___x_109_; uint8_t v___x_110_; 
+v___x_109_ = ((lean_object*)(l_Lake_helpCache___closed__5));
+v___x_110_ = lean_string_dec_eq(v_x_98_, v___x_109_);
+if (v___x_110_ == 0)
+{
+lean_object* v___x_111_; uint8_t v___x_112_; 
+v___x_111_ = ((lean_object*)(l_Lake_helpCache___closed__6));
+v___x_112_ = lean_string_dec_eq(v_x_98_, v___x_111_);
+if (v___x_112_ == 0)
+{
+lean_object* v___x_113_; uint8_t v___x_114_; 
+v___x_113_ = ((lean_object*)(l_Lake_helpCache___closed__7));
+v___x_114_ = lean_string_dec_eq(v_x_98_, v___x_113_);
+if (v___x_114_ == 0)
+{
+lean_object* v___x_115_; 
+v___x_115_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
+return v___x_115_;
 }
 else
 {
-lean_object* x_7; 
-x_7 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0));
-return x_7;
+lean_object* v___x_116_; 
+v___x_116_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheServices___closed__0));
+return v___x_116_;
 }
 }
 else
 {
-lean_object* x_8; 
-x_8 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0));
-return x_8;
+lean_object* v___x_117_; 
+v___x_117_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheClean___closed__0));
+return v___x_117_;
+}
+}
+else
+{
+lean_object* v___x_118_; 
+v___x_118_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePutStaged___closed__0));
+return v___x_118_;
+}
+}
+else
+{
+lean_object* v___x_119_; 
+v___x_119_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheUnstage___closed__0));
+return v___x_119_;
+}
+}
+else
+{
+lean_object* v___x_120_; 
+v___x_120_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheStage___closed__0));
+return v___x_120_;
+}
+}
+else
+{
+lean_object* v___x_121_; 
+v___x_121_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheAdd___closed__0));
+return v___x_121_;
+}
+}
+else
+{
+lean_object* v___x_122_; 
+v___x_122_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCachePut___closed__0));
+return v___x_122_;
+}
+}
+else
+{
+lean_object* v___x_123_; 
+v___x_123_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheGet___closed__0));
+return v___x_123_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_helpCache___boxed(lean_object* v_x_124_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_helpCache(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_object* v_res_125_; 
+v_res_125_ = l_Lake_helpCache(v_x_124_);
+lean_dec_ref(v_x_124_);
+return v_res_125_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_help(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_help(lean_object* v_x_150_){
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = ((lean_object*)(l_Lake_help___closed__0));
-x_3 = lean_string_dec_eq(x_1, x_2);
-if (x_3 == 0)
+lean_object* v___x_151_; uint8_t v___x_152_; 
+v___x_151_ = ((lean_object*)(l_Lake_help___closed__0));
+v___x_152_ = lean_string_dec_eq(v_x_150_, v___x_151_);
+if (v___x_152_ == 0)
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = ((lean_object*)(l_Lake_help___closed__1));
-x_5 = lean_string_dec_eq(x_1, x_4);
-if (x_5 == 0)
+lean_object* v___x_153_; uint8_t v___x_154_; 
+v___x_153_ = ((lean_object*)(l_Lake_help___closed__1));
+v___x_154_ = lean_string_dec_eq(v_x_150_, v___x_153_);
+if (v___x_154_ == 0)
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = ((lean_object*)(l_Lake_help___closed__2));
-x_7 = lean_string_dec_eq(x_1, x_6);
-if (x_7 == 0)
+lean_object* v___x_155_; uint8_t v___x_156_; 
+v___x_155_ = ((lean_object*)(l_Lake_help___closed__2));
+v___x_156_ = lean_string_dec_eq(v_x_150_, v___x_155_);
+if (v___x_156_ == 0)
 {
-lean_object* x_8; uint8_t x_9; 
-x_8 = ((lean_object*)(l_Lake_help___closed__3));
-x_9 = lean_string_dec_eq(x_1, x_8);
-if (x_9 == 0)
+lean_object* v___x_157_; uint8_t v___x_158_; 
+v___x_157_ = ((lean_object*)(l_Lake_help___closed__3));
+v___x_158_ = lean_string_dec_eq(v_x_150_, v___x_157_);
+if (v___x_158_ == 0)
 {
-lean_object* x_10; uint8_t x_11; 
-x_10 = ((lean_object*)(l_Lake_help___closed__4));
-x_11 = lean_string_dec_eq(x_1, x_10);
-if (x_11 == 0)
+lean_object* v___x_159_; uint8_t v___x_160_; 
+v___x_159_ = ((lean_object*)(l_Lake_help___closed__4));
+v___x_160_ = lean_string_dec_eq(v_x_150_, v___x_159_);
+if (v___x_160_ == 0)
 {
-lean_object* x_12; uint8_t x_13; 
-x_12 = ((lean_object*)(l_Lake_help___closed__5));
-x_13 = lean_string_dec_eq(x_1, x_12);
-if (x_13 == 0)
+lean_object* v___x_161_; uint8_t v___x_162_; 
+v___x_161_ = ((lean_object*)(l_Lake_help___closed__5));
+v___x_162_ = lean_string_dec_eq(v_x_150_, v___x_161_);
+if (v___x_162_ == 0)
 {
-lean_object* x_14; uint8_t x_15; 
-x_14 = ((lean_object*)(l_Lake_help___closed__6));
-x_15 = lean_string_dec_eq(x_1, x_14);
-if (x_15 == 0)
+lean_object* v___x_163_; uint8_t v___x_164_; 
+v___x_163_ = ((lean_object*)(l_Lake_help___closed__6));
+v___x_164_ = lean_string_dec_eq(v_x_150_, v___x_163_);
+if (v___x_164_ == 0)
 {
-lean_object* x_16; uint8_t x_17; 
-x_16 = ((lean_object*)(l_Lake_help___closed__7));
-x_17 = lean_string_dec_eq(x_1, x_16);
-if (x_17 == 0)
+lean_object* v___x_165_; uint8_t v___x_166_; 
+v___x_165_ = ((lean_object*)(l_Lake_help___closed__7));
+v___x_166_ = lean_string_dec_eq(v_x_150_, v___x_165_);
+if (v___x_166_ == 0)
 {
-lean_object* x_18; uint8_t x_19; 
-x_18 = ((lean_object*)(l_Lake_help___closed__8));
-x_19 = lean_string_dec_eq(x_1, x_18);
-if (x_19 == 0)
+lean_object* v___x_167_; uint8_t v___x_168_; 
+v___x_167_ = ((lean_object*)(l_Lake_help___closed__8));
+v___x_168_ = lean_string_dec_eq(v_x_150_, v___x_167_);
+if (v___x_168_ == 0)
 {
-lean_object* x_20; uint8_t x_21; 
-x_20 = ((lean_object*)(l_Lake_help___closed__9));
-x_21 = lean_string_dec_eq(x_1, x_20);
-if (x_21 == 0)
+lean_object* v___x_169_; uint8_t v___x_170_; 
+v___x_169_ = ((lean_object*)(l_Lake_help___closed__9));
+v___x_170_ = lean_string_dec_eq(v_x_150_, v___x_169_);
+if (v___x_170_ == 0)
 {
-lean_object* x_22; uint8_t x_23; 
-x_22 = ((lean_object*)(l_Lake_help___closed__10));
-x_23 = lean_string_dec_eq(x_1, x_22);
-if (x_23 == 0)
+lean_object* v___x_171_; uint8_t v___x_172_; 
+v___x_171_ = ((lean_object*)(l_Lake_help___closed__10));
+v___x_172_ = lean_string_dec_eq(v_x_150_, v___x_171_);
+if (v___x_172_ == 0)
 {
-lean_object* x_24; uint8_t x_25; 
-x_24 = ((lean_object*)(l_Lake_help___closed__11));
-x_25 = lean_string_dec_eq(x_1, x_24);
-if (x_25 == 0)
+lean_object* v___x_173_; uint8_t v___x_174_; 
+v___x_173_ = ((lean_object*)(l_Lake_help___closed__11));
+v___x_174_ = lean_string_dec_eq(v_x_150_, v___x_173_);
+if (v___x_174_ == 0)
 {
-lean_object* x_26; uint8_t x_27; 
-x_26 = ((lean_object*)(l_Lake_help___closed__12));
-x_27 = lean_string_dec_eq(x_1, x_26);
-if (x_27 == 0)
+lean_object* v___x_175_; uint8_t v___x_176_; 
+v___x_175_ = ((lean_object*)(l_Lake_help___closed__12));
+v___x_176_ = lean_string_dec_eq(v_x_150_, v___x_175_);
+if (v___x_176_ == 0)
 {
-lean_object* x_28; uint8_t x_29; 
-x_28 = ((lean_object*)(l_Lake_help___closed__13));
-x_29 = lean_string_dec_eq(x_1, x_28);
-if (x_29 == 0)
+lean_object* v___x_177_; uint8_t v___x_178_; 
+v___x_177_ = ((lean_object*)(l_Lake_help___closed__13));
+v___x_178_ = lean_string_dec_eq(v_x_150_, v___x_177_);
+if (v___x_178_ == 0)
 {
-lean_object* x_30; uint8_t x_31; 
-x_30 = ((lean_object*)(l_Lake_help___closed__14));
-x_31 = lean_string_dec_eq(x_1, x_30);
-if (x_31 == 0)
+lean_object* v___x_179_; uint8_t v___x_180_; 
+v___x_179_ = ((lean_object*)(l_Lake_help___closed__14));
+v___x_180_ = lean_string_dec_eq(v_x_150_, v___x_179_);
+if (v___x_180_ == 0)
 {
-lean_object* x_32; uint8_t x_33; 
-x_32 = ((lean_object*)(l_Lake_help___closed__15));
-x_33 = lean_string_dec_eq(x_1, x_32);
-if (x_33 == 0)
+lean_object* v___x_181_; uint8_t v___x_182_; 
+v___x_181_ = ((lean_object*)(l_Lake_helpCache___closed__6));
+v___x_182_ = lean_string_dec_eq(v_x_150_, v___x_181_);
+if (v___x_182_ == 0)
 {
-lean_object* x_34; uint8_t x_35; 
-x_34 = ((lean_object*)(l_Lake_help___closed__16));
-x_35 = lean_string_dec_eq(x_1, x_34);
-if (x_35 == 0)
+lean_object* v___x_183_; uint8_t v___x_184_; 
+v___x_183_ = ((lean_object*)(l_Lake_help___closed__15));
+v___x_184_ = lean_string_dec_eq(v_x_150_, v___x_183_);
+if (v___x_184_ == 0)
 {
-lean_object* x_36; uint8_t x_37; 
-x_36 = ((lean_object*)(l_Lake_help___closed__17));
-x_37 = lean_string_dec_eq(x_1, x_36);
-if (x_37 == 0)
+lean_object* v___x_185_; uint8_t v___x_186_; 
+v___x_185_ = ((lean_object*)(l_Lake_help___closed__16));
+v___x_186_ = lean_string_dec_eq(v_x_150_, v___x_185_);
+if (v___x_186_ == 0)
 {
-lean_object* x_38; uint8_t x_39; 
-x_38 = ((lean_object*)(l_Lake_help___closed__18));
-x_39 = lean_string_dec_eq(x_1, x_38);
-if (x_39 == 0)
+lean_object* v___x_187_; uint8_t v___x_188_; 
+v___x_187_ = ((lean_object*)(l_Lake_help___closed__17));
+v___x_188_ = lean_string_dec_eq(v_x_150_, v___x_187_);
+if (v___x_188_ == 0)
 {
-lean_object* x_40; uint8_t x_41; 
-x_40 = ((lean_object*)(l_Lake_helpScript___closed__1));
-x_41 = lean_string_dec_eq(x_1, x_40);
-if (x_41 == 0)
+lean_object* v___x_189_; uint8_t v___x_190_; 
+v___x_189_ = ((lean_object*)(l_Lake_helpScript___closed__1));
+v___x_190_ = lean_string_dec_eq(v_x_150_, v___x_189_);
+if (v___x_190_ == 0)
 {
-lean_object* x_42; uint8_t x_43; 
-x_42 = ((lean_object*)(l_Lake_help___closed__19));
-x_43 = lean_string_dec_eq(x_1, x_42);
-if (x_43 == 0)
+lean_object* v___x_191_; uint8_t v___x_192_; 
+v___x_191_ = ((lean_object*)(l_Lake_help___closed__18));
+v___x_192_ = lean_string_dec_eq(v_x_150_, v___x_191_);
+if (v___x_192_ == 0)
 {
-lean_object* x_44; uint8_t x_45; 
-x_44 = ((lean_object*)(l_Lake_help___closed__20));
-x_45 = lean_string_dec_eq(x_1, x_44);
-if (x_45 == 0)
+lean_object* v___x_193_; uint8_t v___x_194_; 
+v___x_193_ = ((lean_object*)(l_Lake_help___closed__19));
+v___x_194_ = lean_string_dec_eq(v_x_150_, v___x_193_);
+if (v___x_194_ == 0)
 {
-lean_object* x_46; uint8_t x_47; 
-x_46 = ((lean_object*)(l_Lake_help___closed__21));
-x_47 = lean_string_dec_eq(x_1, x_46);
-if (x_47 == 0)
+lean_object* v___x_195_; uint8_t v___x_196_; 
+v___x_195_ = ((lean_object*)(l_Lake_help___closed__20));
+v___x_196_ = lean_string_dec_eq(v_x_150_, v___x_195_);
+if (v___x_196_ == 0)
 {
-lean_object* x_48; uint8_t x_49; 
-x_48 = ((lean_object*)(l_Lake_help___closed__22));
-x_49 = lean_string_dec_eq(x_1, x_48);
-if (x_49 == 0)
+lean_object* v___x_197_; uint8_t v___x_198_; 
+v___x_197_ = ((lean_object*)(l_Lake_help___closed__21));
+v___x_198_ = lean_string_dec_eq(v_x_150_, v___x_197_);
+if (v___x_198_ == 0)
 {
-lean_object* x_50; uint8_t x_51; 
-x_50 = ((lean_object*)(l_Lake_help___closed__23));
-x_51 = lean_string_dec_eq(x_1, x_50);
-if (x_51 == 0)
+lean_object* v___x_199_; uint8_t v___x_200_; 
+v___x_199_ = ((lean_object*)(l_Lake_help___closed__22));
+v___x_200_ = lean_string_dec_eq(v_x_150_, v___x_199_);
+if (v___x_200_ == 0)
 {
-lean_object* x_52; uint8_t x_53; 
-x_52 = ((lean_object*)(l_Lake_help___closed__24));
-x_53 = lean_string_dec_eq(x_1, x_52);
-if (x_53 == 0)
+lean_object* v___x_201_; uint8_t v___x_202_; 
+v___x_201_ = ((lean_object*)(l_Lake_help___closed__23));
+v___x_202_ = lean_string_dec_eq(v_x_150_, v___x_201_);
+if (v___x_202_ == 0)
 {
-lean_object* x_54; 
-x_54 = l_Lake_usage;
-return x_54;
+lean_object* v___x_203_; 
+v___x_203_ = l_Lake_usage;
+return v___x_203_;
 }
 else
 {
-lean_object* x_55; 
-x_55 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___closed__0));
-return x_55;
-}
-}
-else
-{
-lean_object* x_56; 
-x_56 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLean___closed__0));
-return x_56;
+lean_object* v___x_204_; 
+v___x_204_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTranslateConfig___closed__0));
+return v___x_204_;
 }
 }
 else
 {
-lean_object* x_57; 
-x_57 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
-return x_57;
+lean_object* v___x_205_; 
+v___x_205_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLean___closed__0));
+return v___x_205_;
 }
 }
 else
 {
-lean_object* x_58; 
-x_58 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
-return x_58;
+lean_object* v___x_206_; 
+v___x_206_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
+return v___x_206_;
 }
 }
 else
 {
-lean_object* x_59; 
-x_59 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpEnv___closed__0));
-return x_59;
+lean_object* v___x_207_; 
+v___x_207_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpExe___closed__0));
+return v___x_207_;
 }
 }
 else
 {
-lean_object* x_60; 
-x_60 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpServe___closed__0));
-return x_60;
+lean_object* v___x_208_; 
+v___x_208_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpEnv___closed__0));
+return v___x_208_;
 }
 }
 else
 {
-lean_object* x_61; 
-x_61 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
-return x_61;
+lean_object* v___x_209_; 
+v___x_209_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpServe___closed__0));
+return v___x_209_;
 }
 }
 else
 {
-lean_object* x_62; 
-x_62 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
-return x_62;
+lean_object* v___x_210_; 
+v___x_210_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptRun___closed__0));
+return v___x_210_;
 }
 }
 else
 {
-lean_object* x_63; 
-x_63 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
-return x_63;
+lean_object* v___x_211_; 
+v___x_211_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptList___closed__0));
+return v___x_211_;
 }
 }
 else
 {
-lean_object* x_64; 
-x_64 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0));
-return x_64;
+lean_object* v___x_212_; 
+v___x_212_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpScriptCli___closed__0));
+return v___x_212_;
 }
 }
 else
 {
-lean_object* x_65; 
-x_65 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0));
-return x_65;
+lean_object* v___x_213_; 
+v___x_213_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpShake___closed__0));
+return v___x_213_;
 }
 }
 else
 {
-lean_object* x_66; 
-x_66 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0));
-return x_66;
+lean_object* v___x_214_; 
+v___x_214_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpClean___closed__0));
+return v___x_214_;
 }
 }
 else
 {
-lean_object* x_67; 
-x_67 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0));
-return x_67;
+lean_object* v___x_215_; 
+v___x_215_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckLint___closed__0));
+return v___x_215_;
 }
 }
 else
 {
-lean_object* x_68; 
-x_68 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0));
-return x_68;
+lean_object* v___x_216_; 
+v___x_216_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpLint___closed__0));
+return v___x_216_;
 }
 }
 else
 {
-lean_object* x_69; 
-x_69 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTest___closed__0));
-return x_69;
+lean_object* v___x_217_; 
+v___x_217_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckTest___closed__0));
+return v___x_217_;
 }
 }
 else
 {
-lean_object* x_70; 
-x_70 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
-return x_70;
+lean_object* v___x_218_; 
+v___x_218_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpTest___closed__0));
+return v___x_218_;
 }
 }
 else
 {
-lean_object* x_71; 
-x_71 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpload___closed__0));
-return x_71;
+lean_object* v___x_219_; 
+v___x_219_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCacheCli___closed__0));
+return v___x_219_;
 }
 }
 else
 {
-lean_object* x_72; 
-x_72 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUnpack___closed__0));
-return x_72;
+lean_object* v___x_220_; 
+v___x_220_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpload___closed__0));
+return v___x_220_;
 }
 }
 else
 {
-lean_object* x_73; 
-x_73 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0));
-return x_73;
+lean_object* v___x_221_; 
+v___x_221_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUnpack___closed__0));
+return v___x_221_;
 }
 }
 else
 {
-lean_object* x_74; 
-x_74 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
-return x_74;
+lean_object* v___x_222_; 
+v___x_222_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0));
+return v___x_222_;
 }
 }
 else
 {
-lean_object* x_75; 
-x_75 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
-return x_75;
+lean_object* v___x_223_; 
+v___x_223_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
+return v___x_223_;
 }
 }
 else
 {
-lean_object* x_76; 
-x_76 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpQuery___closed__0));
-return x_76;
+lean_object* v___x_224_; 
+v___x_224_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpUpdate___closed__0));
+return v___x_224_;
 }
 }
 else
 {
-lean_object* x_77; 
-x_77 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckBuild___closed__0));
-return x_77;
+lean_object* v___x_225_; 
+v___x_225_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpQuery___closed__0));
+return v___x_225_;
 }
 }
 else
 {
-lean_object* x_78; 
-x_78 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpBuild___closed__0));
-return x_78;
+lean_object* v___x_226_; 
+v___x_226_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpCheckBuild___closed__0));
+return v___x_226_;
 }
 }
 else
 {
-lean_object* x_79; 
-x_79 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpInit___closed__0));
-return x_79;
+lean_object* v___x_227_; 
+v___x_227_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpBuild___closed__0));
+return v___x_227_;
 }
 }
 else
 {
-lean_object* x_80; 
-x_80 = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpNew___closed__0));
-return x_80;
+lean_object* v___x_228_; 
+v___x_228_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpInit___closed__0));
+return v___x_228_;
+}
+}
+else
+{
+lean_object* v___x_229_; 
+v___x_229_ = ((lean_object*)(l___private_Lake_CLI_Help_0__Lake_helpNew___closed__0));
+return v___x_229_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_help___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_help___boxed(lean_object* v_x_230_){
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_help(x_1);
-lean_dec_ref(x_1);
-return x_2;
+lean_object* v_res_231_; 
+v_res_231_ = l_Lake_help(v_x_230_);
+lean_dec_ref(v_x_230_);
+return v_res_231_;
 }
+}
+lean_object* runtime_initialize_Init_Data_ToString(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Version(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_CLI_Help(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_ToString(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Version(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lake_usage = _init_l_Lake_usage();
+lean_mark_persistent(l_Lake_usage);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_CLI_Help(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_ToString(uint8_t builtin);
 lean_object* initialize_Lake_Version(uint8_t builtin);
@@ -624,11 +749,13 @@ lean_dec_ref(res);
 res = initialize_Lake_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_usage___closed__1 = _init_l_Lake_usage___closed__1();
-lean_mark_persistent(l_Lake_usage___closed__1);
-l_Lake_usage = _init_l_Lake_usage();
-lean_mark_persistent(l_Lake_usage);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lake_CLI_Help(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lake_CLI_Help(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_CLI_Help(builtin);
 }
 #ifdef __cplusplus
 }

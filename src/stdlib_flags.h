@@ -22,6 +22,7 @@ options get_default_options() {
     opts = opts.update({"quotPrecheck"}, true);
 
     opts = opts.update({"pp", "rawOnError"}, true);
+
 #endif
     return opts;
 }

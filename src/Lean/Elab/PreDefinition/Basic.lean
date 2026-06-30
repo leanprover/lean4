@@ -10,8 +10,8 @@ public import Lean.Compiler.NoncomputableAttr
 public import Lean.Util.NumApps
 public import Lean.Meta.Eqns
 public import Lean.Elab.RecAppSyntax
+public import Lean.Meta.WrapInstance
 public import Lean.Elab.DefView
-
 public section
 
 namespace Lean.Elab
@@ -163,9 +163,9 @@ docstring. If code generation will not occur, then it should be done after addin
 to the environment.
 -/
 def addPreDefDocs (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
-  if let some (doc, isVerso) := preDef.modifiers.docString? then
+  if let some doc := preDef.modifiers.docString? then
     withLCtx docCtx.1 docCtx.2 do
-      addDocStringOf isVerso preDef.declName preDef.binders doc
+      addDocString preDef.declName preDef.binders doc
 
 /--
 Adds constant info to the definition name. This should occur after executing post-compilation
@@ -217,15 +217,13 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
     | .meta          => if !isMarkedMeta (← getEnv) preDef.declName then modifyEnv (markMeta · preDef.declName)
-    | .noncomputable => if !isNoncomputable (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
-    | _              =>
-      if !preDef.kind.isTheorem then
-        modifyEnv (markNotMeta · preDef.declName)
+    | .noncomputable => if !isNoncomputable (asyncMode := .local) (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
+    | _              => pure ()
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then
+      saveEqnAffectingOptions preDef.declName
       enableRealizationsForConst preDef.declName
-      generateEagerEqns preDef.declName
     addPreDefDocs docCtx preDef
     if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation

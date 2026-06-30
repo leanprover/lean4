@@ -7,8 +7,11 @@ module
 
 prelude
 public import Init.Data.String.Lemmas.Splits
+public import Init.Data.String.FindPos
 import Init.Data.Option.Lemmas
 import Init.Omega
+import Init.ByCases
+import Init.Data.String.Lemmas.FindPos
 
 /-!
 # Helpers for termination arguments about functions operating on strings
@@ -53,11 +56,11 @@ theorem lt_iff_remainingBytes_lt {s : Slice} (p q : s.Pos) :
   omega
 
 theorem wellFounded_lt {s : Slice} : WellFounded (fun (p : s.Pos) q => p < q) := by
-  simpa [lt_iff, Pos.Raw.lt_iff] using
+  simpa [lt_iff, Pos.Raw.lt_iff] using!
     InvImage.wf (Pos.Raw.byteIdx ∘ Slice.Pos.offset) Nat.lt_wfRel.wf
 
 theorem wellFounded_gt {s : Slice} : WellFounded (fun (p : s.Pos) q => q < p) := by
-  simpa [lt_iff_remainingBytes_lt] using
+  simpa [lt_iff_remainingBytes_lt] using!
     InvImage.wf Slice.Pos.remainingBytes Nat.lt_wfRel.wf
 
 instance {s : Slice} : WellFoundedRelation s.Pos where
@@ -105,6 +108,21 @@ theorem lt_next_next {s : Slice} {p : s.Pos} {h h'} : p < (p.next h).next h' :=
 theorem prev_prev_lt {s : Slice} {p : s.Pos} {h h'} : (p.prev h).prev h' < p :=
   lt_trans (p.prev h).prev_lt p.prev_lt
 
+theorem next_induction {s : Slice} {C : s.Pos → Prop} (p : s.Pos)
+  (next : ∀ (x : s.Pos), (h : x ≠ s.endPos) → C (x.next h) → C x) (endPos : C s.endPos) : C p := by
+  induction p using WellFounded.induction wellFounded_gt with | h p ih
+  by_cases h : p = s.endPos
+  · simpa [h]
+  · exact next _ h (ih _ (by simp))
+
+theorem prev_induction {s : Slice} {C : s.Pos → Prop} (p : s.Pos)
+    (prev : ∀ (x : s.Pos), (h : x ≠ s.startPos) → C (x.prev h) → C x) (startPos : C s.startPos) :
+    C p := by
+  induction p using WellFounded.induction wellFounded_lt with | h p ih
+  by_cases h : p = s.startPos
+  · simpa [h]
+  · exact prev _ h (ih _ (by simp))
+
 end Slice.Pos
 
 namespace Pos
@@ -137,11 +155,11 @@ theorem lt_iff_remainingBytes_lt {s : String} (p q : s.Pos) :
   simp [← remainingBytes_toSlice, ← Slice.Pos.lt_iff_remainingBytes_lt]
 
 theorem wellFounded_lt {s : String} : WellFounded (fun (p : s.Pos) q => p < q) := by
-  simpa [lt_iff, Pos.Raw.lt_iff] using
+  simpa [lt_iff, Pos.Raw.lt_iff] using!
     InvImage.wf (Pos.Raw.byteIdx ∘ Pos.offset) Nat.lt_wfRel.wf
 
 theorem wellFounded_gt {s : String} : WellFounded (fun (p : s.Pos) q => q < p) := by
-  simpa [lt_iff_remainingBytes_lt] using
+  simpa [lt_iff_remainingBytes_lt] using!
     InvImage.wf Pos.remainingBytes Nat.lt_wfRel.wf
 
 instance {s : String} : WellFoundedRelation s.Pos where
@@ -204,6 +222,21 @@ theorem prev_prev_lt {s : String} {p : s.Pos} {h h'} : (p.prev h).prev h' < p :=
 theorem Splits.remainingBytes_eq {s : String} {p : s.Pos} {t₁ t₂}
     (h : p.Splits t₁ t₂) : p.remainingBytes = t₂.utf8ByteSize := by
   simp [Pos.remainingBytes_eq, h.eq_append, h.offset_eq_rawEndPos]
+
+theorem next_induction {s : String} {C : s.Pos → Prop} (p : s.Pos)
+  (next : ∀ (x : s.Pos), (h : x ≠ s.endPos) → C (x.next h) → C x) (endPos : C s.endPos) : C p := by
+  induction p using WellFounded.induction wellFounded_gt with | h p ih
+  by_cases h : p = s.endPos
+  · simpa [h]
+  · exact next _ h (ih _ (by simp))
+
+theorem prev_induction {s : String} {C : s.Pos → Prop} (p : s.Pos)
+    (prev : ∀ (x : s.Pos), (h : x ≠ s.startPos) → C (x.prev h) → C x) (startPos : C s.startPos) :
+    C p := by
+  induction p using WellFounded.induction wellFounded_lt with | h p ih
+  by_cases h : p = s.startPos
+  · simpa [h]
+  · exact prev _ h (ih _ (by simp))
 
 end Pos
 

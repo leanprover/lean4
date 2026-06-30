@@ -1620,6 +1620,22 @@ Obtain the `BitVec` that contains the 2's complement representation of the `ISiz
 theorem ISize.toBitVec.inj : {x y : ISize} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
+/--
+Convert an `ISize` to `BitVec 32`, assuming that the system bit-width is 32.
+
+This operation is intended for proof purposes.
+-/
+def ISize.toBitVec32 (a : ISize) (h : System.Platform.numBits = 32) : BitVec 32 :=
+  h ▸ a.toBitVec
+
+/--
+Convert an `ISize` to `BitVec 64`, assuming that the system bit-width is 64.
+
+This operation is intended for proof purposes.
+-/
+def ISize.toBitVec64 (a : ISize) (h : System.Platform.numBits = 64) : BitVec 64 :=
+  h ▸ a.toBitVec
+
 /-- Obtains the `ISize` that is 2's complement equivalent to the `USize`. -/
 @[inline] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
 

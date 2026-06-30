@@ -75,3 +75,18 @@ example (a b : ISize) (h : System.Platform.numBits = 64) : a + b > a := by
 
 example (h : 32 = System.Platform.numBits) (a b c : ISize) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
+
+/-! ISize arithmetic operations -/
+example (a b : ISize) (h : System.Platform.numBits = 64) : a + b = b + a := by bv_decide
+example (a : ISize) (h : System.Platform.numBits = 64) : a - a = 0 := by bv_decide
+example (a : ISize) (h : System.Platform.numBits = 64) : -a + a = 0 := by bv_decide
+example (a : ISize) (h : System.Platform.numBits = 64) : a / 1 = a := by bv_decide
+example (a : ISize) (h : System.Platform.numBits = 64) : a % 1 = 0 := by bv_decide
+
+/-! ISize bitwise operations -/
+example (a b : ISize) (h : System.Platform.numBits = 64) : a &&& b = b &&& a := by bv_decide
+example (a b : ISize) (h : System.Platform.numBits = 64) : a ||| b = b ||| a := by bv_decide
+example (a b : ISize) (h : System.Platform.numBits = 64) : a ^^^ b = b ^^^ a := by bv_decide
+example (a : ISize) (h : System.Platform.numBits = 64) : ~~~(~~~a) = a := by bv_decide
+example (a : ISize) (h : System.Platform.numBits = 64) : a <<< (0 : ISize) = a := by bv_decide
+example (a : ISize) (h : System.Platform.numBits = 64) : a >>> (0 : ISize) = a := by bv_decide

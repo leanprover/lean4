@@ -88,6 +88,21 @@ example (n : Int64) : n.toUInt64.toInt64 = n := by bv_decide
 
 example {b : UInt8} (h : b &&& 0x80 == 0) : b < 0x80 := by bv_decide
 
+/-! USize arithmetic operations -/
+example (a b : USize) (h : System.Platform.numBits = 64) : a + b = b + a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a - a = 0 := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : -a + a = 0 := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a / 1 = a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a % 1 = 0 := by bv_decide
+
+/-! USize bitwise operations -/
+example (a b : USize) (h : System.Platform.numBits = 64) : a &&& b = b &&& a := by bv_decide
+example (a b : USize) (h : System.Platform.numBits = 64) : a ||| b = b ||| a := by bv_decide
+example (a b : USize) (h : System.Platform.numBits = 64) : a ^^^ b = b ^^^ a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : ~~~(~~~a) = a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a <<< (0 : USize) = a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a >>> (0 : USize) = a := by bv_decide
+
 example (x y z: UInt8) (h1 : x == y) (h2 : y == z) : x == z := by bv_decide
 example (x y z: UInt16) (h1 : x == y) (h2 : y == z) : x == z := by bv_decide
 example (x y z: UInt32) (h1 : x == y) (h2 : y == z) : x == z := by bv_decide

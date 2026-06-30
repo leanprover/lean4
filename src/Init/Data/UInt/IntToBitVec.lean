@@ -12,10 +12,10 @@ public import Init.Data.UInt.Bitwise
 public section
 
 theorem USize.toBitVec32_eq_toBitVec (a : USize) (h : System.Platform.numBits = 32) :
-    a.toBitVec32 h = h ▸ a.toBitVec := rfl
+    a.toBitVec32 h = a.toBitVec.cast h := rfl
 
 theorem USize.toBitVec64_eq_toBitVec (a : USize) (h : System.Platform.numBits = 64) :
-    a.toBitVec64 h = h ▸ a.toBitVec := rfl
+    a.toBitVec64 h = a.toBitVec.cast h := rfl
 
 /-! ## `numBits = 32` -/
 
@@ -108,6 +108,56 @@ theorem USize.toBitVec32_neg {a : USize} (h : System.Platform.numBits = 32) :
   rfl
 
 @[int_toBitVec]
+theorem USize.toBitVec32_not {a : USize} (h : System.Platform.numBits = 32) :
+    (~~~a).toBitVec32 h = ~~~a.toBitVec32 h := by
+  simp only [USize.toBitVec_not, USize.toBitVec32_eq_toBitVec]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec32_and (a b : USize) (h : System.Platform.numBits = 32) :
+    (a &&& b).toBitVec32 h = a.toBitVec32 h &&& b.toBitVec32 h := by
+  simp only [USize.toBitVec_and, USize.toBitVec32_eq_toBitVec]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec32_or (a b : USize) (h : System.Platform.numBits = 32) :
+    (a ||| b).toBitVec32 h = a.toBitVec32 h ||| b.toBitVec32 h := by
+  simp only [USize.toBitVec_or, USize.toBitVec32_eq_toBitVec]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec32_xor (a b : USize) (h : System.Platform.numBits = 32) :
+    (a ^^^ b).toBitVec32 h = a.toBitVec32 h ^^^ b.toBitVec32 h := by
+  simp only [USize.toBitVec_xor, USize.toBitVec32_eq_toBitVec]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec32_shiftLeft (a b : USize) (h : System.Platform.numBits = 32) :
+    (a <<< b).toBitVec32 h = a.toBitVec32 h <<< (b.toBitVec32 h % 32) := by
+  simp only [toBitVec32_eq_toBitVec, USize.toBitVec_shiftLeft, BitVec.natCast_eq_ofNat,
+    BitVec.ofNat_eq_ofNat]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec32_shiftRight (a b : USize) (h : System.Platform.numBits = 32) :
+    (a >>> b).toBitVec32 h = a.toBitVec32 h >>> (b.toBitVec32 h % 32) := by
+  simp only [toBitVec32_eq_toBitVec, USize.toBitVec_shiftRight, BitVec.natCast_eq_ofNat,
+    BitVec.ofNat_eq_ofNat]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
 theorem USize.toBitVec32_toUInt8 (n : USize) (h : System.Platform.numBits = 32) :
     n.toUInt8.toBitVec = (n.toBitVec32 h).setWidth 8 := by
   simp only [USize.toBitVec_toUInt8, USize.toBitVec32_eq_toBitVec]
@@ -191,9 +241,6 @@ theorem USize.toBitVec32_ofFin (n : Fin USize.size) (h : System.Platform.numBits
 theorem USize.toBitVec32_ofBitVec (n) (h : System.Platform.numBits = 32) :
     (USize.ofBitVec n).toBitVec32 h = n.cast h := by
   simp only [USize.toBitVec32_eq_toBitVec]
-  generalize 32 = x at *
-  subst h
-  rfl
 
 @[int_toBitVec]
 theorem USize.toBitVec32_pow (a : USize) (n : Nat) (h : System.Platform.numBits = 32) :
@@ -302,6 +349,56 @@ theorem USize.toBitVec64_neg {a : USize} (h : System.Platform.numBits = 64) :
   rfl
 
 @[int_toBitVec]
+theorem USize.toBitVec64_not {a : USize} (h : System.Platform.numBits = 64) :
+    (~~~a).toBitVec64 h = ~~~a.toBitVec64 h := by
+  simp only [USize.toBitVec_not, USize.toBitVec64_eq_toBitVec]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec64_and (a b : USize) (h : System.Platform.numBits = 64) :
+    (a &&& b).toBitVec64 h = a.toBitVec64 h &&& b.toBitVec64 h := by
+  simp only [USize.toBitVec_and, USize.toBitVec64_eq_toBitVec]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec64_or (a b : USize) (h : System.Platform.numBits = 64) :
+    (a ||| b).toBitVec64 h = a.toBitVec64 h ||| b.toBitVec64 h := by
+  simp only [USize.toBitVec_or, USize.toBitVec64_eq_toBitVec]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec64_xor (a b : USize) (h : System.Platform.numBits = 64) :
+    (a ^^^ b).toBitVec64 h = a.toBitVec64 h ^^^ b.toBitVec64 h := by
+  simp only [USize.toBitVec_xor, USize.toBitVec64_eq_toBitVec]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec64_shiftLeft (a b : USize) (h : System.Platform.numBits = 64) :
+    (a <<< b).toBitVec64 h = a.toBitVec64 h <<< (b.toBitVec64 h % 64) := by
+  simp only [toBitVec64_eq_toBitVec, USize.toBitVec_shiftLeft, BitVec.natCast_eq_ofNat,
+    BitVec.ofNat_eq_ofNat]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec64_shiftRight (a b : USize) (h : System.Platform.numBits = 64) :
+    (a >>> b).toBitVec64 h = a.toBitVec64 h >>> (b.toBitVec64 h % 64) := by
+  simp only [toBitVec64_eq_toBitVec, USize.toBitVec_shiftRight, BitVec.natCast_eq_ofNat,
+    BitVec.ofNat_eq_ofNat]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
 theorem USize.toBitVec64_toUInt8 (n : USize) (h : System.Platform.numBits = 64) :
     n.toUInt8.toBitVec = (n.toBitVec64 h).setWidth 8 := by
   simp only [USize.toBitVec_toUInt8, USize.toBitVec64_eq_toBitVec]
@@ -385,9 +482,6 @@ theorem USize.toBitVec64_ofFin (n : Fin USize.size) (h : System.Platform.numBits
 theorem USize.toBitVec64_ofBitVec (n) (h : System.Platform.numBits = 64) :
     (USize.ofBitVec n).toBitVec64 h = n.cast h := by
   simp only [USize.toBitVec64_eq_toBitVec]
-  generalize 64 = x at *
-  subst h
-  rfl
 
 @[int_toBitVec]
 theorem USize.toBitVec64_pow (a : USize) (n : Nat) (h : System.Platform.numBits = 64) :

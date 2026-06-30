@@ -934,6 +934,22 @@ This function is overridden at runtime with an efficient implementation.
 def USize.toUInt64 (a : USize) : UInt64 :=
   UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt USize.size_le)
 
+/--
+Convert a `USize` to `BitVec 32`, assuming that the system bit-width is 32.
+
+This operation is intended for proof purposes.
+-/
+def USize.toBitVec32 (a : USize) (h : System.Platform.numBits = 32) : BitVec 32 :=
+  h ▸ a.toBitVec
+
+/--
+Convert a `USize` to `BitVec 64`, assuming that the system bit-width is 32.
+
+This operation is intended for proof purposes.
+-/
+def USize.toBitVec64 (a : USize) (h : System.Platform.numBits = 64) : BitVec 64 :=
+  h ▸ a.toBitVec
+
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Pow USize Nat   := ⟨USize.pow⟩
 instance : Mod USize       := ⟨USize.mod⟩

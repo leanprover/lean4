@@ -792,10 +792,9 @@ protected def services : CliM PUnit := do
   let lakeEnv ← opts.computeEnv
   let cfg  ← loadLakeConfig lakeEnv
   cfg.config.cache.services.forM fun svc =>
-    if svc.revDiscovery matches .nearest then
-      IO.println svc.name
-    else
-      IO.println s!"{svc.name} (revDiscovery = {svc.revDiscovery})"
+    match svc.revDiscovery with
+    | .nearest => IO.println svc.name
+    | rd => IO.println s!"{svc.name} (revDiscovery = {rd})"
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption

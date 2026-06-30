@@ -5310,11 +5310,11 @@ theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
     (m.partition p).1.1.Equiv (m.filter p).1 := by
   rw [equiv_iff_toList_perm_toList]
   refine List.Perm.trans ?_ (toList_filter m).symm
-  apply List.Perm.of_nodup_of_nodup_of_forall_mem_iff_mem
-  · apply nodup_toList _ Raw.WF.fst_partition₀
-  · apply List.Sublist.nodup List.filter_sublist (nodup_toList m h)
+  rw [List.perm_ext_iff_of_nodup]
   · intro a
     simp [mem_toList_fst_partition _ h]
+  · apply nodup_toList _ Raw.WF.fst_partition₀
+  · apply List.Sublist.nodup List.filter_sublist (nodup_toList m h)
 
 theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :

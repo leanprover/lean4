@@ -560,18 +560,6 @@ theorem Perm.nodup {l l' : List α} (hl : l ~ l') (hR : l.Nodup) : l'.Nodup := h
 theorem Perm.nodup_iff {l₁ l₂ : List α} : l₁ ~ l₂ → (Nodup l₁ ↔ Nodup l₂) :=
   Perm.pairwise_iff <| @Ne.symm α
 
-theorem Perm.of_nodup_of_nodup_of_forall_mem_iff_mem {α : Type u} (l₁ l₂ : List α)
-    (h₁ : l₁.Nodup) (h₂ : l₂.Nodup) (h₃ : ∀ (a : α), a ∈ l₁ ↔ a ∈ l₂) :
-    l₁.Perm l₂ := by
-  induction l₁ generalizing l₂ with
-  | nil => simp_all [List.eq_nil_iff_forall_not_mem]
-  | cons hd tl ih =>
-    classical
-    simp only [mem_cons] at h₃
-    refine (Perm.trans ((perm_cons _).2 ?_) (perm_cons_erase ((h₃ hd).1 (Or.inl rfl))).symm)
-    exact ih _ h₁.tail (h₂.erase _) (by simpa [h₂.mem_erase_iff, ← h₃, and_or_left] using
-      fun _ => (ne_of_mem_of_not_mem · (List.nodup_cons.1 h₁).1))
-
 grind_pattern Perm.nodup_iff => l₁ ~ l₂, Nodup l₁
 grind_pattern Perm.nodup_iff => l₁ ~ l₂, Nodup l₂
 

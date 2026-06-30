@@ -66,97 +66,26 @@ public def intToBitVecPass : Pass where
       (simpTheorems := #[intToBvThms])
       (congrTheorems := (← getSimpCongrTheorems))
 
+    let numBitsEq? ← findNumBitsEq goal
+    let discharge? :=
+      if let some (width, proof) := numBitsEq? then
+        some <| fun prop => do
+          let prop ← instantiateMVars prop
+          let_expr Eq _ lhs rhs := prop | return none
+          unless lhs.isConstOf ``System.Platform.numBits do return none
+          let some val ← getNatValue? rhs | return none
+          unless width == val do return none
+          return some proof
+      else
+        none
+
     let hyps ← goal.getNondepPropHyps
-    let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
+    let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps) (discharge? := discharge?)
     let some (_, goal) := result? | return none
-    handleSize goal |>.run' {}
+    return goal
 where
-  handleSize (goal : MVarId) : M MVarId := do
-    if ← detectSize goal then
-      replaceSize goal
-    else
-      return goal
-
-  detectSize (goal : MVarId) : M Bool := do
-    goal.withContext do
-      for hyp in ← getPropHyps do
-        (← instantiateMVars (← hyp.getType)).forEachWhere
-          (stopWhenVisited := true)
-          (fun e =>
-            (e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1) &&
-            !e.hasLooseBVars)
-          fun e => do
-            M.addSizeTerm e
-            M.addSizeHyp hyp
-
-      return !(← get).relevantTerms.isEmpty
-
   /--
-  Turn `goal` into a goal containing `BitVec const` instead of `USize`/`ISize`.
-  -/
-  replaceSize (goal : MVarId) : M MVarId := do
-    if let some (numBits, numBitsEq) ← findNumBitsEq goal then
-      goal.withContext do
-        let relevantHyps := (← get).relevantHyps.toArray.map mkFVar
-        let relevantTerms := (← get).relevantTerms.toArray
-        let (app, abstractedHyps) ← liftMkBindingM <| MetavarContext.revert relevantHyps goal true
-        let newMVar := app.getAppFn.mvarId!
-        let targetType ← newMVar.getType
-        /-
-        newMVar has type : h1 → h2 → ... → False`
-        This code computes a motive of the form:
-        ```
-        fun z _ => ∀ (x_1 : BitVec z) (x_2 : BitVec z) ..., h1 → h2 → ... → False
-        ```
-        Where:
-        - all terms from `relevantTerms` in the implication are substituted by `x_1`, ...
-        - all occurrences of `numBits` are substituted by `z`
-
-        Additionally we compute a new metavariable with type:
-        ```
-        ∀ (x_1 : BitVec const) (x_2 : BitVec const) ..., h1 → h2 → ... → False
-        ```
-        with all occurrences of `numBits` substituted by const. This meta variable is going to become
-        the next goal
-        -/
-        let (motive, newGoalType) ←
-          withLocalDeclD `z (mkConst ``Nat) fun z => do
-            let otherArgType := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) (toExpr numBits) z
-            withLocalDeclD `h otherArgType fun other => do
-              let argType := mkApp (mkConst ``BitVec) z
-              let argTypes := relevantTerms.map (fun _ => (`x, argType))
-              let innerMotiveType ←
-                withLocalDeclsDND argTypes fun args => do
-                  let mut subst : Std.HashMap Expr Expr := Std.HashMap.emptyWithCapacity (args.size + 1)
-                  subst := subst.insert (mkConst ``System.Platform.numBits) z
-                  for term in relevantTerms, arg in args do
-                    subst := subst.insert term arg
-                  let motiveType := targetType.replace subst.get?
-                  mkForallFVars args motiveType
-              let newGoalType := innerMotiveType.replaceFVar z (toExpr numBits)
-              let motive ← mkLambdaFVars #[z, other] innerMotiveType
-              return (motive, newGoalType)
-        let mut newGoal := (← mkFreshExprMVar newGoalType).mvarId!
-        let casesOn := mkApp6 (mkConst ``Eq.casesOn [0, 1])
-          (mkConst ``Nat)
-          (toExpr numBits)
-          motive
-          (mkConst ``System.Platform.numBits)
-          numBitsEq
-          (mkMVar newGoal)
-        goal.assign <| mkAppN casesOn (relevantTerms ++ abstractedHyps)
-        -- remove all of the hold hypotheses about USize.toBitVec/ISize.toBitVec to prevent
-        -- false counter examples
-        (newGoal, _) ← newGoal.tryClearMany' (abstractedHyps.map Expr.fvarId!)
-        -- intro both the new `BitVec const` as well as all hypotheses about them
-        (_, newGoal) ← newGoal.introN (relevantTerms.size + abstractedHyps.size)
-        return newGoal
-    else
-      logWarning m!"Detected USize/ISize in the goal but no hypothesis about System.Platform.numBits, consider case splitting on {mkConst ``System.Platform.numBits_eq}"
-      return goal
-
-  /--
-  Builds an expression of type: `const = System.Platform.numBits` from the hypotheses in the context
+  Builds an expression of type: `System.Platform.numBits = const` from the hypotheses in the context
   if possible.
   -/
   findNumBitsEq (goal : MVarId) : MetaM (Option (Nat × Expr)) := do
@@ -166,10 +95,10 @@ where
         | Eq eqTyp lhs rhs =>
           if lhs.isConstOf ``System.Platform.numBits then
             let some val ← getNatValue? rhs | return none
-            return some (val, mkApp4 (mkConst ``Eq.symm [1]) eqTyp lhs rhs (mkFVar hyp))
+            return some (val, mkFVar hyp)
           else if rhs.isConstOf ``System.Platform.numBits then
             let some val ← getNatValue? lhs | return none
-            return some (val, mkFVar hyp)
+            return some (val, mkApp4 (mkConst ``Eq.symm [1]) eqTyp lhs rhs (mkFVar hyp))
         | _ => continue
       return none
 

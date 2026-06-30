@@ -65,14 +65,13 @@ example (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
   cases System.Platform.numBits_eq <;> bv_decide
 
 /--
-warning: Detected USize/ISize in the goal but no hypothesis about System.Platform.numBits, consider case splitting on System.Platform.numBits_eq
----
-warning: declaration uses `sorry`
+error: The prover found a counterexample, consider the following assignment:
+a = 18446744073709551615
+b = 18446744073709551615
 -/
 #guard_msgs in
-example (a b : USize) : a + b > a := by
-  bv_normalize
-  sorry
+example (a b : USize) (h : System.Platform.numBits = 64) : a + b > a := by
+  bv_decide
 
 example (h : 32 = System.Platform.numBits) (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide

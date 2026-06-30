@@ -147,8 +147,7 @@ public structure LeanInstall where
   ccLinkSharedFlags := linkSharedFlags
   deriving Inhabited, Repr
 
-@[deprecated "sharedDynlib" (since := "2026-06-29")]
-public abbrev LeanInstall.sharedLib (self : LeanInstall) : FilePath :=
+@[inline] public def LeanInstall.sharedLib (self : LeanInstall) : FilePath :=
   self.sharedDynlib.path
 
 @[deprecated "sharedDynlibs" (since := "2026-06-29")]

@@ -323,7 +323,7 @@ Returns the primary core shared library
 Returns the path of the primary core shared library
 (i.e., {lit}`libleanshared`) in the detected Lean installation.
 -/
-public def getLeanSharedLib : m FilePath :=
+@[inline] public def getLeanSharedLib : m FilePath :=
   (·.sharedLib) <$> getLeanInstall
 
 /-- Get the path of the {lit}`ar` binary in the detected Lean installation. -/

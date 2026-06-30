@@ -112,7 +112,6 @@ public def leanSharedDynlib (sysroot : FilePath) : Dynlib :=
   (leanSharedDynlibs sysroot)[(0 : USize)]'size_leanSharedDynlibs_pos
 
 /-- `libleanshared` file name. -/
-@[deprecated "leanSharedDynlib" (since := "2026-06-29")]
 public def leanSharedLib : FilePath :=
   FilePath.addExtension "libleanshared" sharedLibExt
 

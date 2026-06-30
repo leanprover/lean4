@@ -181,7 +181,7 @@ This function can be used to prove that Array-bounded recursion terminates.
 def guardBySize! [Pure m] [MonadError m] (as : Array α) : m (PLift (as.size ≤ Lean.maxSmallNat)) :=
   if h : as.size ≤ Lean.maxSmallNat then pure ⟨h⟩ else error "Array-bounded termination"
 
-/-
+/--
 Adds the package's dependencies to the workspace and then recursively vists
 each package in the dependency graph starting from `next`. Each dependency missing
 from the workspace is added to the workspace using the `resolve` function.

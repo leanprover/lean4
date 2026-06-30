@@ -68,7 +68,7 @@ noncomputable def IterM.stepAsHetT [Iterator α m β] [Monad m] (it : IterM (α 
     HetT m (IterStep (IterM (α := α) m β) β) :=
     ⟨it.IsPlausibleStep, inferInstance, (fun step => .deflate step.inflate) <$> it.step⟩
 
-/-
+/--
 Makes a step with a bundled iterator in the `HetT` monad.
 -/
 noncomputable def BundledIterM.step {β : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]

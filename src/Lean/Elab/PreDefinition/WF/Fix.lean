@@ -209,7 +209,7 @@ private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   unless remainingGoals.isEmpty do
     Term.reportUnsolvedGoals remainingGoals
 
-/-
+/--
 Given an array of MVars, assign MVars with equal type and subsumed local context to each other.
 Returns those MVar that did not get assigned.
 -/

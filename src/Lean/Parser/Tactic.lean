@@ -20,7 +20,8 @@ builtin_initialize
   register_parser_alias tacticSeq
   register_parser_alias tacticSeqIndentGt
 
-/- This is a fallback tactic parser for any identifier which exists only
+/--
+This is a fallback tactic parser for any identifier which exists only
 to improve syntax error messages.
 ```
 example : True := by foo -- unknown tactic

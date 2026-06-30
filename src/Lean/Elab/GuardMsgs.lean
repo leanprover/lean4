@@ -162,7 +162,9 @@ ambiguities in the case the message already had that symbol).
 def revealTrailingWhitespace (s : String) : String :=
   s.replace "⏎\n" "⏎⏎\n" |>.replace "\t\n" "\t⏎\n" |>.replace " \n" " ⏎\n"
 
-/- The inverse of `revealTrailingWhitespace` -/
+/--
+The inverse of `revealTrailingWhitespace`. Removes `⏎` when it occurs at the end of a line.
+-/
 def removeTrailingWhitespaceMarker (s : String) : String :=
   s.replace "⏎\n" "\n"
 

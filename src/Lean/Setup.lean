@@ -21,7 +21,7 @@ Data types used by Lean module headers and the `--setup` CLI.
 
 namespace Lean
 
-/- Abstract structure of an `import` statement. -/
+/-- Abstract structure of an {lit}`import` statement. -/
 structure Import where
   module     : Name
   /-- `import all`; whether to import and expose all data saved by the module. -/

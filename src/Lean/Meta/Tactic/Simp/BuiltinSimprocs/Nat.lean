@@ -87,12 +87,12 @@ builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : Nat)) := fun e => do
 
 /-- A literal natural number or a base + offset expression. -/
 private inductive NatOffset where
-  /- denotes expression definition equal to `n` -/
+  /-- denotes expression definition equal to `n` -/
   | const (n : Nat)
   /-- denotes `e + o` where `o` is expression definitionally equal to `n` -/
   | offset (e o : Expr) (n : Nat)
 
-/- Attempt to parse a `NatOffset` from an expression-/
+/-- Attempt to parse a `NatOffset` from an expression-/
 private partial def NatOffset.asOffset (e : Expr) : Meta.SimpM (Option (Expr × Nat)) := do
   if e.isAppOfArity ``HAdd.hAdd 6 then
     let inst := e.appFn!.appFn!.appArg!
@@ -117,7 +117,7 @@ private partial def NatOffset.asOffset (e : Expr) : Meta.SimpM (Option (Expr × 
   else
     pure none
 
-/- Attempt to parse a `NatOffset` from an expression-/
+/-- Attempt to parse a `NatOffset` from an expression-/
 private partial def NatOffset.fromExprAux (e : Expr) (inc : Nat) : Meta.SimpM (Option (Expr × Nat)) := do
   let e := e.consumeMData
   match ← asOffset e with
@@ -126,7 +126,7 @@ private partial def NatOffset.fromExprAux (e : Expr) (inc : Nat) : Meta.SimpM (O
   | none =>
     return if inc != 0 then some (e, inc) else none
 
-/- Attempt to parse a `NatOffset` from an expression-/
+/-- Attempt to parse a `NatOffset` from an expression-/
 private def NatOffset.fromExpr? (e : Expr) (inc : Nat := 0) : Meta.SimpM (Option NatOffset) := do
   match ← Nat.fromExpr? e with
   | some n => pure (some (const (n + inc)))

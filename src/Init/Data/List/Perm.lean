@@ -303,7 +303,7 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
 theorem Perm.count_eq [BEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
-/-
+/--
 This theorem is a variant of `Perm.foldl_eq` defined in Mathlib which uses typeclasses rather
 than the explicit `comm` argument.
 -/
@@ -323,7 +323,7 @@ theorem Perm.foldl_eq' {f : β → α → β} {l₁ l₂ : List α} (p : l₁ ~ 
     refine (IH₁ comm init).trans (IH₂ ?_ _)
     intros; apply comm <;> apply p₁.symm.subset <;> assumption
 
-/-
+/--
 This theorem is a variant of `Perm.foldr_eq` defined in Mathlib which uses typeclasses rather
 than the explicit `comm` argument.
 -/

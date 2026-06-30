@@ -307,14 +307,14 @@ def isAlreadyNormalizedCheap : Level → Bool
   | succ u  => isAlreadyNormalizedCheap u
   | _       => false
 
-/- Auxiliary function used at `normalize` -/
+/-- Auxiliary function used at `normalize` -/
 private def mkIMaxAux : Level → Level → Level
   | _,    zero   => zero
   | zero, u      => u
   | succ zero, u => u
   | u₁,   u₂     => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
 
-/- Auxiliary function used at `normalize` -/
+/-- Auxiliary function used at `normalize` -/
 @[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level
   | max l₁ l₂, alreadyNormalized, lvls => getMaxArgsAux normalize l₂ alreadyNormalized (getMaxArgsAux normalize l₁ alreadyNormalized lvls)
   | l,           false,             lvls => getMaxArgsAux normalize (normalize l) true lvls
@@ -324,14 +324,15 @@ private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
   if result.isZero then prev.addOffset offset
   else mkLevelMax result (prev.addOffset offset)
 
-/- Auxiliary function used at `normalize`.
+/--
+   Auxiliary function used at `normalize`.
    Remarks:
    - `lvls` are sorted using `normLt`
    - `extraK` is the outer offset of the `max` term. We will push it inside.
    - `i` is the current array index
    - `prev + prevK` is the "previous" level that has not been added to `result` yet.
    - `result` is the accumulator
- -/
+-/
 private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev : Level) (prevK : Nat) (result : Level) : Level :=
   if h : i < lvls.size then
     let lvl   := lvls[i]
@@ -344,9 +345,10 @@ private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev
   else
     accMax result prev (extraK + prevK)
 
-/-
+/--
   Auxiliary function for `normalize`. It assumes `lvls` has been sorted using `normLt`.
-  It finds the first position that is not an explicit universe. -/
+  It finds the first position that is not an explicit universe.
+-/
 private partial def skipExplicit (lvls : Array Level) (i : Nat) : Nat :=
   if h : i < lvls.size then
     let lvl := lvls[i]
@@ -369,7 +371,7 @@ private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Na
   else
     false
 
-/- Auxiliary function for `normalize`. See `isExplicitSubsumedAux` -/
+/-- Auxiliary function for `normalize`. See `isExplicitSubsumedAux` -/
 private def isExplicitSubsumed (lvls : Array Level) (firstNonExplicit : Nat) : Bool :=
   if firstNonExplicit == 0 then false
   else

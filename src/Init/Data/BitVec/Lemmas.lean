@@ -5948,7 +5948,7 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
-/-
+/--
 The absolute value of `x : BitVec w` is naively a case split on the sign of `x`.
 However, recall that when `x = intMin w`, `-x = x`.
 Thus, the full value of `abs x` is computed by the case split:
@@ -5971,7 +5971,7 @@ theorem toInt_abs_eq_ite {x : BitVec w} :
 
 
 
-/-
+/--
 The absolute value of `x : BitVec w` is a case split on the sign of `x`, when `x ≠ intMin w`.
 This is a variant of `toInt_abs_eq_ite`.
 -/
@@ -6006,7 +6006,7 @@ theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
         exact msb_eq_false_iff_two_mul_lt.mp (by simp [h])
       omega
 
-/-
+/--
 The absolute value of `(x : BitVec w)`, when interpreted as an integer,
 is the absolute value of `x.toInt` when `(x ≠ intMin)`.
 -/

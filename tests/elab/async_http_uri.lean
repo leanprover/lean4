@@ -3,8 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
-import Std.Internal.Http.Data.URI
-import Std.Internal.Http.Data.URI.Encoding
+import Std.Http.Data.URI
+import Std.Http.Data.URI.Encoding
 
 open Std.Http
 open Std.Http.URI
@@ -212,6 +212,7 @@ info: some " "
 #eval parseCheck "https://user:pass@secure.example.com/private"
 #eval parseCheck "/double//slash//path"
 #eval parseCheck "http://user%40example:pass%3Aword@host.com"
+#eval parseCheck "http://[::ffff:192.168.1.1]/path"
 #eval parseCheck "http://example.com:/"
 #eval parseCheck "http://example.com:/?q=1"
 #eval parseCheck "///////"
@@ -261,6 +262,8 @@ info: some " "
 #eval parseCheckFail ""
 #eval parseCheckFail "[::1"
 #eval parseCheckFail "[:::1]:80"
+#eval parseCheckFail "http://exa_mple.com/path"
+#eval parseCheckFail "http://[fe80::1%25eth0]/path"
 #eval parseCheckFail "#frag"
 #eval parseCheckFail "/path/\n"
 #eval parseCheckFail "/path/\u0000"

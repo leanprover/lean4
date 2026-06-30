@@ -100,8 +100,6 @@ partial def takeUntilEscFn (p : Char → Bool) : ParserFn := fun c s =>
   else if p (c.get' i h) then s
   else takeUntilEscFn p c (s.next' c i h)
 
-partial def takeWhileEscFn (p : Char → Bool) : ParserFn := takeUntilEscFn (not ∘ p)
-
 /--
 Parses as `p`, but discards the result.
 -/
@@ -382,7 +380,7 @@ Parses block opener prefixes. At the beginning of the line, if this parser succe
 block is beginning.
 -/
 public def blockOpener := atomicFn <|
-  takeWhileEscFn (· == ' ') >>
+  eatSpaces >>
   (atomicFn ((bullet >> chFn ' ')) <|> -- Unordered list
    atomicFn ((numbering >> chFn ' ')) <|> -- Ordered list
    atomicFn (strFn ": ") <|> -- Description list item
@@ -1277,7 +1275,7 @@ mutual
           s.mkError s!"Internal error - index {atDepth} wasn't the directive fence - it was {stx} in {s.stxStack.back}, {s.stxStack.pop.back}, {s.stxStack.pop.pop.back}, {s.stxStack.pop.pop.pop.back}"
 
     withFenceSize (atDepth : Nat) (p : Nat → ParserFn) : ParserFn :=
-      withFence atDepth fun _ str => p str.length
+      withFence atDepth fun _ str => p str.lengthAssumingAscii -- `str` is made up of all `':'`
 
     withFencePos (atDepth : Nat) (p : Position → ParserFn) : ParserFn :=
       withFence atDepth fun info _ c s => p (c.fileMap.toPosition info.getPos?.get!) c s

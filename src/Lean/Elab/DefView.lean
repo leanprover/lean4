@@ -114,8 +114,8 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
-  /-- The docstring, if present, and whether it's Verso -/
-  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /-- The docstring, if present. -/
+  docString?    : Option (TSyntax ``Parser.Command.docComment)
   /--
   Snapshot for incremental processing of this definition.
 
@@ -129,7 +129,9 @@ structure DefView where
 def DefView.isInstance (view : DefView) : Bool :=
   view.modifiers.attrs.any fun attr => attr.name == `instance
 
-/-- Prepends the `defeq` attribute, removing existing ones if there are any -/
+/-- Prepends the `defeq` attribute, removing existing ones if there are any.
+The `defeq` attribute's validator also tags `backward_defeq` on success, so the
+superset invariant `defeq ⊆ backward_defeq` is preserved. -/
 def DefView.markDefEq (view : DefView) : DefView :=
   { view with modifiers :=
       view.modifiers.filterAttrs (·.name != `defeq) |>.addFirstAttr { name := `defeq } }
@@ -164,7 +166,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
-  -- NOTE: `[implicit_reducible]` is added conditionally in `elabMutualDef`
+  -- NOTE: `[instance_reducible]` is added conditionally in `elabMutualDef`
   let attrStx         ← `(attr| instance $(quote prio):num)
   let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
   let (binders, type) := expandDeclSig stx[4]

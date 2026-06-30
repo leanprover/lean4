@@ -193,7 +193,7 @@ _start:
 lean_object* v___x_21_; lean_object* v___x_22_; lean_object* v___x_23_; lean_object* v___x_24_; 
 v___x_21_ = lean_obj_once(&l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2, &l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2_once, _init_l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2);
 v___x_22_ = lean_box(0);
-v___x_23_ = lean_obj_once(&l_Lean_Meta_Sym_Arith_instInhabitedRing_default___closed__0, &l_Lean_Meta_Sym_Arith_instInhabitedRing_default___closed__0_once, _init_l_Lean_Meta_Sym_Arith_instInhabitedRing_default___closed__0);
+v___x_23_ = l_Lean_Meta_Sym_Arith_instInhabitedRing_default;
 v___x_24_ = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(v___x_24_, 0, v___x_23_);
 lean_ctor_set(v___x_24_, 1, v___x_22_);
@@ -228,7 +228,7 @@ lean_object* v___x_27_; lean_object* v___x_28_; lean_object* v___x_29_; lean_obj
 v___x_27_ = lean_box(0);
 v___x_28_ = lean_obj_once(&l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2, &l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2_once, _init_l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2);
 v___x_29_ = lean_unsigned_to_nat(0u);
-v___x_30_ = lean_obj_once(&l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__3, &l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__3_once, _init_l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__3);
+v___x_30_ = l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default;
 v___x_31_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v___x_31_, 0, v___x_30_);
 lean_ctor_set(v___x_31_, 1, v___x_29_);
@@ -830,12 +830,12 @@ if (lean_obj_tag(v___x_272_) == 0)
 lean_object* v_a_273_; lean_object* v___x_274_; 
 v_a_273_ = lean_ctor_get(v___x_272_, 0);
 lean_inc(v_a_273_);
-lean_dec_ref(v___x_272_);
+lean_dec_ref_known(v___x_272_, 1);
 v___x_274_ = l_Lean_Meta_Sym_Arith_setExpThreshold___redArg(v_exp_263_, v_a_266_);
 if (lean_obj_tag(v___x_274_) == 0)
 {
 lean_object* v_exp_275_; lean_object* v_r_276_; 
-lean_dec_ref(v___x_274_);
+lean_dec_ref_known(v___x_274_, 1);
 v_exp_275_ = lean_ctor_get(v_a_273_, 0);
 lean_inc(v_exp_275_);
 lean_dec(v_a_273_);
@@ -851,7 +851,7 @@ if (lean_obj_tag(v_r_276_) == 0)
 lean_object* v_a_277_; lean_object* v___x_278_; 
 v_a_277_ = lean_ctor_get(v_r_276_, 0);
 lean_inc(v_a_277_);
-lean_dec_ref(v_r_276_);
+lean_dec_ref_known(v_r_276_, 1);
 v___x_278_ = l_Lean_Meta_Sym_Arith_setExpThreshold___redArg(v_exp_275_, v_a_266_);
 if (lean_obj_tag(v___x_278_) == 0)
 {
@@ -944,7 +944,7 @@ else
 lean_object* v_a_295_; lean_object* v___x_296_; 
 v_a_295_ = lean_ctor_get(v_r_276_, 0);
 lean_inc(v_a_295_);
-lean_dec_ref(v_r_276_);
+lean_dec_ref_known(v_r_276_, 1);
 v___x_296_ = l_Lean_Meta_Sym_Arith_setExpThreshold___redArg(v_exp_275_, v_a_266_);
 if (lean_obj_tag(v___x_296_) == 0)
 {

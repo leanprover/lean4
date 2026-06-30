@@ -589,7 +589,7 @@ theorem any_eq_true_iff_exists_mem_get [LawfulHashable α] [EquivBEq α]
 
 theorem any_eq_true_iff_exists_mem [LawfulBEq α] {p : α → Bool} :
     m.any p = true ↔ ∃ (a : α), a ∈ m ∧ p a := by
-  simpa using @HashMap.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.any_eq_true_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
     {p : α → Bool} :
@@ -600,7 +600,7 @@ theorem any_eq_false_iff_forall_mem_get [LawfulHashable α] [EquivBEq α]
 theorem any_eq_false_iff_forall_mem [LawfulBEq α] {p : α → Bool} :
     m.any p = false ↔
       ∀ (a : α), a ∈ m → p a = false := by
-  simpa using @HashMap.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.any_eq_false_iff_forall_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 @[simp]
 theorem all_toList [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
@@ -623,7 +623,7 @@ theorem all_eq_false_iff_exists_mem_get [EquivBEq α] [LawfulHashable α]
 
 theorem all_eq_false_iff_exists_mem [LawfulBEq α] {p : α → Bool} :
     m.all p = false ↔ ∃ (a : α), a ∈ m ∧ p a = false := by
-  simpa using @HashMap.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
+  simpa using! @HashMap.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
 variable {ρ : Type v} [ForIn Id ρ α]
 

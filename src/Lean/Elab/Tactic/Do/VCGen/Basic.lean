@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Do.Attr
 import Init.Omega
+import Lean.Elab.ConfigEval
 
 public section
 

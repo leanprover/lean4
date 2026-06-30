@@ -111,7 +111,7 @@ open Lean.Meta
       defs := defs.push returnVar
     for x in loopMutVars do
       let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x defn.toExpr
+      Term.addTermInfo' x.ident defn.toExpr
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as
       --   `max ?u.46 ?u.47 =?= max (max ?u.22 ?u.46) ?u.47`
@@ -185,7 +185,7 @@ open Lean.Meta
         if info.returnsEarly then
           let ret ← getFVarFromUserName returnVarName
           let ret ← if loopMutVars.isEmpty then mkAppM ``Prod.fst #[ret] else pure ret
-          let motive := mkLambda `_ .default (← inferType ret) (← mkMonadicType γ)
+          let motive := mkLambda `_ .default (← inferType ret) (← mkMonadApp γ)
           let app := mkApp3 (mkConst ``Break.runK.match_1 [mi.u, mi.v.succ]) oldReturnCont.resultType motive ret
           let none := mkSimpleThunk (← dec.continueWithUnit)
           let some ← withLocalDeclD (← mkFreshUserName `r) oldReturnCont.resultType fun r => do

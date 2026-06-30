@@ -16,6 +16,7 @@ example (B C : Prop) (f : forall {A : Prop}, A → C) (x : B) : C := by
 
 example (X : Type) [Add X] (f : forall {A : Type} [Add A], A → A → A) (x : X) : X := by
   specialize f x x
+  clear x
   assumption
 
 def ex (f : Nat → Nat → Nat) : Nat := by

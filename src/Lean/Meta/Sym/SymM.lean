@@ -301,7 +301,7 @@ def reportIssue (msg : MessageData) : SymM Unit := do
   if (← getConfig).verbose then
     reportIssue msg
 
-private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandReportIssueMacro (s : Syntax) : MacroM DoElem := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| Sym.reportIssueIfVerbose $msg)
 
@@ -315,7 +315,7 @@ macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
     if sym.debug.get (← getOptions) then
       reportIssue msg
 
-meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+meta def expandReportDbgIssueMacro (s : Syntax) : MacroM DoElem := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| Sym.reportDbgIssue $msg)
 

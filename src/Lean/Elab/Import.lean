@@ -138,7 +138,7 @@ where
 def processHeaderCore
     (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
-    (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (trustLevel : UInt32 := 0) (plugins : Array Plugin := #[]) (leakEnv := false)
     (mainModule := Name.anonymous) (package? : Option PkgId := none)
     (arts : NameMap ImportArtifacts := {})
     (headerStx? : Option HeaderSyntax := none)
@@ -174,7 +174,7 @@ backwards compatibility measure not compatible with the module system.
 @[inline] def processHeader
     (header : HeaderSyntax)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
-    (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (trustLevel : UInt32 := 0) (plugins : Array Plugin := #[]) (leakEnv := false)
     (mainModule := Name.anonymous)
     : IO (Environment × MessageLog) := do
   processHeaderCore header.startPos header.imports header.isModule

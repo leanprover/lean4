@@ -7,12 +7,22 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+import Lean.Meta.Sym.Arith.Poly
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
 
 def checkMaxSteps : GoalM Bool := do
   return (← get').steps >= (← getConfig).ringSteps
+
+def checkMaxDegree (p : Poly) : GoalM Bool := do
+  if p.degree >= (← getConfig).ringMaxDegree then
+    unless (← get').reportedMaxDegreeIssue do
+      modify' fun s => { s with reportedMaxDegreeIssue := true }
+      reportIssue! "ring polynomial degree {p.degree} exceeds threshold `(ringMaxDegree := {p.degree})`"
+    return true
+  else
+    return false
 
 def incSteps (n : Nat := 1) : GoalM Unit := do
   modify' fun s => { s with steps := s.steps + n }

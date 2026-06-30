@@ -108,7 +108,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     addDeclarationRangesForBuiltin declName modifiers.stx stx
     Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
-    Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
+    Term.withDeprecationContextFromAttrs modifiers.attrs <| Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
       let type ← Term.elabType typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
@@ -135,8 +135,8 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
         if isExtern (← getEnv) declName then
           compileDecl decl
-        if let some (doc, isVerso) := docString? then
-          addDocStringOf isVerso declName binders doc
+        if let some doc := docString? then
+          addDocString declName binders doc
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
         withSaveInfoContext do  -- save new env with docstring and decl
           Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)

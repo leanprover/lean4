@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Util.Version
 public import Lake.Config.Defaults
+public import Lake.Util.Git
 import Lake.Util.Error
 public import Lake.Util.FilePath
 import Lake.Util.JsonObject
@@ -75,8 +76,8 @@ public inductive PackageEntrySrc
   /-- A remote Git package. -/
   | git
     (url : String)
-    (rev : String)
-    (inputRev? : Option String)
+    (rev : GitRev)
+    (inputRev? : Option GitRev)
     (subDir? : Option FilePath)
   deriving Inhabited
 
@@ -93,9 +94,6 @@ public structure PackageEntry where
   deriving Inhabited
 
 namespace PackageEntry
-
-@[inline] public def prettyName (entry : PackageEntry) : String :=
-  entry.name.toString (escape := false)
 
 public protected def toJson (entry : PackageEntry) : Json :=
   let fields := [
@@ -154,15 +152,31 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
 
 public instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
+@[inline] public def prettyName (entry : PackageEntry) : String :=
+  entry.name.toString (escape := false)
+
+/-- The directory name used to store the materialized dependency. -/
+@[inline] public def dirName (entry : PackageEntry) : String :=
+   entry.name.toString (escape := false)
+
+@[inline] public def inputRev? (entry : PackageEntry) : Option GitRev :=
+  match entry.src with
+  | .git (inputRev? := rev?) .. => rev?
+  | .path .. => none
+
+/-- **For internal use only.** -/
 @[inline] public def setInherited (entry : PackageEntry) : PackageEntry :=
   {entry with inherited := true}
 
+/-- **For internal use only.** -/
 @[inline] public def setConfigFile (path : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with configFile := path}
 
+/-- **For internal use only.** -/
 @[inline] public def setManifestFile (path? : Option FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with manifestFile? := path?}
 
+/-- **For internal use only.** -/
 @[inline] public def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with src := match entry.src with | .path dir => .path (pkgDir / dir) | s => s}
 

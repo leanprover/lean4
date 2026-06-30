@@ -1005,7 +1005,7 @@ theorem getKey?_eq_some_iff' [BEq α] [EquivBEq α] {l : List ((a : α) × β a)
 
 theorem getKey_beq [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
     getKey a l h == a := by
-  simpa only [getKey?_eq_some_getKey h] using getKey?_beq (l := l) (a := a)
+  simpa only [getKey?_eq_some_getKey h] using! getKey?_beq (l := l) (a := a)
 
 @[simp]
 theorem getKey_eq [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
@@ -2476,10 +2476,10 @@ theorem containsKey_flatMap_eq_false [BEq α] {γ : Type w} {l : List γ} {f : �
   next g t ih =>
     simp only [List.flatMap_cons, containsKey_append, Bool.or_eq_false_iff]
     refine ⟨?_, ?_⟩
-    · simpa using h 0 (by simp)
+    · simpa using! h 0 (by simp)
     · refine ih ?_
       intro i hi
-      simpa using h (i + 1) (by simp only [List.length_cons]; omega)
+      simpa using! h (i + 1) (by simp only [List.length_cons]; omega)
 
 theorem containsKey_append_of_not_contains_right [BEq α] {l l' : List ((a : α) × β a)} {a : α}
     (hl' : containsKey a l' = false) : containsKey a (l ++ l') = containsKey a l := by
@@ -3897,7 +3897,7 @@ theorem getValue_insertList_of_contains_eq_false_left [BEq α] [EquivBEq α] {l 
   suffices some (getValue k (insertList l toInsert) contains) = some (getValue k toInsert (contains_of_contains_insertList_of_contains_eq_false_left contains not_contains)) from by
     injection this
   simp only [← getValue?_eq_some_getValue]
-  simp only [ getValue?_eq_getEntry? ]
+  simp only [getValue?_eq_getEntry? ]
   congr 1
   exact getEntry?_insertList_of_contains_left_eq_false distinct_l (DistinctKeys_impl_Pairwise_distinct distinct_toInsert) not_contains
 
@@ -3909,7 +3909,7 @@ theorem getValue_insertList_of_contains_right [BEq α] [EquivBEq α] {l toInsert
   suffices some (getValue k (insertList l toInsert) h) = some (getValue k toInsert contains) from by
     injection this
   simp only [← getValue?_eq_some_getValue]
-  simp only [ getValue?_eq_getEntry? ]
+  simp only [getValue?_eq_getEntry? ]
   congr 1
   apply getEntry?_insertList_of_contains_eq_true
   . exact distinct_l
@@ -6789,7 +6789,7 @@ theorem isSome_apply_of_containsKey_filterMap [BEq α] [LawfulBEq α]
   simp only [Option.isSome_bind, Option.isSome_map, Option.any_eq_true] at h
   obtain ⟨y, (hy : _ = _), hy'⟩ := h
   cases eq_of_beq (beq_of_getEntry?_eq_some hy)
-  simpa only [snd_eq_getValueCast_of_getEntry?_eq_some hy] using hy'
+  simpa only [snd_eq_getValueCast_of_getEntry?_eq_some hy] using! hy'
 
 theorem Const.isSome_apply_of_containsKey_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
     {f : α → β → Option γ}

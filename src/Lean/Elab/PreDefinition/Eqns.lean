@@ -367,7 +367,7 @@ def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added
-    realizeConst declName name (doRealize name info type)
+    realizeConst declName name (withEqnOptions declName (doRealize name info type))
   return thmNames
 where
   doRealize name info type := withOptions (tactic.hygienic.set · false) do

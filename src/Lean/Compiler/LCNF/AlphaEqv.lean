@@ -171,10 +171,11 @@ partial def eqv (code₁ code₂ : Code pu) : EqvM Bool := do
     pure (p₁ == p₂) <&&>
     eqvFVar fvarId₁ fvarId₂ <&&>
     eqv k₁ k₂
-  | .dec fvarId₁ n₁ c₁ p₁ k₁ _, .dec fvarId₂ n₂ c₂ p₂ k₂ _ =>
+  | .dec fvarId₁ n₁ c₁ p₁ o₁ k₁ _, .dec fvarId₂ n₂ c₂ p₂ o₂ k₂ _ =>
     pure (n₁ == n₂) <&&>
     pure (c₁ == c₂) <&&>
     pure (p₁ == p₂) <&&>
+    pure (o₁ == o₂) <&&>
     eqvFVar fvarId₁ fvarId₂ <&&>
     eqv k₁ k₂
   | .del fvarId₁ k₁ _, .del fvarId₂ k₂ _ =>

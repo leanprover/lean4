@@ -54,7 +54,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
         if ctorModifiers.docString?.isSome then
           logErrorAt leadingDocComment "Duplicate doc string"
         ctorModifiers := { ctorModifiers with
-          docString? := some (⟨leadingDocComment⟩, doc.verso.get (← getOptions)) }
+          docString? := some ⟨leadingDocComment⟩ }
       if ctorModifiers.isPrivate && modifiers.isPrivate then
         let hint ← do
           let .original .. := modifiersStx.getHeadInfo | pure .nil

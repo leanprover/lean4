@@ -141,7 +141,7 @@ else
 lean_object* v_val_49_; lean_object* v___x_50_; 
 v_val_49_ = lean_ctor_get(v_v_x3f_47_, 0);
 lean_inc(v_val_49_);
-lean_dec_ref(v_v_x3f_47_);
+lean_dec_ref_known(v_v_x3f_47_, 1);
 v___x_50_ = l_Std_DTreeMap_Internal_Cell_ofEq___redArg(v_k_46_, v_val_49_);
 return v___x_50_;
 }

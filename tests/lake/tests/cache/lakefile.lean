@@ -3,7 +3,7 @@ open System Lake DSL
 
 package test where
   enableArtifactCache := true
-  restoreAllArtifacts := get_config? restoreAll |>.isSome
+  restoreAllArtifacts := get_config? restoreAll |>.bind envToBool?
 
 lean_lib Test
 

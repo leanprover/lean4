@@ -591,7 +591,7 @@ def instantiateMVarsCore (mctx : MetavarContext) (e : Expr) : Expr × MetavarCon
     instantiateExprMVars e
   runST fun _ => instantiate e |>.run |>.run mctx
 
-/-
+/--
 Substitutes assigned metavariables in `e` with their assigned value according to the
 `MetavarContext`, recursively.
 
@@ -910,6 +910,10 @@ unchanged.
 def setFVarBinderInfo (mctx : MetavarContext) (mvarId : MVarId)
     (fvarId : FVarId) (bi : BinderInfo) : MetavarContext :=
   mctx.modifyExprMVarLCtx mvarId (·.setBinderInfo fvarId bi)
+
+def setFVarType (mctx : MetavarContext) (mvarId : MVarId)
+    (fvarId : FVarId) (type : Expr) : MetavarContext :=
+  mctx.modifyExprMVarLCtx mvarId (·.setType fvarId type)
 
 def findLevelDepth? (mctx : MetavarContext) (mvarId : LMVarId) : Option Nat :=
   (mctx.findLevelDecl? mvarId).map LevelMetavarDecl.depth
@@ -1534,6 +1538,14 @@ the given fvar doesn't exist in its context, nothing happens.
 def setFVarBinderInfo [MonadMCtx m] (mvarId : MVarId) (fvarId : FVarId)
     (bi : BinderInfo) : m Unit :=
   modifyMCtx (·.setFVarBinderInfo mvarId fvarId bi)
+
+/--
+Set the `BinderInfo` of an fvar. If the given metavariable is not declared or
+the given fvar doesn't exist in its context, nothing happens.
+-/
+def setFVarType [MonadMCtx m] (mvarId : MVarId) (fvarId : FVarId)
+    (type : Expr) : m Unit :=
+  modifyMCtx (·.setFVarType mvarId fvarId type)
 
 end MVarId
 

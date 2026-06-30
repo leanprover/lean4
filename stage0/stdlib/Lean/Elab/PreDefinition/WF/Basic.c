@@ -250,12 +250,12 @@ else
 lean_object* v_val_68_; 
 v_val_68_ = lean_ctor_get(v___x_66_, 0);
 lean_inc(v_val_68_);
-lean_dec_ref(v___x_66_);
+lean_dec_ref_known(v___x_66_, 1);
 if (lean_obj_tag(v_val_68_) == 1)
 {
 uint8_t v_v_69_; 
 v_v_69_ = lean_ctor_get_uint8(v_val_68_, 0);
-lean_dec_ref(v_val_68_);
+lean_dec_ref_known(v_val_68_, 0);
 return v_v_69_;
 }
 else

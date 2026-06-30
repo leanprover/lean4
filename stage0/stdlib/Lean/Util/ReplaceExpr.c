@@ -101,7 +101,7 @@ if (v___y_22_ == 0)
 {
 lean_object* v___x_23_; 
 lean_inc(v_binderName_15_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 3);
 v___x_23_ = l_Lean_Expr_forallE___override(v_binderName_15_, v_d_19_, v_b_20_, v_binderInfo_18_);
 return v___x_23_;
 }
@@ -113,7 +113,7 @@ if (v___x_24_ == 0)
 {
 lean_object* v___x_25_; 
 lean_inc(v_binderName_15_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 3);
 v___x_25_ = l_Lean_Expr_forallE___override(v_binderName_15_, v_d_19_, v_b_20_, v_binderInfo_18_);
 return v___x_25_;
 }
@@ -161,7 +161,7 @@ if (v___y_39_ == 0)
 {
 lean_object* v___x_40_; 
 lean_inc(v_binderName_32_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 3);
 v___x_40_ = l_Lean_Expr_lam___override(v_binderName_32_, v_d_36_, v_b_37_, v_binderInfo_35_);
 return v___x_40_;
 }
@@ -173,7 +173,7 @@ if (v___x_41_ == 0)
 {
 lean_object* v___x_42_; 
 lean_inc(v_binderName_32_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 3);
 v___x_42_ = l_Lean_Expr_lam___override(v_binderName_32_, v_d_36_, v_b_37_, v_binderInfo_35_);
 return v___x_42_;
 }
@@ -200,7 +200,7 @@ if (v___x_54_ == 0)
 {
 lean_object* v___x_55_; 
 lean_inc(v_data_49_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 2);
 v___x_55_ = l_Lean_Expr_mdata___override(v_data_49_, v_b_51_);
 return v___x_55_;
 }
@@ -248,7 +248,7 @@ if (v___y_65_ == 0)
 {
 lean_object* v___x_66_; 
 lean_inc(v_declName_56_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 4);
 v___x_66_ = l_Lean_Expr_letE___override(v_declName_56_, v_t_61_, v_v_62_, v_b_63_, v_nondep_60_);
 return v___x_66_;
 }
@@ -262,7 +262,7 @@ if (v___x_69_ == 0)
 {
 lean_object* v___x_70_; 
 lean_inc(v_declName_56_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 4);
 v___x_70_ = l_Lean_Expr_letE___override(v_declName_56_, v_t_61_, v_v_62_, v_b_63_, v_nondep_60_);
 return v___x_70_;
 }
@@ -308,7 +308,7 @@ v___jp_81_:
 if (v___y_82_ == 0)
 {
 lean_object* v___x_83_; 
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 2);
 v___x_83_ = l_Lean_Expr_app___override(v_f_79_, v_a_80_);
 return v___x_83_;
 }
@@ -336,7 +336,7 @@ if (v___x_96_ == 0)
 lean_object* v___x_97_; 
 lean_inc(v_idx_91_);
 lean_inc(v_typeName_90_);
-lean_dec_ref(v_e_13_);
+lean_dec_ref_known(v_e_13_, 3);
 v___x_97_ = l_Lean_Expr_proj___override(v_typeName_90_, v_idx_91_, v_b_93_);
 return v___x_97_;
 }
@@ -360,7 +360,7 @@ lean_dec_ref(v_e_13_);
 lean_dec_ref(v_f_x3f_12_);
 v_val_98_ = lean_ctor_get(v___x_14_, 0);
 lean_inc(v_val_98_);
-lean_dec_ref(v___x_14_);
+lean_dec_ref_known(v___x_14_, 1);
 return v_val_98_;
 }
 }

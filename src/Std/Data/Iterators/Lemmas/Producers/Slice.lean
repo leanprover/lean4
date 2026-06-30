@@ -56,6 +56,7 @@ theorem size_eq_length_iter [ToIterator (Slice γ) Id α β]
     s.size = s.iter.length := by
   simp [Internal.iter_eq_iter, Internal.size_eq_length_iter]
 
+set_option linter.defProp false in
 @[deprecated size_eq_length_iter (since := "2026-01-28")]
 def size_eq_count_iter := @size_eq_length_iter
 
@@ -67,6 +68,7 @@ theorem length_iter_eq_size [ToIterator (Slice γ) Id α β]
     s.iter.length = s.size :=
   size_eq_length_iter.symm
 
+set_option linter.defProp false in
 @[deprecated length_iter_eq_size (since := "2026-01-28")]
 def count_iter_eq_size := @length_iter_eq_size
 

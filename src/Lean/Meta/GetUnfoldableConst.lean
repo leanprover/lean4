@@ -13,7 +13,7 @@ namespace Lean.Meta
 Implements the `TransparencyMode` hierarchy for unfolding decisions.
 See `TransparencyMode` and `ReducibilityStatus` for the design rationale.
 -/
-private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | .none => return false
   | .all  => return true
@@ -22,7 +22,9 @@ private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool :
     let status ← getReducibilityStatus info.name
     if status == .reducible then
       return true
-    else if m == .instances && status == .implicitReducible then
+    else if status == .instanceReducible && (m == .instances || m == .implicit) then
+      return true
+    else if status == .implicitReducible && m == .implicit then
       return true
     else
       return false

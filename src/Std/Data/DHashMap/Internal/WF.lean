@@ -276,7 +276,7 @@ theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w →
       apply funext
       rintro (⟨d⟩|⟨d⟩)
       · simp
-      · simpa using ih'
+      · simpa using! ih'
 
 theorem all_eq_all_toListModel {p : (a: α) → β a → Bool} {m : Raw α β} :
     m.all p = (toListModel m.buckets).all (fun x => p x.1 x.2) := by
@@ -363,7 +363,7 @@ private theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source
   suffices ∀ i, expand.go i source target =
     ((source.toList.drop i).flatMap AssocList.toList).foldl
       (fun acc p => reinsertAux hash acc p.1 p.2) target by
-    simpa using this 0
+    simpa using! this 0
   intro i
   induction i, source, target using expand.go.induct
   next i source target _ hi es newSource newTarget ih =>

@@ -498,7 +498,7 @@ case 11:
 lean_object* v_struct_161_; lean_object* v___x_162_; 
 v_struct_161_ = lean_ctor_get(v_x_153_, 2);
 lean_inc_ref(v_struct_161_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 3);
 v___x_162_ = l_Lean_CollectFVars_visit(v_struct_161_, v_a_154_);
 return v___x_162_;
 }
@@ -509,7 +509,7 @@ v_binderType_163_ = lean_ctor_get(v_x_153_, 1);
 lean_inc_ref(v_binderType_163_);
 v_body_164_ = lean_ctor_get(v_x_153_, 2);
 lean_inc_ref(v_body_164_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 3);
 v_d_156_ = v_binderType_163_;
 v_b_157_ = v_body_164_;
 v___y_158_ = v_a_154_;
@@ -522,7 +522,7 @@ v_binderType_165_ = lean_ctor_get(v_x_153_, 1);
 lean_inc_ref(v_binderType_165_);
 v_body_166_ = lean_ctor_get(v_x_153_, 2);
 lean_inc_ref(v_body_166_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 3);
 v_d_156_ = v_binderType_165_;
 v_b_157_ = v_body_166_;
 v___y_158_ = v_a_154_;
@@ -537,7 +537,7 @@ v_value_168_ = lean_ctor_get(v_x_153_, 2);
 lean_inc_ref(v_value_168_);
 v_body_169_ = lean_ctor_get(v_x_153_, 3);
 lean_inc_ref(v_body_169_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 4);
 v___x_170_ = l_Lean_CollectFVars_visit(v_type_167_, v_a_154_);
 v___x_171_ = l_Lean_CollectFVars_visit(v_value_168_, v___x_170_);
 v___x_172_ = l_Lean_CollectFVars_visit(v_body_169_, v___x_171_);
@@ -550,7 +550,7 @@ v_fn_173_ = lean_ctor_get(v_x_153_, 0);
 lean_inc_ref(v_fn_173_);
 v_arg_174_ = lean_ctor_get(v_x_153_, 1);
 lean_inc_ref(v_arg_174_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 2);
 v___x_175_ = l_Lean_CollectFVars_visit(v_fn_173_, v_a_154_);
 v___x_176_ = l_Lean_CollectFVars_visit(v_arg_174_, v___x_175_);
 return v___x_176_;
@@ -560,7 +560,7 @@ case 10:
 lean_object* v_expr_177_; lean_object* v___x_178_; 
 v_expr_177_ = lean_ctor_get(v_x_153_, 1);
 lean_inc_ref(v_expr_177_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 2);
 v___x_178_ = l_Lean_CollectFVars_visit(v_expr_177_, v_a_154_);
 return v___x_178_;
 }
@@ -569,7 +569,7 @@ case 1:
 lean_object* v_fvarId_179_; lean_object* v___x_180_; 
 v_fvarId_179_ = lean_ctor_get(v_x_153_, 0);
 lean_inc(v_fvarId_179_);
-lean_dec_ref(v_x_153_);
+lean_dec_ref_known(v_x_153_, 1);
 v___x_180_ = l_Lean_CollectFVars_State_add(v_a_154_, v_fvarId_179_);
 return v___x_180_;
 }

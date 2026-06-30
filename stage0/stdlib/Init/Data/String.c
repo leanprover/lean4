@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String
-// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Defs public import Init.Data.String.Extra public import Init.Data.String.Iterator public import Init.Data.String.Lemmas public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern public import Init.Data.String.Stream public import Init.Data.String.PosRaw public import Init.Data.String.Substring public import Init.Data.String.TakeDrop public import Init.Data.String.Modify public import Init.Data.String.Termination public import Init.Data.String.ToSlice public import Init.Data.String.Search public import Init.Data.String.Legacy public import Init.Data.String.OrderInstances public import Init.Data.String.FindPos public import Init.Data.String.Subslice public import Init.Data.String.Iter public import Init.Data.String.Iterate public import Init.Data.String.Hashable
+// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Defs public import Init.Data.String.Extra public import Init.Data.String.Iterator public import Init.Data.String.Lemmas public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern public import Init.Data.String.Stream public import Init.Data.String.PosRaw public import Init.Data.String.Substring public import Init.Data.String.TakeDrop public import Init.Data.String.Modify public import Init.Data.String.Termination public import Init.Data.String.ToSlice public import Init.Data.String.Search public import Init.Data.String.Legacy public import Init.Data.String.OrderInstances public import Init.Data.String.FindPos public import Init.Data.String.Subslice public import Init.Data.String.Iter public import Init.Data.String.Iterate public import Init.Data.String.Hashable public import Init.Data.String.Length
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,6 +38,7 @@ lean_object* runtime_initialize_Init_Data_String_Subslice(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Iter(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Iterate(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Hashable(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String(uint8_t builtin) {
 lean_object * res;
@@ -118,6 +119,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Hashable(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Length(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -152,6 +156,7 @@ lean_object* initialize_Init_Data_String_Subslice(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Iter(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Iterate(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Hashable(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String(uint8_t builtin) {
 lean_object * res;
@@ -230,6 +235,9 @@ res = initialize_Init_Data_String_Iterate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Hashable(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Length(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String(builtin);

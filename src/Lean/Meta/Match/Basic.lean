@@ -314,6 +314,6 @@ example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
 
 /-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
 def isCongrEqnReservedNameSuffix (s : String) : Bool :=
-  congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
+  (s.dropPrefix? congrEqnThmSuffixBasePrefix).any (·.isNat)
 
 end Lean.Meta.Match

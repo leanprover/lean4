@@ -93,6 +93,7 @@ theorem length_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
     it.length = it.internalState.xs.stop - it.internalState.xs.start := by
   simp [← Iter.length_toList_eq_length, toList_eq, it.internalState.xs.stop_le_array_size]
 
+set_option linter.defProp false in
 @[deprecated length_eq (since := "2026-01-28")]
 def count_eq := @length_eq
 

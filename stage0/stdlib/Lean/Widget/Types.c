@@ -155,7 +155,7 @@ v_head_34_ = lean_ctor_get(v_a_31_, 0);
 lean_inc(v_head_34_);
 v_tail_35_ = lean_ctor_get(v_a_31_, 1);
 lean_inc(v_tail_35_);
-lean_dec_ref(v_a_31_);
+lean_dec_ref_known(v_a_31_, 2);
 v___x_36_ = l_List_foldl___at___00Array_appendList_spec__0___redArg(v_a_32_, v_head_34_);
 v_a_31_ = v_tail_35_;
 v_a_32_ = v___x_36_;
@@ -263,7 +263,7 @@ lean_ctor_set(v___x_80_, 0, v___x_77_);
 lean_ctor_set(v___x_80_, 1, v___x_79_);
 lean_ctor_set(v___x_80_, 2, v_fst_70_);
 v___x_81_ = l_Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Widget_Types_3328362917____hygCtx___hyg_32_(v___x_80_);
-lean_dec_ref(v___x_80_);
+lean_dec_ref_known(v___x_80_, 3);
 if (v_isShared_74_ == 0)
 {
 lean_ctor_set(v___x_73_, 0, v___x_81_);
@@ -380,7 +380,7 @@ else
 lean_object* v_a_109_; lean_object* v_id_110_; lean_object* v_javascriptHash_111_; lean_object* v_props_112_; lean_object* v___x_113_; 
 v_a_109_ = lean_ctor_get(v___x_100_, 0);
 lean_inc(v_a_109_);
-lean_dec_ref(v___x_100_);
+lean_dec_ref_known(v___x_100_, 1);
 v_id_110_ = lean_ctor_get(v_a_109_, 0);
 lean_inc(v_id_110_);
 v_javascriptHash_111_ = lean_ctor_get(v_a_109_, 1);
@@ -437,7 +437,7 @@ else
 lean_object* v_a_122_; lean_object* v___x_123_; 
 v_a_122_ = lean_ctor_get(v___x_113_, 0);
 lean_inc(v_a_122_);
-lean_dec_ref(v___x_113_);
+lean_dec_ref_known(v___x_113_, 1);
 v___x_123_ = l_UInt64_fromJson_x3f(v_javascriptHash_111_);
 if (lean_obj_tag(v___x_123_) == 0)
 {

@@ -331,7 +331,88 @@ def assignLevel (uidx : Nat) (u : Level) : UnifyM Bool := do
     modify fun s => { s with uAssignment := s.uAssignment.set! uidx (some u) }
     return true
 
-def processLevel (u : Level) (v : Level) : UnifyM Bool :=
+/-- Returns `true` is `u` has assigned uvars. -/
+def hasAssignedUVars (assignment : Array (Option Level)) (u : Level) : Bool :=
+  go u
+where
+  go (u : Level) : Bool := Id.run do
+    unless u.hasParam do return false
+    match u with
+    | .succ u₁ => go u₁
+    | .max u₁ u₂ | .imax u₁ u₂ => go u₁ || go u₂
+    | .param name =>
+      let some uidx := isUVar? name | return false
+      if h : uidx < assignment.size then return assignment[uidx].isSome
+      return false
+    | _ => false
+
+/-- Substitutes uvars in `u` with their assignments. -/
+def substAssignedUVars (assignment : Array (Option Level)) (u : Level) : Level :=
+  go u
+where
+  go (u : Level) : Level := Id.run do
+    match u with
+    | .succ u₁    => return .succ (go u₁)
+    | .max u₁ u₂  => return .max (go u₁) (go u₂)
+    | .imax u₁ u₂ => return .imax (go u₁) (go u₂)
+    | .param name =>
+      let some uidx := isUVar? name | return u
+      if h : uidx < assignment.size then
+        let some v := assignment[uidx] | return u
+        return v
+      else
+        return u
+    | _ => return u
+
+/-- Substitutes uvars in `u` with their assignments, and then normalize. -/
+def substAssignedUVarsAndNormalize (u : Level) : UnifyM Level := do
+  let assignment := (← get).uAssignment
+  unless hasAssignedUVars assignment u do return u
+  let v := substAssignedUVars assignment u
+  return v.normalize
+
+/--
+Returns true if `u` is `max v ?m` (or variant). That is, we solve `max v ?m =?= v` as `?m := v`.
+This is an approximation. For example, we ignore the solution `?m := 0`.
+
+**Note**: The same approximation is used at LevelDefEq.lean
+-/
+private def tryApproxSelfMax (u v : Level) : UnifyM Bool := do
+  match u with
+  | .max (.param uName) v'
+  | .max v' (.param uName) =>
+    let some uidx := isUVar? uName | return false
+    solve v' uidx
+  | _ => return false
+where
+  solve (v' : Level) (uidx : Nat) : UnifyM Bool := do
+    if v == v' then
+      assignLevel uidx v
+    else
+      return false
+
+/-- Similar to `Meta.decLevel?`, but never assigns metavariables. -/
+partial def decLevel? : Level → Option Level
+  | .zero | .mvar _ | .param _     => none
+  | .succ u => some u
+  | .max u v => processMax u v
+  /- Remark: If `decLevel? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
+  | .imax u v => processMax u v
+where
+  processMax (u v : Level) : Option Level := do
+    let u ← decLevel? u
+    let v ← decLevel? v
+    return mkLevelMax' u v
+
+partial def processLevel (u : Level) (v : Level) : UnifyM Bool := do
+  /-
+  **Note**: If new uvars in `u` have been assigned, we continue replace them, and
+  continue the search. The motivation for using `substAssignedUVarsAndNormalize` is
+  `processLevels [_uvar.0, max _uvar.0 _uvar.1] [0, u_1]`
+  which invokes `processLevel _uvar.0 0` and assigns `_uvar.0` before we invoke
+  `processLevel (max _uvar.0 _uvar.1) u_1`
+  -/
+  let u ← substAssignedUVarsAndNormalize u
   go u v.normalize
 where
   go (u : Level) (v : Level) : UnifyM Bool := do
@@ -366,7 +447,16 @@ where
         return true
       else
         return false
-    | _, _ => return false
+    | _, _ =>
+      if (← tryApproxSelfMax u v) then
+        return true
+      if let .succ u := u then
+        if let some v := decLevel? v then
+          return (← go u v)
+      if let .succ v := v then
+        if let some u := decLevel? u then
+          return (← go u v)
+      return false
 
 def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   match us, vs with

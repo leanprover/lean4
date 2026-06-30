@@ -8,7 +8,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Linter.Basic
+public import Lean.Linter.Init
 
 public section
 

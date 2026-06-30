@@ -29,16 +29,10 @@ protected theorem sum_pos_iff_exists_pos_nat {l : List Nat} : 0 < l.sum ↔ ∃ 
     simp [← ih]
     omega
 
-@[deprecated List.sum_pos_iff_exists_pos_nat (since := "2025-01-15")]
-protected def _root_.Nat.sum_pos_iff_exists_pos := @List.sum_pos_iff_exists_pos_nat
-
 protected theorem sum_eq_zero_iff_forall_eq_nat {xs : List Nat} :
     xs.sum = 0 ↔ ∀ x ∈ xs, x = 0 := by
   rw [← Decidable.not_iff_not]
   simp [← Nat.pos_iff_ne_zero, List.sum_pos_iff_exists_pos_nat]
-
-@[deprecated List.sum_pos_iff_exists_pos_nat (since := "2025-01-15")]
-protected def _root_.Nat.sum_eq_zero_iff_forall_eq := @List.sum_eq_zero_iff_forall_eq_nat
 
 @[simp]
 theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
@@ -75,7 +69,7 @@ theorem mul_length_le_sum_of_min?_eq_some_nat {xs : List Nat} (h : xs.min? = som
   cases xs
   · simp_all
   · simp only [min?_eq_some_min (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using min_mul_length_le_sum_nat _
+    simpa [← h] using! min_mul_length_le_sum_nat _
 
 theorem min_le_sum_div_length_nat {xs : List Nat} (h : xs ≠ []) :
     xs.min h ≤ xs.sum / xs.length := by
@@ -88,7 +82,7 @@ theorem le_sum_div_length_of_min?_eq_some_nat {xs : List Nat} (h : xs.min? = som
   cases xs
   · simp_all
   · simp only [min?_eq_some_min (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using min_le_sum_div_length_nat _
+    simpa [← h] using! min_le_sum_div_length_nat _
 
 theorem sum_le_max_mul_length_nat {xs : List Nat} (h : xs ≠ []) :
     xs.sum ≤ xs.max h * xs.length := by

@@ -462,9 +462,6 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
-/-- Default number of revisions `cache get` backtracks when discovering a mapping. -/
-def defaultMaxRevs : Nat := 100
-
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -581,25 +578,8 @@ where
         only artifacts for committed code will be downloaded"
       if opts.failLv ≤ .warning then
         failure
-    -- A `head` service is SHA-isolated: only `HEAD` is looked up and `--max-revs`
-    -- does not apply, so the policy is always respected.
-    let headOnly := service.revDiscovery matches .head
-    if headOnly && opts.maxRevs?.isSome then
-      logWarning s!"{pkg.prettyName}: `--max-revs` is ignored for a `head` service; \
-        only the current revision is consulted"
-      if opts.failLv ≤ .warning then
-        failure
-    let n := if headOnly then 1 else opts.maxRevs?.getD defaultMaxRevs
-    let revs ← repo.getHeadRevisions n
-    let map? ← revs.findSomeM? fun rev =>
+    service.revDiscovery.discover repo opts.maxRevs? opts.failLv pkg.prettyName remoteScope fun rev =>
       service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
-    let some map := map?
-      | let revisions :=
-          if headOnly then "for the current revision"
-          else if n = 0 || revs.size < n then "for any revision"
-          else s!"in {n} revisions from HEAD"
-        error s!"{remoteScope}: no outputs found {revisions}"
-    return map
 
 private def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
@@ -811,7 +791,11 @@ protected def services : CliM PUnit := do
   noArgsRem do
   let lakeEnv ← opts.computeEnv
   let cfg  ← loadLakeConfig lakeEnv
-  cfg.config.cache.services.forM (IO.println ·.name)
+  cfg.config.cache.services.forM fun svc =>
+    if svc.revDiscovery matches .nearest then
+      IO.println svc.name
+    else
+      IO.println s!"{svc.name} (revDiscovery = {svc.revDiscovery})"
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption

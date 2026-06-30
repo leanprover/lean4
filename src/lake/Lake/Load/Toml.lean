@@ -345,7 +345,9 @@ public instance : DecodeToml CacheServiceKind := ⟨CacheServiceKind.decodeToml�
 public protected def RevDiscovery.decodeToml (v : Value) : EDecodeM RevDiscovery := do
   match RevDiscovery.ofString? (← v.decodeString) with
   | some v => return v
-  | none => throwDecodeErrorAt v.ref "expected one of 'nearest' or 'head'"
+  | none =>
+    let expected := String.intercalate ", " (RevDiscovery.all.map (s!"'{·}'"))
+    throwDecodeErrorAt v.ref s!"expected one of {expected}"
 
 public instance : DecodeToml RevDiscovery := ⟨RevDiscovery.decodeToml⟩
 

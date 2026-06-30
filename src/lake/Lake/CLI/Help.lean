@@ -592,7 +592,8 @@ def helpCacheServices :=
 USAGE:
   lake cache services
 
-Prints the name of each configured remote cache services (one per line).
+Prints each configured remote cache service (one per line), annotated with its
+`revDiscovery` policy when that is not the default `nearest`.
 Additional services can be added by modifying the system Lake configuration.
 The exact location of the this configuration file is system dependent and can
 be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.

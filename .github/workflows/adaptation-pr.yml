@@ -1,5 +1,5 @@
 # One half of the adaptation PR CI; the other half lives in `pr-release.yml`.
-name: Adaptation PR CI
+name: Adaptation PR
 
 on:
   pull_request_target:
@@ -14,7 +14,9 @@ on:
 jobs:
   main:
     runs-on: ubuntu-slim
-    if: github.event.label.name == 'downstream' && github.repository == 'leanprover/lean4'
+    if: >
+      github.repository == 'leanprover/lean4'
+      && (github.event.action != 'labeled' || github.event.label.name == 'downstream')
     steps:
       # Determine the PR toolchain tag (see `pr-release.yml` for how it is
       # produced) and whether the corresponding release already exists in

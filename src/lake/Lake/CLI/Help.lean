@@ -457,7 +457,7 @@ will search the repository's entire history (or as far as Git will allow).
 A service configured with `revDiscovery = \"head\"` does not backtrack: only the
 current commit's mapping is consulted, isolating the download to that exact
 revision. `--max-revs` does not apply to such a service and is ignored with a
-warning (see `lake cache services`).
+warning.
 
 By default, Lake will download both the input-to-output mappings and the
 output artifacts for a package. By using `--mappings-only`, Lake will only
@@ -592,8 +592,7 @@ def helpCacheServices :=
 USAGE:
   lake cache services
 
-Prints each configured remote cache service (one per line), annotated with its
-`revDiscovery` policy when that is not the default `nearest`.
+Prints the name of each configured remote cache service (one per line).
 Additional services can be added by modifying the system Lake configuration.
 The exact location of the this configuration file is system dependent and can
 be set by `LAKE_CONFIG`, but it is usually located at `~/.lake/config.toml`.

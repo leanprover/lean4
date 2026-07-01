@@ -462,6 +462,41 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
 def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
+/-- Default number of revisions the `nearest` policy backtracks when discovering a mapping. -/
+private def defaultMaxRevs : Nat := 100
+
+/--
+Discovers the cached mapping for `repo`'s current checkout under `policy`. Revisions
+are probed nearest-first with `lookup` (which yields `none` when a revision has no
+mapping); the first hit is returned, else a "not found" error labelled with `scope` is
+raised. `pkgName` labels diagnostics and `failLv` escalates warnings as usual.
+
+- `nearest` walks history from `HEAD`, bounded by `maxRevs?` (default `defaultMaxRevs`,
+  `0` = unbounded).
+- `head` is SHA-isolated: only `HEAD` is consulted, so `maxRevs?` does not apply and is
+  ignored with a warning.
+-/
+private def discoverOutputs {α : Type} (policy : RevDiscovery) (repo : GitRepo)
+    (maxRevs? : Option Nat) (failLv : LogLevel) (pkgName : String) (scope : CacheServiceScope)
+    (lookup : GitRev → LoggerIO (Option α)) : LoggerIO α := do
+  match policy with
+  | .head =>
+    if maxRevs?.isSome then
+      logWarning s!"{pkgName}: `--max-revs` is ignored for a `head` service; \
+        only the current revision is consulted"
+      if failLv ≤ .warning then
+        failure
+    let some map ← (← repo.getHeadRevisions 1).findSomeM? lookup
+      | error s!"{scope}: no outputs found for the current revision"
+    return map
+  | .nearest =>
+    let n := maxRevs?.getD defaultMaxRevs
+    let revs ← repo.getHeadRevisions n
+    let some map ← revs.findSomeM? lookup
+      | let revisions := if n = 0 || revs.size < n then "for any revision" else s!"in {n} revisions from HEAD"
+        error s!"{scope}: no outputs found {revisions}"
+    return map
+
 protected def get : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -578,7 +613,7 @@ where
         only artifacts for committed code will be downloaded"
       if opts.failLv ≤ .warning then
         failure
-    service.revDiscovery.discover repo opts.maxRevs? opts.failLv pkg.prettyName remoteScope fun rev =>
+    discoverOutputs service.revDiscovery repo opts.maxRevs? opts.failLv pkg.prettyName remoteScope fun rev =>
       service.downloadRevisionOutputs? rev cache pkg.cacheScope remoteScope platform toolchain opts.forceDownload
 
 private def computeUploadService
@@ -791,10 +826,7 @@ protected def services : CliM PUnit := do
   noArgsRem do
   let lakeEnv ← opts.computeEnv
   let cfg  ← loadLakeConfig lakeEnv
-  cfg.config.cache.services.forM fun svc =>
-    match svc.revDiscovery with
-    | .nearest => IO.println svc.name
-    | rd => IO.println s!"{svc.name} (revDiscovery = {rd})"
+  cfg.config.cache.services.forM (IO.println ·.name)
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption

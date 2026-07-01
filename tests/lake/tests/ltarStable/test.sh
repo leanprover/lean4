@@ -5,7 +5,7 @@ source ../common.sh
 
 #-------------------------------------------------------------------------------
 # Content-stable module archives via leantar -s (strip hash) and -j - (reinject).
-# See lean4#13996.
+  See https://github.com/leanprover/lean4/issues/13996.
 #-------------------------------------------------------------------------------
 
 # Hermetic, workspace-local artifact cache: an empty `LAKE_CACHE_DIR` disables the

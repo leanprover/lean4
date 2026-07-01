@@ -855,7 +855,10 @@ def Module.packLtar (self : Module) (arts : ModuleOutputArtifacts) : JobM Artifa
       return arts
     else self.restoreAllArtifacts arts
   let args ← id do
+    -- `-s` strips the `depHash` so archive bytes depend only on outputs.
+    -- Consumers reinject the hash on unpack (see `Module.unpackLtar`).
     let mut args := #[
+      "-s",
       "-C", self.leanLibDir.toString,
       "-C", self.irDir.toString,
       self.ltarFile.toString,
@@ -886,13 +889,18 @@ def Module.packLtar (self : Module) (arts : ModuleOutputArtifacts) : JobM Artifa
   else
     computeArtifact self.ltarFile "ltar"
 
-def Module.unpackLtar (self : Module) (ltar : FilePath) : JobM Unit := do
+def Module.unpackLtar (self : Module) (ltar : FilePath) (inputHash : Hash) : JobM Unit := do
+  -- Archive has no `depHash` (packed with `-s`); supply it via `-j -` JSON stdin.
+  let input := Json.arr #[Json.mkObj [
+    ("file", toJson ltar.toString),
+    ("hash", toJson inputHash.hex)
+  ]]
   let args := #[
     "-C", self.leanLibDir.toString,
     "-C", self.irDir.toString,
-    "-x", ltar.toString
+    "-x", "-j", "-"
   ]
-  proc (quiet := true) {cmd := (← getLeantar).toString, args}
+  proc (quiet := true) (input? := input.compress) {cmd := (← getLeantar).toString, args}
 
 def Module.recBuildLtar (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:ltar" <| withCurrPackage self.pkg do
@@ -970,7 +978,7 @@ where
     | .ltar ltar =>
       updateAction .unpack
       mod.clearOutputArtifacts
-      mod.unpackLtar ltar.path
+      mod.unpackLtar ltar.path inputHash
       -- Note: This branch implies that only the ltar output is (validly) cached.
       -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
       let savedTrace ← readTraceFile mod.traceFile
@@ -1013,7 +1021,7 @@ where
         let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
         if status.isUpToDate then
           unless (← mod.checkArtifactsExist setup.isModule) do
-            mod.unpackLtar mod.ltarFile
+            mod.unpackLtar mod.ltarFile depTrace.hash
         else
           discard <| mod.buildLean depTrace srcFile setup
         if status.isCacheable then
@@ -1025,7 +1033,7 @@ where
     else
       if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
         unless (← mod.checkArtifactsExist setup.isModule) do
-          mod.unpackLtar mod.ltarFile
+          mod.unpackLtar mod.ltarFile depTrace.hash
         mod.computeArtifacts setup.isModule
       else
         if (← mod.pkg.isArtifactCacheReadable) then

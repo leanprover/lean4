@@ -15,7 +15,7 @@ public section
 
 @[expose] section
 
-namespace Nat.Linear
+namespace Nat.Internal.Linear
 
 /-!
   Helper definitions and theorems for constructing linear arithmetic proofs.
@@ -541,7 +541,7 @@ theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly
   simp [Expr.toNormPoly, Poly.norm] at h
   assumption
 
-end Linear
+end Internal.Linear
 
 def elimOffset {α : Sort u} (a b k : Nat) (h₁ : a + k = b + k) (h₂ : a = b → α) : α :=
   h₂ (Nat.add_right_cancel h₁)

@@ -20,7 +20,7 @@ import Lean.Meta.Sym.Eta
 import Lean.Meta.Sym.Util
 import Lean.Meta.HasAssignableMVar
 import Init.Data.List.MapIdx
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Std.Do.Triple.Basic
 namespace Lean.Meta.Sym
 open Internal

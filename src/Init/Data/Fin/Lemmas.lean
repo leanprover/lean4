@@ -11,7 +11,7 @@ public import Init.Data.Order.Classes
 public import Init.NotationExtra
 import Init.ByCases
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Init.TacticsExtra
 import Init.Hints

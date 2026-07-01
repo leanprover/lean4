@@ -5,15 +5,15 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Nat.Linear
+public import Init.Data.Nat.Internal.Linear
 import Init.ByCases
 import Init.Data.List.BasicAux
 import Init.Data.Prod
 import Init.Meta
 public section
-namespace Nat.SOM
+namespace Nat.Internal.SOM
 
-open Linear (Var hugeFuel Context Var.denote)
+open Internal.Linear (Var hugeFuel Context Var.denote)
 
 inductive Expr where
   | num (i : Nat)
@@ -192,4 +192,4 @@ theorem Expr.eq_of_toPoly_eq (ctx : Context) (a b : Expr) (h : a.toPoly == b.toP
   simp [toPoly_denote] at h
   assumption
 
-end Nat.SOM
+end Nat.Internal.SOM

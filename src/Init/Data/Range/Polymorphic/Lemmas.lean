@@ -19,7 +19,7 @@ import Init.Data.Array.Bootstrap
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.List.Pairwise
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 
 public section

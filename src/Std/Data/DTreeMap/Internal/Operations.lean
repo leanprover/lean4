@@ -10,7 +10,7 @@ public import Std.Data.DTreeMap.Internal.Balancing
 public import Std.Data.DTreeMap.Internal.Queries
 public import Init.Data.List.Control
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Init.WFTactics
 

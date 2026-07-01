@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Injection
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 
 public section
 

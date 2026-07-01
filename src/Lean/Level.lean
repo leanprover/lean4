@@ -10,7 +10,7 @@ public import Init.Data.Array.QSort
 public import Lean.Data.PersistentHashSet
 public import Lean.Hygiene
 public import Init.Data.Option.Coe
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 
 public section
 

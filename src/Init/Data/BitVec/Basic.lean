@@ -12,7 +12,7 @@ public import Init.Data.Int.DivMod.Basic
 public import Init.WF
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Meta.Defs
 import Init.Omega
 import Init.WFTactics

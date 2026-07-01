@@ -222,7 +222,7 @@ Thus,
 So, we take `w = (cdiv (v - b) d)*d + b`
 -/
 def DvdSolution.ge (s : DvdSolution) (v : Int) : Int :=
-  (Int.Linear.cdiv (v - s.b) s.d)*s.d + s.b
+  (Int.Internal.Linear.cdiv (v - s.b) s.d)*s.d + s.b
 
 /--
 Given a divisibility constraint solution space `s := { b, d }`,
@@ -317,7 +317,7 @@ def resolveCooperUnary (pred : CooperSplitPred) : SearchM Bool := do
   let .add c _ (.num e) := c₃.p | return false
   let d := c₃.d
   let (1, α, _) := gcdExt c d | return false
-  unless -b < Int.Linear.cdiv (a - -α * e % d) d * d + -α * e % d do
+  unless -b < Int.Internal.Linear.cdiv (a - -α * e % d) d * d + -α * e % d do
     return false
   setInconsistent (.cooper pred.c₁ pred.c₂ c₃)
   return true

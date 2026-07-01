@@ -12,7 +12,7 @@ import Init.Data.ByteArray.Lemmas
 public import Init.Data.UInt.Basic
 import Init.Data.BitVec.Bootstrap
 import Init.Data.BitVec.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.MinMax
 import Init.Data.Option.Lemmas
 import Init.Data.UInt.Bitwise

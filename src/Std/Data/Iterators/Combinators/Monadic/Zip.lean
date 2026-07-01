@@ -99,7 +99,7 @@ inductive Zip.PlausibleStep (it : IterM (α := Zip α₁ m α₂ β₂) m (β₁
       (hp : it.internalState.right.IsPlausibleStep .done) :
       PlausibleStep it .done
 
-instance Zip.instIterator [Monad m] :
+instance Zip.instIterator {_ : Iterator α₁ m β₁} [Iterator α₂ m β₂] [Monad m] :
     Iterator (Zip α₁ m α₂ β₂) m (β₁ × β₂) where
   IsPlausibleStep := PlausibleStep
   step it :=

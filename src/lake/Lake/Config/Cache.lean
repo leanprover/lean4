@@ -560,7 +560,7 @@ deriving Inhabited, DecidableEq
 namespace RevDiscovery
 
 public protected def toString (self : RevDiscovery) : String :=
- match self with
+  match self with
   | .nearest => "nearest"
   | .head => "head"
 

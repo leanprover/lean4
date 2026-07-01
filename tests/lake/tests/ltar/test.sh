@@ -27,13 +27,6 @@ test_cmd rm .lake/build/lib/lean/Test.olean
 test_out "leantar" build +Test --no-build -v
 test_exp -f .lake/build/lib/lean/Test.olean
 
-# Test that Lake unpacks an modification time up-to-date archive
-# when the module's artifacts and trace are missing with `--old`
-test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.trace
-test_fails build +Test --no-build -v
-test_out "leantar" build +Test --no-build --old -v
-test_exp -f .lake/build/lib/lean/Test.olean
-
 # Test caching and restoring the `ltar`
 LAKE_ARTIFACT_CACHE=true test_run build +Test -v
 test_cmd ls .lake/cache/artifacts/*.ltar
@@ -93,26 +86,14 @@ LAKE_ARTIFACT_CACHE=true test_run build +Test:ltar -v
 test_exp -f .lake/build/lib/lean/Test.olean # forces restore
 test_exp -f .lake/build/ir/Test.ltar
 
-# An `--old` replay-unpack must write some dep hash into the trace, since the
-# archive carries no hash. We write the current hash because it is the only value
-# available when no trace exists on disk, which this path allows; using it in
-# every case avoids branching on whether a trace is present. The alternative
-# reuses the trace's own stale hash when it has one, so a later normal build sees
-# the mismatch and rebuilds. We skip it: the missing-trace case forces the current
-# hash anyway, and it only adds a self-heal that `--old` already forgoes.
-if command -v jq > /dev/null; then # skip if no jq found
-  rm -rf .lake/cache .lake/build
-  test_out "Built Test:ltar" build +Test:ltar -v
-  cur=$(jq -r '.depHash' .lake/build/lib/lean/Test.trace)
-  # Seed a stale depHash and drop the olean, forcing an mtime-only `--old` reuse
-  # whose on-disk trace hash disagrees with the current one.
-  jq '.depHash = "deadbeefdeadbeef"' .lake/build/lib/lean/Test.trace > .lake/build/lib/lean/Test.trace.tmp
-  mv .lake/build/lib/lean/Test.trace.tmp .lake/build/lib/lean/Test.trace
-  test_cmd rm .lake/build/lib/lean/Test.olean
-  test_out "leantar" build +Test --no-build --old -v
-  # The reinjected hash is the current one; the stale hash is gone ...
-  match_text "$cur" .lake/build/lib/lean/Test.trace
-  no_match_text deadbeefdeadbeef .lake/build/lib/lean/Test.trace
-  # ... so a subsequent normal (non-`--old`) build needs no rebuild.
-  test_run build +Test --no-build -v
-fi
+# `--old` must not restore from a hash-stripped archive: it has no stored hash,
+# so unpacking would stamp the trace with an input hash `--old` cannot trust.
+# With the olean and trace gone but the archive present (an mtime-only match),
+# `--old` rebuilds instead of unpacking. So `--no-build --old` fails, and a plain
+# `--old` build produces the olean without invoking leantar.
+rm -rf .lake/cache .lake/build
+test_out "Built Test:ltar" build +Test:ltar -v
+test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test.trace
+test_fails build +Test --no-build --old -v
+test_not_out "leantar" build +Test --old -v
+test_exp -f .lake/build/lib/lean/Test.olean

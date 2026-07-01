@@ -1021,7 +1021,13 @@ where
         let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
         if status.isUpToDate then
           unless (← mod.checkArtifactsExist setup.isModule) do
-            mod.unpackLtar mod.ltarFile depTrace.hash
+            -- Restoring from the archive stamps the trace with the current input
+            -- hash, so only do it on a verified hash match; an mtime-only match
+            -- leaves the hash unconfirmed, so rebuild instead.
+            if status == .hashUpToDate then
+              mod.unpackLtar mod.ltarFile depTrace.hash
+            else
+              discard <| mod.buildLean depTrace srcFile setup
         else
           discard <| mod.buildLean depTrace srcFile setup
         if status.isCacheable then
@@ -1031,9 +1037,15 @@ where
         else
           mod.computeArtifacts setup.isModule
     else
-      if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
+      let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
+      if status.isUpToDate then
         unless (← mod.checkArtifactsExist setup.isModule) do
-          mod.unpackLtar mod.ltarFile depTrace.hash
+          -- As above: restore only on a verified hash match; an mtime-only match
+          -- rebuilds instead.
+          if status == .hashUpToDate then
+            mod.unpackLtar mod.ltarFile depTrace.hash
+          else
+            discard <| mod.buildLean depTrace srcFile setup
         mod.computeArtifacts setup.isModule
       else
         if (← mod.pkg.isArtifactCacheReadable) then

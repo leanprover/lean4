@@ -582,8 +582,8 @@ raised. `pkgName` labels diagnostics and `failLv` escalates warnings as usual.
 
 - `nearest` walks history from `HEAD`, bounded by `maxRevs?` (default `defaultMaxRevs`,
   `0` = unbounded).
-- `head` is SHA-isolated: only `HEAD` is consulted, so `maxRevs?` does not apply. When
-  set it is ignored with a warning (rather than restoring the walk) so the policy holds.
+- `head` is SHA-isolated: only `HEAD` is consulted, so `maxRevs?` does not apply and is
+  ignored with a warning.
 -/
 public def discover {α : Type} (policy : RevDiscovery) (repo : GitRepo)
     (maxRevs? : Option Nat) (failLv : LogLevel) (pkgName : String) (scope : CacheServiceScope)

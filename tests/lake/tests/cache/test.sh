@@ -15,8 +15,7 @@ export LAKE_CACHE_DIR="$CACHE_DIR"
 test_exp ! -d "$CACHE_DIR"
 test_run cache clean
 
-# Test `lake cache services`; a non-default `revDiscovery` is annotated, the
-# default `nearest` is not (also covers parsing the `revDiscovery` field)
+# Test `lake cache services`: a non-default `revDiscovery` is annotated, the default `nearest` is not
 LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
 cdn
 bogus

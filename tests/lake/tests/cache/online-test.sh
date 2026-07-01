@@ -172,10 +172,7 @@ LAKE_CONFIG=services.toml test_out "downloading" \
   cache get --scope='!/test' --force-download --service=cdn
 test_run build +Test --no-build
 
-# Test `head` revision discovery when HEAD itself has a mapping.
-# (`cdn-head` is `cdn` with `revDiscovery = "head"`; the SHA-isolated lookup
-# finds HEAD's mapping without walking history. The no-fallback case, where
-# HEAD lacks a mapping, is tested below after a commit.)
+# `head` discovery serves the current commit's mapping without walking history.
 test_cmd rm -rf .lake/build "$LAKE_CACHE_DIR"
 LAKE_CONFIG=services.toml test_run cache get --scope='!/test' --service=cdn-head
 test_run build +Test --no-build

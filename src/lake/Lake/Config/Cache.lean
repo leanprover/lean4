@@ -559,17 +559,18 @@ deriving Inhabited, DecidableEq
 
 namespace RevDiscovery
 
-/-- All revision discovery policies, in the order presented to users. -/
-public def all : List RevDiscovery := [.nearest, .head]
-
-public protected def toString : RevDiscovery → String
+public protected def toString (self : RevDiscovery) : String :=
+ match self with
   | .nearest => "nearest"
   | .head => "head"
 
 public instance : ToString RevDiscovery := ⟨RevDiscovery.toString⟩
 
-@[inline] public def ofString? (s : String) : Option RevDiscovery :=
-  all.find? (·.toString == s)
+public def ofString? (s : String) : Option RevDiscovery :=
+  match s with
+  | "nearest" => some .nearest
+  | "head" => some .head
+  | _ => none
 
 /-- Default number of revisions the `nearest` policy backtracks when discovering a mapping. -/
 public def defaultMaxRevs : Nat := 100

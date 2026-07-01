@@ -346,8 +346,7 @@ public protected def RevDiscovery.decodeToml (v : Value) : EDecodeM RevDiscovery
   match RevDiscovery.ofString? (← v.decodeString) with
   | some v => return v
   | none =>
-    let expected := String.intercalate ", " (RevDiscovery.all.map (s!"'{·}'"))
-    throwDecodeErrorAt v.ref s!"expected one of {expected}"
+    throwDecodeErrorAt v.ref s!"expected one of 'head', 'nearest'"
 
 public instance : DecodeToml RevDiscovery := ⟨RevDiscovery.decodeToml⟩
 

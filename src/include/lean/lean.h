@@ -79,6 +79,24 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LEAN_EXPORT
 #endif
 
+/* Annotations for allocation functions, mirroring the ones mimalloc uses: the result is a
+   fresh pointer that does not alias any other live object (`malloc`), at least the first
+   argument many bytes of it are accessible (`alloc_size`), and allocation failure panics
+   instead of returning NULL (`returns_nonnull`). */
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_ATTR_MALLOC          __attribute__((malloc))
+#define LEAN_ATTR_ALLOC_SIZE(n)   __attribute__((alloc_size(n)))
+#define LEAN_ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+#elif defined(_MSC_VER)
+#define LEAN_ATTR_MALLOC          __declspec(allocator) __declspec(restrict)
+#define LEAN_ATTR_ALLOC_SIZE(n)
+#define LEAN_ATTR_RETURNS_NONNULL
+#else
+#define LEAN_ATTR_MALLOC
+#define LEAN_ATTR_ALLOC_SIZE(n)
+#define LEAN_ATTR_RETURNS_NONNULL
+#endif
+
 // `FLT_EVAL_METHOD` is mandated to exist by the standard since C++11 and C99, but if we're in danger of triggering this
 // error, all bets are probably off and we should check whether it exists to avoid falling back to `0`.
 // We also perform this check in `lean.h` rather than in one of the runtime files because it is only valid per translation
@@ -408,28 +426,35 @@ LEAN_EXPORT void lean_inc_heartbeat(void);
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
+#ifdef LEAN_MIMALLOC
+/* Allocates a small heap object of `sz` bytes, where `sz` must be a positive multiple of
+   `LEAN_OBJECT_SIZE_DELTA` and at most `LEAN_MAX_SMALL_OBJECT_SIZE`. Counts as one
+   heartbeat. Returns NULL on allocation failure; the object header is uninitialized. */
+LEAN_EXPORT LEAN_ATTR_MALLOC LEAN_ATTR_ALLOC_SIZE(1) lean_object * lean_alloc_small_object_aligned(unsigned sz);
+#endif
+
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     unsigned slot_idx = lean_get_slot_idx(sz);
     assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
     return (lean_object*)lean_alloc_small(sz, slot_idx);
-#else
-    lean_inc_heartbeat();
-#ifdef LEAN_MIMALLOC
-    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+#elif defined(LEAN_MIMALLOC)
+    /* Keep the alignment computation, the NULL check, and the `m_cs_sz` initialization
+       inline: at call sites with statically known sizes the alignment is constant-folded
+       and the `m_cs_sz` store is combined with the other header stores. */
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = mi_malloc_small(sz);
-    if (mem == 0) lean_internal_panic_out_of_memory();
-    lean_object * o = (lean_object*)mem;
+    lean_object* o = lean_alloc_small_object_aligned(sz);
+    if (o == 0) lean_internal_panic_out_of_memory();
+    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
     o->m_cs_sz = sz;
     return o;
 #else
+    lean_inc_heartbeat();
     void * mem = malloc(sizeof(size_t) + sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
-#endif
 #endif
 }
 

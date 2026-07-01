@@ -116,12 +116,17 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
         simpAndMatchIteDecidable f α c inst a b do
           -- If we get stuck here, maybe the problem is that we need to look at `Decidable c'`
           let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
-          simpAndMatchIteDecidableCongr f α c inst a b c' h inst' do
-            -- If we fail, then we just rewrite `c` to `c'`
+          -- If we fail, then we just rewrite `c` to `c'`
+          let rewriteCond : SimpM Result := do
             let e' := e.getBoundedAppFn 4
             let e' ← mkAppS₄ e' c' inst' a b
             let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
             return .step e' h' (done := true) (contextDependent := cd)
+          simpAndMatchIteDecidableCongr f α c inst a b c' h inst' do
+            -- The original instance is stuck; try a synthesized instance for `c'`
+            let .some instS ← trySynthInstance (mkApp (mkConst ``Decidable) c') | rewriteCond
+            let instS ← shareCommon instS
+            simpAndMatchIteDecidableCongr f α c inst a b c' h instS rewriteCond
 
 /-- Reduce `dite` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDIteDecidable (f α c inst a b instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -198,7 +203,7 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
         simpAndMatchDIteDecidable f α c inst a b do
           -- Otherwise, we make `Decidable c'` instance and try to evaluate it instead
           let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
-          simpAndMatchDIteDecidableCongr f α c inst a b c' h inst' do
+          let rewriteCond : SimpM Result := do
             let e' := e.getBoundedAppFn 4
             let h ← shareCommon h
             let a ← share <| mkLambda `h .default c' (a.betaRev #[mkApp4 (mkConst ``Eq.mpr_prop) c c' h (mkBVar 0)])
@@ -206,6 +211,11 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
             let e' ← mkAppS₄ e' c' inst' a b
             let h' := mkApp3 (e.replaceFn ``Sym.dite_cond_congr) c' inst' h
             return .step e' h' (done := true) (contextDependent := cd)
+          simpAndMatchDIteDecidableCongr f α c inst a b c' h inst' do
+            -- The original instance is stuck; try a synthesized instance for `c'`
+            let .some instS ← trySynthInstance (mkApp (mkConst ``Decidable) c') | rewriteCond
+            let instS ← shareCommon instS
+            simpAndMatchDIteDecidableCongr f α c inst a b c' h instS rewriteCond
 
 /-- Reduce `decide` by matching the `Decidable` instance for `isTrue`/`isFalse`. -/
 def matchDecideDecidable (p inst instToMatch : Expr) (fallback : SimpM Result) : SimpM Result := do
@@ -273,11 +283,97 @@ builtin_cbv_simproc ↓ simpDecideCbv (@Decidable.decide _ _) := fun e => do
       else
         let inst' ← trySynthComputableInstance p'
         let inst' := inst'.getD <| mkApp4 (mkConst ``decidable_of_decidable_of_eq) p p' inst hp
-        simpAndMatchDecideDecidableCongr p p' hp inst inst' do
+        let rebuild : SimpM Result := do
           let res := (mkConst ``Decidable.decide)
           let res ← shareCommon res
           let res ← mkAppS₂ res p' inst'
           return .step res (mkApp5 (mkConst ``Decidable.decide.congr_simp) p p' hp inst inst') (done := true) (contextDependent := cd)
+        simpAndMatchDecideDecidableCongr p p' hp inst inst' do
+          -- The instance is stuck; try a synthesized instance for `p'` (the synthesized
+          -- instance may be evaluable even when the original is opaque)
+          let .some instS ← trySynthInstance (mkApp (mkConst ``Decidable) p') | rebuild
+          let instS ← shareCommon instS
+          simpAndMatchDecideDecidableCongr p p' hp inst instS rebuild
+
+/-- Rewrites `e : Decidable q` to `isTrue hq`/`isFalse hq`. Since any two `Decidable q`
+instances are equal by `Subsingleton`, the proof only needs `hq`, a proof or refutation
+of `q`. -/
+def mkDecidableCtorStep (q e hq : Expr) (isTrue : Bool) (cd : Bool) : SimpM Result := do
+  let hq ← shareCommon hq
+  let ctor := if isTrue then ``Decidable.isTrue else ``Decidable.isFalse
+  let thm := if isTrue then ``Sym.decidable_eq_isTrue else ``Sym.decidable_eq_isFalse
+  let e' ← share <| mkApp2 (mkConst ctor) q hq
+  return .step e' (mkApp3 (mkConst thm) q e hq) (contextDependent := cd)
+
+/--
+Rewrites a stuck instance `e : Decidable q` to constructor form by deciding the
+proposition `q` directly. This handles instances that cannot be evaluated structurally,
+e.g. `Nat.decEq 15 (Nat.minFac 15 ^ 1)` unfolds to a *dependent* match on
+`Nat.beq 15 (Nat.minFac 15 ^ 1)`, which congruence cannot rewrite and kernel reduction
+cannot evaluate when the argument is defined by well-founded recursion. The proposition
+route evaluates `q` with the full evaluator; if it reaches `True`/`False`, the rewrite to
+`isTrue`/`isFalse` is justified by `Sym.decidable_eq_isTrue`/`Sym.decidable_eq_isFalse`
+(any two `Decidable q` instances are equal by `Subsingleton`).
+-/
+public def decideStuckInstance (q : Expr) (stuck : Bool → SimpM Result) : Simproc := fun e => do
+  match (← simp q) with
+  | .rfl _ cd =>
+    if (← isTrueExpr q) then mkDecidableCtorStep q e (mkConst ``True.intro) true cd
+    else if (← isFalseExpr q) then mkDecidableCtorStep q e (mkConst ``not_false) false cd
+    else stuck cd
+  | .step q' hq _ cd =>
+    if (← isTrueExpr q') then mkDecidableCtorStep q e (mkOfEqTrueCore q hq) true cd
+    else if (← isFalseExpr q') then mkDecidableCtorStep q e (mkOfEqFalseCore q hq) false cd
+    else stuck cd
+
+/--
+Evaluates a `Decidable`-transport wrapper `e : Decidable q` (e.g.
+`decidable_of_decidable_of_eq`) by evaluating the wrapped instance `inst : Decidable p`.
+
+If `inst` reduces to `isTrue`/`isFalse`, rewrites `e` to constructor form directly: the
+proof carried by the constructor is transported from `p` to `q` via `mkTrue`/`mkFalse`,
+and the rewrite itself is justified by `Subsingleton` (see `mkDecidableCtorStep`). If the
+inner instance is stuck, falls back to deciding the proposition `q` itself. If that fails
+as well, the wrapper is marked done: unfolding it would expose `dite p`, whose fallback
+paths re-create the wrapper around the same stuck instance and loop forever.
+-/
+def evalDecidableTransport (q inst : Expr) (mkTrue mkFalse : Expr → Expr) : Simproc := fun e => do
+  let matchInst (instVal : Expr) (cd : Bool) (fallback : SimpM Result) : SimpM Result := do
+    match_expr instVal with
+    | Decidable.isTrue _ hp => mkDecidableCtorStep q e (mkTrue hp) true cd
+    | Decidable.isFalse _ hnp => mkDecidableCtorStep q e (mkFalse hnp) false cd
+    | _ => fallback
+  -- The instance route is stuck: try to decide the proposition `q` directly.
+  let propFallback (cdInst : Bool) : SimpM Result := do
+    let r ← decideStuckInstance q (fun cd => return mkRflResult (done := true) (contextDependent := cd)) e
+    return if cdInst && !r.isContextDependent then r.withContextDependent else r
+  match (← simp inst) with
+  | .rfl _ cd => matchInst inst cd (propFallback cd)
+  | .step inst' _ _ cd => matchInst inst' cd (propFallback cd)
+
+builtin_cbv_simproc ↓ simpDecidableOfDecidableOfEq (@decidable_of_decidable_of_eq _ _ _ _) := fun e => do
+  let_expr decidable_of_decidable_of_eq p q inst h := e | return .rfl
+  evalDecidableTransport q inst
+    (fun hp => mkApp4 (mkConst ``Sym.eq_mp_prop) p q h hp)
+    (fun hnp => mkApp4 (mkConst ``Sym.eq_mp_not) p q h hnp) e
+
+builtin_cbv_simproc ↓ simpDecidableOfDecidableOfIff (@decidable_of_decidable_of_iff _ _ _ _) := fun e => do
+  let_expr decidable_of_decidable_of_iff p q inst h := e | return .rfl
+  evalDecidableTransport q inst
+    (fun hp => mkApp4 (mkConst ``Iff.mp) p q h hp)
+    (fun hnp => mkApp4 (mkConst ``Sym.iff_mp_not) p q h hnp) e
+
+builtin_cbv_simproc ↓ simpDecidableOfIff (@decidable_of_iff _ _ _ _) := fun e => do
+  let_expr decidable_of_iff b a h inst := e | return .rfl
+  evalDecidableTransport b inst
+    (fun hp => mkApp4 (mkConst ``Iff.mp) a b h hp)
+    (fun hnp => mkApp4 (mkConst ``Sym.iff_mp_not) a b h hnp) e
+
+builtin_cbv_simproc ↓ simpDecidableOfIff' (@decidable_of_iff' _ _ _ _) := fun e => do
+  let_expr decidable_of_iff' a b h inst := e | return .rfl
+  evalDecidableTransport a inst
+    (fun hq => mkApp4 (mkConst ``Iff.mpr) a b h hq)
+    (fun hnq => mkApp4 (mkConst ``Sym.iff_mpr_not) a b h hnq) e
 
 end Lean.Meta.Sym.Simp
 

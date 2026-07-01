@@ -167,6 +167,25 @@ def handleApp : Simproc := fun e => do
   | .lam .. => betaReduce e
   | _ => return .rfl
 
+/--
+Post-pass fallback for stuck `Decidable`-valued applications: decides the underlying
+proposition instead (see `decideStuckInstance`). Runs after `handleApp` has failed to
+make progress with equations, unfolding, and matcher reduction.
+-/
+def handleStuckDecidable : Simproc := fun e => do
+  let .const declName _ := e.getAppFn | return .rfl
+  if declName == ``Decidable.isTrue || declName == ``Decidable.isFalse then return .rfl
+  let info ← getConstInfo declName
+  -- Cheap pre-filter: the head's result type must be `Decidable`, or dependent (a bound
+  -- variable head, e.g. the motive application of a stuck matcher); otherwise the
+  -- application cannot be `Decidable`-valued and we skip the `inferType`.
+  match info.type.getForallBody.getAppFn with
+  | .const clsName _ => unless clsName == ``Decidable do return .rfl
+  | .bvar .. => pure ()
+  | _ => return .rfl
+  let_expr Decidable p := (← Sym.inferType e) | return .rfl
+  decideStuckInstance p (fun cd => return mkRflResult (contextDependent := cd)) e
+
 def handleOpaqueConst : Simproc := fun e => do
   let .const constName _ := e | return .rfl
   if (← isCbvOpaque constName) then
@@ -240,6 +259,29 @@ def handleProj : Simproc := fun e => do
         let newProof ← mkEqOfHEq newProof (check := false)
         return .step (← Lean.Expr.updateProjS! e e') newProof cd
 
+/--
+Pre-pass handler for class-valued applications, e.g. `Decidable` instances such as
+`instDecidableOr p q dp dq`. These are evaluated by unfolding directly instead of
+letting the simplifier rewrite their arguments via congruence first: rewriting a
+`Prop` argument of an instance does not advance evaluation, but it forces the
+congruence machinery to re-synthesize the dependent instance arguments, which is
+prohibitively expensive for large propositions.
+-/
+def handleClassApp : Simproc := fun e => do
+  let fn := e.getAppFn
+  let .const declName _ := fn | return .rfl
+  let info ← getConstInfo declName
+  let .const clsName _ := info.type.getForallBody.getAppFn | return .rfl
+  unless isClass (← getEnv) clsName do return .rfl
+  -- Only bypass argument congruence when it would have to re-synthesize instance
+  -- arguments. For class-valued functions over plain values (e.g. `Nat.decEq`),
+  -- evaluating the arguments first is required: their unfolded bodies often match
+  -- *dependently* on an argument (e.g. `match h : Nat.beq n m with ...`), which can
+  -- only be reduced by `reduceRecMatcher` once the arguments are ground.
+  let .congrTheorem thm ← Sym.getCongrInfo fn | return .rfl
+  unless thm.argKinds.any (· matches .subsingletonInst) do return .rfl
+  handleApp e
+
 open Sym.Internal in
 /--
 For an application whose head is neither a constant nor a lambda (e.g. a projection
@@ -269,6 +311,8 @@ def handleConst : Simproc := fun e => do
   let .const n lvls := e | return .rfl
   let info ← getConstInfo n
   unless info.isDefinition do return .rfl
+  -- Fast path: a syntactically functional type cannot whnf to a non-function.
+  if info.type matches .forallE .. then return .rfl
   let eType ← Sym.inferType e
   let eType ← whnfD eType
   if eType matches .forallE .. then return .rfl
@@ -290,7 +334,7 @@ def cbvPreStep : Simproc := fun e => do
   | .lit .. => foldLit e
   | .proj .. => handleProj e
   | .const .. => handleOpaqueConst >> (tryCbvTheorems <|> handleConst) <| e
-  | .app .. => tryMatcher <|> simplifyAppFn <| e
+  | .app .. => tryMatcher <|> handleClassApp <|> simplifyAppFn <| e
   | .letE .. =>
     if e.letNondep! then
       let betaAppResult ← toBetaApp e
@@ -306,7 +350,7 @@ def cbvPre (simprocs : CbvSimprocs) : Simproc :=
 
 /-- Post-pass: evaluate ground arithmetic, then try eval simprocs, then try unfolding/beta-reducing applications and finally run post simprocs -/
 def cbvPost (simprocs : CbvSimprocs) : Simproc :=
-  evalGround <|> cbvSimprocDispatch simprocs.eval simprocs.erased <|> handleApp <|> cbvSimprocDispatch simprocs.post simprocs.erased
+  evalGround <|> cbvSimprocDispatch simprocs.eval simprocs.erased <|> handleApp <|> handleStuckDecidable <|> cbvSimprocDispatch simprocs.post simprocs.erased
 
 def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
   { pre := cbvPre simprocs, post := cbvPost simprocs }

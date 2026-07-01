@@ -179,4 +179,14 @@ theorem decide_isFalse_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {
 theorem decide_prop_eq_true (p : Prop) {inst : Decidable p} (h : p = True) : decide p = true := by simp [*]
 theorem decide_prop_eq_false (p : Prop) {inst : Decidable p} (h : p = False) : decide p = false := by simp [*]
 
+theorem decidable_eq_isTrue (p : Prop) (inst : Decidable p) (h : p) : inst = .isTrue h :=
+  Subsingleton.elim _ _
+theorem decidable_eq_isFalse (p : Prop) (inst : Decidable p) (h : ¬p) : inst = .isFalse h :=
+  Subsingleton.elim _ _
+
+theorem eq_mp_prop {p q : Prop} (h : p = q) (hp : p) : q := h ▸ hp
+theorem eq_mp_not {p q : Prop} (h : p = q) (hnp : ¬p) : ¬q := h ▸ hnp
+theorem iff_mp_not {p q : Prop} (h : p ↔ q) (hnp : ¬p) : ¬q := fun hq => hnp (h.mpr hq)
+theorem iff_mpr_not {p q : Prop} (h : p ↔ q) (hnq : ¬q) : ¬p := fun hp => hnq (h.mp hp)
+
 end Lean.Sym

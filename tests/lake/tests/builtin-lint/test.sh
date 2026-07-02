@@ -356,6 +356,8 @@ no_match_pat 'Nat\.succ' produced.out
 # A reference under `set_option linter.doc.deferred false in` is suppressed at its site.
 no_match_pat 'Nat\.suppressedMissingABC' produced.out
 no_match_pat 'suppressedForwardRef' produced.out
+# The same suppression works for a module docstring.
+no_match_pat 'Nat\.suppressedModuleDocDEF' produced.out
 
 # Disabling the linter on the command line suppresses the check.
 test_run lint --linters=-linter.doc.deferred ForwardRef

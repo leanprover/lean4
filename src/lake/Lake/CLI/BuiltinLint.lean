@@ -9,6 +9,7 @@ prelude
 public import Lean.Linter.EnvLinter
 public import Lean.Linter.PersistentLintLog
 import Lean.CoreM
+import Lean.DocString.Extension
 import Lean.Elab.DocString.Builtin.Postponed
 import Lake.Config.Workspace
 
@@ -112,6 +113,115 @@ private def recordExceptionsToFiles (records : Array ExceptionRecord) : IO Unit 
     if fileInserted > 0 then
       IO.println s!"recording {fileInserted} exception{if fileInserted == 1 then "" else "s"} in {file}"
       IO.FS.writeFile file ("\n".intercalate lines.toList)
+
+/--
+The source position used to insert an exception for a Verso docstring with a failed check. `failMod`
+is the module that recorded the deferred check.
+
+Requires an environment imported at the `server` olean level, which carries the declaration ranges
+and Verso module-doc snippets consulted here.
+-/
+private def deferredSitePos? (failMod : Name) (site : Doc.DeferredCheckSite) :
+    CoreM (Option Position) := do
+  match site with
+  | .decl n =>
+    return (← findDeclarationRanges? n).map (·.range.pos)
+  | .moduleDoc i =>
+    let some snippets := getVersoModuleDoc? (← getEnv) failMod | return none
+    return snippets[i]?.map (·.declarationRange.pos)
+
+/-- A deferred check site, described for error messages. -/
+private def describeSite : Doc.DeferredCheckSite → String
+  | .decl n => s!"the docstring of `{n}`"
+  | .moduleDoc i => s!"module docstring #{i + 1}"
+
+/-- The result of the deferred docstring check for one lint target, according to its mode. -/
+private inductive DeferredCheckOutcome where
+  /-- Reporting mode: failures were printed to stderr, and `failed` determines the exit code. -/
+  | reported (failed : Bool)
+  /--
+  Recording mode: `records` are the exceptions to write, and `unlocated` indicates that there were
+  failures whose position could not be resolved.
+  -/
+  | recorded (records : Array ExceptionRecord) (unlocated : Bool)
+
+/-- The result of the deferred docstring check pass for one lint target. -/
+private structure DeferredCheckResults where
+  /-- The mode-specific outcome of the pass. -/
+  outcome : DeferredCheckOutcome
+  /-- Modules whose deferred checks have now been run. -/
+  checkedModules : NameSet
+
+/--
+Runs deferred docstring checks (e.g. forward references) over the modules of the package rooted at
+`pkgRoot` that are imported by `env`. These deferred checks may be found both in module docstrings
+and in declaration docstrings, so a declaration-centric interface doesn't make sense. Because
+deferred checks capture their local option values, the per-check predicate can honor a `set_option
+linter.doc.deferred` by inspecting the captured values. The package-level toggle is read from the
+command-line overrides: `--lint-only` requires explicit selection, otherwise the option defaults on
+but honors an explicit `--linters=-linter.doc.deferred` (or `-linter.all`).
+
+`docCheckedModules` names the package modules whose checks earlier lint targets already ran; a
+module imported by several targets is thus checked only once. Its modules are skipped here, and the
+result's `checkedModules` extends it with the ones this target covered, to thread into the next
+target.
+
+Failures are reported on stderr, unless `args.recordExceptions` is set, in which case they are
+turned into exception records at the flagged docstring's positions for the caller to write.
+-/
+private def runDeferredChecks (args : Args) (linterOpts : Linter.LinterOptions) (sp : SearchPath)
+    (env : Environment) (pkgRoot : Name) (docCheckedModules : NameSet) :
+    IO DeferredCheckResults := do
+  let selected :=
+    if args.lintOnly then
+      Lean.Linter.isLinterEnabledByOptions linter.doc.deferred.name linterOpts
+    else
+      Lean.Linter.getLinterValue linter.doc.deferred linterOpts
+  unless selected do
+    let outcome := if args.recordExceptions then .recorded #[] false else .reported false
+    return { outcome, checkedModules := docCheckedModules }
+  let (outcome, _) ←
+      CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+    let failures ← Lean.Doc.DeferredCheck.run
+      (fun m => pkgRoot.isPrefixOf m && !docCheckedModules.contains m)
+      (shouldCheck := fun c =>
+        return Linter.getLinterValue linter.doc.deferred (← c.options.toLinterOptions))
+    if args.recordExceptions then
+      let mut recs : Array ExceptionRecord := #[]
+      let mut unlocated := false
+      for (failMod, c, _) in failures do
+        match ← deferredSitePos? failMod c.site with
+        | some pos =>
+          match ← sp.findWithExt "lean" failMod with
+          | some file =>
+            recs := recs.push { file, pos, option := linter.doc.deferred.name }
+          | none =>
+            IO.eprintln s!"\
+              warning: could not locate source file for `{failMod}` \
+              to record a `{linter.doc.deferred.name}` exception"
+            unlocated := true
+        | none =>
+          IO.eprintln s!"\
+            warning: could not determine the position of {describeSite c.site} in `{failMod}`; \
+            cannot record a `{linter.doc.deferred.name}` exception"
+          unlocated := true
+      return DeferredCheckOutcome.recorded recs unlocated
+    else
+      for (failMod, c, msg) in failures do
+        let context := if c.sourceString.isEmpty then "" else s!" ({c.sourceString})"
+        match ← sp.findWithExt "lean" failMod with
+        | some file =>
+          IO.eprintln s!"{file}: error: in {describeSite c.site}{context}: {← msg.toString}"
+        | none =>
+          IO.eprintln s!"error: in module `{failMod}`, in {describeSite c.site}{context}: {← msg.toString}"
+      return DeferredCheckOutcome.reported !failures.isEmpty
+  -- Mark this target's transitive imports that are in the package so later targets don't re-run
+  -- their checks.
+  let mut checkedModules := docCheckedModules
+  for m in env.header.moduleNames do
+    if pkgRoot.isPrefixOf m then
+      checkedModules := checkedModules.insert m
+  return { outcome, checkedModules }
 
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
@@ -225,42 +335,14 @@ public def run (args : Args) : IO UInt32 := do
     if textFailed || declFailed then
       anyFailed := true
 
-    -- Runs deferred docstring checks (e.g. forward references) over this package's own modules.
-    -- These deferred checks may be found both in module docstrings and in declaration docstrings,
-    -- so a declaration-centric interface doesn't make sense. Because deferred checks capture their
-    -- local option values, the per-check predicate can honor a `set_option linter.doc.deferred`
-    -- by inspecting the captured values. The package-level toggle is read from the command-line
-    -- overrides: `--lint-only` requires explicit selection, otherwise the option defaults on but
-    -- honors an explicit `--linters=-linter.doc.deferred` (or `-linter.all`).
-    let deferredSelected :=
-      if args.lintOnly then
-        Lean.Linter.isLinterEnabledByOptions linter.doc.deferred.name linterOpts
-      else
-        Lean.Linter.getLinterValue linter.doc.deferred linterOpts
-    if !args.recordExceptions && deferredSelected then
-      let (deferredFailures, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
-        let failures ← Lean.Doc.DeferredCheck.run
-          (fun m => mod.getRoot.isPrefixOf m && !docCheckedModules.contains m)
-          (shouldCheck := fun c =>
-            return Linter.getLinterValue linter.doc.deferred (← c.options.toLinterOptions))
-        failures.mapM fun (failMod, c, msg) => return (failMod, c.site, c.sourceString, ← msg.toString)
-      -- Mark this target's transitive imports that are in the package so later targets don't
-      -- re-run their checks.
-      for m in env.header.moduleNames do
-        if mod.getRoot.isPrefixOf m then
-          docCheckedModules := docCheckedModules.insert m
-      unless deferredFailures.isEmpty do
-        anyFailed := true
-        for (failMod, site, sourceString, msg) in deferredFailures do
-          let inDoc := match site with
-            | .decl n => s!"the docstring of `{n}`"
-            | .moduleDoc i => s!"module docstring #{i + 1}"
-          let context := if sourceString.isEmpty then "" else s!" ({sourceString})"
-          match ← sp.findWithExt "lean" failMod with
-          | some file =>
-            IO.eprintln s!"{file}: error: in {inDoc}{context}: {msg}"
-          | none =>
-            IO.eprintln s!"error: in module `{failMod}`, in {inDoc}{context}: {msg}"
+    let deferredResults ← runDeferredChecks args linterOpts sp env mod.getRoot docCheckedModules
+    docCheckedModules := deferredResults.checkedModules
+    match deferredResults.outcome with
+    | .reported failed =>
+      if failed then anyFailed := true
+    | .recorded recs unlocated =>
+      records := records ++ recs
+      if unlocated then anyUnlocated := true
 
   if args.recordExceptions then
     recordExceptionsToFiles records

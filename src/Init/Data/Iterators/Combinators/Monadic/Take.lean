@@ -114,7 +114,7 @@ inductive Take.PlausibleStep [Iterator α m β] (it : IterM (α := Take α m) m 
       PlausibleStep it .done
 
 @[always_inline, inline]
-instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m) m β where
+instance Take.instIterator [Monad m] {_ : Iterator α m β} : Iterator (Take α m) m β where
   IsPlausibleStep := Take.PlausibleStep
   step it :=
     if h : it.internalState.countdown = 1 then
@@ -161,7 +161,7 @@ theorem Take.rel_of_zero_of_inner [Monad m] [Iterator α m β]
   simp only [Rel, this, ↓reduceDIte, InvImage, h, h']
   exact Prod.Lex.right _ h''
 
-private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
+private def Take.instFinitenessRelation [Monad m] {_ : Iterator α m β}
     [Productive α m] :
     FinitenessRelation (Take α m) m where
   Rel := Take.Rel m
@@ -203,11 +203,11 @@ private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
     case depleted _ =>
       cases h
 
-instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
+instance Take.instFinite [Monad m] {_ : Iterator α m β} [Productive α m] :
     Finite (Take α m) m :=
   by exact Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
+instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] {_ : Iterator α m β} :
     IteratorLoop (Take α m) m n :=
   .defaultImplementation
 

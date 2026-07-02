@@ -22,7 +22,7 @@ structure Attach (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator 
   invariant : ∀ out, inner.IsPlausibleIndirectOutput out → P out
 
 @[always_inline, inline]
-def Attach.Monadic.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def Attach.Monadic.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type w} {_ : Iterator α m β}
     {P : β → Prop}
     (it : IterM (α := Attach α m P) m { out : β // P out })
     (step : it.internalState.inner.Step (α := α) (m := m)) :
@@ -37,14 +37,14 @@ def Attach.Monadic.modifyStep {α : Type w} {m : Type w → Type w'} {β : Type 
   | .done _ => .done
 
 instance Attach.instIterator {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] {P : β → Prop} :
+    {_ : Iterator α m β} {P : β → Prop} :
     Iterator (Attach α m P) m { out : β // P out } where
   IsPlausibleStep it step := ∃ step', Monadic.modifyStep it step' = step
   step it := (fun step => .deflate ⟨Monadic.modifyStep it step.inflate, step.inflate, rfl⟩) <$>
       it.internalState.inner.step
 
 def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Finite α m] {P : β → Prop} :
+    {_ : Iterator α m β} [Finite α m] {P : β → Prop} :
     FinitenessRelation (Attach α m P) m where
   Rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySteps
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -61,11 +61,11 @@ def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Mon
     · simp [IterStep.successor, Monadic.modifyStep, reduceCtorEq] at hs
 
 instance Attach.instFinite {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Finite α m] {P : β → Prop} : Finite (Attach α m P) m :=
+    {_ : Iterator α m β} [Finite α m] {P : β → Prop} : Finite (Attach α m P) m :=
   .of_finitenessRelation instFinitenessRelation
 
 def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Productive α m] {P : β → Prop} :
+    {_ : Iterator α m β} [Productive α m] {P : β → Prop} :
     ProductivenessRelation (Attach α m P) m where
   Rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySkips
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -81,12 +81,12 @@ def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} 
     · simp [Monadic.modifyStep] at hs
 
 instance Attach.instProductive {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [Productive α m] {P : β → Prop} :
+    {_ : Iterator α m β} [Productive α m] {P : β → Prop} :
     Productive (Attach α m P) m :=
   .of_productivenessRelation instProductivenessRelation
 
 instance Attach.instIteratorLoop {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {n : Type x → Type x'} [Monad n] {P : β → Prop} [Iterator α m β] :
+    {n : Type x → Type x'} [Monad n] {P : β → Prop} {_ : Iterator α m β} :
     IteratorLoop (Attach α m P) m n :=
   .defaultImplementation
 

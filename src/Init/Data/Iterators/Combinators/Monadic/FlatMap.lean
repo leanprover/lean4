@@ -274,7 +274,7 @@ theorem Flatten.rel_of_right₂ [Monad m] [Iterator α m (IterM (α := α₂) m 
     Rel α β m ⟨it₁, none⟩ ⟨it₁, some it₂⟩ :=
   Prod.Lex.right _ True.intro
 
-def Flatten.instFinitenessRelation [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
+def Flatten.instFinitenessRelation [Monad m] {_ : Iterator α m (IterM (α := α₂) m β)} {_ : Iterator α₂ m β}
     [Finite α m] [Finite α₂ m] :
     FinitenessRelation (Flatten α α₂ β m) m where
   Rel := Rel α β m
@@ -301,8 +301,8 @@ def Flatten.instFinitenessRelation [Monad m] [Iterator α m (IterM (α := α₂)
     case innerDone =>
       apply Flatten.rel_of_right₂
 
-public instance Flatten.instFinite [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
-    [Finite α m] [Finite α₂ m] : Finite (Flatten α α₂ β m) m :=
+public instance Flatten.instFinite [Monad m] {_ : Iterator α m (IterM (α := α₂) m β)}
+    {_ : Iterator α₂ m β} [Finite α m] [Finite α₂ m] : Finite (Flatten α α₂ β m) m :=
   .of_finitenessRelation instFinitenessRelation
 
 end Finite
@@ -361,14 +361,14 @@ def Flatten.instProductivenessRelation [Monad m] [Iterator α m (IterM (α := α
     case innerDone =>
       apply Flatten.productiveRel_of_right₂
 
-public theorem Flatten.instProductive [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
+public theorem Flatten.instProductive [Monad m] {_ : Iterator α m (IterM (α := α₂) m β)} {_ : Iterator α₂ m β}
     [Finite α m] [Productive α₂ m] : Productive (Flatten α α₂ β m) m :=
   .of_productivenessRelation instProductivenessRelation
 
 end Productive
 
-public instance Flatten.instIteratorLoop [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorLoop (Flatten α α₂ β m) m n :=
+public instance Flatten.instIteratorLoop [Monad m] [Monad n] {_ : Iterator α m (IterM (α := α₂) m β)}
+    {_ : Iterator α₂ m β} : IteratorLoop (Flatten α α₂ β m) m n :=
   .defaultImplementation
 
 end Std.Iterators.Types

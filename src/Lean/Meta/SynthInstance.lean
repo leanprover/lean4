@@ -352,6 +352,10 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
   let localInsts ← getLocalInstances
   forallTelescopeReducing mvarType fun xs mvarTypeBody => do
     let { subgoals, instVal, instTypeBody } ← getSubgoals lctx localInsts xs inst
+    -- Mark the instance-argument metavariables before unifying with the goal type, so that a
+    -- would-be assignment by unification must preserve the type at `.instances` transparency.
+    -- See `MetavarContext.instanceTypedMVars` and issue #9077.
+    subgoals.forM fun subgoal => subgoal.mvarId!.markInstanceTyped
     withTraceNode `Meta.synthInstance.tryResolve (fun _ => do withMCtx (← getMCtx) do
         return m!"{← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
     if (← isDefEq mvarTypeBody instTypeBody) then

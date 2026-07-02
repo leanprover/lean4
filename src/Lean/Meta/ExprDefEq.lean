@@ -82,6 +82,23 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+Controls whether assignments to instance-typed metavariables (see
+`MetavarContext.instanceTypedMVars`) must preserve the metavariable's type up to
+`TransparencyMode.instances`.
+
+When `true`, assigning a value to a metavariable created for an instance-implicit argument
+requires the value's type to match the metavariable's type at `.instances` transparency, and
+all metavariables occurring in the assigned value inherit this requirement. This prevents
+unification from committing to an instance for a type that is different at
+instance-resolution time. See issue #9077.
+-/
+register_builtin_option backward.isDefEq.instanceTypes : Bool := {
+  defValue := true
+  descr    := "if true (the default), require assignments to instance metavariables to \
+  preserve the type up to `.instances` transparency"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -368,6 +385,19 @@ least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unf
     else
       withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
 
+/--
+Like `withImplicitConfig`, but sets transparency to exactly `.instances`: instance-typed
+metavariable assignments must preserve the type at `.instances` even when the ambient
+transparency is higher.
+-/
+@[inline] def withInstancesConfig (x : MetaM α) : MetaM α := do
+  withTransparency .instances do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+
 private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : MetaM Bool := do
   unless args₁.size == args₂.size do return false
   let finfo ← getFunInfoNArgs f args₁.size
@@ -489,11 +519,58 @@ abbrev respectTransparencyAtTypes : CoreM Bool := do
   let opts ← getOptions
   return backward.isDefEq.respectTransparency.types.get opts && backward.isDefEq.respectTransparency.get opts
 
+/--
+Mark the metavariables in type-determining (spine) positions of `e` as instance-typed
+(see `MetavarContext.instanceTypedMVars`).
+
+Only spine metavariables need the marking to preserve the instance-typed invariant:
+`inferType` consults the type of a subterm only in spine positions (the head of an
+application, the body of a lambda or `let`, the structure of a projection). A metavariable
+in argument position enters the inferred type only by substitution, so instantiating it
+changes the value's type and its occurrences in the already-checked expected type in the
+same way.
+-/
+partial def markInstanceTypedSpineMVars (e : Expr) : MetaM Unit := go e
+where
+  go (e : Expr) : MetaM Unit := do
+    unless e.hasExprMVar do return ()
+    match e with
+    | .mvar mvarId =>
+      mvarId.markInstanceTyped
+      -- The value of a delayed-assigned metavariable is determined by its pending metavariable.
+      if let some d ← getDelayedMVarAssignment? mvarId then
+        go (mkMVar d.mvarIdPending)
+    | .app f _ => go f
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => go v; go b
+    | .proj _ _ s => go s
+    | .mdata _ b => go b
+    | _ => return ()
+
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
+    else if (← mvar.mvarId!.isInstanceTyped) && backward.isDefEq.instanceTypes.get (← getOptions) then
+      /- The final value of an instance metavariable must have a type that agrees with the
+         metavariable's type at `.instances` transparency (issue #9077). We instantiate `v` first
+         so that the check sees the types of values assigned to metavariables in `v` (their own
+         assignments may have been checked at a weaker transparency, before they were marked),
+         and we propagate the marking to the metavariables remaining in `v` so that their future
+         assignments are checked as well. -/
+      let v ← instantiateMVars v
+      let mvarType ← inferType mvar
+      let vType ← inferType v
+      if (← withInstancesConfig <| Meta.isExprDefEqAux mvarType vType) then
+        mvar.mvarId!.assign v
+        markInstanceTypedSpineMVars v
+        return true
+      else
+        if (← isDiagnosticsEnabled) then withInferTypeConfig do
+          if (← Meta.isExprDefEqAux mvarType vType) then
+            trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.instances` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.instanceTypes false`"
+        return false
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar

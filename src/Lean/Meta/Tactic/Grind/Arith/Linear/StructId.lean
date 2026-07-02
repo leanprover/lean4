@@ -158,6 +158,138 @@ private def getHSMulNatFn? (u : Level) (type : Expr) : GoalM (Option Expr) := do
   let some smulInst ← synthInstance? smulType | return none
   internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type smulInst
 
+/-- Order-related instances used to construct a `Struct`. -/
+private structure OrderInsts where
+  leInst? : Option Expr
+  ltInst? : Option Expr
+  lawfulOrderLTInst? : Option Expr
+  isPreorderInst? : Option Expr
+  isPartialInst? : Option Expr
+  isLinearInst? : Option Expr
+
+private def mkOrderInsts (u : Level) (type : Expr) : GoalM OrderInsts := do
+  let leInst? ← getInst? ``LE u type
+  let ltInst? ← getInst? ``LT u type
+  let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
+  let isPreorderInst? ← mkIsPreorderInst? u type leInst?
+  let isPartialInst? ← mkIsPartialOrderInst? u type leInst?
+  let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
+  return { leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, isPartialInst?, isLinearInst? }
+
+/--
+If the type is a `Ring` **and** is not even a preorder **and** `grind ring` is enabled,
+we let `grind ring` process the equalities and disequalities. There is no
+point in using `linarith` in this case.
+**IMPORTANT** We mark the type as a "forbiddenNatModule". It would be pointless to recheck everything in
+in `getNatStructId?`
+-/
+private def markForbiddenIfRingOnly (type : Expr) (ringId? : Option Nat) (isPreorderInst? : Option Expr) : GoalM Bool := do
+  if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
+    modify' fun s => { s with forbiddenNatModules := s.forbiddenNatModules.insert { expr := type } }
+    return true
+  return false
+
+private def mkOrderedAddInst? (u : Level) (type : Expr) (addInst : Expr) (leInst? isPreorderInst? : Option Expr) : GoalM (Option Expr) := do
+  let some leInst := leInst? | return none
+  let some isPreorderInst := isPreorderInst? | return none
+  synthInstance? <| mkApp4 (mkConst ``Grind.OrderedAdd [u]) type addInst leInst isPreorderInst
+
+/-- Ring-related instances used to construct a `Struct`. -/
+private structure RingInsts where
+  fieldInst? : Option Expr
+  one? : Option Expr
+  orderedRingInst? : Option Expr
+  charInst? : Option (Expr × Nat)
+  noNatDivInst? : Option Expr
+
+private def mkRingInsts (u : Level) (type : Expr) (ringInst? : Option Expr) (os : OrderInsts) : GoalM RingInsts := do
+  let semiringInst? ← mkSemiringInst? u type ringInst?
+  let fieldInst? ← getInst? ``Grind.Field u type
+  let one? ← mkOne? u type -- One must be created eagerly
+  let orderedRingInst? ← mkOrderedRingInst? u type semiringInst? os.leInst? os.ltInst? os.isPreorderInst?
+  let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
+  let noNatDivInst? ← mkNoNatZeroDivInst? u type
+  return { fieldInst?, one?, orderedRingInst?, charInst?, noNatDivInst? }
+
+/-- Internalized functions (and `0` constants) used to construct a `Struct`. -/
+private structure CoreFns where
+  zero : Expr
+  ofNatZero : Expr
+  subFn : Expr
+  negFn : Expr
+  zsmulFn : Expr
+  nsmulFn : Expr
+
+private def mkCoreFns? (u : Level) (type : Expr) (intModuleInst addInst : Expr) : GoalM (Option CoreFns) := do
+  let addCommGroupInst := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type intModuleInst
+  let addCommMonoidInst := mkApp2 (mkConst ``Grind.AddCommGroup.toAddCommMonoid [u]) type addCommGroupInst
+  let zeroInst ← getInst ``Zero u type
+  let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
+  let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
+  let some ofNatZeroInst ← synthInstance? ofNatZeroType | return none
+  -- `ofNatZero` is used internally, we don't need to internalize
+  let ofNatZero ← preprocess <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
+  ensureDefEq zero ofNatZero
+  let subInst ← getBinHomoInst ``HSub u type
+  let subFn ← internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
+  let negInst ← getInst ``Neg u type
+  let negFn ← internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type negInst
+  let zsmulInst ← getHSMulIntInst u type
+  let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type type zsmulInst
+  let nsmulInst ← getHSMulNatInst u type
+  let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type nsmulInst
+  ensureToFieldDefEq zeroInst addCommMonoidInst ``Grind.AddCommMonoid.toZero u type
+  ensureToHomoFieldDefEq addInst addCommMonoidInst ``Grind.AddCommMonoid.toAdd ``instHAdd u type
+  ensureToHomoFieldDefEq subInst addCommGroupInst ``Grind.AddCommGroup.toSub ``instHSub u type
+  ensureToFieldDefEq negInst addCommGroupInst ``Grind.AddCommGroup.toNeg u type
+  ensureToHomoFieldDefEq zsmulInst intModuleInst ``Grind.IntModule.zsmul ``instHSMul u type (some Int.mkType)
+  ensureToHomoFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul ``instHSMul u type (some Nat.mkType)
+  return some { zero, ofNatZero, subFn, negFn, zsmulFn, nsmulFn }
+
+/-- Internalized order/scalar/multiplication functions used to construct a `Struct`. -/
+private structure RelFns where
+  leFn? : Option Expr
+  ltFn? : Option Expr
+  zsmulFn? : Option Expr
+  nsmulFn? : Option Expr
+  homomulFn? : Option Expr
+
+private def mkRelFns (u : Level) (type : Expr) (leInst? ltInst? commRingInst? : Option Expr) : GoalM RelFns := do
+  let leFn? ← if let some leInst := leInst? then
+    some <$> (internalizeFn <| mkApp2 (mkConst ``LE.le [u]) type leInst)
+  else
+    pure none
+  let ltFn? ← if let some ltInst := ltInst? then
+    some <$> (internalizeFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInst)
+  else
+    pure none
+  let zsmulFn? ← getHSMulIntFn? u type
+  let nsmulFn? ← getHSMulNatFn? u type
+  let homomulFn? ← if commRingInst?.isSome then
+    let mulInst ← getBinHomoInst ``HMul u type
+    pure <| some (← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [u, u, u]) type type type mulInst)
+  else
+    pure none
+  return { leFn?, ltFn?, zsmulFn?, nsmulFn?, homomulFn? }
+
+/--
+If the struct has `1`, create a variable for it and assert the basic facts (`0 < 1`, `0 ≠ 1`)
+justified by its instances.
+-/
+private def addOneAssertions (struct : Struct) : GoalM Unit := do
+  let some one := struct.one? | return ()
+  unless struct.ringInst?.isSome do return ()
+  LinearM.run struct.id do
+    if struct.orderedRingInst?.isSome then
+      -- Create `1` variable, and assert strict lower bound `0 < 1` and `0 ≠ 1`
+      let x ← mkVar one (mark := false)
+      addZeroLtOne x
+      addZeroNeOne x
+    else if struct.fieldInst?.isSome || isNonTrivialIsCharInst struct.charInst? then
+      -- Create `1` variable, and assert `0 ≠ 1`
+      let x ← mkVar one (mark := false)
+      addZeroNeOne x
+
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none
   if (← isCutsatType type) then return none
@@ -171,84 +303,28 @@ where
   go? : GoalM (Option Nat) := do
     let some u ← getDecLevel? type | return none
     let ringId? ← CommRing.getCommRingId? type
-    let leInst? ← getInst? ``LE u type
-    let ltInst? ← getInst? ``LT u type
-    let lawfulOrderLTInst? ← mkLawfulOrderLTInst? u type ltInst? leInst?
-    let isPreorderInst? ← mkIsPreorderInst? u type leInst?
-    let isPartialInst? ← mkIsPartialOrderInst? u type leInst?
-    let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
-    if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
-      /-
-      If the type is a `Ring` **and** is not even a preorder **and** `grind ring` is enabled,
-      we let `grind ring` process the equalities and disequalities. There is no
-      point in using `linarith` in this case.
-      **IMPORTANT** We mark the type as a "forbiddenNatModule". It would be pointless to recheck everything in
-      in `getNatStructId?`
-      -/
-      modify' fun s => { s with forbiddenNatModules := s.forbiddenNatModules.insert { expr := type } }
-      return none
+    let os ← mkOrderInsts u type
+    if (← markForbiddenIfRingOnly type ringId? os.isPreorderInst?) then return none
     let commRingInst? ← getCommRingInst? ringId?
     let ringInst? ← mkRingInst? u type commRingInst?
     let some intModuleInst ← mkIntModuleInst? u type ringInst? | return none
     let addInst ← getBinHomoInst ``HAdd u type
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
-    let orderedAddInst? ← match leInst?, isPreorderInst? with
-      | some leInst, some isPreorderInst =>
-        synthInstance? <| mkApp4 (mkConst ``Grind.OrderedAdd [u]) type addInst leInst isPreorderInst
-      | _, _ => pure none
-    let isPreorderInst? := if orderedAddInst?.isNone then none else isPreorderInst?
+    let orderedAddInst? ← mkOrderedAddInst? u type addInst os.leInst? os.isPreorderInst?
+    let isPreorderInst? := if orderedAddInst?.isNone then none else os.isPreorderInst?
     -- preorderInst? may have been reset, check again whether this module is needed.
-    if (← getConfig).ring && ringId?.isSome && isPreorderInst?.isNone then
-      -- See comment above
-      modify' fun s => { s with forbiddenNatModules := s.forbiddenNatModules.insert { expr := type } }
-      return none
-    let isPartialInst? ← checkToFieldDefEq? leInst? isPreorderInst? isPartialInst? ``Std.IsPartialOrder.toIsPreorder u type
-    let isLinearInst? ← checkToFieldDefEq? leInst? isPartialInst? isLinearInst? ``Std.IsLinearOrder.toIsPartialOrder u type
-    let addCommGroupInst := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type intModuleInst
-    let addCommMonoidInst := mkApp2 (mkConst ``Grind.AddCommGroup.toAddCommMonoid [u]) type addCommGroupInst
-    let semiringInst? ← mkSemiringInst? u type ringInst?
-    let fieldInst? ← getInst? ``Grind.Field u type
-    let one? ← mkOne? u type -- One must be created eagerly
-    let orderedRingInst? ← mkOrderedRingInst? u type semiringInst? leInst? ltInst? isPreorderInst?
-    let charInst? ← if let some semiringInst := semiringInst? then getIsCharInst? u type semiringInst else pure none
-    let noNatDivInst? ← mkNoNatZeroDivInst? u type
+    if (← markForbiddenIfRingOnly type ringId? isPreorderInst?) then return none
+    let isPartialInst? ← checkToFieldDefEq? os.leInst? isPreorderInst? os.isPartialInst? ``Std.IsPartialOrder.toIsPreorder u type
+    let isLinearInst? ← checkToFieldDefEq? os.leInst? isPartialInst? os.isLinearInst? ``Std.IsLinearOrder.toIsPartialOrder u type
+    let os := { os with isPreorderInst?, isPartialInst?, isLinearInst? }
     -- TODO: generate the remaining fields on demand
-    let zeroInst ← getInst ``Zero u type
-    let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
-    let ofNatZeroType := mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)
-    let some ofNatZeroInst ← synthInstance? ofNatZeroType | return none
-    -- `ofNatZero` is used internally, we don't need to internalize
-    let ofNatZero ← preprocess <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
-    ensureDefEq zero ofNatZero
-    let subInst ← getBinHomoInst ``HSub u type
-    let subFn ← internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
-    let negInst ← getInst ``Neg u type
-    let negFn ← internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type negInst
-    let zsmulInst ← getHSMulIntInst u type
-    let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type type zsmulInst
-    let nsmulInst ← getHSMulNatInst u type
-    let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type nsmulInst
-    ensureToFieldDefEq zeroInst addCommMonoidInst ``Grind.AddCommMonoid.toZero u type
-    ensureToHomoFieldDefEq addInst addCommMonoidInst ``Grind.AddCommMonoid.toAdd ``instHAdd u type
-    ensureToHomoFieldDefEq subInst addCommGroupInst ``Grind.AddCommGroup.toSub ``instHSub u type
-    ensureToFieldDefEq negInst addCommGroupInst ``Grind.AddCommGroup.toNeg u type
-    ensureToHomoFieldDefEq zsmulInst intModuleInst ``Grind.IntModule.zsmul ``instHSMul u type (some Int.mkType)
-    ensureToHomoFieldDefEq nsmulInst intModuleInst ``Grind.IntModule.nsmul ``instHSMul u type (some Nat.mkType)
-    let leFn? ← if let some leInst := leInst? then
-      some <$> (internalizeFn <| mkApp2 (mkConst ``LE.le [u]) type leInst)
-    else
-      pure none
-    let ltFn? ← if let some ltInst := ltInst? then
-      some <$> (internalizeFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInst)
-    else
-      pure none
-    let zsmulFn? ← getHSMulIntFn? u type
-    let nsmulFn? ← getHSMulNatFn? u type
-    let homomulFn? ← if commRingInst?.isSome then
-      let mulInst ← getBinHomoInst ``HMul u type
-      pure <| some (← internalizeFn <| mkApp4 (mkConst ``HMul.hMul [u, u, u]) type type type mulInst)
-    else
-      pure none
+    let ringInsts ← mkRingInsts u type ringInst? os
+    let some coreFns ← mkCoreFns? u type intModuleInst addInst | return none
+    let relFns ← mkRelFns u type os.leInst? os.ltInst? commRingInst?
+    let { leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?, isLinearInst?, .. } := os
+    let { fieldInst?, one?, orderedRingInst?, charInst?, noNatDivInst? } := ringInsts
+    let { zero, ofNatZero, subFn, negFn, zsmulFn, nsmulFn } := coreFns
+    let { leFn?, ltFn?, zsmulFn?, nsmulFn?, homomulFn? } := relFns
     let id := (← get').structs.size
     let struct : Struct := {
       id, type, u, intModuleInst, leInst?, ltInst?, lawfulOrderLTInst?, isPreorderInst?,
@@ -257,17 +333,7 @@ where
       ringInst?, commRingInst?, orderedRingInst?, charInst?, ringId?, fieldInst?, ofNatZero, homomulFn?
     }
     modify' fun s => { s with structs := s.structs.push struct }
-    if let some one := one? then
-      if ringInst?.isSome then LinearM.run id do
-        if orderedRingInst?.isSome then
-          -- Create `1` variable, and assert strict lower bound `0 < 1` and `0 ≠ 1`
-          let x ← mkVar one (mark := false)
-          addZeroLtOne x
-          addZeroNeOne x
-        else if fieldInst?.isSome || isNonTrivialIsCharInst charInst? then
-          -- Create `1` variable, and assert `0 ≠ 1`
-          let x ← mkVar one (mark := false)
-          addZeroNeOne x
+    addOneAssertions struct
     return some id
 
 private def mkNatModuleInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
@@ -297,10 +363,7 @@ where
     let isLinearInst? ← mkIsLinearOrderInst? u type leInst?
     let addInst ← getBinHomoInst ``HAdd u type
     let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
-    let orderedAddInst? ← match leInst?, isPreorderInst? with
-      | some leInst, some isPreorderInst =>
-        synthInstance? <| mkApp4 (mkConst ``Grind.OrderedAdd [u]) type addInst leInst isPreorderInst
-      | _, _ => pure none
+    let orderedAddInst? ← mkOrderedAddInst? u type addInst leInst? isPreorderInst?
     let addInst' ← synthInstance <| mkApp (mkConst ``Add [u]) type
     let addRightCancelInst? ← synthInstance? <| mkApp2 (mkConst ``Grind.AddRightCancel [u]) type addInst'
     let toQFn ← internalizeFn <| mkApp2 (mkConst ``Grind.IntModule.OfNatModule.toQ [u]) type natModuleInst

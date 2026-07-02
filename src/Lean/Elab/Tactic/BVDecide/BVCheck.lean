@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.BVDecide.BVDecide
 public import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Tactic.BVDecide.TacticContext
 import Lean.Meta.Tactic.BVDecide.Normalize
+import Lean.Meta.Sym.Util
 
 public section
 
@@ -39,8 +40,10 @@ def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM Ta
   TacticContext.new lratPath cfg
 
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
-def bvCheck (g : MVarId) (ctx : TacticContext) : MetaM Unit := do
-  discard <| closeWithBVReflection g (lratChecker ctx)
+def bvCheck (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) : MetaM Unit := do
+  Meta.Sym.SymM.run <| M.run (hypotheses := hypotheses) do
+    let g ← Meta.Sym.preprocessMVar g
+    discard <| closeWithBVReflection g (lratChecker ctx)
 
 
 open Lean.Meta.Tactic in
@@ -56,15 +59,7 @@ def evalBvCheck : Tactic := fun
           logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
           TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
         else
-          -- TODO: test run
-          let hyps := (← Normalize.PreProcessM.getHyps).map fun hyp => {
-            userName := hyp.name
-            type := hyp.type
-            value := hyp.value
-          }
-          let (_, goal) ← MVarId.assertHypotheses (← Normalize.PreProcessM.getGoal) hyps
-
-          bvCheck goal ctx
+          bvCheck (← Normalize.PreProcessM.getGoal) (← Normalize.PreProcessM.getHyps) ctx
   | _ => throwUnsupportedSyntax
 
 end BVCheck

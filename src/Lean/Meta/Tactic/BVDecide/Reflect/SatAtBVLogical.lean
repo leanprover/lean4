@@ -29,9 +29,8 @@ namespace SatAtBVLogical
 /--
 Reify an `Expr` that is a proof of some boolean structure on top of predicates about `BitVec`s.
 -/
-public partial def of (h : Expr) : LemmaM (Option SatAtBVLogical) := do
-  let t ← Sym.instantiateMVarsS (← Sym.inferType h)
-  match_expr t with
+public partial def of (hyp : Normalize.Hyp) : LemmaM (Option SatAtBVLogical) := do
+  match_expr hyp.type with
   | Eq α lhsExpr rhsExpr =>
     let_expr Bool := α | return none
     let_expr Bool.true := rhsExpr | return none
@@ -45,7 +44,7 @@ public partial def of (h : Expr) : LemmaM (Option SatAtBVLogical) := do
       let evalProof := (← bvLogical.evalsAtAtoms).getD (ReifiedBVLogical.mkRefl evalLogic)
       -- h is lhsExpr = true
       -- we prove evalLogic = true by evalLogic = lhsExpr = true
-      return ReifiedBVLogical.mkTrans evalLogic lhsExpr (mkConst ``Bool.true) evalProof h
+      return ReifiedBVLogical.mkTrans evalLogic lhsExpr (mkConst ``Bool.true) evalProof hyp.value
     return some ⟨bvLogical.bvExpr, proof, bvLogical.expr⟩
   | _ => return none
 

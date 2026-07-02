@@ -8,6 +8,7 @@ prelude
 
 public import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
 import Lean.Meta.Tactic.BVDecide.Normalize
+import Lean.Meta.Sym.Util
 
 
 /-!
@@ -15,8 +16,10 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) :=
-  Sym.SymM.run <| M.run do
+def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
+    MetaM (Except CounterExample LratCert) :=
+  Sym.SymM.run <| M.run (hypotheses := hypotheses) do
+    let g ← Sym.preprocessMVar g
     closeWithBVReflection g (lratBitblaster ctx)
 
 /--
@@ -38,16 +41,7 @@ public def bvDecide' (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterE
     let solved ← Normalize.bvNormalize
     if solved then return .ok ⟨none⟩
 
-    -- TODO: test run
-    let hyps := (← Normalize.PreProcessM.getHyps).map fun hyp => {
-      userName := hyp.name
-      type := hyp.type
-      value := hyp.value
-    }
-    let (_, goal) ← MVarId.assertHypotheses (← Normalize.PreProcessM.getGoal) hyps
-    trace[Meta.Tactic.bv] m!"Goal handed to bvUnsat:\n{goal}"
-
-    match ← bvUnsat goal ctx with
+    match ← bvUnsat (← Normalize.PreProcessM.getGoal) (← Normalize.PreProcessM.getHyps) ctx with
     | .ok lratCert => return .ok ⟨some lratCert⟩
     | .error counterExample => return .error counterExample
 

@@ -10,6 +10,7 @@ public import Std.Data.HashMap
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 import Lean.Data.RArray
 public import Lean.Meta.Sym.SymM
+public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 
 public section
 
@@ -132,6 +133,9 @@ structure Atom where
   -/
   synthetic : Bool
 
+structure Context where
+  hypotheses : Array Normalize.Hyp
+
 /--
 The state of the reflection monad
 -/
@@ -156,7 +160,7 @@ structure State where
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
 -/
-abbrev M := StateRefT State Sym.SymM
+abbrev M := ReaderT Context StateRefT State Sym.SymM
 
 /--
 A reified version of an `Expr` representing a `BVExpr`.
@@ -272,8 +276,9 @@ namespace M
 /--
 Run a reflection computation as a `SymM` one.
 -/
-def run (m : M α) : Sym.SymM α :=
-  m.run' { }
+def run (m : M α) (hypotheses : Array Normalize.Hyp) : Sym.SymM α := do
+  let hypotheses ← hypotheses.mapM fun hyp => return { hyp with type := ← Sym.shareCommon hyp.type }
+  ReaderT.run m { hypotheses } |>.run' {}
 
 /--
 Retrieve the atoms as pairs of their width and expression.
@@ -349,6 +354,9 @@ def simplifyTernaryProof (mkRefl : Expr → Expr) (fst : Expr) (fproof : Option 
   | some fproof, none => some (fproof, mkRefl snd, mkRefl thd)
   | none, some stproof => some (mkRefl fst, stproof)
   | none, none => none
+
+@[inline]
+def getHyps : M (Array Normalize.Hyp) := return (← read).hypotheses
 
 end M
 

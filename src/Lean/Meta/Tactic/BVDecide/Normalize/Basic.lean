@@ -187,23 +187,23 @@ def collectHypsFromGoal : PreProcessM Unit := do
       }
     modify fun s => { s with hypotheses := hyps }
 
--- TODO: logging
 @[inline]
 def pushHyp (hyp : Hyp) : PreProcessM Unit := do
+  trace[Meta.Tactic.bv] m!"Learned hypothesis: {hyp.type}"
   modify fun s => { s with hypotheses := s.hypotheses.push hyp }
 
--- TODO: logging
 @[inline]
 def addHyps (hyps : Array Hyp) : PreProcessM Unit := do
+  hyps.forM fun hyp => do trace[Meta.Tactic.bv] m!"Learned hypothesis: {hyp.type}"
   modify fun s => { s with hypotheses := s.hypotheses ++ hyps }
 
 @[inline]
 def getHyps : PreProcessM (Array Hyp) := do
   return (← get).hypotheses
 
--- TODO: logging
 @[inline]
-def flatMapHyps [Monad m] [MonadLiftT PreProcessM m] (f : Hyp → m (Array Hyp)) : m Unit := do
+def flatMapHyps [Monad m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadRef m]
+    [MonadLiftT PreProcessM m] (f : Hyp → m (Array Hyp)) : m Unit := do
   let hyps ← getHyps
   modify (m := PreProcessM) fun s => { s with hypotheses := #[] }
   let hyps ← hyps.flatMapM fun hyp => do
@@ -211,8 +211,12 @@ def flatMapHyps [Monad m] [MonadLiftT PreProcessM m] (f : Hyp → m (Array Hyp))
     match h : res.size with
     | 1 =>
       let newHyp := res[0]
-      if newHyp != hyp then setDidChange
-    | 0 | n + 2 => setDidChange
+      if newHyp != hyp then
+        trace[Meta.Tactic.bv] m!"{hyp.type}  ==>  {newHyp.type}"
+        setDidChange
+    | 0 | n + 2 =>
+      res.forM fun newHyp => do trace[Meta.Tactic.bv] m!"{hyp.type}  ==>  {newHyp.type}"
+      setDidChange
     return res
   modify (m := PreProcessM) fun s => { s with hypotheses := hyps }
 

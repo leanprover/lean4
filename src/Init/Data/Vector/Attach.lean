@@ -224,7 +224,7 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs : Vector α 
 @[simp, grind =]
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Vector α n} (h : ∀ a ∈ xs, p a) {i : Nat}
     (hn : i < n) :
-    (pmap f xs h)[i] = f (xs[i]) (h _ (by simp)) := by
+    (pmap f xs h)[i] = f (xs[i]) (h _ (getElem_mem hn)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

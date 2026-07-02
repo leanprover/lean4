@@ -1,3 +1,6 @@
+/-! Tests that type class resolution does not supply an instance argument for the wrong expected
+type via unification (the default `tcUnifyInstanceImplicits false` behavior). See issue #9077. -/
+
 class P (α : Type) where p : Nat
 class Q (α : Type) extends P α where
 structure H (α : Type) {p : P α} [p' : P α] (h : p = p') where

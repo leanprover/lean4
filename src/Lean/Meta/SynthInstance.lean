@@ -31,6 +31,14 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+register_builtin_option tcUnifyInstanceImplicits : Bool := {
+  defValue := false
+  descr := "when `false` (the default), type class resolution keeps an instance's arguments \
+    non-assignable during unification, so that a would-be assignment (e.g. from defeq abuse picking \
+    an instance for the wrong expected type) triggers synthesis instead. When `true` (the old \
+    behavior), such arguments may be supplied by unification. See issue #9077."
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -353,9 +361,13 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
     let { subgoals, instVal, instTypeBody } ← getSubgoals lctx localInsts xs inst
     withTraceNode `Meta.synthInstance.tryResolve (fun _ => do withMCtx (← getMCtx) do
         return m!"{← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
-    -- Keep the instance arguments non-assignable during unification: a would-be assignment (e.g. from
-    -- defeq abuse picking an instance for the wrong type) triggers synthesis instead. Resolves #9077.
-    withSynthesizableNonAssignable (.ofList (subgoals.map (·.mvarId!))) do
+    -- Unless `tcUnifyInstanceImplicits` is set, keep the instance arguments non-assignable during
+    -- unification: a would-be assignment (e.g. from defeq abuse picking an instance for the wrong
+    -- type) triggers synthesis instead. Resolves #9077.
+    let nonAssignable : MVarIdSet :=
+      if tcUnifyInstanceImplicits.get (← getOptions) then {}
+      else .ofList (subgoals.map (·.mvarId!))
+    withSynthesizableNonAssignable nonAssignable do
     if (← isDefEq mvarTypeBody instTypeBody) then
       /-
       We set `etaReduce := true`.

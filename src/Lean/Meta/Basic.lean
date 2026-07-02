@@ -519,7 +519,8 @@ structure Context where
   Metavariables that `isDefEq` must treat as non-assignable even at the current depth, so that a
   would-be assignment instead triggers synthesis via `unstuckMVar`. Used by type class resolution to
   stop unification from supplying instance arguments for the wrong expected type. Like `zetaDeltaSet`,
-  it is not part of `Config` because it affects `isDefEq` results; the cache is reset while it is set.
+  it is not part of `Config` (and hence not part of the defeq cache key) even though it affects
+  `isDefEq` results; see `withSynthesizableNonAssignable` for why this is sound.
   -/
   synthesizableNonAssignableMVars : MVarIdSet := {}
   /--
@@ -1323,13 +1324,25 @@ Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 
 /--
 Execute `x` with `mvars` treated as non-assignable by `isDefEq`, even at the current depth, so that a
-would-be assignment triggers synthesis (via `unstuckMVar`) instead. The cache is reset while `mvars`
-is nonempty, since the set changes `isDefEq` outcomes. See `Context.synthesizableNonAssignableMVars`.
+would-be assignment triggers synthesis (via `unstuckMVar`) instead. See
+`Context.synthesizableNonAssignableMVars`.
+
+`mvars` must be freshly created metavariables: the set is not part of the defeq cache key, so no
+pre-existing transient cache entry may mention them. Entries created while the set is active can
+depend on it, but only the transient defeq cache can hold such entries (the other caches only store
+results for metavariable-free terms, or results computed at a fresh metavariable context depth where
+the set has no additional effect). `checkpointDefEq` clears the transient cache at the start of every
+top-level `isDefEq` call; we clear it on exit as well so that set-dependent entries cannot leak into
+an enclosing in-flight `isDefEq`.
 -/
 @[inline] def withSynthesizableNonAssignable (mvars : MVarIdSet) : n α → n α :=
   mapMetaM fun x =>
     if mvars.isEmpty then x
-    else withFreshCache <| withReader (fun ctx => { ctx with synthesizableNonAssignableMVars := mvars }) x
+    else
+      try
+        withReader (fun ctx => { ctx with synthesizableNonAssignableMVars := mvars }) x
+      finally
+        modifyDefEqTransientCache fun _ => {}
 
 /-- Save cache, execute `x`, restore cache -/
 @[inline] private def savingCacheImpl (x : MetaM α) : MetaM α := do

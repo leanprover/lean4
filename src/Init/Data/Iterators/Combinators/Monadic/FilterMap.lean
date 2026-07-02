@@ -176,7 +176,7 @@ theorem Map.instIterator_eq_filterMapInstIterator {α β γ : Type w} {m : Type 
   rfl
 
 private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {n : Type w → Type w''} [Monad n] {_ : Iterator α m β} {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     FinitenessRelation (FilterMap α m n lift f) n where
   Rel := InvImage IterM.IsPlausibleSuccessorOf (FilterMap.inner ∘ IterM.internalState)
@@ -197,17 +197,17 @@ private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w →
       cases h
 
 instance FilterMap.instFinite {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {n : Type w → Type w''} [Monad n] {_ : Iterator α m β} {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] : Finite (FilterMap α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
 instance Map.instFinite {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n]
-    [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} [Finite α m] :
+    {_ : Iterator α m β} {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} [Finite α m] :
     Finite (Map α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
 private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {n : Type w → Type w''} [Monad n] {_ : Iterator α m β} {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
     ProductivenessRelation (Map α m n lift f) n where
   Rel := InvImage IterM.IsPlausibleSkipSuccessorOf (FilterMap.inner ∘ IterM.internalState)
@@ -220,20 +220,20 @@ private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → T
       exact h
 
 instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {n : Type w → Type w''} [Monad n] {_ : Iterator α m β} {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
     Productive (Map α m n lift f) n :=
   Productive.of_productivenessRelation Map.instProductivenessRelation
 
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'}
-    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    [Monad n] [Monad o] {_ : Iterator α m β} {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
     IteratorLoop (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
 instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β]
+    {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] {_ : Iterator α m β}
     {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} :
     IteratorLoop (Map α m n lift f) n o :=

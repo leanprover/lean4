@@ -95,7 +95,7 @@ instance ULiftIterator.instIterator [Iterator α m β] [Monad n] :
   where finally
     case hp => exact ⟨step.inflate.val, step.inflate.property, rfl⟩
 
-private def ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
+private def ULiftIterator.instFinitenessRelation {_ : Iterator α m β} [Finite α m] [Monad n] :
     FinitenessRelation (ULiftIterator α m n β lift) n where
   Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -107,11 +107,11 @@ private def ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m
     · apply IterM.TerminationMeasures.Finite.rel_of_skip
       exact hp
 
-instance ULiftIterator.instFinite [Iterator α m β] [Finite α m] [Monad n] :
+instance ULiftIterator.instFinite {_ : Iterator α m β} [Finite α m] [Monad n] :
     Finite (ULiftIterator α m n β lift) n :=
   .of_finitenessRelation instFinitenessRelation
 
-private def ULiftIterator.instProductivenessRelation [Iterator α m β] [Productive α m] [Monad n] :
+private def ULiftIterator.instProductivenessRelation {_ : Iterator α m β} [Productive α m] [Monad n] :
     ProductivenessRelation (ULiftIterator α m n β lift) n where
   Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -121,12 +121,12 @@ private def ULiftIterator.instProductivenessRelation [Iterator α m β] [Product
     apply IterM.TerminationMeasures.Productive.rel_of_skip
     exact hp
 
-instance ULiftIterator.instProductive [Iterator α m β] [Productive α m] [Monad n] :
+instance ULiftIterator.instProductive {_ : Iterator α m β} [Productive α m] [Monad n] :
     Productive (ULiftIterator α m n β lift) n :=
   .of_productivenessRelation instProductivenessRelation
 
 instance ULiftIterator.instIteratorLoop {o : Type x → Type x'} [Monad n] [Monad o]
-    [Iterator α m β] :
+    {_ : Iterator α m β} :
     IteratorLoop (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 

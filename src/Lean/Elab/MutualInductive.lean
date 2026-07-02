@@ -1686,8 +1686,7 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) :
             addDocString ctor.declName ctor.binders doc
 
     for view in views do withRef view.declId <|
-      unless (views.any (·.isCoinductive)) do
-        Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+      Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
     -- Term info is added here so that docstrings are maximally available in the environment for hovers
     addTermInfoViews views

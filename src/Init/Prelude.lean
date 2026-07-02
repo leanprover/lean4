@@ -462,9 +462,10 @@ init_quot
 Low-level quotient types. Quotient types coarsen the propositional equality for a type `α`, so that
 terms related by some relation `r` are considered equal in `Quot r`.
 
-Set-theoretically, `Quot r` can seen as the set of equivalence classes of `α` modulo `r`. Functions
-from `Quot r` must prove that they respect `r`: to define a function `f : Quot r → β`, it is
-necessary to provide `f' : α → β` and prove that for all `x : α` and `y : α`, `r x y → f' x = f' y`.
+Set-theoretically, `Quot r` can be seen as the set of equivalence classes of `α` modulo `r`.
+Functions from `Quot r` must prove that they respect `r`: to define a function `f : Quot r → β`,
+it is necessary to provide `f' : α → β` and prove that for all `x : α` and `y : α`,
+`r x y → f' x = f' y`.
 
 `Quot` is a built-in primitive:
  * `Quot.mk` places elements of the underlying type `α` into the quotient.

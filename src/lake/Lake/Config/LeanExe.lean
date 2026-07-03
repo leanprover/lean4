@@ -77,19 +77,30 @@ The file name of binary executable
   self.config.supportInterpreter
 
 /--
+Additional link argyments to pass `leanc` when linking the module root
+into a binary executable. This excludes the arguments already present in
+`self.root.linkArgs`.
+
+If `supportInterpreter := true`, Lake adds `-rdynamic` on non-Windows
+systems. On Windows, it links in a manifest for Unicode path support.
+-/
+public def exeOnlyLinkArgs (self : LeanExe) : Array String :=
+  if System.Platform.isWindows then
+    #["-Wl,--whole-archive", "-lleanmanifest", "-Wl,--no-whole-archive"]
+  else if self.config.supportInterpreter then
+    #["-rdynamic"]
+  else
+    #[]
+
+/--
 The arguments to pass to `leanc` when linking the binary executable.
 
 By default, the package's plus the executable's `moreLinkArgs`.
-If `supportInterpreter := true`, Lake prepends `-rdynamic` on non-Windows
+If `supportInterpreter := true`, Lake adds `-rdynamic` on non-Windows
 systems. On Windows, it links in a manifest for Unicode path support.
 -/
-public def linkArgs (self : LeanExe) : Array String := Id.run do
-  let mut linkArgs := self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
-  if self.config.supportInterpreter && !Platform.isWindows then
-    linkArgs := #["-rdynamic"] ++ linkArgs
-  else if System.Platform.isWindows then
-    linkArgs := linkArgs ++ #["-Wl,--whole-archive", "-lleanmanifest", "-Wl,--no-whole-archive"]
-  return linkArgs
+public def linkArgs (self : LeanExe) : Array String :=
+  self.exeOnlyLinkArgs ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
 
 /--
 Whether the Lean shared library should be dynamically linked to the executable.

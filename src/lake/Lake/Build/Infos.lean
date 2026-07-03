@@ -207,6 +207,12 @@ namespace Module
 @[inherit_doc bcoFacet] public abbrev bco (self : Module) :=
   self.facetCore bcoFacet
 
+@[inherit_doc linkInfoExportFacet] public abbrev linkInfoExport (self : Module) :=
+  self.facetCore linkInfoExportFacet
+
+@[inherit_doc linkInfoNoExportFacet] public abbrev linkInfoNoExport (self : Module) :=
+  self.facetCore linkInfoNoExportFacet
+
 @[inherit_doc dynlibFacet] public abbrev dynlib (self : Module) :=
   self.facetCore dynlibFacet
 

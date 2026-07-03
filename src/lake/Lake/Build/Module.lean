@@ -1216,6 +1216,54 @@ public def Module.oFacetConfig : ModuleFacetConfig oFacet :=
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
 
+def recComputeModuleLinkInfo
+  (root : Module) (shouldExport : Bool)
+: FetchM (Job ModuleLinkInfo) := do
+  /-
+  Remark: We must build the root before we fetch the transitive imports
+  so that errors in the import block of transitive imports will not kill this
+  job before the root is built.
+  -/
+  let mut objJobs := #[]
+  let mut libJobs := #[]
+  for facet in root.nativeFacets shouldExport do
+    objJobs := objJobs.push <| ← facet.fetch root
+  let .ok imports _ ← (← root.transImports.fetch).wait
+    | error s!"bad imports (see the '{root.name.toString}' job for details)"
+  for mod in imports do
+    for facet in mod.nativeFacets shouldExport do
+      objJobs := objJobs.push <| ← facet.fetch mod
+  for link in root.lib.moreLinkObjs do
+    objJobs := objJobs.push <| ← link.fetchIn root.pkg
+  let libs := imports.foldl (·.insert ·.lib) OrdHashSet.empty |>.toArray
+  for lib in libs do
+    for link in lib.moreLinkObjs do
+      objJobs := objJobs.push <| ← link.fetchIn lib.pkg
+    for link in lib.moreLinkLibs do
+      libJobs := libJobs.push <| ← link.fetchIn lib.pkg
+  for link in root.lib.moreLinkLibs do
+    libJobs := libJobs.push <| ← link.fetchIn root.pkg
+  let deps := (← (← root.pkg.transDeps.fetch).await).push root.pkg
+  for dep in deps do
+    for lib in dep.externLibs do
+      objJobs := objJobs.push <| ← lib.static.fetch
+  let objsJob := Job.collectArray objJobs "Module.moreLinkObjs"
+  let libsJob := Job.collectArray libJobs "Module.moreLinkLibs"
+  objsJob.bindM (sync := true) fun objs =>
+  libsJob.mapM (sync := true) fun libs => do
+    addPureTrace root.lib.linkArgs "Module.moreLinkArgs"
+    setTraceCaption s!"{root.name.toString}:linkInfo"
+    let args := root.lib.weakLinkArgs ++ root.lib.linkArgs
+    return {args, objs, libs}
+
+/-- The `ModuleFacetConfig` for the builtin `linkInfoExportFacet`. -/
+public def Module.linkInfoExportFacetConfig : ModuleFacetConfig linkInfoExportFacet :=
+  mkFacetJobConfig <| recComputeModuleLinkInfo (shouldExport := true)
+
+/-- The `ModuleFacetConfig` for the builtin `linkInfoNoExportFacet`. -/
+public def Module.linkInfoNoExportFacetConfig : ModuleFacetConfig linkInfoNoExportFacet :=
+  mkFacetJobConfig <| recComputeModuleLinkInfo (shouldExport := false)
+
 /--
 Recursively build the shared library of a module
 (e.g., for `--load-dynlib` or `--plugin`).
@@ -1282,6 +1330,8 @@ public def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert oFacet oFacetConfig
   |>.insert oExportFacet oExportFacetConfig
   |>.insert oNoExportFacet oNoExportFacetConfig
+  |>.insert linkInfoExportFacet linkInfoExportFacetConfig
+  |>.insert linkInfoNoExportFacet linkInfoNoExportFacetConfig
   |>.insert dynlibFacet dynlibFacetConfig
 
 @[inherit_doc Module.initFacetConfigs]

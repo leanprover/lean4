@@ -880,9 +880,13 @@ public def buildStaticLib
       compileStaticLib libFile oFiles (← getLeanAr) thin
     return art.path
 
+/--
+Returns linker arguments to statically link in `objs` (e.g., object files or
+static libraries) and dynamically link to `libs` (but *not* their `deps`).
+-/
 def mkLinkObjArgs
-  (objs : Array FilePath) (libs : Array Dynlib) : Array String
-:= Id.run do
+  (objs : Array FilePath) (libs : Array Dynlib)
+: Array String := Id.run do
   let mut args := #[]
   for obj in objs do
     args := args.push obj.toString
@@ -896,7 +900,7 @@ def mkLinkObjArgs
 Topologically sorts the library dependency tree by name.
 Libraries come *before* their dependencies.
 -/
-partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
+public partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
   let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
     go lib [] v o
   match r with
@@ -916,8 +920,66 @@ where
     return (v, o)
 
 /--
-Build a shared library by linking the results of `linkJobs`
-using the Lean toolchain's C compiler.
+Returns linker arguments to statically link in `objs` (e.g., object files or
+static libraries) and, if `linkDeps := true`, dynamically link to `libs` (and their
+transitive `deps`).
+-/
+@[inline] public def mkLinkArgs
+  (objs : Array FilePath) (libs : Array Dynlib)
+  (linkDeps := Platform.isWindows)
+: JobM (Array String) := do
+  let libs ← if linkDeps then mkLinkOrder libs else pure #[]
+  return mkLinkObjArgs objs libs
+
+@[inline] def mkLeanLinkArgs
+  (objs : Array FilePath) (libs : Array Dynlib) (args : Array String)
+  (linkDeps := Platform.isWindows) (sharedLean := true)
+: JobM (Array String) := do
+  let lean ← getLeanInstall
+  let baseArgs ← mkLinkArgs objs libs linkDeps
+  return baseArgs ++ args ++ #["-L", lean.leanLibDir.toString] ++ lean.ccLinkFlags sharedLean
+
+/--
+Build a shared library using `linker`.
+
+The library will statically link in `linkObjs` (e.g., object files or
+static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
+(and their transitive `deps`).
+
+Additional arguments to the linker can be provided via `args`.
+These will come *after* any other arguments.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
+-/
+public def buildSharedLibSync
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
+  (args : Array String := #[]) (linker := "c++")
+  (plugin := false) (linkDeps := Platform.isWindows)
+: JobM Dynlib := do
+  -- shared libraries are platform-dependent artifacts
+  addPlatformTrace
+  -- Lean plugins are required to have a specific name
+  -- and thus need to restored from the cache with that name
+  let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
+    let baseArgs ← mkLinkArgs linkObjs linkLibs linkDeps
+    compileSharedLib libFile (baseArgs ++ args) linker
+  return {name := libName, path := art.path, deps := linkLibs, plugin}
+
+/--
+Build a shared library using `linker`.
+
+The library will statically link in the results of `linkObjs` (e.g., object
+files or static libraries) and, if `linkDeps := true`, dynamically link to the
+results of `linkLibs`.
+
+Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
+These will come *after* any other arguments. `traceArgs` will be included in
+the build's input trace, `weakArgs` will not.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
 -/
 public def buildSharedLib
   (libName : String) (libFile : FilePath)
@@ -928,20 +990,50 @@ public def buildSharedLib
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
-    addPureTrace traceArgs "traceArgs"
-    addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
-    -- Lean plugins are required to have a specific name
-    -- and thus need to copied from the cache with that name
-    let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
-      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
-      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
-      compileSharedLib libFile args linker
-    return {name := libName, path := art.path, deps := libs, plugin}
+    addPureTrace traceArgs "traceArgs"
+    buildSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs) linker plugin linkDeps
 
 /--
-Build a shared library by linking the results of `linkJobs`
-using `linker`.
+Build a shared library linking Lean by using the Lean toolchain's linker.
+
+The library will statically link in `linkObjs` (e.g., object files or
+static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
+(and their transitive `deps`).
+
+Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
+`traceArgs` will be included in the build's input trace, `weakArgs` will not.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
+-/
+public def buildLeanSharedLibSync
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
+  (args : Array String := #[]) (plugin := false)
+  (linkDeps := Platform.isWindows)
+: JobM Dynlib := do
+  addLeanTrace
+  addPlatformTrace -- shared libraries are platform-dependent artifacts
+  -- Lean plugins are required to have a specific name
+  -- and thus need to restored from the cache with that name
+  let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
+    let args ← mkLeanLinkArgs linkObjs linkLibs args linkDeps (sharedLean := true)
+    compileSharedLib libFile args (← getLeanCc)
+  return {name := libName, path := art.path, deps := linkLibs, plugin}
+
+/--
+Build a shared library linking Lean by using the Lean toolchain's linker.
+
+The library will statically link in the results of `linkObjs` (e.g., object
+files or static libraries) and, if `linkDeps := true`, dynamically link to the
+results of `linkLibs` (and their transitive `deps`).
+
+Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
+`traceArgs` will be included in the build's input trace, `weakArgs` will not.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
 -/
 public def buildLeanSharedLib
   (libName : String) (libFile : FilePath)
@@ -951,22 +1043,48 @@ public def buildLeanSharedLib
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
-    addLeanTrace
     addPureTrace traceArgs "traceArgs"
-    addPlatformTrace -- shared libraries are platform-dependent artifacts
-    -- Lean plugins are required to have a specific name
-    -- and thus need to copied from the cache with that name
-    let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
-      let lean ← getLeanInstall
-      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
-      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
-        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkSharedFlags
-      compileSharedLib libFile args lean.cc
-    return {name := libName, path := art.path, deps := libs, plugin}
+    buildLeanSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs) plugin linkDeps
 
 /--
-Build an executable by linking the results of `linkJobs`
-using the Lean toolchain's linker.
+Build an executable linking Lean by using the Lean toolchain's linker.
+
+The executable will statically link in `linkObjs` (e.g., object files or
+static libraries) and dynamically link to `linkLibs` (and their transitive
+`deps`).
+
+By default, Lean will be statically linked to the exeutable.
+If `sharedLean := true`, it will instead be dynamically linked.
+This means users of the resulting executable will need to have Lean's
+shared libraries on their system.
+
+Additional arguments to the linker can be provided via `args`.
+-/
+public def buildLeanExeSync
+  (exeFile : FilePath) (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
+  (args : Array String := #[]) (sharedLean : Bool := false)
+: JobM FilePath := do
+  addLeanTrace
+  addPlatformTrace -- executables are platform-dependent artifacts
+  let art ← buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
+    let args ← mkLeanLinkArgs linkObjs linkLibs args (linkDeps := true) sharedLean
+    compileExe exeFile args (← getLeanCc)
+  return art.path
+
+/--
+Build an executable linking Lean by using the Lean toolchain's linker.
+
+The executable will statically link in the results of `linkObjs` (e.g., object
+files or static libraries) and dynamically link to the results of `linkLibs`
+(and their transitive `deps`).
+
+By default, Lean will be statically linked to the exeutable.
+If `sharedLean := true`, it will instead be dynamically linked.
+This means users of the resulting executable will need to have Lean's
+shared libraries on their system.
+
+Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
+`traceArgs` will be included in the build's input trace, `weakArgs` will not.
 -/
 public def buildLeanExe
   (exeFile : FilePath)
@@ -975,13 +1093,5 @@ public def buildLeanExe
 : SpawnM (Job FilePath) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
-    addLeanTrace
     addPureTrace traceArgs "traceArgs"
-    addPlatformTrace -- executables are platform-dependent artifacts
-    let art ← buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
-      let lean ← getLeanInstall
-      let libs ← mkLinkOrder libs
-      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
-        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkFlags sharedLean
-      compileExe exeFile args lean.cc
-    return art.path
+    buildLeanExeSync exeFile objs libs (weakArgs ++ traceArgs) sharedLean

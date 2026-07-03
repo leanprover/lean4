@@ -194,7 +194,6 @@ builtin_facet linkInfoExport : Module => ModuleLinkInfo
 /-- Link information for the module without Lean symbols exported. -/
 builtin_facet linkInfoNoExport : Module => ModuleLinkInfo
 
-
 /-! ## Package Facets -/
 
 /--

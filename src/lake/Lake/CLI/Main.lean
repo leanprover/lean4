@@ -476,9 +476,11 @@ raised. `pkgName` labels diagnostics and `failLv` escalates warnings as usual.
 - `head` is SHA-isolated: only `HEAD` is consulted, so `maxRevs?` does not apply and is
   ignored with a warning.
 -/
-private def discoverOutputs {α : Type} (policy : RevDiscovery) (repo : GitRepo)
-    (maxRevs? : Option Nat) (failLv : LogLevel) (pkgName : String) (scope : CacheServiceScope)
-    (lookup : GitRev → LoggerIO (Option α)) : LoggerIO α := do
+private def discoverOutputs
+  (policy : RevDiscovery) (repo : GitRepo)
+  (maxRevs? : Option Nat) (failLv : LogLevel) (pkgName : String) (scope : CacheServiceScope)
+  (lookup : GitRev → LoggerIO (Option α))
+: LoggerIO α := do
   match policy with
   | .head =>
     if maxRevs?.isSome then

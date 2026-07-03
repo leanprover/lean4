@@ -547,6 +547,31 @@ where
     | .mdata _ b => go b
     | _ => return ()
 
+/--
+Type check for assignments to instance-typed metavariables: the value's type must agree with
+the metavariable's type at `.instances` transparency.
+
+The check is *eta-tolerant*: when the types are function types whose binder domains agree
+only above `.instances` (e.g. across a semireducible synonym like Mathlib's `OrderDual`), we
+accept the value as long as the codomain — where instance selection actually happens —
+agrees at `.instances` for the metavariable type's own binders. Without this, acceptance
+would depend on which eta-representative of the value the unifier happened to build
+(`tryResolve` eta-reduces answers, so `fun i : Dual ι => inst i` becomes the bare `inst`,
+whose inferred type has the `ι` binder). The full types must still agree at the ordinary
+transparency, ensuring the assignment remains type-correct.
+-/
+private def checkInstanceTypedTypes (mvarType vType v : Expr) : MetaM Bool := do
+  if (← withInstancesConfig <| Meta.isExprDefEqAux mvarType vType) then
+    return true
+  unless mvarType.isForall do return false
+  let oldOk ← if (← respectTransparencyAtTypes) then
+    withImplicitConfig <| Meta.isExprDefEqAux mvarType vType
+  else
+    withInferTypeConfig <| Meta.isExprDefEqAux mvarType vType
+  unless oldOk do return false
+  forallTelescope mvarType fun xs body => do
+    withInstancesConfig <| Meta.isExprDefEqAux body (← inferType (mkAppN v xs))
+
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
@@ -562,7 +587,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       let v ← instantiateMVars v
       let mvarType ← inferType mvar
       let vType ← inferType v
-      if (← withInstancesConfig <| Meta.isExprDefEqAux mvarType vType) then
+      if (← checkInstanceTypedTypes mvarType vType v) then
         mvar.mvarId!.assign v
         markInstanceTypedSpineMVars v
         return true

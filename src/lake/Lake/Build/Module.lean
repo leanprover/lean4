@@ -1258,11 +1258,11 @@ def recComputeModuleLinkInfo
 
 /-- The `ModuleFacetConfig` for the builtin `linkInfoExportFacet`. -/
 public def Module.linkInfoExportFacetConfig : ModuleFacetConfig linkInfoExportFacet :=
-  mkFacetJobConfig <| recComputeModuleLinkInfo (shouldExport := true)
+  mkFacetJobConfig (buildable := false) <| recComputeModuleLinkInfo (shouldExport := true)
 
 /-- The `ModuleFacetConfig` for the builtin `linkInfoNoExportFacet`. -/
 public def Module.linkInfoNoExportFacetConfig : ModuleFacetConfig linkInfoNoExportFacet :=
-  mkFacetJobConfig <| recComputeModuleLinkInfo (shouldExport := false)
+  mkFacetJobConfig (buildable := false) <| recComputeModuleLinkInfo (shouldExport := false)
 
 /--
 Recursively build the shared library of a module

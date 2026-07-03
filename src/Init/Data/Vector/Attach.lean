@@ -221,6 +221,7 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs : Vector α 
   simp
 
 -- The argument `f` is explicit to allow rewriting from right to left.
+set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Vector α n} (h : ∀ a ∈ xs, p a) {i : Nat}
     (hn : i < n) :
@@ -256,6 +257,7 @@ theorem getElem_attach {xs : Vector α n} {i : Nat} (h : i < n) :
   rcases xs with ⟨xs, rfl⟩
   ext <;> simp
 
+set_option debug.byAsSorry true in
 @[simp] theorem pmap_attachWith {xs : Vector α n} {p : {x // q x} → Prop} {f : ∀ a, p a → β} (H₁ H₂) :
     pmap f (xs.attachWith q H₁) H₂ =
       xs.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
@@ -302,6 +304,7 @@ theorem foldr_attach {xs : Vector α n} {f : α → β → β} {b : β} :
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option debug.byAsSorry true in
 theorem attach_map {xs : Vector α n} {f : α → β} :
     (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
   cases xs
@@ -319,6 +322,7 @@ theorem attachWith_map {xs : Vector α n} {f : α → β} {P : β → Prop} (H :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.map_attachWith]
 
+set_option debug.byAsSorry true in
 theorem map_attachWith_eq_pmap {xs : Vector α n} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a}
     {f : { x // P x } → β} :
     (xs.attachWith P H).map f =
@@ -326,12 +330,14 @@ theorem map_attachWith_eq_pmap {xs : Vector α n} {P : α → Prop} {H : ∀ (a 
   rcases xs with ⟨xs, rfl⟩
   ext <;> simp
 
+set_option debug.byAsSorry true in
 /-- See also `pmap_eq_map_attach` for writing `pmap` in terms of `map` and `attach`. -/
 theorem map_attach_eq_pmap {xs : Vector α n} {f : { x // x ∈ xs } → β} :
     xs.attach.map f = xs.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   rcases xs with ⟨xs, rfl⟩
   ext <;> simp
 
+set_option debug.byAsSorry true in
 theorem pmap_pmap {p : α → Prop} {q : β → Prop} {g : ∀ a, p a → β} {f : ∀ b, q b → γ} {xs : Vector α n} (H₁ H₂) :
     pmap f (pmap g xs H₁) H₂ =
       pmap (α := { x // x ∈ xs }) (fun a h => f (g a h) (H₂ (g a h) (mem_pmap_of_mem a.2))) xs.attach
@@ -507,6 +513,7 @@ theorem unattach_empty {p : α → Prop} : (#v[] : Vector { x // p x } 0).unatta
     xs.unattach[i]? = xs[i]?.map Subtype.val := by
   simp [unattach]
 
+set_option debug.byAsSorry true in
 @[simp] theorem getElem_unattach
     {p : α → Prop} {xs : Vector { x // p x } n} (i : Nat) (h : i < n) :
     xs.unattach[i] = (xs[i]'(by simpa using h)).1 := by

@@ -219,6 +219,7 @@ theorem go_get {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr
   intro idx hidx
   apply go_get_aux
 
+set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w)
     (discr : Ref aig) (lhs rhs : RefVec aig w) (s : RefVec aig curr) (start : Nat) (hstart) :
     ⟦

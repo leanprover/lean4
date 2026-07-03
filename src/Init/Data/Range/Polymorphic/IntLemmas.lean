@@ -214,6 +214,7 @@ theorem getElem_toList_rco {m n : Int} {i : Nat} (_h : i < (m...n).toList.length
     (m...n).toList[i]'_h = m + i := by
   simp [Rco.getElem_toList_eq]
 
+set_option debug.byAsSorry true in
 theorem getElem?_toList_rco {m n : Int} {i : Nat} :
     (m...n).toList[i]? = if i < (n - m).toNat then some (m + i) else none := by
   simp [Rco.getElem?_toList_eq, Option.filter_some,
@@ -583,6 +584,7 @@ theorem toList_rcc_eq_cons {m n : Int} (h : m ≤ n) :
     (m...=n).toList = m :: ((m + 1)...=n).toList := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_rcc {m n k : Int} :
     (m...=n).toList.map (· + k) = ((m + k)...=(n + k)).toList := by
   simp [toList_rcc_eq_toList_rco, map_add_toList_rco, show n + 1 + k = n + k + 1 by omega]
@@ -591,6 +593,7 @@ theorem map_add_toList_rcc' {m n k : Int} :
     (m...=n).toList.map (k + ·) = ((k + m)...=(k + n)).toList := by
   simp [toList_rcc_eq_toList_rco, map_add_toList_rco', ← Int.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toList_rcc_add_right_eq_map {m n : Int} :
     (m...=(m + n)).toList = (0...=n).toList.map (· + m) := by
   simp [toList_rcc_eq_toList_rco, show m + n + 1 = m + (n + 1) by omega, toList_rco_add_right_eq_map]
@@ -733,6 +736,7 @@ theorem toArray_rcc_eq_singleton_append {m n : Int} (h : m ≤ n) :
     (m...=n).toArray = #[m] ++ ((m + 1)...=n).toArray := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_rcc {m n k : Int} :
     (m...=n).toArray.map (· + k) = ((m + k)...=(n + k)).toArray := by
   simp [toArray_rcc_eq_toArray_rco, map_add_toArray_rco, show n + 1 + k = n + k + 1 by omega]
@@ -741,6 +745,7 @@ theorem map_add_toArray_rcc' {m n k : Int} :
     (m...=n).toArray.map (k + ·) = ((k + m)...=(k + n)).toArray := by
   simp [toArray_rcc_eq_toArray_rco, map_add_toArray_rco', ← Int.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toArray_rcc_add_right_eq_map {m n : Int} :
     (m...=(m + n)).toArray = (0...=n).toArray.map (· + m) := by
   simp [toArray_rcc_eq_toArray_rco, show m + n + 1 = m + (n + 1) by omega, toArray_rco_add_right_eq_map]
@@ -963,14 +968,17 @@ theorem toList_roo_eq_cons {m n : Int} (h : m + 1 < n) :
     (m<...n).toList = (m + 1) :: ((m + 1)<...n).toList := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_roo {m n k : Int} :
     (m<...n).toList.map (· + k) = ((m + k)<...(n + k)).toList := by
   simp [toList_roo_eq_toList_rco, map_add_toList_rco, show m + 1 + k = m + k + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_roo' {m n k : Int} :
     (m<...n).toList.map (k + ·) = ((k + m)<...(k + n)).toList := by
   simp [toList_roo_eq_toList_rco, map_add_toList_rco', show k + (m + 1) = k + m + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem toList_roo_add_right_eq_map {m n : Int} :
     (m<...(m + 1 + n)).toList = (0...n).toList.map (· + m + 1) := by
   simp [toList_roo_eq_toList_rco, toList_rco_add_right_eq_map, show ∀ a, a + (m + 1) = (a + m) + 1 by omega]
@@ -1112,14 +1120,17 @@ theorem toArray_roo_eq_singleton_append {m n : Int} (h : m + 1 < n) :
     (m<...n).toArray = #[m + 1] ++ ((m + 1)<...n).toArray := by
   simp [h]
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_roo {m n k : Int} :
     (m<...n).toArray.map (· + k) = ((m + k)<...(n + k)).toArray := by
   simp [toArray_roo_eq_toArray_rco, map_add_toArray_rco, show m + 1 + k = m + k + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_roo' {m n k : Int} :
     (m<...n).toArray.map (k + ·) = ((k + m)<...(k + n)).toArray := by
   simp [toArray_roo_eq_toArray_rco, map_add_toArray_rco', show k + (m + 1) = k + m + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem toArray_roo_add_right_eq_map {m n : Int} :
     (m<...(m + 1 + n)).toArray = (0...n).toArray.map (· + m + 1) := by
   simp [toArray_roo_eq_toArray_rco, toArray_rco_add_right_eq_map,
@@ -1351,6 +1362,7 @@ theorem toList_roc_eq_cons {m n : Int} (h : m < n) :
     (m<...=n).toList = (m + 1) :: ((m + 1)<...=n).toList := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_roc {m n k : Int} :
     (m<...=n).toList.map (· + k) = ((m + k)<...=(n + k)).toList := by
   simp [toList_roc_eq_toList_rco, map_add_toList_rco, show ∀ l, l + 1 + k = l + k + 1 by omega]
@@ -1359,6 +1371,7 @@ theorem map_add_toList_roc' {m n k : Int} :
     (m<...=n).toList.map (k + ·) = ((k + m)<...=(k + n)).toList := by
   simp [toList_roc_eq_toList_rco, map_add_toList_rco', ← Int.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toList_roc_add_right_eq_map {m n : Int} :
     (m<...=(m + n)).toList = (0...n).toList.map (· + m + 1) := by
   simp [toList_roc_eq_toList_rco, show m + n + 1 = m + 1 + n by omega, toList_rco_add_right_eq_map,
@@ -1514,6 +1527,7 @@ theorem toArray_roc_eq_singleton_append {m n : Int} (h : m < n) :
     (m<...=n).toArray = #[m + 1] ++ ((m + 1)<...=n).toArray := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_roc {m n k : Int} :
     (m<...=n).toArray.map (· + k) = ((m + k)<...=(n + k)).toArray := by
   simp [toArray_roc_eq_toArray_rco, map_add_toArray_rco, show ∀ l, l + 1 + k = l + k + 1 by omega]
@@ -1522,6 +1536,7 @@ theorem map_add_toArray_roc' {m n k : Int} :
     (m<...=n).toArray.map (k + ·) = ((k + m)<...=(k + n)).toArray := by
   simp [toArray_roc_eq_toArray_rco, map_add_toArray_rco', ← Int.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toArray_roc_add_right_eq_map {m n : Int} :
     (m<...=(m + n)).toArray = (0...n).toArray.map (· + m + 1) := by
   simp [toArray_roc_eq_toArray_rco, show m + n + 1 = m + 1 + n by omega,

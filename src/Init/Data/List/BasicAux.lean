@@ -227,6 +227,7 @@ theorem getElem_append_right {as bs : List α} {i : Nat} (h₁ : as.length ≤ i
     cases i with simp [Nat.succ_sub_succ] <;> simp at h₁
     | succ i => apply ih; simp [h₁]
 
+set_option debug.byAsSorry true in
 theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   induction h with
   | head => simp +arith
@@ -252,6 +253,7 @@ theorem append_cancel_left {as bs cs : List α} (h : as ++ bs = as ++ cs) : bs =
     injection h with _ h
     exact ih h
 
+set_option debug.byAsSorry true in
 theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as = cs := by
   match as, cs with
   | [], []       => rfl
@@ -269,6 +271,7 @@ theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as 
   next => apply append_cancel_right
   next => intro h; simp [h]
 
+set_option debug.byAsSorry true in
 theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
   match as, i with
   | a::as, ⟨0, _⟩  => simp +arith [get]

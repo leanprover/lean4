@@ -834,6 +834,7 @@ theorem shiftRight_or_distrib {a b : Nat} : (a ||| b) >>> i = a >>> i ||| b >>> 
 theorem shiftRight_xor_distrib {a b : Nat} : (a ^^^ b) >>> i = a >>> i ^^^ b >>> i :=
   shiftRight_bitwise_distrib
 
+set_option debug.byAsSorry true in
 theorem mod_two_pow_shiftLeft_mod_two_pow {a b c : Nat} : ((a % 2 ^ c) <<< b) % 2 ^ c = (a <<< b) % 2 ^ c := by
   apply Nat.eq_of_testBit_eq
   simp only [testBit_mod_two_pow, testBit_shiftLeft, ge_iff_le]

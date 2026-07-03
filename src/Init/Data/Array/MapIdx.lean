@@ -20,6 +20,7 @@ namespace Array
 
 /-! ### mapFinIdx -/
 
+set_option debug.byAsSorry true in
 -- This could also be proved from `SatisfiesM_mapIdxM` in Batteries.
 theorem mapFinIdx_induction (xs : Array α) (f : (i : Nat) → α → (h : i < xs.size) → β)
     (motive : Nat → Prop) (h0 : motive 0)

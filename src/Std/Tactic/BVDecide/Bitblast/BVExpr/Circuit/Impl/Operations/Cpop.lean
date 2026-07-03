@@ -70,6 +70,7 @@ structure blastExtractAndExtendTarget (aig : AIG α) (outWidth : Nat) where
   x : AIG.RefVec aig w
   h : outWidth = w * w
 
+set_option debug.byAsSorry true in
 /-- Extract one bit at a time from the initial vector, zero-extend it to width `w`,
   and append it the result to `acc`, which eventually will have size `outWidth = w * w`-/
 def blastExtractAndExtend (aig : AIG α) (target : blastExtractAndExtendTarget aig outWidth) :
@@ -142,6 +143,7 @@ structure blastCpopLayerTarget (aig : AIG α) (outWidth : Nat) where
   h : outWidth = (len + 1) / 2 * w
   hlen : 0 < len
 
+set_option debug.byAsSorry true in
 /-- Given a vector of references `oldLayer`, add the `iterNum`-th couple of elements and
   append the result of the addition to `newLayer` -/
 def blastCpopLayer (aig : AIG α) (target : blastCpopLayerTarget aig outWidth) :
@@ -235,6 +237,7 @@ structure blastCpopTreeTarget (aig : AIG α) (w : Nat) where
   x : AIG.RefVec aig (len * w)
   h : 0 < len
 
+set_option debug.byAsSorry true in
 /--
   Construct a parallel-prefix-sum circuit, invoking `blastCpopLayer` for
   each layer, until a single addition node is left.

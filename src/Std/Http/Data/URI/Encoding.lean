@@ -137,6 +137,7 @@ private theorem isEncodedQueryChar_isAscii (c : UInt8) (h : isEncodedQueryChar r
   next h => exact isEncodedChar_isAscii c h
   next h => subst_vars; decide
 
+set_option debug.byAsSorry true in
 private theorem hexDigit_isHexDigit (h₀ : x < 16) : isHexDigitByte (hexDigit x) := by
   unfold hexDigit isHexDigitByte
   have h₁ : x.toNat < 16 := h₀

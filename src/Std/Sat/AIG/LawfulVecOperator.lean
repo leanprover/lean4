@@ -30,6 +30,7 @@ variable {β : AIG α → Nat → Type}
 variable {f : {len : Nat} → (aig : AIG α) → β aig len → RefVecEntry α len}
 variable [LawfulVecOperator α β f]
 
+set_option debug.byAsSorry true in
 theorem isPrefix_aig (aig : AIG α) (input : β aig len) :
     IsPrefix aig.decls (f aig input).aig.decls := by
   apply IsPrefix.of

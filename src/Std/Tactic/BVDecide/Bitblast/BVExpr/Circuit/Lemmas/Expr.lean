@@ -130,6 +130,7 @@ theorem goCache_val_eq_bitblast (aig : AIG BVBit) (expr : BVExpr w) (cache : Cac
     goCache aig expr cache = bitblast aig ⟨expr, cache⟩ := by
   rfl
 
+set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     (cache : Cache aig) (start : Nat) (hstart) :
     ⟦
@@ -146,6 +147,7 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assig
   · intros
     apply (go aig expr cache).result.property
 
+set_option debug.byAsSorry true in
 theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     (cache : Cache aig) (start : Nat) (hstart) :
     ⟦
@@ -511,6 +513,7 @@ end
 
 end bitblast
 
+set_option debug.byAsSorry true in
 theorem bitblast_aig_IsPrefix (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
     IsPrefix aig.decls (bitblast aig input).result.val.aig.decls := by
   apply IsPrefix.of

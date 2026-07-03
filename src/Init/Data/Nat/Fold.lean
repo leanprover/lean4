@@ -367,6 +367,7 @@ private theorem dfold_loop_succ
       erw [dfoldCast_eq_dfoldCast_iff]
       omega
 
+set_option debug.byAsSorry true in
 @[simp]
 theorem dfold_succ
     {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}

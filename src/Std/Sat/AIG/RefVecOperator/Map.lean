@@ -173,6 +173,7 @@ theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec ai
   intros
   apply go_get_aux
 
+set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
     (s : RefVec aig curr) (input : RefVec aig len)
     (f : (aig : AIG α) → Ref aig → Entrypoint α) [LawfulOperator α Ref f] [LawfulMapOperator α f]

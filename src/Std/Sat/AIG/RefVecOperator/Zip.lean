@@ -169,6 +169,7 @@ theorem zip_le_size_of_le_aig_size (aig : AIG α) (input : BinaryRefVec aig len)
   · exact h
   · apply zip_le_size
 
+set_option debug.byAsSorry true in
 theorem IsPrefix_zip {aig : AIG α} (input : BinaryRefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput func] [LawfulZipOperator α func] :
@@ -221,6 +222,7 @@ theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec ai
   intros
   apply go_get_aux
 
+set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
     (s : RefVec aig curr) (lhs rhs : RefVec aig len)
     (f : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput f]

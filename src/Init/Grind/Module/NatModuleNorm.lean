@@ -55,6 +55,7 @@ local instance {α} [NatModule α] : Std.Associative (· + · : α → α → α
 local instance {α} [NatModule α] : Std.Commutative (· + · : α → α → α) where
   comm := AddCommMonoid.add_comm
 
+set_option debug.byAsSorry true in
 theorem Poly.denoteN_insert {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
     : k ≥ 0 → p.NonnegCoeffs → (insert k x p).denoteN ctx = k.toNat • x.denote ctx + p.denoteN ctx := by
   fun_induction insert

@@ -24,14 +24,17 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Vector
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem_ofFn {α n} {f : Fin n → α} (h : i < n) :
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
   simp [ofFn]
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem?_ofFn {α n} {f : Fin n → α} :
     (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none := by
   simp [getElem?_def]
 
+set_option debug.byAsSorry true in
 @[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
@@ -46,10 +49,12 @@ theorem map_ofFn {f : Fin n → α} {g : α → β} :
     (Vector.ofFn f).map g = Vector.ofFn (g ∘ f) := by
   simp [← Vector.toArray_inj]
 
+set_option debug.byAsSorry true in
 @[grind =] theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
     (ofFn f).back = f ⟨n - 1, by have := NeZero.ne n; omega⟩ := by
   simp [back]
 
+set_option debug.byAsSorry true in
 theorem ofFn_succ {f : Fin (n+1) → α} :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h
@@ -68,6 +73,7 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
   apply Vector.toArray_inj.mp
   simp [Array.ofFn_succ']
 
+set_option debug.byAsSorry true in
 @[simp]
 theorem ofFn_getElem {xs : Vector α n} :
     Vector.ofFn (fun i : Fin n => xs[i.val]) = xs := by

@@ -86,6 +86,7 @@ theorem insertIdx_size_self {xs : Vector α n} {x : α} : xs.insertIdx n x = xs.
   rcases xs with ⟨as, rfl⟩
   simp
 
+set_option debug.byAsSorry true in
 @[grind =]
 theorem getElem_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < n + 1) :
     (xs.insertIdx i x)[k] =
@@ -99,22 +100,26 @@ theorem getElem_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem_insertIdx]
 
+set_option debug.byAsSorry true in
 theorem getElem_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k] = xs[k] := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem_insertIdx, h]
 
+set_option debug.byAsSorry true in
 theorem getElem_insertIdx_self {xs : Vector α n} {x : α} {i : Nat} (w : i ≤ n) :
     (xs.insertIdx i x)[i] = x := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem_insertIdx]
 
+set_option debug.byAsSorry true in
 theorem getElem_insertIdx_of_gt {xs : Vector α n} {x : α} {i k : Nat} (w : k ≤ n) (h : k > i) :
     (xs.insertIdx i x)[k] = xs[k - 1] := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem_insertIdx]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
+set_option debug.byAsSorry true in
 @[grind =]
 theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n) :
     (xs.insertIdx i x)[k]? =
@@ -128,16 +133,19 @@ theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n)
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_insertIdx]
 
+set_option debug.byAsSorry true in
 theorem getElem?_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by
   rcases xs with ⟨xs, rfl⟩
   rw [getElem?_insertIdx, if_pos h]
 
+set_option debug.byAsSorry true in
 theorem getElem?_insertIdx_self {xs : Vector α n} {x : α} {i : Nat} (w : i ≤ n) :
     (xs.insertIdx i x)[i]? = some x := by
   rcases xs with ⟨xs, rfl⟩
   rw [getElem?_insertIdx, if_neg (by omega), if_pos rfl, if_pos w]
 
+set_option debug.byAsSorry true in
 theorem getElem?_insertIdx_of_ge {xs : Vector α n} {x : α} {i k : Nat} (w : i < k) (h : k ≤ n) :
     (xs.insertIdx i x)[k]? = xs[k - 1]? := by
   rcases xs with ⟨xs, rfl⟩

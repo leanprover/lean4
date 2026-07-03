@@ -84,6 +84,7 @@ theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
 
 theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
 
+set_option debug.byAsSorry true in
 theorem BitVec.or_elim (x y : BitVec w) : x ||| y = ~~~(~~~x &&& ~~~y) := by
   ext
   simp

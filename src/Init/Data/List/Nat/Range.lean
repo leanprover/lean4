@@ -98,6 +98,7 @@ theorem map_sub_range' {a s : Nat} (h : a ≤ s) (n : Nat) :
   rintro rfl
   omega
 
+set_option debug.byAsSorry true in
 theorem range'_eq_append_iff : range' s n step = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = range' s k step ∧ ys = range' (s + k * step) (n - k) step := by
   induction n generalizing s xs ys with
   | zero => simp

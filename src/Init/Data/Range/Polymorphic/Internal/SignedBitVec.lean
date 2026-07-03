@@ -50,6 +50,7 @@ theorem intMaxSealed_eq_intMinSealed_add :
       ← ofNat_add, ← toNat_inj, toNat_ofNat, Nat.mod_eq_mod_iff]
     exact ⟨1, 0, by omega⟩
 
+set_option debug.byAsSorry true in
 theorem intMinSealed_add_intMinSealed :
     intMinSealed n + intMinSealed n = 0 := by
   match n with
@@ -76,6 +77,7 @@ theorem rotate_intMinSealed : rotate (intMinSealed n) = ↑(0 : Nat) := by
 theorem rotate_intMaxSealed : rotate (intMaxSealed n) = ↑(2 ^ n - 1 : Nat) := by
   simp [intMaxSealed_eq_intMinSealed_add, rotate_add, rotate_intMinSealed]
 
+set_option debug.byAsSorry true in
 theorem rotate_rotate {x : BitVec n} : rotate (rotate x) = x := by
   match n with
   | 0 => simp [eq_nil x, rotate, intMinSealed_def]

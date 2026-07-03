@@ -227,6 +227,7 @@ theorem toList_rco_add_right_eq_map {m n : Nat} :
   rw (occs := [1]) [← Nat.zero_add m]
   simp [map_add_toList_rco', Nat.add_comm _ m]
 
+set_option debug.byAsSorry true in
 theorem toList_rco_add_succ_right_eq_append {m n : Nat} :
     (m...(m + n + 1)).toList = (m...(m + n)).toList ++ [m + n] := by
   induction n generalizing m
@@ -656,6 +657,7 @@ theorem toList_rcc_eq_cons {m n : Nat} (h : m ≤ n) :
     (m...=n).toList = m :: ((m + 1)...=n).toList := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_rcc {m n k : Nat} :
     (m...=n).toList.map (· + k) = ((m + k)...=(n + k)).toList := by
   simp [toList_rcc_eq_toList_rco, map_add_toList_rco, show n + 1 + k = n + k + 1 by omega]
@@ -664,6 +666,7 @@ theorem map_add_toList_rcc' {m n k : Nat} :
     (m...=n).toList.map (k + ·) = ((k + m)...=(k + n)).toList := by
   simp [toList_rcc_eq_toList_rco, map_add_toList_rco', ← Nat.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toList_rcc_add_right_eq_map {m n : Nat} :
     (m...=(m + n)).toList = (0...=n).toList.map (· + m) := by
   simp [toList_rcc_eq_toList_rco, show m + n + 1 = m + (n + 1) by omega,
@@ -818,6 +821,7 @@ theorem toArray_rcc_eq_singleton_append {m n : Nat} (h : m ≤ n) :
     (m...=n).toArray = #[m] ++ ((m + 1)...=n).toArray := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_rcc {m n k : Nat} :
     (m...=n).toArray.map (· + k) = ((m + k)...=(n + k)).toArray := by
   simp [toArray_rcc_eq_toArray_rco, map_add_toArray_rco, show n + 1 + k = n + k + 1 by omega]
@@ -826,6 +830,7 @@ theorem map_add_toArray_rcc' {m n k : Nat} :
     (m...=n).toArray.map (k + ·) = ((k + m)...=(k + n)).toArray := by
   simp [toArray_rcc_eq_toArray_rco, map_add_toArray_rco', ← Nat.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toArray_rcc_add_right_eq_map {m n : Nat} :
     (m...=(m + n)).toArray = (0...=n).toArray.map (· + m) := by
   simp [toArray_rcc_eq_toArray_rco, show m + n + 1 = m + (n + 1) by omega,
@@ -1071,14 +1076,17 @@ theorem toList_roo_one_right_eq_nil {m : Nat} :
     (m<...1).toList = [] := by
   simp
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_roo {m n k : Nat} :
     (m<...n).toList.map (· + k) = ((m + k)<...(n + k)).toList := by
   simp [toList_roo_eq_toList_rco, map_add_toList_rco, show m + 1 + k = m + k + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_roo' {m n k : Nat} :
     (m<...n).toList.map (k + ·) = ((k + m)<...(k + n)).toList := by
   simp [toList_roo_eq_toList_rco, map_add_toList_rco', show k + (m + 1) = k + m + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem toList_roo_add_right_eq_map {m n : Nat} :
     (m<...(m + 1 + n)).toList = (0...n).toList.map (· + m + 1) := by
   simp [toList_roo_eq_toList_rco, toList_rco_add_right_eq_map,
@@ -1231,14 +1239,17 @@ theorem toArray_roo_one_right_eq_nil {m : Nat} :
     (m<...1).toArray = #[] := by
   simp
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_roo {m n k : Nat} :
     (m<...n).toArray.map (· + k) = ((m + k)<...(n + k)).toArray := by
   simp [toArray_roo_eq_toArray_rco, map_add_toArray_rco, show m + 1 + k = m + k + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_roo' {m n k : Nat} :
     (m<...n).toArray.map (k + ·) = ((k + m)<...(k + n)).toArray := by
   simp [toArray_roo_eq_toArray_rco, map_add_toArray_rco', show k + (m + 1) = k + m + 1 by omega]
 
+set_option debug.byAsSorry true in
 theorem toArray_roo_add_right_eq_map {m n : Nat} :
     (m<...(m + 1 + n)).toArray = (0...n).toArray.map (· + m + 1) := by
   simp [toArray_roo_eq_toArray_rco, toArray_rco_add_right_eq_map,
@@ -1469,6 +1480,7 @@ theorem toList_roc_eq_cons {m n : Nat} (h : m < n) :
     (m<...=n).toList = (m + 1) :: ((m + 1)<...=n).toList := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_roc {m n k : Nat} :
     (m<...=n).toList.map (· + k) = ((m + k)<...=(n + k)).toList := by
   simp [toList_roc_eq_toList_rco, map_add_toList_rco, show ∀ l, l + 1 + k = l + k + 1 by omega]
@@ -1477,6 +1489,7 @@ theorem map_add_toList_roc' {m n k : Nat} :
     (m<...=n).toList.map (k + ·) = ((k + m)<...=(k + n)).toList := by
   simp [toList_roc_eq_toList_rco, map_add_toList_rco', ← Nat.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toList_roc_add_right_eq_map {m n : Nat} :
     (m<...=(m + n)).toList = (0...n).toList.map (· + m + 1) := by
   simp [toList_roc_eq_toList_rco, show m + n + 1 = m + 1 + n by omega, toList_rco_add_right_eq_map,
@@ -1494,6 +1507,7 @@ theorem toList_roc_add_succ_right_eq_append' {m n : Nat} :
     (m<...=(m + (n + 1))).toList = (m<...=(m + n)).toList ++ [m + n + 1] := by
   rw [← Nat.add_assoc, toList_roc_add_succ_right_eq_append]
 
+set_option debug.byAsSorry true in
 theorem toList_roc_eq_append {m n : Nat} (h : m < n) :
     (m<...=n).toList = (m<...=(n - 1)).toList ++ [n] := by
   simp [toList_roc_eq_toList_rco, toList_rco_eq_append (Nat.succ_le_succ h),
@@ -1645,6 +1659,7 @@ theorem toArray_roc_eq_singleton_append {m n : Nat} (h : m < n) :
     (m<...=n).toArray = #[m + 1] ++ ((m + 1)<...=n).toArray := by
   simp; omega
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_roc {m n k : Nat} :
     (m<...=n).toArray.map (· + k) = ((m + k)<...=(n + k)).toArray := by
   simp [toArray_roc_eq_toArray_rco, map_add_toArray_rco, show ∀ l, l + 1 + k = l + k + 1 by omega]
@@ -1653,6 +1668,7 @@ theorem map_add_toArray_roc' {m n k : Nat} :
     (m<...=n).toArray.map (k + ·) = ((k + m)<...=(k + n)).toArray := by
   simp [toArray_roc_eq_toArray_rco, map_add_toArray_rco', ← Nat.add_assoc]
 
+set_option debug.byAsSorry true in
 theorem toArray_roc_add_right_eq_map {m n : Nat} :
     (m<...=(m + n)).toArray = (0...n).toArray.map (· + m + 1) := by
   simp [toArray_roc_eq_toArray_rco, show m + n + 1 = m + 1 + n by omega,
@@ -1670,6 +1686,7 @@ theorem toArray_roc_add_succ_right_eq_push' {m n : Nat} :
     (m<...=(m + (n + 1))).toArray = (m<...=(m + n)).toArray.push (m + n + 1) := by
   rw [← Nat.add_assoc, toArray_roc_add_succ_right_eq_push]
 
+set_option debug.byAsSorry true in
 theorem toArray_roc_eq_push {m n : Nat} (h : m < n) :
     (m<...=n).toArray = (m<...=(n - 1)).toArray.push n := by
   simp [toArray_roc_eq_toArray_rco, toArray_rco_eq_push (Nat.succ_le_succ h),
@@ -2190,6 +2207,7 @@ theorem toList_ric_eq_cons {n : Nat} :
     (*...=n).toList = 0 :: (1...=n).toList := by
   simp
 
+set_option debug.byAsSorry true in
 theorem map_add_toList_ric {n k : Nat} :
     (*...=n).toList.map (· + k) = (k...=(n + k)).toList := by
   simp [toList_ric_eq_toList_rco, toList_rcc_eq_toList_rco, map_add_toList_rco,
@@ -2340,6 +2358,7 @@ theorem toArray_ric_eq_cons {n : Nat} :
     (*...=n).toArray = #[0] ++ (1...=n).toArray := by
   simp
 
+set_option debug.byAsSorry true in
 theorem map_add_toArray_ric {n k : Nat} :
     (*...=n).toArray.map (· + k) = (k...=(n + k)).toArray := by
   simp [toArray_ric_eq_toArray_rco, map_add_toArray_rco, show n + 1 + k = n + k + 1 by omega,

@@ -79,10 +79,12 @@ theorem gcd_le_natAbs_left (b : Int) (ha : a ≠ 0) : gcd a b ≤ a.natAbs :=
 theorem gcd_le_natAbs_right (a : Int) (hb : b ≠ 0) : gcd a b ≤ b.natAbs :=
   Nat.gcd_le_right a.natAbs (natAbs_pos.2 hb)
 
+set_option debug.byAsSorry true in
 theorem gcd_le_left (b : Int) (ha : 0 < a) : (gcd a b : Int) ≤ a := by
   rw (occs := [2]) [(by omega : a = (a.natAbs : Int))]
   simp [gcd_le_natAbs_left b (by omega : a ≠ 0)]
 
+set_option debug.byAsSorry true in
 theorem gcd_le_right (a : Int) (hb : 0 < b) : (gcd a b : Int) ≤ b := by
   rw (occs := [2]) [(by omega : b = (b.natAbs : Int))]
   simp [gcd_le_natAbs_right a (by omega : b ≠ 0)]

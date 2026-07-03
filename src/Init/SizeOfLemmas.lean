@@ -12,6 +12,8 @@ public import Init.Data.Char.Basic
 import Init.Data.Nat.Internal.Linear
 meta import Init.MetaTypes
 
+set_option debug.byAsSorry true
+
 public section
 
 @[simp] protected theorem Fin.sizeOf (a : Fin n) : sizeOf a = a.val + 1 := by

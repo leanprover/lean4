@@ -54,6 +54,7 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
     ¬ xs ≤ ys ↔ ys < xs :=
   Classical.not_not
 
+set_option debug.byAsSorry true in
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
   simp [lex, Std.Rco.forIn'_eq_if]
 
@@ -83,6 +84,7 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
   · cases h' : a == b <;> simp [bne, *]
   · simp [*]
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with

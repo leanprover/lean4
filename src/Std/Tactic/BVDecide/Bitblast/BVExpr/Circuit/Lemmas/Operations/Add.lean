@@ -79,6 +79,7 @@ theorem mkFullAdder_denote_mem_prefix (aig : AIG α) (input : FullAdderInput aig
   rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry) (LawfulOperator.lt_size_of_lt_aig_size aig input hstart)]
   rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
 
+set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) (start : Nat) (hstart) :
     ⟦

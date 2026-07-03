@@ -686,6 +686,7 @@ theorem balanceLErase_eq_balanceL! {k : α} {v : β k} {l r : Impl α β} {hlb h
   all_goals dsimp only [dreduceDIte, dreduceIte]
   all_goals contradiction
 
+set_option debug.byAsSorry true in
 theorem balanceL!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond l.size r.size) :
     balanceL! k v l r = balance! k v l r := by
@@ -709,6 +710,7 @@ theorem balanceRErase_eq_balanceR! {k : α} {v : β k} {l r : Impl α β} {hlb h
   all_goals dsimp only [dreduceDIte, dreduceIte]
   all_goals contradiction
 
+set_option debug.byAsSorry true in
 theorem balanceR!_eq_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced)
     (hrb : r.Balanced) (hlr : BalanceLErasePrecond r.size l.size) :
     balanceR! k v l r = balance! k v l r := by

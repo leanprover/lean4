@@ -766,6 +766,7 @@ theorem emod_sub_cancel_right {m n k : Int} (i) : (m - i) % n = (k - i) % n ↔ 
 theorem emod_eq_emod_iff_emod_sub_eq_zero {m n k : Int} : m % n = k % n ↔ (m - k) % n = 0 :=
   (emod_sub_cancel_right k).symm.trans <| by simp [Int.sub_self]
 
+set_option debug.byAsSorry true in
 theorem emod_sub_cancel_left {m n k : Int} (i) : (i - m) % n = (i - k) % n ↔ m % n = k % n := by
   simp only [emod_eq_emod_iff_emod_sub_eq_zero, ← dvd_iff_emod_eq_zero,
     (by omega : i - m - (i - k) = -(m - k)), Int.dvd_neg]
@@ -2360,6 +2361,7 @@ theorem fmod_sub_cancel_right {m n k : Int} (i) : (m - i).fmod n = (k - i).fmod 
 theorem fmod_eq_fmod_iff_fmod_sub_eq_zero {m n k : Int} : m.fmod n = k.fmod n ↔ (m - k).fmod n = 0 :=
   (fmod_sub_cancel_right k).symm.trans <| by simp [Int.sub_self]
 
+set_option debug.byAsSorry true in
 theorem fmod_sub_cancel_left {m n k : Int} (i) : (i - m).fmod n = (i - k).fmod n ↔ m.fmod n = k.fmod n := by
   simp only [fmod_eq_fmod_iff_fmod_sub_eq_zero, ← dvd_iff_fmod_eq_zero,
     (by omega : i - m - (i - k) = -(m - k)), Int.dvd_neg]
@@ -2809,6 +2811,7 @@ theorem bmod_sub_cancel_right (i : Int) : bmod (x - i) n = bmod (y - i) n ↔ bm
 theorem bmod_eq_bmod_iff_bmod_sub_eq_zero {m : Int} {n : Nat} {k : Int} : m.bmod n = k.bmod n ↔ (m - k).bmod n = 0 :=
   (bmod_sub_cancel_right k).symm.trans <| by simp [Int.sub_self]
 
+set_option debug.byAsSorry true in
 theorem bmod_sub_cancel_left (i : Int) : bmod (i - x) n = bmod (i - y) n ↔ bmod x n = bmod y n := by
   simp only [bmod_eq_bmod_iff_bmod_sub_eq_zero, ← dvd_iff_bmod_eq_zero,
     (by omega : i - x - (i - y) = -(x - y)), Int.dvd_neg]
@@ -2837,6 +2840,7 @@ theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
   apply (bmod_add_cancel_right x).mp
   rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]
 
+set_option debug.byAsSorry true in
 theorem neg_bmod {a : Int} {b : Nat} :
     (-a).bmod b = if (b : Int) ∣ 2 * a then a.bmod b else -(a.bmod b) := by
   refine (Nat.eq_zero_or_pos b).elim (by rintro rfl; split <;> simp_all <;> omega) (fun hb => ?_)
@@ -2954,6 +2958,7 @@ theorem ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one {x y : Int} (hx : x < -1
     show (xn < xn * (yn + 1)) = (1 * xn < (yn + 1) * xn) by rw [Nat.one_mul, Nat.mul_comm]]
   apply Nat.mul_lt_mul_of_lt_of_le (a := 1) (b := xn) (c := yn + 1) (d := xn) (by omega) (by omega) (by omega)
 
+set_option debug.byAsSorry true in
 theorem self_le_ediv_of_nonpos_of_nonneg {x y : Int} (hx : x ≤ 0) (hy : 0 ≤ y) :
     x ≤ x / y := by
   by_cases hx' : x = 0

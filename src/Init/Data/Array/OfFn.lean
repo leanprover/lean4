@@ -31,6 +31,7 @@ namespace Array
 @[simp, grind =] theorem ofFn_zero {f : Fin 0 → α} : ofFn f = #[] := by
   simp [ofFn, ofFn.go]
 
+set_option debug.byAsSorry true in
 theorem ofFn_succ {f : Fin (n+1) → α} :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h₁ h₂

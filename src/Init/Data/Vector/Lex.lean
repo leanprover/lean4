@@ -205,6 +205,7 @@ instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Vector α n) :
 instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Vector α n) :=
   fun xs ys => decidable_of_iff (lex ys xs = false) lex_eq_false_iff_ge
 
+set_option debug.byAsSorry true in
 /--
 `xs` is lexicographically less than `ys` if
 there exists an index `i` such that
@@ -218,6 +219,7 @@ theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) {xs ys : Vecto
   rcases ys with ⟨ys, n₂⟩
   simp [Array.lex_eq_true_iff_exists, n₁, n₂]
 
+set_option debug.byAsSorry true in
 /--
 `l₁` is *not* lexicographically less than `l₂`
 (which you might think of as "`l₂` is lexicographically greater than or equal to `l₁`"") if either
@@ -245,6 +247,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
   rcases ys with ⟨ys, n₂⟩
   simp_all [Array.lex_eq_false_iff_exists]
 
+set_option debug.byAsSorry true in
 protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
     xs < ys ↔
       (∃ (i : Nat) (h : i < n), (∀ j, (hj : j < i) → xs[j] = ys[j]) ∧ xs[i] < ys[i]) := by
@@ -252,6 +255,7 @@ protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
   cases ys
   simp_all [Array.lt_iff_exists]
 
+set_option debug.byAsSorry true in
 protected theorem le_iff_exists [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Trichotomous (· < · : α → α → Prop)] {xs ys : Vector α n} :

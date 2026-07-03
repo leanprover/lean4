@@ -37,6 +37,7 @@ section InsertIdx
 
 variable {a : α}
 
+set_option debug.byAsSorry true in
 @[simp] theorem toList_insertIdx {xs : Array α} {i : Nat} {x : α} (h : i ≤ xs.size) :
     (xs.insertIdx i x h).toList = xs.toList.insertIdx i x := by
   rcases xs with ⟨xs⟩
@@ -52,11 +53,13 @@ theorem insertIdx_zero {xs : Array α} {x : α} : xs.insertIdx 0 x = #[x] ++ xs 
   simp at h
   simp [List.length_insertIdx, h]
 
+set_option debug.byAsSorry true in
 theorem eraseIdx_insertIdx_self {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
     (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
   rcases xs with ⟨xs⟩
   simp_all
 
+set_option debug.byAsSorry true in
 theorem insertIdx_eraseIdx_of_ge {as : Array α}
     (w₁ : i < as.size) (w₂ : j ≤ (as.eraseIdx i).size) (h : i ≤ j) :
     (as.eraseIdx i).insertIdx j a =
@@ -64,6 +67,7 @@ theorem insertIdx_eraseIdx_of_ge {as : Array α}
   cases as
   simpa using List.insertIdx_eraseIdx_of_ge (by simpa) (by simpa)
 
+set_option debug.byAsSorry true in
 theorem insertIdx_eraseIdx_of_le {as : Array α}
     (w₁ : i < as.size) (w₂ : j ≤ (as.eraseIdx i).size) (h : j ≤ i) :
     (as.eraseIdx i).insertIdx j a =
@@ -82,6 +86,7 @@ theorem insertIdx_eraseIdx {as : Array α} (h₁ : i < as.size) (h₂ : j ≤ (a
   · rw [insertIdx_eraseIdx_of_ge] <;> omega
   · rw [insertIdx_eraseIdx_of_le] <;> omega
 
+set_option debug.byAsSorry true in
 @[grind =]
 theorem insertIdx_comm (a b : α) {i j : Nat} {xs : Array α} (_ : i ≤ j) (_ : j ≤ xs.size) :
     (xs.insertIdx i a).insertIdx (j + 1) b (by simpa) =
@@ -89,6 +94,7 @@ theorem insertIdx_comm (a b : α) {i j : Nat} {xs : Array α} (_ : i ≤ j) (_ :
   rcases xs with ⟨xs⟩
   simpa using List.insertIdx_comm a b (by simpa) (by simpa)
 
+set_option debug.byAsSorry true in
 theorem mem_insertIdx {xs : Array α} {h : i ≤ xs.size} : a ∈ xs.insertIdx i b h ↔ a = b ∨ a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_insertIdx (by simpa)
@@ -98,6 +104,7 @@ theorem insertIdx_size_self {xs : Array α} {x : α} : xs.insertIdx xs.size x = 
   rcases xs with ⟨xs⟩
   simp
 
+set_option debug.byAsSorry true in
 @[grind =]
 theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < (xs.insertIdx i x).size) :
     (xs.insertIdx i x)[k] =
@@ -111,19 +118,23 @@ theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.siz
   cases xs
   simp [List.getElem_insertIdx]
 
+set_option debug.byAsSorry true in
 theorem getElem_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k] := by
   simp [getElem_insertIdx, h]
 
+set_option debug.byAsSorry true in
 theorem getElem_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
     (xs.insertIdx i x)[i]'(by simp; omega) = x := by
   simp [getElem_insertIdx]
 
+set_option debug.byAsSorry true in
 theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size) (h : k > i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k - 1]'(by omega) := by
   simp [getElem_insertIdx]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
+set_option debug.byAsSorry true in
 @[grind =]
 theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.size) :
     (xs.insertIdx i x)[k]? =
@@ -137,14 +148,17 @@ theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.si
   cases xs
   simp [List.getElem?_insertIdx]
 
+set_option debug.byAsSorry true in
 theorem getElem?_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by
   rw [getElem?_insertIdx, if_pos h]
 
+set_option debug.byAsSorry true in
 theorem getElem?_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
     (xs.insertIdx i x)[i]? = some x := by
   rw [getElem?_insertIdx, if_neg (by omega), if_pos rfl, if_pos w]
 
+set_option debug.byAsSorry true in
 theorem getElem?_insertIdx_of_ge {xs : Array α} {x : α} {i k : Nat} (w : i < k) (h : k ≤ xs.size) :
     (xs.insertIdx i x)[k]? = xs[k - 1]? := by
   rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]

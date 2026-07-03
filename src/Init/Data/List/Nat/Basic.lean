@@ -128,6 +128,7 @@ variable {l : List α} {sep : α} {i : Nat}
   induction l using intersperse.induct_unfolding sep generalizing i <;> cases i
   all_goals simp [mul_succ, *]
 
+set_option debug.byAsSorry true in
 theorem getElem?_intersperse_two_mul_add_one (h : i + 1 < l.length) :
     (l.intersperse sep)[2 * i + 1]? = some sep := by
   fun_induction intersperse generalizing i

@@ -20,6 +20,7 @@ namespace Vector
 
 /-! ### mapFinIdx -/
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat}
     (h : i < n) :
     (xs.mapFinIdx f)[i] = f i xs[i] h := by
@@ -34,6 +35,7 @@ namespace Vector
 
 /-! ### mapIdx -/
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem_mapIdx {f : Nat → α → β} {xs : Vector α n} {i : Nat} (h : i < n) :
     (xs.mapIdx f)[i] = f i (xs[i]'(by simp_all)) := by
   rcases xs with ⟨xs, rfl⟩
@@ -67,6 +69,7 @@ namespace Vector
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem_zipIdx {xs : Vector α n} {i : Nat} {h : i < n} :
     (xs.zipIdx k)[i] = (xs[i]'(by simp_all), k + i) := by
   rcases xs with ⟨xs, rfl⟩
@@ -110,6 +113,7 @@ theorem mem_zipIdx_iff_getElem? {x : α × Nat} {xs : Vector α n} :
 theorem mapFinIdx_empty {f : (i : Nat) → α → (h : i < 0) → β} : mapFinIdx #v[] f = #v[] :=
   rfl
 
+set_option debug.byAsSorry true in
 theorem mapFinIdx_eq_ofFn {as : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     as.mapFinIdx f = Vector.ofFn fun i : Fin n => f i as[i] i.2 := by
   rcases as with ⟨as, rfl⟩
@@ -134,6 +138,7 @@ theorem mapFinIdx_singleton {a : α} {f : (i : Nat) → α → (h : i < 1) → �
     #v[a].mapFinIdx f = #v[f 0 a (by simp)] := by
   simp
 
+set_option debug.byAsSorry true in
 theorem mapFinIdx_eq_zipIdx_map {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.mapFinIdx f = xs.zipIdx.attach.map
       fun ⟨⟨x, i⟩, m⟩ =>
@@ -145,11 +150,13 @@ theorem exists_of_mem_mapFinIdx {b : β} {xs : Vector α n} {f : (i : Nat) → �
   rcases xs with ⟨xs, rfl⟩
   exact List.exists_of_mem_mapFinIdx (by simpa using h)
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem mem_mapFinIdx {b : β} {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     b ∈ xs.mapFinIdx f ↔ ∃ (i : Nat) (h : i < n), f i xs[i] h = b := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option debug.byAsSorry true in
 theorem mapFinIdx_eq_iff {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.mapFinIdx f = xs' ↔ ∀ (i : Nat) (h : i < n), xs'[i] = f i xs[i] h := by
   rcases xs with ⟨xs, rfl⟩
@@ -201,17 +208,20 @@ theorem mapFinIdx_eq_push_iff {xs : Vector α (n + 1)} {b : β} {f : (i : Nat) �
   · rintro ⟨⟨zs, h⟩, a, rfl, h₁, rfl⟩
     exact ⟨zs, a, by simp_all⟩
 
+set_option debug.byAsSorry true in
 theorem mapFinIdx_eq_mapFinIdx_iff {xs : Vector α n} {f g : (i : Nat) → α → (h : i < n) → β} :
     xs.mapFinIdx f = xs.mapFinIdx g ↔ ∀ (i : Nat) (h : i < n), f i xs[i] h = g i xs[i] h := by
   rw [eq_comm, mapFinIdx_eq_iff]
   simp
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem mapFinIdx_mapFinIdx {xs : Vector α n}
     {f : (i : Nat) → α → (h : i < n) → β}
     {g : (i : Nat) → β → (h : i < n) → γ} :
     (xs.mapFinIdx f).mapFinIdx g = xs.mapFinIdx (fun i a h => g i (f i a h) h) := by
   simp [mapFinIdx_eq_iff]
 
+set_option debug.byAsSorry true in
 theorem mapFinIdx_eq_replicate_iff {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {b : β} :
     xs.mapFinIdx f = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] h = b := by
   rcases xs with ⟨xs, rfl⟩
@@ -237,6 +247,7 @@ theorem mapIdx_eq_mapFinIdx {xs : Vector α n} {f : Nat → α → β} :
     xs.mapIdx f = xs.mapFinIdx (fun i a _ => f i a) := by
   simp [mapFinIdx_eq_mapIdx]
 
+set_option debug.byAsSorry true in
 theorem mapIdx_eq_zipIdx_map {xs : Vector α n} {f : Nat → α → β} :
     xs.mapIdx f = xs.zipIdx.map fun ⟨a, i⟩ => f i a := by
   ext <;> simp
@@ -263,6 +274,7 @@ theorem exists_of_mem_mapIdx {b : β} {xs : Vector α n}
   rw [mapIdx_eq_mapFinIdx] at h
   simpa [Fin.exists_iff] using exists_of_mem_mapFinIdx h
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem mem_mapIdx {b : β} {xs : Vector α n} :
     b ∈ xs.mapIdx f ↔ ∃ (i : Nat) (h : i < n), f i xs[i] = b := by
   constructor
@@ -315,6 +327,7 @@ theorem mapIdx_eq_iff {xs : Vector α n} {f : Nat → α → β} {ys : Vector β
     · simp only [Nat.not_lt] at w
       simp_all
 
+set_option debug.byAsSorry true in
 theorem mapIdx_eq_mapIdx_iff {xs : Vector α n} :
     mapIdx f xs = mapIdx g xs ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = g i xs[i] := by
   rcases xs with ⟨xs, rfl⟩
@@ -340,10 +353,12 @@ theorem mapIdx_eq_mapIdx_iff {xs : Vector α n} :
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option debug.byAsSorry true in
 @[simp, grind =] theorem mapIdx_mapIdx {xs : Vector α n} {f : Nat → α → β} {g : Nat → β → γ} :
     (xs.mapIdx f).mapIdx g = xs.mapIdx (fun i => g i ∘ f i) := by
   simp [mapIdx_eq_iff]
 
+set_option debug.byAsSorry true in
 theorem mapIdx_eq_replicate_iff {xs : Vector α n} {f : Nat → α → β} {b : β} :
     mapIdx f xs = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = b := by
   rcases xs with ⟨xs, rfl⟩

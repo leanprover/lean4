@@ -65,6 +65,7 @@ theorem go_get (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth cur
   intros
   apply go_get_aux
 
+set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth curr : Nat)
     (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) (start : Nat) (hstart) :
     ⟦

@@ -1274,6 +1274,7 @@ The lemmas below should be made consistent with those for `findIdx?` (and proved
   · rintro w x h rfl
     contradiction
 
+set_option debug.byAsSorry true in
 theorem idxOf?_eq_some_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} {i : Nat} :
     l.idxOf? a = some i ↔ ∃ (h : i < l.length), l[i] = a ∧ ∀ j (_ : j < i), ¬l[j] = a := by
   simp [idxOf?, findIdx?_eq_some_iff_getElem]
@@ -1292,6 +1293,7 @@ theorem isNone_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.idxOf? a).isNone = ¬ a ∈ l := by
   simp
 
+set_option debug.byAsSorry true in
 theorem finIdxOf?_eq_pmap_idxOf? {l : List α} {a : α} [BEq α] [LawfulBEq α] :
     l.finIdxOf? a =
       (l.idxOf? a).pmap

@@ -35,6 +35,7 @@ variable [Hashable α] [DecidableEq α]
 
 namespace blastUdiv
 
+set_option debug.byAsSorry true in
 theorem denote_blastShiftConcat (aig : AIG α) (target : ShiftConcatInput aig w)
   (assign : α → Bool) :
   ∀ (idx : Nat) (hidx : idx < w),
@@ -63,6 +64,7 @@ theorem denote_blastShiftConcat_eq_shiftConcat (aig : AIG α) (target : ShiftCon
     Bool.true_and]
 
 
+set_option debug.byAsSorry true in
 theorem blastDivSubtractShift_denote_mem_prefix (aig : AIG α)
     (n d q r : AIG.RefVec aig w) (wn wr : Nat) (start : Nat) (hstart) :
     ⟦
@@ -423,6 +425,7 @@ theorem denote_go (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
   · simp [hq]
   · simp [hr]
 
+set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat)
     (n d q r : AIG.RefVec aig w) (wn wr : Nat) (start : Nat) (hstart) :
     ⟦

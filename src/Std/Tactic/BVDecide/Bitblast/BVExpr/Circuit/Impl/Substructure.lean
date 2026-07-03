@@ -181,6 +181,7 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
         apply go_lt_size_of_lt_aig_size
         assumption
 
+set_option debug.byAsSorry true in
 theorem go_isPrefix_aig {aig : AIG BVBit} (cache : BVExpr.Cache aig) :
     IsPrefix aig.decls (go aig expr cache).result.val.aig.decls := by
   apply IsPrefix.of

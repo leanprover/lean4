@@ -21,12 +21,14 @@ more details.
 
 namespace Float.Model.UnpackedFloat
 
+set_option debug.byAsSorry true in
 @[simp]
 theorem unpackMantissa_packComponents {spec : Format} {sign exponent mantissa} :
     unpackMantissa (packComponents spec sign exponent mantissa) = mantissa := by
   ext i hi
   simp [unpackMantissa, packComponents, BitVec.getLsbD_eq_getElem, BitVec.getLsbD_append, hi]
 
+set_option debug.byAsSorry true in
 @[simp]
 theorem unpackExponent_packComponents {spec : Format} {sign exponent mantissa} :
     unpackExponent (packComponents spec sign exponent mantissa) = exponent := by

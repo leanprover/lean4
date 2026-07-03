@@ -206,6 +206,7 @@ theorem toDigits_ne_nil {n b : Nat} : Nat.toDigits b n ≠ [] := by
   rw [← List.length_pos_iff]
   exact Nat.length_toDigits_pos
 
+set_option debug.byAsSorry true in
 theorem length_toDigits_le_iff {n k : Nat} (hb : 1 < b) (h : 0 < k) :
     (Nat.toDigits b n).length ≤ k ↔ n < b ^ k := by
   match k with
@@ -262,6 +263,7 @@ theorem repr_of_lt {n : Nat} (h : n < 10) :
     n.repr = .singleton (digitChar n) := by
   rw [repr_eq_ofList_toDigits, toDigits_of_lt_base h, String.singleton_eq_ofList]
 
+set_option debug.byAsSorry true in
 theorem repr_of_ge {n : Nat} (h : 10 ≤ n) :
     n.repr = (n / 10).repr ++ .singleton (digitChar (n % 10)) := by
   simp [repr_eq_ofList_toDigits, toDigits_of_base_le (by omega) h, String.singleton_eq_ofList,
@@ -321,6 +323,7 @@ theorem ofDigitChars_replicate_zero {n : Nat} : ofDigitChars b (List.replicate n
   | zero => simp
   | succ n ih => simp [List.replicate_succ, ofDigitChars_cons, ih, Nat.pow_succ, Nat.mul_assoc]
 
+set_option debug.byAsSorry true in
 theorem ofDigitChars_toDigits {b n : Nat} (hb' : 1 < b) (hb : b ≤ 10) : ofDigitChars b (toDigits b n) 0 = n := by
   induction n using base_induction b hb' with
   | single m hm =>

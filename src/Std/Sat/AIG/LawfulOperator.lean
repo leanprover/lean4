@@ -40,6 +40,7 @@ theorem IsPrefix.rfl {decls : Array (Decl α)} : IsPrefix decls decls := by
   · simp
   · simp
 
+set_option debug.byAsSorry true in
 @[simp]
 theorem IsPrefix_push {decls : Array (Decl α)} : IsPrefix decls (decls.push decl) := by
   apply IsPrefix.of
@@ -119,6 +120,7 @@ namespace LawfulOperator
 variable {β : AIG α → Type}
 variable {f : (aig : AIG α) → β aig → Entrypoint α} [LawfulOperator α β f]
 
+set_option debug.byAsSorry true in
 theorem isPrefix_aig (aig : AIG α) (input : β aig) :
     IsPrefix aig.decls (f aig input).aig.decls := by
   apply IsPrefix.of

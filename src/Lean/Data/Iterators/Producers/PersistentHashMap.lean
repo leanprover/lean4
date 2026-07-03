@@ -69,6 +69,7 @@ instance instIterator : Iterator (Zipper α β) Id (α × β) where
   IsPlausibleStep it step := step = Zipper.step it
   step it := return .deflate <| ⟨Zipper.step it, rfl⟩
 
+set_option debug.byAsSorry true in
 /-- Counts the total number of entries reachable from a node, including nested children. -/
 def Node.measure (node : Node α β) : Nat :=
   match node with

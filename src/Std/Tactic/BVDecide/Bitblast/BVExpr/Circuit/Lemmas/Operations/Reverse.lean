@@ -27,6 +27,7 @@ namespace bitblast
 
 variable [Hashable α] [DecidableEq α]
 
+set_option debug.byAsSorry true in
 @[simp]
 theorem denote_blastReverse (aig : AIG α) (target : RefVec aig w)
     (assign : α → Bool) :

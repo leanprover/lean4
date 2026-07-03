@@ -18,11 +18,15 @@ import Lean.Meta.Tactic.Generalize
 
 public section
 
+namespace Lean
+
 register_builtin_option tactic.customEliminators : Bool := {
   defValue := true
   descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
     defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
 }
+
+end Lean
 
 end
 

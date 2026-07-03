@@ -16,7 +16,7 @@ public section
 
 /-! Reading/writing LSP messages from/to IO handles. -/
 
-namespace IO.FS.Stream
+namespace IO.FS.Stream.Internal
 
 open Lean
 open Lean.JsonRpc
@@ -117,22 +117,22 @@ section
     h.flush
 
   def writeLspMessage (h : FS.Stream) (msg : Message) : IO Unit := do
-    h.writeSerializedLspMessage (toJson msg).compress
+    writeSerializedLspMessage h (toJson msg).compress
 
   def writeLspRequest (h : FS.Stream) (r : Request α) : IO Unit :=
-    h.writeLspMessage r
+    writeLspMessage h r
 
   def writeLspNotification (h : FS.Stream) (n : Notification α) : IO Unit :=
-    h.writeLspMessage n
+    writeLspMessage h n
 
   def writeLspResponse (h : FS.Stream) (r : Response α) : IO Unit :=
-    h.writeLspMessage r
+    writeLspMessage h r
 
   def writeLspResponseError (h : FS.Stream) (e : ResponseError Unit) : IO Unit :=
-    h.writeLspMessage (Message.responseError e.id e.code e.message none)
+    writeLspMessage h (Message.responseError e.id e.code e.message none)
 
   def writeLspResponseErrorWithData (h : FS.Stream) (e : ResponseError α) : IO Unit :=
-    h.writeLspMessage e
+    writeLspMessage h e
 end
 
-end IO.FS.Stream
+end IO.FS.Stream.Internal

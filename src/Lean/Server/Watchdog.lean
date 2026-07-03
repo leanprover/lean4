@@ -69,7 +69,7 @@ state.
 
 namespace Lean.Server.Watchdog
 
-open IO
+open IO FS.Stream.Internal
 open Lsp
 open JsonRpc
 open System.Uri
@@ -406,7 +406,7 @@ section ServerM
 
   def readMessage : ServerM JsonRpc.Message := do
     let ctx ← read
-    let msg ← ctx.hIn.readLspMessage
+    let msg ← readLspMessage ctx.hIn
     if let some logChan := ctx.logData.chan? then
       logChan.sync.send <| .deserialized .clientToServer msg
     return msg
@@ -415,13 +415,13 @@ section ServerM
     let ctx ← read
     if let some logChan := ctx.logData.chan? then
       logChan.sync.send <| .deserialized .serverToClient msg
-    (← read).hOut.writeLspMessage msg
+    writeLspMessage (← read).hOut msg
 
   def writeSerializedMessage (msg : String) : ServerM Unit := do
     let ctx ← read
     if let some logChan := ctx.logData.chan? then
       logChan.sync.send <| .serialized .serverToClient msg
-    (← read).hOut.writeSerializedLspMessage msg
+    writeSerializedLspMessage (← read).hOut msg
 
   def updateFileWorkers (val : FileWorker) : ServerM Unit := do
     (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert val.doc.uri val)
@@ -532,7 +532,7 @@ section ServerM
     if ! ((← fw.state.atomically get) matches .running) then
       return
     try
-      fw.stdin.writeLspResponse r
+      writeLspResponse fw.stdin r
     catch _ =>
       pure ()
 
@@ -540,7 +540,7 @@ section ServerM
     if ! ((← fw.state.atomically get) matches .running) then
       return
     try
-      fw.stdin.writeLspResponseError r
+      writeLspResponseError fw.stdin r
     catch _ =>
       pure ()
 
@@ -752,7 +752,7 @@ section ServerM
       while true do
         let msg ←
           try
-            fw.stdout.readLspMessageAsString
+            readLspMessageAsString fw.stdout
           catch _ =>
             let exitCode ← fw.waitForProc
             -- Remove surviving descendant processes, if any, such as from nested builds.
@@ -867,8 +867,8 @@ section ServerM
     updateFileWorkers fw
     let commTask ← forwardMessages fw
     let fw : FileWorker := { fw with commTask? := some commTask }
-    fw.stdin.writeLspRequest ⟨0, "initialize", st.initParams⟩
-    fw.stdin.writeLspNotification {
+    writeLspRequest fw.stdin ⟨0, "initialize", st.initParams⟩
+    writeLspNotification fw.stdin {
       method := "textDocument/didOpen"
       param  := {
         textDocument := {
@@ -885,7 +885,7 @@ section ServerM
     let reqQueue ← st.requestData.getRequestQueue m.uri
     for (_, msg) in reqQueue do
       try
-        fw.stdin.writeLspMessage msg
+        writeLspMessage fw.stdin msg
       catch _ =>
         setWorkerState fw .cannotWrite
         break
@@ -905,7 +905,7 @@ section ServerM
       -- Client closed stdout => Still ensure that file worker is terminated
       pure ()
     try
-      fw.stdin.writeLspMessage (Message.notification "exit" none)
+      writeLspMessage fw.stdin (Message.notification "exit" none)
     catch _ =>
       -- File worker crashed during termination => Treat it as terminated
       pure ()
@@ -932,7 +932,7 @@ section ServerM
       startFileWorker fw.doc
     | WorkerState.running =>
       try
-        fw.stdin.writeLspMessage msg
+        writeLspMessage fw.stdin msg
       catch _ =>
         setWorkerState fw .cannotWrite
 
@@ -1610,7 +1610,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
 def initAndRunWatchdogAux : ServerM Unit := do
   let st ← read
   try
-    discard $ st.hIn.readLspNotificationAs "initialized" InitializedParams
+    discard $ readLspNotificationAs st.hIn "initialized" InitializedParams
     writeMessage {
       id := RequestID.str "register_lean_watcher"
       method := "client/registerCapability"
@@ -1636,7 +1636,7 @@ def initAndRunWatchdogAux : ServerM Unit := do
   while true do
     let msg: JsonRpc.Message ←
       try
-        st.hIn.readLspMessage
+        readLspMessage st.hIn
       catch _ =>
         /-
         NOTE(WN): It looks like instead of sending the `exit` notification,
@@ -1733,8 +1733,8 @@ def initAndRunWatchdog (args : List String) (i o : FS.Stream) : IO Unit := do
   }
   let importData ← IO.mkRef ⟨Std.TreeMap.empty, Std.TreeMap.empty⟩
   let requestData ← RequestDataMutex.new
-  let initRequest ← i.readLspRequestAs "initialize" InitializeParams
-  o.writeLspResponse {
+  let initRequest ← readLspRequestAs i "initialize" InitializeParams
+  writeLspResponse o {
     id     := initRequest.id
     result := {
       capabilities := mkLeanServerCapabilities

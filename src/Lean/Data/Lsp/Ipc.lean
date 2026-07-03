@@ -21,7 +21,7 @@ Used for testing the Lean server. -/
 
 namespace Lean.Lsp.Ipc
 
-open IO
+open IO FS.Stream.Internal
 open JsonRpc
 
 def ipcStdioConfig : Process.StdioConfig where
@@ -40,33 +40,33 @@ def stdout : IpcM FS.Stream := do
   return FS.Stream.ofHandle (←read).stdout
 
 def writeRequest (r : Request α) : IpcM Unit := do
-  (←stdin).writeLspRequest r
+  writeLspRequest (←stdin) r
 
 def writeNotification (n : Notification α) : IpcM Unit := do
-  (←stdin).writeLspNotification n
+  writeLspNotification (←stdin) n
 
 def shutdown (requestNo : Nat) : IpcM Unit := do
   let hIn ← stdout
   let hOut ← stdin
-  hOut.writeLspRequest ⟨requestNo, "shutdown", Json.null⟩
+  writeLspRequest hOut ⟨requestNo, "shutdown", Json.null⟩
   repeat
-    let shutMsg ← hIn.readLspMessage
+    let shutMsg ← readLspMessage hIn
     match shutMsg with
     | Message.response id result =>
       assert! result.isNull
       if id != requestNo then
         throw <| IO.userError s!"Expected id {requestNo}, got id {id}"
 
-      hOut.writeLspNotification ⟨"exit", Json.null⟩
+      writeLspNotification hOut ⟨"exit", Json.null⟩
       break
     | _ =>  -- ignore other messages in between.
       pure ()
 
 def readMessage : IpcM JsonRpc.Message := do
-  (←stdout).readLspMessage
+  readLspMessage (←stdout)
 
 def readRequestAs (expectedMethod : String) (α) [FromJson α] : IpcM (Request α) := do
-  (←stdout).readLspRequestAs expectedMethod α
+  readLspRequestAs (←stdout) expectedMethod α
 
 /--
 Reads response, discarding notifications and server-to-client requests in between.
@@ -75,7 +75,7 @@ if we do care about such notifications.
 -/
 partial def readResponseAs (expectedID : RequestID) (α) [FromJson α] :
     IpcM (Response α) := do
-  let m ← (←stdout).readLspMessage
+  let m ← readLspMessage (←stdout)
   match m with
   | Message.response id result =>
     if id == expectedID then

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Util.ForEachExprWhere
-public import Lean.Meta.PPGoal
+public import Lean.Meta.InferType
 import Lean.Meta.AppBuilder
 
 public section

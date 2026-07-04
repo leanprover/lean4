@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.InferType
+import Lean.PrettyPrinter.Delaborator.Options
 
 public section
 
@@ -80,59 +81,62 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
     let indent         := 2 -- Use option
     let ppAuxDecls     := pp.auxDecls.get (← getOptions)
     let ppImplDetailHyps := pp.implementationDetailHyps.get (← getOptions)
+    -- We use instantiateMVars for two reasons: comparing types of variables for grouping them
+    -- and judging the size of let values for `pp.showLetValues.threshold`. Both of these calls
+    -- need to be conditional on this option. Otherwise, we just use `ppExpr`s built-in
+    -- handling of `pp.instantiateMVars`
+    let ppInstantiateMVars := pp.instantiateMVars.get (← getOptions)
     -- Heuristic: synthetic opaque metavariables are only used by tactics,
     -- and tactics should always be creating synthetic opaque metavariables for new goals.
     let tactic         := mvarDecl.kind.isSyntheticOpaque
     let lctx           := mvarDecl.lctx
-    let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }
+    let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) } |>.run
     withLCtx lctx mvarDecl.localInstances do
-      -- The following two `let rec`s are being used to control the generated code size.
-      -- Then should be remove after we rewrite the compiler in Lean
-      let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : MetaM Format := do
+      let pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : MetaM Format := do
         if ids.isEmpty then
           return fmt
         else
           let fmt := addLine fmt
-          match type? with
-          | none      => return fmt
-          | some type =>
-            let typeFmt ← ppExpr type
-            return fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
-      let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Format) := do
+          let some type := type? | unreachable!
+          let typeFmt ← ppExpr type
+          return fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
+      let mut varNames : List Name := []
+      let mut prevType? : Option Expr := none
+      let mut fmt : Format := .nil
+      for localDecl in lctx do
+        if !ppAuxDecls && localDecl.isAuxDecl || !ppImplDetailHyps && localDecl.isImplementationDetail then
+          continue
         match localDecl with
         | .cdecl _ _ varName type ..
         | .ldecl _ _ varName type (nondep := true) .. =>
           let varName := varName.simpMacroScopes
-          let type ← instantiateMVars type
+          let type ← if ppInstantiateMVars then instantiateMVars type else pure type
           if prevType? == none || prevType? == some type then
-            return (varName :: varNames, some type, fmt)
-          else do
-            let fmt ← pushPending varNames prevType? fmt
-            return ([varName], some type, fmt)
+            varNames := varName :: varNames
+            prevType? := some type
+          else
+            fmt ← pushPending varNames prevType? fmt
+            varNames := [varName]
+            prevType? := some type
         | .ldecl _ _ varName type val (nondep := false) .. => do
           let varName := varName.simpMacroScopes
-          let fmt ← pushPending varNames prevType? fmt
-          let fmt  := addLine fmt
-          let type ← instantiateMVars type
+          fmt ← pushPending varNames prevType? fmt
+          fmt := addLine fmt
           let typeFmt ← ppExpr type
           let mut fmtElem  := format varName ++ " : " ++ typeFmt
-          let val ← instantiateMVars val
+          let val ← if ppInstantiateMVars then instantiateMVars val else pure val
           if ← ppGoal.shouldShowLetValue tactic val then
             let valFmt ← ppExpr val
             fmtElem := fmtElem ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)
           else
             fmtElem := fmtElem ++ " := ⋯"
-          let fmt := fmt ++ fmtElem.group
-          return ([], none, fmt)
-      let (varNames, type?, fmt) ← lctx.foldlM (init := ([], none, Format.nil)) fun (varNames, prevType?, fmt) (localDecl : LocalDecl) =>
-         if !ppAuxDecls && localDecl.isAuxDecl || !ppImplDetailHyps && localDecl.isImplementationDetail then
-           return (varNames, prevType?, fmt)
-         else
-           ppVars varNames prevType? fmt localDecl
-      let fmt ← pushPending varNames type? fmt
-      let fmt := addLine fmt
-      let typeFmt ← ppExpr (← instantiateMVars mvarDecl.type)
-      let fmt := fmt ++ getGoalPrefix mvarDecl ++ Format.nest indent typeFmt
+          fmt := fmt ++ fmtElem.group
+          varNames := []
+          prevType? := none
+      fmt ← pushPending varNames prevType? fmt
+      fmt := addLine fmt
+      let typeFmt ← ppExpr mvarDecl.type
+      fmt := fmt ++ getGoalPrefix mvarDecl ++ Format.nest indent typeFmt
       match mvarDecl.userName with
       | Name.anonymous => return fmt
       | name           => return "case " ++ format name.eraseMacroScopes ++ "\n" ++ fmt

@@ -196,33 +196,29 @@ static bool load_system_trust_store(SSL_CTX * ctx) {
 #endif
 }
 
-static lean_obj_res mk_ssl_context(const SSL_METHOD * method, bool default_verify) {
+// Creates an SSL_CTX with the hardened options shared by all contexts. Returns nullptr and stores
+// an IO error in *err on failure.
+static SSL_CTX * mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err) {
     ERR_clear_error();
 
     SSL_CTX * ctx = SSL_CTX_new(method);
 
     if (ctx == nullptr) {
-        return mk_openssl_io_error("SSL_CTX_new failed");
+        *err = mk_openssl_io_error("SSL_CTX_new failed");
+        return nullptr;
     }
 
     if (!configure_ctx_options(ctx)) {
         SSL_CTX_free(ctx);
-        return mk_openssl_io_error("SSL_CTX_set_min_proto_version failed");
+        *err = mk_openssl_io_error("SSL_CTX_set_min_proto_version failed");
+        return nullptr;
     }
 
-    if (default_verify) {
+    return ctx;
+}
 
-        // Secure default: verify the peer certificate against the system trust store. A later
-        // configure call can override this (e.g. the client's verifyPeer=false re-runs
-        // SSL_CTX_set_verify with SSL_VERIFY_NONE).
-        if (!load_system_trust_store(ctx)) {
-            SSL_CTX_free(ctx);
-            return mk_openssl_io_error("failed to load system trust store");
-        }
-
-        SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
-    }
-
+// Wraps a fully configured SSL_CTX into a Lean external object, taking ownership of ctx.
+static lean_obj_res wrap_ssl_context(SSL_CTX * ctx) {
     lean_ssl_context_object * obj = (lean_ssl_context_object*)malloc(sizeof(lean_ssl_context_object));
 
     if (obj == nullptr) {
@@ -237,106 +233,106 @@ static lean_obj_res mk_ssl_context(const SSL_METHOD * method, bool default_verif
     return lean_io_result_mk_ok(lean_obj);
 }
 
-/* Std.Internal.SSL.Context.Server.mk : IO Context.Server */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server() {
+/* Std.Internal.SSL.Context.Server.mk (certFile keyFile : @& String) : IO Context.Server */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, b_obj_arg key_file) {
+    lean_obj_res err = nullptr;
     // The server presents its certificate but never authenticates the client (no mutual TLS).
-    return mk_ssl_context(TLS_server_method(), false);
-}
+    SSL_CTX * ctx = mk_ssl_ctx_base(TLS_server_method(), &err);
+    if (ctx == nullptr) return err;
 
-/* Std.Internal.SSL.Context.Client.mk (defaultVerify : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(uint8_t default_verify) {
-    // With default_verify set, the client verifies the peer against system trust anchors.
-    return mk_ssl_context(TLS_client_method(), default_verify != 0);
-}
-
-/* Std.Internal.SSL.Context.Server.configure (ctx : @& Context.Server) (certFile keyFile : @& String) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg ctx_obj, b_obj_arg cert_file, b_obj_arg key_file) {
-    ERR_clear_error();
-
-    lean_ssl_context_object * obj = lean_to_ssl_context_object(ctx_obj);
     const char * cert = lean_string_cstr(cert_file);
     const char * key = lean_string_cstr(key_file);
 
     // Load the leaf certificate plus any intermediates from the PEM file (unlike
     // SSL_CTX_use_certificate_file, which loads only the leaf), so the server presents the full
     // chain and clients can build a path to a trusted root.
-    if (SSL_CTX_use_certificate_chain_file(obj->ctx, cert) <= 0) {
+    if (SSL_CTX_use_certificate_chain_file(ctx, cert) <= 0) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("SSL_CTX_use_certificate_chain_file failed");
     }
 
-    if (SSL_CTX_use_PrivateKey_file(obj->ctx, key, SSL_FILETYPE_PEM) <= 0) {
+    if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("SSL_CTX_use_PrivateKey_file failed");
     }
 
-    if (SSL_CTX_check_private_key(obj->ctx) != 1) {
+    if (SSL_CTX_check_private_key(ctx) != 1) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("SSL_CTX_check_private_key failed");
     }
 
-    return lean_io_result_mk_ok(lean_box(0));
+    return wrap_ssl_context(ctx);
 }
 
-/* Std.Internal.SSL.Context.Client.configure (ctx : @& Context.Client) (caFile : @& String) (verifyPeer : Bool) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg ctx_obj, b_obj_arg ca_file, uint8_t verify_peer) {
-    ERR_clear_error();
-
-    lean_ssl_context_object * obj = lean_to_ssl_context_object(ctx_obj);
-    const char * ca = lean_string_cstr(ca_file);
+/* Std.Internal.SSL.Context.Client.mk (caFile : @& String) (verifyPeer : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer) {
+    lean_obj_res err = nullptr;
+    SSL_CTX * ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
+    if (ctx == nullptr) return err;
 
     if (!verify_peer) {
-        SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_NONE, nullptr);
-        return lean_io_result_mk_ok(lean_box(0));
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
+        return wrap_ssl_context(ctx);
     }
 
     // Trust the platform's system roots (so public servers verify out of the box, like a browser),
     // then add the caller's CA file on top if one was supplied. The supplied CA is additive: it
     // never replaces the system trust anchors.
-    if (!load_system_trust_store(obj->ctx)) {
+    if (!load_system_trust_store(ctx)) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("failed to load system trust store");
     }
 
-    if (ca != nullptr && ca[0] != '\0') {
-        if (SSL_CTX_load_verify_locations(obj->ctx, ca, nullptr) != 1) {
+    const char * ca = lean_string_cstr(ca_file);
+
+    if (ca[0] != '\0') {
+        if (SSL_CTX_load_verify_locations(ctx, ca, nullptr) != 1) {
+            SSL_CTX_free(ctx);
             return mk_openssl_io_error("SSL_CTX_load_verify_locations failed");
         }
     }
 
-    SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_PEER, nullptr);
-    return lean_io_result_mk_ok(lean_box(0));
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
+    return wrap_ssl_context(ctx);
 }
 
-/* Std.Internal.SSL.Context.Client.configureFromPEM (ctx : @& Context.Client) (caPEM : @& String) (verifyPeer : Bool) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj_arg ctx_obj, b_obj_arg ca_pem, uint8_t verify_peer) {
-    ERR_clear_error();
-
-    lean_ssl_context_object * obj = lean_to_ssl_context_object(ctx_obj);
-    const char * pem = lean_string_cstr(ca_pem);
-    size_t pem_size = lean_string_size(ca_pem) - 1;
+/* Std.Internal.SSL.Context.Client.mkFromPEM (caPEM : @& String) (verifyPeer : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg ca_pem, uint8_t verify_peer) {
+    lean_obj_res err = nullptr;
+    SSL_CTX * ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
+    if (ctx == nullptr) return err;
 
     // Without peer verification the supplied CA certificates would never be consulted, so skip
-    // parsing them and just disable verification (mirrors the file-based `configure`).
+    // parsing them and just disable verification (mirrors the file-based `mk`).
     if (!verify_peer) {
-        SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_NONE, nullptr);
-        return lean_io_result_mk_ok(lean_box(0));
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
+        return wrap_ssl_context(ctx);
     }
 
     // Trust the platform's system roots; any PEM certificates below are added on top of them.
-    if (!load_system_trust_store(obj->ctx)) {
+    if (!load_system_trust_store(ctx)) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("failed to load system trust store");
     }
 
+    const char * pem = lean_string_cstr(ca_pem);
+    size_t pem_size = lean_string_size(ca_pem) - 1;
+
     // An empty PEM leaves the client with just the system trust anchors.
     if (pem_size == 0) {
-        SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_PEER, nullptr);
-        return lean_io_result_mk_ok(lean_box(0));
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
+        return wrap_ssl_context(ctx);
     }
 
     if (pem_size > INT_MAX) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("CA PEM string is too large");
     }
 
     BIO * bio = BIO_new_mem_buf(pem, (int)pem_size);
 
     if (bio == nullptr) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("BIO_new_mem_buf failed");
     }
 
@@ -345,12 +341,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
     BIO_free(bio);
 
     if (infos == nullptr) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("PEM_X509_INFO_read_bio failed");
     }
 
-    // Add the parsed certificates to the context's existing verification store, which already holds
-    // the system roots; the store is owned by the context, so it must not be freed here.
-    X509_STORE * store = SSL_CTX_get_cert_store(obj->ctx);
+    // Add the parsed certificates to the context's verification store, which already holds the
+    // system roots; the store is owned by the context, so it must not be freed here.
+    X509_STORE * store = SSL_CTX_get_cert_store(ctx);
     int cert_count = 0;
 
     for (int i = 0; i < sk_X509_INFO_num(infos); i++) {
@@ -359,13 +356,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
         cert_count++;
 
         if (X509_STORE_add_cert(store, info->x509) != 1) {
-            unsigned long err = ERR_peek_last_error();
-            if (ERR_GET_LIB(err) == ERR_LIB_X509 && ERR_GET_REASON(err) == X509_R_CERT_ALREADY_IN_HASH_TABLE) {
+            unsigned long err_code = ERR_peek_last_error();
+            if (ERR_GET_LIB(err_code) == ERR_LIB_X509 && ERR_GET_REASON(err_code) == X509_R_CERT_ALREADY_IN_HASH_TABLE) {
                 ERR_clear_error();
                 continue;
             }
 
             sk_X509_INFO_pop_free(infos, X509_INFO_free);
+            SSL_CTX_free(ctx);
             return mk_openssl_io_error("X509_STORE_add_cert failed");
         }
     }
@@ -373,34 +371,27 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj
     sk_X509_INFO_pop_free(infos, X509_INFO_free);
 
     if (cert_count == 0) {
+        SSL_CTX_free(ctx);
         return mk_openssl_io_error("no certificates found in CA PEM");
     }
 
-    SSL_CTX_set_verify(obj->ctx, SSL_VERIFY_PEER, nullptr);
-    return lean_io_result_mk_ok(lean_box(0));
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
+    return wrap_ssl_context(ctx);
 }
 
 #else
 
 void initialize_openssl_context() {}
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server() {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert_file*/, b_obj_arg /*key_file*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(uint8_t /*default_verify*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca_file*/, uint8_t /*verify_peer*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg /*ctx_obj*/, b_obj_arg /*cert_file*/, b_obj_arg /*key_file*/) {
-    lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg /*ctx_obj*/, b_obj_arg /*ca_file*/, uint8_t /*verify_peer*/) {
-    lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj_arg /*ctx_obj*/, b_obj_arg /*ca_pem*/, uint8_t /*verify_peer*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg /*ca_pem*/, uint8_t /*verify_peer*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 

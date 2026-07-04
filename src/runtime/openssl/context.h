@@ -38,10 +38,8 @@ static inline lean_ssl_context_object * lean_to_ssl_context_object(lean_object *
 // =======================================
 // Context Operations
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server();
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(uint8_t default_verify);
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_server(b_obj_arg ctx, b_obj_arg cert_file, b_obj_arg key_file);
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client(b_obj_arg ctx, b_obj_arg ca_file, uint8_t verify_peer);
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_configure_client_from_pem(b_obj_arg ctx, b_obj_arg ca_pem, uint8_t verify_peer);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, b_obj_arg key_file);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg ca_pem, uint8_t verify_peer);
 
 }

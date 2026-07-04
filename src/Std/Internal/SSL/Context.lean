@@ -41,54 +41,35 @@ instance : Nonempty Context.Client := ContextClientImpl.property
 namespace Context.Server
 
 /--
-Creates a new server-side TLS context. The server presents its certificate but does not
-authenticate the client (no mutual TLS).
+Creates a server-side TLS context, loading the PEM certificate chain and private key from the given
+files. The server presents its certificate but does not authenticate the client (no mutual TLS).
 -/
 @[extern "lean_ssl_ctx_mk_server"]
-opaque mk : IO Context.Server
-
-/--
-Loads a PEM certificate and private key into a server context.
--/
-@[extern "lean_ssl_ctx_configure_server"]
-opaque configure (ctx : @& Context.Server) (certFile : @& String) (keyFile : @& String) : IO Unit
+opaque mk (certFile : @& String) (keyFile : @& String) : IO Context.Server
 
 end Server
 
 namespace Client
 
 /--
-Creates a new client-side TLS context.
-
-With `defaultVerify := true` (the default) the context trusts the platform's system root store and
-verifies the peer certificate, so connections to public HTTPS servers work without further
-configuration. A server whose certificate chains only to a private or unknown CA then fails to verify
-unless that CA is added with `configure` or `configureFromPEM`.
-
-With `defaultVerify := false` the context performs no peer verification until a later `configure`
-call enables it.
--/
-@[extern "lean_ssl_ctx_mk_client"]
-opaque mk (defaultVerify : Bool := true) : IO Context.Client
-
-/--
-Configures CA trust anchors and peer verification for a client context.
+Creates a client-side TLS context.
 
 Trust-anchor semantics:
-- With `verifyPeer := true` the client always trusts the platform default trust anchors (the system
-  root store). A non-empty `caFile` is trusted *in addition* to those system anchors, so public
+- With `verifyPeer := true` (the default) the client trusts the platform default trust anchors (the
+  system root store) and verifies the peer certificate, so connections to public HTTPS servers work
+  out of the box. A non-empty `caFile` is trusted *in addition* to those system anchors, so public
   servers keep working while a private or self-signed CA also becomes trusted.
 - An empty `caFile` with `verifyPeer := true` uses just the platform default trust anchors.
 - `verifyPeer := false` disables peer verification entirely (the CA file is not parsed).
 -/
-@[extern "lean_ssl_ctx_configure_client"]
-opaque configure (ctx : @& Context.Client) (caFile : @& String) (verifyPeer : Bool) : IO Unit
+@[extern "lean_ssl_ctx_mk_client"]
+opaque mk (caFile : @& String := "") (verifyPeer : Bool := true) : IO Context.Client
 
 /--
-Configures CA trust anchors from an in-memory PEM string instead of a file path. Accepts one or more
-PEM-encoded certificates (same format as a CA bundle file).
+Creates a client-side TLS context with CA trust anchors from an in-memory PEM string instead of a
+file path. Accepts one or more PEM-encoded certificates (same format as a CA bundle file).
 
-Trust-anchor semantics match `configure`:
+Trust-anchor semantics match `mk`:
 - With `verifyPeer := true` the client always trusts the platform default trust anchors; a non-empty
   `caPEM` is trusted *in addition* to them.
 - An empty `caPEM` with `verifyPeer := true` uses just the platform default trust anchors.
@@ -96,8 +77,8 @@ Trust-anchor semantics match `configure`:
 
 Use this when the CA certificate is embedded in the binary rather than on disk.
 -/
-@[extern "lean_ssl_ctx_configure_client_from_pem"]
-opaque configureFromPEM (ctx : @& Context.Client) (caPEM : @& String) (verifyPeer : Bool) : IO Unit
+@[extern "lean_ssl_ctx_mk_client_from_pem"]
+opaque mkFromPEM (caPEM : @& String) (verifyPeer : Bool := true) : IO Context.Client
 
 end Client
 end Context

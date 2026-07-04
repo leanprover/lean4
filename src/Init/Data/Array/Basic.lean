@@ -290,7 +290,7 @@ Examples:
 def isEmpty (xs : Array α) : Bool :=
   xs.size = 0
 
-@[specialize]
+@[specialize, expose]
 def isEqvAux (xs ys : Array α) (hsz : xs.size = ys.size) (p : α → α → Bool) :
     ∀ (i : Nat) (_ : i ≤ xs.size), Bool
   | 0, _ => true
@@ -307,7 +307,7 @@ Examples:
 * `#[1, 2, 3].isEqv #[2, 2, 4] (· < ·) = false`
 * `#[1, 2, 3].isEqv #[2, 3] (· < ·) = false`
 -/
-@[inline] def isEqv (xs ys : Array α) (p : α → α → Bool) : Bool :=
+@[inline, expose] def isEqv (xs ys : Array α) (p : α → α → Bool) : Bool :=
   if h : xs.size = ys.size then
     isEqvAux xs ys h p xs.size (Nat.le_refl xs.size)
   else

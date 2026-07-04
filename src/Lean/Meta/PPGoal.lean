@@ -74,6 +74,7 @@ def getGoalPrefix (mvarDecl : MetavarDecl) : String :=
   else
     "⊢ "
 
+-- This should be kept in sync with Lean.Widget.goalToInteractive
 def ppGoal (mvarId : MVarId) : MetaM Format := do
   match (← getMCtx).findDecl? mvarId with
   | none          => return "unknown goal"

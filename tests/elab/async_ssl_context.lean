@@ -33,27 +33,25 @@ def setupTestCerts : IO (String × String) := do
 
 -- Context creation and configuration (smoke test).
 def testContextCreation (certFile keyFile : String) : IO Unit := do
-  let serverCtx ← Context.Server.mk
-  serverCtx.configure certFile keyFile
+  let _serverCtx ← Context.Server.mk certFile keyFile
 
   -- Empty CA with `verifyPeer := false` disables verification without parsing any CA material.
-  let clientCtx ← Context.Client.mk
-  clientCtx.configure "" false
+  let _clientCtx ← Context.Client.mk "" false
 
   -- Non-empty CA file with `verifyPeer := true` exercises the additive trust path: the system
   -- roots plus the supplied CA (via `SSL_CTX_load_verify_locations`).
-  let clientCtx2 ← Context.Client.mk
-  clientCtx2.configure certFile true
+  let _clientCtx2 ← Context.Client.mk certFile true
 
   -- A non-empty CA path with `verifyPeer := false` is accepted, but the CA file is not parsed.
-  let clientCtx3 ← Context.Client.mk
-  clientCtx3.configure certFile false
+  let _clientCtx3 ← Context.Client.mk certFile false
 
--- Configuring a client from an in-memory PEM string.
-def testConfigureClientFromPEM (certFile : String) : IO Unit := do
+  -- Defaults: no CA file, peer verification against the system trust anchors.
+  let _clientCtx4 ← Context.Client.mk
+
+-- Creating a client from an in-memory PEM string.
+def testMkClientFromPEM (certFile : String) : IO Unit := do
   let caPEM ← IO.FS.readFile certFile
-  let clientCtx ← Context.Client.mk
-  clientCtx.configureFromPEM caPEM true
+  let _clientCtx ← Context.Client.mkFromPEM caPEM true
 
 -- Asserts that an IO action fails, used to exercise the rejection/error paths.
 def assertThrows (label : String) (act : IO Unit) : IO Unit := do
@@ -62,45 +60,39 @@ def assertThrows (label : String) (act : IO Unit) : IO Unit := do
   | .error _ => pure ()
 
 -- An empty CA bundle with `verifyPeer := true` falls back to the platform trust anchors and succeeds.
-def testConfigureFromPEMEmptyFallsBack : IO Unit := do
-  let clientCtx ← Context.Client.mk
-  clientCtx.configureFromPEM "" true
+def testMkFromPEMEmptyFallsBack : IO Unit := do
+  let _clientCtx ← Context.Client.mkFromPEM "" true
 
 -- `verifyPeer := false` succeeds without parsing the CA material, even for a real bundle.
-def testConfigureFromPEMNoVerify (certFile : String) : IO Unit := do
+def testMkFromPEMNoVerify (certFile : String) : IO Unit := do
   let caPEM ← IO.FS.readFile certFile
-  let clientCtx ← Context.Client.mk
-  clientCtx.configureFromPEM caPEM false
+  let _clientCtx ← Context.Client.mkFromPEM caPEM false
 
 -- Malformed PEM input is rejected rather than silently ignored.
-def testConfigureFromPEMRejectsGarbage : IO Unit := do
-  let clientCtx ← Context.Client.mk
-  assertThrows "garbage PEM" (clientCtx.configureFromPEM "not a certificate at all" true)
+def testMkFromPEMRejectsGarbage : IO Unit := do
+  assertThrows "garbage PEM"
+    (discard <| Context.Client.mkFromPEM "not a certificate at all" true)
 
 -- A well-formed PEM block that contains no certificate is rejected.
-def testConfigureFromPEMRejectsEmptyBlock : IO Unit := do
-  let clientCtx ← Context.Client.mk
+def testMkFromPEMRejectsEmptyBlock : IO Unit := do
   assertThrows "PEM without certificates"
-    (clientCtx.configureFromPEM "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n" true)
+    (discard <| Context.Client.mkFromPEM "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n" true)
 
 -- A non-existent CA file with `verifyPeer := true` is rejected (the file-based additive path fails).
-def testConfigureRejectsMissingCAFile : IO Unit := do
-  let clientCtx ← Context.Client.mk
+def testMkRejectsMissingCAFile : IO Unit := do
   assertThrows "missing CA file"
-    (clientCtx.configure "/nonexistent/path/to/ca.pem" true)
+    (discard <| Context.Client.mk "/nonexistent/path/to/ca.pem" true)
 
 -- A server context with non-existent certificate/key files is rejected.
-def testConfigureServerRejectsMissingFiles : IO Unit := do
-  let serverCtx ← Context.Server.mk
+def testMkServerRejectsMissingFiles : IO Unit := do
   assertThrows "missing server cert"
-    (serverCtx.configure "/nonexistent/cert.pem" "/nonexistent/key.pem")
+    (discard <| Context.Server.mk "/nonexistent/cert.pem" "/nonexistent/key.pem")
 
 -- A server context whose certificate and key do not match is rejected (here by swapping the file
 -- arguments so neither parses as the expected PEM object).
-def testConfigureServerRejectsSwappedFiles (certFile keyFile : String) : IO Unit := do
-  let serverCtx ← Context.Server.mk
+def testMkServerRejectsSwappedFiles (certFile keyFile : String) : IO Unit := do
   assertThrows "swapped server cert/key"
-    (serverCtx.configure keyFile certFile)
+    (discard <| Context.Server.mk keyFile certFile)
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts
@@ -108,22 +100,22 @@ def testConfigureServerRejectsSwappedFiles (certFile keyFile : String) : IO Unit
 
 #eval do
   let (certFile, _) ← setupTestCerts
-  testConfigureClientFromPEM certFile
+  testMkClientFromPEM certFile
 
-#eval testConfigureFromPEMEmptyFallsBack
+#eval testMkFromPEMEmptyFallsBack
 
 #eval do
   let (certFile, _) ← setupTestCerts
-  testConfigureFromPEMNoVerify certFile
+  testMkFromPEMNoVerify certFile
 
-#eval testConfigureFromPEMRejectsGarbage
+#eval testMkFromPEMRejectsGarbage
 
-#eval testConfigureFromPEMRejectsEmptyBlock
+#eval testMkFromPEMRejectsEmptyBlock
 
-#eval testConfigureRejectsMissingCAFile
+#eval testMkRejectsMissingCAFile
 
-#eval testConfigureServerRejectsMissingFiles
+#eval testMkServerRejectsMissingFiles
 
 #eval do
   let (certFile, keyFile) ← setupTestCerts
-  testConfigureServerRejectsSwappedFiles certFile keyFile
+  testMkServerRejectsSwappedFiles certFile keyFile

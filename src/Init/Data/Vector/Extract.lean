@@ -67,7 +67,6 @@ theorem extract_append_extract {xs : Vector α n} {i j k : Nat} :
   rcases xs with ⟨xs, rfl⟩
   simp
 
-set_option debug.byAsSorry true in
 @[simp]
 theorem push_extract_getElem {xs : Vector α n} {i j : Nat} (h : j < n) :
     (xs.extract i j).push xs[j] = (xs.extract (min i j) (j + 1)).cast (by omega) := by
@@ -84,7 +83,6 @@ theorem extract_sub_one {xs : Vector α n} {i j : Nat} (h : j < n) :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.extract_sub_one, h]
 
-set_option debug.byAsSorry true in
 @[simp]
 theorem getElem?_extract_of_lt {xs : Vector α n} {i j k : Nat} (h : k < min j n - i) :
     (xs.extract i j)[k]? = some (xs[i + k]'(by omega)) := by
@@ -134,7 +132,6 @@ theorem extract_append {xs : Vector α n} {ys : Vector α m} {i j : Nat} :
   rcases ys with ⟨ys, rfl⟩
   simp
 
-set_option debug.byAsSorry true in
 theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).extract 0 n = (xs.extract 0 n).cast (by omega) := by
   ext i h
@@ -158,7 +155,6 @@ theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
   rcases xs with ⟨xs, rfl⟩
   simp
 
-set_option debug.byAsSorry true in
 @[simp, grind =] theorem extract_replicate {a : α} {n i j : Nat} :
     (replicate n a).extract i j = replicate (min j n - i) a := by
   ext i h
@@ -184,7 +180,6 @@ theorem set_eq_push_extract_append_extract {xs : Vector α n} {i : Nat} (h : i <
   rcases xs with ⟨as, rfl⟩
   simp [Array.set_eq_push_extract_append_extract]
 
-set_option debug.byAsSorry true in
 theorem extract_reverse {xs : Vector α n} {i j : Nat} :
     xs.reverse.extract i j = (xs.extract (n - j) (n - i)).reverse.cast (by omega) := by
   ext i h

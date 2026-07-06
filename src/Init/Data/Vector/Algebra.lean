@@ -23,7 +23,6 @@ def zero [Zero α] : Vector α n := Vector.replicate n 0
 
 instance instZero [Zero α] : Zero (Vector α n) := ⟨zero⟩
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_zero [Zero α] (i : Nat) (h : i < n) : (0 : Vector α n)[i] = 0 := by
   erw [getElem_replicate]
@@ -34,7 +33,6 @@ def add [Add α] (xs ys : Vector α n) : Vector α n :=
 
 instance [Add α] : Add (Vector α n) := ⟨add⟩
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_add [Add α] (xs ys : Vector α n) (i : Nat) (h : i < n) : (xs + ys)[i] = xs[i] + ys[i] := by
   erw [getElem_zipWith]
@@ -50,7 +48,6 @@ def neg [Neg α] (xs : Vector α n) : Vector α n :=
 
 instance [Neg α] : Neg (Vector α n) := ⟨neg⟩
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_neg [Neg α] (xs : Vector α n) (i : Nat) (h : i < n) : (-xs)[i] = -xs[i] := by
   erw [getElem_map]
@@ -64,7 +61,6 @@ def sub [Sub α] (xs ys : Vector α n) : Vector α n :=
 
 instance [Sub α] : Sub (Vector α n) := ⟨sub⟩
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_sub [Sub α] (xs ys : Vector α n) (i : Nat) (h : i < n) : (xs - ys)[i] = xs[i] - ys[i] := by
   erw [getElem_zipWith]
@@ -86,7 +82,6 @@ section mul
 
 attribute [local instance] instMul
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_mul [Mul α] (xs ys : Vector α n) (i : Nat) (h : i < n) : (xs * ys)[i] = xs[i] * ys[i] := by
   erw [getElem_zipWith]
@@ -106,7 +101,6 @@ def hmul [HMul α β γ] (c : α) (xs : Vector β n) : Vector γ n :=
 
 instance [HMul α β γ] : HMul α (Vector β n) (Vector γ n) := ⟨hmul⟩
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_hmul [HMul α β γ] (c : α) (xs : Vector β n) (i : Nat) (h : i < n) : (c * xs)[i] = c * xs[i] := by
   erw [getElem_map]
@@ -122,7 +116,6 @@ def smul [SMul α β] (c : α) (xs : Vector β n) : Vector β n :=
 
 instance [SMul α β] : SMul α (Vector β n) := ⟨smul⟩
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem_smul [SMul α β] (c : α) (xs : Vector β n) (i : Nat) (h : i < n) : (c • xs)[i] = c • xs[i] := by
   erw [getElem_map]
@@ -137,7 +130,6 @@ section grind_instances
 
 open Lean.Grind
 
-set_option debug.byAsSorry true in
 instance [Add α] [AddRightCancel α] : AddRightCancel (Vector α n) where
   add_right_cancel x y z w := by
     ext i h
@@ -154,14 +146,12 @@ instance [AddCommGroup α] : AddCommGroup (Vector α n) where
   neg_add_cancel x := neg_add_cancel AddCommGroup.neg_add_cancel x
   sub_eq_add_neg x y := sub_eq_add_neg AddCommGroup.sub_eq_add_neg x y
 
-set_option debug.byAsSorry true in
 instance [NatModule α] : NatModule (Vector α n) where
   zero_nsmul x := zero_smul NatModule.zero_nsmul x
   add_one_nsmul x xs := by
     ext i h
     simpa [NatModule.one_nsmul] using congrArg (·[i]) (add_smul NatModule.add_nsmul x 1 xs)
 
-set_option debug.byAsSorry true in
 instance [IntModule α] : IntModule (Vector α n) where
   zero_zsmul x := zero_smul IntModule.zero_zsmul x
   one_zsmul x := by
@@ -174,7 +164,6 @@ instance [IntModule α] : IntModule (Vector α n) where
     ext i h
     simp [IntModule.zsmul_natCast_eq_nsmul]
 
-set_option debug.byAsSorry true in
 instance [NatModule α] [NoNatZeroDivisors α] : NoNatZeroDivisors (Vector α n) where
   no_nat_zero_divisors k a b w h := by
     ext i h'

@@ -109,7 +109,6 @@ theorem get_cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (idx : Nat) (hidx : 
     (s.get idx hidx).cast hcast := by
   simp [cast, cast', get]
 
-set_option debug.byAsSorry true in
 @[inline]
 def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
   let ⟨lrefs, hl⟩ := lhs
@@ -127,7 +126,6 @@ def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
         · omega
   ⟩
 
-set_option debug.byAsSorry true in
 theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
     (hidx : idx < lw + rw) :
     (lhs.append rhs).get idx hidx

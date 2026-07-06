@@ -264,7 +264,6 @@ theorem String.toList_empty : "".toList = [] := by
 theorem String.data_empty : "".toList = [] :=
   toList_empty
 
-set_option debug.byAsSorry true in
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
     utf8Decode?.go b i acc hi = (utf8Decode?.go (b.extract i b.size) 0 #[] (by simp)).map (acc ++ ·) := by
   fun_cases utf8Decode?.go b i acc hi with
@@ -540,7 +539,6 @@ theorem Pos.Raw.isValid_singleton {c : Char} {p : Pos.Raw} :
     · exact ⟨0, by simp⟩
     · exact ⟨1, by simp [hi, ← singleton_eq_ofList]⟩
 
-set_option debug.byAsSorry true in
 theorem Pos.Raw.isValid_append {s t : String} {p : Pos.Raw} :
     p.IsValid (s ++ t) ↔ p.IsValid s ∨ (s.rawEndPos ≤ p ∧ (p - s).IsValid t) := by
   obtain ⟨s, rfl⟩ := exists_eq_ofList s

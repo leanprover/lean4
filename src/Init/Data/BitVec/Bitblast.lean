@@ -22,8 +22,6 @@ import Init.Data.Nat.Mod
 import Init.Data.Nat.Simproc
 import Init.TacticsExtra
 
-set_option debug.byAsSorry true
-
 @[expose] public section
 
 /-!

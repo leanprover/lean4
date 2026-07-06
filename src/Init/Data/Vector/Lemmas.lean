@@ -23,8 +23,6 @@ import Init.TacticsExtra
 
 public section
 
-set_option debug.byAsSorry true
-
 /-!
 ## Vectors
 Lemmas about `Vector α n`

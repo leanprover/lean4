@@ -16,7 +16,6 @@ public section
 
 namespace String.Slice.Pattern.Internal
 
-set_option debug.byAsSorry true in
 theorem memcmpStr_eq_true_iff {lhs rhs : String} {lstart rstart len : String.Pos.Raw}
     {h₁ h₂} : memcmpStr lhs rhs lstart rstart len h₁ h₂ = true ↔
       lhs.toByteArray.extract lstart.byteIdx (len.offsetBy lstart).byteIdx =

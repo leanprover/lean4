@@ -158,7 +158,6 @@ theorem cons_merge_cons (s : α → α → Bool) (a b l r) :
     merge (a::l) (b::r) s = b :: merge (a::l) r s := by
   rw [cons_merge_cons, if_neg h]
 
-set_option debug.byAsSorry true in
 @[simp] theorem length_merge (s : α → α → Bool) (l r) :
     (merge l r s).length = l.length + r.length := by
   match l, r with

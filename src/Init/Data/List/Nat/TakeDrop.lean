@@ -403,7 +403,6 @@ theorem extract_eq_drop_take' {l : List α} {start stop : Nat} :
       List.length_take, ge_iff_le, h₁]
     omega
 
-set_option debug.byAsSorry true in
 @[simp]
 theorem drop_eq_drop_iff :
     ∀ {l : List α} {i j : Nat}, l.drop i = l.drop j ↔ min i l.length = min j l.length

@@ -291,7 +291,6 @@ theorem ofAIG_find_unique {aig : AIG α} (a : α) (ha : (ofAIG aig)[a]? = some n
   rcases ofAIG.Inv1 aig with ⟨n, hn⟩
   apply Inv1.property <;> assumption
 
-set_option debug.byAsSorry true in
 /--
 We will find a `Nat` for every atom in the `AIG` that the `ofAIG` map was built from.
 -/

@@ -119,7 +119,6 @@ theorem foldrM_map [Monad m] [LawfulMonad m] {f : β₁ → β₂} {g : β₂ �
   simp only [eq_mk, mem_mk, forIn'_mk] at w h ⊢
   exact Array.forIn'_congr w hb h
 
-set_option debug.byAsSorry true in
 /--
 We can express a for loop over a vector as a fold,
 in which whenever we reach `.done b` we keep that value through the rest of the fold.
@@ -134,7 +133,6 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   simp [Array.forIn'_eq_foldlM]
   rfl
 
-set_option debug.byAsSorry true in
 /-- We can express a for loop over a vector which always yields as a fold. -/
 @[simp] theorem forIn'_yield_eq_foldlM [Monad m] [LawfulMonad m]
     {xs : Vector α n} (f : (a : α) → a ∈ xs → β → m γ) (g : (a : α) → a ∈ xs → β → γ → β) (init : β) :
@@ -143,7 +141,6 @@ set_option debug.byAsSorry true in
   rcases xs with ⟨xs, rfl⟩
   simp
 
-set_option debug.byAsSorry true in
 @[simp] theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     {xs : Vector α n} (f : (a : α) → a ∈ xs → β → β) (init : β) :
     forIn' xs init (fun a m b => pure (.yield (f a m b))) =

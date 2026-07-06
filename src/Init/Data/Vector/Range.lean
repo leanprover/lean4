@@ -42,12 +42,10 @@ theorem range'_eq_mk_range' {start size step} :
     range' start size step = Vector.mk (Array.range' start size step) (by simp) := by
   rfl
 
-set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem_range' {start size step i} (h : i < size) :
    (range' start size step)[i] = start + step * i := by
   simp [range']
 
-set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem?_range' {start size step i} :
    (range' start size step)[i]? = if i < size then some (start + step * i) else none := by
   simp [getElem?_def, range']
@@ -71,16 +69,13 @@ theorem range'_zero : range' s 0 step = #v[] := by
 theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i := by
   simp [range', Array.mem_range']
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem pop_range' : (range' s n step).pop = range' s (n - 1) step := by
   ext <;> simp
 
-set_option debug.byAsSorry true in
 theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' (a + s) n step := by
   ext <;> simp <;> omega
 
-set_option debug.byAsSorry true in
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
   ext <;> simp <;> omega
 
@@ -147,7 +142,6 @@ theorem count_range_1' {a s n} :
 
 /-! ### range -/
 
-set_option debug.byAsSorry true in
 @[simp, grind =] theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
   simp [Vector.range]
 
@@ -184,7 +178,6 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 
 theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 
-set_option debug.byAsSorry true in
 @[simp] theorem take_range {n i : Nat} : take (range n) i = range (min i n) := by
   ext <;> simp
   erw [getElem_extract] -- Why is an `erw` needed here? This should be by simp!
@@ -206,12 +199,10 @@ theorem count_range {a n} :
 
 /-! ### zipIdx -/
 
-set_option debug.byAsSorry true in
 @[simp, grind =]
 theorem getElem?_zipIdx {xs : Vector α n} {i j} : (zipIdx xs i)[j]? = xs[j]?.map fun a => (a, i + j) := by
   simp [getElem?_def]
 
-set_option debug.byAsSorry true in
 theorem map_snd_add_zipIdx_eq_zipIdx {xs : Vector α n} {m k : Nat} :
     map (Prod.map id (· + m)) (zipIdx xs k) = zipIdx xs (m + k) := by
   ext <;> simp <;> omega
@@ -263,7 +254,6 @@ theorem le_snd_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Vector α n} (h : x
     k ≤ x.2 :=
   (mk_mem_zipIdx_iff_le_and_getElem?_sub.1 h).1
 
-set_option debug.byAsSorry true in
 theorem snd_lt_add_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Vector α n} (h : x ∈ zipIdx xs k) :
     x.2 < k + n := by
   rcases mem_iff_getElem.1 h with ⟨i, h', rfl⟩

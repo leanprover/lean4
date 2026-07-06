@@ -1867,7 +1867,6 @@ theorem getElem_append_right' (xs : Array α) {ys : Array α} {i : Nat} (hi : i 
     ys[i] = (xs ++ ys)[i + xs.size]'(by simpa [Nat.add_comm] using Nat.add_lt_add_left hi _) := by
   rw [getElem_append_right] <;> simp [*, Nat.le_add_left]
 
-set_option debug.byAsSorry true in
 theorem getElem_of_append {xs ys zs : Array α} (eq : xs = ys.push a ++ zs) (h : ys.size = i) :
     xs[i]'(eq ▸ h ▸ by simp +arith) = a := Option.some.inj <| by
   rw [← getElem?_eq_getElem, eq, getElem?_append_left (by simp; omega), ← h]
@@ -2556,7 +2555,6 @@ theorem getElem?_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} : (xs.swap i
 
 @[simp, grind =] theorem reverse_empty : reverse (#[] : Array α) = #[] := rfl
 
-set_option debug.byAsSorry true in
 @[simp] theorem toList_reverse {xs : Array α} : xs.reverse.toList = xs.toList.reverse := by
   let rec go (as : Array α) (i j hj)
       (h : i + j + 1 = xs.size) (h₂ : as.size = xs.size)

@@ -101,7 +101,6 @@ theorem neg_mul [NeZero n] (a b : Fin n) : (-a) * b = -(a * b) := by
     omega
 
 open Fin.NatCast Fin.IntCast in
-set_option debug.byAsSorry true in
 theorem intCast_neg [NeZero n] (i : Int) : Int.cast (R := Fin n) (-i) = - Int.cast (R := Fin n) i := by
   simp [Int.cast, IntCast.intCast, Fin.intCast]
   split <;> split <;> try omega

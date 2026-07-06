@@ -16,21 +16,18 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Vector
 
-set_option debug.byAsSorry true in
 theorem isEqv_iff_rel {xs ys : Vector α n} {r} :
     Vector.isEqv xs ys r ↔ ∀ (i : Nat) (h' : i < n), r xs[i] ys[i] := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, h⟩
   simp [Array.isEqv_iff_rel, h]
 
-set_option debug.byAsSorry true in
 theorem isEqv_eq_decide (xs ys : Vector α n) (r) :
     Vector.isEqv xs ys r = decide (∀ (i : Nat) (h' : i < n), r xs[i] ys[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, h⟩
   simp [Array.isEqv_eq_decide, h]
 
-set_option debug.byAsSorry true in
 @[simp] theorem isEqv_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray.isEqv ys.toArray r) = (xs.isEqv ys r) := by
   simp [isEqv_eq_decide, Array.isEqv_eq_decide]
 

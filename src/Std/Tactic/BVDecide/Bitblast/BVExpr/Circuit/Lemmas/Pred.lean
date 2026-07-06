@@ -24,7 +24,6 @@ open Std.Sat.AIG
 
 namespace BVPred
 
-set_option debug.byAsSorry true in
 theorem bitblast_aig_IsPrefix (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
     IsPrefix aig.decls (bitblast aig input).result.val.aig.decls := by
   apply IsPrefix.of

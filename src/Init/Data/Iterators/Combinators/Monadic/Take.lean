@@ -95,7 +95,6 @@ This combinator incurs an additional O(1) cost with each output of `it`.
 def IterM.toTake [Iterator α m β] [Finite α m] (it : IterM (α := α) m β) :=
   (⟨Take.mk 0 it (Or.inr inferInstance)⟩ : IterM m β)
 
-set_option debug.byAsSorry true in
 theorem IterM.take.surjective_of_zero_lt {α : Type w} {m : Type w → Type w'} {β : Type w}
     [Iterator α m β] (it : IterM (α := Take α m) m β) (h : 0 < it.internalState.countdown) :
     ∃ (it₀ : IterM (α := α) m β) (k : Nat), it = it₀.take k := by

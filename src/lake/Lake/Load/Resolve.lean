@@ -101,7 +101,6 @@ def Workspace.setDepIdxs
   (setDepIdxs ws pkg depIdxs h h').packages.size = ws.packages.size
 := by simp [setDepIdxs]
 
-set_option debug.byAsSorry true in
 def Workspace.updateDepPkgs (self : Workspace) : Workspace :=
   let s : {pkgs : Vector Package self.packages.size //
     ∀ i, (h : i < pkgs.size) → pkgs[i].wsIdx = i ∧ ∀ j ∈ pkgs[i].depIdxs, j < pkgs.size} :=

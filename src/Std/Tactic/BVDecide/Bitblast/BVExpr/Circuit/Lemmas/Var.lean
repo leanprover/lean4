@@ -64,7 +64,6 @@ theorem go_get (aig : AIG BVBit) (a : Nat) (curr : Nat) (hcurr : curr ≤ w)
   intros
   apply go_get_aux
 
-set_option debug.byAsSorry true in
 theorem go_denote_mem_prefix (aig : AIG BVBit) (idx : Nat) (hidx) (s : AIG.RefVec aig idx)
     (a : Nat) (start : Nat) (hstart) :
     ⟦

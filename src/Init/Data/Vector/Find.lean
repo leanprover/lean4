@@ -129,7 +129,6 @@ theorem getElem_zero_flatten.proof {xss : Vector (Vector α m) n} (h : 0 < n * m
       Option.isSome_some, and_true]
     exact ⟨⟨xss[0], h₂ _ (by simp)⟩, by simp⟩
 
-set_option debug.byAsSorry true in
 @[grind =]
 theorem getElem_zero_flatten {xss : Vector (Vector α m) n} (h : 0 < n * m) :
     (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
@@ -296,7 +295,6 @@ theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Vector 
   simp only [pmap_eq_map_attach, find?_map]
   rfl
 
-set_option debug.byAsSorry true in
 theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} :
     xs.find? p = some b ↔ p b ∧ ∃ (i : Nat) (h : i < n), xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rcases xs with ⟨xs, rfl⟩

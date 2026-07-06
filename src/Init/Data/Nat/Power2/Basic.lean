@@ -15,7 +15,6 @@ public section
 
 namespace Nat
 
-set_option debug.byAsSorry true in
 theorem nextPowerOfTwo_dec {n power : Nat} (h₁ : power > 0) (h₂ : power < n) : n - power * 2 < n - power := by
   have : power * 2 = power + power := by simp +arith
   rw [this, Nat.sub_add_eq]

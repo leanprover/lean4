@@ -207,7 +207,6 @@ protected theorem apply_minOn_lt_apply_getElem_of_lt_minIdxOn [LE β] [Decidable
   apply hk.imp
   apply List.minIdxOn_le_of_apply_getElem_le_apply_minOn
 
-set_option debug.byAsSorry true in
 @[simp]
 protected theorem getElem_minIdxOn [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ []) :

@@ -53,7 +53,6 @@ theorem getElem?_eraseIdx_of_ge {xs : Vector α n} {i : Nat} (h : i < n) {j : Na
   intro h'
   omega
 
-set_option debug.byAsSorry true in
 @[grind =]
 theorem getElem_eraseIdx {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} (h' : j < n - 1) :
     (xs.eraseIdx i)[j] = if h'' : j < i then xs[j] else xs[j + 1] := by
@@ -101,7 +100,6 @@ theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} {h} :
   rw [replicate_eq_mk_replicate, eraseIdx_mk]
   simp [Array.eraseIdx_replicate, *]
 
-set_option debug.byAsSorry true in
 theorem mem_eraseIdx_iff_getElem {x : α} {xs : Vector α n} {k} {h} : x ∈ xs.eraseIdx k h ↔ ∃ i w, i ≠ k ∧ xs[i]'w = x := by
   rcases xs with ⟨xs⟩
   simp [Array.mem_eraseIdx_iff_getElem, *]
@@ -110,13 +108,11 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {xs : Vector α n} {k} {h} : x ∈ xs
   rcases xs with ⟨xs⟩
   simp [Array.mem_eraseIdx_iff_getElem?, *]
 
-set_option debug.byAsSorry true in
 theorem getElem_eraseIdx_of_lt {xs : Vector α n} {i : Nat} (w : i < n) {j : Nat} (h : j < n - 1) (h' : j < i) :
     (xs.eraseIdx i)[j] = xs[j] := by
   rcases xs with ⟨xs⟩
   simp [Array.getElem_eraseIdx_of_lt, *]
 
-set_option debug.byAsSorry true in
 theorem getElem_eraseIdx_of_ge {xs : Vector α n} {i : Nat} (w : i < n) {j : Nat} (h : j < n - 1) (h' : i ≤ j) :
     (xs.eraseIdx i)[j] = xs[j + 1] := by
   rcases xs with ⟨xs⟩

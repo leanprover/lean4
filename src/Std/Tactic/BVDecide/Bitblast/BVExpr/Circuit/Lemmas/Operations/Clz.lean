@@ -33,7 +33,6 @@ namespace BVExpr
 namespace bitblast
 namespace blastClz
 
-set_option debug.byAsSorry true in
 theorem go_denote_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)

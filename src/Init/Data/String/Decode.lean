@@ -377,7 +377,6 @@ theorem toBitVec_eq_of_isInvalidContinuationByte_eq_false {b : UInt8} (hb : isIn
     b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
   exact helper₂ 6 b.toBitVec (isInvalidContinuationByte_eq_false_iff_toBitVec.1 hb)
 
-set_option debug.byAsSorry true in
 theorem parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false {b : UInt8}
     (hb : isInvalidContinuationByte b = false) : parseFirstByte b = .invalid := by
   replace hb := toBitVec_eq_of_isInvalidContinuationByte_eq_false hb

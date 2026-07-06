@@ -71,7 +71,6 @@ theorem Vector.iterM_toArray {xs : Vector β n} :
     xs.toArray.iterM m = xs.iterM m :=
   rfl
 
-set_option debug.byAsSorry true in
 theorem Vector.step_iterFromIdxM {xs : Vector β n} {pos : Nat} :
     (xs.iterFromIdxM m pos).step = (pure <| .deflate <| if h : pos < n then
         .yield
@@ -82,7 +81,6 @@ theorem Vector.step_iterFromIdxM {xs : Vector β n} {pos : Nat} :
         .done (Vector.isPlausibleStep_iterFromIdxM_of_not_lt h)) := by
   simp [← Vector.iterFromIdxM_toArray, Array.step_iterFromIdxM]
 
-set_option debug.byAsSorry true in
 theorem Vector.step_iterM {xs : Vector β n} :
     (xs.iterM m).step = (pure <| .deflate <| if h : 0 < n then
         .yield

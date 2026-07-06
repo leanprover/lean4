@@ -26,7 +26,6 @@ namespace bitblast
 
 variable [Hashable α] [DecidableEq α]
 
-set_option debug.byAsSorry true in
 def blastReverse (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
   let ⟨refs, hrefs⟩ := s
   ⟨aig, ⟨refs.reverse, by simp [hrefs]⟩⟩

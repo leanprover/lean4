@@ -1560,7 +1560,6 @@ theorem lt_mul_div_succ (a : Nat) (hb : 0 < b) : a < b * (a / b + 1) := by
   rw [Nat.mul_comm, ← Nat.div_lt_iff_lt_mul hb]
   exact lt_succ_self _
 
-set_option debug.byAsSorry true in
 theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x + y / m := by
   match x with
   | 0 => simp

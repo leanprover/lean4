@@ -34,7 +34,6 @@ namespace BVExpr
 
 namespace bitblast
 
-set_option debug.byAsSorry true in
 theorem denote_blastExtractAndExtendBit (aig : AIG α) (xc : AIG.RefVec aig w)
     (x : BitVec w) (start : Nat) (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
@@ -56,7 +55,6 @@ theorem denote_blastExtractAndExtendBit (aig : AIG α) (xc : AIG.RefVec aig w)
     · simp [show 0 < w by omega, show w ≤ start by omega]
   · simp [show ¬ idx = 0 by omega]
 
-set_option debug.byAsSorry true in
 theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
     (xc : RefVec aig w) (hstart : start < aig.decls.size) :
     ⟦
@@ -235,7 +233,6 @@ theorem denote_blastCpopLayer (aig : AIG α)
   · exact hold
   · simp
 
-set_option debug.byAsSorry true in
 theorem blastCpopLayer_denote_mem_prefix.go (aig : AIG α) (iterNum : Nat)  (hstart : _)
     (hold' : 2 * (iterNum - 1) < len)
     (oldLayer : AIG.RefVec aig (len * w)) (newLayer : AIG.RefVec aig (iterNum * w)) :
@@ -251,7 +248,6 @@ theorem blastCpopLayer_denote_mem_prefix.go (aig : AIG α) (iterNum : Nat)  (hst
   · intros
     apply blastCpopLayer.go_le_size
 
-set_option debug.byAsSorry true in
 theorem denote_blastCpopTree.go (aig : AIG α) (len : Nat)
     (l : AIG.RefVec aig (len * w)) (h : 0 < len) (bv : BitVec (len * w))
     (hpar : ∀ (idx : Nat) (hidx : idx < len * w), ⟦aig, l.get idx hidx, assign⟧ = bv.getLsbD idx) :
@@ -299,7 +295,6 @@ theorem denote_blastCpopTree (aig : AIG α) (len : Nat)
   apply denote_blastCpopTree.go
   simp [hpar]
 
-set_option debug.byAsSorry true in
 @[simp]
 public theorem denote_blastCpop (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w)
     (assign : α → Bool)

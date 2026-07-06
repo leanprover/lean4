@@ -189,7 +189,6 @@ theorem toNat_toInt_add_one_sub_toInt {lo hi : BitVec n} (h : n > 0) :
       show ∀ a b c d : Int, (a - b) + c - (d - b) = a + c - d by omega]
     omega
 
-set_option debug.byAsSorry true in
 theorem toNat_two_pow_sub_one_sub_toInt {lo : BitVec n} (h : n > 0) :
     (2 ^ (n - 1) - lo.toInt).toNat = 2 ^ n - (rotate lo).toNat := by
   simp only [toInt_eq_ofNat_toNat_rotate_sub h, intMinSealed_def, BitVec.natCast_eq_ofNat,
@@ -298,7 +297,6 @@ public instance instRxoIsAlwaysFinite : Rxo.IsAlwaysFinite Int8 := by exact infe
 public instance instRxiHasSize : Rxi.HasSize Int8 where
   size lo := ((2 : Int) ^ 7 - lo.toInt).toNat
 
-set_option debug.byAsSorry true in
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
@@ -394,7 +392,6 @@ public instance instRxoIsAlwaysFinite : Rxo.IsAlwaysFinite Int16 := by exact inf
 public instance instRxiHasSize : Rxi.HasSize Int16 where
   size lo := ((2 : Int) ^ 15 - lo.toInt).toNat
 
-set_option debug.byAsSorry true in
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
@@ -490,7 +487,6 @@ public instance instRxoIsAlwaysFinite : Rxo.IsAlwaysFinite Int32 := by exact inf
 public instance instRxiHasSize : Rxi.HasSize Int32 where
   size lo := ((2 : Int) ^ 31 - lo.toInt).toNat
 
-set_option debug.byAsSorry true in
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,
@@ -586,7 +582,6 @@ public instance instRxoIsAlwaysFinite : Rxo.IsAlwaysFinite Int64 := by exact inf
 public instance instRxiHasSize : Rxi.HasSize Int64 where
   size lo := ((2 : Int) ^ 63 - lo.toInt).toNat
 
-set_option debug.byAsSorry true in
 theorem instRxiHasSize_eq :
     instRxiHasSize = HasModel.instRxiHasSize := by
   simp only [instRxiHasSize, HasModel.instRxiHasSize, Rxi.HasSize.size, ← toInt_toBitVec,

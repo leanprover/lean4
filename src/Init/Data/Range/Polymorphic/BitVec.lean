@@ -25,7 +25,6 @@ instance : UpwardEnumerable (BitVec n) where
   succ? i := if i + 1 = 0 then none else some (i + 1)
   succMany? m i := if h : i.toNat + m < 2 ^ n then some (.ofNatLT _ h) else none
 
-set_option debug.byAsSorry true in
 theorem succ?_eq_none {x : BitVec n} :
     UpwardEnumerable.succ? x = none ↔ x.toNat = 2 ^ n - 1 := by
   simp [succ?, ← BitVec.toNat_inj]

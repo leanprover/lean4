@@ -654,7 +654,6 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
     subst this
     simp
 
-set_option debug.byAsSorry true in
 @[simp, grind =] theorem insertIdx_toArray (l : List α) (i : Nat) (a : α) (h : i ≤ l.toArray.size):
     l.toArray.insertIdx i a = (l.insertIdx i a).toArray := by
   rw [Array.insertIdx]
@@ -678,7 +677,6 @@ set_option debug.byAsSorry true in
         congr
         omega
 
-set_option debug.byAsSorry true in
 @[simp, grind =] theorem insertIdxIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
     l.toArray.insertIdxIfInBounds i a = (l.insertIdx i a).toArray := by
   rw [Array.insertIdxIfInBounds]

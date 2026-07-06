@@ -174,7 +174,6 @@ theorem natCast_lt_natCast_of_lt (a b : Nat) : a < b → (a : R) < (b : R) := by
     simp [Semiring.natCast_add, Semiring.natCast_one]
     exact OrderedAdd.add_lt_left_iff _ |>.mp ih
 
-set_option debug.byAsSorry true in
 theorem pos_natCast_of_pos (a : Nat) : 0 < a → 0 < (a : R) := by
   induction a
   next => simp

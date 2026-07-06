@@ -12,7 +12,10 @@ public import Lean.OriginalConstKind
 public import Lean.AutoDecl
 import Lean.Linter.Init
 import Lean.Compiler.MetaAttr
-import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
+import Lean.Meta.Check
+import Lean.Meta.Instances
+import Lean.ReducibilityAttrs
+import all Lean.OriginalConstKind
 
 public section
 
@@ -92,6 +95,119 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
       else
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
+
+/--
+If `linter.checkDeclsAtImplicit` is set to true, declarations whose type is type-correct at
+`.default` transparency but not at `.implicit` transparency generate a warning suggesting
+definitions that could be marked `@[implicit_reducible]`.
+-/
+register_builtin_option linter.checkDeclsAtImplicit : Bool := {
+  defValue := false
+  descr    := "warn when a declaration's type is not type-correct at `.implicit` transparency"
+}
+
+/--
+The top-level `(name, type)` pairs whose types `warnIfDeclIllTypedAtImplicit` checks:
+definitions, theorems, opaque constants, and axioms. Inductives are skipped for now.
+-/
+private def declTypesToCheck : Declaration → Array (Name × Expr)
+  | .axiomDecl v       => #[(v.name, v.type)]
+  | .defnDecl v        => #[(v.name, v.type)]
+  | .thmDecl v         => #[(v.name, v.type)]
+  | .opaqueDecl v      => #[(v.name, v.type)]
+  | .mutualDefnDecl vs => (vs.map fun v => (v.name, v.type)).toArray
+  | .inductDecl ..     => #[]
+  | .quotDecl          => #[]
+
+/--
+Returns the semireducible non-instance definitions that `Meta.check declType .default`
+unfolds but the `.implicit` check does not, or `none` if `declType` is already type-correct at
+`.implicit` transparency (or is not even type-correct at `.default`). Mirrors the inner loop of
+`Lean.Linter.tacticCheckInstances`.
+
+Runs under `Core.withCurrHeartbeats` and returns `none` in case of heartbeat exhaustion. this
+diagnostic must never abort the surrounding elaboration, nor draw on a tactic's already-spent
+heartbeat budget. Interrupt exceptions are re-raised, never swallowed.
+-/
+private def checkTypeAtImplicitTransparency (declType : Expr) : MetaM (Option (Array Name)) :=
+  Core.withCurrHeartbeats do
+  -- Fast path: Check the type at `.implicit`, without `diagnostics true`. Failure should be the
+  -- absolute exception, so we optimize for the frequent case.
+  let implicitFailed : Bool ←
+    try
+      Meta.check declType .implicit
+      pure false
+    catch e =>
+      if e.isInterrupt then throw e
+      else if e.isRuntime then
+        logWarning m!"The `checkDeclsAtImplicit` linter failed with an unexpected error while checking the type of `{declType}` at implicit transparency.\n{e.toMessageData}"
+        return none
+      else pure true
+  unless implicitFailed do return none
+  let origDiag := (← get).diag
+  let result : Option (Array Name) ← withOptions (diagnostics.set · true) do
+    -- A type that is not even correct at `.default` is a more fundamental problem; ignore it here.
+    try Meta.check declType .default
+    catch e =>
+      if e.isInterrupt then
+        modify ({ · with diag := origDiag })
+        throw e
+      else
+        -- Any error while checking the type at default transparency is an unexpected error.
+        logWarning m!"The `checkDeclsAtImplicit` linter failed with an unexpected error while checking the type of `{declType}` at default transparency.\n{e.toMessageData}"
+        return none
+    let counterDefault := (← get).diag.unfoldCounter
+    -- Reset the unfold counter and re-check at `.implicit` to record what it unfolds.
+    modify ({ · with diag := origDiag })
+    try Meta.check declType .implicit
+    catch e =>
+      if e.isInterrupt then
+        modify ({ · with diag := origDiag })
+        throw e
+      else if e.isRuntime then
+        -- Warn if a resource limit has been reached.
+        logWarning m!"The `checkDeclsAtImplicit` linter failed with an unexpected error while checking the type of `{declType}` at implicit transparency.\n{e.toMessageData}"
+        return none
+      else
+        -- This check is expected to fail, so nothing to do in this case.
+        -- The `else` branch only exists for clarity.
+        pure ()
+    let counterImplicit := (← get).diag.unfoldCounter
+    let env ← getEnv
+    -- Definitions unfolded by the `.default` check but not the `.implicit` one are the
+    -- candidates for `@[implicit_reducible]`. Only consider semireducible non-instances.
+    let mut candidates : Array Name := #[]
+    for (n, countDefault) in counterDefault do
+      let countImplicit := counterImplicit.find? n |>.getD 0
+      if countDefault > countImplicit
+          && getReducibilityStatusCore env n matches .semireducible
+          && !Meta.isInstanceCore env n then
+        candidates := candidates.push n
+    return some candidates
+  -- Always restore the original diagnostics snapshot.
+  modify ({ · with diag := origDiag })
+  return result
+
+/--
+If `linter.checkDeclsAtImplicit` is enabled, warns when a declaration's type is type-correct at
+`.default` transparency but not at `.implicit` transparency, suggesting semireducible
+constants that could be be marked `@[implicit_reducible]` to fix the mismatch.
+-/
+def warnIfDeclIllTypedAtImplicit (decl : Declaration) : CoreM Unit := do
+  unless linter.checkDeclsAtImplicit.get (← getOptions) do return
+  -- Stay quiet on declarations that already produced errors.
+  if ← MonadLog.hasErrors then return
+  for (declName, declType) in declTypesToCheck decl do
+    -- Compiler-internal auto-declarations (equation lemmas, etc.) would be noisy; skip them.
+    if ← isAutoDeclOrPrivate_Internal declName then continue
+    let some candidates ← (checkTypeAtImplicitTransparency declType).run' | continue
+    if candidates.isEmpty then continue
+    let bullets := MessageData.joinSep
+      (candidates.toList.map (m!"{MessageData.ofConstName ·}")) Format.line
+    Linter.logLint linter.checkDeclsAtImplicit (← getRef)
+      m!"declaration {MessageData.ofConstName declName} is not type-correct at \
+        `.implicit` transparency; consider marking some of the following as \
+        `@[implicit_reducible]`:{indentD bullets}"
 
 builtin_initialize
   registerTraceClass `addDecl
@@ -182,6 +298,7 @@ where
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
+        warnIfDeclIllTypedAtImplicit decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

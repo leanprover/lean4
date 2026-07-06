@@ -880,6 +880,36 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /--
+Cache for `synthInstance` results. It is stored in an environment extension instead of
+`Meta.Cache` so that it persists across commands; it is not stored in `.olean` files.
+
+**Warning**: The cache is currently *not* invalidated automatically. Changes that can affect
+typeclass resolution results after a query has been cached, e.g. instance additions or erasures,
+scoped instance activation, or reducibility status changes, require an explicit
+`resetSynthInstanceCache`.
+-/
+builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep local
+
+/-- Returns the type class resolution cache entry for `key`. -/
+private def findCachedResult? (key : SynthInstanceCacheKey) :
+    MetaM (Option (Option AbstractMVarsResult)) :=
+  return synthInstanceCacheExt.getState (← getEnv) |>.find? key
+
+/--
+Inserts a result into the type class resolution cache. The environment is modified directly
+instead of via `modifyEnv`, which would reset the `Meta.Cache` caches.
+-/
+private def insertCachedResult (key : SynthInstanceCacheKey) (result? : Option AbstractMVarsResult) :
+    MetaM Unit :=
+  modifyThe Core.State fun s =>
+    { s with env := synthInstanceCacheExt.modifyState s.env (·.insert key result?) }
+
+/-- Resets the type class resolution cache; see `synthInstanceCacheExt`. -/
+def resetSynthInstanceCache : CoreM Unit :=
+  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
+
+/--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
 -/
@@ -901,17 +931,17 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
 private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
   -- **TODO**: simplify this function.
   match abstResult? with
-  | none => modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey none }
+  | none => insertCachedResult cacheKey none
   | some abstResult =>
     if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty && kind matches .noMVars | .mvarsNoOutputParams then
       match result? with
-      | none => modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey none }
+      | none => insertCachedResult cacheKey none
       | some result =>
         -- See `applyCachedAbstractResult?` If new metavariables have **not** been introduced,
         -- we don't need to perform extra checks again when reusing result.
-        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], mvars := #[] }) }
+        insertCachedResult cacheKey (some { expr := result, paramNames := #[], mvars := #[] })
     else
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
+      insertCachedResult cacheKey (some abstResult)
 
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
@@ -924,8 +954,11 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth }
-    match (← get).cache.synthInstance.find? cacheKey with
+    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
+                      maxResultSize,
+                      canonInstances := backward.synthInstance.canonInstances.get opts,
+                      isExporting := (← getEnv).isExporting }
+    match ← findCachedResult? cacheKey with
     | some abstResult? =>
       trace[Meta.synthInstance.cache] "cached: {type}"
       let result? ← applyCachedAbstractResult? type abstResult?

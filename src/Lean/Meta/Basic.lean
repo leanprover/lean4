@@ -333,6 +333,19 @@ structure SynthInstanceCacheKey where
   See issue #2522.
   -/
   synthPendingDepth : Nat
+  /--
+  Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
+  The cache persists across commands, so results (in particular failures) obtained under a
+  different size limit must not be reused.
+  -/
+  maxResultSize     : Nat
+  /-- Value of `backward.synthInstance.canonInstances`. -/
+  canonInstances    : Bool
+  /--
+  Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
+  which can change the result of typeclass resolution.
+  -/
+  isExporting       : Bool
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -384,12 +397,14 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
-Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
+Cache datastructures for type inference, whnf, and definitional equality.
+
+The type class resolution cache is not part of this structure; it is stored in an environment
+extension so that it persists across commands (see `synthInstanceCacheExt`).
 -/
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
-  synthInstance  : SynthInstanceCache := {}
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
@@ -653,13 +668,13 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4⟩ => ⟨f ic, c1, c2, c3, c4⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+  modifyCache fun ⟨c1, c2, c3, defeqTrans, c4⟩ => ⟨c1, c2, c3, f defeqTrans, c4⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqPerm⟩ => ⟨c1, c2, c3, c4, f defeqPerm⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }
@@ -676,9 +691,6 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
-
-@[inline] def resetSynthInstanceCache : MetaM Unit :=
-  modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then

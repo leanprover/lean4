@@ -577,6 +577,16 @@ def DoElemCont.withDeadCodeFromInfo (dec : DoElemCont) (info : ControlInfo) : Do
   { dec with k := withDeadCode (if info.noFallthrough then .deadSemantically else .alive) dec.k }
 
 /--
+If `x` is a `mut` variable, record that its current binding aliases the original `let mut` binding,
+so that go-to-definition and find-references treat both as the same variable.
+-/
+def registerMutVarAlias (x : Name) : DoElabM Unit := do
+  if let some baseMutVar ← findMutVar? x then
+    let id := (← getFVarFromUserName x).fvarId!
+    if id != baseMutVar.baseId then
+      pushInfoLeaf <| .ofFVarAliasInfo (baseMutVar.mkAliasInfo id)
+
+/--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
 fields of the tuple and call `k` in the resulting local context.
 -/
@@ -588,16 +598,22 @@ where
     match vars with
     | []  => mkLetFVars letFVars (← k)
     | [x] =>
-      withLetDecl x tupleTy tuple fun x => do mkLetFVars (letFVars.push x) (← k)
+      withLetDecl x tupleTy tuple fun xf => do
+        registerMutVarAlias x
+        mkLetFVars (letFVars.push xf) (← k)
     | [x, y] =>
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
-      withLetDecl x fstTy fst fun x =>
-      withLetDecl y sndTy snd fun y => do mkLetFVars (letFVars.push x |>.push y) (← k)
+      withLetDecl x fstTy fst fun xf =>
+      withLetDecl y sndTy snd fun yf => do
+        registerMutVarAlias x
+        registerMutVarAlias y
+        mkLetFVars (letFVars.push xf |>.push yf) (← k)
     | x :: xs => do
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
-      withLetDecl x fstTy fst fun x => do
-      withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
-        go xs r.fvarId! sndTy (letFVars |>.push x |>.push r)
+      withLetDecl x fstTy fst fun xf => do
+        registerMutVarAlias x
+        withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
+          go xs r.fvarId! sndTy (letFVars |>.push xf |>.push r)
 
 /--
   Backtrackable state for the `TermElabM` monad.

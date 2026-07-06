@@ -81,7 +81,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
             throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"
         /- Special support for offset equalities -/
         let injectionOffset? (a b : Expr) := do
-          unless (← getEnv).contains ``Nat.elimOffset do return none
+          unless (← getEnv).contains ``Nat.Internal.elimOffset do return none
           let some (xa, ka) ← toOffset? a | return none
           let some (xb, kb) ← toOffset? b | return none
           if ka == 0 || kb == 0 then return none -- use default noConfusion
@@ -96,7 +96,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           let newTarget ← mkArrow (← mkEq x y) target
           let tag ← mvarId.getTag
           let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
-          let val := mkAppN (mkConst ``Nat.elimOffset [u]) #[target, x, y, mkNatLit k, eqDecl.toExpr, newMVar]
+          let val := mkAppN (mkConst ``Nat.Internal.elimOffset [u]) #[target, x, y, mkNatLit k, eqDecl.toExpr, newMVar]
           mvarId.assign val
           let mvarId ← newMVar.mvarId!.tryClear eqDecl.fvarId
           return some mvarId

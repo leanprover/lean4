@@ -53,7 +53,7 @@ lean_object* l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_object*, lea
 lean_object* l_List_drop___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 lean_object* l_Lean_Name_componentsRev(lean_object*);
-lean_object* l_IO_AsyncList_waitAll___redArg(lean_object*);
+lean_object* l_Lean_AsyncList_waitAll___redArg(lean_object*);
 lean_object* l_Lean_Server_RequestM_mapTaskCostly___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Lean_Server_FileWorker_Hover_rewriteExamples(lean_object*);
@@ -173,7 +173,7 @@ lean_object* l_Lean_Server_ServerTask_bindCostly___redArg(lean_object*, lean_obj
 lean_object* l_Lean_Widget_InteractiveGoal_pretty(lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonDocumentColorParams_fromJson(lean_object*);
-lean_object* l_IO_AsyncList_getFinishedPrefix___redArg(lean_object*);
+lean_object* l_Lean_AsyncList_getFinishedPrefix___redArg(lean_object*);
 lean_object* l_Lean_Server_findModuleRefs(lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_Server_ModuleRefs_toLspModuleRefs(lean_object*);
 lean_object* l_Lean_Lsp_ModuleRefs_findAt(lean_object*, lean_object*, uint8_t);
@@ -9007,7 +9007,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight___lam_
 _start:
 {
 lean_object* v___x_2431_; lean_object* v_fst_2432_; lean_object* v___x_2433_; size_t v_sz_2434_; size_t v___x_2435_; lean_object* v___x_2436_; uint8_t v___x_2437_; uint8_t v___x_2438_; lean_object* v___x_2439_; lean_object* v___x_2440_; lean_object* v_fst_2441_; lean_object* v___x_2442_; lean_object* v___x_2443_; size_t v_sz_2444_; lean_object* v___x_2445_; 
-v___x_2431_ = l_IO_AsyncList_getFinishedPrefix___redArg(v_cmdSnaps_2422_);
+v___x_2431_ = l_Lean_AsyncList_getFinishedPrefix___redArg(v_cmdSnaps_2422_);
 v_fst_2432_ = lean_ctor_get(v___x_2431_, 0);
 lean_inc(v_fst_2432_);
 lean_dec_ref(v___x_2431_);
@@ -14652,7 +14652,7 @@ lean_inc(v_cmdSnaps_3882_);
 lean_dec_ref(v_toEditableDocumentCore_3880_);
 v___f_3883_ = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleDocumentSymbol___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(v___f_3883_, 0, v_meta_3881_);
-v___x_3884_ = l_IO_AsyncList_waitAll___redArg(v_cmdSnaps_3882_);
+v___x_3884_ = l_Lean_AsyncList_waitAll___redArg(v_cmdSnaps_3882_);
 v___x_3885_ = l_Lean_Server_RequestM_mapTaskCostly___redArg(v___x_3884_, v___f_3883_, v_a_3876_);
 return v___x_3885_;
 }
@@ -16356,7 +16356,7 @@ lean_inc(v_cmdSnaps_4410_);
 lean_dec_ref(v_toEditableDocumentCore_4408_);
 v___f_4411_ = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleFoldingRange___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(v___f_4411_, 0, v_meta_4409_);
-v___x_4412_ = l_IO_AsyncList_waitAll___redArg(v_cmdSnaps_4410_);
+v___x_4412_ = l_Lean_AsyncList_waitAll___redArg(v_cmdSnaps_4410_);
 v___x_4413_ = l_Lean_Server_RequestM_mapTaskCostly___redArg(v___x_4412_, v___f_4411_, v_a_4404_);
 return v___x_4413_;
 }
@@ -16741,7 +16741,7 @@ lean_object* v_cmdSnaps_4537_; lean_object* v___x_4538_;
 v_cmdSnaps_4537_ = lean_ctor_get(v_toEditableDocumentCore_4535_, 2);
 lean_inc(v_cmdSnaps_4537_);
 lean_dec_ref(v_toEditableDocumentCore_4535_);
-v___x_4538_ = l_IO_AsyncList_waitAll___redArg(v_cmdSnaps_4537_);
+v___x_4538_ = l_Lean_AsyncList_waitAll___redArg(v_cmdSnaps_4537_);
 return v___x_4538_;
 }
 }

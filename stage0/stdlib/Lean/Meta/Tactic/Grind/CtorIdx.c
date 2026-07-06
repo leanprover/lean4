@@ -22,7 +22,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x3f(lean_object*);
-lean_object* l_isCtorIdx_x3f___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_isCtorIdx_x3f___redArg(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -190,7 +190,7 @@ goto v_resetjp_64_;
 v_resetjp_64_:
 {
 lean_object* v___x_67_; 
-v___x_67_ = l_isCtorIdx_x3f___redArg(v_val_63_, v___y_54_);
+v___x_67_ = l_Lean_isCtorIdx_x3f___redArg(v_val_63_, v___y_54_);
 if (lean_obj_tag(v___x_67_) == 0)
 {
 lean_object* v_a_68_; lean_object* v___x_70_; uint8_t v_isShared_71_; uint8_t v_isSharedCheck_347_; 

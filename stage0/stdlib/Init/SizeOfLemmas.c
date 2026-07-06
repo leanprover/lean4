@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.SizeOfLemmas
-// Imports: import all Init.Data.Char.Basic import all Init.SizeOf public import Init.Data.Char.Basic import Init.Data.Nat.Linear meta import Init.MetaTypes
+// Imports: import all Init.Data.Char.Basic import all Init.SizeOf public import Init.Data.Char.Basic import Init.Data.Nat.Internal.Linear meta import Init.MetaTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,7 @@ extern "C" {
 lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_SizeOf(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Char_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_SizeOfLemmas(uint8_t builtin) {
 lean_object * res;
@@ -31,7 +31,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -50,7 +50,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* initialize_Init_SizeOf(uint8_t builtin);
 lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_MetaTypes(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_SizeOfLemmas(uint8_t builtin) {
@@ -66,7 +66,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_MetaTypes(builtin);

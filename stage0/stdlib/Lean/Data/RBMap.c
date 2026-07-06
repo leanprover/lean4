@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.RBMap
-// Imports: public import Init.Data.Ord.Basic public import Init.Data.Nat.Linear public import Init.Data.Array.Basic import Init.WFTactics
+// Imports: public import Init.Data.Ord.Basic public import Init.Data.Nat.Internal.Linear public import Init.Data.Array.Basic import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10214,7 +10214,7 @@ return v___x_3026_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Ord_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_runtime_initialized = false;
@@ -10225,7 +10225,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Array_Basic(builtin);
@@ -10244,7 +10244,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
@@ -10255,7 +10255,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin);

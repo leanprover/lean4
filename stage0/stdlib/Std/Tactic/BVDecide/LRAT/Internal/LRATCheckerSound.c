@@ -17,8 +17,6 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheck
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_lratChecker_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_lratChecker_match__1_splitter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_lratChecker_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_WellFormedAction_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_WellFormedAction_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_lratChecker_match__3_splitter___redArg(lean_object* v_prf_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_, lean_object* v_h__3_4_, lean_object* v_h__4_5_, lean_object* v_h__5_6_){
 _start:
 {
@@ -243,66 +241,6 @@ lean_inc(v_snd_70_);
 lean_dec_ref(v_x_67_);
 v___x_71_ = lean_apply_2(v_h__1_68_, v_fst_69_, v_snd_70_);
 return v___x_71_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_WellFormedAction_match__1_splitter___redArg(lean_object* v_x_72_, lean_object* v_h__1_73_, lean_object* v_h__2_74_){
-_start:
-{
-if (lean_obj_tag(v_x_72_) == 2)
-{
-lean_object* v_id_75_; lean_object* v_c_76_; lean_object* v_pivot_77_; lean_object* v_rupHints_78_; lean_object* v_ratHints_79_; lean_object* v___x_80_; 
-lean_dec(v_h__2_74_);
-v_id_75_ = lean_ctor_get(v_x_72_, 0);
-lean_inc(v_id_75_);
-v_c_76_ = lean_ctor_get(v_x_72_, 1);
-lean_inc(v_c_76_);
-v_pivot_77_ = lean_ctor_get(v_x_72_, 2);
-lean_inc_ref(v_pivot_77_);
-v_rupHints_78_ = lean_ctor_get(v_x_72_, 3);
-lean_inc_ref(v_rupHints_78_);
-v_ratHints_79_ = lean_ctor_get(v_x_72_, 4);
-lean_inc_ref(v_ratHints_79_);
-lean_dec_ref_known(v_x_72_, 5);
-v___x_80_ = lean_apply_5(v_h__1_73_, v_id_75_, v_c_76_, v_pivot_77_, v_rupHints_78_, v_ratHints_79_);
-return v___x_80_;
-}
-else
-{
-lean_object* v___x_81_; 
-lean_dec(v_h__1_73_);
-v___x_81_ = lean_apply_2(v_h__2_74_, v_x_72_, lean_box(0));
-return v___x_81_;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Internal_LRATCheckerSound_0__Std_Tactic_BVDecide_LRAT_Internal_WellFormedAction_match__1_splitter(lean_object* v_00_u03b1_82_, lean_object* v_00_u03b2_83_, lean_object* v_motive_84_, lean_object* v_x_85_, lean_object* v_h__1_86_, lean_object* v_h__2_87_){
-_start:
-{
-if (lean_obj_tag(v_x_85_) == 2)
-{
-lean_object* v_id_88_; lean_object* v_c_89_; lean_object* v_pivot_90_; lean_object* v_rupHints_91_; lean_object* v_ratHints_92_; lean_object* v___x_93_; 
-lean_dec(v_h__2_87_);
-v_id_88_ = lean_ctor_get(v_x_85_, 0);
-lean_inc(v_id_88_);
-v_c_89_ = lean_ctor_get(v_x_85_, 1);
-lean_inc(v_c_89_);
-v_pivot_90_ = lean_ctor_get(v_x_85_, 2);
-lean_inc_ref(v_pivot_90_);
-v_rupHints_91_ = lean_ctor_get(v_x_85_, 3);
-lean_inc_ref(v_rupHints_91_);
-v_ratHints_92_ = lean_ctor_get(v_x_85_, 4);
-lean_inc_ref(v_ratHints_92_);
-lean_dec_ref_known(v_x_85_, 5);
-v___x_93_ = lean_apply_5(v_h__1_86_, v_id_88_, v_c_89_, v_pivot_90_, v_rupHints_91_, v_ratHints_92_);
-return v___x_93_;
-}
-else
-{
-lean_object* v___x_94_; 
-lean_dec(v_h__1_86_);
-v___x_94_ = lean_apply_2(v_h__2_87_, v_x_85_, lean_box(0));
-return v___x_94_;
-}
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_LRATChecker(uint8_t builtin);

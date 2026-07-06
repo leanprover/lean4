@@ -4853,8 +4853,8 @@ if (lean_obj_tag(v_a_1428_) == 0)
 {
 uint8_t v_contextDependent_1434_; lean_object* v___x_1435_; lean_object* v___x_1437_; 
 lean_dec_ref(v_arg_1424_);
-lean_dec_ref_known(v_e_1410_, 2);
 lean_dec_ref(v_fn_1423_);
+lean_dec_ref_known(v_e_1410_, 2);
 v_contextDependent_1434_ = lean_ctor_get_uint8(v_a_1428_, 1);
 lean_dec_ref_known(v_a_1428_, 0);
 v___x_1435_ = l_Lean_Meta_Sym_Simp_mkRflResultCD(v_contextDependent_1434_);
@@ -4920,8 +4920,8 @@ else
 {
 lean_dec(v_a_1428_);
 lean_dec_ref(v_arg_1424_);
-lean_dec_ref(v_fn_1423_);
 lean_dec_ref_known(v_e_1410_, 2);
+lean_dec_ref(v_fn_1423_);
 return v___x_1444_;
 }
 }
@@ -4931,8 +4931,8 @@ else
 {
 lean_dec(v___x_1426_);
 lean_dec_ref(v_arg_1424_);
-lean_dec_ref_known(v_e_1410_, 2);
 lean_dec_ref(v_fn_1423_);
+lean_dec_ref_known(v_e_1410_, 2);
 return v___x_1427_;
 }
 }
@@ -7450,8 +7450,8 @@ if (lean_obj_tag(v_a_2322_) == 0)
 {
 uint8_t v_contextDependent_2324_; 
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_contextDependent_2324_ = lean_ctor_get_uint8(v_a_2322_, 1);
 lean_dec_ref_known(v_a_2322_, 0);
 v_cd_2312_ = v_contextDependent_2324_;
@@ -7511,8 +7511,8 @@ if (lean_obj_tag(v_a_2322_) == 0)
 {
 uint8_t v_contextDependent_2353_; 
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_contextDependent_2353_ = lean_ctor_get_uint8(v_a_2322_, 1);
 lean_dec_ref_known(v_a_2322_, 0);
 v_cd_2312_ = v_contextDependent_2353_;
@@ -7595,8 +7595,8 @@ else
 lean_object* v_a_2344_; lean_object* v___x_2346_; uint8_t v_isShared_2347_; uint8_t v_isSharedCheck_2351_; 
 lean_dec(v_a_2322_);
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_a_2344_ = lean_ctor_get(v___x_2336_, 0);
 v_isSharedCheck_2351_ = !lean_is_exclusive(v___x_2336_);
 if (v_isSharedCheck_2351_ == 0)
@@ -7655,8 +7655,8 @@ else
 lean_object* v_a_2360_; lean_object* v___x_2362_; uint8_t v_isShared_2363_; uint8_t v_isSharedCheck_2367_; 
 lean_dec(v_a_2322_);
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_a_2360_ = lean_ctor_get(v___x_2331_, 0);
 v_isSharedCheck_2367_ = !lean_is_exclusive(v___x_2331_);
 if (v_isSharedCheck_2367_ == 0)
@@ -7701,8 +7701,8 @@ else
 lean_object* v_a_2368_; lean_object* v___x_2370_; uint8_t v_isShared_2371_; uint8_t v_isSharedCheck_2375_; 
 lean_dec(v_a_2322_);
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_a_2368_ = lean_ctor_get(v___x_2329_, 0);
 v_isSharedCheck_2375_ = !lean_is_exclusive(v___x_2329_);
 if (v_isSharedCheck_2375_ == 0)

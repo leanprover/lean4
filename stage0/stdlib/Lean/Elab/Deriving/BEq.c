@@ -126,7 +126,7 @@ lean_object* l_Lean_InductiveVal_numCtors(lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkDiscrs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_instInhabitedTermElabM(lean_object*);
-lean_object* l_mkCtorIdxName(lean_object*);
+lean_object* l_Lean_mkCtorIdxName(lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_mkCasesOnSameCtor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get_x21Internal___redArg(lean_object*, lean_object*, lean_object*);
@@ -8749,7 +8749,7 @@ v_resetjp_2854_:
 {
 lean_object* v_ctorIdxName_2857_; lean_object* v___x_2858_; lean_object* v___x_2859_; lean_object* v___x_2860_; 
 lean_inc_n(v_name_2853_, 2);
-v_ctorIdxName_2857_ = l_mkCtorIdxName(v_name_2853_);
+v_ctorIdxName_2857_ = l_Lean_mkCtorIdxName(v_name_2853_);
 v___x_2858_ = ((lean_object*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew___closed__5));
 v___x_2859_ = l_Lean_Name_append(v_name_2853_, v___x_2858_);
 v___x_2860_ = l_Lean_Core_mkFreshUserName(v___x_2859_, v_a_2839_, v_a_2840_);

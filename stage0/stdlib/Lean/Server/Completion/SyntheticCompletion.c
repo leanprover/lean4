@@ -3983,7 +3983,6 @@ if (v___y_1161_ == 0)
 {
 lean_object* v___x_1162_; lean_object* v___x_1163_; uint8_t v___x_1164_; 
 v___x_1162_ = l_Array_zipIdx___redArg(v_fieldsAndSeps_1159_, v___x_1157_);
-lean_dec_ref(v_fieldsAndSeps_1159_);
 v___x_1163_ = lean_array_get_size(v___x_1162_);
 v___x_1164_ = lean_nat_dec_lt(v___x_1157_, v___x_1163_);
 if (v___x_1164_ == 0)

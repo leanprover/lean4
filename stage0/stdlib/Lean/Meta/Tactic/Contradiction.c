@@ -118,7 +118,7 @@ uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Lean_Meta_mkEqOfHEq(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchConstructorApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_refutableHasNotBit_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_refutableHasNotBit_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchNe_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchNot_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_findLocalDeclWithType_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8120,7 +8120,7 @@ v___jp_2288_:
 {
 lean_object* v___x_2293_; 
 lean_inc_ref(v___x_1955_);
-v___x_2293_ = l_refutableHasNotBit_x3f(v___x_1955_, v___y_2289_, v___y_2290_, v___y_2291_, v___y_2292_);
+v___x_2293_ = l_Lean_refutableHasNotBit_x3f(v___x_1955_, v___y_2289_, v___y_2290_, v___y_2291_, v___y_2292_);
 if (lean_obj_tag(v___x_2293_) == 0)
 {
 lean_object* v_a_2294_; 
@@ -11353,7 +11353,7 @@ v___jp_2985_:
 {
 lean_object* v___x_2990_; 
 lean_inc_ref(v___x_2652_);
-v___x_2990_ = l_refutableHasNotBit_x3f(v___x_2652_, v___y_2986_, v___y_2987_, v___y_2988_, v___y_2989_);
+v___x_2990_ = l_Lean_refutableHasNotBit_x3f(v___x_2652_, v___y_2986_, v___y_2987_, v___y_2988_, v___y_2989_);
 if (lean_obj_tag(v___x_2990_) == 0)
 {
 lean_object* v_a_2991_; 
@@ -14662,7 +14662,7 @@ v___jp_3696_:
 {
 lean_object* v___x_3701_; 
 lean_inc_ref(v___x_3355_);
-v___x_3701_ = l_refutableHasNotBit_x3f(v___x_3355_, v___y_3697_, v___y_3698_, v___y_3699_, v___y_3700_);
+v___x_3701_ = l_Lean_refutableHasNotBit_x3f(v___x_3355_, v___y_3697_, v___y_3698_, v___y_3699_, v___y_3700_);
 if (lean_obj_tag(v___x_3701_) == 0)
 {
 lean_object* v_a_3702_; 
@@ -17983,7 +17983,7 @@ v___jp_4413_:
 {
 lean_object* v___x_4418_; 
 lean_inc_ref(v___x_4072_);
-v___x_4418_ = l_refutableHasNotBit_x3f(v___x_4072_, v___y_4414_, v___y_4415_, v___y_4416_, v___y_4417_);
+v___x_4418_ = l_Lean_refutableHasNotBit_x3f(v___x_4072_, v___y_4414_, v___y_4415_, v___y_4416_, v___y_4417_);
 if (lean_obj_tag(v___x_4418_) == 0)
 {
 lean_object* v_a_4419_; 

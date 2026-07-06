@@ -120,7 +120,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_instInhabitedTermElabM(lean_object*);
-lean_object* l_mkCtorIdxName(lean_object*);
+lean_object* l_Lean_mkCtorIdxName(lean_object*);
 lean_object* l_Lean_mkCasesOnSameCtor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get_x21Internal___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -6413,7 +6413,7 @@ v_resetjp_2253_:
 {
 lean_object* v_ctorIdxName_2256_; lean_object* v___x_2257_; lean_object* v___x_2258_; lean_object* v___x_2259_; 
 lean_inc_n(v_name_2252_, 2);
-v_ctorIdxName_2256_ = l_mkCtorIdxName(v_name_2252_);
+v_ctorIdxName_2256_ = l_Lean_mkCtorIdxName(v_name_2252_);
 v___x_2257_ = ((lean_object*)(l___private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchNew___closed__5));
 v___x_2258_ = l_Lean_Name_append(v_name_2252_, v___x_2257_);
 v___x_2259_ = l_Lean_Core_mkFreshUserName(v___x_2258_, v_a_2238_, v_a_2239_);

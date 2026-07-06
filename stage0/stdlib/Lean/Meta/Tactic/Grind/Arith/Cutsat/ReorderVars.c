@@ -91,7 +91,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
-uint8_t l_Int_Linear_instBEqPoly_beq(lean_object*, lean_object*);
+uint8_t l_Int_Internal_Linear_instBEqPoly_beq(lean_object*, lean_object*);
 uint64_t l_Lean_Meta_Grind_Arith_Cutsat_instHashablePoly__lean_hash(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -187,8 +187,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Reorder
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_mkPermInv___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_mkPermInv_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_mkPermInv_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_reorder(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_reorder___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Internal_Linear_Poly_reorder(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Internal_Linear_Poly_reorder___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_reorder(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_reorder___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_EqCnstr_reorder(lean_object*, lean_object*);
@@ -4029,7 +4029,7 @@ lean_dec_ref(v_perm_1417_);
 return v_res_1423_;
 }
 }
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_reorder(lean_object* v_p_1424_, lean_object* v_old2new_1425_){
+LEAN_EXPORT lean_object* l_Int_Internal_Linear_Poly_reorder(lean_object* v_p_1424_, lean_object* v_old2new_1425_){
 _start:
 {
 if (lean_obj_tag(v_p_1424_) == 0)
@@ -4065,7 +4065,7 @@ lean_object* v___x_1432_; lean_object* v___x_1433_; lean_object* v___x_1434_; le
 v___x_1432_ = lean_unsigned_to_nat(0u);
 v___x_1433_ = lean_array_get_borrowed(v___x_1432_, v_old2new_1425_, v_v_1427_);
 lean_dec(v_v_1427_);
-v___x_1434_ = l_Int_Linear_Poly_reorder(v_p_1428_, v_old2new_1425_);
+v___x_1434_ = l_Int_Internal_Linear_Poly_reorder(v_p_1428_, v_old2new_1425_);
 lean_inc(v___x_1433_);
 if (v_isShared_1431_ == 0)
 {
@@ -4092,11 +4092,11 @@ return v___x_1436_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_reorder___boxed(lean_object* v_p_1439_, lean_object* v_old2new_1440_){
+LEAN_EXPORT lean_object* l_Int_Internal_Linear_Poly_reorder___boxed(lean_object* v_p_1439_, lean_object* v_old2new_1440_){
 _start:
 {
 lean_object* v_res_1441_; 
-v_res_1441_ = l_Int_Linear_Poly_reorder(v_p_1439_, v_old2new_1440_);
+v_res_1441_ = l_Int_Internal_Linear_Poly_reorder(v_p_1439_, v_old2new_1440_);
 lean_dec_ref(v_old2new_1440_);
 return v_res_1441_;
 }
@@ -4109,7 +4109,7 @@ v_d_1444_ = lean_ctor_get(v_c_1442_, 0);
 lean_inc(v_d_1444_);
 v_p_1445_ = lean_ctor_get(v_c_1442_, 1);
 lean_inc_ref(v_p_1445_);
-v___x_1446_ = l_Int_Linear_Poly_reorder(v_p_1445_, v_old2new_1443_);
+v___x_1446_ = l_Int_Internal_Linear_Poly_reorder(v_p_1445_, v_old2new_1443_);
 v___x_1447_ = lean_alloc_ctor(11, 1, 0);
 lean_ctor_set(v___x_1447_, 0, v_c_1442_);
 v___x_1448_ = lean_alloc_ctor(0, 3, 0);
@@ -4135,7 +4135,7 @@ _start:
 lean_object* v_p_1455_; lean_object* v___x_1456_; lean_object* v___x_1457_; lean_object* v___x_1458_; lean_object* v___x_1459_; 
 v_p_1455_ = lean_ctor_get(v_c_1453_, 0);
 lean_inc_ref(v_p_1455_);
-v___x_1456_ = l_Int_Linear_Poly_reorder(v_p_1455_, v_old2new_1454_);
+v___x_1456_ = l_Int_Internal_Linear_Poly_reorder(v_p_1455_, v_old2new_1454_);
 v___x_1457_ = lean_alloc_ctor(9, 1, 0);
 lean_ctor_set(v___x_1457_, 0, v_c_1453_);
 v___x_1458_ = lean_alloc_ctor(0, 2, 0);
@@ -4160,7 +4160,7 @@ _start:
 lean_object* v_p_1465_; lean_object* v___x_1466_; lean_object* v___x_1467_; lean_object* v___x_1468_; lean_object* v___x_1469_; 
 v_p_1465_ = lean_ctor_get(v_c_1463_, 0);
 lean_inc_ref(v_p_1465_);
-v___x_1466_ = l_Int_Linear_Poly_reorder(v_p_1465_, v_old2new_1464_);
+v___x_1466_ = l_Int_Internal_Linear_Poly_reorder(v_p_1465_, v_old2new_1464_);
 v___x_1467_ = lean_alloc_ctor(16, 1, 0);
 lean_ctor_set(v___x_1467_, 0, v_c_1463_);
 v___x_1468_ = lean_alloc_ctor(0, 2, 0);
@@ -4185,7 +4185,7 @@ _start:
 lean_object* v_p_1475_; lean_object* v___x_1476_; lean_object* v___x_1477_; lean_object* v___x_1478_; lean_object* v___x_1479_; 
 v_p_1475_ = lean_ctor_get(v_c_1473_, 0);
 lean_inc_ref(v_p_1475_);
-v___x_1476_ = l_Int_Linear_Poly_reorder(v_p_1475_, v_old2new_1474_);
+v___x_1476_ = l_Int_Internal_Linear_Poly_reorder(v_p_1475_, v_old2new_1474_);
 v___x_1477_ = lean_alloc_ctor(7, 1, 0);
 lean_ctor_set(v___x_1477_, 0, v_c_1473_);
 v___x_1478_ = lean_alloc_ctor(0, 2, 0);
@@ -4346,7 +4346,7 @@ else
 {
 lean_object* v_k_x27_1560_; uint8_t v___x_1561_; 
 v_k_x27_1560_ = lean_array_fget_borrowed(v_ks_1548_, v_x_1545_);
-v___x_1561_ = l_Int_Linear_instBEqPoly_beq(v_x_1546_, v_k_x27_1560_);
+v___x_1561_ = l_Int_Internal_Linear_instBEqPoly_beq(v_x_1546_, v_k_x27_1560_);
 if (v___x_1561_ == 0)
 {
 lean_object* v___x_1563_; 
@@ -4495,7 +4495,7 @@ goto v_resetjp_1605_;
 v_resetjp_1605_:
 {
 uint8_t v___x_1608_; 
-v___x_1608_ = l_Int_Linear_instBEqPoly_beq(v_x_1583_, v_key_1603_);
+v___x_1608_ = l_Int_Internal_Linear_instBEqPoly_beq(v_x_1583_, v_key_1603_);
 if (v___x_1608_ == 0)
 {
 lean_object* v___x_1609_; lean_object* v___x_1610_; 
@@ -4785,7 +4785,7 @@ lean_inc(v_fst_1698_);
 v_snd_1699_ = lean_ctor_get(v_x_1696_, 1);
 lean_inc(v_snd_1699_);
 lean_dec_ref(v_x_1696_);
-v___x_1700_ = l_Int_Linear_Poly_reorder(v_fst_1698_, v_old2new_1695_);
+v___x_1700_ = l_Int_Internal_Linear_Poly_reorder(v_fst_1698_, v_old2new_1695_);
 v_m_x27_1701_ = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Arith_Cutsat_reorderDiseqSplits_spec__0___redArg(v_____s_1697_, v___x_1700_, v_snd_1699_);
 v___x_1702_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1702_, 0, v_m_x27_1701_);

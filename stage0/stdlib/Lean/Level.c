@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Level
-// Imports: public import Init.Data.Array.QSort public import Lean.Data.PersistentHashSet public import Lean.Hygiene public import Init.Data.Option.Coe import Init.Data.Nat.Linear
+// Imports: public import Init.Data.Array.QSort public import Lean.Data.PersistentHashSet public import Lean.Hygiene public import Init.Data.Option.Coe import Init.Data.Nat.Internal.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9581,7 +9581,7 @@ lean_object* runtime_initialize_Init_Data_Array_QSort(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_PersistentHashSet(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Hygiene(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Coe(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Level(uint8_t builtin) {
 lean_object * res;
@@ -9599,7 +9599,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedData___aux__1 = _init_l_Lean_instInhabitedData___aux__1();
@@ -9641,7 +9641,7 @@ lean_object* initialize_Init_Data_Array_QSort(uint8_t builtin);
 lean_object* initialize_Lean_Data_PersistentHashSet(uint8_t builtin);
 lean_object* initialize_Lean_Hygiene(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Level(uint8_t builtin) {
 lean_object * res;
@@ -9659,7 +9659,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Level(builtin);

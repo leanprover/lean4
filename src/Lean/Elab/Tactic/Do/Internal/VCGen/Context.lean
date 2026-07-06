@@ -46,6 +46,14 @@ public def Deferred.force {α : Type} {n : Type → Type} [Monad n] [MonadLiftT 
     writeback (.elaborated a)
     return a
 
+/-- Update an already-elaborated value in place; a not-yet-elaborated `d` is returned unchanged. -/
+public def Deferred.modifyElaborated {α : Type} (d : Deferred α) (f : α → α) : Deferred α :=
+  match d with
+  | .elaborated a => .elaborated (f a)
+  | d => d
+
+public instance {α : Type} [Inhabited α] : Inhabited (Deferred α) := ⟨.elaborated default⟩
+
 /-- A single elaborated `frames` alternative: its program pattern, the binder name of each pattern
 variable (`none` for `_`, index-aligned with `pat.varTypes`), the raw frame term (elaborated in the
 matched goal's context), the source position (a precedence tiebreak among matches, and its index
@@ -61,10 +69,12 @@ public structure FrameEntry where
 
 /-- The materialized frame database: program patterns keyed in a discrimination tree to the `srcIdx`
 of the matching alternative, alongside the alternatives themselves in source order. Materialized once
-in `State.frameDB?`; thereafter only the `retired` flags of `entries` change. -/
+in `State.frameDB`; thereafter only the `retired` flags of `entries` change. -/
 public structure FrameDB where
   tree : DiscrTree Nat := .empty
   entries : Array FrameEntry := #[]
+
+public instance : Inhabited FrameDB := ⟨{}⟩
 
 /--
 Common metadata for a goal whose right-hand side is a weakest-precondition application
@@ -142,9 +152,70 @@ public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
     meetTop := ← mkBackwardRuleFromDecl ``Std.Internal.Do.CompleteLattice.meet_top_le_of_le
   }
 
+private opaque FrameInferenceProcRefPointed : NonemptyType.{0}
+
+/-- Opaque handle to a `FrameInferenceProc` stored in `Context`. Breaks the type-level cycle
+between the procedure, which runs in `VCGenM`, and `VCGenM`, a reader over `Context`. -/
+public def VCGen.FrameInferenceProcRef : Type := FrameInferenceProcRefPointed.type
+
+public instance : Nonempty VCGen.FrameInferenceProcRef := FrameInferenceProcRefPointed.property
+
+/-- A decomposition of a lattice logic connective on the RHS of an entailment. Custom frame operators
+register their own split here via `Context.customLatticeSplits`.
+
+A split with `applyLemma := some _` decomposes pointwise through the excess (state) arguments via
+`LatticeSplit.mkBackwardRuleForLattice`, chaining the `_apply` distribution lemma with the `⊑`-form
+split lemma; the remaining fields supply the structure it needs. A split with `applyLemma := none`
+applies `relLemma` directly as a backward rule, leaving the residual to the rules that follow; the
+pointwise-only fields are then unused. -/
+public structure VCGen.LatticeSplit where
+  /-- The `⊑`-form split lemma decomposing `pre ⊑ connective`. Applied directly as a backward rule
+  when `applyLemma` is `none`. -/
+  relLemma : Name
+  /-- The pointwise `_apply` lemma distributing the connective through function application, or `none`
+  for a split that applies `relLemma` directly without pointwise distribution. -/
+  applyLemma : Option Name := none
+  /-- Rebuild the connective from its fixed parameters `params` (e.g. the frame operator of
+  `PreservesSup.upperAdjoint`), its operands `as`, and the optional lattice carrier type. Unused when
+  `applyLemma` is `none`. -/
+  mkLattice : Array Expr → Array Expr → Option Expr → MetaM Expr := fun _ _ _ =>
+    throwError "LatticeSplit.mkLattice is unavailable for a direct split (applyLemma := none)"
+  /-- Whether the operands are functions of the excess (state) arguments, and so must be applied to
+  each excess argument when descending one lattice level during `mkApplyEq`.
+
+  For `⊓`/`⇨` the operands are themselves elements of the function lattice (`(a ⊓ b) s = a s ⊓ b s`),
+  so each operand `a` becomes `a s`. For `⌜·⌝`/`⊤` the operand is reused unchanged
+  (`(⌜p⌝ : σ→β) s = (⌜p⌝ : β)`, `(⊤ : σ→β) s = (⊤ : β)`), so it must not be applied to `s`. -/
+  needApplyArgs : Bool := false
+  /-- The number of fixed parameters before the lattice operands: `1` for the frame operator of
+  `PreservesSup.upperAdjoint`, `0` for `⊓`/`⌜·⌝`/`⊤`. -/
+  numParams : Nat := 0
+  /-- The number of explicit lattice operands the connective takes after its carrier type,
+  instance, and parameters: `2` for `⊓`/`⇨`, `1` for `⌜·⌝`, `0` for `⊤`. -/
+  numOperands : Nat := 0
+
 public structure VCGen.Context where
   /-- Pre-built backward rules used by `solve`. -/
   backwardRules : VCGen.BackwardRules
+  /-- The frame-inference procedure run on each spec-ready program to optionally produce a frame.
+  Initialized to the default `frames`-clause matcher; overriders wrap or replace it. -/
+  frameInferenceProc : VCGen.FrameInferenceProcRef
+  /-- Lattice splits for custom frame operators, keyed by head constant. Consulted by
+  `splitLatticeOp?` before the built-in connectives, so a custom frame proc can decompose
+  `pre ⊑ conj F rest` for its own `conj`. -/
+  customLatticeSplits : Std.HashMap Name VCGen.LatticeSplit := {}
+  /-- Lattice splits for the residual wands `PreservesSup.upperAdjoint conj F rest` of custom frame operators,
+  keyed by the `conj` head constant. Consulted by `splitLatticeOp?` (dispatching on the inner
+  operator) so a custom frame's magic wand decomposes instead of surfacing in a VC. -/
+  customImpSplits : Std.HashMap Name VCGen.LatticeSplit := {}
+  /-- Conj-reduction equations (`FrameProc.conjReduce`) for custom frame operators, keyed by the `conj`
+  head constant. Consulted by `reduceFrameConj?` to reduce `conj F rest` to its built-in connective over
+  a nested-base lattice. -/
+  customConjReduces : Std.HashMap Name Name := {}
+  /-- Wand-reduction equations (`FrameProc.impReduce`) for custom frame operators, keyed by the `conj`
+  head constant. Consulted by `reduceFrameImp?` to peel a residual
+  `PreservesSup.upperAdjoint conj F rest` over a nested-base lattice. -/
+  customImpReduces : Std.HashMap Name Name := {}
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
@@ -224,7 +295,7 @@ public structure VCGen.State where
   `FrameEntry.retired`, so each applies at most once (first match wins) and a program whose
   alternative is retired is framed no further and reaches the normal `applySpec` path.
   -/
-  frameDB? : Option (Deferred FrameDB) := none
+  frameDB : Deferred FrameDB := default
   /--
   Holes of type `Invariant` that have been generated so far.
   -/
@@ -255,6 +326,25 @@ public structure VCGen.State where
   inlineHandledInvariants : Std.HashSet Nat := {}
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
+
+/-- A frame-inference procedure: given the resource type `R` of the applicable frame operator
+`op : R → Pred → Pred`, the goal's precondition, and the `wp` metadata of a spec-ready program,
+optionally produce a frame `F : R` to apply. -/
+public abbrev VCGen.FrameInferenceProc := Expr → Expr → VCGen.WPInfo → VCGenM (Option Expr)
+
+instance : Nonempty VCGen.FrameInferenceProc := ⟨fun _ _ _ => pure none⟩
+
+unsafe abbrev VCGen.FrameInferenceProc.toRefImpl (p : VCGen.FrameInferenceProc) :
+    VCGen.FrameInferenceProcRef := unsafeCast p
+@[implemented_by VCGen.FrameInferenceProc.toRefImpl]
+public opaque VCGen.FrameInferenceProc.toRef (p : VCGen.FrameInferenceProc) :
+    VCGen.FrameInferenceProcRef
+
+unsafe abbrev VCGen.FrameInferenceProcRef.toProcImpl (r : VCGen.FrameInferenceProcRef) :
+    VCGen.FrameInferenceProc := unsafeCast r
+@[implemented_by VCGen.FrameInferenceProcRef.toProcImpl]
+public opaque VCGen.FrameInferenceProcRef.toProc (r : VCGen.FrameInferenceProcRef) :
+    VCGen.FrameInferenceProc
 
 namespace VCGen
 

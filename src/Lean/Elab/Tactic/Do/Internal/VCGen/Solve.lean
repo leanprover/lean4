@@ -351,11 +351,11 @@ where
       k acc
   termination_by declInfos.size - acc.size
 
-/-- Elaborate a matched `frames` alternative's frame term at type `info.Pred`, with each named
-pattern variable bound to the subterm the pattern matched. The bindings are introduced as
-`let`-declarations carrying the matched value, so the resulting frame records the pattern-variable
-assignments and the user sees them in the side goals. -/
-private def elabFrame (entry : FrameEntry) (res : Sym.MatchUnifyResult) (info : WPInfo) :
+/-- Elaborate a matched `frames` alternative's frame term at the resource type `resourceTy` of the
+applicable frame operator, with each named pattern variable bound to the subterm the pattern matched.
+The bindings are introduced as `let`-declarations carrying the matched value, so the resulting frame
+records the pattern-variable assignments and the user sees them in the side goals. -/
+private def elabFrame (resourceTy : Expr) (entry : FrameEntry) (res : Sym.MatchUnifyResult) :
     VCGenM Expr := do
   let mut decls : Array (Name × Expr × Expr) := #[]
   for h : i in [0:entry.varNames.size] do
@@ -364,17 +364,16 @@ private def elabFrame (entry : FrameEntry) (res : Sym.MatchUnifyResult) (info : 
         decls := decls.push (nm, ← Meta.inferType res.args[i]!, res.args[i]!)
   Meta.withDefault <| withLetDeclsDND decls fun fvs => do
     let frameExpr ← Lean.Elab.Term.TermElabM.run' do
-      let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some info.Pred)
+      let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some resourceTy)
       Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
       instantiateMVars e
     mkLetFVars fvs frameExpr
 
-/-- Find an unretired `frames` alternative matching the program (earliest source order wins) and
-elaborate its frame, retiring the alternative so it applies at most once. The frame DB is
-materialized into `State` on first use; retirement sets `FrameEntry.retired` in place. -/
-private def matchFrame? (info : WPInfo) : VCGenM (Option Expr) := do
-  let some deferred := (← get).frameDB? | return none
-  let db ← deferred.force (fun d => modify fun s => { s with frameDB? := some d }) info.m
+/-- Find an unretired `frames` alternative matching the program (earliest source order wins),
+elaborate its frame at the resource type `resourceTy`, and retire it so it applies at most once. The
+frame DB is materialized into `State` on first use. -/
+public def matchFrame? : VCGen.FrameInferenceProc := fun resourceTy _pre info => do
+  let db ← (← get).frameDB.force (fun d => modify fun s => { s with frameDB := d }) info.m
   let mut best : Option (FrameEntry × Sym.MatchUnifyResult) := none
   for srcIdx in Sym.getMatch db.tree info.prog do
     let entry := db.entries[srcIdx]!
@@ -384,11 +383,9 @@ private def matchFrame? (info : WPInfo) : VCGenM (Option Expr) := do
       | none => best := some (entry, res)
       | some (b, _) => if entry.srcIdx < b.srcIdx then best := some (entry, res)
   let some (entry, res) := best | return none
-  modify fun s => { s with frameDB? := s.frameDB?.map fun
-    | .elaborated db =>
-      .elaborated { db with entries := db.entries.set! entry.srcIdx { entry with retired := true } }
-    | d => d }
-  let F ← elabFrame entry res info
+  modify fun s => { s with frameDB := s.frameDB.modifyElaborated fun db =>
+    { db with entries := db.entries.set! entry.srcIdx { entry with retired := true } } }
+  let F ← elabFrame resourceTy entry res
   trace[Elab.Tactic.Do.vcgen] "`frames` matched {info.prog}; frame:{indentExpr F}"
   return some F
 
@@ -400,37 +397,135 @@ inductive FrameResult where
   The caller applies the program's own spec to `goal` with the (possibly updated) `info`. -/
   | notFramed (goal : MVarId) (info : WPInfo)
 
+/-- Find a frame `F` for `info.prog` together with its frame operator `op : R → Pred → Pred`. The
+operator is the one of the `@[frameproc]` registered for the program's type (the monad), or the
+lattice meet (resource type `R = Pred`) if none is registered. The frame `F : R` is taken from an
+explicit `frames` clause first (elaborated at the operator's resource type), then from the registered
+procedure. -/
+private def matchFrameProc? (pre : Expr) (info : WPInfo) :
+    VCGenM (Option (Expr × Expr)) := do
+  let procs ← getFrameProcs
+  let fp? := (info.m.getAppFn.constName?).bind (procs.procs[·]?)
+  let (op, resourceTy) ← match fp? with
+    | some fp =>
+      let op ← fp.op info
+      pure (op, (← Meta.inferType op).bindingDomain!)
+    | none =>
+      let op ← Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
+      pure (op, info.Pred)
+  if let some F ← (← read).frameInferenceProc.toProc resourceTy pre info then
+    return some (F, op)
+  let some fp := fp? | return none
+  let some F ← fp.proc resourceTy pre info | return none
+  trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr F}"
+  return some (F, op)
+
 /--
 Frame dispatcher for a spec-ready program `info.prog`:
 * If the program is `skipFrame x` (an already-framed program), strip the marker and
   report `.notFramed`, so framing happens at most once per occurrence.
-* If no `frames` alternative matches, report `.notFramed`.
-* Otherwise, apply `meet_wp_imp_le_wp_skipFrame` with the matched
-  frame as an artificial per-call spec.
-  The precondition `F ⊓ wp (skipFrame prog) (F ⇨ Q)` splits into the
-  frame VC `· ⊑ F` and the `skipFrame`-marked Frame-enhanced program,
-  and the frame condition VC `Frames prog F` becomes another VC, reported as `.framed`.
+* If no frame applies, report `.notFramed`.
+* Otherwise, apply the frame gadget for the inferred operator `op` and frame `F` as an artificial
+  per-call spec. The precondition `op F (wp (skipFrame prog) (op F -* Q))` splits into the frame VC
+  `· ⊑ F` and the `skipFrame`-marked frame-enhanced program, and the frame condition VC
+  `Frames op prog F` becomes another VC, reported as `.framed`. The lattice meet keeps the precise
+  meet gadget; any other residuated operator uses the general gadget with the operator pinned.
 -/
-private def applyFrame (scope : VCGen.Scope) (goal : MVarId) (info : WPInfo) :
+private def applyFrame (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) (info : WPInfo) :
     VCGenM FrameResult := goal.withContext do
   if info.prog.getAppFn.isConstOf ``Std.Internal.Do.Gadget.skipFrame then
     let strippedProg := info.prog.appArg!
     let goal ← replaceProgDefEq goal info strippedProg
     return .notFramed goal { info with args := info.args.set! 7 strippedProg }
-  let some F ← matchFrame? info
+  -- Do not frame the monad's structural combinators: let them decompose through their specs first,
+  -- so frame inference applies to the leaf calls rather than to a `bind`/`map`/`seq` node.
+  if let some head := info.prog.getAppFn.constName? then
+    if [``Bind.bind, ``Pure.pure, ``Functor.map, ``Seq.seq, ``SeqRight.seqRight,
+        ``SeqLeft.seqLeft].contains head then
+      return .notFramed goal info
+  let some (F, op) ← matchFrameProc? pre info
     | return .notFramed goal info
-  -- Apply the program's own `wp` arguments (`info.args.take 7`: program type, value, assertions,
-  -- `WP` instance) and the matched frame `F`, letting `mkAppOptM` synthesize the `Frame` instance
-  -- against the assertion's own `CompleteLattice` so it shares the structure the program's `wp` uses.
-  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.Gadget.meet_wp_imp_le_wp_skipFrame
-    ((info.args.take 7).map some ++ #[none, some F])
+  -- `info.args.take 7` are the program's own `wp` arguments (program type, value, assertions, `WP`
+  -- instance); `mkAppOptM` synthesizes the remaining instances against the assertion's own
+  -- `CompleteLattice` so the framing shares the structure the program's `wp` uses. The lattice meet
+  -- is just the instance `op := (· ⊓ ·)`; its residual folds to `⇨` (see `foldUpperAdjointMeet?`).
+  let specProof ←
+    Meta.mkAppOptM ``Std.Internal.Do.Gadget.op_wp_upperAdjoint_le_wp_skipFrame
+      ((info.args.take 7).map some ++ #[none, some op, none, some F])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
-    | throwError "frame: could not build spec from meet_wp_imp_le_wp_skipFrame for{indentExpr info.prog}"
+    | throwError "frame: could not build spec from the frame gadget for{indentExpr info.prog}"
   let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
     | throwError "frame: failed to build rule for{indentExpr info.prog}"
   let .goals subgoals ← rule.applyChecked goal m!"frame rule for{indentExpr info.prog}"
     | throwError "frame: failed to apply rule for{indentExpr info.prog}"
   return .framed scope subgoals
+
+/-- Fold a frame residual `upperAdjoint (meet F) b` on the RHS to Heyting `F ⇨ b` (definitionally
+equal: `himp` *is* the meet upper adjoint), exposing the meet operand `F` so the `himp` split can
+decompose it. This lets the lattice meet be framed by the general gadget like any operator, with no
+meet-specific spec; a non-meet operator's residual is left for its registered `impSplit`. -/
+private def foldUpperAdjointMeet? (goal : MVarId) (target rhs : Expr) : VCGenM (Option MVarId) := do
+  unless rhs.isAppOf ``Lean.Order.PreservesSup.upperAdjoint do return none
+  let args := rhs.getAppArgs
+  let some slice := args[2]? | return none
+  unless slice.isAppOf ``Lean.Order.meet && slice.getAppNumArgs == 3 do return none
+  let himpExpr ← Meta.mkAppM ``Lean.Order.himp #[slice.appArg!, args[3]!]
+  let newRhs ← mkAppNS himpExpr (args.extract 4 args.size)
+  let relArgs := target.getAppArgs
+  let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) newRhs)
+  return some (← goal.replaceTargetDefEq newTarget)
+
+/-- `unfoldReducible`-normalize a goal's target, so a later `applyChecked` unifies past reducible state
+types (`StateM σ`, `Tick`, …) that sit behind reducible definitions — the normalization that
+`BackwardRule.applyChecked`'s `+debug` retry (`Util.lean`) diagnoses. When `betaRhs` is set, the RHS of
+the `pre ⊑ rhs` target is also beta-reduced first (the wand reduction leaves a `(fun m => …) s` redex
+whose inner `wp` head must be exposed). -/
+private def normalizeReducedGoal (goal : MVarId) (betaRhs : Bool := false) : VCGenM MVarId := do
+  let ty ← goal.getType
+  unless betaRhs do return ← goal.replaceTargetDefEq (← unfoldReducible ty)
+  let relArgs := ty.getAppArgs
+  let some rhs := relArgs[relArgs.size - 1]? | return goal
+  let newTarget ← mkAppNS ty.getAppFn (relArgs.set! (relArgs.size - 1) (← unfoldReducible rhs.headBeta))
+  goal.replaceTargetDefEq newTarget
+
+/-- Fallback for a registered frame `conj` that the direct `splitLatticeOp?` could not peel over a
+*nested-base* assertion lattice: `vcgen` introduced an extra inner state coordinate, so the goal is
+`conj c R n s` — one application deeper than the registered direct split lemma expects — and
+`splitLatticeOp?` returns `none`.
+
+Build a backward rule from the registered `conjReduce` equation (`conj c R = <built-in connective>`,
+e.g. a `meet`) via `mkReduceRule` and `applyChecked` it. The rule's conclusion has the same head as the
+goal, so it unifies directly (no defeq/normalization); its single premise `pre ⊑ <connective> n s` is the
+reduced subgoal. `unfoldReducible`-normalize it so the next iteration's `splitLatticeOp?` decomposes the
+exposed connective over *all* coordinates and the operand `wp` flows into the normal spec step.
+
+Keyed on `customConjReduces`, so only registered frame `conj` heads are touched, and run *after* the
+direct split and the wp phase — a flat lattice keeps its direct split, and only the nested case that
+would otherwise stall on `.noProgress` reaches here. Terminates: each firing exposes a non-`conj`
+connective head, so it never re-fires on its own output. -/
+private def reduceFrameConj? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
+  let some headName := rhs.getAppFn.constName? | return none
+  let some eqName := (← read).customConjReduces[headName]? | return none
+  let some rule ← mkReduceRule eqName rhs | return none
+  let .goals [g] ← rule.applyChecked goal | return none
+  return some (← normalizeReducedGoal g)
+
+/-- Wand companion to `reduceFrameConj?`: reduce a residual frame wand `PreservesSup.upperAdjoint
+(conj c) R` that the direct `impSplit` couldn't peel over a nested-base lattice (the wand is applied to
+an extra inner state coordinate). Build a backward rule from the registered `impReduce` equation
+(`upperAdjoint (conj c) R = <closed form>`, e.g. a cost shift `fun m => R (m + c)`) via `mkReduceRule`
+and `applyChecked` it; the premise `pre ⊑ <closed form> n s` is the reduced subgoal. Beta-reduce and
+`unfoldReducible`-normalize it so the body `R` — and its inner `wp` — is exposed to the normal spec step
+instead of stranding in a VC. Run as a fallback, so a flat lattice keeps its direct `impSplit`. -/
+private def reduceFrameImp? (goal : MVarId) (rhs : Expr) : VCGenM (Option MVarId) := do
+  unless rhs.isAppOf ``Lean.Order.PreservesSup.upperAdjoint do return none
+  -- `@PreservesSup.upperAdjoint α inst (conj c) R …`: the slice `conj c` is at index 2; reduce keyed on
+  -- its head.
+  let some sliceHead := rhs.getAppArgs[2]?.bind (·.getAppFn.constName?) | return none
+  let some eqName := (← read).customImpReduces[sliceHead]? | return none
+  let some rule ← mkReduceRule eqName rhs | return none
+  let .goals [g] ← rule.applyChecked goal | return none
+  return some (← normalizeReducedGoal g (betaRhs := true))
 
 /--
 The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.
@@ -491,6 +586,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective), then
   -- discharge a residual entailment against the lifted hypothesis.
   if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
+  if let some g ← foldUpperAdjointMeet? goal target rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
 
@@ -516,10 +612,17 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne
-      match ← applyFrame scope goal info with
+      match ← applyFrame scope goal pre info with
       | .framed scope subgoals => return .goals scope subgoals
       | .notFramed goal info => return ← applySpec scope goal info
     throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
+
+  -- Phase 5 (fallback): a registered frame `conj`/wand that the direct split couldn't peel over a
+  -- nested-base lattice. `reduceFrameConj?` exposes the `conj`'s `meet`-first connective; `reduceFrameImp?`
+  -- reduces the residual wand via its `impReduce` equation. Either way the next iteration's
+  -- `splitLatticeOp?`/spec step decomposes the result over all coordinates and specs the inner `wp`.
+  if let some g ← reduceFrameConj? goal rhs then return .goals scope [g]
+  if let some g ← reduceFrameImp? goal rhs then return .goals scope [g]
 
   return .stop (.noProgress pre rhs)
 

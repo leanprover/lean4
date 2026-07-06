@@ -35,67 +35,51 @@ Backward rules for decomposing lattice logic connectives (`⊓`, `⇨`, `⌜·�
 entailment `pre ⊑ e s₁ … sₙ`.
 -/
 
-/-- A decomposition of a lattice logic connective on the RHS of an entailment. Bundles everything
-`LatticeSplit.mkBackwardRuleForLattice` needs: how to rebuild the connective, the pointwise `_apply`
-distribution lemma, the `⊑`-form split lemma, and whether the operands depend on the excess (state)
-arguments. -/
-public structure LatticeSplit where
-  /-- Rebuild the connective from its operands `as` and the optional lattice carrier type. -/
-  mkLattice : Array Expr → Option Expr → MetaM Expr
-  /-- The pointwise `_apply` lemma distributing the connective through function application. -/
-  applyLemma : Name
-  /-- The `⊑`-form split lemma decomposing `pre ⊑ connective`. -/
-  relLemma : Name
-  /-- Whether the operands are functions of the excess (state) arguments, and so must be applied to
-  each excess argument when descending one lattice level during `mkApplyEq`.
-
-  For `⊓`/`⇨` the operands are themselves elements of the function lattice (`(a ⊓ b) s = a s ⊓ b s`),
-  so each operand `a` becomes `a s`. For `⌜·⌝`/`⊤` the operand is reused unchanged
-  (`(⌜p⌝ : σ→β) s = (⌜p⌝ : β)`, `(⊤ : σ→β) s = (⊤ : β)`), so it must not be applied to `s`. -/
-  needApplyArgs : Bool
-  /-- The number of explicit lattice operands the connective takes after its carrier type and
-  instance: `2` for `⊓`/`⇨`, `1` for `⌜·⌝`, `0` for `⊤`. -/
-  numOperands : Nat
-
 /-- The lattice meet `⊓`. -/
 public def LatticeSplit.meet : LatticeSplit where
-  mkLattice as _ := mkAppM ``meet as
-  applyLemma := ``meet_apply
+  mkLattice _ as _ := mkAppM ``meet as
+  applyLemma := some ``meet_apply
   relLemma := ``le_meet           -- le_meet (x y z) : x ⊑ y → x ⊑ z → x ⊑ y ⊓ z
   needApplyArgs := true
+  numParams := 0
   numOperands := 2
 
-/-- The Heyting implication `⇨`. -/
+/-- Heyting implication `⇨ = himp`, the meet upper adjoint. `himp` bakes in `(· ⊓ ·)`, so it has no
+operator parameter; the apply lemma is the meet-specific `himp_apply` and the `⊑`-split is the
+upper-adjoint unit `le_upperAdjoint`, with the meet slice unified from the goal. -/
 public def LatticeSplit.himp : LatticeSplit where
-  mkLattice as _ := mkAppM ``himp as
-  applyLemma := ``himp_apply
-  relLemma := ``himp_complete     -- himp_complete (x a b) : a ⊓ x ⊑ b → x ⊑ a ⇨ b
+  mkLattice _ as _ := mkAppM ``Lean.Order.himp as
+  applyLemma := some ``himp_apply
+  relLemma := ``Lean.Order.le_himp  -- le_himp {a b x} (h : a ⊓ x ⊑ b) : x ⊑ a ⇨ b
   needApplyArgs := true
+  numParams := 0
   numOperands := 2
 
 /-- The pure assertion embedding `⌜·⌝`. The `⊤`-fixed split lemma makes the rule apply only when the
 precondition is `⊤`, where turning `pre ⊑ ⌜p⌝` into the subgoal `p` is sound. -/
 public def LatticeSplit.ofProp : LatticeSplit where
-  mkLattice as resultType? :=
+  mkLattice _ as resultType? :=
     mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[resultType?, none, some as[0]!]
-  applyLemma := ``Lean.Order.CompleteLattice.ofProp_apply
+  applyLemma := some ``Lean.Order.CompleteLattice.ofProp_apply
   relLemma := ``Lean.Order.top_le_ofProp -- top_le_ofProp (p) : p → ⊤ ⊑ ⌜p⌝
   needApplyArgs := false
+  numParams := 0
   numOperands := 1
 
 /-- The lattice top `⊤`. Has no operands; `le_top` has no premise, so the rule closes the goal. -/
 public def LatticeSplit.top : LatticeSplit where
-  mkLattice _ resultType? := mkAppOptM ``Lean.Order.top #[resultType?, none]
-  applyLemma := ``Lean.Order.top_apply
+  mkLattice _ _ resultType? := mkAppOptM ``Lean.Order.top #[resultType?, none]
+  applyLemma := some ``Lean.Order.top_apply
   relLemma := ``le_top            -- le_top (x) : x ⊑ ⊤  (no premise ⇒ closes the goal)
   needApplyArgs := false
+  numParams := 0
   numOperands := 0
 
 /-- The lattice connectives VCGen decomposes on the RHS of an entailment, keyed by head constant. -/
 public def latticeSplits : Std.HashMap Name LatticeSplit :=
   .ofList [
     (``meet, .meet),
-    (``himp, .himp),
+    (``Lean.Order.himp, .himp),
     (``Lean.Order.CompleteLattice.ofProp, .ofProp),
     (``Lean.Order.top, .top)]
 
@@ -120,31 +104,34 @@ Example (`c = .meet`, `c.applyLemma = ``meet_apply`, `as = #[a, b]`, `ss = [s₁
 proof has type `((a ⊓ b) s₁ s₂) = (a s₁ s₂ ⊓ b s₁ s₂)`.
 -/
 private partial def LatticeSplit.mkApplyEq
-    (c : LatticeSplit)
+    (c : LatticeSplit) (params : Array Expr)
     (as : Array Expr) (ss : List Expr) (resultType? : Option Expr := none) : MetaM Expr := do
   match ss with
-  | [] => mkEqRefl =<< c.mkLattice as resultType?
+  | [] => mkEqRefl =<< c.mkLattice params as resultType?
   | s :: ss' =>
+    let some applyLemma := c.applyLemma
+      | throwError "LatticeSplit.mkApplyEq requires a pointwise `applyLemma`"
     let args := as.push s |>.map some
     let rt := resultType?.map .bindingBody!
-    let step ← mkAppOptM c.applyLemma <| #[none, rt, none] ++ args
+    let step ← mkAppOptM applyLemma <| #[none, rt, none] ++ args
     if ss'.isEmpty then
       return step
     let stepLift ← liftEqByArgs step ss'
     -- Descend one lattice level: only connectives whose operands depend on the excess
     -- arguments (see `LatticeSplit.needApplyArgs`) get their operands applied to `s`.
     let as := if c.needApplyArgs then as.map (mkApp · s) else as
-    let rest ← c.mkApplyEq as ss' rt
+    let rest ← c.mkApplyEq params as ss' rt
     mkEqTrans stepLift rest
 
 /-- Distribute a lattice connective through function applications via its `_apply` lemma,
     staying at the lattice level. Returns `((a ⊓ b) s₁…sₙ, eq)` where
     `eq : (a ⊓ b) s₁…sₙ = (a s₁…sₙ ⊓ b s₁…sₙ)`. -/
 private def LatticeSplit.mkDistributeEq
-    (c : LatticeSplit) (as ss : Array Expr) (resultType? : Option Expr := none) : MetaM (Expr × Expr) := do
-  let lat ← c.mkLattice as resultType?
+    (c : LatticeSplit) (params as ss : Array Expr) (resultType? : Option Expr := none) :
+    MetaM (Expr × Expr) := do
+  let lat ← c.mkLattice params as resultType?
   let goal := mkAppN lat ss
-  let eqFun ← c.mkApplyEq as ss.toList resultType?
+  let eqFun ← c.mkApplyEq params as ss.toList resultType?
   return (goal, eqFun)
 
 /--
@@ -164,7 +151,7 @@ For `⇨`, produces:
 Works for any `CompleteLattice`, not just `Prop`.
 -/
 public def LatticeSplit.mkBackwardRuleForLattice
-    (c : LatticeSplit) (as : Array Expr) (excessArgs : Array Expr)
+    (c : LatticeSplit) (params : Array Expr) (as : Array Expr) (excessArgs : Array Expr)
     (resultType? : Option Expr := none)
     : MetaM BackwardRule := do
   let as ← as.mapM fun arg => do
@@ -172,7 +159,7 @@ public def LatticeSplit.mkBackwardRuleForLattice
   let ss ← excessArgs.mapM fun arg => do
     mkFreshExprMVar (userName := `s) (← Meta.inferType arg)
 
-  let (goal, eqGoalDistributed) ← c.mkDistributeEq as ss resultType?
+  let (goal, eqGoalDistributed) ← c.mkDistributeEq params as ss resultType?
 
   let goalTy ← Meta.inferType goal
   -- The precondition is a fresh metavariable that becomes a universally quantified parameter of
@@ -198,6 +185,44 @@ public def LatticeSplit.mkBackwardRuleForLattice
 
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
+
+/--
+Creates a backward rule that *reduces* an operator-applied RHS via a registered equation
+`eqName : LHS = RHS`, where `LHS` is the operator applied to its arguments (e.g. `cCostConj c R`, or
+`PreservesSup.upperAdjoint (cCostConj c) R`). Unlike `mkBackwardRuleForLattice` it chains no `relLemma`:
+the single premise `pre ⊑ RHS s₁…sₙ` *is* the reduced subgoal. Produces
+
+```
+∀ … (pre), pre ⊑ RHS s₁…sₙ → pre ⊑ LHS s₁…sₙ
+```
+
+with the operator's own arguments and the excess coordinates `s₁…sₙ` (read off from `goalRhs` past the
+`LHS` arity) as fresh metavariables — so `applyChecked` unifies the rule's conclusion (same head as the
+goal) directly, with no defeq/normalization. Returns `none` if `eqName` is not an equation or `goalRhs`
+has fewer arguments than `LHS`. -/
+public def mkReduceRule (eqName : Name) (goalRhs : Expr) : MetaM (Option BackwardRule) := do
+  let eqConst ← mkConstWithFreshMVarLevels eqName
+  let (argMVars, _, eqBody) ← forallMetaTelescope (← Meta.inferType eqConst)
+  let some (_, lhs, _) := eqBody.eq? | return none
+  let numLhsArgs := lhs.getAppNumArgs
+  if goalRhs.getAppNumArgs < numLhsArgs then return none
+  -- Pin the operator's own arguments (carrier `Pred`, instance, resource …) to the goal by unifying
+  -- the equation's `LHS` with the goal RHS's operator prefix, so `LHS`'s carrier type is concrete and
+  -- the coordinates below apply.
+  unless ← isDefEq lhs (mkAppN goalRhs.getAppFn (goalRhs.getAppArgs.extract 0 numLhsArgs)) do
+    return none
+  -- The excess coordinates are the goal RHS arguments past the operator's own; freshen them so the
+  -- rule is a pattern (like `mkBackwardRuleForLattice`'s `ss`).
+  let ss ← (goalRhs.getAppArgs.extract numLhsArgs goalRhs.getAppNumArgs).mapM fun arg => do
+    mkFreshExprMVar (← Meta.inferType arg)
+  let eqDistributed ← liftEqByArgs (mkAppN eqConst argMVars) ss.toList  -- LHS s₁…sₙ = RHS s₁…sₙ
+  let some (_, goal, _) := (← Meta.inferType eqDistributed).eq? | return none
+  let pre ← mkFreshExprMVar (userName := `Pre) (← Meta.inferType goal)
+  let relEq ← mkCongrArg (← mkAppM ``PartialOrder.rel #[pre]) eqDistributed
+  -- eqMp : (pre ⊑ RHS s₁…sₙ) → (pre ⊑ LHS s₁…sₙ)
+  let eqMp ← mkAppM ``Eq.mp #[← mkEqSymm relEq]
+  let res ← abstractMVars eqMp
+  return some (← mkBackwardRuleFromExpr res.expr res.paramNames.toList)
 
 /-! ## Spec rules -/
 

@@ -116,7 +116,13 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
         catch _ => continue
   let backwardRules ← VCGen.mkBackwardRules
   let allSpecThms ← extendWithSimpSpecs specThms simpThms
-  let ctx : VCGen.Context := { backwardRules }
+  -- Registered `@[frameproc]` procedures contribute the lattice splits for their frame operators and
+  -- the residual wands of those operators.
+  let frameProcs ← VCGen.getFrameProcs
+  let ctx : VCGen.Context :=
+    { backwardRules, frameInferenceProc := VCGen.matchFrame?.toRef,
+      customLatticeSplits := frameProcs.splits, customImpSplits := frameProcs.impSplits,
+      customConjReduces := frameProcs.conjReduces, customImpReduces := frameProcs.impReduces }
   return (ctx, { specs := allSpecThms })
 
 end VCGen
@@ -251,7 +257,7 @@ private structure ParsedArgs where
   ctx : VCGen.Context
   scope : VCGen.Scope
   invariantAlts? : Option (Std.HashMap Nat Syntax)
-  frameDB? : Option (Deferred FrameDB)
+  frameDB : Deferred FrameDB
 
 /-- Build a `Sym.Pattern` from `e` by abstracting the metavariables `xs` into pattern variables.
 `checkTypeMask?` is `none` because `until` holes appear as function arguments, whose types the
@@ -339,7 +345,7 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   -- distinguish "default true" from "user-set true"); not yet wired.
   let (ctx, scope) ← VCGen.mkContext stx[2] goal
   let untilPat? ← if stx[3].isNone then pure none else some <$> elabUntilPattern ⟨stx[3][1]⟩
-  let frameDB? ← if stx[4].isNone then pure none else some <$> elabFrameDB stx[4][1].getArgs
+  let frameDB ← elabFrameDB (if stx[4].isNone then #[] else stx[4][1].getArgs)
   let invariantAlts? ← parseInvariantMap stx[5]
   let hypSimpMethods ← elabSimplifyingAssumptions stx[6]
   let ctx := { ctx with
@@ -351,7 +357,7 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
     internalize := config.internalize,
     invariantAlts := invariantAlts?.getD {},
     untilPat? }
-  return { config, ctx, scope, invariantAlts?, frameDB? }
+  return { config, ctx, scope, invariantAlts?, frameDB }
 
 /-- `vcgen` step inside `sym => …` blocks. -/
 @[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
@@ -359,7 +365,7 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM do
-    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit (frameDB? := args.frameDB?)
+    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
     if let some alts := args.invariantAlts? then
       elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
     return result

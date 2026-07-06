@@ -68,15 +68,28 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) 
 /--
 Cached version of `LatticeSplit.mkBackwardRuleForLattice`.
 
-Cache key: `(distribution lemma, argument types, excessArgs.size)`.
+Cache key: `(split lemma, argument types, excessArgs.size)`.
 -/
-public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (as excessArgs : Array Expr)
+public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (params as excessArgs : Array Expr)
     (resultType? : Option Expr := none) : VCGenM BackwardRule := do
   let s := (← get).latticeBackwardRuleCache
   let asTypes ← (as.mapM Sym.inferType : SymM (Array Expr))
-  let key := (c.applyLemma, asTypes.map ExprPtr.mk, excessArgs.size)
+  -- `params` (e.g. the frame operator of `PreservesSup.upperAdjoint`) is functionally determined by `asTypes`,
+  -- so it need not enter the cache key.
+  let key := (c.relLemma, asTypes.map ExprPtr.mk, excessArgs.size)
   if let some rule := s[key]? then return rule
-  let rule ← c.mkBackwardRuleForLattice as excessArgs resultType?
+  let rule ← c.mkBackwardRuleForLattice params as excessArgs resultType?
+  let rule ← rule.shareCommon
+  modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
+  return rule
+
+/-- The backward rule for a direct split (`applyLemma := none`): `relLemma` applied as-is, with its
+premises becoming subgoals. Cached in `latticeBackwardRuleCache` keyed by `relLemma`. -/
+public def mkBackwardRuleForLatticeDirectCached (c : LatticeSplit) : VCGenM BackwardRule := do
+  let key := (c.relLemma, (#[] : Array ExprPtr), 0)
+  let s := (← get).latticeBackwardRuleCache
+  if let some rule := s[key]? then return rule
+  let rule ← Sym.mkBackwardRuleFromDecl c.relLemma
   let rule ← rule.shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
   return rule

@@ -329,10 +329,16 @@ structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
   type              : Expr
   /--
-  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
-  See issue #2522.
+  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized,
+  or `none` if the result is depth-invariant.
+
+  `synthPendingDepth` can influence the result of a query because `synthPending` gives up
+  when `synthPendingDepth > maxSynthPendingDepth`, so a result may not be reused at a
+  different depth (see issue #2522). However, this is the *only* way the depth can influence
+  a query. Thus, if no `synthPending` decision was reached while synthesizing an instance,
+  the result is valid at every depth and is stored with `synthPendingDepth := none`.
   -/
-  synthPendingDepth : Nat
+  synthPendingDepth : Option Nat
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -500,6 +506,14 @@ structure Context where
     Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
+  /--
+  When set, the reference is set to `true` as soon as a `synthPending` decision is reached,
+  i.e. behavior that may depend on `synthPendingDepth`. The type class resolution cache uses
+  this to decide whether a result is depth-invariant; see `SynthInstanceCacheKey.synthPendingDepth`.
+  The reference is intentionally not part of the backtrackable state: a `synthPending`
+  invocation in a discarded search branch still influenced the search outcome.
+  -/
+  synthPendingActivityRef? : Option (IO.Ref Bool) := none
   /--
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/

@@ -924,16 +924,28 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth }
-    match (← get).cache.synthInstance.find? cacheKey with
-    | some abstResult? =>
-      trace[Meta.synthInstance.cache] "cached: {type}"
+    let synthPendingDepth := (← read).synthPendingDepth
+    let depthSuffix : MessageData :=
+      if synthPendingDepth == 0 then m!"" else m!" (synthPendingDepth := {synthPendingDepth})"
+    let applyCached (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
+      trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
-    | none =>
-      trace[Meta.synthInstance.cache] "new: {type}"
-      let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
+    let invariantKey : SynthInstanceCacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := none }
+    let depthKey := { invariantKey with synthPendingDepth := some synthPendingDepth }
+    if let some abstResult? := (← get).cache.synthInstance.find? invariantKey then
+      applyCached abstResult?
+    else if let some abstResult? := (← get).cache.synthInstance.find? depthKey then
+      -- Reusing a depth-sensitive entry makes the enclosing query depth-sensitive as well.
+      if let some ref := (← read).synthPendingActivityRef? then
+        ref.set true
+      applyCached abstResult?
+    else
+      trace[Meta.synthInstance.cache] "new{depthSuffix}: {type}"
+      let activityRef ← IO.mkRef false
+      let abstResult? ← withReader (fun ctx => { ctx with synthPendingActivityRef? := some activityRef }) do
+        withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
         | .noMVars =>
           /-
@@ -960,7 +972,12 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         | .mvarsOutputParams => SynthInstance.main (← preprocessOutParam type) maxResultSize
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
-      cacheResult cacheKey kind abstResult? result?
+      let depthSensitive ← activityRef.get
+      if depthSensitive then
+        -- Propagate depth sensitivity to the enclosing query, if any.
+        if let some ref := (← read).synthPendingActivityRef? then
+          ref.set true
+      cacheResult (if depthSensitive then depthKey else invariantKey) kind abstResult? result?
       return result?
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
@@ -999,6 +1016,10 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
+      -- From here on, behavior depends on `synthPendingDepth`; mark the enclosing type
+      -- class query (if any) as depth-sensitive for caching purposes.
+      if let some ref := (← read).synthPendingActivityRef? then
+        ref.set true
       let max := maxSynthPendingDepth.get (← getOptions)
       if (← read).synthPendingDepth > max then
         trace[Meta.synthPending] "too many nested synthPending invocations"

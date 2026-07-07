@@ -27,10 +27,8 @@ structure ProjectionFunctionInfo where
   fromClass : Bool
   deriving Inhabited, Repr
 
-@[export lean_mk_projection_info]
 def mkProjectionInfoEx (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : ProjectionFunctionInfo :=
   { ctorName, numParams, i, fromClass }
-@[export lean_projection_info_from_class]
 def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
   info.fromClass
 

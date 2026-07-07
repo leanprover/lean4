@@ -34,7 +34,6 @@ def isPrivateName : Name → Bool
   | .num p _     => isPrivateName p
   | _            => false
 
-@[export lean_is_private_name]
 def isPrivateNameExport (n : Name) : Bool :=
   isPrivateName n
 
@@ -59,7 +58,6 @@ private def privateToUserNameAux (n : Name) : Name :=
   | .num p i => if isPrivatePrefix n then .anonymous else .num (privateToUserNameAux p) i
   | _        => .anonymous
 
-@[export lean_private_to_user_name]
 def privateToUserName? (n : Name) : Option Name :=
   if isPrivateName n then privateToUserNameAux n
   else none
@@ -72,7 +70,6 @@ private def privatePrefixAux : Name → Name
   | .str p _ => privatePrefixAux p
   | n        => n
 
-@[export lean_private_prefix]
 def privatePrefix? (n : Name) : Option Name :=
   if isPrivateName n then privatePrefixAux n
   else none

@@ -5619,7 +5619,6 @@ private def eraseMacroScopesAux : Name → Name
   | .anonymous => Name.anonymous
 
 /-- Remove the macro scopes from the name. -/
-@[export lean_erase_macro_scopes]
 def Name.eraseMacroScopes (n : Name) : Name :=
   match n.hasMacroScopes with
   | true  => eraseMacroScopesAux n
@@ -5630,7 +5629,6 @@ private def simpMacroScopesAux : Name → Name
   | n        => eraseMacroScopesAux n
 
 /-- Helper function we use to create binder names that do not need to be unique. -/
-@[export lean_simp_macro_scopes]
 def Name.simpMacroScopes (n : Name) : Name :=
   match n.hasMacroScopes with
   | true  => simpMacroScopesAux n

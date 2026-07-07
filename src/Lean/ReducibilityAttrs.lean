@@ -76,7 +76,6 @@ builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × Redu
     finalizeImport := fun d => d.switch
   }
 
-@[export lean_get_reducibility_status]
 def getReducibilityStatusCore (env : Environment) (declName : Name) : ReducibilityStatus :=
   let m := reducibilityExtraExt.getState env
   if let some status := m.find? declName then
@@ -101,7 +100,6 @@ private def setReducibilityStatusCore (env : Environment) (declName : Name) (sta
     -- `scoped` and `local` must be handled by `reducibilityExtraExt`
     reducibilityExtraExt.addCore env (declName, status) attrKind currNamespace
 
-@[export lean_set_reducibility_status]
 private def setReducibilityStatusImp (env : Environment) (declName : Name) (status : ReducibilityStatus) : Environment :=
   setReducibilityStatusCore env declName status .global .anonymous
 

@@ -74,7 +74,6 @@ builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry Clas
   }
 
 /-- Return `true` if `n` is the name of type class in the given environment. -/
-@[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
   (classExtension.getState env).outParamMap.contains n
 
@@ -83,7 +82,6 @@ def getOutParamPositions? (env : Environment) (declName : Name) : Option (Array 
   (classExtension.getState env).outParamMap.find? declName
 
 /-- Return `true` if the given `declName` is a type class with output parameters. -/
-@[export lean_has_out_params]
 def hasOutParams (env : Environment) (declName : Name) : Bool :=
   match getOutParamPositions? env declName with
   | some outParams => !outParams.isEmpty
@@ -133,7 +131,6 @@ Remark: this function consumes the `outParam` annotations.
 This function uses the same logic used as `checkOutParam`.
 See issue #1901
 -/
-@[export lean_mk_outparam_args_implicit]
 partial def mkOutParamArgsImplicit (type : Expr) : Expr :=
   go type type #[]
 where

@@ -13,30 +13,35 @@ import Lean.Util.SafeExponentiation
 import Init.Data.Nat.Dvd
 import Init.Data.Nat.Simproc
 public section
-namespace Nat
-open Lean Meta Simp
+namespace Lean.Nat
+open Meta Simp
 
 def fromExpr? (e : Expr) : SimpM (Option Nat) :=
   getNatValue? e
 
-@[inline] def reduceUnary (declName : Name) (arity : Nat) (op : Nat → Nat) (e : Expr) : SimpM DStep := do
+end Lean.Nat
+
+namespace Nat
+open Lean Meta Simp Lean.Nat
+
+@[inline] private def reduceUnary (declName : Name) (arity : Nat) (op : Nat → Nat) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appArg! | return .continue
   return .done <| toExpr (op n)
 
-@[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
   return .done <| toExpr (op n m)
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM Step := do
+@[inline] private def reduceBinPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
   evalPropStep e (op n m)
 
-@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBoolPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
@@ -174,22 +179,22 @@ private def mkOfDecideEqTrue (p : Expr) : MetaM Expr := do
   let d ← Meta.mkDecide p
   pure <| mkAppN (mkConst ``of_decide_eq_true) #[p, d.appArg!, (← Meta.mkEqRefl (mkConst ``true))]
 
-def applySimprocConst (expr : Expr) (nm : Name) (args : Array Expr) : SimpM Step := do
+private def applySimprocConst (expr : Expr) (nm : Name) (args : Array Expr) : SimpM Step := do
   unless (← getEnv).contains nm do return .continue
   let finProof := mkAppN (mkConst nm) args
   return .visit { expr, proof? := finProof, cache := true }
 
-inductive EqResult where
+private inductive EqResult where
 | decide (b : Bool) : EqResult
 | false (p : Expr) : EqResult
 | eq (x y : Expr) (p : Expr) : EqResult
 
-def applyEqLemma (e : Expr → EqResult) (lemmaName : Name) (args : Array Expr) : SimpM (Option EqResult) := do
+private def applyEqLemma (e : Expr → EqResult) (lemmaName : Name) (args : Array Expr) : SimpM (Option EqResult) := do
   unless (← getEnv).contains lemmaName do
     return none
   return .some (e (mkAppN (mkConst lemmaName) args))
 
-def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
+private def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
   /-
   **TODO**: These proofs rely too much on definitional equality.
   Example:
@@ -280,7 +285,7 @@ builtin_simproc [simp, seval] reduceBneDiff ((_ : Nat) != _) := fun e => do
     let q := mkAppN (mkConst ``Nat.Simproc.bneEqOfEqEq) #[x, y, u, v, p]
     return .visit { expr := mkBneNat u v, proof? := some q, cache := true }
 
-def reduceLTLE (nm : Name) (arity : Nat) (isLT : Bool) (e : Expr) : SimpM Step := do
+private def reduceLTLE (nm : Name) (arity : Nat) (isLT : Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity nm arity do
     return .continue
   let x := e.appFn!.appArg!

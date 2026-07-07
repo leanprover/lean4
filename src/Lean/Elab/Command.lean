@@ -891,11 +891,13 @@ such as `open` and `namespace` commands,
 only have an effect for the remainder of the `CommandElabM` computation passed here,
 and do not affect subsequent commands.
 
-*Warning:* when using this from `MetaM` monads, the caches are *not* reset.
-If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
-to reset the type class resolution cache.
-While the `modifyEnv` function for `MetaM` clears its `Meta.Cache` caches,
+*Warning:* when using this from `MetaM` monads, the `Meta.Cache` caches are *not* reset.
+While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
+The type class resolution cache is reset automatically if the command adds or erases instances,
+but for other changes affecting typeclass resolution (e.g. activating scoped instances via `open`
+or reducibility attributes of pre-existing declarations) you should use
+`Lean.Meta.resetSynthInstanceCache`.
 -/
 def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : CoreM α := do
   -- `observing` ensures that if `cmd` throws an exception we still thread state back to `CoreM`.

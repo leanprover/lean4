@@ -879,19 +879,7 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   check result
   return some result
 
-/--
-Cache for `synthInstance` results. It is stored in an environment extension instead of
-`Meta.Cache` so that it persists across commands; it is not stored in `.olean` files.
-
-**Warning**: The cache is currently *not* invalidated automatically. Changes that can affect
-typeclass resolution results after a query has been cached, e.g. instance additions or erasures,
-scoped instance activation, or reducibility status changes, require an explicit
-`resetSynthInstanceCache`.
--/
-builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep local
-
-/-- Returns the type class resolution cache entry for `key`. -/
+/-- Returns the type class resolution cache entry for `key`; see `synthInstanceCacheExt`. -/
 private def findCachedResult? (key : SynthInstanceCacheKey) :
     MetaM (Option (Option AbstractMVarsResult)) :=
   return synthInstanceCacheExt.getState (← getEnv) |>.find? key
@@ -904,10 +892,6 @@ private def insertCachedResult (key : SynthInstanceCacheKey) (result? : Option A
     MetaM Unit :=
   modifyThe Core.State fun s =>
     { s with env := synthInstanceCacheExt.modifyState s.env (·.insert key result?) }
-
-/-- Resets the type class resolution cache; see `synthInstanceCacheExt`. -/
-def resetSynthInstanceCache : CoreM Unit :=
-  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.

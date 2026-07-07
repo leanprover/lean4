@@ -101,6 +101,25 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
       else ⟨none, none, some e⟩
   }
 
+/--
+Cache for `synthInstance` results; see `Lean.Meta.SynthInstance`. It is stored in an environment
+extension so that it persists across commands; it is not stored in `.olean` files. It is
+registered in this module so that `addInstance` can invalidate it.
+-/
+builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep local
+
+/--
+Resets the type class resolution cache.
+
+The cache is reset automatically when an instance is added via `addInstance` or erased. Other
+changes that may affect typeclass resolution, e.g. activating scoped instances via `open`,
+closing a section containing local instances, or changing the reducibility status of a
+pre-existing declaration, require calling this function explicitly.
+-/
+def resetSynthInstanceCache : CoreM Unit :=
+  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
+
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
   withNewMCtxDepth do
@@ -292,6 +311,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+  resetSynthInstanceCache
 
 /-
 Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
@@ -341,6 +361,7 @@ builtin_initialize
       let s := instanceExtension.getState (← getEnv)
       let s ← s.erase declName
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
+      resetSynthInstanceCache
   }
 
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=

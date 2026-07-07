@@ -77,15 +77,28 @@ structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
+  /--
+  Names of instances added with the `local` attribute kind into this state, in insertion order.
+  Local instances are delimited by their surrounding scope, which restores the previous
+  `Instances` state (and thereby the previous value of this field) when it is closed. The field
+  is part of the type class resolution cache key (`SynthInstanceCacheKey.localAttrInsts`), so
+  cache entries never leak into or out of scopes with local instances.
+  -/
+  localInstanceNames : Array Name := #[]
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+  let d := if e.attrKind matches .local then
+    { d with localInstanceNames := d.localInstanceNames.push (e.globalName?.getD .anonymous) }
+  else
+    d
   match e.globalName? with
   | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
-  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
+  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName,
+           localInstanceNames := d.localInstanceNames.filter (· != declName) }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do

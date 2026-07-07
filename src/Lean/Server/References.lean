@@ -218,6 +218,8 @@ structure Ilean where
 
 namespace Ilean
 
+open Lean.IO
+
 /-- Reads and parses the .ilean file at `path`. -/
 def load (path : System.FilePath) : IO Ilean := do
   let content ← FS.readFile path

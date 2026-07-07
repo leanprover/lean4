@@ -15,7 +15,9 @@ public import Lean.Server.InfoUtils
 
 public section
 
-namespace IO
+open IO FS
+
+namespace Lean.IO
 
 /-- Throws an `IO.userError`. -/
 def throwServerError (err : String) : IO α :=
@@ -68,7 +70,7 @@ def withPrefix (a : Stream) (pre : String) : Stream :=
       a.putStr (pre ++ s) }
 
 end FS.Stream
-end IO
+end Lean.IO
 
 namespace Lean.Server
 

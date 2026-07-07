@@ -69,7 +69,7 @@ state.
 
 namespace Lean.Server.Watchdog
 
-open Lean
+open Lean IO
 open _root_.IO
 open Lsp
 open JsonRpc

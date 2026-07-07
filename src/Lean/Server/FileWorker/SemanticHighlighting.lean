@@ -492,25 +492,141 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
       return tokens
     return tokens.push { stx, type := keywordSemanticTokenMap.getD val .keyword }
 
+private partial def forallBody : Expr → Expr
+  | .forallE _ _ body _ => forallBody body
+  | type => type
+
+private def typeForSortResult? (type : Expr) : Option SemanticTokenType :=
+  match forallBody type with
+  | .sort u =>
+    if u.isAlwaysZero then
+      some .enum
+    else
+      some .type
+  | _ => none
+
+private partial def typeExprResult? (env : Environment) (lctx : LocalContext) (type : Expr) :
+    Option SemanticTokenType :=
+  match typeForSortResult? type with
+  | some tokenType => some tokenType
+  | none =>
+    match type.getAppFn with
+    | .const declName us =>
+      match env.find? declName with
+      | some info => typeForSortResult? (info.instantiateTypeLevelParams us)
+      | none => none
+    | .fvar fvarId =>
+      match lctx.find? fvarId with
+      | some localDecl => typeForSortResult? localDecl.type
+      | none => none
+    | _ => none
+
+private def classifyLocal (env : Environment) (ti : Elab.TermInfo) (localDecl : LocalDecl) :
+    Option SemanticTokenType := Id.run do
+  let localType := localDecl.type
+  -- Recall that `isAuxDecl` is used for declarations currently being elaborated, e.g. recursive
+  -- functions and inductive types while their constructors are being processed.
+  if localDecl.isAuxDecl then
+    if let some tokenType := typeForSortResult? localType then
+      return some tokenType
+    else
+      return some .function
+  if let some tokenType := typeForSortResult? localType then
+    if localType.isSort && tokenType == .type then
+      return some .typeParameter
+    else
+      return some tokenType
+  if localDecl.isImplementationDetail then
+    return none
+  if typeExprResult? env ti.lctx localType == some .enum then
+    return some .variable
+  if ti.isBinder then
+    return some .parameter
+  return some .variable
+
+private def classifyConstant (env : Environment) (declName : Name) (info : ConstantInfo) (expr : Expr) :
+    SemanticTokenType :=
+  if env.isProjectionFn declName then
+    .property
+  else match info with
+  | .ctorInfo _ => .enumMember
+  | .inductInfo info =>
+    if isClass env info.name then
+      .interface
+    else if isStructure env info.name then
+      .struct
+    else if let some tokenType := typeExprResult? env {} expr then
+      tokenType
+    else
+      .type
+  | .thmInfo _ | .recInfo _ => .function
+  | _ =>
+    if let some tokenType := typeExprResult? env {} expr then
+      tokenType
+    else
+      .function
+
+private def findConstInfoWithEnv? (ctx : Elab.ContextInfo) (declName : Name) :
+    Option (Environment × ConstantInfo) :=
+  match ctx.env.find? declName with
+  | some info => some (ctx.env, info)
+  | none => ctx.cmdEnv?.bind fun env => (env.find? declName).map (env, ·)
+
+private def getSemanticTokenSyntax (stx : Syntax) : Syntax :=
+  match stx with
+  | `(Parser.Command.declId|$id$[.{$_ls,*}]?) => id.raw
+  | _ => stx
+
+private def getAppFnSyntax? (stx : Syntax) : Option Syntax :=
+  if stx.isOfKind ``Parser.Term.app then
+    some stx[0]
+  else
+    none
+
+private def collectTermInfoBasedSemanticToken (ctx : Elab.ContextInfo) (ti : Elab.TermInfo) :
+    Option LeanSemanticToken := Id.run do
+  let stx := getSemanticTokenSyntax ti.stx
+  if ti.expr.isSort then
+    let .original .. := stx.getHeadInfo
+      | return none
+    return some { stx, type := .class }
+  if stx.getKind == Parser.Term.identProjKind then
+    let .original .. := stx.getHeadInfo
+      | return none
+    return some { stx, type := .property }
+  match ti.expr.getAppFn with
+  | Expr.fvar fvarId .. =>
+    let some localDecl := ti.lctx.find? fvarId
+      | return none
+    let some stx :=
+      if let `($_:ident) := stx then
+        some stx
+      else if localDecl.isAuxDecl then
+        getAppFnSyntax? stx
+      else
+        none
+      | return none
+    let .original .. := stx.getHeadInfo
+      | return none
+    let `($_:ident) := stx
+      | return none
+    return (classifyLocal ctx.env ti localDecl).map fun tokenType => ⟨stx, tokenType, 5⟩
+  | Expr.const declName .. =>
+    let `($_:ident) := stx
+      | return none
+    let .original .. := stx.getHeadInfo
+      | return none
+    match findConstInfoWithEnv? ctx declName with
+    | some (env, info) => return some ⟨stx, classifyConstant env declName info ti.expr, 5⟩
+    | none => return none
+  | _ => return none
+
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=
-  List.toArray <| i.deepestNodes fun _ info _ => do
+  List.toArray <| i.deepestNodes fun ctx info _ => do
     let .ofTermInfo ti := info
       | none
-    let .original .. := ti.stx.getHeadInfo
-      | none
-    if let `($_:ident) := ti.stx then
-      if let Expr.fvar fvarId .. := ti.expr then
-        if let some localDecl := ti.lctx.find? fvarId then
-          -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
-          if localDecl.isAuxDecl then
-            if ti.isBinder then
-              return { stx := ti.stx, type := SemanticTokenType.function }
-          else if ! localDecl.isImplementationDetail then
-            return { stx := ti.stx, type := SemanticTokenType.variable }
-    if ti.stx.getKind == Parser.Term.identProjKind then
-      return {stx := ti.stx, type := SemanticTokenType.property }
-    none
+    collectTermInfoBasedSemanticToken ctx ti
 
 /--
 A debugging utility for inspecting sets of collected tokens, classified by line and sorted by

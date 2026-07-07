@@ -1798,7 +1798,7 @@ def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedReg
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
   particular, `env` should be the last reference to any `Environment` derived from these imports. -/
-@[noinline]
+@[noinline, export lean_environment_free_regions]
 unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
   /-
     NOTE: This assumes `env` is not inferred as a borrowed parameter, and is freed after extracting the `header` field.

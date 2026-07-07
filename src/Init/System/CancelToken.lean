@@ -74,4 +74,8 @@ the callback runs immediately.
 def onSet (tk : CancelToken) (action : BaseIO Unit) : BaseIO Unit :=
   BaseIO.chainTask tk.promise.result? (sync := true) fun _ => action
 
+-- separate definition as otherwise no unboxed version is generated
+@[export lean_io_cancel_token_is_set]
+private def isSetExport := @isSet
+
 end CancelToken

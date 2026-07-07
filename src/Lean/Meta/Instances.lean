@@ -115,9 +115,13 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
   }
 
 /--
-Cache for `synthInstance` results; see `Lean.Meta.SynthInstance`. It is stored in an environment
-extension so that it persists across commands; it is not stored in `.olean` files. It is
-registered in this module so that `addInstance` can invalidate it.
+Persistent tier of the `synthInstance` result cache; see `Lean.Meta.SynthInstance`. It is stored
+in an environment extension so that it persists across commands; it is not stored in `.olean`
+files. It is registered in this module so that `addInstance` can invalidate it.
+
+Only *context-free* entries are stored here: keys without metavariables and closed results.
+Context-sensitive entries (whose validity depends on the ambient metavariable context) live in
+the transient `Meta.Cache.synthInstance` tier instead.
 
 The cache map is stored behind an `IO.Ref` (`none` only as an unreachable `Inhabited` fallback):
 cache *fills* mutate the ref and thus survive elaborator backtracking, like the `Meta.Cache`
@@ -127,8 +131,8 @@ environment is rolled back, e.g. when a speculatively added instance is discarde
 the cache entries that were computed with it.
 
 Note that environment values derived from the same environment share the ref and thus the cache;
-in contexts that should not share the cache with their surroundings (e.g. async elaboration
-branches or incremental reuse across edits), it may need to be replaced explicitly in the future.
+this is sound for context-free entries, but e.g. incremental reuse across edits may require
+replacing the ref explicitly in the future.
 -/
 builtin_initialize synthInstanceCacheExt : EnvExtension (Option (IO.Ref SynthInstanceCache)) ←
   registerEnvExtension (some <$> IO.mkRef {}) (asyncMode := .local)  -- mere cache, keep local

@@ -410,14 +410,18 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
-Cache datastructures for type inference, whnf, and definitional equality.
+Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 
-The type class resolution cache is not part of this structure; it is stored in an environment
-extension so that it persists across commands (see `synthInstanceCacheExt`).
+The `synthInstance` field is only the *transient* tier of the type class resolution cache: it
+holds context-sensitive entries (keys containing metavariables, or results with abstracted
+metavariables), whose validity is tied to the current elaboration context. Context-free entries
+are stored in an environment extension instead so that they persist across commands (see
+`synthInstanceCacheExt`).
 -/
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
+  synthInstance  : SynthInstanceCache := {}
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
@@ -681,13 +685,13 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4⟩ => ⟨f ic, c1, c2, c3, c4⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, defeqTrans, c4⟩ => ⟨c1, c2, c3, f defeqTrans, c4⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqPerm⟩ => ⟨c1, c2, c3, c4, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

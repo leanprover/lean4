@@ -13,6 +13,8 @@ public section
 
 open Lean Meta Simp
 
+namespace Lean
+
 macro "declare_sint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
 let ofInt := typeName.getId ++ `ofInt
@@ -109,6 +111,8 @@ builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do
 
 end $typeName
 )
+
+end Lean
 
 declare_sint_simprocs Int8
 declare_sint_simprocs Int16

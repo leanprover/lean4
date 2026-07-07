@@ -1,6 +1,6 @@
 /-!
-Tests that the type class resolution cache persists across commands and is reset when instances
-are added or erased.
+Tests that the type class resolution cache persists across commands, is reset when instances are
+added or erased, and keys entries by the set of activated scoped instances.
 
 Note that we use `def`s to observe caching across commands: `example`s are elaborated inside
 `withoutModifyingEnv`, so they can read the cache but do not contribute new entries to it.
@@ -75,6 +75,49 @@ trace: [Meta.synthInstance.cache] new: Boo Nat
 -/
 #guard_msgs in
 def b5 : Unit := let _ : Boo Nat := inferInstance; ()
+
+class Doo (α : Type) where
+
+namespace N
+scoped instance dooNat : Doo Nat := ⟨⟩
+end N
+
+/--
+error: failed to synthesize instance of type class
+  Doo Nat
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+trace: [Meta.synthInstance.cache] new: Doo Nat
+-/
+#guard_msgs in
+def d1 : Unit := let _ : Doo Nat := inferInstance; ()
+
+-- Activating a scoped instance via `open` switches to a different cache key partition, so the
+-- cached failure above is not consulted and synthesis succeeds.
+open N in
+/-- trace: [Meta.synthInstance.cache] new: Doo Nat -/
+#guard_msgs in
+def d2 : Unit := let _ : Doo Nat := inferInstance; ()
+
+-- After the scope ends, the entries from before the `open` are valid again.
+/--
+error: failed to synthesize instance of type class
+  Doo Nat
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+trace: [Meta.synthInstance.cache] cached: Doo Nat
+-/
+#guard_msgs in
+def d3 : Unit := let _ : Doo Nat := inferInstance; ()
+
+-- Re-activating the scope makes the entries cached inside the previous `open` valid again.
+open N
+
+/-- trace: [Meta.synthInstance.cache] cached: Doo Nat -/
+#guard_msgs in
+def d4 : Unit := let _ : Doo Nat := inferInstance; ()
 
 -- `synthInstance.maxSize` is part of the cache key, so cached results (in particular failures)
 -- obtained under a different size limit are not reused.

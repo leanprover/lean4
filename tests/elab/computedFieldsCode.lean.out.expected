@@ -111,49 +111,54 @@
       let x_5 : tobj := Exp.ctorElim._redArg x_2 x_4;
       ret x_5
 [Compiler.IR] [result]
-    def Exp.casesOn._override._redArg (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : @& tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) : tobj :=
-      case x_1 : tobj of
+    def Exp.casesOn._override._redArg (x_1 : @& tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : @& tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) : tobj :=
+      let x_9 : tobj := unsafeCast._redArg x_1;
+      case x_9 : tobj of
       Exp.var._impl →
         dec x_3;
-        let x_9 : u32 := sproj[0, 8] x_1;
-        dec x_1;
-        let x_10 : tobj := box x_9;
-        let x_11 : tobj := app x_2 x_10;
-        ret x_11
+        let x_10 : u32 := sproj[0, 8] x_9;
+        dec x_9;
+        let x_11 : tobj := box x_10;
+        let x_12 : tobj := app x_2 x_11;
+        let x_13 : tobj := unsafeCast._redArg x_12;
+        dec x_12;
+        ret x_13
       Exp.app._impl →
         dec x_2;
-        let x_12 : tobj := proj[0] x_1;
-        inc x_12;
-        let x_13 : tobj := proj[1] x_1;
-        inc x_13;
-        dec x_1;
-        let x_14 : tobj := app x_3 x_12 x_13;
-        ret x_14
+        let x_14 : tobj := proj[0] x_9;
+        inc x_14;
+        let x_15 : tobj := proj[1] x_9;
+        inc x_15;
+        dec x_9;
+        let x_16 : tobj := app x_3 x_14 x_15;
+        let x_17 : tobj := unsafeCast._redArg x_16;
+        dec x_16;
+        ret x_17
       Exp.a1._impl →
         dec x_3;
         dec x_2;
-        inc x_4;
-        ret x_4
+        let x_18 : tobj := unsafeCast._redArg x_4;
+        ret x_18
       Exp.a2._impl →
         dec x_3;
         dec x_2;
-        inc x_5;
-        ret x_5
+        let x_19 : tobj := unsafeCast._redArg x_5;
+        ret x_19
       Exp.a3._impl →
         dec x_3;
         dec x_2;
-        inc x_6;
-        ret x_6
+        let x_20 : tobj := unsafeCast._redArg x_6;
+        ret x_20
       Exp.a4._impl →
         dec x_3;
         dec x_2;
-        inc x_7;
-        ret x_7
+        let x_21 : tobj := unsafeCast._redArg x_7;
+        ret x_21
       Exp.a5._impl →
         dec x_3;
         dec x_2;
-        inc x_8;
-        ret x_8
+        let x_22 : tobj := unsafeCast._redArg x_8;
+        ret x_22
     def Exp.casesOn._override._redArg._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) (x_6 : tobj) (x_7 : tobj) (x_8 : tobj) : tobj :=
       let x_9 : tobj := Exp.casesOn._override._redArg x_1 x_2 x_3 x_4 x_5 x_6 x_7 x_8;
       dec x_8;
@@ -161,51 +166,57 @@
       dec x_6;
       dec x_5;
       dec x_4;
+      dec x_1;
       ret x_9
 [Compiler.IR] [result]
-    def Exp.casesOn._override (x_1 : ◾) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) (x_9 : @& tobj) : tobj :=
-      case x_2 : tobj of
+    def Exp.casesOn._override (x_1 : ◾) (x_2 : @& tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) (x_9 : @& tobj) : tobj :=
+      let x_10 : tobj := unsafeCast._redArg x_2;
+      case x_10 : tobj of
       Exp.var._impl →
         dec x_4;
-        let x_10 : u32 := sproj[0, 8] x_2;
-        dec x_2;
-        let x_11 : tobj := box x_10;
-        let x_12 : tobj := app x_3 x_11;
-        ret x_12
+        let x_11 : u32 := sproj[0, 8] x_10;
+        dec x_10;
+        let x_12 : tobj := box x_11;
+        let x_13 : tobj := app x_3 x_12;
+        let x_14 : tobj := unsafeCast._redArg x_13;
+        dec x_13;
+        ret x_14
       Exp.app._impl →
         dec x_3;
-        let x_13 : tobj := proj[0] x_2;
-        inc x_13;
-        let x_14 : tobj := proj[1] x_2;
-        inc x_14;
-        dec x_2;
-        let x_15 : tobj := app x_4 x_13 x_14;
-        ret x_15
+        let x_15 : tobj := proj[0] x_10;
+        inc x_15;
+        let x_16 : tobj := proj[1] x_10;
+        inc x_16;
+        dec x_10;
+        let x_17 : tobj := app x_4 x_15 x_16;
+        let x_18 : tobj := unsafeCast._redArg x_17;
+        dec x_17;
+        ret x_18
       Exp.a1._impl →
         dec x_4;
         dec x_3;
-        inc x_5;
-        ret x_5
+        let x_19 : tobj := unsafeCast._redArg x_5;
+        ret x_19
       Exp.a2._impl →
         dec x_4;
         dec x_3;
-        inc x_6;
-        ret x_6
+        let x_20 : tobj := unsafeCast._redArg x_6;
+        ret x_20
       Exp.a3._impl →
         dec x_4;
         dec x_3;
-        inc x_7;
-        ret x_7
+        let x_21 : tobj := unsafeCast._redArg x_7;
+        ret x_21
       Exp.a4._impl →
         dec x_4;
         dec x_3;
-        inc x_8;
-        ret x_8
+        let x_22 : tobj := unsafeCast._redArg x_8;
+        ret x_22
       Exp.a5._impl →
         dec x_4;
         dec x_3;
-        inc x_9;
-        ret x_9
+        let x_23 : tobj := unsafeCast._redArg x_9;
+        ret x_23
     def Exp.casesOn._override._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) (x_6 : tobj) (x_7 : tobj) (x_8 : tobj) (x_9 : tobj) : tobj :=
       let x_10 : tobj := Exp.casesOn._override x_1 x_2 x_3 x_4 x_5 x_6 x_7 x_8 x_9;
       dec x_9;
@@ -213,6 +224,7 @@
       dec x_7;
       dec x_6;
       dec x_5;
+      dec x_2;
       ret x_10
 [Compiler.IR] [result]
     def Exp.var._override (x_1 : u32) : tobj :=
@@ -222,7 +234,9 @@
       let x_5 : obj := ctor_0.0.12[Exp.var._impl];
       sset x_5[0, 0] : u64 := x_4;
       sset x_5[0, 8] : u32 := x_1;
-      ret x_5
+      let x_6 : tobj := unsafeCast._redArg x_5;
+      dec x_5;
+      ret x_6
     def Exp.var._override._boxed (x_1 : tobj) : tobj :=
       let x_2 : u32 := unbox x_1;
       dec x_1;
@@ -230,16 +244,20 @@
       ret x_3
 [Compiler.IR] [result]
     def Exp.hash._override (x_1 : @& tobj) : u64 :=
-      case x_1 : tobj of
+      let x_2 : tobj := unsafeCast._redArg x_1;
+      case x_2 : tobj of
       Exp.var._impl →
-        let x_2 : u64 := sproj[0, 0] x_1;
-        ret x_2
-      Exp.app._impl →
-        let x_3 : u64 := sproj[2, 0] x_1;
+        let x_3 : u64 := sproj[0, 0] x_2;
+        dec x_2;
         ret x_3
-      default →
-        let x_4 : u64 := 42;
+      Exp.app._impl →
+        let x_4 : u64 := sproj[2, 0] x_2;
+        dec x_2;
         ret x_4
+      default →
+        dec x_2;
+        let x_5 : u64 := 42;
+        ret x_5
     def Exp.hash._override._boxed (x_1 : tobj) : obj :=
       let x_2 : u64 := Exp.hash._override x_1;
       dec x_1;
@@ -252,26 +270,53 @@
       let x_5 : u64 := mixHash x_3 x_4;
       let x_6 : obj := ctor_1.0.8[Exp.app._impl] x_1 x_2;
       sset x_6[2, 0] : u64 := x_5;
-      ret x_6
+      let x_7 : tobj := unsafeCast._redArg x_6;
+      dec x_6;
+      ret x_7
 [Compiler.IR] [result]
-    def Exp.a1._override : tobj :=
+    def Exp.a1._override._closed_0 : tobj :=
       let x_1 : tagged := ctor_2[Exp.a1._impl];
+      let x_2 : tobj := unsafeCast._redArg x_1;
+      ret x_2
+    def Exp.a1._override : tobj :=
+      let x_1 : tobj := Exp.a1._override._closed_0;
+      inc x_1;
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a2._override : tobj :=
+    def Exp.a2._override._closed_0 : tobj :=
       let x_1 : tagged := ctor_3[Exp.a2._impl];
+      let x_2 : tobj := unsafeCast._redArg x_1;
+      ret x_2
+    def Exp.a2._override : tobj :=
+      let x_1 : tobj := Exp.a2._override._closed_0;
+      inc x_1;
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a3._override : tobj :=
+    def Exp.a3._override._closed_0 : tobj :=
       let x_1 : tagged := ctor_4[Exp.a3._impl];
+      let x_2 : tobj := unsafeCast._redArg x_1;
+      ret x_2
+    def Exp.a3._override : tobj :=
+      let x_1 : tobj := Exp.a3._override._closed_0;
+      inc x_1;
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a4._override : tobj :=
+    def Exp.a4._override._closed_0 : tobj :=
       let x_1 : tagged := ctor_5[Exp.a4._impl];
+      let x_2 : tobj := unsafeCast._redArg x_1;
+      ret x_2
+    def Exp.a4._override : tobj :=
+      let x_1 : tobj := Exp.a4._override._closed_0;
+      inc x_1;
       ret x_1
 [Compiler.IR] [result]
-    def Exp.a5._override : tobj :=
+    def Exp.a5._override._closed_0 : tobj :=
       let x_1 : tagged := ctor_6[Exp.a5._impl];
+      let x_2 : tobj := unsafeCast._redArg x_1;
+      ret x_2
+    def Exp.a5._override : tobj :=
+      let x_1 : tobj := Exp.a5._override._closed_0;
+      inc x_1;
       ret x_1
 [Compiler.IR] [result]
     def f._closed_0 : tobj :=
@@ -279,8 +324,9 @@
       let x_2 : tobj := Exp.var._override x_1;
       ret x_2
     def f._closed_1 : tobj :=
-      let x_1 : tagged := ctor_5[Exp.a4._impl];
+      let x_1 : tobj := Exp.a4._override._closed_0;
       let x_2 : tobj := f._closed_0;
+      inc x_1;
       inc x_2;
       let x_3 : tobj := Exp.app._override x_2 x_1;
       ret x_3

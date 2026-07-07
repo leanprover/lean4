@@ -3686,6 +3686,7 @@ the current runtime:
   (i.e. a function that accepts an arbitrary type `α` and is not specialized to
   a scalar type like `UInt8`).
 -/
+@[noinline]
 unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
   PLift.down (ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} (PLift.up a))))
 

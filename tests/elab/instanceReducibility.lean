@@ -24,7 +24,7 @@ inferInstance
 warning: instance `_private.elab.instanceReducibility.0.i3` must be marked with `@[reducible]`, `@[instance_reducible]` or `@[implicit_reducible]`
 -/
 #guard_msgs in
-@[irreducible] instance i3 : Inhabited Nat := inferInstance
+@[semireducible] instance i3 : Inhabited Nat := inferInstance
 
 /--
 info: @[irreducible] private def i3 : Inhabited Nat :=
@@ -32,3 +32,7 @@ inferInstance
 -/
 #guard_msgs in
 #print i3
+
+#guard_msgs in
+set_option warn.classDefReducibility false in
+@[irreducible] instance i4 : Inhabited Nat := inferInstance

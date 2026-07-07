@@ -105,12 +105,23 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
 Cache for `synthInstance` results; see `Lean.Meta.SynthInstance`. It is stored in an environment
 extension so that it persists across commands; it is not stored in `.olean` files. It is
 registered in this module so that `addInstance` can invalidate it.
+
+The cache map is stored behind an `IO.Ref` (`none` only as an unreachable `Inhabited` fallback):
+cache *fills* mutate the ref and thus survive elaborator backtracking, like the `Meta.Cache`
+caches, which are deliberately not restored by `Meta.SavedState.restore` either. *Invalidation*
+replaces the ref, which is an environment modification and is thus correctly reverted when the
+environment is rolled back, e.g. when a speculatively added instance is discarded together with
+the cache entries that were computed with it.
+
+Note that environment values derived from the same environment share the ref and thus the cache;
+in contexts that should not share the cache with their surroundings (e.g. async elaboration
+branches or incremental reuse across edits), it may need to be replaced explicitly in the future.
 -/
-builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep local
+builtin_initialize synthInstanceCacheExt : EnvExtension (Option (IO.Ref SynthInstanceCache)) ←
+  registerEnvExtension (some <$> IO.mkRef {}) (asyncMode := .local)  -- mere cache, keep local
 
 /--
-Resets the type class resolution cache.
+Resets the type class resolution cache by replacing its `IO.Ref`.
 
 The cache is reset automatically when an instance is added via `addInstance` or erased, and
 activation of scoped instances is accounted for in the cache key
@@ -118,8 +129,9 @@ activation of scoped instances is accounted for in the cache key
 e.g. closing a section containing local instances or changing the reducibility status of a
 pre-existing declaration, require calling this function explicitly.
 -/
-def resetSynthInstanceCache : CoreM Unit :=
-  modify fun s => { s with env := synthInstanceCacheExt.setState s.env {} }
+def resetSynthInstanceCache : CoreM Unit := do
+  let ref ← IO.mkRef {}
+  modify fun s => { s with env := synthInstanceCacheExt.setState s.env (some ref) }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e

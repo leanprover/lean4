@@ -881,17 +881,18 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
 
 /-- Returns the type class resolution cache entry for `key`; see `synthInstanceCacheExt`. -/
 private def findCachedResult? (key : SynthInstanceCacheKey) :
-    MetaM (Option (Option AbstractMVarsResult)) :=
-  return synthInstanceCacheExt.getState (← getEnv) |>.find? key
+    MetaM (Option (Option AbstractMVarsResult)) := do
+  let some ref := synthInstanceCacheExt.getState (← getEnv) | return none
+  return (← ref.get).find? key
 
 /--
-Inserts a result into the type class resolution cache. The environment is modified directly
-instead of via `modifyEnv`, which would reset the `Meta.Cache` caches.
+Inserts a result into the type class resolution cache. The insertion mutates the cache ref
+instead of the environment, so it survives environment rollbacks; see `synthInstanceCacheExt`.
 -/
 private def insertCachedResult (key : SynthInstanceCacheKey) (result? : Option AbstractMVarsResult) :
-    MetaM Unit :=
-  modifyThe Core.State fun s =>
-    { s with env := synthInstanceCacheExt.modifyState s.env (·.insert key result?) }
+    MetaM Unit := do
+  let some ref := synthInstanceCacheExt.getState (← getEnv) | return ()
+  ref.modify (·.insert key result?)
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.

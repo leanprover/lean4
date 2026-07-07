@@ -941,6 +941,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let { type, cacheKeyType, kind } ← preprocess type
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
                       activeScopedInsts := instanceExtension.getActiveScopesWithEntries (← getEnv),
+                      localAttrInsts := instanceExtension.getState (← getEnv) |>.localInstanceNames,
                       maxResultSize,
                       canonInstances := backward.synthInstance.canonInstances.get opts,
                       isExporting := (← getEnv).isExporting }

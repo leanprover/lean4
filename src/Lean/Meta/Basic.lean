@@ -340,6 +340,13 @@ structure SynthInstanceCacheKey where
   -/
   activeScopedInsts : Array Name
   /--
+  Instances currently added with the `local` attribute kind (`Instances.localInstanceNames`).
+  Like `activeScopedInsts`, keying the cache by this set keeps entries from outside a scope
+  containing `attribute [local instance]` valid after the scope ends, and prevents entries
+  computed with the local instance from leaking out of the scope.
+  -/
+  localAttrInsts    : Array Name
+  /--
   Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
   The cache persists across commands, so results (in particular failures) obtained under a
   different size limit must not be reused.

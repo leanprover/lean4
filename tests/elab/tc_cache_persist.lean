@@ -1,9 +1,11 @@
 /-!
 Tests that the type class resolution cache persists across commands, is reset when instances are
-added or erased, and keys entries by the set of activated scoped instances.
+added or erased, and keys entries by the set of activated scoped instances and of local
+instances.
 
-Note that we use `def`s to observe caching across commands: `example`s are elaborated inside
-`withoutModifyingEnv`, so they can read the cache but do not contribute new entries to it.
+Since cache fills mutate a ref instead of the environment, they survive environment rollbacks;
+in particular `example`s (which are elaborated inside `withoutModifyingEnv`) contribute entries
+as well.
 -/
 
 set_option trace.Meta.synthInstance.cache true
@@ -118,6 +120,50 @@ open N
 /-- trace: [Meta.synthInstance.cache] cached: Doo Nat -/
 #guard_msgs in
 def d4 : Unit := let _ : Doo Nat := inferInstance; ()
+
+-- Local instances are part of the cache key as well, so entries computed with a local instance
+-- do not leak out of its scope.
+class Eoo (α : Type) where
+
+@[instance_reducible] def eooNat : Eoo Nat := ⟨⟩
+
+section
+attribute [local instance] eooNat
+
+/-- trace: [Meta.synthInstance.cache] new: Eoo Nat -/
+#guard_msgs in
+def e1 : Unit := let _ : Eoo Nat := inferInstance; ()
+
+/-- trace: [Meta.synthInstance.cache] cached: Eoo Nat -/
+#guard_msgs in
+def e2 : Unit := let _ : Eoo Nat := inferInstance; ()
+
+end
+
+/--
+error: failed to synthesize instance of type class
+  Eoo Nat
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+trace: [Meta.synthInstance.cache] new: Eoo Nat
+-/
+#guard_msgs in
+def e3 : Unit := let _ : Eoo Nat := inferInstance; ()
+
+-- `example`s contribute cache entries: their environment changes are reverted, but cache fills
+-- survive.
+class Foo (α : Type) where
+
+instance : Foo Nat := ⟨⟩
+
+/-- trace: [Meta.synthInstance.cache] new: Foo Nat -/
+#guard_msgs in
+example : Foo Nat := inferInstance
+
+/-- trace: [Meta.synthInstance.cache] cached: Foo Nat -/
+#guard_msgs in
+def f1 : Unit := let _ : Foo Nat := inferInstance; ()
 
 -- `synthInstance.maxSize` is part of the cache key, so cached results (in particular failures)
 -- obtained under a different size limit are not reused.

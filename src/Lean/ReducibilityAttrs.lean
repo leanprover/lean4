@@ -100,9 +100,6 @@ private def setReducibilityStatusCore (env : Environment) (declName : Name) (sta
     -- `scoped` and `local` must be handled by `reducibilityExtraExt`
     reducibilityExtraExt.addCore env (declName, status) attrKind currNamespace
 
-private def setReducibilityStatusImp (env : Environment) (declName : Name) (status : ReducibilityStatus) : Environment :=
-  setReducibilityStatusCore env declName status .global .anonymous
-
 /-
 TODO: it would be great if we could distinguish between the following two situations
 

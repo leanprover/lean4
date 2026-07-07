@@ -471,10 +471,6 @@ def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   | some attr => pure attr
   | none      => throw (IO.userError s!"Unknown attribute `{attrName}`")
 
-def getBuiltinAttributeApplicationTime (n : Name) : IO AttributeApplicationTime := do
-  let attr ← getBuiltinAttributeImpl n
-  pure attr.applicationTime
-
 def isAttribute (env : Environment) (attrName : Name) : Bool :=
   (attributeExtension.getState env).map.contains attrName
 

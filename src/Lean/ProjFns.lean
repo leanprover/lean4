@@ -27,11 +27,6 @@ structure ProjectionFunctionInfo where
   fromClass : Bool
   deriving Inhabited, Repr
 
-def mkProjectionInfoEx (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : ProjectionFunctionInfo :=
-  { ctorName, numParams, i, fromClass }
-def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
-  info.fromClass
-
 builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension
 
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : Environment :=

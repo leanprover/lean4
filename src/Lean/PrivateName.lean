@@ -34,9 +34,6 @@ def isPrivateName : Name → Bool
   | .num p _     => isPrivateName p
   | _            => false
 
-def isPrivateNameExport (n : Name) : Bool :=
-  isPrivateName n
-
 /--
 Return `true` if `n` is of the form `_private.<module_name>.0`
 See comment above.

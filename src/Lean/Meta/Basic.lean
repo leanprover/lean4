@@ -329,14 +329,17 @@ structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
   type              : Expr
   /--
-  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized,
-  or `none` if the result is depth-invariant.
+  Value of `synthPendingDepth` when the instance was synthesized or failed to be
+  synthesized, or `none` if the result can be reused at other depths.
 
   `synthPendingDepth` can influence the result of a query because `synthPending` gives up
   when `synthPendingDepth > maxSynthPendingDepth`, so a result may not be reused at a
   different depth (see issue #2522). However, this is the *only* way the depth can influence
-  a query. Thus, if no `synthPending` decision was reached while synthesizing an instance,
-  the result is valid at every depth and is stored with `synthPendingDepth := none`.
+  a query. Thus, if no `synthPending` invocation gave up while synthesizing an instance, the
+  result is valid at every depth at which the guard still cannot trigger, and is stored with
+  `synthPendingDepth := none` together with a validity bound in the cache entry (see
+  `SynthInstanceCacheEntry.relSynthPendingDepth`). Only results whose synthesis hit the
+  give-up threshold remain keyed by their exact depth.
   -/
   synthPendingDepth : Option Nat
   deriving Hashable, BEq
@@ -351,7 +354,20 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/-- Entry of the type class resolution cache. -/
+structure SynthInstanceCacheEntry where
+  /--
+  Maximum `synthPendingDepth` at which a `synthPending` decision was reached during the
+  synthesis, relative to the query's own `synthPendingDepth`, or `none` if no such decision
+  was reached. An entry stored under `synthPendingDepth := none` may be reused by a query at
+  depth `d` iff `relSynthPendingDepth` is `none` or `d + relSynthPendingDepth` does not
+  exceed `maxSynthPendingDepth`: under that bound no `synthPending` invocation can reach the
+  give-up threshold, so the synthesis behaves identically at depth `d`.
+  -/
+  relSynthPendingDepth : Option Nat := none
+  result               : Option AbstractMVarsResult
+
+abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey SynthInstanceCacheEntry
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -467,6 +483,17 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 }
 
 /--
+Accumulated `synthPending` decisions of a type class query, used by the type class
+resolution cache to bound the `synthPendingDepth` values at which the result may be reused.
+See `SynthInstanceCacheEntry.relSynthPendingDepth`.
+-/
+structure SynthPendingActivity where
+  /-- Maximum `synthPendingDepth` at which a `synthPending` decision was reached. -/
+  maxDepth : Option Nat := none
+  /-- Whether some `synthPending` invocation gave up because of `maxSynthPendingDepth`. -/
+  guardHit : Bool       := false
+
+/--
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
@@ -507,13 +534,14 @@ structure Context where
   -/
   synthPendingDepth : Nat                  := 0
   /--
-  When set, the reference is set to `true` as soon as a `synthPending` decision is reached,
-  i.e. behavior that may depend on `synthPendingDepth`. The type class resolution cache uses
-  this to decide whether a result is depth-invariant; see `SynthInstanceCacheKey.synthPendingDepth`.
+  When set, the reference accumulates the `synthPending` decisions reached during the
+  current type class query, i.e. behavior that may depend on `synthPendingDepth`. The type
+  class resolution cache uses this to decide at which depths a result may be reused; see
+  `SynthInstanceCacheKey.synthPendingDepth` and `SynthInstanceCacheEntry.relSynthPendingDepth`.
   The reference is intentionally not part of the backtrackable state: a `synthPending`
   invocation in a discarded search branch still influenced the search outcome.
   -/
-  synthPendingActivityRef? : Option (IO.Ref Bool) := none
+  synthPendingActivityRef? : Option (IO.Ref SynthPendingActivity) := none
   /--
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/

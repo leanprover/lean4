@@ -5,9 +5,11 @@ Fine-grained `synthPendingDepth` handling in the type-class resolution cache
 (`SynthInstanceCacheKey.synthPendingDepth : Option Nat`).
 
 Cache entries whose synthesis never reached a `synthPending` decision are depth-invariant
-and shared across `synthPendingDepth` levels. Entries whose synthesis did reach one
-(including giving up at `maxSynthPendingDepth`) remain keyed by their exact depth,
-preserving the fix for issue #2522.
+and shared across `synthPendingDepth` levels. Entries whose synthesis reached decisions up
+to relative depth `r` (without any giving up) are shared with queries at depth `d` as long
+as `d + r ≤ maxSynthPendingDepth`, i.e. as long as no decision can come out differently.
+Entries whose synthesis gave up at `maxSynthPendingDepth` remain keyed by their exact
+depth, preserving the fix for issue #2522.
 
 `Meta.synthPending` fires when unification is stuck on a pending instance metavariable,
 e.g. a class projection applied to an unassigned instance mvar. The tests below construct
@@ -82,8 +84,11 @@ run_meta withTCTrace do
 
 /-!
 A local instance of type `Root (LeafT.T (Wr Nat) ?hP)` forces `synthPending ?hP` *inside*
-the search for the rigid goal `Root Nat`, so the entry is depth-sensitive: the depth-0
-entry is reused at depth 0 but not at depth 1.
+the search for the rigid goal `Root Nat`. The `synthPending` decision is reached at
+relative depth 0 and does not give up, so the depth-0 entry is valid for depths `d` with
+`d + 0 ≤ maxSynthPendingDepth`: it is reused at depths 0 and 1, but not at depth 2. (The
+depth-2 recomputation finds `?hP` already assigned by the first query, so it performs no
+`synthPending` at all and its entry is unbounded.)
 -/
 /--
 trace: [Meta.synthInstance.cache] new: Root Nat
@@ -92,7 +97,8 @@ trace: [Meta.synthInstance.cache] new: Root Nat
 [Meta.synthPending] synthPending ?m.1
 [Meta.synthInstance.cache] cached (synthPendingDepth := 1): LeafT (Wr Nat)
 [Meta.synthInstance.cache] cached: Root Nat
-[Meta.synthInstance.cache] new (synthPendingDepth := 1): Root Nat
+[Meta.synthInstance.cache] cached (synthPendingDepth := 1): Root Nat
+[Meta.synthInstance.cache] new (synthPendingDepth := 2): Root Nat
 -/
 #guard_msgs in
 run_meta do
@@ -101,6 +107,7 @@ run_meta do
     discard <| synthInstance? rootNat
     discard <| synthInstance? rootNat
     discard <| atDepth 1 do synthInstance? rootNat
+    discard <| atDepth 2 do synthInstance? rootNat
 
 /-!
 Issue #2522: at depth 2, `synthPending` gives up (`synthPendingDepth > maxSynthPendingDepth`)

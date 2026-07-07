@@ -17,6 +17,7 @@ public section
 
 namespace Lean.Meta.Rewrites
 
+open Lean
 open Lean.Meta.LazyDiscrTree (InitEntry MatchResult)
 open Lean.Meta.SolveByElim
 

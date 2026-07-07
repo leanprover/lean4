@@ -11,6 +11,8 @@ import Lean.Meta.WHNF
 public section
 namespace Lean.Meta
 
+open Lean
+
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"

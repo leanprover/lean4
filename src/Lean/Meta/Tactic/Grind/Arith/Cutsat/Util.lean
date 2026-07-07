@@ -30,6 +30,8 @@ end Int.Internal.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+open Lean
+
 def get' : GoalM State := do
   cutsatExt.getState
 

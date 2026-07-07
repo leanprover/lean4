@@ -334,6 +334,12 @@ structure SynthInstanceCacheKey where
   -/
   synthPendingDepth : Nat
   /--
+  Namespaces with scoped instances that are currently activated (e.g. via `open`), in canonical
+  order. Keying the cache by this set keeps entries from outside a scope valid after the scope
+  ends, e.g. for the `open Classical in` expansion of `by_cases`.
+  -/
+  activeScopedInsts : Array Name
+  /--
   Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
   The cache persists across commands, so results (in particular failures) obtained under a
   different size limit must not be reused.

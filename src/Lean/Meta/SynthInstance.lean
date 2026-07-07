@@ -939,6 +939,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
+                      activeScopedInsts := instanceExtension.getActiveScopesWithEntries (← getEnv),
                       maxResultSize,
                       canonInstances := backward.synthInstance.canonInstances.get opts,
                       isExporting := (← getEnv).isExporting }

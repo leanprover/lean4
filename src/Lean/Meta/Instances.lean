@@ -112,9 +112,10 @@ builtin_initialize synthInstanceCacheExt : EnvExtension SynthInstanceCache ←
 /--
 Resets the type class resolution cache.
 
-The cache is reset automatically when an instance is added via `addInstance` or erased. Other
-changes that may affect typeclass resolution, e.g. activating scoped instances via `open`,
-closing a section containing local instances, or changing the reducibility status of a
+The cache is reset automatically when an instance is added via `addInstance` or erased, and
+activation of scoped instances is accounted for in the cache key
+(`SynthInstanceCacheKey.activeScopedInsts`). Other changes that may affect typeclass resolution,
+e.g. closing a section containing local instances or changing the reducibility status of a
 pre-existing declaration, require calling this function explicitly.
 -/
 def resetSynthInstanceCache : CoreM Unit :=

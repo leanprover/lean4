@@ -80,6 +80,28 @@ builtin_facet input : Module => ModuleInput
 /-- The direct local imports of the Lean module. -/
 builtin_facet imports : Module => Array Module
 
+/-- Dynamic information computed about a module before building. -/
+public structure ModulePreSetup where
+  trace : BuildTrace
+  srcMTime : MTime
+  srcFile : FilePath
+  isModule : Bool
+  directImports : Array ModuleImport
+  directImportArts : NameMap ImportArtifacts
+  plugins : Array Dynlib
+  dynlibs : Array Dynlib
+  leanOptions : LeanOptions
+
+/--
+The computed dynamic configuration of a module.
+
+In the process, this facet will build all of a module's dependencies,
+including transitive imports, plugins, and those specified by `needs`.
+
+**For internal use only.**
+-/
+builtin_facet presetup : Module => ModulePreSetup
+
 /-- The transitive local imports of the Lean module. -/
 builtin_facet transImports : Module => Array Module
 
@@ -138,8 +160,17 @@ namespace Module
 @[inherit_doc precompileImportsFacet] public abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
 
+@[inherit_doc presetupFacet] public abbrev presetup  (self : Module) :=
+  self.facetCore presetupFacet
+
 @[inherit_doc setupFacet] public abbrev setup  (self : Module) :=
   self.facetCore setupFacet
+
+@[inherit_doc depTraceFacet] public abbrev depTrace (self : Module) :=
+  self.facetCore depTraceFacet
+
+@[inherit_doc depHashFacet] public abbrev depHash (self : Module) :=
+  self.facetCore depHashFacet
 
 @[inherit_doc depsFacet] public abbrev deps  (self : Module) :=
   self.facetCore depsFacet

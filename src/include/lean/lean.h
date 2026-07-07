@@ -428,6 +428,15 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
     unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     lean_object* r = lean_alloc_small_object(sz);
     if (sz1 > sz) {
+        /* Initialize last word.
+           In our runtime `lean_object_byte_size` is always
+           a multiple of the machine word size for constructors.
+
+           By setting the last word to 0, we make sure the sharing
+           maximizer procedures at `maxsharing.cpp` and `compact.cpp` are
+           not affected by uninitialized data at the (sz1 - sz) last bytes.
+           Otherwise, we may mistakenly assume to structurally equal
+           objects are not identical because of this uninitialized memory. */
         size_t * end = (size_t*)(((char*)r) + sz1);
         end[-1] = 0;
     }

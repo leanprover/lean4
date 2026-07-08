@@ -237,6 +237,11 @@ def SnapshotTreeTransform.transformSyntax (trans : SnapshotTreeTransform) (stx :
 def SnapshotTreeTransform.transformInfoTree (trans : SnapshotTreeTransform) (t : Elab.InfoTree) : Elab.InfoTree :=
   t.addTrailing trans.addTrailing
 
+/-- Applies the transformation to the given info tree; `none` if the tree is unchanged. -/
+def SnapshotTreeTransform.transformInfoTree? (trans : SnapshotTreeTransform) (t : Elab.InfoTree) :
+    Option Elab.InfoTree :=
+  t.addTrailing? trans.addTrailing
+
 /-- Composes two `SnapshotTreeTransform`s, applying `inner` first and then `outer`. -/
 def SnapshotTreeTransform.compose (outer inner : SnapshotTreeTransform) : SnapshotTreeTransform where
   addTrailing :=
@@ -251,7 +256,9 @@ abbrev ToSnapshotTreeM (α : Type) := ReaderT SnapshotTreeTransform Id α
 def Snapshot.transform (s : Snapshot) : ToSnapshotTreeM Snapshot := do
   if (← read).isIdentity then
     return s
-  return { s with infoTree? := s.infoTree?.map ((← read).transformInfoTree) }
+  match s.infoTree?.bind ((← read).transformInfoTree? ·) with
+  | some t => return { s with infoTree? := some t }
+  | none   => return s
 
 /-- Applies the current `SnapshotTreeTransform` to a `SnapshotTree` and recursively to its children. -/
 partial def SnapshotTree.transform (t : SnapshotTree) : ToSnapshotTreeM SnapshotTree := do

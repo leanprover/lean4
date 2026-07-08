@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Elab.InfoTree.Types
 import Init.Data.Format.Macro
+import Init.Data.Range.Polymorphic.Stream
 import Init.Task
 import Lean.Syntax
 
@@ -176,13 +177,31 @@ private def Info.setStx (stx : Syntax) : Info → Info
   | ofDocInfo i            => ofDocInfo { i with stx }
   | ofDocElabInfo i        => ofDocElabInfo { i with stx }
 
-partial def InfoTree.addTrailing (trailing : Substring.Raw) : Elab.InfoTree → Elab.InfoTree
-  | .context i t => .context i (t.addTrailing trailing)
-  | .node info children =>
-    let stx := info.stx.addTrailing trailing
-    let info := info.setStx stx
+/--
+Adds the given trailing substring to all adjacent syntax in the info tree if any, otherwise returns
+`none`.
+-/
+partial def InfoTree.addTrailing? (trailing : Substring.Raw) : Elab.InfoTree → Option Elab.InfoTree
+  | .context i t => t.addTrailing? trailing |>.map (.context i)
+  | .node info children => Id.run do
+    let stx? := info.stx.addTrailing? trailing
     -- NOTE: we need to visit the children even if `stx` was not actually changed as info trees are
     -- not necessarily properly nested regarding syntax ranges!
-    let newChildren := children.map (·.addTrailing (stx.getTrailing?.getD trailing))
-    .node info newChildren
-  | .hole mvarId => .hole mvarId
+    let childTrailing := (stx?.getD info.stx).getTrailing?.getD trailing
+    let mut changed := false
+    let mut newChildren := children
+    for c in children, i in 0...* do
+      if let some c' := c.addTrailing? childTrailing then
+        changed := true
+        newChildren := newChildren.set i c'
+    if stx?.isNone && !changed then
+      return none
+    let info := match stx? with
+      | some stx => info.setStx stx
+      | none     => info
+    return some (.node info newChildren)
+  | .hole _ => none
+
+/-- Adds the given trailing substring to all adjacent syntax in the info tree. -/
+def InfoTree.addTrailing (trailing : Substring.Raw) (t : Elab.InfoTree) : Elab.InfoTree :=
+  t.addTrailing? trailing |>.getD t

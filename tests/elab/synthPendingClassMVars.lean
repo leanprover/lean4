@@ -1,6 +1,6 @@
 /-!
-Regression test for `SynthInstance.synthPendingClassMVars`: TC goals whose class-parameter
-arguments are pending metavariables.
+Regression test for TC goals whose class-parameter arguments are pending metavariables
+(they rely on the `isDefEq` recheck at the end of `SynthInstance.tryResolve`).
 
 `pred_eq` below is a class projection. Projections demote the class's own parameters to
 plain implicit binders:
@@ -14,10 +14,10 @@ registered as TC problems), and the TC goal for `[self]` is `IsPredArch ι ?pre 
 During the search, matching the candidate `isPredArch_of_linear` pairs the `PredOrder'`
 slot as ⟨candidate's fresh mvar, `?pd`⟩ — an assignment that consumes the slot without
 determining `?pd`. Nothing else in the elaborator is responsible for `?pd` (the `find'`
-wrapper keeps the expected type from fixing it), so unless `tryResolve` synthesizes the
-goal-type class metavariables that the match left undetermined, elaboration ends with
-`?pd` unassigned and this file fails with "don't know how to synthesize implicit
-argument".
+wrapper keeps the expected type from fixing it); the recheck's `isDefEqArgs` second pass
+runs `trySynthPending` on it. If `tryResolve` assigned directly without the recheck,
+elaboration would end with `?pd` unassigned and this file would fail with "don't know how
+to synthesize implicit argument".
 
 Distilled from `Mathlib/Order/SuccPred/LinearLocallyFinite.lean` (`toZ`). Every
 declaration is load-bearing: the projection (a standalone theorem with `[...]` binders

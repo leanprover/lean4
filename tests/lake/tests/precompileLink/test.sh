@@ -19,6 +19,7 @@ test_run -v build Downstream
 
 # Test that imports of precompiled modules absent from their library's shared target
 # load the individual module dynlib.
+PKG=precompileArgs
 test_out "${PKG}_Foo_Detached.$SHARED_LIB_EXT" -v setup-file ImportDetached.lean
 test_out "${PKG}_Foo_Detached.$SHARED_LIB_EXT" -v setup-file Downstream/ImportDetached.lean
 
@@ -28,7 +29,6 @@ test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
 ./clean.sh
 
 # Test that dynlibs are part of the module trace unless `platformIndependent` is set
-PKG=precompileArgs
 test_run build -R
 echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_err "Building Foo" build --rehash

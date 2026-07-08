@@ -17,6 +17,11 @@ test_run -v exe orderTest
 test_not_out '"plugins":[]' -v setup-file ImportDownstream.lean
 test_run -v build Downstream
 
+# Test that imports of precompiled modules absent from their library's shared target
+# load the individual module dynlib.
+test_out "${PKG}_Foo_Detached.$SHARED_LIB_EXT" -v setup-file ImportDetached.lean
+test_out "${PKG}_Foo_Detached.$SHARED_LIB_EXT" -v setup-file Downstream/ImportDetached.lean
+
 # Test that `moreLinkArgs` are included when linking precompiled modules
 ./clean.sh
 test_maybe_err "-lBogus" build -KlinkArgs=-lBogus

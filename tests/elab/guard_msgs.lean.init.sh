@@ -1,0 +1,1 @@
+export LEAN_BACKTRACE=0

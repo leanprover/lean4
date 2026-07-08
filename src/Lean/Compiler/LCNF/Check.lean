@@ -232,6 +232,7 @@ partial def checkCases (c : Cases .pure) : CheckM Unit := do
       withParams params do check k
 
 partial def check (code : Code .pure) : CheckM Unit := do
+  checkSystem "LCNF check"
   match code with
   | .let decl k => checkLetDecl decl; withFVarId decl.fvarId do check k
   | .fun decl k =>
@@ -257,7 +258,7 @@ def run (x : CheckM α) : CompilerM α :=
 end Pure
 end Check
 
-def Decl.check (decl : Decl pu) : CompilerM Unit := do
+def Decl.check (decl : Decl pu) : CompilerM Unit :=
   match pu with
   | .pure => Check.Pure.run do decl.value.forCodeM (Check.Pure.checkFunDeclCore decl.name decl.params decl.type)
   | .impure => return () -- TODO: port the IR check once it actually makes sense to

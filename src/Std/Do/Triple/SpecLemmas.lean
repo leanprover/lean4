@@ -10,6 +10,8 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
+public import Init.While
+public import Init.Internal.Order.While
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
@@ -23,6 +25,11 @@ import Init.Data.List.TakeDrop
 import Init.Data.Nat.Mod
 import Init.Data.Slice.Lemmas
 import Init.Omega
+public import Init.Data.String.Defs
+public import Init.Data.String.Iterate
+import Init.Data.String.Lemmas.Splits
+import Init.Data.String.Termination
+import Init.Data.String.Lemmas.Iterate
 
 set_option linter.missingDocs true
 
@@ -131,6 +138,15 @@ theorem Cursor.pos_at {l : List α} {n : Nat} (h : n < l.length) :
 theorem Cursor.pos_mk {l pre suff : List α} (h : pre ++ suff = l) :
     (Cursor.mk pre suff h).pos = pre.length := rfl
 
+theorem Cursor.pos_le_length {c : Cursor l} : c.pos ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
+theorem Cursor.length_prefix_le_length {c : Cursor l} : c.prefix.length ≤ l.length :=
+  pos_le_length
+
+theorem Cursor.length_suffix_le_length {c : Cursor l} : c.suffix.length ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
 @[grind →]
 theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     cur = s + step * xs.length := by
@@ -145,7 +161,7 @@ theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
 theorem length_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     n = xs.length + ys.length + 1 := by
   have : n = (range' s n step).length := by simp
-  simpa [h] using this
+  simpa [h] using! this
 
 @[grind →]
 theorem mem_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) :
@@ -222,6 +238,7 @@ theorem Spec.seq [Monad m] [WPMonad m ps] {α β} {x : m (α → β)} {y : m α}
 
 /-! # `MonadLift` -/
 
+
 @[spec]
 theorem Spec.monadLift_StateT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.arg σ ps)) :
   Triple (MonadLift.monadLift x : StateT σ m α) (spred(fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))) Q := by simp [Triple.iff, SPred.entails.refl]
@@ -243,6 +260,11 @@ theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond
     (MonadLift.monadLift x : OptionT m α)
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
     Q := by simp [Triple.iff, SPred.entails.refl]
+
+@[spec]
+theorem Spec.monadLift_Id [Monad m] [WPMonad m ps] {α} (x : Id α) (Q : PostCond α ps) :
+    Triple (@MonadLiftT.monadLift Id m Id.instMonadLiftTOfPure α x) (spred(Q.1 x.run)) Q :=
+  Spec.pure' .rfl
 
 /-! # `MonadLiftT` -/
 
@@ -331,11 +353,10 @@ theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
       (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
     Triple
-      (MonadControl.restoreM x : StateT σ m α)
+      (MonadControl.restoreM (m := m) x : StateT σ m α)
       (fun _ => wp⟦x⟧ (fun (a, s) => Q.1 a s, Q.2))
       Q := by simp [Triple.iff]
 
@@ -346,19 +367,17 @@ theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
       (fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     Triple (ps := .except ε ps)
-      (MonadControl.restoreM x : ExceptT ε m α)
+      (MonadControl.restoreM (m := m) x : ExceptT ε m α)
       (wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
-set_option backward.isDefEq.respectTransparency false in
 @[spec]
 theorem Spec.restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
     Triple (ps := .except PUnit ps)
-      (MonadControl.restoreM x : OptionT m α)
+      (MonadControl.restoreM (m := m) x : OptionT m α)
       (wp⟦x⟧ (fun e => e.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
       Q := by simp [Triple.iff]
 
@@ -686,9 +705,11 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
-abbrev Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
+@[spec_invariant_type, simp, grind =]
+def Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
+set_option linter.checkUnivs false in
 /--
 Helper definition for specifying loop invariants for loops with early return.
 
@@ -707,11 +728,24 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-abbrev Invariant.withEarlyReturn
+abbrev Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
   (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
     Invariant xs (MProd (Option γ) β) ps :=
+  ⟨fun ⟨xs, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue xs b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+set_option linter.checkUnivs false in
+/-- Like `Invariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
+instead of `MProd` for the state tuple. -/
+abbrev Invariant.withEarlyReturnNewDo {α} {xs : List α} {γ : Type (max u₁ u₂)}
+  (onContinue : List.Cursor xs → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    Invariant xs (Prod (Option γ) β) ps :=
   ⟨fun ⟨xs, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue xs b)
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
@@ -1994,3 +2028,288 @@ theorem Spec.foldlM_array {α β : Type u} {m : Type u → Type v} {ps : PostSha
   cases xs
   simp
   apply Spec.foldlM_list inv step
+
+/--
+The type of loop invariants used by the specifications of `for ... in ...` loops over strings.
+A loop invariant is a `PostCond` that takes as parameters
+
+* A `String.Pos` representing the current position in the string `s`.
+* A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
+  `let mut` variables and early return.
+-/
+@[spec_invariant_type, simp, grind =]
+def StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
+  PostCond (s.Pos × β) ps
+
+set_option linter.checkUnivs false in
+/--
+Helper definition for specifying loop invariants for loops with early return.
+
+`for ... in ...` loops with early return of type `γ` elaborate to a call like this:
+```lean
+forIn (β := MProd (Option γ) ...) (b := ⟨none, ...⟩) collection loopBody
+```
+Note that the first component of the `MProd` state tuple is the optional early return value.
+It is `none` as long as there was no early return and `some r` if the loop returned early with `r`.
+
+This function allows to specify different invariants for the loop body depending on whether the loop
+terminated early or not. When there was an early return, the loop has effectively finished, which is
+encoded by the additional `⌜pos = s.endPos⌝` assertion in the invariant. This assertion is vital for
+successfully proving the induction step, as it contradicts with the assumption that
+`pos ≠ s.endPos` of the inductive hypothesis at the start of the loop body, meaning that users
+won't need to prove anything about the bogus case where the loop has returned early yet takes
+another iteration of the loop body.
+-/
+abbrev StringInvariant.withEarlyReturn {s : String}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringInvariant s (MProd (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+set_option linter.checkUnivs false in
+/-- Like `StringInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
+instead of `MProd` for the state tuple. -/
+abbrev StringInvariant.withEarlyReturnNewDo {s : String}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringInvariant s (Prod (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+@[spec]
+theorem Spec.forIn_string
+    {s : String} {init : β} {f : Char → β → m (ForInStep β)}
+    (inv : StringInvariant s β ps)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      Triple
+        (f (pos.get h) b)
+        (inv.1 (pos, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (pos.next h, b')
+          | .done b' => inv.1 (s.endPos, b'), inv.2)) :
+    Triple (forIn s init f) (inv.1 (s.startPos, init)) (fun b => inv.1 (s.endPos, b), inv.2) := by
+  suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
+      Triple (forIn t₂.toList init f) (inv.1 (p, init)) (fun b => inv.1 (s.endPos, b), inv.2) by
+    simpa using h s.startPos _ _ s.splits_startPos
+  intro p
+  induction p using String.Pos.next_induction generalizing init with
+  | next p hp ih =>
+    intro t₁ t₂ hsp
+    obtain ⟨t₂, rfl⟩ := hsp.exists_eq_singleton_append hp
+    simp only [String.toList_append, String.toList_singleton, List.cons_append, List.nil_append,
+      List.forIn_cons]
+    apply Triple.bind
+    case hx => exact step _ _ hp
+    case hf =>
+      intro r
+      split
+      next => apply Triple.pure; simp
+      next b => simp [ih _ _ hsp.next]
+  | endPos => simpa using Triple.pure _ (by simp)
+
+/--
+The type of loop invariants used by the specifications of `for ... in ...` loops over string slices.
+A loop invariant is a `PostCond` that takes as parameters
+
+* A `String.Slice.Pos` representing the current position in the string slice `s`.
+* A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
+  `let mut` variables and early return.
+-/
+@[spec_invariant_type, simp, grind =]
+def StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
+  PostCond (s.Pos × β) ps
+
+set_option linter.checkUnivs false in
+/--
+Helper definition for specifying loop invariants for loops with early return.
+
+`for ... in ...` loops with early return of type `γ` elaborate to a call like this:
+```lean
+forIn (β := MProd (Option γ) ...) (b := ⟨none, ...⟩) collection loopBody
+```
+Note that the first component of the `MProd` state tuple is the optional early return value.
+It is `none` as long as there was no early return and `some r` if the loop returned early with `r`.
+
+This function allows to specify different invariants for the loop body depending on whether the loop
+terminated early or not. When there was an early return, the loop has effectively finished, which is
+encoded by the additional `⌜pos = s.endPos⌝` assertion in the invariant. This assertion is vital for
+successfully proving the induction step, as it contradicts with the assumption that
+`pos ≠ s.endPos` of the inductive hypothesis at the start of the loop body, meaning that users
+won't need to prove anything about the bogus case where the loop has returned early yet takes
+another iteration of the loop body.
+-/
+abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringSliceInvariant s (MProd (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+set_option linter.checkUnivs false in
+/-- Like `StringSliceInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
+instead of `MProd` for the state tuple. -/
+abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringSliceInvariant s (Prod (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+@[spec]
+theorem Spec.forIn_stringSlice
+    {s : String.Slice} {init : β} {f : Char → β → m (ForInStep β)}
+    (inv : StringSliceInvariant s β ps)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      Triple
+        (f (pos.get h) b)
+        (inv.1 (pos, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (pos.next h, b')
+          | .done b' => inv.1 (s.endPos, b'), inv.2)) :
+    Triple (forIn s init f) (inv.1 (s.startPos, init)) (fun b => inv.1 (s.endPos, b), inv.2) := by
+  suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
+      Triple (forIn t₂.toList init f) (inv.1 (p, init)) (fun b => inv.1 (s.endPos, b), inv.2) by
+    simpa using h s.startPos _ _ s.splits_startPos
+  intro p
+  induction p using String.Slice.Pos.next_induction generalizing init with
+  | next p hp ih =>
+    intro t₁ t₂ hsp
+    obtain ⟨t₂, rfl⟩ := hsp.exists_eq_singleton_append hp
+    simp only [String.toList_append, String.toList_singleton, List.cons_append, List.nil_append,
+      List.forIn_cons]
+    apply Triple.bind
+    case hx => exact step _ _ hp
+    case hf =>
+      intro r
+      split
+      next => apply Triple.pure; simp
+      next b => simp [ih _ _ hsp.next]
+  | endPos => simpa using Triple.pure _ (by simp)
+
+section While
+
+open Std.Do
+
+variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
+
+/--
+An invariant for a `repeatM` loop, given as a `PostCond` over the `α ⊕ β` cursor:
+`.inl a` is the `continue` case at `a`; `.inr b` is the `break` case with result `b`.
+-/
+@[spec_invariant_type]
+def WhileInvariant (α β : Type u) (ps : PostShape.{u}) :=
+  PostCond (α ⊕ β) ps
+
+/-- A termination measure for a `repeatM` loop, SVal-typed so it can read monadic state. -/
+@[spec_invariant_type]
+def WhileVariant (α : Type u) (ps : PostShape.{u}) :=
+  α → SVal ps.args (ULift Nat)
+
+set_option linter.missingDocs false in
+abbrev WhileVariant.eval {α} {ps} (variant : WhileVariant α ps) (a : α) (n : Nat) : SPred ps.args :=
+  SVal.evalsTo (variant a) ⟨n⟩
+
+private theorem WhileVariant.eval_total {P : SPred ps.args} (variant : WhileVariant α ps) (a : α) :
+    P ⊢ₛ ∃ m, WhileVariant.eval variant a m := by
+  refine SPred.entails.trans (SVal.evalsTo_total (variant a)) ?_
+  refine SPred.exists_elim fun (m : ULift Nat) => ?_
+  exact SPred.exists_intro (Ψ := fun n => WhileVariant.eval variant a n) m.down
+
+private theorem WhileVariant.add_eval {P Q : SPred ps.args} (variant : WhileVariant α ps) (a : α)
+    (h : spred(∃ m, WhileVariant.eval variant a m ∧ P) ⊢ₛ Q) : P ⊢ₛ Q := by
+  refine SPred.entails.trans' (WhileVariant.eval_total variant a) ?_
+  refine SPred.entails.trans (SPred.Tactic.Cases.exists fun n => ?_) h
+  exact SPred.and_symm.trans
+    (SPred.exists_intro (Ψ := fun n => spred(WhileVariant.eval variant a n ∧ P)) n)
+
+variable [Monad m] [Lean.Order.MonadTail m] [WPMonad m ps]
+
+/--
+Specification for `repeatM`. The user supplies a (possibly state-dependent) termination
+`measure`, an invariant, and a step `Triple` whose pre asserts the variant evaluates to `ma`
+and the in-progress invariant holds, and whose post either continues with a strictly smaller
+variant value (the invariant still holding) or finishes with the `.inr` invariant.
+-/
+@[spec]
+theorem Spec.repeatM
+    {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
+    (measure : WhileVariant α ps)
+    (inv : WhileInvariant α β ps)
+    (step : ∀ a ma,
+      Triple (f a)
+        spred(WhileVariant.eval measure a ma ∧ inv.1 (.inl a))
+        (fun r => match r with
+          | .inl a' => spred(∃ ma', WhileVariant.eval measure a' ma' ∧ ⌜ma' < ma⌝ ∧ inv.1 (.inl a'))
+          | .inr b  => inv.1 (.inr b),
+         inv.2)) :
+    Triple (repeatM f init) spred(inv.1 (.inl init))
+      (fun b => inv.1 (.inr b), inv.2) := by
+  apply WhileVariant.add_eval measure init
+  apply SPred.exists_elim
+  intro minit
+  suffices key : ∀ (n : Nat) (a : α),
+      (spred(WhileVariant.eval measure a n ∧ inv.1 (.inl a)) ⊢ₛ
+       wp⟦(_root_.repeatM f a : m β)⟧ (fun b => inv.1 (.inr b), inv.2)) from
+    key minit init
+  intro n
+  induction n using Nat.strongRecOn with
+  | _ n ih =>
+    intro a
+    rw [repeatM_eq_of_monadTail (f := f) a]
+    refine Triple.bind (f := fun x => match x with
+      | .inl a' => _root_.repeatM f a' | .inr a' => Pure.pure a')
+      (f a) (step a n) ?_
+    rintro (a' | b)
+    · refine Triple.iff.mpr ?_
+      refine SPred.exists_elim fun ma' => ?_
+      refine SPred.pure_elim (SPred.and_elim_r.trans SPred.and_elim_l) fun hlt => ?_
+      refine SPred.entails.trans ?_ (ih ma' hlt a')
+      exact SPred.and_intro SPred.and_elim_l (SPred.and_elim_r.trans SPred.and_elim_r)
+    · apply Triple.pure
+      simp
+
+/--
+Specification for `forIn` over a `Lean.Loop`. The cursor is `β ⊕ β`: `.inl b` means
+"still iterating with `b`", `.inr b` means "finished with result `b`".
+-/
+@[spec]
+theorem Spec.forIn_loop
+    {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
+    (measure : WhileVariant β ps)
+    (inv : WhileInvariant β β ps)
+    (step : ∀ b mb,
+      Triple (f () b)
+        spred(WhileVariant.eval measure b mb ∧ inv.1 (.inl b))
+        (fun r => match r with
+          | .yield b' => spred(∃ mb', WhileVariant.eval measure b' mb' ∧ ⌜mb' < mb⌝ ∧ inv.1 (.inl b'))
+          | .done b'  => inv.1 (.inr b'),
+         inv.2)) :
+    Triple (forIn l init f) spred(inv.1 (.inl init))
+      (fun b => inv.1 (.inr b), inv.2) := by
+  haveI : Nonempty β := ⟨init⟩
+  change Triple (_root_.Lean.Loop.forIn l init f) _ _
+  simp only [_root_.Lean.Loop.forIn]
+  apply Spec.repeatM (β := β) (measure := measure) (inv := inv)
+  intro b mb
+  apply Triple.bind
+  · exact step b mb
+  · rintro (b' | b') <;> apply Triple.pure <;> simp
+
+end While

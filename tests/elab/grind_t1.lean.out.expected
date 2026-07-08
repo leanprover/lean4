@@ -1,0 +1,6 @@
+grind_t1.lean:238:0-238:7: warning: declaration uses `sorry`
+grind_t1.lean:334:0-334:7: warning: declaration uses `sorry`
+grind_t1.lean:346:0-346:7: warning: declaration uses `sorry`
+grind_t1.lean:355:0-355:7: warning: declaration uses `sorry`
+grind_t1.lean:393:0-393:7: warning: declaration uses `sorry`
+grind_t1.lean:422:9-422:26: warning: this parameter is redundant, environment already contains `List.replace_cons` annotated with `@[grind =]`

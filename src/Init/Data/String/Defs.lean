@@ -90,7 +90,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append", expose]
+@[extern "lean_string_append", expose, implicit_reducible]
 def String.append (s : String) (t : @& String) : String where
   toByteArray := s.toByteArray ++ t.toByteArray
   isValidUTF8 := s.isValidUTF8.append t.isValidUTF8
@@ -187,6 +187,9 @@ theorem append_right_inj (s : String) {t₁ t₂ : String} :
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
   simp [← toByteArray_inj, ByteArray.append_assoc]
 
+instance : Std.Associative (α := String) (· ++ ·) where
+  assoc _ _ _ := append_assoc
+
 @[simp]
 theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
   refine ⟨fun h => ?_, fun h => h ▸ utf8ByteSize_empty⟩
@@ -230,7 +233,7 @@ Examples:
  * `"empty".isEmpty = false`
  * `" ".isEmpty = false`
 -/
-@[inline] def isEmpty (s : String) : Bool :=
+@[inline, expose] def isEmpty (s : String) : Bool :=
   s.utf8ByteSize == 0
 
 @[export lean_string_isempty]
@@ -403,7 +406,6 @@ achieved by tracking the bounds by hand, the slice API is much more convenient.
 `String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
 string. For this reason, it should be preferred over `Substring.Raw`.
 -/
-@[ext]
 structure Slice where
   /-- The underlying strings. -/
   str : String
@@ -420,7 +422,7 @@ instance : Inhabited Slice where
 /--
 Returns a slice that contains the entire string.
 -/
-@[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
+@[inline, expose, implicit_reducible] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s
   startInclusive := s.startPos
@@ -469,7 +471,7 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose, inline]
+@[expose, inline, implicit_reducible]
 def Slice.rawEndPos (s : Slice) : Pos.Raw where
   byteIdx := s.utf8ByteSize
 
@@ -683,7 +685,20 @@ abbrev endValidPos (s : String) : s.Pos :=
   s.endPos
 
 @[deprecated String.toByteArray (since := "2025-11-24")]
-abbrev String.bytes (s : String) : ByteArray :=
+abbrev bytes (s : String) : ByteArray :=
   s.toByteArray
+
+/--
+Returns the length of the string `s`, assuming the string is comprised only of ASCII characters.
+
+This is implemented as a synonym for `s.utf8ByteSize`, which takes constant time.
+-/
+@[inline]
+def lengthAssumingAscii (s : String) : Nat :=
+  s.utf8ByteSize
+
+@[simp]
+theorem lengthAssumingAscii_eq {s : String} : s.lengthAssumingAscii = s.utf8ByteSize :=
+  (rfl)
 
 end String

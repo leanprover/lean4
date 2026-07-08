@@ -20,12 +20,20 @@ universe u
 
 namespace ByteArray
 
-deriving instance BEq for ByteArray
+@[extern "lean_sarray_dec_eq"]
+def beq (lhs rhs : @& ByteArray) : Bool :=
+  lhs.data == rhs.data
+
+instance : BEq ByteArray where
+  beq := beq
 
 attribute [ext] ByteArray
 
-instance : DecidableEq ByteArray :=
-  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+@[extern "lean_sarray_dec_eq"]
+def decEq (lhs rhs : @& ByteArray) : Decidable (lhs = rhs) :=
+  decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+
+instance : DecidableEq ByteArray := decEq
 
 instance : Inhabited ByteArray where
   default := empty
@@ -67,7 +75,7 @@ Retrieves the byte at the indicated index. Callers must prove that the index is 
 Use {name}`uget` for a more efficient alternative or {name}`get!` for a variant that panics if the
 index is out of bounds.
 -/
-@[extern "lean_byte_array_fget"]
+@[extern "lean_byte_array_fget", implicit_reducible]
 def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem_tactic) → UInt8
   | ⟨bs⟩, i, _ => bs[i]
 
@@ -469,5 +477,3 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

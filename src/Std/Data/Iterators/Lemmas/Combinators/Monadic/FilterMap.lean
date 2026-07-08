@@ -76,7 +76,6 @@ theorem IterM.stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [M
     · simp [pure]
     · simp [pure]
 
-set_option backward.isDefEq.respectTransparency false in
 theorem IterM.Equiv.filterMapWithPostcondition {α₁ α₂ β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
@@ -97,11 +96,11 @@ theorem IterM.Equiv.filterMapWithPostcondition {α₁ α₂ β γ : Type w}
   case implies =>
     rintro _ _ ⟨ita, itb, rfl, rfl, h'⟩
     replace h := h'
-    simp only [BundledIterM.step, BundledIterM.iterator_ofIterM, HetT.map_eq_pure_bind,
+    simp only [BundledIterM.step, HetT.map_eq_pure_bind,
       HetT.bind_assoc, Function.comp_apply, HetT.pure_bind, IterStep.mapIterator_mapIterator]
     rw [stepAsHetT_filterMapWithPostcondition, stepAsHetT_filterMapWithPostcondition]
     simp only [HetT.bind_assoc]
-    simp only [Equiv, BundledIterM.Equiv, BundledIterM.step, BundledIterM.iterator_ofIterM,
+    simp only [Equiv, BundledIterM.Equiv, BundledIterM.step,
       HetT.map_eq_pure_bind, HetT.bind_assoc, Function.comp_apply, HetT.pure_bind,
       IterStep.mapIterator_mapIterator] at h'
     apply liftInner_stepAsHetT_bind_congr h

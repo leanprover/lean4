@@ -39,6 +39,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <string>
 #include <cstdlib>
 #include <cctype>
+#include <cmath>
 #include <sys/stat.h>
 #include <uv.h>
 #include "util/io.h"
@@ -583,6 +584,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h) {
 /* Handle.read : (@& Handle) → USize → IO ByteArray */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes) {
     FILE * fp = io_get_handle(h);
+    if (lean_alloc_sarray_would_overflow(1, nbytes)) {
+        return io_result_mk_error(decode_io_error(ENOMEM, NULL));
+    }
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     if (nbytes == 0) {
         // std::fread doesn't handle 0 reads well, see https://github.com/leanprover/lean4/issues/12138
@@ -725,7 +729,9 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
             return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get next transition")));
         }
 
-        tm = (int64_t)(nextTransition / 1000.0);
+        // Round up to whole seconds: Windows models midnight transitions as 23:59:59.999 on the
+        // preceding day, and truncation would move such transitions a full second early.
+        tm = (int64_t)std::ceil(nextTransition / 1000.0);
     }
 
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
@@ -749,6 +755,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     u_strToUTF8(dst_name, sizeof(dst_name), &dst_name_len, tzID, tzIDLength, &status);
 
     if (U_FAILURE(status)) {
+        ucal_close(cal);
         return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to convert DST name to UTF-8")));
     }
 
@@ -865,6 +872,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes) {
     }
 #endif
 
+    if (lean_alloc_sarray_would_overflow(1, nbytes)) {
+        return io_result_mk_error(decode_io_error(ENOMEM, NULL));
+    }
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     size_t remain = nbytes;
     uint8_t *dst = lean_sarray_cptr(res);
@@ -1391,7 +1401,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
     memset(dest, 0, PATH_MAX);
     pid_t pid = getpid();
     snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
-    if (readlink(path, dest, PATH_MAX) == -1) {
+    if (readlink(path, dest, PATH_MAX - 1) == -1) {
         return io_result_mk_error("failed to locate application");
     } else {
         return io_result_mk_ok(mk_string(dest));

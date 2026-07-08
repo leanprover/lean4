@@ -32,36 +32,40 @@ When simplifying `x / x`, the discharger must prove `x ≠ 0` to apply this rule
 Dischargers work by:
 1. Attempting to simplify the side condition to `True`
 2. If successful, extracting a proof from the simplification result
-3. Returning `none` if the condition cannot be discharged
+3. Returning `.failed` if the condition cannot be discharged
 
-This integrates naturally with `Simproc`-based simplification.
-
-## Important
-
-When using dischargers that access new local declarations introduced when
-visiting binders, it is the user's responsibility to set `wellBehavedMethods := false`.
-This setting will instruct `simp` to discard the cache after visiting the binder's body.
+Each discharge result also carries a `contextDependent` flag indicating whether
+the discharge used context-dependent information (e.g., local hypotheses).
+This enables the simplifier's two-tier cache to correctly handle context-dependent results.
 -/
+
+/-- Result of a discharge attempt. -/
+public inductive DischargeResult where
+  /-- Discharge failed. If `contextDependent = true`, it might succeed in another local context. -/
+  | failed (contextDependent : Bool := false)
+  /-- Discharge succeeded with the given proof. -/
+  | solved (proof : Expr) (contextDependent : Bool := false)
 
 /--
 A discharger attempts to prove propositions that arise as side conditions during rewriting.
 
 Given a proposition `e : Prop`, returns:
-- `some proof` if `e` can be proven
-- `none` if `e` cannot be discharged
+- `.solved proof` if `e` can be proven
+- `.failed` otherwise
 
-**Usage**: Dischargers are used by the simplifier when applying conditional rewrite rules.
+Both carry a `contextDependent` flag indicating whether context-dependent
+information was used during the attempt.
 -/
-public abbrev Discharger := Expr → SimpM (Option Expr)
+public abbrev Discharger := Expr → SimpM DischargeResult
 
-def resultToOptionProof (e : Expr) (result : Result) : Option Expr :=
+def resultToDischargeResult (e : Expr) (result : Result) : DischargeResult :=
   match result with
-  | .rfl _ => none
-  | .step e' h _ =>
+  | .rfl _ cd => .failed cd
+  | .step e' h _ cd =>
     if e'.isTrue then
-      some <| mkOfEqTrueCore e h
+      .solved (mkOfEqTrueCore e h) cd
     else
-      none
+      .failed cd
 
 /--
 Converts a simplification procedure into a discharger.
@@ -73,7 +77,7 @@ a proof of the original proposition.
 **Algorithm**:
 1. Apply the simproc to the side condition `e`
 2. If `e` simplifies to `True` (via proof `h : e = True`), return `ofEqTrue h : e`
-3. Otherwise, return `none` (cannot discharge)
+3. Otherwise, return `.failed` (cannot discharge)
 
 **Parameters**:
 - `p`: A simplification procedure to use for discharging conditions
@@ -82,7 +86,7 @@ a proof of the original proposition.
 then `mkDischargerFromSimproc p` returns `ofEqTrue h : 5 < 10`.
 -/
 public def mkDischargerFromSimproc (p : Simproc) : Discharger := fun e => do
-  return resultToOptionProof e (← p e)
+  return resultToDischargeResult e (← p e)
 
 /--
 The default discharger uses the simplifier itself to discharge side conditions.
@@ -99,16 +103,16 @@ infinite recursion.
 -/
 public def dischargeSimpSelf : Discharger := fun e => do
   if (← readThe Context).dischargeDepth > (← getConfig).maxDischargeDepth then
-    return none
+    return .failed
   withoutModifyingCache do
   withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
-    return resultToOptionProof e (← simp e)
+    return resultToDischargeResult e (← simp e)
 
 /--
 A discharger that fails to prove any side condition.
 
 This is used when conditional rewrite rules should not be applied. It immediately
-returns `none` for all propositions, effectively disabling conditional rewriting.
+returns `.failed` for all propositions, effectively disabling conditional rewriting.
 
 **Use cases**:
 - Testing: Isolating unconditional rewriting behavior
@@ -116,6 +120,17 @@ returns `none` for all propositions, effectively disabling conditional rewriting
 - Controlled rewriting: Explicitly disabling conditional rules in specific contexts
 -/
 public def dischargeNone : Discharger := fun _ =>
-  return none
+  return .failed
+
+/--
+A discharger for testing that proves side conditions using hypotheses from the
+local context. Always context-dependent: available hypotheses change when entering binders.
+-/
+public def dischargeAssumption : Discharger := fun e => do
+  for localDecl in (← getLCtx) do
+    if localDecl.isAuxDecl then continue
+    if (← isDefEq localDecl.type e) then
+      return .solved localDecl.toExpr true
+  return .failed true
 
 end Lean.Meta.Sym.Simp

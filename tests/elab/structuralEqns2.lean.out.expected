@@ -1,0 +1,18 @@
+g.eq_1 (i : Nat) : g i Nat.zero = if i < 5 then 0 else 1
+g.eq_2 (i j_2 : Nat) : g i j_2.succ = if i < 5 then 0 else g i j_2
+g.eq_def (i j : Nat) :
+  g i j =
+    if i < 5 then 0
+    else
+      match j with
+      | Nat.zero => 1
+      | j.succ => g i j
+h.eq_1 (i : Nat) : h i Nat.zero = 1 + 1
+h.eq_2 (i j_2 : Nat) : h i j_2.succ = h i j_2 + h i j_2
+h.eq_def (i j : Nat) :
+  h i j =
+    have z :=
+      match j with
+      | Nat.zero => 1
+      | j.succ => h i j;
+    z + z

@@ -15,7 +15,7 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Perm
 import Init.Data.List.Range
 import Init.Data.List.Sublist
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Prod
 
 public section
@@ -88,15 +88,9 @@ theorem splitInTwo_fst_pairwise (l : { l : List α // l.length = n }) (h : Pairw
   rw [splitInTwo_fst]
   exact h.take
 
-@[deprecated splitInTwo_fst_pairwise (since := "2025-10-23")]
-abbrev splitInTwo_fst_sorted := @splitInTwo_fst_pairwise
-
 theorem splitInTwo_snd_pairwise (l : { l : List α // l.length = n }) (h : Pairwise le l.1) : Pairwise le (splitInTwo l).2.1 := by
   rw [splitInTwo_snd]
   exact h.drop
-
-@[deprecated splitInTwo_snd_pairwise (since := "2025-10-23")]
-abbrev splitInTwo_snd_sorted := @splitInTwo_fst_pairwise
 
 theorem splitInTwo_fst_le_splitInTwo_snd {l : { l : List α // l.length = n }} (h : Pairwise le l.1) :
     ∀ a b, a ∈ (splitInTwo l).1.1 → b ∈ (splitInTwo l).2.1 → le a b := by
@@ -251,9 +245,6 @@ theorem pairwise_merge
           · exact rel_of_pairwise_cons h₂ m
         · exact ih₂ h₂.tail
 
-@[deprecated pairwise_merge (since := "2025-10-23")]
-abbrev sorted_merge := @pairwise_merge
-
 theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys → le a b),
     merge xs ys le = xs ++ ys
   | [], ys, _
@@ -324,9 +315,6 @@ theorem pairwise_mergeSort
     apply pairwise_mergeSort trans total
 termination_by l => l.length
 
-@[deprecated pairwise_mergeSort (since := "2025-10-23")]
-abbrev sorted_mergeSort := @pairwise_mergeSort
-
 /--
 If the input list is already sorted, then `mergeSort` does not change the list.
 -/
@@ -342,9 +330,6 @@ theorem mergeSort_of_pairwise : ∀ {l : List α} (_ : Pairwise le l), mergeSort
     rw [merge_of_le (splitInTwo_fst_le_splitInTwo_snd h)]
     rw [splitInTwo_fst_append_splitInTwo_snd]
 termination_by l => l.length
-
-@[deprecated mergeSort_of_pairwise (since := "2025-10-23")]
-abbrev mergeSort_of_sorted := @mergeSort_of_pairwise
 
 /--
 This merge sort algorithm is stable,
@@ -452,7 +437,7 @@ theorem sublist_mergeSort
     have h' := sublist_mergeSort trans total hc h
     rw [h₂] at h'
     exact h'.middle a
-  | _, _, @Sublist.cons₂ _ l₁ l₂ a h => by
+  | _, _, @Sublist.cons_cons _ l₁ l₂ a h => by
     rename_i hc
     obtain ⟨l₃, l₄, h₁, h₂, h₃⟩ := mergeSort_cons trans total a l₂
     rw [h₁]
@@ -460,7 +445,7 @@ theorem sublist_mergeSort
     rw [h₂] at h'
     simp only [Bool.not_eq_true', tail_cons] at h₃ h'
     exact
-      sublist_append_of_sublist_right (Sublist.cons₂ a
+      sublist_append_of_sublist_right (Sublist.cons_cons a
         ((fun w => Sublist.of_sublist_append_right w h') fun b m₁ m₃ =>
           (Bool.eq_not_self true).mp ((rel_of_pairwise_cons hc m₁).symm.trans (h₃ b m₃))))
 

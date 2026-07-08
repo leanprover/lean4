@@ -91,7 +91,7 @@ Ordering.gt
 Ordering.lt
 ```
 -/
-@[macro_inline, expose] def «then» (a b : Ordering) : Ordering :=
+@[macro_inline, expose, implicit_reducible] def «then» (a b : Ordering) : Ordering :=
   match a with
   | .eq => b
   | a => a
@@ -656,19 +656,19 @@ namespace Ord
 /--
 Constructs a `BEq` instance from an `Ord` instance.
 -/
-@[expose] protected abbrev toBEq (ord : Ord α) : BEq α :=
+protected abbrev toBEq (ord : Ord α) : BEq α :=
   beqOfOrd
 
 /--
 Constructs an `LT` instance from an `Ord` instance.
 -/
-@[expose] protected abbrev toLT (ord : Ord α) : LT α :=
+protected abbrev toLT (ord : Ord α) : LT α :=
   ltOfOrd
 
 /--
 Constructs an `LE` instance from an `Ord` instance.
 -/
-@[expose] protected abbrev toLE (ord : Ord α) : LE α :=
+protected abbrev toLE (ord : Ord α) : LE α :=
   leOfOrd
 
 /--
@@ -694,7 +694,7 @@ The function `compareOn` can be used to perform this comparison without construc
 /--
 Constructs the lexicographic order on products `α × β` from orders for `α` and `β`.
 -/
-@[expose] protected abbrev lex (_ : Ord α) (_ : Ord β) : Ord (α × β) :=
+protected abbrev lex (_ : Ord α) (_ : Ord β) : Ord (α × β) :=
   lexOrd
 
 /--

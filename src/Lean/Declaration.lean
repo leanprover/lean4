@@ -14,29 +14,35 @@ public section
 
 namespace Lean
 /--
-Reducibility hints are used in the convertibility checker.
-When trying to solve a constraint such a
+Reducibility hints guide the kernel's *lazy delta reduction* strategy. When the kernel encounters a
+definitional equality constraint
 
            (f ...) =?= (g ...)
 
-where f and g are definitions, the checker has to decide which one will be unfolded.
-  If      f (g) is opaque,     then g (f) is unfolded if it is also not marked as opaque,
-  Else if f (g) is abbrev,     then f (g) is unfolded if g (f) is also not marked as abbrev,
-  Else if f and g are regular, then we unfold the one with the biggest definitional height.
-  Otherwise both are unfolded.
+where `f` and `g` are definitions, it must decide which side to unfold. The rules (implemented in
+`lazy_delta_reduction_step` in `src/kernel/type_checker.cpp`) are:
 
-The arguments of the `regular` Constructor are: the definitional height and the flag `selfOpt`.
+* If `f` and `g` have the **same hint kind**:
+  - Both `.opaque` or both `.abbrev`: unfold both.
+  - Both `.regular`: unfold the one with the **greater** height first. If their heights are equal
+    (in particular, if `f` and `g` are the same definition), first try to compare their arguments
+    for definitional equality (short-circuiting the unfolding if they match), then unfold both.
+* If `f` and `g` have **different hint kinds**: unfold the one that is *not* `.opaque`, preferring to
+  unfold `.abbrev` over `.regular`.
 
-The definitional height is by default computed by the kernel. It only takes into account
-other regular definitions used in a definition. When creating declarations using meta-programming,
-we can specify the definitional depth manually.
+The `.regular` constructor carries a `UInt32` *definitional height*, which is computed by the
+elaborator as one plus the maximum height of all `.regular` constants appearing in the definition's
+body (see `getMaxHeight`). This means `.abbrev` and `.opaque` constants do not contribute to the
+height. When creating declarations via meta-programming, the height can be specified manually.
 
-Remark: the hint only affects performance. None of the hints prevent the kernel from unfolding a
-declaration during Type checking.
+The hints only affect performance — they control the order in which definitions are unfolded, but
+never prevent the kernel from unfolding a definition during type checking.
 
-Remark: the ReducibilityHints are not related to the attributes: reducible/irrelevance/semireducible.
-These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
-Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
+The `ReducibilityHints` are not related to the `@[reducible]`/`@[irreducible]`/`@[semireducible]`
+attributes. Those attributes are used by the elaborator to control which definitions tactics like
+`simp`, `rfl`, and `dsimp` will unfold; they do not affect the kernel. Conversely,
+`ReducibilityHints` are set when a declaration is added to the kernel and cannot be changed
+afterwards. -/
 inductive ReducibilityHints where
   | opaque  : ReducibilityHints
   | abbrev  : ReducibilityHints
@@ -469,24 +475,37 @@ def numLevelParams (d : ConstantInfo) : Nat :=
 def type (d : ConstantInfo) : Expr :=
   d.toConstantVal.type
 
+/--
+Returns the value of a definition. With `allowOpaque := true`, values
+of theorems and opaque declarations are also returned.
+-/
 def value? (info : ConstantInfo) (allowOpaque := false) : Option Expr :=
   match info with
   | .defnInfo {value, ..}   => some value
-  | .thmInfo  {value, ..}   => some value
+  | .thmInfo  {value, ..}   => if allowOpaque then some value else none
   | .opaqueInfo {value, ..} => if allowOpaque then some value else none
   | _                       => none
 
+/--
+Returns `true` if this declaration as a value for the purpose of reduction
+and type-checking, i.e. is a definition.
+With `allowOpaque := true`, theorems and opaque declarations are also considered to have values.
+-/
 def hasValue (info : ConstantInfo) (allowOpaque := false) : Bool :=
   match info with
   | .defnInfo _   => true
-  | .thmInfo  _   => true
+  | .thmInfo  _   => allowOpaque
   | .opaqueInfo _ => allowOpaque
   | _             => false
 
+/--
+Returns the value of a definition. With `allowOpaque := true`, values
+of theorems and opaque declarations are also returned.
+-/
 def value! (info : ConstantInfo) (allowOpaque := false) : Expr :=
   match info with
   | .defnInfo {value, ..}   => value
-  | .thmInfo  {value, ..}   => value
+  | .thmInfo  {value, ..}   => if allowOpaque then value else panic! "declaration with value expected"
   | .opaqueInfo {value, ..} => if allowOpaque then value else panic! "declaration with value expected"
   | _                       => panic! s!"declaration with value expected, but {info.name} has none"
 
@@ -509,6 +528,10 @@ def isInductive : ConstantInfo → Bool
 def isDefinition : ConstantInfo → Bool
   | .defnInfo _ => true
   | _           => false
+
+def isTheorem : ConstantInfo → Bool
+  | .thmInfo _ => true
+  | _          => false
 
 def inductiveVal! : ConstantInfo → InductiveVal
   | .inductInfo val => val

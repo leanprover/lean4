@@ -126,6 +126,9 @@ Its trace just includes its dependencies.
 -/
 builtin_facet leanArts : Module => ModuleOutputArtifacts
 
+/-- A compressed archive (produced via `leantar`) of the module's build artifacts. -/
+builtin_facet ltar : Module => FilePath
+
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath
 
@@ -137,6 +140,9 @@ builtin_facet oleanPrivateFacet @ olean.private : Module => FilePath
 
 /-- The `ilean` file produced by `lean`. -/
 builtin_facet ilean : Module => FilePath
+
+/-- The `ir.sig` file produced by `lean` (with the module system enabled). -/
+builtin_facet irSigFacet @ ir.sig : Module => FilePath
 
 /-- The `ir` file produced by `lean` (with the module system enabled). -/
 builtin_facet ir : Module => FilePath
@@ -175,6 +181,18 @@ builtin_facet oExportFacet @ o.export : Module => FilePath
 /-- The object file built from `c`/`bc` (without Lean symbols exported). -/
 builtin_facet oNoExportFacet @ o.noexport : Module => FilePath
 
+/-- Information useful for linking to a module and its dependencies. -/
+public structure ModuleLinkInfo where
+  args : Array String
+  objs : Array FilePath
+  libs : Array Dynlib
+  deriving Inhabited
+
+/-- Link information for the module with Lean symbols exported. -/
+builtin_facet linkInfoExport : Module => ModuleLinkInfo
+
+/-- Link information for the module without Lean symbols exported. -/
+builtin_facet linkInfoNoExport : Module => ModuleLinkInfo
 
 /-! ## Package Facets -/
 

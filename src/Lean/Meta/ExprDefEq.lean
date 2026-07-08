@@ -11,6 +11,8 @@ import Lean.Meta.WHNF
 public section
 namespace Lean.Meta
 
+open Lean
+
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
@@ -21,10 +23,68 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
+/--
+Controls how implicit arguments are handled in `isDefEq` during proof automation.
+
+**Original behavior (`false`):** When `simp`, `rw`, or similar tactics apply a lemma, explicit
+arguments are matched at the caller's transparency (typically `.reducible`). But implicit arguments
+are "invisible" to the user — they don't choose them directly. If a lemma fails to apply because
+an implicit argument doesn't match at `.reducible`, the user sees a confusing failure with no
+obvious cause. To avoid this, we originally bumped transparency to `.default` for implicit arguments,
+so that `isDefEq` would try harder and unfold semireducible definitions to make them match.
+
+**Why `true` is now the default:** The transparency bump meant that every speculative `isDefEq` call
+in proof automation could trigger expensive unfolding of semireducible definitions on implicit
+arguments — and most of these calls *fail*. This eventually became a performance bottleneck in
+Mathlib. With `true`, instance-implicit arguments (`[..]`) are checked at
+`TransparencyMode.implicit` (to resolve instance diamonds). Other implicit arguments are checked
+at the caller's transparency unless `backward.isDefEq.implicitBump` is also `true`, in which case
+they are bumped to `.implicit`.
+
+See `isDefEqArgs` for the implementation, `backward.isDefEq.implicitBump` for the implicit
+argument bump, and `TransparencyMode` for the overall design.
+-/
 register_builtin_option backward.isDefEq.respectTransparency : Bool := {
   defValue := true
   descr    := "if true (the default), do not bump transparency to `.default` \
   when checking whether implicit arguments are definitionally equal"
+}
+
+/--
+Controls the transparency used to check whether the type of metavariable matches the type of the
+term being assigned to it.
+-/
+register_builtin_option backward.isDefEq.respectTransparency.types : Bool := {
+  defValue := true
+  descr    := "if true, do not bump transparency to `.default` \
+  when checking whether the type of a metavariable matches the type of the term being assigned to it."
+}
+
+/--
+Controls whether non-instance implicit arguments get their transparency bumped to
+`TransparencyMode.implicit` during `isDefEq`.
+
+When `true`, non-instance implicit arguments are checked at `.implicit`, which additionally
+unfolds `[implicit_reducible]` definitions on top of `[reducible]`/`[instance_reducible]`. This
+is the intended behavior: users don't choose implicit arguments directly, so Lean should try
+harder to make them match. The `[reducible]`/`[instance_reducible]`/`[implicit_reducible]`
+attributes provide guardrails — only explicitly marked definitions get unfolded, not arbitrary
+semireducible definitions.
+
+When set to `false`, only instance-implicit arguments (`[..]`) are bumped
+to `.implicit`; other implicit arguments stay at the caller's transparency.
+
+This option only has an effect when `backward.isDefEq.respectTransparency` is `true`.
+-/
+register_builtin_option backward.isDefEq.implicitBump : Bool := {
+  defValue := true
+  descr    := "if true, bump transparency to `.implicit` for non-instance implicit arguments, \
+  not just instance-implicit ones"
+}
+
+register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
+  defValue := false
+  descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
 }
 
 /--
@@ -78,8 +138,8 @@ where
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
     else
-      if !isStructureLike (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+      if !isNonRecStructure (← getEnv) ctorVal.induct then
+        trace[Meta.isDefEq.eta.struct] "failed, type is not a non-recursive structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
@@ -293,11 +353,15 @@ private def isDefEqArgsFirstPass
 
 /--
 Ensure `MetaM` configuration is strong enough for checking definitional equality of
-instances. For example, we must be able to unfold instances, `beta := true`, `proj := .yesWithDelta`
-are essential.
+implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
+least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
 -/
-@[inline] def withInstanceConfig (x : MetaM α) : MetaM α :=
-  withAtLeastTransparency .instances do
+@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
+  let old ← getTransparency
+  if old.lt .implicit then
+    trace[Meta.isDefEq.transparency]
+      "raising transparency {toString old} → implicit"
+  withAtLeastTransparency .implicit do
     let cfg ← getConfig
     if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
       x
@@ -313,10 +377,17 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
   let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
+  let implicitBump := backward.isDefEq.implicitBump.get (← getOptions)
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
-       In the second pass, we make sure we are unfolding at
-       least non reducible definitions (default setting). -/
+       When `respectTransparency` is `false` (old behavior), we bump to `.default` so that
+       semireducible definitions are unfolded — the rationale being that users don't think about
+       implicit arguments and expect them to "just work."
+       When `respectTransparency` is `true` and `implicitBump` is `true`, we bump non-instance
+       implicit arguments to `.implicit` so that `[reducible]`, `[instance_reducible]`, and
+       `[implicit_reducible]` definitions are unfolded but not arbitrary semireducible definitions.
+       When `respectTransparency` is `true` and `implicitBump` is `false`, only instance-implicit
+       arguments (`[..]`) are bumped to `.implicit`. -/
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
@@ -329,9 +400,11 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.binderInfo.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    if respectTransparency && info.isInstImplicit then -- **TODO**: replace with `isInstance`
-      -- It is an instance, then we must allow at least instances to be unfolded.
-      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+    if respectTransparency && (info.binderInfo.isInstImplicit || implicitBump) then
+      -- Bump to `.implicit` so that `[instance_reducible]` and `[implicit_reducible]` definitions
+      -- both unfold. For instance-implicit arguments, this is especially necessary for diamond
+      -- resolution.
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if respectTransparency then
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
     else
@@ -340,13 +413,11 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
-    let info := finfo.paramInfo[i]!
-    if info.isInstance then
-      if respectTransparency then
-        unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
-      else
-        -- Old behavior
-        unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+    if respectTransparency && (finfo.paramInfo[i]!.isInstance || implicitBump) then
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+    -- Old behavior
+    else if !respectTransparency && finfo.paramInfo[i]!.isInstance then
+      unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
   return true
@@ -405,6 +476,19 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   let lctx ← getLCtx
   isDefEqBindingAux lctx #[] a b #[]
 
+/--
+Returns `true` if both `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types` is true.
+
+The option `backward.isDefEq.respectTransparency.types` is newer than ``backward.isDefEq.respectTransparency`,
+and is used to enable the transparency bump when checking metavariable assignments.
+
+If `backward.isDefEq.respectTransparency` is `false`, then we automatically disable
+`backward.isDefEq.respectTransparency.types` too.
+-/
+abbrev respectTransparencyAtTypes : CoreM Bool := do
+  let opts ← getOptions
+  return backward.isDefEq.respectTransparency.types.get opts && backward.isDefEq.respectTransparency.get opts
+
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
@@ -413,14 +497,24 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
-      -- **TODO**: avoid transparency bump. Let's fix other issues first
-      withInferTypeConfig do
-        let vType ← inferType v
-        if (← Meta.isExprDefEqAux mvarType vType) then
-          mvar.mvarId!.assign v
-          pure true
-        else
-          pure false
+      let vType ← inferType v
+      if (← respectTransparencyAtTypes) then
+        withImplicitConfig do
+          if (← Meta.isExprDefEqAux mvarType vType) then
+            mvar.mvarId!.assign v
+            return true
+          else
+            if (← isDiagnosticsEnabled) then withInferTypeConfig do
+              if (← Meta.isExprDefEqAux mvarType vType) then
+                trace[diagnostics] "failure when assigning metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.implicit` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.types false`"
+            return false
+      else
+        withInferTypeConfig do
+          if (← Meta.isExprDefEqAux mvarType vType) then
+            mvar.mvarId!.assign v
+            return true
+          else
+            return false
 
 /--
 Auxiliary method for solving constraints of the form `?m xs := v`.
@@ -1077,6 +1171,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
       return none
     return some v
 
+set_option compiler.ignoreBorrowAnnotation true in
 -- Implementation for `_root_.Lean.MVarId.checkedAssign`
 @[export lean_checked_assign]
 def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do
@@ -1310,9 +1405,6 @@ private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
 private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
   match info.hints with
   | .regular d =>
-    if (← isProjectionFn info.name) then
-      -- All projections are considered trivial
-      return false
     if d > 2 then
       -- If definition depth is greater than 2, we claim it is not a trivial definition
       return true
@@ -1320,7 +1412,42 @@ private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
     -- Where simple is a bvar/lit/sort/proj or a single application where all arguments are bvar/lit/sort/proj.
     let val := consumeDefnPreamble info.value
     return !isSimple val (allowApp := true)
-  | _ => return false
+  | .abbrev =>
+    /-
+    **Note**: All projection functions receive `.abbrev` kernel hints (not `.regular`), regardless of their
+    reducibility status. Structure projections default to `.reducible` status, while
+    class projections default to `.semireducible` status. Recall kernel hints and reducibility hints are
+    two different concepts.
+
+    Projections have `.abbrev` hints and are generally considered trivial. But there is an exception
+    when the projection is a class field and `backward.whnf.reducibleClassField` is `true`.
+    In this scenario, `unfoldDefault` reduces past the `.proj` form at `.instances` transparency.
+    This means the unfolded result may lose the instance structure that `isDefEqProj` needs to bump
+    transparency. As an example, consider the following declarations
+    ```
+    @[implicit_reducible] def a := 0
+    @[implicit_reducible] def b := 0
+    class X where x : Nat
+    instance instX (n : Nat) : X where x := n
+    attribute [reducible] X.x
+    ```
+    Then, assume `isDefEqDelta` sees `X.x (instX a) =?= X.x (instX b)` and the transparency setting
+    is `.reducible`. If we assume this kind of projection is trivial, `tryHeuristic` skips the
+    argument comparison, and `unfoldDefault` reduces `X.x (instX a)` all the way to `a`
+    (via projection reduction at `.instances`). The resulting `a =?= b` comparison fails at
+    `.reducible` because both are `@[implicit_reducible]`.
+    Thus, we classify this kind of projection as nontrivial, and `isDefEqArgs`
+    compares `instX a =?= instX b` with the correct transparency bump for
+    instance-implicit parameters, which succeeds. -/
+    if let some projInfo ← getProjectionFnInfo? info.name then
+      /- HACK: Only classify class projections as nontrivial at `.reducible` transparency,
+         since `unfoldDefault`'s extra `.instances` reduction (the reason for this classification)
+         only applies there. At higher transparency levels, the normal unfolding behavior is
+         sufficient, and running the heuristic adds overhead without benefit.
+         See https://github.com/leanprover/lean4/pull/12650 -/
+      return projInfo.fromClass && backward.whnf.reducibleClassField.get (← getOptions) && (← getTransparency) == .reducible
+    return false
+  | .opaque => return false
 where
   consumeDefnPreamble (e : Expr) : Expr :=
     match e with
@@ -1347,7 +1474,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let .defnInfo info ← getConstInfo tFn.constName! | return false
   /-
   We apply the heuristic in the following cases:
-  1- `f` is a non-trivial regular definition (see predicate `isNonTrivialRegular`)
+  1- `f` is a non-trivial definition (see predicate `isNonTrivialRegular`)
   2- `f` is `match` application.
   3- `t` or `s` contain meta-variables.
 
@@ -1355,7 +1482,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   `S.proj ?x =?= S.proj t` without performing delta-reduction.
 
   When the conditions 1&2&3 do not hold, we are assuming the heuristic implemented by this method is seldom effective
-  when `f` is not simple, `t` and `s` do not have metavariables, are not structurally equal.
+  when `f` is simple, `t` and `s` do not have metavariables, and are not structurally equal.
 
   Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
   them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
@@ -1971,13 +2098,24 @@ where
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
   | .proj m i t, .proj n j s => do
+    /- When `m` is a class, the projection's parameter is instance-implicit.
+       We bump the transparency to `.implicit` (via `withImplicitConfig`) so that all
+       at least implicit-reducible declarations, including instance definitions, can be unfolded
+       when comparing the struct arguments.
+       Without this bump, comparing `.proj` nodes produced by unfolding
+       a `[reducible]` class field fails because the struct arguments (`instX a` vs `instX b`)
+       are stuck at `.reducible`. This mirrors the transparency bump that `isDefEqArgs` applies
+       for instance-implicit parameters. -/
+    let fromClass := isClass (← getEnv) m
+    let isDefEqStructArgs (x : MetaM Bool) : MetaM Bool :=
+      if fromClass then withImplicitConfig x else x
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
-      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+      pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
     else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
-      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+      pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
     else if i == j && m == n then
-      isDefEqProjDelta t s i
+      isDefEqStructArgs (isDefEqProjDelta t s i)
     else
       return false
   | .proj structName 0 s, v  => isDefEqSingleton structName s v
@@ -2004,9 +2142,9 @@ where
       assign `?m`.
       -/
       return false
-    let some ctorVal := getStructureLikeCtor? (← getEnv) structName | return false
+    let some ctorVal := getNonRecStructureCtor? (← getEnv) structName | return false
     if ctorVal.numFields != 1 then
-      return false -- It is not a structure with a single field.
+      return false -- It is not a non-recursive structure with a single field.
     let sType ← whnf (← inferType s)
     let sTypeFn := sType.getAppFn
     if !sTypeFn.isConstOf structName then
@@ -2042,7 +2180,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
 /-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← whnf (← inferType t)
-  matchConstStructureLike tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+  matchConstNonRecStructure tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
     if ctorVal.numFields != 0 then
       return false
     else if (← useEtaStruct ctorVal.induct) then
@@ -2052,11 +2190,11 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
 
 /--
   The `whnf` procedure has support for unfolding class projections when the
-  transparency mode is set to `.instances`. This method ensures the behavior
-  of `whnf` and `isDefEq` is consistent in this transparency mode.
+  transparency mode is set to `.instances` or `.implicit`. This method ensures the
+  behavior of `whnf` and `isDefEq` is consistent in those transparency modes.
 -/
 private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
-  if (← getTransparency) != .instances then return .undef
+  unless (← getTransparency) matches .instances | .implicit do return .undef
   let t? ← unfoldProjInstWhenInstances? t
   let s? ← unfoldProjInstWhenInstances? s
   if t?.isSome || s?.isSome then
@@ -2142,9 +2280,14 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   else
     whnfCore e
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
-  withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq (fun _ => do
+    if trace.Meta.isDefEq.printTransparency.get (← getOptions) then
+      return m!"[{toString (← getTransparency)}] {t} =?= {s}"
+    else
+      return m!"{t} =?= {s}") do
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
@@ -2234,5 +2377,6 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct
+  registerTraceClass `Meta.isDefEq.transparency (inherited := true)
 
 end Lean.Meta

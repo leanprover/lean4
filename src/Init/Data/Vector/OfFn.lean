@@ -119,7 +119,6 @@ theorem ofFnM_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) → m α} :
       pure (as.push a)) := by
   simp [ofFnM, ofFnM_go_succ]
 
-set_option backward.isDefEq.respectTransparency false in
 theorem ofFnM_add {n m} [Monad m] [LawfulMonad m] {f : Fin (n + k) → m α} :
     ofFnM f = (do
       let as ← ofFnM (fun i => f (i.castLE (Nat.le_add_right n k)))

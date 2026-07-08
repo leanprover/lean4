@@ -1,0 +1,1 @@
+@DVec.hd : {n : Nat} → {αs : TypeVec (n + 1)} → DVec αs → αs 0

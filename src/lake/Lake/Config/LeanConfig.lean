@@ -264,4 +264,29 @@ public configuration LeanConfig where
   of a module (via `lean --plugin`).
   -/
   plugins : TargetArray Dynlib := #[]
+  /--
+  Whether this package or library should be considered designed for use with the module system.
+
+  If enabled, Lake emits a warning whenever a module imports a module of this code unit without
+  itself using the module system (i.e., without a `module` header). This applies both to downstream
+  consumers and to non-module files within the same package, signalling that the code unit's API
+  expects the visibility and elaboration semantics of the module system.
+
+  Importers can opt out of the warning by setting `allowNonModules := true` on their own package or
+  library.
+
+  Defaults to `false`.
+  -/
+  requiresModuleSystem : Bool := false
+  /--
+  Whether this package or library permits non-module-system files without warning.
+
+  By default, when a non-module-system file in this code unit imports a module from a code unit that
+  has set `requiresModuleSystem` (which may include this one itself), Lake emits a warning. Setting
+  this to `true` suppresses those warnings, declaring that the code unit is knowingly mixing
+  non-module-system files with module-system dependencies.
+
+  Defaults to `false`.
+  -/
+  allowNonModules : Bool := false
 deriving Inhabited, Repr

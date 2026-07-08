@@ -48,10 +48,11 @@ theorem Iter.val_step_takeWhile {α β} [Iterator α Id β] {P}
         | false => .done
       | .skip it' => .skip (it'.takeWhile P)
       | .done => .done) := by
-  simp [Iter.takeWhile_eq, Iter.step, toIterM_toIter, IterM.step_takeWhile]
+  simp only [takeWhile_eq, step, toIterM_toIter, IterM.step_takeWhile, PlausibleIterStep.yield,
+    PlausibleIterStep.done, PlausibleIterStep.skip, Id.run_bind, IterM.Step.val_toPure]
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn
-  · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
+  · simp only [IterStep.mapIterator_yield, toIterM_toIter]
     split <;> split <;> (try exfalso; simp_all; done) <;> simp_all
   · simp
   · simp
@@ -135,7 +136,7 @@ private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
       specialize h 0
       simp_all
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id]
     {it : Iter (α := α) β} :
@@ -150,7 +151,7 @@ theorem Iter.toListRev_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     (it.takeWhile P).toListRev = (it.toList.takeWhile P).reverse := by
   rw [toListRev_eq, toList_takeWhile_of_finite]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id]
     {it : Iter (α := α) β} :

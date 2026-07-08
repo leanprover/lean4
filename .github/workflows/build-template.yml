@@ -33,7 +33,7 @@ jobs:
         include: ${{fromJson(inputs.config)}}
       # complete all jobs
       fail-fast: false
-    runs-on: ${{ endsWith(matrix.os, '-with-cache') && fromJSON(format('["{0}", "nscloud-git-mirror-1gb"]', matrix.os)) || matrix.os }}
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: ${{ matrix.shell || 'nix develop -c bash -euxo pipefail {0}' }}
@@ -49,32 +49,26 @@ jobs:
       LSAN_OPTIONS: max_leaks=10
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
-      MACOSX_DEPLOYMENT_TARGET: 10.15
+      MACOSX_DEPLOYMENT_TARGET: 11.0
     steps:
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
+        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
         if: runner.os == 'Linux' && !matrix.cmultilib
       - name: Install MSYS2
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: clang64
           # `:` means do not prefix with msystem
-          pacboy: "make: python: cmake clang ccache gmp libuv git: zip: unzip: diffutils: binutils: tree: zstd tar:"
+          pacboy: "make: python: cmake clang ccache gmp libuv openssl: git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd coreutils gmp libuv
+          brew install ccache tree zstd coreutils gmp libuv openssl
         if: runner.os == 'macOS'
       - name: Checkout
-        if: (!endsWith(matrix.os, '-with-cache'))
         uses: actions/checkout@v6
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Namespace Checkout
-        if: endsWith(matrix.os, '-with-cache')
-        uses: namespacelabs/nscloud-checkout-action@v8
-        with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Open Nix shell once
         run: true
@@ -84,12 +78,12 @@ jobs:
       # (needs to be after "Install *" to use the right shell)
       - name: CI Merge Checkout
         run: |
-          git fetch --depth=1 origin ${{ github.sha }}
-          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/lean/run/importStructure.lean
+          git fetch --depth=${{ matrix.name == 'Linux Lake (Cached)' && '10' || '1' }} origin ${{ github.sha }}
+          git checkout FETCH_HEAD flake.nix flake.lock script/prepare-* tests/elab/importStructure.lean
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v14
+        uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
         with:
           version: 3.1.44
           actions-cache-folder: emsdk
@@ -98,16 +92,16 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 pkgconf:i386
+          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 libssl-dev:i386 pkgconf:i386
         if: matrix.cmultilib
       - name: Restore Cache
         id: restore-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
@@ -131,13 +125,13 @@ jobs:
           else
             echo "TARGET_STAGE=stage1" >> $GITHUB_ENV
           fi
-      - name: Build
+      - name: Configure Build
         run: |
           ulimit -c unlimited  # coredumps
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          OPTIONS=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          OPTIONS=(-DWFAIL=ON)
           if [[ -n '${{ matrix.release }}' ]]; then
             # this also enables githash embedding into stage 1 library, which prohibits reusing
             # `.olean`s across commits, so we don't do it in the fast non-release CI
@@ -151,9 +145,8 @@ jobs:
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"
-            if [ "$TARGET_STAGE" == "stage2" ]; then
-              cp -r stage1 stage2
-            fi
+            cp -r stage1 stage2
+            cp -r stage1 stage3
             eval "OPTIONS+=($PREPARE)"
           fi
           if [[ -n '${{ matrix.release }}' && -n '${{ inputs.nightly }}' ]]; then
@@ -168,25 +161,71 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          time make $TARGET_STAGE -j$NPROC
+      - name: Build Stage 0 & Configure Stage 1
+        run: |
+          ulimit -c unlimited  # coredumps
+          time make -C build stage1-configure -j$NPROC
+      - name: Download Lake Cache
+        if: matrix.name == 'Linux Lake (Cached)'
+        run: |
+          cd src
+          ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
+        timeout-minutes: 20 # prevent excessive hanging from network issues
+        continue-on-error: true
+      - name: Build Target Stage
+        run: |
+          ulimit -c unlimited  # coredumps
+          time make -C build $TARGET_STAGE -j$NPROC
       # Should be done as early as possible and in particular *before* "Check rebootstrap" which
       # changes the state of stage1/
       - name: Save Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown
         if: steps.restore-cache.outputs.cache-hit != 'true' && !cancelled()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           # NOTE: must be in sync with `restore` above
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+      - id: upload-lake-cache
+        name: Upload Lake Cache
+        # Caching on cancellation created some mysterious issues perhaps related to improper build
+        # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
+        if: matrix.name == 'Linux release' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        run: |
+          curl --version
+          cd src
+          time ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
+          time ../build/stage0/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}
+        env:
+          LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY }}
+          LAKE_CACHE_ARTIFACT_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/a1
+          LAKE_CACHE_REVISION_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/r1
+        timeout-minutes: 20 # prevent excessive hanging from network issues
+        continue-on-error: true
+      - name: Verify Lake Cache
+        if: steps.upload-lake-cache.outcome == 'success'
+        run: |
+          cp -r build/stage1 build/stage1.bak
+          rm -rf build/stage1/lib
+          cd src
+          ../build/stage0/bin/lake cache clean
+          ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
+          ../build/stage0/bin/lake build --no-build
+        continue-on-error: true
+      - name: Restore Build
+        if: steps.upload-lake-cache.outcome == 'success'
+        run: |
+          build/stage0/bin/lake cache clean
+          rm -rf build/stage1
+          mv build/stage1.bak build/stage1
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install
@@ -213,7 +252,7 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: matrix.release
         with:
           name: build-${{ matrix.name }}
@@ -229,38 +268,34 @@ jobs:
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: matrix.test
       - name: Test Summary
-        uses: test-summary/action@v2
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: build/${{ env.TARGET_STAGE }}/test-results.xml
         # prefix `if` above with `always` so it's run even if tests failed
         if: always() && steps.test.conclusion != 'skipped'
       - name: Check Test Binary
-        run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
+        run: ${{ matrix.binary-check }} tests/compile/534.lean.out
         if: (!matrix.cross) && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
           make -C build -j$NPROC stage2
-        if: matrix.test-speedcenter
+        if: matrix.test-bench
       - name: Check Stage 3
         run: |
           make -C build -j$NPROC check-stage3
         if: matrix.check-stage3
-      - name: Test Speedcenter Benchmarks
+      - name: Test Benchmarks
         run: |
-          # Necessary for some timing metrics but does not work on Namespace runners
-          # and we just want to test that the benchmarks run at all here
-          #echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
-          export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
-          cd tests/bench
-          nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
-        if: matrix.test-speedcenter
+          cd tests
+          nix develop -c make -C ../build -j$NPROC bench
+        if: matrix.test-bench
       - name: Check rebootstrap
         run: |
           set -e
-          # clean rebuild in case of Makefile changes/Lake does not detect uncommited stage 0
-          # changes yet
+          git config user.email "stage0@lean-fro.org"
+          git config user.name "update-stage0"
           make -C build update-stage0
-          make -C build/stage1 clean-stdlib
+          git commit --allow-empty -m "chore: update-stage0"
           time make -C build -j$NPROC
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC
         if: matrix.check-rebootstrap

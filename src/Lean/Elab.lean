@@ -39,6 +39,7 @@ public import Lean.Elab.Extra
 public import Lean.Elab.GenInjective
 public import Lean.Elab.BuiltinTerm
 public import Lean.Elab.Arg
+public import Lean.Elab.DeprecatedArg
 public import Lean.Elab.PatternVar
 public import Lean.Elab.ElabRules
 public import Lean.Elab.Macro
@@ -65,3 +66,8 @@ public import Lean.Elab.ErrorExplanation
 public import Lean.Elab.DocString
 public import Lean.Elab.DocString.Builtin
 public import Lean.Elab.Parallel
+public import Lean.Elab.BuiltinDo
+public import Lean.Elab.Idbg
+public import Lean.Elab.ConfigEval
+public import Lean.Elab.ConfigEval.Builtins
+public import Lean.Elab.Tactic.Config

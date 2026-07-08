@@ -57,9 +57,6 @@ instance (p₁ p₂ : String.Pos.Raw) : Decidable (p₁ ≤ p₂) :=
 instance (p₁ p₂ : String.Pos.Raw) : Decidable (p₁ < p₂) :=
   inferInstanceAs (Decidable (p₁.byteIdx < p₂.byteIdx))
 
-instance : Min String.Pos.Raw := minOfLe
-instance : Max String.Pos.Raw := maxOfLe
-
 @[simp]
 theorem Pos.Raw.byteIdx_sub_char {p : Pos.Raw} {c : Char} : (p - c).byteIdx = p.byteIdx - c.utf8Size := rfl
 
@@ -111,7 +108,10 @@ At runtime, this function is implemented by efficient, constant-time code.
 def getUTF8Byte (s : @& String) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
   s.toByteArray[p.byteIdx]
 
-@[deprecated getUTF8Byte (since := "2025-10-01"), extern "lean_string_get_byte_fast", expose]
+theorem getUTF8Byte_eq_getElem {s : String} {p : Pos.Raw} {h} :
+    s.getUTF8Byte p h = s.toByteArray[p.byteIdx] := (rfl)
+
+@[deprecated getUTF8Byte (since := "2025-10-01"), extern "lean_string_get_byte_fast"]
 abbrev getUtf8Byte (s : String) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
   s.getUTF8Byte p h
 

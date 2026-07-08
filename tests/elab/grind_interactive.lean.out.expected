@@ -1,0 +1,34 @@
+[splits] Case split candidates
+  [split] #65fc := p ∨ p₁ = p₂
+  [split] #1460 := p ∨ q ∧ r
+[splits] Case split candidates
+  [split] #8289 := match bs with
+      | [] => 1
+      | [head] => 2
+      | head :: head_1 :: tail => 3
+  [split] #bf4f := match as with
+      | [] => 1
+      | [head] => 2
+      | head :: head_1 :: tail => 3
+Try these:
+  [apply] cases #7a08 for
+    ¬p ∨ ¬q
+  [apply] cases #8212 for
+    ¬p ∨ q
+  [apply] cases #fc16 for
+    p ∨ ¬q
+  [apply] cases #4283 for
+    p ∨ q
+  [apply] cases #0457 for
+    p ∨ r
+[thms] Local theorems
+  [thm] #c5bb := ∀ (x : Nat), q x
+  [thm] #bfb8 := ∀ (x : Nat), p x → p (f x)
+[splits] Case split candidates
+  [split] #4b88 := x✝ + 1 ≤ y✝ ∨ y✝ + 1 ≤ x✝
+[splits] Case split candidates
+  [split] #dded := y + 1 ≤ w ∨ w + 1 ≤ y
+[splits] Case split candidates
+  [split] #4b88 := x✝ + 1 ≤ y✝ ∨ y✝ + 1 ≤ x✝
+[splits] Case split candidates
+  [split] #dded := y + 1 ≤ w ∨ w + 1 ≤ y

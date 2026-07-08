@@ -1,0 +1,9 @@
+warningAsError.lean:8:6-8:7: warning: `g` has been deprecated: Use `f` instead
+1
+warningAsError.lean:12:6-12:7: error: `g` has been deprecated: Use `f` instead
+1
+warningAsError.lean:15:7-15:13: error: Variable name `unused` is not explicitly referenced.
+
+The binding can be removed (if unused) or named `_` (if used implicitly).
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`

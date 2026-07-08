@@ -7,6 +7,14 @@ module
 
 prelude
 public import Lean.ScopedEnvExtension
+public import Lean.ReducibilityAttrs
+
+/-!
+# `@[cbv_opaque]` Attribute and Extension
+
+Scoped set of declaration names that `cbv` should not unfold.
+Supports `erase` to remove a declaration from the set within a scope.
+-/
 
 public section
 
@@ -27,7 +35,10 @@ builtin_initialize
     name  := `cbv_opaque
     descr := "Mark declarations that should not be unfolded by the `cbv` tactic"
     applicationTime := AttributeApplicationTime.afterCompilation
-    add   := fun declName _ kind =>
+    add   := fun declName _ kind => do
+      if (← isReducible declName) then
+        throwError "`@[cbv_opaque]` cannot be applied to a `@[reducible]` declaration: \
+          `{.ofConstName declName}` is reducible, so it is unfolded before `cbv` runs"
       cbvOpaqueExt.add declName kind
     erase := fun declName => do
       let s := cbvOpaqueExt.getState (← getEnv)

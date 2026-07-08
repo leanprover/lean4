@@ -46,7 +46,7 @@ def Iter.atIdxSlow? {α β} [Iterator α Id β]
 
 -- We provide the functional induction principle by hand because `atIdxSlow?` is implemented using
 -- `extrinsicFix₂` and not using well-founded recursion.
-/-
+/--
 An induction principle for `Iter.atIdxSlow?`.
 
 This lemma provides a functional induction principle for reasoning about `Iter.atIdxSlow? n it`.

@@ -47,7 +47,7 @@ partial def LeCnstr.applySubsts (c : LeCnstr) : GoalM LeCnstr := withIncRecDepth
   let c ← c.applyEq a x c₁ b
   applySubsts c
 
-def _root_.Int.Linear.Poly.isNegEq (p₁ p₂ : Poly) : Bool :=
+def _root_.Int.Internal.Linear.Poly.isNegEq (p₁ p₂ : Poly) : Bool :=
   match p₁, p₂ with
   | .num k₁, .num k₂ => k₁ == -k₂
   | .add a₁ x p₁, .add a₂ y p₂ => a₁ == -a₂ && x == y && isNegEq p₁ p₂
@@ -99,6 +99,7 @@ where
         return some { p := c.p.addConst 1, h := .ofLeDiseq c c' }
     return none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_assert_le]
 def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()

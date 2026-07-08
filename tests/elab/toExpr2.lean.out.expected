@@ -1,0 +1,50 @@
+List.toArray.{0} (Prod.{0, 0} Nat Nat) (List.cons.{0} (Prod.{0, 0} Nat Nat) (Prod.mk.{0, 0} Nat Nat (OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)) (OfNat.ofNat.{0} Nat 2 (instOfNatNat 2))) (List.cons.{0} (Prod.{0, 0} Nat Nat) (Prod.mk.{0, 0} Nat Nat (OfNat.ofNat.{0} Nat 3 (instOfNatNat 3)) (OfNat.ofNat.{0} Nat 4 (instOfNatNat 4))) (List.nil.{0} (Prod.{0, 0} Nat Nat))))
+#[(1, 2), (3, 4)]
+List.cons.{0} Char (Char.ofNat 97) (List.cons.{0} Char (Char.ofNat 98) (List.cons.{0} Char (Char.ofNat 99) (List.nil.{0} Char)))
+[a, b, c]
+Prod.mk.{0, 0} String Bool "hello" Bool.true
+(hello, true)
+Prod.mk.{0, 0} Unit Nat Unit.unit (OfNat.ofNat.{0} Nat 10 (instOfNatNat 10))
+((), 10)
+OfNat.ofNat.{0} Rat 1 (Rat.instOfNat 1)
+1
+Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 1 (Rat.instOfNat 1))
+-1
+OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2)
+2
+Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2))
+-2
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 1 (Rat.instOfNat 1))) (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2))
+-1/2
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2))) (OfNat.ofNat.{0} Rat 3 (Rat.instOfNat 3))
+-2/3
+Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2))
+-2
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 20 (Rat.instOfNat 20))) (OfNat.ofNat.{0} Rat 3 (Rat.instOfNat 3))
+-20/3
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 617 (Rat.instOfNat 617))) (OfNat.ofNat.{0} Rat 500 (Rat.instOfNat 500))
+-617/500
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (OfNat.ofNat.{0} Rat 67 (Rat.instOfNat 67)) (OfNat.ofNat.{0} Rat 100 (Rat.instOfNat 100))
+67/100
+OfNat.ofNat.{0} Rat 0 (Rat.instOfNat 0)
+0
+OfNat.ofNat.{0} Rat 1 (Rat.instOfNat 1)
+1
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (OfNat.ofNat.{0} Rat 1 (Rat.instOfNat 1)) (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2))
+1/2
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 1 (Rat.instOfNat 1))) (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2))
+-1/2
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2)) (OfNat.ofNat.{0} Rat 3 (Rat.instOfNat 3))
+2/3
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (OfNat.ofNat.{0} Rat 67 (Rat.instOfNat 67)) (OfNat.ofNat.{0} Rat 100 (Rat.instOfNat 100))
+67/100
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (OfNat.ofNat.{0} Rat 167 (Rat.instOfNat 167)) (OfNat.ofNat.{0} Rat 100 (Rat.instOfNat 100))
+167/100
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (OfNat.ofNat.{0} Rat 42 (Rat.instOfNat 42)) (OfNat.ofNat.{0} Rat 25 (Rat.instOfNat 25))
+42/25
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 167 (Rat.instOfNat 167))) (OfNat.ofNat.{0} Rat 100 (Rat.instOfNat 100))
+-167/100
+Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 2 (Rat.instOfNat 2))
+-2
+HDiv.hDiv.{0, 0, 0} Rat Rat Rat (instHDiv.{0} Rat Rat.instDiv) (Neg.neg.{0} Rat Rat.instNeg (OfNat.ofNat.{0} Rat 67 (Rat.instOfNat 67))) (OfNat.ofNat.{0} Rat 100 (Rat.instOfNat 100))
+-67/100

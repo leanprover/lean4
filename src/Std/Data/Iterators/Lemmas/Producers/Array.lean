@@ -67,7 +67,7 @@ theorem Array.toList_iterFromIdx {array : Array β}
   simp [Iter.toList, Array.iterFromIdx_eq_toIter_iterFromIdxM, Iter.toIterM_toIter,
     Array.toList_iterFromIdxM]
 
-@[simp, grind =]
+@[cbv_eval, simp, grind =]
 theorem Array.toList_iter {array : Array β} :
     array.iter.toList = array.toList := by
   simp [Array.iter_eq_iterFromIdx, Array.toList_iterFromIdx]
@@ -77,7 +77,7 @@ theorem Array.toArray_iterFromIdx {array : Array β} {pos : Nat} :
     (array.iterFromIdx pos).toArray = array.extract pos := by
   simp [iterFromIdx_eq_toIter_iterFromIdxM, Iter.toArray]
 
-@[simp, grind =]
+@[cbv_eval, simp, grind =]
 theorem Array.toArray_iter {array : Array β} :
     array.iter.toArray = array := by
   simp [Array.iter_eq_iterFromIdx]
@@ -112,6 +112,6 @@ theorem Array.iterFromIdx_equiv_iter_drop_toList {α : Type w} {array : Array α
 theorem Array.iter_equiv_iter_toList {α : Type w} {array : Array α} :
     array.iter.Equiv array.toList.iter := by
   rw [Array.iter_eq_iterFromIdx]
-  simpa using iterFromIdx_equiv_iter_drop_toList
+  simpa using! iterFromIdx_equiv_iter_drop_toList
 
 end Equivalence

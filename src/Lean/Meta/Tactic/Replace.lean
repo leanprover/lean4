@@ -49,35 +49,39 @@ def _root_.Lean.MVarId.replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) :
     if Expr.equal target targetNew then
       return mvarId
     else
-      let tag     ← mvarId.getTag
-      let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
-      let newVal  ← mkExpectedTypeHint mvarNew target
-      mvarId.assign newVal
-      return mvarNew.mvarId!
-
-private def replaceLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
-  mvarId.withContext do
-    let localDecl ← fvarId.getDecl
-    let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
-    /- `typeNew` may contain variables that occur after `fvarId`.
-        Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed at the
-        position we are inserting it.
-        We must `instantiateMVars` first to ensure that there is no mvar in `typeNew` which is
-        assigned to some later-occurring fvar. -/
-    let (_, localDecl') ← findMaxFVar (← instantiateMVars typeNew) |>.run localDecl
-    let result ← mvarId.assertAfter localDecl'.fvarId localDecl.userName typeNew typeNewPr
-    (do let mvarIdNew ← result.mvarId.clear fvarId
-        pure { result with mvarId := mvarIdNew })
-    <|> pure result
-where
-  findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
-    e.forEach' fun e => do
-      if e.isFVar then
-        let localDecl' ← e.fvarId!.getDecl
-        modify fun localDecl => if localDecl'.index > localDecl.index then localDecl' else localDecl
-        return false
+      -- For an accurate `Expr.equal` check, we need to instantiate metavariables.
+      -- Some tactics depend on this returning the same metavariable to check that they made no progress.
+      let target ← instantiateMVars target
+      let targetNew ← instantiateMVars targetNew
+      if Expr.equal target targetNew then
+        mvarId.setType target -- cache the instantiated type
+        return mvarId
       else
-        return e.hasFVar
+        let tag     ← mvarId.getTag
+        let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+        let newVal  ← mkExpectedTypeHint mvarNew target
+        mvarId.assign newVal
+        return mvarNew.mvarId!
+
+/--
+Given a hypothesis `fvarId` named `h`, asserts a new hypothesis `h : type`
+as soon after `fvarId` as possible, then tries to clear `h`. This is useful to avoid
+reordering hypotheses.
+
+The new hypothesis is asserted after any local variables that `type` depends on, and it may contain
+metavariables. The value `val : type` can depend on any variables in the local context.
+
+See also `Lean.MVarId.assertAfter'`, which asserts hypotheses without clearing.
+-/
+def _root_.Lean.MVarId.replace
+    (mvarId : MVarId) (fvarId : FVarId) (val : Expr) (type? : Option Expr := none) (userName? : Option Name := none) :
+    MetaM AssertAfterResult :=
+  mvarId.withContext do
+    let type ← type?.getDM (inferType val)
+    let userName ← userName?.getDM (LocalDecl.userName <$> fvarId.getDecl)
+    let result ← mvarId.assertAfter' fvarId userName type val
+    let mvarId ← result.mvarId.tryClear fvarId
+    return { result with mvarId }
 
 /--
   Replace type of the local declaration with id `fvarId` with one with the same user-facing name, but with type `typeNew`.
@@ -89,35 +93,43 @@ where
   well-formed. That is, if `typeNew` involves declarations which occur later than `fvarId` in the
   local context, the new local declaration will be inserted immediately after the latest-occurring
   one. Otherwise, it will be inserted immediately after `fvarId`.
-
-  Note: `replaceLocalDecl` should not be used when unassigned pending mvars might be present in
-  `typeNew`, as these may later be synthesized to fvars which occur after `fvarId` (by e.g.
-  `Term.withSynthesize` or `Term.synthesizeSyntheticMVars`) .
   -/
 @[inline] def _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
-  replaceLocalDeclCore mvarId fvarId typeNew eqProof
+  mvarId.withContext do
+    let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
+    mvarId.replace fvarId typeNewPr typeNew
 
 /--
 Replaces the type of `fvarId` at `mvarId` with `typeNew`.
-Remark: this method assumes that `typeNew` is definitionally equal to the current type of `fvarId`.
+Remark: this method assumes that `typeNew` is definitionally equal to the current type of `fvarId`,
+and that `typeNew` is well-formed at this position.
 
 If `typeNew` is equal to current type of `fvarId`, then returns `mvarId` unchanged.
 Uses `Expr.equal` for the comparison so that it is possible to update binder names, etc., which are user-visible.
 -/
 def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
   mvarId.withContext do
-    if Expr.equal typeNew (← fvarId.getType) then
+    let type ← fvarId.getType
+    if Expr.equal type typeNew then
       return mvarId
     else
-      let mvarDecl ← mvarId.getDecl
-      let lctxNew := (← getLCtx).modifyLocalDecl fvarId (·.setType typeNew)
-      withLCtx' lctxNew do
-        -- `typeNew` might not be defeq to the old type at reducible transparency (e.g. a definition was unfolded)
-        -- so it might now be recognized as an instance.
-        withLocalInstances [lctxNew.get! fvarId] do
-          let mvarNew ← mkFreshExprMVar mvarDecl.type mvarDecl.kind mvarDecl.userName
-          mvarId.assign mvarNew
-          return mvarNew.mvarId!
+      -- For an accurate `Expr.equal` check, we need to instantiate metavariables.
+      -- Some tactics depend on this returning the same metavariable to check that they made no progress.
+      let type ← instantiateMVars type
+      let typeNew ← instantiateMVars typeNew
+      if Expr.equal type typeNew then
+        mvarId.setFVarType fvarId type -- cache the instantiated type
+        return mvarId
+      else
+        let lctxNew := (← getLCtx).setType fvarId typeNew
+        withLCtx' lctxNew do
+          -- `typeNew` might not be defeq to the old type at reducible transparency (e.g. a definition was unfolded)
+          -- so it might now be recognized as an instance.
+          withLocalInstances [lctxNew.get! fvarId] do
+            let mvarDecl ← mvarId.getDecl
+            let mvarNew ← mkFreshExprMVar mvarDecl.type mvarDecl.kind mvarDecl.userName
+            mvarId.assign mvarNew
+            return mvarNew.mvarId!
 
 /--
 Replace the target type of `mvarId` with `typeNew`.

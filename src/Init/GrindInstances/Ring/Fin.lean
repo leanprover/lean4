@@ -156,6 +156,12 @@ instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
       rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
         ← IntInterval.wrap_mul (by simp), Int.pow_succ, ToInt.wrap_toInt]
 
+instance : PowIdentity (Fin 2) 2 where
+  pow_eq x := by
+    match x with
+    | ⟨0, _⟩ => rfl
+    | ⟨1, _⟩ => rfl
+
 end Fin
 
 end Lean.Grind

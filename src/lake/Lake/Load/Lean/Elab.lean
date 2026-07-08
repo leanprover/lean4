@@ -34,6 +34,8 @@ public def importModulesUsingCache
 : IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
+
+  unsafe enableInitializersExecution  -- needed for `loadExts`
   let env ← importModules (loadExts := true) imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
   return env
@@ -65,7 +67,7 @@ def elabConfigFile
   let input ← IO.FS.readFile configFile
   let inputCtx := Parser.mkInputContext input configFile.toString
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header leanOpts inputCtx messages
+  let (env, messages) ← StateT.run (processHeader header leanOpts inputCtx) messages
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
@@ -86,6 +88,7 @@ def elabConfigFile
   else
     return s.commandState.env
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 `Lean.Kernel.Environment.add` is now private, this is an exported helper wrapping it for
 `Lean.Environment`.
@@ -177,8 +180,7 @@ toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   let some configName := FilePath.mk <$> cfg.configFile.fileName
     | error "invalid configuration file name"
-  let pkgName := cfg.pkgName.toString (escape := false)
-  let configDir := cfg.lakeDir / "config" / pkgName
+  let configDir := cfg.configDir
   IO.FS.createDirAll configDir
   let olean := configDir / configName.withExtension "olean"
   let traceFile := configDir / configName.withExtension "olean.trace"
@@ -244,6 +246,10 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
       h.putStrLn <| Json.pretty <| toJson
         {platform := System.Platform.target, leanHash := cfg.lakeEnv.leanGithash,
           configHash, idx := cfg.pkgIdx, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
+      -- Flush before `truncate` (which sets the file size without flushing buffered
+      -- writes) and before the slow elaboration below, so a process killed
+      -- mid-elaboration leaves a valid trace rather than a NUL-byte size placeholder.
+      h.flush
       h.truncate
       let env ← elabConfigFile
         cfg.pkgIdx cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
@@ -260,7 +266,6 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     else
       h.lock (exclusive := false)
       let contents ← h.readToEnd
-      let errMsg := "compiled configuration is invalid; run with '-R' to reconfigure"
       match Json.parse contents with
       | .ok json =>
         match fromJson? json with
@@ -279,9 +284,9 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
           | .ok (opts : NameMap String) =>
             elabConfig (← acquireTrace h) opts
           | .error _ =>
-            error errMsg
+            elabConfig (← acquireTrace h) cfg.lakeOpts
       | .error _ =>
-        error errMsg
+        elabConfig (← acquireTrace h) cfg.lakeOpts
   if (← traceFile.pathExists) then
     validateTrace <| ← IO.FS.Handle.mk traceFile .read
   else

@@ -10,7 +10,7 @@ public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult
 import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Int.OfNat
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.Simproc
 
 @[expose] public section
@@ -232,6 +232,7 @@ theorem safe_insert_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRup
   · simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq] at pf
     exact pf c' c'_in_f
 
+open Classical in
 theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : ReadyForRupAdd f)
     (units : CNF.Clause (PosFin n)) :
     AssignmentsInvariant (insertRupUnits f units).1 := by
@@ -241,12 +242,12 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
   intro i b hb p hp
   simp only [(· ⊨ ·), Clause.eval] at hp
   simp only [toList, List.append_assoc, List.any_eq_true, Prod.exists,
-    Bool.exists_bool, Bool.decide_coe, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq,
-    exists_eq_right, List.mem_map] at hp
+    Bool.exists_bool, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right,
+    List.mem_map, decide_eq_true_eq] at hp
   have pf : p ⊨ f := by
     simp only [(· ⊨ ·), Clause.eval]
     simp only [toList, List.append_assoc, List.any_eq_true, Prod.exists, Bool.exists_bool,
-      Bool.decide_coe, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map]
+      decide_eq_true_eq, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map]
     intro c cf
     rcases cf with cf | cf | cf
     · specialize hp c (Or.inl cf)
@@ -301,7 +302,7 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
       rcases hp with ⟨hp1, hp2⟩ | ⟨hp1, hp2⟩
       · simp only [b_eq_b', ← hp1.2, Entails.eval]
         rw [hp1.1] at hp2
-        exact of_decide_eq_true hp2
+        exact hp2
       · simp only [b_eq_b', ← hp1.2, Entails.eval]
         rw [hp1.1] at hp2
         exact hp2
@@ -350,9 +351,8 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
     simp only [Fin.getElem_fin] at h1
     simp only [Fin.getElem_fin] at h2
     simp only [Clause.toList, h1, unit_eq, List.mem_cons, Prod.mk.injEq, Bool.false_eq_true,
-      and_false, List.not_mem_nil, or_self, Bool.decide_eq_false, Bool.not_eq_eq_eq_not,
-      Bool.not_true, false_and, and_true, or_false, false_or, h2, Bool.true_eq_false,
-      ] at hp1 hp2
+      and_false, List.not_mem_nil, or_self, false_and, and_true, or_false, false_or, h2,
+      Bool.true_eq_false] at hp1 hp2
     simp only [hp2.1, ← hp1.1, true_and] at hp2
     simp [hp1.2] at hp2
 
@@ -728,7 +728,6 @@ theorem sat_of_confirmRupHint_insertRup_fold {n : Nat} (f : DefaultFormula n)
         specialize pc v
         rw [v'_eq_v] at v'_in_c
         have pv := pc.2 v'_in_c
-        simp only at pv
         simp only [p_unsat_c] at pv
         cases pv
     · simp only [negate_eq, List.mem_map, Prod.exists, Bool.exists_bool] at v_in_neg_c
@@ -742,7 +741,6 @@ theorem sat_of_confirmRupHint_insertRup_fold {n : Nat} (f : DefaultFormula n)
         specialize pc v
         rw [v'_eq_v] at v'_in_c
         have pv := pc.1 v'_in_c
-        simp only at pv
         simp only [p_unsat_c] at pv
         cases pv
       · grind [Literal.negate]

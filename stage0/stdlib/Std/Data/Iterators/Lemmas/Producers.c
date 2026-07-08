@@ -13,6 +13,48 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Monadic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Array(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Vector(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Empty(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Range(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Slice(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Lemmas_Producers(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Monadic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Array(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Vector(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Empty(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Repeat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Range(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers_Slice(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_Iterators_Lemmas_Producers(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Monadic(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Array(uint8_t builtin);
 lean_object* initialize_Std_Data_Iterators_Lemmas_Producers_Vector(uint8_t builtin);
@@ -46,7 +88,13 @@ lean_dec_ref(res);
 res = initialize_Std_Data_Iterators_Lemmas_Producers_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Data_Iterators_Lemmas_Producers(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_Iterators_Lemmas_Producers(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_Iterators_Lemmas_Producers(builtin);
 }
 #ifdef __cplusplus
 }

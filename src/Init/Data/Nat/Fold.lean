@@ -400,7 +400,6 @@ theorem dfold_add
   induction m with
   | zero => simp; rfl
   | succ m ih =>
-    set_option backward.isDefEq.respectTransparency false in
     simp [dfold_congr (Nat.add_assoc n m 1).symm, ih]
 
 @[simp] theorem dfoldRev_zero
@@ -436,7 +435,6 @@ theorem dfoldRev_add
   induction m with
   | zero => simp; rfl
   | succ m ih =>
-    set_option backward.isDefEq.respectTransparency false in
     simp [← Nat.add_assoc, ih]
 
 end Nat

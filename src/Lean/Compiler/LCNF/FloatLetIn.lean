@@ -320,7 +320,7 @@ where
       }
       let (_, res) ← goCases |>.run base
       let remainders := res.newArms[Decision.dont]!
-      let newAlts ← cs.alts.mapM fun alt => do
+      let newAlts ← cs.alts.mapMonoM fun alt => do
         let decision := Decision.ofAlt alt
         let newCode := res.newArms[decision]!
         trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"

@@ -291,10 +291,9 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    exportEntriesFnEx? := some fun _ s _ => fun
+    exportEntriesFnEx? := some fun _ s _ =>
       -- preserved for non-modules, make non-persistent at some point?
-      | .private => s.toArray.qsort decLt
-      | _ => #[]
+      { exported := #[], server := #[], «private» := s.toArray.qsort decLt }
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
@@ -309,9 +308,7 @@ def addFunctionSummary (env : Environment) (fid : Name) (v : Value) : Environmen
 Obtain the `Value` for a function name if possible.
 -/
 def getFunctionSummary? (env : Environment) (fid : Name) : Option Value :=
-  match env.getModuleIdxFor? fid with
-  | some modIdx => findAtSorted? (functionSummariesExt.getModuleEntries env modIdx) fid
-  | none        => functionSummariesExt.getState env |>.find? fid
+  findExtEntry? env functionSummariesExt fid findAtSorted? (·.2.find?)
 
 /--
 A map from variable identifiers to the `Value` produced by the abstract
@@ -642,7 +639,7 @@ where
             eraseCode alt.getCode
             return alt.updateCode <| .unreach typ
         | .default body => return alt.updateCode (← go body)
-      return code.updateCases! cs.resultType cs.discr (← cs.alts.mapM <| processAlt cs.resultType)
+      return code.updateAlts! (← cs.alts.mapMonoM <| processAlt cs.resultType)
     | .jmp .. | .return .. | .unreach .. => return code
 
 end UnreachableBranches

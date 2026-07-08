@@ -116,7 +116,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
   simp
 
 @[simp, grind =] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
-    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using h) := by
+    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using! h) := by
   rcases xs with ⟨xs⟩
   simp
 
@@ -213,6 +213,9 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp, grind =] theorem sum_toArray [Add α] [Zero α] (l : List α) : l.toArray.sum = l.sum := by
   simp [Array.sum, List.sum]
 
+@[simp, grind =] theorem prod_toArray [Mul α] [One α] (l : List α) : l.toArray.prod = l.prod := by
+  simp [Array.prod, List.prod]
+
 @[simp, grind =] theorem append_toArray (l₁ l₂ : List α) :
     l₁.toArray ++ l₂.toArray = (l₁ ++ l₂).toArray := by
   apply ext'
@@ -225,7 +228,7 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  simp only [forIn_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
@@ -258,7 +261,7 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 @[simp, grind =] theorem findM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
     l.toArray.findM? f = l.findM? f := by
   rw [Array.findM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  simp only [forIn_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
@@ -393,7 +396,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
   | [], _ => rw [dif_neg] <;> simp
   | _::_, [] => simp at hle
   | a::l₁, b::l₂ =>
-    simp [isPrefixOf_cons₂, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
+    simp [isPrefixOf_cons_cons, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
 
 @[simp, grind =] theorem isPrefixOf_toArray [BEq α] (l₁ l₂ : List α) :
     l₁.toArray.isPrefixOf l₂.toArray = l₁.isPrefixOf l₂ := by
@@ -407,7 +410,7 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
       cases l₂ with
       | nil => simp
       | cons b l₂ =>
-        simp only [isPrefixOf_cons₂, Bool.and_eq_false_imp]
+        simp only [isPrefixOf_cons_cons, Bool.and_eq_false_imp]
         intro w
         rw [ih]
         simp_all
@@ -509,8 +512,8 @@ private theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : 
   simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
     getElem_toArray, getElem_cons_succ]
   split
-  rw [takeWhile_go_succ]
-  rfl
+  · rw [takeWhile_go_succ]
+  · rfl
 
 private theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
     Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by
@@ -574,7 +577,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   suffices ∀ xs, List.foldl (fun ys a => ys ++ f a) (f a ++ xs) as =
       f a ++ List.foldl (fun ys a => ys ++ f a) xs as by
     erw [empty_append] -- Why doesn't this work via `simp`?
-    simpa using this #[]
+    simpa using! this #[]
   intro xs
   induction as generalizing xs <;> simp_all
 
@@ -589,7 +592,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
 @[simp, grind =] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
     l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
   apply ext'
-  simp; rfl
+  simp
 
 @[simp, grind =] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
     l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
@@ -644,8 +647,8 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
       drop_append_of_le_length (by simp; omega)]
     simp only [append_assoc, cons_append, nil_append]
     cases i with
-    | zero => simp; rfl
-    | succ i => rw [take_set_of_le (by omega)]; rfl
+    | zero => simp
+    | succ i => rw [take_set_of_le (by omega)]
   · simp only [Nat.not_lt] at h'
     have : i = j := by omega
     subst this

@@ -51,7 +51,7 @@ theorem mul_length_le_sum_of_min?_eq_some_int {xs : List Int} (h : xs.min? = som
   cases xs
   · simp_all
   · simp only [min?_eq_some_min (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using min_mul_length_le_sum_int _
+    simpa [← h] using! min_mul_length_le_sum_int _
 
 theorem min_le_sum_div_length_int {xs : List Int} (h : xs ≠ []) :
     xs.min h ≤ xs.sum / xs.length := by
@@ -64,7 +64,7 @@ theorem le_sum_div_length_of_min?_eq_some_int {xs : List Int} (h : xs.min? = som
   cases xs
   · simp_all
   · simp only [min?_eq_some_min (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using min_le_sum_div_length_int _
+    simpa [← h] using! min_le_sum_div_length_int _
 
 theorem sum_le_max_mul_length_int {xs : List Int} (h : xs ≠ []) :
     xs.sum ≤ xs.max h * xs.length := by
@@ -88,7 +88,7 @@ theorem sum_le_max_mul_length_of_max?_eq_some_int {xs : List Int} (h : xs.max? =
   cases xs
   · simp_all
   · simp only [max?_eq_some_max (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using sum_le_max_mul_length_int _
+    simpa [← h] using! sum_le_max_mul_length_int _
 
 theorem sum_div_length_le_max_int {xs : List Int} (h : xs ≠ []) :
     xs.sum / xs.length ≤ xs.max h := by
@@ -104,6 +104,6 @@ theorem sum_div_length_le_max_of_max?_eq_some_int {xs : List Int} (h : xs.max? =
   cases xs
   · simp_all
   · simp only [max?_eq_some_max (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using sum_div_length_le_max_int _
+    simpa [← h] using! sum_div_length_le_max_int _
 
 end List

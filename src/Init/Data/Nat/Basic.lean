@@ -59,9 +59,9 @@ Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
 * `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
-@[specialize, expose] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
+@[specialize, expose] def «repeat» {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
-  | succ n, a => f (repeat f n a)
+  | succ n, a => f («repeat» f n a)
 
 /--
 Applies a function to a starting value the specified number of times.
@@ -438,8 +438,8 @@ theorem ge_of_not_lt {n m : Nat} (h : ¬ n < m) : n ≥ m := (Nat.lt_or_ge n m).
 protected theorem le_of_not_gt : ∀{a b : Nat}, ¬(b > a) → b ≤ a := Nat.ge_of_not_lt
 protected theorem le_of_not_lt : ∀{a b : Nat}, ¬(a < b) → b ≤ a := Nat.ge_of_not_lt
 
-theorem ne_of_gt {a b : Nat} (h : b < a) : a ≠ b := (ne_of_lt h).symm
-protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := ne_of_gt
+protected theorem ne_of_gt {a b : Nat} (h : b < a) : a ≠ b := (ne_of_lt h).symm
+protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := Nat.ne_of_gt
 
 @[simp] protected theorem not_le {a b : Nat} : ¬ a ≤ b ↔ b < a :=
   Iff.intro Nat.gt_of_not_le Nat.not_le_of_gt
@@ -478,7 +478,7 @@ instance : Std.Trichotomous (. < . : Nat → Nat → Prop) where
 
 set_option linter.missingDocs false in
 @[deprecated Nat.instTrichotomousLt (since := "2025-10-27")]
-def Nat.instAntisymmNotLt : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
+theorem Nat.instAntisymmNotLt : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
   antisymm := Nat.instTrichotomousLt.trichotomous
 
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
@@ -509,7 +509,7 @@ protected theorem lt_add_of_pos_right (h : 0 < k) : n < n + k :=
 protected theorem zero_lt_one : 0 < (1:Nat) :=
   zero_lt_succ 0
 
-protected theorem pos_iff_ne_zero : 0 < n ↔ n ≠ 0 := ⟨ne_of_gt, Nat.pos_of_ne_zero⟩
+protected theorem pos_iff_ne_zero : 0 < n ↔ n ≠ 0 := ⟨Nat.ne_of_gt, Nat.pos_of_ne_zero⟩
 
 theorem add_le_add {a b c d : Nat} (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤ b + d :=
   Nat.le_trans (Nat.add_le_add_right h₁ c) (Nat.add_le_add_left h₂ b)
@@ -549,6 +549,7 @@ protected abbrev not_lt_of_lt := @Nat.lt_asymm
 protected theorem lt_iff_le_and_not_ge {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m :=
   ⟨fun h => ⟨Nat.le_of_lt h, Nat.not_le_of_gt h⟩, fun ⟨_, h⟩ => Nat.lt_of_not_ge h⟩
 
+set_option linter.defProp false in
 /-- Deprecated alias for `Nat.lt_iff_le_and_not_ge`. -/
 @[deprecated Nat.lt_iff_le_and_not_ge (since := "2026-02-11")]
 protected abbrev lt_iff_le_not_le := @Nat.lt_iff_le_and_not_ge
@@ -558,11 +559,13 @@ protected theorem lt_iff_le_and_ne {m n : Nat} : m < n ↔ m ≤ n ∧ m ≠ n :
 
 protected theorem ne_iff_lt_or_gt {a b : Nat} : a ≠ b ↔ a < b ∨ b < a :=
   ⟨Nat.lt_or_gt_of_ne, fun | .inl h => Nat.ne_of_lt h | .inr h => Nat.ne_of_gt h⟩
+
 /-- Alias for `Nat.ne_iff_lt_or_gt`. -/
 protected abbrev lt_or_gt := @Nat.ne_iff_lt_or_gt
 
 /-- Alias for `Nat.le_total`. -/
 protected abbrev le_or_ge := @Nat.le_total
+
 /-- Alias for `Nat.le_total`. -/
 protected abbrev le_or_le := @Nat.le_total
 
@@ -868,7 +871,7 @@ Examples:
 -/
 protected abbrev min (n m : Nat) := min n m
 
-@[grind =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+@[grind =, lia =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
 
 instance : Max Nat := maxOfLe
 
@@ -885,7 +888,7 @@ Examples:
 -/
 protected abbrev max (n m : Nat) := max n m
 
-@[grind =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+@[grind =, lia =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
 
 
 /-! # Auxiliary theorems for well-founded recursion -/
@@ -1221,9 +1224,9 @@ theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
 theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   not_lt_eq b a
 
-@[csimp] theorem repeat_eq_repeatTR : @repeat = @repeatTR :=
+@[csimp] theorem repeat_eq_repeatTR : @«repeat» = @repeatTR :=
   funext fun α => funext fun f => funext fun n => funext fun init =>
-  let rec go : ∀ m n, repeatTR.loop f m (repeat f n init) = repeat f (m + n) init
+  let rec go : ∀ m n, repeatTR.loop f m («repeat» f n init) = «repeat» f (m + n) init
     | 0,      n => by simp [repeatTR.loop]
     | succ m, n => by rw [repeatTR.loop, succ_add]; exact go m (succ n)
   (go n 0).symm

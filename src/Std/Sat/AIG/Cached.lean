@@ -40,7 +40,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     let decls := decls.push decl
     have hdag := by
       intro i lhs rhs h1 h2
-      simp only [Array.getElem_push] at h2
+      simp only [decls, Array.getElem_push] at h2
       split at h2
       · apply hdag <;> assumption
       · contradiction
@@ -116,7 +116,7 @@ where
           let decls := decls.push decl
           have hdag := by
             intro i lhs rhs h1 h2
-            simp only [Array.getElem_push] at h2
+            simp only [decls, Array.getElem_push] at h2
             simp_all
             split at h2
             · apply hdag <;> assumption

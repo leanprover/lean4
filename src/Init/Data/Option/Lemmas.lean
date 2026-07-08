@@ -82,6 +82,15 @@ theorem get_inj {o1 o2 : Option α} {h1} {h2} :
   match o1, o2, h1, h2 with
   | some a, some b, _, _ => simp only [Option.get_some, Option.some.injEq]
 
+theorem getD_inj {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) {fallback} :
+    o₁.getD fallback = o₂.getD fallback ↔ o₁ = o₂ := by
+  match o₁, o₂, h₁, h₂ with
+  | some a, some b, _, _ => simp only [Option.getD_some, Option.some.injEq]
+
+theorem get!_inj [Inhabited α] {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) :
+    o₁.get! = o₂.get! ↔ o₁ = o₂ := by
+  simpa [get!_eq_getD] using getD_inj h₁ h₂
+
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb
 
@@ -820,6 +829,9 @@ end choice
 theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := by
   cases h; simp
 
+theorem or_eq_left_of_isSome {o o' : Option α} : o.isSome = true → o.or o' = o := by
+  cases o <;> simp
+
 @[simp, grind =] theorem or_some {o : Option α} : o.or (some a) = some (o.getD a) := by
   cases o <;> rfl
 
@@ -1060,7 +1072,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite {p : Prop} {_ : Decidable p} (h) :
     (if p then some b else none).get h = b := by
-  simpa using get_dite (p := p) (fun _ => b) (by simpa using h)
+  simpa using! get_dite (p := p) (fun _ => b) (by simpa using h)
 
 @[simp] theorem get_dite' {p : Prop} {_ : Decidable p} (b : ¬ p → β) (w) :
     (if h : p then none else some (b h)).get w = b (by simpa using w) := by
@@ -1072,7 +1084,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite' {p : Prop} {_ : Decidable p} (h) :
     (if p then none else some b).get h = b := by
-  simpa using get_dite' (p := p) (fun _ => b) (by simpa using h)
+  simpa using! get_dite' (p := p) (fun _ => b) (by simpa using h)
 
 end ite
 

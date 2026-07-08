@@ -15,7 +15,7 @@ public import Init.Data.Char.Basic
 import Init.ByCases
 import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.Simproc
 import Init.Data.Option.Lemmas
 import Init.Data.UInt.Lemmas
@@ -217,7 +217,7 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
           Nat.reduceLeDiff, UInt32.left_eq_add]
         grind [UInt32.lt_iff_toNat_lt]
       · grind
-    · simp [coe_ordinal]
+    · simp [coe_ordinal, -toNat_val]
       grind [UInt32.lt_iff_toNat_lt]
   | case2 =>
     rw [Fin.addNat?_eq_some]

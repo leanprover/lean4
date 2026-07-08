@@ -1,0 +1,3 @@
+854.lean:4:8-4:11: warning: declaration uses `sorry`
+854.lean:11:8-11:12: warning: declaration uses `sorry`
+854.lean:15:8-15:13: warning: declaration uses `sorry`

@@ -24,9 +24,9 @@ nesting to the left.
 Example:
  * `Fin.foldl 3 (· + ·.val) (0 : Nat) = ((0 + (0 : Fin 3).val) + (1 : Fin 3).val) + (2 : Fin 3).val`
 -/
-@[inline] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
-  /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`  -/
-  @[specialize] loop (x : α) (i : Nat) : α :=
+@[inline, expose] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
+  /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`. -/
+  @[specialize, semireducible] loop (x : α) (i : Nat) : α :=
     if h : i < n then loop (f x ⟨i, h⟩) (i+1) else x
   termination_by n - i
 
@@ -164,7 +164,7 @@ theorem foldlM_add [Monad m] [LawfulMonad m] (f : α → Fin (n + k) → m α) :
     simp
   | succ k ih =>
     funext x
-    simp [foldlM_succ_last, ← Nat.add_assoc, ih]; rfl
+    simp [foldlM_succ_last, ← Nat.add_assoc, ih]
 
 /-! ### foldrM -/
 
@@ -222,7 +222,7 @@ theorem foldrM_add [Monad m] [LawfulMonad m] (f : Fin (n + k) → α → m α) :
     simp
   | succ k ih =>
     funext x
-    simp [foldrM_succ_last, ← Nat.add_assoc, ih]; rfl
+    simp [foldrM_succ_last, ← Nat.add_assoc, ih]
 
 /-! ### foldl -/
 
@@ -268,7 +268,7 @@ theorem foldl_add (f : α → Fin (n + m) → α) (x) :
         (foldl n (fun x i => f x (i.castLE (Nat.le_add_right n m))) x):= by
   induction m with
   | zero => simp
-  | succ m ih => simp [foldl_succ_last, ih, ← Nat.add_assoc]; rfl
+  | succ m ih => simp [foldl_succ_last, ih, ← Nat.add_assoc]
 
 theorem foldl_eq_foldlM (f : α → Fin n → α) (x) :
     foldl n f x = (foldlM (m := Id) n (pure <| f · ·) x).run := by
@@ -321,7 +321,7 @@ theorem foldr_add (f : Fin (n + m) → α → α) (x) :
         (foldr m (fun i => f (i.natAdd n)) x) := by
   induction m generalizing x with
   | zero => simp
-  | succ m ih => simp [foldr_succ_last, ih, ← Nat.add_assoc]; rfl
+  | succ m ih => simp [foldr_succ_last, ih, ← Nat.add_assoc]
 
 theorem foldr_eq_foldrM (f : Fin n → α → α) (x) :
     foldr n f x = (foldrM (m := Id) n (pure <| f · ·) x).run := by

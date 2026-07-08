@@ -1,0 +1,23 @@
+{"textDocument": {"uri": "file:///6594.lean"},
+ "position": {"line": 3, "character": 2}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///6594.lean"},
+ "position": {"line": 9, "character": 2}}
+{"rendered": "```lean\n⊢ True ∧ True\n```", "goals": ["⊢ True ∧ True"]}
+{"textDocument": {"uri": "file:///6594.lean"},
+ "position": {"line": 13, "character": 2}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///6594.lean"},
+ "position": {"line": 20, "character": 2}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///6594.lean"},
+ "position": {"line": 26, "character": 2}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}
+{"textDocument": {"uri": "file:///6594.lean"},
+ "position": {"line": 33, "character": 2}}
+{"rendered": "```lean\ncase right\n⊢ True\n```",
+ "goals": ["case right\n⊢ True"]}

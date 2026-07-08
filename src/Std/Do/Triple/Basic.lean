@@ -54,6 +54,9 @@ namespace Triple
 theorem iff [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps} :
     (Triple x P Q) ↔ (P ⊢ₛ wp⟦x⟧ Q) := by rfl
 
+theorem of_entails_wp [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps} (h : P ⊢ₛ wp⟦x⟧ Q):
+    Triple x P Q := h
+
 theorem iff_conseq [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps} :
     (Triple x P Q) ↔ (∀ ⦃P' Q'⦄, (P' ⊢ₛ P) → (Q ⊢ₚ Q') → P' ⊢ₛ wp⟦x⟧ Q') := by
   constructor
@@ -106,5 +109,22 @@ for `Q₁`, then `mp x h₁ h₂` is a proof for `Q₂` about `x`.
 -/
 theorem mp [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ (Q₁ →ₚ Q₂)) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
   Triple.iff.mpr <| SPred.and_mono (Triple.iff.mp h₁) (Triple.iff.mp h₂) |>.trans ((wp x).conjunctive Q₁ (Q₁ →ₚ Q₂)).mpr |>.trans ((wp x).mono _ _ PostCond.and_imp)
+
+/--
+Observes a fact `Q` about the state by running a stateless program `obs`, then carries `Q` into the
+proof of `prog`. A triple for `prog` follows from a triple for `obs` that assumes the postcondition
+`Q` of the specification `h` and establishes the goal `wp⟦prog⟧ Post`. This requires `obs` to be
+*stateless*: the premise `hp` states that its successful runs leave the state unchanged.
+-/
+theorem observe [WP m ps] {α β : Type u} {obs : m α} {prog : m β}
+    {Pre : Assertion ps} {Q : PostCond α ps} {Post : PostCond β ps}
+    (hp : ∀ C : Assertion ps, wp⟦obs⟧ (PostCond.noThrow fun _ => C) ⊢ₛ C)
+    (h : Triple obs Pre Q)
+    (hgoal : Triple obs Pre (Q →ₚ PostCond.noThrow fun _ => wp⟦prog⟧ Post)) :
+    Triple prog Pre Post :=
+  Triple.of_entails_wp <|
+    (Triple.entails_wp_of_pre_post (Triple.mp obs h hgoal) SPred.and_self.mpr
+      (PostCond.entails.mk (fun _ => SPred.and_elim_r) (ExceptConds.and_elim_right _ _))).trans
+    (hp (wp⟦prog⟧ Post))
 
 end Triple

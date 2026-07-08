@@ -62,7 +62,7 @@ instance ltTrichotomous : Std.Trichotomous (· < · : Char → Char → Prop) wh
   trichotomous _ _ h₁ h₂ := Char.le_antisymm (by simpa using h₂) (by simpa using h₁)
 
 @[deprecated ltTrichotomous (since := "2025-10-27")]
-def notLTAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
+theorem notLTAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
   antisymm := Char.ltTrichotomous.trichotomous
 
 instance ltAsymm : Std.Asymm (· < · : Char → Char → Prop) where
@@ -73,7 +73,7 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
 
 -- This instance is useful while setting up instances for `String`.
 @[deprecated ltAsymm (since := "2025-08-01")]
-def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
+theorem notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
@@ -85,5 +85,21 @@ theorem toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
 
 @[simp]
 theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
+
+@[simp]
+theorem toNat_val {c : Char} : c.val.toNat = c.toNat := rfl
+
+theorem val_inj {c d : Char} : c.val = d.val ↔ c = d :=
+  Char.ext_iff.symm
+
+theorem toNat_inj {c d : Char} : c.toNat = d.toNat ↔ c = d := by
+  simp [← toNat_val, ← val_inj, ← UInt32.toNat_inj]
+
+theorem isDigit_iff_toNat {c : Char} : c.isDigit ↔ '0'.toNat ≤ c.toNat ∧ c.toNat ≤ '9'.toNat := by
+  simp [isDigit, UInt32.le_iff_toNat_le]
+
+@[simp]
+theorem toNat_mk {val : UInt32} {h} : (Char.mk val h).toNat = val.toNat := by
+  simp [← toNat_val]
 
 end Char

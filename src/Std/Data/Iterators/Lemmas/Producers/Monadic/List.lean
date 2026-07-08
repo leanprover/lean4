@@ -16,13 +16,14 @@ open Std.Internal Std.Iterators Std.Iterators.Types
 variable {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] {β : Type w}
 
 -- We don't want to pollute `List` with this rarely used lemma.
-set_option backward.isDefEq.respectTransparency false in
 public theorem Types.ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).stepAsHetT = (match l with
       | [] => pure .done
       | x :: xs => pure (.yield (xs.iterM m) x)) := by
   simp only [List.iterM, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
-    Iterator.IsPlausibleStep, Equivalence.prun_step]
+    Equivalence.prun_step,
+    -- TODO: get rid of these
+    Iterator.IsPlausibleStep, ListIterator.instIterator]
   refine ⟨?_, ?_⟩
   · ext step
     cases step

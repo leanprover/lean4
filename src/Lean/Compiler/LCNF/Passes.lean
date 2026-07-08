@@ -25,6 +25,11 @@ public import Lean.Compiler.LCNF.ResetReuse
 public import Lean.Compiler.LCNF.SimpCase
 public import Lean.Compiler.LCNF.InferBorrow
 public import Lean.Compiler.LCNF.ExplicitBoxing
+public import Lean.Compiler.LCNF.ExplicitRC
+public import Lean.Compiler.LCNF.CoalesceRC
+public import Lean.Compiler.LCNF.Toposort
+public import Lean.Compiler.LCNF.ExpandResetReuse
+public import Lean.Compiler.LCNF.SimpleGroundExpr
 
 public section
 
@@ -41,13 +46,6 @@ def init : Pass where
     return decls
   phase := .base
   shouldAlwaysRunCheck := true
-
-def checkMeta : Pass where
-  name  := `checkMeta
-  run   := fun decls => do
-    decls.forM LCNF.checkMeta
-    return decls
-  phase := .base
 
 -- Helper pass used for debugging purposes
 def trace (phase := Phase.base) : Pass where
@@ -81,7 +79,9 @@ def saveImpure : Pass where
   phaseOut := .impure
   name := `saveImpure
   run decls := decls.mapM fun decl => do
-    (← normalizeFVarIds decl).saveImpure
+    let decl ← normalizeFVarIds decl
+    decl.saveImpure
+    modifyEnv fun env => recordFinalImpureDecl env decl.name
     return decl
   shouldAlwaysRunCheck := true
 
@@ -92,9 +92,6 @@ open Pass
 def builtinPassManager : PassManager := {
   basePasses := #[
     init,
-    -- Check meta accesses now before optimizations may obscure references. This check should stay in
-    -- `lean` if some compilation is moved out.
-    Pass.checkMeta,
     pullInstances,
     cse (shouldElimFunDecls := false),
     simp,
@@ -151,7 +148,13 @@ def builtinPassManager : PassManager := {
     simpCase,
     inferBorrow,
     explicitBoxing,
+    explicitRc,
+    expandResetReuse,
+    coalesceRC,
+    pushProj (occurrence := 1),
+    detectSimpleGround,
     inferVisibility (phase := .impure),
+    toposortPass,
     saveImpure, -- End of impure phase
   ]
 }

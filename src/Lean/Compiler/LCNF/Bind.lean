@@ -68,8 +68,9 @@ where
       eraseCode k
       eraseParam auxParam
       return .unreach typeNew
-    | .sset fvarId i offset y ty k _ => return .sset fvarId i offset y ty (← go k)
-    | .uset fvarId offset y k _ => return .uset fvarId offset y (← go k)
+    | .oset (k := k) ..| .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) ..
+    | .del (k := k) .. | .setTag (k := k) .. =>
+      return c.updateCont! (← go k)
 
 instance : MonadCodeBind CompilerM where
   codeBind := CompilerM.codeBind
@@ -92,7 +93,7 @@ where
     match type with
     | .forallE _ d b _ =>
       let d := d.instantiateRev xs
-      let p ← mkAuxParam d
+      let p ← mkAuxParam d (isMarkedBorrowed d)
       go b (xs.push (.fvar p.fvarId)) (ps.push p)
     | _ =>
       let type := type.instantiateRev xs

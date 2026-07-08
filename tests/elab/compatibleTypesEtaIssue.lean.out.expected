@@ -1,0 +1,4 @@
+compatibleTypesEtaIssue.lean:44:4-44:7: warning: declaration uses `sorry`
+compatibleTypesEtaIssue.lean:46:4-46:7: warning: declaration uses `sorry`
+compatibleTypesEtaIssue.lean:48:4-48:7: warning: declaration uses `sorry`
+compatibleTypesEtaIssue.lean:50:4-50:7: warning: declaration uses `sorry`

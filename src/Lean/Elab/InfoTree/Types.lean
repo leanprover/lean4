@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Data.DeclarationRange
 public import Lean.Data.OpenDecl
+public import Lean.Data.PPContext
 public import Lean.MetavarContext
 public import Lean.Environment
 public import Lean.Widget.Types
@@ -208,8 +209,10 @@ regular delaboration settings. Additionally, omissions come with a reason for om
 structure DelabTermInfo extends TermInfo where
   /-- A source position to use for "go to definition", to override the default. -/
   location? : Option DeclarationLocation := none
-  /-- Text to use to override the docstring. -/
-  docString? : Option String := none
+  /-- Text to use to override the docstring. The string may be dynamic text. It is an `IO` action
+  so that it can be computed only when it is used. The action receives a `PPContext` so that the
+  action does not need to create a closure with the meta state. -/
+  mkDocString? : Option (PPContext → IO String) := none
   /-- Whether to use explicit mode when pretty printing the term on hover. -/
   explicit : Bool := true
 

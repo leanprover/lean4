@@ -24,7 +24,7 @@ In particular we perform:
 - folding of the most common cases arm into the default arm if possible
 
 Note: Currently the simplifier still contains almost equivalent simplifications to the ones shown
-here. We know that this causes unforseen behavior and do plan on changing it eventually.
+here. We know that this causes unforeseen behavior and do plan on changing it eventually.
 -/
 
 -- TODO: the following functions are duplicated from simp and should be deleted in simp once we
@@ -107,12 +107,23 @@ partial def Code.simpCase (code : Code .impure) : CompilerM (Code .impure) := do
     let decl ← decl.updateValue (← decl.value.simpCase)
     return code.updateFun! decl (← k.simpCase)
   | .return .. | .jmp .. | .unreach .. => return code
-  | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ =>
+  | .let _ k | .uset (k := k) .. | .sset (k := k) .. | .inc (k := k) .. | .dec (k := k) ..
+  | .setTag (k := k) .. | .del (k := k) .. | .oset (k := k) .. =>
     return code.updateCont! (← k.simpCase)
 
 def Decl.simpCase (decl : Decl .impure) : CompilerM (Decl .impure) := do
   let value ← decl.value.mapCodeM (·.simpCase)
   return { decl with value }
+
+public def ensureHasDefault (alts : Array (Alt .impure)) : Array (Alt .impure) :=
+  if alts.any (· matches .default ..) then
+    alts
+  else if alts.size < 2 then
+    alts
+  else
+    let last := alts.back!
+    let alts := alts.pop
+    alts.push (.default last.getCode)
 
 public def simpCase : Pass :=
   Pass.mkPerDeclaration `simpCase .impure Decl.simpCase 0

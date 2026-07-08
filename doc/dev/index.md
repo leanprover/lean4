@@ -1,7 +1,9 @@
 # Development Workflow
 
 If you want to make changes to Lean itself, start by [building Lean](../make/index.md) from a clean checkout to make sure that everything is set up correctly.
-After that, read on below to find out how to set up your editor for changing the Lean source code, followed by further sections of the development manual where applicable such as on the [test suite](testing.md) and [commit convention](commit_convention.md).
+After that, read on below to find out how to set up your editor for changing the Lean source code,
+followed by further sections of the development manual where applicable
+such as on the [test suite](../../tests/README.md) and [commit convention](commit_convention.md).
 
 If you are planning to make any changes that may affect the compilation of Lean itself, e.g. changes to the parser, elaborator, or compiler, you should first read about the [bootstrapping pipeline](bootstrap.md).
 You should not edit the `stage0` directory except using the commands described in that section when necessary.
@@ -54,17 +56,17 @@ folder to gdb, or use `gdb $(elan which lean)`.
 
 It is also possible to generate releases that others can use,
 simply by pushing a tag to your fork of the Lean 4 github repository
-(and waiting about an hour; check the `Actions` tab for completion).
+(and waiting for some time; check the `Actions` tab for completion).
 If you push `my-tag` to a fork in your github account `my_name`,
 you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a project using `lake`.
 (You must use a tag name that does not start with a numeral, or contain `_`).
 
 ### VS Code
 
-There is a `lean.code-workspace` file that correctly sets up VS Code with workspace roots for the stage0/stage1 setup described above as well as with other settings.
-You should always load it when working on Lean, such as by invoking
+There is a `.vscode/` directory that correctly sets up VS Code with settings, tasks, and recommended extensions.
+Simply open the repository folder in VS Code, such as by invoking
 ```
-code lean.code-workspace
+code .
 ```
 on the command line.
 

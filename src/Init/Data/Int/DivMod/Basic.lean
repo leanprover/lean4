@@ -69,7 +69,7 @@ Examples:
 * `(-12 : Int) / (7 : Int) = -2`
 * `(-12 : Int) / (-7 : Int) = 2`
 -/
-@[extern "lean_int_ediv"]
+@[extern "lean_int_ediv", implicit_reducible]
 def ediv : (@& Int) → (@& Int) → Int
   | ofNat m, ofNat n => ofNat (m / n)
   | ofNat m, -[n+1]  => -ofNat (m / succ n)
@@ -99,7 +99,7 @@ Examples:
 * `(-12 : Int) % (7 : Int) = 2`
 * `(-12 : Int) % (-7 : Int) = 2`
 -/
-@[extern "lean_int_emod"]
+@[extern "lean_int_emod", implicit_reducible]
 def emod : (@& Int) → (@& Int) → Int
   | ofNat m, n => ofNat (m % natAbs n)
   | -[m+1],  n => subNatNat (natAbs n) (succ (m % natAbs n))
@@ -174,7 +174,7 @@ Examples:
 * `(-12 : Int).tdiv (7 : Int) = -1`
 * `(-12 : Int).tdiv (-7 : Int) = 1`
 -/
-@[extern "lean_int_div"]
+@[extern "lean_int_div", implicit_reducible]
 def tdiv : (@& Int) → (@& Int) → Int
   | ofNat m, ofNat n =>  ofNat (m / n)
   | ofNat m, -[n +1] => -ofNat (m / succ n)
@@ -207,7 +207,7 @@ Examples:
 * `(-12 : Int).tmod (7 : Int) = -5`
 * `(-12 : Int).tmod (-7 : Int) = -5`
 -/
-@[extern "lean_int_mod"]
+@[extern "lean_int_mod", implicit_reducible]
 def tmod : (@& Int) → (@& Int) → Int
   | ofNat m, ofNat n =>  ofNat (m % n)
   | ofNat m, -[n +1] =>  ofNat (m % succ n)
@@ -238,6 +238,7 @@ Examples:
 * `(-12 : Int).fdiv (7 : Int) = -2`
 * `(-12 : Int).fdiv (-7 : Int) = 1`
 -/
+@[implicit_reducible]
 def fdiv : Int → Int → Int
   | 0,       _       => 0
   | ofNat m, ofNat n => ofNat (m / n)
@@ -268,6 +269,7 @@ Examples:
 * `(-12 : Int).fmod (-7 : Int) = -5`
 
 -/
+@[implicit_reducible]
 def fmod : Int → Int → Int
   | 0,       _       => 0
   | ofNat m, ofNat n => ofNat (m % n)
@@ -312,6 +314,7 @@ Examples:
 * `(-12 : Int).bmod 8 = -4`
 * `(-12 : Int).bmod 9 = -3`
 -/
+@[implicit_reducible]
 def bmod (x : Int) (m : Nat) : Int :=
   let r := x % m
   if r < (m + 1) / 2 then
@@ -336,6 +339,7 @@ Examples:
 * `(-12 : Int).bdiv 8 = -1`
 * `(-12 : Int).bdiv 9 = -1`
 -/
+@[implicit_reducible]
 def bdiv (x : Int) (m : Nat) : Int :=
   if m = 0 then
     0

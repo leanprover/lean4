@@ -149,7 +149,6 @@ def getRoot : Name → Name
   | str n _             => getRoot n
   | num n _             => getRoot n
 
-@[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
   | Name.str _ s   => (String.Internal.contains s '✝') || s == "_inaccessible"
   | Name.num p _   => isInaccessibleUserName p
@@ -407,6 +406,14 @@ Syntax that represents a tactic.
 -/
 protected abbrev Tactic := TSyntax `tactic
 /--
+Syntax that represents an element of a `do` sequence.
+-/
+abbrev DoElem := TSyntax `doElem
+/--
+Syntax that represents a sequence of `do` elements.
+-/
+abbrev DoSeq := TSyntax `Lean.Parser.Term.doSeq
+/--
 Syntax that represents a precedence (e.g. for an operator).
 -/
 abbrev Prec := TSyntax `prec
@@ -449,7 +456,7 @@ abbrev HexNum := TSyntax hexnumKind
 
 end Syntax
 
-export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit HygieneInfo)
+export Syntax (Term Command DoElem DoSeq Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit HygieneInfo)
 
 namespace TSyntax
 
@@ -747,7 +754,6 @@ def mkCIdent (c : Name) : Ident :=
 /--
 Creates an identifier from a name. The resulting identifier has no source position.
 -/
-@[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
   ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 
@@ -784,8 +790,8 @@ def mkOptionalNode (arg : Option Syntax) : Syntax :=
 /--
 Creates a hole (`_`). The hole's position is copied from `ref`.
 -/
-def mkHole (ref : Syntax) (canonical := false) : Syntax :=
-  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]
+def mkHole (ref : Syntax) (canonical := false) : Term :=
+  ⟨mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]⟩
 
 namespace Syntax
 
@@ -1788,14 +1794,16 @@ namespace Tactic
 /--
 Extracts the items from a tactic configuration,
 either a `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`, or these wrapped in null nodes.
+
+New metaprograms should use `Lean.Elab.ConfigEval.foldConfigM` instead.
 -/
 partial def getConfigItems (c : Syntax) : TSyntaxArray ``configItem :=
   if c.isOfKind nullKind then
     c.getArgs.flatMap getConfigItems
   else
     match c with
-    | `(optConfig| $items:configItem*) => items
-    | `(config| (config := $_)) => #[⟨c⟩] -- handled by mkConfigItemViews
+    | `(Tactic.optConfig| $items:configItem*) => items
+    | `(Tactic.config| (config := $_)) => #[⟨c⟩] -- handled by mkConfigItemViews
     | _ => #[]
 
 def mkOptConfig (items : TSyntaxArray ``configItem) : TSyntax ``optConfig :=
@@ -1808,3 +1816,9 @@ or these wrapped in null nodes (for example because the syntax is `(config)?`).
 -/
 def appendConfig (cfg cfg' : Syntax) : TSyntax ``optConfig :=
   mkOptConfig <| getConfigItems cfg ++ getConfigItems cfg'
+
+end Tactic
+
+end Parser
+
+end Lean

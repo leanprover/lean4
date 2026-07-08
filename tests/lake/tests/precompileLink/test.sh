@@ -14,7 +14,7 @@ test_run -v exe orderTest
 
 # Test that transitively importing a precompiled module
 # from a non-precompiled module works
-test_not_out '"pluginPaths":[]' -v setup-file ImportDownstream.lean
+test_not_out '"plugins":[]' -v setup-file ImportDownstream.lean
 test_run -v build Downstream
 
 # Test that `moreLinkArgs` are included when linking precompiled modules
@@ -31,6 +31,12 @@ test_cmd rm -f .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_run build -R -KplatformIndependent=true
 echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_run build --rehash --no-build
+
+# Test that `platformIndependent` can be toggled without a rebuild
+# if the library does not depend on any dynamic libraries
+test_run build -R +PlatformIndependent
+test_run build -R -KplatformIndependent=true +PlatformIndependent --no-build
+test_run build -R +PlatformIndependent --no-build
 
 # cleanup
 rm -f produced.out

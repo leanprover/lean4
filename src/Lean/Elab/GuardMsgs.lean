@@ -22,11 +22,14 @@ See the docstrings on the individual commands.
 
 open Lean Parser.Tactic Elab Command
 
+namespace Lean
+
 register_builtin_option guard_msgs.diff : Bool := {
   defValue := true
   descr := "When true, show a diff between expected and actual messages if they don't match. "
 }
 
+end Lean
 
 namespace Lean.Elab.Tactic.GuardMsgs
 
@@ -162,7 +165,9 @@ ambiguities in the case the message already had that symbol).
 def revealTrailingWhitespace (s : String) : String :=
   s.replace "⏎\n" "⏎⏎\n" |>.replace "\t\n" "\t⏎\n" |>.replace " \n" " ⏎\n"
 
-/- The inverse of `revealTrailingWhitespace` -/
+/--
+The inverse of `revealTrailingWhitespace`. Removes `⏎` when it occurs at the end of a line.
+-/
 def removeTrailingWhitespaceMarker (s : String) : String :=
   s.replace "⏎\n" "\n"
 
@@ -192,7 +197,7 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
   -- do not forward snapshot as we don't want messages assigned to it to leak outside
   withReader ({ · with snap? := none }) do
     -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
-    elabCommandTopLevel cmd
+    elabCommandTopLevel cmd #[]
   -- collect sync and async messages
   let msgs := (← get).messages ++
     (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty

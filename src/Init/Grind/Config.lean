@@ -15,6 +15,9 @@ Passed to `grind` using, for example, the `grind (config := { matchEqs := true }
 structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
+  /-- If `markInstances` is `true`, E-matching proofs are marked with instance IDs
+  for precise tracking of which theorems appear in the final proof. -/
+  markInstances : Bool := false
   /-- If `lax` is `true`, `grind` will silently ignore any parameters referring to non-existent theorems
   or for which no patterns can be generated. -/
   lax : Bool := false
@@ -32,6 +35,11 @@ structure Config where
   The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
   the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
   gen : Nat := 8
+  /--
+  Maximum term generation for local theorems (e.g., hypotheses).
+  See `gen`.
+  -/
+  genLocal : Nat := 8
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/
@@ -108,11 +116,14 @@ structure Config where
   ring := true
   /--
   Maximum number of steps performed by the `ring` solver.
-  A step is counted whenever one polynomial is used to simplify another.
-  For example, given `x^2 + 1` and `x^2 * y^3 + x * y`, the first can be
-  used to simplify the second to `-1 * y^3 + x * y`.
+  A step is counted whenever one polynomial is used to simplify another,
+  weighted by the number of terms in the resulting polynomial.
   -/
-  ringSteps := 10000
+  ringSteps := 100000
+  /--
+  Maximum degree of polynomials processed by the `ring` solver.
+  -/
+  ringMaxDegree := 1024
   /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.
@@ -256,17 +267,28 @@ structure NoopConfig extends Config where
   ac        := false
   order     := false
 
+  -- Disable model-based theory combination
+  mbtc      := false
+
 /--
-A `grind` configuration that only uses `cutsat` and splitting.
+A `grind` configuration that only uses `cutsat`, splitting, and the `@[lia]` lemma set.
 
 Note: `cutsat` benefits from some amount of instantiation, e.g. `Nat.max_def`.
-We don't currently have a mechanism to enable only a small set of lemmas.
+Lemmas tagged with the `@[lia]` attribute are instantiated via E-matching when running
+`lia`, while the much larger `@[grind]` lemma set is left disabled. Tag lemmas with
+`@[lia =] theorem ...` (or `attribute [lia =] ...`) to add them to this set.
 -/
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
   -- Allow the default number of splits.
   splits := ({} : Config).splits
+  -- Re-enable E-matching, so the `@[lia]` lemma set is instantiated.
+  -- The active theorem set is restricted to lemmas tagged `@[lia]`, not the full `@[grind]` set.
+  ematch := ({} : Config).ematch
+  -- despite having e-matching for @[lia] we do not want (potentially runaway) local theorem
+  -- instantiation
+  genLocal := 0
 
 /--
 A `grind` configuration that only uses `linarith`.

@@ -23,15 +23,15 @@ namespace Lean.Compiler.LCNF
 /--
 Set of public declarations whose base bodies should be exported to other modules
 -/
-private builtin_initialize baseTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize baseTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 /--
 Set of public declarations whose mono bodies should be exported to other modules
 -/
-private builtin_initialize monoTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize monoTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 /--
 Set of public declarations whose impure bodies should be exported to other modules
 -/
-private builtin_initialize impureTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+private builtin_initialize impureTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
 
 private def getTransparencyExt : Phase → EnvExtension (List Name × NameSet)
   | .base => baseTransparentDeclsExt
@@ -93,16 +93,15 @@ def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s decl => s.insert decl.name decl
-    exportEntriesFnEx env s level := Id.run do
-      let mut entries := sortedEntries s declLt
-      if level != .private then
-        entries := entries.filterMap fun decl => do
-          guard <| isDeclPublic env decl.name
-          if isDeclTransparent env phase decl.name then
-            some decl
-          else
-            some { decl with value := .extern { entries := [.opaque] } }
-      return entries
+    exportEntriesFnEx env s := Id.run do
+      let all := sortedEntries s declLt
+      let exported := all.filterMap fun decl => do
+        guard <| isDeclPublic env decl.name
+        if isDeclTransparent env phase decl.name then
+          some decl
+        else
+          some { decl with value := .extern { entries := [.opaque] } }
+      return { exported, server := exported, «private» := all }
     statsFn := statsFn,
     asyncMode := .sync,
     replay? := some (replayFn phase)
@@ -138,13 +137,12 @@ def mkSigDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s sig => s.insert sig.name sig
-    exportEntriesFnEx env s level := Id.run do
-      let mut entries := sortedEntries s sigLt
-      if level != .private then
-        entries := entries.filterMap fun sig => do
-          guard <| isDeclPublic env sig.name
-          some sig
-      return entries
+    exportEntriesFnEx env s := Id.run do
+      let all := sortedEntries s sigLt
+      let exported := all.filterMap fun sig => do
+        guard <| isDeclPublic env sig.name
+        some sig
+      return { exported, server := exported, «private» := all }
     statsFn := statsFn,
     asyncMode := .sync,
     replay? := some (replayFn phase)
@@ -153,14 +151,10 @@ def mkSigDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
 builtin_initialize impureSigExt : SigExt .impure ← mkSigDeclExt .impure
 
 def getDeclCore? (env : Environment) (ext : DeclExt pu) (declName : Name) : Option (Decl pu) :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => findDeclAtSorted? (ext.getModuleEntries env modIdx) declName
-  | none        => ext.getState env |>.find? declName
+  findExtEntry? env ext declName findDeclAtSorted? (·.find?)
 
 def getSigCore? (env : Environment) (ext : SigExt pu) (declName : Name) : Option (Signature pu) :=
-  match env.getModuleIdxFor? declName with
-  | some modIdx => findSigAtSorted? (ext.getModuleEntries env modIdx) declName
-  | none        => ext.getState env |>.find? declName
+  findExtEntry? env ext declName findSigAtSorted? (·.find?)
 
 def getBaseDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
   return getDeclCore? (← getEnv) baseExt declName
@@ -170,6 +164,9 @@ def getMonoDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
 
 def getLocalImpureDecl? (declName : Name) : CoreM (Option (Decl .impure)) := do
   return impureExt.getState (← getEnv) |>.find? declName
+
+def getLocalImpureDecls : CoreM (Array Name) := do
+  return impureExt.getState (← getEnv) |>.toArray |>.map (·.fst)
 
 def getImpureSignature? (declName : Name) : CoreM (Option (Signature .impure)) := do
   return getSigCore? (← getEnv) impureSigExt declName
@@ -213,7 +210,7 @@ def getDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) :
   let some decl ← getDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 
-def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl phase.toPurity)) := do
+def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl phase.toPurity)) :=
   match phase with
   | .base => return baseExt.getState (← getEnv) |>.find? declName
   | .mono => return monoExt.getState (← getEnv) |>.find? declName
@@ -223,5 +220,24 @@ def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl 
 def getLocalDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
+
+builtin_initialize declOrderExt : EnvExtension (List Name × NameSet) ← mkOrderedDeclSetExt
+
+def recordFinalImpureDecl (env : Environment) (name : Name) : Environment :=
+  declOrderExt.modifyState env fun s =>
+    (name :: s.1, s.2.insert name)
+
+def getImpureDeclIndices (env : Environment) (targets : Array Name) : Std.HashMap Name Nat := Id.run do
+  let (names, set) := declOrderExt.getState env
+  let mut map := Std.HashMap.emptyWithCapacity set.size
+  let targetSet := Std.HashSet.ofArray targets
+  let mut i := set.size
+  for name in names do
+    if targetSet.contains name then
+      map := map.insert name i
+    assert! i != 0
+    i := i - 1
+  assert! map.size == targets.size
+  return map
 
 end Lean.Compiler.LCNF

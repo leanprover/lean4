@@ -1,0 +1,29 @@
+(let x := 0;
+    do
+    let e ←
+      tryCatch
+          (if true = true then
+            let x := 10;
+            match h : x with
+            | 2 => EarlyReturnT.return ⟨x, ⋯⟩
+            | x_1 => EarlyReturnT.return 0
+          else
+            let x := 5;
+            ExceptT.run (pure () x))
+          fun e =>
+          let x := x + 1;
+          ExceptT.run (pure () x)
+    EarlyReturn.runK e (fun r => pure r) fun p =>
+        let __r := p.fst;
+        let x := p.snd;
+        pure ⟨3, ⋯⟩).run.run : Except String (Fin 17)
+let x := 0;
+have __do_jp := fun __r x => do
+  let r ← pure x
+  pure r;
+if true = true then
+  let x := x + 1;
+  __do_jp PUnit.unit x
+else do
+  let __r ← pure ()
+  __do_jp __r x : ?m Nat

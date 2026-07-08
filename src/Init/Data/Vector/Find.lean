@@ -88,6 +88,10 @@ theorem findSome?_eq_some_iff {f : α → Option β} {xs : Vector α n} {b : β}
   · rintro ⟨k₁, k₂, h, ys, a, zs, w, h₁, h₂⟩
     exact ⟨ys.toArray, a, zs.toArray, by simp [w], h₁, by simpa using h₂⟩
 
+theorem isSome_findSome? {xs : Vector α n} {f : α → Option β} :
+    (xs.findSome? f).isSome = xs.any (f · |>.isSome) := by
+  simp [← findSome?_toList, List.isSome_findSome?]
+
 @[simp, grind =] theorem findSome?_guard {xs : Vector α n} : findSome? (Option.guard p) xs = find? p xs := by
   rcases xs with ⟨xs, rfl⟩
   simp
@@ -190,6 +194,10 @@ theorem find?_eq_some_iff_append {xs : Vector α n} :
   · rintro ⟨h, k₁, k₂, w, as, bs, h', w'⟩
     exact ⟨h, as.toArray, bs.toArray, by simp [h'], by simpa using w'⟩
 
+theorem isSome_find? {xs : Vector α n} {f : α → Bool} :
+    (xs.find? f).isSome = xs.any (f ·) := by
+  simp [← find?_toList, List.isSome_find?]
+
 theorem find?_push {xs : Vector α n} : (xs.push a).find? p = (xs.find? p).or (if p a then some a else none) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.find?_push]
@@ -288,19 +296,19 @@ theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Vector 
   rfl
 
 theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} :
-    xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
+    xs.find? p = some b ↔ p b ∧ ∃ (i : Nat) (h : i < n), xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.find?_eq_some_iff_getElem]
 
 /-! ### findFinIdx? -/
 
 @[grind =]
-theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp; rfl
+theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp
 
 @[grind =]
 theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
-  simp; rfl
+  simp
 
 @[congr] theorem findFinIdx?_congr {p : α → Bool} {xs : Vector α n} {ys : Vector α n} (w : xs = ys) :
     findFinIdx? p xs = findFinIdx? p ys := by

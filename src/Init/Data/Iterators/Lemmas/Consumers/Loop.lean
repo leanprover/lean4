@@ -32,11 +32,12 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
       IterM.DefaultConsumers.forIn' (n := m) (fun _ _ f x => f x.run) γ (fun _ _ _ => True)
         it.toIterM init _ (fun _ => id)
           (fun out h acc => return ⟨← f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc, trivial⟩) := by
-  simp +instances only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
+  simp only [ForIn'.forIn']
   have : ∀ a b c, f a b c = (Subtype.val <$> (⟨·, trivial⟩) <$> f a b c) := by simp
   simp +singlePass only [this]
   rw [hl.lawful (fun _ _ f x => f x.run) (wf := IteratorLoop.wellFounded_of_finite)]
-  simp +instances [IteratorLoop.defaultImplementation]
+  simp only [IteratorLoop.forIn, Functor.map_map, id_map',
+    bind_pure_comp]
 
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
@@ -58,8 +59,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     forIn' ita b f = forIn' itb b' g := by
   subst_eqs
   simp only [← funext_iff] at h
-  rw [← h]
-  rfl
+  rw [← h]; rfl
 
 @[congr] theorem Iter.forIn_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
@@ -82,7 +82,7 @@ theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
       letI : ForIn' m (IterM (α := α) Id β) β _ := IterM.instForIn'
       ForIn'.forIn' it.toIterM init
         (fun out h acc => f out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
-  simp +instances [ForIn'.forIn', Iter.instForIn', IterM.instForIn', monadLift]
+  simp [ForIn'.forIn', monadLift]
 
 theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
@@ -276,8 +276,7 @@ theorem Iter.forIn'_eq_forIn'_toList {α β : Type w} [Iterator α Id β]
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f = ForIn'.forIn' it.toList init (fun out h acc => f out (Iter.mem_toList_iff_isPlausibleIndirectOutput.mp h) acc) := by
-  simp only [forIn'_toList]
-  congr
+  simp only [forIn'_toList]; rfl
 
 theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
@@ -287,8 +286,7 @@ theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
     {f : (out : β) → _ → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     ForIn'.forIn' it init f = ForIn'.forIn' it.toArray init (fun out h acc => f out (Iter.mem_toArray_iff_isPlausibleIndirectOutput.mp h) acc) := by
-  simp only [forIn'_toArray]
-  congr
+  simp only [forIn'_toArray]; rfl
 
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
@@ -398,7 +396,7 @@ theorem Iter.fold_eq_fold_toIterM {α β : Type w} {γ : Type w} [Iterator α Id
     [Finite α Id] [IteratorLoop α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.fold (init := init) f = (it.toIterM.fold (init := init) f).run := by
-  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]; rfl
+  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]
 
 @[simp]
 theorem Iter.forIn_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]
@@ -451,7 +449,7 @@ theorem Iter.toArray_eq_fold {α β : Type w} [Iterator α Id β]
   rw [← fold_hom (List.toArray)]
   simp
 
-@[simp]
+@[cbv_eval ←, simp]
 theorem Iter.foldl_toList {α β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
@@ -470,6 +468,7 @@ theorem Iter.length_eq_length_toIterM {α β : Type w} [Iterator α Id β]
     it.length = it.toIterM.length.run.down :=
   (rfl)
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_length_toIterM (since := "2026-01-28")]
 def Iter.count_eq_count_toIterM := @Iter.length_eq_length_toIterM
 
@@ -482,6 +481,7 @@ theorem Iter.length_eq_fold {α β : Type w} [Iterator α Id β]
   rw [← fold_hom (f := ULift.down)]
   simp
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_fold (since := "2026-01-28")]
 def Iter.count_eq_fold := @Iter.length_eq_fold
 
@@ -492,6 +492,7 @@ theorem Iter.length_eq_forIn {α β : Type w} [Iterator α Id β]
     it.length = (ForIn.forIn (m := Id) it 0 (fun _ acc => return .yield (acc + 1))).run := by
   rw [length_eq_fold, forIn_pure_yield_eq_fold, Id.run_pure]
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_forIn (since := "2026-01-28")]
 def Iter.count_eq_forIn := @Iter.length_eq_forIn
 
@@ -507,6 +508,7 @@ theorem Iter.length_eq_match_step {α β : Type w} [Iterator α Id β]
   simp only [bind_pure_comp, id_map', Id.run_bind, Iter.step]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_match_step (since := "2026-01-28")]
 def Iter.count_eq_match_step := @Iter.length_eq_match_step
 
@@ -518,9 +520,7 @@ theorem Iter.size_toArray_eq_length {α β : Type w} [Iterator α Id β] [Finite
   simp only [toArray_eq_toArray_toIterM, length_eq_length_toIterM, Id.run_map,
     ← IterM.up_size_toArray_eq_length]
 
-@[deprecated Iter.size_toArray_eq_length (since := "2025-10-29")]
-def Iter.size_toArray_eq_size := @size_toArray_eq_length
-
+set_option linter.defProp false in
 @[deprecated Iter.size_toArray_eq_length (since := "2026-01-28")]
 def Iter.size_toArray_eq_count := @size_toArray_eq_length
 
@@ -531,9 +531,7 @@ theorem Iter.length_toList_eq_length {α β : Type w} [Iterator α Id β] [Finit
     it.toList.length = it.length := by
   rw [← toList_toArray, Array.length_toList, size_toArray_eq_length]
 
-@[deprecated Iter.length_toList_eq_length (since := "2025-10-29")]
-def Iter.length_toList_eq_size := @length_toList_eq_length
-
+set_option linter.defProp false in
 @[deprecated Iter.length_toList_eq_length (since := "2026-01-28")]
 def Iter.length_toList_eq_count := @length_toList_eq_length
 
@@ -544,9 +542,7 @@ theorem Iter.length_toListRev_eq_length {α β : Type w} [Iterator α Id β] [Fi
     it.toListRev.length = it.length := by
   rw [toListRev_eq, List.length_reverse, length_toList_eq_length]
 
-@[deprecated Iter.length_toListRev_eq_length (since := "2025-10-29")]
-def Iter.length_toListRev_eq_size := @length_toListRev_eq_length
-
+set_option linter.defProp false in
 @[deprecated Iter.length_toListRev_eq_length (since := "2026-01-28")]
 def Iter.length_toListRev_eq_count := @length_toListRev_eq_length
 
@@ -639,6 +635,7 @@ theorem Iter.any_eq_forIn {α β : Type w} [Iterator α Id β]
           return .yield false)).run := by
   simp [any_eq_anyM, anyM_eq_forIn]
 
+@[cbv_eval ←]
 theorem Iter.any_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {it : Iter (α := α) β} {p : β → Bool} :
@@ -729,6 +726,7 @@ theorem Iter.all_eq_forIn {α β : Type w} [Iterator α Id β]
           return .done false)).run := by
   simp [all_eq_allM, allM_eq_forIn]
 
+@[cbv_eval ←]
 theorem Iter.all_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {it : Iter (α := α) β} {p : β → Bool} :
@@ -956,7 +954,7 @@ theorem Iter.first?_eq_match_step {α β : Type w} [Iterator α Id β] [Iterator
   generalize it.toIterM.step.run.inflate = s
   rcases s with ⟨_|_|_, _⟩ <;> simp [Iter.first?_eq_first?_toIterM]
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval ←]
 theorem Iter.head?_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     [Finite α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
     it.toList.head? = it.first? := by

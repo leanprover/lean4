@@ -6,13 +6,12 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Attr
-public import Lean.Meta.Tactic.Grind.RevertAll
+public import Lean.Meta.Tactic.Grind.MarkAccessible
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Injection
 public import Lean.Meta.Tactic.Grind.Core
-public import Lean.Meta.Tactic.Grind.Canon
 public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public import Lean.Meta.Tactic.Grind.Inv
 public import Lean.Meta.Tactic.Grind.Proof
@@ -63,7 +62,6 @@ builtin_initialize registerTraceClass `grind.ematch.instance
 builtin_initialize registerTraceClass `grind.ematch.instance.assignment
 builtin_initialize registerTraceClass `grind.ematch.instance.delayed
 builtin_initialize registerTraceClass `grind.eqResolution
-builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.split
 builtin_initialize registerTraceClass `grind.split.candidate
@@ -76,6 +74,7 @@ builtin_initialize registerTraceClass `grind.lookahead
 builtin_initialize registerTraceClass `grind.lookahead.add (inherited := true)
 builtin_initialize registerTraceClass `grind.lookahead.try (inherited := true)
 builtin_initialize registerTraceClass `grind.lookahead.assert (inherited := true)
+builtin_initialize registerTraceClass `grind.ematch.diagnostics.compact
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug

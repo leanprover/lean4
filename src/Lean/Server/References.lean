@@ -198,7 +198,7 @@ def findRange? (self : ModuleRefs) (pos : Lsp.Position) (includeStop := false) :
 end Lean.Lsp.ModuleRefs
 
 namespace Lean.Server
-open IO
+open _root_.IO
 open Lsp
 open Elab
 

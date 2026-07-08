@@ -34,6 +34,8 @@ matches a particular constructor. Use `linter.constructorNameAsVariable` to disa
 -/
 def constructorNameAsVariable : Linter where
   run cmdStx := do
+    unless getLinterValue linter.constructorNameAsVariable (← getLinterOptions) do
+      return
     let some cmdStxRange := cmdStx.getRange?
       | return
 
@@ -55,9 +57,9 @@ def constructorNameAsVariable : Linter where
               -- Skip declarations which are outside the command syntax range, like `variable`s
               -- (it would be confusing to lint these), or those which are macro-generated
               if !cmdStxRange.contains range.start || ldecl.userName.hasMacroScopes then return
-              let opts := ci.options
+              let opts ← ci.options.toLinterOptions
               -- we have to check for the option again here because it can be set locally
-              if !linter.constructorNameAsVariable.get opts then return
+              if !getLinterValue linter.constructorNameAsVariable opts then return
               if let n@(.str .anonymous s) := info.stx.getId then
                 -- Check whether the type is an inductive type, and get its constructors
                 let ty ←

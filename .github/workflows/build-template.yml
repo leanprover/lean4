@@ -131,7 +131,9 @@ jobs:
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          OPTIONS=(-DWFAIL=ON)
+          # opt into `LEAN_HEADER_SNAPSHOTS` as suspected issue with incremental builds does not
+          # affect CI
+          OPTIONS=(-DWFAIL=ON -DLEAN_HEADER_SNAPSHOTS=ON)
           if [[ -n '${{ matrix.release }}' ]]; then
             # this also enables githash embedding into stage 1 library, which prohibits reusing
             # `.olean`s across commits, so we don't do it in the fast non-release CI

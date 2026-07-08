@@ -344,7 +344,8 @@ jobs:
                 // * `grind_guide` always times out.
                 // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|grind_bitvec2|grind_constProp|grind_indexmap|grind_list|grind_lint|grind_array_attach|grind_ite_trace|pkg/|lake/'"
+                // * `kernelMaxRecDepth` stack-overflows in the interpreter.
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|grind_bitvec2|grind_constProp|grind_indexmap|grind_list|grind_lint|grind_array_attach|grind_ite_trace|pkg/|lake/|kernelMaxRecDepth'"
               },
               {
                 "name": "macOS",

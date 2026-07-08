@@ -137,6 +137,16 @@ replacing the ref explicitly in the future.
 builtin_initialize synthInstanceCacheExt : EnvExtension (Option (IO.Ref SynthInstanceCache)) ←
   registerEnvExtension (some <$> IO.mkRef {}) (asyncMode := .local)  -- mere cache, keep local
 
+/-- Stats-only: the classes `getInstances` has been consulted for during the current search. -/
+builtin_initialize synthDepCur : IO.Ref (Std.HashSet Name) ← IO.mkRef {}
+
+/-- Stats-only: the classes consulted by each search that actually ran, by cache key hash. -/
+builtin_initialize synthDepOfKey : IO.Ref (Std.HashMap UInt64 (Std.HashSet Name)) ← IO.mkRef {}
+
+/-- Stats-only: the response produced under each dependency-validated key. Reset with the cache it
+simulates, so that an instance declaration invalidates it exactly as it invalidates the real one. -/
+builtin_initialize synthDepKeyResp : IO.Ref (Std.HashMap UInt64 UInt64) ← IO.mkRef {}
+
 /--
 Resets the type class resolution cache by replacing its `IO.Ref`.
 
@@ -148,6 +158,7 @@ pre-existing declaration, require calling this function explicitly.
 -/
 def resetSynthInstanceCache : CoreM Unit := do
   let ref ← IO.mkRef {}
+  synthDepKeyResp.set {}
   modify fun s => { s with env := synthInstanceCacheExt.setState s.env (some ref) }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do

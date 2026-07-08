@@ -32,6 +32,21 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+builtin_initialize synthInstanceCacheStatsEnabled : Bool ←
+  return (← IO.getEnv "LEAN_SYNTH_CACHE_STATS").isSome
+
+/-- The dependency-key ceiling analysis renormalizes on every miss and records into a process-global
+reference from every search, which is far too expensive to leave on with the other statistics. -/
+builtin_initialize synthDepEnabled : Bool ←
+  return (← IO.getEnv "LEAN_SYNTH_DEP").isSome
+
+builtin_initialize synthDumpSame : Bool ←
+  return (← IO.getEnv "LEAN_SYNTH_DUMP_SAME").isSome
+
+builtin_initialize synthDumpCtx : Bool ←
+  return (← IO.getEnv "LEAN_SYNTH_DUMP_CTX").isSome
+
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -207,6 +222,8 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
     match className? with
     | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
+      if synthDepEnabled then
+        synthDepCur.modify (·.insert className)
       let globalInstances ← getGlobalInstancesIndex
       let result ← globalInstances.getUnify type
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
@@ -881,15 +898,602 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /--
+Statistics for the type class resolution cache, collected per process when the
+`LEAN_SYNTH_CACHE_STATS` environment variable is set. `hitPersistent`/`hitTransient` count lookups
+served by the persistent env-extension tier and the transient `Meta.Cache` tier respectively;
+`insertPersistent`/`insertTransient` count new entries routed to each tier.
+-/
+structure SynthInstanceCacheStats where
+  hitPersistent    : Nat := 0
+  hitTransient     : Nat := 0
+  miss             : Nat := 0
+  insertPersistent : Nat := 0
+  insertTransient  : Nat := 0
+  -- Misses broken down by the query's `PreprocessKind` (concrete vs metavariable-laden).
+  missNoMVars      : Nat := 0
+  missMVarsNoOut   : Nat := 0
+  missMVarsOut     : Nat := 0
+  -- Misses that reached `cacheResult` (i.e. did not throw `isDefEqStuck`), by kind. Per kind,
+  -- `stuck = miss<kind> - cached<kind>`.
+  cachedNoMVars    : Nat := 0
+  cachedMVarsNoOut : Nat := 0
+  cachedMVarsOut   : Nat := 0
+  -- Of the cached misses: whether an instance was found or a failure was memoized.
+  cachedFound      : Nat := 0
+  cachedFailed     : Nat := 0
+  -- Heartbeats consumed by the search itself, split by kind × outcome (stuck = threw
+  -- `isDefEqStuck`; cached = completed). Measures how *expensive* each miss category is.
+  missStuckHbNoMV      : Nat := 0
+  missStuckHbMVNoOut   : Nat := 0
+  missStuckHbMVOut     : Nat := 0
+  missDoneHbNoMV     : Nat := 0
+  missDoneHbMVNoOut  : Nat := 0
+  missDoneHbMVOut    : Nat := 0
+  -- Cached (completed) search heartbeats split by whether an instance was found or a failure memoized.
+  hbFound          : Nat := 0
+  hbFailed         : Nat := 0
+  -- `.noMVars` lookups whose free-variable normalization bailed (a closure variable is let-bound or
+  -- mvar-typed), so the query fell back to a raw, context-specific key.
+  normBail         : Nat := 0
+  normBailMiss     : Nat := 0
+  -- Cost of the free-variable normalization, which runs on every `.noMVars` lookup because its
+  -- result is the key, and so is paid by the lookups that hit as well.
+  normCalls          : Nat := 0
+  normHb             : Nat := 0
+  -- Local instance closures served from / written to `Meta.Cache.synthNormClosure`, and, summed
+  -- over the builds, the closure size, the number of local instances, and the closure variables
+  -- whose raw `LocalDecl.type` has a metavariable (the ones a memo hit must revalidate).
+  normMemoHits       : Nat := 0
+  normMemoBuilds     : Nat := 0
+  -- Why a miss missed, by the fate of its *exact* key. `first`: never queried before.
+  -- `neverIns`: queried before, but that search never produced a cache entry (it got stuck, or its
+  -- result escaped the normalization closure). `insT`/`insP`: an entry *was* inserted before, into
+  -- the transient / persistent tier, and is gone.
+  missKeyFirst       : Nat := 0
+  missKeyNeverIns    : Nat := 0
+  missKeyInsT        : Nat := 0
+  missKeyInsP        : Nat := 0
+  missKeyFirstHb     : Nat := 0
+  missKeyNeverInsHb  : Nat := 0
+  missKeyInsTHb      : Nat := 0
+  missKeyInsPHb      : Nat := 0
+  -- Searches whose result escaped the normalization closure, so nothing was cached at all.
+  abstractSkip       : Nat := 0
+  normClosureSize    : Nat := 0
+  normLocalInsts     : Nat := 0
+  normMVarTypedDecls : Nat := 0
+  -- `normBail` split by cause.
+  bailNotFound     : Nat := 0
+  bailMVarType     : Nat := 0
+  -- Query-type shape of misses: ground (no fvar/mvar, maximally reusable), fvarOnly (fvars but no
+  -- mvar — `.noMVars` yet local-context-bound, so the key never recurs), hasMVar.
+  missGround       : Nat := 0
+  missFVarOnly     : Nat := 0
+  missHasMVar      : Nat := 0
+  -- "Blocker" analysis: for a miss, how many would become a HIT under the given relaxation of the
+  -- key (some cached entry agrees on everything the relaxation does not drop). A miss can count
+  -- under several. `blkNone` = no relaxation helps, i.e. a genuinely unseen query.
+  --
+  -- `blkLocalInsts` is vacuous under fvar normalization: `BEq LocalInstance` compares only the
+  -- `fvar`, and normalized local instances sit at canonical positions, so the component agrees
+  -- regardless of the actual instances. The local-instance context lives in `normFVarTypes`
+  -- instead; `blkLocalCtx` drops both together and is the meaningful measurement.
+  blkLocalInsts    : Nat := 0
+  blkDepth         : Nat := 0
+  blkScoped        : Nat := 0
+  blkLocalAttr     : Nat := 0
+  blkMaxSize       : Nat := 0
+  blkCanon         : Nat := 0
+  blkExporting     : Nat := 0
+  -- `localInsts` and `normFVarTypes` dropped jointly.
+  blkLocalCtx      : Nat := 0
+  -- `type` with metavariable ids / universe levels / both canonicalized by first occurrence.
+  blkTypeMVar      : Nat := 0
+  blkTypeLevel     : Nat := 0
+  blkTypeNorm      : Nat := 0
+  -- Ceiling: every context component dropped *and* the type mvar/level-normalized. Counts misses
+  -- whose type was already searched for in this process, under any context.
+  blkCeil          : Nat := 0
+  -- Absolute ceiling: as `blkCeil`, but free variables in the type are canonicalized too, so this
+  -- counts misses whose bare *skeleton* recurs. Unsound as a key (`.noMVars` queries with raw
+  -- fvars only match up to the local context, which this drops); an upper bound only.
+  blkSkeleton      : Nat := 0
+  -- Sound target: as the fvar normalization, but applied to metavariable-laden keys too (their
+  -- type, metavariables, universes and local instances canonicalized together; see
+  -- `StatsNorm.runCtx`). What extending the normalization beyond `.noMVars` could recover.
+  blkNormCtx       : Nat := 0
+  -- `blkNormCtx` split by the query's `PreprocessKind`, to locate the recoverable cost. Only
+  -- `.mvarsOutputParams` queries can have their metavariables assigned by the search, so only
+  -- those need the assignment recorded alongside the cached result.
+  blkNormCtxNoMV     : Nat := 0
+  blkNormCtxMVNoOut  : Nat := 0
+  blkNormCtxMVOut    : Nat := 0
+  -- Upper bound: every variable subterm conflated. Bounds what *any* key normalization could
+  -- recover, and checks the analysis: see `blkInconsistent`.
+  -- Free variables of the type and local instances canonicalized, metavariables and universes left
+  -- as they are: the *sound* normalization we already apply to `.noMVars`, extended to the
+  -- metavariable-laden keys, which currently carry raw free variables and so never share.
+  blkFVarCtx       : Nat := 0
+  blkConflate      : Nat := 0
+  -- Misses matched by `blkSkeleton` but not by the strictly looser `blkConflate`. Must be 0; a
+  -- nonzero value means a relaxation leaves some key component in place and the numbers are wrong.
+  blkInconsistent  : Nat := 0
+  -- Every lookup, split by whether it was served from the cache and by whether the *response* it
+  -- produced had already been produced in this process. The response is canonicalized (free
+  -- variables, metavariables and universes) so that the same instance in different contexts counts
+  -- as the same response. A miss whose response was already known is a search that recomputed an
+  -- answer the process had; it is the work a perfect cache would remove, independently of how the
+  -- key is shaped. `respNs` is wall-clock nanoseconds.
+  -- For a miss that recomputed a known answer: which components of the key differ from the key of
+  -- the lookup that first produced that answer. A miss can differ in several. `wDiffTypeOnly` means
+  -- only the query type differs, i.e. two genuinely different queries share an answer and no
+  -- relaxation of the *context* could have recovered it; `wDiffCtxOnly` means the query type is
+  -- identical and only the context differs, i.e. the key discriminates on something the answer does
+  -- not depend on.
+  wDiffType        : Nat := 0
+  wDiffLocalInsts  : Nat := 0
+  wDiffFVarTypes   : Nat := 0
+  wDiffFVarValues  : Nat := 0
+  wDiffDepth       : Nat := 0
+  wDiffScoped      : Nat := 0
+  wDiffLocalAttr   : Nat := 0
+  wDiffMaxSize     : Nat := 0
+  wDiffCanon       : Nat := 0
+  wDiffTransp      : Nat := 0
+  wDiffExporting   : Nat := 0
+  -- Of the wasted misses whose `type` differs: how many still differ after a context-independent
+  -- re-canonicalization. If this is small, the types are structurally the same and only the
+  -- canonical numbering shifted (which it does when the local-instance closure differs), so the
+  -- real discriminator is the context, not the query.
+  -- Dependency-validated key: only the local instances of classes the search actually consulted.
+  -- `depConflict` is the self-check: it must stay 0, or the dependency key is unsound.
+  -- Wasted misses that are the SAME query as the one that first produced the answer, once the
+  -- metavariables of that earlier query are instantiated: i.e. the same query asked twice at
+  -- different stages of elaboration.
+  wSameAfterInst   : Nat := 0
+  wSameAfterInstHb : Nat := 0
+  depRecov         : Nat := 0
+  depRecovHb       : Nat := 0
+  depRecovNs       : Nat := 0
+  depConflict      : Nat := 0
+  depNoNorm        : Nat := 0
+  depInstsKept     : Nat := 0
+  depInstsTotal    : Nat := 0
+  wDiffTypeSkel    : Nat := 0
+  wDiffTypeOnly    : Nat := 0
+  wDiffCtxOnly     : Nat := 0
+  wDiffNothing     : Nat := 0
+  wDiffTypeOnlyNs  : Nat := 0
+  wDiffCtxOnlyNs   : Nat := 0
+  -- Of `missRespSeen`: how many recomputed a *failure* rather than an instance.
+  missRespSeenFail : Nat := 0
+  missRespSeenFailNs : Nat := 0
+  hitRespSeen      : Nat := 0
+  hitRespNew       : Nat := 0
+  missRespSeen     : Nat := 0
+  missRespNew      : Nat := 0
+  hitRespSeenHb    : Nat := 0
+  hitRespNewHb     : Nat := 0
+  missRespSeenHb   : Nat := 0
+  missRespNewHb    : Nat := 0
+  hitRespSeenNs    : Nat := 0
+  hitRespNewNs     : Nat := 0
+  missRespSeenNs   : Nat := 0
+  missRespNewNs    : Nat := 0
+  blkNone          : Nat := 0
+  -- Search heartbeats spent on the misses counted by each `blk*` field above: weights each blocker
+  -- by the cost of the searches it would recover if that relaxation were applied.
+  blkLocalInstsHb  : Nat := 0
+  blkDepthHb       : Nat := 0
+  blkScopedHb      : Nat := 0
+  blkLocalAttrHb   : Nat := 0
+  blkMaxSizeHb     : Nat := 0
+  blkCanonHb       : Nat := 0
+  blkExportingHb   : Nat := 0
+  blkLocalCtxHb    : Nat := 0
+  blkTypeMVarHb    : Nat := 0
+  blkTypeLevelHb   : Nat := 0
+  blkTypeNormHb    : Nat := 0
+  blkCeilHb        : Nat := 0
+  blkSkeletonHb    : Nat := 0
+  blkNormCtxHb     : Nat := 0
+  blkNormCtxHbNoMV    : Nat := 0
+  blkNormCtxHbMVNoOut : Nat := 0
+  blkNormCtxHbMVOut   : Nat := 0
+  blkFVarCtxHb     : Nat := 0
+  blkConflateHb    : Nat := 0
+  blkNoneHb        : Nat := 0
+  deriving Inhabited
+
+builtin_initialize synthInstanceCacheStatsRef : IO.Ref SynthInstanceCacheStats ← IO.mkRef {}
+
+/-- Number of relaxations tracked by `blankedKeyHashes` / the `blk*` fields. -/
+private def numBlockers := 16
+
+/-- Fingerprints of every consolidated response already produced in this process. -/
+builtin_initialize synthResponseSeen : IO.Ref (Std.HashSet UInt64) ← IO.mkRef {}
+
+/-- For each response, the key of the lookup that first produced it. -/
+builtin_initialize synthResponseKey : IO.Ref (Std.HashMap UInt64 SynthInstanceCacheKey) ← IO.mkRef {}
+
+/-- Hashes of every exact key ever looked up, and of those ever inserted into each tier. -/
+builtin_initialize synthKeyQueried : IO.Ref (Std.HashSet UInt64) ← IO.mkRef {}
+builtin_initialize synthKeyInsertedT : IO.Ref (Std.HashSet UInt64) ← IO.mkRef {}
+builtin_initialize synthKeyInsertedP : IO.Ref (Std.HashSet UInt64) ← IO.mkRef {}
+
+/-- Per-relaxation sets of blanked-key hashes of cached entries, for the blocker analysis (index
+matches `blankedKeyHashes`). -/
+builtin_initialize synthKeyBlankAux : IO.Ref (Array (Std.HashSet UInt64)) ←
+  IO.mkRef (Array.replicate numBlockers {})
+
+namespace StatsNorm
+
+/--
+Canonicalizes the free-variable, metavariable and universe-level identities occurring in a
+cache-key type, so that two queries differing only in `?m` ids, fvar ids or universe parameter
+names hash alike. Measurement only: the resulting canonical identifiers denote nothing.
+-/
+structure State where
+  fvars   : Std.HashMap FVarId Nat := {}
+  mvars   : Std.HashMap MVarId Nat := {}
+  lmvars  : Std.HashMap LMVarId Nat := {}
+  lparams : Std.HashMap Name Nat := {}
+  nextLvl : Nat := 0
+
+private def canonFVar (i : Nat) : Expr := .fvar ⟨.mkNum `_snx i⟩
+private def canonMVar (i : Nat) : Expr := .mvar ⟨.mkNum `_snm i⟩
+private def canonLevel (i : Nat) : Level := .param (.mkNum `_snu i)
+
+private def normLevel (l : Level) : StateM State Level := do
+  match l with
+  | .zero => return l
+  | .succ a => return .succ (← normLevel a)
+  | .max a b => return .max (← normLevel a) (← normLevel b)
+  | .imax a b => return .imax (← normLevel a) (← normLevel b)
+  | .param n =>
+    match (← get).lparams[n]? with
+    | some i => return canonLevel i
+    | none =>
+      let i := (← get).nextLvl
+      modify fun s => { s with lparams := s.lparams.insert n i, nextLvl := i + 1 }
+      return canonLevel i
+  | .mvar m =>
+    match (← get).lmvars[m]? with
+    | some i => return canonLevel i
+    | none =>
+      let i := (← get).nextLvl
+      modify fun s => { s with lmvars := s.lmvars.insert m i, nextLvl := i + 1 }
+      return canonLevel i
+
+private def normMVar (m : MVarId) : StateM State Expr := do
+  match (← get).mvars[m]? with
+  | some i => return canonMVar i
+  | none =>
+    let i := (← get).mvars.size
+    modify fun s => { s with mvars := s.mvars.insert m i }
+    return canonMVar i
+
+private def normFVar (x : FVarId) : StateM State Expr := do
+  match (← get).fvars[x]? with
+  | some i => return canonFVar i
+  | none =>
+    let i := (← get).fvars.size
+    modify fun s => { s with fvars := s.fvars.insert x i }
+    return canonFVar i
+
+private partial def normExpr (fvars mvars levels : Bool) (e : Expr) : StateM State Expr := do
+  let lvl (l : Level) : StateM State Level := if levels then normLevel l else pure l
+  let go := normExpr fvars mvars levels
+  match e with
+  | .fvar x => if fvars then normFVar x else pure e
+  | .mvar m => if mvars then normMVar m else pure e
+  | .sort l => return .sort (← lvl l)
+  | .const n us => return .const n (← us.mapM lvl)
+  | .app f a => return .app (← go f) (← go a)
+  | .lam n t b bi => return .lam n (← go t) (← go b) bi
+  | .forallE n t b bi => return .forallE n (← go t) (← go b) bi
+  | .letE n t v b nd => return .letE n (← go t) (← go v) (← go b) nd
+  | .mdata d b => return .mdata d (← go b)
+  | .proj s i b => return .proj s i (← go b)
+  | _ => return e
+
+/-- `normExpr` run on a fresh state. -/
+def run (fvars mvars levels : Bool) (e : Expr) : Expr :=
+  (normExpr fvars mvars levels e).run' {}
+
+/--
+Replaces *every* free variable, metavariable and universe by one shared token, conflating variables
+that positional canonicalization keeps apart. Strictly looser than `run true true true`, so it must
+match whenever that does: a miss counted under `blkSkeleton` but not under `blkConflate` is
+impossible, and indicates a relaxation that fails to drop some component of the key. Such misses are
+counted in `blkInconsistent`, which is the analysis checking itself.
+-/
+partial def conflateAll (e : Expr) : Expr :=
+  let lvl (_ : Level) : Level := .param `_snc
+  match e with
+  | .fvar _           => .fvar ⟨`_snc⟩
+  | .mvar _           => .mvar ⟨`_snc⟩
+  | .sort l           => .sort (lvl l)
+  | .const n us       => .const n (us.map lvl)
+  | .app f a          => .app (conflateAll f) (conflateAll a)
+  | .lam n d b bi     => .lam n (conflateAll d) (conflateAll b) bi
+  | .forallE n d b bi => .forallE n (conflateAll d) (conflateAll b) bi
+  | .letE n t v b nd  => .letE n (conflateAll t) (conflateAll v) (conflateAll b) nd
+  | .mdata m b        => .mdata m (conflateAll b)
+  | .proj st i b      => .proj st i (conflateAll b)
+  | e                 => e
+
+/--
+Canonicalizes `type` and the local instances together, in first-occurrence order starting from
+`type`, and tags each local instance with its class name (which `BEq LocalInstance` ignores) so
+that contexts offering different instances stay apart.
+
+This models extending the free-variable normalization to metavariable-laden queries, whose keys are
+currently stored raw.
+-/
+def runCtxFVarOnly (k : SynthInstanceCacheKey) : SynthInstanceCacheKey := Id.run do
+  let go : StateM State (Expr × LocalInstances × Array Expr) := do
+    let type ← normExpr true false false k.type
+    let insts ← k.localInsts.mapM fun li => do
+      return { li with fvar := ← normExpr true false false li.fvar }
+    return (type, insts, insts.map fun li => .const li.className [])
+  let (type, insts, classNames) := go.run' {}
+  return { k with type, localInsts := insts, normFVarTypes := k.normFVarTypes ++ classNames }
+
+def runCtx (k : SynthInstanceCacheKey) : SynthInstanceCacheKey := Id.run do
+  let go : StateM State (Expr × LocalInstances × Array Expr) := do
+    let type ← normExpr true true true k.type
+    let insts ← k.localInsts.mapM fun li => do
+      return { li with fvar := ← normExpr true true true li.fvar }
+    return (type, insts, insts.map fun li => .const li.className [])
+  let (type, insts, classNames) := go.run' {}
+  return { k with type, localInsts := insts, normFVarTypes := k.normFVarTypes ++ classNames }
+
+end StatsNorm
+
+/--
+The key under each tracked relaxation, hashed. Index order matches the `blk*` fields:
+0 localInsts, 1 synthPendingDepth, 2 activeScopedInsts, 3 localAttrInsts, 4 maxResultSize,
+5 canonInstances, 6 isExporting, 7 localInsts+normFVarTypes, 8 type mvar-normalized,
+9 type level-normalized, 10 type mvar+level-normalized, 11 every context component dropped and
+the type mvar+level-normalized, 12 as 11 but with the type's free variables canonicalized too,
+13 type and local instances jointly canonicalized (`StatsNorm.runCtx`), keeping the context.
+-/
+private def blankedKeyHashes (k : SynthInstanceCacheKey) : Array UInt64 :=
+  let tNorm := StatsNorm.run false true true k.type
+  let bare : SynthInstanceCacheKey → SynthInstanceCacheKey := fun k =>
+    { k with localInsts := #[], normFVarTypes := #[], normFVarValues := #[], synthPendingDepth := none,
+             activeScopedInsts := #[], localAttrInsts := #[], maxResultSize := 0,
+             canonInstances := false, isExporting := false,
+             respectTransparency := false, respectTransparencyTypes := false }
+  #[hash { k with localInsts := #[] },
+    hash { k with synthPendingDepth := none },
+    hash { k with activeScopedInsts := #[] },
+    hash { k with localAttrInsts := #[] },
+    hash { k with maxResultSize := 0 },
+    hash { k with canonInstances := false },
+    hash { k with isExporting := false },
+    hash { k with localInsts := #[], normFVarTypes := #[], normFVarValues := #[] },
+    hash { k with type := StatsNorm.run false true false k.type },
+    hash { k with type := StatsNorm.run false false true k.type },
+    hash { k with type := tNorm },
+    hash (bare { k with type := tNorm }),
+    hash (bare { k with type := StatsNorm.run true true true k.type }),
+    hash (StatsNorm.runCtx k),
+    hash (bare { k with type := StatsNorm.conflateAll k.type }),
+    hash (StatsNorm.runCtxFVarOnly k)]
+
+@[inline] private def recordSynthInstanceCacheStat (f : SynthInstanceCacheStats → SynthInstanceCacheStats) :
+    MetaM Unit := do
+  if synthInstanceCacheStatsEnabled then
+    synthInstanceCacheStatsRef.modify f
+
+/-- Adds `d` to the heartbeat counter for the miss's key class (see `missKeyFirst`). -/
+@[inline] private def addKeyClassHb (cls : Nat) (d : Nat) (s : SynthInstanceCacheStats) : SynthInstanceCacheStats :=
+  match cls with
+  | 0 => { s with missKeyFirstHb := s.missKeyFirstHb + d }
+  | 1 => { s with missKeyNeverInsHb := s.missKeyNeverInsHb + d }
+  | 2 => { s with missKeyInsTHb := s.missKeyInsTHb + d }
+  | _ => { s with missKeyInsPHb := s.missKeyInsPHb + d }
+
+/-- Adds the miss's search heartbeats `d` to each blocker-weighted counter whose relaxation is set.
+`bits` indexes as in `blankedKeyHashes`; `blkNone` means no relaxation would recover this miss. -/
+@[inline] private def addBlockerHb (kind : PreprocessKind) (bits : Array Bool) (blkNone : Bool) (d : Nat) (s : SynthInstanceCacheStats) : SynthInstanceCacheStats :=
+  let s := if bits[0]! then { s with blkLocalInstsHb := s.blkLocalInstsHb + d } else s
+  let s := if bits[1]! then { s with blkDepthHb := s.blkDepthHb + d } else s
+  let s := if bits[2]! then { s with blkScopedHb := s.blkScopedHb + d } else s
+  let s := if bits[3]! then { s with blkLocalAttrHb := s.blkLocalAttrHb + d } else s
+  let s := if bits[4]! then { s with blkMaxSizeHb := s.blkMaxSizeHb + d } else s
+  let s := if bits[5]! then { s with blkCanonHb := s.blkCanonHb + d } else s
+  let s := if bits[6]! then { s with blkExportingHb := s.blkExportingHb + d } else s
+  let s := if bits[7]! then { s with blkLocalCtxHb := s.blkLocalCtxHb + d } else s
+  let s := if bits[8]! then { s with blkTypeMVarHb := s.blkTypeMVarHb + d } else s
+  let s := if bits[9]! then { s with blkTypeLevelHb := s.blkTypeLevelHb + d } else s
+  let s := if bits[10]! then { s with blkTypeNormHb := s.blkTypeNormHb + d } else s
+  let s := if bits[11]! then { s with blkCeilHb := s.blkCeilHb + d } else s
+  let s := if bits[12]! then { s with blkSkeletonHb := s.blkSkeletonHb + d } else s
+  let s := if bits[14]! then { s with blkConflateHb := s.blkConflateHb + d } else s
+  let s := if bits[15]! then { s with blkFVarCtxHb := s.blkFVarCtxHb + d } else s
+  let s := if bits[13]! then
+      let s := { s with blkNormCtxHb := s.blkNormCtxHb + d }
+      match kind with
+      | .noMVars             => { s with blkNormCtxHbNoMV := s.blkNormCtxHbNoMV + d }
+      | .mvarsNoOutputParams => { s with blkNormCtxHbMVNoOut := s.blkNormCtxHbMVNoOut + d }
+      | .mvarsOutputParams   => { s with blkNormCtxHbMVOut := s.blkNormCtxHbMVOut + d }
+    else s
+  if blkNone then { s with blkNoneHb := s.blkNoneHb + d } else s
+
+/-- Records the heartbeats consumed by a search that threw `isDefEqStuck`, by query kind. -/
+@[inline] private def recordMissStuckHeartbeats (kind : PreprocessKind) (bits : Array Bool) (blkNone : Bool) (cls : Nat) (hb0 : Nat) : MetaM Unit := do
+  if synthInstanceCacheStatsEnabled then
+    let d := (← IO.getNumHeartbeats) - hb0
+    synthInstanceCacheStatsRef.modify fun s =>
+      let s := match kind with
+        | .noMVars             => { s with missStuckHbNoMV := s.missStuckHbNoMV + d }
+        | .mvarsNoOutputParams => { s with missStuckHbMVNoOut := s.missStuckHbMVNoOut + d }
+        | .mvarsOutputParams   => { s with missStuckHbMVOut := s.missStuckHbMVOut + d }
+      addKeyClassHb cls d (addBlockerHb kind bits blkNone d s)
+
+/-- Records the heartbeats consumed by a completed (cached) search, by query kind and found/failed. -/
+@[inline] private def recordMissDoneHeartbeats (kind : PreprocessKind) (found : Bool) (bits : Array Bool) (blkNone : Bool) (cls : Nat) (hb0 : Nat) : MetaM Unit := do
+  if synthInstanceCacheStatsEnabled then
+    let d := (← IO.getNumHeartbeats) - hb0
+    synthInstanceCacheStatsRef.modify fun s =>
+      let s := addKeyClassHb cls d (addBlockerHb kind bits blkNone d s)
+      let s := match kind with
+        | .noMVars             => { s with missDoneHbNoMV := s.missDoneHbNoMV + d }
+        | .mvarsNoOutputParams => { s with missDoneHbMVNoOut := s.missDoneHbMVNoOut + d }
+        | .mvarsOutputParams   => { s with missDoneHbMVOut := s.missDoneHbMVOut + d }
+      if found then { s with hbFound := s.hbFound + d } else { s with hbFailed := s.hbFailed + d }
+
+/-- Adds `key`'s blanked-key hashes to the blocker-analysis sets. -/
+private def recordBlankedKey (key : SynthInstanceCacheKey) : MetaM Unit := do
+  if synthInstanceCacheStatsEnabled then
+    let hs := blankedKeyHashes key
+    synthKeyBlankAux.modify fun a => Id.run do
+      let mut a := a
+      for i in *...hs.size do
+        a := a.set! i ((a[i]!).insert hs[i]!)
+      return a
+
+/--
+Classifies a miss by the fate of its exact key: 0 never queried before, 1 queried but never cached,
+2 an entry was inserted into the transient tier, 3 into the persistent tier. Records the key as
+queried.
+-/
+private def classifyMissKey (key : SynthInstanceCacheKey) : MetaM Nat := do
+  let h := hash key
+  let cls ←
+    if !(← synthKeyQueried.get).contains h then pure 0
+    else if (← synthKeyInsertedP.get).contains h then pure 3
+    else if (← synthKeyInsertedT.get).contains h then pure 2
+    else pure 1
+  synthKeyQueried.modify (·.insert h)
+  recordSynthInstanceCacheStat fun s => match cls with
+    | 0 => { s with missKeyFirst := s.missKeyFirst + 1 }
+    | 1 => { s with missKeyNeverIns := s.missKeyNeverIns + 1 }
+    | 2 => { s with missKeyInsT := s.missKeyInsT + 1 }
+    | _ => { s with missKeyInsP := s.missKeyInsP + 1 }
+  return cls
+
+/-- On a miss, records the query-type shape and which relaxation(s) of the key would have turned it
+into a hit. Returns `(bits, blkNone)` (see `addBlockerHb`) for heartbeat-weighting.
+
+The miss's own blanked keys are recorded afterwards, so a relaxation counts as a blocker whenever
+the relaxed key was *queried* before, whether or not that query produced a cache entry. Searches
+that end in `isDefEqStuck` never reach `cacheResult`, and would otherwise be invisible here. -/
+private def recordMissAnalysis (kind : PreprocessKind) (type : Expr) (key : SynthInstanceCacheKey) :
+    MetaM (Array Bool × Bool) := do
+  if synthInstanceCacheStatsEnabled then
+    let hs := blankedKeyHashes key
+    let aux ← synthKeyBlankAux.get
+    let bits := Array.ofFn (n := numBlockers) fun i => aux[i]!.contains hs[i]!
+    let hasM := type.hasMVar; let hasF := type.hasFVar
+    let blkNone := !bits.any id
+    synthInstanceCacheStatsRef.modify fun s =>
+      let s := if hasM then { s with missHasMVar := s.missHasMVar + 1 }
+               else if hasF then { s with missFVarOnly := s.missFVarOnly + 1 }
+               else { s with missGround := s.missGround + 1 }
+      let s := if bits[0]! then { s with blkLocalInsts := s.blkLocalInsts + 1 } else s
+      let s := if bits[1]! then { s with blkDepth := s.blkDepth + 1 } else s
+      let s := if bits[2]! then { s with blkScoped := s.blkScoped + 1 } else s
+      let s := if bits[3]! then { s with blkLocalAttr := s.blkLocalAttr + 1 } else s
+      let s := if bits[4]! then { s with blkMaxSize := s.blkMaxSize + 1 } else s
+      let s := if bits[5]! then { s with blkCanon := s.blkCanon + 1 } else s
+      let s := if bits[6]! then { s with blkExporting := s.blkExporting + 1 } else s
+      let s := if bits[7]! then { s with blkLocalCtx := s.blkLocalCtx + 1 } else s
+      let s := if bits[8]! then { s with blkTypeMVar := s.blkTypeMVar + 1 } else s
+      let s := if bits[9]! then { s with blkTypeLevel := s.blkTypeLevel + 1 } else s
+      let s := if bits[10]! then { s with blkTypeNorm := s.blkTypeNorm + 1 } else s
+      let s := if bits[11]! then { s with blkCeil := s.blkCeil + 1 } else s
+      let s := if bits[12]! then { s with blkSkeleton := s.blkSkeleton + 1 } else s
+      let s := if bits[13]! then
+          let s := { s with blkNormCtx := s.blkNormCtx + 1 }
+          match kind with
+          | .noMVars             => { s with blkNormCtxNoMV := s.blkNormCtxNoMV + 1 }
+          | .mvarsNoOutputParams => { s with blkNormCtxMVNoOut := s.blkNormCtxMVNoOut + 1 }
+          | .mvarsOutputParams   => { s with blkNormCtxMVOut := s.blkNormCtxMVOut + 1 }
+        else s
+      let s := if bits[14]! then { s with blkConflate := s.blkConflate + 1 } else s
+      let s := if bits[15]! then { s with blkFVarCtx := s.blkFVarCtx + 1 } else s
+      let s := if bits[12]! && !bits[14]! then { s with blkInconsistent := s.blkInconsistent + 1 } else s
+      if blkNone then { s with blkNone := s.blkNone + 1 } else s
+    recordBlankedKey key
+    return (bits, blkNone)
+  else
+    return (#[], false)
+
+
+/--
+If `LEAN_SYNTH_CACHE_STATS` is set, prints a per-module TSV line with the accumulated cache
+statistics to stderr; see `SynthInstanceCacheStats`. Called once at the end of a frontend run.
+-/
+def reportSynthInstanceCacheStats (mod : Name) : IO Unit := do
+  if synthInstanceCacheStatsEnabled then
+    let s ← synthInstanceCacheStatsRef.get
+    let lookups := s.hitPersistent + s.hitTransient + s.miss
+    IO.eprintln s!"SYNTHCACHE\t{mod}\tlookups={lookups}\thitP={s.hitPersistent}\t\
+      hitT={s.hitTransient}\tmiss={s.miss}\tinsP={s.insertPersistent}\tinsT={s.insertTransient}\t\
+      missNoMV={s.missNoMVars}\tmissMVNoOut={s.missMVarsNoOut}\tmissMVOut={s.missMVarsOut}\t\
+      cachedNoMV={s.cachedNoMVars}\tcachedMVNoOut={s.cachedMVarsNoOut}\tcachedMVOut={s.cachedMVarsOut}\t\
+      found={s.cachedFound}\tfailed={s.cachedFailed}\t\
+      missStuckHbNoMV={s.missStuckHbNoMV}\tmissStuckHbMVNoOut={s.missStuckHbMVNoOut}\tmissStuckHbMVOut={s.missStuckHbMVOut}\t\
+      missDoneHbNoMV={s.missDoneHbNoMV}\tmissDoneHbMVNoOut={s.missDoneHbMVNoOut}\tmissDoneHbMVOut={s.missDoneHbMVOut}\t\
+      hbFound={s.hbFound}\thbFailed={s.hbFailed}\t\
+      missGround={s.missGround}\tmissFVarOnly={s.missFVarOnly}\tmissHasMVar={s.missHasMVar}\t\
+      normBail={s.normBail}\tnormBailMiss={s.normBailMiss}\t\
+      normCalls={s.normCalls}\tnormHb={s.normHb}\tnormMemoHits={s.normMemoHits}\t\
+      normMemoBuilds={s.normMemoBuilds}\tnormClosureSize={s.normClosureSize}\t\
+      missKeyFirst={s.missKeyFirst}\tmissKeyNeverIns={s.missKeyNeverIns}\t\
+      missKeyInsT={s.missKeyInsT}\tmissKeyInsP={s.missKeyInsP}\t\
+      missKeyFirstHb={s.missKeyFirstHb}\tmissKeyNeverInsHb={s.missKeyNeverInsHb}\t\
+      missKeyInsTHb={s.missKeyInsTHb}\tmissKeyInsPHb={s.missKeyInsPHb}\t\
+      abstractSkip={s.abstractSkip}\t\
+      normLocalInsts={s.normLocalInsts}\tnormMVarTypedDecls={s.normMVarTypedDecls}\t\
+      bailNotFound={s.bailNotFound}\tbailMVarType={s.bailMVarType}\t\
+      blkLocalInsts={s.blkLocalInsts}\tblkDepth={s.blkDepth}\tblkScoped={s.blkScoped}\t\
+      blkLocalAttr={s.blkLocalAttr}\tblkMaxSize={s.blkMaxSize}\tblkCanon={s.blkCanon}\t\
+      blkExporting={s.blkExporting}\tblkLocalCtx={s.blkLocalCtx}\tblkTypeMVar={s.blkTypeMVar}\t\
+      blkTypeLevel={s.blkTypeLevel}\tblkTypeNorm={s.blkTypeNorm}\tblkCeil={s.blkCeil}\t\
+      wDiffType={s.wDiffType}\twDiffLocalInsts={s.wDiffLocalInsts}\twDiffFVarTypes={s.wDiffFVarTypes}\t\
+      wDiffFVarValues={s.wDiffFVarValues}\twDiffDepth={s.wDiffDepth}\twDiffScoped={s.wDiffScoped}\t\
+      wDiffLocalAttr={s.wDiffLocalAttr}\twDiffMaxSize={s.wDiffMaxSize}\twDiffCanon={s.wDiffCanon}\t\
+      wDiffTransp={s.wDiffTransp}\twDiffExporting={s.wDiffExporting}\t\
+      wSameAfterInst={s.wSameAfterInst}\twSameAfterInstHb={s.wSameAfterInstHb}\t\
+      depRecov={s.depRecov}\tdepRecovHb={s.depRecovHb}\tdepRecovNs={s.depRecovNs}\t\
+      depConflict={s.depConflict}\tdepNoNorm={s.depNoNorm}\t\
+      depInstsKept={s.depInstsKept}\tdepInstsTotal={s.depInstsTotal}\t\
+      wDiffTypeSkel={s.wDiffTypeSkel}\twDiffTypeOnly={s.wDiffTypeOnly}\twDiffCtxOnly={s.wDiffCtxOnly}\twDiffNothing={s.wDiffNothing}\t\
+      wDiffTypeOnlyNs={s.wDiffTypeOnlyNs}\twDiffCtxOnlyNs={s.wDiffCtxOnlyNs}\t\
+      missRespSeenFail={s.missRespSeenFail}\tmissRespSeenFailNs={s.missRespSeenFailNs}\t\
+      hitRespSeen={s.hitRespSeen}\thitRespNew={s.hitRespNew}\t\
+      missRespSeen={s.missRespSeen}\tmissRespNew={s.missRespNew}\t\
+      hitRespSeenHb={s.hitRespSeenHb}\thitRespNewHb={s.hitRespNewHb}\t\
+      missRespSeenHb={s.missRespSeenHb}\tmissRespNewHb={s.missRespNewHb}\t\
+      hitRespSeenNs={s.hitRespSeenNs}\thitRespNewNs={s.hitRespNewNs}\t\
+      missRespSeenNs={s.missRespSeenNs}\tmissRespNewNs={s.missRespNewNs}\t\
+      blkFVarCtx={s.blkFVarCtx}\tblkFVarCtxHb={s.blkFVarCtxHb}\tblkConflate={s.blkConflate}\tblkInconsistent={s.blkInconsistent}\t\
+      blkConflateHb={s.blkConflateHb}\tblkSkeleton={s.blkSkeleton}\tblkNormCtx={s.blkNormCtx}\t\
+      blkNormCtxNoMV={s.blkNormCtxNoMV}\tblkNormCtxMVNoOut={s.blkNormCtxMVNoOut}\t\
+      blkNormCtxMVOut={s.blkNormCtxMVOut}\tblkNone={s.blkNone}\t\
+      blkLocalInstsHb={s.blkLocalInstsHb}\tblkDepthHb={s.blkDepthHb}\tblkScopedHb={s.blkScopedHb}\t\
+      blkLocalAttrHb={s.blkLocalAttrHb}\tblkMaxSizeHb={s.blkMaxSizeHb}\tblkCanonHb={s.blkCanonHb}\t\
+      blkExportingHb={s.blkExportingHb}\tblkLocalCtxHb={s.blkLocalCtxHb}\tblkTypeMVarHb={s.blkTypeMVarHb}\t\
+      blkTypeLevelHb={s.blkTypeLevelHb}\tblkTypeNormHb={s.blkTypeNormHb}\tblkCeilHb={s.blkCeilHb}\t\
+      blkSkeletonHb={s.blkSkeletonHb}\tblkNormCtxHb={s.blkNormCtxHb}\t\
+      blkNormCtxHbNoMV={s.blkNormCtxHbNoMV}\tblkNormCtxHbMVNoOut={s.blkNormCtxHbMVNoOut}\t\
+      blkNormCtxHbMVOut={s.blkNormCtxHbMVOut}\tblkNoneHb={s.blkNoneHb}"
+
+/--
 Returns the type class resolution cache entry for `key` from the transient
 (`Meta.Cache.synthInstance`) or persistent (`synthInstanceCacheExt`) tier.
 -/
 private def findCachedResult? (key : SynthInstanceCacheKey) :
-    MetaM (Option SynthInstanceCacheEntry) := do
+    MetaM (Option (SynthInstanceCacheEntry × Bool)) := do
   if let some entry := (← get).cache.synthInstance.find? key then
-    return some entry
+    return some (entry, false)
   let some ref := synthInstanceCacheExt.getState (← getEnv) | return none
-  return (← ref.get).find? key
+  return (← ref.get).find? key |>.map (·, true)
 
 /--
 Inserts a result into the type class resolution cache: into the persistent tier if `persist` is
@@ -905,12 +1509,20 @@ context can produce incorrectly instantiated terms.
 Persistent insertions mutate the cache ref instead of the environment, so they survive
 environment rollbacks; see `synthInstanceCacheExt`.
 -/
+private def recordInsertedKey (key : SynthInstanceCacheKey) (persist : Bool) : MetaM Unit := do
+  if synthInstanceCacheStatsEnabled then
+    let h := hash key
+    if persist then synthKeyInsertedP.modify (·.insert h) else synthKeyInsertedT.modify (·.insert h)
+
 private def insertCachedResult (key : SynthInstanceCacheKey) (entry : SynthInstanceCacheEntry)
     (persist : Bool) : MetaM Unit := do
+  recordInsertedKey key persist
   if persist then
+    recordSynthInstanceCacheStat fun s => { s with insertPersistent := s.insertPersistent + 1 }
     let some ref := synthInstanceCacheExt.getState (← getEnv) | return ()
     ref.modify (·.insert key entry)
   else
+    recordSynthInstanceCacheStat fun s => { s with insertTransient := s.insertTransient + 1 }
     modifyCache fun c => { c with synthInstance := c.synthInstance.insert key entry }
 
 /--
@@ -962,9 +1574,17 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (relSynthPendingDepth
   -- `NameGenerator` that created it, and the cache outlives any of them.
   let persist := !cacheKey.type.hasMVar &&
     (normalized || (cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar)) &&
-    (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar)
+    (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar) &&
+    (← IO.getEnv "LEAN_NO_PERSIST") != some "1"
+  recordSynthInstanceCacheStat fun s =>
+    let s := match kind with
+      | .noMVars             => { s with cachedNoMVars := s.cachedNoMVars + 1 }
+      | .mvarsNoOutputParams => { s with cachedMVarsNoOut := s.cachedMVarsNoOut + 1 }
+      | .mvarsOutputParams   => { s with cachedMVarsOut := s.cachedMVarsOut + 1 }
+    if result?.isSome then { s with cachedFound := s.cachedFound + 1 }
+    else { s with cachedFailed := s.cachedFailed + 1 }
   insertCachedResult cacheKey { relSynthPendingDepth, result := value? } (persist := persist)
-
+  recordBlankedKey cacheKey
 
 /-!
 Free-variable normalization of the cache key and result. Two `.noMVars` queries that are
@@ -999,6 +1619,8 @@ private structure State where
   /-- Closure variables whose raw `LocalDecl` type or let-value mentions a metavariable, with the
   instantiation used; see `SynthNormClosureMemo.mvarTyped`. -/
   mvarTyped : Array (FVarId × Bool × Expr) := #[]
+  /-- Why `bail` was set: 1 not in the local context, 3 mvar-typed. Statistics only. -/
+  bailReason : Nat := 0
   /--
   Memoizes `normExpr` on visited subterms so that terms with DAG sharing are traversed in DAG
   size, not tree size. Sound because positions are assigned by first occurrence and never change:
@@ -1027,7 +1649,7 @@ private partial def normExpr (e : Expr) : M Expr := do
     if id.name == `__wild__ then return e
     match (← read).find? id with
     | none =>
-      modify fun s => { s with bail := true }
+      modify fun s => { s with bail := true, bailReason := 1 }
       return e
     | some decl =>
       -- `Expr.hasMVar` is a syntactic flag: it stays set for metavariables that are already
@@ -1048,7 +1670,7 @@ private partial def normExpr (e : Expr) : M Expr := do
           let v ← inst true v
           pure (some v)
       if type.hasMVar || (match value? with | some v => v.hasMVar | none => false) then
-        modify fun s => { s with bail := true }
+        modify fun s => { s with bail := true, bailReason := 3 }
         return e
       let i := (← get).order.size
       modify fun s =>
@@ -1085,6 +1707,11 @@ structure Context where
   fmap            : PersistentHashMap FVarId Nat
   order           : Array FVarId
 
+private def recordBail (reason : Nat) : MetaM Unit :=
+  recordSynthInstanceCacheStat fun s => match reason with
+    | 1 => { s with bailNotFound := s.bailNotFound + 1 }
+    | _ => { s with bailMVarType := s.bailMVarType + 1 }
+
 /--
 Whether a memoized closure is still valid: every closure variable whose type mentions a
 metavariable must still instantiate to what the closure was built from. The other closure
@@ -1107,16 +1734,23 @@ private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormC
   let cache := (← get).cache
   if let some memo := cache.synthNormClosure then
     if memo.localInsts == localInsts && (← isValidMemo lctx memo) then
+      recordSynthInstanceCacheStat fun s => { s with normMemoHits := s.normMemoHits + 1 }
       return memo.closure?
   let go : M LocalInstances :=
     localInsts.mapM fun li => return { li with fvar := ← normExpr li.fvar }
   let (canonLocalInsts, st) ← go.run lctx |>.run {}
+  if st.bail then recordBail st.bailReason
   let closure? :=
     if st.bail then none
     else some { fmap := st.fmap, order := st.order, types := st.types, values := st.values,
                 canonLocalInsts }
   modifyCache fun c =>
     { c with synthNormClosure := some { localInsts, mvarTyped := st.mvarTyped, closure? } }
+  recordSynthInstanceCacheStat fun s =>
+    { s with normMemoBuilds := s.normMemoBuilds + 1,
+             normClosureSize := s.normClosureSize + st.order.size,
+             normLocalInsts := s.normLocalInsts + localInsts.size,
+             normMVarTypedDecls := s.normMVarTypedDecls + st.mvarTyped.size }
   return closure?
 
 /--
@@ -1128,15 +1762,26 @@ part of the closure does not depend on the query and can be memoized; see `getCl
 -/
 def normalizeContext? (cacheKeyType : Expr) (localInsts : LocalInstances) :
     MetaM (Option Context) := do
-  let some closure ← getClosure? localInsts | return none
-  let lctx ← getLCtx
-  -- Seed from the memoized closure; the query type may extend it with further free variables.
-  let st0 : State := { fmap := closure.fmap, order := closure.order, types := closure.types,
-                       values := closure.values }
-  let (normType, st) ← (normExpr cacheKeyType).run lctx |>.run st0
-  if st.bail then return none
-  return some { normType, canonLocalInsts := closure.canonLocalInsts, fvarTypes := st.types,
-                fvarValues := st.values, fmap := st.fmap, order := st.order }
+  let hb0 ← if synthInstanceCacheStatsEnabled then IO.getNumHeartbeats else pure 0
+  let r? ← go cacheKeyType localInsts
+  if synthInstanceCacheStatsEnabled then
+    let d := (← IO.getNumHeartbeats) - hb0
+    recordSynthInstanceCacheStat fun s =>
+      { s with normCalls := s.normCalls + 1, normHb := s.normHb + d }
+  return r?
+where
+  go (cacheKeyType : Expr) (localInsts : LocalInstances) : MetaM (Option Context) := do
+    let some closure ← getClosure? localInsts | return none
+    let lctx ← getLCtx
+    -- Seed from the memoized closure; the query type may extend it with further free variables.
+    let st0 : State := { fmap := closure.fmap, order := closure.order, types := closure.types,
+                         values := closure.values }
+    let (normType, st) ← (normExpr cacheKeyType).run lctx |>.run st0
+    if st.bail then
+      recordBail st.bailReason
+      return none
+    return some { normType, canonLocalInsts := closure.canonLocalInsts, fvarTypes := st.types,
+                  fvarValues := st.values, fmap := st.fmap, order := st.order }
 
 /--
 Abstracts the closure free variables of `e` into loose bound variables (positional, by the closure
@@ -1200,7 +1845,155 @@ private def stuckMemoFingerprint? (key : SynthInstanceCacheKey) : MetaM (Option 
   let assignable ← (collectLevelMVars {} type).result.filterM isLevelMVarAssignable
   return some <| assignable.insertionSort fun u v => u.name.quickLt v.name
 
+/--
+Records a completed lookup: whether it was served from the cache, and whether the response it
+produced had already been produced. The response is canonicalized so that the same instance
+synthesized in different local contexts counts as the same response; a failure is its own response.
+-/
+private def recordLookupOutcome (key rawKey : SynthInstanceCacheKey) (entryHash : UInt64)
+    (isHit : Bool) (result? : Option Expr) (t0 hb0 : Nat) (depParent : Std.HashSet Name)
+    (mctx0 : MetavarContext) : MetaM Unit := do
+  if synthInstanceCacheStatsEnabled then
+    let dt := (← IO.monoNanosNow) - t0
+    let dhb := (← IO.getNumHeartbeats) - hb0
+    let fp ← match result? with
+      -- A failure is a response *to this query*: fingerprint it by the key, so that two different
+      -- queries that both fail do not count as the same response.
+      | none   => pure (mixHash 1 (hash (StatsNorm.run true true true key.type)))
+      | some e => do
+        let e ← instantiateMVars e
+        -- A successful search very often returns a bare local-instance free variable, which carries
+        -- no structure of its own: canonicalizing its variables away would collapse every "the answer
+        -- is some local instance" result into a single response. Fingerprint it with its type.
+        let t ← instantiateMVars (← inferType e)
+        pure (mixHash 2 (mixHash (hash (StatsNorm.run true true true e))
+                                 (hash (StatsNorm.run true true true t))))
+    let seen := (← synthResponseSeen.get).contains fp
+    let prevKey? := (← synthResponseKey.get)[fp]?
+    synthResponseSeen.modify (·.insert fp)
+    unless seen do synthResponseKey.modify (·.insert fp key)
+    /-
+    Dependency-validated key: keep only the local instances whose class the search was actually
+    consulted for. `getInstances` offers a local instance as a candidate only for a goal whose class
+    name matches it exactly, so local instances of classes that never came up cannot have changed the
+    search. A cache hit does not re-run `getInstances`, so it inherits the dependencies recorded when
+    its entry was first computed; either way the set is folded into the enclosing query, whose replay
+    depends on this one.
+    -/
+    let mut deps ← synthDepCur.get
+    if isHit then
+      for c in (← synthDepOfKey.get)[entryHash]?.getD {} do deps := deps.insert c
+    else
+      synthDepOfKey.modify (·.insert entryHash deps)
+    let mut merged := depParent
+    for c in deps do merged := merged.insert c
+    synthDepCur.set merged
+    unless isHit || !synthDepEnabled do
+      let kept := rawKey.localInsts.filter fun li => deps.contains li.className
+      recordSynthInstanceCacheStat fun s =>
+        { s with depInstsKept := s.depInstsKept + kept.size,
+                 depInstsTotal := s.depInstsTotal + rawKey.localInsts.size }
+      -- Class order across local instances does not affect any candidate list, so canonicalize it;
+      -- the (stable) order within a class does, and is preserved.
+      let kept := kept.insertionSort fun a b => a.className.quickLt b.className
+      -- Renormalize as the lookup would have, i.e. in the pre-search metavariable context.
+      match ← withMCtx mctx0 (SynthNorm.normalizeContext? rawKey.type kept) with
+      | none => recordSynthInstanceCacheStat fun s => { s with depNoNorm := s.depNoNorm + 1 }
+      | some c =>
+        let depKey : SynthInstanceCacheKey := { rawKey with
+          localInsts := c.canonLocalInsts, type := c.normType,
+          normFVarTypes := c.fvarTypes, normFVarValues := c.fvarValues }
+        let dkh := hash depKey
+        match (← synthDepKeyResp.get)[dkh]? with
+        | none => synthDepKeyResp.modify (·.insert dkh fp)
+        | some fp0 =>
+          if fp0 == fp then
+            recordSynthInstanceCacheStat fun s =>
+              { s with depRecov := s.depRecov + 1, depRecovHb := s.depRecovHb + dhb,
+                       depRecovNs := s.depRecovNs + dt }
+          else
+            recordSynthInstanceCacheStat fun s => { s with depConflict := s.depConflict + 1 }
+    if let some k0 := prevKey? then
+      if !isHit && seen then
+        -- Did the earlier query only *look* different because its metavariables were still open?
+        let a := StatsNorm.run true true true k0.type
+        let b := StatsNorm.run true true true key.type
+        if a != b then
+          pure ()
+    if let some k0 := prevKey? then
+      if !isHit && seen && synthDumpCtx then
+        -- Structurally identical query (context-independent normalization agrees) that still missed:
+        -- show what the two contexts actually disagree about.
+        if StatsNorm.run true true true k0.type == StatsNorm.run true true true key.type then
+          let f (b : Bool) (n : String) : String := if b then n ++ "." else ""
+          let flags :=
+            f (k0.type != key.type) "T" ++ f (k0.localInsts != key.localInsts) "LI" ++
+            f (k0.normFVarTypes != key.normFVarTypes) "FT" ++
+            f (k0.normFVarValues != key.normFVarValues) "FV" ++
+            f (k0.activeScopedInsts != key.activeScopedInsts) "SC" ++
+            f (k0.localAttrInsts != key.localAttrInsts) "LA" ++
+            f (k0.isExporting != key.isExporting) "EX" ++
+            f (k0.synthPendingDepth != key.synthPendingDepth) "DE"
+          IO.eprintln s!"CTXDIFF\t{flags}\t{k0.normFVarTypes.size}\t{key.normFVarTypes.size}\t\
+            {k0.type}\t{key.type}\t\
+            {k0.localInsts.map (·.className)}\t{key.localInsts.map (·.className)}"
+    if let some k0 := prevKey? then
+      if !isHit && seen && synthDumpSame then
+        if StatsNorm.run true true true k0.type != StatsNorm.run true true true key.type then
+          IO.eprintln s!"SAMEANS\n  q1= {k0.type}\n  q2= {key.type}\n  ans={result?}\n"
+    recordSynthInstanceCacheStat fun s =>
+      match isHit, seen with
+      | true,  true  => { s with hitRespSeen := s.hitRespSeen + 1, hitRespSeenHb := s.hitRespSeenHb + dhb, hitRespSeenNs := s.hitRespSeenNs + dt }
+      | true,  false => { s with hitRespNew := s.hitRespNew + 1, hitRespNewHb := s.hitRespNewHb + dhb, hitRespNewNs := s.hitRespNewNs + dt }
+      | false, true  =>
+        let s := { s with missRespSeen := s.missRespSeen + 1, missRespSeenHb := s.missRespSeenHb + dhb, missRespSeenNs := s.missRespSeenNs + dt }
+        let s := if result?.isNone then
+            { s with missRespSeenFail := s.missRespSeenFail + 1, missRespSeenFailNs := s.missRespSeenFailNs + dt }
+          else s
+        match prevKey? with
+        | none => s
+        | some k0 =>
+          let dTy := k0.type != key.type
+          let dLI := k0.localInsts != key.localInsts
+          let dFT := k0.normFVarTypes != key.normFVarTypes
+          let dFV := k0.normFVarValues != key.normFVarValues
+          let dDe := k0.synthPendingDepth != key.synthPendingDepth
+          let dSc := k0.activeScopedInsts != key.activeScopedInsts
+          let dLA := k0.localAttrInsts != key.localAttrInsts
+          let dMS := k0.maxResultSize != key.maxResultSize
+          let dCa := k0.canonInstances != key.canonInstances
+          let dTr := k0.respectTransparency != key.respectTransparency
+                     || k0.respectTransparencyTypes != key.respectTransparencyTypes
+          let dEx := k0.isExporting != key.isExporting
+          let anyCtx := dLI || dFT || dFV || dDe || dSc || dLA || dMS || dCa || dTr || dEx
+          let s := if dTy then { s with wDiffType := s.wDiffType + 1 } else s
+          let s := if dTy && StatsNorm.run true true true k0.type != StatsNorm.run true true true key.type then
+              { s with wDiffTypeSkel := s.wDiffTypeSkel + 1 } else s
+          let s := if dLI then { s with wDiffLocalInsts := s.wDiffLocalInsts + 1 } else s
+          let s := if dFT then { s with wDiffFVarTypes := s.wDiffFVarTypes + 1 } else s
+          let s := if dFV then { s with wDiffFVarValues := s.wDiffFVarValues + 1 } else s
+          let s := if dDe then { s with wDiffDepth := s.wDiffDepth + 1 } else s
+          let s := if dSc then { s with wDiffScoped := s.wDiffScoped + 1 } else s
+          let s := if dLA then { s with wDiffLocalAttr := s.wDiffLocalAttr + 1 } else s
+          let s := if dMS then { s with wDiffMaxSize := s.wDiffMaxSize + 1 } else s
+          let s := if dCa then { s with wDiffCanon := s.wDiffCanon + 1 } else s
+          let s := if dTr then { s with wDiffTransp := s.wDiffTransp + 1 } else s
+          let s := if dEx then { s with wDiffExporting := s.wDiffExporting + 1 } else s
+          if dTy && !anyCtx then { s with wDiffTypeOnly := s.wDiffTypeOnly + 1, wDiffTypeOnlyNs := s.wDiffTypeOnlyNs + dt }
+          else if !dTy && anyCtx then { s with wDiffCtxOnly := s.wDiffCtxOnly + 1, wDiffCtxOnlyNs := s.wDiffCtxOnlyNs + dt }
+          else if !dTy && !anyCtx then { s with wDiffNothing := s.wDiffNothing + 1 }
+          else s
+      | false, false => { s with missRespNew := s.missRespNew + 1, missRespNewHb := s.missRespNewHb + dhb, missRespNewNs := s.missRespNewNs + dt }
+
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
+  let lookupT0 ← if synthInstanceCacheStatsEnabled then IO.monoNanosNow else pure 0
+  let lookupHb0 ← if synthInstanceCacheStatsEnabled then IO.getNumHeartbeats else pure 0
+  let lookupMCtx ← if synthInstanceCacheStatsEnabled then getMCtx else pure {}
+  let depParent ← if synthInstanceCacheStatsEnabled then
+      let p ← synthDepCur.get
+      synthDepCur.set {}
+      pure p
+    else pure {}
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   withTraceNode `Meta.synthInstance
@@ -1217,6 +2010,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     -- and can never be shared. `.mvarsOutputParams` keys have their output parameters replaced by a
     -- wildcard already, so they are usually metavariable-free apart from it.
     let normCtx? ← SynthNorm.normalizeContext? cacheKeyType localInsts
+    if normCtx?.isNone then
+      recordSynthInstanceCacheStat fun s => { s with normBail := s.normBail + 1 }
     let synthPendingDepth := (← read).synthPendingDepth
     let depthSuffix : MessageData :=
       if synthPendingDepth == 0 then m!"" else m!" (synthPendingDepth := {synthPendingDepth})"
@@ -1252,7 +2047,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     -- must use the raw (non-normalized) key.
     let stuckKey  := { rawBaseKey with synthPendingDepth := some synthPendingDepth }
     let maxSynthPending := maxSynthPendingDepth.get (← getOptions)
-    let applyCached (entry : SynthInstanceCacheEntry) : MetaM (Option Expr) := do
+    let depthShareEnabled := (← IO.getEnv "LEAN_NO_DEPTH_SHARE") != some "1"
+    let applyCached (entryHash : UInt64) (entry : SynthInstanceCacheEntry) : MetaM (Option Expr) := do
       trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
       -- Re-instantiate the closure-abstracted result with the current context's free variables.
       let abstResult? := match normCtx? with
@@ -1260,34 +2056,55 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         | none   => entry.result
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"
+      recordLookupOutcome sharedKey rawBaseKey entryHash (isHit := true) result? lookupT0 lookupHb0 depParent lookupMCtx
       return result?
-    let sharedEntry? ← match ← findCachedResult? sharedKey with
-      | some entry =>
+    let sharedEntry? ← if !depthShareEnabled then pure none else match ← findCachedResult? sharedKey with
+      | some (entry, fromPersistent) =>
         match entry.relSynthPendingDepth with
-        | none     => pure (some entry)
+        | none     => pure (some (entry, fromPersistent))
         | some rel =>
           -- Valid iff no `synthPending` invocation can reach the give-up threshold at the current
           -- depth; see `SynthInstanceCacheEntry.relSynthPendingDepth`.
-          pure (if synthPendingDepth + rel ≤ maxSynthPending then some entry else none)
+          pure (if synthPendingDepth + rel ≤ maxSynthPending then some (entry, fromPersistent) else none)
       | none => pure none
-    if let some entry := sharedEntry? then
+    if let some (entry, fromPersistent) := sharedEntry? then
+      recordSynthInstanceCacheStat fun s =>
+        if fromPersistent then { s with hitPersistent := s.hitPersistent + 1 } else { s with hitTransient := s.hitTransient + 1 }
       -- Reusing the entry re-enacts its `synthPending` decisions at the current depth.
       foldActivity { maxDepth := entry.relSynthPendingDepth.map (synthPendingDepth + ·) }
-      applyCached entry
-    else if let some entry ← findCachedResult? depthKey then
+      applyCached (hash sharedKey) entry
+    else if let some (entry, fromPersistent) ← findCachedResult? depthKey then
+      recordSynthInstanceCacheStat fun s =>
+        if fromPersistent then { s with hitPersistent := s.hitPersistent + 1 } else { s with hitTransient := s.hitTransient + 1 }
       -- The entry's synthesis hit the `maxSynthPendingDepth` give-up, so reusing it keeps the
       -- enclosing query depth-exact as well.
       foldActivity { maxDepth := some synthPendingDepth, guardHit := true }
-      applyCached entry
+      applyCached (hash depthKey) entry
     else
+      let stuckMemoEnabled := (← IO.getEnv "LEAN_NO_STUCK_MEMO") != some "1"
       if let some fingerprint := (← get).cache.synthStuck.find? stuckKey then
         -- The same query already got stuck on a metavariable; the blocking metavariable is still
         -- unassigned (otherwise the key would be more instantiated). If additionally the
         -- level-assignability fingerprint is unchanged, the search is guaranteed to get stuck
         -- again, so fail fast instead of re-running it.
-        if (← stuckMemoFingerprint? stuckKey) == some fingerprint then
+        if stuckMemoEnabled && (← stuckMemoFingerprint? stuckKey) == some fingerprint then
+          recordSynthInstanceCacheStat fun s => { s with hitTransient := s.hitTransient + 1 }
           trace[Meta.synthInstance.cache] "stuck (cached){depthSuffix}: {type}"
+          if synthInstanceCacheStatsEnabled then
+            let mut merged := depParent
+            for c in ← synthDepCur.get do merged := merged.insert c
+            synthDepCur.set merged
           Meta.throwIsDefEqStuck
+      recordSynthInstanceCacheStat fun s => { s with miss := s.miss + 1 }
+      recordSynthInstanceCacheStat fun s => match kind with
+        | .noMVars             => { s with missNoMVars := s.missNoMVars + 1 }
+        | .mvarsNoOutputParams => { s with missMVarsNoOut := s.missMVarsNoOut + 1 }
+        | .mvarsOutputParams   => { s with missMVarsOut := s.missMVarsOut + 1 }
+      if normCtx?.isNone then
+        recordSynthInstanceCacheStat fun s => { s with normBailMiss := s.normBailMiss + 1 }
+      let keyCls ← if synthInstanceCacheStatsEnabled then classifyMissKey sharedKey else pure 0
+      let (blkBits, blkNone) ← recordMissAnalysis kind type sharedKey
+      let hb0 ← IO.getNumHeartbeats
       trace[Meta.synthInstance.cache] "new{depthSuffix}: {type}"
       try
       let activityRef ← IO.mkRef {}
@@ -1321,10 +2138,11 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       trace[Meta.synthInstance] "result {result?}"
       let activity ← activityRef.get
       foldActivity activity
+      recordMissDoneHeartbeats kind result?.isSome blkBits blkNone keyCls hb0
       -- Results whose synthesis hit the `maxSynthPendingDepth` give-up are only valid at the exact
       -- depth; all others are shared, bounded by their relative activity depth.
-      let key := if activity.guardHit then depthKey else sharedKey
-      let rel := activity.maxDepth.map (· - synthPendingDepth)
+      let key := if activity.guardHit || !depthShareEnabled then depthKey else sharedKey
+      let rel := if depthShareEnabled then activity.maxDepth.map (· - synthPendingDepth) else none
       match normCtx? with
       | none   => cacheResult key rel kind (normalized := false) abstResult? result?
       | some c =>
@@ -1332,13 +2150,20 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         -- the result escapes the closure and so is not context-free.
         match SynthNorm.abstractValue? c abstResult? result? with
         | some (nAbstResult?, nResult?) => cacheResult key rel kind (normalized := true) nAbstResult? nResult?
-        | none => pure ()
+        | none => recordSynthInstanceCacheStat fun s => { s with abstractSkip := s.abstractSkip + 1 }
+      recordLookupOutcome sharedKey rawBaseKey (hash key) (isHit := false) result? lookupT0 lookupHb0 depParent lookupMCtx
       return result?
       catch e =>
-        if let .internal id _ := e then
-          if id == isDefEqStuckExceptionId then
-            if let some fingerprint ← stuckMemoFingerprint? stuckKey then
-              modifyCache fun c => { c with synthStuck := c.synthStuck.insert stuckKey fingerprint }
+        if synthInstanceCacheStatsEnabled then
+          let mut merged := depParent
+          for c in ← synthDepCur.get do merged := merged.insert c
+          synthDepCur.set merged
+        recordMissStuckHeartbeats kind blkBits blkNone keyCls hb0
+        if stuckMemoEnabled then
+          if let .internal id _ := e then
+            if id == isDefEqStuckExceptionId then
+              if let some fingerprint ← stuckMemoFingerprint? stuckKey then
+                modifyCache fun c => { c with synthStuck := c.synthStuck.insert stuckKey fingerprint }
         throw e
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do

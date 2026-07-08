@@ -375,6 +375,8 @@ def runFrontend
   if printStats then
     env.displayStats
 
+  Meta.reportSynthInstanceCacheStats mainModuleName
+
   if hasErrors then
     return none
 

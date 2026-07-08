@@ -38,6 +38,11 @@ register_builtin_option synthInstance.postponeResolve : Bool := {
   descr := "postpone stuck unification problems for instance-implicit arguments of the goal class during instance resolution (see `isDefEqInstanceType`). Candidate instances rejected by the tabled search for a subgoal pinned by a postponed check are given an *extraction* branch that re-attempts the postponed unification (see `resumeExhausted`), preserving the semantics of eager unification."
 }
 
+register_builtin_option synthInstance.postponeResolve.fallback : Bool := {
+  defValue := true
+  descr := "when `synthInstance.postponeResolve` is enabled, give candidate instances whose pinned subgoal search was exhausted an extraction branch that re-attempts the postponed unification (see `resumeExhausted`). Disabling this recovers the fast (but incomplete) behavior in which such candidates are rejected outright."
+}
+
 register_builtin_option synthInstance.directAssign : Bool := {
   defValue := true
   descr := "in `tryResolve`, assign the goal metavariable directly after unifying the goal type with the instance result type, instead of re-checking types with `isDefEq`"
@@ -723,21 +728,19 @@ def checkPostponed (cNode : ConsumerNode) : SynthM (Option ConsumerNode) := do
 mutual
 
 /--
-  The generator for the first subgoal of `cNode` was exhausted without producing any answer.
-  If the subgoal metavariable is pinned by postponed checks, the checks may nevertheless
-  succeed by *unification*: the goal-side argument may supply the instance by decomposition
-  (e.g. after `zetaDelta`-unfolding local definitions), which no declared instance provides.
-  This mirrors what eager unification achieves in `tryResolve` when it solves stuck arguments
-  structurally. Run the pinning checks with the metavariable still unassigned; if they succeed
-  and assign it, continue consuming the node.
+  Try to solve the first subgoal of `cNode` by *extraction*: run the postponed checks pinning
+  it with the subgoal metavariable still unassigned, so the unification can assign it from
+  goal-supplied subterms — exactly what eager unification achieves in `tryResolve` when it
+  solves stuck arguments structurally, including its type-alignment side effects. Returns the
+  continuation node if all pinning checks succeed and the metavariable was assigned.
 -/
-partial def resumeExhausted (cNode : ConsumerNode) : SynthM Unit := do
-  if cNode.postponedChecks.isEmpty then return ()
+partial def tryExtraction (cNode : ConsumerNode) : SynthM (Option ConsumerNode) := do
+  if cNode.postponedChecks.isEmpty then return none
   match cNode.subgoals with
-  | [] => return ()
+  | [] => return none
   | mvar::rest =>
     let mvarId := mvar.mvarId!
-    let cNode? : Option ConsumerNode ← withMCtx cNode.mctx do
+    withMCtx cNode.mctx do
       let mut touched := false
       let mut pending := #[]
       for check in cNode.postponedChecks do
@@ -751,8 +754,14 @@ partial def resumeExhausted (cNode : ConsumerNode) : SynthM Unit := do
       unless touched && (← mvarId.isAssigned) do return none
       let mctx ← getMCtx
       return some { cNode with postponedChecks := pending.toList, subgoals := rest, mctx }
-    if let some cNode := cNode? then
-      consume cNode
+
+/--
+  The search for the first subgoal of `cNode` was exhausted. Attempt extraction
+  (see `tryExtraction`), and continue consuming the node if it succeeds.
+-/
+partial def resumeExhausted (cNode : ConsumerNode) : SynthM Unit := do
+  if let some cNode ← tryExtraction cNode then
+    consume cNode
 
 /-- Process the next subgoal in the given consumer node. -/
 partial def consume (cNode : ConsumerNode) : SynthM Unit := do
@@ -845,6 +854,7 @@ def getTop : SynthM GeneratorNode :=
 def markExhausted (key : Expr) : SynthM Unit := do
   -- The `exhausted` flag is only consumed by the postponed-checks machinery.
   unless synthInstance.postponeResolve.get (← getOptions) do return ()
+  unless synthInstance.postponeResolve.fallback.get (← getOptions) do return ()
   if let some entry := (← get).tableEntries[key]? then
     unless entry.exhausted do
       modify fun s => { s with
@@ -920,6 +930,16 @@ def resume : SynthM Unit := do
         let mvarId := mvar.mvarId!
         cNode.postponedChecks.anyM fun (_, instArg) =>
           return (← getMVars instArg).contains mvarId
+    if pinned then
+      /-
+      Pinned subgoals take their assignment from the goal via unification (see
+      `tryExtraction`), so that the resulting instance uses the goal-supplied
+      representatives, exactly as eager unification would. The answer merely triggers the
+      attempt. If extraction fails, fall through to the regular answer propagation, where
+      the ground postponed checks validate the searched instance.
+      -/
+      if let some cNode ← tryExtraction cNode then
+        return (← consume cNode)
     match (← tryAnswer cNode.mctx mvar answer) with
     | none      => return ()
     | some mctx =>

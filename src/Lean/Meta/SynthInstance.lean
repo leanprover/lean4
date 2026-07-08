@@ -371,8 +371,26 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
       we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
       -/
       let instVal ← mkLambdaFVars xs instVal (etaReduce := true)
-      if (← isDefEq mvar instVal) then
-        return some ((← getMCtx), subgoals)
+      /-
+      The goal type and `instTypeBody` have just been unified, and the type of `instVal` is
+      `instTypeBody` by construction, so re-checking types while assigning `mvar := instVal`
+      (i.e., using `isDefEq mvar instVal`) is redundant. The recheck can also be very
+      expensive: it re-infers the type of `instVal` and re-unifies it with the goal type, and
+      for goals whose class-parameter arguments contain instance metavariables (e.g., subgoals
+      of classes parametrized by other classes), it gets stuck and triggers nested
+      `synthPending` searches. So, we assign directly.
+
+      We can only do this when the goal type is metavariable-free: for goals containing
+      metavariables (e.g., out-params or caller-supplied implicit arguments), the recheck has
+      unification side effects that assign them, which elaboration relies on.
+      -/
+      if !(← instantiateMVars mvarTypeBody).hasExprMVar then
+        -- Remark: `mvar` is not assigned here: `tryResolve` runs on the generator node's
+        -- metavariable context snapshot, in which `mvar` is fresh.
+        mvar.mvarId!.assign instVal
+      else
+        unless (← isDefEq mvar instVal) do return none
+      return some ((← getMCtx), subgoals)
     return none
 
 /--

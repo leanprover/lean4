@@ -11,6 +11,7 @@ public import Init.Data.Array.InsertionSort
 public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
+import Lean.Meta.CollectMVars
 import Init.While
 
 public section
@@ -338,6 +339,28 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   }
 
 /--
+Try to synthesize pending class metavariables occurring in `type`.
+
+If the goal type contains metavariables whose types are classes, unifying it with a
+candidate's type may consume them by assigning the candidate's fresh metavariables to them
+without determining them (e.g., the goal `IsPredArchimedean ι ?pre ?pd` matched against a
+candidate `IsPredArchimedean ι ?pre' ?pd'` assigns `?pd' := ?pd` and leaves `?pd`
+unassigned). Such metavariables typically come from class projections, whose class
+parameters are demoted to plain implicit binders: they are ordinary unification
+metavariables, they are never registered as TC problems, and no other component is
+responsible for synthesizing them. If we return an answer that is parametric in them,
+elaboration may finish with the metavariables still unassigned.
+
+Remark: `Meta.synthPending` is a no-op for metavariables whose types are not classes and
+respects `maxSynthPendingDepth`; failures are ignored, falling back to a parametric answer.
+-/
+private def synthPendingClassMVars (type : Expr) : MetaM Unit := do
+  let type ← instantiateMVars type
+  if type.hasExprMVar then
+    for mvarId in (← getMVars type) do
+      discard <| Meta.synthPending mvarId
+
+/--
   Try to synthesize metavariable `mvar` using the instance `inst`.
   Remark: `mctx` is set using `withMCtx`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
@@ -374,22 +397,20 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
       /-
       The goal type and `instTypeBody` have just been unified, and the type of `instVal` is
       `instTypeBody` by construction, so re-checking types while assigning `mvar := instVal`
-      (i.e., using `isDefEq mvar instVal`) is redundant. The recheck can also be very
-      expensive: it re-infers the type of `instVal` and re-unifies it with the goal type, and
-      for goals whose class-parameter arguments contain instance metavariables (e.g., subgoals
-      of classes parametrized by other classes), it gets stuck and triggers nested
-      `synthPending` searches. So, we assign directly.
+      (i.e., using `isDefEq mvar instVal`) is redundant, and can be very expensive: it
+      re-infers the type of `instVal` and re-unifies it with the goal type. So, we assign
+      directly.
 
-      We can only do this when the goal type is metavariable-free: for goals containing
-      metavariables (e.g., out-params or caller-supplied implicit arguments), the recheck has
-      unification side effects that assign them, which elaboration relies on.
+      Remark: `mvar` is not assigned here: `tryResolve` runs on the generator node's
+      metavariable context snapshot, in which `mvar` is fresh.
       -/
-      if !(← instantiateMVars mvarTypeBody).hasExprMVar then
-        -- Remark: `mvar` is not assigned here: `tryResolve` runs on the generator node's
-        -- metavariable context snapshot, in which `mvar` is fresh.
-        mvar.mvarId!.assign instVal
-      else
-        unless (← isDefEq mvar instVal) do return none
+      mvar.mvarId!.assign instVal
+      /-
+      The removed `isDefEq` recheck had one non-redundant effect: its `isDefEqArgs` postponed the
+      goal-type metavariables the unification above left undetermined, and its second pass
+      ran `trySynthPending` on them. We do the same directly. See `synthPendingClassMVars`.
+      -/
+      synthPendingClassMVars mvarType
       return some ((← getMCtx), subgoals)
     return none
 

@@ -108,12 +108,6 @@
     [Meta.isDefEq] ✅️ Type → Type ?u =?= Type → Type
       [Meta.isDefEq] ✅️ Type =?= Type
       [Meta.isDefEq] ✅️ Type ?u =?= Type
-[Meta.isDefEq] ✅️ ?m =?= instMonadEvalOfMonadLift
-  [Meta.isDefEq] ?m [assignable] =?= instMonadEvalOfMonadLift [nonassignable]
-  [Meta.isDefEq.transparency] raising transparency instances → implicit
-  [Meta.isDefEq] ✅️ MonadEval ?m Elab.TermElabM =?= MonadEval ?m Elab.TermElabM
-    [Meta.isDefEq] ✅️ ?m =?= ?m
-    [Meta.isDefEq] ✅️ Elab.TermElabM =?= Elab.TermElabM
 [Meta.isDefEq] ✅️ MonadLift ?m Elab.TermElabM =?= MonadLift ?m (ReaderT ?m ?m)
   [Meta.isDefEq] ✅️ ?m =?= ?m
     [Meta.isDefEq] ?m [assignable] =?= ?m [assignable]
@@ -215,14 +209,6 @@
     [Meta.isDefEq] ✅️ Type → Type ?u =?= Type → Type
       [Meta.isDefEq] ✅️ Type =?= Type
       [Meta.isDefEq] ✅️ Type ?u =?= Type
-[Meta.isDefEq] ✅️ ?m =?= instMonadEvalOfMonadLift
-  [Meta.isDefEq] ?m [assignable] =?= instMonadEvalOfMonadLift [nonassignable]
-  [Meta.isDefEq.transparency] raising transparency instances → implicit
-  [Meta.isDefEq] ✅️ MonadEval ?m
-        (StateRefT' IO.RealWorld Elab.Term.State
-          MetaM) =?= MonadEval ?m (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-    [Meta.isDefEq] ✅️ ?m =?= ?m
-    [Meta.isDefEq] ✅️ StateRefT' IO.RealWorld Elab.Term.State MetaM =?= StateRefT' IO.RealWorld Elab.Term.State MetaM
 [Meta.isDefEq] ✅️ MonadLift ?m
       (StateRefT' IO.RealWorld Elab.Term.State MetaM) =?= MonadLift ?m (StateRefT' ?m ?m ?m)
   [Meta.isDefEq] ✅️ ?m =?= ?m

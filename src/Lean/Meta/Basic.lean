@@ -534,7 +534,7 @@ structure Context where
 deriving Inhabited
 
 def Context.config (c : Context) : Config := c.keyedConfig.config
-def Context.configKey (c : Context) : UInt64 := (c.keyedConfig.key <<< 1) ||| (c.canUnfold? matches .standard).toUInt64
+def Context.configKey (c : Context) : UInt64 := c.keyedConfig.key ||| ((c.canUnfold? matches .standard).toUInt64 <<< 40)
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the

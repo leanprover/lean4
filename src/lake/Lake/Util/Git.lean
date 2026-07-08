@@ -96,17 +96,6 @@ public def cwd : GitRepo := ⟨"."⟩
 @[inline] public def testGit (args : Array String) (repo : GitRepo) : BaseIO Bool :=
   testProc {cmd := "git", args, cwd := repo.dir}
 
-public def clone (url : String) (repo : GitRepo) (rev? : Option String) : LogIO PUnit  :=
-  proc {
-    cmd := "git",
-    args :=
-      if let some rev := rev? then
-        #["clone", url, repo.dir.toString, "--depth=1", "--revision", rev]
-      else
-        #["clone", url, repo.dir.toString, "--depth=1"]
-  }
-  (quiet := true)
-
 public def quietInit (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["init", "-q"]
 
@@ -199,6 +188,27 @@ public def addRemote (remote : String) (url : String) (repo : GitRepo) : LogIO U
 
 public def setRemoteUrl (remote : String) (url : String) (repo : GitRepo) : LogIO Unit :=
   repo.execGit #["remote", "set-url", remote, url]
+
+public def clone (url : String) (repo : GitRepo) (rev? : Option GitRev) : LogIO PUnit := do
+  -- `--depth` (even when ignored, e.g. for local transports) implies `--single-branch`,
+  -- which would prevent later fetching other branches/revisions of the dependency.
+  let cloneFull : LogIO PUnit :=
+    proc {cmd := "git", args := #["clone", url, repo.dir.toString]} (quiet := true)
+  match rev? with
+  | none => cloneFull
+  | some rev =>
+    -- `git clone` has no way to shallow-clone an arbitrary revision, so fetch it manually.
+    IO.FS.createDirAll repo.dir
+    repo.quietInit
+    repo.addRemote Git.defaultRemote url
+    if (← repo.testGit #["fetch", "--depth=1", Git.defaultRemote, rev]) then
+      repo.checkoutDetach GitRev.fetchHead
+    else
+      logInfo s!"{repo}: shallow fetch of revision '{rev}' failed; falling back to a full clone"
+      IO.FS.removeDirAll repo.dir
+      cloneFull
+      let rev ← repo.resolveRemoteRevision rev
+      repo.checkoutDetach rev
 
 public def getFilteredRemoteUrl?
   (remote := Git.defaultRemote) (repo : GitRepo)

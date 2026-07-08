@@ -294,8 +294,8 @@ public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
   withCanUnfoldPred (fun cfg info => do
     if (← isCbvOpaque info.name) then return false
     match prev with
-    | some f => f cfg info
-    | none =>
+    | .customUncached f => f cfg info
+    | .standard =>
       -- Duplicates `canUnfoldDefault` from `Lean.Meta.GetUnfoldableConst` (private).
       match cfg.transparency with
       | .none => return false
@@ -307,6 +307,7 @@ public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
         else if status == .instanceReducible && (m == .instances || m == .implicit) then return true
         else if status == .implicitReducible && m == .implicit then return true
         else return false
+    | .atMatcher f => f cfg info
   ) x
 
 builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond

@@ -460,6 +460,17 @@ register_builtin_option maxSynthPendingDepth : Nat := {
   descr    := "maximum number of nested `synthPending` invocations. When resolving unification constraints, pending type class problems may need to be synthesized. These type class problems may create new unification constraints that again require solving new type class problems. This option puts a threshold on how many nested problems are created."
 }
 
+inductive UnfoldPred where
+| standard : UnfoldPred
+| atMatcher : (Config → ConstantInfo → CoreM Bool) → UnfoldPred -- slightly dangerous; we ignore the function in the cache key, but it's always the same
+| customUncached : (Config → ConstantInfo → CoreM Bool) → UnfoldPred
+
+def UnfoldPred.isCacheable (p : UnfoldPred) : Bool :=
+  p matches .standard | .atMatcher _
+
+def UnfoldPred.cacheKey (p : UnfoldPred) : Bool :=
+  p matches .standard
+
 /--
   Contextual information for the `MetaM` monad.
 -/
@@ -503,7 +514,7 @@ structure Context where
   /--
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
-  canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
+  canUnfold?        : UnfoldPred := .standard
   /--
   When `Config.univApprox := true`, this flag is set to `true` when there is no
   progress processing universe constraints.
@@ -523,7 +534,7 @@ structure Context where
 deriving Inhabited
 
 def Context.config (c : Context) : Config := c.keyedConfig.config
-def Context.configKey (c : Context) : UInt64 := c.keyedConfig.key
+def Context.configKey (c : Context) : UInt64 := (c.keyedConfig.key <<< 1) ||| (c.canUnfold? matches .standard).toUInt64
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
@@ -1172,7 +1183,10 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
     { ctx with keyedConfig := { config } }
 
 @[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
-  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
+  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := .customUncached p })
+
+@[inline] def withCanUnfoldAtMatcherPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := .atMatcher p })
 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })

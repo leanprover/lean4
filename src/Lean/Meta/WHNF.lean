@@ -526,7 +526,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
      reduced to expose constructors, without bumping the overall transparency level.  -/
   if (← getTransparency) matches .reducible | .instances | .implicit then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
-    withCanUnfoldPred canUnfoldAtMatcher do
+    withCanUnfoldAtMatcherPred canUnfoldAtMatcher do
       whnf e
   else
     -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
@@ -1082,7 +1082,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if e.hasFVar || e.hasExprMVar || (← read).canUnfold?.isSome then
+  if e.hasFVar || e.hasExprMVar || (← read).canUnfold? matches .customUncached _ then
     return false
   else
     return true

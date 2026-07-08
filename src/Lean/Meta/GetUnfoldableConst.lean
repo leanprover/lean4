@@ -32,10 +32,10 @@ def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
 def canUnfold (info : ConstantInfo) : MetaM Bool := do
   let ctx ← read
   let cfg ← getConfig
-  if let some f := ctx.canUnfold? then
-    f cfg info
-  else
-    canUnfoldDefault cfg info
+  match ctx.canUnfold? with
+  | .customUncached f => f cfg info
+  | .standard => canUnfoldDefault cfg info
+  | .atMatcher f => f cfg info
 
 /--
 Look up a constant name, returning the `ConstantInfo`

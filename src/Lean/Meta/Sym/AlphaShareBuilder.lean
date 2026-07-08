@@ -78,7 +78,7 @@ instance : MonadShareCommon AlphaShareBuilderM where
   assertShared := Builder.assertShared
   isDebugEnabled := read
 
-open MonadShareCommon (share1 assertShared)
+open Lean.Meta.Sym.Internal.MonadShareCommon (share1 assertShared)
 
 variable [MonadShareCommon m]
 

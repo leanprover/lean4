@@ -17,7 +17,7 @@ This module defines the `Modifier` type and its sub-types, representing format p
 
 namespace Std
 namespace Time
-open Internal
+open Std.Time.Internal
 open Std.Internal.Parsec.String
 open Std.Internal.Parsec Lean PlainTime PlainDate TimeZone DateTime
 

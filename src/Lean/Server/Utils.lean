@@ -117,7 +117,7 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
   -- If this is ever a problem, we could store a second unnormalized FileMap, edit it, and normalize it here.
   (pre ++ newText.crlfToLf ++ post).toFileMap
 
-open IO
+open Lean.IO
 
 open Lsp
 

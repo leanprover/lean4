@@ -8,7 +8,7 @@ prelude
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Tactic.Cbv.Main
 namespace Lean.Elab.Tactic.Grind
-open Meta Grind
+open Meta
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symCbv] def evalSymCbv : GrindTactic := fun _ => withMainContext do
   ensureSym

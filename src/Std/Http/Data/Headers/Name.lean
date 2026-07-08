@@ -26,7 +26,7 @@ namespace Std.Http.Header
 
 set_option linter.all true
 
-open Internal Char
+open Std.Http.Internal
 
 /--
 Proposition asserting that a string is a valid HTTP header name: all characters are valid token

@@ -102,11 +102,15 @@ def mk (ctx : @& Context.Client) : IO Session.Client :=
 end Client
 
 /--
-Backing primitive for `Session.Client.setServerName`. Kept private so the SNI / hostname-verification
-setting can only be applied to a client session, never a server one (see `Session.Client.setServerName`).
+Sets the TLS server name (SNI) and enables post-handshake hostname verification for this session.
+
+Only meaningful for client sessions: it populates the SNI extension in the ClientHello and the
+expected hostname checked against the peer certificate's CN/SAN. On a server session OpenSSL ignores
+it (servers receive SNI rather than send it), so calling it there is a harmless no-op. Prefer the
+role-typed `Session.Client.setServerName`, which makes the client-only intent explicit.
 -/
 @[extern "lean_ssl_set_server_name"]
-private opaque setServerNameImpl (ssl : @& Session) (host : @& String) : IO Unit
+opaque setServerName (ssl : @& Session) (host : @& String) : IO Unit
 
 /--
 Gets the X.509 verification result code after the handshake (`0` is `X509_V_OK`).
@@ -287,7 +291,7 @@ verification against the certificate CN/SAN. Without it, OpenSSL validates only 
 chain — not that the certificate belongs to the host being connected to. Must be called before the
 handshake.
 -/
-def setServerName (s : Session.Client) (host : @& String) : IO Unit := Session.setServerNameImpl s.toSession host
+def setServerName (s : Session.Client) (host : @& String) : IO Unit := Session.setServerName s.toSession host
 
 /--
 Runs one handshake step on a client session.

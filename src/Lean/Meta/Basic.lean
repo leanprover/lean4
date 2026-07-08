@@ -1281,7 +1281,7 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 @[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
   let config := { ctx.config with transparency }
   -- Recall that `transparency` is stored in the first 3 bits (it has 5 values).
-  let key : UInt64 := ((ctx.configKey >>> (3 : UInt64)) <<< 3) ||| transparency.toUInt64
+  let key : UInt64 := ((ctx.keyedConfig.key >>> (3 : UInt64)) <<< 3) ||| transparency.toUInt64
   { ctx with keyedConfig := { config, key } }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=

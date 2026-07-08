@@ -390,6 +390,14 @@ structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
+  /--
+  Typeclass queries whose resolution got stuck on a metavariable (`isDefEqStuck`). Such queries
+  are retried whenever the elaborator makes any progress (see `synthesizeSyntheticMVars`), so
+  memoizing stuckness lets the retries fail fast instead of re-running the search setup each
+  time. If the blocking metavariable is assigned in the meantime, the retried query has a
+  different (more instantiated) key and is not affected by the memoized entry.
+  -/
+  synthStuck     : PHashSet SynthInstanceCacheKey := {}
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
@@ -653,13 +661,13 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

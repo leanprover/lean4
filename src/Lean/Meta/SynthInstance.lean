@@ -932,7 +932,14 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
     | none =>
+      if (← get).cache.synthStuck.contains cacheKey then
+        -- The same query already got stuck on a metavariable; the blocking metavariable is still
+        -- unassigned (otherwise the key would be more instantiated), so fail fast instead of
+        -- re-running the search.
+        trace[Meta.synthInstance.cache] "stuck (cached): {type}"
+        Meta.throwIsDefEqStuck
       trace[Meta.synthInstance.cache] "new: {type}"
+      try
       let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
         | .noMVars =>
@@ -962,6 +969,11 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       trace[Meta.synthInstance] "result {result?}"
       cacheResult cacheKey kind abstResult? result?
       return result?
+      catch e =>
+        if let .internal id _ := e then
+          if id == isDefEqStuckExceptionId then
+            modifyCache fun c => { c with synthStuck := c.synthStuck.insert cacheKey }
+        throw e
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
   synthInstanceCore? type maxResultSize?

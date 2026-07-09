@@ -47,7 +47,7 @@ namespace Lean
 open Std
 
 export _root_.Std
-  (Format ToFormat Format.nest Format.nil Format.joinSep Format.line
+  (Format ToFormat Format.nest Format.nil Format.joinSep Format.line Format.text
    Format.sbracket Format.bracket Format.group Format.tag Format.pretty
    Format.fill Format.paren Format.join Format.align)
 export _root_.Std.ToFormat (format)

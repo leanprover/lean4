@@ -6,12 +6,17 @@
 # text but ignore `<system-out>`, so without this step the CI test summary
 # shows only the names of failed tests.
 
+import re
 import sys
 import xml.etree.ElementTree as ET
 
 # caps to keep the rendered summary below GitHub's 1MiB step summary limit
 MAX_OUTPUT_PER_TEST = 8000
 MAX_OUTPUT_TOTAL = 400000
+
+# the test runners diff with `--color=always`; ctest encodes the ESC character
+# in the XML as a literal `[NON-XML-CHAR-0x1B]` placeholder
+ANSI_ESCAPE = re.compile(r"(?:\x1b|\[NON-XML-CHAR-0x1B\])(?:\[[0-9;]*[A-Za-z])?")
 
 def truncate(text, limit):
     if len(text) <= limit:
@@ -39,7 +44,8 @@ def main():
                 print("total output budget exhausted, skipping remaining failures")
                 tree.write(path, encoding="UTF-8", xml_declaration=True)
                 return
-            out = truncate((testcase.findtext("system-out") or "").strip("\n"), limit)
+            out = ANSI_ESCAPE.sub("", testcase.findtext("system-out") or "").strip("\n")
+            out = truncate(out, limit)
             if not out:
                 continue
             elem.text = out

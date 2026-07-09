@@ -221,17 +221,19 @@ def computeModuleDeps
   -/
   let impLibs ← mkLoadOrder impLibs
   let mut dynlibs := externLibs ++ dynlibs
-  let mut plugins := plugins
   for impLib in impLibs do
-    if impLib.plugin then
-      plugins := plugins.push impLib
-    else
-      dynlibs := dynlibs.push impLib
+    /- Load as dynlib (not plugin) because:
+    - imported modules will be initialized in `importModules` anyway; and
+    - since imports from a different `pkg` are loaded together through `pkg:shared`,
+      passing `pkg:shared` as a plugin would initialize too much,
+      namely all modules in `pkg` rather than just the ones we have imported. -/
+    dynlibs := dynlibs.push impLib
   /-
   On MacOS, Lake must be loaded as a plugin for
   `import Lake` to work with precompiled modules.
   https://github.com/leanprover/lean4/issues/7388
   -/
+  let mut plugins := plugins
   if Platform.isOSX && !(plugins.isEmpty && dynlibs.isEmpty) then
     plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}

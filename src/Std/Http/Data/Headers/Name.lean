@@ -73,7 +73,7 @@ theorem beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
   rfl
 
 set_option linter.extra.dupNamespace false in
-@[deprecated beq_eq (since := "2026-06-04")]
+@[deprecated Header.Name.beq_eq (since := "2026-06-04")]
 theorem Name.beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
   Header.Name.beq_eq
 

@@ -97,7 +97,9 @@ def repeatedly(
 
     results = []
     for metric, measurements in by_metric.items():
-        measurements = measurements[drop_lowest : len(measurements) - drop_highest]
+        if drop_highest or drop_lowest:
+            measurements.sort(key=lambda m: m.value)
+            measurements = measurements[drop_lowest : len(measurements) - drop_highest]
         if not measurements:
             continue
         unit = measurements[0].unit

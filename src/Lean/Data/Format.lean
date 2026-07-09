@@ -44,7 +44,6 @@ end Format
 end Lean.Std
 
 namespace Lean
-open Std
 
 export _root_.Std
   (Format ToFormat Format.nest Format.nil Format.joinSep Format.line Format.text

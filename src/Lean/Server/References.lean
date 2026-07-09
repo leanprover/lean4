@@ -18,7 +18,7 @@ public section
 set_option linter.missingDocs true
 
 namespace Lean.Server
-open Lsp Lean.Elab Std
+open Lsp Lean.Elab
 
 /-- Converts an `Import` to its LSP-internal representation. -/
 def ImportInfo.ofImport (i : Import) : ImportInfo where

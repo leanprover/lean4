@@ -16,6 +16,21 @@ fi
 
 rm -f "$1.measurements.jsonl"
 
+# Measure `cmd`, repeating it `TEST_REPEAT` times via `repeatedly.py` if set.
+function measure_or_repeat {
+  local file="$1" topic="$2"; shift 2
+  if [[ -n "${TEST_REPEAT:-}" ]]; then
+    capture_only "$file" \
+      "$TEST_DIR/repeatedly.py" -n "$TEST_REPEAT" \
+      -H "${TEST_REPEAT_DROP_HIGHEST:-0}" -L "${TEST_REPEAT_DROP_LOWEST:-0}" \
+      -o "$file.measurements.jsonl" -- \
+      "$TEST_DIR/measure.py" -t "$topic" -o "$file.measurements.jsonl" -d -- "$@"
+  else
+    capture_only "$file" \
+      "$TEST_DIR/measure.py" -t "$topic" -o "$file.measurements.jsonl" -a -d -- "$@"
+  fi
+}
+
 if [[ -n $DO_COMPILE ]]; then
   echo "Compiling and executing lean file"
   run_before "$1"
@@ -25,9 +40,7 @@ if [[ -n $DO_COMPILE ]]; then
   lean --c="$1.c" -Dcompiler.postponeCompile=false "${TEST_LEAN_ARGS[@]}" "$1" || fail "Failed to compile $1 into $1.c"
   leanc ${LEANC_OPTS-} -O3 -DNDEBUG -o "$1.out" "${TEST_LEANC_ARGS[@]}" "$1.c" || fail "Failed to compile $1.c"
 
-  capture_only "$1" \
-    "$TEST_DIR/measure.py" -t "$TOPIC" -o "$1.measurements.jsonl" -a -d -- \
-    "./$1.out" "${TEST_ARGS[@]}"
+  measure_or_repeat "$1" "$TOPIC" "./$1.out" "${TEST_ARGS[@]}"
   check_exit_is "${TEST_EXIT:-0}"
   extract_measurements "$TOPIC"
 
@@ -45,8 +58,7 @@ if [[ -n $DO_INTERPRET ]]; then
 
   TOPIC="interpreted/$(basename "$1" .lean)"
 
-  capture_only "$1" \
-    "$TEST_DIR/measure.py" -t "$TOPIC" -o "$1.measurements.jsonl" -a -d -- \
+  measure_or_repeat "$1" "$TOPIC" \
     lean -Dlinter.all=false "${TEST_LEANI_ARGS[@]}" --run "$1" "${TEST_ARGS[@]}"
   check_exit_is "${TEST_EXIT:-0}"
   extract_measurements "$TOPIC"

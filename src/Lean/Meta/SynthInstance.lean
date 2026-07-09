@@ -982,6 +982,13 @@ private structure State where
   types : Array Expr := #[]
   /-- Set when the closure cannot be soundly normalized (let-bound or mvar-typed variable). -/
   bail  : Bool := false
+  /--
+  Memoizes `normExpr` on visited subterms so that terms with DAG sharing are traversed in DAG
+  size, not tree size. Sound because positions are assigned by first occurrence and never change:
+  revisiting a subterm yields the same normalization. Keyed structurally (`ExprStructEq` hashes
+  are cached and its equality short-circuits on pointer identity).
+  -/
+  cache : Std.HashMap ExprStructEq Expr := {}
 
 private abbrev M := ReaderT LocalContext (StateM State)
 
@@ -993,6 +1000,7 @@ value is part of the context but not the key) or a variable whose type contains 
 -/
 private partial def normExpr (e : Expr) : M Expr := do
   if (← get).bail then return e
+  unless e.hasFVar do return e
   match e with
   | .fvar id =>
     if let some i := (← get).fmap[id]? then
@@ -1011,13 +1019,19 @@ private partial def normExpr (e : Expr) : M Expr := do
       let nty ← normExpr decl.type
       modify fun s => { s with types := s.types.set! i nty }
       return .fvar (canonFVarId i)
-  | .app f a          => return .app (← normExpr f) (← normExpr a)
-  | .lam n d b bi     => return .lam n (← normExpr d) (← normExpr b) bi
-  | .forallE n d b bi => return .forallE n (← normExpr d) (← normExpr b) bi
-  | .letE n t v b nd  => return .letE n (← normExpr t) (← normExpr v) (← normExpr b) nd
-  | .mdata m b        => return .mdata m (← normExpr b)
-  | .proj s i b       => return .proj s i (← normExpr b)
-  | _                 => return e
+  | _ =>
+    if let some r := (← get).cache[(e : ExprStructEq)]? then
+      return r
+    let r ← match e with
+      | .app f a          => pure <| .app (← normExpr f) (← normExpr a)
+      | .lam n d b bi     => pure <| .lam n (← normExpr d) (← normExpr b) bi
+      | .forallE n d b bi => pure <| .forallE n (← normExpr d) (← normExpr b) bi
+      | .letE n t v b nd  => pure <| .letE n (← normExpr t) (← normExpr v) (← normExpr b) nd
+      | .mdata m b        => pure <| .mdata m (← normExpr b)
+      | .proj s i b       => pure <| .proj s i (← normExpr b)
+      | e                 => pure e
+    modify fun s => { s with cache := s.cache.insert e r }
+    return r
 
 /-- The free-variable-normalized cache context for a query; see `normalizeContext?`. -/
 structure Context where
@@ -1056,8 +1070,10 @@ shared cache and re-instantiate in a different context (cf. `reopen`), analogous
 handling in `openAbstractMVarsResult`.
 -/
 def abstractOverClosure? (ctx : Context) (e : Expr) : Option Expr :=
-  if e.hasAnyFVar (!ctx.fmap.contains ·) then none
-  else some (e.abstract (ctx.order.map Expr.fvar))
+  -- Abstract first, then check the (cached) `hasFVar` flag of the result: any remaining free
+  -- variable is outside the closure. Unlike `hasAnyFVar`, this is linear in the DAG size of `e`.
+  let e := e.abstract (ctx.order.map Expr.fvar)
+  if e.hasFVar then none else some e
 
 /-- Abstracts the free variables of a cache value, or `none` if the result escapes the closure. -/
 def abstractValue? (ctx : Context) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) :

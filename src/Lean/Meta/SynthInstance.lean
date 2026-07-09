@@ -11,6 +11,7 @@ public import Init.Data.Array.InsertionSort
 public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
+import Lean.Util.CollectLevelMVars
 import Init.While
 
 public section
@@ -884,9 +885,9 @@ Returns the type class resolution cache entry for `key` from the transient
 (`Meta.Cache.synthInstance`) or persistent (`synthInstanceCacheExt`) tier.
 -/
 private def findCachedResult? (key : SynthInstanceCacheKey) :
-    MetaM (Option (Option AbstractMVarsResult)) := do
-  if let some result? := (← get).cache.synthInstance.find? key then
-    return some result?
+    MetaM (Option SynthInstanceCacheEntry) := do
+  if let some entry := (← get).cache.synthInstance.find? key then
+    return some entry
   let some ref := synthInstanceCacheExt.getState (← getEnv) | return none
   return (← ref.get).find? key
 
@@ -904,13 +905,13 @@ context can produce incorrectly instantiated terms.
 Persistent insertions mutate the cache ref instead of the environment, so they survive
 environment rollbacks; see `synthInstanceCacheExt`.
 -/
-private def insertCachedResult (key : SynthInstanceCacheKey) (result? : Option AbstractMVarsResult)
+private def insertCachedResult (key : SynthInstanceCacheKey) (entry : SynthInstanceCacheEntry)
     (persist : Bool) : MetaM Unit := do
   if persist then
     let some ref := synthInstanceCacheExt.getState (← getEnv) | return ()
-    ref.modify (·.insert key result?)
+    ref.modify (·.insert key entry)
   else
-    modifyCache fun c => { c with synthInstance := c.synthInstance.insert key result? }
+    modifyCache fun c => { c with synthInstance := c.synthInstance.insert key entry }
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
@@ -931,7 +932,9 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
     applyAbstractResult? type abstResult?
 
 /-- Helper function for caching synthesized type class instances. -/
-private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKind) (normalized : Bool) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
+private def cacheResult (cacheKey : SynthInstanceCacheKey) (relSynthPendingDepth : Option Nat)
+    (kind : PreprocessKind) (normalized : Bool) (abstResult? : Option AbstractMVarsResult)
+    (result? : Option Expr) : MetaM Unit := do
   -- The stored value: for a closed result we store the concrete `result` expr with an empty
   -- `AbstractMVarsResult` so that `applyCachedAbstractResult?` can skip re-`check`ing it.
   let value? :=
@@ -953,7 +956,8 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKin
   let persist := kind matches .noMVars &&
     (normalized || (cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar)) &&
     (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar)
-  insertCachedResult cacheKey value? (persist := persist)
+  insertCachedResult cacheKey { relSynthPendingDepth, result := value? } (persist := persist)
+
 
 /-!
 Free-variable normalization of the cache key and result. Two `.noMVars` queries that are
@@ -1161,6 +1165,31 @@ def reopen (order : Array FVarId) (e : Expr) : Expr :=
 
 end SynthNorm
 
+/--
+Computes the fingerprint under which it is sound to memoize that the query `key` got stuck
+(`isDefEqStuck`), or `none` if memoizing it is unsound. A stuck query whose key is unchanged can
+still succeed when re-run if the search outcome depends on state outside the key:
+- Local instances participate in the key only by their `FVarId`. If a local instance's type
+  contains a metavariable, assigning it later un-sticks the query without changing the key.
+- Non-natural metavariables in the query can be resolved by the search itself as a side effect
+  (`synthPending`), and delayed assignments can make progress, both without a prior key change.
+- Level metavariables at the caller's metavariable-context depth may be assigned during the
+  search (`allowLevelAssignments`), so stuckness additionally depends on their current
+  assignability. This set is the returned fingerprint; it must be compared at lookup time.
+-/
+private def stuckMemoFingerprint? (key : SynthInstanceCacheKey) : MetaM (Option (Array LMVarId)) := do
+  for localInst in key.localInsts do
+    if (← instantiateMVars (← localInst.fvar.fvarId!.getDecl).type).hasMVar then
+      return none
+  let type ← instantiateMVars key.type
+  for mvarId in (type.collectMVars {}).result do
+    unless (← mvarId.getDecl).kind.isNatural do
+      return none
+    if (← mvarId.isDelayedAssigned) then
+      return none
+  let assignable ← (collectLevelMVars {} type).result.filterM isLevelMVarAssignable
+  return some <| assignable.insertionSort fun u v => u.name.quickLt v.name
+
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
@@ -1175,32 +1204,82 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     -- For `.noMVars` queries, normalize the free variables of the key and result so that
     -- structurally identical queries in different local contexts share a cache entry.
     let normCtx? ← if kind matches .noMVars then SynthNorm.normalizeContext? cacheKeyType localInsts else pure none
-    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
-                      activeScopedInsts := instanceExtension.getActiveScopesWithEntries (← getEnv),
-                      localAttrInsts := instanceExtension.getState (← getEnv) |>.localInstanceNames,
-                      maxResultSize,
-                      canonInstances := backward.synthInstance.canonInstances.get opts,
-                      -- read by name: importing `Lean.Meta.ExprDefEq` here would be a cycle
-                      respectTransparency := opts.getBool `backward.isDefEq.respectTransparency true,
-                      respectTransparencyTypes :=
-                        opts.getBool `backward.isDefEq.respectTransparency.types true,
-                      isExporting := (← getEnv).isExporting }
-    let cacheKey := match normCtx? with
-      | some c => { cacheKey with localInsts := c.canonLocalInsts, type := c.normType, normFVarTypes := c.fvarTypes, normFVarValues := c.fvarValues }
-      | none   => cacheKey
-    match ← findCachedResult? cacheKey with
-    | some abstResult? =>
-      trace[Meta.synthInstance.cache] "cached: {type}"
+    let synthPendingDepth := (← read).synthPendingDepth
+    let depthSuffix : MessageData :=
+      if synthPendingDepth == 0 then m!"" else m!" (synthPendingDepth := {synthPendingDepth})"
+    -- Fold `synthPending` activity into the enclosing query's accumulator, if any.
+    let foldActivity (activity : SynthPendingActivity) : MetaM Unit := do
+      if activity.maxDepth.isSome || activity.guardHit then
+        if let some ref := (← read).synthPendingActivityRef? then
+          ref.modify fun a => {
+            maxDepth := match a.maxDepth, activity.maxDepth with
+              | some d₁, some d₂ => some (d₁.max d₂)
+              | some d, none | none, some d => some d
+              | none, none => none
+            guardHit := a.guardHit || activity.guardHit }
+    -- Base cache key: context fields for cross-command persistence plus the fvar-normalized
+    -- components. `synthPendingDepth` is `none` for the depth-shared entry and `some depth` for
+    -- the depth-exact one (see `SynthInstanceCacheKey.synthPendingDepth`).
+    let rawBaseKey : SynthInstanceCacheKey :=
+      { localInsts, type := cacheKeyType, synthPendingDepth := none,
+        activeScopedInsts := instanceExtension.getActiveScopesWithEntries (← getEnv),
+        localAttrInsts := instanceExtension.getState (← getEnv) |>.localInstanceNames,
+        maxResultSize,
+        canonInstances := backward.synthInstance.canonInstances.get opts,
+        -- read by name: importing `Lean.Meta.ExprDefEq` here would be a cycle
+        respectTransparency := opts.getBool `backward.isDefEq.respectTransparency true,
+        respectTransparencyTypes := opts.getBool `backward.isDefEq.respectTransparency.types true,
+        isExporting := (← getEnv).isExporting }
+    let baseKey := match normCtx? with
+      | some c => { rawBaseKey with localInsts := c.canonLocalInsts, type := c.normType, normFVarTypes := c.fvarTypes, normFVarValues := c.fvarValues }
+      | none   => rawBaseKey
+    let sharedKey := baseKey
+    let depthKey  := { baseKey with synthPendingDepth := some synthPendingDepth }
+    -- `stuckMemoFingerprint?` inspects the local instances' actual `FVarId`s, so the stuck cache
+    -- must use the raw (non-normalized) key.
+    let stuckKey  := { rawBaseKey with synthPendingDepth := some synthPendingDepth }
+    let maxSynthPending := maxSynthPendingDepth.get (← getOptions)
+    let applyCached (entry : SynthInstanceCacheEntry) : MetaM (Option Expr) := do
+      trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
       -- Re-instantiate the closure-abstracted result with the current context's free variables.
       let abstResult? := match normCtx? with
-        | some c => abstResult?.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
-        | none   => abstResult?
+        | some c => entry.result.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
+        | none   => entry.result
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
-    | none =>
-      trace[Meta.synthInstance.cache] "new: {type}"
-      let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
+    let sharedEntry? ← match ← findCachedResult? sharedKey with
+      | some entry =>
+        match entry.relSynthPendingDepth with
+        | none     => pure (some entry)
+        | some rel =>
+          -- Valid iff no `synthPending` invocation can reach the give-up threshold at the current
+          -- depth; see `SynthInstanceCacheEntry.relSynthPendingDepth`.
+          pure (if synthPendingDepth + rel ≤ maxSynthPending then some entry else none)
+      | none => pure none
+    if let some entry := sharedEntry? then
+      -- Reusing the entry re-enacts its `synthPending` decisions at the current depth.
+      foldActivity { maxDepth := entry.relSynthPendingDepth.map (synthPendingDepth + ·) }
+      applyCached entry
+    else if let some entry ← findCachedResult? depthKey then
+      -- The entry's synthesis hit the `maxSynthPendingDepth` give-up, so reusing it keeps the
+      -- enclosing query depth-exact as well.
+      foldActivity { maxDepth := some synthPendingDepth, guardHit := true }
+      applyCached entry
+    else
+      if let some fingerprint := (← get).cache.synthStuck.find? stuckKey then
+        -- The same query already got stuck on a metavariable; the blocking metavariable is still
+        -- unassigned (otherwise the key would be more instantiated). If additionally the
+        -- level-assignability fingerprint is unchanged, the search is guaranteed to get stuck
+        -- again, so fail fast instead of re-running it.
+        if (← stuckMemoFingerprint? stuckKey) == some fingerprint then
+          trace[Meta.synthInstance.cache] "stuck (cached){depthSuffix}: {type}"
+          Meta.throwIsDefEqStuck
+      trace[Meta.synthInstance.cache] "new{depthSuffix}: {type}"
+      try
+      let activityRef ← IO.mkRef {}
+      let abstResult? ← withReader (fun ctx => { ctx with synthPendingActivityRef? := some activityRef }) do
+        withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
         | .noMVars =>
           /-
@@ -1227,15 +1306,27 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         | .mvarsOutputParams => SynthInstance.main (← preprocessOutParam type) maxResultSize
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
+      let activity ← activityRef.get
+      foldActivity activity
+      -- Results whose synthesis hit the `maxSynthPendingDepth` give-up are only valid at the exact
+      -- depth; all others are shared, bounded by their relative activity depth.
+      let key := if activity.guardHit then depthKey else sharedKey
+      let rel := activity.maxDepth.map (· - synthPendingDepth)
       match normCtx? with
-      | none   => cacheResult cacheKey kind (normalized := false) abstResult? result?
+      | none   => cacheResult key rel kind (normalized := false) abstResult? result?
       | some c =>
         -- Store the result over the canonical closure variables; skip caching (this query only) if
         -- the result escapes the closure and so is not context-free.
         match SynthNorm.abstractValue? c abstResult? result? with
-        | some (nAbstResult?, nResult?) => cacheResult cacheKey kind (normalized := true) nAbstResult? nResult?
+        | some (nAbstResult?, nResult?) => cacheResult key rel kind (normalized := true) nAbstResult? nResult?
         | none => pure ()
       return result?
+      catch e =>
+        if let .internal id _ := e then
+          if id == isDefEqStuckExceptionId then
+            if let some fingerprint ← stuckMemoFingerprint? stuckKey then
+              modifyCache fun c => { c with synthStuck := c.synthStuck.insert stuckKey fingerprint }
+        throw e
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
   synthInstanceCore? type maxResultSize?
@@ -1273,8 +1364,15 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
+      let depth := (← read).synthPendingDepth
+      -- Record the `synthPending` decision reached at `depth`; the enclosing type class
+      -- query's cache entry (if any) is only valid at depths where it comes out the same.
+      if let some ref := (← read).synthPendingActivityRef? then
+        ref.modify fun a => { a with maxDepth := some ((a.maxDepth.getD 0).max depth) }
       let max := maxSynthPendingDepth.get (← getOptions)
-      if (← read).synthPendingDepth > max then
+      if depth > max then
+        if let some ref := (← read).synthPendingActivityRef? then
+          ref.modify fun a => { a with guardHit := true }
         trace[Meta.synthPending] "too many nested synthPending invocations"
         recordSynthPendingFailure mvarDecl.type
         return false

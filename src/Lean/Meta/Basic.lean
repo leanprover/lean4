@@ -343,10 +343,19 @@ structure SynthInstanceCacheKey where
   -/
   normFVarValues    : Array (Option Expr) := #[]
   /--
-  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
-  See issue #2522.
+  Value of `synthPendingDepth` when the instance was synthesized or failed to be
+  synthesized, or `none` if the result can be reused at other depths.
+
+  `synthPendingDepth` can influence the result of a query because `synthPending` gives up
+  when `synthPendingDepth > maxSynthPendingDepth`, so a result may not be reused at a
+  different depth (see issue #2522). However, this is the *only* way the depth can influence
+  a query. Thus, if no `synthPending` invocation gave up while synthesizing an instance, the
+  result is valid at every depth at which the guard still cannot trigger, and is stored with
+  `synthPendingDepth := none` together with a validity bound in the cache entry (see
+  `SynthInstanceCacheEntry.relSynthPendingDepth`). Only results whose synthesis hit the
+  give-up threshold remain keyed by their exact depth.
   -/
-  synthPendingDepth : Nat
+  synthPendingDepth : Option Nat
   /--
   Namespaces with scoped instances that are currently activated (e.g. via `open`), in canonical
   order. Keying the cache by this set keeps entries from outside a scope valid after the scope
@@ -393,7 +402,20 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/-- Entry of the type class resolution cache. -/
+structure SynthInstanceCacheEntry where
+  /--
+  Maximum `synthPendingDepth` at which a `synthPending` decision was reached during the
+  synthesis, relative to the query's own `synthPendingDepth`, or `none` if no such decision
+  was reached. An entry stored under `synthPendingDepth := none` may be reused by a query at
+  depth `d` iff `relSynthPendingDepth` is `none` or `d + relSynthPendingDepth` does not
+  exceed `maxSynthPendingDepth`: under that bound no `synthPending` invocation can reach the
+  give-up threshold, so the synthesis behaves identically at depth `d`.
+  -/
+  relSynthPendingDepth : Option Nat := none
+  result               : Option AbstractMVarsResult
+
+abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey SynthInstanceCacheEntry
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -476,6 +498,21 @@ structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
+  /--
+  Typeclass queries whose resolution got stuck on a metavariable (`isDefEqStuck`). Such queries
+  are retried whenever the elaborator makes any progress (see `synthesizeSyntheticMVars`), so
+  memoizing stuckness lets the retries fail fast instead of re-running the search setup each
+  time. If the blocking metavariable is assigned in the meantime, the retried query has a
+  different (more instantiated) key and is not affected by the memoized entry.
+
+  Entries are recorded only when stuckness is a pure function of the key and the associated
+  fingerprint of assignable level metavariables; see `stuckMemoFingerprint?`.
+
+  Kept transient (per-`Meta.State`). It is a candidate for metavariable normalization: stuck
+  queries are metavariable-headed, so normalizing the blocking metavariables could let more
+  retries share a memoized entry.
+  -/
+  synthStuck     : PHashMap SynthInstanceCacheKey (Array LMVarId) := {}
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
@@ -553,6 +590,17 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 }
 
 /--
+Accumulated `synthPending` decisions of a type class query, used by the type class
+resolution cache to bound the `synthPendingDepth` values at which the result may be reused.
+See `SynthInstanceCacheEntry.relSynthPendingDepth`.
+-/
+structure SynthPendingActivity where
+  /-- Maximum `synthPendingDepth` at which a `synthPending` decision was reached. -/
+  maxDepth : Option Nat := none
+  /-- Whether some `synthPending` invocation gave up because of `maxSynthPendingDepth`. -/
+  guardHit : Bool       := false
+
+/--
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
@@ -592,6 +640,15 @@ structure Context where
     Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
+  /--
+  When set, the reference accumulates the `synthPending` decisions reached during the
+  current type class query, i.e. behavior that may depend on `synthPendingDepth`. The type
+  class resolution cache uses this to decide at which depths a result may be reused; see
+  `SynthInstanceCacheKey.synthPendingDepth` and `SynthInstanceCacheEntry.relSynthPendingDepth`.
+  The reference is intentionally not part of the backtrackable state: a `synthPending`
+  invocation in a discarded search branch still influenced the search outcome.
+  -/
+  synthPendingActivityRef? : Option (IO.Ref SynthPendingActivity) := none
   /--
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
@@ -745,13 +802,13 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6, c7⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6, c7⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm, c7⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm, c7⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

@@ -214,6 +214,16 @@ structure State where
   -/
   issues : List MessageData := []
   canon : Canon.State := {}
+  /--
+  Instances registered by satellite modules for types they create themselves
+  (e.g., `grind linarith`'s envelope type `IntModule.OfNatModule.Q`).
+  `Sym.synthInstance?` consults this table (keyed by the instance type, structural equality)
+  before running typeclass resolution. This both skips searches whose results are known in
+  advance, and ensures the registered term is used as the canonical representative.
+
+  We currently use this table to reduce the overhead of type class resolution in `grind`.
+  -/
+  instanceOverrides : PHashMap Expr Expr := {}
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM

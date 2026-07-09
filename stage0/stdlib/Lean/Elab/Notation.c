@@ -101,7 +101,7 @@ lean_object* l_Lean_Syntax_setTailInfo(lean_object*, lean_object*);
 lean_object* l_Array_mkArray0(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
@@ -132,7 +132,7 @@ lean_object* l_Lean_Macro_resolveGlobalName(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkApp(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_visibility_ofAttrKind(lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -1055,7 +1055,8 @@ else
 {
 lean_object* v___x_137_; lean_object* v___x_138_; lean_object* v___x_139_; uint8_t v___x_140_; 
 v___x_137_ = l_Lean_TSyntax_getId(v_attr_133_);
-v___x_138_ = lean_erase_macro_scopes(v___x_137_);
+v___x_138_ = l_Lean_Name_eraseMacroScopes(v___x_137_);
+lean_dec(v___x_137_);
 v___x_139_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Command_addInheritDocDefault_spec__0___closed__11));
 v___x_140_ = lean_name_eq(v___x_138_, v___x_139_);
 lean_dec(v___x_138_);
@@ -1245,7 +1246,8 @@ else
 {
 lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_202_; uint8_t v___x_203_; 
 v___x_200_ = l_Lean_TSyntax_getId(v_attr_196_);
-v___x_201_ = lean_erase_macro_scopes(v___x_200_);
+v___x_201_ = l_Lean_Name_eraseMacroScopes(v___x_200_);
+lean_dec(v___x_200_);
 v___x_202_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Command_addInheritDocDefault_spec__0___closed__11));
 v___x_203_ = lean_name_eq(v___x_201_, v___x_202_);
 lean_dec(v___x_201_);
@@ -3643,7 +3645,7 @@ lean_ctor_set(v___x_1034_, 0, v___x_1002_);
 lean_ctor_set(v___x_1034_, 1, v___x_1031_);
 lean_ctor_set(v___x_1034_, 2, v___x_1033_);
 lean_ctor_set(v___x_1034_, 3, v___x_1014_);
-v___x_1035_ = lean_mk_syntax_ident(v_fst_986_);
+v___x_1035_ = l_Lean_mkIdent(v_fst_986_);
 lean_inc(v___x_1035_);
 v___x_1036_ = l_Lean_Syntax_node1(v___x_1002_, v___x_1008_, v___x_1035_);
 v___x_1037_ = l_Lean_Syntax_node2(v___x_1002_, v___x_1030_, v___x_1034_, v___x_1036_);

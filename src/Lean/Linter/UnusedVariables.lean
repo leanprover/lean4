@@ -78,7 +78,7 @@ foobar n -- not linted
 -/
 
 namespace Lean.Linter
-open Lean.Elab.Command Lean.Server Std
+open Lean.Elab.Command Lean.Server
 
 /-- Enables or disables all unused variable linter warnings -/
 register_builtin_option linter.unusedVariables : Bool := {

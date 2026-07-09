@@ -18562,8 +18562,8 @@ goto v___jp_6091_;
 v___jp_6074_:
 {
 lean_object* v___x_6078_; lean_object* v___x_6079_; lean_object* v___x_6080_; 
-v___x_6078_ = lean_string_append(v___y_6075_, v___y_6076_);
-lean_dec_ref(v___y_6076_);
+v___x_6078_ = lean_string_append(v___y_6076_, v___y_6075_);
+lean_dec_ref(v___y_6075_);
 v___x_6079_ = lean_string_append(v___x_6078_, v___y_6077_);
 lean_dec_ref(v___y_6077_);
 v___x_6080_ = lean_string_append(v___x_6073_, v___x_6079_);
@@ -18579,8 +18579,8 @@ case 0:
 {
 lean_object* v___x_6084_; 
 v___x_6084_ = ((lean_object*)(l_panic___at___00Std_Http_Internal_Test_assertStatus_spec__0___closed__0));
-v___y_6075_ = v___y_6082_;
-v___y_6076_ = v___y_6083_;
+v___y_6075_ = v___y_6083_;
+v___y_6076_ = v___y_6082_;
 v___y_6077_ = v___x_6084_;
 goto v___jp_6074_;
 }
@@ -18588,8 +18588,8 @@ case 1:
 {
 lean_object* v___x_6085_; 
 v___x_6085_ = ((lean_object*)(l_Std_Http_Internal_Test_uriHandler___redArg___closed__3));
-v___y_6075_ = v___y_6082_;
-v___y_6076_ = v___y_6083_;
+v___y_6075_ = v___y_6083_;
+v___y_6076_ = v___y_6082_;
 v___y_6077_ = v___x_6085_;
 goto v___jp_6074_;
 }
@@ -18603,8 +18603,8 @@ v___x_6088_ = lean_uint16_to_nat(v_port_6086_);
 v___x_6089_ = l_Nat_reprFast(v___x_6088_);
 v___x_6090_ = lean_string_append(v___x_6087_, v___x_6089_);
 lean_dec_ref(v___x_6089_);
-v___y_6075_ = v___y_6082_;
-v___y_6076_ = v___y_6083_;
+v___y_6075_ = v___y_6083_;
+v___y_6076_ = v___y_6082_;
 v___y_6077_ = v___x_6090_;
 goto v___jp_6074_;
 }
@@ -18661,10 +18661,10 @@ v___jp_6022_:
 lean_object* v___x_6027_; lean_object* v___x_6028_; lean_object* v___x_6029_; lean_object* v___x_6030_; lean_object* v___x_6031_; lean_object* v___x_6032_; 
 v___x_6027_ = ((lean_object*)(l_Std_Http_Internal_Test_uriHandler___redArg___closed__3));
 v___x_6028_ = lean_string_append(v_scheme_6017_, v___x_6027_);
-v___x_6029_ = lean_string_append(v___x_6028_, v___y_6024_);
-lean_dec_ref(v___y_6024_);
-v___x_6030_ = lean_string_append(v___x_6029_, v___y_6023_);
+v___x_6029_ = lean_string_append(v___x_6028_, v___y_6023_);
 lean_dec_ref(v___y_6023_);
+v___x_6030_ = lean_string_append(v___x_6029_, v___y_6024_);
+lean_dec_ref(v___y_6024_);
 v___x_6031_ = lean_string_append(v___x_6030_, v___y_6025_);
 lean_dec_ref(v___y_6025_);
 v___x_6032_ = lean_string_append(v___x_6031_, v___y_6026_);
@@ -18720,8 +18720,8 @@ v___x_6053_ = ((lean_object*)(l_Std_Http_Internal_Test_uriHandler___redArg___clo
 v___x_6054_ = l_String_intercalate(v___x_6053_, v_encodedParams_6051_);
 v___x_6055_ = lean_string_append(v___x_6052_, v___x_6054_);
 lean_dec_ref(v___x_6054_);
-v___y_6034_ = v___y_6045_;
-v___y_6035_ = v___y_6044_;
+v___y_6034_ = v___y_6044_;
+v___y_6035_ = v___y_6045_;
 v___y_6036_ = v___x_6055_;
 goto v___jp_6033_;
 }
@@ -18730,8 +18730,8 @@ else
 lean_object* v___x_6056_; 
 lean_dec_ref(v_query_6020_);
 v___x_6056_ = ((lean_object*)(l_panic___at___00Std_Http_Internal_Test_assertStatus_spec__0___closed__0));
-v___y_6034_ = v___y_6045_;
-v___y_6035_ = v___y_6044_;
+v___y_6034_ = v___y_6044_;
+v___y_6035_ = v___y_6045_;
 v___y_6036_ = v___x_6056_;
 goto v___jp_6033_;
 }
@@ -18835,8 +18835,8 @@ case 0:
 {
 lean_object* v___x_6125_; 
 v___x_6125_ = ((lean_object*)(l_panic___at___00Std_Http_Internal_Test_assertStatus_spec__0___closed__0));
-v___y_5986_ = v___y_6124_;
-v___y_5987_ = v___y_6123_;
+v___y_5986_ = v___y_6123_;
+v___y_5987_ = v___y_6124_;
 v___y_5988_ = v___x_6125_;
 goto v___jp_5985_;
 }
@@ -18844,8 +18844,8 @@ case 1:
 {
 lean_object* v___x_6126_; 
 v___x_6126_ = ((lean_object*)(l_Std_Http_Internal_Test_uriHandler___redArg___closed__3));
-v___y_5986_ = v___y_6124_;
-v___y_5987_ = v___y_6123_;
+v___y_5986_ = v___y_6123_;
+v___y_5987_ = v___y_6124_;
 v___y_5988_ = v___x_6126_;
 goto v___jp_5985_;
 }
@@ -18859,8 +18859,8 @@ v___x_6129_ = lean_uint16_to_nat(v_port_6127_);
 v___x_6130_ = l_Nat_reprFast(v___x_6129_);
 v___x_6131_ = lean_string_append(v___x_6128_, v___x_6130_);
 lean_dec_ref(v___x_6130_);
-v___y_5986_ = v___y_6124_;
-v___y_5987_ = v___y_6123_;
+v___y_5986_ = v___y_6123_;
+v___y_5987_ = v___y_6124_;
 v___y_5988_ = v___x_6131_;
 goto v___jp_5985_;
 }
@@ -18933,8 +18933,8 @@ return v___x_5984_;
 v___jp_5985_:
 {
 lean_object* v___x_5989_; lean_object* v___x_5990_; 
-v___x_5989_ = lean_string_append(v___y_5987_, v___y_5986_);
-lean_dec_ref(v___y_5986_);
+v___x_5989_ = lean_string_append(v___y_5986_, v___y_5987_);
+lean_dec_ref(v___y_5987_);
 v___x_5990_ = lean_string_append(v___x_5989_, v___y_5988_);
 lean_dec_ref(v___y_5988_);
 v___y_5980_ = v___x_5990_;

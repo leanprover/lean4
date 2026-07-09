@@ -60,7 +60,7 @@ lean_object* l_Rat_add(lean_object*, lean_object*);
 extern lean_object* l_instInhabitedRat;
 lean_object* l_Rat_mul(lean_object*, lean_object*);
 uint8_t l_Rat_instDecidableLe(lean_object*, lean_object*);
-uint8_t l_Bool_toLBool(uint8_t);
+uint8_t l_Lean_Bool_toLBool(uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Int_decidableDvd(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -5276,9 +5276,9 @@ goto v___jp_1999_;
 v___jp_1987_:
 {
 lean_object* v___x_1991_; lean_object* v___x_1993_; 
-v___x_1991_ = lean_nat_add(v___y_1989_, v___y_1990_);
+v___x_1991_ = lean_nat_add(v___y_1988_, v___y_1990_);
 lean_dec(v___y_1990_);
-lean_dec(v___y_1989_);
+lean_dec(v___y_1988_);
 if (v_isShared_1984_ == 0)
 {
 lean_ctor_set(v___x_1983_, 4, v_r_1810_);
@@ -5307,7 +5307,7 @@ lean_object* v___x_1995_;
 if (v_isShared_1972_ == 0)
 {
 lean_ctor_set(v___x_1971_, 4, v___x_1993_);
-lean_ctor_set(v___x_1971_, 3, v___y_1988_);
+lean_ctor_set(v___x_1971_, 3, v___y_1989_);
 lean_ctor_set(v___x_1971_, 2, v_v_1976_);
 lean_ctor_set(v___x_1971_, 1, v_k_1975_);
 lean_ctor_set(v___x_1971_, 0, v___x_1986_);
@@ -5321,7 +5321,7 @@ v_reuseFailAlloc_1996_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_1996_, 0, v___x_1986_);
 lean_ctor_set(v_reuseFailAlloc_1996_, 1, v_k_1975_);
 lean_ctor_set(v_reuseFailAlloc_1996_, 2, v_v_1976_);
-lean_ctor_set(v_reuseFailAlloc_1996_, 3, v___y_1988_);
+lean_ctor_set(v_reuseFailAlloc_1996_, 3, v___y_1989_);
 lean_ctor_set(v_reuseFailAlloc_1996_, 4, v___x_1993_);
 v___x_1995_ = v_reuseFailAlloc_1996_;
 goto v_reusejp_1994_;
@@ -5369,8 +5369,8 @@ if (lean_obj_tag(v_r_1978_) == 0)
 lean_object* v_size_2005_; 
 v_size_2005_ = lean_ctor_get(v_r_1978_, 0);
 lean_inc(v_size_2005_);
-v___y_1988_ = v___x_2003_;
-v___y_1989_ = v___x_2004_;
+v___y_1988_ = v___x_2004_;
+v___y_1989_ = v___x_2003_;
 v___y_1990_ = v_size_2005_;
 goto v___jp_1987_;
 }
@@ -5378,8 +5378,8 @@ else
 {
 lean_object* v___x_2006_; 
 v___x_2006_ = lean_unsigned_to_nat(0u);
-v___y_1988_ = v___x_2003_;
-v___y_1989_ = v___x_2004_;
+v___y_1988_ = v___x_2004_;
+v___y_1989_ = v___x_2003_;
 v___y_1990_ = v___x_2006_;
 goto v___jp_1987_;
 }
@@ -6959,7 +6959,7 @@ uint8_t v___x_2537_; uint8_t v___x_2538_; lean_object* v___x_2539_; lean_object*
 v___x_2537_ = l_Int_decidableDvd(v_d_2520_, v_num_2528_);
 lean_dec(v_num_2528_);
 lean_dec(v_d_2520_);
-v___x_2538_ = l_Bool_toLBool(v___x_2537_);
+v___x_2538_ = l_Lean_Bool_toLBool(v___x_2537_);
 v___x_2539_ = lean_box(v___x_2538_);
 if (v_isShared_2526_ == 0)
 {
@@ -7123,7 +7123,7 @@ lean_inc(v_val_2597_);
 lean_dec_ref_known(v_a_2593_, 1);
 v___x_2598_ = lean_obj_once(&l_Int_Internal_Linear_Poly_eval_x3f___redArg___closed__0, &l_Int_Internal_Linear_Poly_eval_x3f___redArg___closed__0_once, _init_l_Int_Internal_Linear_Poly_eval_x3f___redArg___closed__0);
 v___x_2599_ = l_Rat_instDecidableLe(v_val_2597_, v___x_2598_);
-v___x_2600_ = l_Bool_toLBool(v___x_2599_);
+v___x_2600_ = l_Lean_Bool_toLBool(v___x_2599_);
 v___x_2601_ = lean_box(v___x_2600_);
 if (v_isShared_2596_ == 0)
 {
@@ -7365,7 +7365,7 @@ return v___x_2711_;
 v___jp_2697_:
 {
 uint8_t v___x_2699_; lean_object* v___x_2700_; lean_object* v___x_2702_; 
-v___x_2699_ = l_Bool_toLBool(v___y_2698_);
+v___x_2699_ = l_Lean_Bool_toLBool(v___y_2698_);
 v___x_2700_ = lean_box(v___x_2699_);
 if (v_isShared_2696_ == 0)
 {
@@ -7505,7 +7505,7 @@ lean_dec_ref_known(v_a_2758_, 1);
 v___x_2763_ = lean_obj_once(&l_Int_Internal_Linear_Poly_eval_x3f___redArg___closed__0, &l_Int_Internal_Linear_Poly_eval_x3f___redArg___closed__0_once, _init_l_Int_Internal_Linear_Poly_eval_x3f___redArg___closed__0);
 v___x_2764_ = l_instDecidableEqRat_decEq(v_val_2762_, v___x_2763_);
 lean_dec(v_val_2762_);
-v___x_2765_ = l_Bool_toLBool(v___x_2764_);
+v___x_2765_ = l_Lean_Bool_toLBool(v___x_2764_);
 v___x_2766_ = lean_box(v___x_2765_);
 if (v_isShared_2761_ == 0)
 {

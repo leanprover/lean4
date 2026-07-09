@@ -65,7 +65,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
@@ -3892,14 +3892,14 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_ProveEq_0__Lean_Meta
 _start:
 {
 lean_object* v___x_1066_; 
-v___x_1066_ = l_Lean_Meta_Sym_shareCommon___redArg(v_lhs_1053_, v_a_1060_);
+v___x_1066_ = l_Lean_Meta_Sym_shareCommon(v_lhs_1053_, v_a_1059_, v_a_1060_, v_a_1061_, v_a_1062_, v_a_1063_, v_a_1064_);
 if (lean_obj_tag(v___x_1066_) == 0)
 {
 lean_object* v_a_1067_; lean_object* v___x_1068_; 
 v_a_1067_ = lean_ctor_get(v___x_1066_, 0);
 lean_inc(v_a_1067_);
 lean_dec_ref_known(v___x_1066_, 1);
-v___x_1068_ = l_Lean_Meta_Sym_shareCommon___redArg(v_rhs_1054_, v_a_1060_);
+v___x_1068_ = l_Lean_Meta_Sym_shareCommon(v_rhs_1054_, v_a_1059_, v_a_1060_, v_a_1061_, v_a_1062_, v_a_1063_, v_a_1064_);
 if (lean_obj_tag(v___x_1068_) == 0)
 {
 lean_object* v_a_1069_; lean_object* v___x_1070_; lean_object* v___x_1071_; lean_object* v___x_1072_; 

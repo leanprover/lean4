@@ -94,7 +94,7 @@ lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Array_mkArray0(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l___private_Init_Meta_Defs_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_quoteNameMk(lean_object*);
 lean_object* lean_string_intercalate(lean_object*, lean_object*);
@@ -6190,7 +6190,8 @@ v___x_2655_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_2655_, 0, v___x_2628_);
 lean_ctor_set(v___x_2655_, 1, v___x_2654_);
 v___x_2656_ = l_Lean_Syntax_getId(v_id_2521_);
-v___x_2657_ = lean_erase_macro_scopes(v___x_2656_);
+v___x_2657_ = l_Lean_Name_eraseMacroScopes(v___x_2656_);
+lean_dec(v___x_2656_);
 lean_inc(v___x_2657_);
 v___x_2658_ = l___private_Init_Meta_Defs_0__Lean_getEscapedNameParts_x3f(v___x_2651_, v___x_2657_);
 if (lean_obj_tag(v___x_2658_) == 0)

@@ -27,7 +27,7 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → �
 
 namespace Std.DTreeMap
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
-open Internal (Impl)
+open Std.DTreeMap.Internal (Impl)
 
 /--
 Updates the values of the map by applying the given function to all mappings, keeping

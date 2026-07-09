@@ -94,7 +94,7 @@ lean_object* l_Array_mkArray0(lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkDefViewOfDef(lean_object*, lean_object*);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
@@ -4248,7 +4248,7 @@ v___x_1205_ = ((lean_object*)(l___private_Lean_Elab_BuiltinEvalCommand_0__Lean_E
 v___x_1206_ = ((lean_object*)(l___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_addAndCompileExprForEval___closed__22));
 lean_inc(v_declName_1166_);
 v___x_1207_ = l_Lean_Name_append(v___x_1206_, v_declName_1166_);
-v___x_1208_ = lean_mk_syntax_ident(v___x_1207_);
+v___x_1208_ = l_Lean_mkIdent(v___x_1207_);
 v___x_1209_ = lean_unsigned_to_nat(2u);
 v___x_1210_ = lean_mk_empty_array_with_capacity(v___x_1209_);
 v___x_1211_ = lean_array_push(v___x_1210_, v___x_1208_);

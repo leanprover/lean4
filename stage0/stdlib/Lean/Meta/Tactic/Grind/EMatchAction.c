@@ -3785,13 +3785,13 @@ lean_object* v___x_1178_;
 v___x_1178_ = l_Lean_Meta_Sym_getConfig___redArg(v___y_1046_);
 if (lean_obj_tag(v___x_1178_) == 0)
 {
-lean_object* v_a_1179_; uint8_t v___x_1180_; 
+lean_object* v_a_1179_; uint8_t v_verbose_1180_; 
 v_a_1179_ = lean_ctor_get(v___x_1178_, 0);
 lean_inc(v_a_1179_);
 lean_dec_ref_known(v___x_1178_, 1);
-v___x_1180_ = lean_unbox(v_a_1179_);
+v_verbose_1180_ = lean_ctor_get_uint8(v_a_1179_, 0);
 lean_dec(v_a_1179_);
-if (v___x_1180_ == 0)
+if (v_verbose_1180_ == 0)
 {
 lean_dec(v_a_1147_);
 v___y_1153_ = v___y_1050_;

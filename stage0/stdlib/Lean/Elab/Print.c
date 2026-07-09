@@ -149,20 +149,20 @@ lean_object* l_Lean_Elab_realizeGlobalConstWithInfos___boxed(lean_object*, lean_
 lean_object* l_Lean_Elab_Command_liftCoreM___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 uint8_t l_Lean_isProtected(lean_object*, lean_object*);
-lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_privateToUserName_x3f(lean_object*);
 uint8_t l_Lean_getPPPrivateNames(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 extern lean_object* l_Lean_defeqAttr;
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_backwardDefeqAttr;
-uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
+uint8_t l_Lean_getReducibilityStatusCore(lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_isDefinition(lean_object*);
 lean_object* l_Lean_getOriginalConstKind_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_isStructure(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_List_get_x21Internal___redArg(lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_class(lean_object*, lean_object*);
+uint8_t l_Lean_isClass(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Lean_Level_param___override(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
@@ -1919,7 +1919,7 @@ v___x_275_ = lean_st_ref_get(v___y_273_);
 v_env_276_ = lean_ctor_get(v___x_275_, 0);
 lean_inc_ref(v_env_276_);
 lean_dec(v___x_275_);
-v___x_277_ = lean_get_reducibility_status(v_env_276_, v_declName_272_);
+v___x_277_ = l_Lean_getReducibilityStatusCore(v_env_276_, v_declName_272_);
 v___x_278_ = lean_box(v___x_277_);
 v___x_279_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_279_, 0, v___x_278_);
@@ -2318,7 +2318,7 @@ v___jp_421_:
 {
 lean_object* v___x_424_; 
 lean_inc(v_id_376_);
-v___x_424_ = lean_private_to_user_name(v_id_376_);
+v___x_424_ = l_Lean_privateToUserName_x3f(v_id_376_);
 if (lean_obj_tag(v___x_424_) == 0)
 {
 lean_inc(v_id_376_);
@@ -15844,8 +15844,7 @@ lean_dec(v___x_5184_);
 lean_inc(v_numParams_5177_);
 v___f_5186_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure___lam__0___boxed), 10, 1);
 lean_closure_set(v___f_5186_, 0, v_numParams_5177_);
-lean_inc(v_id_5175_);
-v___x_5187_ = lean_is_class(v_env_5185_, v_id_5175_);
+v___x_5187_ = l_Lean_isClass(v_env_5185_, v_id_5175_);
 v___x_5188_ = 1;
 if (v___x_5187_ == 0)
 {

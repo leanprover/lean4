@@ -123,7 +123,7 @@ lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 extern lean_object* l_Lean_errorExplanationExt;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -6388,7 +6388,8 @@ v_resetjp_2283_:
 {
 lean_object* v___x_2286_; lean_object* v___x_2287_; lean_object* v___x_2288_; lean_object* v___x_2290_; 
 v___x_2286_ = l_Lean_Syntax_getId(v___y_2274_);
-v___x_2287_ = lean_erase_macro_scopes(v___x_2286_);
+v___x_2287_ = l_Lean_Name_eraseMacroScopes(v___x_2286_);
+lean_dec(v___x_2286_);
 lean_inc(v___x_2287_);
 lean_inc(v___y_2274_);
 v___x_2288_ = lean_alloc_ctor(0, 2, 0);

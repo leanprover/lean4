@@ -128,7 +128,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_getPPMaxSteps___boxed(lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -144,7 +144,7 @@ lean_object* lean_find_expr(lean_object*, lean_object*);
 lean_object* l_Lean_Core_withFreshMacroScope___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_usesUserName(lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 extern lean_object* l_Lean_SubExpr_Pos_maxChildren;
 lean_object* l_Lean_SubExpr_Pos_push(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
@@ -9052,7 +9052,7 @@ if (v___x_3002_ == 0)
 {
 uint8_t v___x_3003_; lean_object* v___x_3004_; 
 v___x_3003_ = l_Lean_Name_hasMacroScopes(v_suggestion_2952_);
-v___x_3004_ = lean_erase_macro_scopes(v_suggestion_2952_);
+v___x_3004_ = l_Lean_Name_eraseMacroScopes(v_suggestion_2952_);
 v_fst_2995_ = v___x_3003_;
 v_snd_2996_ = v___x_3004_;
 goto v___jp_2994_;
@@ -9060,7 +9060,6 @@ goto v___jp_2994_;
 else
 {
 lean_object* v___x_3005_; 
-lean_dec(v_suggestion_2952_);
 v___x_3005_ = ((lean_object*)(l_Lean_PrettyPrinter_Delaborator_getUnusedName___closed__2));
 v_fst_2995_ = v___x_3002_;
 v_snd_2996_ = v___x_3005_;
@@ -9070,6 +9069,7 @@ v___jp_2963_:
 {
 lean_object* v___x_2966_; lean_object* v___x_2967_; 
 v___x_2966_ = l_Lean_LocalContext_getUnusedName(v___y_2965_, v___y_2964_);
+lean_dec(v___y_2964_);
 v___x_2967_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2967_, 0, v___x_2966_);
 return v___x_2967_;
@@ -9275,6 +9275,7 @@ lean_dec(v_a_3011_);
 lean_dec_ref(v_a_3010_);
 lean_dec(v_avoid_3009_);
 lean_dec_ref(v_body_3007_);
+lean_dec(v_suggestion_3006_);
 return v_res_3018_;
 }
 }
@@ -9380,7 +9381,7 @@ v___x_3066_ = l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___at___00Lea
 v_a_3067_ = lean_ctor_get(v___x_3066_, 0);
 lean_inc_n(v_a_3067_, 2);
 lean_dec_ref(v___x_3066_);
-v___x_3068_ = lean_mk_syntax_ident(v_n_3057_);
+v___x_3068_ = l_Lean_mkIdent(v_n_3057_);
 v___x_3069_ = l_Lean_PrettyPrinter_Delaborator_annotatePos(v_a_3067_, v___x_3068_);
 v___x_3070_ = 0;
 lean_inc(v___x_3069_);
@@ -9807,6 +9808,7 @@ v___x_3289_ = l_Lean_Expr_bindingBody_x21(v_a_3287_);
 lean_dec(v_a_3287_);
 v___x_3290_ = l_Lean_PrettyPrinter_Delaborator_getUnusedName(v___x_3288_, v___x_3289_, v_preserveName_3275_, v_avoid_3276_, v_a_3277_, v_a_3278_, v_a_3279_, v_a_3280_, v_a_3281_, v_a_3282_);
 lean_dec_ref(v___x_3289_);
+lean_dec(v___x_3288_);
 if (lean_obj_tag(v___x_3290_) == 0)
 {
 lean_object* v_a_3291_; lean_object* v___f_3292_; lean_object* v___x_3293_; lean_object* v___x_3294_; 

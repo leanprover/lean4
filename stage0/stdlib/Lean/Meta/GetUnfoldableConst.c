@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_st_ref_get(lean_object*);
-uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
+uint8_t l_Lean_getReducibilityStatusCore(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
@@ -136,7 +136,7 @@ v___x_4_ = lean_st_ref_get(v___y_2_);
 v_env_5_ = lean_ctor_get(v___x_4_, 0);
 lean_inc_ref(v_env_5_);
 lean_dec(v___x_4_);
-v___x_6_ = lean_get_reducibility_status(v_env_5_, v_declName_1_);
+v___x_6_ = l_Lean_getReducibilityStatusCore(v_env_5_, v_declName_1_);
 v___x_7_ = lean_box(v___x_6_);
 v___x_8_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_8_, 0, v___x_7_);

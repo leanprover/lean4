@@ -111,7 +111,7 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_class(lean_object*, lean_object*);
+uint8_t l_Lean_isClass(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static const lean_string_object l_Lean_Compiler_term_u25fe___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
@@ -6829,13 +6829,13 @@ if (lean_obj_tag(v___x_2190_) == 4)
 {
 lean_object* v_declName_2191_; lean_object* v___x_2192_; lean_object* v_env_2193_; uint8_t v___x_2194_; 
 v_declName_2191_ = lean_ctor_get(v___x_2190_, 0);
-lean_inc_n(v_declName_2191_, 2);
+lean_inc(v_declName_2191_);
 lean_dec_ref_known(v___x_2190_, 2);
 v___x_2192_ = lean_st_ref_get(v_a_2188_);
 v_env_2193_ = lean_ctor_get(v___x_2192_, 0);
 lean_inc_ref(v_env_2193_);
 lean_dec(v___x_2192_);
-v___x_2194_ = lean_is_class(v_env_2193_, v_declName_2191_);
+v___x_2194_ = l_Lean_isClass(v_env_2193_, v_declName_2191_);
 if (v___x_2194_ == 0)
 {
 lean_object* v___x_2195_; lean_object* v___x_2196_; 

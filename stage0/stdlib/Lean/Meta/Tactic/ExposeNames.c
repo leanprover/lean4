@@ -59,7 +59,7 @@ uint8_t l_Lean_instBEqFVarId_beq(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_setUserName(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_get_x21(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -3123,7 +3123,8 @@ goto v___jp_979_;
 else
 {
 lean_object* v___x_990_; lean_object* v___x_1005_; uint8_t v___x_1006_; 
-v___x_990_ = lean_erase_macro_scopes(v___x_988_);
+v___x_990_ = l_Lean_Name_eraseMacroScopes(v___x_988_);
+lean_dec(v___x_988_);
 v___x_1005_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__6___closed__3));
 v___x_1006_ = lean_name_eq(v___x_990_, v___x_1005_);
 if (v___x_1006_ == 0)

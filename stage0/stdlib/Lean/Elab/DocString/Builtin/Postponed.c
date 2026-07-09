@@ -1321,7 +1321,6 @@ if (v___x_483_ == 0)
 lean_object* v___x_484_; lean_object* v___x_485_; 
 lean_dec(v_stx_396_);
 lean_dec(v_decl_395_);
-lean_dec(v___x_394_);
 lean_dec_ref(v___x_392_);
 lean_dec(v___x_391_);
 v___x_484_ = lean_obj_once(&l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0___closed__9_00___x40_Lean_Elab_DocString_Builtin_Postponed_1993970768____hygCtx___hyg_2_, &l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0___closed__9_00___x40_Lean_Elab_DocString_Builtin_Postponed_1993970768____hygCtx___hyg_2__once, _init_l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0___closed__9_00___x40_Lean_Elab_DocString_Builtin_Postponed_1993970768____hygCtx___hyg_2_);
@@ -1429,7 +1428,6 @@ if (v___x_435_ == 0)
 lean_object* v___x_436_; lean_object* v___x_437_; lean_object* v_a_438_; lean_object* v___x_440_; uint8_t v_isShared_441_; uint8_t v_isSharedCheck_445_; 
 lean_dec(v_stx_396_);
 lean_dec(v_decl_395_);
-lean_dec(v___x_394_);
 lean_dec(v___x_391_);
 v___x_436_ = lean_obj_once(&l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0___closed__7_00___x40_Lean_Elab_DocString_Builtin_Postponed_1993970768____hygCtx___hyg_2_, &l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0___closed__7_00___x40_Lean_Elab_DocString_Builtin_Postponed_1993970768____hygCtx___hyg_2__once, _init_l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0___closed__7_00___x40_Lean_Elab_DocString_Builtin_Postponed_1993970768____hygCtx___hyg_2_);
 v___x_437_ = l_Lean_throwError___at___00Lean_ofExcept___at___00Lean_evalConstCheck___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_getHandlerUnsafe_spec__0_spec__0_spec__1___redArg(v___x_436_, v___y_398_, v___y_399_);
@@ -1650,6 +1648,7 @@ v_kind_boxed_496_ = lean_unbox(v_kind_492_);
 v_res_497_ = l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0_00___x40_Lean_Elab_DocString_Builtin_Postponed_1993970768____hygCtx___hyg_2_(v___x_486_, v___x_487_, v___x_488_, v___x_489_, v_decl_490_, v_stx_491_, v_kind_boxed_496_, v___y_493_, v___y_494_);
 lean_dec(v___y_494_);
 lean_dec_ref(v___y_493_);
+lean_dec(v___x_489_);
 lean_dec(v___x_488_);
 return v_res_497_;
 }
@@ -1746,7 +1745,6 @@ if (v___x_701_ == 0)
 lean_object* v___x_702_; lean_object* v___x_703_; 
 lean_dec(v_stx_631_);
 lean_dec(v_decl_630_);
-lean_dec(v___x_629_);
 lean_dec_ref(v___x_627_);
 lean_dec_ref(v___x_626_);
 lean_dec_ref(v___x_625_);
@@ -1788,7 +1786,6 @@ if (v___x_653_ == 0)
 lean_object* v___x_654_; lean_object* v___x_655_; lean_object* v_a_656_; lean_object* v___x_658_; uint8_t v_isShared_659_; uint8_t v_isSharedCheck_663_; 
 lean_dec(v_stx_631_);
 lean_dec(v_decl_630_);
-lean_dec(v___x_629_);
 lean_dec_ref(v___x_627_);
 lean_dec_ref(v___x_626_);
 lean_dec_ref(v___x_625_);
@@ -2018,6 +2015,7 @@ v_kind_boxed_715_ = lean_unbox(v_kind_711_);
 v_res_716_ = l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_initFn___lam__0_00___x40_Lean_Elab_DocString_Builtin_Postponed_195487833____hygCtx___hyg_2_(v___x_704_, v___x_705_, v___x_706_, v___x_707_, v___x_708_, v_decl_709_, v_stx_710_, v_kind_boxed_715_, v___y_712_, v___y_713_);
 lean_dec(v___y_713_);
 lean_dec_ref(v___y_712_);
+lean_dec(v___x_708_);
 lean_dec(v___x_707_);
 return v_res_716_;
 }

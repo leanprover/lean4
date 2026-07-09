@@ -76,7 +76,7 @@ lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, uint8_t, lean_object
 lean_object* l_Lean_FVarId_getBinderInfo___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isExplicit(uint8_t);
 lean_object* l_Lean_getStructureInfo_x3f(lean_object*, lean_object*);
-uint8_t lean_is_class(lean_object*, lean_object*);
+uint8_t l_Lean_isClass(lean_object*, lean_object*);
 lean_object* l_Lean_isInductiveCore_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_getFieldInfo_x3f(lean_object*, lean_object*, lean_object*);
@@ -567,9 +567,9 @@ goto v_resetjp_116_;
 v_resetjp_116_:
 {
 uint8_t v___x_119_; lean_object* v___x_120_; 
-lean_inc_n(v_pre_111_, 2);
 lean_inc_ref(v_env_113_);
-v___x_119_ = lean_is_class(v_env_113_, v_pre_111_);
+v___x_119_ = l_Lean_isClass(v_env_113_, v_pre_111_);
+lean_inc(v_pre_111_);
 v___x_120_ = l_Lean_getConstInfoInduct___at___00__private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_projInfo_spec__0(v_pre_111_, v_a_105_, v_a_106_, v_a_107_, v_a_108_);
 if (lean_obj_tag(v___x_120_) == 0)
 {

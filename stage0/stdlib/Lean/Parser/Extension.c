@@ -33,7 +33,7 @@ lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_obje
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Data_Trie_find_x3f___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Data_Trie_insert___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13806,8 +13806,8 @@ return v___x_4497_;
 }
 else
 {
-lean_dec_ref_known(v_head_4488_, 1);
 lean_dec(v_tail_4489_);
+lean_dec_ref_known(v_head_4488_, 1);
 lean_dec_ref_known(v_head_4486_, 1);
 lean_dec(v_ref_4482_);
 goto v___jp_4484_;
@@ -13815,8 +13815,8 @@ goto v___jp_4484_;
 }
 else
 {
-lean_dec_ref_known(v_tail_4487_, 2);
 lean_dec(v_head_4488_);
+lean_dec_ref_known(v_tail_4487_, 2);
 lean_dec_ref_known(v_head_4486_, 1);
 lean_dec(v_ref_4482_);
 goto v___jp_4484_;
@@ -13832,8 +13832,8 @@ goto v___jp_4484_;
 }
 else
 {
-lean_dec(v_head_4486_);
 lean_dec_ref_known(v_args_4483_, 2);
+lean_dec(v_head_4486_);
 lean_dec(v_ref_4482_);
 goto v___jp_4484_;
 }
@@ -15124,7 +15124,8 @@ v_resetjp_4962_:
 {
 lean_object* v___x_4965_; lean_object* v___x_4966_; lean_object* v___x_4967_; 
 v___x_4965_ = l_Lean_Syntax_getId(v_nameStx_4935_);
-v___x_4966_ = lean_erase_macro_scopes(v___x_4965_);
+v___x_4966_ = l_Lean_Name_eraseMacroScopes(v___x_4965_);
+lean_dec(v___x_4965_);
 lean_inc(v___x_4966_);
 v___x_4967_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v___x_4966_, v_v_4936_, v_map_4960_);
 if (v_hasTrace_4961_ == 0)
@@ -15826,8 +15827,8 @@ return v___x_5176_;
 else
 {
 lean_object* v___x_5177_; 
-lean_dec_ref_known(v_declName_5138_, 2);
 lean_dec(v_pre_5139_);
+lean_dec_ref_known(v_declName_5138_, 2);
 lean_del_object(v___x_5135_);
 v___x_5177_ = lean_box(0);
 return v___x_5177_;
@@ -16073,8 +16074,7 @@ v_resetjp_5243_:
 if (lean_obj_tag(v_fst_5242_) == 0)
 {
 lean_object* v___x_5246_; uint8_t v___x_5247_; 
-lean_inc(v_val_5238_);
-v___x_5246_ = lean_erase_macro_scopes(v_val_5238_);
+v___x_5246_ = l_Lean_Name_eraseMacroScopes(v_val_5238_);
 lean_inc_ref(v_env_5233_);
 v___x_5247_ = l_Lean_Parser_isParserCategory(v_env_5233_, v___x_5246_);
 if (v___x_5247_ == 0)

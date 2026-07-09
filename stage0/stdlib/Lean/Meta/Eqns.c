@@ -51,7 +51,7 @@ lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_findAsync_x3f(lean_object*, lean_object*, uint8_t);
-uint8_t lean_is_matcher(lean_object*, lean_object*);
+uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_hasExposedBody(lean_object*, lean_object*);
@@ -1154,7 +1154,7 @@ else
 uint8_t v___x_243_; 
 lean_inc(v_head_229_);
 lean_inc_ref(v_env_226_);
-v___x_243_ = lean_is_matcher(v_env_226_, v_head_229_);
+v___x_243_ = l_Lean_Meta_isMatcherCore(v_env_226_, v_head_229_);
 if (v___x_243_ == 0)
 {
 v___y_234_ = v___x_242_;
@@ -1925,7 +1925,7 @@ v___x_499_ = lean_st_ref_get(v_a_483_);
 v_env_500_ = lean_ctor_get(v___x_499_, 0);
 lean_inc_ref(v_env_500_);
 lean_dec(v___x_499_);
-v___x_501_ = lean_is_matcher(v_env_500_, v_declName_479_);
+v___x_501_ = l_Lean_Meta_isMatcherCore(v_env_500_, v_declName_479_);
 if (v___x_501_ == 0)
 {
 lean_object* v___x_502_; lean_object* v_type_503_; lean_object* v___x_504_; 

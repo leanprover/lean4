@@ -54,7 +54,7 @@ uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isForall(lean_object*);
-uint8_t lean_is_class(lean_object*, lean_object*);
+uint8_t l_Lean_isClass(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 uint8_t l_Lean_Expr_isProp(lean_object*);
 lean_object* l_Lean_InductiveVal_numTypeFormers(lean_object*);
@@ -1852,8 +1852,7 @@ else
 {
 lean_object* v___x_535_; uint8_t v___x_536_; 
 v___x_535_ = l_Lean_ConstantInfo_name(v_constInfo_465_);
-lean_inc(v___x_535_);
-v___x_536_ = lean_is_class(v_env_473_, v___x_535_);
+v___x_536_ = l_Lean_isClass(v_env_473_, v___x_535_);
 if (v___x_536_ == 0)
 {
 lean_object* v___x_537_; 

@@ -100,7 +100,7 @@ lean_object* l_Lean_Elab_Tactic_replaceMainGoal___redArg(lean_object*, lean_obje
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_rename(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_filterOldMVars___redArg(lean_object*, lean_object*, lean_object*);
@@ -1315,7 +1315,7 @@ lean_object* v_a_373_; lean_object* v___x_374_; lean_object* v___x_375_; lean_ob
 v_a_373_ = lean_ctor_get(v___x_372_, 0);
 lean_inc_n(v_a_373_, 2);
 lean_dec_ref_known(v___x_372_, 1);
-v___x_374_ = lean_mk_syntax_ident(v_a_354_);
+v___x_374_ = l_Lean_mkIdent(v_a_354_);
 v___x_375_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_375_, 0, v_a_373_);
 v___x_376_ = l_Lean_Elab_Term_elabTerm(v___x_374_, v___x_375_, v___x_355_, v___x_355_, v___y_365_, v___y_366_, v___y_367_, v___y_368_, v___y_369_, v___y_370_);

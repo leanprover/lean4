@@ -52,7 +52,7 @@ lean_object* l_Lake_BinderSyntaxView_mkArgument(lean_object*);
 lean_object* l_Array_unzip___redArg(lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 static const lean_string_object l_Lake_nonemptyTypeCmd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lake"};
 static const lean_object* l_Lake_nonemptyTypeCmd___closed__0 = (const lean_object*)&l_Lake_nonemptyTypeCmd___closed__0_value;
 static const lean_string_object l_Lake_nonemptyTypeCmd___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "nonemptyTypeCmd"};
@@ -1656,7 +1656,7 @@ _start:
 {
 lean_object* v___x_722_; lean_object* v_mk_723_; 
 v___x_722_ = ((lean_object*)(l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__30));
-v_mk_723_ = lean_mk_syntax_ident(v___x_722_);
+v_mk_723_ = l_Lean_mkIdent(v___x_722_);
 return v_mk_723_;
 }
 }
@@ -1665,7 +1665,7 @@ _start:
 {
 lean_object* v___x_727_; lean_object* v_unsafeMk_728_; 
 v___x_727_ = ((lean_object*)(l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__33));
-v_unsafeMk_728_ = lean_mk_syntax_ident(v___x_727_);
+v_unsafeMk_728_ = l_Lean_mkIdent(v___x_727_);
 return v_unsafeMk_728_;
 }
 }
@@ -1674,7 +1674,7 @@ _start:
 {
 lean_object* v___x_732_; lean_object* v_instCoeMk_733_; 
 v___x_732_ = ((lean_object*)(l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__36));
-v_instCoeMk_733_ = lean_mk_syntax_ident(v___x_732_);
+v_instCoeMk_733_ = l_Lean_mkIdent(v___x_732_);
 return v_instCoeMk_733_;
 }
 }
@@ -1683,7 +1683,7 @@ _start:
 {
 lean_object* v___x_737_; lean_object* v_get_738_; 
 v___x_737_ = ((lean_object*)(l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__39));
-v_get_738_ = lean_mk_syntax_ident(v___x_737_);
+v_get_738_ = l_Lean_mkIdent(v___x_737_);
 return v_get_738_;
 }
 }
@@ -1692,7 +1692,7 @@ _start:
 {
 lean_object* v___x_742_; lean_object* v_unsafeGet_743_; 
 v___x_742_ = ((lean_object*)(l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__42));
-v_unsafeGet_743_ = lean_mk_syntax_ident(v___x_742_);
+v_unsafeGet_743_ = l_Lean_mkIdent(v___x_742_);
 return v_unsafeGet_743_;
 }
 }
@@ -1701,7 +1701,7 @@ _start:
 {
 lean_object* v___x_747_; lean_object* v_instCoeGet_748_; 
 v___x_747_ = ((lean_object*)(l_Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__hydrateOpaqueTypeCmd__1___closed__45));
-v_instCoeGet_748_ = lean_mk_syntax_ident(v___x_747_);
+v_instCoeGet_748_ = l_Lean_mkIdent(v___x_747_);
 return v_instCoeGet_748_;
 }
 }

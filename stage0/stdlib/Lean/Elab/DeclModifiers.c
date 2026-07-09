@@ -21,7 +21,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 lean_object* l_Lean_Elab_pushInfoLeaf___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConstWithLevelParams___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
-lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_privateToUserName_x3f(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 lean_object* l_Lean_privateToUserName(lean_object*);
@@ -1090,7 +1090,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__4(l
 _start:
 {
 lean_object* v___x_168_; 
-v___x_168_ = lean_private_to_user_name(v_declName_160_);
+v___x_168_ = l_Lean_privateToUserName_x3f(v_declName_160_);
 if (lean_obj_tag(v___x_168_) == 0)
 {
 lean_object* v___x_169_; lean_object* v___x_170_; 
@@ -1334,7 +1334,7 @@ _start:
 {
 lean_object* v___x_284_; 
 lean_inc(v_declName_276_);
-v___x_284_ = lean_private_to_user_name(v_declName_276_);
+v___x_284_ = l_Lean_privateToUserName_x3f(v_declName_276_);
 if (lean_obj_tag(v___x_284_) == 0)
 {
 lean_object* v___x_285_; lean_object* v___x_286_; lean_object* v___x_287_; lean_object* v___x_288_; lean_object* v___x_289_; lean_object* v___x_290_; lean_object* v___x_291_; 
@@ -7199,7 +7199,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at___00Lean_Elab_
 _start:
 {
 lean_object* v___x_2661_; 
-v___x_2661_ = lean_private_to_user_name(v_declName_2650_);
+v___x_2661_ = l_Lean_privateToUserName_x3f(v_declName_2650_);
 if (lean_obj_tag(v___x_2661_) == 0)
 {
 lean_object* v___x_2662_; lean_object* v___x_2663_; 
@@ -7330,7 +7330,7 @@ if (lean_obj_tag(v___x_2708_) == 0)
 lean_object* v___x_2709_; 
 lean_dec_ref_known(v___x_2708_, 1);
 lean_inc(v_declName_2695_);
-v___x_2709_ = lean_private_to_user_name(v_declName_2695_);
+v___x_2709_ = l_Lean_privateToUserName_x3f(v_declName_2695_);
 if (lean_obj_tag(v___x_2709_) == 0)
 {
 lean_object* v___x_2710_; lean_object* v___x_2711_; lean_object* v___x_2712_; lean_object* v___x_2713_; lean_object* v___x_2714_; lean_object* v___x_2715_; 

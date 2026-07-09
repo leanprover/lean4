@@ -181,7 +181,7 @@ static const lean_ctor_object l___private_Lean_Meta_Match_MatchPatternAttr_0__Le
 static const lean_object* l___private_Lean_Meta_Match_MatchPatternAttr_0__Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6 = (const lean_object*)&l___private_Lean_Meta_Match_MatchPatternAttr_0__Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___closed__6_value;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchPatternAttr_0__Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3();
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchPatternAttr_0__Lean_matchPatternAttr___regBuiltin_Lean_matchPatternAttr_declRange__3___boxed(lean_object*);
-LEAN_EXPORT uint8_t lean_has_match_pattern_attribute(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_hasMatchPatternAttribute(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withExporting___at___00__private_Lean_Meta_Match_MatchPatternAttr_0__Lean_initFn_00___x40_Lean_Meta_Match_MatchPatternAttr_2067758803____hygCtx___hyg_2__spec__2___redArg___lam__0(lean_object* v___y_1_, uint8_t v_isExporting_2_, lean_object* v___x_3_, lean_object* v_a_x3f_4_){
 _start:
@@ -1642,7 +1642,7 @@ v_res_580_ = l___private_Lean_Meta_Match_MatchPatternAttr_0__Lean_matchPatternAt
 return v_res_580_;
 }
 }
-LEAN_EXPORT uint8_t lean_has_match_pattern_attribute(lean_object* v_env_581_, lean_object* v_n_582_){
+LEAN_EXPORT uint8_t l_Lean_hasMatchPatternAttribute(lean_object* v_env_581_, lean_object* v_n_582_){
 _start:
 {
 lean_object* v___x_583_; uint8_t v___x_584_; 
@@ -1655,7 +1655,7 @@ LEAN_EXPORT lean_object* l_Lean_hasMatchPatternAttribute___boxed(lean_object* v_
 _start:
 {
 uint8_t v_res_587_; lean_object* v_r_588_; 
-v_res_587_ = lean_has_match_pattern_attribute(v_env_585_, v_n_586_);
+v_res_587_ = l_Lean_hasMatchPatternAttribute(v_env_585_, v_n_586_);
 v_r_588_ = lean_box(v_res_587_);
 return v_r_588_;
 }

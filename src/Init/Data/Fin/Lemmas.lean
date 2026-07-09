@@ -152,7 +152,7 @@ attribute [scoped instance] instIntCast
 
 end IntCast
 
-open IntCast in
+open Fin.IntCast in
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
     (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 

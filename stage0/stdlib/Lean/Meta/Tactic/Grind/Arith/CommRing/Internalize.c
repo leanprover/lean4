@@ -19,7 +19,7 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1408,7 +1408,7 @@ lean_object* v_a_341_; lean_object* v___x_342_;
 v_a_341_ = lean_ctor_get(v___x_340_, 0);
 lean_inc(v_a_341_);
 lean_dec_ref_known(v___x_340_, 1);
-v___x_342_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_341_, v___y_325_);
+v___x_342_ = l_Lean_Meta_Sym_shareCommon(v_a_341_, v___y_324_, v___y_325_, v___y_326_, v___y_327_, v___y_328_, v___y_329_);
 return v___x_342_;
 }
 else
@@ -2276,7 +2276,7 @@ lean_object* v_a_634_; lean_object* v___x_635_;
 v_a_634_ = lean_ctor_get(v___x_633_, 0);
 lean_inc(v_a_634_);
 lean_dec_ref_known(v___x_633_, 1);
-v___x_635_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_634_, v___y_625_);
+v___x_635_ = l_Lean_Meta_Sym_shareCommon(v_a_634_, v___y_624_, v___y_625_, v___y_626_, v___y_627_, v___y_628_, v___y_629_);
 v___y_579_ = v___y_622_;
 v___y_580_ = v___y_623_;
 v___y_581_ = v___x_635_;
@@ -2914,7 +2914,7 @@ lean_object* v_a_817_; lean_object* v___x_818_;
 v_a_817_ = lean_ctor_get(v___x_816_, 0);
 lean_inc(v_a_817_);
 lean_dec_ref_known(v___x_816_, 1);
-v___x_818_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_817_, v___y_808_);
+v___x_818_ = l_Lean_Meta_Sym_shareCommon(v_a_817_, v___y_807_, v___y_808_, v___y_809_, v___y_810_, v___y_811_, v___y_812_);
 return v___x_818_;
 }
 else
@@ -6092,7 +6092,7 @@ lean_object* v_a_1847_; lean_object* v___x_1848_;
 v_a_1847_ = lean_ctor_get(v___x_1846_, 0);
 lean_inc(v_a_1847_);
 lean_dec_ref_known(v___x_1846_, 1);
-v___x_1848_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_1847_, v___y_1829_);
+v___x_1848_ = l_Lean_Meta_Sym_shareCommon(v_a_1847_, v___y_1828_, v___y_1829_, v___y_1830_, v___y_1831_, v___y_1832_, v___y_1833_);
 return v___x_1848_;
 }
 else

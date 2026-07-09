@@ -51,7 +51,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp(lean_object
 lean_object* l_Lean_Meta_mkLetFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-uint8_t lean_is_matcher(lean_object*, lean_object*);
+uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -2812,10 +2812,10 @@ goto v_resetjp_763_;
 }
 v_resetjp_763_:
 {
-uint8_t v___x_766_; 
-v___x_766_ = lean_unbox(v_a_762_);
+uint8_t v_verbose_766_; 
+v_verbose_766_ = lean_ctor_get_uint8(v_a_762_, 0);
 lean_dec(v_a_762_);
-if (v___x_766_ == 0)
+if (v_verbose_766_ == 0)
 {
 lean_object* v___x_768_; 
 lean_dec_ref(v_inst_747_);
@@ -3638,10 +3638,10 @@ goto v_resetjp_977_;
 }
 v_resetjp_977_:
 {
-uint8_t v___x_980_; 
-v___x_980_ = lean_unbox(v_a_976_);
+uint8_t v_verbose_980_; 
+v_verbose_980_ = lean_ctor_get_uint8(v_a_976_, 0);
 lean_dec(v_a_976_);
-if (v___x_980_ == 0)
+if (v_verbose_980_ == 0)
 {
 lean_object* v___x_982_; 
 lean_dec_ref(v_type_956_);
@@ -4407,7 +4407,7 @@ v___x_1257_ = lean_st_ref_get(v___y_1255_);
 v_env_1258_ = lean_ctor_get(v___x_1257_, 0);
 lean_inc_ref(v_env_1258_);
 lean_dec(v___x_1257_);
-v___x_1259_ = lean_is_matcher(v_env_1258_, v_declName_1254_);
+v___x_1259_ = l_Lean_Meta_isMatcherCore(v_env_1258_, v_declName_1254_);
 v___x_1260_ = lean_box(v___x_1259_);
 v___x_1261_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1261_, 0, v___x_1260_);
@@ -9205,7 +9205,7 @@ _start:
 lean_object* v___x_2628_; lean_object* v___x_2629_; lean_object* v___x_2630_; lean_object* v___x_2631_; lean_object* v___x_2632_; lean_object* v___x_2633_; 
 v___x_2628_ = ((lean_object*)(l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_canon_canonProj___closed__2));
 v___x_2629_ = lean_unsigned_to_nat(18u);
-v___x_2630_ = lean_unsigned_to_nat(1898u);
+v___x_2630_ = lean_unsigned_to_nat(1896u);
 v___x_2631_ = ((lean_object*)(l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_canon_canonProj___closed__1));
 v___x_2632_ = ((lean_object*)(l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_canon_canonProj___closed__0));
 v___x_2633_ = l_mkPanicMessageWithDecl(v___x_2632_, v___x_2631_, v___x_2630_, v___x_2629_, v___x_2628_);

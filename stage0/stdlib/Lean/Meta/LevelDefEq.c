@@ -47,7 +47,7 @@ lean_object* lean_st_ref_get(lean_object*);
 double lean_float_of_nat(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-uint8_t l_Bool_toLBool(uint8_t);
+uint8_t l_Lean_Bool_toLBool(uint8_t);
 lean_object* l_Lean_Level_mvarId_x21(lean_object*);
 lean_object* l_Lean_LMVarId_isReadOnly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LMVarId_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3263,7 +3263,7 @@ v_resetjp_1025_:
 uint8_t v___x_1028_; uint8_t v___x_1029_; lean_object* v___x_1030_; lean_object* v___x_1032_; 
 v___x_1028_ = lean_unbox(v_a_1024_);
 lean_dec(v_a_1024_);
-v___x_1029_ = l_Bool_toLBool(v___x_1028_);
+v___x_1029_ = l_Lean_Bool_toLBool(v___x_1028_);
 v___x_1030_ = lean_box(v___x_1029_);
 if (v_isShared_1027_ == 0)
 {
@@ -3492,7 +3492,7 @@ v_resetjp_1062_:
 uint8_t v___x_1065_; uint8_t v___x_1066_; lean_object* v___x_1067_; lean_object* v___x_1069_; 
 v___x_1065_ = lean_unbox(v_a_1061_);
 lean_dec(v_a_1061_);
-v___x_1066_ = l_Bool_toLBool(v___x_1065_);
+v___x_1066_ = l_Lean_Bool_toLBool(v___x_1065_);
 v___x_1067_ = lean_box(v___x_1066_);
 if (v_isShared_1064_ == 0)
 {
@@ -3670,7 +3670,7 @@ v_resetjp_809_:
 uint8_t v___x_812_; uint8_t v___x_813_; lean_object* v___x_814_; lean_object* v___x_816_; 
 v___x_812_ = lean_unbox(v_a_808_);
 lean_dec(v_a_808_);
-v___x_813_ = l_Bool_toLBool(v___x_812_);
+v___x_813_ = l_Lean_Bool_toLBool(v___x_812_);
 v___x_814_ = lean_box(v___x_813_);
 if (v_isShared_811_ == 0)
 {

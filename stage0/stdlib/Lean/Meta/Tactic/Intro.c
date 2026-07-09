@@ -2344,6 +2344,7 @@ if (v_hygienic_710_ == 0)
 {
 lean_object* v___x_714_; lean_object* v___x_715_; 
 v___x_714_ = l_Lean_LocalContext_getUnusedName(v_lctx_708_, v_binderName_709_);
+lean_dec(v_binderName_709_);
 v___x_715_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_715_, 0, v___x_714_);
 return v___x_715_;

@@ -63,7 +63,7 @@ uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 extern lean_object* l_Lean_Int_mkType;
 lean_object* l_Lean_mkIntNatCast(lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Cutsat_cutsatExt;
 lean_object* l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_SolverExtension_markTerm___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1247,7 +1247,7 @@ lean_dec(v___x_277_);
 lean_del_object(v___x_274_);
 lean_inc_ref(v_e_259_);
 v___x_282_ = l_Lean_mkIntNatCast(v_e_259_);
-v___x_283_ = l_Lean_Meta_Sym_shareCommon___redArg(v___x_282_, v_a_265_);
+v___x_283_ = l_Lean_Meta_Sym_shareCommon(v___x_282_, v_a_264_, v_a_265_, v_a_266_, v_a_267_, v_a_268_, v_a_269_);
 if (lean_obj_tag(v___x_283_) == 0)
 {
 lean_object* v_a_284_; lean_object* v___x_285_; lean_object* v___x_286_; lean_object* v___x_287_; lean_object* v___f_288_; lean_object* v___x_289_; lean_object* v___x_290_; 
@@ -3092,7 +3092,7 @@ lean_dec_ref(v___x_616_);
 v___x_850_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Nat_0__Lean_Meta_Grind_Arith_Cutsat_natToInt_x27___closed__42, &l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Nat_0__Lean_Meta_Grind_Arith_Cutsat_natToInt_x27___closed__42_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Nat_0__Lean_Meta_Grind_Arith_Cutsat_natToInt_x27___closed__42);
 lean_inc_ref(v_arg_615_);
 v___x_851_ = l_Lean_Expr_app___override(v___x_850_, v_arg_615_);
-v___x_852_ = l_Lean_Meta_Sym_shareCommon___redArg(v___x_851_, v_a_600_);
+v___x_852_ = l_Lean_Meta_Sym_shareCommon(v___x_851_, v_a_599_, v_a_600_, v_a_601_, v_a_602_, v_a_603_, v_a_604_);
 if (lean_obj_tag(v___x_852_) == 0)
 {
 lean_object* v_a_853_; lean_object* v___x_854_; 
@@ -3622,7 +3622,7 @@ goto v_resetjp_998_;
 v_resetjp_998_:
 {
 lean_object* v___x_1001_; 
-v___x_1001_ = l_Lean_Meta_Sym_shareCommon___redArg(v_fst_996_, v_a_988_);
+v___x_1001_ = l_Lean_Meta_Sym_shareCommon(v_fst_996_, v_a_987_, v_a_988_, v_a_989_, v_a_990_, v_a_991_, v_a_992_);
 if (lean_obj_tag(v___x_1001_) == 0)
 {
 lean_object* v_a_1002_; lean_object* v___x_1004_; uint8_t v_isShared_1005_; uint8_t v_isSharedCheck_1012_; 

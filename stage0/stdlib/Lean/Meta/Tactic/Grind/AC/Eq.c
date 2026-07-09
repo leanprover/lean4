@@ -119,7 +119,7 @@ lean_object* l_Array_mkArray0(lean_object*);
 lean_object* l_Lean_Meta_Grind_AC_checkInvariants(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_AC_get_x27___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -3503,7 +3503,7 @@ _start:
 lean_object* v___x_677_; lean_object* v___x_678_; lean_object* v___x_679_; 
 v___x_677_ = l_Lean_TSyntax_getId(v_cnstr_675_);
 v___x_678_ = l_Lean_Name_append(v___x_677_, v_declName_676_);
-v___x_679_ = lean_mk_syntax_ident(v___x_678_);
+v___x_679_ = l_Lean_mkIdent(v___x_678_);
 return v___x_679_;
 }
 }

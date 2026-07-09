@@ -37,7 +37,7 @@ extern lean_object* l_Lean_Meta_Sym_Arith_arithExt;
 lean_object* l___private_Lean_Meta_Sym_SymM_0__Lean_Meta_Sym_SymExtension_modifyStateImpl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Meta_Sym_hashPtrExpr_unsafe__1(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 size_t lean_usize_land(size_t, size_t);
@@ -3581,7 +3581,7 @@ lean_object* v_a_1127_; lean_object* v___x_1128_;
 v_a_1127_ = lean_ctor_get(v___x_1126_, 0);
 lean_inc(v_a_1127_);
 lean_dec_ref_known(v___x_1126_, 1);
-v___x_1128_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_1127_, v_a_1098_);
+v___x_1128_ = l_Lean_Meta_Sym_shareCommon(v_a_1127_, v_a_1097_, v_a_1098_, v_a_1099_, v_a_1100_, v_a_1101_, v_a_1102_);
 if (lean_obj_tag(v___x_1128_) == 0)
 {
 lean_object* v_a_1129_; lean_object* v___x_1130_; 
@@ -3867,13 +3867,13 @@ lean_dec_ref(v_type_1096_);
 v___x_1184_ = l_Lean_Meta_Sym_getConfig___redArg(v_a_1097_);
 if (lean_obj_tag(v___x_1184_) == 0)
 {
-lean_object* v_a_1185_; uint8_t v___x_1186_; 
+lean_object* v_a_1185_; uint8_t v_verbose_1186_; 
 v_a_1185_ = lean_ctor_get(v___x_1184_, 0);
 lean_inc(v_a_1185_);
 lean_dec_ref_known(v___x_1184_, 1);
-v___x_1186_ = lean_unbox(v_a_1185_);
+v_verbose_1186_ = lean_ctor_get_uint8(v_a_1185_, 0);
 lean_dec(v_a_1185_);
-if (v___x_1186_ == 0)
+if (v_verbose_1186_ == 0)
 {
 lean_dec(v_a_1129_);
 goto v___jp_1104_;

@@ -66,7 +66,7 @@ size_t lean_usize_land(size_t, size_t);
 lean_object* l_IO_FS_readFile(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext___redArg(lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* lean_mk_empty_environment(uint32_t);
+lean_object* l_Lean_mkEmptyEnvironment(uint32_t);
 extern lean_object* l_Lean_Parser_Module_header;
 lean_object* l_Lean_Parser_addParserTokens(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1541,7 +1541,7 @@ _start:
 {
 uint32_t v___x_422_; lean_object* v___x_423_; 
 v___x_422_ = 0;
-v___x_423_ = lean_mk_empty_environment(v___x_422_);
+v___x_423_ = l_Lean_mkEmptyEnvironment(v___x_422_);
 if (lean_obj_tag(v___x_423_) == 0)
 {
 lean_object* v_a_424_; lean_object* v___x_426_; uint8_t v_isShared_427_; uint8_t v_isSharedCheck_544_; 

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_alreadyInternalized___redArg(lean_object*, lean_object*);
 lean_object* lean_grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_grind_cutsat_mk_var(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1232,7 +1232,7 @@ return v___x_301_;
 v___jp_39_:
 {
 lean_object* v___x_51_; 
-v___x_51_ = l_Lean_Meta_Sym_shareCommon___redArg(v_e_40_, v___y_46_);
+v___x_51_ = l_Lean_Meta_Sym_shareCommon(v_e_40_, v___y_45_, v___y_46_, v___y_47_, v___y_48_, v___y_49_, v___y_50_);
 if (lean_obj_tag(v___x_51_) == 0)
 {
 lean_object* v_a_52_; lean_object* v___x_53_; 

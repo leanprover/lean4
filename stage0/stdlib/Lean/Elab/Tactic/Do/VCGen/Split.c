@@ -77,7 +77,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_altNumParams(lean_object*);
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mask___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Array_mask___redArg(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_toExpr(lean_object*);
 lean_object* l_Lean_Meta_MatcherApp_transform___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2576,7 +2576,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWith___redArg___la
 _start:
 {
 lean_object* v___x_1201_; lean_object* v___x_1202_; lean_object* v___x_1203_; 
-v___x_1201_ = l_Array_mask___redArg(v_mask_1196_, v_xs_1199_);
+v___x_1201_ = l_Lean_Array_mask___redArg(v_mask_1196_, v_xs_1199_);
 v___x_1202_ = lean_expr_instantiate_rev(v_absMotiveBody_1197_, v___x_1201_);
 lean_dec(v___x_1201_);
 v___x_1203_ = lean_apply_2(v_toPure_1198_, lean_box(0), v___x_1202_);
@@ -2735,7 +2735,7 @@ lean_closure_set(v___f_1286_, 8, v_matcherApp_1273_);
 lean_closure_set(v___f_1286_, 9, v___x_1285_);
 lean_closure_set(v___f_1286_, 10, v___f_1279_);
 lean_closure_set(v___f_1286_, 11, v___f_1278_);
-v_maskedDiscrs_1287_ = l_Array_mask___redArg(v_mask_1284_, v_discrs_1277_);
+v_maskedDiscrs_1287_ = l_Lean_Array_mask___redArg(v_mask_1284_, v_discrs_1277_);
 lean_dec(v_mask_1284_);
 v___x_1288_ = lean_alloc_closure((void*)(l_Lean_Expr_abstractM___boxed), 7, 2);
 lean_closure_set(v___x_1288_, 0, v_resTy_1251_);

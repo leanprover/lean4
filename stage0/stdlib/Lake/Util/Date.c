@@ -981,8 +981,8 @@ return v___x_287_;
 else
 {
 lean_object* v___x_288_; 
-lean_dec(v_tail_272_);
 lean_dec_ref_known(v_tail_271_, 2);
+lean_dec(v_tail_272_);
 lean_dec_ref_known(v___x_270_, 2);
 v___x_288_ = lean_box(0);
 return v___x_288_;
@@ -991,8 +991,8 @@ return v___x_288_;
 else
 {
 lean_object* v___x_289_; 
-lean_dec_ref_known(v___x_270_, 2);
 lean_dec(v_tail_271_);
+lean_dec_ref_known(v___x_270_, 2);
 v___x_289_ = lean_box(0);
 return v___x_289_;
 }

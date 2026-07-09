@@ -49,7 +49,7 @@ uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_Sym_ExprPtr_0__Lean_Meta_Sym_isSameExpr_unsafe__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
@@ -682,7 +682,7 @@ lean_dec_ref_known(v_projFn_174_, 2);
 v___x_303_ = l_Lean_Expr_appFn_x21(v_parent_162_);
 lean_inc_ref(v_self_209_);
 v___x_304_ = l_Lean_Expr_app___override(v___x_303_, v_self_209_);
-v___x_305_ = l_Lean_Meta_Sym_shareCommon___redArg(v___x_304_, v_a_168_);
+v___x_305_ = l_Lean_Meta_Sym_shareCommon(v___x_304_, v_a_167_, v_a_168_, v_a_169_, v_a_170_, v_a_171_, v_a_172_);
 if (lean_obj_tag(v___x_305_) == 0)
 {
 lean_object* v_a_306_; 
@@ -768,7 +768,7 @@ v___x_323_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at
 v___x_324_ = l_Lean_mkAppN(v_projFn_174_, v___x_323_);
 lean_dec_ref(v___x_323_);
 v___x_325_ = l_Lean_Expr_app___override(v___x_324_, v_self_209_);
-v___x_326_ = l_Lean_Meta_Sym_shareCommon___redArg(v___x_325_, v_a_168_);
+v___x_326_ = l_Lean_Meta_Sym_shareCommon(v___x_325_, v_a_167_, v_a_168_, v_a_169_, v_a_170_, v_a_171_, v_a_172_);
 if (lean_obj_tag(v___x_326_) == 0)
 {
 lean_object* v_a_327_; 

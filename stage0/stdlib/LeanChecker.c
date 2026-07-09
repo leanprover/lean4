@@ -58,7 +58,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_OLeanLevel_adjustFileName(lean_object*, uint8_t);
 lean_object* lean_io_as_task(lean_object*, lean_object*);
-lean_object* lean_mk_empty_environment(uint32_t);
+lean_object* l_Lean_mkEmptyEnvironment(uint32_t);
 lean_object* l_Lean_Environment_constants(lean_object*);
 lean_object* l_Lean_withImportModules___redArg(lean_object*, lean_object*, lean_object*, uint32_t);
 lean_object* l_Lean_findSysroot(lean_object*);
@@ -891,7 +891,7 @@ _start:
 {
 uint32_t v___x_204_; lean_object* v___x_205_; 
 v___x_204_ = 0;
-v___x_205_ = lean_mk_empty_environment(v___x_204_);
+v___x_205_ = l_Lean_mkEmptyEnvironment(v___x_204_);
 if (lean_obj_tag(v___x_205_) == 0)
 {
 lean_object* v_a_206_; lean_object* v___x_207_; lean_object* v_map_u2081_208_; lean_object* v___x_209_; 

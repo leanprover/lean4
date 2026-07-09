@@ -87,7 +87,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -7984,7 +7984,8 @@ v___x_2506_ = l_Lean_Syntax_getArg(v___x_2502_, v___x_2505_);
 lean_dec(v___x_2502_);
 v___x_2507_ = l_Lean_Syntax_getId(v___x_2506_);
 lean_dec(v___x_2506_);
-v___x_2508_ = lean_erase_macro_scopes(v___x_2507_);
+v___x_2508_ = l_Lean_Name_eraseMacroScopes(v___x_2507_);
+lean_dec(v___x_2507_);
 v___x_2509_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Linter_MissingDocs_hasInheritDoc_spec__0___closed__4));
 v___x_2510_ = lean_name_eq(v___x_2508_, v___x_2509_);
 lean_dec(v___x_2508_);
@@ -14246,7 +14247,8 @@ v_resetjp_4750_:
 {
 lean_object* v___x_4753_; lean_object* v_optionName_4754_; lean_object* v___x_4755_; 
 v___x_4753_ = l_Lean_Syntax_getId(v_id_4735_);
-v_optionName_4754_ = lean_erase_macro_scopes(v___x_4753_);
+v_optionName_4754_ = l_Lean_Name_eraseMacroScopes(v___x_4753_);
+lean_dec(v___x_4753_);
 lean_inc(v_optionName_4754_);
 v___x_4755_ = l_Lean_getOptionDecl(v_optionName_4754_);
 if (lean_obj_tag(v___x_4755_) == 0)

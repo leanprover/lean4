@@ -3934,10 +3934,10 @@ goto v_resetjp_1050_;
 }
 v_resetjp_1050_:
 {
-uint8_t v___x_1053_; 
-v___x_1053_ = lean_unbox(v_a_1049_);
+uint8_t v_verbose_1053_; 
+v_verbose_1053_ = lean_ctor_get_uint8(v_a_1049_, 0);
 lean_dec(v_a_1049_);
-if (v___x_1053_ == 0)
+if (v_verbose_1053_ == 0)
 {
 lean_object* v___x_1054_; lean_object* v___x_1056_; 
 lean_del_object(v___x_1038_);

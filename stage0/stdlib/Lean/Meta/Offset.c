@@ -59,7 +59,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEqAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_is_expr_def_eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Bool_toLBool(uint8_t);
+uint8_t l_Lean_Bool_toLBool(uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
@@ -6908,7 +6908,7 @@ v_resetjp_1586_:
 uint8_t v___x_1589_; uint8_t v___x_1590_; lean_object* v___x_1591_; lean_object* v___x_1593_; 
 v___x_1589_ = lean_unbox(v_a_1585_);
 lean_dec(v_a_1585_);
-v___x_1590_ = l_Bool_toLBool(v___x_1589_);
+v___x_1590_ = l_Lean_Bool_toLBool(v___x_1589_);
 v___x_1591_ = lean_box(v___x_1590_);
 if (v_isShared_1588_ == 0)
 {
@@ -7171,7 +7171,7 @@ lean_dec_ref_known(v_a_1712_, 1);
 v___x_1722_ = lean_nat_dec_eq(v_val_1708_, v_val_1721_);
 lean_dec(v_val_1721_);
 lean_dec(v_val_1708_);
-v___x_1723_ = l_Bool_toLBool(v___x_1722_);
+v___x_1723_ = l_Lean_Bool_toLBool(v___x_1722_);
 v___x_1724_ = lean_box(v___x_1723_);
 v___f_1725_ = lean_alloc_closure((void*)(l_Lean_Meta_isDefEqOffset___lam__1___boxed), 6, 1);
 lean_closure_set(v___f_1725_, 0, v___x_1724_);

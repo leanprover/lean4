@@ -35,7 +35,7 @@ uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
-uint8_t lean_is_matcher(lean_object*, lean_object*);
+uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableUInt64___lam__0___boxed(lean_object*);
@@ -65,7 +65,7 @@ uint8_t l_Lean_Name_isInternal(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_privateToUserName(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
-uint8_t lean_is_inaccessible_user_name(lean_object*);
+uint8_t l_Lean_Name_isInaccessibleUserName(lean_object*);
 lean_object* l_Lean_FVarId_getDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
@@ -233,7 +233,7 @@ if (v___x_17_ == 0)
 {
 uint8_t v___x_18_; 
 lean_inc(v_n_3_);
-v___x_18_ = lean_is_inaccessible_user_name(v_n_3_);
+v___x_18_ = l_Lean_Name_isInaccessibleUserName(v_n_3_);
 v___y_5_ = v___x_18_;
 goto v___jp_4_;
 }
@@ -374,7 +374,7 @@ v___x_37_ = lean_st_ref_get(v___y_35_);
 v_env_38_ = lean_ctor_get(v___x_37_, 0);
 lean_inc_ref(v_env_38_);
 lean_dec(v___x_37_);
-v___x_39_ = lean_is_matcher(v_env_38_, v_declName_34_);
+v___x_39_ = l_Lean_Meta_isMatcherCore(v_env_38_, v_declName_34_);
 v___x_40_ = lean_box(v___x_39_);
 v___x_41_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_41_, 0, v___x_40_);

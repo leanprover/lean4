@@ -1605,7 +1605,6 @@ else
 {
 lean_object* v___x_523_; lean_object* v___x_524_; lean_object* v___x_525_; lean_object* v___x_526_; lean_object* v___x_527_; lean_object* v___x_528_; lean_object* v___x_529_; lean_object* v___x_530_; 
 lean_dec(v_v_489_);
-lean_dec(v_indName_488_);
 v___x_523_ = l_Lean_mkConst(v___x_492_, v___x_490_);
 v___x_524_ = lean_mk_empty_array_with_capacity(v___x_487_);
 lean_inc_ref(v___x_524_);
@@ -1638,7 +1637,6 @@ lean_dec(v___x_492_);
 lean_dec_ref(v_params_491_);
 lean_dec(v___x_490_);
 lean_dec(v_v_489_);
-lean_dec(v_indName_488_);
 lean_dec_ref(v_zs1_485_);
 return v___x_503_;
 }
@@ -1650,7 +1648,6 @@ lean_dec(v___x_492_);
 lean_dec_ref(v_params_491_);
 lean_dec(v___x_490_);
 lean_dec(v_v_489_);
-lean_dec(v_indName_488_);
 lean_dec_ref(v_zs1_485_);
 lean_dec_ref(v___f_484_);
 lean_dec_ref(v_a_483_);
@@ -1692,6 +1689,7 @@ lean_dec(v___y_551_);
 lean_dec_ref(v___y_550_);
 lean_dec(v___y_549_);
 lean_dec_ref(v___y_548_);
+lean_dec(v_indName_542_);
 lean_dec(v___x_541_);
 lean_dec_ref(v_val_540_);
 lean_dec_ref(v_ism2_532_);

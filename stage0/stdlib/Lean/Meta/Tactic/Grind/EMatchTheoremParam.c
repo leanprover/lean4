@@ -86,14 +86,14 @@ uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* l___private_Lean_ResolveName_0__Lean_resolveLocalName_go(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MacroScopesView_isSuffixOf(lean_object*, lean_object*);
-lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_privateToUserName_x3f(lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Meta_isEqnThm_x3f___redArg(lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Array_mkArray0(lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8136,7 +8136,7 @@ lean_dec_ref_known(v___x_2481_, 1);
 v_fullDeclView_2483_ = l_Lean_extractMacroScopes(v_val_2482_);
 v_name_2506_ = lean_ctor_get(v_fullDeclView_2483_, 0);
 lean_inc_n(v_name_2506_, 2);
-v___x_2507_ = lean_private_to_user_name(v_name_2506_);
+v___x_2507_ = l_Lean_privateToUserName_x3f(v_name_2506_);
 if (lean_obj_tag(v___x_2507_) == 0)
 {
 v___y_2485_ = v_name_2506_;
@@ -8838,7 +8838,7 @@ v_resetjp_2846_:
 {
 lean_object* v_ref_2849_; lean_object* v___x_2850_; lean_object* v___x_2851_; lean_object* v___x_2852_; lean_object* v___x_2853_; lean_object* v___x_2854_; lean_object* v___x_2855_; lean_object* v___x_2856_; lean_object* v___x_2858_; 
 v_ref_2849_ = lean_ctor_get(v_a_2837_, 5);
-v___x_2850_ = lean_mk_syntax_ident(v_a_2845_);
+v___x_2850_ = l_Lean_mkIdent(v_a_2845_);
 v___x_2851_ = l_Lean_SourceInfo_fromRef(v_ref_2849_, v___x_2843_);
 v___x_2852_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax___closed__3));
 v___x_2853_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Grind_EMatchTheoremParam_0__Lean_Meta_Grind_globalDeclToGrindLemmaSyntax___closed__5));
@@ -8939,7 +8939,7 @@ goto v_resetjp_2872_;
 v_resetjp_2872_:
 {
 lean_object* v___x_2875_; 
-v___x_2875_ = lean_mk_syntax_ident(v_a_2871_);
+v___x_2875_ = l_Lean_mkIdent(v_a_2871_);
 switch(lean_obj_tag(v_kind_2833_))
 {
 case 0:

@@ -96,7 +96,7 @@ lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_synthInstance_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
@@ -2756,8 +2756,7 @@ v___x_929_ = lean_nat_dec_eq(v_numMinors_561_, v___x_928_);
 if (v___x_929_ == 0)
 {
 lean_object* v___x_930_; lean_object* v___x_931_; 
-lean_inc(v_binderName_924_);
-v___x_930_ = lean_erase_macro_scopes(v_binderName_924_);
+v___x_930_ = l_Lean_Name_eraseMacroScopes(v_binderName_924_);
 v___x_931_ = l_Lean_Name_append(v___y_919_, v___x_930_);
 v___y_904_ = v___y_922_;
 v___y_905_ = v___y_918_;

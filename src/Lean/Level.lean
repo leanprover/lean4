@@ -14,10 +14,11 @@ import Init.Data.Nat.Internal.Linear
 
 public section
 
+namespace Lean
+
+-- This is intentionally in the `Lean` namespace to avoid polluting the `Nat` namespace.
 def Nat.imax (n m : Nat) : Nat :=
   if m = 0 then 0 else Nat.max n m
-
-namespace Lean
 
 /--
  Cached hash code, cached results, and other data for `Level`.
@@ -670,7 +671,13 @@ def Level.find? (u : Level) (p : Level → Bool) : Option Level :=
 def Level.any (u : Level) (p : Level → Bool) : Bool :=
   u.find? p |>.isSome
 
-end Lean
+/--
+Converts a natural number to the corresponding `Lean.Level`.
 
+This is intentionally in the `Lean` namespace to avoid polluting the `Nat` namespace. Note that
+after `open Lean`, `n.toLevel` will work for `n : Nat`.
+-/
 abbrev Nat.toLevel (n : Nat) : Lean.Level :=
   Lean.Level.ofNat n
+
+end Lean

@@ -111,7 +111,7 @@ uint8_t l_Lean_isPrivateName(lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
 lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_privateToUserName_x3f(lean_object*);
 uint8_t lean_is_reserved_name(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
@@ -132,7 +132,7 @@ lean_object* l_Lean_ParametricAttribute_getParam_x3f___redArg(lean_object*, lean
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_InternalExceptionId_getName(lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 uint8_t l_Lean_Elab_isAbortExceptionId(lean_object*);
@@ -2755,7 +2755,7 @@ if (lean_obj_tag(v___x_739_) == 0)
 lean_object* v___x_740_; 
 lean_dec_ref_known(v___x_739_, 1);
 lean_inc(v_declName_726_);
-v___x_740_ = lean_private_to_user_name(v_declName_726_);
+v___x_740_ = l_Lean_privateToUserName_x3f(v_declName_726_);
 if (lean_obj_tag(v___x_740_) == 0)
 {
 lean_object* v___x_741_; lean_object* v___x_742_; lean_object* v___x_743_; lean_object* v___x_744_; lean_object* v___x_745_; lean_object* v___x_746_; 
@@ -3327,7 +3327,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at___00__private_
 _start:
 {
 lean_object* v___x_965_; 
-v___x_965_ = lean_private_to_user_name(v_declName_954_);
+v___x_965_ = l_Lean_privateToUserName_x3f(v_declName_954_);
 if (lean_obj_tag(v___x_965_) == 0)
 {
 lean_object* v___x_966_; lean_object* v___x_967_; 
@@ -7955,7 +7955,8 @@ lean_dec(v___x_2672_);
 v___x_2688_ = l_Lean_Syntax_getArg(v_a_2577_, v___x_2563_);
 v___x_2689_ = l_Lean_Syntax_getId(v___x_2688_);
 lean_dec(v___x_2688_);
-v___x_2690_ = lean_erase_macro_scopes(v___x_2689_);
+v___x_2690_ = l_Lean_Name_eraseMacroScopes(v___x_2689_);
+lean_dec(v___x_2689_);
 v_attrName_2608_ = v___x_2690_;
 v___y_2609_ = v___y_2564_;
 v___y_2610_ = v___y_2565_;

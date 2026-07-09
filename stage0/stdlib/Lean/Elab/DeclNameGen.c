@@ -103,7 +103,7 @@ lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_instBEqExtraModUse_beq(lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -3503,7 +3503,8 @@ v_reusejp_1018_:
 {
 lean_object* v___x_1020_; lean_object* v___x_1021_; 
 v___x_1020_ = lean_st_ref_set(v_a_1004_, v___x_1019_);
-v___x_1021_ = lean_erase_macro_scopes(v_declName_1010_);
+v___x_1021_ = l_Lean_Name_eraseMacroScopes(v_declName_1010_);
+lean_dec(v_declName_1010_);
 if (lean_obj_tag(v___x_1021_) == 1)
 {
 lean_object* v_str_1022_; lean_object* v___x_1023_; uint32_t v___x_1024_; uint32_t v___x_1025_; uint8_t v___x_1026_; 

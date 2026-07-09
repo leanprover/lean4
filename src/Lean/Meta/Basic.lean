@@ -329,6 +329,14 @@ structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
   type              : Expr
   /--
+  For a normalized (`.noMVars`, fvar-typed) query, the canonical types of the free variables
+  referenced by `type`/`localInsts`, indexed by their canonical position (see the fvar
+  normalization in `SynthInstance.lean`). Free variables in `type` and `localInsts` are renamed
+  to positional canonical identifiers, so structurally identical queries in different local
+  contexts share a cache entry. Empty for non-normalized (raw) keys.
+  -/
+  normFVarTypes     : Array Expr := #[]
+  /--
   Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
   See issue #2522.
   -/

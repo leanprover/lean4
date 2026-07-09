@@ -15,9 +15,6 @@ lean_exe orderTest
 
 lean_lib Downstream
 
-lean_lib PrecompiledDownstream where
-  precompileModules := true
-
 lean_lib LakeTest
 
 lean_lib PlatformIndependent where

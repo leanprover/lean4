@@ -274,7 +274,7 @@ def checkNonClassInstance (c : Expr) : MetaM Unit := do
       throwError m!"The declaration `{c}` should not be an instance as its return type `{target}` \
       is not a type class."
 
--- Is option is registered in Lean.Elab.MutualDef.
+-- This option is registered in Lean.Elab.MutualDef.
 private def warnClassDefReducibility : Lean.Option Bool := {
   defValue := true,
   name := `warn.classDefReducibility

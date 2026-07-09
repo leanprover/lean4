@@ -310,6 +310,15 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
 
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
+
 ## The `interactive` test pile
 
 These tests are designed to test LSP server requests at a given position in the input file.

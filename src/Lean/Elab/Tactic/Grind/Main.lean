@@ -196,18 +196,17 @@ def elabGrindLocals (params : Grind.Params) : MetaM Grind.Params := do
   let env ← getEnv
   let mut params := params
   let mut added : Array Name := #[]
-  for (name, ci) in env.constants.map₂.toList do
+  for c in ← env.getLocalConstantInfos (skipTheoremSubDecls := true) do
+    let name := c.name
     -- Filter similar to LibrarySuggestions.isDeniedPremise (but inlined to avoid dependency)
     -- Skip internal details, but allow private names (which are accessible from current module)
     if name.isInternalDetail && !isPrivateName name then continue
+    if c.kind != .defn then continue
     if (← isInstanceReducible name) then continue
-    match ci with
-    | .defnInfo _ =>
-      try
-        params ← addEMatchTheorem params (mkIdent name) name (.default false) false (warn := false)
-        added := added.push name
-      catch _ => pure ()
-    | _ => continue
+    try
+      params ← addEMatchTheorem params (mkIdent name) name (.default false) false (warn := false)
+      added := added.push name
+    catch _ => pure ()
   unless added.isEmpty do
     trace[grind.debug.locals] "{added}"
   return params

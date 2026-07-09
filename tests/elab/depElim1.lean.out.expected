@@ -39,7 +39,7 @@ fun α motive n xs ys h_1 h_2 =>
             Vec.casesOn (motive := fun a_2 x => n_1 + 1 = a_2 → ys ≍ x → motive (n_1 + 1) (Vec.cons a a_1) ys) ys
               (fun h => False.elim ⋯)
               (fun {n} a_2 a_3 h =>
-                n_1.elimOffset n 1 h fun x =>
+                Nat.Internal.elimOffset n_1 n 1 h fun x =>
                   Eq.ndrec (motive := fun {n} =>
                     (a_4 : Vec α n) → ys ≍ Vec.cons a_2 a_4 → motive (n_1 + 1) (Vec.cons a a_1) ys)
                     (fun a_4 h => ⋯ ▸ h_2 n_1 a a_1 a_2 a_4) x a_3)

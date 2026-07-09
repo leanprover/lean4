@@ -12,6 +12,8 @@ public section
 
 open Lean
 
+namespace Lean.Lsp
+
 inductive MessageType where
   | error
   | warning
@@ -50,3 +52,5 @@ structure ShowMessageRequestParams where
 
 @[expose] def ShowMessageResponse := Option MessageActionItem
   deriving FromJson, ToJson
+
+end Lean.Lsp

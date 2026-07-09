@@ -83,7 +83,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_SemanticTokenType_toNat(uint8_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
-lean_object* l_IO_AsyncList_waitUntil___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_AsyncList_waitUntil___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_mapTaskCostly___redArg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
@@ -102,7 +102,7 @@ lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*
 lean_object* l_Lean_Lsp_instFromJsonSemanticTokensRangeParams_fromJson(lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* l_Lean_Server_RequestCancellationToken_cancellationTasks(lean_object*);
-lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg(lean_object*, uint32_t, lean_object*);
+lean_object* l_Lean_AsyncList_getFinishedPrefixWithTimeout___redArg(lean_object*, uint32_t, lean_object*);
 lean_object* l_Lean_FileMap_lspRangeOfStx_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t l_Lean_Lsp_instBEqSemanticTokenType_beq(uint8_t, uint8_t);
@@ -13152,7 +13152,7 @@ v_cancelTk_4033_ = lean_ctor_get(v_a_4027_, 4);
 v___x_4034_ = 3000;
 v___x_4035_ = l_Lean_Server_RequestCancellationToken_cancellationTasks(v_cancelTk_4033_);
 lean_inc(v_cmdSnaps_4032_);
-v___x_4036_ = l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg(v_cmdSnaps_4032_, v___x_4034_, v___x_4035_);
+v___x_4036_ = l_Lean_AsyncList_getFinishedPrefixWithTimeout___redArg(v_cmdSnaps_4032_, v___x_4034_, v___x_4035_);
 v_snd_4037_ = lean_ctor_get(v___x_4036_, 1);
 lean_inc(v_snd_4037_);
 v_fst_4038_ = lean_ctor_get(v___x_4036_, 0);
@@ -13438,7 +13438,7 @@ v___f_4140_ = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleSemantic
 lean_closure_set(v___f_4140_, 0, v___x_4138_);
 lean_closure_set(v___f_4140_, 1, v_a_4129_);
 lean_closure_set(v___f_4140_, 2, v___x_4137_);
-v___x_4141_ = l_IO_AsyncList_waitUntil___redArg(v___f_4139_, v_cmdSnaps_4133_);
+v___x_4141_ = l_Lean_AsyncList_waitUntil___redArg(v___f_4139_, v_cmdSnaps_4133_);
 v___x_4142_ = l_Lean_Server_RequestM_mapTaskCostly___redArg(v___x_4141_, v___f_4140_, v_a_4126_);
 return v___x_4142_;
 }

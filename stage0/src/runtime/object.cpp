@@ -2795,7 +2795,7 @@ extern "C" LEAN_EXPORT object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
     return lean_apply_1(fn, lean_box(0));
 }
 
-extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
+extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(b_obj_arg s, obj_arg a) {
     if (!lean_is_scalar(a) && !lean_is_exclusive(a)) {
         io_eprintln(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }

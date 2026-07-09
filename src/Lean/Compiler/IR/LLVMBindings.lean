@@ -10,7 +10,7 @@ public import Init.System.IO
 
 public section
 
-namespace LLVM
+namespace Lean.LLVM
 /-!
 This file defines bindings for LLVM. The main mechanisms
 are to:
@@ -471,4 +471,4 @@ def constIntSizeT (ctx : Context) (value : UInt64) (signExtend : Bool := false) 
 def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
   -- TODO: make this stick to the actual unsigned of the target machine
   constInt' ctx 32 value signExtend
-end LLVM
+end Lean.LLVM

@@ -123,11 +123,11 @@ termination_by n m => (n, m)
 #guard_msgs in
 #print sig baz
 
-@[implicit_reducible] def qux : Nat → Nat → Nat
+@[instance_reducible] def qux : Nat → Nat → Nat
   | 0,  m => m
   | n+1, m => qux n (m + n)
 termination_by n m => (n, m)
 
-/-- info: @[implicit_reducible] def qux : Nat → Nat → Nat -/
+/-- info: @[instance_reducible] def qux : Nat → Nat → Nat -/
 #guard_msgs in
 #print sig qux

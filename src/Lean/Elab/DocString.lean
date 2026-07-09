@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Command.Scope
+public import Lean.DocString.Markdown
 import Lean.DocString.Syntax
 import Lean.BuiltinDocAttr
 import Init.Omega
@@ -26,26 +27,23 @@ private structure ElabLink where
   name : StrLit
 deriving TypeName
 
-private def delayLink (name : StrLit) : ElabInline where
-  name := decl_name%
-  val := .mk (ElabLink.mk name)
+private def delayLink (name : StrLit) : ElabInline :=
+  .custom (.mk (ElabLink.mk name))
 
 private structure ElabImage where
   alt : String
   name : StrLit
 deriving TypeName
 
-private def delayImage (alt : String) (name : StrLit) : ElabInline where
-  name := decl_name%
-  val := .mk (ElabImage.mk alt name)
+private def delayImage (alt : String) (name : StrLit) : ElabInline :=
+  .custom (.mk (ElabImage.mk alt name))
 
 private structure ElabFootnote where
   name : StrLit
 deriving TypeName
 
-private def delayFootnote (name : StrLit) : ElabInline where
-  name := decl_name%
-  val := .mk (ElabFootnote.mk name)
+private def delayFootnote (name : StrLit) : ElabInline :=
+  .custom (.mk (ElabFootnote.mk name))
 
 private structure Ref (α) where
   content : α
@@ -56,6 +54,8 @@ private structure Ref (α) where
 structure InternalState where
   private footnotes : HashMap String (Ref (Inline ElabInline)) := {}
   private urls : HashMap String (Ref String) := {}
+  /-- Deferred checks accumulated while elaborating the current docstring, in source order. -/
+  private deferred : Array DeferredCheck := #[]
 
 /--
 The state used by `DocM`.
@@ -142,9 +142,39 @@ instance : MonadLift TermElabM DocM where
       act
     return v
 
+/--
+Records a deferred check. Deferred checks represent a docstring task that can't be carried out at
+the elaboration site, such as resolving a forward reference. Recorded checks include the current
+namespace, open namespaces, and options, but not the local context.
+
+The origin site `ref` is used to record the origin of the deferred check. Returns the check's index
+within the current docstring, which the docstring's AST stores to refer back to it.
+
+The saved deferred check is not associated with the docstring or module doc until it is actually
+added to the environment. After this call, the internal state stores `Name.anonymous`.
+-/
+def addDeferredCheck (check : Dynamic) (imports : Array Name) (ref : Syntax) : DocM Nat := do
+  let fileMap ← getFileMap
+  let sourceString :=
+    match ref.getRange? with
+    | some ⟨s, e⟩ => String.Pos.Raw.extract fileMap.source s e
+    | none => ""
+  let index := (← getThe InternalState).deferred.size
+  let entry : DeferredCheck := {
+    site := .decl .anonymous
+    index
+    sourceString
+    imports
+    currNamespace := ← getCurrNamespace
+    openDecls := ← getOpenDecls
+    options := ← getOptions
+    check
+  }
+  modifyThe InternalState fun s => { s with deferred := s.deferred.push entry }
+  return index
+
 private structure ModuleDocstringState extends Lean.Doc.State where
   scopedExts : Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)
-
 
 private builtin_initialize modDocstringStateExt : EnvExtension (Option ModuleDocstringState) ←
   registerEnvExtension (pure none)
@@ -205,16 +235,16 @@ private def withSaveRestoreTermState (act : TermElabM α) : TermElabM α := do
 Runs a documentation elaborator in the module docstring context.
 -/
 def DocM.execForModule (act : DocM α) (suggestionMode : SuggestionMode := .interactive) :
-    TermElabM α := withoutModifyingEnv do
+    TermElabM (α × Array DeferredCheck) := withoutModifyingEnv do
   let sc ← scopedEnvExtensionsRef.get
   let st ← getModState
   withSaveRestoreTermState do
     try
       scopedEnvExtensionsRef.set st.scopedExts
-      let ((v, _), docState) ←
+      let ((v, internalSt), docState) ←
         act.run { suggestionMode } |>.run {} |>.run st.toState
       checkUnsolvedDocMVars st.toState.lctx docState
-      pure v
+      pure (v, internalSt.deferred)
     finally
       scopedEnvExtensionsRef.set sc
 
@@ -225,7 +255,7 @@ environment.
 -/
 def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
     (suggestionMode : SuggestionMode := .interactive) :
-    TermElabM α := withoutModifyingEnv do
+    TermElabM (α × Array DeferredCheck) := withoutModifyingEnv do
   let some ci := (← getEnv).constants.find? declName
     | throwError "Unknown constant {declName} when building docstring"
   withSaveRestoreTermState do
@@ -235,10 +265,10 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
       let openDecls ← getOpenDecls
       let options ← getOptions
       let scopes := [{header := "", isPublic := true}]
-      let ((v, _), docState) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
+      let ((v, internalSt), docState) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
         act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
       checkUnsolvedDocMVars lctx docState
-      pure v
+      pure (v, internalSt.deferred)
     finally
       scopedEnvExtensionsRef.set sc
 where
@@ -276,7 +306,12 @@ where
           localInstances := localInstances.push {className := c, fvar := .fvar fv}
 
         if let some (some x') := x then
-          if x'.getId == y then
+          if x'.getKind == ``hole then
+            -- A `_` parameter has no name, so it matches no binder. Drop it from the cursor
+            -- and align the remaining parameters by name; each lifted binder, including
+            -- captured variables, is introduced under its own name below.
+            x := none
+          else if x'.getId == y then
             lctx := lctx.mkLocalDecl fv y ty
             Meta.withLCtx lctx localInstances <|
               addTermInfo' x' (.fvar fv) (lctx? := some lctx) (expectedType? := ty)
@@ -303,7 +338,10 @@ where
     | ``instBinder =>
       let x := binderStx[1][0]
       if x.isMissing then pure #[none] else pure #[some x]
-    | _ => throwErrorAt binderStx "Couldn't interpret binder {binderStx}"
+    | k =>
+      -- A parameter bound by an unbracketed identifier or `_`, as in `def f x` or `where go _`.
+      if k == identKind || k == ``hole then pure #[some binderStx]
+      else throwErrorAt binderStx "Couldn't interpret binder {binderStx}"
   getNames (ids : Syntax) : TermElabM (Array (Option Syntax)) :=
     ids.getArgs.mapM fun x =>
       if x.getKind == identKind || x.getKind == ``hole then
@@ -1076,6 +1114,78 @@ builtin_initialize registerBuiltinAttribute {
       addInheritedDocString wrapper decl
     declareBuiltinDocStringAndRanges wrapper
 }
+
+open Meta in
+/--
+Generates the wrapper for a typed Markdown renderer `decl` of type `InlineMdRendererOf X` (or
+`BlockMdRendererOf X`) that unpacks the custom element from its `Dynamic`.
+
+Returns the element type's name and the name of the generated wrapper. Errors if the type is not of
+the expected form or if `X` has no `TypeName` instance.
+-/
+private def mkMdRendererWrapper (decl : Name) (isInline : Bool) : MetaM (Name × Name) := do
+  let ofName := if isInline then ``Doc.InlineMdRendererOf else ``Doc.BlockMdRendererOf
+  let mkName := if isInline then ``Doc.mkInlineMdRenderer else ``Doc.mkBlockMdRenderer
+  let wrapperTy := mkConst (if isInline then ``Doc.InlineMdRenderer else ``Doc.BlockMdRenderer)
+  let t := (← getConstInfo decl).type
+  unless t.isAppOfArity ofName 1 do
+    throwError "`{.ofConstName decl}` must have type `{.ofConstName ofName} X` for custom elements of type `X`"
+  let elemTy := t.appArg!
+  -- The key must match the type name stored in the element's `Dynamic`, which comes from the
+  -- `TypeName` instance, so reducible aliases are unfolded to the canonical type name.
+  let some key := (← whnfR elemTy).getAppFn.constName?
+    | throwError "the custom element type{indentExpr elemTy}\nof `{.ofConstName decl}` must be a named type"
+  discard <|
+    (try synthInstance (← mkAppM ``TypeName #[elemTy])
+     catch _ =>
+       throwError m!"the custom element type{indentExpr elemTy}\nof `{.ofConstName decl}` needs a `TypeName` instance." ++ m!"Add `deriving TypeName`".hint')
+  let wrapperVal ← mkAppM mkName #[elemTy, mkConst decl]
+  let wrapperName := decl ++ `mdRenderer
+  addAndCompile (markMeta := isMarkedMeta (← getEnv) decl) <| .defnDecl {
+    name := wrapperName, levelParams := [], type := wrapperTy, value := wrapperVal,
+    hints := .regular 0, safety := .safe
+  }
+  return (key, wrapperName)
+
+builtin_initialize registerBuiltinAttribute {
+  name := `doc_inline_md
+  descr := "Markdown renderer for a docstring inline element of type `InlineMdRendererOf X`"
+  applicationTime := .afterCompilation
+  add := fun decl _stx _kind => do
+    checkDocExtMeta decl "inline Markdown renderer"
+    let (key, wrapper) ← (mkMdRendererWrapper decl (isInline := true)).run'
+    modifyEnv fun env => docInlineMdExt.addEntry env (key, wrapper)
+}
+
+builtin_initialize registerBuiltinAttribute {
+  name := `builtin_doc_inline_md
+  descr := "builtin Markdown renderer for a docstring inline element"
+  applicationTime := .afterCompilation
+  add := fun decl _stx _kind => do
+    let (key, wrapper) ← (mkMdRendererWrapper decl (isInline := true)).run'
+    declareBuiltin wrapper <|
+      mkApp2 (.const ``addBuiltinInlineMdRenderer []) (toExpr key) (.const wrapper [])
+}
+
+builtin_initialize registerBuiltinAttribute {
+  name := `doc_block_md
+  descr := "Markdown renderer for a docstring block element of type `BlockMdRendererOf X`"
+  applicationTime := .afterCompilation
+  add := fun decl _stx _kind => do
+    checkDocExtMeta decl "block Markdown renderer"
+    let (key, wrapper) ← (mkMdRendererWrapper decl (isInline := false)).run'
+    modifyEnv fun env => docBlockMdExt.addEntry env (key, wrapper)
+}
+
+builtin_initialize registerBuiltinAttribute {
+  name := `builtin_doc_block_md
+  descr := "builtin Markdown renderer for a docstring block element"
+  applicationTime := .afterCompilation
+  add := fun decl _stx _kind => do
+    let (key, wrapper) ← (mkMdRendererWrapper decl (isInline := false)).run'
+    declareBuiltin wrapper <|
+      mkApp2 (.const ``addBuiltinBlockMdRenderer []) (toExpr key) (.const wrapper [])
+}
 end
 
 unsafe def codeSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeSuggestion))) := do
@@ -1139,7 +1249,11 @@ unsafe def roleExpandersForUnsafe (roleName : Ident) :
     let builtins := (← builtinDocRoles.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ builtins
   else
-    let x := roleName.getId
+    -- Builtin roles are not necessarily in the environment at a
+    -- quotation site, so they aren't in the preresolved list. They
+    -- must also be looked up by their plain name, erasing any macro
+    -- scopes a quotation introduced.
+    let x := roleName.getId.eraseMacroScopes
     let hasBuiltin ← resolveBuiltinDocName (← builtinDocRoles.get) x
     return hasBuiltin.toArray.flatten
 
@@ -1158,7 +1272,7 @@ unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
     let names' := (← builtinDocCodeBlocks.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
-    let x := codeBlockName.getId
+    let x := codeBlockName.getId.eraseMacroScopes
     let hasBuiltin ← resolveBuiltinDocName (← builtinDocCodeBlocks.get) x
     return hasBuiltin.toArray.flatten
 
@@ -1177,7 +1291,7 @@ unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
     let names' := (← builtinDocDirectives.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
-    let x := directiveName.getId
+    let x := directiveName.getId.eraseMacroScopes
     let hasBuiltin ← resolveBuiltinDocName (← builtinDocDirectives.get) x
     return hasBuiltin.toArray.flatten
 
@@ -1195,7 +1309,7 @@ unsafe def commandExpandersForUnsafe (commandName : Ident) :
     let names' := (← builtinDocCommands.get).get? x |>.getD #[]
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
-    let x := commandName.getId
+    let x := commandName.getId.eraseMacroScopes
     let hasBuiltin :=
       (← builtinDocCommands.get).get? x <|> (← builtinDocCommands.get).get? (`Lean.Doc ++ x)
     return hasBuiltin.toArray.flatten
@@ -1607,7 +1721,7 @@ partial def elabBlocks' (level : Nat) :
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := x}) <|
               name.mapM elabInline
-          let mdTitle := ToMarkdown.toMarkdown (Inline.concat title) |>.run'
+          let mdTitle ← MarkdownM.run' (ToMarkdown.toMarkdown (Inline.concat title))
           sub := sub.push {
             title,
             titleString := mdTitle
@@ -1648,7 +1762,7 @@ def elabModSnippet'
               name.mapM elabInline
           let some headerRange ← getDeclarationRange? b
             | throwErrorAt b "Can't find header source position"
-          let mdTitle := ToMarkdown.toMarkdown (Inline.concat title) |>.run'
+          let mdTitle ← MarkdownM.run' (ToMarkdown.toMarkdown (Inline.concat title))
           snippet := snippet.addPart n headerRange {
             title,
             titleString := mdTitle
@@ -1670,11 +1784,10 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
   | .code s => pure (.code s)
   | .math mode s => pure (.math mode s)
   | .linebreak s => pure (.linebreak s)
-  | .other i@{ name, val } xs =>
-    match name with
-    | ``delayLink =>
-      let some {name} := val.get? ElabLink
-        | throwError "Wrong value for {name}: {val.typeName}"
+  | .other i xs =>
+    let some val := getCustom i
+      | .other i <$> xs.mapM fixupInline
+    if let some { name } := val.get? ElabLink then
       let nameStr := name.getString
       if let some r@{content := url, seen, .. } := (← getThe InternalState).urls[nameStr]? then
         unless seen do modifyThe InternalState fun st => { st with urls := st.urls.insert nameStr { r with seen := true } }
@@ -1682,9 +1795,7 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
       else
         logErrorAt name "Reference not found"
         return .concat (← xs.mapM fixupInline)
-    | ``delayImage =>
-      let some {alt, name} := val.get? ElabImage
-        | throwError "Wrong value for {name}: {val.typeName}"
+    else if let some { alt, name } := val.get? ElabImage then
       let nameStr := name.getString
       if let some r@{content := url, seen, ..} := (← getThe InternalState).urls[nameStr]? then
         unless seen do modifyThe InternalState fun st => { st with urls := st.urls.insert nameStr { r with seen := true } }
@@ -1692,18 +1803,21 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
       else
         logErrorAt name "Reference not found"
         return .empty
-    | ``delayFootnote =>
-      let some {name} := val.get? ElabFootnote
-        | throwError "Wrong value for {name}: {val.typeName}"
+    else if let some { name } := val.get? ElabFootnote then
       let nameStr := name.getString
-      if let some r@{content, seen, ..} := (← getThe InternalState).footnotes[nameStr]? then
+      if let some r@{ content, seen, .. } := (← getThe InternalState).footnotes[nameStr]? then
         unless seen do modifyThe InternalState fun st =>
           { st with footnotes := st.footnotes.insert nameStr { r with seen := true } }
         return .footnote nameStr #[← fixupInline content]
       else
         logErrorAt name "Footnote not found"
         return .empty
-    | _ => .other i <$> xs.mapM fixupInline
+    else
+      .other i <$> xs.mapM fixupInline
+where
+  getCustom : ElabInline → Option Dynamic
+    | .custom c => some c
+    | .deferred _ => none
 
 partial def fixupBlock (block : Block ElabInline ElabBlock) : DocM (Block ElabInline ElabBlock) := do
   match block with

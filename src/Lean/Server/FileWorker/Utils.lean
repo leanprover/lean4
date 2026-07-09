@@ -15,6 +15,7 @@ public import Std.Sync.Mutex
 public section
 
 namespace Lean.Server.FileWorker
+open Lean
 open Snapshots
 open IO
 

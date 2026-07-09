@@ -7595,8 +7595,8 @@ else
 lean_object* v_a_2344_; lean_object* v___x_2346_; uint8_t v_isShared_2347_; uint8_t v_isSharedCheck_2351_; 
 lean_dec(v_a_2322_);
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_a_2344_ = lean_ctor_get(v___x_2336_, 0);
 v_isSharedCheck_2351_ = !lean_is_exclusive(v___x_2336_);
 if (v_isSharedCheck_2351_ == 0)
@@ -7643,8 +7643,8 @@ lean_object* v___x_2358_; lean_object* v___x_2359_;
 lean_dec(v_a_2332_);
 lean_dec(v_a_2322_);
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v___x_2358_ = lean_obj_once(&l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1, &l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1_once, _init_l___private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpAppArgRange_visit___closed__1);
 v___x_2359_ = l_panic___at___00__private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_simpOverApplied_visit_spec__0(v___x_2358_, v_a_2301_, v_a_2302_, v_a_2303_, v_a_2304_, v_a_2305_, v_a_2306_, v_a_2307_, v_a_2308_, v_a_2309_);
 return v___x_2359_;
@@ -7655,8 +7655,8 @@ else
 lean_object* v_a_2360_; lean_object* v___x_2362_; uint8_t v_isShared_2363_; uint8_t v_isSharedCheck_2367_; 
 lean_dec(v_a_2322_);
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_a_2360_ = lean_ctor_get(v___x_2331_, 0);
 v_isSharedCheck_2367_ = !lean_is_exclusive(v___x_2331_);
 if (v_isSharedCheck_2367_ == 0)
@@ -7701,8 +7701,8 @@ else
 lean_object* v_a_2368_; lean_object* v___x_2370_; uint8_t v_isShared_2371_; uint8_t v_isSharedCheck_2375_; 
 lean_dec(v_a_2322_);
 lean_dec_ref(v_arg_2318_);
-lean_dec_ref_known(v_e_2299_, 2);
 lean_dec_ref(v_fn_2317_);
+lean_dec_ref_known(v_e_2299_, 2);
 v_a_2368_ = lean_ctor_get(v___x_2329_, 0);
 v_isSharedCheck_2375_ = !lean_is_exclusive(v___x_2329_);
 if (v_isSharedCheck_2375_ == 0)

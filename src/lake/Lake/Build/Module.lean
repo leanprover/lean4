@@ -180,8 +180,10 @@ where
       throw (lib.name :: ps)
     let ps := lib.name :: ps
     let v := v.insert lib.name
-    let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
+    let step := fun (v, o) lib =>
       go lib ps v o
+    let (v, o) ← lib.deps.foldlM step (v, o)
+    let (v, o) ← lib.runtimeOnlyDeps.foldlM step (v, o)
     let o := o.push lib
     return (v, o)
 
@@ -853,7 +855,10 @@ def Module.packLtar (self : Module) (arts : ModuleOutputArtifacts) : JobM Artifa
       return arts
     else self.restoreAllArtifacts arts
   let args ← id do
+    -- `-s` strips the `depHash` so archive bytes depend only on outputs.
+    -- Consumers reinject the hash on unpack (see `Module.unpackLtar`).
     let mut args := #[
+      "-s",
       "-C", self.leanLibDir.toString,
       "-C", self.irDir.toString,
       self.ltarFile.toString,
@@ -884,13 +889,18 @@ def Module.packLtar (self : Module) (arts : ModuleOutputArtifacts) : JobM Artifa
   else
     computeArtifact self.ltarFile "ltar"
 
-def Module.unpackLtar (self : Module) (ltar : FilePath) : JobM Unit := do
+def Module.unpackLtar (self : Module) (ltar : FilePath) (inputHash : Hash) : JobM Unit := do
+  -- Archive has no `depHash` (packed with `-s`); supply it via `-j -` JSON stdin.
+  let input := Json.arr #[Json.mkObj [
+    ("file", toJson ltar.toString),
+    ("hash", toJson inputHash.hex)
+  ]]
   let args := #[
     "-C", self.leanLibDir.toString,
     "-C", self.irDir.toString,
-    "-x", ltar.toString
+    "-x", "-j", "-"
   ]
-  proc (quiet := true) {cmd := (← getLeantar).toString, args}
+  proc (quiet := true) (input? := input.compress) {cmd := (← getLeantar).toString, args}
 
 def Module.recBuildLtar (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:ltar" <| withCurrPackage self.pkg do
@@ -968,7 +978,7 @@ where
     | .ltar ltar =>
       updateAction .unpack
       mod.clearOutputArtifacts
-      mod.unpackLtar ltar.path
+      mod.unpackLtar ltar.path inputHash
       -- Note: This branch implies that only the ltar output is (validly) cached.
       -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
       let savedTrace ← readTraceFile mod.traceFile
@@ -1011,7 +1021,13 @@ where
         let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
         if status.isUpToDate then
           unless (← mod.checkArtifactsExist setup.isModule) do
-            mod.unpackLtar mod.ltarFile
+            -- Restoring from the archive stamps the trace with the current input
+            -- hash, so only do it on a verified hash match; an mtime-only match
+            -- leaves the hash unconfirmed, so rebuild instead.
+            if status == .hashUpToDate then
+              mod.unpackLtar mod.ltarFile depTrace.hash
+            else
+              discard <| mod.buildLean depTrace srcFile setup
         else
           discard <| mod.buildLean depTrace srcFile setup
         if status.isCacheable then
@@ -1021,9 +1037,15 @@ where
         else
           mod.computeArtifacts setup.isModule
     else
-      if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
+      let status ← savedTrace.replayIfUpToDate' (oldTrace := srcTrace.mtime) mod depTrace
+      if status.isUpToDate then
         unless (← mod.checkArtifactsExist setup.isModule) do
-          mod.unpackLtar mod.ltarFile
+          -- As above: restore only on a verified hash match; an mtime-only match
+          -- rebuilds instead.
+          if status == .hashUpToDate then
+            mod.unpackLtar mod.ltarFile depTrace.hash
+          else
+            discard <| mod.buildLean depTrace srcFile setup
         mod.computeArtifacts setup.isModule
       else
         if (← mod.pkg.isArtifactCacheReadable) then
@@ -1214,6 +1236,54 @@ public def Module.oFacetConfig : ModuleFacetConfig oFacet :=
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
 
+def recComputeModuleLinkInfo
+  (root : Module) (shouldExport : Bool)
+: FetchM (Job ModuleLinkInfo) := do
+  /-
+  Remark: We must build the root before we fetch the transitive imports
+  so that errors in the import block of transitive imports will not kill this
+  job before the root is built.
+  -/
+  let mut objJobs := #[]
+  let mut libJobs := #[]
+  for facet in root.nativeFacets shouldExport do
+    objJobs := objJobs.push <| ← facet.fetch root
+  let .ok imports _ ← (← root.transImports.fetch).wait
+    | error s!"bad imports (see the '{root.name.toString}' job for details)"
+  for mod in imports do
+    for facet in mod.nativeFacets shouldExport do
+      objJobs := objJobs.push <| ← facet.fetch mod
+  for link in root.lib.moreLinkObjs do
+    objJobs := objJobs.push <| ← link.fetchIn root.pkg
+  let libs := imports.foldl (·.insert ·.lib) OrdHashSet.empty |>.toArray
+  for lib in libs do
+    for link in lib.moreLinkObjs do
+      objJobs := objJobs.push <| ← link.fetchIn lib.pkg
+    for link in lib.moreLinkLibs do
+      libJobs := libJobs.push <| ← link.fetchIn lib.pkg
+  for link in root.lib.moreLinkLibs do
+    libJobs := libJobs.push <| ← link.fetchIn root.pkg
+  let deps := (← (← root.pkg.transDeps.fetch).await).push root.pkg
+  for dep in deps do
+    for lib in dep.externLibs do
+      objJobs := objJobs.push <| ← lib.static.fetch
+  let objsJob := Job.collectArray objJobs "Module.moreLinkObjs"
+  let libsJob := Job.collectArray libJobs "Module.moreLinkLibs"
+  objsJob.bindM (sync := true) fun objs =>
+  libsJob.mapM (sync := true) fun libs => do
+    addPureTrace root.lib.linkArgs "Module.moreLinkArgs"
+    setTraceCaption s!"{root.name.toString}:linkInfo"
+    let args := root.lib.weakLinkArgs ++ root.lib.linkArgs
+    return {args, objs, libs}
+
+/-- The `ModuleFacetConfig` for the builtin `linkInfoExportFacet`. -/
+public def Module.linkInfoExportFacetConfig : ModuleFacetConfig linkInfoExportFacet :=
+  mkFacetJobConfig (buildable := false) <| recComputeModuleLinkInfo (shouldExport := true)
+
+/-- The `ModuleFacetConfig` for the builtin `linkInfoNoExportFacet`. -/
+public def Module.linkInfoNoExportFacetConfig : ModuleFacetConfig linkInfoNoExportFacet :=
+  mkFacetJobConfig (buildable := false) <| recComputeModuleLinkInfo (shouldExport := false)
+
 /--
 Recursively build the shared library of a module
 (e.g., for `--load-dynlib` or `--plugin`).
@@ -1280,6 +1350,8 @@ public def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert oFacet oFacetConfig
   |>.insert oExportFacet oExportFacetConfig
   |>.insert oNoExportFacet oNoExportFacetConfig
+  |>.insert linkInfoExportFacet linkInfoExportFacetConfig
+  |>.insert linkInfoNoExportFacet linkInfoNoExportFacetConfig
   |>.insert dynlibFacet dynlibFacetConfig
 
 @[inherit_doc Module.initFacetConfigs]

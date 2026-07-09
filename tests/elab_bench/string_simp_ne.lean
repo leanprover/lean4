@@ -14,6 +14,9 @@ Key variables:
 
 set_option Elab.async false
 set_option maxHeartbeats 8000000
+-- The kernel verifies `String.ofList` by recursion that is O(string length), running far deeper
+-- than elaboration, so checking the longest strings below needs a `maxRecDepth` above the default.
+set_option maxRecDepth 8000
 
 open Lean Elab Command in
 /-- Generate `example : s₁ ≠ s₂ := by simp` where s₁ = n×'a'++"x" and s₂ = n×'a'++"y". -/

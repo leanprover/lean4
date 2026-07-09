@@ -181,6 +181,18 @@ builtin_facet oExportFacet @ o.export : Module => FilePath
 /-- The object file built from `c`/`bc` (without Lean symbols exported). -/
 builtin_facet oNoExportFacet @ o.noexport : Module => FilePath
 
+/-- Information useful for linking to a module and its dependencies. -/
+public structure ModuleLinkInfo where
+  args : Array String
+  objs : Array FilePath
+  libs : Array Dynlib
+  deriving Inhabited
+
+/-- Link information for the module with Lean symbols exported. -/
+builtin_facet linkInfoExport : Module => ModuleLinkInfo
+
+/-- Link information for the module without Lean symbols exported. -/
+builtin_facet linkInfoNoExport : Module => ModuleLinkInfo
 
 /-! ## Package Facets -/
 

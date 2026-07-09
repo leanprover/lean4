@@ -12,7 +12,7 @@ import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Tactic.Simp.Rewrite
-import Lean.Meta.Tactic.Grind.RevertAll
+import Lean.Meta.Tactic.Grind.MarkAccessible
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.CtorIdx

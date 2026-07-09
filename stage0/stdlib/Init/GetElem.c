@@ -2559,7 +2559,7 @@ lean_object* v___x_1026_; lean_object* v___x_1027_; lean_object* v___x_1028_; le
 lean_dec(v_x_1018_);
 v___x_1026_ = ((lean_object*)(l_outOfBounds___redArg___closed__0));
 v___x_1027_ = ((lean_object*)(l_List_get_x21Internal___redArg___closed__0));
-v___x_1028_ = lean_unsigned_to_nat(332u);
+v___x_1028_ = lean_unsigned_to_nat(333u);
 v___x_1029_ = lean_unsigned_to_nat(18u);
 v___x_1030_ = ((lean_object*)(l_List_get_x21Internal___redArg___closed__1));
 v___x_1031_ = l_mkPanicMessageWithDecl(v___x_1026_, v___x_1027_, v___x_1028_, v___x_1029_, v___x_1030_);

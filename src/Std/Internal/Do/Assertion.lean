@@ -9,7 +9,7 @@ prelude
 public import Init.Internal.Order
 public import Std.Internal.Do.Order.Basic
 public import Std.Internal.Do.Order.Frame
-public import Std.Internal.Do.Order.Lemmas
+public import Std.Internal.Do.Order.Instances
 universe u v w
 @[expose] public section
 

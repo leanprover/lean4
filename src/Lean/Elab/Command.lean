@@ -481,7 +481,7 @@ structure MacroExpandedSnapshot extends Snapshot where
 deriving TypeName
 open Language in
 instance : ToSnapshotTree MacroExpandedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.next.map (·.map (sync := true) toSnapshotTree)⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform, ← s.next.mapM (·.transform)⟩
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
   try

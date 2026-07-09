@@ -12,7 +12,7 @@ import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Int.OfNat
 import Init.Data.List.Pairwise
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 
 @[expose] public section
 

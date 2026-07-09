@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Operations
-// Imports: public import Std.Data.DTreeMap.Internal.Balancing public import Std.Data.DTreeMap.Internal.Queries public import Init.Data.List.Control import Init.Data.Nat.Lemmas import Init.Data.Nat.Linear import Init.Omega import Init.WFTactics
+// Imports: public import Std.Data.DTreeMap.Internal.Balancing public import Std.Data.DTreeMap.Internal.Queries public import Init.Data.List.Control import Init.Data.Nat.Lemmas import Init.Data.Nat.Internal.Linear import Init.Omega import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44453,7 +44453,7 @@ lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Balancing(uint8_t bui
 lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Queries(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Control(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_runtime_initialized = false;
@@ -44473,7 +44473,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
@@ -44495,7 +44495,7 @@ lean_object* initialize_Std_Data_DTreeMap_Internal_Balancing(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Queries(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
@@ -44515,7 +44515,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

@@ -63,7 +63,7 @@ Converts an 8-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_nat", tagged_return]
+@[extern "lean_uint8_to_nat", tagged_return, implicit_reducible]
 def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
@@ -82,7 +82,7 @@ Examples:
  * `UInt16.ofNat 32770 = 32770`
  * `UInt16.ofNat 65537 = 1`
 -/
-@[extern "lean_uint16_of_nat"]
+@[extern "lean_uint16_of_nat", implicit_reducible]
 def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨BitVec.ofNat 16 n⟩
 /--
 Converts a natural number to a 16-bit unsigned integer, returning the largest representable value if
@@ -118,7 +118,7 @@ Converts a 16-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_to_nat", tagged_return]
+@[extern "lean_uint16_to_nat", tagged_return, implicit_reducible]
 def UInt16.toNat (n : UInt16) : Nat := n.toBitVec.toNat
 /--
 Converts 16-bit unsigned integers to 8-bit unsigned integers. Wraps around on overflow.
@@ -150,7 +150,7 @@ Examples:
  * `UInt32.ofNat 65539 = 65539`
  * `UInt32.ofNat 4_294_967_299 = 3`
 -/
-@[extern "lean_uint32_of_nat"]
+@[extern "lean_uint32_of_nat", implicit_reducible]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨BitVec.ofNat 32 n⟩
 
 /--
@@ -199,7 +199,7 @@ Converts 8-bit unsigned integers to 32-bit unsigned integers.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_uint32"]
+@[extern "lean_uint8_to_uint32", implicit_reducible]
 def UInt8.toUInt32 (a : UInt8) : UInt32 := ⟨⟨a.toNat, Nat.lt_trans a.toBitVec.isLt (by decide)⟩⟩
 /--
 Converts 16-bit unsigned integers to 32-bit unsigned integers.
@@ -228,7 +228,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_add"]
+@[extern "lean_uint32_add", implicit_reducible]
 protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
 
 /--
@@ -237,7 +237,7 @@ via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_sub"]
+@[extern "lean_uint32_sub", implicit_reducible]
 protected def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
 
 instance : Add UInt32       := ⟨UInt32.add⟩
@@ -257,7 +257,7 @@ Examples:
  * `UInt64.ofNat 4_294_967_299 = 4_294_967_299`
  * `UInt64.ofNat 18_446_744_073_709_551_620 = 4`
 -/
-@[extern "lean_uint64_of_nat"]
+@[extern "lean_uint64_of_nat", implicit_reducible]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨BitVec.ofNat 64 n⟩
 /--
 Converts a natural number to a 64-bit unsigned integer, returning the largest representable value if
@@ -291,7 +291,7 @@ Converts a 64-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_to_nat"]
+@[extern "lean_uint64_to_nat", implicit_reducible]
 def UInt64.toNat (n : UInt64) : Nat := n.toBitVec.toNat
 /--
 Converts 64-bit unsigned integers to 8-bit unsigned integers. Wraps around on overflow.

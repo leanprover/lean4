@@ -2922,7 +2922,7 @@ static inline float lean_unbox_float32(b_lean_obj_arg o) {
 
 LEAN_EXPORT lean_object * lean_dbg_trace(lean_obj_arg s, lean_obj_arg fn);
 LEAN_EXPORT lean_object * lean_dbg_sleep(uint32_t ms, lean_obj_arg fn);
-LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
+LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(b_lean_obj_arg s, lean_obj_arg a);
 
 /* IO Helper functions */
 

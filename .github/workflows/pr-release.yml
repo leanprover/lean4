@@ -63,46 +63,27 @@ jobs:
         run: |
           git init --bare lean4.git
           git -C lean4.git remote add origin https://github.com/${{ github.repository_owner }}/lean4.git
-          if [ "${{ steps.workflow-info.outputs.pullRequestNumber }}" == "14124" ]; then
-            set -x
-            echo "PR ${{ steps.workflow-info.outputs.pullRequestNumber }}: using experimental --filter=blob:none fetch"
-            git -C lean4.git fetch -n --filter=blob:none origin master
-            git -C lean4.git fetch -n --filter=blob:none origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          git -C lean4.git fetch -n origin master
+          git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
 
-            # Create both the original tag and the SHA-suffixed tag
-            SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
-            SHORT_SHA="${SHORT_SHA:0:7}"
-  
-            # Export the short SHA for use in subsequent steps
-            echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
-  
-            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-  
-            set +x # don't leak secrets
-            git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
-            set -x
-            GIT_TRACE=1 git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-            GIT_TRACE=1 git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
-            set +x
-          else
-            git -C lean4.git fetch -n origin master
-            git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          # Create both the original tag and the SHA-suffixed tag
+          SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          SHORT_SHA="${SHORT_SHA:0:7}"
 
-            # Create both the original tag and the SHA-suffixed tag
-            SHORT_SHA="${{ steps.workflow-info.outputs.sourceHeadSha }}"
-            SHORT_SHA="${SHORT_SHA:0:7}"
-  
-            # Export the short SHA for use in subsequent steps
-            echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
-  
-            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-            git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-  
-            git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
-            git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-            git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
-          fi
+          # Export the short SHA for use in subsequent steps
+          echo "SHORT_SHA=${SHORT_SHA}" >> "$GITHUB_ENV"
+
+          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+
+          git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          # `lean4-pr-releases` is not a fork of `lean4`, so without negotiation `git push` cannot
+          # tell which objects it already has (this repo only fetched `master` and the PR commit)
+          # and sends the entire history, exceeding GitHub's 2 GiB pack limit. `push.negotiate`
+          # discovers a recent common commit from the remote's tags, shrinking the pack to the PR delta.
+          # TODO: Should we even push sources here at all?
+          git -C lean4.git -c push.negotiate=true push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+          git -C lean4.git -c push.negotiate=true push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
       - name: Delete existing releases if present
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
@@ -645,3 +626,46 @@ jobs:
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.reference-manual-ready.outputs.manual_ready == 'true'
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
+
+      # Finally, create/update the adaptation PR in the downstream repo. This is
+      # the second entry point into the adaptation-pr-create action; the other
+      # lives in `adaptation-pr.yml`. Unlike there, the toolchain release was
+      # just created above, so it is known to exist and there is no need to look
+      # it up first.
+      - name: Create GitHub App token
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.DOWNSTREAM_LEAN4_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DOWNSTREAM_LEAN4_APP_PRIVATE_KEY }}
+          repositories: lean4,downstream-lean4
+
+      - name: Configure git
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: leanprover/downstream-lean4/.downstream/actions/configure-git@master
+        with:
+          name: ${{ steps.app-token.outputs.app-slug }}[bot]
+
+      - name: Checkout downstream repo
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/checkout@v6
+        with:
+          repository: leanprover/downstream-lean4
+          ref: green
+          token: ${{ steps.app-token.outputs.token }}
+          path: downstream
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: Create adaptation PR
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@master
+        with:
+          app-token: ${{ steps.app-token.outputs.token }}
+          app-slug: ${{ steps.app-token.outputs.app-slug }}
+          upstream-pr: ${{ steps.workflow-info.outputs.pullRequestNumber }}
+          upstream-ci-green: true # We just created the toolchain release
+          downstream-repo: leanprover/downstream-lean4
+          downstream-clone: downstream
+          override-toolchain: leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}

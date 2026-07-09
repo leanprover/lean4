@@ -1875,8 +1875,8 @@ return v___x_621_;
 }
 default: 
 {
-lean_dec_ref_known(v___x_573_, 1);
 lean_dec(v_val_574_);
+lean_dec_ref_known(v___x_573_, 1);
 lean_dec(v_constName_561_);
 goto v___jp_567_;
 }

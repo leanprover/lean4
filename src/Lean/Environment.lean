@@ -294,8 +294,8 @@ private def isQuotInit (env : Environment) : Bool :=
 
 /-- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except Exception Environment
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+  (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) : Except Exception Environment
 
 /--
 Add declaration to kernel without type checking it.
@@ -685,8 +685,8 @@ def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := none }
 
 @[extern "lean_elab_add_decl"]
-private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+  (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
 
 @[extern "lean_elab_add_decl_without_checking"]
 private opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) :
@@ -698,15 +698,15 @@ Adds given declaration to the environment, type checking it unless `doCheck` is 
 This is a plumbing function for the implementation of `Lean.addDecl`, most users should use it
 instead.
 -/
-def addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
-    (cancelTk? : @& Option IO.CancelToken) (doCheck := true) :
+def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize)
+    (decl : @& Declaration) (cancelTk? : @& Option IO.CancelToken) (doCheck := true) :
     Except Kernel.Exception Environment := do
   if let some ctx := env.asyncCtx? then
     if let some n := decl.getTopLevelNames.find? (!ctx.mayContain ·) then
       throw <| .other s!"cannot add declaration {n} to environment as it is restricted to the \
         prefix {ctx.declPrefix}"
   let mut env ← if doCheck then
-    addDeclCheck env maxHeartbeats decl cancelTk?
+    addDeclCheck env maxHeartbeats maxRecDepth decl cancelTk?
   else
     addDeclWithoutChecking env decl
 
@@ -1152,6 +1152,34 @@ not block.
 def containsOnBranch (env : Environment) (n : Name) : Bool :=
   (env.asyncConsts.find? n |>.isSome) || (env.base.get env).constants.contains n
 
+/--
+Returns the constants added in the current module, in elaboration tree pre-order: the top-level
+declarations in elaboration order, each followed by its asynchronous sub-declarations, recursively.
+The recursive part can optionally be skipped for theorems for when their sub-decls are unimportant
+and visiting them would only add latency by having to wait for proof elaboration to finish.
+
+Unlike iterating `env.constants.map₂`, this does not block on `env.checked`, i.e. kernel checking.
+-/
+partial def getLocalConstantInfos (env : Environment) (skipTheoremSubDecls := false) :
+    BaseIO (Array AsyncConstantInfo) := do
+  let (arr, _) ← go env.asyncConsts #[] {}
+  return arr
+where
+  go (aconsts : AsyncConsts) (acc : Array AsyncConstantInfo) (seen : NameSet) :
+      BaseIO (Array AsyncConstantInfo × NameSet) := do
+    let mut acc := acc
+    let mut seen := seen
+    -- A child's `aconsts` currently inherits the sibling constants that existed when
+    -- its asynchronous elaboration forked, so a recursive walk revisits them; deduplicate by name.
+    -- Can be removed once `AsyncConst.aconsts` only contains the constants actually nested under it.
+    for c in aconsts.revList.reverse do
+      if seen.contains c.constInfo.name then continue
+      seen := seen.insert c.constInfo.name
+      acc := acc.push c.constInfo
+      unless skipTheoremSubDecls && c.constInfo.kind == .thm do
+        (acc, seen) ← go c.aconsts.get acc seen
+    return (acc, seen)
+
 def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
   let env := env.modifyCheckedAsync ({ · with
     header.mainModule := m
@@ -1499,7 +1527,6 @@ def registerEnvExtension {σ : Type} (mkInitial : IO σ)
 
 private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtension.mkInitialExtStates
 
-@[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   let initializing ← IO.initializing
   if initializing then throw (IO.userError "environment objects cannot be created during initialization")
@@ -2610,7 +2637,7 @@ where
           return panic! s!"{c.constInfo.name} must be definition/theorem"
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
       -- reused between snapshots
-      kenv ← ofExcept <| kenv.addDeclCore 0 decl none
+      kenv ← ofExcept <| kenv.addDeclCore 0 0 decl none
     return kenv
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.

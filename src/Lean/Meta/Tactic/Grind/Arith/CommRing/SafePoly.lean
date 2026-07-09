@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Sym.Arith.Poly
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 /-!

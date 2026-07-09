@@ -185,7 +185,9 @@ private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
   -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
-  go (← shareCommon pattern)
+  -- **Note**: We disable `shareCommonChecks` because patterns contain
+  -- loose bound variables and repair cannot be performed.
+  go (← Sym.shareCommonWithoutChecks pattern)
 where
   go (pattern : Expr) : GoalM Expr := do
     if pattern.isBVar || isPatternDontCare pattern then

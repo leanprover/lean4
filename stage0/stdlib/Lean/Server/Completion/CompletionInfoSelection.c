@@ -2566,7 +2566,6 @@ v_resetjp_794_:
 lean_object* v___x_797_; lean_object* v___x_798_; lean_object* v_partitions_799_; lean_object* v___x_801_; 
 v___x_797_ = lean_unsigned_to_nat(0u);
 v___x_798_ = l_Array_zipIdx___redArg(v_fst_792_, v___x_797_);
-lean_dec(v_fst_792_);
 v_partitions_799_ = l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions(v___x_798_);
 lean_dec_ref(v___x_798_);
 if (v_isShared_796_ == 0)

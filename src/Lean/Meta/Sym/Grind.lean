@@ -57,13 +57,13 @@ public inductive IntrosResult where
   | goal (newDecls : Array FVarId) (goal : Goal)
 
 /-- Introduces `num` binders from the goal's target. -/
-public def Goal.introN (goal : Goal) (num : Nat) : SymM IntrosResult := do
-  let .goal xs mvarId ← Sym.introN goal.mvarId num | return .failed
+public def Goal.introN (goal : Goal) (num : Nat) (hygienic : Bool := true) : SymM IntrosResult := do
+  let .goal xs mvarId ← Sym.introN goal.mvarId num hygienic | return .failed
   return .goal xs { goal with mvarId }
 
 /-- Introduces binders with the specified names. -/
-public def Goal.intros (goal : Goal) (names : Array Name) : SymM IntrosResult := do
-  let .goal xs mvarId ← Sym.intros goal.mvarId names | return .failed
+public def Goal.intros (goal : Goal) (names : Array Name) (hygienic : Bool := true) : SymM IntrosResult := do
+  let .goal xs mvarId ← Sym.intros goal.mvarId names hygienic | return .failed
   return .goal xs { goal with mvarId }
 
 public inductive ApplyResult where

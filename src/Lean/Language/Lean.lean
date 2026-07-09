@@ -228,6 +228,8 @@ the tactic snapshot at hand *and all further snapshots* so that we can cancel th
 of waiting for elaboration to visit those later snapshots.
 -/
 
+open Lean
+
 set_option linter.missingDocs true
 
 namespace Lean.Language.Lean

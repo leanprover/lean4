@@ -17657,8 +17657,8 @@ goto v___jp_5461_;
 else
 {
 lean_object* v___x_5540_; 
-lean_dec_ref_known(v_pre_5490_, 2);
 lean_dec(v_pre_5491_);
+lean_dec_ref_known(v_pre_5490_, 2);
 lean_dec_ref_known(v_pre_5489_, 2);
 lean_dec_ref_known(v_pre_5488_, 2);
 lean_dec_ref_known(v_declName_5487_, 2);
@@ -17673,8 +17673,8 @@ goto v___jp_5461_;
 else
 {
 lean_object* v___x_5541_; 
-lean_dec(v_pre_5490_);
 lean_dec_ref_known(v_pre_5489_, 2);
+lean_dec(v_pre_5490_);
 lean_dec_ref_known(v_pre_5488_, 2);
 lean_dec_ref_known(v_declName_5487_, 2);
 lean_dec(v_addDeclName_5457_);
@@ -17702,8 +17702,8 @@ goto v___jp_5461_;
 else
 {
 lean_object* v___x_5543_; 
-lean_dec(v_pre_5488_);
 lean_dec_ref_known(v_declName_5487_, 2);
+lean_dec(v_pre_5488_);
 lean_dec(v_addDeclName_5457_);
 v___x_5543_ = l___private_Lean_Meta_Tactic_Simp_Simproc_0__Lean_Meta_Simp_addBuiltin___lam__1(v_declName_5455_, v___f_5485_, v___x_5486_, v___x_5479_, v___x_5481_, v_a_5458_, v_a_5459_);
 lean_dec_ref(v___f_5485_);

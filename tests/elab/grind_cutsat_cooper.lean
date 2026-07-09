@@ -53,7 +53,7 @@ theorem ex₄ (x y : Int) :
 theorem ex₅ (x y : Int) : 1 ≤ x + y → 100 ∣ x + y → 100 ≤ x + y := by
   grind
 
-open Int.Linear
+open Int.Internal.Linear
 #print ex₁
 #print ex₂
 #print ex₃

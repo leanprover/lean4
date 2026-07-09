@@ -21,7 +21,8 @@ test_run -v build Downstream
 # load the individual module dynlib.
 PKG=precompileArgs
 test_out "${PKG}_Foo_Detached.$SHARED_LIB_EXT" -v setup-file ImportDetached.lean
-test_out "${PKG}_Foo_Detached.$SHARED_LIB_EXT" -v setup-file Downstream/ImportDetached.lean
+test_out "${PKG}_Foo_Detached.$SHARED_LIB_EXT" -v setup-file PrecompiledDownstream/ImportDetached.lean
+test_run build -R PrecompiledDownstream.ImportImportDetached
 
 # Test that `moreLinkArgs` are included when linking precompiled modules
 ./clean.sh

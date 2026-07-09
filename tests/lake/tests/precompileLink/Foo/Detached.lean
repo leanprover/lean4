@@ -1,3 +1,4 @@
 /-! A module in the library `Foo` not imported by `Foo.lean`. -/
 
-def detachedValue := 1234
+initialize detachedValue : Nat ←
+  return 1234

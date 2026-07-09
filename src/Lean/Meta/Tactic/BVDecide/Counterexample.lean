@@ -174,6 +174,16 @@ where
           return (x, toExpr <| UInt64.ofBitVec (h ▸ value.bv))
         else
           throwError m!"Value for UInt64 was not 64 bit but {value.w} bit"
+      | USize.toBitVec32 x _ =>
+        if value.w = 32 then
+          return (x, toExpr <| USize.ofNat value.bv.toNat)
+        else
+          throwError m!"Value for USize was not 32 bit but {value.w} bit"
+      | USize.toBitVec64 x _ =>
+        if value.w = 64 then
+          return (x, toExpr <| USize.ofNat value.bv.toNat)
+        else
+          throwError m!"Value for USize was not 64 bit but {value.w} bit"
       | Int8.toBitVec x =>
         if h : value.w = 8 then
           return (x, toExpr <| Int8.ofBitVec (h ▸ value.bv))
@@ -194,6 +204,16 @@ where
           return (x, toExpr <| Int64.ofBitVec (h ▸ value.bv))
         else
           throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
+      | ISize.toBitVec32 x _ =>
+        if value.w = 32 then
+          return (x, toExpr <| ISize.ofInt value.bv.toInt)
+        else
+          throwError m!"Value for ISize was not 32 bit but {value.w} bit"
+      | ISize.toBitVec64 x _ =>
+        if value.w = 64 then
+          return (x, toExpr <| ISize.ofInt value.bv.toInt)
+        else
+          throwError m!"Value for ISize was not 64 bit but {value.w} bit"
       | _ =>
         match var with
         | .app (.const (.str p s) levels) arg =>

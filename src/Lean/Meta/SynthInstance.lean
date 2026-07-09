@@ -371,8 +371,50 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
       we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
       -/
       let instVal ← mkLambdaFVars xs instVal (etaReduce := true)
-      if (← isDefEq mvar instVal) then
-        return some ((← getMCtx), subgoals)
+      /-
+      When the goal type is metavariable-free, we assign `instVal` directly: the final
+      `isDefEq mvar instVal` recheck is redundant (the goal type and `instTypeBody` have
+      just been unified, and the type of `instVal` is `instTypeBody` by construction) and
+      can be very expensive, since it re-infers the type of `instVal` and re-unifies it
+      with the goal type.
+
+      When the goal type contains metavariables, re-unifying the two (definitionally equal, but not
+      necessarily syntactically equal) types has side effects that elaboration relies on.
+      In particular, `isDefEqArgs` runs `trySynthPending` on metavariables in
+      instance-implicit argument positions of the applications it descends into. Example:
+      the goal `IsPredArchimedean ι ?pre ?pd` (from Mathlib) — created when elaborating a class
+      projection, whose class parameters are demoted to plain implicit binders — matches a
+      candidate by assigning the candidate's fresh metavariables to `?pre`/`?pd` without
+      determining them. No other component is responsible for these metavariables, and the
+      recheck's `trySynthPending` is what synthesizes them; without it, the answer is
+      parametric in `?pd` and elaboration fails with "don't know how to synthesize
+      implicit argument" (see `tests/elab/synthPendingClassMVars.lean`).
+
+      Moreover, the set of metavariables the recheck synthesizes is not a function of the
+      goal alone: `isDefEqArgs` only descends into subterms whose two spellings differ
+      (e.g. rechecking `C (f a ?m) =?= C (f a' ?m)` pends `?m` iff `a` and `a'` are
+      syntactically different), so the side effects cannot be replayed after a direct
+      assignment, which has only one spelling. Explicit replacements fail in both
+      directions: synthesizing all pending class metavariables in the goal breaks stage2
+      (`Init/Internal/Order/Basic.lean`: a higher-order `[Nonempty ε]` metavariable inside
+      the goal's subject argument must be left to unification), and synthesizing none
+      breaks Mathlib (`Mathlib/Order/SuccPred/LinearLocallyFinite.lean`). Hence we keep
+      the recheck whenever the goal type contains metavariables.
+
+      **Note**: We should consider eliminating this nasty side effect and fixing
+      Mathlib in the few places that rely on it. There are ~10 such places.
+
+      Remark: we check only `mvarTypeBody`. The goal's hypotheses could contain
+      metavariables too, but checking the body is cheaper and good enough in practice,
+      and we want to remove this check altogether (see note above).
+      -/
+      if !(← instantiateMVars mvarTypeBody).hasExprMVar then
+        -- Remark: `mvar` is not assigned here: `tryResolve` runs on the generator node's
+        -- metavariable context snapshot, in which `mvar` is fresh.
+        mvar.mvarId!.assign instVal
+      else
+        unless (← isDefEq mvar instVal) do return none
+      return some ((← getMCtx), subgoals)
     return none
 
 /--

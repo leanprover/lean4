@@ -108,6 +108,9 @@ At runtime, this function is implemented by efficient, constant-time code.
 def getUTF8Byte (s : @& String) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
   s.toByteArray[p.byteIdx]
 
+theorem getUTF8Byte_eq_getElem {s : String} {p : Pos.Raw} {h} :
+    s.getUTF8Byte p h = s.toByteArray[p.byteIdx] := (rfl)
+
 @[deprecated getUTF8Byte (since := "2025-10-01"), extern "lean_string_get_byte_fast"]
 abbrev getUtf8Byte (s : String) (p : Pos.Raw) (h : p < s.rawEndPos) : UInt8 :=
   s.getUTF8Byte p h

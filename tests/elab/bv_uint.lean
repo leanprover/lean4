@@ -65,14 +65,13 @@ example (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
   cases System.Platform.numBits_eq <;> bv_decide
 
 /--
-warning: Detected USize/ISize in the goal but no hypothesis about System.Platform.numBits, consider case splitting on System.Platform.numBits_eq
----
-warning: declaration uses `sorry`
+error: The prover found a counterexample, consider the following assignment:
+a = 18446744073709551615
+b = 18446744073709551615
 -/
 #guard_msgs in
-example (a b : USize) : a + b > a := by
-  bv_normalize
-  sorry
+example (a b : USize) (h : System.Platform.numBits = 64) : a + b > a := by
+  bv_decide
 
 example (h : 32 = System.Platform.numBits) (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
@@ -88,6 +87,21 @@ example (n : Int32) : n.toUInt32.toInt32 = n := by bv_decide
 example (n : Int64) : n.toUInt64.toInt64 = n := by bv_decide
 
 example {b : UInt8} (h : b &&& 0x80 == 0) : b < 0x80 := by bv_decide
+
+/-! USize arithmetic operations -/
+example (a b : USize) (h : System.Platform.numBits = 64) : a + b = b + a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a - a = 0 := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : -a + a = 0 := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a / 1 = a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a % 1 = 0 := by bv_decide
+
+/-! USize bitwise operations -/
+example (a b : USize) (h : System.Platform.numBits = 64) : a &&& b = b &&& a := by bv_decide
+example (a b : USize) (h : System.Platform.numBits = 64) : a ||| b = b ||| a := by bv_decide
+example (a b : USize) (h : System.Platform.numBits = 64) : a ^^^ b = b ^^^ a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : ~~~(~~~a) = a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a <<< (0 : USize) = a := by bv_decide
+example (a : USize) (h : System.Platform.numBits = 64) : a >>> (0 : USize) = a := by bv_decide
 
 example (x y z: UInt8) (h1 : x == y) (h2 : y == z) : x == z := by bv_decide
 example (x y z: UInt16) (h1 : x == y) (h2 : y == z) : x == z := by bv_decide

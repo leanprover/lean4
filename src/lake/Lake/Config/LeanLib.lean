@@ -226,14 +226,14 @@ That is, the package's `weakLeancArgs` plus the library's `weakLeancArgs`.
   self.pkg.weakLeancArgs ++ self.config.weakLeancArgs
 
 /--
-Additionl target objects to pass to `ar` when linking the static library.
+Additional target objects to pass to `ar` when linking the static library.
 That is, the package's `moreLinkObjs` plus the library's `moreLinkObjs`.
 -/
 @[inline] public def moreLinkObjs (self : LeanLib) : TargetArray FilePath :=
   self.pkg.moreLinkObjs ++ self.config.moreLinkObjs
 
-/-
-Additionl target libraries to are linked to the shared library.
+/--
+Additional target libraries to are linked to the shared library.
 That is, the package's `moreLinkLibs` plus the library's `moreLinkLibs`.
 -/
 @[inline] public def moreLinkLibs (self : LeanLib) : TargetArray Dynlib :=

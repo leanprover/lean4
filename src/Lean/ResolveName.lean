@@ -72,7 +72,7 @@ builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry Alia
   }
 
 /-- Add alias `a` for `e` -/
-@[export lean_add_alias] def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
+def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
   aliasExtension.addEntry env (a, e)
 
 def getAliasState (env : Environment) : AliasState :=

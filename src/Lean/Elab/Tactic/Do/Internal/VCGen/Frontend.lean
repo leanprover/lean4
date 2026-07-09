@@ -251,6 +251,7 @@ private structure ParsedArgs where
   ctx : VCGen.Context
   scope : VCGen.Scope
   invariantAlts? : Option (Std.HashMap Nat Syntax)
+  frameDB? : Option (Deferred FrameDB)
 
 /-- Build a `Sym.Pattern` from `e` by abstracting the metavariables `xs` into pattern variables.
 `checkTypeMask?` is `none` because `until` holes appear as function arguments, whose types the
@@ -267,22 +268,62 @@ private def mkUntilPattern (xs : Array Expr) (e : Expr) : MetaM Sym.Pattern := d
   let varInfos? ← Sym.mkProofInstArgInfo? xs
   return { levelParams := [], varTypes, pattern, fnInfos, varInfos?, checkTypeMask? := none }
 
+/-- Capture the current elaboration context for a deferred pattern elaboration. The returned action
+runs `k` against the first program's monad `m`, restoring the captured local context, ignoring
+type-class failures, and disabling `sorry` elaboration, while keeping info trees so hovers work on
+the pattern. Shared by `elabUntilPattern` and `elabFrameDB`. -/
+private def withDeferredElab (k : Expr → TermElabM α) : TermElabM (Expr → MetaM α) := do
+  let lctx ← getLCtx
+  let localInsts ← getLocalInstances
+  return fun m =>
+    withLCtx lctx localInsts <| Term.TermElabM.run' <|
+      Term.withoutModifyingElabMetaStateWithInfo <|
+      withTheReader Term.Context ({ · with ignoreTCFailures := true }) <|
+      Term.withoutErrToSorry <| k m
+
+/-- Elaborate a program pattern term `p` against the program monad `m` (expected type `m _`, so
+overloaded heads resolve), returning its pattern variables (the collected metavariables: holes and
+synthetic holes) and the resulting `Sym.Pattern`. -/
+private def elabProgPattern (m : Expr) (p : Term) : TermElabM (Array Expr × Sym.Pattern) := do
+  let e ← instantiateMVars (← Term.elabTerm p (some (mkApp m (← mkFreshTypeMVar))))
+  let xs := (e.collectMVars {}).result.map Expr.mvar
+  return (xs, ← mkUntilPattern xs e)
+
 /-- Build a deferred `until` pattern (holes `_` allowed, as in `conv in $t`). The pattern term is
 elaborated lazily when the first program is seen in `solve`, using that program's monad `m` as the
 expected type (`m _`) so overloaded heads resolve; the result is cached. The holes become pattern
 variables. -/
-private def elabUntilPattern (p : Term) : TermElabM (IO.Ref UntilPatternThunk) := do
-  let lctx ← getLCtx
-  let localInsts ← getLocalInstances
-  IO.mkRef <| UntilPatternThunk.deferred fun m =>
-    withLCtx lctx localInsts <| Term.TermElabM.run' <|
-      -- Restore the metavariable state but keep info trees, so hovers work on the pattern.
-      Term.withoutModifyingElabMetaStateWithInfo <| withRef p <|
-      withTheReader Term.Context ({ · with ignoreTCFailures := true }) <|
-      Term.withoutErrToSorry do
-        let e ← instantiateMVars (← Term.elabTerm p (some (mkApp m (← mkFreshTypeMVar))))
-        let xs := (e.collectMVars {}).result.map Expr.mvar
-        mkUntilPattern xs e
+private def elabUntilPattern (p : Term) : TermElabM (IO.Ref (Deferred Sym.Pattern)) := do
+  IO.mkRef <| .deferred <| ← withDeferredElab fun m => withRef p do
+    return (← elabProgPattern m p).2
+
+/-- Build a deferred `frames` database. Each alternative's program pattern (a head applied to
+binder/`_` arguments) is elaborated lazily against the first program's monad `m`, like the `until`
+pattern; a named binder `x` becomes a synthetic hole `?x` so its name can be recovered and bound to
+the matched argument when the frame term is elaborated in `solve`. -/
+private def elabFrameDB (alts : Array Syntax) : TermElabM (Deferred FrameDB) := do
+  return .deferred <| ← withDeferredElab fun m => do
+    let mut tree : DiscrTree Nat := .empty
+    let mut entries : Array FrameEntry := #[]
+    for h : i in [0:alts.size] do
+      let alt := alts[i]
+      let `(frameAlt| | $head:ident $args* => $frame) := alt
+        | throwErrorAt alt "Expected a `frames` alternative `| f a _ c => frame`."
+      -- Named binders become synthetic holes `?x`; `_` stays a plain hole.
+      let argTerms ← args.mapM fun arg => do
+        match arg with
+        | `(binderIdent| $x:ident) =>
+          pure (⟨Syntax.node .none ``Lean.Parser.Term.syntheticHole #[mkAtom "?", x.raw]⟩ : Term)
+        | _ => `(_)
+      let progPat ← `($head $argTerms*)
+      let (xs, pat) ← withRef alt <| elabProgPattern m progPat
+      let varNames ← xs.mapM fun x => do
+        let nm := (← x.mvarId!.getDecl).userName
+        return if nm.isAnonymous then none else some nm
+      entries := entries.push { pat, varNames, frameStx := frame, srcIdx := i }
+      tree := Sym.insertPattern tree pat i
+      trace[Elab.Tactic.Do.vcgen] "`frames` pattern elaborated to {pat.pattern}"
+    return { tree, entries }
 
 /-- Parse `vcgen` arguments. -/
 private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
@@ -298,8 +339,9 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   -- distinguish "default true" from "user-set true"); not yet wired.
   let (ctx, scope) ← VCGen.mkContext stx[2] goal
   let untilPat? ← if stx[3].isNone then pure none else some <$> elabUntilPattern ⟨stx[3][1]⟩
-  let hypSimpMethods ← elabSimplifyingAssumptions stx[5]
-  let invariantAlts? ← parseInvariantMap stx[4]
+  let frameDB? ← if stx[4].isNone then pure none else some <$> elabFrameDB stx[4][1].getArgs
+  let invariantAlts? ← parseInvariantMap stx[5]
+  let hypSimpMethods ← elabSimplifyingAssumptions stx[6]
   let ctx := { ctx with
     hypSimpMethods,
     trivial := config.trivial,
@@ -309,7 +351,7 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
     internalize := config.internalize,
     invariantAlts := invariantAlts?.getD {},
     untilPat? }
-  return { config, ctx, scope, invariantAlts? }
+  return { config, ctx, scope, invariantAlts?, frameDB? }
 
 /-- `vcgen` step inside `sym => …` blocks. -/
 @[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
@@ -317,13 +359,15 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM do
-    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit
+    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit (frameDB? := args.frameDB?)
     if let some alts := args.invariantAlts? then
       elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
     return result
+  if let some frameStx := result.unmatchedFrames[0]? then
+    throwErrorAt frameStx "`frames` alternative matched no program in the goal"
   if args.invariantAlts?.isNone then
     runTacticM (goals := result.invariants.toList) <|
-      elabInvariants stx[4] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
+      elabInvariants stx[5] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   let newGoals ← Lean.Elab.Tactic.Grind.liftGrindM do
     let invGoals ← invariants.toList.mapM Grind.mkGoalCore
@@ -353,7 +397,7 @@ goals. The optional `with $g:grind` clause runs as `<;> $g` and lets the user-su
 grind step share an internalised E-graph with `vcgen`. -/
 @[builtin_tactic Lean.Parser.Tactic.vcgen]
 public def elabVCGen : Tactic := fun stx => withMainContext do
-  let `(tactic| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
+  let `(tactic| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
         $[simplifying_assumptions $(sa)? $[[$thms,*]]?]? $[with $w:vcgenDischarge]?) := stx
     | throwUnsupportedSyntax
   let g? ← elabVCGenDischarge w
@@ -364,7 +408,7 @@ public def elabVCGen : Tactic := fun stx => withMainContext do
     | none   => do
         let off ← `(optConfig| -internalize)
         pure (Lean.Parser.Tactic.appendConfig off cfg)
-  let core ← `(grind| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
+  let core ← `(grind| vcgen%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $[frames $fas*]? $(invs)?
         $[simplifying_assumptions $(sa)? $[[$thms,*]]?]?)
   let step ← match g? with
     | some g => `(grind| $core <;> $g)

@@ -389,7 +389,7 @@ mutual
 
 end
 
-/- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
+/-- Prove SizeOf spec lemma of the form `sizeOf <ctor-application> = 1 + sizeOf <field_1> + ... + sizeOf <field_n> -/
 partial def main (lhs rhs : Expr) : M Expr := do
   if (← isDefEq lhs rhs) then
     mkEqRefl rhs

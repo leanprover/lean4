@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Level
-// Imports: public import Init.Data.Array.QSort public import Lean.Data.PersistentHashSet public import Lean.Hygiene public import Init.Data.Option.Coe import Init.Data.Nat.Linear
+// Imports: public import Init.Data.Array.QSort public import Lean.Data.PersistentHashSet public import Lean.Hygiene public import Init.Data.Option.Coe import Init.Data.Nat.Internal.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4692,7 +4692,7 @@ _start:
 lean_object* v___x_1292_; lean_object* v___x_1293_; lean_object* v___x_1294_; lean_object* v___x_1295_; lean_object* v___x_1296_; lean_object* v___x_1297_; 
 v___x_1292_ = ((lean_object*)(l_Lean_Level_normalize___closed__2));
 v___x_1293_ = lean_unsigned_to_nat(11u);
-v___x_1294_ = lean_unsigned_to_nat(401u);
+v___x_1294_ = lean_unsigned_to_nat(403u);
 v___x_1295_ = ((lean_object*)(l_Lean_Level_normalize___closed__1));
 v___x_1296_ = ((lean_object*)(l_Lean_Level_mvarId_x21___closed__0));
 v___x_1297_ = l_mkPanicMessageWithDecl(v___x_1296_, v___x_1295_, v___x_1294_, v___x_1293_, v___x_1292_);
@@ -6908,7 +6908,7 @@ _start:
 lean_object* v___x_2020_; lean_object* v___x_2021_; lean_object* v___x_2022_; lean_object* v___x_2023_; lean_object* v___x_2024_; lean_object* v___x_2025_; 
 v___x_2020_ = ((lean_object*)(l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___closed__1));
 v___x_2021_ = lean_unsigned_to_nat(14u);
-v___x_2022_ = lean_unsigned_to_nat(564u);
+v___x_2022_ = lean_unsigned_to_nat(566u);
 v___x_2023_ = ((lean_object*)(l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___closed__0));
 v___x_2024_ = ((lean_object*)(l_Lean_Level_mvarId_x21___closed__0));
 v___x_2025_ = l_mkPanicMessageWithDecl(v___x_2024_, v___x_2023_, v___x_2022_, v___x_2021_, v___x_2020_);
@@ -6964,7 +6964,7 @@ _start:
 lean_object* v___x_2041_; lean_object* v___x_2042_; lean_object* v___x_2043_; lean_object* v___x_2044_; lean_object* v___x_2045_; lean_object* v___x_2046_; 
 v___x_2041_ = ((lean_object*)(l___private_Lean_Level_0__Lean_Level_updateMax_x21Impl___closed__1));
 v___x_2042_ = lean_unsigned_to_nat(19u);
-v___x_2043_ = lean_unsigned_to_nat(575u);
+v___x_2043_ = lean_unsigned_to_nat(577u);
 v___x_2044_ = ((lean_object*)(l___private_Lean_Level_0__Lean_Level_updateMax_x21Impl___closed__0));
 v___x_2045_ = ((lean_object*)(l_Lean_Level_mvarId_x21___closed__0));
 v___x_2046_ = l_mkPanicMessageWithDecl(v___x_2045_, v___x_2044_, v___x_2043_, v___x_2042_, v___x_2041_);
@@ -7042,7 +7042,7 @@ _start:
 lean_object* v___x_2071_; lean_object* v___x_2072_; lean_object* v___x_2073_; lean_object* v___x_2074_; lean_object* v___x_2075_; lean_object* v___x_2076_; 
 v___x_2071_ = ((lean_object*)(l___private_Lean_Level_0__Lean_Level_updateIMax_x21Impl___closed__1));
 v___x_2072_ = lean_unsigned_to_nat(20u);
-v___x_2073_ = lean_unsigned_to_nat(586u);
+v___x_2073_ = lean_unsigned_to_nat(588u);
 v___x_2074_ = ((lean_object*)(l___private_Lean_Level_0__Lean_Level_updateIMax_x21Impl___closed__0));
 v___x_2075_ = ((lean_object*)(l_Lean_Level_mvarId_x21___closed__0));
 v___x_2076_ = l_mkPanicMessageWithDecl(v___x_2075_, v___x_2074_, v___x_2073_, v___x_2072_, v___x_2071_);
@@ -9581,7 +9581,7 @@ lean_object* runtime_initialize_Init_Data_Array_QSort(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_PersistentHashSet(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Hygiene(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Coe(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Level(uint8_t builtin) {
 lean_object * res;
@@ -9599,7 +9599,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedData___aux__1 = _init_l_Lean_instInhabitedData___aux__1();
@@ -9641,7 +9641,7 @@ lean_object* initialize_Init_Data_Array_QSort(uint8_t builtin);
 lean_object* initialize_Lean_Data_PersistentHashSet(uint8_t builtin);
 lean_object* initialize_Lean_Hygiene(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Level(uint8_t builtin) {
 lean_object * res;
@@ -9659,7 +9659,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Level(builtin);

@@ -207,6 +207,12 @@ namespace Module
 @[inherit_doc bcoFacet] public abbrev bco (self : Module) :=
   self.facetCore bcoFacet
 
+@[inherit_doc linkInfoExportFacet] public abbrev linkInfoExport (self : Module) :=
+  self.facetCore linkInfoExportFacet
+
+@[inherit_doc linkInfoNoExportFacet] public abbrev linkInfoNoExport (self : Module) :=
+  self.facetCore linkInfoNoExportFacet
+
 @[inherit_doc dynlibFacet] public abbrev dynlib (self : Module) :=
   self.facetCore dynlibFacet
 
@@ -218,7 +224,7 @@ end Module
 public abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
   .target self target
 
-/-
+/--
 Build info for applying the specified facet to the package.
 It is the user's obligation to ensure the facet in question is a package facet.
 -/
@@ -271,7 +277,7 @@ end Package
 
 /-! #### Lean Library Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the library.
 It is the user's obligation to ensure the facet in question is a library facet.
 -/
@@ -316,7 +322,7 @@ end LeanLib
 
 /-! #### Lean Executable Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the executable.
 It is the user's obligation to ensure the facet in question is the executable facet.
 -/
@@ -329,7 +335,7 @@ public abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
 
 /-! #### External Library Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the external library.
 It is the user's obligation to ensure the facet in question is an external library facet.
 -/
@@ -350,7 +356,7 @@ public abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
 
 /-! #### Input File & Directory Infos -/
 
-/-
+/--
 Build info for applying the specified facet to the input file.
 It is the user's obligation to ensure the facet in question is an external library facet.
 -/
@@ -361,7 +367,7 @@ public abbrev InputFile.facetCore (facet : Name) (self : InputFile) : BuildInfo 
 public abbrev InputFile.default (self : InputFile) : BuildInfo :=
   self.facetCore InputFile.defaultFacet
 
-/-
+/--
 Build info for applying the specified facet to the input directory.
 It is the user's obligation to ensure the facet in question is an external library facet.
 -/

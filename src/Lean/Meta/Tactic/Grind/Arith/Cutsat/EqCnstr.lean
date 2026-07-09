@@ -21,7 +21,7 @@ import Init.Omega
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-private def _root_.Int.Linear.Poly.substVar (p : Poly) : GoalM (Option (Var × EqCnstr × Poly)) := do
+private def _root_.Int.Internal.Linear.Poly.substVar (p : Poly) : GoalM (Option (Var × EqCnstr × Poly)) := do
   let some (a, x, c) ← p.findVarToSubst | return none
   let b := c.p.coeff x
   let p' := p.mul (-b) |>.combine (c.p.mul a)
@@ -101,7 +101,7 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
 /--
 Selects the variable in the given linear polynomial whose coefficient has the smallest absolute value.
 -/
-def _root_.Int.Linear.Poly.pickVarToElim? (p : Poly) : Option (Int × Var) :=
+def _root_.Int.Internal.Linear.Poly.pickVarToElim? (p : Poly) : Option (Int × Var) :=
   match p with
   | .num _ => none
   | .add k x p => go k x p
@@ -332,7 +332,7 @@ nonlinear terms.
 
 Remark: `x` is the variable that was eliminated using `p`.
 -/
-partial def _root_.Int.Linear.Poly.updateOccsForElimEq (p : Poly) (x : Var) : GoalM Unit := do
+partial def _root_.Int.Internal.Linear.Poly.updateOccsForElimEq (p : Poly) (x : Var) : GoalM Unit := do
   let rec go (p : Poly) : GoalM Unit := do
     let .add _ y p := p | return ()
     unless x == y do addOcc y x
@@ -587,9 +587,9 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
       pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
   else
     let n : Int := 1 - b.natAbs
-    pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b'
-    pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b' eagerReflBoolTrue
-    pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
+    pushNewFact <| mkApp2 (mkConst ``Int.Internal.Linear.ediv_emod) a b'
+    pushNewFact <| mkApp3 (mkConst ``Int.Internal.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    pushNewFact <| mkApp4 (mkConst ``Int.Internal.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
@@ -651,7 +651,7 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   unless (← Structural.isInstHSubNat inst) do return ()
   discard <| mkNatVar a
   discard <| mkNatVar b
-  pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
+  pushNewFact <| mkApp2 (mkConst ``Int.Internal.Linear.natCast_sub) a b
 
 private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
   if (← isNatTerm e) then return () -- already internalized

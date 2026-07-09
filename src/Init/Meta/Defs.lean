@@ -149,7 +149,6 @@ def getRoot : Name → Name
   | str n _             => getRoot n
   | num n _             => getRoot n
 
-@[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
   | Name.str _ s   => (String.Internal.contains s '✝') || s == "_inaccessible"
   | Name.num p _   => isInaccessibleUserName p
@@ -755,7 +754,6 @@ def mkCIdent (c : Name) : Ident :=
 /--
 Creates an identifier from a name. The resulting identifier has no source position.
 -/
-@[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
   ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 

@@ -247,7 +247,7 @@ protected theorem min_map
     (xs.map f).min (by simpa) = f (xs.minOn f h) := by
   match xs with
   | x :: xs =>
-    simp only [List.minOn, map_cons, List.min, foldl_map]
+    simp only [List.minOn, map, List.min, foldl_map]
     rw [foldl_hom]
     simp [min_apply]
 

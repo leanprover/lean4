@@ -3744,12 +3744,12 @@ goto v_reusejp_1070_;
 }
 v_reusejp_1070_:
 {
-lean_object* v___x_1072_; lean_object* v___x_1073_; lean_object* v___x_1074_; lean_object* v___x_1075_; lean_object* v___x_58740__overap_1076_; lean_object* v___x_1077_; 
+lean_object* v___x_1072_; lean_object* v___x_1073_; lean_object* v___x_1074_; lean_object* v___x_1075_; lean_object* v___x_58905__overap_1076_; lean_object* v___x_1077_; 
 v___x_1072_ = l_StateRefT_x27_instMonad___redArg(v___x_1071_);
 v___x_1073_ = l_StateRefT_x27_instMonad___redArg(v___x_1072_);
 v___x_1074_ = l_Lean_Meta_Match_instInhabitedAltParamInfo_default;
 v___x_1075_ = l_instInhabitedOfMonad___redArg(v___x_1073_, v___x_1074_);
-v___x_58740__overap_1076_ = lean_panic_fn_borrowed(v___x_1075_, v_msg_989_);
+v___x_58905__overap_1076_ = lean_panic_fn_borrowed(v___x_1075_, v_msg_989_);
 lean_dec(v___x_1075_);
 lean_inc(v___y_997_);
 lean_inc_ref(v___y_996_);
@@ -3759,7 +3759,7 @@ lean_inc(v___y_993_);
 lean_inc_ref(v___y_992_);
 lean_inc(v___y_991_);
 lean_inc(v___y_990_);
-v___x_1077_ = lean_apply_9(v___x_58740__overap_1076_, v___y_990_, v___y_991_, v___y_992_, v___y_993_, v___y_994_, v___y_995_, v___y_996_, v___y_997_, lean_box(0));
+v___x_1077_ = lean_apply_9(v___x_58905__overap_1076_, v___y_990_, v___y_991_, v___y_992_, v___y_993_, v___y_994_, v___y_995_, v___y_996_, v___y_997_, lean_box(0));
 return v___x_1077_;
 }
 }
@@ -6217,9 +6217,9 @@ lean_object* v___y_2113_ = _args[17];
 lean_object* v___y_2114_ = _args[18];
 _start:
 {
-uint8_t v___x_67137__boxed_2115_; lean_object* v_res_2116_; 
-v___x_67137__boxed_2115_ = lean_unbox(v___x_2100_);
-v_res_2116_ = l_Array_zipWithMAux___at___00__private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loopGo_spec__14___lam__0(v___x_2096_, v_b_2097_, v_recFnName_2098_, v_fixedPrefixSize_2099_, v___x_67137__boxed_2115_, v___x_2101_, v_a_2102_, v_e_2103_, v_xs_2104_, v_altBody_2105_, v___y_2106_, v___y_2107_, v___y_2108_, v___y_2109_, v___y_2110_, v___y_2111_, v___y_2112_, v___y_2113_);
+uint8_t v___x_67302__boxed_2115_; lean_object* v_res_2116_; 
+v___x_67302__boxed_2115_ = lean_unbox(v___x_2100_);
+v_res_2116_ = l_Array_zipWithMAux___at___00__private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loopGo_spec__14___lam__0(v___x_2096_, v_b_2097_, v_recFnName_2098_, v_fixedPrefixSize_2099_, v___x_67302__boxed_2115_, v___x_2101_, v_a_2102_, v_e_2103_, v_xs_2104_, v_altBody_2105_, v___y_2106_, v___y_2107_, v___y_2108_, v___y_2109_, v___y_2110_, v___y_2111_, v___y_2112_, v___y_2113_);
 lean_dec(v___y_2113_);
 lean_dec_ref(v___y_2112_);
 lean_dec(v___y_2111_);

@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic
-open Meta
+open Lean Meta
 
 /-!
 `grind` parameter elaboration

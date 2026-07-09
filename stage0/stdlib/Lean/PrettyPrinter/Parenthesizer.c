@@ -12961,7 +12961,7 @@ if (v___y_4780_ == 0)
 if (lean_obj_tag(v___y_4776_) == 0)
 {
 lean_dec_ref_known(v___y_4776_, 2);
-return v___y_4779_;
+return v___y_4775_;
 }
 else
 {
@@ -12969,18 +12969,18 @@ lean_object* v_id_4781_; uint8_t v___x_4782_;
 v_id_4781_ = lean_ctor_get(v___y_4776_, 0);
 lean_inc(v_id_4781_);
 lean_dec_ref_known(v___y_4776_, 2);
-v___x_4782_ = l_Lean_instBEqInternalExceptionId_beq(v___y_4775_, v_id_4781_);
+v___x_4782_ = l_Lean_instBEqInternalExceptionId_beq(v___y_4778_, v_id_4781_);
 lean_dec(v_id_4781_);
 if (v___x_4782_ == 0)
 {
-return v___y_4779_;
+return v___y_4775_;
 }
 else
 {
 lean_object* v___x_4783_; lean_object* v___x_4784_; 
-lean_dec_ref(v___y_4779_);
+lean_dec_ref(v___y_4775_);
 v___x_4783_ = lean_obj_once(&l_Lean_PrettyPrinter_parenthesize___closed__1, &l_Lean_PrettyPrinter_parenthesize___closed__1_once, _init_l_Lean_PrettyPrinter_parenthesize___closed__1);
-v___x_4784_ = l_Lean_throwError___at___00__private_Lean_PrettyPrinter_Parenthesizer_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Parenthesizer_3524817857____hygCtx___hyg_2__spec__2___redArg(v___x_4783_, v___y_4778_, v___y_4777_);
+v___x_4784_ = l_Lean_throwError___at___00__private_Lean_PrettyPrinter_Parenthesizer_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Parenthesizer_3524817857____hygCtx___hyg_2__spec__2___redArg(v___x_4783_, v___y_4777_, v___y_4779_);
 return v___x_4784_;
 }
 }
@@ -12988,7 +12988,7 @@ return v___x_4784_;
 else
 {
 lean_dec_ref(v___y_4776_);
-return v___y_4779_;
+return v___y_4775_;
 }
 }
 v___jp_4785_:
@@ -13113,21 +13113,21 @@ if (v___x_4816_ == 0)
 uint8_t v___x_4817_; 
 lean_inc(v_a_4809_);
 v___x_4817_ = l_Lean_Exception_isRuntime(v_a_4809_);
-v___y_4775_ = v___x_4813_;
+v___y_4775_ = v___x_4815_;
 v___y_4776_ = v_a_4809_;
-v___y_4777_ = v___y_4788_;
-v___y_4778_ = v___y_4786_;
-v___y_4779_ = v___x_4815_;
+v___y_4777_ = v___y_4786_;
+v___y_4778_ = v___x_4813_;
+v___y_4779_ = v___y_4788_;
 v___y_4780_ = v___x_4817_;
 goto v___jp_4774_;
 }
 else
 {
-v___y_4775_ = v___x_4813_;
+v___y_4775_ = v___x_4815_;
 v___y_4776_ = v_a_4809_;
-v___y_4777_ = v___y_4788_;
-v___y_4778_ = v___y_4786_;
-v___y_4779_ = v___x_4815_;
+v___y_4777_ = v___y_4786_;
+v___y_4778_ = v___x_4813_;
+v___y_4779_ = v___y_4788_;
 v___y_4780_ = v___x_4816_;
 goto v___jp_4774_;
 }

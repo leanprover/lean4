@@ -4243,7 +4243,7 @@ goto v_resetjp_1239_;
 }
 v_resetjp_1239_:
 {
-uint8_t v___x_1242_; lean_object* v_a_1243_; lean_object* v___y_1245_; uint8_t v___y_1246_; lean_object* v___y_1247_; lean_object* v___y_1248_; lean_object* v___y_1249_; lean_object* v_a_1250_; 
+uint8_t v___x_1242_; lean_object* v_a_1243_; lean_object* v___y_1245_; lean_object* v___y_1246_; lean_object* v___y_1247_; uint8_t v___y_1248_; lean_object* v___y_1249_; lean_object* v_a_1250_; 
 v___x_1242_ = 0;
 v_a_1243_ = lean_array_uget_borrowed(v_as_1213_, v_i_1215_);
 if (lean_obj_tag(v_a_1243_) == 0)
@@ -4678,10 +4678,10 @@ v_a_1352_ = lean_ctor_get(v_a_1348_, 0);
 lean_inc(v_a_1352_);
 lean_dec(v_a_1348_);
 lean_inc(v_paramIdx_1340_);
-v___y_1245_ = v___x_1341_;
-v___y_1246_ = v_dependsOnDiscr_1345_;
-v___y_1247_ = v___x_1351_;
-v___y_1248_ = v_paramIdx_1340_;
+v___y_1245_ = v___x_1351_;
+v___y_1246_ = v_paramIdx_1340_;
+v___y_1247_ = v___x_1341_;
+v___y_1248_ = v_dependsOnDiscr_1345_;
 v___y_1249_ = v_decl_1344_;
 v_a_1250_ = v_a_1352_;
 goto v___jp_1244_;
@@ -4914,7 +4914,7 @@ v_fvarId_1251_ = lean_ctor_get(v___y_1249_, 0);
 lean_inc(v_fvarId_1251_);
 lean_dec_ref(v___y_1249_);
 lean_inc_ref(v_params_1211_);
-v___x_1252_ = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpArgsAtJp(v_params_1211_, v___y_1248_, v___y_1245_, v___y_1246_);
+v___x_1252_ = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpArgsAtJp(v_params_1211_, v___y_1246_, v___y_1247_, v___y_1248_);
 v___x_1253_ = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(v___x_1253_, 0, v_fvarId_1251_);
 lean_ctor_set(v___x_1253_, 1, v___x_1252_);
@@ -4924,7 +4924,7 @@ v___x_1255_ = lean_array_push(v_snd_1238_, v___x_1254_);
 if (v_isShared_1241_ == 0)
 {
 lean_ctor_set(v___x_1240_, 1, v___x_1255_);
-lean_ctor_set(v___x_1240_, 0, v___y_1247_);
+lean_ctor_set(v___x_1240_, 0, v___y_1245_);
 v___x_1257_ = v___x_1240_;
 goto v_reusejp_1256_;
 }
@@ -4932,7 +4932,7 @@ else
 {
 lean_object* v_reuseFailAlloc_1261_; 
 v_reuseFailAlloc_1261_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_1261_, 0, v___y_1247_);
+lean_ctor_set(v_reuseFailAlloc_1261_, 0, v___y_1245_);
 lean_ctor_set(v_reuseFailAlloc_1261_, 1, v___x_1255_);
 v___x_1257_ = v_reuseFailAlloc_1261_;
 goto v_reusejp_1256_;

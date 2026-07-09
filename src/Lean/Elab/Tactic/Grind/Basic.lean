@@ -336,6 +336,16 @@ def liftGrindM (k : GrindM α) : GrindTacticM α := do
   modify fun s => { s with grindState, symState }
   return a
 
+/-- Lifts a `SymM` computation into `GrindTacticM`. -/
+def liftSymM (k : Sym.SymM α) : GrindTacticM α := do
+  -- GrindM := ... Sym.SymM, so SymM auto-lifts to GrindM
+  liftGrindM k
+
+/-- Throws an error unless the tactic is being executed in `sym =>` mode. -/
+def ensureSym : GrindTacticM Unit := do
+  unless (← read).sym do
+    throwError "tactic is only available in `sym =>` mode"
+
 def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
   let goals := goals.filter fun goal => !goal.inconsistent
   let (_ :: goals') ← getGoals | throwNoGoalsToBeSolved

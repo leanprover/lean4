@@ -130,3 +130,21 @@ theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by
   sym =>
     vcgen [mySum] invariants?
     all_goals tactic => admit
+
+/-! ## Selecting `vcgen` goals by their `vc<n>` tags with `case` -/
+
+example :
+    ⦃ (True : Prop) ⦄
+    (do
+      let mut x := 0
+      for i in [1:5] do
+        x := x + i
+      pure x : Id Nat)
+    ⦃ fun r => r < 30 ⦄ := by
+  sym =>
+    vcgen invariants
+      · fun xs r => r + xs.suffix.length * 5 ≤ 25
+    case vc3 b a x => finish
+    case vc1 => tactic => simp +arith
+    case vc2 x _ =>
+      tactic => show x < 30; grind

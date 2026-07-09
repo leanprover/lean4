@@ -1417,7 +1417,7 @@ Options:
   It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
   and (2) it reduces the `Decidable` instance only once instead of twice.
 - `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
-  admitting the result via an axiom. This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
+  admitting the result via an axiom.
   This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   of the trusted code base.
   Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.

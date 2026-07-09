@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
+import Lean.Meta.Tactic.Intro
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.AlphaShareBuilder
@@ -13,8 +14,12 @@ namespace Lean.Meta.Sym
 open Internal
 /--
 Efficient `intro` for symbolic simulation.
+
+Binders without a name in `names` are named after their binder name. If `hygienic` is `true`, those
+names are made inaccessible (fresh macro scopes); otherwise they are accessible names unused in the
+(incrementally built) local context.
 -/
-def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) : SymM (Array FVarId × MVarId) := do
+def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Bool) : SymM (Array FVarId × MVarId) := do
   if max == 0 then return (#[], mvarId)
   let env ← getEnv
   let mvarDecl ← mvarId.getDecl
@@ -55,11 +60,11 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) : SymM (Array F
     let mvarId' := mvar'.mvarId!
     mkValueAndAssign fvars mvarId'
     return (fvars, mvarId')
-  let mkName (binderName : Name) (i : Nat) : MetaM Name := do
+  let mkName (lctx : LocalContext) (binderName : Name) (i : Nat) : MetaM Name := do
     if h : i < names.size then
       return names[i]
     else
-      mkFreshUserName binderName
+      mkFreshBinderNameForTacticCore lctx binderName hygienic
   let updateLocalInsts (localInsts : LocalInstances) (fvar : Expr) (type : Expr) : LocalInstances :=
     if let some className := isClass? env type then
       localInsts.push { fvar, className }
@@ -73,7 +78,7 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) : SymM (Array F
     | .forallE n type body bi =>
       let type       ← instantiateRevS type fvars
       let fvarId     ← mkFreshFVarId
-      let lctx       := lctx.mkLocalDecl fvarId (← mkName n i) type bi
+      let lctx       := lctx.mkLocalDecl fvarId (← mkName lctx n i) type bi
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type
@@ -87,7 +92,7 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) : SymM (Array F
       This is fine here since we never revert them in the Sym framework.
       **Note**: If `type` is a proposition we could use a `cdecl`.
       -/
-      let lctx       := lctx.mkLetDecl fvarId (← mkName n i) type value
+      let lctx       := lctx.mkLetDecl fvarId (← mkName lctx n i) type value
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type
@@ -106,16 +111,17 @@ public inductive IntrosResult where
 Introduces leading binders (universal quantifiers and let-expressions) from the goal's target type.
 
 If `names` is non-empty, introduces (at most) `names.size` binders using the provided names.
-If `names` is empty, introduces all leading binders using inaccessible names.
+If `names` is empty, introduces all leading binders using names derived from the binder names;
+`hygienic` then controls whether those names are inaccessible (see `introCore`).
 
 Returns `.goal newDecls mvarId` with new introduced free variable Ids and the updated goal.
 Returns `.failed` if no new declaration was introduced.
 -/
-public def intros (mvarId : MVarId) (names : Array Name := #[]) : SymM IntrosResult := do
+public def intros (mvarId : MVarId) (names : Array Name := #[]) (hygienic : Bool := true) : SymM IntrosResult := do
   let result ← if names.isEmpty then
-    introCore mvarId hugeNat #[]
+    introCore mvarId hugeNat #[] hygienic
   else
-    introCore mvarId  names.size names
+    introCore mvarId names.size names hygienic
   if result.1.isEmpty then
     return .failed
   return .goal result.1 result.2
@@ -127,8 +133,8 @@ Returns `.goal newDecls mvarId` if successful where `newDecls` are the introduce
 `mvarId` the updated goal.
 Returns `.failed` if it was not possible to introduce `num` new local declarations.
 -/
-public def introN (mvarId : MVarId) (num : Nat) : SymM IntrosResult := do
-  let result ← introCore mvarId num #[]
+public def introN (mvarId : MVarId) (num : Nat) (hygienic : Bool := true) : SymM IntrosResult := do
+  let result ← introCore mvarId num #[] hygienic
   unless result.1.size == num do
     return .failed
   return .goal result.1 result.2

@@ -29,7 +29,7 @@ Examples:
 * `"abc".push 'd' = "abcd"`
 * `"".push 'a' = "a"`
 -/
-@[extern "lean_string_push", expose]
+@[extern "lean_string_push", expose, implicit_reducible]
 def push : String → Char → String
   | ⟨b, h⟩, c => ⟨b.append (List.utf8Encode [c]), ?pf⟩
 where finally
@@ -48,7 +48,7 @@ Examples:
  * `String.singleton '"' = "\""`
  * `String.singleton '𝒫' = "𝒫"`
 -/
-@[inline, expose] def singleton (c : Char) : String :=
+@[inline, expose, implicit_reducible] def singleton (c : Char) : String :=
   "".push c
 
 end String
@@ -219,7 +219,7 @@ Examples:
  * `'L'.toString = "L"`
  * `'"'.toString = "\""`
 -/
-@[inline, expose] protected def toString (c : Char) : String :=
+@[inline, expose, implicit_reducible] protected def toString (c : Char) : String :=
   String.singleton c
 
 end Char

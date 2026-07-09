@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC.Seq
-// Imports: public import Init.Grind.AC public import Init.Data.Ord import Init.Data.Nat.Linear
+// Imports: public import Init.Grind.AC public import Init.Data.Ord import Init.Data.Nat.Internal.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3372,7 +3372,7 @@ return v_r_977_;
 }
 lean_object* runtime_initialize_Init_Grind_AC(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Ord(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_AC_Seq(uint8_t builtin) {
 lean_object * res;
@@ -3384,7 +3384,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_AC_instInhabitedStartsWithResult_default = _init_l_Lean_Grind_AC_instInhabitedStartsWithResult_default();
@@ -3404,7 +3404,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Grind_AC(uint8_t builtin);
 lean_object* initialize_Init_Data_Ord(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_AC_Seq(uint8_t builtin) {
 lean_object * res;
@@ -3416,7 +3416,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Grind_AC_Seq(builtin);

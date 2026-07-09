@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Time.Zoned.ZoneRules
 public import Std.Time.Zoned.Database.TzIf
+import Std.Time.Zoned.Database.PosixTz
 
 public section
 
@@ -32,6 +33,7 @@ protected class Database (α : Type) where
   getLocalZoneRules : α → IO TimeZone.ZoneRules
 
 namespace TimeZone
+open Internal
 
 /--
 Converts a Boolean value to a corresponding `StdWall` type.
@@ -103,11 +105,26 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
 
   .ok { transitions, initialLocalTimeType }
 
+
 /--
-Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.
+Converts a `TZif.TZifV2` structure to a `ZoneRules` structure, extending transitions beyond
+the last stored entry using the POSIX TZ footer string when present.
 -/
 def convertTZifV2 (tz : TZif.TZifV2) (id : String) : Except String ZoneRules := do
-   convertTZifV1 tz.toTZifV1 id
+  let rules ← convertTZifV1 tz.toTZifV1 id
+
+  let some footer := tz.footer
+    | return rules
+
+  -- TZif v3 files allow extended hour ranges (±0–167) in transition times (RFC 8536 §3.3).
+  let extended := tz.header.version == '3'.toUInt8
+
+  if footer == "" then
+    return rules
+
+  match parsePosixTz footer extended with
+  | .ok transitionRule => return { rules with transitionRule := some transitionRule }
+  | .error err => throw s!"failed to parse tzif footer: {err}"
 
 /--
 Converts a `TZif.TZif` structure to a `ZoneRules` structure.

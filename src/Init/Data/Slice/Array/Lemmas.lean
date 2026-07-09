@@ -44,16 +44,8 @@ theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
   simp only [Iter.step, IterM.Step.toPure, Iter.toIter_toIterM, IterStep.mapIterator, IterM.step,
     Iterator.step, SubarrayIterator.step, Id.run_pure, Shrink.inflate_deflate]
   by_cases h : it.internalState.xs.start < it.internalState.xs.stop
-  · simp only [h, ↓reduceDIte]
-    split
-    · rfl
-    · rename_i h'
-      exact h'.elim h
-  · simp only [h, ↓reduceDIte]
-    split
-    · rename_i h'
-      exact h.elim h'
-    · rfl
+  · simp [h, ↓reduceDIte]
+  · simp [h, ↓reduceDIte]
 
 theorem val_step_eq {it : Iter (α := SubarrayIterator α) α} :
     it.step.val = if h : it.1.xs.start < it.1.xs.stop then

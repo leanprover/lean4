@@ -137,13 +137,14 @@ to find candidate lemmas.
 
 open LazyDiscrTree (InitEntry findMatches)
 
-private def addImport (name : Name) (constInfo : ConstantInfo) :
+private def addImport (name : Name) (c : AsyncConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) := do
   -- Don't report deprecated lemmas.
   if Linter.isDeprecated (← getEnv) name then return #[]
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[] else
-  forallTelescope constInfo.type fun _ type => do
+  -- Only the signature is needed; this avoids blocking on async theorem bodies (lean4#13705).
+  forallTelescope c.toConstantVal.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
     let a := #[e]
     if e.key == .const ``Iff 2 then

@@ -120,6 +120,15 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_D
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_mkGateCached_go___at___00Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2_spec__6_spec__10_spec__18(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_mkGateCached_go___at___00Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2_spec__6_spec__10_spec__17_spec__21(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_mkGateCached_go___at___00Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2_spec__6_spec__10_spec__17_spec__21_spec__24(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__9_splitter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__9_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__9_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__7_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__7_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__2___redArg(lean_object* v_target_1_){
 _start:
 {
@@ -4399,6 +4408,171 @@ _start:
 lean_object* v___x_1248_; 
 v___x_1248_ = l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_mkGateCached_go___at___00Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2_spec__6_spec__10_spec__17_spec__21_spec__24___redArg(v_x_1246_, v_x_1247_);
 return v___x_1248_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__9_splitter___redArg(lean_object* v_input_1249_, lean_object* v_h__1_1250_){
+_start:
+{
+lean_object* v_val_1251_; lean_object* v_cache_1252_; lean_object* v___x_1253_; 
+v_val_1251_ = lean_ctor_get(v_input_1249_, 0);
+lean_inc(v_val_1251_);
+v_cache_1252_ = lean_ctor_get(v_input_1249_, 1);
+lean_inc_ref(v_cache_1252_);
+lean_dec_ref(v_input_1249_);
+v___x_1253_ = lean_apply_2(v_h__1_1250_, v_val_1251_, v_cache_1252_);
+return v___x_1253_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__9_splitter(lean_object* v_aig_1254_, lean_object* v_motive_1255_, lean_object* v_input_1256_, lean_object* v_h__1_1257_){
+_start:
+{
+lean_object* v_val_1258_; lean_object* v_cache_1259_; lean_object* v___x_1260_; 
+v_val_1258_ = lean_ctor_get(v_input_1256_, 0);
+lean_inc(v_val_1258_);
+v_cache_1259_ = lean_ctor_get(v_input_1256_, 1);
+lean_inc_ref(v_cache_1259_);
+lean_dec_ref(v_input_1256_);
+v___x_1260_ = lean_apply_2(v_h__1_1257_, v_val_1258_, v_cache_1259_);
+return v___x_1260_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__9_splitter___boxed(lean_object* v_aig_1261_, lean_object* v_motive_1262_, lean_object* v_input_1263_, lean_object* v_h__1_1264_){
+_start:
+{
+lean_object* v_res_1265_; 
+v_res_1265_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__9_splitter(v_aig_1261_, v_motive_1262_, v_input_1263_, v_h__1_1264_);
+lean_dec_ref(v_aig_1261_);
+return v_res_1265_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__7_splitter___redArg(lean_object* v_pred_1266_, lean_object* v_h__1_1267_, lean_object* v_h__2_1268_){
+_start:
+{
+if (lean_obj_tag(v_pred_1266_) == 0)
+{
+lean_object* v_w_1269_; lean_object* v_lhs_1270_; uint8_t v_op_1271_; lean_object* v_rhs_1272_; lean_object* v___x_1273_; lean_object* v___x_1274_; 
+lean_dec(v_h__2_1268_);
+v_w_1269_ = lean_ctor_get(v_pred_1266_, 0);
+lean_inc(v_w_1269_);
+v_lhs_1270_ = lean_ctor_get(v_pred_1266_, 1);
+lean_inc_ref(v_lhs_1270_);
+v_op_1271_ = lean_ctor_get_uint8(v_pred_1266_, sizeof(void*)*3);
+v_rhs_1272_ = lean_ctor_get(v_pred_1266_, 2);
+lean_inc_ref(v_rhs_1272_);
+lean_dec_ref_known(v_pred_1266_, 3);
+v___x_1273_ = lean_box(v_op_1271_);
+v___x_1274_ = lean_apply_4(v_h__1_1267_, v_w_1269_, v_lhs_1270_, v___x_1273_, v_rhs_1272_);
+return v___x_1274_;
+}
+else
+{
+lean_object* v_w_1275_; lean_object* v_expr_1276_; lean_object* v_idx_1277_; lean_object* v___x_1278_; 
+lean_dec(v_h__1_1267_);
+v_w_1275_ = lean_ctor_get(v_pred_1266_, 0);
+lean_inc(v_w_1275_);
+v_expr_1276_ = lean_ctor_get(v_pred_1266_, 1);
+lean_inc_ref(v_expr_1276_);
+v_idx_1277_ = lean_ctor_get(v_pred_1266_, 2);
+lean_inc(v_idx_1277_);
+lean_dec_ref_known(v_pred_1266_, 3);
+v___x_1278_ = lean_apply_3(v_h__2_1268_, v_w_1275_, v_expr_1276_, v_idx_1277_);
+return v___x_1278_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__7_splitter(lean_object* v_motive_1279_, lean_object* v_pred_1280_, lean_object* v_h__1_1281_, lean_object* v_h__2_1282_){
+_start:
+{
+if (lean_obj_tag(v_pred_1280_) == 0)
+{
+lean_object* v_w_1283_; lean_object* v_lhs_1284_; uint8_t v_op_1285_; lean_object* v_rhs_1286_; lean_object* v___x_1287_; lean_object* v___x_1288_; 
+lean_dec(v_h__2_1282_);
+v_w_1283_ = lean_ctor_get(v_pred_1280_, 0);
+lean_inc(v_w_1283_);
+v_lhs_1284_ = lean_ctor_get(v_pred_1280_, 1);
+lean_inc_ref(v_lhs_1284_);
+v_op_1285_ = lean_ctor_get_uint8(v_pred_1280_, sizeof(void*)*3);
+v_rhs_1286_ = lean_ctor_get(v_pred_1280_, 2);
+lean_inc_ref(v_rhs_1286_);
+lean_dec_ref_known(v_pred_1280_, 3);
+v___x_1287_ = lean_box(v_op_1285_);
+v___x_1288_ = lean_apply_4(v_h__1_1281_, v_w_1283_, v_lhs_1284_, v___x_1287_, v_rhs_1286_);
+return v___x_1288_;
+}
+else
+{
+lean_object* v_w_1289_; lean_object* v_expr_1290_; lean_object* v_idx_1291_; lean_object* v___x_1292_; 
+lean_dec(v_h__1_1281_);
+v_w_1289_ = lean_ctor_get(v_pred_1280_, 0);
+lean_inc(v_w_1289_);
+v_expr_1290_ = lean_ctor_get(v_pred_1280_, 1);
+lean_inc_ref(v_expr_1290_);
+v_idx_1291_ = lean_ctor_get(v_pred_1280_, 2);
+lean_inc(v_idx_1291_);
+lean_dec_ref_known(v_pred_1280_, 3);
+v___x_1292_ = lean_apply_3(v_h__2_1282_, v_w_1289_, v_expr_1290_, v_idx_1291_);
+return v___x_1292_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___redArg(uint8_t v_op_1293_, lean_object* v_h__1_1294_, lean_object* v_h__2_1295_){
+_start:
+{
+if (v_op_1293_ == 0)
+{
+lean_object* v___x_1296_; lean_object* v___x_1297_; 
+lean_dec(v_h__2_1295_);
+v___x_1296_ = lean_box(0);
+v___x_1297_ = lean_apply_1(v_h__1_1294_, v___x_1296_);
+return v___x_1297_;
+}
+else
+{
+lean_object* v___x_1298_; lean_object* v___x_1299_; 
+lean_dec(v_h__1_1294_);
+v___x_1298_ = lean_box(0);
+v___x_1299_ = lean_apply_1(v_h__2_1295_, v___x_1298_);
+return v___x_1299_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___redArg___boxed(lean_object* v_op_1300_, lean_object* v_h__1_1301_, lean_object* v_h__2_1302_){
+_start:
+{
+uint8_t v_op_24__boxed_1303_; lean_object* v_res_1304_; 
+v_op_24__boxed_1303_ = lean_unbox(v_op_1300_);
+v_res_1304_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___redArg(v_op_24__boxed_1303_, v_h__1_1301_, v_h__2_1302_);
+return v_res_1304_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter(lean_object* v_motive_1305_, uint8_t v_op_1306_, lean_object* v_h__1_1307_, lean_object* v_h__2_1308_){
+_start:
+{
+if (v_op_1306_ == 0)
+{
+lean_object* v___x_1309_; lean_object* v___x_1310_; 
+lean_dec(v_h__2_1308_);
+v___x_1309_ = lean_box(0);
+v___x_1310_ = lean_apply_1(v_h__1_1307_, v___x_1309_);
+return v___x_1310_;
+}
+else
+{
+lean_object* v___x_1311_; lean_object* v___x_1312_; 
+lean_dec(v_h__1_1307_);
+v___x_1311_ = lean_box(0);
+v___x_1312_ = lean_apply_1(v_h__2_1308_, v___x_1311_);
+return v___x_1312_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___boxed(lean_object* v_motive_1313_, lean_object* v_op_1314_, lean_object* v_h__1_1315_, lean_object* v_h__2_1316_){
+_start:
+{
+uint8_t v_op_35__boxed_1317_; lean_object* v_res_1318_; 
+v_op_35__boxed_1317_ = lean_unbox(v_op_1314_);
+v_res_1318_ = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter(v_motive_1313_, v_op_35__boxed_1317_, v_h__1_1315_, v_h__2_1316_);
+return v_res_1318_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin);

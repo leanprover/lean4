@@ -50,7 +50,8 @@ command that the request is looking for and the request sends a "content changed
 namespace Lean.Server.FileWorker
 
 open Lsp
-open IO
+open Lean
+open _root_.IO
 open Snapshots
 open JsonRpc
 

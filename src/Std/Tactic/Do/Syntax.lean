@@ -413,6 +413,14 @@ docstring for `mvcgen`.
 syntax invariantAlts := invariantsKW withPosition((colGe (invariantDotAlt <|> invariantCaseAlt))*)
 
 /--
+A single `frames` alternative `| f a _ c => frame`: a program pattern (a head identifier applied to
+binder or `_` arguments, matched like the `until` pattern) and the frame assertion to apply when the
+spec for that program is used during VC generation. The named binders (e.g. `a`, `c`) are in scope
+in `frame`, bound to the matched arguments.
+-/
+syntax frameAlt := ppDedent(ppLine) "| " ident (ppSpace colGt binderIdent)* " => " (colGe term)
+
+/--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
@@ -456,6 +464,7 @@ syntax (name := vcgenDischargeTactic) (priority := low) tactic : vcgenDischarge
 syntax (name := vcgen) "vcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (&" until " term)?
+  (&" frames " withPosition((colGe frameAlt)+))?
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   (&" with " vcgenDischarge)? : tactic
@@ -467,6 +476,7 @@ steps using `<;>` instead. -/
 syntax (name := vcgen) "vcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (&" until " term)?
+  (&" frames " withPosition((colGe frameAlt)+))?
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   : grind

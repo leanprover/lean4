@@ -308,7 +308,21 @@ variable [Functor m]
 @[inline] public def getLeantar : m FilePath :=
   (·.leantar) <$> getLeanInstall
 
-/-- Returns the path of the {lit}`libleanshared` library in the detected Lean installation. -/
+/--
+Returns the primary core shared library
+(i.e., {lit}`libleanshared`) in the detected Lean installation.
+-/
+@[inline] public def getLeanSharedDynlib : m Dynlib :=
+  (·.sharedDynlib) <$> getLeanInstall
+
+/-- Returns the core shared libraries in the detected Lean installation. -/
+@[inline] public def getLeanSharedDynlibs : m (Array Dynlib) :=
+  (·.sharedDynlibs) <$> getLeanInstall
+
+/--
+Returns the path of the primary core shared library
+(i.e., {lit}`libleanshared`) in the detected Lean installation.
+-/
 @[inline] public def getLeanSharedLib : m FilePath :=
   (·.sharedLib) <$> getLeanInstall
 

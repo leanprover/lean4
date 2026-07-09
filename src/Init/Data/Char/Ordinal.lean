@@ -15,7 +15,7 @@ public import Init.Data.Char.Basic
 import Init.ByCases
 import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.Simproc
 import Init.Data.Option.Lemmas
 import Init.Data.UInt.Lemmas

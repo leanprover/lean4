@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Lemmas
-// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.Log2 import all Init.Data.Nat.Log2 import Init.TacticsExtra public import Init.Data.Nat.Div.Basic public import Init.PropLemmas import Init.ByCases import Init.Data.Nat.Dvd import Init.Data.Nat.Linear import Init.Data.Nat.MinMax import Init.Data.Nat.Mod import Init.Omega import Init.RCases
+// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.Log2 import all Init.Data.Nat.Log2 import Init.TacticsExtra public import Init.Data.Nat.Div.Basic public import Init.PropLemmas import Init.ByCases import Init.Data.Nat.Dvd import Init.Data.Nat.Internal.Linear import Init.Data.Nat.MinMax import Init.Data.Nat.Mod import Init.Omega import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -756,7 +756,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_PropLemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Dvd(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Mod(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
@@ -790,7 +790,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_MinMax(builtin);
@@ -822,7 +822,7 @@ lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
 lean_object* initialize_Init_PropLemmas(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
@@ -856,7 +856,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Dvd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_MinMax(builtin);

@@ -91,7 +91,7 @@ uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_Environment_mainModule(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
-lean_object* l_IO_AsyncList_waitAll___redArg(lean_object*);
+lean_object* l_Lean_AsyncList_waitAll___redArg(lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -4141,7 +4141,7 @@ v_ranges_1154_ = ((lean_object*)(l_Lean_Server_FileWorker_waitUnknownIdentifierR
 v___x_1155_ = l_Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges_spec__0(v_text_1151_, v_unreported_1153_, v_ranges_1154_);
 lean_dec_ref(v_unreported_1153_);
 lean_dec_ref(v_text_1151_);
-v___x_1156_ = l_IO_AsyncList_waitAll___redArg(v_cmdSnaps_1150_);
+v___x_1156_ = l_Lean_AsyncList_waitAll___redArg(v_cmdSnaps_1150_);
 v___x_1157_ = lean_task_get_own(v___x_1156_);
 v_fst_1158_ = lean_ctor_get(v___x_1157_, 0);
 lean_inc(v_fst_1158_);

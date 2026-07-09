@@ -207,7 +207,7 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
     (Vector.mk xs h).reverse = Vector.mk xs.reverse (by simp [h]) := rfl
 
 @[simp] theorem set_mk {xs : Array α} (h : xs.size = n) {i x} (w) :
-    (Vector.mk xs h).set i x = Vector.mk (xs.set i x) (by simp [h]) := rfl
+    (Vector.mk xs h).set i x w = Vector.mk (xs.set i x) (by simp [h]) := rfl
 
 @[simp] theorem set!_mk {xs : Array α} (h : xs.size = n) {i x} :
     (Vector.mk xs h).set! i x = Vector.mk (xs.set! i x) (by simp [h]) := rfl
@@ -215,14 +215,14 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem setIfInBounds_mk {xs : Array α} (h : xs.size = n) {i x} :
     (Vector.mk xs h).setIfInBounds i x = Vector.mk (xs.setIfInBounds i x) (by simp [h]) := rfl
 
-@[simp] theorem swap_mk {xs : Array α} (h : xs.size = n) {i j} (hi hj) :
+@[simp] theorem swap_mk {xs : Array α} (h : xs.size = n) {i j} (hi : i < n) (hj : j < n) :
     (Vector.mk xs h).swap i j = Vector.mk (xs.swap i j) (by simp [h]) :=
   rfl
 
 @[simp] theorem swapIfInBounds_mk {xs : Array α} (h : xs.size = n) {i j} :
     (Vector.mk xs h).swapIfInBounds i j = Vector.mk (xs.swapIfInBounds i j) (by simp [h]) := rfl
 
-@[simp] theorem swapAt_mk {xs : Array α} (h : xs.size = n) {i x} (hi) :
+@[simp] theorem swapAt_mk {xs : Array α} (h : xs.size = n) {i x} (hi : i < n) :
     (Vector.mk xs h).swapAt i x =
       ((xs.swapAt i x).fst, Vector.mk (xs.swapAt i x).snd (by simp [h])) :=
   rfl
@@ -382,7 +382,7 @@ private theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs 
 
 @[simp, grind =] theorem toArray_reverse (xs : Vector α n) : xs.reverse.toArray = xs.toArray.reverse := rfl
 
-@[simp, grind =] theorem toArray_set {xs : Vector α n} {i x} (h) :
+@[simp, grind =] theorem toArray_set {xs : Vector α n} {i x} (h : i < n) :
     (xs.set i x).toArray = xs.toArray.set i x (by simpa using h):= rfl
 
 @[simp, grind =] theorem toArray_set! {xs : Vector α n} {i x} :
@@ -393,13 +393,13 @@ private theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs 
 
 @[simp, grind =] theorem toArray_singleton {x : α} : (Vector.singleton x).toArray = #[x] := rfl
 
-@[simp, grind =] theorem toArray_swap {xs : Vector α n} {i j} (hi hj) : (xs.swap i j).toArray =
-    xs.toArray.swap i j (by simp [hj]) (by simp [hi]) := rfl
+@[simp, grind =] theorem toArray_swap {xs : Vector α n} {i j} (hi : i < n) (hj : j < n) : (xs.swap i j).toArray =
+    xs.toArray.swap i j (by simp [hi]) (by simp [hj]) := rfl
 
 @[simp, grind =] theorem toArray_swapIfInBounds {xs : Vector α n} {i j} :
     (xs.swapIfInBounds i j).toArray = xs.toArray.swapIfInBounds i j := rfl
 
-theorem toArray_swapAt {xs : Vector α n} {i x} (h) :
+theorem toArray_swapAt {xs : Vector α n} {i x} (h : i < n) :
     ((xs.swapAt i x).fst, (xs.swapAt i x).snd.toArray) =
       ((xs.toArray.swapAt i x (by simpa using h)).fst,
         (xs.toArray.swapAt i x (by simpa using h)).snd) := rfl
@@ -630,7 +630,7 @@ theorem toList_range : (Vector.range n).toList = List.range n := by simp [toList
 
 @[simp] theorem toList_reverse {xs : Vector α n} : xs.reverse.toList = xs.toList.reverse := by simp [toList]
 
-theorem toList_set {xs : Vector α n} {i x} (h) :
+theorem toList_set {xs : Vector α n} {i x} (h : i < n) :
     (xs.set i x).toList = xs.toList.set i x := rfl
 
 @[simp] theorem toList_setIfInBounds {xs : Vector α n} {i x} :
@@ -639,7 +639,7 @@ theorem toList_set {xs : Vector α n} {i x} (h) :
 
 theorem toList_singleton {x : α} : (Vector.singleton x).toList = [x] := rfl
 
-theorem toList_swap {xs : Vector α n} {i j} (hi hj) :
+theorem toList_swap {xs : Vector α n} {i j} (hi : i < n) (hj : j < n) :
     (xs.swap i j).toList = (xs.toList.set i xs[j]).set j xs[i] := rfl
 
 @[simp] theorem toList_take {xs : Vector α n} {i} : (xs.take i).toList = xs.toList.take i := by
@@ -1074,21 +1074,21 @@ theorem getElem_of_mem {a} {xs : Vector α n} (h : a ∈ xs) : ∃ (i : Nat) (h 
   simpa using Array.getElem_of_mem (by simpa using h)
 
 theorem getElem?_of_mem {a} {xs : Vector α n} (h : a ∈ xs) : ∃ i : Nat, xs[i]? = some a :=
-  let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
+  let ⟨n, hn, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem hn⟩
 
-theorem mem_of_getElem {xs : Vector α n} {i : Nat} {h} {a : α} (e : xs[i] = a) : a ∈ xs := by
+theorem mem_of_getElem {xs : Vector α n} {i : Nat} {h : i < n} {a : α} (e : xs[i] = a) : a ∈ xs := by
   subst e
   simp
 
 theorem mem_of_getElem? {xs : Vector α n} {i : Nat} {a : α} (e : xs[i]? = some a) : a ∈ xs :=
-  let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
+  let ⟨w, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem w
 
 theorem mem_of_back? {xs : Vector α n} {a : α} (h : xs.back? = some a) : a ∈ xs := by
   cases xs
   simpa using Array.mem_of_back? (by simpa using h)
 
 theorem mem_iff_getElem {a} {xs : Vector α n} : a ∈ xs ↔ ∃ (i : Nat) (h : i < n), xs[i]'h = a :=
-  ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
+  ⟨getElem_of_mem, fun ⟨_, w, e⟩ => e ▸ getElem_mem w⟩
 
 theorem mem_iff_getElem? {a} {xs : Vector α n} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
@@ -1327,7 +1327,7 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
   simp
 
 theorem set_push {xs : Vector α n} {x y : α} {h} :
-    (xs.push x).set i y = if _ : i < n then (xs.set i y).push x else xs.push y := by
+    (xs.push x).set i y h = if _ : i < n then (xs.set i y).push x else xs.push y := by
   rcases xs with ⟨xs, rfl⟩
   simp only [push_mk, set_mk, Array.set_push]
   split <;> simp

@@ -438,8 +438,8 @@ theorem ge_of_not_lt {n m : Nat} (h : ¬ n < m) : n ≥ m := (Nat.lt_or_ge n m).
 protected theorem le_of_not_gt : ∀{a b : Nat}, ¬(b > a) → b ≤ a := Nat.ge_of_not_lt
 protected theorem le_of_not_lt : ∀{a b : Nat}, ¬(a < b) → b ≤ a := Nat.ge_of_not_lt
 
-theorem ne_of_gt {a b : Nat} (h : b < a) : a ≠ b := (ne_of_lt h).symm
-protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := ne_of_gt
+protected theorem ne_of_gt {a b : Nat} (h : b < a) : a ≠ b := (ne_of_lt h).symm
+protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := Nat.ne_of_gt
 
 @[simp] protected theorem not_le {a b : Nat} : ¬ a ≤ b ↔ b < a :=
   Iff.intro Nat.gt_of_not_le Nat.not_le_of_gt
@@ -509,7 +509,7 @@ protected theorem lt_add_of_pos_right (h : 0 < k) : n < n + k :=
 protected theorem zero_lt_one : 0 < (1:Nat) :=
   zero_lt_succ 0
 
-protected theorem pos_iff_ne_zero : 0 < n ↔ n ≠ 0 := ⟨ne_of_gt, Nat.pos_of_ne_zero⟩
+protected theorem pos_iff_ne_zero : 0 < n ↔ n ≠ 0 := ⟨Nat.ne_of_gt, Nat.pos_of_ne_zero⟩
 
 theorem add_le_add {a b c d : Nat} (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤ b + d :=
   Nat.le_trans (Nat.add_le_add_right h₁ c) (Nat.add_le_add_left h₂ b)

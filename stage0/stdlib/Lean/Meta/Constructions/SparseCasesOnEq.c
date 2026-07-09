@@ -83,7 +83,7 @@ lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 uint8_t l_Array_contains___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_refl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
-lean_object* l_refutableHasNotBit_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_refutableHasNotBit_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAbsurd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1523,7 +1523,7 @@ lean_object* v_a_442_; lean_object* v___x_443_;
 v_a_442_ = lean_ctor_get(v___x_441_, 0);
 lean_inc(v_a_442_);
 lean_dec_ref_known(v___x_441_, 1);
-v___x_443_ = l_refutableHasNotBit_x3f(v_a_442_, v___y_436_, v___y_437_, v___y_438_, v___y_439_);
+v___x_443_ = l_Lean_refutableHasNotBit_x3f(v_a_442_, v___y_436_, v___y_437_, v___y_438_, v___y_439_);
 if (lean_obj_tag(v___x_443_) == 0)
 {
 lean_object* v_a_444_; 

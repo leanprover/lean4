@@ -71,6 +71,7 @@ end Ex5
 
 namespace Ex6
 
+@[ext]
 structure Pair where
   x : BitVec 32
   y : BitVec 32
@@ -85,9 +86,11 @@ end Ex6
 
 namespace Ex7
 
+@[ext]
 structure Single where
   z : BitVec 32
 
+@[ext]
 structure Pair where
   x : BitVec 32
   y : Single
@@ -102,9 +105,11 @@ end Ex7
 
 namespace Ex8
 
+@[ext]
 structure Single where
   z : BitVec 32
 
+@[ext]
 structure Pair extends Single where
   x : BitVec 32
 
@@ -135,6 +140,7 @@ end Ex9
 
 namespace Ex10
 
+@[ext]
 structure Pair where
   x : BitVec 16
   y : BitVec 16

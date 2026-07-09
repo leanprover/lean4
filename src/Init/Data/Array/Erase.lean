@@ -323,7 +323,6 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {xs : Array α} {i : Nat} (h : i < xs.siz
     xs.eraseIdx i h = xs.eraseIdxIfInBounds i := by
   simp [eraseIdxIfInBounds, h]
 
-@[grind =]
 theorem eraseIdx_eq_take_drop_succ {xs : Array α} {i : Nat} (h) :
     xs.eraseIdx i h = xs.take i ++ xs.drop (i + 1) := by
   rcases xs with ⟨xs⟩
@@ -333,6 +332,9 @@ theorem eraseIdx_eq_take_drop_succ {xs : Array α} {i : Nat} (h) :
     List.size_toArray, List.append_toArray, mk.injEq, List.append_cancel_left_eq]
   rw [List.take_of_length_le]
   simp
+
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.take i
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.drop i
 
 @[grind =]
 theorem getElem?_eraseIdx {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} :

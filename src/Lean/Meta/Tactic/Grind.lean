@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Attr
-public import Lean.Meta.Tactic.Grind.RevertAll
+public import Lean.Meta.Tactic.Grind.MarkAccessible
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Cases

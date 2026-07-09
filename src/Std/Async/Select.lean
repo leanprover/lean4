@@ -100,16 +100,16 @@ structure Selectable (α : Type) where
     -/
     cont : β → Async α
 
-private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α :=
+private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α × StdGen :=
   go xs gen 0
 where
-  go (xs : Array α) (gen : StdGen) (i : Nat) : Array α :=
+  go (xs : Array α) (gen : StdGen) (i : Nat) : Array α × StdGen :=
     if _ : i < xs.size - 1 then
       let (j, gen) := randNat gen i (xs.size - 1)
       let xs := xs.swapIfInBounds i j
       go xs gen (i + 1)
     else
-      xs
+      (xs, gen)
 
 /--
 Performs fair and data-loss free multiplexing on the `Selectable`s in `selectables`.
@@ -126,9 +126,15 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
   if selectables.isEmpty then
     throw <| .userError "Selectable.one requires at least one Selectable"
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
+  /-
+  It might happen that two `Selectable.one` calls race this access to `IO.stdGenRef` and generate
+  the same random numbers for this shuffle. We believe this is okay as the job of this shuffle is
+  to introduce some basic fairness to the event sources across multiple sequential calls so
+  concurrent calls should not matter too much.
+  -/
+  let gen ← IO.stdGenRef.get
+  let (selectables, gen) := shuffleIt selectables gen
+  IO.stdGenRef.set gen
 
   let gate ← IO.Promise.new
 
@@ -148,7 +154,7 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
     let waiter := Waiter.mk finished waiterPromise
     selectable.selector.registerFn waiter
 
-    discard <| IO.bindTask (t := waiterPromise.result?) (sync := true) fun res? => do
+    discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
       match res? with
       | none =>
         /-
@@ -192,9 +198,10 @@ def Selectable.tryOne (selectables : Array (Selectable α)) : Async (Option α) 
   if selectables.isEmpty then
     return none
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
+  -- See note at Selectable.one
+  let gen ← IO.stdGenRef.get
+  let (selectables, gen) := shuffleIt selectables gen
+  IO.stdGenRef.set gen
 
   for selectable in selectables do
     if let some val ← selectable.selector.tryFn then
@@ -208,15 +215,13 @@ Creates a `Selector` that performs fair and data-loss free multiplexing on multi
 This allows the multiplexing operation to be composed with other selectors.
 -/
 def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) := do
-  if selectables.isEmpty then
-    throw <| .userError "Selectable.one requires at least one Selectable"
-
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
-
   return {
     tryFn := do
+      -- See note at Selectable.one
+      let gen ← IO.stdGenRef.get
+      let (selectables, gen) := shuffleIt selectables gen
+      IO.stdGenRef.set gen
+
       for selectable in selectables do
         if let some val ← selectable.selector.tryFn then
           let result ← selectable.cont val
@@ -224,12 +229,17 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
       return none
 
     registerFn := fun waiter => do
+      let gate ← IO.Promise.new
+
+      -- See note at Selectable.one
+      let gen ← IO.stdGenRef.get
+      let (selectables, gen) := shuffleIt selectables gen
+      IO.stdGenRef.set gen
+
       for selectable in selectables do
         let waiterPromise ← IO.Promise.new
         let derivedWaiter := Waiter.mk waiter.finished waiterPromise
         selectable.selector.registerFn derivedWaiter
-
-        let barrier ← IO.Promise.new
 
         discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
           match res? with
@@ -238,7 +248,7 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
             let async : Async _ := do
               let mainPromise := waiter.promise
 
-              await barrier
+              await gate
               for selectable in selectables do
                 selectable.selector.unregisterFn
 
@@ -249,6 +259,8 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
               catch e =>
                 mainPromise.resolve (.error e)
             async.toBaseIO
+
+      gate.resolve ()
 
     unregisterFn := do
       for selectable in selectables do

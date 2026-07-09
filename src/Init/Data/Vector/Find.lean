@@ -296,7 +296,7 @@ theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Vector 
   rfl
 
 theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} :
-    xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
+    xs.find? p = some b ↔ p b ∧ ∃ (i : Nat) (h : i < n), xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.find?_eq_some_iff_getElem]
 

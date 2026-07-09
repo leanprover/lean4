@@ -13,6 +13,8 @@ public section
 
 open Lean Meta Simp
 
+namespace Lean
+
 macro "declare_sint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
 let ofInt := typeName.getId ++ `ofInt
@@ -23,26 +25,26 @@ let fromExpr := mkIdent `fromExpr
 `(
 namespace $typeName
 
-def $fromExpr (e : Expr) : SimpM (Option $typeName) := do
+private def $fromExpr (e : Expr) : SimpM (Option $typeName) := do
   if let some (n, _) ← getOfNatValue? e $(quote typeName.getId) then
     return some ($(mkIdent ofNat) n)
   let_expr Neg.neg _ _ a ← e | return none
   let some (n, _) ← getOfNatValue? a $(quote typeName.getId) | return none
   return some ($(mkIdent ofInt) (- n))
 
-@[inline] def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
   return .done <| toExpr (op n m)
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM Step := do
+@[inline] private def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
   evalPropStep e (op n m)
 
-@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBoolPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
@@ -109,6 +111,8 @@ builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do
 
 end $typeName
 )
+
+end Lean
 
 declare_sint_simprocs Int8
 declare_sint_simprocs Int16

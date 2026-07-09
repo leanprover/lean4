@@ -37,6 +37,7 @@ structure Float32.Model where
   toBits : UInt32
   /-- The underlying bit pattern is valid according to the IEEE `binary32` format. -/
   valid : Float.Model.Format.binary32.Valid toBits.toBitVec
+deriving DecidableEq
 
 namespace Float32.Model
 

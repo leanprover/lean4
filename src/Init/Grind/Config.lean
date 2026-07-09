@@ -286,6 +286,9 @@ structure CutsatConfig extends NoopConfig where
   -- Re-enable E-matching, so the `@[lia]` lemma set is instantiated.
   -- The active theorem set is restricted to lemmas tagged `@[lia]`, not the full `@[grind]` set.
   ematch := ({} : Config).ematch
+  -- despite having e-matching for @[lia] we do not want (potentially runaway) local theorem
+  -- instantiation
+  genLocal := 0
 
 /--
 A `grind` configuration that only uses `linarith`.

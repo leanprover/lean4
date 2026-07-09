@@ -83,7 +83,7 @@ partial def processCommands : FrontendM Unit := do
 
 end Frontend
 
-open Frontend
+open Lean Frontend
 
 structure IncrementalState extends State where
   inputCtx    : Parser.InputContext

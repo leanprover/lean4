@@ -889,7 +889,7 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   | other msg                           => m!"(kernel) {msg}"
   | deterministicTimeout                => "(kernel) deterministic timeout"
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"
-  | deepRecursion                       => "(kernel) deep recursion detected"
+  | deepRecursion                       => "(kernel) deep recursion detected, use `set_option maxRecDepth <num>` to increase the limit"
   | interrupted                         => "(kernel) interrupted"
 
 end Kernel.Exception

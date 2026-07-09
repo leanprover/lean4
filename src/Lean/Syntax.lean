@@ -665,6 +665,23 @@ def Stack.matches (stack : Syntax.Stack) (pattern : List $ Option SyntaxNodeKind
     |>.zipWith (fun (s, _) p => p |>.map (s.isOfKind ·) |>.getD true) pattern
     |>.all id)
 
+/--
+Adds the given trailing substring to a `Syntax`' existing trailing substring if they are adjacent,
+otherwise returns `none`.
+-/
+def addTrailing? (stx : Syntax) (trailing : Substring.Raw) : Option Syntax := do
+  if let some (.original leading pos innerTrailing endPos) := stx.getTailInfo? then
+    if innerTrailing.stopPos == trailing.startPos then
+      let trailing := { innerTrailing with stopPos := trailing.stopPos }
+      return stx.setTailInfo (.original leading pos trailing endPos)
+  none
+
+/--
+Adds the given trailing substring to a `Syntax`' existing trailing substring if they are adjacent.
+-/
+def addTrailing (stx : Syntax) (trailing : Substring.Raw) : Syntax :=
+  stx.addTrailing? trailing |>.getD stx
+
 end Syntax
 
 end Lean

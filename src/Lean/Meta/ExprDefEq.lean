@@ -11,6 +11,8 @@ import Lean.Meta.WHNF
 public section
 namespace Lean.Meta
 
+open Lean
+
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
@@ -53,7 +55,7 @@ Controls the transparency used to check whether the type of metavariable matches
 term being assigned to it.
 -/
 register_builtin_option backward.isDefEq.respectTransparency.types : Bool := {
-  defValue := false -- TODO: replace with `true` after we fix stage0
+  defValue := true
   descr    := "if true, do not bump transparency to `.default` \
   when checking whether the type of a metavariable matches the type of the term being assigned to it."
 }

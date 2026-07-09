@@ -36,7 +36,7 @@ def containsFive (xs : List Nat) : Bool := Id.run do
 true
 ```
 -/
-@[expose] def Id (type : Type u) : Type u := type
+@[expose, implicit_reducible] def Id (type : Type u) : Type u := type
 
 namespace Id
 

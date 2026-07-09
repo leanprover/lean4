@@ -7,6 +7,9 @@ module
 
 prelude
 public import Std.Internal.Do.WP.Basic
+public import Std.Internal.Do.WP.Conjunctive
+public import Std.Internal.Do.WP.Frame
+public import Std.Internal.Do.WP.FrameGadget
 public import Std.Internal.Do.WP.Lemmas
 
 set_option linter.missingDocs true

@@ -17,6 +17,7 @@ public section
 
 namespace Lean.Meta.Rewrites
 
+open Lean
 open Lean.Meta.LazyDiscrTree (InitEntry MatchResult)
 open Lean.Meta.SolveByElim
 
@@ -42,9 +43,9 @@ inductive RwDirection : Type where
   | forward : RwDirection
   | backward : RwDirection
 
-private def addImport (name : Name) (constInfo : ConstantInfo) :
+private def addImport (name : Name) (c : AsyncConstantInfo) :
     MetaM (Array (InitEntry (Name × RwDirection))) := do
-  if constInfo.isUnsafe then return #[]
+  if c.isUnsafe then return #[]
   if !allowCompletion (←getEnv) name then return #[]
   -- Don't report deprecated lemmas.
   if Linter.isDeprecated (← getEnv) name then return #[]
@@ -54,8 +55,9 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
   | _ => pure ()
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[]
+  -- Only the signature is needed; this avoids blocking on async theorem bodies (lean4#13705).
   withNewMCtxDepth do withReducible do
-    forallTelescopeReducing constInfo.type fun _ type => do
+    forallTelescopeReducing c.toConstantVal.type fun _ type => do
       match type.getAppFnArgs with
       | (``Eq, #[_, lhs, rhs])
       | (``Iff, #[lhs, rhs]) => do

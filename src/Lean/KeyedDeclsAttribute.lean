@@ -114,6 +114,7 @@ def ExtensionState.erase (s : ExtensionState γ) (attrName : Name) (declName : N
     throwError "Cannot erase attribute `{attrName}`: `{.ofConstName declName}` does not have this attribute"
   return { s with erased := s.erased.insert declName, declNames := s.declNames.erase declName }
 
+/-- safety: requires that `mkConst df.valueTypeName _` and `γ` are definitionally equal. -/
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) := do
   let tableRef ← IO.mkRef ({} : Table γ)
   let ext : Extension γ ← registerScopedEnvExtension {

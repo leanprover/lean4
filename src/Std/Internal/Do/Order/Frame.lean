@@ -96,6 +96,22 @@ instance : Frame Prop where
       subst p
       exact ⟨hp.1, x, hsx, hp.2⟩
 
+/-- A dependent function lattice into frames is a frame; the frame law holds pointwise. This makes the
+iterated function lattices `σ₁ → … → Prop` frames. -/
+instance instFramePi {σ : Type v} {β : σ → Type u} [∀ s, CompleteLattice (β s)] [∀ s, Frame (β s)] :
+    Frame (∀ s, β s) where
+  meet_sup a s := by
+    funext t
+    rw [meet_apply, sup_apply, sup_apply, Frame.meet_sup (a := a t)]
+    congr 1
+    funext w
+    apply propext
+    constructor
+    · rintro ⟨v, ⟨f, hf, hft⟩, rfl⟩
+      exact ⟨a ⊓ f, ⟨f, hf, rfl⟩, by rw [meet_apply, hft]⟩
+    · rintro ⟨g, ⟨x, hx, rfl⟩, hgt⟩
+      exact ⟨x t, ⟨x, hx, rfl⟩, by rw [← hgt, meet_apply]⟩
+
 /-- Pointwise characterization of Heyting implication on function lattices. -/
 @[simp] theorem himp_apply
     {σ : Type v} {β : Type u} [CompleteLattice β]

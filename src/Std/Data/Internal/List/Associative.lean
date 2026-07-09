@@ -3508,9 +3508,6 @@ theorem getKey?_insertList_of_mem_of_not_mem [BEq α] [LawfulBEq α]
     List.getKey? k (insertList l toInsert) = some k := by
   simp only [List.getKey?_insertList_of_contains_eq_false_right not_contains, getKey?_eq_some contains]
 
-theorem _root_.Option.or_eq_left_of_isSome {o o' : Option α} : o.isSome = true → o.or o' = o := by
-  cases o <;> simp
-
 theorem insertListIfNew_perm_insertList [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     (hd₁ : DistinctKeys l₁) (hd₂ : DistinctKeys l₂) :
     List.Perm (insertListIfNew l₁ l₂) (insertList l₂ l₁) := by

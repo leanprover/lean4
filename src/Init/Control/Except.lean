@@ -128,7 +128,7 @@ end Except
 /--
 Adds exceptions of type `ε` to a monad `m`.
 -/
-def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
+@[implicit_reducible] def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
   m (Except ε α)
 
 /--

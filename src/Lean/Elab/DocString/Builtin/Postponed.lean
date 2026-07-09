@@ -7,177 +7,24 @@ module
 prelude
 
 public import Lean.Elab.Term.TermElabM
+public import Lean.DocString.DeferredCheck
 
 set_option linter.missingDocs true
 
 public section
 
+/-- Enables the deferred checks recorded while elaborating Verso docstrings, such as forward
+references. -/
+register_builtin_option linter.doc.deferred : Bool := {
+  defValue := true
+  descr := "if true, run the deferred checks recorded while elaborating Verso docstrings"
+}
+
 namespace Lean.Doc
 open Lean Elab Term
 
 /--
-A name of an import that should be present for a delayed check.
--/
-structure PostponedImport : Type where
-  /-- The module to be imported -/
-  name : Name
-deriving BEq, Hashable, Repr
-
-instance : ToExpr PostponedImport where
-  toTypeExpr := .const ``PostponedImport []
-  toExpr | ⟨v⟩ => .app (.const ``PostponedImport.mk []) (toExpr v)
-
-instance : Ord PostponedImport where
-  compare
-    | ⟨x⟩, ⟨y⟩ => x.quickCmp y
-
-/--
-A postponed check for an inline docstring element.
--/
-structure PostponedCheck : Type where
-  /--
-  The handler to call to carry out the check. It should be a `PostponedCheckHandler.`
-  -/
-  handler : Name
-  /--
-  The imports that should be available when the test is carried out.
-  -/
-  imports : Array PostponedImport
-  /--
-  Information required to carry out the check.
-  -/
-  info : Dynamic
-deriving TypeName
-
-instance : Repr PostponedCheck where
-  reprPrec v _ := "{ handler := " ++ repr v.handler ++ ", imports := " ++ repr v.imports ++ "}"
-
-/--
-A procedure to carry out some postponed check from a docstring.
--/
-abbrev PostponedCheckHandler := (declName : Name) → (info : Dynamic) → TermElabM Unit
-
-private unsafe def getHandlerUnsafe (name : Name) : TermElabM PostponedCheckHandler :=
-  evalConstCheck PostponedCheckHandler ``PostponedCheckHandler name
-
-@[implemented_by getHandlerUnsafe]
-private opaque getHandler (name : Name) : TermElabM PostponedCheckHandler
-
-private structure Stats where
-  passed : Nat := 0
-  failed : Array Exception := #[]
-
-private def Stats.total (s : Stats) : Nat :=
-  s.passed + s.failed.size
-
-private abbrev CheckM := StateRefT Stats TermElabM
-
-private def runCheck (act : TermElabM Unit) : CheckM Unit := do
-  try
-    act
-    modify fun s => { s with passed := s.passed + 1 }
-  catch
-    | e =>
-      modify fun s => { s with failed := s.failed.push e }
-
-private partial def checkInlinePostponed (declName : Name) (inline : Inline ElabInline) : CheckM Unit := do
-  match inline with
-  | .other x is =>
-    if let some { handler, imports, info } := x.val.get? PostponedCheck then
-      for ⟨m⟩ in imports do
-        unless (← getEnv).header.moduleNames.contains m do
-          throwError "Check in `{.ofConstName declName}` requires that `{m}` is imported, but it is not."
-      runCheck <| (← getHandler handler) declName info
-    for i in is do
-      checkInlinePostponed declName i
-  | .concat is | .emph is | .bold is | .link is _ | .footnote _ is =>
-    for i in is do
-      checkInlinePostponed declName i
-  | .image .. | .linebreak .. | .text .. | .code .. | .math .. => pure ()
-
-private partial def checkBlockPostponed (declName : Name) (doc : Block ElabInline ElabBlock) : CheckM Unit := do
-  match doc with
-  | .other x bs =>
-    if let some { handler, imports, info } := x.val.get? PostponedCheck then
-      for ⟨m⟩ in imports do
-        unless (← getEnv).header.moduleNames.contains m do
-          throwError "Check in `{.ofConstName declName}` requires that `{m}` is imported, but it is not."
-      runCheck <| (← getHandler handler) declName info
-    for b in bs do
-      checkBlockPostponed declName b
-  | .concat bs | .blockquote bs =>
-    for b in bs do
-      checkBlockPostponed declName b
-  | .ul items | .ol _ items =>
-    for item in items do
-      for b in item.contents do
-        checkBlockPostponed declName b
-  | .dl items =>
-    for item in items do
-      for i in item.term do
-        checkInlinePostponed declName i
-      for b in item.desc do
-        checkBlockPostponed declName b
-  | .para is =>
-    for i in is do
-      checkInlinePostponed declName i
-  | .code .. => pure ()
-
-private partial def checkPartPostponed (declName : Name) (doc : Part ElabInline ElabBlock Empty) : CheckM Unit := do
-  for b in doc.content do
-    checkBlockPostponed declName b
-  for s in doc.subParts do
-    checkPartPostponed declName s
-
-private def checkDocStringPostponed (declName : Name) (doc : VersoDocString) : CheckM Unit := do
-  let {text, subsections} := doc
-  for b in text do
-    checkBlockPostponed declName b
-  for s in subsections do
-    checkPartPostponed declName s
-
-/--
-Runs the postponed checks in all docstrings, reporting on the result.
--/
-def checkPostponed : TermElabM Unit := do
-  let mut checked : Array (Name × Stats) := #[]
-  let st := versoDocStringExt.toEnvExtension.getState (← getEnv)
-  for (decl, docs) in ← getBuiltinVersoDocStrings do
-    let ((), out) ← checkDocStringPostponed decl docs |>.run {}
-    if out.total > 0 then
-      checked := checked.push (decl, out)
-  for mod in st.importedEntries do
-    for (decl, docs) in mod do
-      let ((), out) ← checkDocStringPostponed decl docs |>.run {}
-      if out.total > 0 then
-        checked := checked.push (decl, out)
-  for (decl, docs) in st.state do
-    let ((), out) ← checkDocStringPostponed decl docs |>.run {}
-    if out.total > 0 then
-      checked := checked.push (decl, out)
-
-  let msg : MessageData :=
-    .trace { cls := `checks } m!"Postponed checks: {checked.size} declarations, \
-        {checked.map (·.2.passed) |>.sum} passed, \
-        {checked.map (·.2.failed.size) |>.sum} failed" <|
-      checked.map fun (declName, stats) =>
-        .trace {cls := `check} m!"`{.ofConstName declName}`: \
-            {stats.passed} passed, \
-            {stats.failed.size} failed" <|
-          stats.failed.map (·.toMessageData)
-
-  logInfo msg
-
-/--
-A postponed check that a syntax kind name exists.
--/
-structure PostponedKind where
-  /-- The kind's name. -/
-  name : Name
-deriving TypeName
-
-/--
-A name that will be checked to exist later.
+A name that a deferred check will confirm exists.
 -/
 structure PostponedName where
   /--
@@ -185,3 +32,149 @@ structure PostponedName where
   -/
   name : Name
 deriving TypeName
+
+/--
+A syntax kind name that a deferred check will confirm exists.
+-/
+structure PostponedKind where
+  /--
+  The kind's name.
+  -/
+  name : Name
+deriving TypeName
+
+/--
+A handler that carries out a deferred docstring check, given the check's data. Each handler is
+expected to be applied to a single type name, rather than be able to handle any `Dynamic`.
+-/
+abbrev DeferredCheckHandler := Dynamic → CoreM Unit
+
+namespace DeferredCheck
+
+/--
+Maps the name of a deferred check's data (the value of `Dynamic.typeName`) to the declaration of its
+`DeferredCheckHandler`. The data type is the dispatch key, so at most one handler is registered per
+type.
+-/
+builtin_initialize handlerExt : SimplePersistentEnvExtension (Name × Name) (NameMap Name) ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn := fun m (key, declName) => m.insert key declName
+    addImportedFn := fun nss =>
+      nss.foldl (init := {}) fun m ns =>
+        ns.foldl (init := m) fun m (key, declName) =>
+          m.insert key declName
+  }
+
+/--
+Builtin deferred check handlers, for bootstrapping. Maps a check's data type name to its handler,
+which is available before the defining module is imported.
+-/
+builtin_initialize builtinHandlers : IO.Ref (NameMap DeferredCheckHandler) ← IO.mkRef {}
+
+/--
+Adds a builtin deferred check handler.
+
+Should be run during initialization.
+-/
+def addBuiltinHandler (key : Name) (impl : DeferredCheckHandler) : IO Unit :=
+  builtinHandlers.modify (·.insert key impl)
+
+private unsafe def getHandlerUnsafe (declName : Name) : CoreM DeferredCheckHandler :=
+  evalConstCheck DeferredCheckHandler ``DeferredCheckHandler declName
+@[implemented_by getHandlerUnsafe]
+private opaque getHandler (declName : Name) : CoreM DeferredCheckHandler
+
+builtin_initialize registerBuiltinAttribute {
+  name := `deferred_doc_check
+  descr := "Registers a `DeferredCheckHandler` for deferred docstring checks whose data has the named type."
+  applicationTime := .afterCompilation
+  add := fun decl stx kind => do
+    unless kind == .global do
+      throwError "invalid attribute `deferred_doc_check`, must be global"
+    let key ←
+      if let `(attr|deferred_doc_check $x) := stx then
+        realizeGlobalConstNoOverload x
+      else
+        throwError "invalid `deferred_doc_check` syntax"
+    modifyEnv (handlerExt.addEntry · (key, decl))
+}
+
+builtin_initialize registerBuiltinAttribute {
+  name := `builtin_deferred_doc_check
+  descr := "Registers a builtin `DeferredCheckHandler` for deferred docstring checks whose data has the named type."
+  applicationTime := .afterCompilation
+  add := fun decl stx kind => do
+    unless kind == .global do
+      throwError "invalid attribute `builtin_deferred_doc_check`, must be global"
+    let key ←
+      if let `(attr|builtin_deferred_doc_check $x) := stx then
+        realizeGlobalConstNoOverload x
+      else
+        throwError "invalid `builtin_deferred_doc_check` syntax"
+    declareBuiltin decl <|
+      mkApp2 (.const ``addBuiltinHandler []) (toExpr key) (.const decl [])
+}
+
+/-- Re-enters the elaboration scope captured at a reference site. -/
+private def withScope (c : DeferredCheck) (act : CoreM α) : CoreM α :=
+  withTheReader Core.Context
+    (fun ctx => { ctx with
+      currNamespace := c.currNamespace, openDecls := c.openDecls, options := c.options })
+    act
+
+/--
+The deferred checks owned by modules satisfying `inPackage`.
+
+Each deferred check is paired with the module it was recorded in.
+-/
+private def collect (env : Environment) (inPackage : Name → Bool) :
+    Array (Name × DeferredCheck) := Id.run do
+  let mut out := #[]
+  for i in [0:env.header.moduleNames.size] do
+    let mod := env.header.moduleNames[i]!
+    if inPackage mod then
+      out := out ++ (deferredCheckExt.getModuleEntries env i).map (mod, ·)
+  let mod := env.mainModule
+  if inPackage mod then
+    out := out ++ (deferredCheckExt.getState env).map (mod, ·)
+  return out
+
+/--
+Runs the deferred docstring checks owned by modules satisfying `inPackage`.
+
+Returns the checks that failed together with the module they belong to and the error that each
+produced. `#[]` indicates success.
+
+Only checks that satisfy `shouldCheck` are run.
+-/
+def run (inPackage : Name → Bool) (shouldCheck : DeferredCheck → CoreM Bool := fun _ => pure true) :
+    CoreM (Array (Name × DeferredCheck × MessageData)) := do
+  let env ← getEnv
+  let handlers := handlerExt.getState env
+  let builtins ← builtinHandlers.get
+  let moduleNames : NameSet := env.header.moduleNames.foldl (·.insert ·) {}
+  let mut failures := #[]
+  for (mod, c) in collect env inPackage do
+    unless (← shouldCheck c) do continue
+    let missing := c.imports.filter (!moduleNames.contains ·)
+    if !missing.isEmpty then
+      failures := failures.push (mod, c,
+        m!"the check requires {missing.toList} to be imported, but they are not")
+    else
+      let handler? : Option DeferredCheckHandler ←
+        if let some impl := builtins.find? c.check.typeName then
+          pure (some impl)
+        else if let some declName := handlers.find? c.check.typeName then
+          pure (some (← getHandler declName))
+        else
+          pure none
+      match handler? with
+      | none =>
+        failures := failures.push (mod, c,
+          m!"no handler registered for deferred check `{c.check.typeName}`")
+      | some handler =>
+        try
+          withScope c (handler c.check)
+        catch e =>
+          failures := failures.push (mod, c, e.toMessageData)
+  return failures

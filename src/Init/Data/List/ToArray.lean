@@ -512,8 +512,8 @@ private theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : 
   simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
     getElem_toArray, getElem_cons_succ]
   split
-  rw [takeWhile_go_succ]
-  rfl
+  · rw [takeWhile_go_succ]
+  · rfl
 
 private theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
     Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by

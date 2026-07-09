@@ -43,6 +43,8 @@ structure Float32 where
 attribute [extern "lean_float32_to_bits"] Float32.toModel
 attribute [extern "lean_float32_of_bits"] Float32.ofModel
 
+deriving instance DecidableEq for Float32
+
 instance : Nonempty Float32 :=
   ⟨⟨default⟩⟩
 

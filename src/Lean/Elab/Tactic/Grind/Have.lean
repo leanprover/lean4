@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.RevertAll
+import Lean.Meta.Tactic.Grind.MarkAccessible
 import Lean.Elab.SyntheticMVars
 import Lean.Meta.Tactic.Grind.Solve
 namespace Lean.Elab.Tactic.Grind

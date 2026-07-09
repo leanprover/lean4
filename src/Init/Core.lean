@@ -887,8 +887,6 @@ variable {a b : α} {p : Prop}
 
 theorem Ne.intro (h : a = b → False) : a ≠ b := h
 
-theorem Ne.elim (h : a ≠ b) : a = b → False := h
-
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
 @[symm] theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)

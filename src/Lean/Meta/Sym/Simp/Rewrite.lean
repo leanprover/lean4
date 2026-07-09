@@ -14,7 +14,7 @@ import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym.Simp
-open Grind
+open Lean.Meta.Grind
 
 /--
 Creates proof term for a rewriting step.

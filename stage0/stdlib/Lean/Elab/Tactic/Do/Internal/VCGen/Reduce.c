@@ -20,7 +20,7 @@ lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_Meta_projectCore_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_Sym_ExprPtr_0__Lean_Meta_Sym_isSameExpr_unsafe__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_unfoldReducible(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommonInc___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommonInc(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppRev(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
@@ -440,7 +440,7 @@ lean_object* v_e_x27_143_; lean_object* v___x_144_;
 lean_dec(v_lastReduction_97_);
 v_e_x27_143_ = l_Lean_Expr_betaRev(v_f_98_, v_rargs_99_, v___x_142_, v___x_142_);
 lean_dec_ref(v_rargs_99_);
-v___x_144_ = l_Lean_Meta_Sym_shareCommonInc___redArg(v_e_x27_143_, v_a_101_);
+v___x_144_ = l_Lean_Meta_Sym_shareCommonInc(v_e_x27_143_, v_a_100_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_);
 if (lean_obj_tag(v___x_144_) == 0)
 {
 lean_object* v_a_145_; lean_object* v___x_146_; lean_object* v___x_147_; lean_object* v___x_148_; lean_object* v___x_149_; lean_object* v___x_150_; 
@@ -577,7 +577,7 @@ goto v_resetjp_172_;
 v_resetjp_172_:
 {
 lean_object* v___x_175_; 
-v___x_175_ = l_Lean_Meta_Sym_shareCommonInc___redArg(v_val_171_, v_a_101_);
+v___x_175_ = l_Lean_Meta_Sym_shareCommonInc(v_val_171_, v_a_100_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_);
 if (lean_obj_tag(v___x_175_) == 0)
 {
 lean_object* v_a_176_; lean_object* v___x_178_; 
@@ -722,7 +722,7 @@ lean_del_object(v___x_203_);
 v_val_205_ = lean_ctor_get(v_a_201_, 0);
 lean_inc(v_val_205_);
 lean_dec_ref_known(v_a_201_, 1);
-v___x_206_ = l_Lean_Meta_Sym_shareCommonInc___redArg(v_val_205_, v_a_101_);
+v___x_206_ = l_Lean_Meta_Sym_shareCommonInc(v_val_205_, v_a_100_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_);
 if (lean_obj_tag(v___x_206_) == 0)
 {
 lean_object* v_a_207_; lean_object* v___x_208_; lean_object* v___x_209_; lean_object* v___x_210_; lean_object* v___x_211_; 
@@ -1044,7 +1044,7 @@ goto v_resetjp_111_;
 v_resetjp_111_:
 {
 lean_object* v___x_114_; 
-v___x_114_ = l_Lean_Meta_Sym_shareCommonInc___redArg(v_val_110_, v_a_101_);
+v___x_114_ = l_Lean_Meta_Sym_shareCommonInc(v_val_110_, v_a_100_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_);
 if (lean_obj_tag(v___x_114_) == 0)
 {
 lean_object* v_a_115_; lean_object* v___x_116_; lean_object* v___x_118_; 

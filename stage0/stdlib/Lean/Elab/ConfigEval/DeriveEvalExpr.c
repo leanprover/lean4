@@ -114,7 +114,7 @@ lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 uint8_t l_Lean_Name_isStr(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
@@ -4976,7 +4976,7 @@ lean_inc(v_a_1684_);
 lean_dec_ref_known(v___x_1683_, 1);
 v___x_1685_ = lean_unsigned_to_nat(0u);
 v_bs_x27_1686_ = lean_array_uset(v_bs_1676_, v_i_1675_, v___x_1685_);
-v___x_1687_ = lean_mk_syntax_ident(v_a_1684_);
+v___x_1687_ = l_Lean_mkIdent(v_a_1684_);
 v___x_1688_ = ((size_t)1ULL);
 v___x_1689_ = lean_usize_add(v_i_1675_, v___x_1688_);
 v___x_1690_ = lean_array_uset(v_bs_x27_1686_, v_i_1675_, v___x_1687_);
@@ -5933,7 +5933,7 @@ v___x_2197_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_foldrMU
 v___x_2198_ = lean_box(0);
 v___x_2199_ = ((lean_object*)(l_Lean_Elab_ConfigEval_ensureEvalExpr___lam__1___closed__2));
 v___x_2200_ = l_Lean_Name_append(v_a_2196_, v___x_2199_);
-v___x_2201_ = lean_mk_syntax_ident(v___x_2200_);
+v___x_2201_ = l_Lean_mkIdent(v___x_2200_);
 lean_inc(v___x_2201_);
 v___x_2202_ = l_List_forIn_x27_loop___at___00Lean_Elab_ConfigEval_ensureEvalExpr_spec__6___redArg(v_a_2167_, v_type_x27_2140_, v___x_2201_, v_ctors_2169_, v___x_2194_, v___y_2141_, v___y_2142_, v___y_2143_, v___y_2144_, v___x_2165_, v___y_2146_);
 lean_dec(v_ctors_2169_);
@@ -9397,7 +9397,7 @@ _start:
 {
 lean_object* v___x_3485_; lean_object* v___x_3486_; 
 v___x_3485_ = ((lean_object*)(l_Lean_Elab_ConfigEval_deriveEvalExprUsingMetaEval___lam__1___closed__4));
-v___x_3486_ = lean_mk_syntax_ident(v___x_3485_);
+v___x_3486_ = l_Lean_mkIdent(v___x_3485_);
 return v___x_3486_;
 }
 }

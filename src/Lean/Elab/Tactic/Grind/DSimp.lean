@@ -11,7 +11,7 @@ import Lean.Meta.Sym.DSimp.Variant
 import Lean.Meta.Sym.DSimp.Reduce
 import Lean.Meta.Sym.DSimp.DSimproc
 namespace Lean.Elab.Tactic.Grind
-open Meta Grind
+open Meta
 open Sym.DSimp
 
 def elabDSimpArgs (args? : Option (Array (TSyntax [`token.«*», `ident]))) : GrindTacticM DSimpArgs := do

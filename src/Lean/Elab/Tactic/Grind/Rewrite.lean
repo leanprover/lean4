@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic.Grind
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 /--
 Rewrites the target of the main goal using `term`, and re-establishes the `sym` invariants

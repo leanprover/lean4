@@ -104,7 +104,7 @@ lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_ob
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l___private_Init_Meta_Defs_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_quoteNameMk(lean_object*);
 lean_object* lean_string_intercalate(lean_object*, lean_object*);
@@ -6113,7 +6113,8 @@ lean_ctor_set(v___x_1341_, 3, v___x_1340_);
 v___x_1342_ = l_Lean_Syntax_node2(v___y_1279_, v___x_1334_, v___x_1336_, v___x_1341_);
 v___x_1343_ = l_Lean_TSyntax_getId(v___y_1283_);
 lean_dec(v___y_1283_);
-v___x_1344_ = lean_erase_macro_scopes(v___x_1343_);
+v___x_1344_ = l_Lean_Name_eraseMacroScopes(v___x_1343_);
+lean_dec(v___x_1343_);
 lean_inc(v___x_1344_);
 v___x_1345_ = l___private_Init_Meta_Defs_0__Lean_getEscapedNameParts_x3f(v___x_1310_, v___x_1344_);
 if (lean_obj_tag(v___x_1345_) == 0)

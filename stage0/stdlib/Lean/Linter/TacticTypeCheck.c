@@ -65,7 +65,7 @@ size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_to_list(lean_object*);
-uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
+uint8_t l_Lean_getReducibilityStatusCore(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_isInstanceCore(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 uint8_t l_List_isEmpty___redArg(lean_object*);
@@ -3099,7 +3099,7 @@ else
 uint8_t v___x_872_; 
 lean_inc(v_fst_867_);
 lean_inc_ref(v___x_861_);
-v___x_872_ = lean_get_reducibility_status(v___x_861_, v_fst_867_);
+v___x_872_ = l_Lean_getReducibilityStatusCore(v___x_861_, v_fst_867_);
 if (v___x_872_ == 1)
 {
 uint8_t v___x_873_; 

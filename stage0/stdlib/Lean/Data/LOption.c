@@ -48,11 +48,11 @@ LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_toOption___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_toOption(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_toLOption___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Option_toLOption(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_toLOptionM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg(lean_object* v_x_1_){
 _start:
 {
@@ -433,7 +433,7 @@ v___x_126_ = l_Lean_LOption_toOption___redArg(v_x_125_);
 return v___x_126_;
 }
 }
-LEAN_EXPORT lean_object* l_Option_toLOption___redArg(lean_object* v_x_127_){
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption___redArg(lean_object* v_x_127_){
 _start:
 {
 if (lean_obj_tag(v_x_127_) == 0)
@@ -485,24 +485,24 @@ return v___x_134_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_toLOption(lean_object* v_00_u03b1_137_, lean_object* v_x_138_){
+LEAN_EXPORT lean_object* l_Lean_Option_toLOption(lean_object* v_00_u03b1_137_, lean_object* v_x_138_){
 _start:
 {
 lean_object* v___x_139_; 
-v___x_139_ = l_Option_toLOption___redArg(v_x_138_);
+v___x_139_ = l_Lean_Option_toLOption___redArg(v_x_138_);
 return v___x_139_;
 }
 }
-LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object* v_toPure_140_, lean_object* v_b_141_){
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg___lam__0(lean_object* v_toPure_140_, lean_object* v_b_141_){
 _start:
 {
 lean_object* v___x_142_; lean_object* v___x_143_; 
-v___x_142_ = l_Option_toLOption___redArg(v_b_141_);
+v___x_142_ = l_Lean_Option_toLOption___redArg(v_b_141_);
 v___x_143_ = lean_apply_2(v_toPure_140_, lean_box(0), v___x_142_);
 return v___x_143_;
 }
 }
-LEAN_EXPORT lean_object* l_toLOptionM___redArg(lean_object* v_inst_144_, lean_object* v_x_145_){
+LEAN_EXPORT lean_object* l_Lean_toLOptionM___redArg(lean_object* v_inst_144_, lean_object* v_x_145_){
 _start:
 {
 lean_object* v_toApplicative_146_; lean_object* v_toBind_147_; lean_object* v_toPure_148_; lean_object* v___f_149_; lean_object* v___x_150_; 
@@ -514,13 +514,13 @@ lean_dec_ref(v_inst_144_);
 v_toPure_148_ = lean_ctor_get(v_toApplicative_146_, 1);
 lean_inc(v_toPure_148_);
 lean_dec_ref(v_toApplicative_146_);
-v___f_149_ = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
+v___f_149_ = lean_alloc_closure((void*)(l_Lean_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_149_, 0, v_toPure_148_);
 v___x_150_ = lean_apply_4(v_toBind_147_, lean_box(0), lean_box(0), v_x_145_, v___f_149_);
 return v___x_150_;
 }
 }
-LEAN_EXPORT lean_object* l_toLOptionM(lean_object* v_00_u03b1_151_, lean_object* v_m_152_, lean_object* v_inst_153_, lean_object* v_x_154_){
+LEAN_EXPORT lean_object* l_Lean_toLOptionM(lean_object* v_00_u03b1_151_, lean_object* v_m_152_, lean_object* v_inst_153_, lean_object* v_x_154_){
 _start:
 {
 lean_object* v_toApplicative_155_; lean_object* v_toBind_156_; lean_object* v_toPure_157_; lean_object* v___f_158_; lean_object* v___x_159_; 
@@ -532,7 +532,7 @@ lean_dec_ref(v_inst_153_);
 v_toPure_157_ = lean_ctor_get(v_toApplicative_155_, 1);
 lean_inc(v_toPure_157_);
 lean_dec_ref(v_toApplicative_155_);
-v___f_158_ = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
+v___f_158_ = lean_alloc_closure((void*)(l_Lean_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_158_, 0, v_toPure_157_);
 v___x_159_ = lean_apply_4(v_toBind_156_, lean_box(0), lean_box(0), v_x_154_, v___f_158_);
 return v___x_159_;

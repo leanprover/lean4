@@ -111,7 +111,7 @@ lean_object* l_Lean_Macro_throwErrorAt___redArg(lean_object*, lean_object*, lean
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* lean_nat_pred(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_id___boxed(lean_object*, lean_object*);
@@ -267,7 +267,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_getRoot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getRoot___boxed(lean_object*);
 static const lean_string_object l_Lean_Name_isInaccessibleUserName___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "_inaccessible"};
 static const lean_object* l_Lean_Name_isInaccessibleUserName___closed__0 = (const lean_object*)&l_Lean_Name_isInaccessibleUserName___closed__0_value;
-LEAN_EXPORT uint8_t lean_is_inaccessible_user_name(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Name_isInaccessibleUserName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isInaccessibleUserName___boxed(lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Meta_Defs_0__Lean_Name_needsNoEscapeAsciiRest(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Meta_Defs_0__Lean_Name_needsNoEscapeAsciiRest___boxed(lean_object*, lean_object*);
@@ -642,7 +642,7 @@ LEAN_EXPORT lean_object* l_Lean_mkCIdentFromRef___redArg___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_mkCIdentFromRef(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_mkCIdentFromRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCIdent(lean_object*);
-LEAN_EXPORT lean_object* lean_mk_syntax_ident(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_mkIdent(lean_object*);
 static const lean_string_object l_Lean_mkGroupNode___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "group"};
 static const lean_object* l_Lean_mkGroupNode___closed__0 = (const lean_object*)&l_Lean_mkGroupNode___closed__0_value;
 static const lean_ctor_object l_Lean_mkGroupNode___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_mkGroupNode___closed__0_value),LEAN_SCALAR_PTR_LITERAL(206, 113, 20, 57, 188, 177, 187, 30)}};
@@ -3073,7 +3073,7 @@ lean_dec(v_x_397_);
 return v_res_398_;
 }
 }
-LEAN_EXPORT uint8_t lean_is_inaccessible_user_name(lean_object* v_x_400_){
+LEAN_EXPORT uint8_t l_Lean_Name_isInaccessibleUserName(lean_object* v_x_400_){
 _start:
 {
 switch(lean_obj_tag(v_x_400_))
@@ -3123,7 +3123,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_isInaccessibleUserName___boxed(lean_object*
 _start:
 {
 uint8_t v_res_410_; lean_object* v_r_411_; 
-v_res_410_ = lean_is_inaccessible_user_name(v_x_409_);
+v_res_410_ = l_Lean_Name_isInaccessibleUserName(v_x_409_);
 v_r_411_ = lean_box(v_res_410_);
 return v_r_411_;
 }
@@ -4783,7 +4783,7 @@ else
 {
 uint8_t v___x_872_; 
 lean_inc(v_n_867_);
-v___x_872_ = lean_is_inaccessible_user_name(v_n_867_);
+v___x_872_ = l_Lean_Name_isInaccessibleUserName(v_n_867_);
 if (v___x_872_ == 0)
 {
 uint8_t v___x_873_; 
@@ -4928,7 +4928,7 @@ else
 {
 uint8_t v___x_916_; 
 lean_inc(v_n_912_);
-v___x_916_ = lean_is_inaccessible_user_name(v_n_912_);
+v___x_916_ = l_Lean_Name_isInaccessibleUserName(v_n_912_);
 if (v___x_916_ == 0)
 {
 uint8_t v___x_917_; 
@@ -10508,7 +10508,7 @@ v___x_2619_ = l_Lean_mkCIdentFrom(v___x_2617_, v_c_2616_, v___x_2618_);
 return v___x_2619_;
 }
 }
-LEAN_EXPORT lean_object* lean_mk_syntax_ident(lean_object* v_val_2620_){
+LEAN_EXPORT lean_object* l_Lean_mkIdent(lean_object* v_val_2620_){
 _start:
 {
 lean_object* v___x_2621_; uint8_t v___x_2622_; lean_object* v___x_2623_; lean_object* v___x_2624_; lean_object* v___x_2625_; lean_object* v___x_2626_; lean_object* v___x_2627_; lean_object* v___x_2628_; 
@@ -13950,7 +13950,7 @@ _start:
 lean_object* v___x_3734_; lean_object* v___x_3735_; lean_object* v___x_3736_; lean_object* v___x_3737_; lean_object* v___x_3738_; lean_object* v___x_3739_; 
 v___x_3734_ = ((lean_object*)(l_List_foldr___at___00Substring_Raw_toName_spec__0___closed__2));
 v___x_3735_ = lean_unsigned_to_nat(10u);
-v___x_3736_ = lean_unsigned_to_nat(1238u);
+v___x_3736_ = lean_unsigned_to_nat(1236u);
 v___x_3737_ = ((lean_object*)(l_List_foldr___at___00Substring_Raw_toName_spec__0___closed__1));
 v___x_3738_ = ((lean_object*)(l_List_foldr___at___00Substring_Raw_toName_spec__0___closed__0));
 v___x_3739_ = l_mkPanicMessageWithDecl(v___x_3738_, v___x_3737_, v___x_3736_, v___x_3735_, v___x_3734_);
@@ -14919,8 +14919,7 @@ goto v_resetjp_4012_;
 v_resetjp_4012_:
 {
 lean_object* v___x_4015_; lean_object* v___x_4017_; 
-lean_inc(v_val_4003_);
-v___x_4015_ = lean_erase_macro_scopes(v_val_4003_);
+v___x_4015_ = l_Lean_Name_eraseMacroScopes(v_val_4003_);
 if (v_isShared_4014_ == 0)
 {
 lean_ctor_set(v___x_4013_, 0, v___x_4015_);
@@ -15799,7 +15798,7 @@ _start:
 {
 lean_object* v___x_4410_; lean_object* v___x_4411_; 
 v___x_4410_ = ((lean_object*)(l_Lean_Option_hasQuote___redArg___lam__0___closed__2));
-v___x_4411_ = lean_mk_syntax_ident(v___x_4410_);
+v___x_4411_ = l_Lean_mkIdent(v___x_4410_);
 return v___x_4411_;
 }
 }

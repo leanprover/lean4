@@ -66,7 +66,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6608,7 +6608,7 @@ lean_object* v_a_2042_; lean_object* v___x_2043_;
 v_a_2042_ = lean_ctor_get(v___x_2041_, 0);
 lean_inc(v_a_2042_);
 lean_dec_ref_known(v___x_2041_, 1);
-v___x_2043_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_2042_, v_a_2014_);
+v___x_2043_ = l_Lean_Meta_Sym_shareCommon(v_a_2042_, v_a_2013_, v_a_2014_, v_a_2015_, v_a_2016_, v_a_2017_, v_a_2018_);
 if (lean_obj_tag(v___x_2043_) == 0)
 {
 lean_object* v_a_2044_; lean_object* v___x_2045_; 
@@ -7274,7 +7274,7 @@ lean_dec(v___x_2283_);
 v_funext_2286_ = lean_ctor_get(v___x_2284_, 3);
 lean_inc_ref(v_funext_2286_);
 lean_dec(v___x_2284_);
-v___x_2299_ = l_Lean_Meta_Sym_shareCommon___redArg(v_b_2272_, v___y_2277_);
+v___x_2299_ = l_Lean_Meta_Sym_shareCommon(v_b_2272_, v___y_2276_, v___y_2277_, v___y_2278_, v___y_2279_, v___y_2280_, v___y_2281_);
 if (lean_obj_tag(v___x_2299_) == 0)
 {
 lean_object* v_a_2300_; lean_object* v___x_2301_; 

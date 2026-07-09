@@ -324,7 +324,7 @@ def tryTactic (tac : GrindTacticM α) : GrindTacticM Bool := do
   catch _ =>
     pure false
 
-open Grind
+open Lean.Meta.Grind
 
 /-
 **Note**: Recall that `grind` uses the reducibility specified at `Config.reducible`

@@ -23,7 +23,7 @@ size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_privateToUserName_x3f(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
@@ -121,7 +121,7 @@ lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, 
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_ErrorExplanation_summaryWithSeverity(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
@@ -1470,7 +1470,7 @@ _start:
 {
 lean_object* v___x_388_; 
 lean_inc(v_declName_385_);
-v___x_388_ = lean_private_to_user_name(v_declName_385_);
+v___x_388_ = l_Lean_privateToUserName_x3f(v_declName_385_);
 if (lean_obj_tag(v___x_388_) == 0)
 {
 lean_object* v___x_389_; lean_object* v___x_390_; 
@@ -6020,7 +6020,7 @@ lean_object* v_declName_1797_; lean_object* v___x_1798_;
 v_declName_1797_ = lean_ctor_get(v___x_1796_, 0);
 lean_inc_n(v_declName_1797_, 2);
 lean_dec_ref_known(v___x_1796_, 2);
-v___x_1798_ = lean_private_to_user_name(v_declName_1797_);
+v___x_1798_ = l_Lean_privateToUserName_x3f(v_declName_1797_);
 if (lean_obj_tag(v___x_1798_) == 0)
 {
 uint8_t v___x_1799_; 
@@ -12916,7 +12916,8 @@ if (lean_obj_tag(v___x_4272_) == 0)
 {
 lean_object* v_id_4273_; 
 lean_dec_ref_known(v___x_4272_, 4);
-v_id_4273_ = lean_erase_macro_scopes(v_id_4177_);
+v_id_4273_ = l_Lean_Name_eraseMacroScopes(v_id_4177_);
+lean_dec(v_id_4177_);
 v_id_4260_ = v_id_4273_;
 v___y_4261_ = v_a_4180_;
 v___y_4262_ = v_a_4181_;

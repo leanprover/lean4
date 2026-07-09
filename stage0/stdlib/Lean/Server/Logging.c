@@ -112,7 +112,7 @@ static const lean_object* l___private_Lean_Server_Logging_0__Lean_Server_Logging
 static lean_once_cell_t l___private_Lean_Server_Logging_0__Lean_Server_Logging_MessageMethod_all___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Server_Logging_0__Lean_Server_Logging_MessageMethod_all___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Logging_0__Lean_Server_Logging_MessageMethod_all(lean_object*);
-LEAN_EXPORT lean_object* l_Option_toJson___at___00Lean_Server_Logging_messageMethod_x3f_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Option_toJson___at___00Lean_Server_Logging_messageMethod_x3f_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Logging_messageMethod_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Logging_0__Lean_Server_Logging_messageId_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Logging_0__Lean_Server_Logging_messageId_x3f___boxed(lean_object*);
@@ -883,7 +883,7 @@ return v___x_154_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_toJson___at___00Lean_Server_Logging_messageMethod_x3f_spec__0(lean_object* v_x_159_){
+LEAN_EXPORT lean_object* l_Lean_Option_toJson___at___00Lean_Server_Logging_messageMethod_x3f_spec__0(lean_object* v_x_159_){
 _start:
 {
 if (lean_obj_tag(v_x_159_) == 0)
@@ -926,7 +926,7 @@ goto v___jp_166_;
 else
 {
 lean_object* v_params_171_; lean_object* v___x_172_; 
-v_params_171_ = l_Option_toJson___at___00Lean_Server_Logging_messageMethod_x3f_spec__0(v_params_x3f_165_);
+v_params_171_ = l_Lean_Option_toJson___at___00Lean_Server_Logging_messageMethod_x3f_spec__0(v_params_x3f_165_);
 v___x_172_ = l_Lean_Lsp_instFromJsonRpcCallParams_fromJson(v_params_171_);
 if (lean_obj_tag(v___x_172_) == 1)
 {

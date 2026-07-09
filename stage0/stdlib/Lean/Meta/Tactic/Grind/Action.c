@@ -1027,13 +1027,13 @@ lean_dec_ref(v___y_411_);
 v___x_413_ = l_Lean_Meta_Sym_getConfig___redArg(v_a_397_);
 if (lean_obj_tag(v___x_413_) == 0)
 {
-lean_object* v_a_414_; uint8_t v___x_415_; 
+lean_object* v_a_414_; uint8_t v_verbose_415_; 
 v_a_414_ = lean_ctor_get(v___x_413_, 0);
 lean_inc(v_a_414_);
 lean_dec_ref_known(v___x_413_, 1);
-v___x_415_ = lean_unbox(v_a_414_);
+v_verbose_415_ = lean_ctor_get_uint8(v_a_414_, 0);
 lean_dec(v_a_414_);
-if (v___x_415_ == 0)
+if (v_verbose_415_ == 0)
 {
 lean_dec_ref(v___y_410_);
 goto v___jp_404_;

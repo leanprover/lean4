@@ -63,7 +63,7 @@ uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 lean_object* lean_expr_lower_loose_bvars(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_instInhabitedSlice;
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
@@ -7196,7 +7196,8 @@ goto v_resetjp_2039_;
 v_resetjp_2039_:
 {
 lean_object* v___x_2042_; lean_object* v___x_2044_; 
-v___x_2042_ = lean_erase_macro_scopes(v_val_2035_);
+v___x_2042_ = l_Lean_Name_eraseMacroScopes(v_val_2035_);
+lean_dec(v_val_2035_);
 if (v_isShared_2041_ == 0)
 {
 lean_ctor_set(v___x_2040_, 2, v___x_2042_);

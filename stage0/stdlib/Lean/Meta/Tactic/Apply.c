@@ -3024,6 +3024,7 @@ lean_inc(v_a_953_);
 lean_dec_ref_known(v___x_952_, 1);
 lean_inc(v_a_926_);
 v___x_954_ = l_Lean_Meta_appendTag(v_a_926_, v_a_953_);
+lean_dec(v_a_953_);
 v___x_955_ = l_Lean_MVarId_setTag___redArg(v___x_943_, v___x_954_, v___y_930_);
 if (lean_obj_tag(v___x_955_) == 0)
 {

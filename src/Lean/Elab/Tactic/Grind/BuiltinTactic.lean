@@ -83,7 +83,7 @@ def evalGrindSeq : GrindTactic := fun stx =>
 @[builtin_grind_tactic paren] def evalParen : GrindTactic := fun stx =>
   evalGrindTactic stx[1]
 
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 @[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun stx => withMainContext do
   let `(grind| finish $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax

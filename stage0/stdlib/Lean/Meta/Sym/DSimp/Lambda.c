@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_instantiateRevBetaS___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_instantiateRevBetaS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_sym_dsimp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_mkLambdaFVarsS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -238,7 +238,8 @@ v_body_167_ = lean_ctor_get(v_e_152_, 2);
 lean_inc_ref(v_body_167_);
 v_binderInfo_168_ = lean_ctor_get_uint8(v_e_152_, sizeof(void*)*3 + 8);
 lean_dec_ref_known(v_e_152_, 3);
-v___x_169_ = l_Lean_Meta_Sym_instantiateRevBetaS___redArg(v_binderType_166_, v_fvars_153_, v_a_159_);
+lean_inc_ref(v_fvars_153_);
+v___x_169_ = l_Lean_Meta_Sym_instantiateRevBetaS(v_binderType_166_, v_fvars_153_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
 if (lean_obj_tag(v___x_169_) == 0)
 {
 lean_object* v_a_170_; lean_object* v___x_171_; 
@@ -346,8 +347,9 @@ return v___x_186_;
 else
 {
 lean_object* v___x_189_; 
+lean_inc_ref(v_fvars_153_);
 lean_inc_ref(v_e_152_);
-v___x_189_ = l_Lean_Meta_Sym_instantiateRevBetaS___redArg(v_e_152_, v_fvars_153_, v_a_159_);
+v___x_189_ = l_Lean_Meta_Sym_instantiateRevBetaS(v_e_152_, v_fvars_153_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
 if (lean_obj_tag(v___x_189_) == 0)
 {
 lean_object* v_a_190_; lean_object* v___x_191_; 
@@ -451,7 +453,6 @@ lean_object* v___x_205_;
 lean_del_object(v___x_197_);
 lean_del_object(v___x_194_);
 v___x_205_ = l_Lean_Meta_Sym_mkLambdaFVarsS(v_fvars_153_, v_e_152_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
-lean_dec_ref(v_fvars_153_);
 if (lean_obj_tag(v___x_205_) == 0)
 {
 lean_object* v_a_206_; lean_object* v___x_208_; uint8_t v_isShared_209_; uint8_t v_isSharedCheck_215_; 
@@ -567,7 +568,6 @@ v_resetjp_226_:
 {
 lean_object* v___x_229_; 
 v___x_229_ = l_Lean_Meta_Sym_mkLambdaFVarsS(v_fvars_153_, v_e_x27_225_, v_a_158_, v_a_159_, v_a_160_, v_a_161_, v_a_162_, v_a_163_);
-lean_dec_ref(v_fvars_153_);
 if (lean_obj_tag(v___x_229_) == 0)
 {
 lean_object* v_a_230_; lean_object* v___x_232_; uint8_t v_isShared_233_; uint8_t v_isSharedCheck_241_; 

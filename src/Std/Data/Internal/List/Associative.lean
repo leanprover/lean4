@@ -444,7 +444,7 @@ theorem DistinctKeys.def [BEq α] {l : List ((a : α) × β a)} :
   ⟨fun h => by simpa [keys_eq_map, List.pairwise_map] using h.distinct,
    fun h => ⟨by simpa [keys_eq_map, List.pairwise_map] using h⟩⟩
 
-open List
+open Std.Internal.List
 
 theorem DistinctKeys.perm_keys [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)}
     (h : Perm (keys l') (keys l)) : DistinctKeys l → DistinctKeys l'

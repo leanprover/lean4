@@ -62,7 +62,7 @@ lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 lean_object* l_Lean_Meta_synthInstance_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_head_x21___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Level_succ___override(lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_getGeneration___redArg(lean_object*, lean_object*);
 lean_object* lean_grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_getBoolFalseExpr___redArg(lean_object*);
@@ -10585,7 +10585,7 @@ lean_inc_ref(v_arg_2779_);
 lean_inc_ref(v_arg_2782_);
 lean_inc_ref(v_arg_2788_);
 v___x_2819_ = l_Lean_mkApp3(v___x_2818_, v_arg_2788_, v_arg_2782_, v_arg_2779_);
-v___x_2820_ = l_Lean_Meta_Sym_shareCommon___redArg(v___x_2819_, v_a_2768_);
+v___x_2820_ = l_Lean_Meta_Sym_shareCommon(v___x_2819_, v_a_2767_, v_a_2768_, v_a_2769_, v_a_2770_, v_a_2771_, v_a_2772_);
 if (lean_obj_tag(v___x_2820_) == 0)
 {
 lean_object* v_a_2821_; lean_object* v___x_2822_; 

@@ -10671,7 +10671,7 @@ goto v_resetjp_3353_;
 }
 v_resetjp_3353_:
 {
-lean_object* v___y_3357_; lean_object* v___y_3358_; lean_object* v___y_3359_; lean_object* v_env_3364_; lean_object* v___x_3365_; lean_object* v___x_3366_; lean_object* v_type_3367_; lean_object* v_u_3368_; lean_object* v_toIntInst_3369_; lean_object* v_rangeExpr_3370_; lean_object* v_range_3371_; lean_object* v___x_3372_; lean_object* v___x_3373_; lean_object* v___x_3374_; lean_object* v___x_3375_; lean_object* v___x_3376_; lean_object* v___x_3377_; lean_object* v___x_3378_; lean_object* v___y_3380_; lean_object* v___y_3381_; uint8_t v___y_3382_; uint8_t v___x_3390_; lean_object* v___y_3392_; uint8_t v___y_3393_; lean_object* v___y_3394_; lean_object* v___y_3397_; uint8_t v___y_3398_; uint8_t v___y_3399_; uint8_t v___y_3408_; lean_object* v___y_3409_; uint8_t v___y_3412_; 
+lean_object* v___y_3357_; lean_object* v___y_3358_; lean_object* v___y_3359_; lean_object* v_env_3364_; lean_object* v___x_3365_; lean_object* v___x_3366_; lean_object* v_type_3367_; lean_object* v_u_3368_; lean_object* v_toIntInst_3369_; lean_object* v_rangeExpr_3370_; lean_object* v_range_3371_; lean_object* v___x_3372_; lean_object* v___x_3373_; lean_object* v___x_3374_; lean_object* v___x_3375_; lean_object* v___x_3376_; lean_object* v___x_3377_; lean_object* v___x_3378_; lean_object* v___y_3380_; lean_object* v___y_3381_; uint8_t v___y_3382_; uint8_t v___x_3390_; uint8_t v___y_3392_; lean_object* v___y_3393_; lean_object* v___y_3394_; uint8_t v___y_3397_; lean_object* v___y_3398_; uint8_t v___y_3399_; uint8_t v___y_3408_; lean_object* v___y_3409_; uint8_t v___y_3412_; 
 v_env_3364_ = lean_ctor_get(v___x_3350_, 0);
 lean_inc_ref(v_env_3364_);
 lean_dec(v___x_3350_);
@@ -10781,7 +10781,7 @@ v___jp_3391_:
 if (v___x_3390_ == 0)
 {
 lean_dec_ref(v_env_3364_);
-v___y_3380_ = v___y_3392_;
+v___y_3380_ = v___y_3393_;
 v___y_3381_ = v___y_3394_;
 v___y_3382_ = v___x_3390_;
 goto v___jp_3379_;
@@ -10790,8 +10790,8 @@ else
 {
 uint8_t v___x_3395_; 
 lean_inc(v___x_3378_);
-v___x_3395_ = l_Lean_Environment_contains(v_env_3364_, v___x_3378_, v___y_3393_);
-v___y_3380_ = v___y_3392_;
+v___x_3395_ = l_Lean_Environment_contains(v_env_3364_, v___x_3378_, v___y_3392_);
+v___y_3380_ = v___y_3393_;
 v___y_3381_ = v___y_3394_;
 v___y_3382_ = v___x_3395_;
 goto v___jp_3379_;
@@ -10837,8 +10837,8 @@ v___jp_3407_:
 {
 if (v___x_3390_ == 0)
 {
-v___y_3397_ = v___y_3409_;
-v___y_3398_ = v___y_3408_;
+v___y_3397_ = v___y_3408_;
+v___y_3398_ = v___y_3409_;
 v___y_3399_ = v___x_3390_;
 goto v___jp_3396_;
 }
@@ -10848,8 +10848,8 @@ uint8_t v___x_3410_;
 lean_inc(v___x_3373_);
 lean_inc_ref(v_env_3364_);
 v___x_3410_ = l_Lean_Environment_contains(v_env_3364_, v___x_3373_, v___y_3408_);
-v___y_3397_ = v___y_3409_;
-v___y_3398_ = v___y_3408_;
+v___y_3397_ = v___y_3408_;
+v___y_3398_ = v___y_3409_;
 v___y_3399_ = v___x_3410_;
 goto v___jp_3396_;
 }
@@ -23720,7 +23720,7 @@ return v___x_7493_;
 v___jp_7439_:
 {
 lean_object* v___x_7446_; lean_object* v___x_7447_; lean_object* v___x_7448_; 
-v___x_7446_ = l_Lean_mkApp6(v___y_7442_, v_a_7425_, v_b_7426_, v___y_7444_, v___y_7443_, v___y_7441_, v___y_7440_);
+v___x_7446_ = l_Lean_mkApp6(v___y_7440_, v_a_7425_, v_b_7426_, v___y_7444_, v___y_7442_, v___y_7443_, v___y_7441_);
 v___x_7447_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_7447_, 0, v___y_7445_);
 lean_ctor_set(v___x_7447_, 1, v___x_7446_);
@@ -23768,10 +23768,10 @@ lean_inc(v_snd_7470_);
 lean_dec(v_a_7468_);
 lean_inc(v_fst_7465_);
 v___x_7471_ = l_Lean_mkIntMod(v_fst_7465_, v_fst_7469_);
-v___y_7440_ = v_snd_7470_;
-v___y_7441_ = v_snd_7466_;
-v___y_7442_ = v_val_7462_;
-v___y_7443_ = v_fst_7469_;
+v___y_7440_ = v_val_7462_;
+v___y_7441_ = v_snd_7470_;
+v___y_7442_ = v_fst_7469_;
+v___y_7443_ = v_snd_7466_;
 v___y_7444_ = v_fst_7465_;
 v___y_7445_ = v___x_7471_;
 goto v___jp_7439_;
@@ -23786,10 +23786,10 @@ lean_inc(v_snd_7473_);
 lean_dec(v_a_7468_);
 lean_inc(v_fst_7465_);
 v___x_7474_ = l_Lean_mkIntDiv(v_fst_7465_, v_fst_7472_);
-v___y_7440_ = v_snd_7473_;
-v___y_7441_ = v_snd_7466_;
-v___y_7442_ = v_val_7462_;
-v___y_7443_ = v_fst_7472_;
+v___y_7440_ = v_val_7462_;
+v___y_7441_ = v_snd_7473_;
+v___y_7442_ = v_fst_7472_;
+v___y_7443_ = v_snd_7466_;
 v___y_7444_ = v_fst_7465_;
 v___y_7445_ = v___x_7474_;
 goto v___jp_7439_;

@@ -3290,6 +3290,7 @@ else
 lean_object* v___x_973_; uint8_t v___x_974_; 
 v___x_973_ = l_Lean_Syntax_getArg(v_stx_821_, v___x_818_);
 v___x_974_ = l_Lean_Syntax_matchesIdent(v___x_973_, v___x_819_);
+lean_dec(v___x_819_);
 if (v___x_974_ == 0)
 {
 lean_object* v___x_975_; lean_object* v___x_976_; 

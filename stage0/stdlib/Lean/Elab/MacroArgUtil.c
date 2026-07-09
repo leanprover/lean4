@@ -40,7 +40,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabParserName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Parser_getSyntaxKindOfParserAlias_x3f(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
@@ -2906,7 +2906,8 @@ v_resetjp_690_:
 lean_object* v___x_693_; lean_object* v___x_694_; lean_object* v___x_695_; 
 v___x_693_ = l_Lean_TSyntax_getId(v_id_613_);
 lean_dec(v_id_613_);
-v___x_694_ = lean_erase_macro_scopes(v___x_693_);
+v___x_694_ = l_Lean_Name_eraseMacroScopes(v___x_693_);
+lean_dec(v___x_693_);
 v___x_695_ = l_Lean_Parser_getSyntaxKindOfParserAlias_x3f(v___x_694_);
 lean_dec(v___x_694_);
 if (lean_obj_tag(v___x_695_) == 0)

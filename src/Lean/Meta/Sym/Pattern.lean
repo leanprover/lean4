@@ -23,7 +23,7 @@ import Init.Data.List.MapIdx
 import Init.Data.Nat.Internal.Linear
 import Std.Do.Triple.Basic
 namespace Lean.Meta.Sym
-open Internal
+open Lean.Meta.Sym.Internal
 
 /-!
 This module implements efficient pattern matching and unification module for the symbolic simulation

@@ -82,7 +82,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4248,7 +4248,7 @@ v___x_1399_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_1399_, 0, v___x_1377_);
 lean_ctor_set(v___x_1399_, 1, v___x_1398_);
 v___x_1400_ = l_Lean_Syntax_node1(v___x_1377_, v___x_1397_, v___x_1399_);
-v___x_1401_ = lean_mk_syntax_ident(v_method_1364_);
+v___x_1401_ = l_Lean_mkIdent(v_method_1364_);
 lean_inc(v___x_1400_);
 v___x_1402_ = l_Lean_Syntax_node4(v___x_1377_, v___x_1393_, v___y_1395_, v___x_1400_, v___x_1400_, v___x_1401_);
 v___x_1403_ = l_Lean_Syntax_node2(v___x_1377_, v___x_1381_, v___x_1392_, v___x_1402_);

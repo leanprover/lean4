@@ -49,7 +49,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*)
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_mkRflResultCD(uint8_t);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
@@ -2031,7 +2031,7 @@ lean_object* v_a_856_; lean_object* v___x_857_;
 v_a_856_ = lean_ctor_get(v___x_855_, 0);
 lean_inc(v_a_856_);
 lean_dec_ref_known(v___x_855_, 1);
-v___x_857_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_856_, v_a_828_);
+v___x_857_ = l_Lean_Meta_Sym_shareCommon(v_a_856_, v_a_827_, v_a_828_, v_a_829_, v_a_830_, v_a_831_, v_a_832_);
 if (lean_obj_tag(v___x_857_) == 0)
 {
 lean_object* v_a_858_; lean_object* v___x_859_; 
@@ -2550,7 +2550,7 @@ lean_dec(v___x_1061_);
 v_funext_1064_ = lean_ctor_get(v___x_1062_, 3);
 lean_inc_ref(v_funext_1064_);
 lean_dec(v___x_1062_);
-v___x_1077_ = l_Lean_Meta_Sym_shareCommon___redArg(v_b_1050_, v___y_1055_);
+v___x_1077_ = l_Lean_Meta_Sym_shareCommon(v_b_1050_, v___y_1054_, v___y_1055_, v___y_1056_, v___y_1057_, v___y_1058_, v___y_1059_);
 if (lean_obj_tag(v___x_1077_) == 0)
 {
 lean_object* v_a_1078_; lean_object* v___x_1079_; 

@@ -54,6 +54,8 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
         if: runner.os == 'Linux' && !matrix.cmultilib
+        with:
+          summarize: false
       - name: Install MSYS2
         uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
@@ -269,6 +271,11 @@ jobs:
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: matrix.test
+      # copy failed tests' output into the `<failure>` elements shown by the test summary
+      - name: Embed Test Output
+        run: |
+          python3 script/junit_embed_output.py build/$TARGET_STAGE/test-results.xml
+        if: always() && steps.test.conclusion == 'failure'
       - name: Test Summary
         uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:

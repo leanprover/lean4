@@ -98,7 +98,7 @@ lean_object* l_Lean_Elab_HeaderSyntax_imports(lean_object*, uint8_t);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
-lean_object* lean_mk_empty_environment(uint32_t);
+lean_object* l_Lean_mkEmptyEnvironment(uint32_t);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 extern lean_object* l_Lake_nameExt;
@@ -1679,7 +1679,7 @@ lean_ctor_set_uint8(v___x_398_, sizeof(void*)*5, v___x_388_);
 lean_ctor_set_uint8(v___x_398_, sizeof(void*)*5 + 1, v___x_393_);
 lean_ctor_set_uint8(v___x_398_, sizeof(void*)*5 + 2, v___x_388_);
 v___x_399_ = 0;
-v___x_400_ = lean_mk_empty_environment(v___x_399_);
+v___x_400_ = l_Lean_mkEmptyEnvironment(v___x_399_);
 if (lean_obj_tag(v___x_400_) == 0)
 {
 lean_object* v_a_401_; lean_object* v___x_403_; uint8_t v_isShared_404_; uint8_t v_isSharedCheck_410_; 

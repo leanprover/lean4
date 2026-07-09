@@ -64,7 +64,7 @@ lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter(lean_object
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toRawSubstring_x27(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Std_Format_getIndent(lean_object*);
+lean_object* l_Lean_Std_Format_getIndent(lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_indent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Parser_identNoAntiquot;
@@ -7381,7 +7381,7 @@ _start:
 lean_object* v_options_3579_; lean_object* v___x_3580_; lean_object* v___x_3581_; lean_object* v___x_3582_; lean_object* v___x_3583_; lean_object* v___x_3584_; lean_object* v___x_3585_; 
 v_options_3579_ = lean_ctor_get(v_a_3576_, 2);
 v___x_3580_ = lean_obj_once(&l_Lean_ppDedent_formatter___closed__0, &l_Lean_ppDedent_formatter___closed__0_once, _init_l_Lean_ppDedent_formatter___closed__0);
-v___x_3581_ = l_Std_Format_getIndent(v_options_3579_);
+v___x_3581_ = l_Lean_Std_Format_getIndent(v_options_3579_);
 v___x_3582_ = lean_nat_to_int(v___x_3581_);
 v___x_3583_ = lean_int_sub(v___x_3580_, v___x_3582_);
 lean_dec(v___x_3582_);
@@ -7580,7 +7580,7 @@ v_resetjp_3658_:
 {
 lean_object* v_options_3661_; lean_object* v___x_3662_; lean_object* v_v_3663_; lean_object* v_xs_x27_3664_; lean_object* v___x_3665_; lean_object* v___x_3666_; lean_object* v___x_3667_; lean_object* v___x_3668_; lean_object* v___x_3669_; lean_object* v___x_3671_; 
 v_options_3661_ = lean_ctor_get(v_a_3630_, 2);
-v___x_3662_ = l_Std_Format_getIndent(v_options_3661_);
+v___x_3662_ = l_Lean_Std_Format_getIndent(v_options_3661_);
 v_v_3663_ = lean_array_fget(v_stack_3652_, v___x_3656_);
 v_xs_x27_3664_ = lean_array_fset(v_stack_3652_, v___x_3656_, v___x_3653_);
 v___x_3665_ = lean_obj_once(&l_Lean_ppDedent_formatter___closed__0, &l_Lean_ppDedent_formatter___closed__0_once, _init_l_Lean_ppDedent_formatter___closed__0);

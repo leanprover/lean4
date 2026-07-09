@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Linter.Util
+public import Lean.Linter.AmbiguousOpen
 public import Lean.Linter.Builtin
 public import Lean.Linter.CheckUnivs
 public import Lean.Linter.ConstructorAsVariable

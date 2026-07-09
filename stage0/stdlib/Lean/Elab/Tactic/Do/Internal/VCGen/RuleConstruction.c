@@ -86,7 +86,7 @@ lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_mkNot(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
-lean_object* l_Array_mask___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Array_mask___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_abstractM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
@@ -23532,7 +23532,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SplitInfo_splitWith___at___00Lean
 _start:
 {
 lean_object* v___x_7685_; lean_object* v___x_7686_; lean_object* v___x_7687_; 
-v___x_7685_ = l_Array_mask___redArg(v_mask_7676_, v_xs_7678_);
+v___x_7685_ = l_Lean_Array_mask___redArg(v_mask_7676_, v_xs_7678_);
 v___x_7686_ = lean_expr_instantiate_rev(v_a_7677_, v___x_7685_);
 lean_dec(v___x_7685_);
 v___x_7687_ = lean_alloc_ctor(0, 1, 0);
@@ -24357,7 +24357,7 @@ v_sz_8005_ = lean_array_size(v_discrs_8004_);
 v___x_8006_ = ((size_t)0ULL);
 lean_inc_ref_n(v_discrs_8004_, 2);
 v_mask_8007_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Tactic_Do_SplitInfo_splitWith___at___00Lean_Elab_Tactic_Do_Internal_VCGen_mkBackwardRuleForSplit_spec__2_spec__2(v_sz_8005_, v___x_8006_, v_discrs_8004_);
-v_maskedDiscrs_8008_ = l_Array_mask___redArg(v_mask_8007_, v_discrs_8004_);
+v_maskedDiscrs_8008_ = l_Lean_Array_mask___redArg(v_mask_8007_, v_discrs_8004_);
 v___x_8009_ = l_Lean_Expr_abstractM(v_resTy_7869_, v_maskedDiscrs_8008_, v___y_7872_, v___y_7873_, v___y_7874_, v___y_7875_);
 lean_dec(v_maskedDiscrs_8008_);
 if (lean_obj_tag(v___x_8009_) == 0)

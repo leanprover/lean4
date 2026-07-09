@@ -19,7 +19,7 @@ import Lean.Meta.Tactic.Apply
 import Lean.Elab.Tactic.Location
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic.Grind
-open Meta Grind
+open Meta
 
 private def evalIntroCore (internalize : Bool) (ids : TSyntaxArray `Lean.binderIdent) : GrindTacticM Unit := do
   ensureSym

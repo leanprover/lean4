@@ -426,10 +426,10 @@ goto v_resetjp_100_;
 }
 v_resetjp_100_:
 {
-uint8_t v___x_103_; 
-v___x_103_ = lean_unbox(v_a_99_);
+uint8_t v_verbose_103_; 
+v_verbose_103_ = lean_ctor_get_uint8(v_a_99_, 0);
 lean_dec(v_a_99_);
-if (v___x_103_ == 0)
+if (v_verbose_103_ == 0)
 {
 lean_object* v___x_104_; lean_object* v___x_106_; 
 lean_dec_ref(v_e_90_);

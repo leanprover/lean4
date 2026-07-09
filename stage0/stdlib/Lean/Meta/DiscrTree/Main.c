@@ -23,7 +23,7 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(lean_object*, l
 lean_object* l_Lean_Meta_Context_config(lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
-uint8_t lean_get_reducibility_status(lean_object*, lean_object*);
+uint8_t l_Lean_getReducibilityStatusCore(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isMatcherAppCore_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -82,7 +82,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-uint8_t lean_is_class(lean_object*, lean_object*);
+uint8_t l_Lean_isClass(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_mkNoindexAnnotation(lean_object*);
 uint8_t l_Lean_instBEqMVarId_beq(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -2232,7 +2232,7 @@ case 11:
 lean_object* v_typeName_599_; lean_object* v_idx_600_; lean_object* v_struct_601_; lean_object* v___x_602_; lean_object* v___y_604_; lean_object* v_env_608_; uint8_t v___x_609_; 
 lean_del_object(v___x_526_);
 v_typeName_599_ = lean_ctor_get(v___x_535_, 0);
-lean_inc_n(v_typeName_599_, 2);
+lean_inc(v_typeName_599_);
 v_idx_600_ = lean_ctor_get(v___x_535_, 1);
 lean_inc(v_idx_600_);
 v_struct_601_ = lean_ctor_get(v___x_535_, 2);
@@ -2241,7 +2241,7 @@ v___x_602_ = lean_st_ref_get(v_a_515_);
 v_env_608_ = lean_ctor_get(v___x_602_, 0);
 lean_inc_ref(v_env_608_);
 lean_dec(v___x_602_);
-v___x_609_ = lean_is_class(v_env_608_, v_typeName_599_);
+v___x_609_ = l_Lean_isClass(v_env_608_, v_typeName_599_);
 if (v___x_609_ == 0)
 {
 v___y_604_ = v_struct_601_;
@@ -3468,7 +3468,7 @@ v___x_1015_ = lean_st_ref_get(v___y_1013_);
 v_env_1016_ = lean_ctor_get(v___x_1015_, 0);
 lean_inc_ref(v_env_1016_);
 lean_dec(v___x_1015_);
-v___x_1017_ = lean_get_reducibility_status(v_env_1016_, v_declName_1012_);
+v___x_1017_ = l_Lean_getReducibilityStatusCore(v_env_1016_, v_declName_1012_);
 v___x_1018_ = lean_box(v___x_1017_);
 v___x_1019_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1019_, 0, v___x_1018_);

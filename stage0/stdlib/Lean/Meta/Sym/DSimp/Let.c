@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_instantiateRevBetaS___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_instantiateRevBetaS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_sym_dsimp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLetFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -257,14 +257,16 @@ v_body_172_ = lean_ctor_get(v_e_156_, 3);
 lean_inc_ref(v_body_172_);
 v_nondep_173_ = lean_ctor_get_uint8(v_e_156_, sizeof(void*)*4 + 8);
 lean_dec_ref_known(v_e_156_, 4);
-v___x_174_ = l_Lean_Meta_Sym_instantiateRevBetaS___redArg(v_type_170_, v_fvars_157_, v_a_163_);
+lean_inc_ref(v_fvars_157_);
+v___x_174_ = l_Lean_Meta_Sym_instantiateRevBetaS(v_type_170_, v_fvars_157_, v_a_162_, v_a_163_, v_a_164_, v_a_165_, v_a_166_, v_a_167_);
 if (lean_obj_tag(v___x_174_) == 0)
 {
 lean_object* v_a_175_; lean_object* v___x_176_; 
 v_a_175_ = lean_ctor_get(v___x_174_, 0);
 lean_inc(v_a_175_);
 lean_dec_ref_known(v___x_174_, 1);
-v___x_176_ = l_Lean_Meta_Sym_instantiateRevBetaS___redArg(v_value_171_, v_fvars_157_, v_a_163_);
+lean_inc_ref(v_fvars_157_);
+v___x_176_ = l_Lean_Meta_Sym_instantiateRevBetaS(v_value_171_, v_fvars_157_, v_a_162_, v_a_163_, v_a_164_, v_a_165_, v_a_166_, v_a_167_);
 if (lean_obj_tag(v___x_176_) == 0)
 {
 lean_object* v_a_177_; lean_object* v___x_178_; 
@@ -492,8 +494,9 @@ return v___x_213_;
 else
 {
 lean_object* v___x_216_; 
+lean_inc_ref(v_fvars_157_);
 lean_inc_ref(v_e_156_);
-v___x_216_ = l_Lean_Meta_Sym_instantiateRevBetaS___redArg(v_e_156_, v_fvars_157_, v_a_163_);
+v___x_216_ = l_Lean_Meta_Sym_instantiateRevBetaS(v_e_156_, v_fvars_157_, v_a_162_, v_a_163_, v_a_164_, v_a_165_, v_a_166_, v_a_167_);
 if (lean_obj_tag(v___x_216_) == 0)
 {
 lean_object* v_a_217_; lean_object* v___x_218_; 

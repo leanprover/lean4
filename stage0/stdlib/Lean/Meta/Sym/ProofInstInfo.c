@@ -664,7 +664,6 @@ goto v_resetjp_182_;
 v_resetjp_182_:
 {
 uint8_t v___y_186_; uint8_t v___y_187_; uint8_t v_found_188_; uint8_t v___y_199_; lean_object* v___x_216_; 
-lean_inc(v_a_179_);
 lean_inc_ref(v___x_165_);
 v___x_216_ = l_Lean_Meta_Sym_isClass_x3f(v___x_165_, v_a_179_);
 if (lean_obj_tag(v___x_216_) == 0)

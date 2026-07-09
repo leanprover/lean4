@@ -822,13 +822,13 @@ lean_object* v___x_39_;
 v___x_39_ = l_Lean_Meta_Sym_getConfig___redArg(v___y_33_);
 if (lean_obj_tag(v___x_39_) == 0)
 {
-lean_object* v_a_40_; uint8_t v___x_41_; 
+lean_object* v_a_40_; uint8_t v_verbose_41_; 
 v_a_40_ = lean_ctor_get(v___x_39_, 0);
 lean_inc(v_a_40_);
 lean_dec_ref_known(v___x_39_, 1);
-v___x_41_ = lean_unbox(v_a_40_);
+v_verbose_41_ = lean_ctor_get_uint8(v_a_40_, 0);
 lean_dec(v_a_40_);
-if (v___x_41_ == 0)
+if (v_verbose_41_ == 0)
 {
 lean_dec_ref(v_eqs_13_);
 goto v___jp_27_;

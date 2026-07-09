@@ -3932,6 +3932,7 @@ lean_dec(v___y_1406_);
 lean_dec_ref(v___y_1405_);
 lean_dec_ref(v_ysx2_1398_);
 lean_dec_ref(v___x_1397_);
+lean_dec(v_indName_1394_);
 lean_dec_ref(v_val_1392_);
 return v_res_1412_;
 }

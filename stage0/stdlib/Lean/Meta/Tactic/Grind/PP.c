@@ -60,7 +60,7 @@ lean_object* lean_st_ref_get(lean_object*);
 uint8_t l_Lean_Meta_Grind_isCastLikeDeclName(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-uint8_t lean_is_matcher(lean_object*, lean_object*);
+uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
@@ -4521,7 +4521,7 @@ lean_object* v_env_1357_; uint8_t v___x_1358_; lean_object* v___x_1359_; lean_ob
 v_env_1357_ = lean_ctor_get(v___x_1353_, 0);
 lean_inc_ref(v_env_1357_);
 lean_dec(v___x_1353_);
-v___x_1358_ = lean_is_matcher(v_env_1357_, v_declName_1350_);
+v___x_1358_ = l_Lean_Meta_isMatcherCore(v_env_1357_, v_declName_1350_);
 v___x_1359_ = lean_box(v___x_1358_);
 v___x_1360_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1360_, 0, v___x_1359_);

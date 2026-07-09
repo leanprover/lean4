@@ -58,13 +58,13 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 size_t lean_uint64_to_usize(uint64_t);
 size_t lean_usize_land(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_MetavarContext_getDelayedMVarAssignmentCore_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getExprAssignmentCore_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn_x27(lean_object*);
@@ -714,7 +714,7 @@ lean_inc(v_a_167_);
 v___x_173_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_173_, 0, v_a_167_);
 lean_ctor_set(v___x_173_, 1, v___x_172_);
-v___x_174_ = lean_mk_syntax_ident(v_n_160_);
+v___x_174_ = l_Lean_mkIdent(v_n_160_);
 v___x_175_ = l_Lean_Syntax_node2(v_a_167_, v___x_171_, v___x_173_, v___x_174_);
 if (v_isShared_170_ == 0)
 {
@@ -833,7 +833,7 @@ lean_inc(v_a_208_);
 v___x_218_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_218_, 0, v_a_208_);
 lean_ctor_set(v___x_218_, 1, v___x_217_);
-v___x_219_ = lean_mk_syntax_ident(v___x_215_);
+v___x_219_ = l_Lean_mkIdent(v___x_215_);
 v___x_220_ = l_Lean_Syntax_node2(v_a_208_, v___x_216_, v___x_218_, v___x_219_);
 if (v_isShared_211_ == 0)
 {
@@ -3152,7 +3152,8 @@ goto v___jp_965_;
 else
 {
 lean_object* v___x_975_; lean_object* v___x_976_; lean_object* v___x_977_; lean_object* v___x_978_; lean_object* v___x_979_; 
-v___x_975_ = lean_erase_macro_scopes(v_head_960_);
+v___x_975_ = l_Lean_Name_eraseMacroScopes(v_head_960_);
+lean_dec(v_head_960_);
 v___x_976_ = l_Lean_Name_toString(v___x_975_, v___x_972_);
 v___x_977_ = ((lean_object*)(l___private_Lean_PrettyPrinter_Delaborator_Metavariable_0__Lean_PrettyPrinter_Delaborator_delabMVarAsStr___lam__0___closed__0));
 v___x_978_ = lean_string_append(v___x_976_, v___x_977_);

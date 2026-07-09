@@ -20,7 +20,7 @@ lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_Meta_Simp_mkDefaultMethodsCore(lean_object*);
 lean_object* l_Lean_Meta_Simp_Methods_toMethodsRefImpl(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
@@ -8759,7 +8759,7 @@ LEAN_EXPORT uint8_t l_Lean_Elab_Tactic_Do_isJP(lean_object* v_n_2807_){
 _start:
 {
 lean_object* v___x_2808_; lean_object* v___x_2809_; uint8_t v___x_2810_; 
-v___x_2808_ = lean_erase_macro_scopes(v_n_2807_);
+v___x_2808_ = l_Lean_Name_eraseMacroScopes(v_n_2807_);
 v___x_2809_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_isJP___closed__1));
 v___x_2810_ = lean_name_eq(v___x_2808_, v___x_2809_);
 lean_dec(v___x_2808_);
@@ -8771,6 +8771,7 @@ _start:
 {
 uint8_t v_res_2812_; lean_object* v_r_2813_; 
 v_res_2812_ = l_Lean_Elab_Tactic_Do_isJP(v_n_2811_);
+lean_dec(v_n_2811_);
 v_r_2813_ = lean_box(v_res_2812_);
 return v_r_2813_;
 }
@@ -11584,7 +11585,8 @@ v_cancelTk_x3f_3798_ = lean_ctor_get(v___y_3493_, 12);
 v_suppressElabErrors_3799_ = lean_ctor_get_uint8(v___y_3493_, sizeof(void*)*14 + 1);
 v_inheritedTraceOptions_3800_ = lean_ctor_get(v___y_3493_, 13);
 v___x_3801_ = l_Lean_Syntax_getId(v___x_3761_);
-v___x_3802_ = lean_erase_macro_scopes(v___x_3801_);
+v___x_3802_ = l_Lean_Name_eraseMacroScopes(v___x_3801_);
+lean_dec(v___x_3801_);
 v_ref_3803_ = l_Lean_replaceRef(v___x_3761_, v_ref_3790_);
 lean_dec(v___x_3761_);
 lean_inc_ref(v_inheritedTraceOptions_3800_);

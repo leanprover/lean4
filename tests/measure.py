@@ -7,7 +7,6 @@ import resource
 import subprocess
 import sys
 import tempfile
-from argparse import Namespace
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple

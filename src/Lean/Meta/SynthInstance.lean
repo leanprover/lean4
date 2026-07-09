@@ -11,6 +11,7 @@ public import Init.Data.Array.InsertionSort
 public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
+import Lean.Util.CollectLevelMVars
 import Init.While
 
 public section
@@ -913,6 +914,31 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKin
     else
       modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
 
+/--
+Computes the fingerprint under which it is sound to memoize that the query `key` got stuck
+(`isDefEqStuck`), or `none` if memoizing it is unsound. A stuck query whose key is unchanged can
+still succeed when re-run if the search outcome depends on state outside the key:
+- Local instances participate in the key only by their `FVarId`. If a local instance's type
+  contains a metavariable, assigning it later un-sticks the query without changing the key.
+- Non-natural metavariables in the query can be resolved by the search itself as a side effect
+  (`synthPending`), and delayed assignments can make progress, both without a prior key change.
+- Level metavariables at the caller's metavariable-context depth may be assigned during the
+  search (`allowLevelAssignments`), so stuckness additionally depends on their current
+  assignability. This set is the returned fingerprint; it must be compared at lookup time.
+-/
+private def stuckMemoFingerprint? (key : SynthInstanceCacheKey) : MetaM (Option (Array LMVarId)) := do
+  for localInst in key.localInsts do
+    if (← instantiateMVars (← localInst.fvar.fvarId!.getDecl).type).hasMVar then
+      return none
+  let type ← instantiateMVars key.type
+  for mvarId in (type.collectMVars {}).result do
+    unless (← mvarId.getDecl).kind.isNatural do
+      return none
+    if (← mvarId.isDelayedAssigned) then
+      return none
+  let assignable ← (collectLevelMVars {} type).result.filterM isLevelMVarAssignable
+  return some <| assignable.insertionSort fun u v => u.name.quickLt v.name
+
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
@@ -932,12 +958,14 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
     | none =>
-      if (← get).cache.synthStuck.contains cacheKey then
-        -- The same query already got stuck on a metavariable; the blocking metavariable is still
-        -- unassigned (otherwise the key would be more instantiated), so fail fast instead of
-        -- re-running the search.
-        trace[Meta.synthInstance.cache] "stuck (cached): {type}"
-        Meta.throwIsDefEqStuck
+      if let some fingerprint := (← get).cache.synthStuck.find? cacheKey then
+        -- The same query already got stuck on a metavariable; the blocking metavariable is
+        -- still unassigned (otherwise the key would be more instantiated). If additionally the
+        -- level-assignability fingerprint is unchanged, the search is guaranteed to get stuck
+        -- again, so fail fast instead of re-running it.
+        if (← stuckMemoFingerprint? cacheKey) == some fingerprint then
+          trace[Meta.synthInstance.cache] "stuck (cached): {type}"
+          Meta.throwIsDefEqStuck
       trace[Meta.synthInstance.cache] "new: {type}"
       try
       let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
@@ -972,7 +1000,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       catch e =>
         if let .internal id _ := e then
           if id == isDefEqStuckExceptionId then
-            modifyCache fun c => { c with synthStuck := c.synthStuck.insert cacheKey }
+            if let some fingerprint ← stuckMemoFingerprint? cacheKey then
+              modifyCache fun c => { c with synthStuck := c.synthStuck.insert cacheKey fingerprint }
         throw e
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do

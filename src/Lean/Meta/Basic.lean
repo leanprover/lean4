@@ -396,8 +396,11 @@ structure Cache where
   memoizing stuckness lets the retries fail fast instead of re-running the search setup each
   time. If the blocking metavariable is assigned in the meantime, the retried query has a
   different (more instantiated) key and is not affected by the memoized entry.
+
+  Entries are recorded only when stuckness is a pure function of the key and the associated
+  fingerprint of assignable level metavariables; see `stuckMemoFingerprint?`.
   -/
-  synthStuck     : PHashSet SynthInstanceCacheKey := {}
+  synthStuck     : PHashMap SynthInstanceCacheKey (Array LMVarId) := {}
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options

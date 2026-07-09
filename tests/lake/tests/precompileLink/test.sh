@@ -3,6 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
+PKG=precompileArgs
 
 # Test that precompilation works with a Lake import
 # https://github.com/leanprover/lean4/issues/7388
@@ -13,8 +14,8 @@ test_run -v build LakeTest
 test_run -v exe orderTest
 
 # Test that transitively importing a precompiled module
-# from a non-precompiled module works
-test_not_out '"plugins":[]' -v setup-file ImportDownstream.lean
+# from a non-precompiled module loads the correct shared object.
+test_out "${PKG}_Foo.$SHARED_LIB_EXT" -v setup-file ImportDownstream.lean
 test_run -v build Downstream
 
 # Test that `moreLinkArgs` are included when linking precompiled modules
@@ -23,7 +24,6 @@ test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
 ./clean.sh
 
 # Test that dynlibs are part of the module trace unless `platformIndependent` is set
-PKG=precompileArgs
 test_run build -R
 echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_err "Building Foo" build --rehash

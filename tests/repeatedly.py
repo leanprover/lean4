@@ -68,19 +68,40 @@ def run_once(cmd: list[str]) -> list[Measurement]:
         return read_measurements_from_outfile()
 
 
-def repeatedly(cmd: list[str], iterations: int) -> list[Measurement]:
+def sum_by_metric(measurements: list[Measurement]) -> dict[str, Measurement]:
     totals: dict[str, Measurement] = {}
+    for measurement in measurements:
+        if existing := totals.get(measurement.metric):
+            measurement.value += existing.value
+        totals[measurement.metric] = measurement
+    return totals
+
+
+def repeatedly(
+    cmd: list[str], iterations: int, drop_highest: int = 0, drop_lowest: int = 0
+) -> list[Measurement]:
+    by_metric: dict[str, list[Measurement]] = {}
 
     for i in range(iterations):
-        for measurement in run_once(cmd):
-            if existing := totals.get(measurement.metric):
-                measurement.value += existing.value
-            totals[measurement.metric] = measurement
+        for metric, measurement in sum_by_metric(run_once(cmd)).items():
+            by_metric.setdefault(metric, []).append(measurement)
 
-    for measurement in totals.values():
-        measurement.value /= iterations
+    if drop_highest + drop_lowest >= iterations:
+        raise ValueError(
+            f"drop_highest ({drop_highest}) + drop_lowest ({drop_lowest}) must be "
+            f"less than the number of iterations ({iterations})"
+        )
 
-    return list(totals.values())
+    results = []
+    for metric, measurements in by_metric.items():
+        measurements = measurements[drop_lowest : len(measurements) - drop_highest]
+        if not measurements:
+            continue
+        unit = measurements[0].unit
+        value = sum(m.value for m in measurements) / len(measurements)
+        results.append(Measurement(metric, value, unit))
+
+    return results
 
 
 if __name__ == "__main__":
@@ -95,6 +116,20 @@ if __name__ == "__main__":
         help="number of iterations",
     )
     parser.add_argument(
+        "-H",
+        "--drop-highest",
+        type=int,
+        default=0,
+        help="drop the n highest values of each metric before averaging",
+    )
+    parser.add_argument(
+        "-L",
+        "--drop-lowest",
+        type=int,
+        default=0,
+        help="drop the n lowest values of each metric before averaging",
+    )
+    parser.add_argument(
         "cmd",
         nargs="*",
         help="command to repeatedly run",
@@ -104,5 +139,5 @@ if __name__ == "__main__":
     iterations: int = args.iterations
     cmd: list[str] = args.cmd
 
-    measurements = repeatedly(cmd, iterations)
+    measurements = repeatedly(cmd, iterations, args.drop_highest, args.drop_lowest)
     write_measurements_to_outfile(measurements)

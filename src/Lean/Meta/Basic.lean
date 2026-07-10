@@ -246,13 +246,11 @@ instance : Inhabited ConfigWithKey where  -- #9463
 def Config.toConfigWithKey (c : Config) : ConfigWithKey :=
   { config := c }
 
-@[inline]
-def ConfigWithKey.withCanUnfoldAtMatcherPred : ConfigWithKey → ConfigWithKey
-  | { config := c, key := k } =>
-    { config := { c with canUnfoldPredicateConfig := .atMatcher },
-      key :=
-        have : CanUnfoldPredicateConfig.atMatcher.toBool = true := rfl
-        k ||| ((1 : UInt64) <<< 23) }
+def ConfigWithKey.withCanUnfoldAtMatcherPred (c : ConfigWithKey) : ConfigWithKey :=
+  { config := { c.config with canUnfoldPredicateConfig := .atMatcher },
+    key :=
+      have : CanUnfoldPredicateConfig.atMatcher.toBool = true := rfl
+      c.key ||| ((1 : UInt64) <<< 23) }
 
 def ConfigWithKey.setTransparency (transparency : TransparencyMode) (c : ConfigWithKey) : ConfigWithKey :=
   { config := { c.config with transparency }

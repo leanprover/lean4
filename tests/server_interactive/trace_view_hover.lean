@@ -11,16 +11,16 @@ command then falls back to the identity postprocessor).
 open scoped Lean.TraceView
 
 set_option trace.Meta.synthInstance true in
-trace_view hideSucceeded in
+trace_view countNodes in
           --^ textDocument/hover
 example : Inhabited (List Nat) := inferInstance
 
 set_option trace.Meta.synthInstance true in
-trace_view maxDepth 1 >=> grep "result" in
+trace_view filter (containsString "result") in
             --^ textDocument/hover
 example : Inhabited (List Nat) := inferInstance
 
 set_option trace.Meta.synthInstance true in
-trace_view hideSuc in
+trace_view countNode in
 example : Inhabited (List Nat) := inferInstance
                                 --^ textDocument/hover

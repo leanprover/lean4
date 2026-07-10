@@ -960,14 +960,16 @@ with the trace postprocessor `post : Lean.TraceView.TracePostprocessor` before i
 
 The postprocessor receives the array of trace roots of each trace message and returns the
 transformed roots; returning an empty array drops the message entirely. The `Lean.TraceView`
-namespace (automatically opened in `post`) provides combinators such as `focusOn`, `hideSucceeded`,
-`maxDepth`, `grep`, `expandAll`, and `onRoots`, which can be composed left-to-right with `>=>`
-or used as building blocks for user-defined postprocessors.
+namespace (automatically opened in `post`) provides operations such as `filter`, `hoist`,
+`expand`, and `timeInside`, which take patterns such as `ofClass`, `containsString`, and
+`minTimeMs` and compose left-to-right with `>=>`. User-defined postprocessors and patterns are
+ordinary functions.
 
-For example, the following only shows instance-synthesis traces, with successful subtrees folded:
+For example, the following only shows the instance-synthesis steps that mention `tryResolve`,
+together with their ancestors:
 ```lean
 set_option trace.Meta.synthInstance true in
-trace_view focusOn `Meta.synthInstance >=> hideSucceeded in
+trace_view filter (containsString "tryResolve") in
 example : Inhabited (List Nat) := inferInstance
 ```
 -/

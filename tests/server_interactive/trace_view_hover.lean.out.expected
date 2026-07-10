@@ -1,18 +1,18 @@
 {"textDocument": {"uri": "file:///trace_view_hover.lean"},
  "position": {"line": 13, "character": 12}}
 {"range":
- {"start": {"line": 13, "character": 11}, "end": {"line": 13, "character": 24}},
+ {"start": {"line": 13, "character": 11}, "end": {"line": 13, "character": 21}},
  "contents":
  {"value":
-  "```lean\nLean.TraceView.hideSucceeded : TracePostprocessor\n```\n***\nFolds every successful subtree that contains no failure into a single line, keeping the paths to\nfailed actions fully visible. Trace roots without any failure are folded into their root node.\n\n***\n*import Lean.Elab.TraceView*",
+  "```lean\nLean.TraceView.countNodes : TracePostprocessor\n```\n***\nAppends the number of nodes inside each subtree to the subtree's head message. \n***\n*import Lean.Elab.TraceView*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///trace_view_hover.lean"},
  "position": {"line": 18, "character": 14}}
 {"range":
- {"start": {"line": 18, "character": 11}, "end": {"line": 18, "character": 19}},
+ {"start": {"line": 18, "character": 11}, "end": {"line": 18, "character": 17}},
  "contents":
  {"value":
-  "```lean\nLean.TraceView.maxDepth (depth : Nat) : TracePostprocessor\n```\n***\nTruncates all trace trees below the given depth (`maxDepth 0` keeps only the roots). \n***\n*import Lean.Elab.TraceView*",
+  "```lean\nLean.TraceView.filter (p : TracePattern) : TracePostprocessor\n```\n***\nKeeps only the subtrees matching `p`, together with their ancestors for context; all other nodes\nare removed. Matching subtrees are kept in their entirety and not searched for nested matches\n(see `TraceTree.filterSubtrees`).\n\n***\n*import Lean.Elab.TraceView*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///trace_view_hover.lean"},
  "position": {"line": 24, "character": 34}}

@@ -1,27 +1,14 @@
 import Lean
 
 /-!
-Tests for trace postprocessors: the `trace_view post in cmd` command, the basic combinators in
-`Lean.TraceView`, and the stored-trace commands `store_trace_as`, `#trace_roots`, `#trace_view`.
+Tests for trace postprocessors: the `trace_view post in cmd` command, the built-in patterns and
+operations in `Lean.TraceView`, and the fallback to the identity postprocessor on errors in the
+postprocessor term.
 -/
 
 open scoped Lean.TraceView
 
--- `hideSucceeded` folds a fully successful trace into its root line.
-/-- trace: [Meta.synthInstance] ✅️ Inhabited (List Nat) -/
-#guard_msgs in
-set_option trace.Meta.synthInstance true in
-trace_view hideSucceeded in
-example : Inhabited (List Nat) := inferInstance
-
--- `focusOn` hoists matching subtrees to the top level.
-/-- trace: [Meta.synthInstance.instances] #[@instInhabitedOfMonad, @instInhabitedList] -/
-#guard_msgs in
-set_option trace.Meta.synthInstance true in
-trace_view focusOn `Meta.synthInstance.instances in
-example : Inhabited (List Nat) := inferInstance
-
--- `grep` keeps matching subtrees (here: by trace class) plus their ancestors for context.
+-- `filter` keeps the matching subtrees plus their ancestors for context.
 /--
 trace: [Meta.synthInstance] ✅️ Inhabited (List Nat)
   [Meta.synthInstance.apply] ✅️ apply @instInhabitedList to Inhabited (List Nat)
@@ -29,17 +16,25 @@ trace: [Meta.synthInstance] ✅️ Inhabited (List Nat)
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-trace_view grep "tryResolve" in
+trace_view filter (containsString "tryResolve") in
 example : Inhabited (List Nat) := inferInstance
 
--- Postprocessors compose left-to-right with `>=>`.
+-- `hoist` makes the matching subtrees the new roots; `ofClass` selects nodes by their exact
+-- trace class.
+/-- trace: [Meta.synthInstance.instances] #[@instInhabitedOfMonad, @instInhabitedList] -/
+#guard_msgs in
+set_option trace.Meta.synthInstance true in
+trace_view hoist (ofClass `Meta.synthInstance.instances) in
+example : Inhabited (List Nat) := inferInstance
+
+-- Operations compose left-to-right with `>=>`.
 /--
-trace: [Meta.synthInstance] ✅️ Inhabited (List Nat)
-  [Meta.synthInstance] result instInhabitedList
+trace: [Meta.synthInstance.apply] ✅️ apply @instInhabitedList to Inhabited (List Nat)
+  [Meta.synthInstance.tryResolve] ✅️ Inhabited (List Nat) ≟ Inhabited (List Nat)
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-trace_view maxDepth 1 >=> grep "result" in
+trace_view hoist (containsString "synthInstance.apply") >=> filter (containsString "tryResolve") in
 example : Inhabited (List Nat) := inferInstance
 
 -- A postprocessor returning no roots drops the trace message entirely.
@@ -48,68 +43,165 @@ set_option trace.Meta.synthInstance true in
 trace_view (fun _ => return #[]) in
 example : Inhabited (List Nat) := inferInstance
 
--- User-defined postprocessor: keep only the `apply` steps directly below each root.
-open Lean TraceView in
-def onlyApplies : TracePostprocessor := fun roots =>
-  return roots.map fun r =>
-    r.withChildren (r.children.filter (·.cls? == some `Meta.synthInstance.apply))
-
-/--
-trace: [Meta.synthInstance] ✅️ Inhabited (List Nat)
-  [Meta.synthInstance.apply] ✅️ apply @instInhabitedList to Inhabited (List Nat)
-    [Meta.synthInstance.tryResolve] ✅️ Inhabited (List Nat) ≟ Inhabited (List Nat)
-    [Meta.synthInstance.answer] ✅️ Inhabited (List Nat)
--/
-#guard_msgs in
-set_option trace.Meta.synthInstance true in
-trace_view onlyApplies in
-example : Inhabited (List Nat) := inferInstance
-
 /-!
-`expandMatches` only changes `TraceData.collapsed` flags, which are invisible in textual
-output, so we test the flags directly on a synthetic tree.
+The remaining operations and patterns are tested on synthetic trees so that node counts and
+timings are deterministic. Times are given in seconds, as in `TraceData`.
 -/
 
-open Lean TraceView in
+open Lean TraceView
+
 private def mkTree (cls : Name) (msg : String) (kids : Array TraceTree := #[])
-    (collapsed := true) : TraceTree :=
-  .node { cls, collapsed } m!"{msg}" kids id
+    (collapsed := true) (start : Float := 0) (stop : Float := 0)
+    (result : Option TraceResult := none) : TraceTree :=
+  .node { cls, collapsed, startTime := start, stopTime := stop, result? := result } m!"{msg}"
+    kids id
 
-open Lean TraceView in
-private partial def collapsedFlags (t : TraceTree) : String :=
-  let state := if (t.data?.map (·.collapsed)).getD true then "closed" else "open"
-  let head := s!"{t.cls?.getD .anonymous}:{state}"
-  if t.children.isEmpty then head
-  else head ++ "[" ++ ",".intercalate (t.children.map collapsedFlags).toList ++ "]"
+private def runPost (post : TracePostprocessor) (roots : Array TraceTree) : Lean.CoreM Unit := do
+  for root in (← post roots) do
+    IO.println (← root.toMessageData.toString)
 
-open Lean TraceView in
+-- The generic trace formatter prints the elapsed seconds of profiled nodes in brackets after
+-- the trace class.
+private def timedTree : TraceTree :=
+  mkTree `a "root" (start := 1.0) (stop := 1.1) #[
+    mkTree `b "fast leaf" (start := 1.0) (stop := 1.03),
+    mkTree `c "slow branch" (start := 1.03) (stop := 1.09) #[
+      mkTree `d "grandchild" (start := 1.03) (stop := 1.05)]]
+
 private def sampleTree : TraceTree :=
   mkTree `a "root" #[
     mkTree `b "mid" #[mkTree `c "the needle is here"],
     mkTree `d "other branch" #[mkTree `zeta "leaf"] (collapsed := false)
   ]
 
--- The parents of the message match open; the match itself stays closed, and the unrelated
--- node `d` keeps its (open) expansion state.
+-- `timeInside` appends each node's elapsed time to its head message.
+/--
+info: [a] [0.100000] root (100.0ms)
+  [b] [0.030000] fast leaf (30.0ms)
+  [c] [0.060000] slow branch (60.0ms)
+    [d] [0.020000] grandchild (20.0ms)
+-/
+#guard_msgs in
+#eval runPost timeInside #[timedTree]
+
+-- `selfTime` appends the time not accounted for by child nodes.
+/--
+info: [a] [0.100000] root (10.0ms)
+  [b] [0.030000] fast leaf (30.0ms)
+  [c] [0.060000] slow branch (40.0ms)
+    [d] [0.020000] grandchild (20.0ms)
+-/
+#guard_msgs in
+#eval runPost selfTime #[timedTree]
+
+-- Nodes without profiling data are not annotated with times.
+/-- info: [e] no timings -/
+#guard_msgs in
+#eval runPost (timeInside >=> selfTime) #[mkTree `e "no timings"]
+
+-- `countNodes` appends subtree sizes.
+/--
+info: [a] root (5 nodes)
+  [b] mid (2 nodes)
+    [c] the needle is here (1 node)
+  [d] other branch (2 nodes)
+    [zeta] leaf (1 node)
+-/
+#guard_msgs in
+#eval runPost countNodes #[sampleTree]
+
+-- `minSelfTimeMs` matches only `c` (40ms self time); `filter` keeps its ancestors and children.
+/--
+info: [a] [0.100000] root
+  [c] [0.060000] slow branch
+    [d] [0.020000] grandchild
+-/
+#guard_msgs in
+#eval runPost (filter (minSelfTimeMs 35)) #[timedTree]
+
+-- `minNodes` with `hoist` drops the second root, which has too few nodes; nested matches such
+-- as `b` are not hoisted separately.
+/--
+info: [a] root
+  [b] mid
+    [c] the needle is here
+  [d] other branch
+    [zeta] leaf
+-/
+#guard_msgs in
+#eval runPost (hoist (minNodes 2)) #[sampleTree, mkTree `e "tiny"]
+
+-- Patterns are ordinary predicates and can combine built-in patterns with custom conditions.
+/--
+info: [a] [0.100000] root
+  [c] [0.060000] slow branch
+    [d] [0.020000] grandchild
+-/
+#guard_msgs in
+#eval runPost (filter fun t => return (← minTimeMs 50 t) && t.cls? != some `a) #[timedTree]
+
+private def resultTree : TraceTree :=
+  mkTree `a "root" #[
+    mkTree `b "ok step" (result := some .success),
+    mkTree `c "failed step" (result := some .failure),
+    mkTree `d "error step" (result := some .error)]
+
+-- `unsuccessful` matches both failed nodes and nodes that threw an exception; the root has no
+-- recorded result and is only kept as an ancestor.
+/--
+info: [a] root
+  [c] ❌️ failed step
+  [d] 💥️ error step
+-/
+#guard_msgs in
+#eval runPost (filter unsuccessful) #[resultTree]
+
+-- `failed` and `errored` distinguish the two unsuccessful results.
+/--
+info: [a] root
+  [c] ❌️ failed step
+-/
+#guard_msgs in
+#eval runPost (filter failed) #[resultTree]
+
+/-- info: [d] 💥️ error step -/
+#guard_msgs in
+#eval runPost (hoist errored) #[resultTree]
+
+-- `succeeded` matches only successful nodes.
+/-- info: [b] ✅️ ok step -/
+#guard_msgs in
+#eval runPost (hoist succeeded) #[resultTree]
+
+/-!
+`expand` only changes `TraceData.collapsed` flags, which are invisible in textual output, so we
+test the flags directly.
+-/
+
+private partial def collapsedFlags (t : TraceTree) : String :=
+  let state := if (t.data?.map (·.collapsed)).getD true then "closed" else "open"
+  let head := s!"{t.cls?.getD .anonymous}:{state}"
+  if t.children.isEmpty then head
+  else head ++ "[" ++ ",".intercalate (t.children.map collapsedFlags).toList ++ "]"
+
+-- The parents of the match open; the match itself stays closed, and the unrelated node `d`
+-- keeps its (open) expansion state.
 /-- info: "a:open[b:open[c:closed],d:open[zeta:closed]]" -/
 #guard_msgs in
-open Lean.TraceView in
 #eval show Lean.CoreM _ from do
-  return collapsedFlags (← expandMatches "needle" #[sampleTree])[0]!
+  return collapsedFlags (← expand (containsString "needle") #[sampleTree])[0]!
 
 -- Matching by trace class works too.
 /-- info: "a:open[b:closed[c:closed],d:open[zeta:closed]]" -/
 #guard_msgs in
-open Lean.TraceView in
 #eval show Lean.CoreM _ from do
-  return collapsedFlags (← expandMatches "zeta" #[sampleTree])[0]!
+  return collapsedFlags (← expand (containsString "zeta") #[sampleTree])[0]!
 
 -- Without a match, all expansion states are unchanged.
 /-- info: "a:closed[b:closed[c:closed],d:open[zeta:closed]]" -/
 #guard_msgs in
-open Lean.TraceView in
 #eval show Lean.CoreM _ from do
-  return collapsedFlags (← expandMatches "no such text" #[sampleTree])[0]!
+  return collapsedFlags (← expand (containsString "no such text") #[sampleTree])[0]!
 
 /-!
 On errors in the postprocessor term, `trace_view` logs the error and falls back to the identity

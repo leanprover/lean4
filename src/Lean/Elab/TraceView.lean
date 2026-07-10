@@ -12,18 +12,21 @@ import Init.Data.String.Search  -- needed for `String.find?`/`String.replace`
 import Init.Data.String.TakeDrop  -- needed for `String.take`
 
 /-!
-# Trace postprocessors: `trace_view`, `store_trace_as`, `#trace_roots`, `#trace_view`
+# Trace postprocessors: `trace_view`
 
 Trace messages of complex elaboration tasks can be very large, and finding the relevant part in
 the editor requires a lot of clicking and searching. This module provides trace postprocessors:
 functions that transform the trace of a command before it is reported, e.g. by filtering out
-irrelevant subtrees, focusing on a single trace class, or pre-expanding the paths to failures.
+irrelevant subtrees, hoisting the interesting ones, or pre-expanding the paths to matches.
 
 A trace postprocessor (`Lean.TraceView.TracePostprocessor`) receives the array of trace roots of
-one trace message and returns the transformed roots. The `Lean.TraceView` namespace provides basic
-combinators (`focusOn`, `hideSucceeded`, `maxDepth`, `minTimeMs`, `grep`, `expandMatches`,
-`expandAll`, `collapseAll`, `expandFailures`, `onRoots`, …); users can define their own
-postprocessors as ordinary functions and compose them with `>=>`.
+one trace message and returns the transformed roots. The `Lean.TraceView` namespace provides a
+small set of operations (`filter`, `hoist`, `expand`, `countNodes`, `timeInside`, `selfTime`)
+that compose left-to-right with `>=>`. The selecting operations take a pattern
+(`Lean.TraceView.TracePattern`), a predicate on trace subtrees; built-in patterns select by trace
+class (`ofClass`), text (`containsString`), result (`succeeded`, `failed`, `errored`,
+`unsuccessful`), size (`minNodes`), and time (`minTimeMs`, `minSelfTimeMs`). Users can define
+their own postprocessors and patterns as ordinary functions.
 
 Syntax:
 `trace_view post in cmd` transforms the trace messages produced by `cmd` with `post`.
@@ -56,27 +59,23 @@ inductive TraceTree where
 
 instance : Inhabited TraceTree := ⟨.leaf .nil⟩
 
-namespace TraceTree
-
 /--
 Decomposes trace `MessageData` into a `TraceTree`. The `MessageData` can be reconstructed using
 `TraceTree.toMessageData`.
 -/
-partial def ofMessageData (msg : MessageData) : TraceTree :=
+partial def TraceTree.ofMessageData (msg : MessageData) : TraceTree :=
   go id msg
 where
   go (wrap : MessageData → MessageData) : MessageData → TraceTree
-    | .withContext ctx m       => go (fun m => wrap (.withContext ctx m)) m
+    | .withContext ctx m => go (fun m => wrap (.withContext ctx m)) m
     | .withNamingContext ctx m => go (fun m => wrap (.withNamingContext ctx m)) m
-    | .trace data m children   => .node data m (children.map (go id)) wrap
-    | m                        => .leaf (wrap m)
+    | .trace data m children => .node data m (children.map (go id)) wrap
+    | m => .leaf (wrap m)
 
 /-- Reassembles the `MessageData` of a trace tree. -/
-partial def toMessageData : TraceTree → MessageData
+partial def TraceTree.toMessageData : TraceTree → MessageData
   | .node data msg children wrap => wrap (.trace data msg (children.map toMessageData))
-  | .leaf msg                    => msg
-
-end TraceTree
+  | .leaf msg => msg
 
 /--
 A trace postprocessor transforms the trace roots of a trace message before it is reported,
@@ -87,8 +86,8 @@ Traces are reported as one message per source range inside a command, and a post
 applied to each of these messages separately; it therefore cannot move trace roots from one
 source range to another.
 
-Postprocessors are applied by the `trace_view post in cmd` and `#trace_view t post` commands and
-can be composed left-to-right with `>=>`.
+Postprocessors are applied by the `trace_view post in cmd` command and can be composed
+left-to-right with `>=>`.
 -/
 abbrev TracePostprocessor := Array TraceTree → CoreM (Array TraceTree)
 
@@ -96,7 +95,7 @@ instance : Inhabited TracePostprocessor := ⟨fun roots => return roots⟩
 
 /--
 Decomposes the synthetic container message produced by `addTraceAsMessages`
-(`.tagged \`trace <| .trace _ _ roots`, possibly inside context wrappers) into its trace roots,
+(``.tagged `trace <| .trace _ _ roots``, possibly inside context wrappers) into its trace roots,
 together with a function that reassembles the container from transformed roots.
 -/
 private partial def traceContainer? (data : MessageData) :
@@ -158,7 +157,7 @@ private def runAndCollectMessages (cmd : Syntax) : CommandElabM (MessageLog × A
 Evaluates a term of type `TracePostprocessor`, with the `Lean.TraceView` namespace opened so
 that the basic combinators are available unqualified.
 -/
-private unsafe def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
+private def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
   let post ← `(open Lean.TraceView in ($post : TracePostprocessor))
   let type := mkConst ``TracePostprocessor
   withoutModifyingEnv do
@@ -170,20 +169,22 @@ private unsafe def evalPostprocessor (post : Term) : TermElabM TracePostprocesso
       throwAbortTerm
     if (← Term.logUnassignedUsingErrorInfos (← Meta.getMVars e)) then
       throwAbortTerm
-    Meta.evalExpr TracePostprocessor type e
+    -- the cast in `evalExpr` is sound: `e` was elaborated at `type`, which denotes the type
+    -- argument `TracePostprocessor`
+    unsafe Meta.evalExpr TracePostprocessor type e
 
 /--
 Evaluates the postprocessor without leaking the traces produced by elaborating the postprocessor
 term itself into the (typically trace-enabled) surrounding context.
 -/
-private unsafe def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostprocessor := do
+private def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostprocessor := do
   let savedTrace := (← get).traceState
   try
     runTermElabM fun _ => evalPostprocessor post
   finally
     modify fun st => { st with traceState := savedTrace }
 
-private unsafe def elabTraceViewUnsafe : CommandElab
+@[builtin_command_elab Lean.TraceView.traceViewCmd] def elabTraceView : CommandElab
   | `(command| trace_view $post in $cmd) => do
     -- on errors in `post`, log them and fall back to the identity postprocessor so that `cmd`
     -- still elaborates, e.g. while the postprocessor term is being edited
@@ -200,17 +201,18 @@ private unsafe def elabTraceViewUnsafe : CommandElab
     modify fun st => { st with messages := out }
   | _ => throwUnsupportedSyntax
 
-@[implemented_by elabTraceViewUnsafe]
-private opaque elabTraceViewImpl : CommandElab
-
-@[builtin_command_elab Lean.TraceView.traceViewCmd] def elabTraceView : CommandElab :=
-  elabTraceViewImpl
-
 end Lean.Elab.TraceView
 
 namespace Lean.TraceView
 
 section Postprocessors
+
+/--
+A pattern selects the trace subtrees that an operation acts on (see `filter`, `hoist`, and
+`expand`). Patterns are ordinary predicates: the built-in ones (such as `containsString`,
+`unsuccessful`, `minNodes`, or `minTimeMs`) can be combined with custom conditions in a `fun`.
+-/
+abbrev TracePattern := TraceTree → CoreM Bool
 
 namespace TraceTree
 
@@ -247,6 +249,13 @@ def elapsed (t : TraceTree) : Float :=
   | none      => 0
 
 /--
+Elapsed time of this node that is not accounted for by its children, in seconds; `0` if no
+profiling data is available.
+-/
+def selfElapsed (t : TraceTree) : Float :=
+  max 0 (t.elapsed - t.children.foldl (fun s c => s + c.elapsed) 0)
+
+/--
 The message of this node (without its children), formatted as a string.
 Useful for text-based filters but expensive.
 -/
@@ -258,38 +267,31 @@ def headText : TraceTree → BaseIO String
       | none   => s
   | .leaf msg => msg.toString
 
-/-- Whether this node itself represents a failed action (`TraceResult.failure` or `.error`). -/
-def isFailure (t : TraceTree) : Bool :=
-  match t.data?.bind (·.result?) with
-  | some .failure | some .error => true
-  | _                           => false
-
-/-- Whether this node or any transitive child represents a failed action. -/
-partial def hasFailure (t : TraceTree) : Bool :=
-  t.isFailure || t.children.any hasFailure
+/-- The `TraceResult` of a trace node; `none` for leaf messages and nodes without a result. -/
+def result? (t : TraceTree) : Option TraceResult :=
+  t.data?.bind (·.result?)
 
 /-- The number of nodes in this tree (including the root and leaf messages). -/
 partial def size (t : TraceTree) : Nat :=
   t.children.foldl (fun n c => n + c.size) 1
 
 /--
-Collects all maximal subtrees satisfying `p`: returns `t` itself if `p t`, and otherwise
-recurses into the children.
+Collects all maximal subtrees satisfying `p` in `acc`: adds `t` itself if `p t` holds, and
+otherwise recurses into the children. Matching subtrees are not searched for nested matches.
 -/
-partial def collectSubtrees (p : TraceTree → Bool) (t : TraceTree)
-    (acc : Array TraceTree := #[]) : Array TraceTree :=
-  if p t then
-    acc.push t
-  else
-    t.children.foldl (fun acc c => collectSubtrees p c acc) acc
+partial def collectSubtrees (p : TracePattern) (t : TraceTree)
+    (acc : Array TraceTree := #[]) : CoreM (Array TraceTree) := do
+  if ← p t then
+    return acc.push t
+  t.children.foldlM (fun acc c => collectSubtrees p c acc) acc
 
 /--
-Prunes the tree to the subtrees satisfying `p`, keeping their ancestors for context.
-The resulting tree consistes of those nodes that either have a matching ancestor or transitive
-child.
+Prunes the tree to the subtrees satisfying `p`, keeping their ancestors for context; `none` if
+there is no match. The resulting tree consists of those nodes that either have a matching
+ancestor or transitive child. Matching subtrees are not searched for nested matches.
 -/
-partial def filterSubtrees (p : TraceTree → BaseIO Bool) (t : TraceTree) :
-    BaseIO (Option TraceTree) := do
+partial def filterSubtrees (p : TracePattern) (t : TraceTree) :
+    CoreM (Option TraceTree) := do
   if ← p t then
     return some t
   let children ← t.children.filterMapM (filterSubtrees p)
@@ -297,133 +299,151 @@ partial def filterSubtrees (p : TraceTree → BaseIO Bool) (t : TraceTree) :
     return none
   return some (t.withChildren children)
 
-/-- Sets the `TraceData.collapsed` flag on this node and all transitive children. -/
-partial def setCollapsedAll (t : TraceTree) (collapsed : Bool) : TraceTree :=
-  t.modifyData ({ · with collapsed }) |>.withChildren (t.children.map (setCollapsedAll · collapsed))
-
 end TraceTree
 
 private def containsSubstr (s pat : String) : Bool :=
   (s.find? pat).isSome
 
-/--
-Keeps only the subtrees whose trace class is `cls`. Matches nested inside other trace roots are
-hoisted to the top level.
--/
-def focusOn (cls : Name) : TracePostprocessor := fun roots =>
-  return roots.foldl (fun acc t => t.collectSubtrees (·.cls? == some cls) acc) #[]
+section TracePatterns
+
+/-- Matches the trace nodes with the exact trace class `cls`. -/
+def ofClass (cls : Name) : TracePattern := fun t =>
+  return t.cls? == some cls
 
 /--
-Folds every successful subtree that contains no failure into a single line, keeping the paths to
-failed actions fully visible. Trace roots without any failure are folded into their root node.
+Matches the subtrees whose trace class or head message contains `pat` as a substring.
+For large traces, this is an expensive pattern because all head messages need to be
+pretty-printed; to select nodes by their exact trace class, prefer the much cheaper `ofClass`.
 -/
-partial def hideSucceeded : TracePostprocessor := fun roots =>
-  return roots.map go
-where
-  go (t : TraceTree) : TraceTree :=
-    if t.hasFailure then
-      t.withChildren (t.children.map go)
-    else
-      t.withChildren #[]
-
-/-- Truncates all trace trees below the given depth (`maxDepth 0` keeps only the roots). -/
-def maxDepth (depth : Nat) : TracePostprocessor := fun roots =>
-  return roots.map (go depth)
-where
-  go : Nat → TraceTree → TraceTree
-    | 0,         t => t.withChildren #[]
-    | depth + 1, t => t.withChildren (t.children.map (go depth))
-
-/--
-Keeps only the nodes that took at least `ms` milliseconds, and their ancestors for context.
-Timing information is only available with `set_option trace.profiler true`.
--/
-def minTimeMs (ms : Float) : TracePostprocessor := fun roots =>
-  roots.filterMapM (·.filterSubtrees fun t => return t.elapsed * 1000 ≥ ms)
-
-/--
-Whether the trace class or head message of `t` contains `pat` as a substring.
-For large traces, this is an expensive operation because all terms need to be pretty-printed.
--/
-private def matchesPattern (pat : String) (t : TraceTree) : BaseIO Bool := do
+def containsString (pat : String) : TracePattern := fun t => do
   if (t.cls?.map (·.toString)).any (containsSubstr · pat) then
     return true
   return containsSubstr (← t.headText) pat
 
 /--
-Keeps only the subtrees whose trace class or head message contains `pat` as a substring, and
-their ancestors for context.
-For large traces, this is an expensive operation because all terms need to be pretty-printed.
+Matches the trace nodes whose action succeeded (✅️, `TraceResult.success`).
+Nodes without a recorded result (e.g. from `addTrace`) do not match.
 -/
-def grep (pat : String) : TracePostprocessor := fun roots =>
-  roots.filterMapM (·.filterSubtrees (matchesPattern pat))
+def succeeded : TracePattern := fun t =>
+  return t.result? == some .success
+
+/-- Matches the trace nodes whose action failed (❌️, `TraceResult.failure`). -/
+def failed : TracePattern := fun t =>
+  return t.result? == some .failure
+
+/-- Matches the trace nodes whose action threw an exception (💥️, `TraceResult.error`). -/
+def errored : TracePattern := fun t =>
+  return t.result? == some .error
 
 /--
-Expands all transitive parents of the nodes whose trace class or head message contains `pat` as
-a substring, so that the trace opens already showing all matches. Unlike `grep`, no nodes are
-removed, and all other nodes, including the matches themselves, keep their expansion state.
-For large traces, this is an expensive operation because all terms need to be pretty-printed.
+Matches the trace nodes whose action did not succeed, i.e. failed (❌️) or threw an exception
+(💥️). Nodes without a recorded result (e.g. from `addTrace`) do not match.
 -/
-partial def expandMatches (pat : String) : TracePostprocessor := fun roots =>
+def unsuccessful : TracePattern := fun t =>
+  return t.result? == some .failure || t.result? == some .error
+
+/-- Matches the subtrees that contain at least `n` nodes. -/
+def minNodes (n : Nat) : TracePattern := fun t =>
+  return t.size ≥ n
+
+/--
+Matches the subtrees whose action took at least `ms` milliseconds.
+Timing information is only available with `set_option trace.profiler true`.
+-/
+def minTimeMs (ms : Float) : TracePattern := fun t =>
+  return t.elapsed * 1000 ≥ ms
+
+/--
+Matches the subtrees whose action took at least `ms` milliseconds outside of their child nodes.
+Timing information is only available with `set_option trace.profiler true`.
+-/
+def minSelfTimeMs (ms : Float) : TracePattern := fun t =>
+  return t.selfElapsed * 1000 ≥ ms
+
+end TracePatterns
+
+/--
+Keeps only the subtrees matching `p`, together with their ancestors for context; all other nodes
+are removed. Matching subtrees are kept in their entirety and not searched for nested matches
+(see `TraceTree.filterSubtrees`).
+-/
+def filter (p : TracePattern) : TracePostprocessor := fun roots =>
+  roots.filterMapM (·.filterSubtrees p)
+
+/--
+Hoists the subtrees matching `p` to the top level, so that every new trace root is a match;
+ancestors and unrelated subtrees are discarded. Matches nested inside other matches are not
+searched for.
+-/
+def hoist (p : TracePattern) : TracePostprocessor := fun roots =>
+  roots.foldlM (fun acc t => t.collectSubtrees p acc) #[]
+
+/--
+Expands all transitive ancestors of the subtrees matching `p` in the editor, so that the trace
+opens already showing all matches. No nodes are removed, and all other nodes, including the
+matches themselves, keep their expansion state.
+-/
+partial def expand (p : TracePattern) : TracePostprocessor := fun roots =>
   roots.mapM fun root => return (← go root).1
 where
   /-- Returns the transformed tree and whether it contains a match. -/
-  go (t : TraceTree) : BaseIO (TraceTree × Bool) := do
+  go (t : TraceTree) : CoreM (TraceTree × Bool) := do
+    if ← p t then return (t, true)
     let results ← t.children.mapM go
     let hasMatchBelow := results.any (·.2)
     let t := t.withChildren (results.map (·.1))
     let t := if hasMatchBelow then t.modifyData ({ · with collapsed := false }) else t
-    return (t, hasMatchBelow || (← matchesPattern pat t))
+    return (t, hasMatchBelow)
 
-/-- Expands all trace nodes in the editor by default. -/
-def expandAll : TracePostprocessor := fun roots =>
-  return roots.map (·.setCollapsedAll false)
+/-- Appends the number of nodes inside each subtree to the subtree's head message. -/
+partial def countNodes : TracePostprocessor := fun roots =>
+  return roots.map fun root => (go root).1
+where
+  /-- Returns the transformed tree and its number of nodes. -/
+  go : TraceTree → TraceTree × Nat
+    | .leaf msg => (.leaf msg, 1)
+    | .node data msg children wrap =>
+      let results := children.map go
+      let n := results.foldl (fun n (_, k) => n + k) 1
+      let suffix := if n == 1 then "" else "s"
+      (.node data m!"{msg} ({n} node{suffix})" (results.map (·.1)) wrap, n)
 
-/-- Collapses all trace nodes in the editor by default. -/
-def collapseAll : TracePostprocessor := fun roots =>
-  return roots.map (·.setCollapsedAll true)
+/-- Formats a duration in milliseconds with one decimal place, e.g. `12.3ms`. -/
+private def formatMs (ms : Float) : String :=
+  let tenths := (ms * 10).round.toUInt64.toNat
+  s!"{tenths / 10}.{tenths % 10}ms"
 
 /--
-Expands all trace nodes on a path to a failed action in the editor by default, and collapses
-everything else, so that the trace opens already showing the failures. No nodes are removed.
-TODO: too inefficient; `hasFailure` is linear
+Appends the number of milliseconds spent inside each subtree to the subtree's head message.
+Timing information is only available with `set_option trace.profiler true`; nodes without it are
+not annotated.
 -/
-partial def expandFailures : TracePostprocessor := fun roots =>
+partial def timeInside : TracePostprocessor := fun roots =>
   return roots.map go
 where
-  go (t : TraceTree) : TraceTree :=
-    t.modifyData ({ · with collapsed := !t.hasFailure }) |>.withChildren (t.children.map go)
+  go : TraceTree → TraceTree
+    | .leaf msg => .leaf msg
+    | .node data msg children wrap =>
+      let msg :=
+        if data.startTime == 0 then msg
+        else m!"{msg} ({formatMs ((data.stopTime - data.startTime) * 1000)})"
+      .node data msg (children.map go) wrap
 
 /--
-Applies `post` to the trace roots selected by `sel`, leaving all other roots untouched.
-This allows restricting a postprocessor to specific roots when a command produces many,
-e.g. `onRoots (fun r => return r.cls? == some `Meta.synthInstance) hideSucceeded`.
-
-The selected roots are postprocessed one at a time, so `post` cannot merge them.
+Appends the number of milliseconds spent inside each subtree but outside of its child nodes to
+the subtree's head message. Timing information is only available with
+`set_option trace.profiler true`; nodes without it are not annotated.
 -/
-def onRoots (sel : TraceTree → CoreM Bool) (post : TracePostprocessor) : TracePostprocessor :=
-  fun roots => roots.flatMapM fun root => do
-    if ← sel root then post #[root] else return #[root]
-
-/-- Applies `post` only to the trace roots of class `cls`, leaving all other roots untouched. -/
-def onClass (cls : Name) (post : TracePostprocessor) : TracePostprocessor :=
-  onRoots (fun root => return root.cls? == some cls) post
-
-/--
-Applies `post` only to the root with the given index (counting all trace roots of the command in
-order, as displayed by `#trace_roots`), leaving all other roots untouched.
-
-Note that for live `trace_view`, indices can shift whenever the traced command changes; for
-traces stored with `store_trace_as`, they are stable.
--/
-def onRootIdx (idx : Nat) (post : TracePostprocessor) : TracePostprocessor := fun roots => do
-  let mut out := #[]
-  for h : i in [0:roots.size] do
-    if i == idx then
-      out := out ++ (← post #[roots[i]])
-    else
-      out := out.push roots[i]
-  return out
+partial def selfTime : TracePostprocessor := fun roots =>
+  return roots.map go
+where
+  go : TraceTree → TraceTree
+    | .leaf msg => .leaf msg
+    | t@(.node data msg children wrap) =>
+      let msg :=
+        if data.startTime == 0 then msg
+        else m!"{msg} ({formatMs (t.selfElapsed * 1000)})"
+      .node data msg (children.map go) wrap
 
 end Postprocessors
 

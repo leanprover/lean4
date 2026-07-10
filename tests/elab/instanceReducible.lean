@@ -13,7 +13,10 @@ public def unexposed : Inhabited Nat := inferInstance
 #guard_msgs in
 attribute [instance] unexposed
 
--- no warning; there already was a warning when defining `unexposed`
+/--
+warning: Definition `unexposed` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+-/
 #guard_msgs in
 attribute [local instance] unexposed
 
@@ -25,11 +28,17 @@ definition with `@[instance_reducible]`. If it is intentionally semireducible, t
 @[expose]
 public def exposed : Inhabited Nat := inferInstance
 
--- no warning; there already was a warning when defining `exposed`
+/--
+warning: Definition `exposed` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+-/
 #guard_msgs in
 attribute [instance] exposed
 
--- no warning; there already was a warning when defining `exposed`
+/--
+warning: Definition `exposed` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+-/
 #guard_msgs in
 attribute [local instance] exposed
 

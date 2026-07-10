@@ -291,7 +291,13 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let status ← getReducibilityStatus declName
   if status == .semireducible then do
     let info ← getConstInfo declName
-    if ¬ info.isDefinition ∧ wasOriginallyDefn (← getEnv) declName then
+    if info.isDefinition then
+      if warnClassDefReducibility.get (← getOptions) then
+        logWarning m!"Definition `{declName}` of class type is semireducible. \
+Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, \
+this warning can be disabled with `set_option warn.classDefReducibility false`."
+    else if wasOriginallyDefn (← getEnv) declName then
       logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?

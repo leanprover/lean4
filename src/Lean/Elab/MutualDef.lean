@@ -1246,7 +1246,7 @@ where
     -- This check runs after elaboration so that attributes applied by other attributes
     -- (e.g. `to_additive (attr := implicit_reducible)`) are accounted for.
     for header in headers do
-      if header.kind == .def then
+      if header.kind matches .def then
         if warn.classDefReducibility.get (← getOptions) &&
             (← isClass? header.type).isSome /-TODO-/ &&
             !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then

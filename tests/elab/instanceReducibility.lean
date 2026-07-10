@@ -38,6 +38,11 @@ set_option allowUnsafeReducibility true in
 /--
 warning: Definition `_private.elab.instanceReducibility.0.i5` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
 definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+---
+warning: Definition `_private.elab.instanceReducibility.0.i5` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
 -/
 #guard_msgs in
 @[semireducible] instance i5 : Inhabited Nat := inferInstance
+
+-- Why does `i5` not get any warning?

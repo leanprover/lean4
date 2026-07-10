@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lean proof state · fiber UI</title>
+  <style>
+    :root {
+      font-family: "Iosevka", "JetBrains Mono", ui-monospace, monospace;
+      color: #e7e9ea;
+      background: #0f1419;
+      --panel: #1a2332;
+      --border: #2f3b4a;
+      --accent: #7aa2f7;
+      --green: #9ece6a;
+      --muted: #8b9bb4;
+      --danger: #f7768e;
+    }
+    body { max-width: 44rem; margin: 1.5rem auto; padding: 0 1rem; line-height: 1.45; }
+    h1 { font-size: 1.2rem; font-weight: 600; color: #fff; }
+    p { color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.95rem; }
+    a { color: var(--accent); }
+    #app { margin-top: 1rem; }
+    .root {
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--panel); padding: 1rem 1.1rem;
+    }
+    .title { font-size: 1.05rem; color: #fff; margin-bottom: 0.35rem; }
+    .msg { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem; min-height: 1.2em; }
+    .panel { display: flex; flex-direction: column; gap: 0.65rem; }
+    .goal {
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.65rem 0.75rem; background: #121a24;
+    }
+    .goal.focus { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(122,162,247,0.25); }
+    .goal-meta { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.35rem; }
+    .hyps-hdr { color: var(--muted); font-size: 0.8rem; }
+    .hyps { margin: 0.25rem 0 0.4rem 1rem; padding: 0; list-style: none; }
+    .hyp {
+      color: #c0caf5; margin: 0.15rem 0; padding: 0.15rem 0.35rem;
+      border-radius: 4px; cursor: pointer; list-style: none;
+    }
+    .hyp:hover { background: #243044; color: #fff; }
+    .hyp::before { content: "▸ "; color: var(--accent); }
+    .turnstile { color: var(--accent); margin: 0.25rem 0; font-weight: 700; }
+    .target { color: #9ece6a; font-weight: 600; }
+    .banner.solved {
+      color: var(--green); border: 1px solid #3d5a40; background: #152019;
+      border-radius: 8px; padding: 0.85rem; text-align: center;
+    }
+    .tactics {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem;
+      padding-top: 0.75rem; border-top: 1px solid var(--border);
+    }
+    .tac {
+      font: inherit; cursor: pointer; border-radius: 6px;
+      border: 1px solid var(--border); background: #243044; color: #e7e9ea;
+      padding: 0.35rem 0.65rem;
+    }
+    .tac:hover:not(.disabled) { border-color: var(--accent); color: #fff; }
+    .tac.disabled {
+      opacity: 0.35; cursor: not-allowed; pointer-events: none;
+    }
+    .tac-intro { border-color: #3d5a80; }
+    .tac-ctor { border-color: #5a4a3d; }
+    .tac-reset { color: var(--danger); }
+    .hint { margin-top: 0.75rem; color: var(--muted); font-size: 0.82rem; font-family: system-ui, sans-serif; }
+    #status {
+      margin-top: 1rem; padding: 0.7rem 0.85rem; border-radius: 6px;
+      background: #1a2332; border: 1px solid var(--border);
+      font-size: 0.85rem; color: var(--muted); white-space: pre-wrap;
+    }
+    #status.error { border-color: var(--danger); color: var(--danger); }
+  </style>
+</head>
+<body>
+  <h1>Mini proof state · Lean fiber UI</h1>
+  <p>
+    Pure tactics over a tiny formula AST, rendered with the wasm reconciler.
+    Prove <code>P → Q → P ∧ Q</code>. Tactics and hypothesis clicks send
+    <strong>string events</strong> (<code>intro</code>, <code>exact:0</code>, …).
+  </p>
+  <p>
+    <a href="./">scalar demo</a> ·
+    <a href="./core_rt.html">core RT</a>
+  </p>
+  <div id="app"><em>Loading…</em></div>
+  <div id="status">Booting…</div>
+  <script type="module" src="./ui_app.js"></script>
+</body>
+</html>

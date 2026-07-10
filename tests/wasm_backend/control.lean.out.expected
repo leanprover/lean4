@@ -1,0 +1,2 @@
+lean_wasm_choose_one() => i32:9
+lean_wasm_choose_zero() => i32:7

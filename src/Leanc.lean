@@ -12,6 +12,26 @@ def main (args : List String) : IO UInt32 := do
     | some root => pure <| System.FilePath.mk root
     | none      => pure <| (← IO.appDir).parent.get!
   let mut cc := "@LEANC_CC@".replace "ROOT" root.toString
+  let wasmTarget := "--target=wasm32-wasip1"
+
+  if args.contains wasmTarget then
+    let sdk ← match ← IO.getEnv "WASI_SDK_PATH" with
+      | some sdk => pure <| System.FilePath.mk sdk
+      | none =>
+        IO.eprintln "leanc: set WASI_SDK_PATH to an extracted wasi-sdk toolchain"
+        return 1
+    let runtime := root / "wasm32-wasip1" / "libleanrt.a"
+    unless ← runtime.pathExists do
+      IO.eprintln s!"leanc: WebAssembly runtime archive not found at '{runtime}'"
+      return 1
+    let args := args.filter fun arg => arg != wasmTarget && !arg.startsWith "--root-module="
+    -- Core language runtime only (no IO/libuv). Exception flag must match `build_wasm_runtime.sh`.
+    -- Prefer libc++/libc++abi over libunwind: recent wasi-sdk drops libunwind, and we ship
+    -- aborting `__cxa_*` stubs in `wasm_support.cpp` when the sysroot lacks them.
+    let args := args.toArray ++ #["-fwasm-exceptions",
+      "-mexec-model=reactor", "-Wl,--no-entry", runtime.toString, "-lc++", "-lc++abi"]
+    let child ← IO.Process.spawn { cmd := (sdk / "bin" / "clang++").toString, args }
+    return ← child.wait
 
   if args.isEmpty then
     IO.println s!"Lean C compiler
@@ -22,7 +42,8 @@ as-is to the wrapped compiler.
 
 Interesting options:
 * `--print-cflags`: print C compiler flags necessary for building against the Lean runtime and exit
-* `--print-ldflags`: print C compiler flags necessary for statically linking against the Lean library and exit"
+* `--print-ldflags`: print C compiler flags necessary for statically linking against the Lean library and exit
+* `--target=wasm32-wasip1`: link WebAssembly objects with the language-core Lean runtime"
     return 1
 
   -- It is difficult to identify the correct minor version here, leading to linking warnings like:

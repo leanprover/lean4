@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<body>
+<pre id="out">running...</pre>
+<script type="module">
+const out = document.getElementById("out");
+const log = (...a) => { out.textContent += a.join(" ") + "\n"; };
+
+const TEXT = {0:"",1:"Click me",2:"Count: ",3:"Item ",4:"Add item",5:"Reset"};
+function textContent(textId, n) {
+  const base = TEXT[textId] ?? "";
+  if (textId === 2 || textId === 3) return base + String(n >>> 0);
+  return base;
+}
+
+async function main() {
+  let memory = null;
+  const imports = {
+    wasi_snapshot_preview1: {
+      environ_get: () => 0,
+      environ_sizes_get: (c,b) => { new DataView(memory.buffer).setUint32(c,0,true); new DataView(memory.buffer).setUint32(b,0,true); return 0; },
+      fd_close: () => 0, fd_fdstat_get: () => 8, fd_prestat_get: () => 8, fd_prestat_dir_name: () => 8,
+      fd_read: () => 8, fd_seek: () => 8,
+      fd_write: (fd, iovs, iovsLen, nwrittenPtr) => {
+        const v = new DataView(memory.buffer);
+        let written = 0;
+        for (let i = 0; i < iovsLen; i++) {
+          written += v.getUint32(iovs + i * 8 + 4, true);
+        }
+        v.setUint32(nwrittenPtr, written, true);
+        return 0;
+      },
+      proc_exit: (c) => { throw new Error("exit "+c); },
+      random_get: (buf, len) => { crypto.getRandomValues(new Uint8Array(memory.buffer).subarray(buf, buf+len)); return 0; },
+      clock_time_get: (_i,_p,r) => { new DataView(memory.buffer).setBigUint64(r, BigInt(Date.now())*1000000n, true); return 0; },
+    }
+  };
+  const res = await fetch("./ui.wasm");
+  const { instance } = await WebAssembly.instantiate(await res.arrayBuffer(), imports);
+  memory = instance.exports.memory;
+  if (instance.exports._initialize) instance.exports._initialize();
+  const exp = instance.exports;
+  let model = exp.lean_ui_boot(0) >>> 0;
+  const dump = (label) => {
+    const n = exp.lean_ui_effect_count(0) >>> 0;
+    log(label, "neffects", n, "model", model>>>0, "count", (model>>>0)&0xffff);
+    for (let i = 0; i < n; i++) {
+      const op = exp.lean_ui_effect_at(i,0)>>>0;
+      const id = exp.lean_ui_effect_at(i,1)>>>0;
+      const parent = exp.lean_ui_effect_at(i,2)>>>0;
+      const a = exp.lean_ui_effect_at(i,3)>>>0;
+      const b = exp.lean_ui_effect_at(i,4)>>>0;
+      const idx = exp.lean_ui_effect_at(i,5)>>>0;
+      log(" ", i, "op", op, "id", id, "par", parent, "a", a, "b", b, "idx", idx, op===3||op===2?textContent(a,b):"");
+    }
+  };
+  dump("boot");
+  model = exp.lean_ui_dispatch(model, 0) >>> 0;
+  dump("click1");
+}
+main().catch(e => log("ERR", String(e), e.stack));
+</script>
+</body>
+</html>

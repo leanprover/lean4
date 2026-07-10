@@ -39,6 +39,11 @@ size_t get_current_rss() {
 }
 
 }
+#elif defined(LEAN_WASI)
+namespace lean {
+size_t get_peak_rss() { return 0; }
+size_t get_current_rss() { return 0; }
+}
 #elif defined(LEAN_WINDOWS)
 /* ----------------------------------------------------
    Windows version for get_peak_rss and get_current_rss

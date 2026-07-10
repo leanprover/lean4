@@ -12,6 +12,7 @@ import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
 import Lean.Compiler.Backend.EmitARM64
+import Lean.Compiler.Backend.EmitWasm
 import Init.System.Platform
 import Lean.Compiler.Options
 import Std.Async.Process
@@ -153,6 +154,7 @@ def displayHelp (useStderr : Bool) : IO Unit := do
   out.putStrLn    "  -c, --c=fname          name of the C output file"
   out.putStrLn    "  -b, --bc=fname         name of the LLVM bitcode file"
   out.putStrLn    "      --arm64=fname      name of the ARM64 assembly output file"
+  out.putStrLn    "      --wasm=fname       name of the WebAssembly output file"
   out.putStrLn    "      --stdin            take input from stdin"
   out.putStrLn    "  -R, --root=dir         set package root directory from which the module name\n"
   out.putStrLn    "                         of the input file is calculated\n"
@@ -245,6 +247,7 @@ structure ShellOptions where
   cFileName? : Option System.FilePath := none
   bcFileName? : Option System.FilePath := none
   arm64FileName? : Option System.FilePath := none
+  wasmFileName? : Option System.FilePath := none
   jsonOutput : Bool := false
   errorOnKinds : Array Name := #[]
   printStats : Bool := false
@@ -333,6 +336,10 @@ def ShellOptions.process (opts : ShellOptions)
   | 'A' => -- `--arm64=fname`
     return {opts with
       arm64FileName? := ← checkOptArg "arm64" optArg?
+      leanOpts := Compiler.compiler.postponeCompile.set opts.leanOpts false }
+  | 'w' => -- `--wasm=fname`
+    return {opts with
+      wasmFileName? := ← checkOptArg "wasm" optArg?
       leanOpts := Compiler.compiler.postponeCompile.set opts.leanOpts false }
   | 's' => -- `-s, --tstack=num`
     let arg ← checkOptArg "s" optArg?
@@ -551,7 +558,8 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       pure setup.name
     else if let some fileName := fileName? then
       try moduleNameOfFileName fileName opts.rootDir? catch e =>
-        if opts.oleanFileName?.isNone && opts.cFileName?.isNone && opts.arm64FileName?.isNone then
+        if opts.oleanFileName?.isNone && opts.cFileName?.isNone && opts.arm64FileName?.isNone &&
+            opts.wasmFileName?.isNone then
           pure `_stdin
         else
           throw e
@@ -583,6 +591,13 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       profileitIO "ARM64 code generation" opts.leanOpts do
         let data ← IO.ofExcept <| Compiler.Backend.EmitARM64.emitARM64 env mainModuleName
         out.write data.toUTF8
+    if let some wasm := opts.wasmFileName? then
+      let .ok out ← IO.FS.Handle.mk wasm .write |>.toBaseIO
+        | IO.eprintln s!"failed to create '{wasm}'"
+          return 1
+      profileitIO "WebAssembly code generation" opts.leanOpts do
+        let data ← IO.ofExcept <| Compiler.Backend.EmitWasm.emitWasm env mainModuleName
+        out.write data
   displayCumulativeProfilingTimes
   if Internal.hasAddressSanitizer () then
     return if env?.isSome then 0 else 1

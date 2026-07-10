@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><body><pre id="out"></pre>
+<script type="module">
+const out = document.getElementById("out");
+const log = (...a) => { out.textContent += a.join(" ") + "\n"; };
+async function main() {
+  let memory = null;
+  const imports = {
+    wasi_snapshot_preview1: {
+      environ_get: () => 0,
+      environ_sizes_get: (c,b) => { new DataView(memory.buffer).setUint32(c,0,true); new DataView(memory.buffer).setUint32(b,0,true); return 0; },
+      fd_close: () => 0, fd_fdstat_get: () => 8, fd_prestat_get: () => 8, fd_prestat_dir_name: () => 8,
+      fd_read: () => 8, fd_seek: () => 8,
+      fd_write: (fd, iovs, n, p) => { new DataView(memory.buffer).setUint32(p,0,true); return 0; },
+      proc_exit: (c) => { throw new Error("exit "+c); },
+      random_get: (b,l) => { crypto.getRandomValues(new Uint8Array(memory.buffer).subarray(b,b+l)); return 0; },
+      clock_time_get: (_i,_p,r) => { new DataView(memory.buffer).setBigUint64(r, 0n, true); return 0; },
+    }
+  };
+  const { instance } = await WebAssembly.instantiate(await (await fetch("./ui.wasm")).arrayBuffer(), imports);
+  memory = instance.exports.memory;
+  if (instance.exports._initialize) instance.exports._initialize();
+  const e = instance.exports;
+  let m = e.lean_ui_boot(0) >>> 0;
+  const step = (ev, name) => {
+    m = e.lean_ui_dispatch(m, ev) >>> 0;
+    log(name, "goals", m & 0xffff, "solved", (m>>>16)&1);
+  };
+  log("boot", "goals", m & 0xffff);
+  step(0, "intro");
+  step(0, "intro");
+  step(1, "constructor");
+  step(10, "exact h0");
+  step(11, "exact h1");
+}
+main().catch(e => log("ERR", e));
+</script></body></html>

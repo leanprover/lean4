@@ -1,0 +1,7 @@
+lean_wasm_prim_div(i32:42, i32:5) => i32:8
+lean_wasm_prim_mod(i32:42, i32:5) => i32:2
+lean_wasm_prim_and(i32:240, i32:15) => i32:0
+lean_wasm_prim_or(i32:240, i32:15) => i32:255
+lean_wasm_prim_xor(i32:255, i32:15) => i32:240
+lean_wasm_prim_shl(i32:3, i32:2) => i32:12
+lean_wasm_prim_shr(i32:40, i32:2) => i32:10

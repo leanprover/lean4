@@ -177,6 +177,7 @@ static struct option g_long_options[] = {
     {"c",            optional_argument, 0, 'c'},
     {"bc",           optional_argument, 0, 'b'},
     {"arm64",        required_argument, 0, 'A'},
+    {"wasm",         required_argument, 0, 'w'},
     {"features",     no_argument,       0, 'f'},
     {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_MULTI_THREAD)

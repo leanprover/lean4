@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lean core-runtime WebAssembly</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1a1a1a; }
+    body { max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.45; }
+    h1 { font-size: 1.35rem; }
+    label { display: inline-block; margin: 0.5rem 1rem 0.5rem 0; }
+    input { width: 5rem; padding: 0.35rem 0.5rem; }
+    button { margin-top: 0.75rem; padding: 0.45rem 0.9rem; cursor: pointer; }
+    #status { margin-top: 1rem; padding: 0.75rem; background: #f4f4f5; border-radius: 6px; white-space: pre-wrap; }
+    #status.error { background: #fde8e8; color: #8b1a1a; }
+    code { font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>Lean core runtime in the browser</h1>
+  <p>
+    Multi-module pure Lean linked against the language-core <code>libleanrt</code>
+    (objects, RC, apply) — no IO / tasks. Instantiated with a minimal WASI shim.
+  </p>
+  <p><a href="./">Scalar-only demo (no runtime)</a></p>
+
+  <label>x <input id="x" type="number" value="20" /></label>
+  <label>y <input id="y" type="number" value="22" /></label>
+  <button id="run" type="button" disabled>Run coreRt</button>
+  <div id="status">Loading <code>core_rt.wasm</code>…</div>
+  <script type="module" src="./core_rt_app.js"></script>
+</body>
+</html>

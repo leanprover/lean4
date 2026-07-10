@@ -1,0 +1,1 @@
+lean_wasm_box_roundtrip(i32:42) => i32:42

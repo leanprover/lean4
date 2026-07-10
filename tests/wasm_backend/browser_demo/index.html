@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lean WebAssembly demo</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1a1a1a; }
+    body { max-width: 36rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.45; }
+    h1 { font-size: 1.35rem; }
+    label { display: block; margin-top: 0.75rem; font-size: 0.9rem; }
+    input { width: 6rem; padding: 0.35rem 0.5rem; font-size: 1rem; }
+    button { margin-top: 1rem; padding: 0.45rem 0.9rem; font-size: 1rem; cursor: pointer; }
+    #status { margin-top: 1rem; padding: 0.75rem; background: #f4f4f5; border-radius: 6px; }
+    #status.error { background: #fde8e8; color: #8b1a1a; }
+    code { font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>Lean → WebAssembly (browser)</h1>
+  <p>
+    Pure scalar functions compiled with Lean’s native <code>--wasm</code> backend,
+    linked with <code>wasm-ld</code>, and run via <code>WebAssembly.instantiate</code>.
+  </p>
+
+  <label>x <input id="x" type="number" value="20" /></label>
+  <label>y <input id="y" type="number" value="22" /></label>
+  <button id="run" type="button" disabled>Run exports</button>
+
+  <div id="status">Loading <code>demo.wasm</code>…</div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html><body>
+<div id="app"></div><div id="status"></div>
+<pre id="out"></pre>
+<script type="module">
+import "./ui_app.js";
+// Wait for boot then dispatch programmatically by finding exports is hard.
+// Instead re-load and mirror ui_app with clicks
+</script>
+<script type="module">
+const out = document.getElementById("out");
+const log = (...a)=>{out.textContent+=a.join(" ")+"\n";};
+// Load same as ui_app but force many dispatches after applyEffects that mutate DOM heavily
+const appEl = document.getElementById("app");
+const TAG=["div","button","span","ul","li"];
+const TEXT={0:"",1:"intro",2:"constructor",3:"cases",4:"undo",5:"reset",6:"exact h",7:"Mini goal view",8:"goals",9:"target",10:"hypotheses",11:"Goals accomplished",12:"failed",13:"status"};
+const TEXT_EVENT={1:0,2:1,3:2,4:3,5:4};
+const nodes=new Map(); nodes.set(0, appEl);
+function readStr(exp,mem,id){const p=exp.lean_ui_string_ptr(id)>>>0,l=exp.lean_ui_string_len(id)>>>0;if(!p||!l)return"";return new TextDecoder().decode(new Uint8Array(mem.buffer,p,l));}
+function textContent(id,n){const b=TEXT[id]??"";return id===6?b+String(n>>>0):b;}
+function applyEffects(exp,mem){
+  const count=exp.lean_ui_effect_count(0)>>>0;
+  for(let i=0;i<count;i++){
+    const op=exp.lean_ui_effect_at(i,0)>>>0,id=exp.lean_ui_effect_at(i,1)>>>0,parent=exp.lean_ui_effect_at(i,2)>>>0;
+    const a=exp.lean_ui_effect_at(i,3)>>>0,b=exp.lean_ui_effect_at(i,4)>>>0,index=exp.lean_ui_effect_at(i,5)>>>0;
+    const parentNode=nodes.get(parent)||appEl;
+    if(op===1){
+      const prev=nodes.get(id); if(prev&&prev.parentNode)prev.parentNode.removeChild(prev);
+      const el=document.createElement(TAG[a]||"div"); el.dataset.fid=String(id);
+      const cls=readStr(exp,mem,b); if(cls)el.className=cls;
+      if((TAG[a]||"div")==="button"){ el.addEventListener("click",()=>{}); }
+      const ref=parentNode.childNodes[index]||null; parentNode.insertBefore(el,ref); nodes.set(id,el);
+    } else if(op===2){
+      const prev=nodes.get(id); if(prev&&prev.parentNode)prev.parentNode.removeChild(prev);
+      const wrap=document.createElement("span"); wrap.dataset.fid=String(id);
+      if(a===255) wrap.textContent=readStr(exp,mem,b); else wrap.textContent=textContent(a,b);
+      const ref=parentNode.childNodes[index]||null; parentNode.insertBefore(wrap,ref); nodes.set(id,wrap);
+    } else if(op===3){
+      const n=nodes.get(id); if(n) n.textContent=a===255?readStr(exp,mem,b):textContent(a,b);
+    } else if(op===4){
+      const n=nodes.get(id); if(n&&n.parentNode)n.parentNode.removeChild(n); nodes.delete(id);
+    } else if(op===5){
+      const n=nodes.get(id); if(n) n.className=readStr(exp,mem,a);
+    }
+  }
+}
+async function main(){
+  let memory=null;
+  const imports={wasi_snapshot_preview1:{
+    environ_get:()=>0,environ_sizes_get:(c,b)=>{const v=new DataView(memory.buffer);v.setUint32(c,0,true);v.setUint32(b,0,true);return 0;},
+    fd_close:()=>0,fd_fdstat_get:()=>8,fd_prestat_get:()=>8,fd_prestat_dir_name:()=>8,fd_read:()=>8,fd_seek:()=>8,
+    fd_write:(a,b,c,p)=>{new DataView(memory.buffer).setUint32(p,0,true);return 0;},
+    proc_exit:(c)=>{throw new Error("exit "+c);},
+    random_get:(b,l)=>{crypto.getRandomValues(new Uint8Array(memory.buffer).subarray(b,b+l));return 0;},
+    clock_time_get:(_i,_p,r)=>{new DataView(memory.buffer).setBigUint64(r,0n,true);return 0;},
+  }};
+  const {instance}=await WebAssembly.instantiate(await(await fetch("./ui.wasm")).arrayBuffer(),imports);
+  memory=instance.exports.memory;
+  if(instance.exports._initialize) instance.exports._initialize();
+  const exp=instance.exports;
+  let model=exp.lean_ui_boot(0)>>>0;
+  log("boot", model>>>0, "mem", memory.buffer.byteLength);
+  applyEffects(exp,memory);
+  log("applied boot DOM nodes", nodes.size);
+  for (const [name,ev] of [["intro",0],["intro",0],["ctor",1],["exact0",10],["exact1",11]]) {
+    try {
+      model=exp.lean_ui_dispatch(model,ev)>>>0;
+      applyEffects(exp,memory);
+      log(name,"ok","goals",model&0xffff,"solved",(model>>>16)&1,"mem",memory.buffer.byteLength,"nodes",nodes.size);
+    } catch(e) {
+      log(name,"FAIL",e.message);
+      log(e.stack);
+      break;
+    }
+  }
+}
+main().catch(e=>log("TOP",e.message,e.stack));
+</script>
+</body></html>

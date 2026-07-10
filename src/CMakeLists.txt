@@ -7,6 +7,8 @@ if(NOT DEFINED STAGE)
 endif()
 include(ExternalProject)
 project(LEAN CXX C)
+
+set(WASI_SDK_PATH "" CACHE PATH "Path to an extracted wasi-sdk toolchain")
 set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
 set(LEAN_VERSION_MINOR 35 CACHE STRING "")
 set(LEAN_VERSION_PATCH 0 CACHE STRING "")
@@ -1068,6 +1070,19 @@ if(STAGE GREATER 0 AND INSTALL_LICENSE)
 endif()
 
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include FILES_MATCHING PATTERN "*.h")
+
+if(WASI_SDK_PATH)
+  add_custom_target(
+    wasm_runtime
+    COMMAND
+      ${CMAKE_COMMAND} -E env
+      WASI_SDK_PATH=${WASI_SDK_PATH}
+      LEAN_BUILD_DIR=${CMAKE_BINARY_DIR}
+      ${CMAKE_SOURCE_DIR}/../script/build_wasm_runtime.sh ${CMAKE_BINARY_DIR}/wasm32-wasip1
+    COMMENT "Building the single-threaded wasm32-wasip1 Lean runtime"
+    VERBATIM
+  )
+endif()
 
 set(LEAN_INSTALL_PREFIX "" CACHE STRING "If set, set CMAKE_INSTALL_PREFIX to this value + version name")
 if(LEAN_INSTALL_PREFIX)

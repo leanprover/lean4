@@ -86,7 +86,9 @@ void enable_debug_dialog(bool flag) {
 }
 
 void invoke_debugger() {
-#if defined(LEAN_EMSCRIPTEN)
+#if defined(LEAN_WASI)
+    debuggable_exit();
+#elif defined(LEAN_EMSCRIPTEN)
     EM_ASM(debugger;);
     exit(1);
 #else

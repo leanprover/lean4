@@ -61,6 +61,11 @@ def pivotselect [Ord α]
     else if le p2 p3 then ⟨slhi - 1, (by omega)⟩
     else ⟨sllo + (slhi - sllo)/2, (by omega)⟩
 
+structure Data (α : Type) where
+  xs : α
+  fst : Nat
+  snd : Nat
+
 /-
   Second stage of dnf algorithm
     pivot is in the eq-partition, therefore the other two slices that will need further sorting must be smaller than the original one
@@ -70,23 +75,23 @@ def dnfstage2 [Ord α]
   (heq_unproc : eq < unproc) (hunproc_fin_unproc : unproc ≤ fin_unproc) (hfin_unproc : fin_unproc < size)
   (hsllo : sllo ≤ eq) (hfin_unproc_slhi : fin_unproc < slhi) (hlohi : slhi - sllo > 1) (hslhi : slhi ≤ size)
   (hpvt_sllo : sllo ≤ pvt) (hpvt_slhi : pvt < slhi) (hpvt_eq : eq ≤ pvt) (hpvt_fin_unproc : pvt ≤ fin_unproc)
-  : {r : (Vector α size × Nat × Nat) // r.snd.snd ≤ slhi ∧ sllo ≤ r.snd.fst ∧ r.snd.fst ≤ size ∧ r.snd.fst < r.snd.snd} :=
+  : {r : (Data (Vector α size)) // r.snd ≤ slhi ∧ sllo ≤ r.fst ∧ r.fst ≤ size ∧ r.fst < r.snd} :=
 
   match compare xs[unproc] xs[pvt] with
   | .lt =>
-    if hfin : unproc ≥ fin_unproc then ⟨((xs.swap unproc eq), eq + 1, fin_unproc + 1), by simp; omega⟩ else
+    if hfin : unproc ≥ fin_unproc then ⟨⟨(xs.swap unproc eq), eq + 1, fin_unproc + 1⟩, by simp; omega⟩ else
     if hpvt : eq = pvt then dnfstage2 (xs.swap unproc eq) unproc (eq + 1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
     if compare xs[eq] xs[unproc] = .lt then dnfstage2 xs pvt (eq + 1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
     dnfstage2 (xs.swap unproc eq) pvt (eq + 1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
   | .gt =>
-    if hfin : unproc ≥ fin_unproc then ⟨(xs, eq, fin_unproc), by simp; omega⟩ else
+    if hfin : unproc ≥ fin_unproc then ⟨⟨xs, eq, fin_unproc⟩, by simp; omega⟩ else
     if hpvt : fin_unproc = pvt then dnfstage2 (xs.swap unproc fin_unproc) unproc eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
     if compare xs[fin_unproc] xs[unproc] = .gt then dnfstage2 xs pvt eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
     else dnfstage2 (xs.swap unproc fin_unproc) pvt eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
   | .eq =>
-    if hfin : unproc ≥ fin_unproc then ⟨(xs, eq, fin_unproc + 1), by simp; omega⟩ else
+    if hfin : unproc ≥ fin_unproc then ⟨⟨xs, eq, fin_unproc + 1⟩, by simp; omega⟩ else
     dnfstage2 xs pvt eq (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
 /-
@@ -102,10 +107,10 @@ def dnfstage1 [Ord α]
   (heq_unproc : eq ≤ unproc) (hunproc_fin_unproc : unproc ≤ fin_unproc) (hfin_unproc : fin_unproc < size)
   (hsllo : sllo ≤ eq) (hfin_unproc_slhi : fin_unproc < slhi) (hlohi : slhi - sllo > 1) (hslhi : slhi ≤ size)
   (hpvt_sllo : sllo ≤ pvt) (hpvt_slhi : pvt < slhi) (hpvt_unproc : unproc ≤ pvt) (hpvt_fin_unproc : pvt ≤ fin_unproc)
-  : {r : (Vector α size × Nat × Nat) // r.snd.snd ≤ slhi ∧ sllo ≤ r.snd.fst ∧ r.snd.fst ≤ size ∧ r.snd.fst < r.snd.snd} :=
+  : {r : (Data (Vector α size)) // r.snd ≤ slhi ∧ sllo ≤ r.fst ∧ r.fst ≤ size ∧ r.fst < r.snd} :=
 
   if hpvt : unproc = pvt then
-    if hfin : fin_unproc = unproc then ⟨(xs, eq, fin_unproc + 1), by simp; omega⟩
+    if hfin : fin_unproc = unproc then ⟨⟨xs, eq, fin_unproc + 1⟩, by simp; omega⟩
     else dnfstage2 xs pvt eq (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
   else match compare xs[unproc] xs[pvt] with
@@ -113,8 +118,8 @@ def dnfstage1 [Ord α]
     dnfstage1 (xs.swap eq unproc) pvt (eq+1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
   | .gt =>
-    if hfin : fin_unproc = unproc then ⟨(xs, eq, fin_unproc), by simp; omega⟩ else
-    if hfin2 : fin_unproc - unproc = 1 then ⟨(xs.swap unproc fin_unproc, eq, fin_unproc), by simp; omega⟩ else
+    if hfin : fin_unproc = unproc then ⟨⟨xs, eq, fin_unproc⟩, by simp; omega⟩ else
+    if hfin2 : fin_unproc - unproc = 1 then ⟨⟨xs.swap unproc fin_unproc, eq, fin_unproc⟩, by simp; omega⟩ else
     if hpvt2 : pvt = fin_unproc then dnfstage2 (xs.swap unproc pvt) unproc eq (unproc + 1) (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
     dnfstage1 (xs.swap unproc fin_unproc) pvt eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
@@ -133,7 +138,7 @@ def dnfstaged [Ord α]
   (xs : Vector α size) (pvt : Nat) (sllo slhi : Nat)
   (hlohi : slhi - sllo > 1) (hhi : slhi ≤ size)
   (hpvt : sllo ≤ pvt ∧ pvt < slhi)
-  : {r : (Vector α size × Nat × Nat) // r.snd.snd ≤ slhi ∧ sllo ≤ r.snd.fst ∧ r.snd.fst ≤ size ∧ r.snd.fst < r.snd.snd} :=
+  : {r : (Data (Vector α size)) // r.snd ≤ slhi ∧ sllo ≤ r.fst ∧ r.fst ≤ size ∧ r.fst < r.snd} :=
 
   dnfstage1 xs pvt sllo sllo (slhi - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
@@ -150,7 +155,7 @@ def quicksorthelper [Ord α]
   if slhi - sllo ≤ 16 then insertionSort xs sllo slhi (sllo + 1) (by omega) (by omega) (by omega) (by omega) else
 
   let pvt := pivotselect xs sllo slhi (by omega) (by omega)
-  let ⟨(ys, mid, hi), ⟨h1, h2, h3⟩⟩ := (dnfstaged xs pvt sllo slhi (by omega) (by omega) (by omega))
+  let ⟨⟨ys, mid, hi⟩, ⟨h1, h2, h3⟩⟩ := (dnfstaged xs pvt sllo slhi (by omega) (by omega) (by omega))
 
 
   have hterm : slhi - hi < slhi - sllo := by simp only [] at h1 h2 h3; omega

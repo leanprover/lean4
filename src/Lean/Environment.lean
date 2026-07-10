@@ -2839,12 +2839,19 @@ Sets `Environment.isExporting` to the given value while executing `x`. No-op if
 -/
 def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (isExporting := true) : m α := do
-  let old := (← getEnv).isExporting
-  modifyEnv (·.setExporting isExporting)
-  try
+  let env ← getEnv
+  let old := env.isExporting
+  if !env.header.isModule || old == isExporting then
+    -- `setExporting` would be a no-op. We skip the `modifyEnv` calls because `modifyEnv`
+    -- invalidates caches (e.g., the whole `Meta.State.cache`), which is very costly when
+    -- this function is used in hot paths (e.g., equation lemma retrieval inside `grind`).
     x
-  finally
-    modifyEnv (·.setExporting old)
+  else
+    modifyEnv (·.setExporting isExporting)
+    try
+      x
+    finally
+      modifyEnv (·.setExporting old)
 
 /-- If `when` is true, sets `Environment.isExporting` to false while executing `x`. -/
 def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)

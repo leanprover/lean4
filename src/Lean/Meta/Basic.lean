@@ -254,7 +254,6 @@ def ConfigWithKey.withCanUnfoldAtMatcherPred : ConfigWithKey → ConfigWithKey
         have : CanUnfoldPredicateConfig.atMatcher.toBool = true := rfl
         k ||| ((1 : UInt64) <<< 23) }
 
-@[inline]
 def ConfigWithKey.setTransparency (transparency : TransparencyMode) (c : ConfigWithKey) : ConfigWithKey :=
   { config := { c.config with transparency }
     key := ((c.key >>> (3 : UInt64)) <<< 3) ||| transparency.toUInt64 }
@@ -1302,6 +1301,7 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
 
+@[inline]
 private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
   { ctx with keyedConfig := ctx.keyedConfig.setTransparency transparency }
 

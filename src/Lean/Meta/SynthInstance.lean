@@ -942,10 +942,18 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKin
         result?.map fun result => { expr := result, paramNames := #[], mvars := #[] }
       else
         some abstResult
-  -- Only context-free entries may be persisted: mvar-free key (`.noMVars`) and a closed value
-  -- (no abstracted metavariables); see `insertCachedResult`.
+  -- Only context-free entries may be persisted: a mvar-free key (`.noMVars`), no free variable in
+  -- the key or the value, and a closed value (no abstracted metavariables); see
+  -- `insertCachedResult`.
+  --
+  -- A free variable identifies a variable only within the `NameGenerator` that created it, and the
+  -- cache outlives any of them: the pretty printer and the info tree each run with a fresh
+  -- generator (`PPContext.runCoreM`), so a delaborator that synthesizes an instance produces the
+  -- very same `FVarId`s in every command. An entry keyed by one would then be served to an
+  -- unrelated query over an identically named but differently typed variable.
   let persist := kind matches .noMVars &&
-    (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty)
+    cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar &&
+    (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar)
   insertCachedResult cacheKey value? (persist := persist)
 
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do

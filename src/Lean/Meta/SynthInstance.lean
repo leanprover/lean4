@@ -990,13 +990,13 @@ private structure State where
   -/
   cache : Std.HashMap ExprStructEq Expr := {}
 
-private abbrev M := ReaderT LocalContext (StateM State)
+private abbrev M := ReaderT LocalContext (StateT State MetaM)
 
 /--
 Renames every free variable to a canonical positional identifier by first-occurrence order,
 recording and recursively normalizing each one's type. Sets `bail` on a let-bound variable (its
-value is part of the context but not the key) or a variable whose type contains a metavariable
-(not context-free), neither of which can be soundly normalized.
+value is part of the context but not the key) or a variable whose type contains an unassigned
+metavariable (not context-free), neither of which can be soundly normalized.
 -/
 private partial def normExpr (e : Expr) : M Expr := do
   if (← get).bail then return e
@@ -1010,13 +1010,19 @@ private partial def normExpr (e : Expr) : M Expr := do
       modify fun s => { s with bail := true }
       return e
     | some decl =>
-      if decl.isLet || decl.type.hasMVar then
+      if decl.isLet then
+        modify fun s => { s with bail := true }
+        return e
+      -- `Expr.hasMVar` is a syntactic flag: it stays set for metavariables that are already
+      -- assigned, whose values are context-free. Instantiate before deciding to bail.
+      let type ← instantiateMVars decl.type
+      if type.hasMVar then
         modify fun s => { s with bail := true }
         return e
       let i := (← get).order.size
       modify fun s =>
         { s with fmap := s.fmap.insert id i, order := s.order.push id, types := s.types.push default }
-      let nty ← normExpr decl.type
+      let nty ← normExpr type
       modify fun s => { s with types := s.types.set! i nty }
       return .fvar (canonFVarId i)
   | _ =>
@@ -1054,7 +1060,7 @@ def normalizeContext? (cacheKeyType : Expr) (localInsts : LocalInstances) :
     let normType ← normExpr cacheKeyType
     let canonLocalInsts ← localInsts.mapM fun li => return { li with fvar := ← normExpr li.fvar }
     return (normType, canonLocalInsts)
-  let ((normType, canonLocalInsts), st) := go.run lctx |>.run {}
+  let ((normType, canonLocalInsts), st) ← go.run lctx |>.run {}
   if st.bail then return none
   return some { normType, canonLocalInsts, fvarTypes := st.types, fmap := st.fmap, order := st.order }
 

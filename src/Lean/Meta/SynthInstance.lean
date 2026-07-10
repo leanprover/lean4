@@ -974,14 +974,18 @@ namespace SynthNorm
 private def canonFVarId (i : Nat) : FVarId := ⟨.mkNum `_snf i⟩
 
 private structure State where
-  /-- Assigns each source free variable its canonical position. -/
-  fmap  : Std.HashMap FVarId Nat := {}
+  /-- Assigns each source free variable its canonical position. Persistent, so that a memoized
+  closure seeds a query's state in constant time. -/
+  fmap  : PersistentHashMap FVarId Nat := {}
   /-- Canonical position to source free variable (inverse of `fmap`), for re-instantiation. -/
   order : Array FVarId := #[]
   /-- Canonical position to the (recursively normalized) type of that free variable. -/
   types : Array Expr := #[]
   /-- Set when the closure cannot be soundly normalized (let-bound or mvar-typed variable). -/
   bail  : Bool := false
+  /-- Closure variables whose raw `LocalDecl.type` mentions a metavariable, with the instantiation
+  used; see `SynthNormClosureMemo.mvarTyped`. -/
+  mvarTyped : Array (FVarId × Expr) := #[]
   /--
   Memoizes `normExpr` on visited subterms so that terms with DAG sharing are traversed in DAG
   size, not tree size. Sound because positions are assigned by first occurrence and never change:
@@ -1003,7 +1007,7 @@ private partial def normExpr (e : Expr) : M Expr := do
   unless e.hasFVar do return e
   match e with
   | .fvar id =>
-    if let some i := (← get).fmap[id]? then
+    if let some i := (← get).fmap.find? id then
       return .fvar (canonFVarId i)
     match (← read).find? id with
     | none =>
@@ -1015,7 +1019,13 @@ private partial def normExpr (e : Expr) : M Expr := do
         return e
       -- `Expr.hasMVar` is a syntactic flag: it stays set for metavariables that are already
       -- assigned, whose values are context-free. Instantiate before deciding to bail.
-      let type ← instantiateMVars decl.type
+      let type ← if decl.type.hasMVar then
+          let type ← instantiateMVars decl.type
+          -- Recorded even when we bail below: assigning the metavariable that made us bail must
+          -- invalidate the memoized closure.
+          modify fun s => { s with mvarTyped := s.mvarTyped.push (id, type) }
+          pure type
+        else pure decl.type
       if type.hasMVar then
         modify fun s => { s with bail := true }
         return e
@@ -1044,25 +1054,58 @@ structure Context where
   normType        : Expr
   canonLocalInsts : LocalInstances
   fvarTypes       : Array Expr
-  fmap            : Std.HashMap FVarId Nat
+  fmap            : PersistentHashMap FVarId Nat
   order           : Array FVarId
+
+/--
+Whether a memoized closure is still valid: every closure variable whose type mentions a
+metavariable must still instantiate to what the closure was built from. The other closure
+variables have immutable types, and the local instances are compared by the caller.
+-/
+private def isValidMemo (lctx : LocalContext) (memo : SynthNormClosureMemo) : MetaM Bool := do
+  for (id, type) in memo.mvarTyped do
+    let some decl := lctx.find? id | return false
+    unless (← instantiateMVars decl.type) == type do return false
+  return true
+
+/--
+The free-variable-normalized closure of the local instances, or `none` if it cannot be soundly
+normalized. Memoized in `Meta.Cache.synthNormClosure`: the closure is the same for every query made
+under the same local instances, and normalizing it per query dominates the cost of a cache key.
+-/
+private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormClosure) := do
+  let lctx ← getLCtx
+  let cache := (← get).cache
+  if let some memo := cache.synthNormClosure then
+    if memo.localInsts == localInsts && (← isValidMemo lctx memo) then
+      return memo.closure?
+  let go : M LocalInstances :=
+    localInsts.mapM fun li => return { li with fvar := ← normExpr li.fvar }
+  let (canonLocalInsts, st) ← go.run lctx |>.run {}
+  let closure? :=
+    if st.bail then none
+    else some { fmap := st.fmap, order := st.order, types := st.types, canonLocalInsts }
+  modifyCache fun c =>
+    { c with synthNormClosure := some { localInsts, mvarTyped := st.mvarTyped, closure? } }
+  return closure?
 
 /--
 Computes the free-variable-normalized cache context for a `.noMVars` query, or `none` if it cannot
 be soundly normalized (some free variable in the closure is let-bound or has a metavariable in its
-type). The closure comprises the free variables of `cacheKeyType` and of the local instances,
-together with their types, transitively.
+type). The closure comprises the free variables of the local instances and of `cacheKeyType`,
+together with their types, transitively. The local instances are normalized first, so that their
+part of the closure does not depend on the query and can be memoized; see `getClosure?`.
 -/
 def normalizeContext? (cacheKeyType : Expr) (localInsts : LocalInstances) :
     MetaM (Option Context) := do
+  let some closure ← getClosure? localInsts | return none
   let lctx ← getLCtx
-  let go : M (Expr × LocalInstances) := do
-    let normType ← normExpr cacheKeyType
-    let canonLocalInsts ← localInsts.mapM fun li => return { li with fvar := ← normExpr li.fvar }
-    return (normType, canonLocalInsts)
-  let ((normType, canonLocalInsts), st) ← go.run lctx |>.run {}
+  -- Seed from the memoized closure; the query type may extend it with further free variables.
+  let st0 : State := { fmap := closure.fmap, order := closure.order, types := closure.types }
+  let (normType, st) ← (normExpr cacheKeyType).run lctx |>.run st0
   if st.bail then return none
-  return some { normType, canonLocalInsts, fvarTypes := st.types, fmap := st.fmap, order := st.order }
+  return some { normType, canonLocalInsts := closure.canonLocalInsts, fvarTypes := st.types,
+                fmap := st.fmap, order := st.order }
 
 /--
 Abstracts the closure free variables of `e` into loose bound variables (positional, by the closure

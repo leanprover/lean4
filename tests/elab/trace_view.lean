@@ -232,3 +232,45 @@ trace: [debug] hello
 set_option trace.debug true in
 trace_view "not a postprocessor" in
 run_cmd trace[debug] "hello"
+
+/-!
+Robustness of the message pipeline: non-trace messages and messages logged by the postprocessor
+itself must survive postprocessing, and runtime failures of the postprocessor must not lose the
+traced command's output.
+-/
+
+-- Non-trace messages pass through the postprocessor unchanged.
+/--
+info: hi there
+---
+trace: [debug] hello
+-/
+#guard_msgs in
+set_option trace.debug true in
+trace_view filter (ofClass `debug) in
+run_cmd do
+  logInfo "hi there"
+  trace[debug] "hello"
+
+-- Messages logged by the postprocessor itself are kept.
+/--
+warning: postprocessor ran
+---
+trace: [debug] hello
+-/
+#guard_msgs in
+set_option trace.debug true in
+trace_view (fun roots => do logWarning "postprocessor ran"; return roots) in
+run_cmd trace[debug] "hello"
+
+-- A postprocessor that throws at runtime is reported, and the affected message is shown
+-- unprocessed.
+/--
+error: oh no
+---
+trace: [debug] hello
+-/
+#guard_msgs in
+set_option trace.debug true in
+trace_view (fun _ => throwError "oh no") in
+run_cmd trace[debug] "hello"

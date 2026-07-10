@@ -8,8 +8,7 @@ module
 prelude
 public import Lean.Elab.Command
 import Lean.Elab.Eval
-import Init.Data.String.Search  -- needed for `String.find?`/`String.replace`
-import Init.Data.String.TakeDrop  -- needed for `String.take`
+import Init.Data.String.Search  -- needed for `String.find?`
 
 /-!
 # Trace postprocessors: `trace_view`
@@ -132,11 +131,11 @@ namespace Lean.Elab.TraceView
 open Lean.TraceView Command
 
 /--
-Runs a command and collects all messages (sync and async) it produces, clearing the snapshot
-tasks after collection so that async messages are not reported twice. The message log is empty
-when `cmd` starts; the caller is responsible for saving and restoring the surrounding log.
+Runs a command and returns all messages (sync and async) it produces, clearing the snapshot
+tasks after collection so that async messages are not reported twice. The surrounding message
+log is unaffected; it is restored even if the command is interrupted.
 -/
-private def runAndCollectMessages (cmd : Syntax) : CommandElabM (MessageLog × Array Message) := do
+private def runAndCollectMessages (cmd : Syntax) : CommandElabM (Array Message) := do
   let saved := (← get).messages
   -- `elabCommandTopLevel` resets the info state; save the trees recorded so far (e.g. for the
   -- postprocessor term) so that hovers and completions keep working
@@ -146,16 +145,18 @@ private def runAndCollectMessages (cmd : Syntax) : CommandElabM (MessageLog × A
     -- do not forward the snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
       elabCommandTopLevel cmd
+    let msgs := (← get).messages ++
+      (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty
+    modify fun st => { st with snapshotTasks := #[], messages := {} }
+    return msgs.toArray
   finally
-    modify fun st => { st with infoState.trees := savedTrees ++ st.infoState.trees }
-  let msgs := (← get).messages ++
-    (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty
-  modify fun st => { st with snapshotTasks := #[], messages := {} }
-  return (saved, msgs.toArray)
+    modify fun st => { st with
+      infoState.trees := savedTrees ++ st.infoState.trees
+      messages        := saved ++ st.messages }
 
 /--
 Evaluates a term of type `TracePostprocessor`, with the `Lean.TraceView` namespace opened so
-that the basic combinators are available unqualified.
+that the built-in operations and patterns are available unqualified.
 -/
 private def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
   let post ← `(open Lean.TraceView in ($post : TracePostprocessor))
@@ -193,12 +194,14 @@ private def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostproc
     catch ex =>
       logException ex
       pure fun roots => return roots
-    let (saved, msgs) ← runAndCollectMessages cmd
-    let mut out := saved
-    for msg in msgs do
-      if let some msg ← liftCoreM <| postprocessMessage post msg then
-        out := out.add msg
-    modify fun st => { st with messages := out }
+    for msg in ← runAndCollectMessages cmd do
+      try
+        if let some msg ← liftCoreM <| postprocessMessage post msg then
+          modify fun st => { st with messages := st.messages.add msg }
+      catch ex =>
+        -- if the postprocessor fails at runtime, report the message unprocessed
+        logException ex
+        modify fun st => { st with messages := st.messages.add msg }
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.TraceView
@@ -276,6 +279,25 @@ partial def size (t : TraceTree) : Nat :=
   t.children.foldl (fun n c => n + c.size) 1
 
 /--
+Whether this tree contains at least `n` nodes (in the sense of `size`).
+Unlike `size`, this visits at most `n` nodes.
+-/
+partial def sizeAtLeast (t : TraceTree) (n : Nat) : Bool :=
+  go t n == 0
+where
+  /-- Returns how many of the `need`ed nodes remain to be found after counting `t`. -/
+  go (t : TraceTree) (need : Nat) : Nat :=
+    match need with
+    | 0 => 0
+    | need + 1 => Id.run do
+      let mut need := need
+      for c in t.children do
+        if need == 0 then
+          break
+        need := go c need
+      return need
+
+/--
 Collects all maximal subtrees satisfying `p` in `acc`: adds `t` itself if `p t` holds, and
 otherwise recurses into the children. Matching subtrees are not searched for nested matches.
 -/
@@ -342,9 +364,12 @@ Matches the trace nodes whose action did not succeed, i.e. failed (❌️) or th
 def unsuccessful : TracePattern := fun t =>
   return t.result? == some .failure || t.result? == some .error
 
-/-- Matches the subtrees that contain at least `n` nodes. -/
+/--
+Matches the subtrees that contain at least `n` nodes.
+Scales to large traces: each candidate subtree is only searched until `n` nodes are found.
+-/
 def minNodes (n : Nat) : TracePattern := fun t =>
-  return t.size ≥ n
+  return t.sizeAtLeast n
 
 /--
 Matches the subtrees whose action took at least `ms` milliseconds.
@@ -381,7 +406,8 @@ def hoist (p : TracePattern) : TracePostprocessor := fun roots =>
 /--
 Expands all transitive ancestors of the subtrees matching `p` in the editor, so that the trace
 opens already showing all matches. No nodes are removed, and all other nodes, including the
-matches themselves, keep their expansion state.
+matches themselves, keep their expansion state. Matching subtrees are not searched for nested
+matches.
 -/
 partial def expand (p : TracePattern) : TracePostprocessor := fun roots =>
   roots.mapM fun root => return (← go root).1

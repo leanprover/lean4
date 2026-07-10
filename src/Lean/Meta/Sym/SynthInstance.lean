@@ -69,7 +69,13 @@ def registerInstance (type inst : Expr) : SymM Unit :=
 def synthInstance? (type : Expr) : SymM (Option Expr) := do
   if let some inst := (← get).instanceOverrides.find? type then
     return some inst
-  synthInstanceMeta? type
+  match ← synthInstanceMeta? type with
+  | none => return none
+  -- Intern the instance into the local `Sym` alpha-store. `synthInstance` may return an instance
+  -- from the persistent type class cache, reopened from an abstracted schema and hence not
+  -- maximally shared; without interning it here, every later `shareCommon` of a term containing it
+  -- re-walks it node by node.
+  | some e => return some (← shareCommon e)
 
 def synthInstance (type : Expr) : SymM Expr := do
   let some inst ← synthInstance? type

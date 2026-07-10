@@ -30,6 +30,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 size_t lean_usize_add(size_t, size_t);
 uint8_t l_Std_CloseableChannel_isClosed___redArg(lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* l_Std_CloseableChannel_close___redArg(lean_object*);
 lean_object* l_Std_CloseableChannel_recv___redArg(lean_object*);
 lean_object* lean_io_promise_new();
@@ -2552,477 +2553,462 @@ return v_res_723_;
 LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Client_close(lean_object* v_client_728_){
 _start:
 {
-lean_object* v_clientToServer_730_; lean_object* v_serverToClient_731_; uint8_t v___x_759_; 
+lean_object* v_clientToServer_730_; lean_object* v_serverToClient_731_; uint8_t v___x_760_; uint8_t v___x_761_; 
 v_clientToServer_730_ = lean_ctor_get(v_client_728_, 0);
 lean_inc_ref_n(v_clientToServer_730_, 2);
 v_serverToClient_731_ = lean_ctor_get(v_client_728_, 1);
 lean_inc_ref(v_serverToClient_731_);
 lean_dec_ref(v_client_728_);
-v___x_759_ = l_Std_CloseableChannel_isClosed___redArg(v_clientToServer_730_);
-if (v___x_759_ == 0)
-{
-lean_object* v___x_760_; 
-v___x_760_ = l_Std_CloseableChannel_close___redArg(v_clientToServer_730_);
-if (lean_obj_tag(v___x_760_) == 0)
-{
-lean_dec_ref_known(v___x_760_, 1);
-goto v___jp_732_;
-}
-else
-{
-lean_object* v_a_761_; lean_object* v___x_763_; uint8_t v_isShared_764_; uint8_t v_isSharedCheck_774_; 
-lean_dec_ref(v_serverToClient_731_);
-v_a_761_ = lean_ctor_get(v___x_760_, 0);
-v_isSharedCheck_774_ = !lean_is_exclusive(v___x_760_);
-if (v_isSharedCheck_774_ == 0)
-{
-v___x_763_ = v___x_760_;
-v_isShared_764_ = v_isSharedCheck_774_;
-goto v_resetjp_762_;
-}
-else
-{
-lean_inc(v_a_761_);
-lean_dec(v___x_760_);
-v___x_763_ = lean_box(0);
-v_isShared_764_ = v_isSharedCheck_774_;
-goto v_resetjp_762_;
-}
-v_resetjp_762_:
-{
-uint8_t v___x_765_; 
-v___x_765_ = lean_unbox(v_a_761_);
-lean_dec(v_a_761_);
-if (v___x_765_ == 0)
-{
-lean_object* v___x_766_; lean_object* v___x_768_; 
-v___x_766_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
-if (v_isShared_764_ == 0)
-{
-lean_ctor_set(v___x_763_, 0, v___x_766_);
-v___x_768_ = v___x_763_;
-goto v_reusejp_767_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_769_; 
-v_reuseFailAlloc_769_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_769_, 0, v___x_766_);
-v___x_768_ = v_reuseFailAlloc_769_;
-goto v_reusejp_767_;
-}
-v_reusejp_767_:
-{
-return v___x_768_;
-}
-}
-else
-{
-lean_object* v___x_770_; lean_object* v___x_772_; 
-v___x_770_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
-if (v_isShared_764_ == 0)
-{
-lean_ctor_set(v___x_763_, 0, v___x_770_);
-v___x_772_ = v___x_763_;
-goto v_reusejp_771_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_773_; 
-v_reuseFailAlloc_773_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_773_, 0, v___x_770_);
-v___x_772_ = v_reuseFailAlloc_773_;
-goto v_reusejp_771_;
-}
-v_reusejp_771_:
-{
-return v___x_772_;
-}
-}
-}
-}
-}
-else
+v___x_760_ = l_Std_CloseableChannel_isClosed___redArg(v_clientToServer_730_);
+v___x_761_ = lean_bool_not(v___x_760_);
+if (v___x_761_ == 0)
 {
 lean_dec_ref(v_clientToServer_730_);
 goto v___jp_732_;
 }
+else
+{
+lean_object* v___x_762_; 
+v___x_762_ = l_Std_CloseableChannel_close___redArg(v_clientToServer_730_);
+if (lean_obj_tag(v___x_762_) == 0)
+{
+lean_dec_ref_known(v___x_762_, 1);
+goto v___jp_732_;
+}
+else
+{
+lean_object* v_a_763_; lean_object* v___x_765_; uint8_t v_isShared_766_; uint8_t v_isSharedCheck_776_; 
+lean_dec_ref(v_serverToClient_731_);
+v_a_763_ = lean_ctor_get(v___x_762_, 0);
+v_isSharedCheck_776_ = !lean_is_exclusive(v___x_762_);
+if (v_isSharedCheck_776_ == 0)
+{
+v___x_765_ = v___x_762_;
+v_isShared_766_ = v_isSharedCheck_776_;
+goto v_resetjp_764_;
+}
+else
+{
+lean_inc(v_a_763_);
+lean_dec(v___x_762_);
+v___x_765_ = lean_box(0);
+v_isShared_766_ = v_isSharedCheck_776_;
+goto v_resetjp_764_;
+}
+v_resetjp_764_:
+{
+uint8_t v___x_767_; 
+v___x_767_ = lean_unbox(v_a_763_);
+lean_dec(v_a_763_);
+if (v___x_767_ == 0)
+{
+lean_object* v___x_768_; lean_object* v___x_770_; 
+v___x_768_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
+if (v_isShared_766_ == 0)
+{
+lean_ctor_set(v___x_765_, 0, v___x_768_);
+v___x_770_ = v___x_765_;
+goto v_reusejp_769_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_771_; 
+v_reuseFailAlloc_771_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_771_, 0, v___x_768_);
+v___x_770_ = v_reuseFailAlloc_771_;
+goto v_reusejp_769_;
+}
+v_reusejp_769_:
+{
+return v___x_770_;
+}
+}
+else
+{
+lean_object* v___x_772_; lean_object* v___x_774_; 
+v___x_772_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
+if (v_isShared_766_ == 0)
+{
+lean_ctor_set(v___x_765_, 0, v___x_772_);
+v___x_774_ = v___x_765_;
+goto v_reusejp_773_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_775_; 
+v_reuseFailAlloc_775_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_775_, 0, v___x_772_);
+v___x_774_ = v_reuseFailAlloc_775_;
+goto v_reusejp_773_;
+}
+v_reusejp_773_:
+{
+return v___x_774_;
+}
+}
+}
+}
+}
 v___jp_732_:
 {
-uint8_t v___x_733_; 
+uint8_t v___x_733_; uint8_t v___x_734_; 
 lean_inc_ref(v_serverToClient_731_);
 v___x_733_ = l_Std_CloseableChannel_isClosed___redArg(v_serverToClient_731_);
-if (v___x_733_ == 0)
+v___x_734_ = lean_bool_not(v___x_733_);
+if (v___x_734_ == 0)
 {
-lean_object* v___x_734_; 
-v___x_734_ = l_Std_CloseableChannel_close___redArg(v_serverToClient_731_);
-if (lean_obj_tag(v___x_734_) == 0)
-{
-lean_object* v_a_735_; lean_object* v___x_737_; uint8_t v_isShared_738_; uint8_t v_isSharedCheck_742_; 
-v_a_735_ = lean_ctor_get(v___x_734_, 0);
-v_isSharedCheck_742_ = !lean_is_exclusive(v___x_734_);
-if (v_isSharedCheck_742_ == 0)
-{
-v___x_737_ = v___x_734_;
-v_isShared_738_ = v_isSharedCheck_742_;
-goto v_resetjp_736_;
+lean_object* v___x_735_; lean_object* v___x_736_; 
+lean_dec_ref(v_serverToClient_731_);
+v___x_735_ = lean_box(0);
+v___x_736_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_736_, 0, v___x_735_);
+return v___x_736_;
 }
 else
 {
-lean_inc(v_a_735_);
-lean_dec(v___x_734_);
-v___x_737_ = lean_box(0);
-v_isShared_738_ = v_isSharedCheck_742_;
-goto v_resetjp_736_;
-}
-v_resetjp_736_:
+lean_object* v___x_737_; 
+v___x_737_ = l_Std_CloseableChannel_close___redArg(v_serverToClient_731_);
+if (lean_obj_tag(v___x_737_) == 0)
 {
-lean_object* v___x_740_; 
-if (v_isShared_738_ == 0)
+lean_object* v_a_738_; lean_object* v___x_740_; uint8_t v_isShared_741_; uint8_t v_isSharedCheck_745_; 
+v_a_738_ = lean_ctor_get(v___x_737_, 0);
+v_isSharedCheck_745_ = !lean_is_exclusive(v___x_737_);
+if (v_isSharedCheck_745_ == 0)
 {
 v___x_740_ = v___x_737_;
-goto v_reusejp_739_;
+v_isShared_741_ = v_isSharedCheck_745_;
+goto v_resetjp_739_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_741_; 
-v_reuseFailAlloc_741_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_741_, 0, v_a_735_);
-v___x_740_ = v_reuseFailAlloc_741_;
-goto v_reusejp_739_;
+lean_inc(v_a_738_);
+lean_dec(v___x_737_);
+v___x_740_ = lean_box(0);
+v_isShared_741_ = v_isSharedCheck_745_;
+goto v_resetjp_739_;
 }
-v_reusejp_739_:
+v_resetjp_739_:
 {
-return v___x_740_;
-}
-}
+lean_object* v___x_743_; 
+if (v_isShared_741_ == 0)
+{
+v___x_743_ = v___x_740_;
+goto v_reusejp_742_;
 }
 else
 {
-lean_object* v_a_743_; lean_object* v___x_745_; uint8_t v_isShared_746_; uint8_t v_isSharedCheck_756_; 
-v_a_743_ = lean_ctor_get(v___x_734_, 0);
-v_isSharedCheck_756_ = !lean_is_exclusive(v___x_734_);
-if (v_isSharedCheck_756_ == 0)
-{
-v___x_745_ = v___x_734_;
-v_isShared_746_ = v_isSharedCheck_756_;
-goto v_resetjp_744_;
+lean_object* v_reuseFailAlloc_744_; 
+v_reuseFailAlloc_744_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_744_, 0, v_a_738_);
+v___x_743_ = v_reuseFailAlloc_744_;
+goto v_reusejp_742_;
 }
-else
+v_reusejp_742_:
 {
-lean_inc(v_a_743_);
-lean_dec(v___x_734_);
-v___x_745_ = lean_box(0);
-v_isShared_746_ = v_isSharedCheck_756_;
-goto v_resetjp_744_;
-}
-v_resetjp_744_:
-{
-uint8_t v___x_747_; 
-v___x_747_ = lean_unbox(v_a_743_);
-lean_dec(v_a_743_);
-if (v___x_747_ == 0)
-{
-lean_object* v___x_748_; lean_object* v___x_750_; 
-v___x_748_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
-if (v_isShared_746_ == 0)
-{
-lean_ctor_set(v___x_745_, 0, v___x_748_);
-v___x_750_ = v___x_745_;
-goto v_reusejp_749_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_751_; 
-v_reuseFailAlloc_751_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_751_, 0, v___x_748_);
-v___x_750_ = v_reuseFailAlloc_751_;
-goto v_reusejp_749_;
-}
-v_reusejp_749_:
-{
-return v___x_750_;
-}
-}
-else
-{
-lean_object* v___x_752_; lean_object* v___x_754_; 
-v___x_752_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
-if (v_isShared_746_ == 0)
-{
-lean_ctor_set(v___x_745_, 0, v___x_752_);
-v___x_754_ = v___x_745_;
-goto v_reusejp_753_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_755_; 
-v_reuseFailAlloc_755_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_755_, 0, v___x_752_);
-v___x_754_ = v_reuseFailAlloc_755_;
-goto v_reusejp_753_;
-}
-v_reusejp_753_:
-{
-return v___x_754_;
-}
-}
+return v___x_743_;
 }
 }
 }
 else
 {
-lean_object* v___x_757_; lean_object* v___x_758_; 
-lean_dec_ref(v_serverToClient_731_);
-v___x_757_ = lean_box(0);
-v___x_758_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_758_, 0, v___x_757_);
-return v___x_758_;
+lean_object* v_a_746_; lean_object* v___x_748_; uint8_t v_isShared_749_; uint8_t v_isSharedCheck_759_; 
+v_a_746_ = lean_ctor_get(v___x_737_, 0);
+v_isSharedCheck_759_ = !lean_is_exclusive(v___x_737_);
+if (v_isSharedCheck_759_ == 0)
+{
+v___x_748_ = v___x_737_;
+v_isShared_749_ = v_isSharedCheck_759_;
+goto v_resetjp_747_;
+}
+else
+{
+lean_inc(v_a_746_);
+lean_dec(v___x_737_);
+v___x_748_ = lean_box(0);
+v_isShared_749_ = v_isSharedCheck_759_;
+goto v_resetjp_747_;
+}
+v_resetjp_747_:
+{
+uint8_t v___x_750_; 
+v___x_750_ = lean_unbox(v_a_746_);
+lean_dec(v_a_746_);
+if (v___x_750_ == 0)
+{
+lean_object* v___x_751_; lean_object* v___x_753_; 
+v___x_751_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
+if (v_isShared_749_ == 0)
+{
+lean_ctor_set(v___x_748_, 0, v___x_751_);
+v___x_753_ = v___x_748_;
+goto v_reusejp_752_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_754_; 
+v_reuseFailAlloc_754_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_754_, 0, v___x_751_);
+v___x_753_ = v_reuseFailAlloc_754_;
+goto v_reusejp_752_;
+}
+v_reusejp_752_:
+{
+return v___x_753_;
+}
+}
+else
+{
+lean_object* v___x_755_; lean_object* v___x_757_; 
+v___x_755_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
+if (v_isShared_749_ == 0)
+{
+lean_ctor_set(v___x_748_, 0, v___x_755_);
+v___x_757_ = v___x_748_;
+goto v_reusejp_756_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_758_; 
+v_reuseFailAlloc_758_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_758_, 0, v___x_755_);
+v___x_757_ = v_reuseFailAlloc_758_;
+goto v_reusejp_756_;
+}
+v_reusejp_756_:
+{
+return v___x_757_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Client_close___boxed(lean_object* v_client_775_, lean_object* v_a_776_){
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Client_close___boxed(lean_object* v_client_777_, lean_object* v_a_778_){
 _start:
 {
-lean_object* v_res_777_; 
-v_res_777_ = l_Std_Http_Internal_Mock_Client_close(v_client_775_);
-return v_res_777_;
+lean_object* v_res_779_; 
+v_res_779_ = l_Std_Http_Internal_Mock_Client_close(v_client_777_);
+return v_res_779_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getRecvChan(lean_object* v_server_778_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getRecvChan(lean_object* v_server_780_){
 _start:
 {
-lean_object* v_clientToServer_779_; 
-v_clientToServer_779_ = lean_ctor_get(v_server_778_, 0);
-lean_inc_ref(v_clientToServer_779_);
-return v_clientToServer_779_;
+lean_object* v_clientToServer_781_; 
+v_clientToServer_781_ = lean_ctor_get(v_server_780_, 0);
+lean_inc_ref(v_clientToServer_781_);
+return v_clientToServer_781_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getRecvChan___boxed(lean_object* v_server_780_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getRecvChan___boxed(lean_object* v_server_782_){
 _start:
 {
-lean_object* v_res_781_; 
-v_res_781_ = l_Std_Http_Internal_Mock_Server_getRecvChan(v_server_780_);
-lean_dec_ref(v_server_780_);
-return v_res_781_;
+lean_object* v_res_783_; 
+v_res_783_ = l_Std_Http_Internal_Mock_Server_getRecvChan(v_server_782_);
+lean_dec_ref(v_server_782_);
+return v_res_783_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getSendChan(lean_object* v_server_782_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getSendChan(lean_object* v_server_784_){
 _start:
 {
-lean_object* v_serverToClient_783_; 
-v_serverToClient_783_ = lean_ctor_get(v_server_782_, 1);
-lean_inc_ref(v_serverToClient_783_);
-return v_serverToClient_783_;
+lean_object* v_serverToClient_785_; 
+v_serverToClient_785_ = lean_ctor_get(v_server_784_, 1);
+lean_inc_ref(v_serverToClient_785_);
+return v_serverToClient_785_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getSendChan___boxed(lean_object* v_server_784_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_getSendChan___boxed(lean_object* v_server_786_){
 _start:
 {
-lean_object* v_res_785_; 
-v_res_785_ = l_Std_Http_Internal_Mock_Server_getSendChan(v_server_784_);
-lean_dec_ref(v_server_784_);
-return v_res_785_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_send(lean_object* v_server_786_, lean_object* v_data_787_){
-_start:
-{
-lean_object* v_serverToClient_789_; lean_object* v___x_790_; 
-v_serverToClient_789_ = lean_ctor_get(v_server_786_, 1);
-lean_inc_ref(v_serverToClient_789_);
+lean_object* v_res_787_; 
+v_res_787_ = l_Std_Http_Internal_Mock_Server_getSendChan(v_server_786_);
 lean_dec_ref(v_server_786_);
-v___x_790_ = l_Std_Http_Internal_Mock_send(v_serverToClient_789_, v_data_787_);
-return v___x_790_;
+return v_res_787_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_send___boxed(lean_object* v_server_791_, lean_object* v_data_792_, lean_object* v_a_793_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_send(lean_object* v_server_788_, lean_object* v_data_789_){
 _start:
 {
-lean_object* v_res_794_; 
-v_res_794_ = l_Std_Http_Internal_Mock_Server_send(v_server_791_, v_data_792_);
-return v_res_794_;
+lean_object* v_serverToClient_791_; lean_object* v___x_792_; 
+v_serverToClient_791_ = lean_ctor_get(v_server_788_, 1);
+lean_inc_ref(v_serverToClient_791_);
+lean_dec_ref(v_server_788_);
+v___x_792_ = l_Std_Http_Internal_Mock_send(v_serverToClient_791_, v_data_789_);
+return v___x_792_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_recv_x3f(lean_object* v_server_795_, lean_object* v_expect_796_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_send___boxed(lean_object* v_server_793_, lean_object* v_data_794_, lean_object* v_a_795_){
 _start:
 {
-lean_object* v_clientToServer_798_; lean_object* v___x_799_; 
-v_clientToServer_798_ = lean_ctor_get(v_server_795_, 0);
-lean_inc_ref(v_clientToServer_798_);
-lean_dec_ref(v_server_795_);
-v___x_799_ = l_Std_Http_Internal_Mock_recvJoined(v_clientToServer_798_, v_expect_796_);
-return v___x_799_;
+lean_object* v_res_796_; 
+v_res_796_ = l_Std_Http_Internal_Mock_Server_send(v_server_793_, v_data_794_);
+return v_res_796_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_recv_x3f___boxed(lean_object* v_server_800_, lean_object* v_expect_801_, lean_object* v_a_802_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_recv_x3f(lean_object* v_server_797_, lean_object* v_expect_798_){
 _start:
 {
-lean_object* v_res_803_; 
-v_res_803_ = l_Std_Http_Internal_Mock_Server_recv_x3f(v_server_800_, v_expect_801_);
-return v_res_803_;
+lean_object* v_clientToServer_800_; lean_object* v___x_801_; 
+v_clientToServer_800_ = lean_ctor_get(v_server_797_, 0);
+lean_inc_ref(v_clientToServer_800_);
+lean_dec_ref(v_server_797_);
+v___x_801_ = l_Std_Http_Internal_Mock_recvJoined(v_clientToServer_800_, v_expect_798_);
+return v___x_801_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg(lean_object* v_server_804_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_recv_x3f___boxed(lean_object* v_server_802_, lean_object* v_expect_803_, lean_object* v_a_804_){
 _start:
 {
-lean_object* v_clientToServer_806_; lean_object* v___x_807_; 
-v_clientToServer_806_ = lean_ctor_get(v_server_804_, 0);
-lean_inc_ref_n(v_clientToServer_806_, 2);
-lean_dec_ref(v_server_804_);
-v___x_807_ = l_Std_CloseableChannel_tryRecv___redArg(v_clientToServer_806_);
-if (lean_obj_tag(v___x_807_) == 0)
+lean_object* v_res_805_; 
+v_res_805_ = l_Std_Http_Internal_Mock_Server_recv_x3f(v_server_802_, v_expect_803_);
+return v_res_805_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg(lean_object* v_server_806_){
+_start:
 {
-lean_dec_ref(v_clientToServer_806_);
-return v___x_807_;
+lean_object* v_clientToServer_808_; lean_object* v___x_809_; 
+v_clientToServer_808_ = lean_ctor_get(v_server_806_, 0);
+lean_inc_ref_n(v_clientToServer_808_, 2);
+lean_dec_ref(v_server_806_);
+v___x_809_ = l_Std_CloseableChannel_tryRecv___redArg(v_clientToServer_808_);
+if (lean_obj_tag(v___x_809_) == 0)
+{
+lean_dec_ref(v_clientToServer_808_);
+return v___x_809_;
 }
 else
 {
-lean_object* v_val_808_; lean_object* v___x_810_; uint8_t v_isShared_811_; uint8_t v_isSharedCheck_816_; 
-v_val_808_ = lean_ctor_get(v___x_807_, 0);
-v_isSharedCheck_816_ = !lean_is_exclusive(v___x_807_);
-if (v_isSharedCheck_816_ == 0)
+lean_object* v_val_810_; lean_object* v___x_812_; uint8_t v_isShared_813_; uint8_t v_isSharedCheck_818_; 
+v_val_810_ = lean_ctor_get(v___x_809_, 0);
+v_isSharedCheck_818_ = !lean_is_exclusive(v___x_809_);
+if (v_isSharedCheck_818_ == 0)
 {
-v___x_810_ = v___x_807_;
-v_isShared_811_ = v_isSharedCheck_816_;
-goto v_resetjp_809_;
+v___x_812_ = v___x_809_;
+v_isShared_813_ = v_isSharedCheck_818_;
+goto v_resetjp_811_;
 }
 else
 {
-lean_inc(v_val_808_);
-lean_dec(v___x_807_);
-v___x_810_ = lean_box(0);
-v_isShared_811_ = v_isSharedCheck_816_;
-goto v_resetjp_809_;
+lean_inc(v_val_810_);
+lean_dec(v___x_809_);
+v___x_812_ = lean_box(0);
+v_isShared_813_ = v_isSharedCheck_818_;
+goto v_resetjp_811_;
 }
-v_resetjp_809_:
+v_resetjp_811_:
 {
-lean_object* v___x_812_; lean_object* v___x_814_; 
-v___x_812_ = l___private_Init_While_0__repeatM_erased___at___00Std_Http_Internal_Mock_Client_tryRecv_x3f_spec__0___redArg(v_clientToServer_806_, v_val_808_);
-if (v_isShared_811_ == 0)
+lean_object* v___x_814_; lean_object* v___x_816_; 
+v___x_814_ = l___private_Init_While_0__repeatM_erased___at___00Std_Http_Internal_Mock_Client_tryRecv_x3f_spec__0___redArg(v_clientToServer_808_, v_val_810_);
+if (v_isShared_813_ == 0)
 {
-lean_ctor_set(v___x_810_, 0, v___x_812_);
-v___x_814_ = v___x_810_;
-goto v_reusejp_813_;
+lean_ctor_set(v___x_812_, 0, v___x_814_);
+v___x_816_ = v___x_812_;
+goto v_reusejp_815_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_815_; 
-v_reuseFailAlloc_815_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_815_, 0, v___x_812_);
-v___x_814_ = v_reuseFailAlloc_815_;
-goto v_reusejp_813_;
+lean_object* v_reuseFailAlloc_817_; 
+v_reuseFailAlloc_817_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_817_, 0, v___x_814_);
+v___x_816_ = v_reuseFailAlloc_817_;
+goto v_reusejp_815_;
 }
-v_reusejp_813_:
+v_reusejp_815_:
 {
-return v___x_814_;
+return v___x_816_;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg___boxed(lean_object* v_server_817_, lean_object* v_a_818_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg___boxed(lean_object* v_server_819_, lean_object* v_a_820_){
 _start:
 {
-lean_object* v_res_819_; 
-v_res_819_ = l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg(v_server_817_);
-return v_res_819_;
+lean_object* v_res_821_; 
+v_res_821_ = l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg(v_server_819_);
+return v_res_821_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f(lean_object* v_server_820_, uint64_t v___expect_821_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f(lean_object* v_server_822_, uint64_t v___expect_823_){
 _start:
 {
-lean_object* v___x_823_; 
-v___x_823_ = l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg(v_server_820_);
-return v___x_823_;
+lean_object* v___x_825_; 
+v___x_825_ = l_Std_Http_Internal_Mock_Server_tryRecv_x3f___redArg(v_server_822_);
+return v___x_825_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f___boxed(lean_object* v_server_824_, lean_object* v___expect_825_, lean_object* v_a_826_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_tryRecv_x3f___boxed(lean_object* v_server_826_, lean_object* v___expect_827_, lean_object* v_a_828_){
 _start:
 {
-uint64_t v___expect_boxed_827_; lean_object* v_res_828_; 
-v___expect_boxed_827_ = lean_unbox_uint64(v___expect_825_);
-lean_dec_ref(v___expect_825_);
-v_res_828_ = l_Std_Http_Internal_Mock_Server_tryRecv_x3f(v_server_824_, v___expect_boxed_827_);
-return v_res_828_;
+uint64_t v___expect_boxed_829_; lean_object* v_res_830_; 
+v___expect_boxed_829_ = lean_unbox_uint64(v___expect_827_);
+lean_dec_ref(v___expect_827_);
+v_res_830_ = l_Std_Http_Internal_Mock_Server_tryRecv_x3f(v_server_826_, v___expect_boxed_829_);
+return v_res_830_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_close(lean_object* v_server_829_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_close(lean_object* v_server_831_){
 _start:
 {
-lean_object* v_clientToServer_831_; lean_object* v_serverToClient_832_; uint8_t v___x_860_; 
-v_clientToServer_831_ = lean_ctor_get(v_server_829_, 0);
-lean_inc_ref_n(v_clientToServer_831_, 2);
-v_serverToClient_832_ = lean_ctor_get(v_server_829_, 1);
-lean_inc_ref(v_serverToClient_832_);
-lean_dec_ref(v_server_829_);
-v___x_860_ = l_Std_CloseableChannel_isClosed___redArg(v_clientToServer_831_);
-if (v___x_860_ == 0)
+lean_object* v_clientToServer_833_; lean_object* v_serverToClient_834_; uint8_t v___x_863_; uint8_t v___x_864_; 
+v_clientToServer_833_ = lean_ctor_get(v_server_831_, 0);
+lean_inc_ref_n(v_clientToServer_833_, 2);
+v_serverToClient_834_ = lean_ctor_get(v_server_831_, 1);
+lean_inc_ref(v_serverToClient_834_);
+lean_dec_ref(v_server_831_);
+v___x_863_ = l_Std_CloseableChannel_isClosed___redArg(v_clientToServer_833_);
+v___x_864_ = lean_bool_not(v___x_863_);
+if (v___x_864_ == 0)
 {
-lean_object* v___x_861_; 
-v___x_861_ = l_Std_CloseableChannel_close___redArg(v_clientToServer_831_);
-if (lean_obj_tag(v___x_861_) == 0)
-{
-lean_dec_ref_known(v___x_861_, 1);
-goto v___jp_833_;
+lean_dec_ref(v_clientToServer_833_);
+goto v___jp_835_;
 }
 else
 {
-lean_object* v_a_862_; lean_object* v___x_864_; uint8_t v_isShared_865_; uint8_t v_isSharedCheck_875_; 
-lean_dec_ref(v_serverToClient_832_);
-v_a_862_ = lean_ctor_get(v___x_861_, 0);
-v_isSharedCheck_875_ = !lean_is_exclusive(v___x_861_);
-if (v_isSharedCheck_875_ == 0)
+lean_object* v___x_865_; 
+v___x_865_ = l_Std_CloseableChannel_close___redArg(v_clientToServer_833_);
+if (lean_obj_tag(v___x_865_) == 0)
 {
-v___x_864_ = v___x_861_;
-v_isShared_865_ = v_isSharedCheck_875_;
-goto v_resetjp_863_;
+lean_dec_ref_known(v___x_865_, 1);
+goto v___jp_835_;
 }
 else
 {
-lean_inc(v_a_862_);
-lean_dec(v___x_861_);
-v___x_864_ = lean_box(0);
-v_isShared_865_ = v_isSharedCheck_875_;
-goto v_resetjp_863_;
-}
-v_resetjp_863_:
+lean_object* v_a_866_; lean_object* v___x_868_; uint8_t v_isShared_869_; uint8_t v_isSharedCheck_879_; 
+lean_dec_ref(v_serverToClient_834_);
+v_a_866_ = lean_ctor_get(v___x_865_, 0);
+v_isSharedCheck_879_ = !lean_is_exclusive(v___x_865_);
+if (v_isSharedCheck_879_ == 0)
 {
-uint8_t v___x_866_; 
-v___x_866_ = lean_unbox(v_a_862_);
-lean_dec(v_a_862_);
-if (v___x_866_ == 0)
-{
-lean_object* v___x_867_; lean_object* v___x_869_; 
-v___x_867_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
-if (v_isShared_865_ == 0)
-{
-lean_ctor_set(v___x_864_, 0, v___x_867_);
-v___x_869_ = v___x_864_;
-goto v_reusejp_868_;
+v___x_868_ = v___x_865_;
+v_isShared_869_ = v_isSharedCheck_879_;
+goto v_resetjp_867_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_870_; 
-v_reuseFailAlloc_870_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_870_, 0, v___x_867_);
-v___x_869_ = v_reuseFailAlloc_870_;
-goto v_reusejp_868_;
+lean_inc(v_a_866_);
+lean_dec(v___x_865_);
+v___x_868_ = lean_box(0);
+v_isShared_869_ = v_isSharedCheck_879_;
+goto v_resetjp_867_;
 }
-v_reusejp_868_:
+v_resetjp_867_:
 {
-return v___x_869_;
-}
-}
-else
+uint8_t v___x_870_; 
+v___x_870_ = lean_unbox(v_a_866_);
+lean_dec(v_a_866_);
+if (v___x_870_ == 0)
 {
 lean_object* v___x_871_; lean_object* v___x_873_; 
-v___x_871_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
-if (v_isShared_865_ == 0)
+v___x_871_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
+if (v_isShared_869_ == 0)
 {
-lean_ctor_set(v___x_864_, 0, v___x_871_);
-v___x_873_ = v___x_864_;
+lean_ctor_set(v___x_868_, 0, v___x_871_);
+v___x_873_ = v___x_868_;
 goto v_reusejp_872_;
 }
 else
@@ -3038,283 +3024,302 @@ v_reusejp_872_:
 return v___x_873_;
 }
 }
-}
-}
+else
+{
+lean_object* v___x_875_; lean_object* v___x_877_; 
+v___x_875_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
+if (v_isShared_869_ == 0)
+{
+lean_ctor_set(v___x_868_, 0, v___x_875_);
+v___x_877_ = v___x_868_;
+goto v_reusejp_876_;
 }
 else
 {
-lean_dec_ref(v_clientToServer_831_);
-goto v___jp_833_;
+lean_object* v_reuseFailAlloc_878_; 
+v_reuseFailAlloc_878_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_878_, 0, v___x_875_);
+v___x_877_ = v_reuseFailAlloc_878_;
+goto v_reusejp_876_;
 }
-v___jp_833_:
+v_reusejp_876_:
 {
-uint8_t v___x_834_; 
-lean_inc_ref(v_serverToClient_832_);
-v___x_834_ = l_Std_CloseableChannel_isClosed___redArg(v_serverToClient_832_);
-if (v___x_834_ == 0)
-{
-lean_object* v___x_835_; 
-v___x_835_ = l_Std_CloseableChannel_close___redArg(v_serverToClient_832_);
-if (lean_obj_tag(v___x_835_) == 0)
-{
-lean_object* v_a_836_; lean_object* v___x_838_; uint8_t v_isShared_839_; uint8_t v_isSharedCheck_843_; 
-v_a_836_ = lean_ctor_get(v___x_835_, 0);
-v_isSharedCheck_843_ = !lean_is_exclusive(v___x_835_);
-if (v_isSharedCheck_843_ == 0)
-{
-v___x_838_ = v___x_835_;
-v_isShared_839_ = v_isSharedCheck_843_;
-goto v_resetjp_837_;
+return v___x_877_;
 }
-else
+}
+}
+}
+}
+v___jp_835_:
 {
-lean_inc(v_a_836_);
-lean_dec(v___x_835_);
+uint8_t v___x_836_; uint8_t v___x_837_; 
+lean_inc_ref(v_serverToClient_834_);
+v___x_836_ = l_Std_CloseableChannel_isClosed___redArg(v_serverToClient_834_);
+v___x_837_ = lean_bool_not(v___x_836_);
+if (v___x_837_ == 0)
+{
+lean_object* v___x_838_; lean_object* v___x_839_; 
+lean_dec_ref(v_serverToClient_834_);
 v___x_838_ = lean_box(0);
-v_isShared_839_ = v_isSharedCheck_843_;
-goto v_resetjp_837_;
-}
-v_resetjp_837_:
-{
-lean_object* v___x_841_; 
-if (v_isShared_839_ == 0)
-{
-v___x_841_ = v___x_838_;
-goto v_reusejp_840_;
+v___x_839_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_839_, 0, v___x_838_);
+return v___x_839_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_842_; 
-v_reuseFailAlloc_842_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_842_, 0, v_a_836_);
-v___x_841_ = v_reuseFailAlloc_842_;
-goto v_reusejp_840_;
-}
-v_reusejp_840_:
+lean_object* v___x_840_; 
+v___x_840_ = l_Std_CloseableChannel_close___redArg(v_serverToClient_834_);
+if (lean_obj_tag(v___x_840_) == 0)
 {
-return v___x_841_;
-}
-}
+lean_object* v_a_841_; lean_object* v___x_843_; uint8_t v_isShared_844_; uint8_t v_isSharedCheck_848_; 
+v_a_841_ = lean_ctor_get(v___x_840_, 0);
+v_isSharedCheck_848_ = !lean_is_exclusive(v___x_840_);
+if (v_isSharedCheck_848_ == 0)
+{
+v___x_843_ = v___x_840_;
+v_isShared_844_ = v_isSharedCheck_848_;
+goto v_resetjp_842_;
 }
 else
 {
-lean_object* v_a_844_; lean_object* v___x_846_; uint8_t v_isShared_847_; uint8_t v_isSharedCheck_857_; 
-v_a_844_ = lean_ctor_get(v___x_835_, 0);
-v_isSharedCheck_857_ = !lean_is_exclusive(v___x_835_);
-if (v_isSharedCheck_857_ == 0)
+lean_inc(v_a_841_);
+lean_dec(v___x_840_);
+v___x_843_ = lean_box(0);
+v_isShared_844_ = v_isSharedCheck_848_;
+goto v_resetjp_842_;
+}
+v_resetjp_842_:
 {
-v___x_846_ = v___x_835_;
-v_isShared_847_ = v_isSharedCheck_857_;
-goto v_resetjp_845_;
+lean_object* v___x_846_; 
+if (v_isShared_844_ == 0)
+{
+v___x_846_ = v___x_843_;
+goto v_reusejp_845_;
 }
 else
 {
-lean_inc(v_a_844_);
-lean_dec(v___x_835_);
-v___x_846_ = lean_box(0);
-v_isShared_847_ = v_isSharedCheck_857_;
-goto v_resetjp_845_;
+lean_object* v_reuseFailAlloc_847_; 
+v_reuseFailAlloc_847_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_847_, 0, v_a_841_);
+v___x_846_ = v_reuseFailAlloc_847_;
+goto v_reusejp_845_;
 }
-v_resetjp_845_:
+v_reusejp_845_:
 {
-uint8_t v___x_848_; 
-v___x_848_ = lean_unbox(v_a_844_);
-lean_dec(v_a_844_);
-if (v___x_848_ == 0)
-{
-lean_object* v___x_849_; lean_object* v___x_851_; 
-v___x_849_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
-if (v_isShared_847_ == 0)
-{
-lean_ctor_set(v___x_846_, 0, v___x_849_);
-v___x_851_ = v___x_846_;
-goto v_reusejp_850_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_852_; 
-v_reuseFailAlloc_852_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_852_, 0, v___x_849_);
-v___x_851_ = v_reuseFailAlloc_852_;
-goto v_reusejp_850_;
-}
-v_reusejp_850_:
-{
-return v___x_851_;
-}
-}
-else
-{
-lean_object* v___x_853_; lean_object* v___x_855_; 
-v___x_853_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
-if (v_isShared_847_ == 0)
-{
-lean_ctor_set(v___x_846_, 0, v___x_853_);
-v___x_855_ = v___x_846_;
-goto v_reusejp_854_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_856_; 
-v_reuseFailAlloc_856_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_856_, 0, v___x_853_);
-v___x_855_ = v_reuseFailAlloc_856_;
-goto v_reusejp_854_;
-}
-v_reusejp_854_:
-{
-return v___x_855_;
-}
-}
+return v___x_846_;
 }
 }
 }
 else
 {
-lean_object* v___x_858_; lean_object* v___x_859_; 
-lean_dec_ref(v_serverToClient_832_);
-v___x_858_ = lean_box(0);
-v___x_859_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_859_, 0, v___x_858_);
-return v___x_859_;
+lean_object* v_a_849_; lean_object* v___x_851_; uint8_t v_isShared_852_; uint8_t v_isSharedCheck_862_; 
+v_a_849_ = lean_ctor_get(v___x_840_, 0);
+v_isSharedCheck_862_ = !lean_is_exclusive(v___x_840_);
+if (v_isSharedCheck_862_ == 0)
+{
+v___x_851_ = v___x_840_;
+v_isShared_852_ = v_isSharedCheck_862_;
+goto v_resetjp_850_;
+}
+else
+{
+lean_inc(v_a_849_);
+lean_dec(v___x_840_);
+v___x_851_ = lean_box(0);
+v_isShared_852_ = v_isSharedCheck_862_;
+goto v_resetjp_850_;
+}
+v_resetjp_850_:
+{
+uint8_t v___x_853_; 
+v___x_853_ = lean_unbox(v_a_849_);
+lean_dec(v_a_849_);
+if (v___x_853_ == 0)
+{
+lean_object* v___x_854_; lean_object* v___x_856_; 
+v___x_854_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__0));
+if (v_isShared_852_ == 0)
+{
+lean_ctor_set(v___x_851_, 0, v___x_854_);
+v___x_856_ = v___x_851_;
+goto v_reusejp_855_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_857_; 
+v_reuseFailAlloc_857_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_857_, 0, v___x_854_);
+v___x_856_ = v_reuseFailAlloc_857_;
+goto v_reusejp_855_;
+}
+v_reusejp_855_:
+{
+return v___x_856_;
+}
+}
+else
+{
+lean_object* v___x_858_; lean_object* v___x_860_; 
+v___x_858_ = ((lean_object*)(l_Std_Http_Internal_Mock_Client_close___closed__1));
+if (v_isShared_852_ == 0)
+{
+lean_ctor_set(v___x_851_, 0, v___x_858_);
+v___x_860_ = v___x_851_;
+goto v_reusejp_859_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_861_; 
+v_reuseFailAlloc_861_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_861_, 0, v___x_858_);
+v___x_860_ = v_reuseFailAlloc_861_;
+goto v_reusejp_859_;
+}
+v_reusejp_859_:
+{
+return v___x_860_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_close___boxed(lean_object* v_server_876_, lean_object* v_a_877_){
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Http_Internal_Mock_Server_close___boxed(lean_object* v_server_880_, lean_object* v_a_881_){
 _start:
 {
-lean_object* v_res_878_; 
-v_res_878_ = l_Std_Http_Internal_Mock_Server_close(v_server_876_);
-return v_res_878_;
+lean_object* v_res_882_; 
+v_res_882_ = l_Std_Http_Internal_Mock_Server_close(v_server_880_);
+return v_res_882_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__0(lean_object* v_client_879_, uint64_t v_expect_880_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__0(lean_object* v_client_883_, uint64_t v_expect_884_){
 _start:
 {
-lean_object* v_serverToClient_882_; lean_object* v___x_883_; lean_object* v___x_884_; lean_object* v___x_885_; 
-v_serverToClient_882_ = lean_ctor_get(v_client_879_, 1);
-lean_inc_ref(v_serverToClient_882_);
-lean_dec_ref(v_client_879_);
-v___x_883_ = lean_box_uint64(v_expect_880_);
-v___x_884_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_884_, 0, v___x_883_);
-v___x_885_ = l_Std_Http_Internal_Mock_recvJoined(v_serverToClient_882_, v___x_884_);
-return v___x_885_;
+lean_object* v_serverToClient_886_; lean_object* v___x_887_; lean_object* v___x_888_; lean_object* v___x_889_; 
+v_serverToClient_886_ = lean_ctor_get(v_client_883_, 1);
+lean_inc_ref(v_serverToClient_886_);
+lean_dec_ref(v_client_883_);
+v___x_887_ = lean_box_uint64(v_expect_884_);
+v___x_888_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_888_, 0, v___x_887_);
+v___x_889_ = l_Std_Http_Internal_Mock_recvJoined(v_serverToClient_886_, v___x_888_);
+return v___x_889_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__0___boxed(lean_object* v_client_886_, lean_object* v_expect_887_, lean_object* v___y_888_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__0___boxed(lean_object* v_client_890_, lean_object* v_expect_891_, lean_object* v___y_892_){
 _start:
 {
-uint64_t v_expect_boxed_889_; lean_object* v_res_890_; 
-v_expect_boxed_889_ = lean_unbox_uint64(v_expect_887_);
-lean_dec_ref(v_expect_887_);
-v_res_890_ = l_Std_Http_Internal_instTransportClient___lam__0(v_client_886_, v_expect_boxed_889_);
-return v_res_890_;
+uint64_t v_expect_boxed_893_; lean_object* v_res_894_; 
+v_expect_boxed_893_ = lean_unbox_uint64(v_expect_891_);
+lean_dec_ref(v_expect_891_);
+v_res_894_ = l_Std_Http_Internal_instTransportClient___lam__0(v_client_890_, v_expect_boxed_893_);
+return v_res_894_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__1(lean_object* v_client_891_, lean_object* v_data_892_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__1(lean_object* v_client_895_, lean_object* v_data_896_){
 _start:
 {
-lean_object* v_clientToServer_894_; lean_object* v___x_895_; 
-v_clientToServer_894_ = lean_ctor_get(v_client_891_, 0);
-lean_inc_ref(v_clientToServer_894_);
-lean_dec_ref(v_client_891_);
-v___x_895_ = l_Std_Http_Internal_Mock_sendAll(v_clientToServer_894_, v_data_892_);
-return v___x_895_;
+lean_object* v_clientToServer_898_; lean_object* v___x_899_; 
+v_clientToServer_898_ = lean_ctor_get(v_client_895_, 0);
+lean_inc_ref(v_clientToServer_898_);
+lean_dec_ref(v_client_895_);
+v___x_899_ = l_Std_Http_Internal_Mock_sendAll(v_clientToServer_898_, v_data_896_);
+return v___x_899_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__1___boxed(lean_object* v_client_896_, lean_object* v_data_897_, lean_object* v___y_898_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__1___boxed(lean_object* v_client_900_, lean_object* v_data_901_, lean_object* v___y_902_){
 _start:
 {
-lean_object* v_res_899_; 
-v_res_899_ = l_Std_Http_Internal_instTransportClient___lam__1(v_client_896_, v_data_897_);
-return v_res_899_;
+lean_object* v_res_903_; 
+v_res_903_ = l_Std_Http_Internal_instTransportClient___lam__1(v_client_900_, v_data_901_);
+return v_res_903_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__2(lean_object* v_client_900_, uint64_t v_x_901_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__2(lean_object* v_client_904_, uint64_t v_x_905_){
 _start:
 {
-lean_object* v_serverToClient_902_; lean_object* v___x_903_; 
-v_serverToClient_902_ = lean_ctor_get(v_client_900_, 1);
-lean_inc_ref(v_serverToClient_902_);
-lean_dec_ref(v_client_900_);
-v___x_903_ = l_Std_CloseableChannel_recvSelector___redArg(v_serverToClient_902_);
-return v___x_903_;
+lean_object* v_serverToClient_906_; lean_object* v___x_907_; 
+v_serverToClient_906_ = lean_ctor_get(v_client_904_, 1);
+lean_inc_ref(v_serverToClient_906_);
+lean_dec_ref(v_client_904_);
+v___x_907_ = l_Std_CloseableChannel_recvSelector___redArg(v_serverToClient_906_);
+return v___x_907_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__2___boxed(lean_object* v_client_904_, lean_object* v_x_905_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportClient___lam__2___boxed(lean_object* v_client_908_, lean_object* v_x_909_){
 _start:
 {
-uint64_t v_x_43__boxed_906_; lean_object* v_res_907_; 
-v_x_43__boxed_906_ = lean_unbox_uint64(v_x_905_);
-lean_dec_ref(v_x_905_);
-v_res_907_ = l_Std_Http_Internal_instTransportClient___lam__2(v_client_904_, v_x_43__boxed_906_);
-return v_res_907_;
+uint64_t v_x_43__boxed_910_; lean_object* v_res_911_; 
+v_x_43__boxed_910_ = lean_unbox_uint64(v_x_909_);
+lean_dec_ref(v_x_909_);
+v_res_911_ = l_Std_Http_Internal_instTransportClient___lam__2(v_client_908_, v_x_43__boxed_910_);
+return v_res_911_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__0(lean_object* v_server_918_, uint64_t v_expect_919_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__0(lean_object* v_server_922_, uint64_t v_expect_923_){
 _start:
 {
-lean_object* v_clientToServer_921_; lean_object* v___x_922_; lean_object* v___x_923_; lean_object* v___x_924_; 
-v_clientToServer_921_ = lean_ctor_get(v_server_918_, 0);
-lean_inc_ref(v_clientToServer_921_);
-lean_dec_ref(v_server_918_);
-v___x_922_ = lean_box_uint64(v_expect_919_);
-v___x_923_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_923_, 0, v___x_922_);
-v___x_924_ = l_Std_Http_Internal_Mock_recvJoined(v_clientToServer_921_, v___x_923_);
-return v___x_924_;
+lean_object* v_clientToServer_925_; lean_object* v___x_926_; lean_object* v___x_927_; lean_object* v___x_928_; 
+v_clientToServer_925_ = lean_ctor_get(v_server_922_, 0);
+lean_inc_ref(v_clientToServer_925_);
+lean_dec_ref(v_server_922_);
+v___x_926_ = lean_box_uint64(v_expect_923_);
+v___x_927_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_927_, 0, v___x_926_);
+v___x_928_ = l_Std_Http_Internal_Mock_recvJoined(v_clientToServer_925_, v___x_927_);
+return v___x_928_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__0___boxed(lean_object* v_server_925_, lean_object* v_expect_926_, lean_object* v___y_927_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__0___boxed(lean_object* v_server_929_, lean_object* v_expect_930_, lean_object* v___y_931_){
 _start:
 {
-uint64_t v_expect_boxed_928_; lean_object* v_res_929_; 
-v_expect_boxed_928_ = lean_unbox_uint64(v_expect_926_);
-lean_dec_ref(v_expect_926_);
-v_res_929_ = l_Std_Http_Internal_instTransportServer___lam__0(v_server_925_, v_expect_boxed_928_);
-return v_res_929_;
+uint64_t v_expect_boxed_932_; lean_object* v_res_933_; 
+v_expect_boxed_932_ = lean_unbox_uint64(v_expect_930_);
+lean_dec_ref(v_expect_930_);
+v_res_933_ = l_Std_Http_Internal_instTransportServer___lam__0(v_server_929_, v_expect_boxed_932_);
+return v_res_933_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__1(lean_object* v_server_930_, lean_object* v_data_931_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__1(lean_object* v_server_934_, lean_object* v_data_935_){
 _start:
 {
-lean_object* v_serverToClient_933_; lean_object* v___x_934_; 
-v_serverToClient_933_ = lean_ctor_get(v_server_930_, 1);
-lean_inc_ref(v_serverToClient_933_);
-lean_dec_ref(v_server_930_);
-v___x_934_ = l_Std_Http_Internal_Mock_sendAll(v_serverToClient_933_, v_data_931_);
-return v___x_934_;
+lean_object* v_serverToClient_937_; lean_object* v___x_938_; 
+v_serverToClient_937_ = lean_ctor_get(v_server_934_, 1);
+lean_inc_ref(v_serverToClient_937_);
+lean_dec_ref(v_server_934_);
+v___x_938_ = l_Std_Http_Internal_Mock_sendAll(v_serverToClient_937_, v_data_935_);
+return v___x_938_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__1___boxed(lean_object* v_server_935_, lean_object* v_data_936_, lean_object* v___y_937_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__1___boxed(lean_object* v_server_939_, lean_object* v_data_940_, lean_object* v___y_941_){
 _start:
 {
-lean_object* v_res_938_; 
-v_res_938_ = l_Std_Http_Internal_instTransportServer___lam__1(v_server_935_, v_data_936_);
-return v_res_938_;
+lean_object* v_res_942_; 
+v_res_942_ = l_Std_Http_Internal_instTransportServer___lam__1(v_server_939_, v_data_940_);
+return v_res_942_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__2(lean_object* v_server_939_, uint64_t v_x_940_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__2(lean_object* v_server_943_, uint64_t v_x_944_){
 _start:
 {
-lean_object* v_clientToServer_941_; lean_object* v___x_942_; 
-v_clientToServer_941_ = lean_ctor_get(v_server_939_, 0);
-lean_inc_ref(v_clientToServer_941_);
-lean_dec_ref(v_server_939_);
-v___x_942_ = l_Std_CloseableChannel_recvSelector___redArg(v_clientToServer_941_);
-return v___x_942_;
+lean_object* v_clientToServer_945_; lean_object* v___x_946_; 
+v_clientToServer_945_ = lean_ctor_get(v_server_943_, 0);
+lean_inc_ref(v_clientToServer_945_);
+lean_dec_ref(v_server_943_);
+v___x_946_ = l_Std_CloseableChannel_recvSelector___redArg(v_clientToServer_945_);
+return v___x_946_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__2___boxed(lean_object* v_server_943_, lean_object* v_x_944_){
+LEAN_EXPORT lean_object* l_Std_Http_Internal_instTransportServer___lam__2___boxed(lean_object* v_server_947_, lean_object* v_x_948_){
 _start:
 {
-uint64_t v_x_43__boxed_945_; lean_object* v_res_946_; 
-v_x_43__boxed_945_ = lean_unbox_uint64(v_x_944_);
-lean_dec_ref(v_x_944_);
-v_res_946_ = l_Std_Http_Internal_instTransportServer___lam__2(v_server_943_, v_x_43__boxed_945_);
-return v_res_946_;
+uint64_t v_x_43__boxed_949_; lean_object* v_res_950_; 
+v_x_43__boxed_949_ = lean_unbox_uint64(v_x_948_);
+lean_dec_ref(v_x_948_);
+v_res_950_ = l_Std_Http_Internal_instTransportServer___lam__2(v_server_947_, v_x_43__boxed_949_);
+return v_res_950_;
 }
 }
 lean_object* runtime_initialize_Std_Http_Protocol_H1(uint8_t builtin);

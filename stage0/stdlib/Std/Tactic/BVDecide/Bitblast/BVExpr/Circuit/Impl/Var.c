@@ -32,7 +32,7 @@ size_t lean_usize_land(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Bool_toNat(uint8_t);
+lean_object* lean_bool_to_nat(uint8_t);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -698,7 +698,7 @@ _start:
 {
 uint8_t v___x_201_; lean_object* v___x_202_; 
 v___x_201_ = 0;
-v___x_202_ = l_Bool_toNat(v___x_201_);
+v___x_202_ = lean_bool_to_nat(v___x_201_);
 return v___x_202_;
 }
 }

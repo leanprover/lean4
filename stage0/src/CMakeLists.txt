@@ -1064,7 +1064,7 @@ if(LEAN_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
 
-if(USE_LAKE_CACHE AND STAGE EQUAL 1 AND NOT PREV_STAGE)
+if(USE_LAKE_CACHE AND STAGE EQUAL 1)
   set(LAKE_ARTIFACT_CACHE_TOML "true")
 else()
   # The build of stage2+ may depend on local changes made to src/ that are not reflected by the

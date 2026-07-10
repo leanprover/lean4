@@ -18,6 +18,7 @@ lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,7 +42,7 @@ return v___x_7_;
 }
 else
 {
-lean_object* v_ref_8_; lean_object* v___x_9_; lean_object* v___x_10_; lean_object* v___x_11_; lean_object* v___x_12_; uint8_t v___x_13_; 
+lean_object* v_ref_8_; lean_object* v___x_9_; lean_object* v___x_10_; lean_object* v___x_11_; lean_object* v___x_12_; uint8_t v___x_13_; uint8_t v___x_14_; lean_object* v___x_15_; 
 v_ref_8_ = lean_array_fget_borrowed(v_vec_3_, v_idx_4_);
 v___x_9_ = lean_unsigned_to_nat(1u);
 v___x_10_ = lean_nat_shiftr(v_ref_8_, v___x_9_);
@@ -49,53 +50,41 @@ v___x_11_ = lean_nat_land(v___x_9_, v_ref_8_);
 v___x_12_ = lean_unsigned_to_nat(0u);
 v___x_13_ = lean_nat_dec_eq(v___x_11_, v___x_12_);
 lean_dec(v___x_11_);
-if (v___x_13_ == 0)
-{
-lean_object* v___x_14_; 
-v___x_14_ = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(v___x_14_, 0, v___x_10_);
-lean_ctor_set_uint8(v___x_14_, sizeof(void*)*1, v___x_5_);
-return v___x_14_;
-}
-else
-{
-uint8_t v___x_15_; lean_object* v___x_16_; 
-v___x_15_ = 0;
-v___x_16_ = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(v___x_16_, 0, v___x_10_);
-lean_ctor_set_uint8(v___x_16_, sizeof(void*)*1, v___x_15_);
-return v___x_16_;
+v___x_14_ = lean_bool_not(v___x_13_);
+v___x_15_ = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(v___x_15_, 0, v___x_10_);
+lean_ctor_set_uint8(v___x_15_, sizeof(void*)*1, v___x_14_);
+return v___x_15_;
 }
 }
 }
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg___boxed(lean_object* v_target_17_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg___boxed(lean_object* v_target_16_){
 _start:
 {
-lean_object* v_res_18_; 
-v_res_18_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(v_target_17_);
-lean_dec_ref(v_target_17_);
-return v_res_18_;
+lean_object* v_res_17_; 
+v_res_17_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(v_target_16_);
+lean_dec_ref(v_target_16_);
+return v_res_17_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(lean_object* v_00_u03b1_19_, lean_object* v_inst_20_, lean_object* v_inst_21_, lean_object* v_aig_22_, lean_object* v_target_23_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(lean_object* v_00_u03b1_18_, lean_object* v_inst_19_, lean_object* v_inst_20_, lean_object* v_aig_21_, lean_object* v_target_22_){
 _start:
 {
-lean_object* v___x_24_; 
-v___x_24_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(v_target_23_);
-return v___x_24_;
+lean_object* v___x_23_; 
+v___x_23_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(v_target_22_);
+return v___x_23_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___boxed(lean_object* v_00_u03b1_25_, lean_object* v_inst_26_, lean_object* v_inst_27_, lean_object* v_aig_28_, lean_object* v_target_29_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___boxed(lean_object* v_00_u03b1_24_, lean_object* v_inst_25_, lean_object* v_inst_26_, lean_object* v_aig_27_, lean_object* v_target_28_){
 _start:
 {
-lean_object* v_res_30_; 
-v_res_30_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(v_00_u03b1_25_, v_inst_26_, v_inst_27_, v_aig_28_, v_target_29_);
-lean_dec_ref(v_target_29_);
-lean_dec_ref(v_aig_28_);
-lean_dec_ref(v_inst_27_);
+lean_object* v_res_29_; 
+v_res_29_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(v_00_u03b1_24_, v_inst_25_, v_inst_26_, v_aig_27_, v_target_28_);
+lean_dec_ref(v_target_28_);
+lean_dec_ref(v_aig_27_);
 lean_dec_ref(v_inst_26_);
-return v_res_30_;
+lean_dec_ref(v_inst_25_);
+return v_res_29_;
 }
 }
 lean_object* runtime_initialize_Std_Sat_AIG_RefVec(uint8_t builtin);

@@ -15,7 +15,7 @@ extern "C" {
 #endif
 uint8_t l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* l_Bool_toNat(uint8_t);
+lean_object* lean_bool_to_nat(uint8_t);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_instHashableDecl_hash___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -276,14 +276,12 @@ v___f_88_ = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkAtomCached___redArg___lam
 lean_closure_set(v___f_88_, 0, v_inst_71_);
 v___x_89_ = lean_unsigned_to_nat(2u);
 v___x_90_ = lean_nat_mul(v_gate_84_, v___x_89_);
-v___x_91_ = l_Bool_toNat(v_invert_85_);
+v___x_91_ = lean_bool_to_nat(v_invert_85_);
 v___x_92_ = lean_nat_lor(v___x_90_, v___x_91_);
-lean_dec(v___x_91_);
 lean_dec(v___x_90_);
 v___x_93_ = lean_nat_mul(v_gate_86_, v___x_89_);
-v___x_94_ = l_Bool_toNat(v_invert_87_);
+v___x_94_ = lean_bool_to_nat(v_invert_87_);
 v___x_95_ = lean_nat_lor(v___x_93_, v___x_94_);
-lean_dec(v___x_94_);
 lean_dec(v___x_93_);
 if (v_isShared_78_ == 0)
 {

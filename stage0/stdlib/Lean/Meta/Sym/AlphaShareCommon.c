@@ -46,6 +46,7 @@ uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 uint8_t l_Lean_getReducibilityStatusCore(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -716,29 +717,20 @@ lean_inc_ref(v_env_128_);
 v___x_130_ = l_Lean_getReducibilityStatusCore(v_env_128_, v_declName_129_);
 if (v___x_130_ == 0)
 {
-uint8_t v___x_131_; 
+uint8_t v___x_131_; uint8_t v___x_132_; 
 v___x_131_ = l_Lean_Meta_Sym_isGrindGadget(v_declName_129_);
-if (v___x_131_ == 0)
-{
-uint8_t v___x_132_; 
-v___x_132_ = l_Lean_Environment_isProjectionFn(v_env_128_, v_declName_129_);
+v___x_132_ = lean_bool_not(v___x_131_);
 if (v___x_132_ == 0)
 {
-uint8_t v___x_133_; 
-v___x_133_ = 1;
-return v___x_133_;
-}
-else
-{
-return v___x_131_;
-}
-}
-else
-{
-uint8_t v___x_134_; 
 lean_dec(v_declName_129_);
 lean_dec_ref(v_env_128_);
-v___x_134_ = 0;
+return v___x_132_;
+}
+else
+{
+uint8_t v___x_133_; uint8_t v___x_134_; 
+v___x_133_ = l_Lean_Environment_isProjectionFn(v_env_128_, v_declName_129_);
+v___x_134_ = lean_bool_not(v___x_133_);
 return v___x_134_;
 }
 }

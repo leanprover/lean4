@@ -21,6 +21,7 @@ lean_object* lean_nat_gcd(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* l_Lean_Grind_CommRing_Poly_mulMonC(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Grind_CommRing_Poly_mulMon(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -1245,21 +1246,20 @@ return v___x_309_;
 }
 else
 {
-lean_object* v_k_310_; lean_object* v_p_311_; lean_object* v___x_312_; uint8_t v___x_313_; 
+lean_object* v_k_310_; lean_object* v_p_311_; lean_object* v___x_312_; uint8_t v___x_313_; uint8_t v___x_314_; 
 v_k_310_ = lean_ctor_get(v_x_308_, 0);
 v_p_311_ = lean_ctor_get(v_x_308_, 2);
 v___x_312_ = lean_obj_once(&l_Lean_Grind_CommRing_Poly_spol___closed__0, &l_Lean_Grind_CommRing_Poly_spol___closed__0_once, _init_l_Lean_Grind_CommRing_Poly_spol___closed__0);
 v___x_313_ = lean_int_dec_eq(v_k_310_, v___x_312_);
-if (v___x_313_ == 0)
+v___x_314_ = lean_bool_not(v___x_313_);
+if (v___x_314_ == 0)
 {
-v_x_308_ = v_p_311_;
-goto _start;
+return v___x_314_;
 }
 else
 {
-uint8_t v___x_315_; 
-v___x_315_ = 0;
-return v___x_315_;
+v_x_308_ = v_p_311_;
+goto _start;
 }
 }
 }

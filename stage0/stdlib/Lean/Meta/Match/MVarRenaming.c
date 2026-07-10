@@ -18,6 +18,7 @@ uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_
 lean_object* l_Lean_mkMVar(lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_MVarIdSet_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_MVarRenaming_isEmpty(lean_object*);
@@ -301,40 +302,50 @@ return v_res_77_;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply(lean_object* v_s_78_, lean_object* v_e_79_){
 _start:
 {
-uint8_t v___x_80_; 
+uint8_t v___x_80_; uint8_t v___x_81_; 
 v___x_80_ = l_Lean_Expr_hasMVar(v_e_79_);
-if (v___x_80_ == 0)
+v___x_81_ = lean_bool_not(v___x_80_);
+if (v___x_81_ == 0)
+{
+if (lean_obj_tag(v_s_78_) == 0)
+{
+if (v___x_81_ == 0)
+{
+lean_object* v___f_82_; lean_object* v___x_83_; 
+v___f_82_ = lean_alloc_closure((void*)(l_Lean_Meta_MVarRenaming_apply___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_82_, 0, v_s_78_);
+v___x_83_ = lean_replace_expr(v___f_82_, v_e_79_);
+lean_dec_ref(v___f_82_);
+return v___x_83_;
+}
+else
+{
+lean_dec_ref_known(v_s_78_, 5);
+lean_inc_ref(v_e_79_);
+return v_e_79_;
+}
+}
+else
+{
+lean_inc_ref(v_e_79_);
+return v_e_79_;
+}
+}
+else
 {
 lean_dec(v_s_78_);
 lean_inc_ref(v_e_79_);
 return v_e_79_;
 }
-else
-{
-if (lean_obj_tag(v_s_78_) == 0)
-{
-lean_object* v___f_81_; lean_object* v___x_82_; 
-v___f_81_ = lean_alloc_closure((void*)(l_Lean_Meta_MVarRenaming_apply___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_81_, 0, v_s_78_);
-v___x_82_ = lean_replace_expr(v___f_81_, v_e_79_);
-lean_dec_ref(v___f_81_);
-return v___x_82_;
-}
-else
-{
-lean_inc_ref(v_e_79_);
-return v_e_79_;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___boxed(lean_object* v_s_83_, lean_object* v_e_84_){
+LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___boxed(lean_object* v_s_84_, lean_object* v_e_85_){
 _start:
 {
-lean_object* v_res_85_; 
-v_res_85_ = l_Lean_Meta_MVarRenaming_apply(v_s_83_, v_e_84_);
-lean_dec_ref(v_e_84_);
-return v_res_85_;
+lean_object* v_res_86_; 
+v_res_86_ = l_Lean_Meta_MVarRenaming_apply(v_s_84_, v_e_85_);
+lean_dec_ref(v_e_85_);
+return v_res_86_;
 }
 }
 lean_object* runtime_initialize_Lean_Util_ReplaceExpr(uint8_t builtin);

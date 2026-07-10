@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Expr_hasUnusedForallBindersWhere(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasUnusedForallBindersWhere___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_hasUnusedForallBindersWhere(lean_object* v_p_1_, lean_object* v_e_2_){
@@ -44,21 +45,20 @@ goto _start;
 }
 else
 {
-lean_object* v___x_11_; uint8_t v___x_12_; 
+lean_object* v___x_11_; uint8_t v___x_12_; uint8_t v___x_13_; 
 v___x_11_ = lean_unsigned_to_nat(0u);
 v___x_12_ = lean_expr_has_loose_bvar(v_body_5_, v___x_11_);
-if (v___x_12_ == 0)
-{
-uint8_t v___x_13_; 
-lean_dec_ref(v_body_5_);
-lean_dec_ref(v_p_1_);
-v___x_13_ = lean_unbox(v___x_8_);
-return v___x_13_;
-}
-else
+v___x_13_ = lean_bool_not(v___x_12_);
+if (v___x_13_ == 0)
 {
 v_e_2_ = v_body_5_;
 goto _start;
+}
+else
+{
+lean_dec_ref(v_body_5_);
+lean_dec_ref(v_p_1_);
+return v___x_13_;
 }
 }
 }

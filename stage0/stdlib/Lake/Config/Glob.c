@@ -38,6 +38,7 @@ lean_object* l_Array_singleton(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Glob_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Glob_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Glob_ctorElim___redArg(lean_object*, lean_object*);
@@ -824,18 +825,10 @@ return v___x_364_;
 }
 else
 {
-uint8_t v___x_365_; 
+uint8_t v___x_365_; uint8_t v___x_366_; 
 v___x_365_ = lean_name_eq(v_a_363_, v_m_359_);
-if (v___x_365_ == 0)
-{
-return v___x_364_;
-}
-else
-{
-uint8_t v___x_366_; 
-v___x_366_ = 0;
+v___x_366_ = lean_bool_not(v___x_365_);
 return v___x_366_;
-}
 }
 }
 default: 

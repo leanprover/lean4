@@ -13,11 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_DeclarationRange_ofStringPositions(lean_object*, lean_object*, lean_object*);
@@ -157,80 +158,69 @@ return v_res_39_;
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationSelectionRef(lean_object* v_stx_49_){
 _start:
 {
-lean_object* v___x_53_; uint8_t v___x_54_; 
-v___x_53_ = ((lean_object*)(l_Lean_Elab_getDeclarationSelectionRef___closed__4));
+lean_object* v___x_50_; uint8_t v___x_51_; 
+v___x_50_ = ((lean_object*)(l_Lean_Elab_getDeclarationSelectionRef___closed__4));
 lean_inc(v_stx_49_);
-v___x_54_ = l_Lean_Syntax_isOfKind(v_stx_49_, v___x_53_);
-if (v___x_54_ == 0)
+v___x_51_ = l_Lean_Syntax_isOfKind(v_stx_49_, v___x_50_);
+if (v___x_51_ == 0)
 {
-lean_object* v___x_55_; lean_object* v___x_56_; lean_object* v___x_57_; lean_object* v___x_58_; uint8_t v___x_59_; 
-v___x_55_ = lean_unsigned_to_nat(1u);
-v___x_56_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_55_);
-v___x_57_ = lean_unsigned_to_nat(0u);
-v___x_58_ = l_Lean_Syntax_getArg(v___x_56_, v___x_57_);
-v___x_59_ = l_Lean_Syntax_isIdent(v___x_58_);
-if (v___x_59_ == 0)
+lean_object* v___x_52_; lean_object* v___x_53_; lean_object* v___x_54_; lean_object* v___x_55_; uint8_t v___x_56_; 
+v___x_52_ = lean_unsigned_to_nat(1u);
+v___x_53_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_52_);
+v___x_54_ = lean_unsigned_to_nat(0u);
+v___x_55_ = l_Lean_Syntax_getArg(v___x_53_, v___x_54_);
+v___x_56_ = l_Lean_Syntax_isIdent(v___x_55_);
+if (v___x_56_ == 0)
 {
-uint8_t v___x_60_; 
-lean_dec(v___x_58_);
-v___x_60_ = l_Lean_Syntax_isIdent(v___x_56_);
-if (v___x_60_ == 0)
+uint8_t v___x_57_; 
+lean_dec(v___x_55_);
+v___x_57_ = l_Lean_Syntax_isIdent(v___x_53_);
+if (v___x_57_ == 0)
 {
-lean_object* v___x_61_; 
-lean_dec(v___x_56_);
-v___x_61_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_57_);
-lean_dec(v_stx_49_);
-return v___x_61_;
-}
-else
-{
-lean_dec(v_stx_49_);
-return v___x_56_;
-}
-}
-else
-{
-lean_dec(v___x_56_);
+lean_object* v___x_58_; 
+lean_dec(v___x_53_);
+v___x_58_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_54_);
 lean_dec(v_stx_49_);
 return v___x_58_;
 }
+else
+{
+lean_dec(v_stx_49_);
+return v___x_53_;
+}
 }
 else
 {
-lean_object* v___x_62_; lean_object* v___x_63_; uint8_t v___x_64_; 
-v___x_62_ = lean_unsigned_to_nat(3u);
-v___x_63_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_62_);
-v___x_64_ = l_Lean_Syntax_isNone(v___x_63_);
-if (v___x_64_ == 0)
+lean_dec(v___x_53_);
+lean_dec(v_stx_49_);
+return v___x_55_;
+}
+}
+else
 {
-if (v___x_54_ == 0)
+lean_object* v___x_59_; lean_object* v___x_60_; uint8_t v___x_61_; uint8_t v___x_62_; 
+v___x_59_ = lean_unsigned_to_nat(3u);
+v___x_60_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_59_);
+v___x_61_ = l_Lean_Syntax_isNone(v___x_60_);
+v___x_62_ = lean_bool_not(v___x_61_);
+if (v___x_62_ == 0)
 {
-lean_dec(v___x_63_);
-goto v___jp_50_;
+lean_object* v___x_63_; lean_object* v___x_64_; 
+lean_dec(v___x_60_);
+v___x_63_ = lean_unsigned_to_nat(1u);
+v___x_64_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_63_);
+lean_dec(v_stx_49_);
+return v___x_64_;
 }
 else
 {
 lean_object* v___x_65_; lean_object* v___x_66_; 
 lean_dec(v_stx_49_);
 v___x_65_ = lean_unsigned_to_nat(0u);
-v___x_66_ = l_Lean_Syntax_getArg(v___x_63_, v___x_65_);
-lean_dec(v___x_63_);
+v___x_66_ = l_Lean_Syntax_getArg(v___x_60_, v___x_65_);
+lean_dec(v___x_60_);
 return v___x_66_;
 }
-}
-else
-{
-lean_dec(v___x_63_);
-goto v___jp_50_;
-}
-}
-v___jp_50_:
-{
-lean_object* v___x_51_; lean_object* v___x_52_; 
-v___x_51_ = lean_unsigned_to_nat(1u);
-v___x_52_ = l_Lean_Syntax_getArg(v_stx_49_, v___x_51_);
-lean_dec(v_stx_49_);
-return v___x_52_;
 }
 }
 }

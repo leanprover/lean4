@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -195,7 +196,7 @@ return v_res_60_;
 LEAN_EXPORT uint8_t l_Nat_testBit(lean_object* v_m_71_, lean_object* v_n_72_){
 _start:
 {
-lean_object* v___x_73_; lean_object* v___x_74_; lean_object* v___x_75_; lean_object* v___x_76_; uint8_t v___x_77_; 
+lean_object* v___x_73_; lean_object* v___x_74_; lean_object* v___x_75_; lean_object* v___x_76_; uint8_t v___x_77_; uint8_t v___x_78_; 
 v___x_73_ = lean_unsigned_to_nat(1u);
 v___x_74_ = lean_nat_shiftr(v_m_71_, v_n_72_);
 v___x_75_ = lean_nat_land(v___x_73_, v___x_74_);
@@ -203,29 +204,19 @@ lean_dec(v___x_74_);
 v___x_76_ = lean_unsigned_to_nat(0u);
 v___x_77_ = lean_nat_dec_eq(v___x_75_, v___x_76_);
 lean_dec(v___x_75_);
-if (v___x_77_ == 0)
-{
-uint8_t v___x_78_; 
-v___x_78_ = 1;
+v___x_78_ = lean_bool_not(v___x_77_);
 return v___x_78_;
 }
-else
-{
-uint8_t v___x_79_; 
-v___x_79_ = 0;
-return v___x_79_;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Nat_testBit___boxed(lean_object* v_m_80_, lean_object* v_n_81_){
+LEAN_EXPORT lean_object* l_Nat_testBit___boxed(lean_object* v_m_79_, lean_object* v_n_80_){
 _start:
 {
-uint8_t v_res_82_; lean_object* v_r_83_; 
-v_res_82_ = l_Nat_testBit(v_m_80_, v_n_81_);
-lean_dec(v_n_81_);
-lean_dec(v_m_80_);
-v_r_83_ = lean_box(v_res_82_);
-return v_r_83_;
+uint8_t v_res_81_; lean_object* v_r_82_; 
+v_res_81_ = l_Nat_testBit(v_m_79_, v_n_80_);
+lean_dec(v_n_80_);
+lean_dec(v_m_79_);
+v_r_82_ = lean_box(v_res_81_);
+return v_r_82_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);

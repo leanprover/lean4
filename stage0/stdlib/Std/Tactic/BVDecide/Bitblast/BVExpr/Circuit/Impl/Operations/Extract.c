@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* l_Bool_toNat(uint8_t);
+lean_object* lean_bool_to_nat(uint8_t);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -23,6 +23,7 @@ lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,7 +59,7 @@ goto v___jp_7_;
 }
 else
 {
-lean_object* v_ref_22_; lean_object* v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; lean_object* v___x_26_; uint8_t v___x_27_; 
+lean_object* v_ref_22_; lean_object* v___x_23_; lean_object* v___x_24_; lean_object* v___x_25_; lean_object* v___x_26_; uint8_t v___x_27_; uint8_t v___x_28_; 
 v_ref_22_ = lean_array_fget_borrowed(v_input_3_, v___x_19_);
 lean_dec(v___x_19_);
 v___x_23_ = lean_unsigned_to_nat(1u);
@@ -67,20 +68,10 @@ v___x_25_ = lean_nat_land(v___x_23_, v_ref_22_);
 v___x_26_ = lean_unsigned_to_nat(0u);
 v___x_27_ = lean_nat_dec_eq(v___x_25_, v___x_26_);
 lean_dec(v___x_25_);
-if (v___x_27_ == 0)
-{
-v_gate_8_ = v___x_24_;
-v_invert_9_ = v___x_20_;
-goto v___jp_7_;
-}
-else
-{
-uint8_t v___x_28_; 
-v___x_28_ = 0;
+v___x_28_ = lean_bool_not(v___x_27_);
 v_gate_8_ = v___x_24_;
 v_invert_9_ = v___x_28_;
 goto v___jp_7_;
-}
 }
 }
 v___jp_7_:
@@ -92,9 +83,8 @@ lean_dec(v_curr_5_);
 v___x_12_ = lean_unsigned_to_nat(2u);
 v___x_13_ = lean_nat_mul(v_gate_8_, v___x_12_);
 lean_dec(v_gate_8_);
-v___x_14_ = l_Bool_toNat(v_invert_9_);
+v___x_14_ = lean_bool_to_nat(v_invert_9_);
 v___x_15_ = lean_nat_lor(v___x_13_, v___x_14_);
-lean_dec(v___x_14_);
 lean_dec(v___x_13_);
 v_s_16_ = lean_array_push(v_s_6_, v___x_15_);
 v_curr_5_ = v___x_11_;

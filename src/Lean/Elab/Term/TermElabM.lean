@@ -1509,7 +1509,8 @@ partial def removeSaveInfoAnnotation (e : Expr) : Expr :=
 /--
   Return `some mvarId` if `e` corresponds to a hole that is going to be filled "later" by executing a tactic or resuming elaboration.
 
-  We do not save `ofTermInfo` for this kind of node in the `InfoTree`.
+  We do not save `ofTermInfo` for this kind of node in the `InfoTree`, unless the would-be children
+  of the node already contain the `InfoTree.hole` for it.
 -/
 def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   match e with
@@ -1520,14 +1521,41 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
     | _                                  => return none
   | _ => pure none
 
+/--
+Returns `true` if the `InfoTree`s produced by the elaboration that is currently being wrapped in an
+`Info` node already contain an `InfoTree.hole` for `mvarId`, i.e. if the hole was emitted by a
+nested elaboration rather than by the current one.
+-/
+private partial def hasInfoHoleFor (mvarId : MVarId) : TermElabM Bool := do
+  return (← getInfoState).trees.any go
+where
+  go : InfoTree → Bool
+    | .hole mvarId' => mvarId' == mvarId
+    | .context _ t  => go t
+    | .node _ c     => c.any go
+
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) (isBinder := false) (isDisplayableTerm := false) :
     TermElabM (Sum Info MVarId) := do
-  match (← isTacticOrPostponedHole? e) with
-  | some mvarId => return Sum.inr mvarId
-  | none =>
-    let e := removeSaveInfoAnnotation e
-    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
+  if let some mvarId ← isTacticOrPostponedHole? e then
+    /-
+    Recall that `withInfoContext'` discards the `InfoTree`s of the elaboration when we return a
+    hole, and that the `Info` for the hole is supplied later via `assignInfoHoleId`.
+
+    If a nested elaboration already emitted the hole for `mvarId`, then the current elaboration
+    merely passes the hole through and returning another hole would discard all `Info` it produced,
+    e.g. the `Info` for `type` in `(e : type)` when `e` is a tactic block. In this case, we emit an
+    ordinary term node that contains the nested hole.
+
+    Otherwise, the current elaboration created the hole (e.g. by postponing) and we must return it
+    so that the `Info` supplied later has somewhere to go. Note that the elaboration may already
+    have produced `InfoTree`s before creating the hole, but those are reproduced when its
+    elaboration is resumed.
+    -/
+    unless (← hasInfoHoleFor mvarId) do
+      return Sum.inr mvarId
+  let e := removeSaveInfoAnnotation e
+  return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
 
 def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) :

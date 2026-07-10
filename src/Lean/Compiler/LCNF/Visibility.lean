@@ -79,7 +79,14 @@ partial def markDeclRunnableRec (phase : Phase) (decl : Decl pu) : CompilerM Uni
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
 partial def checkMeta (origDecl : Decl pu) : CompilerM Unit := do
-  if !(← getEnv).header.isModule || (← compiler.inLeanIR.getM) || !(← compiler.checkMeta.getM) then
+  -- With postponement checking for non-`meta` decls has moved here from `lean`, so do not skip in
+  -- `leanir`.
+  if !(← getEnv).header.isModule || !(← compiler.checkMeta.getM) then
+    return
+  -- `meta` decls are still compiled and checked in `lean`; re-checking them in `leanir` would also
+  -- require reconstructing the elaboration-time import view (`isExported`/`irPhases` per module),
+  -- which differs in the `leanir` session (e.g. everything is imported at exported level).
+  if (← compiler.inLeanIR.getM) && isMarkedMeta (← getEnv) origDecl.name then
     return
   let irPhases := getIRPhases (← getEnv) origDecl.name
   if irPhases == .all then

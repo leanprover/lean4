@@ -1246,12 +1246,12 @@ where
     -- This check runs after elaboration so that attributes applied by other attributes
     -- (e.g. `to_additive (attr := implicit_reducible)`) are accounted for.
     for header in headers do
-      if header.kind matches .def then
+      if header.kind == .def then
         if warn.classDefReducibility.get (← getOptions) &&
             (← isClass? header.type).isSome /-TODO-/ &&
             !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then
           let status ← getReducibilityStatus header.declName
-          if status matches .semireducible then do
+          if status == .semireducible then do
             logWarning m!"Definition `{header.declName}` of class type is semireducible. \
 Most type class instances should be instance-reducible, so consider marking this
 definition with `@[instance_reducible]`. If it is intentionally semireducible, \

@@ -972,6 +972,10 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
                       localAttrInsts := instanceExtension.getState (← getEnv) |>.localInstanceNames,
                       maxResultSize,
                       canonInstances := backward.synthInstance.canonInstances.get opts,
+                      -- read by name: importing `Lean.Meta.ExprDefEq` here would be a cycle
+                      respectTransparency := opts.getBool `backward.isDefEq.respectTransparency true,
+                      respectTransparencyTypes :=
+                        opts.getBool `backward.isDefEq.respectTransparency.types true,
                       isExporting := (← getEnv).isExporting }
     match ← findCachedResult? cacheKey with
     | some abstResult? =>

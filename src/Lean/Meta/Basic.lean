@@ -355,6 +355,14 @@ structure SynthInstanceCacheKey where
   /-- Value of `backward.synthInstance.canonInstances`. -/
   canonInstances    : Bool
   /--
+  Values of `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types`.
+  They control whether `isDefEq` bumps the transparency when assigning a metavariable, and hence
+  which of several definitionally equal terms an instance's implicit arguments are assigned. The
+  cache persists across commands, which may set them differently.
+  -/
+  respectTransparency      : Bool
+  respectTransparencyTypes : Bool
+  /--
   Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
   which can change the result of typeclass resolution.
   -/

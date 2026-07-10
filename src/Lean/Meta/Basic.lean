@@ -337,6 +337,12 @@ structure SynthInstanceCacheKey where
   -/
   normFVarTypes     : Array Expr := #[]
   /--
+  For each closure position, the canonical value of that free variable if it is let-bound, and
+  `none` otherwise. A let-bound variable's value is visible to definitional unfolding, so contexts
+  that agree on the types but not the values are not interchangeable. Empty for raw keys.
+  -/
+  normFVarValues    : Array (Option Expr) := #[]
+  /--
   Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
   See issue #2522.
   -/
@@ -435,6 +441,8 @@ structure SynthNormClosure where
   fmap            : PersistentHashMap FVarId Nat
   order           : Array FVarId
   types           : Array Expr
+  /-- The canonical value of each let-bound closure variable; `none` for the others. -/
+  values          : Array (Option Expr)
   canonLocalInsts : LocalInstances
 
 /--
@@ -446,11 +454,12 @@ structure SynthNormClosureMemo where
   /-- The local instances the closure was computed for. -/
   localInsts : LocalInstances
   /--
-  The closure variables whose raw `LocalDecl.type` mentions a metavariable, with the instantiation
-  the closure was built from. A `LocalDecl`'s type is immutable, so only these can change: a
-  metavariable may be assigned, or an assignment reverted by backtracking.
+  The closure variables whose raw `LocalDecl` type or let-value mentions a metavariable, with the
+  instantiation the closure was built from (`true` = the value, `false` = the type). A `LocalDecl`
+  is immutable, so only these can change: a metavariable may be assigned, or an assignment reverted
+  by backtracking.
   -/
-  mvarTyped : Array (FVarId × Expr)
+  mvarTyped : Array (FVarId × Bool × Expr)
   /-- `none` if the local instance context cannot be soundly normalized. -/
   closure? : Option SynthNormClosure
 

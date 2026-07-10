@@ -981,11 +981,13 @@ private structure State where
   order : Array FVarId := #[]
   /-- Canonical position to the (recursively normalized) type of that free variable. -/
   types : Array Expr := #[]
+  /-- Canonical position to the normalized value of that free variable, if it is let-bound. -/
+  values : Array (Option Expr) := #[]
   /-- Set when the closure cannot be soundly normalized (let-bound or mvar-typed variable). -/
   bail  : Bool := false
-  /-- Closure variables whose raw `LocalDecl.type` mentions a metavariable, with the instantiation
-  used; see `SynthNormClosureMemo.mvarTyped`. -/
-  mvarTyped : Array (FVarId × Expr) := #[]
+  /-- Closure variables whose raw `LocalDecl` type or let-value mentions a metavariable, with the
+  instantiation used; see `SynthNormClosureMemo.mvarTyped`. -/
+  mvarTyped : Array (FVarId × Bool × Expr) := #[]
   /--
   Memoizes `normExpr` on visited subterms so that terms with DAG sharing are traversed in DAG
   size, not tree size. Sound because positions are assigned by first occurrence and never change:
@@ -998,9 +1000,9 @@ private abbrev M := ReaderT LocalContext (StateT State MetaM)
 
 /--
 Renames every free variable to a canonical positional identifier by first-occurrence order,
-recording and recursively normalizing each one's type. Sets `bail` on a let-bound variable (its
-value is part of the context but not the key) or a variable whose type contains an unassigned
-metavariable (not context-free), neither of which can be soundly normalized.
+recording and recursively normalizing each one's type, and its value if it is let-bound. Sets
+`bail` on a variable whose type or value contains an unassigned metavariable, which is not
+context-free and so cannot be soundly normalized.
 -/
 private partial def normExpr (e : Expr) : M Expr := do
   if (← get).bail then return e
@@ -1014,26 +1016,37 @@ private partial def normExpr (e : Expr) : M Expr := do
       modify fun s => { s with bail := true }
       return e
     | some decl =>
-      if decl.isLet then
-        modify fun s => { s with bail := true }
-        return e
       -- `Expr.hasMVar` is a syntactic flag: it stays set for metavariables that are already
-      -- assigned, whose values are context-free. Instantiate before deciding to bail.
-      let type ← if decl.type.hasMVar then
-          let type ← instantiateMVars decl.type
-          -- Recorded even when we bail below: assigning the metavariable that made us bail must
-          -- invalidate the memoized closure.
-          modify fun s => { s with mvarTyped := s.mvarTyped.push (id, type) }
-          pure type
-        else pure decl.type
-      if type.hasMVar then
+      -- assigned, whose values are context-free. Instantiate before deciding to bail. The result is
+      -- recorded even when we bail below: assigning the metavariable that made us bail must
+      -- invalidate the memoized closure.
+      let inst (isValue : Bool) (e : Expr) : M Expr := do
+        unless e.hasMVar do return e
+        let e ← instantiateMVars e
+        modify fun s => { s with mvarTyped := s.mvarTyped.push (id, isValue, e) }
+        return e
+      let type ← inst false decl.type
+      -- A nondependent `ldecl` (`have`) hides its value from definitional unfolding, so
+      -- `LocalDecl.value?` reports none and the value stays out of the key.
+      let value? ← match decl.value? with
+        | none   => pure none
+        | some v => do
+          let v ← inst true v
+          pure (some v)
+      if type.hasMVar || (match value? with | some v => v.hasMVar | none => false) then
         modify fun s => { s with bail := true }
         return e
       let i := (← get).order.size
       modify fun s =>
-        { s with fmap := s.fmap.insert id i, order := s.order.push id, types := s.types.push default }
+        { s with fmap := s.fmap.insert id i, order := s.order.push id,
+                 types := s.types.push default, values := s.values.push none }
       let nty ← normExpr type
-      modify fun s => { s with types := s.types.set! i nty }
+      let nval? ← match value? with
+        | none   => pure none
+        | some v => do
+          let v ← normExpr v
+          pure (some v)
+      modify fun s => { s with types := s.types.set! i nty, values := s.values.set! i nval? }
       return .fvar (canonFVarId i)
   | _ =>
     if let some r := (← get).cache[(e : ExprStructEq)]? then
@@ -1054,6 +1067,7 @@ structure Context where
   normType        : Expr
   canonLocalInsts : LocalInstances
   fvarTypes       : Array Expr
+  fvarValues      : Array (Option Expr)
   fmap            : PersistentHashMap FVarId Nat
   order           : Array FVarId
 
@@ -1063,9 +1077,10 @@ metavariable must still instantiate to what the closure was built from. The othe
 variables have immutable types, and the local instances are compared by the caller.
 -/
 private def isValidMemo (lctx : LocalContext) (memo : SynthNormClosureMemo) : MetaM Bool := do
-  for (id, type) in memo.mvarTyped do
+  for (id, isValue, e) in memo.mvarTyped do
     let some decl := lctx.find? id | return false
-    unless (← instantiateMVars decl.type) == type do return false
+    let some raw := (if isValue then decl.value? else some decl.type) | return false
+    unless (← instantiateMVars raw) == e do return false
   return true
 
 /--
@@ -1084,15 +1099,16 @@ private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormC
   let (canonLocalInsts, st) ← go.run lctx |>.run {}
   let closure? :=
     if st.bail then none
-    else some { fmap := st.fmap, order := st.order, types := st.types, canonLocalInsts }
+    else some { fmap := st.fmap, order := st.order, types := st.types, values := st.values,
+                canonLocalInsts }
   modifyCache fun c =>
     { c with synthNormClosure := some { localInsts, mvarTyped := st.mvarTyped, closure? } }
   return closure?
 
 /--
 Computes the free-variable-normalized cache context for a `.noMVars` query, or `none` if it cannot
-be soundly normalized (some free variable in the closure is let-bound or has a metavariable in its
-type). The closure comprises the free variables of the local instances and of `cacheKeyType`,
+be soundly normalized (some free variable in the closure has an unassigned metavariable in its type
+or value). The closure comprises the free variables of the local instances and of `cacheKeyType`,
 together with their types, transitively. The local instances are normalized first, so that their
 part of the closure does not depend on the query and can be memoized; see `getClosure?`.
 -/
@@ -1101,11 +1117,12 @@ def normalizeContext? (cacheKeyType : Expr) (localInsts : LocalInstances) :
   let some closure ← getClosure? localInsts | return none
   let lctx ← getLCtx
   -- Seed from the memoized closure; the query type may extend it with further free variables.
-  let st0 : State := { fmap := closure.fmap, order := closure.order, types := closure.types }
+  let st0 : State := { fmap := closure.fmap, order := closure.order, types := closure.types,
+                       values := closure.values }
   let (normType, st) ← (normExpr cacheKeyType).run lctx |>.run st0
   if st.bail then return none
   return some { normType, canonLocalInsts := closure.canonLocalInsts, fvarTypes := st.types,
-                fmap := st.fmap, order := st.order }
+                fvarValues := st.values, fmap := st.fmap, order := st.order }
 
 /--
 Abstracts the closure free variables of `e` into loose bound variables (positional, by the closure
@@ -1169,7 +1186,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
                         opts.getBool `backward.isDefEq.respectTransparency.types true,
                       isExporting := (← getEnv).isExporting }
     let cacheKey := match normCtx? with
-      | some c => { cacheKey with localInsts := c.canonLocalInsts, type := c.normType, normFVarTypes := c.fvarTypes }
+      | some c => { cacheKey with localInsts := c.canonLocalInsts, type := c.normType, normFVarTypes := c.fvarTypes, normFVarValues := c.fvarValues }
       | none   => cacheKey
     match ← findCachedResult? cacheKey with
     | some abstResult? =>

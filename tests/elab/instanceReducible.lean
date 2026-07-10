@@ -13,9 +13,7 @@ public def unexposed : Inhabited Nat := inferInstance
 #guard_msgs in
 attribute [instance] unexposed
 
-/--
-warning: instance `unexposed` must be marked with `@[reducible]`, `@[instance_reducible]` or `@[implicit_reducible]`
--/
+-- no warning; there already was a warning when defining `unexposed`
 #guard_msgs in
 attribute [local instance] unexposed
 
@@ -27,15 +25,11 @@ definition with `@[instance_reducible]`. If it is intentionally semireducible, t
 @[expose]
 public def exposed : Inhabited Nat := inferInstance
 
-/--
-warning: instance `exposed` must be marked with `@[reducible]`, `@[instance_reducible]` or `@[implicit_reducible]`
--/
+-- no warning; there already was a warning when defining `exposed`
 #guard_msgs in
 attribute [instance] exposed
 
-/--
-warning: instance `exposed` must be marked with `@[reducible]`, `@[instance_reducible]` or `@[implicit_reducible]`
--/
+-- no warning; there already was a warning when defining `exposed`
 #guard_msgs in
 attribute [local instance] exposed
 

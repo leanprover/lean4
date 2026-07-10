@@ -269,17 +269,19 @@ def elabSetOption : Tactic := fun stx => do
 def evalTacticSeq : Tactic :=
   Term.withNarrowedArgTacticReuse (argIdx := 0) evalTactic
 
-partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
-  if h : i < tactics.size then
-    let tactic := tactics[i]
+partial def evalChoiceAux (choiceStx : Syntax) (i : Nat) : TacticM Unit :=
+  if i < choiceStx.getNumArgs then
+    let tactic := choiceStx.getArg i
     catchInternalId unsupportedSyntaxExceptionId
-      (evalTactic tactic)
-      (fun _ => evalChoiceAux tactics (i+1))
+      (do
+        evalTactic tactic
+        pushInfoLeaf <| .ofChoiceResolutionInfo { stx := choiceStx, chosenAltIdx := i })
+      (fun _ => evalChoiceAux choiceStx (i+1))
   else
     throwUnsupportedSyntax
 
 @[builtin_tactic choice] def evalChoice : Tactic := fun stx =>
-  evalChoiceAux stx.getArgs 0
+  evalChoiceAux stx 0
 
 @[builtin_tactic skip] def evalSkip : Tactic := fun _ => pure ()
 

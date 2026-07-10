@@ -115,8 +115,12 @@ The message of this node (without its children), formatted as a string.
 Useful for text-based filters such as `grep`.
 -/
 def headText : TraceTree → BaseIO String
-  | .node _ msg _ wrap => (wrap msg).toString
-  | .leaf msg          => msg.toString
+  | .node data msg _ wrap => do
+    let s ← (wrap msg).toString
+    return match data.result? with
+      | some r => s!"{r.toEmoji} {s}"
+      | none   => s
+  | .leaf msg => msg.toString
 
 /-- Whether this node itself represents a failed action (`TraceResult.failure` or `.error`). -/
 def isFailure (t : TraceTree) : Bool :=

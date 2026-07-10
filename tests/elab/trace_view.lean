@@ -110,3 +110,33 @@ open Lean.TraceView in
 open Lean.TraceView in
 #eval show Lean.CoreM _ from do
   return collapsedFlags (← expandMatches "no such text" #[sampleTree])[0]!
+
+/-!
+On errors in the postprocessor term, `trace_view` logs the error and falls back to the identity
+postprocessor, so the command still runs and reports its unmodified traces.
+-/
+
+/--
+error: Unknown identifier `nonexistentPostprocessor`
+---
+trace: [debug] hello
+-/
+#guard_msgs in
+set_option trace.debug true in
+trace_view nonexistentPostprocessor in
+run_cmd trace[debug] "hello"
+
+/--
+error: Type mismatch
+  "not a postprocessor"
+has type
+  String
+but is expected to have type
+  TracePostprocessor
+---
+trace: [debug] hello
+-/
+#guard_msgs in
+set_option trace.debug true in
+trace_view "not a postprocessor" in
+run_cmd trace[debug] "hello"

@@ -1,0 +1,24 @@
+{"textDocument": {"uri": "file:///trace_view_hover.lean"},
+ "position": {"line": 13, "character": 12}}
+{"range":
+ {"start": {"line": 13, "character": 11}, "end": {"line": 13, "character": 24}},
+ "contents":
+ {"value":
+  "```lean\nLean.TraceView.hideSucceeded : TracePostprocessor\n```\n***\nFolds every successful subtree that contains no failure into a single line, keeping the paths to\nfailed actions fully visible. Trace roots without any failure are folded into their root node.\n\n***\n*import Lean.Elab.TraceView*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///trace_view_hover.lean"},
+ "position": {"line": 18, "character": 14}}
+{"range":
+ {"start": {"line": 18, "character": 11}, "end": {"line": 18, "character": 19}},
+ "contents":
+ {"value":
+  "```lean\nLean.TraceView.maxDepth (depth : Nat) : TracePostprocessor\n```\n***\nTruncates all trace trees below the given depth (`maxDepth 0` keeps only the roots). \n***\n*import Lean.Elab.TraceView*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///trace_view_hover.lean"},
+ "position": {"line": 24, "character": 34}}
+{"range":
+ {"start": {"line": 24, "character": 34}, "end": {"line": 24, "character": 47}},
+ "contents":
+ {"value":
+  "```lean\ninferInstance.{u} {α : Sort u} [i : α] : α\n```\n***\n`inferInstance` synthesizes a value of any target type by typeclass\ninference. This function has the same type signature as the identity\nfunction, but the square brackets on the `[i : α]` argument means that it will\nattempt to construct this argument by typeclass inference. (This will fail if\n`α` is not a `class`.) Example:\n```\n#check (inferInstance : Inhabited Nat) -- Inhabited Nat\n\ndef foo : Inhabited (Nat × Nat) :=\n  inferInstance\n\nexample : foo.default = (default, default) :=\n  rfl\n```\n\n***\n*import Init.Prelude*",
+  "kind": "markdown"}}

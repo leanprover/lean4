@@ -76,6 +76,144 @@ partial def toMessageData : TraceTree → MessageData
   | .node data msg children wrap => wrap (.trace data msg (children.map toMessageData))
   | .leaf msg                    => msg
 
+end TraceTree
+
+/--
+A trace postprocessor transforms the trace roots of a trace message before it is reported,
+e.g. by filtering out irrelevant subtrees or pre-expanding interesting nodes.
+Returning an empty array drops the trace message entirely.
+
+Traces are reported as one message per source range inside a command, and a postprocessor is
+applied to each of these messages separately; it therefore cannot move trace roots from one
+source range to another.
+
+Postprocessors are applied by the `trace_view post in cmd` and `#trace_view t post` commands and
+can be composed left-to-right with `>=>`.
+-/
+abbrev TracePostprocessor := Array TraceTree → CoreM (Array TraceTree)
+
+instance : Inhabited TracePostprocessor := ⟨fun roots => return roots⟩
+
+/--
+Decomposes the synthetic container message produced by `addTraceAsMessages`
+(`.tagged \`trace <| .trace _ _ roots`, possibly inside context wrappers) into its trace roots,
+together with a function that reassembles the container from transformed roots.
+-/
+private partial def traceContainer? (data : MessageData) :
+    Option ((Array MessageData → MessageData) × Array MessageData) :=
+  go id data
+where
+  go (wrap : MessageData → MessageData) :
+      MessageData → Option ((Array MessageData → MessageData) × Array MessageData)
+    | .withContext ctx m       => go (fun m => wrap (.withContext ctx m)) m
+    | .withNamingContext ctx m => go (fun m => wrap (.withNamingContext ctx m)) m
+    | .tagged n (.trace data head children) =>
+      if n == `trace then
+        some (fun children => wrap (.tagged n (.trace data head children)), children)
+      else
+        none
+    | _ => none
+
+/--
+Applies `post` to a trace message (see `addTraceAsMessages`), returning `none` if the
+postprocessor dropped all roots of the message. Non-trace messages are returned unchanged.
+-/
+private def postprocessMessage (post : TracePostprocessor) (msg : Message) :
+    CoreM (Option Message) := do
+  let some (rebuild, roots) := traceContainer? msg.data
+    | return some msg
+  let roots ← post (roots.map TraceTree.ofMessageData)
+  if roots.isEmpty then
+    return none
+  return some { msg with data := rebuild (roots.map (·.toMessageData)) }
+
+end Lean.TraceView
+
+namespace Lean.Elab.TraceView
+open Lean.TraceView Command
+
+/--
+Runs a command and collects all messages (sync and async) it produces, clearing the snapshot
+tasks after collection so that async messages are not reported twice. The message log is empty
+when `cmd` starts; the caller is responsible for saving and restoring the surrounding log.
+-/
+private def runAndCollectMessages (cmd : Syntax) : CommandElabM (MessageLog × Array Message) := do
+  let saved := (← get).messages
+  -- `elabCommandTopLevel` resets the info state; save the trees recorded so far (e.g. for the
+  -- postprocessor term) so that hovers and completions keep working
+  let savedTrees := (← get).infoState.trees
+  modify fun st => { st with messages := {} }
+  try
+    -- do not forward the snapshot as we don't want messages assigned to it to leak outside
+    withReader ({ · with snap? := none }) do
+      elabCommandTopLevel cmd
+  finally
+    modify fun st => { st with infoState.trees := savedTrees ++ st.infoState.trees }
+  let msgs := (← get).messages ++
+    (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty
+  modify fun st => { st with snapshotTasks := #[], messages := {} }
+  return (saved, msgs.toArray)
+
+/--
+Evaluates a term of type `TracePostprocessor`, with the `Lean.TraceView` namespace opened so
+that the basic combinators are available unqualified.
+-/
+private unsafe def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
+  let post ← `(open Lean.TraceView in ($post : TracePostprocessor))
+  let type := mkConst ``TracePostprocessor
+  withoutModifyingEnv do
+    let e ← Term.elabTermEnsuringType post type
+    Term.synthesizeSyntheticMVarsNoPostponing
+    let e ← instantiateMVars e
+    -- on elaboration errors, abort before `evalExpr` reports a redundant `sorryAx` error
+    if e.hasSyntheticSorry then
+      throwAbortTerm
+    if (← Term.logUnassignedUsingErrorInfos (← Meta.getMVars e)) then
+      throwAbortTerm
+    Meta.evalExpr TracePostprocessor type e
+
+/--
+Evaluates the postprocessor without leaking the traces produced by elaborating the postprocessor
+term itself into the (typically trace-enabled) surrounding context.
+-/
+private unsafe def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostprocessor := do
+  let savedTrace := (← get).traceState
+  try
+    runTermElabM fun _ => evalPostprocessor post
+  finally
+    modify fun st => { st with traceState := savedTrace }
+
+private unsafe def elabTraceViewUnsafe : CommandElab
+  | `(command| trace_view $post in $cmd) => do
+    -- on errors in `post`, log them and fall back to the identity postprocessor so that `cmd`
+    -- still elaborates, e.g. while the postprocessor term is being edited
+    let post ← try
+      evalPostprocessorTopLevel post
+    catch ex =>
+      logException ex
+      pure fun roots => return roots
+    let (saved, msgs) ← runAndCollectMessages cmd
+    let mut out := saved
+    for msg in msgs do
+      if let some msg ← liftCoreM <| postprocessMessage post msg then
+        out := out.add msg
+    modify fun st => { st with messages := out }
+  | _ => throwUnsupportedSyntax
+
+@[implemented_by elabTraceViewUnsafe]
+private opaque elabTraceViewImpl : CommandElab
+
+@[builtin_command_elab Lean.TraceView.traceViewCmd] def elabTraceView : CommandElab :=
+  elabTraceViewImpl
+
+end Lean.Elab.TraceView
+
+namespace Lean.TraceView
+
+section Postprocessors
+
+namespace TraceTree
+
 /-- The `TraceData` of a trace node; `none` for leaf messages. -/
 def data? : TraceTree → Option TraceData
   | .node data .. => some data
@@ -110,7 +248,7 @@ def elapsed (t : TraceTree) : Float :=
 
 /--
 The message of this node (without its children), formatted as a string.
-Useful for text-based filters such as `grep`.
+Useful for text-based filters but expensive.
 -/
 def headText : TraceTree → BaseIO String
   | .node data msg _ wrap => do
@@ -164,23 +302,6 @@ partial def setCollapsedAll (t : TraceTree) (collapsed : Bool) : TraceTree :=
   t.modifyData ({ · with collapsed }) |>.withChildren (t.children.map (setCollapsedAll · collapsed))
 
 end TraceTree
-
-/--
-A trace postprocessor transforms the trace roots of a trace message before it is reported,
-e.g. by filtering out irrelevant subtrees or pre-expanding interesting nodes.
-Returning an empty array drops the trace message entirely.
-
-Traces are reported as one message per source range inside a command, and a postprocessor is
-applied to each of these messages separately; it therefore cannot move trace roots from one
-source range to another.
-TODO: Really?
-
-Postprocessors are applied by the `trace_view post in cmd` and `#trace_view t post` commands and
-can be composed left-to-right with `>=>`.
--/
-abbrev TracePostprocessor := Array TraceTree → CoreM (Array TraceTree)
-
-instance : Inhabited TracePostprocessor := ⟨fun roots => return roots⟩
 
 private def containsSubstr (s pat : String) : Bool :=
   (s.find? pat).isSome
@@ -304,96 +425,6 @@ def onRootIdx (idx : Nat) (post : TracePostprocessor) : TracePostprocessor := fu
       out := out.push roots[i]
   return out
 
-/--
-Decomposes the synthetic container message produced by `addTraceAsMessages`
-(`.tagged \`trace <| .trace _ _ roots`, possibly inside context wrappers) into its trace roots,
-together with a function that reassembles the container from transformed roots.
--/
-private partial def traceContainer? (data : MessageData) :
-    Option ((Array MessageData → MessageData) × Array MessageData) :=
-  go id data
-where
-  go (wrap : MessageData → MessageData) :
-      MessageData → Option ((Array MessageData → MessageData) × Array MessageData)
-    | .withContext ctx m       => go (fun m => wrap (.withContext ctx m)) m
-    | .withNamingContext ctx m => go (fun m => wrap (.withNamingContext ctx m)) m
-    | .tagged n (.trace data head children) =>
-      if n == `trace then
-        some (fun children => wrap (.tagged n (.trace data head children)), children)
-      else
-        none
-    | _ => none
-
-/--
-Applies `post` to a trace message (see `addTraceAsMessages`), returning `none` if the
-postprocessor dropped all roots of the message. Non-trace messages are returned unchanged.
--/
-private def postprocessMessage (post : TracePostprocessor) (msg : Message) :
-    CoreM (Option Message) := do
-  let some (rebuild, roots) := traceContainer? msg.data
-    | return some msg
-  let roots ← post (roots.map TraceTree.ofMessageData)
-  if roots.isEmpty then
-    return none
-  return some { msg with data := rebuild (roots.map (·.toMessageData)) }
+end Postprocessors
 
 end Lean.TraceView
-
-namespace Lean.Elab.TraceView
-open Lean.TraceView Command
-
-/--
-Runs a command and collects all messages (sync and async) it produces, clearing the snapshot
-tasks after collection so that async messages are not reported twice. The message log is empty
-when `cmd` starts; the caller is responsible for saving and restoring the surrounding log.
--/
-private def runAndCollectMessages (cmd : Syntax) : CommandElabM (MessageLog × Array Message) := do
-  let saved := (← get).messages
-  modify fun st => { st with messages := {} }
-  -- do not forward the snapshot as we don't want messages assigned to it to leak outside
-  withReader ({ · with snap? := none }) do
-    elabCommandTopLevel cmd
-  let msgs := (← get).messages ++
-    (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty
-  modify fun st => { st with snapshotTasks := #[], messages := {} }
-  return (saved, msgs.toArray)
-
-/--
-Evaluates a term of type `TracePostprocessor`, with the `Lean.TraceView` namespace opened so
-that the basic combinators are available unqualified.
--/
-private unsafe def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
-  let post ← `(open Lean.TraceView in ($post : TracePostprocessor))
-  Term.evalTerm TracePostprocessor (mkConst ``TracePostprocessor) post
--- TODO: the `post` syntax element should be hoverable, support autocompletion and hovers
--- TODO: Why is `evalTerm` unsafe? Should we use something else here?
-
-/--
-Evaluates the postprocessor without leaking the traces produced by elaborating the postprocessor
-term itself into the (typically trace-enabled) surrounding context.
--/
-private unsafe def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostprocessor := do
-  let savedTrace := (← get).traceState
-  try
-    runTermElabM fun _ => evalPostprocessor post
-  finally
-    modify fun st => { st with traceState := savedTrace }
-
-private unsafe def elabTraceViewUnsafe : CommandElab
-  | `(command| trace_view $post in $cmd) => do
-    let post ← evalPostprocessorTopLevel post
-    let (saved, msgs) ← runAndCollectMessages cmd
-    let mut out := saved
-    for msg in msgs do
-      if let some msg ← liftCoreM <| postprocessMessage post msg then
-        out := out.add msg
-    modify fun st => { st with messages := out }
-  | _ => throwUnsupportedSyntax
-
-@[implemented_by elabTraceViewUnsafe]
-private opaque elabTraceViewImpl : CommandElab
-
-@[builtin_command_elab Lean.TraceView.traceViewCmd] def elabTraceView : CommandElab :=
-  elabTraceViewImpl
-
-end Lean.Elab.TraceView

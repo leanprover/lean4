@@ -11,6 +11,7 @@ import Lean.Elab.ParseImportsFast
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
+import Lean.Compiler.Backend.EmitARM64
 import Init.System.Platform
 import Lean.Compiler.Options
 import Std.Async.Process
@@ -151,6 +152,7 @@ def displayHelp (useStderr : Bool) : IO Unit := do
   out.putStrLn    "  -i, --i=iname          create ilean file"
   out.putStrLn    "  -c, --c=fname          name of the C output file"
   out.putStrLn    "  -b, --bc=fname         name of the LLVM bitcode file"
+  out.putStrLn    "      --arm64=fname      name of the ARM64 assembly output file"
   out.putStrLn    "      --stdin            take input from stdin"
   out.putStrLn    "  -R, --root=dir         set package root directory from which the module name\n"
   out.putStrLn    "                         of the input file is calculated\n"
@@ -242,6 +244,7 @@ structure ShellOptions where
   ileanFileName? : Option System.FilePath := none
   cFileName? : Option System.FilePath := none
   bcFileName? : Option System.FilePath := none
+  arm64FileName? : Option System.FilePath := none
   jsonOutput : Bool := false
   errorOnKinds : Array Name := #[]
   printStats : Bool := false
@@ -327,6 +330,10 @@ def ShellOptions.process (opts : ShellOptions)
     return {opts with cFileName? := ← checkOptArg "c" optArg?}
   | 'b' => -- `-b, --bc=fname`
     return {opts with bcFileName? := ← checkOptArg "b" optArg?}
+  | 'A' => -- `--arm64=fname`
+    return {opts with
+      arm64FileName? := ← checkOptArg "arm64" optArg?
+      leanOpts := Compiler.compiler.postponeCompile.set opts.leanOpts false }
   | 's' => -- `-s, --tstack=num`
     let arg ← checkOptArg "s" optArg?
     let some stackSize := arg.toNat?
@@ -544,7 +551,7 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       pure setup.name
     else if let some fileName := fileName? then
       try moduleNameOfFileName fileName opts.rootDir? catch e =>
-        if opts.oleanFileName?.isNone && opts.cFileName?.isNone then
+        if opts.oleanFileName?.isNone && opts.cFileName?.isNone && opts.arm64FileName?.isNone then
           pure `_stdin
         else
           throw e
@@ -569,6 +576,13 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       initLLVM
       profileitIO "LLVM code generation" opts.leanOpts do
         emitLLVM env mainModuleName bc
+    if let some arm64 := opts.arm64FileName? then
+      let .ok out ← IO.FS.Handle.mk arm64 .write |>.toBaseIO
+        | IO.eprintln s!"failed to create '{arm64}'"
+          return 1
+      profileitIO "ARM64 code generation" opts.leanOpts do
+        let data ← IO.ofExcept <| Compiler.Backend.EmitARM64.emitARM64 env mainModuleName
+        out.write data.toUTF8
   displayCumulativeProfilingTimes
   if Internal.hasAddressSanitizer () then
     return if env?.isSome then 0 else 1

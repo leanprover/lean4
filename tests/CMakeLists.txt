@@ -313,6 +313,7 @@ add_test(NAME lint.py COMMAND python3 lint.py WORKING_DIRECTORY "${CMAKE_CURRENT
 
 add_test_pile(../doc/examples *.lean)
 add_test_pile(compile *.lean BENCH PART2)
+add_test_pile(native_backend *.lean)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(docparse *.txt)
 add_test_pile(

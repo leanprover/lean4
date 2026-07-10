@@ -25,17 +25,15 @@ combinators (`focusOn`, `hideSucceeded`, `maxDepth`, `minTimeMs`, `grep`, `expan
 `expandAll`, `collapseAll`, `expandFailures`, `onRoots`, …); users can define their own
 postprocessors as ordinary functions and compose them with `>=>`.
 
-Entry points:
-- `trace_view post in cmd` transforms the trace messages produced by `cmd` with `post`.
-- `store_trace_as t in cmd` additionally stores the (untransformed) trace messages of `cmd` under
-  the name `t`, so that slow commands do not have to be re-run while iterating on a view:
-  - `#trace_roots t` lists the stored trace roots (index, class, position),
-  - `#trace_view t post` re-renders the stored trace through `post`.
+Syntax:
+`trace_view post in cmd` transforms the trace messages produced by `cmd` with `post`.
 
 Traces are stored as `MessageData` (see `MessageData.trace`); `TraceTree` is a structured view of
 such messages that takes care of the context wrappers (`MessageData.withContext` etc.) around
 trace nodes.
 -/
+
+public section
 
 namespace Lean.TraceView
 
@@ -43,7 +41,7 @@ namespace Lean.TraceView
 A structured view of a trace message (`MessageData.trace`), used by trace postprocessors
 (see `TracePostprocessor`).
 -/
-public inductive TraceTree where
+inductive TraceTree where
   /--
   A trace node `[data.cls] msg` with the given children.
 
@@ -339,69 +337,6 @@ private def postprocessMessage (post : TracePostprocessor) (msg : Message) :
     return none
   return some { msg with data := rebuild (roots.map (·.toMessageData)) }
 
-/--
-A trace stored by `store_trace_as t in cmd`, for inspection in metaprograms.
-
-`store_trace_as` declares `t : CoreM StoredTrace`, so the stored trace can be retrieved in any
-metaprogram that can run `CoreM`, e.g. `#eval do return (← t).roots.size`. The trace data itself
-is kept in an in-memory environment extension and is only available in the file that stored it;
-in particular, it is not exported to `.olean` files. The declaration only holds a reference, so
-declaring it is cheap even for very large traces.
--/
-structure StoredTrace where
-  /--
-  The stored trace messages: one message per source range inside the traced command, see
-  `addTraceAsMessages`.
-  -/
-  messages : Array Message
-  deriving Inhabited
-
-private builtin_initialize storedTracesExt : EnvExtension (NameMap StoredTrace) ←
-  registerEnvExtension (pure {})
-
-/-- Returns the trace stored under the declaration `declName`, if any. -/
-def findStoredTrace? (env : Environment) (declName : Name) : Option StoredTrace :=
-  (storedTracesExt.getState env).find? declName
-
-/-- The names of all traces stored in the current file, with their stored traces. -/
-def allStoredTraces (env : Environment) : List (Name × StoredTrace) :=
-  (storedTracesExt.getState env).toList
-
-/--
-Returns the trace stored under the declaration `declName`. This is the implementation of the
-declarations created by `store_trace_as`; the trace data is only available in the file that
-stored it.
--/
-def findStoredTrace (declName : Name) : CoreM StoredTrace := do
-  let some t := findStoredTrace? (← getEnv) declName
-    | throwError "trace data for `{declName}` is not available in this context (stored traces \
-        are kept in memory and are only available in the file that stored them)"
-  return t
-
-/-- Stores `t` under the declaration `declName`, overwriting any previously stored trace. -/
-def storeTrace (declName : Name) (t : StoredTrace) : CoreM Unit :=
-  modifyEnv (storedTracesExt.modifyState · (·.insert declName t))
-
-namespace StoredTrace
-
-/-- All trace roots of the stored trace, across all of its messages. -/
-def roots (t : StoredTrace) : Array TraceTree :=
-  t.messages.flatMap fun msg =>
-    match traceContainer? msg.data with
-    | some (_, roots) => roots.map TraceTree.ofMessageData
-    | none            => #[]
-
--- TODO: Do we need to be careful to collect the contexts of the parents when hoisting subtrees?
-
-/--
-Applies a postprocessor to every trace message of the stored trace, dropping messages whose
-roots were all removed.
--/
-def postprocess (t : StoredTrace) (post : TracePostprocessor) : CoreM StoredTrace :=
-  return ⟨← t.messages.filterMapM (postprocessMessage post ·)⟩
-
-end StoredTrace
-
 end Lean.TraceView
 
 namespace Lean.Elab.TraceView
@@ -460,96 +395,5 @@ private opaque elabTraceViewImpl : CommandElab
 
 @[builtin_command_elab Lean.TraceView.traceViewCmd] def elabTraceView : CommandElab :=
   elabTraceViewImpl
-
-@[builtin_command_elab Lean.TraceView.storeTraceAsCmd] def elabStoreTraceAs : CommandElab
-  | `(command| store_trace_as $id in $cmd) => do
-    let declName := (← getScope).currNamespace ++ id.getId
-    let (saved, msgs) ← runAndCollectMessages cmd
-    -- report all messages of the command unchanged
-    modify fun st => { st with messages := msgs.foldl (·.add ·) saved }
-    -- Declare `declName : CoreM StoredTrace` so that the trace can be inspected by arbitrary
-    -- metaprograms. The declaration body merely *references* the trace data, which is kept in an
-    -- in-memory environment extension, so declaring it is cheap even for very large traces.
-    liftCoreM <| addAndCompile <| .defnDecl {
-      name        := declName
-      levelParams := []
-      type        := mkApp (mkConst ``CoreM) (mkConst ``Lean.TraceView.StoredTrace)
-      value       := mkApp (mkConst ``Lean.TraceView.findStoredTrace) (toExpr declName)
-      hints       := .abbrev
-      safety      := .safe
-    }
-    liftCoreM <| addDocStringCore declName
-      s!"A trace stored by `store_trace_as` (`{(← getFileName)}`); \
-        inspect it with `#trace_roots {id.getId}` and `#trace_view {id.getId} <postprocessor>`, \
-        or in metaprograms, e.g. `#eval do return (← {id.getId}).roots.size`."
-    addDeclarationRangesFromSyntax declName (← getRef) id
-    addConstInfo id declName
-    liftCoreM <| storeTrace declName ⟨msgs.filter (·.data.isTrace)⟩
-  | _ => throwUnsupportedSyntax
-
-/--
-Resolves the name of a trace stored by `store_trace_as` (relative to the current namespace,
-like any other constant) and returns the stored trace, or throws an error listing the available
-names.
--/
-private def resolveStoredTrace (id : Ident) : CommandElabM StoredTrace := do
-  let throwUnknown : CommandElabM Name := do
-    let available := allStoredTraces (← getEnv) |>.map (m!"`{·.1}`")
-    let hint := if available.isEmpty then
-        m!"no traces have been stored in this file"
-      else
-        m!"stored traces: {MessageData.joinSep available ", "}"
-    throwErrorAt id "unknown stored trace `{id.getId}` ({hint}); \
-      store one using `store_trace_as {id.getId} in <command>`"
-  let declName ←
-    try
-      liftCoreM <| realizeGlobalConstNoOverloadWithInfo id
-    catch _ =>
-      throwUnknown
-  let some t := findStoredTrace? (← getEnv) declName
-    | discard throwUnknown; unreachable!
-  return t
-
-@[builtin_command_elab Lean.TraceView.traceRootsCmd] def elabTraceRoots : CommandElab
-  | `(command| #trace_roots $id) => do
-    let stored ← resolveStoredTrace id
-    let mut lines := #[]
-    let mut idx := 0
-    for msg in stored.messages do
-      let some (_, roots) := traceContainer? msg.data
-        | continue
-      for root in roots do
-        let t := TraceTree.ofMessageData root
-        let cls := t.cls?.getD .anonymous
-        let head := (← t.headText).replace "\n" " "
-        let head := if head.length > 80 then (head.take 77).toString ++ "…" else head
-        lines := lines.push
-          s!"#{idx} [{cls}] {msg.pos.line}:{msg.pos.column} ({t.size} nodes) {head}"
-        idx := idx + 1
-    if lines.isEmpty then
-      logInfo m!"stored trace `{id.getId}` is empty"
-    else
-      logInfo ("\n".intercalate lines.toList)
-  | _ => throwUnsupportedSyntax
-
-private unsafe def elabTraceViewStoredUnsafe : CommandElab
-  | `(command| #trace_view $id $post) => do
-    let stored ← resolveStoredTrace id
-    let post ← evalPostprocessorTopLevel post
-    let stored ← liftCoreM <| stored.postprocess post
-    -- Anchor the output at the `#trace_view` command itself, not at the original positions of
-    -- the stored messages; the original positions can be inspected with `#trace_roots`.
-    let ref ← getRef
-    let pos := ref.getPos?.getD 0
-    let endPos := ref.getTailPos?.getD pos
-    for msg in stored.messages do
-      logMessage <| mkMessageCore (← getFileName) (← getFileMap) msg.data .information pos endPos
-  | _ => throwUnsupportedSyntax
-
-@[implemented_by elabTraceViewStoredUnsafe]
-private opaque elabTraceViewStoredImpl : CommandElab
-
-@[builtin_command_elab Lean.TraceView.traceViewStoredCmd] def elabTraceViewStored : CommandElab :=
-  elabTraceViewStoredImpl
 
 end Lean.Elab.TraceView

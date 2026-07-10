@@ -974,36 +974,6 @@ example : Inhabited (List Nat) := inferInstance
 scoped syntax (name := traceViewCmd)
   "trace_view " term " in" ppLine command : command
 
-/--
-`store_trace_as t in cmd` runs `cmd`, reports its output unchanged, and additionally stores the
-trace messages it produced under the name `t`. The stored trace can then be inspected
-without re-running `cmd` using `#trace_roots t` and `#trace_view t post`, which is useful when
-`cmd` is slow and the right trace postprocessor is found iteratively.
-
-`store_trace_as` also adds a declaration `t : CoreM Lean.TraceView.StoredTrace` to the
-environment, so the trace can be inspected by arbitrary metaprograms, e.g.
-`#eval do return (← t).roots.size`. The declaration only references the trace data, which is
-kept in memory for the current file only; it is not exported to `.olean` files.
--/
-scoped syntax (name := storeTraceAsCmd)
-  "store_trace_as " ident " in" ppLine command : command
-
-/--
-`#trace_roots t` lists the roots of the trace stored as `t` by `store_trace_as t in cmd`:
-their index, trace class, and source position. The index can be used to select a root in
-`#trace_view t post` via `Lean.TraceView.onRootIdx`.
--/
-scoped syntax (name := traceRootsCmd)
-  "#trace_roots " ident : command
-
-/--
-`#trace_view t post` renders the trace stored as `t` by `store_trace_as t in cmd` after
-transforming it with the trace postprocessor `post : Lean.TraceView.TracePostprocessor`,
-without re-running `cmd`. See `trace_view` for the available combinators.
--/
-scoped syntax (name := traceViewStoredCmd)
-  "#trace_view " ident ppSpace term : command
-
 end TraceView
 
 /--

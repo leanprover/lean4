@@ -11,22 +11,19 @@ import Lean.Elab.Eval
 import Init.Data.String.Search  -- needed for `String.find?`/`String.replace`
 import Init.Data.String.TakeDrop  -- needed for `String.take`
 
-public section
-
 /-!
 # Trace postprocessors: `trace_view`, `store_trace_as`, `#trace_roots`, `#trace_view`
 
 Trace messages of complex elaboration tasks can be very large, and finding the relevant part in
-the editor requires a lot of clicking and searching. This module provides *trace postprocessors*:
+the editor requires a lot of clicking and searching. This module provides trace postprocessors:
 functions that transform the trace of a command before it is reported, e.g. by filtering out
 irrelevant subtrees, focusing on a single trace class, or pre-expanding the paths to failures.
 
 A trace postprocessor (`Lean.TraceView.TracePostprocessor`) receives the array of trace roots of
-one trace message — traces are reported as one message per source range inside the command — and
-returns the transformed roots. The `Lean.TraceView` namespace provides basic combinators
-(`focusOn`, `hideSucceeded`, `maxDepth`, `minTimeMs`, `grep`, `expandMatches`, `expandAll`,
-`collapseAll`, `expandFailures`, `onRoots`, …); users can define their own postprocessors as
-ordinary functions and compose them with `>=>`.
+one trace message and returns the transformed roots. The `Lean.TraceView` namespace provides basic
+combinators (`focusOn`, `hideSucceeded`, `maxDepth`, `minTimeMs`, `grep`, `expandMatches`,
+`expandAll`, `collapseAll`, `expandFailures`, `onRoots`, …); users can define their own
+postprocessors as ordinary functions and compose them with `>=>`.
 
 Entry points:
 - `trace_view post in cmd` transforms the trace messages produced by `cmd` with `post`.
@@ -46,7 +43,7 @@ namespace Lean.TraceView
 A structured view of a trace message (`MessageData.trace`), used by trace postprocessors
 (see `TracePostprocessor`).
 -/
-inductive TraceTree where
+public inductive TraceTree where
   /--
   A trace node `[data.cls] msg` with the given children.
 
@@ -63,7 +60,10 @@ instance : Inhabited TraceTree := ⟨.leaf .nil⟩
 
 namespace TraceTree
 
-/-- Decomposes trace `MessageData` into a `TraceTree`. Inverse of `TraceTree.toMessageData`. -/
+/--
+Decomposes trace `MessageData` into a `TraceTree`. The `MessageData` can be reconstructed using
+`TraceTree.toMessageData`.
+-/
 partial def ofMessageData (msg : MessageData) : TraceTree :=
   go id msg
 where
@@ -73,7 +73,7 @@ where
     | .trace data m children   => .node data m (children.map (go id)) wrap
     | m                        => .leaf (wrap m)
 
-/-- Reassembles the `MessageData` of a trace tree. Inverse of `TraceTree.ofMessageData`. -/
+/-- Reassembles the `MessageData` of a trace tree. -/
 partial def toMessageData : TraceTree → MessageData
   | .node data msg children wrap => wrap (.trace data msg (children.map toMessageData))
   | .leaf msg                    => msg
@@ -87,7 +87,7 @@ def data? : TraceTree → Option TraceData
 def cls? (t : TraceTree) : Option Name :=
   t.data?.map (·.cls)
 
-/-- The children of this tree (empty for leaf messages). -/
+/-- The children of this tree. -/
 def children : TraceTree → Array TraceTree
   | .node _ _ children _ => children
   | .leaf _              => #[]
@@ -138,8 +138,7 @@ partial def size (t : TraceTree) : Nat :=
 
 /--
 Collects all maximal subtrees satisfying `p`: returns `t` itself if `p t`, and otherwise
-recurses into the children. Nested matches inside other roots are thereby hoisted to the
-top level.
+recurses into the children.
 -/
 partial def collectSubtrees (p : TraceTree → Bool) (t : TraceTree)
     (acc : Array TraceTree := #[]) : Array TraceTree :=
@@ -149,9 +148,9 @@ partial def collectSubtrees (p : TraceTree → Bool) (t : TraceTree)
     t.children.foldl (fun acc c => collectSubtrees p c acc) acc
 
 /--
-Prunes the tree to the subtrees satisfying `p`, keeping their ancestors for context:
-returns `t` unchanged if `p t`, otherwise keeps `t` (with pruned children) if any
-transitive child satisfies `p`, and returns `none` if none does.
+Prunes the tree to the subtrees satisfying `p`, keeping their ancestors for context.
+The resulting tree consistes of those nodes that either have a matching ancestor or transitive
+child.
 -/
 partial def filterSubtrees (p : TraceTree → BaseIO Bool) (t : TraceTree) :
     BaseIO (Option TraceTree) := do
@@ -176,6 +175,7 @@ Returning an empty array drops the trace message entirely.
 Traces are reported as one message per source range inside a command, and a postprocessor is
 applied to each of these messages separately; it therefore cannot move trace roots from one
 source range to another.
+TODO: Really?
 
 Postprocessors are applied by the `trace_view post in cmd` and `#trace_view t post` commands and
 can be composed left-to-right with `>=>`.
@@ -222,7 +222,10 @@ Timing information is only available with `set_option trace.profiler true`.
 def minTimeMs (ms : Float) : TracePostprocessor := fun roots =>
   roots.filterMapM (·.filterSubtrees fun t => return t.elapsed * 1000 ≥ ms)
 
-/-- Whether the trace class or head message of `t` contains `pat` as a substring. -/
+/--
+Whether the trace class or head message of `t` contains `pat` as a substring.
+For large traces, this is an expensive operation because all terms need to be pretty-printed.
+-/
 private def matchesPattern (pat : String) (t : TraceTree) : BaseIO Bool := do
   if (t.cls?.map (·.toString)).any (containsSubstr · pat) then
     return true
@@ -231,6 +234,7 @@ private def matchesPattern (pat : String) (t : TraceTree) : BaseIO Bool := do
 /--
 Keeps only the subtrees whose trace class or head message contains `pat` as a substring, and
 their ancestors for context.
+For large traces, this is an expensive operation because all terms need to be pretty-printed.
 -/
 def grep (pat : String) : TracePostprocessor := fun roots =>
   roots.filterMapM (·.filterSubtrees (matchesPattern pat))
@@ -238,7 +242,8 @@ def grep (pat : String) : TracePostprocessor := fun roots =>
 /--
 Expands all transitive parents of the nodes whose trace class or head message contains `pat` as
 a substring, so that the trace opens already showing all matches. Unlike `grep`, no nodes are
-removed, and all other nodes — including the matches themselves — keep their expansion state.
+removed, and all other nodes, including the matches themselves, keep their expansion state.
+For large traces, this is an expensive operation because all terms need to be pretty-printed.
 -/
 partial def expandMatches (pat : String) : TracePostprocessor := fun roots =>
   roots.mapM fun root => return (← go root).1
@@ -262,6 +267,7 @@ def collapseAll : TracePostprocessor := fun roots =>
 /--
 Expands all trace nodes on a path to a failed action in the editor by default, and collapses
 everything else, so that the trace opens already showing the failures. No nodes are removed.
+TODO: too inefficient; `hasFailure` is linear
 -/
 partial def expandFailures : TracePostprocessor := fun roots =>
   return roots.map go
@@ -385,6 +391,8 @@ def roots (t : StoredTrace) : Array TraceTree :=
     | some (_, roots) => roots.map TraceTree.ofMessageData
     | none            => #[]
 
+-- TODO: Do we need to be careful to collect the contexts of the parents when hoisting subtrees?
+
 /--
 Applies a postprocessor to every trace message of the stored trace, dropping messages whose
 roots were all removed.
@@ -422,6 +430,8 @@ that the basic combinators are available unqualified.
 private unsafe def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
   let post ← `(open Lean.TraceView in ($post : TracePostprocessor))
   Term.evalTerm TracePostprocessor (mkConst ``TracePostprocessor) post
+-- TODO: the `post` syntax element should be hoverable, support autocompletion and hovers
+-- TODO: Why is `evalTerm` unsafe? Should we use something else here?
 
 /--
 Evaluates the postprocessor without leaking the traces produced by elaborating the postprocessor
@@ -448,10 +458,10 @@ private unsafe def elabTraceViewUnsafe : CommandElab
 @[implemented_by elabTraceViewUnsafe]
 private opaque elabTraceViewImpl : CommandElab
 
-@[builtin_command_elab Lean.traceViewCmd] def elabTraceView : CommandElab :=
+@[builtin_command_elab Lean.TraceView.traceViewCmd] def elabTraceView : CommandElab :=
   elabTraceViewImpl
 
-@[builtin_command_elab Lean.storeTraceAsCmd] def elabStoreTraceAs : CommandElab
+@[builtin_command_elab Lean.TraceView.storeTraceAsCmd] def elabStoreTraceAs : CommandElab
   | `(command| store_trace_as $id in $cmd) => do
     let declName := (← getScope).currNamespace ++ id.getId
     let (saved, msgs) ← runAndCollectMessages cmd
@@ -500,7 +510,7 @@ private def resolveStoredTrace (id : Ident) : CommandElabM StoredTrace := do
     | discard throwUnknown; unreachable!
   return t
 
-@[builtin_command_elab Lean.traceRootsCmd] def elabTraceRoots : CommandElab
+@[builtin_command_elab Lean.TraceView.traceRootsCmd] def elabTraceRoots : CommandElab
   | `(command| #trace_roots $id) => do
     let stored ← resolveStoredTrace id
     let mut lines := #[]
@@ -539,7 +549,7 @@ private unsafe def elabTraceViewStoredUnsafe : CommandElab
 @[implemented_by elabTraceViewStoredUnsafe]
 private opaque elabTraceViewStoredImpl : CommandElab
 
-@[builtin_command_elab Lean.traceViewStoredCmd] def elabTraceViewStored : CommandElab :=
+@[builtin_command_elab Lean.TraceView.traceViewStoredCmd] def elabTraceViewStored : CommandElab :=
   elabTraceViewStoredImpl
 
 end Lean.Elab.TraceView

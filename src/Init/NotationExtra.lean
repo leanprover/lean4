@@ -335,6 +335,15 @@ macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
 end Lean
 
 /-- `{ a, b, c }` syntax, powered by the `Singleton` and `Insert` typeclasses. -/
+/-
+We use `withPosition` despite the parenthesized context because
+```
+{ aaa
+  bbb }
+```
+otherwise could be either a two-field structure or a singleton set, which seems way too confusing
+even when the elaborator can disambiguate the two.
+-/
 syntax "{" withPosition(term),+ "}" : term
 
 macro_rules

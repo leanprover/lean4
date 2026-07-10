@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
+
+upload_url = os.environ.get("LAKEPROF_UPLOAD_URL")
+if not upload_url:
+    sys.exit(0)
+if upload_url.endswith("/"):
+    upload_url = upload_url[:-1]
 
 # Determine paths relative to the current file.
 script_file = Path(__file__)
@@ -21,7 +28,7 @@ def run_stdout(*command: str, cwd: Path | None = None) -> str:
 
 
 sha = run_stdout("git", "rev-parse", "@", cwd=src_dir).strip()
-base_url = f"https://speed.lean-lang.org/lean4-out/{sha}"
+base_url = f"{upload_url}/{sha}"
 report = (src_dir / "lakeprof_report.txt").read_text()
 
 template = template_file.read_text()

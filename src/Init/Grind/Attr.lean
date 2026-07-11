@@ -236,7 +236,7 @@ example : f x ≥ g x := by grind
 example : f x + g x ≥ 4 := by grind
 ```
 -/
-syntax grindNorm  := &"norm" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")?
+syntax grindNorm  := &"norm" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore(" ←" <|> " <-")?
 /--
 The `unfold` modifier instructs `grind` to unfold the given definition during the preprocessing step.
 Example:

@@ -188,7 +188,7 @@ def Vector.qsort {size} (xs : Vector α size) (lt : α → α → Bool := by exa
   let sllo := min sllo slhi
   quicksorthelper xs sllo slhi (by omega) (by omega)
 
-def Array.qsortOrd [Ord α] (xs : Array α) (sllo := 0) (slhi := xs.size - 1) : Array α :=
+def Array.qsortOrd [Ord α] (xs : Array α) (sllo := 0) (slhi := xs.size) : Array α :=
   let slhi := min slhi xs.size
   let sllo := min sllo slhi
   (quicksorthelper xs.toVector sllo slhi (by omega) (by omega)).toArray

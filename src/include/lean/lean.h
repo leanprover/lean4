@@ -410,7 +410,10 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #ifdef LEAN_MIMALLOC
     // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = mi_malloc_small(sz);
+    /* `mi_malloc_small` indexes mimalloc's `pages_free_direct` array without a bounds check and is
+       only valid up to `MI_SMALL_SIZE_MAX`. Objects here can be larger: a constructor may have up to
+       `LEAN_MAX_CTOR_FIELDS` fields plus `LEAN_MAX_CTOR_SCALARS_SIZE` bytes of scalars. */
+    void * mem = sz <= MI_SMALL_SIZE_MAX ? mi_malloc_small(sz) : mi_malloc(sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)mem;
     o->m_cs_sz = sz;

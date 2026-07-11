@@ -945,15 +945,22 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (relSynthPendingDepth
         result?.map fun result => { expr := result, paramNames := #[], mvars := #[] }
       else
         some abstResult
-  -- Only context-free entries may be persisted: a mvar-free key (`.noMVars`), a key that does not
+  -- Only context-free entries may be persisted: a key without metavariables, a key that does not
   -- depend on the identity of any free variable, and a closed value (no abstracted metavariables,
   -- no free variables); see `insertCachedResult`.
+  --
+  -- The key is tested for metavariables directly rather than through `.noMVars`. An
+  -- `.mvarsOutputParams` query has its output parameters replaced by a wildcard in the key, so the
+  -- key is metavariable-free whenever every metavariable sits in an output parameter, even though
+  -- the query itself is not. Such an entry is as context-free as a `.noMVars` one: the wildcard
+  -- stands for a value the input parameters determine, and a hit re-derives it by unifying the
+  -- cached result against the query (`assignOutParams`).
   --
   -- A `normalized` key names its free variables by canonical position and records their types in
   -- `normFVarTypes`, so it is context-free even though it mentions free variables. A raw key is
   -- context-free only if it mentions none: an `FVarId` identifies a variable only within the
   -- `NameGenerator` that created it, and the cache outlives any of them.
-  let persist := kind matches .noMVars &&
+  let persist := !cacheKey.type.hasMVar &&
     (normalized || (cacheKey.localInsts.isEmpty && !cacheKey.type.hasFVar)) &&
     (value?.all fun r => r.numMVars == 0 && r.paramNames.isEmpty && !r.expr.hasFVar)
   insertCachedResult cacheKey { relSynthPendingDepth, result := value? } (persist := persist)
@@ -1015,6 +1022,9 @@ private partial def normExpr (e : Expr) : M Expr := do
   | .fvar id =>
     if let some i := (← get).fmap.find? id then
       return .fvar (canonFVarId i)
+    -- `preprocess` puts this marker in output-parameter positions; it is a constant, not a
+    -- variable of the local context, and must not be renamed (nor bail the normalization).
+    if id.name == `__wild__ then return e
     match (← read).find? id with
     | none =>
       modify fun s => { s with bail := true }
@@ -1201,9 +1211,12 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    -- For `.noMVars` queries, normalize the free variables of the key and result so that
-    -- structurally identical queries in different local contexts share a cache entry.
-    let normCtx? ← if kind matches .noMVars then SynthNorm.normalizeContext? cacheKeyType localInsts else pure none
+    -- Normalize the free variables of the key and result so that structurally identical queries in
+    -- different local contexts share a cache entry. Metavariables are left exactly as they are, so
+    -- this applies to metavariable-laden queries as well: their keys are otherwise context-specific
+    -- and can never be shared. `.mvarsOutputParams` keys have their output parameters replaced by a
+    -- wildcard already, so they are usually metavariable-free apart from it.
+    let normCtx? ← SynthNorm.normalizeContext? cacheKeyType localInsts
     let synthPendingDepth := (← read).synthPendingDepth
     let depthSuffix : MessageData :=
       if synthPendingDepth == 0 then m!"" else m!" (synthPendingDepth := {synthPendingDepth})"

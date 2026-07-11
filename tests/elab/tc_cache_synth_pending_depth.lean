@@ -71,7 +71,7 @@ cache hit) reuses the depth-invariant entry as well.
 /--
 trace: [Meta.synthInstance.cache] new: Out (Wr Nat) (LeafT.T (Wr Nat))
 [Meta.synthPending] synthPending ?m.1
-[Meta.synthInstance.cache] new (synthPendingDepth := 1): LeafT (Wr Nat)
+[Meta.synthInstance.cache] cached (synthPendingDepth := 1): LeafT (Wr Nat)
 [Meta.synthInstance.cache] cached (synthPendingDepth := 1): Out (Wr Nat) (LeafT.T (Wr Nat))
 [Meta.synthPending] synthPending ?m.2
 [Meta.synthInstance.cache] cached (synthPendingDepth := 2): LeafT (Wr Nat)
@@ -93,12 +93,12 @@ depth-2 recomputation finds `?hP` already assigned by the first query, so it per
 /--
 trace: [Meta.synthInstance.cache] new: Root Nat
 [Meta.synthPending] synthPending ?m.1
-[Meta.synthInstance.cache] new (synthPendingDepth := 1): LeafT (Wr Nat)
+[Meta.synthInstance.cache] cached (synthPendingDepth := 1): LeafT (Wr Nat)
 [Meta.synthPending] synthPending ?m.1
 [Meta.synthInstance.cache] cached (synthPendingDepth := 1): LeafT (Wr Nat)
-[Meta.synthInstance.cache] cached: Root Nat
+[Meta.synthInstance.cache] new: Root Nat
 [Meta.synthInstance.cache] cached (synthPendingDepth := 1): Root Nat
-[Meta.synthInstance.cache] new (synthPendingDepth := 2): Root Nat
+[Meta.synthInstance.cache] cached (synthPendingDepth := 2): Root Nat
 -/
 #guard_msgs in
 run_meta do
@@ -126,7 +126,7 @@ trace: [Meta.synthInstance.cache] new (synthPendingDepth := 2): Root Nat
 [Meta.synthPending] too many nested synthPending invocations
 [Meta.synthInstance.cache] new: Root Nat
 [Meta.synthPending] synthPending ?m.1
-[Meta.synthInstance.cache] new (synthPendingDepth := 1): LeafT (Wr Nat)
+[Meta.synthInstance.cache] cached (synthPendingDepth := 1): LeafT (Wr Nat)
 [Meta.synthPending] synthPending ?m.1
 [Meta.synthInstance.cache] cached (synthPendingDepth := 1): LeafT (Wr Nat)
 -/

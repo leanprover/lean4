@@ -2373,10 +2373,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   -- imported constants; only name prefixes shared between modules are allocated here.
   let (privImported, privDups) :=
     ImportedConsts.mergeModuleTrees <| moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie)
-  let privImported := (← resolveDuplicates s privImported privDups (throwOnConflict := true)).indexWide
+  let privImported ← resolveDuplicates s privImported privDups (throwOnConflict := true)
   let (importedExtraConsts, _) :=
     ImportedConsts.mergeModuleTrees <| irData.mapIdx fun modIdx data => (modIdx, data.extraConstTrie)
-  let importedExtraConsts := importedExtraConsts.indexWide
   let mut publicTrees := #[]
   if isModule then
     for h : modIdx in *...modules.size do
@@ -2385,7 +2384,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         if let some data := mod.publicModule? then
           publicTrees := publicTrees.push (modIdx, data.constTrie)
   let (publicImported, publicDups) := ImportedConsts.mergeModuleTrees publicTrees
-  let publicImported := (← resolveDuplicates s publicImported publicDups (throwOnConflict := false)).indexWide
+  let publicImported ← resolveDuplicates s publicImported publicDups (throwOnConflict := false)
 
   let exts ← mkInitialExtensionStates
   let privateBase : Kernel.Environment := {

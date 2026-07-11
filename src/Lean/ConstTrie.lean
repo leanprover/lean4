@@ -33,8 +33,9 @@ component suffices to disambiguate equal hashes.
 -/
 public inductive ConstTrie (α : Type) where
   | node (key : Name) (val? : Option α) (children : Array (ConstTrie α))
+      (childHashes : ByteArray)
 
-public instance : Inhabited (ConstTrie α) := ⟨.node .anonymous none #[]⟩
+public instance : Inhabited (ConstTrie α) := ⟨.node .anonymous none #[] .empty⟩
 
 /--
 Checks whether the final components of two names agree, assuming their prefixes are already known
@@ -46,40 +47,66 @@ to be equal.
   | .anonymous, .anonymous => true
   | _, _ => false
 
+/-- Reads the `j`-th hash from a `childHashes` array. -/
+@[inline] private def getHash64 (bs : ByteArray) (j : Nat) : UInt64 :=
+  let o := j * 8
+  (bs.get! o).toUInt64 |||
+  ((bs.get! (o + 1)).toUInt64 <<< 8) |||
+  ((bs.get! (o + 2)).toUInt64 <<< 16) |||
+  ((bs.get! (o + 3)).toUInt64 <<< 24) |||
+  ((bs.get! (o + 4)).toUInt64 <<< 32) |||
+  ((bs.get! (o + 5)).toUInt64 <<< 40) |||
+  ((bs.get! (o + 6)).toUInt64 <<< 48) |||
+  ((bs.get! (o + 7)).toUInt64 <<< 56)
+
+private def pushHash64 (bs : ByteArray) (h : UInt64) : ByteArray :=
+  let bs := bs.push h.toUInt8
+  let bs := bs.push (h >>> 8).toUInt8
+  let bs := bs.push (h >>> 16).toUInt8
+  let bs := bs.push (h >>> 24).toUInt8
+  let bs := bs.push (h >>> 32).toUInt8
+  let bs := bs.push (h >>> 40).toUInt8
+  let bs := bs.push (h >>> 48).toUInt8
+  bs.push (h >>> 56).toUInt8
+
+/-- The key hashes of `cs`, in order, for a trie node's `childHashes` field. -/
+@[specialize] private def childHashesOf (cs : Array β) (keyOf : β → Name) : ByteArray :=
+  cs.foldl (fun bs c => pushHash64 bs (keyOf c).hash) (ByteArray.emptyWithCapacity (cs.size * 8))
+
 /--
 Scans the run of elements with key hash `h` starting at `i` for the key matching `k`'s final
 component.
 -/
-@[specialize] private partial def scanEqualRun [Inhabited β] (cs : Array β) (keyOf : β → Name)
-    (k : Name) (h : UInt64) (i : Nat) : Option Nat :=
+@[specialize] private partial def scanEqualRun [Inhabited β] (hashes : ByteArray) (cs : Array β)
+    (keyOf : β → Name) (k : Name) (h : UInt64) (i : Nat) : Option Nat :=
   if i < cs.size then
-    let ck := keyOf cs[i]!
-    if ck.hash != h then
+    if getHash64 hashes i != h then
       none
-    else if lastPartEq ck k then
+    else if lastPartEq (keyOf cs[i]!) k then
       some i
     else
-      scanEqualRun cs keyOf k h (i + 1)
+      scanEqualRun hashes cs keyOf k h (i + 1)
   else
     none
 
 /--
-Finds the index of the element of `cs` with key `k`, where `cs` is sorted by key hash and all keys
-are `k`'s prefix extended by one component.
+Finds the index of the element of `cs` with key `k`, where `hashes` are the key hashes of `cs`
+(sorted) and all keys are `k`'s prefix extended by one component. The search runs over the
+contiguous hash array; elements are only dereferenced to confirm the final component.
 -/
-@[specialize] private partial def findSortedIdx? [Inhabited β] (cs : Array β) (keyOf : β → Name)
-    (k : Name) : Option Nat :=
+@[specialize] private partial def findHashIdx? [Inhabited β] (hashes : ByteArray) (cs : Array β)
+    (keyOf : β → Name) (k : Name) : Option Nat :=
   lowerBound k.hash 0 cs.size
 where
   @[specialize] lowerBound (h : UInt64) (lo hi : Nat) : Option Nat :=
     if lo < hi then
       let mid := (lo + hi) / 2
-      if (keyOf cs[mid]!).hash < h then
+      if getHash64 hashes mid < h then
         lowerBound h (mid + 1) hi
       else
         lowerBound h lo mid
     else
-      scanEqualRun cs keyOf k h lo
+      scanEqualRun hashes cs keyOf k h lo
 
 /-- The name and its prefixes, innermost first, excluding the anonymous root. -/
 private def prefixesOf (n : Name) (acc : Array Name := .mkEmpty 8) : Array Name :=
@@ -91,22 +118,24 @@ private def prefixesOf (n : Name) (acc : Array Name := .mkEmpty 8) : Array Name 
 namespace ConstTrie
 
 public def key : ConstTrie α → Name
-  | .node k _ _ => k
+  | .node k .. => k
 
 public def val? : ConstTrie α → Option α
-  | .node _ v _ => v
+  | .node _ v .. => v
 
 public def children : ConstTrie α → Array (ConstTrie α)
-  | .node _ _ cs => cs
+  | .node _ _ cs _ => cs
 
 /-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
 partial def findAux (t : ConstTrie α) (path : Array Name) (i : Nat) : Option α :=
-  if i == 0 then
-    t.val?
-  else
-    match findSortedIdx? t.children key path[i - 1]! with
-    | some j => findAux t.children[j]! path (i - 1)
-    | none   => none
+  match t with
+  | .node _ v? cs hs =>
+    if i == 0 then
+      v?
+    else
+      match findHashIdx? hs cs key path[i - 1]! with
+      | some j => findAux cs[j]! path (i - 1)
+      | none   => none
 
 public def find? (t : ConstTrie α) (n : Name) : Option α :=
   let path := prefixesOf n
@@ -143,7 +172,8 @@ private def Builder.addName (b : Builder α) (n : Name) : Builder α := Id.run d
 
 private partial def Builder.toTrie (b : Builder α) (key : Name) : ConstTrie α :=
   let children := b.children[key]?.getD #[] |>.map (b.toTrie ·)
-  .node key b.values[key]? <| children.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash
+  let children := children.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash
+  .node key b.values[key]? children (childHashesOf children ConstTrie.key)
 
 /-- Creates a trie mapping `names[i]` to `vals[i]`. -/
 public def ofArrays (names : Array Name) (vals : Array α) : ConstTrie α := Id.run do
@@ -176,99 +206,63 @@ public inductive ImportedConsts (α : Type) where
   together with the index of the first module declaring it.
   -/
   | merged (key : Name) (entry? : Option (α × Nat)) (children : Array (ImportedConsts α))
-  /--
-  A `merged` node with many children, augmented by a map from child key hash to the first child
-  index with that hash; see `indexWide`. Only ever wraps a `merged` node.
-  -/
-  | indexed (index : Std.HashMap UInt64 Nat) (node : ImportedConsts α)
+      (childHashes : ByteArray)
 
-public instance : Inhabited (ImportedConsts α) := ⟨.merged .anonymous none #[]⟩
+public instance : Inhabited (ImportedConsts α) := ⟨.merged .anonymous none #[] .empty⟩
 
 namespace ImportedConsts
 
-public def empty : ImportedConsts α := .merged .anonymous none #[]
+public def empty : ImportedConsts α := .merged .anonymous none #[] .empty
 
 def key : ImportedConsts α → Name
-  | .mod _ t      => t.key
-  | .merged k ..  => k
-  | .indexed _ t  => t.key
+  | .mod _ t     => t.key
+  | .merged k .. => k
+
+/-- Creates a `merged` node, computing the child hash array; `children` must be sorted by key hash. -/
+public def mkMerged (key : Name) (entry? : Option (α × Nat))
+    (children : Array (ImportedConsts α)) : ImportedConsts α :=
+  .merged key entry? children (childHashesOf children ImportedConsts.key)
 
 /-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
 private partial def findValAux : ImportedConsts α → Array Name → Nat → Option α
   | .mod _ tr, path, i => tr.findAux path i
-  | .merged _ e? cs, path, i =>
+  | .merged _ e? cs hs, path, i =>
     if i == 0 then
       match e? with
       | some (v, _) => some v
       | none        => none
     else
-      match findSortedIdx? cs key path[i - 1]! with
+      match findHashIdx? hs cs key path[i - 1]! with
       | some j => findValAux cs[j]! path (i - 1)
       | none   => none
-  | .indexed index t@(.merged _ _ cs), path, i =>
-    if i == 0 then
-      findValAux t path i
-    else
-      let k := path[i - 1]!
-      match index[k.hash]? with
-      | some j =>
-        match scanEqualRun cs key k k.hash j with
-        | some j => findValAux cs[j]! path (i - 1)
-        | none   => none
-      | none => none
-  | .indexed _ t, path, i => findValAux t path i
 
 private partial def findModIdxAux : ImportedConsts α → Array Name → Nat → Option Nat
   | .mod modIdx tr, path, i =>
     match tr.findAux path i with
     | some _ => some modIdx
     | none   => none
-  | .merged _ e? cs, path, i =>
+  | .merged _ e? cs hs, path, i =>
     if i == 0 then
       match e? with
       | some (_, modIdx) => some modIdx
       | none             => none
     else
-      match findSortedIdx? cs key path[i - 1]! with
+      match findHashIdx? hs cs key path[i - 1]! with
       | some j => findModIdxAux cs[j]! path (i - 1)
       | none   => none
-  | .indexed index t@(.merged _ _ cs), path, i =>
-    if i == 0 then
-      findModIdxAux t path i
-    else
-      let k := path[i - 1]!
-      match index[k.hash]? with
-      | some j =>
-        match scanEqualRun cs key k k.hash j with
-        | some j => findModIdxAux cs[j]! path (i - 1)
-        | none   => none
-      | none => none
-  | .indexed _ t, path, i => findModIdxAux t path i
 
 private partial def findEntryAux : ImportedConsts α → Array Name → Nat → Option (α × Nat)
   | .mod modIdx tr, path, i =>
     match tr.findAux path i with
     | some v => some (v, modIdx)
     | none   => none
-  | .merged _ e? cs, path, i =>
+  | .merged _ e? cs hs, path, i =>
     if i == 0 then
       e?
     else
-      match findSortedIdx? cs key path[i - 1]! with
+      match findHashIdx? hs cs key path[i - 1]! with
       | some j => findEntryAux cs[j]! path (i - 1)
       | none   => none
-  | .indexed index t@(.merged _ _ cs), path, i =>
-    if i == 0 then
-      findEntryAux t path i
-    else
-      let k := path[i - 1]!
-      match index[k.hash]? with
-      | some j =>
-        match scanEqualRun cs key k k.hash j with
-        | some j => findEntryAux cs[j]! path (i - 1)
-        | none   => none
-      | none => none
-  | .indexed _ t, path, i => findEntryAux t path i
 
 /-- Finds the value for `n` together with the index of the first module declaring it. -/
 public def findEntry? (t : ImportedConsts α) (n : Name) : Option (α × Nat) :=
@@ -318,7 +312,7 @@ private partial def mergeCands (key : Name) (cands : Array (Nat × ConstTrie α)
       idx := idx + 1
     for g in groups do
       children := children.push (← mergeCands g[0]!.2.key g)
-  return .merged key entries[0]? children
+  return .merged key entries[0]? children (childHashesOf children ImportedConsts.key)
 
 /--
 Merges per-module trees, given in module order, into a single view. Only name prefixes occurring in
@@ -343,50 +337,23 @@ public partial def modifyAt (t : ImportedConsts α) (n : Name)
 where
   @[inline] modifyChild (n : Name) (f : ImportedConsts α → ImportedConsts α) :
       ImportedConsts α → ImportedConsts α
-    | t@(.mod ..)      => t
-    | .indexed index t => .indexed index (modifyChild n f t)
-    | .merged k e? cs  =>
-      match findSortedIdx? cs key n with
-      | some i => .merged k e? (cs.modify i f)
-      | none   => .merged k e? cs
+    | t@(.mod ..)       => t
+    | .merged k e? cs hs =>
+      match findHashIdx? hs cs key n with
+      | some i => .merged k e? (cs.modify i f) hs
+      | none   => .merged k e? cs hs
 
 /-- Overwrites the entry for `n`, which must be a `Duplicate`-reported name. -/
 public def setEntry (t : ImportedConsts α) (n : Name) (e : α × Nat) : ImportedConsts α :=
   t.modifyAt n fun
-    | .merged k _ cs => .merged k (some e) cs
-    | t              => t
-
-/--
-Wraps merged nodes that have at least `threshold` children in an `indexed` node mapping each child
-key hash to the first child index with that hash, turning the per-level binary search into a single
-probe on the widest nodes. Apply only after all `setEntry` fixups; `setEntry` does not descend into
-`indexed` nodes.
--/
-public partial def indexWide (t : ImportedConsts α) (threshold : Nat := 16) : ImportedConsts α :=
-  match t with
-  | .mod ..     => t
-  | .indexed .. => t
-  | .merged k e? cs =>
-    let cs := cs.map (indexWide · threshold)
-    let node : ImportedConsts α := .merged k e? cs
-    if cs.size < threshold then
-      node
-    else
-      .indexed (buildIndex cs 0 (.emptyWithCapacity cs.size)) node
-where
-  buildIndex (cs : Array (ImportedConsts α)) (j : Nat) (index : Std.HashMap UInt64 Nat) :
-      Std.HashMap UInt64 Nat :=
-    if h : j < cs.size then
-      buildIndex cs (j + 1) (index.insertIfNew cs[j].key.hash j)
-    else
-      index
+    | .merged k _ cs hs => .merged k (some e) cs hs
+    | t                 => t
 
 public partial def foldlM [Monad m] (t : ImportedConsts α) (f : σ → Name → α → m σ) (init : σ) :
     m σ := do
   match t with
   | .mod _ tr => tr.foldlM f init
-  | .indexed _ t => t.foldlM f init
-  | .merged k e? cs =>
+  | .merged k e? cs _ =>
     let mut s := init
     if let some (v, _) := e? then
       s ← f s k v

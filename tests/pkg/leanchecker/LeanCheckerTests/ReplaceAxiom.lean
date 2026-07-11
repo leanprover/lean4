@@ -11,25 +11,21 @@ partial def overrideImported (t : ImportedConsts ConstantInfo) (n : Name) (c : C
   modAt t n setter
 where
   setter : ImportedConsts ConstantInfo → ImportedConsts ConstantInfo
-    | .indexed _ t => setter t
-    | .merged k _ cs => .merged k (some (c, 0)) cs
-    | .mod i (.node k _ cs) => .merged k (some (c, 0)) (cs.map (.mod i))
+    | .merged k _ cs hs => .merged k (some (c, 0)) cs hs
+    | .mod i (.node k _ cs hs) => .merged k (some (c, 0)) (cs.map (.mod i)) hs
   modAt (t : ImportedConsts ConstantInfo) (n : Name)
       (f : ImportedConsts ConstantInfo → ImportedConsts ConstantInfo) :
       ImportedConsts ConstantInfo :=
     match n with
     | .anonymous => f t
     | n => modAt t n.getPrefix (step n f)
-  -- drops `indexed` wrappers along the way, which only affects lookup performance
   step (n : Name) (f : ImportedConsts ConstantInfo → ImportedConsts ConstantInfo) :
       ImportedConsts ConstantInfo → ImportedConsts ConstantInfo
-    | .indexed _ t => step n f t
-    | .merged k e cs => .merged k e <| cs.map fun c =>
+    | .merged k e cs hs => (.merged k e · hs) <| cs.map fun c =>
         if keyOf c == n then f c else c
-    | .mod i (.node k v cs) => .merged k (v.map ((·, i))) <| cs.map fun c =>
+    | .mod i (.node k v cs hs) => (.merged k (v.map ((·, i))) · hs) <| cs.map fun c =>
         if (match c with | .node ck .. => ck) == n then f (.mod i c) else .mod i c
   keyOf : ImportedConsts ConstantInfo → Name
-    | .indexed _ t => keyOf t
     | .mod _ (.node k ..) => k
     | .merged k .. => k
 

@@ -7,7 +7,7 @@ inductive Nested where
 
 run_meta show MetaM Unit from do
   let env ← getEnv
-  let consts := env.constants.map₂.foldl (init := ∅) fun consts n info =>
+  let consts := env.constants.locals.foldl (init := ∅) fun consts n info =>
     consts.insert n info
   let some importEnv := env.importEnv?
     | unreachable!

@@ -35,7 +35,8 @@ unsafe def replayFromImports (module : Name) : IO Unit := do
 
 unsafe def replayFromFresh (module : Name) : IO Unit := do
   Lean.withImportModules #[{module}] {} fun env => do
-    discard <| (← mkEmptyEnvironment).replay env.constants.map₁
+    let imported := env.constants.imported.foldl (fun m n c => m.insert n c) ({} : Std.HashMap Name ConstantInfo)
+    discard <| (← mkEmptyEnvironment).replay imported
 
 /-- Read the name of the main module from the `lake-manifest`. -/
 -- This has been copied from `ImportGraph.getCurrentModule` in the

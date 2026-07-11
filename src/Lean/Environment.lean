@@ -21,6 +21,7 @@ public import Lean.Util.FoldConsts
 public import Lean.PrivateName
 public import Lean.LoadDynlib
 public import Lean.CompactedRegion
+public import Lean.ConstTrie
 public import Init.Dynamic
 import Init.Data.Slice
 import Init.Data.String.TakeDrop
@@ -97,8 +98,6 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
   getElem? a i := a[i.toNat]?
   getElem! a i := a[i.toNat]!
 
-abbrev ConstMap := SMap Name ConstantInfo
-
 /-- Opaque persistent environment extension entry. -/
 opaque EnvExtensionEntrySpec : NonemptyType.{0}
 @[expose] def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
@@ -119,12 +118,20 @@ structure ModuleData where
   constNames      : Array Name
   constants       : Array ConstantInfo
   /--
-  Extra entries for the `const2ModIdx` map in the `Environment` object.
+  Extra entries for the `importedExtraConsts` view in the `Environment` object.
   The code generator creates auxiliary declarations that are not in the
   mapping `constants`, but we want to know in which module they were generated.
   -/
   extraConstNames : Array Name
   entries         : Array (Name × Array EnvExtensionEntry)
+  /--
+  Prefix tree over `constNames`/`constants`, set by `saveModuleData(Parts)` when the module is
+  written. It resides in the same compacted region as the rest of the module data, so importing it
+  is free; see `ConstTrie`.
+  -/
+  constTrie       : ConstTrie ConstantInfo := default
+  /-- Prefix tree over `extraConstNames`, set by `saveModuleData(Parts)`. -/
+  extraConstTrie  : ConstTrie Unit := default
   deriving Inhabited
 
 /-- Import including information resulting from processing of the entire import DAG. -/
@@ -233,16 +240,19 @@ structure Environment where
   -/
   diagnostics : Diagnostics := {}
   /--
-  Mapping from constant name to module (index) where constant has been declared.
+  Merged view of all imported constants, irrespective of visibility, used for mapping constants to
+  the module (index) where they have been declared; see `getModuleIdxFor?`.
   Recall that a Lean file has a header where previously compiled modules can be imported.
   Each imported module has a unique `ModuleIdx`.
   Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
-
-  Remark: this mapping also contains auxiliary constants, created by the code generator, that are **not** in
-  the field `constants`. These auxiliary constants are invisible to the Lean kernel and elaborator.
-  Only the code generator uses them.
   -/
-  const2ModIdx            : Std.HashMap Name ModuleIdx
+  allImportedConsts       : ImportedConsts ConstantInfo := .empty
+  /--
+  Merged view of the extra constant names of all imported modules: auxiliary constants, created by
+  the code generator, that are **not** in the field `constants`. These auxiliary constants are
+  invisible to the Lean kernel and elaborator. Only the code generator uses them.
+  -/
+  importedExtraConsts     : ImportedConsts Unit := .empty
   /--
   Environment extensions. It also includes user-defined extensions.
   -/
@@ -281,8 +291,18 @@ namespace Environment
 
 @[export lean_environment_find]
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
-  /- It is safe to use `find'` because we never overwrite imported declarations. -/
-  env.constants.find?' n
+  /- Check the (small) local map first: local lookups stay cheap and imported lookups only pay a
+     single extra probe, while a local name missing in the imported view would walk a trie path. -/
+  env.constants.find? n
+
+/--
+Returns the index of the module in which `declName` was declared, taking auxiliary code-generator
+constants into account; `none` if `declName` was declared in the current module.
+-/
+def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
+  match env.allImportedConsts.findModIdx? declName with
+  | some modIdx => some modIdx
+  | none        => env.importedExtraConsts.findModIdx? declName
 
 @[export lean_environment_mark_quot_init]
 private def markQuotInit (env : Environment) : Environment :=
@@ -734,10 +754,6 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize
 def constants (env : Environment) : ConstMap :=
   env.toKernelEnv.constants
 
-@[inherit_doc Kernel.Environment.const2ModIdx]
-def const2ModIdx (env : Environment) : Std.HashMap Name ModuleIdx :=
-  env.toKernelEnv.const2ModIdx
-
 -- only needed for the lakefile.lean cache
 @[export lake_environment_add]
 private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
@@ -814,14 +830,14 @@ Use `findTask` instead if any blocking should be avoided.
 -/
 def findAsync? (env : Environment) (n : Name) (skipRealize := false) : Option AsyncConstantInfo := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
-  if let some c := env.base.get env |>.constants.map₁[n]? then
+  if let some c := env.base.get env |>.constants.imported.find? n then
     return .ofConstantInfo c
   findAsyncCore? (skipRealize := skipRealize) env n
 
 /-- Like `findAsync?` but returns a task instead of resorting to blocking. -/
 def findTask (env : Environment) (n : Name) (skipRealize := false) : Task (Option AsyncConstantInfo) := Id.run do
   -- Avoid going through `AsyncConstantInfo` for `base` access
-  if let some c := env.base.get env |>.constants.map₁[n]? then
+  if let some c := env.base.get env |>.constants.imported.find? n then
     return .pure <| some <| .ofConstantInfo c
   findTaskCore (skipRealize := skipRealize) env n
 
@@ -831,13 +847,13 @@ through the result.
 -/
 def findConstVal? (env : Environment) (n : Name) (skipRealize := false) : Option ConstantVal := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
-  if let some c := env.base.get env |>.constants.map₁[n]? then
+  if let some c := env.base.get env |>.constants.imported.find? n then
     return c.toConstantVal
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantVal)
 
 /-- Like `findAsync?`, but blocks until the constant's info is fully available.  -/
 def find? (env : Environment) (n : Name) (skipRealize := false) : Option ConstantInfo := do
-  if let some c := env.base.get env |>.constants.map₁[n]? then
+  if let some c := env.base.get env |>.constants.imported.find? n then
     return c
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantInfo)
 
@@ -879,18 +895,18 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     realizeMapRef := (← IO.mkRef {}) } }
 
 def areRealizationsEnabledForConst (env : Environment) (c : Name) : Bool :=
-  (env.base.get env |>.const2ModIdx.contains c) || env.localRealizationCtxMap.contains c
+  (env.base.get env |>.getModuleIdxFor? c |>.isSome) || env.localRealizationCtxMap.contains c
 
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   return s!"\
     asyncCtx.declPrefix: {repr <| env.asyncCtx?.map (·.declPrefix)}\
   \nasyncConsts: {repr <| env.asyncConsts.revList.reverse.map (·.constInfo.name)}
-  \nbase.private.constants.map₂: {repr <| env.base.private.constants.map₂.toList.map (·.1)}"
+  \nbase.private.constants.locals: {repr <| env.base.private.constants.locals.toList.map (·.1)}"
 
 /-- Returns debug output about the synchronous state of the environment. -/
 def dbgFormatCheckedSyncState (env : Environment) : BaseIO String :=
-  return s!"checked.get.constants.map₂: {repr <| env.checked.get.constants.map₂.toList.map (·.1)}"
+  return s!"checked.get.constants.locals: {repr <| env.checked.get.constants.locals.toList.map (·.1)}"
 
 /-- Result of `Lean.Environment.promiseChecked`. -/
 structure PromiseCheckedResult where
@@ -1158,7 +1174,7 @@ declarations in elaboration order, each followed by its asynchronous sub-declara
 The recursive part can optionally be skipped for theorems for when their sub-decls are unimportant
 and visiting them would only add latency by having to wait for proof elaboration to finish.
 
-Unlike iterating `env.constants.map₂`, this does not block on `env.checked`, i.e. kernel checking.
+Unlike iterating `env.constants.locals`, this does not block on `env.checked`, i.e. kernel checking.
 -/
 partial def getLocalConstantInfos (env : Environment) (skipTheoremSubDecls := false) :
     BaseIO (Array AsyncConstantInfo) := do
@@ -1194,7 +1210,7 @@ def mainModule (env : Environment) : Name :=
 
 def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   -- async constants are always from the current module
-  env.base.get env |>.const2ModIdx[declName]?
+  env.base.get env |>.getModuleIdxFor? declName
 
 def isImportedConst (env : Environment) (declName : Name) : Bool :=
   env.getModuleIdxFor? declName |>.isSome
@@ -1533,9 +1549,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   let exts ← mkInitialExtensionStates
   return {
     base := .const {
-      const2ModIdx    := {}
-      -- Make sure we return a sharing-friendly map set to stage 2, like in `finalizeImport`.
-      constants       := SMap.empty.switch
+      constants       := {}
       header          := { trustLevel }
       extensions      := exts
       irBaseExts      := exts
@@ -1764,12 +1778,25 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
 opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
 /--
+Fills the `ModuleData` prefix tree fields from the corresponding arrays. Done centrally just before
+saving so that no `ModuleData` producer can leave them inconsistent.
+-/
+private def ModuleData.setupTries (data : ModuleData) : ModuleData :=
+  { data with
+    constTrie      := .ofArrays data.constNames data.constants
+    extraConstTrie := .ofNames data.extraConstNames }
+
+/--
 Stores each given module data in the respective file name. Objects shared with prior parts are not
 duplicated. Thus the data cannot be loaded with individual `readModuleData` calls but must loaded by
 passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to determine an
 arbitrary but deterministic base address for `mmap`.
 -/
 def saveModuleDataParts (mod : Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit := do
+  /- The tries must be added to all parts before the first save: the chained compactor tracks
+     already-compacted objects by address, so objects reachable from earlier parts must stay alive
+     until the last save lest reused addresses alias stale compactor entries. -/
+  let parts := parts.map fun (fname, data) => (fname, data.setupTries)
   let mut cs : Option Compactor := none
   for h : i in [:parts.size] do
     let (fname, data) := parts[i]
@@ -1790,7 +1817,7 @@ def readModuleDataParts (fnames : Array System.FilePath) :
   return result
 
 def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit := do
-  let _ ← unsafe CompactedRegion.save fname mod data #[] none
+  let _ ← unsafe CompactedRegion.save fname mod data.setupTries #[] none
 
 def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) :=
   unsafe CompactedRegion.read fname #[]
@@ -2065,9 +2092,9 @@ def ImportState.markAllExported (self : ImportState) : ImportState := Id.run do
       self := { self with moduleNameMap := self.moduleNameMap.insert k { v with isExported := true } }
   return self
 
-def throwAlreadyImported (s : ImportState) (const2ModIdx : Std.HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
+def throwAlreadyImported (s : ImportState) (prevModIdx modIdx : Nat) (cname : Name) : IO α := do
   let modName := s.moduleNames[modIdx]!
-  let constModName := s.moduleNames[const2ModIdx[cname]!.toNat]!
+  let constModName := s.moduleNames[prevModIdx]!
   throw <| IO.userError s!"import {modName} failed, environment already contains '{cname}' from {constModName}"
 
 abbrev ImportStateM := StateRefT ImportState IO
@@ -2265,7 +2292,7 @@ and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems
 during type-checking, but we are assuming this is not an issue in practice,
 and we are planning to address this issue in the future.
 -/
-private def subsumesInfo (constMap : Std.HashMap Name ConstantInfo) (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
+private def subsumesInfo (find? : Name → Option ConstantInfo) (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
   cinfo₁.name == cinfo₂.name &&
     cinfo₁.type == cinfo₂.type &&
     cinfo₁.levelParams == cinfo₂.levelParams &&
@@ -2292,12 +2319,36 @@ where
       let .forallE (body := body) .. := ty | return false
       ty := body
     let .const n .. := ty.getAppFn | return false
-    let some decl := constMap[n]? | return false
+    let some decl := find? n | return false
     let mut p := decl.type
     for _ in 0...ty.getAppNumArgs do
       let .forallE (body := body) .. := p | return false
       p := body
     p.isProp
+
+/--
+Resolves the duplicate names reported by `ImportedConsts.mergeModuleTrees` like the previous eager
+hash map construction did: a later declaration replaces the stored first one if it subsumes it, and
+conflicting declarations are an error (private view only; the private pass already checked every
+name occurring in the public view).
+-/
+private def resolveDuplicates (s : ImportState) (imported : ImportedConsts ConstantInfo)
+    (dups : Array (ImportedConsts.Duplicate ConstantInfo)) (throwOnConflict : Bool) :
+    IO (ImportedConsts ConstantInfo) := do
+  let mut imported := imported
+  for dup in dups do
+    let (cinfo₀, modIdx₀) := dup.entries[0]!
+    let mut winner := cinfo₀
+    let mut changed := false
+    for (cinfo, modIdx) in dup.entries[1:] do
+      if subsumesInfo imported.find? cinfo winner then
+        winner := cinfo
+        changed := true
+      else if throwOnConflict && !subsumesInfo imported.find? winner cinfo then
+        throwAlreadyImported s modIdx₀ modIdx dup.name
+    if changed then
+      imported := imported.setEntry dup.name (winner, modIdx₀)
+  return imported
 
 /--
 Constructs environment from `importModulesCore` results.
@@ -2318,50 +2369,29 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     let some data := mod.irData? loadIRSig |
       throw <| IO.userError s!"missing IR data file for module {mod.module}"
     return data
-  let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data =>
-    numPrivateConsts + data.constants.size
-  let numExtraConsts := irData.foldl (init := 0) fun numExtraConsts data =>
-    numExtraConsts + data.extraConstNames.size
-  let numPublicConsts := modules.foldl (init := 0) fun numPublicConsts mod => Id.run do
-    if !mod.isExported then numPublicConsts else
-      let some data := mod.publicModule? | numPublicConsts
-      numPublicConsts + data.constants.size
-  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numExtraConsts)
-  let mut privateConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
-  let mut publicConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPublicConsts)
-  for h : modIdx in *...moduleData.size do
-    let data := moduleData[modIdx]
-    for cname in data.constNames, cinfo in data.constants do
-      match privateConstantMap.getThenInsertIfNew? cname cinfo with
-      | (cinfoPrev?, constantMap') =>
-        privateConstantMap := constantMap'
-        if let some cinfoPrev := cinfoPrev? then
-          -- Recall that the map has not been modified when `cinfoPrev? = some _`.
-          if subsumesInfo privateConstantMap cinfo cinfoPrev then
-            privateConstantMap := privateConstantMap.insert cname cinfo
-          else if !subsumesInfo privateConstantMap cinfoPrev cinfo then
-            throwAlreadyImported s const2ModIdx modIdx cname
-      const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-    if let some data := irData[modIdx]? then
-      for cname in data.extraConstNames do
-        const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-
+  -- Merge the region-resident per-module prefix trees instead of building hash maps over all
+  -- imported constants; only name prefixes shared between modules are allocated here.
+  let (privImported, privDups) :=
+    ImportedConsts.mergeModuleTrees <| moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie)
+  let privImported := (← resolveDuplicates s privImported privDups (throwOnConflict := true)).indexWide
+  let (importedExtraConsts, _) :=
+    ImportedConsts.mergeModuleTrees <| irData.mapIdx fun modIdx data => (modIdx, data.extraConstTrie)
+  let importedExtraConsts := importedExtraConsts.indexWide
+  let mut publicTrees := #[]
   if isModule then
-    for mod in modules.filter (·.isExported) do
-      let some data := mod.publicModule? | continue
-      for cname in data.constNames, cinfo in data.constants do
-        match publicConstantMap.getThenInsertIfNew? cname cinfo with
-        | (cinfoPrev?, constantMap') =>
-          publicConstantMap := constantMap'
-          if let some cinfoPrev := cinfoPrev? then
-            if subsumesInfo publicConstantMap cinfo cinfoPrev then
-              publicConstantMap := publicConstantMap.insert cname cinfo
-            -- no need to check for duplicates again, `privateConstMap` should be a superset
+    for h : modIdx in *...modules.size do
+      let mod := modules[modIdx]
+      if mod.isExported then
+        if let some data := mod.publicModule? then
+          publicTrees := publicTrees.push (modIdx, data.constTrie)
+  let (publicImported, publicDups) := ImportedConsts.mergeModuleTrees publicTrees
+  let publicImported := (← resolveDuplicates s publicImported publicDups (throwOnConflict := false)).indexWide
 
   let exts ← mkInitialExtensionStates
-  let privateConstants : ConstMap := SMap.fromHashMap privateConstantMap false
   let privateBase : Kernel.Environment := {
-    const2ModIdx, constants := privateConstants
+    constants := { imported := privImported }
+    allImportedConsts := privImported
+    importedExtraConsts
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
     extensions      := exts
     irBaseExts      := exts
@@ -2371,8 +2401,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       regions      := modules.flatMap (·.parts.map (·.2)) ++ modules.flatMap (·.irParts.map (·.2))
     }
   }
-  let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
-  let publicBase := { privateBase with constants := publicConstants, header.regions := #[] }
+  let publicBase := { privateBase with constants := { imported := publicImported }, header.regions := #[] }
   let extensions ← setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
@@ -2500,8 +2529,7 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
   IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
   IO.println ("number of imported bytes:              " ++ toString (env.header.regions.map (·.size) |>.sum));
-  IO.println ("number of imported consts:             " ++ toString env.constants.map₁.size);
-  IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
+  IO.println ("number of imported consts:             " ++ toString env.constants.imported.size);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.base.private.extensions.size);
   pExtDescrs.forM fun extDescr => do
@@ -2646,7 +2674,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
   -- end
   let heartbeats ← IO.getNumHeartbeats
   -- find `RealizationContext` for `forConst` in `importRealizationCtx?` or `localRealizationCtxMap`
-  let ctx ← if env.base.get env |>.const2ModIdx.contains forConst then
+  let ctx ← if env.base.get env |>.getModuleIdxFor? forConst |>.isSome then
     env.importRealizationCtx?.getDM <|
       throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
   else

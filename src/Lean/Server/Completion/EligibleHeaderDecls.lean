@@ -69,8 +69,7 @@ def getEligibleHeaderDecls (env : Environment) : MetaM EligibleHeaderDecls := do
       return eligibleHeaderDecls
     | none =>
       let mut eligibleHeaderDecls : EligibleHeaderDecls := {}
-      -- map₁ are the header decls
-      for (declName, c) in env.constants.map₁ do
+      for (declName, c) in env.constants.imported do
         if allowCompletion env declName then
           let kind ← getCompletionKindForDecl c
           let tags ← getCompletionTagsForDecl declName
@@ -87,8 +86,8 @@ def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT MetaM m]
     (f : Name → EligibleDecl → m PUnit) : m PUnit := do
   let env ← getEnv
   (← getEligibleHeaderDecls env).forM f
-  -- map₂ are exactly the local decls
-  env.constants.map₂.forM fun name c => do
+  -- `locals` are exactly the local decls
+  env.constants.locals.forM fun name c => do
     if allowCompletion env name then
       f name {
         info := c
@@ -101,6 +100,6 @@ def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT MetaM m]
 def allowCompletion (eligibleHeaderDecls : EligibleHeaderDecls) (env : Environment)
     (declName : Name) : Bool :=
   eligibleHeaderDecls.contains declName ||
-    env.constants.map₂.contains declName && Lean.Meta.allowCompletion env declName
+    env.constants.locals.contains declName && Lean.Meta.allowCompletion env declName
 
 end Lean.Server.Completion

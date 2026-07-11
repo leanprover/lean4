@@ -28,12 +28,13 @@ directly with the olean regions.
 /--
 A prefix tree over the constant names of a single module, keyed on name components. `key` is the
 full name prefix represented by the node. `children` is sorted by the (cached) hash of the child
-keys for binary search; as all children extend `key` by one component, comparing that final
-component suffices to disambiguate equal hashes.
+keys and `childIndex` accelerates hash lookups into it (see the child-index layout note); as all
+children extend `key` by one component, comparing that final component suffices to disambiguate
+equal hashes.
 -/
 public inductive ConstTrie (α : Type) where
   | node (key : Name) (val? : Option α) (children : Array (ConstTrie α))
-      (childHashes : ByteArray)
+      (childIndex : ByteArray)
 
 public instance : Inhabited (ConstTrie α) := ⟨.node .anonymous none #[] .empty⟩
 
@@ -47,66 +48,81 @@ to be equal.
   | .anonymous, .anonymous => true
   | _, _ => false
 
-/-- Reads the `j`-th hash from a `childHashes` array. -/
-@[inline] private def getHash64 (bs : ByteArray) (j : Nat) : UInt64 :=
-  let o := j * 8
-  (bs.get! o).toUInt64 |||
-  ((bs.get! (o + 1)).toUInt64 <<< 8) |||
-  ((bs.get! (o + 2)).toUInt64 <<< 16) |||
-  ((bs.get! (o + 3)).toUInt64 <<< 24) |||
-  ((bs.get! (o + 4)).toUInt64 <<< 32) |||
-  ((bs.get! (o + 5)).toUInt64 <<< 40) |||
-  ((bs.get! (o + 6)).toUInt64 <<< 48) |||
-  ((bs.get! (o + 7)).toUInt64 <<< 56)
+/-!
+A trie node's `childIndex` field has the layout
+`[k : 1 byte][2^k + 1 offsets : u16 LE each][one fingerprint byte per child, in child order]`.
+The children are sorted by key hash; offset `s` is the first child index whose key hash's top `k`
+bits are at least `s`, so the query hash's top `k` bits select a window of on average at most one
+child (`2^k ≥ #children`). Window candidates are filtered by a fingerprint byte (a further hash
+byte) and confirmed by comparing the final name component, which is sound on its own: siblings
+always differ in their final component. A lookup thus costs O(1) contiguous byte reads per level,
+works inside memory-mapped compacted regions, and adds no per-entry heap objects.
+-/
 
-private def pushHash64 (bs : ByteArray) (h : UInt64) : ByteArray :=
-  let bs := bs.push h.toUInt8
-  let bs := bs.push (h >>> 8).toUInt8
-  let bs := bs.push (h >>> 16).toUInt8
-  let bs := bs.push (h >>> 24).toUInt8
-  let bs := bs.push (h >>> 32).toUInt8
-  let bs := bs.push (h >>> 40).toUInt8
-  let bs := bs.push (h >>> 48).toUInt8
-  bs.push (h >>> 56).toUInt8
+@[inline] private def getU16 (bs : ByteArray) (o : Nat) : Nat :=
+  ((bs.get! o).toUInt32 ||| ((bs.get! (o + 1)).toUInt32 <<< 8)).toNat
 
-/-- The key hashes of `cs`, in order, for a trie node's `childHashes` field. -/
-@[specialize] private def childHashesOf (cs : Array β) (keyOf : β → Name) : ByteArray :=
-  cs.foldl (fun bs c => pushHash64 bs (keyOf c).hash) (ByteArray.emptyWithCapacity (cs.size * 8))
+@[inline] private def topBits (h : UInt64) (bits : UInt64) : Nat :=
+  ((h >>> 48) >>> (16 - bits)).toNat
+
+/-- The fingerprint byte of a key hash: the byte below the (up to 16) slot bits. -/
+@[inline] private def fingerprint (h : UInt64) : UInt8 :=
+  (h >>> 40).toUInt8
+
+private def pushU16 (bs : ByteArray) (v : Nat) : ByteArray :=
+  let v := v.toUInt32
+  (bs.push v.toUInt8).push (v >>> 8).toUInt8
+
+/-- Builds the child index for `cs` (sorted by key hash); see the layout note above. -/
+@[specialize] private def buildChildIndex [Inhabited β] (cs : Array β) (keyOf : β → Name) : ByteArray := Id.run do
+  let n := cs.size
+  if n == 0 then
+    return .empty
+  -- `u16` offsets bound the node width; trie nodes are nowhere near this wide
+  assert! n < 0xFFFF
+  let mut bits : UInt64 := 1
+  while ((1 : UInt64) <<< bits).toNat < n && bits < 16 do
+    bits := bits + 1
+  let slots := ((1 : UInt64) <<< bits).toNat + 1
+  let mut bs := ByteArray.emptyWithCapacity (1 + 2 * slots + n)
+  bs := bs.push bits.toUInt8
+  let mut j := 0
+  let mut s := 0
+  while s < slots do
+    while j < n && topBits (keyOf cs[j]!).hash bits < s do
+      j := j + 1
+    bs := pushU16 bs j
+    s := s + 1
+  for c in cs do
+    bs := bs.push (fingerprint (keyOf c).hash)
+  return bs
 
 /--
-Scans the run of elements with key hash `h` starting at `i` for the key matching `k`'s final
-component.
+Finds the index of the element of `cs` with key `k`, where `index` is the child index built by
+`buildChildIndex` and all keys are `k`'s prefix extended by one component. Elements are only
+dereferenced to confirm the final component.
 -/
-@[specialize] private partial def scanEqualRun [Inhabited β] (hashes : ByteArray) (cs : Array β)
-    (keyOf : β → Name) (k : Name) (h : UInt64) (i : Nat) : Option Nat :=
-  if i < cs.size then
-    if getHash64 hashes i != h then
-      none
-    else if lastPartEq (keyOf cs[i]!) k then
-      some i
-    else
-      scanEqualRun hashes cs keyOf k h (i + 1)
-  else
-    none
-
-/--
-Finds the index of the element of `cs` with key `k`, where `hashes` are the key hashes of `cs`
-(sorted) and all keys are `k`'s prefix extended by one component. The search runs over the
-contiguous hash array; elements are only dereferenced to confirm the final component.
--/
-@[specialize] private partial def findHashIdx? [Inhabited β] (hashes : ByteArray) (cs : Array β)
+@[specialize] private partial def findHashIdx? [Inhabited β] (index : ByteArray) (cs : Array β)
     (keyOf : β → Name) (k : Name) : Option Nat :=
-  lowerBound k.hash 0 cs.size
+  if index.size == 0 then
+    none
+  else
+    let h := k.hash
+    let bits := (index.get! 0).toUInt64
+    let slot := topBits h bits
+    let lo := getU16 index (1 + 2 * slot)
+    let hi := getU16 index (3 + 2 * slot)
+    let fpOff := (3 + 2 * ((1 : UInt64) <<< bits)).toNat
+    scanWindow (fingerprint h) fpOff lo hi
 where
-  @[specialize] lowerBound (h : UInt64) (lo hi : Nat) : Option Nat :=
-    if lo < hi then
-      let mid := (lo + hi) / 2
-      if getHash64 hashes mid < h then
-        lowerBound h (mid + 1) hi
+  @[specialize] scanWindow (fp : UInt8) (fpOff j hi : Nat) : Option Nat :=
+    if j < hi then
+      if index.get! (fpOff + j) == fp && lastPartEq (keyOf cs[j]!) k then
+        some j
       else
-        lowerBound h lo mid
+        scanWindow fp fpOff (j + 1) hi
     else
-      scanEqualRun hashes cs keyOf k h lo
+      none
 
 /-- The name and its prefixes, innermost first, excluding the anonymous root. -/
 private def prefixesOf (n : Name) (acc : Array Name := .mkEmpty 8) : Array Name :=
@@ -173,7 +189,7 @@ private def Builder.addName (b : Builder α) (n : Name) : Builder α := Id.run d
 private partial def Builder.toTrie (b : Builder α) (key : Name) : ConstTrie α :=
   let children := b.children[key]?.getD #[] |>.map (b.toTrie ·)
   let children := children.qsort fun c₁ c₂ => c₁.key.hash < c₂.key.hash
-  .node key b.values[key]? children (childHashesOf children ConstTrie.key)
+  .node key b.values[key]? children (buildChildIndex children ConstTrie.key)
 
 /-- Creates a trie mapping `names[i]` to `vals[i]`. -/
 public def ofArrays (names : Array Name) (vals : Array α) : ConstTrie α := Id.run do
@@ -206,7 +222,7 @@ public inductive ImportedConsts (α : Type) where
   together with the index of the first module declaring it.
   -/
   | merged (key : Name) (entry? : Option (α × Nat)) (children : Array (ImportedConsts α))
-      (childHashes : ByteArray)
+      (childIndex : ByteArray)
 
 public instance : Inhabited (ImportedConsts α) := ⟨.merged .anonymous none #[] .empty⟩
 
@@ -218,10 +234,10 @@ def key : ImportedConsts α → Name
   | .mod _ t     => t.key
   | .merged k .. => k
 
-/-- Creates a `merged` node, computing the child hash array; `children` must be sorted by key hash. -/
+/-- Creates a `merged` node, computing the child index; `children` must be sorted by key hash. -/
 public def mkMerged (key : Name) (entry? : Option (α × Nat))
     (children : Array (ImportedConsts α)) : ImportedConsts α :=
-  .merged key entry? children (childHashesOf children ImportedConsts.key)
+  .merged key entry? children (buildChildIndex children ImportedConsts.key)
 
 /-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
 private partial def findValAux : ImportedConsts α → Array Name → Nat → Option α
@@ -312,7 +328,7 @@ private partial def mergeCands (key : Name) (cands : Array (Nat × ConstTrie α)
       idx := idx + 1
     for g in groups do
       children := children.push (← mergeCands g[0]!.2.key g)
-  return .merged key entries[0]? children (childHashesOf children ImportedConsts.key)
+  return .merged key entries[0]? children (buildChildIndex children ImportedConsts.key)
 
 /--
 Merges per-module trees, given in module order, into a single view. Only name prefixes occurring in

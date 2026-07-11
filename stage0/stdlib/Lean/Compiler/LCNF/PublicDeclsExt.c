@@ -24,6 +24,7 @@ lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtension___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
+uint8_t lean_bool_not(uint8_t);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Compiler_LCNF_mkOrderedDeclSetExt_spec__0(lean_object*, lean_object*, lean_object*);
@@ -320,18 +321,12 @@ return v_res_82_;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isDeclPublic(lean_object* v_env_87_, lean_object* v_declName_88_){
 _start:
 {
-lean_object* v___y_90_; lean_object* v___x_98_; uint8_t v_isModule_99_; 
+lean_object* v___y_90_; lean_object* v___x_98_; uint8_t v_isModule_99_; uint8_t v___x_100_; 
 v___x_98_ = l_Lean_Environment_header(v_env_87_);
 v_isModule_99_ = lean_ctor_get_uint8(v___x_98_, sizeof(void*)*7 + 4);
 lean_dec_ref(v___x_98_);
-if (v_isModule_99_ == 0)
-{
-uint8_t v___x_100_; 
-lean_dec_ref(v_env_87_);
-v___x_100_ = 1;
-return v___x_100_;
-}
-else
+v___x_100_ = lean_bool_not(v_isModule_99_);
+if (v___x_100_ == 0)
 {
 if (lean_obj_tag(v_declName_88_) == 1)
 {
@@ -356,6 +351,11 @@ else
 v___y_90_ = v_declName_88_;
 goto v___jp_89_;
 }
+}
+else
+{
+lean_dec_ref(v_env_87_);
+return v___x_100_;
 }
 v___jp_89_:
 {

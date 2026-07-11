@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_synthInstance_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
@@ -1207,7 +1207,7 @@ _start:
 {
 lean_object* v___x_373_; 
 lean_inc_ref(v_type_360_);
-v___x_373_ = l_Lean_Meta_Sym_synthInstanceMeta_x3f(v_type_360_, v___y_368_, v___y_369_, v___y_370_, v___y_371_);
+v___x_373_ = l_Lean_Meta_Sym_synthInstance_x3f___redArg(v_type_360_, v___y_367_, v___y_368_, v___y_369_, v___y_370_, v___y_371_);
 if (lean_obj_tag(v___x_373_) == 0)
 {
 lean_object* v_a_374_; lean_object* v___x_376_; uint8_t v_isShared_377_; uint8_t v_isSharedCheck_386_; 

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
+uint8_t lean_bool_not(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_main(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_visit(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object*, lean_object*, lean_object*);
@@ -156,19 +157,20 @@ _start:
 {
 if (lean_obj_tag(v_s_34_) == 0)
 {
-uint8_t v___x_35_; 
+uint8_t v___x_35_; uint8_t v___x_36_; 
 v___x_35_ = l_Lean_Expr_hasExprMVar(v_e_33_);
-if (v___x_35_ == 0)
+v___x_36_ = lean_bool_not(v___x_35_);
+if (v___x_36_ == 0)
+{
+lean_object* v___x_37_; 
+v___x_37_ = l_Lean_FindMVar_main(v_p_32_, v_e_33_, v_s_34_);
+return v___x_37_;
+}
+else
 {
 lean_dec_ref(v_e_33_);
 lean_dec_ref(v_p_32_);
 return v_s_34_;
-}
-else
-{
-lean_object* v___x_36_; 
-v___x_36_ = l_Lean_FindMVar_main(v_p_32_, v_e_33_, v_s_34_);
-return v___x_36_;
 }
 }
 else
@@ -180,31 +182,31 @@ return v_s_34_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object* v_p_37_, lean_object* v_e_38_, lean_object* v_s_39_){
+LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object* v_p_38_, lean_object* v_e_39_, lean_object* v_s_40_){
 _start:
 {
-lean_object* v_res_40_; 
-v_res_40_ = l_Lean_FindMVar_visit(v_p_37_, v_e_38_, v_s_39_);
-lean_dec(v_s_39_);
-return v_res_40_;
+lean_object* v_res_41_; 
+v_res_41_ = l_Lean_FindMVar_visit(v_p_38_, v_e_39_, v_s_40_);
+lean_dec(v_s_40_);
+return v_res_41_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_FindMVar_main___boxed(lean_object* v_p_41_, lean_object* v_x_42_, lean_object* v_a_43_){
+LEAN_EXPORT lean_object* l_Lean_FindMVar_main___boxed(lean_object* v_p_42_, lean_object* v_x_43_, lean_object* v_a_44_){
 _start:
 {
-lean_object* v_res_44_; 
-v_res_44_ = l_Lean_FindMVar_main(v_p_41_, v_x_42_, v_a_43_);
-lean_dec(v_a_43_);
-return v_res_44_;
+lean_object* v_res_45_; 
+v_res_45_ = l_Lean_FindMVar_main(v_p_42_, v_x_43_, v_a_44_);
+lean_dec(v_a_44_);
+return v_res_45_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_findMVar_x3f(lean_object* v_e_45_, lean_object* v_p_46_){
+LEAN_EXPORT lean_object* l_Lean_Expr_findMVar_x3f(lean_object* v_e_46_, lean_object* v_p_47_){
 _start:
 {
-lean_object* v___x_47_; lean_object* v___x_48_; 
-v___x_47_ = lean_box(0);
-v___x_48_ = l_Lean_FindMVar_main(v_p_46_, v_e_45_, v___x_47_);
-return v___x_48_;
+lean_object* v___x_48_; lean_object* v___x_49_; 
+v___x_48_ = lean_box(0);
+v___x_49_ = l_Lean_FindMVar_main(v_p_47_, v_e_46_, v___x_48_);
+return v___x_49_;
 }
 }
 lean_object* runtime_initialize_Lean_Expr(uint8_t builtin);

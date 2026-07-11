@@ -3537,7 +3537,7 @@ _start:
 lean_object* v___x_873_; lean_object* v___x_874_; uint8_t v_debug_875_; lean_object* v_env_876_; lean_object* v___x_877_; lean_object* v___x_878_; uint8_t v___x_879_; lean_object* v___x_880_; lean_object* v___x_881_; 
 v___x_873_ = lean_st_ref_get(v_a_867_);
 v___x_874_ = lean_st_ref_get(v_a_871_);
-v_debug_875_ = lean_ctor_get_uint8(v___x_873_, sizeof(void*)*10);
+v_debug_875_ = lean_ctor_get_uint8(v___x_873_, sizeof(void*)*11);
 lean_dec(v___x_873_);
 v_env_876_ = lean_ctor_get(v___x_874_, 0);
 lean_inc_ref(v_env_876_);

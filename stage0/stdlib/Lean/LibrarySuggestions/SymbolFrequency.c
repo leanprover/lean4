@@ -27,6 +27,7 @@ lean_object* l_Lean_mkPtrSet___redArg(lean_object*);
 lean_object* l___private_Lean_LibrarySuggestions_Basic_0__Lean_Expr_FoldRelevantConstantsImpl_fold_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LibrarySuggestions_isDeniedPremise(lean_object*, lean_object*, uint8_t);
 uint8_t l_Lean_wasOriginallyTheorem(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -516,21 +517,11 @@ lean_inc_ref(v_env_68_);
 v___x_101_ = l_Lean_LibrarySuggestions_isDeniedPremise(v_env_68_, v_m_70_, v___x_100_);
 if (v___x_101_ == 0)
 {
-uint8_t v___x_102_; 
+uint8_t v___x_102_; uint8_t v___x_103_; 
 v___x_102_ = l_Lean_wasOriginallyTheorem(v_env_68_, v_m_70_);
-if (v___x_102_ == 0)
-{
-lean_object* v___x_103_; 
-lean_dec_ref(v___f_67_);
-v___x_103_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_103_, 0, v_acc_69_);
-return v___x_103_;
-}
-else
-{
-v___y_78_ = v___x_101_;
+v___x_103_ = lean_bool_not(v___x_102_);
+v___y_78_ = v___x_103_;
 goto v___jp_77_;
-}
 }
 else
 {

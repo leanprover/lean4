@@ -1876,6 +1876,9 @@ static inline uint8_t lean_int_dec_nonneg(b_lean_obj_arg a) {
 
 /* Bool */
 
+static inline uint8_t lean_bool_not(uint8_t a) { return a ^ 1; }
+static inline uint8_t lean_bool_xor(uint8_t a, uint8_t b) { return a ^ b; }
+static inline lean_obj_res lean_bool_to_nat(uint8_t a) { return lean_box(a); }
 static inline uint8_t lean_bool_to_uint8(uint8_t a) { return a; }
 static inline uint16_t lean_bool_to_uint16(uint8_t a) { return (uint16_t)a; }
 static inline uint32_t lean_bool_to_uint32(uint8_t a) { return (uint32_t)a; }

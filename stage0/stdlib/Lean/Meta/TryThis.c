@@ -24,6 +24,7 @@ lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_String_slice_x21(lean_object*, lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_ppCategory(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1192,22 +1193,13 @@ v___x_400_ = lean_nat_dec_eq(v_a_394_, v___x_399_);
 lean_dec(v___x_399_);
 if (v___x_400_ == 0)
 {
-lean_object* v___x_401_; uint32_t v___x_402_; uint32_t v___x_403_; uint8_t v___x_404_; 
+lean_object* v___x_401_; uint32_t v___x_402_; uint32_t v___x_403_; uint8_t v___x_404_; uint8_t v___x_405_; 
 v___x_401_ = lean_nat_add(v_startInclusive_397_, v_a_394_);
 v___x_402_ = lean_string_utf8_get_fast(v_str_396_, v___x_401_);
 v___x_403_ = 32;
 v___x_404_ = lean_uint32_dec_eq(v___x_402_, v___x_403_);
-if (v___x_404_ == 0)
-{
-lean_object* v___x_405_; 
-lean_dec(v___x_401_);
-v___x_405_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_405_, 0, v_a_394_);
-return v___x_405_;
-}
-else
-{
-if (v___x_400_ == 0)
+v___x_405_ = lean_bool_not(v___x_404_);
+if (v___x_405_ == 0)
 {
 lean_object* v___x_406_; lean_object* v___x_407_; lean_object* v___x_408_; 
 lean_dec(v_a_394_);
@@ -1226,7 +1218,6 @@ lean_dec(v___x_401_);
 v___x_410_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_410_, 0, v_a_394_);
 return v___x_410_;
-}
 }
 }
 else

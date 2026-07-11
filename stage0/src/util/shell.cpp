@@ -321,6 +321,10 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     }
     consume_io_result(lean_enable_initializer_execution());
 
+    // Default the configured thread stack size from the environment as in `lean_run_main`;
+    // `--tstack` below overrides it.
+    set_thread_stack_size_from_env();
+
     int rc;
     object_ref shell_opts;
     try {
@@ -348,12 +352,16 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
     scoped_task_manager scope_task_man(get_shell_num_threads(shell_opts));
 
-    try {
-        return run_shell_main(argc - optind, argv + optind, shell_opts);
-    } catch (lean::throwable & ex) {
-        std::cerr << ex.what() << "\n";
-    } catch (std::bad_alloc & ex) {
-        std::cerr << "out of memory" << std::endl;
-    }
-    return 1;
+    int shell_rc = 1;
+    // Do not rely on OS thread stack size, as for Lean executables
+    run_with_thread_stack([&]() {
+        try {
+            shell_rc = run_shell_main(argc - optind, argv + optind, shell_opts);
+        } catch (lean::throwable & ex) {
+            std::cerr << ex.what() << "\n";
+        } catch (std::bad_alloc & ex) {
+            std::cerr << "out of memory" << std::endl;
+        }
+    });
+    return shell_rc;
 }

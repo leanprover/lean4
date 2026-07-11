@@ -108,6 +108,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
+uint8_t lean_bool_not(uint8_t);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -6325,7 +6326,7 @@ goto v___jp_2999_;
 }
 else
 {
-lean_object* v___x_3009_; lean_object* v___x_3010_; lean_object* v___x_3011_; lean_object* v___x_3012_; uint8_t v___x_3013_; 
+lean_object* v___x_3009_; lean_object* v___x_3010_; lean_object* v___x_3011_; lean_object* v___x_3012_; uint8_t v___x_3013_; uint8_t v___x_3014_; 
 v___x_3009_ = l_Lean_Syntax_getArgs(v_a_2991_);
 v___x_3010_ = lean_array_get_size(v___x_3009_);
 lean_dec_ref(v___x_3009_);
@@ -6334,18 +6335,9 @@ v___x_3012_ = lean_nat_sub(v___x_3010_, v___x_3011_);
 v___x_3013_ = lean_nat_dec_eq(v___x_3006_, v___x_3012_);
 lean_dec(v___x_3012_);
 lean_dec(v___x_3006_);
-if (v___x_3013_ == 0)
-{
-v___y_3000_ = v___y_3008_;
-goto v___jp_2999_;
-}
-else
-{
-uint8_t v___x_3014_; 
-v___x_3014_ = 0;
+v___x_3014_ = lean_bool_not(v___x_3013_);
 v___y_3000_ = v___x_3014_;
 goto v___jp_2999_;
-}
 }
 }
 }

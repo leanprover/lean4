@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+uint8_t lean_bool_not(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg(lean_object*, lean_object*);
@@ -65,69 +66,71 @@ return v___f_21_;
 LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___redArg(lean_object* v_inst_22_, lean_object* v_inst_23_, uint32_t v_rc_24_){
 _start:
 {
-uint32_t v___x_25_; uint8_t v___x_26_; 
+uint32_t v___x_25_; uint8_t v___x_26_; uint8_t v___x_27_; 
 v___x_25_ = 0;
 v___x_26_ = lean_uint32_dec_eq(v_rc_24_, v___x_25_);
-if (v___x_26_ == 0)
+v___x_27_ = lean_bool_not(v___x_26_);
+if (v___x_27_ == 0)
 {
-lean_object* v___x_27_; lean_object* v___x_28_; 
-lean_dec(v_inst_22_);
-v___x_27_ = lean_box_uint32(v_rc_24_);
-v___x_28_ = lean_apply_2(v_inst_23_, lean_box(0), v___x_27_);
-return v___x_28_;
-}
-else
-{
-lean_object* v___x_29_; lean_object* v___x_30_; 
+lean_object* v___x_28_; lean_object* v___x_29_; 
 lean_dec(v_inst_23_);
-v___x_29_ = lean_box(0);
-v___x_30_ = lean_apply_2(v_inst_22_, lean_box(0), v___x_29_);
-return v___x_30_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___redArg___boxed(lean_object* v_inst_31_, lean_object* v_inst_32_, lean_object* v_rc_33_){
-_start:
-{
-uint32_t v_rc_boxed_34_; lean_object* v_res_35_; 
-v_rc_boxed_34_ = lean_unbox_uint32(v_rc_33_);
-lean_dec(v_rc_33_);
-v_res_35_ = l_Lake_exitIfErrorCode___redArg(v_inst_31_, v_inst_32_, v_rc_boxed_34_);
-return v_res_35_;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode(lean_object* v_m_36_, lean_object* v_inst_37_, lean_object* v_inst_38_, uint32_t v_rc_39_){
-_start:
-{
-uint32_t v___x_40_; uint8_t v___x_41_; 
-v___x_40_ = 0;
-v___x_41_ = lean_uint32_dec_eq(v_rc_39_, v___x_40_);
-if (v___x_41_ == 0)
-{
-lean_object* v___x_42_; lean_object* v___x_43_; 
-lean_dec(v_inst_37_);
-v___x_42_ = lean_box_uint32(v_rc_39_);
-v___x_43_ = lean_apply_2(v_inst_38_, lean_box(0), v___x_42_);
-return v___x_43_;
+v___x_28_ = lean_box(0);
+v___x_29_ = lean_apply_2(v_inst_22_, lean_box(0), v___x_28_);
+return v___x_29_;
 }
 else
+{
+lean_object* v___x_30_; lean_object* v___x_31_; 
+lean_dec(v_inst_22_);
+v___x_30_ = lean_box_uint32(v_rc_24_);
+v___x_31_ = lean_apply_2(v_inst_23_, lean_box(0), v___x_30_);
+return v___x_31_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___redArg___boxed(lean_object* v_inst_32_, lean_object* v_inst_33_, lean_object* v_rc_34_){
+_start:
+{
+uint32_t v_rc_boxed_35_; lean_object* v_res_36_; 
+v_rc_boxed_35_ = lean_unbox_uint32(v_rc_34_);
+lean_dec(v_rc_34_);
+v_res_36_ = l_Lake_exitIfErrorCode___redArg(v_inst_32_, v_inst_33_, v_rc_boxed_35_);
+return v_res_36_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode(lean_object* v_m_37_, lean_object* v_inst_38_, lean_object* v_inst_39_, uint32_t v_rc_40_){
+_start:
+{
+uint32_t v___x_41_; uint8_t v___x_42_; uint8_t v___x_43_; 
+v___x_41_ = 0;
+v___x_42_ = lean_uint32_dec_eq(v_rc_40_, v___x_41_);
+v___x_43_ = lean_bool_not(v___x_42_);
+if (v___x_43_ == 0)
 {
 lean_object* v___x_44_; lean_object* v___x_45_; 
-lean_dec(v_inst_38_);
+lean_dec(v_inst_39_);
 v___x_44_ = lean_box(0);
-v___x_45_ = lean_apply_2(v_inst_37_, lean_box(0), v___x_44_);
+v___x_45_ = lean_apply_2(v_inst_38_, lean_box(0), v___x_44_);
 return v___x_45_;
 }
+else
+{
+lean_object* v___x_46_; lean_object* v___x_47_; 
+lean_dec(v_inst_38_);
+v___x_46_ = lean_box_uint32(v_rc_40_);
+v___x_47_ = lean_apply_2(v_inst_39_, lean_box(0), v___x_46_);
+return v___x_47_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___boxed(lean_object* v_m_46_, lean_object* v_inst_47_, lean_object* v_inst_48_, lean_object* v_rc_49_){
+}
+LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___boxed(lean_object* v_m_48_, lean_object* v_inst_49_, lean_object* v_inst_50_, lean_object* v_rc_51_){
 _start:
 {
-uint32_t v_rc_boxed_50_; lean_object* v_res_51_; 
-v_rc_boxed_50_ = lean_unbox_uint32(v_rc_49_);
-lean_dec(v_rc_49_);
-v_res_51_ = l_Lake_exitIfErrorCode(v_m_46_, v_inst_47_, v_inst_48_, v_rc_boxed_50_);
-return v_res_51_;
+uint32_t v_rc_boxed_52_; lean_object* v_res_53_; 
+v_rc_boxed_52_ = lean_unbox_uint32(v_rc_51_);
+lean_dec(v_rc_51_);
+v_res_53_ = l_Lake_exitIfErrorCode(v_m_48_, v_inst_49_, v_inst_50_, v_rc_boxed_52_);
+return v_res_53_;
 }
 }
 lean_object* runtime_initialize_Init_Notation(uint8_t builtin);

@@ -29,6 +29,7 @@ lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
+uint8_t lean_bool_not(uint8_t);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 uint8_t l_List_elem___redArg(lean_object*, lean_object*, lean_object*);
@@ -100,8 +101,8 @@ LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg(lean
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0___boxed(lean_object*);
 static const lean_closure_object l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Id_instMonad___lam__0, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__0 = (const lean_object*)&l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__0_value;
 static const lean_closure_object l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Id_instMonad___lam__1___boxed, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
@@ -122,6 +123,8 @@ static const lean_ctor_object l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidable
 static const lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__8 = (const lean_object*)&l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__8_value;
 static const lean_ctor_object l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__8_value),((lean_object*)&l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__6_value)}};
 static const lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__9 = (const lean_object*)&l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__9_value;
+static const lean_closure_object l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__10 = (const lean_object*)&l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__10_value;
 LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq(lean_object*, lean_object*, lean_object*);
@@ -261,20 +264,13 @@ uint8_t v___x_49_;
 v___x_49_ = lean_usize_dec_eq(v_i_47_, v_stop_48_);
 if (v___x_49_ == 0)
 {
-uint8_t v___x_50_; lean_object* v___x_51_; uint8_t v___x_52_; 
-v___x_50_ = 1;
-v___x_51_ = lean_array_uget_borrowed(v_as_46_, v_i_47_);
-lean_inc(v___x_51_);
+lean_object* v___x_50_; uint8_t v___x_51_; uint8_t v___x_52_; 
+v___x_50_ = lean_array_uget_borrowed(v_as_46_, v_i_47_);
+lean_inc(v___x_50_);
 lean_inc_ref(v_a_45_);
-v___x_52_ = l_List_any___at___00Std_Sat_CNF_Clause_eval_spec__0___redArg(v_a_45_, v___x_51_);
+v___x_51_ = l_List_any___at___00Std_Sat_CNF_Clause_eval_spec__0___redArg(v_a_45_, v___x_50_);
+v___x_52_ = lean_bool_not(v___x_51_);
 if (v___x_52_ == 0)
-{
-lean_dec_ref(v_a_45_);
-return v___x_50_;
-}
-else
-{
-if (v___x_49_ == 0)
 {
 size_t v___x_53_; size_t v___x_54_; 
 v___x_53_ = ((size_t)1ULL);
@@ -285,8 +281,7 @@ goto _start;
 else
 {
 lean_dec_ref(v_a_45_);
-return v___x_50_;
-}
+return v___x_52_;
 }
 }
 else
@@ -323,557 +318,540 @@ if (v___x_69_ == 0)
 {
 uint8_t v___x_70_; 
 lean_dec_ref(v_a_65_);
-v___x_70_ = 1;
+v___x_70_ = lean_bool_not(v___x_69_);
 return v___x_70_;
 }
 else
 {
 if (v___x_69_ == 0)
 {
+uint8_t v___x_71_; 
 lean_dec_ref(v_a_65_);
-return v___x_69_;
+v___x_71_ = lean_bool_not(v___x_69_);
+return v___x_71_;
 }
 else
 {
-size_t v___x_71_; size_t v___x_72_; uint8_t v___x_73_; 
-v___x_71_ = ((size_t)0ULL);
-v___x_72_ = lean_usize_of_nat(v___x_68_);
-v___x_73_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0___redArg(v_a_65_, v_f_66_, v___x_71_, v___x_72_);
-if (v___x_73_ == 0)
-{
-return v___x_69_;
-}
-else
-{
-uint8_t v___x_74_; 
-v___x_74_ = 0;
-return v___x_74_;
+size_t v___x_72_; size_t v___x_73_; uint8_t v___x_74_; uint8_t v___x_75_; 
+v___x_72_ = ((size_t)0ULL);
+v___x_73_ = lean_usize_of_nat(v___x_68_);
+v___x_74_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0___redArg(v_a_65_, v_f_66_, v___x_72_, v___x_73_);
+v___x_75_ = lean_bool_not(v___x_74_);
+return v___x_75_;
 }
 }
 }
 }
-}
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_eval___redArg___boxed(lean_object* v_a_75_, lean_object* v_f_76_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_eval___redArg___boxed(lean_object* v_a_76_, lean_object* v_f_77_){
 _start:
 {
-uint8_t v_res_77_; lean_object* v_r_78_; 
-v_res_77_ = l_Std_Sat_CNF_eval___redArg(v_a_75_, v_f_76_);
-lean_dec_ref(v_f_76_);
-v_r_78_ = lean_box(v_res_77_);
-return v_r_78_;
+uint8_t v_res_78_; lean_object* v_r_79_; 
+v_res_78_ = l_Std_Sat_CNF_eval___redArg(v_a_76_, v_f_77_);
+lean_dec_ref(v_f_77_);
+v_r_79_ = lean_box(v_res_78_);
+return v_r_79_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_eval(lean_object* v_00_u03b1_79_, lean_object* v_a_80_, lean_object* v_f_81_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_eval(lean_object* v_00_u03b1_80_, lean_object* v_a_81_, lean_object* v_f_82_){
 _start:
 {
-uint8_t v___x_82_; 
-v___x_82_ = l_Std_Sat_CNF_eval___redArg(v_a_80_, v_f_81_);
-return v___x_82_;
+uint8_t v___x_83_; 
+v___x_83_ = l_Std_Sat_CNF_eval___redArg(v_a_81_, v_f_82_);
+return v___x_83_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_eval___boxed(lean_object* v_00_u03b1_83_, lean_object* v_a_84_, lean_object* v_f_85_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_eval___boxed(lean_object* v_00_u03b1_84_, lean_object* v_a_85_, lean_object* v_f_86_){
 _start:
 {
-uint8_t v_res_86_; lean_object* v_r_87_; 
-v_res_86_ = l_Std_Sat_CNF_eval(v_00_u03b1_83_, v_a_84_, v_f_85_);
-lean_dec_ref(v_f_85_);
-v_r_87_ = lean_box(v_res_86_);
-return v_r_87_;
+uint8_t v_res_87_; lean_object* v_r_88_; 
+v_res_87_ = l_Std_Sat_CNF_eval(v_00_u03b1_84_, v_a_85_, v_f_86_);
+lean_dec_ref(v_f_86_);
+v_r_88_ = lean_box(v_res_87_);
+return v_r_88_;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0(lean_object* v_00_u03b1_88_, lean_object* v_a_89_, lean_object* v_as_90_, size_t v_i_91_, size_t v_stop_92_){
+LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0(lean_object* v_00_u03b1_89_, lean_object* v_a_90_, lean_object* v_as_91_, size_t v_i_92_, size_t v_stop_93_){
 _start:
 {
-uint8_t v___x_93_; 
-v___x_93_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0___redArg(v_a_89_, v_as_90_, v_i_91_, v_stop_92_);
-return v___x_93_;
+uint8_t v___x_94_; 
+v___x_94_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0___redArg(v_a_90_, v_as_91_, v_i_92_, v_stop_93_);
+return v___x_94_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0___boxed(lean_object* v_00_u03b1_94_, lean_object* v_a_95_, lean_object* v_as_96_, lean_object* v_i_97_, lean_object* v_stop_98_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0___boxed(lean_object* v_00_u03b1_95_, lean_object* v_a_96_, lean_object* v_as_97_, lean_object* v_i_98_, lean_object* v_stop_99_){
 _start:
 {
-size_t v_i_boxed_99_; size_t v_stop_boxed_100_; uint8_t v_res_101_; lean_object* v_r_102_; 
-v_i_boxed_99_ = lean_unbox_usize(v_i_97_);
-lean_dec(v_i_97_);
-v_stop_boxed_100_ = lean_unbox_usize(v_stop_98_);
-lean_dec(v_stop_98_);
-v_res_101_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0(v_00_u03b1_94_, v_a_95_, v_as_96_, v_i_boxed_99_, v_stop_boxed_100_);
-lean_dec_ref(v_as_96_);
-v_r_102_ = lean_box(v_res_101_);
-return v_r_102_;
+size_t v_i_boxed_100_; size_t v_stop_boxed_101_; uint8_t v_res_102_; lean_object* v_r_103_; 
+v_i_boxed_100_ = lean_unbox_usize(v_i_98_);
+lean_dec(v_i_98_);
+v_stop_boxed_101_ = lean_unbox_usize(v_stop_99_);
+lean_dec(v_stop_99_);
+v_res_102_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Sat_CNF_eval_spec__0(v_00_u03b1_95_, v_a_96_, v_as_97_, v_i_boxed_100_, v_stop_boxed_101_);
+lean_dec_ref(v_as_97_);
+v_r_103_ = lean_box(v_res_102_);
+return v_r_103_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_empty(lean_object* v_00_u03b1_105_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_empty(lean_object* v_00_u03b1_106_){
 _start:
 {
-lean_object* v___x_106_; 
-v___x_106_ = ((lean_object*)(l_Std_Sat_CNF_empty___closed__0));
-return v___x_106_;
+lean_object* v___x_107_; 
+v___x_107_ = ((lean_object*)(l_Std_Sat_CNF_empty___closed__0));
+return v___x_107_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity___redArg(lean_object* v_n_107_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity___redArg(lean_object* v_n_108_){
 _start:
 {
-lean_object* v___x_108_; 
-v___x_108_ = lean_mk_empty_array_with_capacity(v_n_107_);
-return v___x_108_;
+lean_object* v___x_109_; 
+v___x_109_ = lean_mk_empty_array_with_capacity(v_n_108_);
+return v___x_109_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity___redArg___boxed(lean_object* v_n_109_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity___redArg___boxed(lean_object* v_n_110_){
 _start:
 {
-lean_object* v_res_110_; 
-v_res_110_ = l_Std_Sat_CNF_emptyWithCapacity___redArg(v_n_109_);
-lean_dec(v_n_109_);
-return v_res_110_;
+lean_object* v_res_111_; 
+v_res_111_ = l_Std_Sat_CNF_emptyWithCapacity___redArg(v_n_110_);
+lean_dec(v_n_110_);
+return v_res_111_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity(lean_object* v_00_u03b1_111_, lean_object* v_n_112_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity(lean_object* v_00_u03b1_112_, lean_object* v_n_113_){
 _start:
 {
-lean_object* v___x_113_; 
-v___x_113_ = lean_mk_empty_array_with_capacity(v_n_112_);
-return v___x_113_;
+lean_object* v___x_114_; 
+v___x_114_ = lean_mk_empty_array_with_capacity(v_n_113_);
+return v___x_114_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity___boxed(lean_object* v_00_u03b1_114_, lean_object* v_n_115_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_emptyWithCapacity___boxed(lean_object* v_00_u03b1_115_, lean_object* v_n_116_){
 _start:
 {
-lean_object* v_res_116_; 
-v_res_116_ = l_Std_Sat_CNF_emptyWithCapacity(v_00_u03b1_114_, v_n_115_);
-lean_dec(v_n_115_);
-return v_res_116_;
+lean_object* v_res_117_; 
+v_res_117_ = l_Std_Sat_CNF_emptyWithCapacity(v_00_u03b1_115_, v_n_116_);
+lean_dec(v_n_116_);
+return v_res_117_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_add___redArg(lean_object* v_c_117_, lean_object* v_f_118_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_add___redArg(lean_object* v_c_118_, lean_object* v_f_119_){
 _start:
 {
-lean_object* v___x_119_; 
-v___x_119_ = lean_array_push(v_f_118_, v_c_117_);
-return v___x_119_;
+lean_object* v___x_120_; 
+v___x_120_ = lean_array_push(v_f_119_, v_c_118_);
+return v___x_120_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_add(lean_object* v_00_u03b1_120_, lean_object* v_c_121_, lean_object* v_f_122_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_add(lean_object* v_00_u03b1_121_, lean_object* v_c_122_, lean_object* v_f_123_){
 _start:
 {
-lean_object* v___x_123_; 
-v___x_123_ = lean_array_push(v_f_122_, v_c_121_);
-return v___x_123_;
+lean_object* v___x_124_; 
+v___x_124_ = lean_array_push(v_f_123_, v_c_122_);
+return v___x_124_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_append___redArg(lean_object* v_f1_124_, lean_object* v_f2_125_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_append___redArg(lean_object* v_f1_125_, lean_object* v_f2_126_){
 _start:
 {
-lean_object* v___x_126_; 
-v___x_126_ = l_Array_append___redArg(v_f1_124_, v_f2_125_);
-return v___x_126_;
+lean_object* v___x_127_; 
+v___x_127_ = l_Array_append___redArg(v_f1_125_, v_f2_126_);
+return v___x_127_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_append___redArg___boxed(lean_object* v_f1_127_, lean_object* v_f2_128_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_append___redArg___boxed(lean_object* v_f1_128_, lean_object* v_f2_129_){
 _start:
 {
-lean_object* v_res_129_; 
-v_res_129_ = l_Std_Sat_CNF_append___redArg(v_f1_127_, v_f2_128_);
-lean_dec_ref(v_f2_128_);
-return v_res_129_;
+lean_object* v_res_130_; 
+v_res_130_ = l_Std_Sat_CNF_append___redArg(v_f1_128_, v_f2_129_);
+lean_dec_ref(v_f2_129_);
+return v_res_130_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_append(lean_object* v_00_u03b1_130_, lean_object* v_f1_131_, lean_object* v_f2_132_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_append(lean_object* v_00_u03b1_131_, lean_object* v_f1_132_, lean_object* v_f2_133_){
 _start:
 {
-lean_object* v___x_133_; 
-v___x_133_ = l_Array_append___redArg(v_f1_131_, v_f2_132_);
-return v___x_133_;
+lean_object* v___x_134_; 
+v___x_134_ = l_Array_append___redArg(v_f1_132_, v_f2_133_);
+return v___x_134_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_append___boxed(lean_object* v_00_u03b1_134_, lean_object* v_f1_135_, lean_object* v_f2_136_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_append___boxed(lean_object* v_00_u03b1_135_, lean_object* v_f1_136_, lean_object* v_f2_137_){
 _start:
 {
-lean_object* v_res_137_; 
-v_res_137_ = l_Std_Sat_CNF_append(v_00_u03b1_134_, v_f1_135_, v_f2_136_);
-lean_dec_ref(v_f2_136_);
-return v_res_137_;
+lean_object* v_res_138_; 
+v_res_138_ = l_Std_Sat_CNF_append(v_00_u03b1_135_, v_f1_136_, v_f2_137_);
+lean_dec_ref(v_f2_137_);
+return v_res_138_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instAppend(lean_object* v_00_u03b1_139_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instAppend(lean_object* v_00_u03b1_140_){
 _start:
 {
-lean_object* v___x_140_; 
-v___x_140_ = ((lean_object*)(l_Std_Sat_CNF_instAppend___closed__0));
-return v___x_140_;
+lean_object* v___x_141_; 
+v___x_141_ = ((lean_object*)(l_Std_Sat_CNF_instAppend___closed__0));
+return v___x_141_;
 }
 }
 static lean_object* _init_l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0(void){
 _start:
 {
-lean_object* v___x_141_; lean_object* v___f_142_; 
-v___x_141_ = lean_alloc_closure((void*)(l_instDecidableEqBool___boxed), 2, 0);
-v___f_142_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_142_, 0, v___x_141_);
-return v___f_142_;
+lean_object* v___x_142_; lean_object* v___f_143_; 
+v___x_142_ = lean_alloc_closure((void*)(l_instDecidableEqBool___boxed), 2, 0);
+v___f_143_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_143_, 0, v___x_142_);
+return v___f_143_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(lean_object* v_v_143_, lean_object* v_c_144_, lean_object* v_inst_145_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(lean_object* v_v_144_, lean_object* v_c_145_, lean_object* v_inst_146_){
 _start:
 {
-lean_object* v___f_146_; lean_object* v___f_147_; lean_object* v___f_148_; uint8_t v___x_149_; lean_object* v___x_150_; lean_object* v___x_151_; uint8_t v___x_152_; 
-v___f_146_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_146_, 0, v_inst_145_);
-v___f_147_ = lean_obj_once(&l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0, &l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0_once, _init_l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0);
-v___f_148_ = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
-lean_closure_set(v___f_148_, 0, v___f_146_);
-lean_closure_set(v___f_148_, 1, v___f_147_);
-v___x_149_ = 0;
-v___x_150_ = lean_box(v___x_149_);
-lean_inc(v_v_143_);
-v___x_151_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_151_, 0, v_v_143_);
-lean_ctor_set(v___x_151_, 1, v___x_150_);
-lean_inc(v_c_144_);
-lean_inc_ref(v___f_148_);
-v___x_152_ = l_List_elem___redArg(v___f_148_, v___x_151_, v_c_144_);
-if (v___x_152_ == 0)
+lean_object* v___f_147_; lean_object* v___f_148_; lean_object* v___f_149_; uint8_t v___x_150_; lean_object* v___x_151_; lean_object* v___x_152_; uint8_t v___x_153_; 
+v___f_147_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_147_, 0, v_inst_146_);
+v___f_148_ = lean_obj_once(&l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0, &l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0_once, _init_l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0);
+v___f_149_ = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
+lean_closure_set(v___f_149_, 0, v___f_147_);
+lean_closure_set(v___f_149_, 1, v___f_148_);
+v___x_150_ = 0;
+v___x_151_ = lean_box(v___x_150_);
+lean_inc(v_v_144_);
+v___x_152_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_152_, 0, v_v_144_);
+lean_ctor_set(v___x_152_, 1, v___x_151_);
+lean_inc(v_c_145_);
+lean_inc_ref(v___f_149_);
+v___x_153_ = l_List_elem___redArg(v___f_149_, v___x_152_, v_c_145_);
+if (v___x_153_ == 0)
 {
-uint8_t v___x_153_; lean_object* v___x_154_; lean_object* v___x_155_; uint8_t v___x_156_; 
-v___x_153_ = 1;
-v___x_154_ = lean_box(v___x_153_);
-v___x_155_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_155_, 0, v_v_143_);
-lean_ctor_set(v___x_155_, 1, v___x_154_);
-v___x_156_ = l_List_elem___redArg(v___f_148_, v___x_155_, v_c_144_);
-return v___x_156_;
+uint8_t v___x_154_; lean_object* v___x_155_; lean_object* v___x_156_; uint8_t v___x_157_; 
+v___x_154_ = 1;
+v___x_155_ = lean_box(v___x_154_);
+v___x_156_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_156_, 0, v_v_144_);
+lean_ctor_set(v___x_156_, 1, v___x_155_);
+v___x_157_ = l_List_elem___redArg(v___f_149_, v___x_156_, v_c_145_);
+return v___x_157_;
 }
 else
 {
-lean_dec_ref(v___f_148_);
-lean_dec(v_c_144_);
-lean_dec(v_v_143_);
-return v___x_152_;
+lean_dec_ref(v___f_149_);
+lean_dec(v_c_145_);
+lean_dec(v_v_144_);
+return v___x_153_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___boxed(lean_object* v_v_157_, lean_object* v_c_158_, lean_object* v_inst_159_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___boxed(lean_object* v_v_158_, lean_object* v_c_159_, lean_object* v_inst_160_){
 _start:
 {
-uint8_t v_res_160_; lean_object* v_r_161_; 
-v_res_160_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_157_, v_c_158_, v_inst_159_);
-v_r_161_ = lean_box(v_res_160_);
-return v_r_161_;
+uint8_t v_res_161_; lean_object* v_r_162_; 
+v_res_161_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_158_, v_c_159_, v_inst_160_);
+v_r_162_ = lean_box(v_res_161_);
+return v_r_162_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1(lean_object* v_00_u03b1_162_, lean_object* v_v_163_, lean_object* v_c_164_, lean_object* v_inst_165_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1(lean_object* v_00_u03b1_163_, lean_object* v_v_164_, lean_object* v_c_165_, lean_object* v_inst_166_){
 _start:
 {
-uint8_t v___x_166_; 
-v___x_166_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_163_, v_c_164_, v_inst_165_);
-return v___x_166_;
+uint8_t v___x_167_; 
+v___x_167_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_164_, v_c_165_, v_inst_166_);
+return v___x_167_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___boxed(lean_object* v_00_u03b1_167_, lean_object* v_v_168_, lean_object* v_c_169_, lean_object* v_inst_170_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___boxed(lean_object* v_00_u03b1_168_, lean_object* v_v_169_, lean_object* v_c_170_, lean_object* v_inst_171_){
 _start:
 {
-uint8_t v_res_171_; lean_object* v_r_172_; 
-v_res_171_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1(v_00_u03b1_167_, v_v_168_, v_c_169_, v_inst_170_);
-v_r_172_ = lean_box(v_res_171_);
-return v_r_172_;
+uint8_t v_res_172_; lean_object* v_r_173_; 
+v_res_172_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1(v_00_u03b1_168_, v_v_169_, v_c_170_, v_inst_171_);
+v_r_173_ = lean_box(v_res_172_);
+return v_r_173_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg(lean_object* v_v_173_, lean_object* v_c_174_, lean_object* v_inst_175_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg(lean_object* v_v_174_, lean_object* v_c_175_, lean_object* v_inst_176_){
 _start:
 {
-uint8_t v___x_176_; 
-v___x_176_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_173_, v_c_174_, v_inst_175_);
-return v___x_176_;
+uint8_t v___x_177_; 
+v___x_177_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_174_, v_c_175_, v_inst_176_);
+return v___x_177_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg___boxed(lean_object* v_v_177_, lean_object* v_c_178_, lean_object* v_inst_179_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg___boxed(lean_object* v_v_178_, lean_object* v_c_179_, lean_object* v_inst_180_){
 _start:
 {
-uint8_t v_res_180_; lean_object* v_r_181_; 
-v_res_180_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg(v_v_177_, v_c_178_, v_inst_179_);
-v_r_181_ = lean_box(v_res_180_);
-return v_r_181_;
+uint8_t v_res_181_; lean_object* v_r_182_; 
+v_res_181_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg(v_v_178_, v_c_179_, v_inst_180_);
+v_r_182_ = lean_box(v_res_181_);
+return v_r_182_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq(lean_object* v_00_u03b1_182_, lean_object* v_v_183_, lean_object* v_c_184_, lean_object* v_inst_185_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq(lean_object* v_00_u03b1_183_, lean_object* v_v_184_, lean_object* v_c_185_, lean_object* v_inst_186_){
 _start:
 {
-uint8_t v___x_186_; 
-v___x_186_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_183_, v_c_184_, v_inst_185_);
-return v___x_186_;
+uint8_t v___x_187_; 
+v___x_187_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_184_, v_c_185_, v_inst_186_);
+return v___x_187_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___boxed(lean_object* v_00_u03b1_187_, lean_object* v_v_188_, lean_object* v_c_189_, lean_object* v_inst_190_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___boxed(lean_object* v_00_u03b1_188_, lean_object* v_v_189_, lean_object* v_c_190_, lean_object* v_inst_191_){
 _start:
 {
-uint8_t v_res_191_; lean_object* v_r_192_; 
-v_res_191_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq(v_00_u03b1_187_, v_v_188_, v_c_189_, v_inst_190_);
-v_r_192_ = lean_box(v_res_191_);
-return v_r_192_;
+uint8_t v_res_192_; lean_object* v_r_193_; 
+v_res_192_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq(v_00_u03b1_188_, v_v_189_, v_c_190_, v_inst_191_);
+v_r_193_ = lean_box(v_res_192_);
+return v_r_193_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instMembershipClause(lean_object* v_00_u03b1_193_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instMembershipClause(lean_object* v_00_u03b1_194_){
 _start:
 {
-lean_object* v___x_194_; 
-v___x_194_ = lean_box(0);
-return v___x_194_;
+lean_object* v___x_195_; 
+v___x_195_ = lean_box(0);
+return v___x_195_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(lean_object* v_c_195_, lean_object* v_f_196_, lean_object* v_inst_197_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(lean_object* v_c_196_, lean_object* v_f_197_, lean_object* v_inst_198_){
 _start:
 {
-lean_object* v___f_198_; lean_object* v___f_199_; lean_object* v___f_200_; lean_object* v___x_201_; uint8_t v___x_202_; 
-v___f_198_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_198_, 0, v_inst_197_);
-v___f_199_ = lean_obj_once(&l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0, &l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0_once, _init_l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0);
-v___f_200_ = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
-lean_closure_set(v___f_200_, 0, v___f_198_);
-lean_closure_set(v___f_200_, 1, v___f_199_);
-v___x_201_ = lean_alloc_closure((void*)(l_List_beq___boxed), 4, 2);
-lean_closure_set(v___x_201_, 0, lean_box(0));
-lean_closure_set(v___x_201_, 1, v___f_200_);
-v___x_202_ = l_Array_contains___redArg(v___x_201_, v_f_196_, v_c_195_);
-return v___x_202_;
+lean_object* v___f_199_; lean_object* v___f_200_; lean_object* v___f_201_; lean_object* v___x_202_; uint8_t v___x_203_; 
+v___f_199_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_199_, 0, v_inst_198_);
+v___f_200_ = lean_obj_once(&l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0, &l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0_once, _init_l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg___closed__0);
+v___f_201_ = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
+lean_closure_set(v___f_201_, 0, v___f_199_);
+lean_closure_set(v___f_201_, 1, v___f_200_);
+v___x_202_ = lean_alloc_closure((void*)(l_List_beq___boxed), 4, 2);
+lean_closure_set(v___x_202_, 0, lean_box(0));
+lean_closure_set(v___x_202_, 1, v___f_201_);
+v___x_203_ = l_Array_contains___redArg(v___x_202_, v_f_197_, v_c_196_);
+return v___x_203_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg___boxed(lean_object* v_c_203_, lean_object* v_f_204_, lean_object* v_inst_205_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg___boxed(lean_object* v_c_204_, lean_object* v_f_205_, lean_object* v_inst_206_){
 _start:
 {
-uint8_t v_res_206_; lean_object* v_r_207_; 
-v_res_206_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_203_, v_f_204_, v_inst_205_);
-v_r_207_ = lean_box(v_res_206_);
-return v_r_207_;
+uint8_t v_res_207_; lean_object* v_r_208_; 
+v_res_207_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_204_, v_f_205_, v_inst_206_);
+v_r_208_ = lean_box(v_res_207_);
+return v_r_208_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1(lean_object* v_00_u03b1_208_, lean_object* v_c_209_, lean_object* v_f_210_, lean_object* v_inst_211_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1(lean_object* v_00_u03b1_209_, lean_object* v_c_210_, lean_object* v_f_211_, lean_object* v_inst_212_){
 _start:
 {
-uint8_t v___x_212_; 
-v___x_212_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_209_, v_f_210_, v_inst_211_);
-return v___x_212_;
+uint8_t v___x_213_; 
+v___x_213_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_210_, v_f_211_, v_inst_212_);
+return v___x_213_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___boxed(lean_object* v_00_u03b1_213_, lean_object* v_c_214_, lean_object* v_f_215_, lean_object* v_inst_216_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___boxed(lean_object* v_00_u03b1_214_, lean_object* v_c_215_, lean_object* v_f_216_, lean_object* v_inst_217_){
 _start:
 {
-uint8_t v_res_217_; lean_object* v_r_218_; 
-v_res_217_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1(v_00_u03b1_213_, v_c_214_, v_f_215_, v_inst_216_);
-v_r_218_ = lean_box(v_res_217_);
-return v_r_218_;
+uint8_t v_res_218_; lean_object* v_r_219_; 
+v_res_218_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1(v_00_u03b1_214_, v_c_215_, v_f_216_, v_inst_217_);
+v_r_219_ = lean_box(v_res_218_);
+return v_r_219_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___redArg(lean_object* v_c_219_, lean_object* v_f_220_, lean_object* v_inst_221_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___redArg(lean_object* v_c_220_, lean_object* v_f_221_, lean_object* v_inst_222_){
 _start:
 {
-uint8_t v___x_222_; 
-v___x_222_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_219_, v_f_220_, v_inst_221_);
-return v___x_222_;
+uint8_t v___x_223_; 
+v___x_223_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_220_, v_f_221_, v_inst_222_);
+return v___x_223_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___redArg___boxed(lean_object* v_c_223_, lean_object* v_f_224_, lean_object* v_inst_225_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___redArg___boxed(lean_object* v_c_224_, lean_object* v_f_225_, lean_object* v_inst_226_){
 _start:
 {
-uint8_t v_res_226_; lean_object* v_r_227_; 
-v_res_226_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___redArg(v_c_223_, v_f_224_, v_inst_225_);
-v_r_227_ = lean_box(v_res_226_);
-return v_r_227_;
+uint8_t v_res_227_; lean_object* v_r_228_; 
+v_res_227_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___redArg(v_c_224_, v_f_225_, v_inst_226_);
+v_r_228_ = lean_box(v_res_227_);
+return v_r_228_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq(lean_object* v_00_u03b1_228_, lean_object* v_c_229_, lean_object* v_f_230_, lean_object* v_inst_231_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq(lean_object* v_00_u03b1_229_, lean_object* v_c_230_, lean_object* v_f_231_, lean_object* v_inst_232_){
 _start:
 {
-uint8_t v___x_232_; 
-v___x_232_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_229_, v_f_230_, v_inst_231_);
-return v___x_232_;
+uint8_t v___x_233_; 
+v___x_233_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___aux__1___redArg(v_c_230_, v_f_231_, v_inst_232_);
+return v___x_233_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___boxed(lean_object* v_00_u03b1_233_, lean_object* v_c_234_, lean_object* v_f_235_, lean_object* v_inst_236_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq___boxed(lean_object* v_00_u03b1_234_, lean_object* v_c_235_, lean_object* v_f_236_, lean_object* v_inst_237_){
 _start:
 {
-uint8_t v_res_237_; lean_object* v_r_238_; 
-v_res_237_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq(v_00_u03b1_233_, v_c_234_, v_f_235_, v_inst_236_);
-v_r_238_ = lean_box(v_res_237_);
-return v_r_238_;
+uint8_t v_res_238_; lean_object* v_r_239_; 
+v_res_238_ = l_Std_Sat_CNF_instDecidableMemClauseOfDecidableEq(v_00_u03b1_234_, v_c_235_, v_f_236_, v_inst_237_);
+v_r_239_ = lean_box(v_res_238_);
+return v_r_239_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0(lean_object* v_v_239_, lean_object* v_inst_240_, lean_object* v_a_241_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0(lean_object* v_v_240_, lean_object* v_inst_241_, lean_object* v_a_242_){
 _start:
 {
-uint8_t v___x_242_; 
-v___x_242_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_239_, v_a_241_, v_inst_240_);
-return v___x_242_;
+uint8_t v___x_243_; 
+v___x_243_ = l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___aux__1___redArg(v_v_240_, v_a_242_, v_inst_241_);
+return v___x_243_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0___boxed(lean_object* v_v_243_, lean_object* v_inst_244_, lean_object* v_a_245_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0___boxed(lean_object* v_v_244_, lean_object* v_inst_245_, lean_object* v_a_246_){
 _start:
 {
-uint8_t v_res_246_; lean_object* v_r_247_; 
-v_res_246_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0(v_v_243_, v_inst_244_, v_a_245_);
-v_r_247_ = lean_box(v_res_246_);
-return v_r_247_;
+uint8_t v_res_247_; lean_object* v_r_248_; 
+v_res_247_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0(v_v_244_, v_inst_245_, v_a_246_);
+v_r_248_ = lean_box(v_res_247_);
+return v_r_248_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(lean_object* v_v_248_, lean_object* v_f_249_, lean_object* v_inst_250_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(lean_object* v_v_249_, lean_object* v_f_250_, lean_object* v_inst_251_){
 _start:
 {
-lean_object* v___f_251_; uint8_t v___x_252_; 
-v___f_251_ = lean_alloc_closure((void*)(l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0___boxed), 3, 2);
-lean_closure_set(v___f_251_, 0, v_v_248_);
-lean_closure_set(v___f_251_, 1, v_inst_250_);
-v___x_252_ = l_Array_instDecidableExistsAndMemOfDecidablePred___redArg(v_f_249_, v___f_251_);
-return v___x_252_;
+lean_object* v___f_252_; uint8_t v___x_253_; 
+v___f_252_ = lean_alloc_closure((void*)(l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___lam__0___boxed), 3, 2);
+lean_closure_set(v___f_252_, 0, v_v_249_);
+lean_closure_set(v___f_252_, 1, v_inst_251_);
+v___x_253_ = l_Array_instDecidableExistsAndMemOfDecidablePred___redArg(v_f_250_, v___f_252_);
+return v___x_253_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___boxed(lean_object* v_v_253_, lean_object* v_f_254_, lean_object* v_inst_255_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg___boxed(lean_object* v_v_254_, lean_object* v_f_255_, lean_object* v_inst_256_){
 _start:
 {
-uint8_t v_res_256_; lean_object* v_r_257_; 
-v_res_256_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_253_, v_f_254_, v_inst_255_);
-v_r_257_ = lean_box(v_res_256_);
-return v_r_257_;
+uint8_t v_res_257_; lean_object* v_r_258_; 
+v_res_257_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_254_, v_f_255_, v_inst_256_);
+v_r_258_ = lean_box(v_res_257_);
+return v_r_258_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1(lean_object* v_00_u03b1_258_, lean_object* v_v_259_, lean_object* v_f_260_, lean_object* v_inst_261_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1(lean_object* v_00_u03b1_259_, lean_object* v_v_260_, lean_object* v_f_261_, lean_object* v_inst_262_){
 _start:
 {
-uint8_t v___x_262_; 
-v___x_262_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_259_, v_f_260_, v_inst_261_);
-return v___x_262_;
+uint8_t v___x_263_; 
+v___x_263_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_260_, v_f_261_, v_inst_262_);
+return v___x_263_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___boxed(lean_object* v_00_u03b1_263_, lean_object* v_v_264_, lean_object* v_f_265_, lean_object* v_inst_266_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___boxed(lean_object* v_00_u03b1_264_, lean_object* v_v_265_, lean_object* v_f_266_, lean_object* v_inst_267_){
 _start:
 {
-uint8_t v_res_267_; lean_object* v_r_268_; 
-v_res_267_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1(v_00_u03b1_263_, v_v_264_, v_f_265_, v_inst_266_);
-v_r_268_ = lean_box(v_res_267_);
-return v_r_268_;
+uint8_t v_res_268_; lean_object* v_r_269_; 
+v_res_268_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1(v_00_u03b1_264_, v_v_265_, v_f_266_, v_inst_267_);
+v_r_269_ = lean_box(v_res_268_);
+return v_r_269_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg(lean_object* v_v_269_, lean_object* v_f_270_, lean_object* v_inst_271_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg(lean_object* v_v_270_, lean_object* v_f_271_, lean_object* v_inst_272_){
 _start:
 {
-uint8_t v___x_272_; 
-v___x_272_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_269_, v_f_270_, v_inst_271_);
-return v___x_272_;
+uint8_t v___x_273_; 
+v___x_273_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_270_, v_f_271_, v_inst_272_);
+return v___x_273_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg___boxed(lean_object* v_v_273_, lean_object* v_f_274_, lean_object* v_inst_275_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg___boxed(lean_object* v_v_274_, lean_object* v_f_275_, lean_object* v_inst_276_){
 _start:
 {
-uint8_t v_res_276_; lean_object* v_r_277_; 
-v_res_276_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg(v_v_273_, v_f_274_, v_inst_275_);
-v_r_277_ = lean_box(v_res_276_);
-return v_r_277_;
+uint8_t v_res_277_; lean_object* v_r_278_; 
+v_res_277_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___redArg(v_v_274_, v_f_275_, v_inst_276_);
+v_r_278_ = lean_box(v_res_277_);
+return v_r_278_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq(lean_object* v_00_u03b1_278_, lean_object* v_v_279_, lean_object* v_f_280_, lean_object* v_inst_281_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq(lean_object* v_00_u03b1_279_, lean_object* v_v_280_, lean_object* v_f_281_, lean_object* v_inst_282_){
 _start:
 {
-uint8_t v___x_282_; 
-v___x_282_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_279_, v_f_280_, v_inst_281_);
-return v___x_282_;
+uint8_t v___x_283_; 
+v___x_283_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___aux__1___redArg(v_v_280_, v_f_281_, v_inst_282_);
+return v___x_283_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___boxed(lean_object* v_00_u03b1_283_, lean_object* v_v_284_, lean_object* v_f_285_, lean_object* v_inst_286_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq___boxed(lean_object* v_00_u03b1_284_, lean_object* v_v_285_, lean_object* v_f_286_, lean_object* v_inst_287_){
 _start:
 {
-uint8_t v_res_287_; lean_object* v_r_288_; 
-v_res_287_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq(v_00_u03b1_283_, v_v_284_, v_f_285_, v_inst_286_);
-v_r_288_ = lean_box(v_res_287_);
-return v_r_288_;
+uint8_t v_res_288_; lean_object* v_r_289_; 
+v_res_288_ = l_Std_Sat_CNF_instDecidableVarMemOfDecidableEq(v_00_u03b1_284_, v_v_285_, v_f_286_, v_inst_287_);
+v_r_289_ = lean_box(v_res_288_);
+return v_r_289_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0(uint8_t v___x_289_, lean_object* v_x_290_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0(lean_object* v_x_290_){
 _start:
 {
-uint8_t v___x_291_; 
+uint8_t v___x_291_; uint8_t v___x_292_; 
 v___x_291_ = l_List_isEmpty___redArg(v_x_290_);
-if (v___x_291_ == 0)
-{
-return v___x_289_;
-}
-else
-{
-uint8_t v___x_292_; 
-v___x_292_ = 0;
+v___x_292_ = lean_bool_not(v___x_291_);
 return v___x_292_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0___boxed(lean_object* v___x_293_, lean_object* v_x_294_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0___boxed(lean_object* v_x_293_){
 _start:
 {
-uint8_t v___x_86__boxed_295_; uint8_t v_res_296_; lean_object* v_r_297_; 
-v___x_86__boxed_295_ = lean_unbox(v___x_293_);
-v_res_296_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0(v___x_86__boxed_295_, v_x_294_);
-lean_dec(v_x_294_);
-v_r_297_ = lean_box(v_res_296_);
-return v_r_297_;
+uint8_t v_res_294_; lean_object* v_r_295_; 
+v_res_294_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0(v_x_293_);
+lean_dec(v_x_293_);
+v_r_295_ = lean_box(v_res_294_);
+return v_r_295_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg(lean_object* v_f_317_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg(lean_object* v_f_316_){
 _start:
 {
-lean_object* v___x_318_; lean_object* v___x_319_; lean_object* v___x_320_; uint8_t v___x_321_; 
-v___x_318_ = lean_unsigned_to_nat(0u);
-v___x_319_ = lean_array_get_size(v_f_317_);
-v___x_320_ = ((lean_object*)(l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__9));
-v___x_321_ = lean_nat_dec_lt(v___x_318_, v___x_319_);
-if (v___x_321_ == 0)
+lean_object* v___x_317_; lean_object* v___x_318_; lean_object* v___x_319_; uint8_t v___x_320_; 
+v___x_317_ = lean_unsigned_to_nat(0u);
+v___x_318_ = lean_array_get_size(v_f_316_);
+v___x_319_ = ((lean_object*)(l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__9));
+v___x_320_ = lean_nat_dec_lt(v___x_317_, v___x_318_);
+if (v___x_320_ == 0)
 {
-lean_dec_ref(v_f_317_);
-return v___x_321_;
+lean_dec_ref(v_f_316_);
+return v___x_320_;
 }
 else
 {
-if (v___x_321_ == 0)
+if (v___x_320_ == 0)
 {
-lean_dec_ref(v_f_317_);
-return v___x_321_;
+lean_dec_ref(v_f_316_);
+return v___x_320_;
 }
 else
 {
-lean_object* v___x_322_; lean_object* v___f_323_; size_t v___x_324_; size_t v___x_325_; lean_object* v___x_326_; uint8_t v___x_327_; 
-v___x_322_ = lean_box(v___x_321_);
-v___f_323_ = lean_alloc_closure((void*)(l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_323_, 0, v___x_322_);
-v___x_324_ = ((size_t)0ULL);
-v___x_325_ = lean_usize_of_nat(v___x_319_);
-v___x_326_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), v___x_320_, v___f_323_, v_f_317_, v___x_324_, v___x_325_);
-v___x_327_ = lean_unbox(v___x_326_);
-lean_dec(v___x_326_);
-return v___x_327_;
+lean_object* v___f_321_; size_t v___x_322_; size_t v___x_323_; lean_object* v___x_324_; uint8_t v___x_325_; 
+v___f_321_ = ((lean_object*)(l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___closed__10));
+v___x_322_ = ((size_t)0ULL);
+v___x_323_ = lean_usize_of_nat(v___x_318_);
+v___x_324_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), v___x_319_, v___f_321_, v_f_316_, v___x_322_, v___x_323_);
+v___x_325_ = lean_unbox(v___x_324_);
+lean_dec(v___x_324_);
+return v___x_325_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___boxed(lean_object* v_f_328_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg___boxed(lean_object* v_f_326_){
 _start:
 {
-uint8_t v_res_329_; lean_object* v_r_330_; 
-v_res_329_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg(v_f_328_);
-v_r_330_ = lean_box(v_res_329_);
-return v_r_330_;
+uint8_t v_res_327_; lean_object* v_r_328_; 
+v_res_327_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg(v_f_326_);
+v_r_328_ = lean_box(v_res_327_);
+return v_r_328_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq(lean_object* v_00_u03b1_331_, lean_object* v_f_332_, lean_object* v_inst_333_){
+LEAN_EXPORT uint8_t l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq(lean_object* v_00_u03b1_329_, lean_object* v_f_330_, lean_object* v_inst_331_){
 _start:
 {
-uint8_t v___x_334_; 
-v___x_334_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg(v_f_332_);
-return v___x_334_;
+uint8_t v___x_332_; 
+v___x_332_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___redArg(v_f_330_);
+return v___x_332_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___boxed(lean_object* v_00_u03b1_335_, lean_object* v_f_336_, lean_object* v_inst_337_){
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq___boxed(lean_object* v_00_u03b1_333_, lean_object* v_f_334_, lean_object* v_inst_335_){
 _start:
 {
-uint8_t v_res_338_; lean_object* v_r_339_; 
-v_res_338_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq(v_00_u03b1_335_, v_f_336_, v_inst_337_);
-lean_dec_ref(v_inst_337_);
-v_r_339_ = lean_box(v_res_338_);
-return v_r_339_;
+uint8_t v_res_336_; lean_object* v_r_337_; 
+v_res_336_ = l_Std_Sat_CNF_instDecidableExistsVarMemOfDecidableEq(v_00_u03b1_333_, v_f_334_, v_inst_335_);
+lean_dec_ref(v_inst_335_);
+v_r_337_ = lean_box(v_res_336_);
+return v_r_337_;
 }
 }
 lean_object* runtime_initialize_Std_Sat_CNF_Literal(uint8_t builtin);

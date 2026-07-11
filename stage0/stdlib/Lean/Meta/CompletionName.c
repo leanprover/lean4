@@ -22,6 +22,7 @@ uint8_t l_Lean_Meta_isMatcherCore(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 extern lean_object* l_Lean_privateHeader;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
@@ -134,19 +135,12 @@ goto v___jp_21_;
 }
 else
 {
-lean_object* v___x_28_; uint8_t v___x_29_; 
+lean_object* v___x_28_; uint8_t v___x_29_; uint8_t v___x_30_; 
 v___x_28_ = l_Lean_privateHeader;
 v___x_29_ = lean_name_eq(v_x_18_, v___x_28_);
-if (v___x_29_ == 0)
-{
-v___y_22_ = v___x_27_;
+v___x_30_ = lean_bool_not(v___x_29_);
+v___y_22_ = v___x_30_;
 goto v___jp_21_;
-}
-else
-{
-v_x_18_ = v_pre_19_;
-goto _start;
-}
 }
 }
 }
@@ -266,29 +260,19 @@ return v_r_60_;
 LEAN_EXPORT uint8_t l_Lean_Meta_allowCompletion(lean_object* v_env_61_, lean_object* v_declName_62_){
 _start:
 {
-uint8_t v___x_63_; 
+uint8_t v___x_63_; uint8_t v___x_64_; 
 v___x_63_ = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(v_env_61_, v_declName_62_);
-if (v___x_63_ == 0)
-{
-uint8_t v___x_64_; 
-v___x_64_ = 1;
+v___x_64_ = lean_bool_not(v___x_63_);
 return v___x_64_;
 }
-else
-{
-uint8_t v___x_65_; 
-v___x_65_ = 0;
-return v___x_65_;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_allowCompletion___boxed(lean_object* v_env_66_, lean_object* v_declName_67_){
+LEAN_EXPORT lean_object* l_Lean_Meta_allowCompletion___boxed(lean_object* v_env_65_, lean_object* v_declName_66_){
 _start:
 {
-uint8_t v_res_68_; lean_object* v_r_69_; 
-v_res_68_ = l_Lean_Meta_allowCompletion(v_env_66_, v_declName_67_);
-v_r_69_ = lean_box(v_res_68_);
-return v_r_69_;
+uint8_t v_res_67_; lean_object* v_r_68_; 
+v_res_67_ = l_Lean_Meta_allowCompletion(v_env_65_, v_declName_66_);
+v_r_68_ = lean_box(v_res_67_);
+return v_r_68_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin);

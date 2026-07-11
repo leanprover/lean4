@@ -29,6 +29,7 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Lean_Grind_IntModule_toNatModule___redArg(lean_object*);
 lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_ctorIdx(lean_object*);
@@ -3676,25 +3677,24 @@ return v_r_1115_;
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_eq__coeff__cert(lean_object* v_p_u2081_1116_, lean_object* v_p_u2082_1117_, lean_object* v_k_1118_){
 _start:
 {
-lean_object* v___x_1119_; uint8_t v___x_1120_; 
+lean_object* v___x_1119_; uint8_t v___x_1120_; uint8_t v___x_1121_; 
 v___x_1119_ = lean_unsigned_to_nat(0u);
 v___x_1120_ = lean_nat_dec_eq(v_k_1118_, v___x_1119_);
-if (v___x_1120_ == 0)
+v___x_1121_ = lean_bool_not(v___x_1120_);
+if (v___x_1121_ == 0)
 {
-lean_object* v___x_1121_; lean_object* v___x_1122_; uint8_t v___x_1123_; 
-v___x_1121_ = lean_nat_to_int(v_k_1118_);
-v___x_1122_ = l_Lean_Grind_Linarith_Poly_mul(v_p_u2082_1117_, v___x_1121_);
-lean_dec(v___x_1121_);
-v___x_1123_ = l_Lean_Grind_Linarith_instBEqPoly_beq(v_p_u2081_1116_, v___x_1122_);
-lean_dec(v___x_1122_);
-return v___x_1123_;
+lean_dec(v_k_1118_);
+lean_dec(v_p_u2082_1117_);
+return v___x_1121_;
 }
 else
 {
-uint8_t v___x_1124_; 
-lean_dec(v_k_1118_);
-lean_dec(v_p_u2082_1117_);
-v___x_1124_ = 0;
+lean_object* v___x_1122_; lean_object* v___x_1123_; uint8_t v___x_1124_; 
+v___x_1122_ = lean_nat_to_int(v_k_1118_);
+v___x_1123_ = l_Lean_Grind_Linarith_Poly_mul(v_p_u2082_1117_, v___x_1122_);
+lean_dec(v___x_1122_);
+v___x_1124_ = l_Lean_Grind_Linarith_instBEqPoly_beq(v_p_u2081_1116_, v___x_1123_);
+lean_dec(v___x_1123_);
 return v___x_1124_;
 }
 }

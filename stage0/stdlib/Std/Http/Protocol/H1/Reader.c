@@ -37,6 +37,7 @@ lean_object* l_Nat_reprFast(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Std_Format_fill(lean_object*);
 uint8_t l_Std_Http_Protocol_H1_Message_Head_shouldKeepAlive(uint8_t, lean_object*);
+uint8_t lean_bool_not(uint8_t);
 lean_object* l_Std_Http_Protocol_H1_instReprError_repr(lean_object*, lean_object*);
 lean_object* l_Std_Http_Protocol_H1_Message_Head_headers(uint8_t, lean_object*);
 lean_object* l_String_decEq___boxed(lean_object*, lean_object*);
@@ -4008,17 +4009,10 @@ goto v___jp_1232_;
 }
 else
 {
-if (v_noMoreInput_1231_ == 0)
-{
-v___y_1233_ = v___x_1241_;
-goto v___jp_1232_;
-}
-else
-{
 uint8_t v___x_1242_; 
-v___x_1242_ = 0;
-return v___x_1242_;
-}
+v___x_1242_ = lean_bool_not(v_noMoreInput_1231_);
+v___y_1233_ = v___x_1242_;
+goto v___jp_1232_;
 }
 v___jp_1232_:
 {
@@ -4091,17 +4085,10 @@ goto v___jp_1251_;
 }
 else
 {
-if (v_noMoreInput_1250_ == 0)
-{
-v___y_1252_ = v___x_1260_;
-goto v___jp_1251_;
-}
-else
-{
 uint8_t v___x_1261_; 
-v___x_1261_ = 0;
-return v___x_1261_;
-}
+v___x_1261_ = lean_bool_not(v_noMoreInput_1250_);
+v___y_1252_ = v___x_1261_;
+goto v___jp_1251_;
 }
 v___jp_1251_:
 {

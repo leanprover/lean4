@@ -25,42 +25,46 @@ void reset_heartbeat() {}
 */
 extern "C" {
 
-LEAN_EXPORT void * __cxa_allocate_exception(size_t thrown_size) {
+#define LEAN_WASI_WEAK __attribute__((weak))
+
+LEAN_EXPORT LEAN_WASI_WEAK void * __cxa_allocate_exception(size_t thrown_size) {
     (void)thrown_size;
     lean_internal_panic("WebAssembly core runtime: C++ exception allocate");
     return nullptr;
 }
 
-LEAN_EXPORT void __cxa_free_exception(void * thrown_object) {
+LEAN_EXPORT LEAN_WASI_WEAK void __cxa_free_exception(void * thrown_object) {
     (void)thrown_object;
 }
 
-LEAN_EXPORT void __cxa_throw(void * thrown_object, void * tinfo, void (*dest)(void *)) {
+LEAN_EXPORT LEAN_WASI_WEAK void __cxa_throw(void * thrown_object, void * tinfo, void (*dest)(void *)) {
     (void)thrown_object;
     (void)tinfo;
     (void)dest;
     lean_internal_panic("WebAssembly core runtime: C++ exception throw");
 }
 
-LEAN_EXPORT void * __cxa_begin_catch(void * exc) {
+LEAN_EXPORT LEAN_WASI_WEAK void * __cxa_begin_catch(void * exc) {
     (void)exc;
     lean_internal_panic("WebAssembly core runtime: C++ exception catch");
     return nullptr;
 }
 
-LEAN_EXPORT void __cxa_end_catch() {
+LEAN_EXPORT LEAN_WASI_WEAK void __cxa_end_catch() {
     lean_internal_panic("WebAssembly core runtime: C++ exception end catch");
 }
 
-LEAN_EXPORT void __cxa_rethrow() {
+LEAN_EXPORT LEAN_WASI_WEAK void __cxa_rethrow() {
     lean_internal_panic("WebAssembly core runtime: C++ exception rethrow");
 }
 
-LEAN_EXPORT void * __cxa_get_exception_ptr(void * exc) {
+LEAN_EXPORT LEAN_WASI_WEAK void * __cxa_get_exception_ptr(void * exc) {
     (void)exc;
     return nullptr;
 }
 
 }
+
+#undef LEAN_WASI_WEAK
 
 #endif

@@ -25,10 +25,8 @@ def main (args : List String) : IO UInt32 := do
       IO.eprintln s!"leanc: WebAssembly runtime archive not found at '{runtime}'"
       return 1
     let args := args.filter fun arg => arg != wasmTarget && !arg.startsWith "--root-module="
-    -- Core language runtime only (no IO/libuv). Exception flag must match `build_wasm_runtime.sh`.
-    -- Prefer libc++/libc++abi over libunwind: recent wasi-sdk drops libunwind, and we ship
-    -- aborting `__cxa_*` stubs in `wasm_support.cpp` when the sysroot lacks them.
-    let args := args.toArray ++ #["-fwasm-exceptions",
+    -- Select the no-exception C++ libraries; cold exception paths use aborting `__cxa_*` stubs.
+    let args := args.toArray ++ #["-fno-exceptions",
       "-mexec-model=reactor", "-Wl,--no-entry", runtime.toString, "-lc++", "-lc++abi"]
     let child ← IO.Process.spawn { cmd := (sdk / "bin" / "clang++").toString, args }
     return ← child.wait

@@ -6,6 +6,7 @@ Authors: Christian Pehle
 #include <lean/lean.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 
 #if defined(LEAN_WASI)
 
@@ -14,6 +15,7 @@ namespace {
 constexpr uint32_t ui_magic = 0x4c554931;
 constexpr uint32_t ui_version = 1;
 constexpr uint32_t max_effects = 512;
+constexpr uint32_t event_capacity = 4096;
 
 struct UiEffectRecord {
     uint32_t opcode;
@@ -47,6 +49,7 @@ lean_object * strings[max_effects];
 uint32_t string_count = 0;
 lean_object * fiber = nullptr;
 lean_object * model = nullptr;
+uint8_t event_buffer[event_capacity];
 
 void clear_strings() {
     for (uint32_t i = 0; i < string_count; ++i) lean_dec(strings[i]);
@@ -82,6 +85,25 @@ LEAN_EXPORT uint32_t lean_ui_push_effect(uint32_t world, uint32_t opcode, uint32
 
 LEAN_EXPORT uint32_t lean_ui_batch_ptr(uint32_t) {
     return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(&batch));
+}
+
+LEAN_EXPORT uint32_t lean_ui_event_ptr() {
+    return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(event_buffer));
+}
+
+LEAN_EXPORT uint32_t lean_ui_event_capacity() {
+    return event_capacity;
+}
+
+LEAN_EXPORT lean_object * lean_ui_string_from_utf8(uint32_t ptr, uint32_t len) {
+    if (len > event_capacity) len = event_capacity;
+    return lean_mk_string_from_bytes(reinterpret_cast<char const *>(static_cast<uintptr_t>(ptr)), len);
+}
+
+LEAN_EXPORT lean_object * lean_ui_u32_to_string(uint32_t value) {
+    char buffer[16];
+    std::snprintf(buffer, sizeof(buffer), "%u", value);
+    return lean_mk_string(buffer);
 }
 
 LEAN_EXPORT lean_object * lean_ui_load_fiber(uint32_t) {

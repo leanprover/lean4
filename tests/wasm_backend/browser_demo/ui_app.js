@@ -4,7 +4,7 @@ import { UI_ABI, readUiBatch } from "./ui_abi.js";
 const appEl = document.getElementById("app");
 const statusEl = document.getElementById("status");
 
-const TAG = ["div", "button", "span", "ul", "li"];
+const TAG = ["div", "button", "span", "ul", "li", "canvas"];
 
 /** @type {Map<number, Node>} */
 const nodes = new Map();
@@ -16,6 +16,7 @@ let exp = null;
 let mem = null;
 /** @type {number} */
 let model = 0;
+let frame = 0;
 
 function setStatus(msg, isError = false) {
   statusEl.textContent = msg;
@@ -158,7 +159,36 @@ function applyEffects(exports, memory) {
       }
     }
   }
+  drawCustomSurfaces();
   return { count, created, updated, removed };
+}
+
+function drawCustomSurfaces() {
+  for (const canvas of document.querySelectorAll("canvas.demo-canvas")) {
+    canvas.width = Math.max(640, canvas.clientWidth * devicePixelRatio);
+    canvas.height = 220 * devicePixelRatio;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    ctx.fillStyle = "#0b111b";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (canvas.classList.contains("automaton")) {
+      for (let y = 0; y < 9; y++) for (let x = 0; x < 28; x++) {
+        const alive = ((x * 13 + y * 7 + frame) % 11) < 4;
+        ctx.fillStyle = alive ? "#9ece6a" : "#1a2b38";
+        ctx.fillRect(8 + x * 21, 8 + y * 21, 17, 17);
+      }
+    } else {
+      const colors = ["#7aa2f7", "#bb9af7", "#9ece6a", "#e0af68"];
+      colors.forEach((color, row) => {
+        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+        for (let x = 0; x <= 600; x += 20) {
+          const y = 30 + row * 42 + (((x / 20 + row + frame) % (3 + row)) ? 0 : 22);
+          ctx.lineTo(10 + x, y);
+        }
+        ctx.stroke();
+      });
+    }
+  }
 }
 
 function insertAt(parent, node, index) {
@@ -173,9 +203,15 @@ function isSolved(m) {
   return ((m >>> 0) >>> 16) & 1;
 }
 
-function dispatchEvent(handlerId) {
+function dispatchEvent(handlerId, payload = "") {
   if (!exp || !mem) return;
-  model = exp.lean_ui_dispatch(model >>> 0, handlerId >>> 0, 0, 0) >>> 0;
+  const bytes = new TextEncoder().encode(payload);
+  const ptr = exp.lean_ui_event_ptr() >>> 0;
+  const cap = exp.lean_ui_event_capacity() >>> 0;
+  if (bytes.length > cap) throw new Error(`event payload exceeds ${cap} bytes`);
+  if (bytes.length) new Uint8Array(mem.buffer, ptr, bytes.length).set(bytes);
+  model = exp.lean_ui_dispatch(model >>> 0, handlerId >>> 0, ptr, bytes.length) >>> 0;
+  frame++;
   const stats = applyEffects(exp, mem);
   const g = nGoals(model);
   const s = isSolved(model) ? "solved" : `${g} open goal(s)`;
@@ -210,6 +246,8 @@ async function main() {
     "lean_ui_boot",
     "lean_ui_dispatch",
     "lean_ui_batch",
+    "lean_ui_event_ptr",
+    "lean_ui_event_capacity",
   ]) {
     if (typeof exp[name] !== "function") throw new Error(`missing export ${name}`);
   }
@@ -218,7 +256,12 @@ async function main() {
   nodes.clear();
   nodes.set(0, appEl);
   model = exp.lean_ui_boot(0) >>> 0;
-  const stats = applyEffects(exp, mem);
+  let stats = applyEffects(exp, mem);
+  const requestedDemo = Number(new URLSearchParams(location.search).get("demo"));
+  if (Number.isInteger(requestedDemo) && requestedDemo >= 0 && requestedDemo < 10) {
+    model = exp.lean_ui_dispatch(model, UI_ABI.handler.selectBase + requestedDemo, 0, 0) >>> 0;
+    stats = applyEffects(exp, mem);
+  }
   setStatus(
     `Booted. ${nGoals(model)} goal(s). effects=${stats.count}. ` +
       `Use tactics or click a hypothesis to exact.`
@@ -229,3 +272,11 @@ main().catch((e) => {
   console.error(e);
   setStatus(String(e.message || e), true);
 });
+
+document.getElementById("demo-input")?.addEventListener("input", (event) => {
+  dispatchEvent(UI_ABI.handler.input, event.currentTarget.value);
+});
+
+setInterval(() => {
+  if (exp && document.visibilityState === "visible") dispatchEvent(UI_ABI.handler.tick);
+}, 750);

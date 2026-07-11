@@ -42,6 +42,22 @@ The UI crosses the JS/WASM boundary once per frame through a fixed-layout effect
 memory. `../UiAbi.lean` is the canonical opcode and handler contract;
 `generate_ui_abi.py` emits the JavaScript constants and decoder plus TypeScript declarations.
 
+The UI laboratory contains ten routed demos backed by the same Lean model and reconciler:
+
+1. proof-state playground;
+2. interactive lambda-term evaluator with UTF-8 input payloads;
+3. keyed counter and reconciliation laboratory;
+4. timer-driven cellular automaton canvas;
+5. persistent data-structure sharing visualizer;
+6. constraint propagation grid;
+7. deterministic distributed state-machine simulator;
+8. theorem-driven logic dungeon;
+9. canvas waveform viewer;
+10. live UI ABI explorer.
+
+`build_ui.sh` validates the linked module and runs `ui_abi_smoke.mjs`, which boots the application,
+selects and acts on all ten routes, sends a non-ASCII payload, and dispatches a timer tick.
+
 ## What this is (and is not)
 
 **Is:** native `lean --wasm` backend + optional language-core runtime in the browser.

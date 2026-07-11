@@ -29,6 +29,12 @@ public def undo : UInt32 := 4
 public def reset : UInt32 := 5
 public def exactBase : UInt32 := 0x100
 public def exact (i : UInt32) : UInt32 := exactBase + i
+public def selectBase : UInt32 := 0x200
+public def select (i : UInt32) : UInt32 := selectBase + i
+public def actionBase : UInt32 := 0x400
+public def action (demo action : UInt32) : UInt32 := actionBase + demo * 16 + action
+public def tick : UInt32 := 0x800
+public def input : UInt32 := 0x801
 end Handler
 
 end UiAbi

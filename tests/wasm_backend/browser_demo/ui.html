@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lean proof state · fiber UI</title>
+  <title>Lean/WASM UI laboratory</title>
   <style>
     :root {
       font-family: "Iosevka", "JetBrains Mono", ui-monospace, monospace;
@@ -71,15 +71,39 @@
       font-size: 0.85rem; color: var(--muted); white-space: pre-wrap;
     }
     #status.error { border-color: var(--danger); color: var(--danger); }
+    .showcase-shell { display: grid; gap: 1rem; }
+    .demo-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.4rem; }
+    .demo-tab { font: 0.78rem system-ui, sans-serif; color: var(--muted); background: #151e2a;
+      border: 1px solid var(--border); border-radius: 7px; padding: 0.5rem; cursor: pointer; }
+    .demo-tab:hover, .demo-tab.active { color: white; border-color: var(--accent); background: #20304a; }
+    .demo-stage { min-height: 15rem; display: grid; align-items: center; }
+    .counter-grid, .abi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.6rem; }
+    .metric { background: #111923; border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem; }
+    .metric-label { display: block; color: var(--muted); font: 0.75rem system-ui; }
+    .metric-value { display: block; color: var(--green); font-size: 1.15rem; margin-top: 0.25rem; }
+    .term-tree, .tree-viz, .dungeon, .raft-viz { display: grid; gap: 0.75rem; justify-items: center; }
+    .term-node, .tree-node, .room, .raft-node { border: 1px solid var(--accent); background: #17243a;
+      border-radius: 8px; padding: 0.65rem 1rem; }
+    .term-node.result, .tree-node.shared, .room.unlocked, .raft-node.leader { border-color: var(--green); }
+    .term-arrow, .message-flight, .door { color: var(--muted); }
+    .tree-level { display: flex; gap: 4rem; }
+    .tree-node.fresh { border-color: #e0af68; }
+    .constraint-grid { display: grid; grid-template-columns: repeat(3, 3.2rem); gap: 0.35rem; justify-content: center; }
+    .constraint-cell { display: grid; place-items: center; aspect-ratio: 1; border: 1px solid var(--border);
+      border-radius: 5px; background: #111923; color: var(--accent); }
+    .demo-canvas { width: 100%; height: 220px; border: 1px solid var(--border); border-radius: 8px; }
+    .payload-bar { display: flex; gap: 0.5rem; margin: 0.8rem 0; }
+    .payload-bar input { flex: 1; color: white; background: #111923; border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.55rem 0.7rem; font: inherit; }
   </style>
 </head>
 <body>
-  <h1>Mini proof state · Lean fiber UI</h1>
+  <h1>Lean/WASM UI laboratory</h1>
   <p>
-    Pure tactics over a tiny formula AST, rendered with the wasm reconciler.
-    Prove <code>P → Q → P ∧ Q</code>. Tactics and hypothesis clicks send
-    <strong>string events</strong> (<code>intro</code>, <code>exact:0</code>, …).
+    Ten interactive demos rendered by one Lean fiber reconciler through a typed linear-memory
+    effect batch. DOM handlers use numeric IDs; the term editor below exercises UTF-8 payload events.
   </p>
+  <div class="payload-bar"><input id="demo-input" value="λ x => x" aria-label="Term payload" /></div>
   <p>
     <a href="./">scalar demo</a> ·
     <a href="./core_rt.html">core RT</a>

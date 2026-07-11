@@ -16,11 +16,11 @@ open Lean
 /-! ### VDOM -/
 
 public inductive Tag where
-  | div | button | span | ul | li
+  | div | button | span | ul | li | canvas
   deriving BEq, Inhabited, Repr
 
 def Tag.toU32 : Tag → UInt32
-  | .div => 0 | .button => 1 | .span => 2 | .ul => 3 | .li => 4
+  | .div => 0 | .button => 1 | .span => 2 | .ul => 3 | .li => 4 | .canvas => 5
 
 /-- Virtual DOM: free-string labels + nodes with class and an optional typed handler ID. -/
 public inductive Element where
@@ -165,6 +165,10 @@ public structure Model where
   goals : Array Goal := #[]
   history : Array (Array Goal) := #[]
   msg : String := ""
+  demo : UInt32 := 0
+  value : UInt32 := 0
+  tick : UInt32 := 0
+  input : String := "λ x => x"
 
 instance : Inhabited Model where
   default := { goals := #[], history := #[], msg := "" }
@@ -176,6 +180,7 @@ def Model.initial : Model :=
 
 public inductive Event where
   | intro | constructor | cases | exact (i : UInt32) | undo | reset
+  | select (demo : UInt32) | action (demo action : UInt32) | tick | input
   deriving BEq, Inhabited
 
 def hypName (i : Nat) : String :=
@@ -195,6 +200,13 @@ def Event.ofHandlerId (id : UInt32) : Option Event :=
   else if id == UiAbi.Handler.reset then some .reset
   else if id >= UiAbi.Handler.exactBase && id < UiAbi.Handler.exactBase + 8 then
     some (.exact (id - UiAbi.Handler.exactBase))
+  else if id >= UiAbi.Handler.selectBase && id < UiAbi.Handler.selectBase + 10 then
+    some (.select (id - UiAbi.Handler.selectBase))
+  else if id >= UiAbi.Handler.actionBase && id < UiAbi.Handler.actionBase + 160 then
+    let n := id - UiAbi.Handler.actionBase
+    some (.action (n / 16) (n % 16))
+  else if id == UiAbi.Handler.tick then some .tick
+  else if id == UiAbi.Handler.input then some .input
   else none
 
 def Model.pack (m : Model) : UInt32 :=
@@ -284,6 +296,12 @@ opaque pushEffectRaw :
 
 @[extern "lean_ui_batch_ptr", never_extract]
 opaque batchPtrRaw : UInt32 → UInt32
+
+@[extern "lean_ui_string_from_utf8", never_extract]
+opaque stringFromUtf8 : UInt32 → UInt32 → String
+
+@[extern "lean_ui_u32_to_string", never_extract]
+opaque u32Text : UInt32 → String
 
 @[extern "lean_ui_load_fiber", never_extract]
 opaque loadFiberRaw : UInt32 → Option Fiber
@@ -424,18 +442,26 @@ def tacUndo (m : Model) : Model :=
   if m.history.size == 0 then { m with msg := "Nothing to undo." }
   else
     let i := m.history.size - 1
-    { goals := m.history[i]!, history := arrayEraseIdx m.history i, msg := "undo" }
+    { m with goals := m.history[i]!, history := arrayEraseIdx m.history i, msg := "undo" }
 
-def tacReset (_m : Model) : Model :=
-  { Model.initial with msg := "reset → P → Q → P ∧ Q" }
+def tacReset (m : Model) : Model :=
+  { Model.initial with demo := m.demo, msg := "reset → P → Q → P ∧ Q" }
 
-def update (m : Model) : Event → Model
+def update (m : Model) (payload : String) : Event → Model
   | .intro => tacIntro m
   | .constructor => tacConstructor m
   | .cases => tacCases m
   | .exact i => tacExact m i
   | .undo => tacUndo m
   | .reset => tacReset m
+  | .select demo => { m with demo, msg := "demo selected", value := 0, tick := 0 }
+  | .action demo action =>
+    if demo != m.demo then m
+    else if action == 0 then { m with value := m.value + 1, msg := "step" }
+    else if action == 1 then { m with value := if m.value == 0 then 0 else m.value - 1, msg := "rewind" }
+    else { m with value := 0, msg := "reset" }
+  | .tick => { m with tick := m.tick + 1 }
+  | .input => { m with input := payload, msg := "input updated" }
 
 /-! ### View (all strings) -/
 
@@ -469,7 +495,7 @@ def viewGoal (g : Goal) (idx : Nat) : Element :=
 def viewGoals (gs : Array Goal) : Array Element :=
   arrayMapIdx gs fun i g => viewGoal g i
 
-def view (m : Model) : Element :=
+def viewProof (m : Model) : Element :=
   let solved := m.goals.size == 0
   let body : Array Element :=
     if solved then
@@ -500,6 +526,89 @@ def view (m : Model) : Element :=
     <div class="hint">
       {Element.label "Click a hypothesis to exact it. Try: intro → intro → constructor → click h0 → click h1"}
     </div>
+  </div>)
+
+def demoNames : Array String := #[
+  "Proof playground", "Term evaluator", "Counter laboratory", "Cellular automaton",
+  "Persistent structures", "Constraint solver", "State-machine simulator",
+  "Proof game", "Waveform viewer", "ABI explorer"
+]
+
+def demoDescriptions : Array String := #[
+  "Apply tactics to P → Q → P ∧ Q and inspect keyed proof-state reconciliation.",
+  "Step and rewind a tiny λ-term while editing its UTF-8 source payload.",
+  "Compare keyed updates while watching the model counter and frame ticks.",
+  "Run a canvas-backed cellular system driven by a host timer subscription.",
+  "Walk immutable tree versions and visualize structural sharing.",
+  "Step propagation and backtracking in a compact constraint grid.",
+  "Advance a deterministic distributed protocol with message delivery rounds.",
+  "Explore a logic dungeon where verified actions unlock the next room.",
+  "Pan through a canvas waveform and advance its event cursor.",
+  "Inspect effect record sizes, handler IDs, batches, and host ticks."
+]
+
+def demoAction (demo action : UInt32) : UInt32 := UiAbi.Handler.action demo action
+
+def demoTabs (active : UInt32) : Array Element :=
+  arrayMapIdx demoNames fun i name =>
+    let id := i.toUInt32
+    let cls := if id == active then "demo-tab active" else "demo-tab"
+    (<button key={id} class={cls} on={UiAbi.Handler.select id}>{Element.label name}</button>)
+
+def metric (label value : String) : Element :=
+  (<div class="metric"><span class="metric-label">{Element.label label}</span>
+    <span class="metric-value">{Element.label value}</span></div>)
+
+def demoVisualization (m : Model) : Element :=
+  match m.demo with
+  | 1 => (<div class="term-tree">
+      <div class="term-node">{Element.label ("source: " ++ m.input)}</div>
+      <div class="term-arrow">{Element.label ("reduction step " ++ u32Text m.value)}</div>
+      <div class="term-node result">{Element.label (if m.value % 2 == 0 then "λ x => x" else "normal form: identity")}</div>
+    </div>)
+  | 2 => (<div class="counter-grid">{#[metric "counter" (u32Text m.value),
+      metric "host ticks" (u32Text m.tick), metric "keyed nodes" "stable"]}</div>)
+  | 3 => (<canvas class="demo-canvas automaton" />)
+  | 4 => (<div class="tree-viz">
+      <div class="tree-node root-node">{Element.label ("root v" ++ u32Text m.value)}</div>
+      <div class="tree-level">{#[
+        (<span class="tree-node shared">{Element.label "shared left"}</span>),
+        (<span class="tree-node fresh">{Element.label ("new " ++ u32Text (m.value + 1))}</span>)]}</div>
+    </div>)
+  | 5 => (<div class="constraint-grid">{arrayMapIdx #["1", "·", "3", "·", "2", "·", "4", "·", "1"] fun i x =>
+      (<span key={i.toUInt32} class="constraint-cell">{Element.label x}</span>)}</div>)
+  | 6 => (<div class="raft-viz">{#[
+      (<div class="raft-node leader">{Element.label ("leader · term " ++ u32Text m.value)}</div>),
+      (<div class="message-flight">{Element.label ("append entries → round " ++ u32Text m.tick)}</div>),
+      (<div class="raft-node">{Element.label "follower"}</div>)]}</div>)
+  | 7 => (<div class="dungeon"><div class="room unlocked">{Element.label "axiom hall"}</div>
+      <div class="door">{Element.label (if m.value > 2 then "✓ theorem gate open" else "🔒 prove 3 steps")}</div>
+      <div class="room">{Element.label "induction tower"}</div></div>)
+  | 8 => (<canvas class="demo-canvas waveform" />)
+  | 9 => (<div class="abi-grid">{#[metric "batch header" "32 bytes", metric "effect record" "32 bytes",
+      metric "handler" (u32Text (demoAction m.demo 0)), metric "last batch tick" (u32Text m.tick)]}</div>)
+  | _ => (<div class="demo-placeholder">{Element.label "Select a control to advance this model."}</div>)
+
+def viewDemo (m : Model) : Element :=
+  let idx := m.demo.toNat
+  let title := if h : idx < demoNames.size then demoNames[idx] else "Demo"
+  let description := if h : idx < demoDescriptions.size then demoDescriptions[idx] else ""
+  (<div class="root demo-root">
+    <div class="title">{Element.label title}</div>
+    <div class="msg">{Element.label description}</div>
+    <div class="demo-stage">{demoVisualization m}</div>
+    <div class="tactics">
+      <button class="tac" on={demoAction m.demo 0}>{Element.label "step"}</button>
+      <button class="tac" on={demoAction m.demo 1}>{Element.label "rewind"}</button>
+      <button class="tac tac-reset" on={demoAction m.demo 2}>{Element.label "reset"}</button>
+    </div>
+    <div class="hint">{Element.label ("value=" ++ u32Text m.value ++ " · tick=" ++ u32Text m.tick)}</div>
+  </div>)
+
+def view (m : Model) : Element :=
+  (<div class="showcase-shell">
+    <div class="demo-tabs">{demoTabs m.demo}</div>
+    {if m.demo == 0 then viewProof m else viewDemo m}
   </div>)
 
 /-! ### Reconciler -/
@@ -627,12 +736,12 @@ def bootM : Host UInt32 := do
   storeModel (some m)
   pure m.pack
 
-def dispatchM (handlerId : UInt32) : Host UInt32 := do
+def dispatchM (handlerId : UInt32) (payload : String) : Host UInt32 := do
   let m0 ← loadModel
   let m := m0.getD Model.initial
   let m :=
     match Event.ofHandlerId handlerId with
-    | some e => update m e
+    | some e => update m payload e
     | none => { m with msg := "unknown handler" }
   let old ← loadFiber
   let (fiber, effects) := renderFrame m old
@@ -647,9 +756,8 @@ def boot (seed : UInt32) : UInt32 :=
 
 @[export lean_ui_dispatch, noinline]
 def dispatch (packedModel handlerId payloadPtr payloadLen : UInt32) : UInt32 :=
-  let _ := payloadPtr
-  let _ := payloadLen
-  runHost packedModel (dispatchM handlerId)
+  let payload := if payloadLen == 0 then "" else stringFromUtf8 payloadPtr payloadLen
+  runHost packedModel (dispatchM handlerId payload)
 
 @[export lean_ui_batch]
 def uiBatch (seed : UInt32) : UInt32 := batchPtrRaw seed

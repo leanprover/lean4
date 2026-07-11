@@ -2,7 +2,7 @@
 export const UI_ABI = Object.freeze({
   magic: 0x4c554931, version: 1, headerSize: 32, recordSize: 32,
   effect: Object.freeze({ createElement: 1,  createText: 2,  setText: 3,  remove: 4,  setClass: 5,  setHandler: 6 }),
-  handler: Object.freeze({ none: 0,  intro: 1,  constructor: 2,  cases: 3,  undo: 4,  reset: 5,  exactBase: 0x100 }),
+  handler: Object.freeze({ none: 0,  intro: 1,  constructor: 2,  cases: 3,  undo: 4,  reset: 5,  exactBase: 0x100,  selectBase: 0x200,  actionBase: 0x400,  tick: 0x800,  input: 0x801 }),
 });
 
 export function readUiBatch(memory, ptr) {

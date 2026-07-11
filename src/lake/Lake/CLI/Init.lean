@@ -441,14 +441,14 @@ def initPkg
   if let some rootFile := rootFile? then
     let libDir := rootFile.withExtension ""
     let basicFile := libDir / "Basic.lean"
-    unless (← basicFile.pathExists) do
-      IO.FS.createDirAll libDir
-      IO.FS.writeFile basicFile basicFileContents
     let rootContents := if tmp = .math then
       mathLibRootFileContents root
     else
       libRootFileContents root.toString root
-    IO.FS.writeFile rootFile rootContents
+    unless (← basicFile.pathExists) || (tmp = .exe) do
+      IO.FS.createDirAll libDir
+      IO.FS.writeFile basicFile basicFileContents
+      IO.FS.writeFile rootFile rootContents
   if tmp matches .std | .exe then
     let mainFile := dir / mainFileName
     unless (← mainFile.pathExists) do

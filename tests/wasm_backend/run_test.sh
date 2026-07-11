@@ -1,5 +1,14 @@
 source_init "$1"
 
+if [[ "$1" == "ui_abi.lean" ]]; then
+  mkdir -p _tmp_ui_abi
+  trap 'rm -f _tmp_ui_abi/UiAbi.ir _tmp_ui_abi/UiAbi.ir.sig _tmp_ui_abi/UiAbi.olean _tmp_ui_abi/UiAbi.ilean _tmp_ui_abi/UiAbi.olean.private _tmp_ui_abi/UiAbi.olean.server; rmdir _tmp_ui_abi 2>/dev/null || true' EXIT
+  lean -o _tmp_ui_abi/UiAbi.olean UiAbi.lean || fail "Failed to compile UI ABI module"
+  capture_only "$1" env LEAN_PATH="_tmp_ui_abi:${LEAN_PATH-}" lean "$1"
+  check_out_file
+  exit 0
+fi
+
 # Reactor modules have no `_start`; wasm-interp still prints a harmless WASI notice.
 filter_wasi_noise() {
   local f="$1.out.produced"

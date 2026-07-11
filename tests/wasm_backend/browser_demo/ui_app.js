@@ -1,4 +1,5 @@
-// JS host: string events + string labels for the proof-state fiber UI.
+// JS host for the typed Lean UI wire ABI.
+import { UI_ABI, readUiBatch } from "./ui_abi.js";
 
 const appEl = document.getElementById("app");
 const statusEl = document.getElementById("status");
@@ -27,6 +28,9 @@ function makeWasiImports(getMemory) {
   const ret0 = () => 0;
   const ebadf = () => 8;
   return {
+    env: {
+      __cpp_exception: new WebAssembly.Tag({ parameters: ["i32"] }),
+    },
     wasi_snapshot_preview1: {
       environ_get: ret0,
       environ_sizes_get(c, b) {
@@ -71,86 +75,85 @@ function makeWasiImports(getMemory) {
   };
 }
 
-function readInternedString(exports, memory, strId) {
-  const id = strId >>> 0;
-  if (id === 0 && exports.lean_ui_string_len(0) === 0) {
-    // id 0 can be a valid interned empty or unused — check len
-  }
-  const ptr = exports.lean_ui_string_ptr(id) >>> 0;
-  const len = exports.lean_ui_string_len(id) >>> 0;
+function readString(memory, ptr, len) {
   if (!ptr || len === 0) return "";
   const buf = memory.buffer;
   if (ptr + len > buf.byteLength) {
-    console.warn("string OOB", { ptr, len, mem: buf.byteLength, id });
+    console.warn("string OOB", { ptr, len, mem: buf.byteLength });
     return "";
   }
   return new TextDecoder().decode(new Uint8Array(buf, ptr, len));
 }
 
-function wireClick(el, evName) {
-  if (!evName) return;
-  el.dataset.ev = evName;
-  el.addEventListener("click", (e) => {
+function wireClick(el, handlerId) {
+  el.onclick = null;
+  delete el.dataset.handler;
+  if (!handlerId) return;
+  el.dataset.handler = String(handlerId);
+  el.onclick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (el.classList.contains("disabled")) return;
-    onDomEvent(evName);
-  });
+    onDomEvent(handlerId);
+  };
 }
 
 function applyEffects(exports, memory) {
-  const count = exports.lean_ui_effect_count(0) >>> 0;
+  const header = readUiBatch(memory, exports.lean_ui_batch(0) >>> 0);
+  if (header.overflowed) throw new Error("Lean UI effect batch overflowed");
+  const count = header.count;
+  const view = new DataView(memory.buffer);
+  const word = (i, field) => view.getUint32(header.recordsPtr + i * header.recordSize + field * 4, true);
   let created = 0,
     updated = 0,
     removed = 0;
   for (let i = 0; i < count; i++) {
-    const op = exports.lean_ui_effect_at(i, 0) >>> 0;
-    const id = exports.lean_ui_effect_at(i, 1) >>> 0;
-    const parent = exports.lean_ui_effect_at(i, 2) >>> 0;
-    const a = exports.lean_ui_effect_at(i, 3) >>> 0;
-    const b = exports.lean_ui_effect_at(i, 4) >>> 0;
-    const index = exports.lean_ui_effect_at(i, 5) >>> 0;
-    const d = exports.lean_ui_effect_at(i, 6) >>> 0; // onClick string id (create)
+    const op = word(i, 0), id = word(i, 1), parent = word(i, 2), index = word(i, 3);
+    const payload0 = word(i, 4), payload1 = word(i, 5), textPtr = word(i, 6), textLen = word(i, 7);
     const parentNode = nodes.get(parent) || appEl;
 
-    if (op === 1) {
-      const tag = TAG[a] || "div";
+    if (op === UI_ABI.effect.createElement) {
+      const tag = TAG[payload0] || "div";
       const prev = nodes.get(id);
       if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
       const el = document.createElement(tag);
       el.dataset.fid = String(id);
-      const cls = readInternedString(exports, memory, b);
+      const cls = readString(memory, textPtr, textLen);
       if (cls) el.className = cls;
-      const evName = d ? readInternedString(exports, memory, d) : "";
-      if (evName) wireClick(el, evName);
+      if (payload1) wireClick(el, payload1);
       insertAt(parentNode, el, index);
       nodes.set(id, el);
       created++;
-    } else if (op === 2) {
-      // text: a==255, b=interned string
+    } else if (op === UI_ABI.effect.createText) {
       const prev = nodes.get(id);
       if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
       const wrap = document.createElement("span");
       wrap.dataset.fid = String(id);
-      wrap.textContent = readInternedString(exports, memory, b);
+      wrap.textContent = readString(memory, textPtr, textLen);
       insertAt(parentNode, wrap, index);
       nodes.set(id, wrap);
       created++;
-    } else if (op === 3) {
+    } else if (op === UI_ABI.effect.setText) {
       const n = nodes.get(id);
       if (n) {
-        n.textContent = readInternedString(exports, memory, b);
+        n.textContent = readString(memory, textPtr, textLen);
         updated++;
       }
-    } else if (op === 4) {
+    } else if (op === UI_ABI.effect.remove) {
       const n = nodes.get(id);
       if (n && n.parentNode) n.parentNode.removeChild(n);
       nodes.delete(id);
       removed++;
-    } else if (op === 5) {
+    } else if (op === UI_ABI.effect.setClass) {
       const n = nodes.get(id);
       if (n) {
-        n.className = readInternedString(exports, memory, a);
+        n.className = readString(memory, textPtr, textLen);
+        updated++;
+      }
+    } else if (op === UI_ABI.effect.setHandler) {
+      const n = nodes.get(id);
+      if (n instanceof HTMLElement) {
+        wireClick(n, payload0);
         updated++;
       }
     }
@@ -170,28 +173,22 @@ function isSolved(m) {
   return ((m >>> 0) >>> 16) & 1;
 }
 
-/** Dispatch a UTF-8 event name through the scratch buffer. */
-function dispatchEvent(name) {
+function dispatchEvent(handlerId) {
   if (!exp || !mem) return;
-  const bytes = new TextEncoder().encode(name);
-  const ptr = exp.lean_ui_scratch_ptr() >>> 0;
-  const cap = exp.lean_ui_scratch_cap() >>> 0;
-  if (bytes.length > cap) throw new Error(`event too long (${bytes.length} > ${cap})`);
-  new Uint8Array(mem.buffer, ptr, bytes.length).set(bytes);
-  model = exp.lean_ui_dispatch_s(model >>> 0, ptr, bytes.length) >>> 0;
+  model = exp.lean_ui_dispatch(model >>> 0, handlerId >>> 0, 0, 0) >>> 0;
   const stats = applyEffects(exp, mem);
   const g = nGoals(model);
   const s = isSolved(model) ? "solved" : `${g} open goal(s)`;
   setStatus(
-    `event="${name}"  ${s}  effects=${stats.count} ` +
+    `handler=${handlerId}  ${s}  effects=${stats.count} ` +
       `(+${stats.created} ~${stats.updated} -${stats.removed})  ` +
       `mem=${mem.buffer.byteLength >> 10}KiB`
   );
 }
 
-function onDomEvent(evName) {
+function onDomEvent(handlerId) {
   try {
-    dispatchEvent(evName);
+    dispatchEvent(handlerId);
   } catch (e) {
     console.error(e);
     setStatus(String(e.message || e), true);
@@ -211,13 +208,8 @@ async function main() {
   mem = memory;
   for (const name of [
     "lean_ui_boot",
-    "lean_ui_dispatch_s",
-    "lean_ui_effect_count",
-    "lean_ui_effect_at",
-    "lean_ui_string_ptr",
-    "lean_ui_string_len",
-    "lean_ui_scratch_ptr",
-    "lean_ui_scratch_cap",
+    "lean_ui_dispatch",
+    "lean_ui_batch",
   ]) {
     if (typeof exp[name] !== "function") throw new Error(`missing export ${name}`);
   }

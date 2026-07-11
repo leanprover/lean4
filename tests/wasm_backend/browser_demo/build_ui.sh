@@ -20,26 +20,24 @@ fi
 "$ROOT/script/build_wasm_runtime.sh" "$ROOT/build/release/wasm32-wasip1"
 
 OBJ="_tmp_ui.o.wasm"
-lean --wasm="$OBJ" UiApp.lean
+(cd .. && lean -o browser_demo/UiAbi.olean --wasm=browser_demo/_tmp_ui_abi.o.wasm UiAbi.lean)
+LEAN_PATH="$(pwd):${LEAN_PATH-}" lean --wasm="$OBJ" UiApp.lean
 # Generous linear memory + stack: small defaults (2 pages) are tight for
 # proof-state UI (strings + history) and some browsers trap as OOB on grow.
 leanc --target=wasm32-wasip1 \
   -Wl,--export=lean_ui_boot \
   -Wl,--export=lean_ui_dispatch \
-  -Wl,--export=lean_ui_dispatch_s \
-  -Wl,--export=lean_ui_effect_count \
-  -Wl,--export=lean_ui_effect_at \
-  -Wl,--export=lean_ui_string_ptr \
-  -Wl,--export=lean_ui_string_len \
-  -Wl,--export=lean_ui_scratch_ptr \
-  -Wl,--export=lean_ui_scratch_cap \
+  -Wl,--export=lean_ui_batch \
   -Wl,--export=lean_ui_boot_effect_count \
   -Wl,--export=lean_ui_smoke_click \
   -Wl,--initial-memory=16777216 \
   -Wl,--max-memory=268435456 \
+  -Wl,--allow-undefined \
   -Wl,-z,stack-size=2097152 \
-  -o ui.wasm "$OBJ"
+  -o ui.wasm _tmp_ui_abi.o.wasm "$OBJ"
 wasm-validate --enable-exceptions ui.wasm
-rm -f "$OBJ"
+node ui_abi_smoke.mjs
+rm -f "$OBJ" _tmp_ui_abi.o.wasm UiAbi.ir UiAbi.ir.sig UiAbi.olean UiAbi.ilean \
+  UiAbi.olean.private UiAbi.olean.server
 echo "wrote $(pwd)/ui.wasm"
 echo "open ui.html via: python3 -m http.server 8765"

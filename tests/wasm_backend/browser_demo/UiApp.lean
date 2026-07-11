@@ -1,13 +1,14 @@
 module
 
 import Lean
+import UiAbi
 
 /-!
-Fiber UI demo: mini proof state with **string events** and **string labels**.
+Fiber UI demo using a typed effect batch and numeric handler IDs.
 
 * All visible text is `Element.label : String` (no TextId chrome table).
-* Clicks carry UTF-8 event names (`intro`, `exact:0`, …) via a scratch buffer.
-* Hyp rows are clickable (`on="exact:N"`); inapplicable tactics get `disabled`.
+* Clicks carry stable handler IDs; optional UTF-8 payloads use pointer/length slices.
+* Hyp rows are clickable; inapplicable tactics get `disabled`.
 -/
 
 open Lean
@@ -21,10 +22,10 @@ public inductive Tag where
 def Tag.toU32 : Tag → UInt32
   | .div => 0 | .button => 1 | .span => 2 | .ul => 3 | .li => 4
 
-/-- Virtual DOM: free-string labels + nodes with class and optional click event name. -/
+/-- Virtual DOM: free-string labels + nodes with class and an optional typed handler ID. -/
 public inductive Element where
   | label (s : String)
-  | node (tag : Tag) (key : Option UInt32) (cls : String) (onClick : String)
+  | node (tag : Tag) (key : Option UInt32) (cls : String) (onClick : UInt32)
       (children : Array Element)
   deriving Inhabited
 
@@ -69,14 +70,18 @@ meta def extractAttrs (attrs : Array Syntax) :
     MacroM (TSyntax `term × TSyntax `term × TSyntax `term) := do
   let mut key ← `(none)
   let mut cls ← `("")
-  let mut on ← `("")
+  let mut on ← `((0 : UInt32))
   for attr in attrs do
     match attr with
     | `(jsxAttr| key={$e}) => key ← `(some ($e : UInt32))
     | `(jsxAttr| class={$e}) => cls ← `(($e : String))
     | `(jsxAttr| class=$s:str) => cls ← `($s)
-    | `(jsxAttr| on={$e}) => on ← `(($e : String))
-    | `(jsxAttr| on=$s:str) => on ← `($s)
+    | `(jsxAttr| on={$e}) => on ← `(($e : UInt32))
+    | `(jsxAttr| on="intro") => on ← `(UiAbi.Handler.intro)
+    | `(jsxAttr| on="constructor") => on ← `(UiAbi.Handler.constructor)
+    | `(jsxAttr| on="cases") => on ← `(UiAbi.Handler.cases)
+    | `(jsxAttr| on="undo") => on ← `(UiAbi.Handler.undo)
+    | `(jsxAttr| on="reset") => on ← `(UiAbi.Handler.reset)
     | _ => Macro.throwUnsupported
   return (key, cls, on)
 
@@ -110,7 +115,7 @@ public structure Fiber where
   tag : Tag := .div
   key : Option UInt32 := none
   cls : String := ""
-  onClick : String := ""
+  onClick : UInt32 := 0
   isLabel : Bool := false
   labelStr : String := ""
   children : Array Fiber := #[]
@@ -118,17 +123,15 @@ public structure Fiber where
 instance : Inhabited Fiber where
   default := { id := 0 }
 
-/-- Effect words (7): op,id,parent,a,b,c,d — see native_backend.cpp. -/
+/-- Typed effect lowered to one fixed-size wire record by `ui_bridge.cpp`. -/
 public structure Effect where
   op : UInt32
   id : UInt32
   parent : UInt32
-  a : UInt32 := 0
-  b : UInt32 := 0
-  c : UInt32 := 0
-  d : UInt32 := 0
-  str : String := ""
-  ev : String := ""
+  index : UInt32 := 0
+  payload0 : UInt32 := 0
+  payload1 : UInt32 := 0
+  text : String := ""
 
 instance : Inhabited Effect where
   default := { op := 0, id := 0, parent := 0 }
@@ -184,21 +187,14 @@ def goalTitle (i : Nat) : String :=
   match i with
   | 0 => "goal #1" | 1 => "goal #2" | 2 => "goal #3" | 3 => "goal #4" | _ => "goal"
 
-/-- Parse event names from the host: `intro`, `exact:0`, … -/
-def Event.parse (s : String) : Option Event :=
-  if s == "intro" then some .intro
-  else if s == "constructor" then some .constructor
-  else if s == "cases" then some .cases
-  else if s == "undo" then some .undo
-  else if s == "reset" then some .reset
-  else if s == "exact:0" then some (.exact 0)
-  else if s == "exact:1" then some (.exact 1)
-  else if s == "exact:2" then some (.exact 2)
-  else if s == "exact:3" then some (.exact 3)
-  else if s == "exact:4" then some (.exact 4)
-  else if s == "exact:5" then some (.exact 5)
-  else if s == "exact:6" then some (.exact 6)
-  else if s == "exact:7" then some (.exact 7)
+def Event.ofHandlerId (id : UInt32) : Option Event :=
+  if id == UiAbi.Handler.intro then some .intro
+  else if id == UiAbi.Handler.constructor then some .constructor
+  else if id == UiAbi.Handler.cases then some .cases
+  else if id == UiAbi.Handler.undo then some .undo
+  else if id == UiAbi.Handler.reset then some .reset
+  else if id >= UiAbi.Handler.exactBase && id < UiAbi.Handler.exactBase + 8 then
+    some (.exact (id - UiAbi.Handler.exactBase))
   else none
 
 def Model.pack (m : Model) : UInt32 :=
@@ -284,19 +280,10 @@ opaque clearEffectsRaw : UInt32 → UInt32
 
 @[extern "lean_ui_push_effect", never_extract]
 opaque pushEffectRaw :
-    UInt32 → UInt32 → UInt32 → UInt32 → UInt32 → UInt32 → UInt32 → UInt32 → UInt32
+    UInt32 → UInt32 → UInt32 → UInt32 → UInt32 → UInt32 → UInt32 → @& String → UInt32
 
-@[extern "lean_ui_intern_string", never_extract]
-opaque internString : @& String → UInt32
-
-@[extern "lean_ui_string_from_utf8", never_extract]
-opaque stringFromUtf8 : UInt32 → UInt32 → String
-
-@[extern "lean_ui_effect_count_get", never_extract]
-opaque effectCountGetRaw : UInt32 → UInt32
-
-@[extern "lean_ui_effect_word", never_extract]
-opaque effectWordRaw : UInt32 → UInt32
+@[extern "lean_ui_batch_ptr", never_extract]
+opaque batchPtrRaw : UInt32 → UInt32
 
 @[extern "lean_ui_load_fiber", never_extract]
 opaque loadFiberRaw : UInt32 → Option Fiber
@@ -308,20 +295,7 @@ def clearEffects : Host Unit :=
   hostPrim clearEffectsRaw
 
 def pushEffect (e : Effect) : Host Unit :=
-  hostPrim fun w =>
-    if e.op == 1 then
-      let clsId := internString e.str
-      let evId := if e.ev == "" then (0 : UInt32) else internString e.ev
-      pushEffectRaw w e.op e.id e.parent e.a clsId e.c evId
-    else if e.op == 5 then
-      let clsId := internString e.str
-      pushEffectRaw w e.op e.id e.parent clsId e.b e.c 0
-    else if e.op == 2 || e.op == 3 then
-      -- free-string text: a stays 255, b = interned payload
-      let sid := internString e.str
-      pushEffectRaw w e.op e.id e.parent 255 sid e.c 0
-    else
-      pushEffectRaw w e.op e.id e.parent e.a e.b e.c e.d
+  hostPrim fun w => pushEffectRaw w e.op e.id e.parent e.index e.payload0 e.payload1 e.text
 
 def loadFiber : Host (Option Fiber) := hostRead loadFiberRaw
 def storeFiber (f : Option Fiber) : Host Unit := hostPrim fun t => storeFiberRaw t f
@@ -470,11 +444,8 @@ open scoped Jsx
 def tacClass (base : String) (enabled : Bool) : String :=
   if enabled then base else base ++ " disabled"
 
-def exactEvent (i : Nat) : String :=
-  match i with
-  | 0 => "exact:0" | 1 => "exact:1" | 2 => "exact:2" | 3 => "exact:3"
-  | 4 => "exact:4" | 5 => "exact:5" | 6 => "exact:6" | 7 => "exact:7"
-  | _ => ""
+def exactEvent (i : Nat) : UInt32 :=
+  if i < 8 then UiAbi.Handler.exact i.toUInt32 else UiAbi.Handler.none
 
 /-- Hyp rows carry `on="exact:N"` — click the row to exact that hypothesis. -/
 def viewHyps (hyps : Array Formula) : Array Element :=
@@ -552,7 +523,7 @@ partial def removeFiber (f : Fiber) (r : Recon) : Recon :=
       dropKids (i + 1) (removeFiber f.children[i] r)
     else r
   let r := dropKids 0 r
-  r.emit { op := 4, id := f.id, parent := 0 }
+  r.emit { op := UiAbi.Effect.remove, id := f.id, parent := 0 }
 
 def takeChild (old : Array Fiber) (el : Element) (_idx : Nat) : Option Fiber × Array Fiber :=
   let key? : Option UInt32 :=
@@ -580,13 +551,13 @@ partial def reconcile (parentId : UInt32) (index : UInt32) (old? : Option Fiber)
       if f.isLabel then
         let r :=
           if f.labelStr == s then r
-          else r.emit { op := 3, id := f.id, parent := parentId, str := s }
+          else r.emit { op := UiAbi.Effect.setText, id := f.id, parent := parentId, text := s }
         ({ f with labelStr := s, children := #[] }, r)
       else
         reconcile parentId index none el (removeFiber f r)
     | none =>
       let (id, r) := r.fresh
-      let r := r.emit { op := 2, id, parent := parentId, c := index, str := s }
+      let r := r.emit { op := UiAbi.Effect.createText, id, parent := parentId, index, text := s }
       ({ id, isLabel := true, labelStr := s, tag := .span, children := #[] }, r)
   | .node tag key cls onClick kids =>
     match old? with
@@ -594,8 +565,15 @@ partial def reconcile (parentId : UInt32) (index : UInt32) (old? : Option Fiber)
       if !f.isLabel && f.tag == tag && f.key == key then
         let r :=
           if f.cls == cls then r
-          else r.emit { op := 5, id := f.id, parent := parentId, str := cls }
-        -- onClick is sticky at create time in this MVP (buttons rarely change handlers)
+          else r.emit { op := UiAbi.Effect.setClass, id := f.id, parent := parentId, text := cls }
+        let r :=
+          if f.onClick == onClick then r
+          else r.emit {
+            op := UiAbi.Effect.setHandler
+            id := f.id
+            parent := parentId
+            payload0 := onClick
+          }
         let (children, r) := reconcileChildren f.id f.children kids r
         ({ f with cls, onClick, children }, r)
       else
@@ -603,7 +581,8 @@ partial def reconcile (parentId : UInt32) (index : UInt32) (old? : Option Fiber)
     | none =>
       let (id, r) := r.fresh
       let r := r.emit {
-        op := 1, id, parent := parentId, a := tag.toU32, c := index, str := cls, ev := onClick
+        op := UiAbi.Effect.createElement, id, parent := parentId, index,
+        payload0 := tag.toU32, payload1 := onClick, text := cls
       }
       let (children, r) := reconcileChildren id #[] kids r
       ({ id, tag, key, cls, onClick, isLabel := false, children }, r)
@@ -648,13 +627,13 @@ def bootM : Host UInt32 := do
   storeModel (some m)
   pure m.pack
 
-def dispatchM (event : String) : Host UInt32 := do
+def dispatchM (handlerId : UInt32) : Host UInt32 := do
   let m0 ← loadModel
   let m := m0.getD Model.initial
   let m :=
-    match Event.parse event with
+    match Event.ofHandlerId handlerId with
     | some e => update m e
-    | none => { m with msg := "unknown event: " ++ event }
+    | none => { m with msg := "unknown handler" }
   let old ← loadFiber
   let (fiber, effects) := renderFrame m old
   flushEffects effects
@@ -666,45 +645,22 @@ def dispatchM (event : String) : Host UInt32 := do
 def boot (seed : UInt32) : UInt32 :=
   runHost seed bootM
 
-/-- String events: JS writes UTF-8 into the scratch buffer, then calls this. -/
-@[export lean_ui_dispatch_s, noinline]
-def dispatchS (packedModel ptr len : UInt32) : UInt32 :=
-  let s := stringFromUtf8 ptr len
-  runHost packedModel (dispatchM s)
-
-/-- Legacy numeric path removed; smoke drives tactics via stringFromUtf8 on a static message.
-    For tests we expose a thin wrapper that runs `intro` once. -/
 @[export lean_ui_dispatch, noinline]
-def dispatch (packedModel eventCode : UInt32) : UInt32 :=
-  let s :=
-    match eventCode with
-    | 0 => "intro"
-    | 1 => "constructor"
-    | 2 => "cases"
-    | 3 => "undo"
-    | 4 => "reset"
-    | 10 => "exact:0"
-    | 11 => "exact:1"
-    | 12 => "exact:2"
-    | 13 => "exact:3"
-    | _ => ""
-  runHost packedModel (dispatchM s)
+def dispatch (packedModel handlerId payloadPtr payloadLen : UInt32) : UInt32 :=
+  let _ := payloadPtr
+  let _ := payloadLen
+  runHost packedModel (dispatchM handlerId)
 
-@[export lean_ui_effect_count]
-def uiEffectCount (seed : UInt32) : UInt32 :=
-  effectCountGetRaw seed
-
-@[export lean_ui_effect_at]
-def uiEffectAt (i w : UInt32) : UInt32 :=
-  effectWordRaw (i * 7 + w)
+@[export lean_ui_batch]
+def uiBatch (seed : UInt32) : UInt32 := batchPtrRaw seed
 
 @[export lean_ui_boot_effect_count]
 def bootEffectCount (seed : UInt32) : UInt32 :=
   let p := boot seed
-  let n := effectCountGetRaw p
-  n + (p >>> 31)
+  let ptr := batchPtrRaw p
+  (if ptr == 0 then (0 : UInt32) else 1) + (p >>> 31)
 
 @[export lean_ui_smoke_click]
 def smokeClick (seed : UInt32) : UInt32 :=
   let m := boot seed
-  dispatch m 0  -- intro
+  dispatch m UiAbi.Handler.intro 0 0

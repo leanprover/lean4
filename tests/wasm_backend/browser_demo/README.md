@@ -6,6 +6,7 @@ Two demos side by side:
 |---|---|---|
 | [index.html](./index.html) | pure scalars | none |
 | [core_rt.html](./core_rt.html) | multi-module + constructors/RC | language-core `libleanrt` |
+| [ui.html](./ui.html) | typed fiber UI | language-core `libleanrt` |
 
 ## Prerequisites
 
@@ -22,6 +23,9 @@ Two demos side by side:
 # Core runtime multi-module program
 export WASI_SDK_PATH=/path/to/wasi-sdk
 ./build_core_rt.sh
+
+# Typed UI, generated JS ABI bindings, and headless boot/click smoke test
+./build_ui.sh
 ```
 
 ## Run
@@ -32,6 +36,11 @@ python3 -m http.server 8765
 
 * <http://localhost:8765/> — scalar demo
 * <http://localhost:8765/core_rt.html> — core runtime demo
+* <http://localhost:8765/ui.html> — typed fiber UI
+
+The UI crosses the JS/WASM boundary once per frame through a fixed-layout effect batch in linear
+memory. `../UiAbi.lean` is the canonical opcode and handler contract;
+`generate_ui_abi.py` emits the JavaScript constants and decoder plus TypeScript declarations.
 
 ## What this is (and is not)
 

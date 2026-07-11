@@ -18,7 +18,7 @@ stage1="${LEAN_BUILD_DIR:-$root/build/release/stage1}"
 mkdir -p "$out/include/lean" "$out/obj"
 printf '%s\n' '#pragma once' '#include <lean/version.h>' '#define LEAN_IS_STAGE0 0' > "$out/include/lean/config.h"
 
-sources=(debug mpz utf8 object apply exception memory alloc mpn native_backend wasm_support)
+sources=(debug mpz utf8 object apply exception memory alloc mpn native_backend wasm_support ui_bridge)
 objects=()
 for source in "${sources[@]}"; do
   object="$out/obj/$source.o"

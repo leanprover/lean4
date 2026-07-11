@@ -44,9 +44,11 @@ model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.intro, 0, 0) >>>
 const click = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
 if (click.count === 0 || click.overflowed) throw new Error("invalid click effect batch");
 
-for (let demo = 0; demo < 10; demo++) {
+for (let demo = 1; demo < 10; demo++) {
   model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.selectBase + demo, 0, 0) >>> 0;
-  model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + demo * 16, 0, 0) >>> 0;
+  for (let action = 0; action < 3; action++) {
+    model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + demo * 16 + action, 0, 0) >>> 0;
+  }
   const batch = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
   if (batch.count === 0 || batch.overflowed) throw new Error(`invalid demo ${demo} batch`);
 }

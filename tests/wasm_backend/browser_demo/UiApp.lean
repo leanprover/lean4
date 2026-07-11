@@ -167,6 +167,8 @@ public structure Model where
   msg : String := ""
   demo : UInt32 := 0
   value : UInt32 := 0
+  aux : UInt32 := 0
+  running : Bool := false
   tick : UInt32 := 0
   input : String := "λ x => x"
 
@@ -454,13 +456,41 @@ def update (m : Model) (payload : String) : Event → Model
   | .exact i => tacExact m i
   | .undo => tacUndo m
   | .reset => tacReset m
-  | .select demo => { m with demo, msg := "demo selected", value := 0, tick := 0 }
+  | .select demo => { m with demo, msg := "demo selected", value := 0, aux := 0, running := false, tick := 0 }
   | .action demo action =>
     if demo != m.demo then m
-    else if action == 0 then { m with value := m.value + 1, msg := "step" }
-    else if action == 1 then { m with value := if m.value == 0 then 0 else m.value - 1, msg := "rewind" }
-    else { m with value := 0, msg := "reset" }
-  | .tick => { m with tick := m.tick + 1 }
+    else match demo with
+      | 1 => if action == 0 then { m with value := m.value + 1, msg := "β-reduce" }
+        else if action == 1 then { m with value := 3, msg := "normalize" }
+        else { m with value := if m.value == 0 then 0 else m.value - 1, msg := "rewind reduction" }
+      | 2 => if action == 0 then { m with value := m.value + 1, msg := "add counter" }
+        else if action == 1 then { m with aux := m.aux ^^^ 1, msg := "toggle keyed mode" }
+        else { m with value := 0, aux := 0, msg := "clear counters" }
+      | 3 => if action == 0 then { m with running := !m.running, msg := "toggle simulation" }
+        else if action == 1 then { m with value := m.value + 1, msg := "single generation" }
+        else { m with value := 0, running := false, msg := "clear grid" }
+      | 4 => if action == 0 then { m with value := m.value + 1, msg := "insert node" }
+        else if action == 1 then { m with aux := m.aux + 1, msg := "fork version" }
+        else { m with value := if m.value == 0 then 0 else m.value - 1, msg := "previous root" }
+      | 5 => if action == 0 then { m with value := min 9 (m.value + 1), msg := "propagate" }
+        else if action == 1 then { m with aux := m.aux + 1, msg := "guess branch" }
+        else { m with value := if m.value == 0 then 0 else m.value - 1, msg := "backtrack" }
+      | 6 => if action == 0 then { m with value := m.value + 1, msg := "deliver message" }
+        else if action == 1 then { m with running := !m.running, msg := "toggle partition" }
+        else { m with aux := m.aux + 1, msg := "crash follower" }
+      | 7 => if action == 0 then { m with value := m.value + 1, msg := "move east" }
+        else if action == 1 then { m with aux := m.aux + 1, msg := "prove door lemma" }
+        else { m with value := 0, aux := 0, msg := "restart dungeon" }
+      | 8 => if action == 0 then { m with value := m.value + 10, msg := "pan right" }
+        else if action == 1 then { m with aux := m.aux + 1, msg := "zoom in" }
+        else { m with value := m.value + 1, msg := "next transition" }
+      | 9 => if action == 0 then { m with value := m.value + 1, msg := "emit synthetic effect" }
+        else if action == 1 then { m with aux := m.aux + 32, msg := "grow payload" }
+        else { m with running := !m.running, msg := "toggle malformed batch" }
+      | _ => m
+  | .tick =>
+    let value := if m.running && (m.demo == 3 || m.demo == 6) then m.value + 1 else m.value
+    { m with tick := m.tick + 1, value }
   | .input => { m with input := payload, msg := "input updated" }
 
 /-! ### View (all strings) -/
@@ -567,27 +597,53 @@ def demoVisualization (m : Model) : Element :=
       <div class="term-node result">{Element.label (if m.value % 2 == 0 then "λ x => x" else "normal form: identity")}</div>
     </div>)
   | 2 => (<div class="counter-grid">{#[metric "counter" (u32Text m.value),
-      metric "host ticks" (u32Text m.tick), metric "keyed nodes" "stable"]}</div>)
+      metric "instances" (u32Text (m.value + 1)),
+      metric "reconciliation" (if m.aux == 0 then "positional" else "keyed") ]}</div>)
   | 3 => (<canvas class="demo-canvas automaton" />)
   | 4 => (<div class="tree-viz">
-      <div class="tree-node root-node">{Element.label ("root v" ++ u32Text m.value)}</div>
+      <div class="tree-node root-node">{Element.label ("root v" ++ u32Text m.aux)}</div>
       <div class="tree-level">{#[
         (<span class="tree-node shared">{Element.label "shared left"}</span>),
-        (<span class="tree-node fresh">{Element.label ("new " ++ u32Text (m.value + 1))}</span>)]}</div>
+        (<span class="tree-node fresh">{Element.label ("inserted nodes " ++ u32Text m.value)}</span>)]}</div>
     </div>)
   | 5 => (<div class="constraint-grid">{arrayMapIdx #["1", "·", "3", "·", "2", "·", "4", "·", "1"] fun i x =>
-      (<span key={i.toUInt32} class="constraint-cell">{Element.label x}</span>)}</div>)
+      let solved := i < m.value.toNat
+      (<span key={i.toUInt32} class={if solved then "constraint-cell solved" else "constraint-cell"}>
+        {Element.label (if solved then u32Text ((i.toUInt32 % 4) + 1) else x)}</span>)}</div>)
   | 6 => (<div class="raft-viz">{#[
-      (<div class="raft-node leader">{Element.label ("leader · term " ++ u32Text m.value)}</div>),
+      (<div class={if m.running then "raft-node leader partitioned" else "raft-node leader"}>
+        {Element.label ("leader · log " ++ u32Text m.value)}</div>),
       (<div class="message-flight">{Element.label ("append entries → round " ++ u32Text m.tick)}</div>),
-      (<div class="raft-node">{Element.label "follower"}</div>)]}</div>)
+      (<div class="raft-node">{Element.label ("followers alive: " ++ u32Text (2 - min 2 m.aux))}</div>)]}</div>)
   | 7 => (<div class="dungeon"><div class="room unlocked">{Element.label "axiom hall"}</div>
-      <div class="door">{Element.label (if m.value > 2 then "✓ theorem gate open" else "🔒 prove 3 steps")}</div>
+      <div class="door">{Element.label (if m.aux > 1 then "✓ theorem gate open" else "🔒 prove 2 lemmas")}</div>
       <div class="room">{Element.label "induction tower"}</div></div>)
   | 8 => (<canvas class="demo-canvas waveform" />)
   | 9 => (<div class="abi-grid">{#[metric "batch header" "32 bytes", metric "effect record" "32 bytes",
-      metric "handler" (u32Text (demoAction m.demo 0)), metric "last batch tick" (u32Text m.tick)]}</div>)
+      metric "handler" (u32Text (demoAction m.demo 0)), metric "synthetic effects" (u32Text m.value),
+      metric "payload bytes" (u32Text m.aux), metric "malformed" (if m.running then "armed" else "off")]}</div>)
   | _ => (<div class="demo-placeholder">{Element.label "Select a control to advance this model."}</div>)
+
+def demoControlLabels (demo : UInt32) : String × String × String :=
+  match demo with
+  | 1 => ("β-reduce", "normalize", "rewind")
+  | 2 => ("add counter", "toggle keys", "clear")
+  | 3 => ("run / pause", "single generation", "clear grid")
+  | 4 => ("insert", "fork version", "previous root")
+  | 5 => ("propagate", "guess", "backtrack")
+  | 6 => ("deliver message", "partition", "crash follower")
+  | 7 => ("move east", "prove lemma", "restart")
+  | 8 => ("pan right", "zoom in", "next edge")
+  | 9 => ("emit effect", "grow payload", "malform batch")
+  | _ => ("step", "rewind", "reset")
+
+def demoControls (demo : UInt32) : Element :=
+  let (a, b, c) := demoControlLabels demo
+  (<div class="tactics">
+    <button class="tac" on={demoAction demo 0}>{Element.label a}</button>
+    <button class="tac" on={demoAction demo 1}>{Element.label b}</button>
+    <button class="tac tac-reset" on={demoAction demo 2}>{Element.label c}</button>
+  </div>)
 
 def viewDemo (m : Model) : Element :=
   let idx := m.demo.toNat
@@ -597,11 +653,7 @@ def viewDemo (m : Model) : Element :=
     <div class="title">{Element.label title}</div>
     <div class="msg">{Element.label description}</div>
     <div class="demo-stage">{demoVisualization m}</div>
-    <div class="tactics">
-      <button class="tac" on={demoAction m.demo 0}>{Element.label "step"}</button>
-      <button class="tac" on={demoAction m.demo 1}>{Element.label "rewind"}</button>
-      <button class="tac tac-reset" on={demoAction m.demo 2}>{Element.label "reset"}</button>
-    </div>
+    {demoControls m.demo}
     <div class="hint">{Element.label ("value=" ++ u32Text m.value ++ " · tick=" ++ u32Text m.tick)}</div>
   </div>)
 

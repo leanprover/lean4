@@ -285,6 +285,46 @@ public def findEntry? (t : ImportedConsts α) (n : Name) : Option (α × Nat) :=
   let path := prefixesOf n
   t.findEntryAux path path.size
 
+@[export lean_imported_consts_find_entry_core]
+private def findEntryCore (t : ImportedConsts ConstantInfo) (n : Name) :
+    Option (ConstantInfo × Nat) :=
+  t.findEntry? n
+
+/--
+`findEntry?` for the constants view, memoized in a process-global, lock-free cache; sound because
+the imported view is immutable per import set. Implemented in C++ (`src/library/const_cache.cpp`)
+where the cache can avoid reference counting, as everything it stores is persistent.
+-/
+@[extern "lean_imported_consts_find_entry_cached"]
+public opaque findConstEntryCached? (t : @& ImportedConsts ConstantInfo) (n : @& Name) :
+    Option (ConstantInfo × Nat)
+
+@[inherit_doc findConstEntryCached?]
+public def findConstCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option ConstantInfo :=
+  match t.findConstEntryCached? n with
+  | some (c, _) => some c
+  | none        => none
+
+@[inherit_doc findConstEntryCached?]
+public def findConstModIdxCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option Nat :=
+  match t.findConstEntryCached? n with
+  | some (_, modIdx) => some modIdx
+  | none             => none
+
+@[export lean_imported_extra_consts_find_entry_core]
+private def findExtraEntryCore (t : ImportedConsts Unit) (n : Name) : Option (Unit × Nat) :=
+  t.findEntry? n
+
+@[inherit_doc findConstEntryCached?, extern "lean_imported_extra_consts_find_entry_cached"]
+public opaque findExtraEntryCached? (t : @& ImportedConsts Unit) (n : @& Name) :
+    Option (Unit × Nat)
+
+@[inherit_doc findConstEntryCached?]
+public def findExtraModIdxCached? (t : ImportedConsts Unit) (n : Name) : Option Nat :=
+  match t.findExtraEntryCached? n with
+  | some (_, modIdx) => some modIdx
+  | none             => none
+
 public def find? (t : ImportedConsts α) (n : Name) : Option α :=
   let path := prefixesOf n
   t.findValAux path path.size
@@ -419,19 +459,19 @@ namespace ConstMap
 public def find? (m : ConstMap) (n : Name) : Option ConstantInfo :=
   match m.map₂.find? n with
   | r@(some _) => r
-  | none       => m.map₁.find? n
+  | none       => m.map₁.findConstCached? n
 
 /--
 Similar to `find?`, but searches the imported constants first. So, the result is correct only if
 imported constants are never overwritten.
 -/
 public def find?' (m : ConstMap) (n : Name) : Option ConstantInfo :=
-  match m.map₁.find? n with
+  match m.map₁.findConstCached? n with
   | r@(some _) => r
   | none       => m.map₂.find? n
 
 public def contains (m : ConstMap) (n : Name) : Bool :=
-  m.map₂.contains n || m.map₁.contains n
+  m.map₂.contains n || (m.map₁.findConstCached? n).isSome
 
 public def insert (m : ConstMap) (n : Name) (v : ConstantInfo) : ConstMap :=
   { m with map₂ := m.map₂.insert n v }

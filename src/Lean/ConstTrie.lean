@@ -435,6 +435,26 @@ public def forM [Monad m] (t : ImportedConsts α) (f : Name → α → m PUnit) 
 public def size (t : ImportedConsts α) : Nat :=
   t.foldl (fun n _ _ => n + 1) 0
 
+@[inherit_doc foldlM]
+public def fold (t : ImportedConsts α) (f : σ → Name → α → σ) (init : σ) : σ :=
+  t.foldl f init
+
+public def toList (t : ImportedConsts α) : List (Name × α) :=
+  t.foldl (fun l n v => (n, v) :: l) []
+
+public def toArray (t : ImportedConsts α) : Array (Name × α) :=
+  t.foldl (fun l n v => l.push (n, v)) #[]
+
+public def keys (t : ImportedConsts α) : List Name :=
+  t.foldl (fun l n _ => n :: l) []
+
+public def values (t : ImportedConsts α) : List α :=
+  t.foldl (fun l _ v => v :: l) []
+
+public instance [Inhabited α] : GetElem? (ImportedConsts α) Name α (fun _ _ => True) where
+  getElem? t n := t.find? n
+  getElem t n _ := (t.find? n).get!
+
 public instance [Monad m] : ForM m (ImportedConsts α) (Name × α) where
   forM t f := t.forM fun n v => f (n, v)
 

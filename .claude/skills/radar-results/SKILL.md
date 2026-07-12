@@ -18,6 +18,30 @@ The `leanprover-radar` bot posts a PR comment like:
 Fetch it with `gh api repos/leanprover/lean4/issues/<PR>/comments --jq '.[] | select(.user.login == "leanprover-radar") | .body'`.
 The two hashes are the benched commit (`COMMIT`, usually the PR head) and the baseline (`REFERENCE`, usually the merge-base).
 
+## Waiting for a running bench: results arrive by comment EDIT
+
+When a bench is submitted, the bot immediately posts a placeholder comment:
+
+> Benchmarking COMMIT against REFERENCE ([preliminary results](...)).
+> React with :eyes: to be notified when the results are in.
+
+The final results are added by **editing this same comment in place** (body becomes "[Benchmark
+results](...) for COMMIT against REFERENCE are in."), so polling for *new* comments misses them.
+Note the placeholder's comment `id` and poll that comment until its body starts with
+`[Benchmark results]`. Do NOT match on "are in" — the placeholder's footer ("...when the results
+are in") already contains it.
+
+```bash
+while :; do
+  body=$(gh api repos/leanprover/lean4/issues/comments/<ID> -q .body)
+  case $body in "[Benchmark results]"*) break;; esac
+  sleep 300
+done
+```
+
+Runs typically complete in ~15–60 minutes. The mathlib bench (`!bench mathlib`) posts a separate
+comment for the `mathlib4-nightly-testing` repo, same edit-in-place mechanism.
+
 ## Fetching the comparison
 
 ```bash

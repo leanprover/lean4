@@ -19,8 +19,11 @@ after a free. The value is marked multi-threaded so that reader threads can take
 atomically. `lean_mark_persistent` must NOT be used here: it plain-writes reference counts while
 other elaboration threads concurrently update them atomically, corrupting shared object graphs.
 
-The cache is direct-mapped and clobbers on collision, bounding memory at the cost of occasional
-recomputation.
+The cache uses open addressing with a short probe window and never replaces an entry: a replaced
+entry would have to be leaked (it may still be read concurrently), and colliding hot keys would
+then leak one entry per alternation, without bound. Instead, a miss inserts into the first empty
+slot of the window, or not at all if the window is full. This bounds the cache's memory by the
+table size at the cost of recomputing lookups that lose all slots of their window.
 */
 
 extern "C" lean_object * lean_imported_consts_find_entry_core(lean_obj_arg root, lean_obj_arg n);
@@ -35,6 +38,7 @@ struct entry {
 };
 
 constexpr size_t num_slots = 1 << 18;
+constexpr size_t probe_window = 8;
 std::atomic<entry *> g_slots[num_slots];
 }
 
@@ -42,14 +46,25 @@ static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
         lean_object * (*core)(lean_obj_arg, lean_obj_arg)) {
     uint64_t h = lean_name_hash(n) ^ (reinterpret_cast<uintptr_t>(root) >> 4);
     size_t slot = static_cast<size_t>(h) & (num_slots - 1);
-    entry * e = g_slots[slot].load(std::memory_order_acquire);
-    if (e && e->m_root == root && lean_name_eq(e->m_key, n)) {
-        // atomic: the value is multi-threaded and pinned by the entry
-        lean_inc(e->m_val);
-        return e->m_val;
+    size_t empty = num_slots;
+    for (size_t i = 0; i < probe_window; i++) {
+        size_t s = (slot + i) & (num_slots - 1);
+        entry * e = g_slots[s].load(std::memory_order_acquire);
+        if (!e) {
+            empty = s;
+            // entries are only inserted at the window's first empty slot, so stop searching
+            break;
+        }
+        if (e->m_root == root && lean_name_eq(e->m_key, n)) {
+            // atomic: the value is multi-threaded and pinned by the entry
+            lean_inc(e->m_val);
+            return e->m_val;
+        }
     }
     lean_inc(root); lean_inc(n);
     lean_object * r = core(root, n);
+    if (empty == num_slots)
+        return r;
     // the value is handed to and `inc`ed by arbitrary reader threads; its fresh nodes are still
     // single-threaded here, so marking is race-free
     lean_mark_mt(r);
@@ -57,8 +72,14 @@ static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
     lean_inc(root);
     lean_inc(n);
     entry * ne = new entry{root, n, r};
-    g_slots[slot].store(ne, std::memory_order_release);
-    // (previous entry is intentionally leaked: it may still be read concurrently)
+    entry * expected = nullptr;
+    if (!g_slots[empty].compare_exchange_strong(expected, ne, std::memory_order_release,
+            std::memory_order_relaxed)) {
+        // lost an insertion race; drop the new entry rather than probing on
+        lean_dec(root); lean_dec(n);
+        delete ne;
+        return r;
+    }
     lean_inc(r);
     return r;
 }

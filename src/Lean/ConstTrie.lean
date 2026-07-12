@@ -299,13 +299,13 @@ where cache hits can avoid reference counting on the view and key.
 public opaque findConstEntryCached? (t : @& ImportedConsts ConstantInfo) (n : @& Name) :
     Option (ConstantInfo × Nat)
 
-@[inherit_doc findConstEntryCached?]
+@[inherit_doc findConstEntryCached?, inline]
 public def findConstCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option ConstantInfo :=
   match t.findConstEntryCached? n with
   | some (c, _) => some c
   | none        => none
 
-@[inherit_doc findConstEntryCached?]
+@[inherit_doc findConstEntryCached?, inline]
 public def findConstModIdxCached? (t : ImportedConsts ConstantInfo) (n : Name) : Option Nat :=
   match t.findConstEntryCached? n with
   | some (_, modIdx) => some modIdx
@@ -319,7 +319,7 @@ private def findExtraEntryCore (t : ImportedConsts Unit) (n : Name) : Option (Un
 public opaque findExtraEntryCached? (t : @& ImportedConsts Unit) (n : @& Name) :
     Option (Unit × Nat)
 
-@[inherit_doc findConstEntryCached?]
+@[inherit_doc findConstEntryCached?, inline]
 public def findExtraModIdxCached? (t : ImportedConsts Unit) (n : Name) : Option Nat :=
   match t.findExtraEntryCached? n with
   | some (_, modIdx) => some modIdx

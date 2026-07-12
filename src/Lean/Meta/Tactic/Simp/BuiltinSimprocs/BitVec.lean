@@ -258,6 +258,19 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
     -/
     return .done (← mkNumeral (mkApp (mkConst ``BitVec) n) v)
 
+/--
+Simplification procedure for ensuring `OfNat.ofNat` bitvector literals are normalized.
+For example, `(17 : BitVec 4)` is reduced to `(1 : BitVec 4)` when `bitVecOfNat := false`,
+and to `1#4` when `bitVecOfNat := true`.
+-/
+builtin_dsimproc [simp, seval] isValue ((OfNat.ofNat _ : BitVec _)) := fun e => do
+  let_expr OfNat.ofNat _ m _ ← e | return .continue
+  let some m ← Nat.fromExpr? m | return .continue
+  let some ⟨_, v⟩ ← getBitVecValue? e | return .continue
+  if v.toNat == m && !(← Simp.getConfig).bitVecOfNat then
+    return .done e -- already normalized; `OfNat.ofNat` is the normal form when `bitVecOfNat := false`
+  return .done (← toExpr' v)
+
 /-- Simplification procedure for `=` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
 /-- Simplification procedure for `≠` on `BitVec`s. -/

@@ -830,14 +830,14 @@ Use `findTask` instead if any blocking should be avoided.
 -/
 def findAsync? (env : Environment) (n : Name) (skipRealize := false) : Option AsyncConstantInfo := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
-  if let some c := env.base.get env |>.constants.imported.find? n then
+  if let some c := env.base.get env |>.constants.map₁.find? n then
     return .ofConstantInfo c
   findAsyncCore? (skipRealize := skipRealize) env n
 
 /-- Like `findAsync?` but returns a task instead of resorting to blocking. -/
 def findTask (env : Environment) (n : Name) (skipRealize := false) : Task (Option AsyncConstantInfo) := Id.run do
   -- Avoid going through `AsyncConstantInfo` for `base` access
-  if let some c := env.base.get env |>.constants.imported.find? n then
+  if let some c := env.base.get env |>.constants.map₁.find? n then
     return .pure <| some <| .ofConstantInfo c
   findTaskCore (skipRealize := skipRealize) env n
 
@@ -847,13 +847,13 @@ through the result.
 -/
 def findConstVal? (env : Environment) (n : Name) (skipRealize := false) : Option ConstantVal := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
-  if let some c := env.base.get env |>.constants.imported.find? n then
+  if let some c := env.base.get env |>.constants.map₁.find? n then
     return c.toConstantVal
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantVal)
 
 /-- Like `findAsync?`, but blocks until the constant's info is fully available.  -/
 def find? (env : Environment) (n : Name) (skipRealize := false) : Option ConstantInfo := do
-  if let some c := env.base.get env |>.constants.imported.find? n then
+  if let some c := env.base.get env |>.constants.map₁.find? n then
     return c
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantInfo)
 
@@ -902,11 +902,11 @@ def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   return s!"\
     asyncCtx.declPrefix: {repr <| env.asyncCtx?.map (·.declPrefix)}\
   \nasyncConsts: {repr <| env.asyncConsts.revList.reverse.map (·.constInfo.name)}
-  \nbase.private.constants.locals: {repr <| env.base.private.constants.locals.toList.map (·.1)}"
+  \nbase.private.constants.map₂: {repr <| env.base.private.constants.map₂.toList.map (·.1)}"
 
 /-- Returns debug output about the synchronous state of the environment. -/
 def dbgFormatCheckedSyncState (env : Environment) : BaseIO String :=
-  return s!"checked.get.constants.locals: {repr <| env.checked.get.constants.locals.toList.map (·.1)}"
+  return s!"checked.get.constants.map₂: {repr <| env.checked.get.constants.map₂.toList.map (·.1)}"
 
 /-- Result of `Lean.Environment.promiseChecked`. -/
 structure PromiseCheckedResult where
@@ -1174,7 +1174,7 @@ declarations in elaboration order, each followed by its asynchronous sub-declara
 The recursive part can optionally be skipped for theorems for when their sub-decls are unimportant
 and visiting them would only add latency by having to wait for proof elaboration to finish.
 
-Unlike iterating `env.constants.locals`, this does not block on `env.checked`, i.e. kernel checking.
+Unlike iterating `env.constants.map₂`, this does not block on `env.checked`, i.e. kernel checking.
 -/
 partial def getLocalConstantInfos (env : Environment) (skipTheoremSubDecls := false) :
     BaseIO (Array AsyncConstantInfo) := do
@@ -2388,7 +2388,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
   let exts ← mkInitialExtensionStates
   let privateBase : Kernel.Environment := {
-    constants := { imported := privImported }
+    constants := { map₁ := privImported }
     allImportedConsts := privImported
     importedExtraConsts
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
@@ -2400,7 +2400,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       regions      := modules.flatMap (·.parts.map (·.2)) ++ modules.flatMap (·.irParts.map (·.2))
     }
   }
-  let publicBase := { privateBase with constants := { imported := publicImported }, header.regions := #[] }
+  let publicBase := { privateBase with constants := { map₁ := publicImported }, header.regions := #[] }
   let extensions ← setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
@@ -2528,7 +2528,7 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
   IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
   IO.println ("number of imported bytes:              " ++ toString (env.header.regions.map (·.size) |>.sum));
-  IO.println ("number of imported consts:             " ++ toString env.constants.imported.size);
+  IO.println ("number of imported consts:             " ++ toString env.constants.map₁.size);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.base.private.extensions.size);
   pExtDescrs.forM fun extDescr => do

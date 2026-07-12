@@ -164,18 +164,18 @@ def formatLinterResults
 
 /-- Get the list of declarations in the current module. -/
 def getDeclsInCurrModule : CoreM (Array Name) := do
-  pure $ (← getEnv).constants.locals.foldl (init := #[]) fun r k _ => r.push k
+  pure $ (← getEnv).constants.map₂.foldl (init := #[]) fun r k _ => r.push k
 
 /-- Get the list of all declarations in the environment. -/
 def getAllDecls : CoreM (Array Name) := do
-  pure $ (← getEnv).constants.imported.foldl (init := ← getDeclsInCurrModule) (fun r k _ => r.push k)
+  pure $ (← getEnv).constants.map₁.foldl (init := ← getDeclsInCurrModule) (fun r k _ => r.push k)
 
 /-- Get the list of all declarations in the specified package. -/
 def getDeclsInPackage (pkg : Name) : CoreM (Array Name) := do
   let env ← getEnv
   let mut decls ← getDeclsInCurrModule
   let modules := env.header.moduleNames.map (pkg.isPrefixOf ·)
-  return env.constants.imported.foldl (init := decls) fun decls declName _ =>
+  return env.constants.map₁.foldl (init := decls) fun decls declName _ =>
     if modules[env.getModuleIdxFor? declName |>.get!]! then
       decls.push declName
     else decls

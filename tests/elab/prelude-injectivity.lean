@@ -36,7 +36,7 @@ run_meta
           let env0 ← getEnv
           mkInjectiveTheorems name
           let env1 ← getEnv
-          if env1.constants.locals.toArray.size > env0.constants.locals.toArray.size then
+          if env1.constants.map₂.toArray.size > env0.constants.map₂.toArray.size then
             pure true
           else
             pure false

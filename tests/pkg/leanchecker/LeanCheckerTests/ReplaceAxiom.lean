@@ -40,7 +40,7 @@ open Lean Elab Meta in
   }
   let consts :=
     { env.constants with
-        imported := overrideImported env.constants.imported ``propext forged }
+        map₁ := overrideImported env.constants.map₁ ``propext forged }
   let kenv := Lean.Kernel.Environment.mk consts
     env.toKernelEnv.quotInit
     env.toKernelEnv.diagnostics

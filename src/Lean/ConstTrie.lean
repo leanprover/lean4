@@ -397,49 +397,49 @@ plus the constants declared in the current module.
 -/
 public structure ConstMap where
   /-- Constants from imported modules. -/
-  imported : ImportedConsts ConstantInfo := .empty
+  map₁ : ImportedConsts ConstantInfo := .empty
   /-- Constants declared in the current module. -/
-  locals   : PHashMap Name ConstantInfo := {}
+  map₂ : PHashMap Name ConstantInfo := {}
 
 public instance : Inhabited ConstMap := ⟨{}⟩
 
 namespace ConstMap
 
 public def find? (m : ConstMap) (n : Name) : Option ConstantInfo :=
-  match m.locals.find? n with
+  match m.map₂.find? n with
   | r@(some _) => r
-  | none       => m.imported.find? n
+  | none       => m.map₁.find? n
 
 /--
 Similar to `find?`, but searches the imported constants first. So, the result is correct only if
 imported constants are never overwritten.
 -/
 public def find?' (m : ConstMap) (n : Name) : Option ConstantInfo :=
-  match m.imported.find? n with
+  match m.map₁.find? n with
   | r@(some _) => r
-  | none       => m.locals.find? n
+  | none       => m.map₂.find? n
 
 public def contains (m : ConstMap) (n : Name) : Bool :=
-  m.locals.contains n || m.imported.contains n
+  m.map₂.contains n || m.map₁.contains n
 
 public def insert (m : ConstMap) (n : Name) (v : ConstantInfo) : ConstMap :=
-  { m with locals := m.locals.insert n v }
+  { m with map₂ := m.map₂.insert n v }
 
 /-- Folds over the constants declared in the current module. -/
 @[inline] public def foldStage2 (f : σ → Name → ConstantInfo → σ) (s : σ) (m : ConstMap) : σ :=
-  m.locals.foldl f s
+  m.map₂.foldl f s
 
 public def foldM {m : Type → Type} [Monad m] (f : σ → Name → ConstantInfo → m σ) (init : σ)
     (map : ConstMap) : m σ := do
-  map.locals.foldlM f (← map.imported.foldlM f init)
+  map.map₂.foldlM f (← map.map₁.foldlM f init)
 
 public def fold (f : σ → Name → ConstantInfo → σ) (init : σ) (m : ConstMap) : σ :=
-  m.locals.foldl f (m.imported.foldl f init)
+  m.map₂.foldl f (m.map₁.foldl f init)
 
 public def forM {m : Type → Type} [Monad m] (map : ConstMap) (f : Name → ConstantInfo → m PUnit) :
     m PUnit := do
-  map.imported.forM f
-  map.locals.forM f
+  map.map₁.forM f
+  map.map₂.forM f
 
 public instance {m : Type → Type} [Monad m] : ForM m ConstMap (Name × ConstantInfo) where
   forM map f := map.forM fun n v => f (n, v)

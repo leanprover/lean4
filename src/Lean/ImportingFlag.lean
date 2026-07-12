@@ -27,18 +27,18 @@ Remark: Compacted module regions must not be freed when using this flag as the
   cached initializer results may reference objects in them.
 Remark: The Lean frontend executes this method at startup time.
 -/
-@[export lean_enable_initializer_execution]
-unsafe def enableInitializersExecution : IO Unit :=
+@[inline, export lean_enable_initializer_execution]
+unsafe def enableInitializersExecution : BaseIO Unit :=
   runInitializersRef.set true
 
-def isInitializerExecutionEnabled : IO Bool :=
+@[inline] def isInitializerExecutionEnabled : BaseIO Bool :=
   runInitializersRef.get
 
 /--
 We say Lean is "initializing" when it is executing `builtin_initialize` declarations or importing modules.
 Recall that Lean executes `initialize` declarations while importing modules.
 -/
-def initializing : IO Bool :=
+@[inline] def initializing : BaseIO Bool :=
   IO.initializing <||> importingRef.get
 
 /--
@@ -51,7 +51,7 @@ This is true in the Lean frontend where we process the `import` commands at the 
 of the execution only. Users must make sure that when `importModules` is used, there is only
 one execution thread accessing the global references.
 -/
-def withImporting (x : IO α) : IO α :=
+@[inline] def withImporting (x : IO α) : IO α :=
   try
     importingRef.set true
     x
@@ -66,8 +66,8 @@ This is intended for C code that needs to emulate multiple `withImporting` calls
 As with `withImporting`, users must make sure there is only one execution thread accessing
 the global references.
 -/
-@[export lean_set_initializing]
-private def setInitializing (b : Bool) : BaseIO Unit :=
-  importingRef.set b
+@[inline, export lean_set_initializing]
+private def setInitializing (initializing : Bool) : BaseIO Unit :=
+  importingRef.set initializing
 
 end Lean

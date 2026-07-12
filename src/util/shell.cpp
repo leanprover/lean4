@@ -319,7 +319,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         std::cerr << "error: " << ex.what() << std::endl;
         return 1;
     }
-    consume_io_result(lean_enable_initializer_execution());
+    lean_enable_initializer_execution();
 
     // Default the configured thread stack size from the environment as in `lean_run_main`;
     // `--tstack` below overrides it.

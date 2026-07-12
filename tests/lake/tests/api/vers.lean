@@ -14,11 +14,11 @@ def checkParse (ver expected : String) : IO Unit :=  do
 
 def checkMatch (range : String) (accepts rejects : Array String) : IO Unit :=  do
   let range ← IO.ofExcept <| VerRange.parse range
-  accepts.forM fun s => do
+  for s in accepts do
     let ver ← IO.ofExcept <| StdVer.parse s
     unless range.test ver do
       throw <| IO.userError s!"invalid reject: expected\n  '{range}'\nto accept\n  '{s}'"
-  rejects.forM fun s => do
+  for s in rejects do
     let ver ← IO.ofExcept <| StdVer.parse s
     if range.test ver then
       throw <| IO.userError s!"invalid accept: expected\n  '{range}'\nto reject\n  '{s}'"
@@ -226,8 +226,6 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#wi
 #eval checkParse "1.2.x"    "≥1.2.0, <1.3.0-"
 #eval checkParse "1.2.X"    "≥1.2.0, <1.3.0-"
 
-/-! ### Errors -/
-
 /-- error: invalid major version: expected numeral or wildcard, got 'v4' -/
 #guard_msgs in #eval runParse "v4.31.0-rc1"
 
@@ -254,3 +252,12 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#wi
 
 /-- error: invalid wildcard range: wildcard versions do not support suffixes -/
 #guard_msgs in #eval runParse "1.*.*-*"
+
+/-- error: invalid wildcard range: incorrect number of components: got 4, expected 1-3 -/
+#guard_msgs in #eval runParse "1.*.*.*-*"
+
+/-- error: invalid major version: expected numeral or wildcard, got 'a' -/
+#guard_msgs in #eval runParse "a.b.c.d"
+
+/-- error: invalid major version: expected numeral or wildcard, got 'a' -/
+#guard_msgs in #eval runParse "a.b.c.d-rc1"

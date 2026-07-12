@@ -178,8 +178,8 @@ def takeOptArg (opt arg : String) : CliM String := do
   | none => throw <| CliError.missingOptArg opt arg
   | some arg => pure arg
 
-@[inline] def takeOptArg' (opt arg : String) (f : String → Option α)  : CliM α := do
-  if let some a :=  f (← takeOptArg opt arg) then return a
+@[inline] def takeOptArg' (opt arg : String) (f : String.Slice → Option α)  : CliM α := do
+  if let some a := f (← takeOptArg opt arg) then return a
   throw <| CliError.invalidOptArg opt arg
 
 /--

@@ -244,7 +244,9 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let some n ← Nat.fromExpr? n | return .continue
   let some v ← Nat.fromExpr? v | return .continue
   let bv := BitVec.ofNat n v
-  if bv.toNat == v then return .continue -- already normalized
+  -- `BitVec.ofNat` is the normal form only when `bitVecOfNat := true`; otherwise
+  -- literals must be rewritten to the `OfNat.ofNat` form produced by `toExpr'`.
+  if bv.toNat == v && (← Simp.getConfig).bitVecOfNat then return .continue -- already normalized
   return .done <| (← toExpr' (BitVec.ofNat n v))
 
 /-- Simplification procedure for `=` on `BitVec`s. -/

@@ -378,6 +378,17 @@ public partial def foldlM [Monad m] (t : ImportedConsts α) (f : σ → Name →
 public def foldl (t : ImportedConsts α) (f : σ → Name → α → σ) (init : σ) : σ :=
   t.foldlM (m := Id) f init
 
+/-- Like `foldlM`, but also passing the index of the first module declaring each name. -/
+public partial def foldlEntriesM [Monad m] (t : ImportedConsts α)
+    (f : σ → Name → α × Nat → m σ) (init : σ) : m σ := do
+  match t with
+  | .mod modIdx tr => tr.foldlM (fun s n v => f s n (v, modIdx)) init
+  | .merged k e? cs _ =>
+    let mut s := init
+    if let some e := e? then
+      s ← f s k e
+    cs.foldlM (fun s c => c.foldlEntriesM f s) s
+
 public def forM [Monad m] (t : ImportedConsts α) (f : Name → α → m PUnit) : m PUnit :=
   t.foldlM (fun _ n v => f n v) ⟨⟩
 

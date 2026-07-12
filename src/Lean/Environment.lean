@@ -1212,6 +1212,20 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   -- async constants are always from the current module
   env.base.get env |>.getModuleIdxFor? declName
 
+/--
+Reconstructs the mapping from imported constant name to the index of the module declaring it,
+including auxiliary code-generator constants. The reconstruction walks all imported constants, so
+callers that only need single lookups should prefer `getModuleIdxFor?`, and iteration is usually
+better served by `env.header.moduleData`.
+-/
+def const2ModIdx (env : Environment) : Std.HashMap Name ModuleIdx := Id.run do
+  let base := env.base.get env
+  let mut m : Std.HashMap Name ModuleIdx ←
+    base.allImportedConsts.foldlEntriesM (m := Id) (init := {}) fun m n (_, modIdx) =>
+      m.insert n modIdx
+  base.importedExtraConsts.foldlEntriesM (m := Id) (init := m) fun m n (_, modIdx) =>
+    m.insertIfNew n modIdx
+
 def isImportedConst (env : Environment) (declName : Name) : Bool :=
   env.getModuleIdxFor? declName |>.isSome
 

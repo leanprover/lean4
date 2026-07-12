@@ -293,7 +293,7 @@ private def findEntryCore (t : ImportedConsts ConstantInfo) (n : Name) :
 /--
 `findEntry?` for the constants view, memoized in a process-global, lock-free cache; sound because
 the imported view is immutable per import set. Implemented in C++ (`src/library/const_cache.cpp`)
-where the cache can avoid reference counting, as everything it stores is persistent.
+where cache hits can avoid reference counting on the view and key.
 -/
 @[extern "lean_imported_consts_find_entry_cached"]
 public opaque findConstEntryCached? (t : @& ImportedConsts ConstantInfo) (n : @& Name) :

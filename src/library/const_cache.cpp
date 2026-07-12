@@ -11,12 +11,13 @@ namespace lean {
 Process-global cache for imported-constant lookups.
 
 The imported-constants views of an environment are immutable per import set, so lookup results
-(including misses) can be cached. Keys and values are made persistent on insertion and slots hold
-immutable entries behind a single atomic pointer each, so lookups are lock-free and perform no
-reference counting; races merely lose an insertion. Entries record the view root they were computed
-from, so multiple views (private/public constants, extra constants) share the table without
-invalidating each other; roots from freed environments can never be revived because entries keep
-their root alive (they are marked persistent and leaked).
+(including misses) can be cached. Slots hold immutable entries behind a single atomic pointer each,
+so lookups are lock-free; races merely lose an insertion. Entries pin their root, key, and value
+with references that are never dropped, so hits perform no reference counting on the root and key
+(pointer comparison and read-only name comparison only) and cache entries can never be revived
+after a free. The value is marked multi-threaded so that reader threads can take references to it
+atomically. `lean_mark_persistent` must NOT be used here: it plain-writes reference counts while
+other elaboration threads concurrently update them atomically, corrupting shared object graphs.
 
 The cache is direct-mapped and clobbers on collision, bounding memory at the cost of occasional
 recomputation.
@@ -43,16 +44,18 @@ static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
     size_t slot = static_cast<size_t>(h) & (num_slots - 1);
     entry * e = g_slots[slot].load(std::memory_order_acquire);
     if (e && e->m_root == root && lean_name_eq(e->m_key, n)) {
-        // persistent: `inc` is a no-op but keeps the owned-result convention explicit
+        // atomic: the value is multi-threaded and pinned by the entry
         lean_inc(e->m_val);
         return e->m_val;
     }
     lean_inc(root); lean_inc(n);
     lean_object * r = core(root, n);
-    lean_mark_persistent(r);
-    // keep root and key alive forever; both are usually persistent already
-    lean_inc(root); lean_mark_persistent(root);
-    lean_inc(n); lean_mark_persistent(n);
+    // the value is handed to and `inc`ed by arbitrary reader threads; its fresh nodes are still
+    // single-threaded here, so marking is race-free
+    lean_mark_mt(r);
+    // pin root and key; hits only compare them, so they need no special marking
+    lean_inc(root);
+    lean_inc(n);
     entry * ne = new entry{root, n, r};
     g_slots[slot].store(ne, std::memory_order_release);
     // (previous entry is intentionally leaked: it may still be read concurrently)

@@ -336,7 +336,6 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
   simp [getMsbD, getLsbD]
 
-@[grind =]
 theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
   eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
 

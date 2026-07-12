@@ -980,6 +980,10 @@ theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm.beq' p
   intro h₁
   simp [Poly.denote_norm ctx p₁, h₁]
 
+theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
+  intro ⟨k, h⟩
+  rw [h, Int.zero_mul]
+
 theorem le_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp at h
   replace h := congrArg (Poly.denote ctx) h

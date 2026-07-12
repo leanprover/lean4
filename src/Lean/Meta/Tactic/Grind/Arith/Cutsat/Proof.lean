@@ -360,6 +360,9 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
     return mkApp6 (mkConst ``Int.Internal.Linear.eq_of_le_ge)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p)
       eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .ofZeroDvd c =>
+    return mkApp3 (mkConst ``Int.Internal.Linear.eq_of_zero_dvd)
+      (← getContext) (← mkPolyDecl c.p) (← c.toExprProof)
   | .reorder c => withUnordered <| c.toExprProof
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
@@ -635,6 +638,7 @@ partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do u
   | .core0 .. | .core .. | .defn .. | .defnNat ..
   | .defnCommRing .. | .defnNatCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c | .div _ _ c | .mod _ _ c => c.collectDecVars
+  | .ofZeroDvd c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .mul _ cs => cs.forM fun (_, _, c) => c.collectDecVars
   | .pow _ ca? _ cb? => ca?.forM (·.collectDecVars); cb?.forM (·.collectDecVars)

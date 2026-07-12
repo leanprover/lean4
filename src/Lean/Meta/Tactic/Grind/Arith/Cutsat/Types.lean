@@ -90,6 +90,8 @@ inductive EqCnstrProof where
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
+  | /-- `p = 0` derived from the divisibility constraint `c` of the form `0 ∣ p`. -/
+    ofZeroDvd (c : DvdCnstr)
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)

@@ -241,13 +241,22 @@ builtin_dsimproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
 /-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
 builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let_expr BitVec.ofNat n v ← e | return .continue
-  let some n ← Nat.fromExpr? n | return .continue
   let some v ← Nat.fromExpr? v | return .continue
-  let bv := BitVec.ofNat n v
-  -- `BitVec.ofNat` is the normal form only when `bitVecOfNat := true`; otherwise
-  -- literals must be rewritten to the `OfNat.ofNat` form produced by `toExpr'`.
-  if bv.toNat == v && (← Simp.getConfig).bitVecOfNat then return .continue -- already normalized
-  return .done <| (← toExpr' (BitVec.ofNat n v))
+  if let some n ← Nat.fromExpr? n then
+    let bv := BitVec.ofNat n v
+    -- `BitVec.ofNat` is the normal form only when `bitVecOfNat := true`; otherwise
+    -- literals must be rewritten to the `OfNat.ofNat` form produced by `toExpr'`.
+    if bv.toNat == v && (← Simp.getConfig).bitVecOfNat then return .continue -- already normalized
+    return .done (← toExpr' (BitVec.ofNat n v))
+  else if (← Simp.getConfig).bitVecOfNat then
+    return .continue
+  else
+    /-
+    **Note** If `bitVecOfNat := false`, we still want to convert terms such as `0#n` to the `OfNat.ofNat` form.
+    Recall that `grind` uses `bitVecOfNat := false`, but many bit-vector theorems such as `sdiv_zero` are stated using
+    terms such as `0#n`. These theorems will not be applicable to terms `x.sdiv 0#32` since `0#32` is normalized using `OfNat.ofNat`.
+    -/
+    return .done (← mkNumeral (mkApp (mkConst ``BitVec) n) v)
 
 /-- Simplification procedure for `=` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)

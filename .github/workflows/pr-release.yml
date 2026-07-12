@@ -17,6 +17,12 @@ on:
     workflows: [CI]
     types: [completed]
 
+permissions:
+  actions: read
+  issues: write
+  pull-requests: read
+  statuses: write
+
 jobs:
   on-success:
     runs-on: ubuntu-latest
@@ -632,20 +638,34 @@ jobs:
       # lives in `adaptation-pr.yml`. Unlike there, the toolchain release was
       # just created above, so it is known to exist and there is no need to look
       # it up first.
-      - name: Create GitHub App token
+      - name: Create upstream GitHub App token
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: actions/create-github-app-token@v3
-        id: app-token
+        id: upstream-app-token
         with:
           client-id: ${{ vars.DOWNSTREAM_LEAN4_APP_CLIENT_ID }}
           private-key: ${{ secrets.DOWNSTREAM_LEAN4_APP_PRIVATE_KEY }}
-          repositories: lean4,downstream-lean4
+          repositories: lean4
+          permission-contents: read
+          permission-issues: write
+          permission-pull-requests: read
+
+      - name: Create downstream GitHub App token
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/create-github-app-token@v3
+        id: downstream-app-token
+        with:
+          client-id: ${{ vars.DOWNSTREAM_LEAN4_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DOWNSTREAM_LEAN4_APP_PRIVATE_KEY }}
+          repositories: downstream-lean4
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Configure git
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: leanprover/downstream-lean4/.downstream/actions/configure-git@299ae281cc862593814fda3eabe91563cbf6f9b3
+        uses: leanprover/downstream/actions/configure-git@f44bd0140c6270e2b09436ef55908b2050c939cd
         with:
-          name: ${{ steps.app-token.outputs.app-slug }}[bot]
+          name: ${{ steps.downstream-app-token.outputs.app-slug }}[bot]
 
       - name: Checkout downstream repo
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -653,17 +673,19 @@ jobs:
         with:
           repository: leanprover/downstream-lean4
           ref: green
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.downstream-app-token.outputs.token }}
+          persist-credentials: false
           path: downstream
           filter: tree:0
           fetch-depth: 0
 
       - name: Create adaptation PR
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@299ae281cc862593814fda3eabe91563cbf6f9b3
+        uses: leanprover/downstream/actions/adaptation-pr-create@f44bd0140c6270e2b09436ef55908b2050c939cd
         with:
-          app-token: ${{ steps.app-token.outputs.token }}
-          app-slug: ${{ steps.app-token.outputs.app-slug }}
+          upstream-token: ${{ steps.upstream-app-token.outputs.token }}
+          downstream-token: ${{ steps.downstream-app-token.outputs.token }}
+          app-slug: ${{ steps.downstream-app-token.outputs.app-slug }}
           upstream-pr: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           upstream-ci-green: true # We just created the toolchain release
           downstream-repo: leanprover/downstream-lean4

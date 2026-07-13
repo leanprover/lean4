@@ -2194,7 +2194,9 @@ def canonKeyLevels (key : SynthInstanceCacheKey) : SynthInstanceCacheKey × Arra
   let n := key.normFVarTypes.size
   let args := #[key.type] ++ key.normFVarTypes
     ++ key.normFVarValues.map (·.getD placeholder)
-  let bundle := (mkAppN (mkConst `_snu) args).replaceLevel f?
+  -- Key components are moderate; a 1023-slot cache still shares their DAG but allocates far less
+  -- than the 8191-slot default `replaceLevel` would on every lookup.
+  let bundle := (mkAppN (mkConst `_snu) args).replaceLevelWithCacheSize 1023 f?
   let args := bundle.getAppArgs
   return ({ key with
     type := args[0]!,

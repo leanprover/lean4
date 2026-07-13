@@ -68,6 +68,13 @@ unsafe def initCache : State :=
 unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
   (replaceUnsafeM f? cacheSize e).run' initCache
 
+unsafe def initCacheSized (size : USize) : State :=
+  { keys    := .replicate size.toNat (cast lcProof notAnExpr),
+    results := .replicate size.toNat default }
+
+unsafe def replaceUnsafeSized (size : USize) (f? : Level → Option Level) (e : Expr) : Expr :=
+  (replaceUnsafeM f? size e).run' (initCacheSized size)
+
 end ReplaceLevelImpl
 
 @[implemented_by ReplaceLevelImpl.replaceUnsafe]
@@ -81,6 +88,13 @@ partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
   | e@(Expr.sort u)            => e.updateSort! (u.replace f?)
   | e@(Expr.const _ us)        => e.updateConst! (us.map (Level.replace f?))
   | e                          => e
+
+/-- `replaceLevel` with a caller-chosen pointer-cache size. A smaller cache costs less to allocate
+per call, which matters when many small expressions are rewritten in a hot loop; a larger one shares
+more of a big DAG. -/
+@[implemented_by ReplaceLevelImpl.replaceUnsafeSized]
+partial def replaceLevelWithCacheSize (_size : USize) (f? : Level → Option Level) (e : Expr) : Expr :=
+  replaceLevel f? e
 
 end Expr
 end Lean

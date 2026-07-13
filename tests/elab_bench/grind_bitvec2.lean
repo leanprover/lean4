@@ -1,9 +1,6 @@
 module
 set_option linter.unusedSimpArgs false
 
-/-
-TODO: Temporarily disabled; broke due to #14371
-
 open BitVec
 
 namespace BitVec'
@@ -4546,4 +4543,3 @@ theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.
   simp [BitVec.sle_eq_ule, h]
 
 end BitVec'
--/

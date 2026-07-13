@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
-public import Lean.Elab.Tactic.Do.Internal.VCGen.LatticeSplit
+public import Lean.Elab.Tactic.Do.Internal.VCGen.LatticeOp
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
 import Lean.Meta.Sym.InferType
 
@@ -67,19 +67,19 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
   return rule
 
 /--
-Cached construction of a lattice-split backward rule for the operator heading `rhs`, saturating with
-`rewriteNames` and closing with `terminalNames` (both the built-in seeds unioned with the operator's
-`@[frameproc]` contributions). Returns `none` when saturation reaches a head with no terminal.
+Cached construction of a lattice-split backward rule for the operator heading `rhs`. On a cache miss
+the rewrite and terminal sets are assembled from the built-in seeds and the operator's `@[frameproc]`
+contributions (`fp?`); a cache hit skips that work. Returns `none` when saturation reaches a head with
+no terminal.
 
 Cache key: `(operator head, argument types, argument count)`.
 -/
-public def mkLatticeSplitRuleCached (headName : Name) (rhs : Expr)
-    (rewriteNames terminalNames : Array Name) : VCGenM (Option BackwardRule) := do
+public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
+    VCGenM (Option BackwardRule) := do
   let argTypes ← (rhs.getAppArgs.mapM Sym.inferType : SymM (Array Expr))
-  let key := (headName, argTypes.map ExprPtr.mk, rhs.getAppNumArgs)
+  let key := (op.head, argTypes.map ExprPtr.mk, rhs.getAppNumArgs)
   if let some rule := (← get).latticeBackwardRuleCache[key]? then return some rule
-  let terminals ← mkLatticeTerminals terminalNames
-  let some rule ← mkLatticeSplitRule rhs rewriteNames terminals | return none
+  let some rule ← mkLatticeOpRule rhs op | return none
   let rule ← rule.shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
   return some rule

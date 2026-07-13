@@ -350,6 +350,7 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   let ctx := { ctx with
     hypSimpMethods,
     frameProcs,
+    latticeOps := VCGen.mkLatticeOpTable frameProcs.latticeOps,
     trivial := config.trivial,
     useJP := config.jp,
     errorOnMissingSpec := config.errorOnMissingSpec,

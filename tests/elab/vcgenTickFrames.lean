@@ -241,10 +241,9 @@ frames the cost over any base monad. Its `costConj_apply` rewrite unfolds `costC
 `⌜r ≤ n⌝ ⊓ b (n - r)`, inheriting the built-in meet terminal. -/
 @[frameproc] def tickFP : FrameProc where
   prog := ``TickT
-  op := ``costConj
   mkOpAppM := fun info => Meta.mkAppOptM ``costConj #[some info.Pred.bindingBody!, none]
   resourceTy := fun _ => pure (mkConst ``Nat)
-  rewrites := #[``costConj_apply]
+  op := { head := ``costConj, rewrites := #[``costConj_apply] }
   proc := some tickFrameProc
 
 /-- End-to-end: plain `vcgen` infers the budget, applies the `costConj` gadget, fires the registered

@@ -25,42 +25,48 @@ optionally produce a frame `F : R` to peel off. `none` leaves the spec to apply 
 public abbrev VCGen.FrameInferenceProc :=
   Expr → Expr → VCGen.WPApp → Expr → SymM (Option Expr)
 
+/-- How to decompose a lattice operator `head … s⃗` on the RHS of an entailment: the distribution and
+unfolding `rewrites` that saturate it, and the terminal `⊑`-introduction `terminals` that close the
+reduced form. `head` keys the split in the `latticeOps` table. A built-in connective contributes an
+empty split (the shared built-in rewrites and terminals cover it); a frame operator adds its own. -/
+public structure VCGen.LatticeOp where
+  /-- Head constant of the operator this split decomposes. Keys the `latticeOps` table. -/
+  head : Name
+  /-- Distribution and unfolding equalities that saturate the operator applied to state arguments. -/
+  rewrites : Array Name := #[]
+  /-- The operator's terminal `⊑`-introduction rule, or `none` when it saturates to another operator's
+  terminal. -/
+  terminal? : Option Name := none
+
 /-- A frame inference procedure registered with `@[frameproc]`, together with its frame operator. The
 `vcgen` frontend selects the one whose `prog` matches the goal program's monad. -/
 public structure VCGen.FrameProc where
   /-- Head constant of the program type (the monad) whose `wp` this procedure frames. Keys the
   procedure in the `byProg` index; `vcgen` consults it for a program with that head. -/
   prog : Name
-  /-- Head constant of the frame operator. Keys the procedure in the `byOp` index, consulted by
-  `splitLatticeOp?` to decompose a frame residual `op F R`. -/
-  op : Name
-  /-- Builds the frame operator (head constant `op`) applied to the goal's assertion type. -/
+  /-- Builds the frame operator (head constant `op.head`) applied to the goal's assertion type. -/
   mkOpAppM : VCGen.WPApp → MetaM Expr
   /-- The resource type `R` of the operator `op : R → Pred → Pred`, i.e. the domain of `mkOpAppM`'s
   result. Provided directly so `vcgen` reads it without building the operator, which it does only when
   a frame actually applies. -/
   resourceTy : VCGen.WPApp → MetaM Expr
-  /-- Distribution and unfolding equalities that saturate the frame operator applied to state
-  arguments during a lattice split, added to the built-in connective rewrites. -/
-  rewrites : Array Name := #[]
-  /-- Terminal `⊑`-introduction rules for the frame operator, added to the built-in connective
-  terminals during a lattice split. -/
-  terminals : Array Name := #[]
+  /-- The lattice split decomposing the frame operator on the RHS of an entailment. -/
+  op : VCGen.LatticeOp
   /-- The frame inference metaprogram, or `none` for an operator framed only through an explicit
   `frames` clause. -/
   proc : Option VCGen.FrameInferenceProc
 
-/-- The registered frame inference procedures, indexed two ways into the same database: `byProg` by
-the program monad's head constant (selected per node in `solve`), and `byOp` by the frame operator's
-head constant (consulted by `splitLatticeOp?` to decompose a frame residual). -/
+/-- The registered frame inference procedures: `byProg` indexes the procedure by the program monad's
+head constant (selected per node in `solve`); `latticeOps` indexes each frame operator's split by
+its operator head (consulted by `splitLatticeOp?`). -/
 public structure VCGen.FrameProcs where
   byProg : Std.HashMap Name VCGen.FrameProc := {}
-  byOp : Std.HashMap Name VCGen.FrameProc := {}
+  latticeOps : Std.HashMap Name VCGen.LatticeOp := {}
 
 public instance : Inhabited VCGen.FrameProcs := ⟨{}⟩
 
 public def VCGen.FrameProcs.insert (s : FrameProcs) (fp : FrameProc) : FrameProcs :=
   { byProg := s.byProg.insert fp.prog fp
-    byOp := s.byOp.insert fp.op fp }
+    latticeOps := s.latticeOps.insert fp.op.head fp.op }
 
 end Lean.Elab.Tactic.Do.Internal

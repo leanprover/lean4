@@ -249,10 +249,9 @@ def sepConjFrameProc : FrameInferenceProc := fun _R pre _info specPre => do
 precondition, leaving the residual `pre₀ ⊑ R`. -/
 @[frameproc] def heapFP : FrameProc where
   prog := ``HeapM
-  op := ``sepConj
   mkOpAppM := fun _ => pure (mkConst ``sepConj)
   resourceTy := fun _ => pure (mkConst ``HProp)
-  terminals := #[``sepConj_frame_r]
+  op := { head := ``sepConj, terminal? := ``sepConj_frame_r }
   proc := some sepConjFrameProc
 
 /-! ## The `iFrame` example: carry a disjoint cell across a `store`

@@ -93,9 +93,11 @@ public structure VCGen.Context where
   /-- Pre-built backward rules used by `solve`. -/
   backwardRules : VCGen.BackwardRules
   /-- The `@[frameproc]` registry snapshot taken at frontend init. `solve` selects a procedure per
-  program node by the node's monad, and `splitLatticeOp?` consults its splits before the built-in
-  connectives so a frame operator's own `conj` decomposes `pre ⊑ conj F rest`. -/
+  program node by the node's monad. -/
   frameProcs : VCGen.FrameProcs := {}
+  /-- Lattice splits keyed by operator head, merging the built-in connectives with the registered
+  frame operators. Built once at frontend init; `splitLatticeOp?` looks a head up here. -/
+  latticeOps : Std.HashMap Name VCGen.LatticeOp := {}
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs

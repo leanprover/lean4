@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Entails
 public import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateMVarsS
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.Do.Internal.SpecAttr
@@ -81,7 +82,7 @@ private def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVa
   throwIfUnsupportedJP name val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    return some (← goal.replaceTargetDefEq (← Sym.instantiateRevBetaS body #[val]))
+    return some (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS body #[val]))
   else
     trace[Elab.Tactic.Do.vcgen] "let-intro: {name}"
     return some (← introsHygienic goal)
@@ -242,7 +243,7 @@ private def replaceProgDefEq (goal : MVarId) (info : WPApp) (prog : Expr) :
   let target ← goal.getType
   let relArgs := target.getAppArgs
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
-  goal.replaceTargetDefEq newTarget
+  goal.replaceTargetDefEqFast newTarget
 
 /-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
 from the program in `goal`'s target, so the remaining strategies see the bare term. -/
@@ -269,7 +270,7 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let relArgs := target.getAppArgs
     let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
     let target := Expr.letE name type val target nondep
-    let goal ← goal.replaceTargetDefEq target
+    let goal ← goal.replaceTargetDefEqFast target
     let .goal _ goal ← Sym.intros goal
       | throwError "Failed to intro hoisted let"
     return some goal
@@ -450,9 +451,9 @@ Framed only through an explicit `frames` clause (`proc := none`); used for a mon
 `@[frameproc]`. -/
 private def meetFrameProc : FrameProc where
   prog := ``Lean.Order.meet
-  op := ``Lean.Order.meet
   mkOpAppM info := Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
   resourceTy info := pure info.Pred
+  op := .meet
   proc := none
 
 /-- The frame procedure for `info`'s monad: the `@[frameproc]` registered for the program type, or the
@@ -485,7 +486,7 @@ private def specPreOf? (subgoals : List MVarId) : VCGenM (Option Expr) := do
     if let some (_, _, _, specPre) := (← g.getType).app4? ``Lean.Order.PartialOrder.rel then
       -- Resolve only an assigned head mvar so the procedure's head test (`isAppOf`) sees the real
       -- operator; nested mvars are resolved by the procedure's own unification.
-      return some (← instantiateMVarsIfMVarApp specPre)
+      return some (← instantiateMVarsIfMVarAppS specPre)
   return none
 
 /--
@@ -568,8 +569,8 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   -- A previous rule application may have assigned the entailment's sides to fresh metavariables
   -- (e.g. a lattice-split operand). Instantiate those heads so the shape tests below see the
   -- assigned form.
-  let pre ← instantiateMVarsIfMVarApp pre
-  let rhs ← instantiateMVarsIfMVarApp rhs
+  let pre ← instantiateMVarsIfMVarAppS pre
+  let rhs ← instantiateMVarsIfMVarAppS rhs
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.

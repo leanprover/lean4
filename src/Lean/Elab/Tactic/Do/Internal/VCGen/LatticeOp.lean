@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Do.Order.Heyting
+public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
 
@@ -29,26 +30,38 @@ A frame operator contributes its own rewrites and terminals through its `@[frame
 seeds cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤` and the magic-wand residual `upperAdjoint`.
 -/
 
-/-- Distribution and unfolding equalities saturating a lattice operator applied to state arguments,
-e.g. `(a ⊓ b) s = a s ⊓ b s`. -/
-public def builtinLatticeRewrites : Array Name :=
-  #[``meet_apply, ``himp_apply, ``Lean.Order.CompleteLattice.ofProp_apply, ``Lean.Order.top_apply]
+/-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
+public def LatticeOp.meet : LatticeOp :=
+  { head := ``meet, rewrites := #[``meet_apply], terminal? := ``le_meet }
+/-- Heyting implication `⇨`: distributes via `himp_apply`, closes with `le_himp`. -/
+public def LatticeOp.himp : LatticeOp :=
+  { head := ``Lean.Order.himp, rewrites := #[``himp_apply], terminal? := ``Lean.Order.le_himp }
+/-- The pure assertion `⌜·⌝`: distributes via `ofProp_apply`, closes with the `⊤`-fixed
+`top_le_ofProp`. -/
+public def LatticeOp.ofProp : LatticeOp :=
+  { head := ``Lean.Order.CompleteLattice.ofProp,
+    rewrites := #[``Lean.Order.CompleteLattice.ofProp_apply], terminal? := ``Lean.Order.top_le_ofProp }
+/-- The lattice top `⊤`: distributes via `top_apply`, closes with `le_top`. -/
+public def LatticeOp.top : LatticeOp :=
+  { head := ``Lean.Order.top, rewrites := #[``Lean.Order.top_apply], terminal? := ``le_top }
+/-- The magic-wand residual `upperAdjoint f b`: point-framed, closes with `le_upperAdjoint`. -/
+public def LatticeOp.upperAdjoint : LatticeOp :=
+  { head := ``Lean.Order.PreservesSup.upperAdjoint,
+    terminal? := ``Lean.Order.PreservesSup.le_upperAdjoint }
 
-/-- Terminal `⊑`-introduction rules, indexed downstream by the head constant of their conclusion's
-right-hand side. -/
-public def builtinLatticeTerminals : Array Name :=
-  #[``le_meet, ``Lean.Order.le_himp, ``Lean.Order.top_le_ofProp, ``le_top,
-    ``Lean.Order.PreservesSup.le_upperAdjoint]
+/-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
+public def builtinLatticeOps : Array LatticeOp :=
+  #[.meet, .himp, .ofProp, .top, .upperAdjoint]
 
-/-- The operator heads for which a built-in lattice split is available, used to gate the split
-attempt on the RHS of an entailment. -/
-public def builtinLatticeHeads : List Name :=
-  [``meet, ``Lean.Order.himp, ``Lean.Order.CompleteLattice.ofProp, ``Lean.Order.top,
-   ``Lean.Order.PreservesSup.upperAdjoint]
+/-- The lattice-split table keyed by operator head, merging the built-in connectives with the
+registered frame operators' splits. -/
+public def mkLatticeOpTable (frameSplits : Std.HashMap Name LatticeOp) :
+    Std.HashMap Name LatticeOp :=
+  builtinLatticeOps.foldl (fun t s => t.insert s.head s) frameSplits
 
 /-- Index terminal lemmas by the head constant of their conclusion's RHS, recording the RHS argument
 count so a split can size the excess state arguments to point-frame. -/
-public def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (Name × Nat)) := do
+private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (Name × Nat)) := do
   let mut m : Std.HashMap Name (Name × Nat) := {}
   for n in names do
     let ty ← Meta.inferType (← mkConstWithFreshMVarLevels n)
@@ -71,10 +84,9 @@ private def liftEqByArgs (eqPrf : Expr) (args : List Expr) : MetaM Expr := do
 
 /--
 Saturate `e` by rewriting at the root with the first applicable equation from `rewrites`, handling
-over-application, until none applies. Returns the reduced expression and, when at least one rewrite
-fired, a proof `e = reduced`. Unification (`isDefEq`) drives the match, so schematic operands are
-supported. `fuel` bounds the rewrite chain, turning a non-terminating `@[frameproc]` rewrite set into
-an error rather than a hang.
+over-application, until none applies. Returns the reduced expression and, when a rewrite fired, a proof
+`e = reduced`. Unification (`isDefEq`) drives the match, so schematic operands are supported. `fuel`
+bounds the rewrite chain, turning a non-terminating `@[frameproc]` rewrite set into an error.
 -/
 private partial def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
     MetaM (Expr × Option Expr) := do
@@ -138,8 +150,12 @@ reaches a head with no registered terminal.
 For `⊓`, produces `∀ a b s⃗ pre, pre ⊑ a s⃗ → pre ⊑ b s⃗ → pre ⊑ (a ⊓ b) s⃗`. For the opaque residual
 `upperAdjoint f b`, produces `∀ f b s⃗ pre, f (fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ b → pre ⊑ upperAdjoint f b s⃗`.
 -/
-public def mkLatticeSplitRule (rhs : Expr) (rewrites : Array Name)
-    (terminals : Std.HashMap Name (Name × Nat)) : MetaM (Option BackwardRule) :=
+public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM (Option BackwardRule) := do
+  -- Merge the operator's own rewrites and terminal with the built-in connective seeds: saturation can
+  -- reduce to any built-in connective, so its rewrites and terminals are always in scope.
+  let rewrites := builtinLatticeOps.foldl (· ++ ·.rewrites) op.rewrites
+  let terminals ← mkLatticeTerminals
+    (builtinLatticeOps.foldl (fun ts s => ts ++ s.terminal?.toArray) op.terminal?.toArray)
   rhs.withApp fun head args => do
     -- Keep type and instance arguments concrete; make the operator's value arguments and the excess
     -- state arguments schematic so the rule serves every operand and state chain of this shape.

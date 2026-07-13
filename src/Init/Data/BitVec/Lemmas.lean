@@ -16,6 +16,7 @@ import Init.Data.List.Nat.TakeDrop
 public import Init.Data.BitVec.Basic
 import Init.ByCases
 import Init.Data.BitVec.Bootstrap
+import Init.Grind.Norm  -- shake: keep (`grind` norm theorems must be active when the patterns of the `[grind =]` theorems about `BitVec.ofNatLT` below are computed)
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
@@ -328,6 +329,11 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 @[simp] theorem ofBool_xor_ofBool : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
   cases b <;> cases b' <;> rfl
 
+-- The attribute is attached here (instead of at the declaration in `Init.Data.BitVec.Bootstrap`)
+-- because the pattern must be normalized with respect to the `grind` normalization theorem
+-- `ofNatLT_eq_ofNat`.
+attribute [grind =] BitVec.toNat_ofNatLT
+
 @[simp, grind =] theorem getLsbD_ofNatLT {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
   getLsbD (x#'lt) i = x.testBit i := by
   simp [getLsbD, BitVec.ofNatLT]
@@ -335,9 +341,6 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 @[simp, grind =] theorem getMsbD_ofNatLT {n x i : Nat} (h : x < 2^n) :
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
   simp [getMsbD, getLsbD]
-
-theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
-  eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
 
 @[simp, grind =] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat (2^w) x := rfl
 

@@ -43,6 +43,10 @@ builtin_initialize synthLevelNorm : Bool ←
 builtin_initialize synthDumpKey : Bool ←
   return (← IO.getEnv "LEAN_DUMP_KEY").isSome
 
+/-- Log every completed type class lookup, to diff a normalized-key run against the baseline. -/
+builtin_initialize synthTraceAll : Bool ←
+  return (← IO.getEnv "LEAN_TRACE_SYNTH").isSome
+
 /-- Experiment: canonicalize expression metavariables in the closure instead of bailing. -/
 builtin_initialize synthMVarNorm : Bool ←
   return (← IO.getEnv "LEAN_MVAR_NORM").isSome
@@ -1564,6 +1568,7 @@ This function tries to avoid the potentially expensive `check` at `applyCachedAb
 -/
 private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) :
     MetaM (Option (Option Expr)) := do
+  let relaxedKey := synthLevelNorm || synthMVarNorm
   let some abstResult := abstResult? | return some none
   if abstResult.numMVars == 0 then
     /-
@@ -1580,21 +1585,27 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
       else
         let us ← abstResult.paramNames.mapM fun _ => mkFreshLevelMVar
         pure (abstResult.expr.instantiateLevelParamsArray abstResult.paramNames us)
-    -- The entry does not answer this query. Once the key is normalized it no longer determines the
-    -- result, so this is not "there is no instance" but "this entry is not applicable": the caller
-    -- must run the search. Reporting it as a failure is a completeness bug.
+    /-
+    With the exact key, an entry that fails to unify is the designed outcome: an
+    `.mvarsOutputParams` key wildcards the output parameters, so entries deliberately over-share and
+    `assignOutParams` is what reports "this instance's output parameters are not the ones you want".
+    Only a *normalized* key can produce an entry that does not answer the query at all, and there the
+    failure to apply must not be reported as the absence of an instance (a completeness bug): the
+    search has to run.
+    -/
     unless (← assignOutParams type e) do
-      return none
+      return if relaxedKey then none else some none
     let e ← instantiateMVars e
-    unless (← queryDetermines type e) do return none
+    if relaxedKey then
+      unless (← queryDetermines type e) do return none
     return some (some e)
   else
-    -- As `applyAbstractResult?`, but a failure to unify means the entry is not applicable.
     let (_, _, result) ← openAbstractMVarsResult abstResult
     unless (← assignOutParams type result) do
-      return none
+      return if relaxedKey then none else some none
     let result ← instantiateMVars result
-    unless (← queryDetermines type result) do return none
+    if relaxedKey then
+      unless (← queryDetermines type result) do return none
     check result
     return some (some result)
 
@@ -2008,6 +2019,16 @@ synthesized in different local contexts counts as the same response; a failure i
 private def recordLookupOutcome (key rawKey : SynthInstanceCacheKey) (entryHash : UInt64)
     (isHit : Bool) (result? : Option Expr) (t0 hb0 : Nat) (depParent : Std.HashSet Name)
     (mctx0 : MetavarContext) : MetaM Unit := do
+  if synthTraceAll then
+    -- `rawKey.type` is the preprocessed query, the same in both runs; the normalized `key` is not.
+    let r : String ← match result? with
+      | none   => pure "FAIL"
+      | some e => do
+        -- The *type* of the result, not the key: the key wildcards output parameters, which is
+        -- precisely what `assignOutParams` decides from the entry.
+        let ty ← instantiateMVars (← inferType e)
+        pure s!"{← instantiateMVars e}  :  {ty}"
+    IO.eprintln s!"SYNTH\t{if isHit then "hit " else "miss"}\t{← instantiateMVars rawKey.type}\t=>\t{r}"
   if synthInstanceCacheStatsEnabled then
     let dt := (← IO.monoNanosNow) - t0
     let dhb := (← IO.getNumHeartbeats) - hb0
@@ -2269,16 +2290,21 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let applyCached (entryHash : UInt64) (entry : SynthInstanceCacheEntry) (fromPersistent : Bool)
         (activity : SynthPendingActivity) : MetaM (Option (Option Expr)) := do
       let saved ← saveState
+      -- Emitted before applying the entry, so that any nested `synthPending` traces it produces nest
+      -- under it, as they did before an entry could fail to apply.
+      trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
       -- Re-instantiate the closure-abstracted result with the current context's free variables.
       let abstResult? := match normCtx? with
         | some c => entry.result.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
         | none   => entry.result
       let some result? ← applyCachedAbstractResult? type abstResult?
         | do
+          if (← IO.getEnv "LEAN_TRACE_MISAPPLY") == some "1" then
+            IO.eprintln s!"MISAPPLY\n  key      = {sharedKey.type}\n  queryRAW = {type}\n  \
+              queryINST= {← instantiateMVars type}\n"
           -- Undo the metavariables `openAbstractMVarsResult` minted before the failed unification.
           saved.restore
           return none
-      trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
       trace[Meta.synthInstance] "result {result?} (cached)"
       recordSynthInstanceCacheStat fun s =>
         if fromPersistent then { s with hitPersistent := s.hitPersistent + 1 }
@@ -2383,6 +2409,10 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       recordLookupOutcome sharedKey rawBaseKey (hash key) (isHit := false) result? lookupT0 lookupHb0 depParent lookupMCtx
       return result?
       catch e =>
+        if synthTraceAll then
+          if let .internal id _ := e then
+            if id == isDefEqStuckExceptionId then
+              IO.eprintln s!"SYNTH\tSTUCK\t{← instantiateMVars rawBaseKey.type}\t=>\tSTUCK"
         if synthInstanceCacheStatsEnabled then
           let mut merged := depParent
           for c in ← synthDepCur.get do merged := merged.insert c

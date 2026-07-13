@@ -58,6 +58,12 @@ LEAN4_NIGHTLY = ReleaseRepo(github=("leanprover", "lean4-nightly"))
 # Don't register this repo!
 
 
+# After the doc-gen4 bump PR has been merged, a workflow in this repo needs to
+# be manually triggered.
+LEAN4_API_DOCS = ReleaseRepo(github=("leanprover", "lean4-api-docs"))
+# Don't register this repo!
+
+
 # To create a new release, open a PR into `main`. In it, bump the toolchain.
 #
 # For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch. To get the

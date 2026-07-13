@@ -722,6 +722,18 @@ class LeanChecker(RepoChecker):
         )
         self.cl.success(f"{what} updated")
 
+    def check_api_docs_workflow(self) -> None:
+        grepo = self.github.get_repo(repos.LEAN4_API_DOCS.gh_full_name)
+        workflow = grepo.get_workflow("docs.yaml")
+        what = f"[u link={workflow.html_url}]docs.yaml workflow[/u link] on [b]{e(repos.LEAN4_API_DOCS.gh_full_name)}[/b]"
+
+        if not self.prompt(f"Trigger {what}?"):
+            self.cl.success(f"{what} not triggered")
+            return
+
+        workflow.create_dispatch(ref=grepo.default_branch)
+        self.cl.success(f"{what} triggered")
+
     def check(self) -> None:
         self.cl.section("Prepare release cycle")
         self.check_backport_label_exists(self.version)
@@ -745,6 +757,11 @@ class LeanChecker(RepoChecker):
                 DownstreamChecker(config=self.config, rrepo=drepo).check()
             except SystemExit:
                 self.cl.failed = True
+
+        self.cl.ensure_success()
+
+        self.cl.section("API docs")
+        self.check_api_docs_workflow()
 
         self.cl.ensure_success()
 

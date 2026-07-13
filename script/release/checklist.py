@@ -725,7 +725,8 @@ class LeanChecker(RepoChecker):
     def check_api_docs_workflow(self) -> None:
         grepo = self.github.get_repo(repos.LEAN4_API_DOCS.gh_full_name)
         workflow = grepo.get_workflow("docs.yaml")
-        what = f"[u link={workflow.html_url}]docs.yaml workflow[/u link] on [b]{e(repos.LEAN4_API_DOCS.gh_full_name)}[/b]"
+        url = "https://github.com/leanprover/lean4-api-docs/actions/workflows/docs.yaml"
+        what = f"[u link={url}]docs.yaml workflow[/u link] on [b]{e(repos.LEAN4_API_DOCS.gh_full_name)}[/b]"
 
         if not self.prompt(f"Trigger {what}?"):
             self.cl.fail(f"{what} not triggered")

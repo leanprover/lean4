@@ -251,6 +251,29 @@ frames the cost over any base monad. Its `costConj_apply` rewrite unfolds `costC
 example : ⦃ (⊤ : Nat → Prop) ⦄ (tick : TickM Unit) ⦃ fun _ => (⊤ : Nat → Prop) ⦄ := by
   vcgen with finish [top_apply]
 
+/-! ## The default terminal
+
+An operator whose rewrites reduce it to a head with no registered `⊑`-introduction lemma still yields
+a rule: the saturated residual entailment is handed back as the sole subgoal. `keepFrame r b = b`
+frames nothing, reducing to the bare `b`. -/
+
+/-- A frame operator that holds nothing: it reduces to its second argument. -/
+def keepFrame (r : Nat) (b : Nat → Prop) : Nat → Prop := b
+@[simp] theorem keepFrame_apply (r : Nat) (b : Nat → Prop) : keepFrame r b = b := rfl
+private def keepPred : Nat → Prop := fun n => n = 0
+
+-- `keepFrame` saturates to a non-connective head, so the default terminal produces a rule.
+run_meta do
+  let rhs ← Meta.mkAppM ``keepFrame #[mkNatLit 3, mkConst ``keepPred]
+  let _ ← mkLatticeOpRule rhs { head := ``keepFrame, rewrites := #[``keepFrame_apply] }
+
+-- Stripped of its rewrite the operator neither reduces nor closes, so its split would be the identity.
+/-- error: frame operator `keepFrame` neither reduces nor has a registered terminal; its lattice split rule would be the identity -/
+#guard_msgs in
+run_meta do
+  let rhs ← Meta.mkAppM ``keepFrame #[mkNatLit 3, mkConst ``keepPred]
+  let _ ← mkLatticeOpRule rhs { head := ``keepFrame }
+
 /-! ## Looping and automatic framing across calls -/
 
 /-- Tick once per list element. -/

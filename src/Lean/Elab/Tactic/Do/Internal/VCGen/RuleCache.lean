@@ -69,20 +69,18 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
 /--
 Cached construction of a lattice-split backward rule for the operator heading `rhs`. On a cache miss
 the rewrite and terminal sets are assembled from the built-in seeds and the operator's `@[frameproc]`
-contributions (`fp?`); a cache hit skips that work. Returns `none` when saturation reaches a head with
-no terminal.
+contributions (`fp?`); a cache hit skips that work.
 
 Cache key: `(operator head, argument types, argument count)`.
 -/
 public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
-    VCGenM (Option BackwardRule) := do
+    VCGenM BackwardRule := do
   let argTypes ← (rhs.getAppArgs.mapM Sym.inferType : SymM (Array Expr))
   let key := (op.head, argTypes.map ExprPtr.mk, rhs.getAppNumArgs)
-  if let some rule := (← get).latticeBackwardRuleCache[key]? then return some rule
-  let some rule ← mkLatticeOpRule rhs op | return none
-  let rule ← rule.shareCommon
+  if let some rule := (← get).latticeBackwardRuleCache[key]? then return rule
+  let rule ← (← mkLatticeOpRule rhs op).shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
-  return some rule
+  return rule
 
 /-- Move the frame variable to the front of a frame rule's subgoals. The frame is the sole subgoal
 another subgoal (the pre-VC and the `WP.Frames` condition) depends on, so applying the rule surfaces

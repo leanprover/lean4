@@ -144,13 +144,14 @@ private partial def mkPointFrameApply (introThm : Name) (opAs pre : Expr) (ss : 
 Build a reusable backward rule decomposing `pre ⊑ op … s⃗` for a lattice operator. The operator's
 value arguments are made schematic; `rewrites` saturate the operator through its distribution and
 unfolding equalities, the terminal keyed by the reduced head fires, and any state arguments left
-over-applied by the terminal are point-framed onto the precondition. Returns `none` when saturation
-reaches a head with no registered terminal.
+over-applied by the terminal are point-framed onto the precondition. When the reduced head has no
+registered terminal, the saturated `pre ⊑ reduced` is handed back as the sole subgoal. Throws when the
+operator neither reduces nor has a terminal, since its rule would be the identity.
 
 For `⊓`, produces `∀ a b s⃗ pre, pre ⊑ a s⃗ → pre ⊑ b s⃗ → pre ⊑ (a ⊓ b) s⃗`. For the opaque residual
 `upperAdjoint f b`, produces `∀ f b s⃗ pre, f (fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ b → pre ⊑ upperAdjoint f b s⃗`.
 -/
-public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM (Option BackwardRule) := do
+public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM BackwardRule := do
   -- Merge the operator's own rewrites and terminal with the built-in connective seeds: saturation can
   -- reduce to any built-in connective, so its rewrites and terminals are always in scope.
   let rewrites := builtinLatticeOps.foldl (· ++ ·.rewrites) op.rewrites
@@ -168,16 +169,20 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM (Option Backwar
       let a' ← if schematic then mkFreshExprMVar (← Meta.inferType a) else pure a
       args' := args'.push a'
     let rhs' := mkAppN head args'
-    -- Saturate the operator through the distribution/unfolding rewrites.
+    -- Saturate the operator and prove `pre ⊑ reduced`: fire the terminal keyed by the reduced head,
+    -- or hand back the residual entailment as the subgoal when the head has none. An irreducible
+    -- operator with no terminal would make that residual the original goal, so no rule is produced.
     let (reduced, eqProof?) ← saturateLatticeOp rewrites rhs'
-    let redHead := reduced.getAppFn.constName?.getD .anonymous
-    let some (termLemma, rhsArgCount) := terminals[redHead]? | return none
-    let redArgs := reduced.getAppArgs
-    let numExtra := redArgs.size - rhsArgCount
-    let flat := mkAppN reduced.getAppFn (redArgs.extract 0 (redArgs.size - numExtra))
-    let extra := redArgs.extract (redArgs.size - numExtra) redArgs.size
     let pre ← mkFreshExprMVar (← Meta.inferType rhs')
-    let termProof ← mkPointFrameApply termLemma flat pre extra.toList
+    let redHead := reduced.getAppFn.constName?.getD .anonymous
+    let termProof ← if let some (termLemma, rhsArgCount) := terminals[redHead]? then
+        let args := reduced.getAppArgs
+        mkPointFrameApply termLemma (mkAppN reduced.getAppFn (args.extract 0 rhsArgCount)) pre
+          (args.extract rhsArgCount).toList
+      else if eqProof?.isNone then
+        throwError "frame operator `{op.head}` neither reduces nor has a registered terminal; its \
+          lattice split rule would be the identity"
+      else mkFreshExprMVar (← mkAppM ``PartialOrder.rel #[pre, reduced])
     -- Lift the saturation equality `rhs' = reduced` through `pre ⊑ ·`, turning the terminal proof of
     -- `pre ⊑ reduced` into a proof of `pre ⊑ rhs'`.
     let prf ← match eqProof? with
@@ -187,7 +192,7 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM (Option Backwar
         let eqMp ← mkAppM ``Eq.mp #[← mkEqSymm (← mkCongrArg relPre eqProof)]
         pure (mkApp eqMp termProof)
     let res ← abstractMVars prf
-    return some (← mkBackwardRuleFromExpr res.expr res.paramNames.toList)
+    mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 
 end VCGen

@@ -97,7 +97,7 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
   let some headName := rhs.getAppFn.constName? | return none
   -- A split applies only for a built-in connective or a registered frame operator.
   let some op := (← read).latticeOps[headName]? | return none
-  let some rule ← mkLatticeOpRuleCached rhs op | return none
+  let rule ← mkLatticeOpRuleCached rhs op
   match ← rule.applyChecked goal with
   | .goals goals => return some goals
   | .failed => return none

@@ -82,6 +82,25 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+/--
+Controls whether `isDefEq` performs structure-eta when the non-constructor side is stuck on an
+instance metavariable that type class resolution has definitively failed to synthesize.
+
+In this situation the descent mostly cannot succeed: a metavariable of class type is never assigned
+by the descent itself (`isDefEqSingleton` is disabled for classes, see issue #2011), and the
+delta-reduction phase that could have assigned it by reaching a syntactically matching
+projection chain has already run. The field-wise comparison can therefore only fail, after
+unfolding the concrete side field by field and re-attempting `synthPending` at every stuck
+leaf. When this option is `false`, `isDefEq` fails fast instead. We only do this when the synthesis
+failure is definitive.
+-/
+register_builtin_option backward.isDefEq.etaStuckInstances : Bool := {
+  defValue := false
+  descr    := "if true (the default), perform structure-eta even when \
+  the non-constructor side is stuck on an instance metavariable that type class resolution \
+  definitively failed to synthesize"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -107,6 +126,84 @@ def isAbstractedUnassignedMVar : Expr → MetaM Bool
     else
       pure true
   | _ => pure false
+
+/--
+Returns `true` if the expression `e` (a projection of the stuck side of a structure-eta
+problem) is *proper data*: its comparison against a metavariable-free concrete term cannot be
+closed by proof irrelevance, unit-like eta, or a nested all-proof structure-eta. I.e., closing
+it requires the value of the stuck metavariable. Returns `false` on fuel exhaustion or shapes it
+cannot analyze.
+-/
+private def hasProperData (e : Expr) : Nat → MetaM Bool
+  | 0 => return false
+  | fuel + 1 => do
+    if (← isProof e) then return false
+    let ty ← whnf (← inferType e)
+    matchConstNonRecStructure ty.getAppFn (fun _ => return true) fun _ us ctorVal => do
+      if ctorVal.numFields == 0 then
+        return false -- unit-like: closed by `isDefEqUnitLike` without the stuck mvar
+      if !(← useEtaStruct ctorVal.induct) then
+        return true -- no eta descent at this type; comparisons behave like opaque data
+      let params := ty.getAppArgs[*...ctorVal.numParams].toArray
+      for j in [0:ctorVal.numFields] do
+        if (← hasProperData (← mkProjFn ctorVal us params j e) fuel) then
+          return true
+      return false
+
+/--
+Fast-path check for `isDefEqEtaStruct`: `true` if the field descent for `a =?= b` (where `b`
+is a constructor application of the structure described by `ctorVal`) is doomed because `a` is
+stuck on an instance metavariable that type class resolution has definitively failed to
+synthesize, and no other success mode of the descent applies.
+-/
+private def isStuckOnUnsynthesizableInstance (a b : Expr) (ctorVal : ConstructorVal)
+    (us : List Level) (params : Array Expr) : MetaM Bool := do
+  -- G1: the fast path is enabled
+  if backward.isDefEq.etaStuckInstances.get (← getOptions) then
+    return false
+  -- G2: only inside `tryResolve` unification, where `b` is a whnf'd instance term and the
+  -- field-level-mirror assumption (see the guard's correctness argument) is justified
+  unless (← read).inTypeClassResolution do return false
+  -- G3: `a` is stuck on a metavariable
+  let some mvarId ← getStuckMVar? a | return false
+  let mvarDecl ← mvarId.getDecl
+  /- G4–G7 mirror the preconditions under which `synthPendingImp` runs a complete search, so
+     that a `false` result in G10 is guaranteed to mean "searched and failed", not "declined". -/
+  -- G4: not synthetic-opaque (those are postponed, never searched)
+  if mvarDecl.kind matches .syntheticOpaque then return false
+  let type ← instantiateMVars mvarDecl.type
+  -- G5: the class goal is metavariable-free (otherwise the search may abort as "stuck")
+  if type.hasMVar then return false
+  -- G6: it is a class …
+  unless (← isClass? type).isSome do return false
+  -- … and not a `Prop`-valued one: proof irrelevance can close stuck proof positions
+  -- without a value for `?m`
+  if (← isProp type) then return false
+  -- G7: `synthPending` will not decline due to depth
+  if (← read).synthPendingDepth > maxSynthPendingDepth.get (← getOptions) then return false
+  -- G8: `b` is metavariable-free: otherwise the descent can succeed by assigning *other*
+  -- metavariables in `b`'s fields, or by matching `b`'s occurrences of `?m` itself
+  -- (e.g. `b` is the eta-expansion of `a`)
+  if (← instantiateMVars b).hasMVar then return false
+  -- G9: some field is proper data; an all-proof/unit-like structure closes by irrelevance
+  -- without ever needing `?m`
+  let mut hasData := false
+  for j in [0:ctorVal.numFields] do
+    if (← hasProperData (← mkProjFn ctorVal us params j a) 8) then
+      hasData := true
+      break
+  unless hasData do return false
+  -- G10: the synthesis, run here (cached), definitively fails. The call is wrapped in
+  -- save/restore so the guard is observationally pure in *both* branches: in particular, on
+  -- success the metavariable must NOT remain assigned here. Keeping the assignment would
+  -- replace today's sequence (descent fails cheaply → `unstuckMVar` synthesizes and retries
+  -- the whole problem, which can succeed by whole-term delta) with a field-wise comparison of
+  -- the eagerly assigned chain — a different problem that can fail where the retry succeeds.
+  -- The restore keeps caches (see `SavedState.restore`), so no search work is lost.
+  let s ← saveState
+  let synthesized ← Meta.synthPending mvarId
+  s.restore
+  return !synthesized
 
 /--
   Return true if `b` is of the form `mk a.1 ... a.n`, and `a` is not a constructor application.
@@ -142,9 +239,15 @@ where
         trace[Meta.isDefEq.eta.struct] "failed, type is not a non-recursive structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then
+        let args := b.getAppArgs
+        let params := args[*...ctorVal.numParams].toArray
+        /- The guard runs after the type-level `isDefEq` above so that both outcomes (fast
+           failure here, exhaustive failure of the descent below) leave the identical
+           metavariable state behind. -/
+        if (← isStuckOnUnsynthesizableInstance a b ctorVal us params) then
+          trace[Meta.isDefEq.eta.struct] "failed fast, term is stuck on an unsynthesizable instance metavariable{indentExpr a}"
+          return false
         checkpointDefEq do
-          let args := b.getAppArgs
-          let params := args[*...ctorVal.numParams].toArray
           for h : i in ctorVal.numParams...args.size do
             let j := i - ctorVal.numParams
             let proj ← mkProjFn ctorVal us params j a

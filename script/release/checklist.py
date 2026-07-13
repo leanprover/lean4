@@ -759,7 +759,7 @@ class LeanChecker(RepoChecker):
         message += "\n\n"
         message += "The usual repos are all available with the new toolchain "
         message += f"at their respective `{self.version.tag}` tags "
-        message += f"and ProofWidgets at `{proofwidgets_tag.name}`). "
+        message += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
         message += "We encourage all projects downstream "
         message += f"to update to `{self.version.tag}` when possible, and "
         message += "to release their own corresponding toolchain tags after updating."

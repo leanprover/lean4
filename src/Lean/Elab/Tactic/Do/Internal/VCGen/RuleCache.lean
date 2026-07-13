@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
+public import Lean.Elab.Tactic.Do.Internal.VCGen.LatticeSplit
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
 import Lean.Meta.Sym.InferType
 
@@ -33,7 +34,7 @@ an equality spec to `⊑ wp` form using the supplied `wp` metadata before buildi
 
 Cache key: `(proof key, instWP, excessArgs.size)`.
 -/
-public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPInfo) :
+public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPApp) :
     OptionT VCGenM BackwardRule := do
   let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).specBackwardRuleCache
@@ -50,7 +51,7 @@ Cached version of `mkBackwardRuleForSplit`.
 
 Cache key: `(splitter name, instWP, excessArgs.size)`.
 -/
-public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) :
+public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
     VCGenM BackwardRule := do
   let cacheKey := match splitInfo with
     | .ite .. => ``ite
@@ -66,19 +67,58 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) 
   return rule
 
 /--
-Cached version of `LatticeSplit.mkBackwardRuleForLattice`.
+Cached construction of a lattice-split backward rule for the operator heading `rhs`, saturating with
+`rewriteNames` and closing with `terminalNames` (both the built-in seeds unioned with the operator's
+`@[frameproc]` contributions). Returns `none` when saturation reaches a head with no terminal.
 
-Cache key: `(distribution lemma, argument types, excessArgs.size)`.
+Cache key: `(operator head, argument types, argument count)`.
 -/
-public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (as excessArgs : Array Expr)
-    (resultType? : Option Expr := none) : VCGenM BackwardRule := do
-  let s := (← get).latticeBackwardRuleCache
-  let asTypes ← (as.mapM Sym.inferType : SymM (Array Expr))
-  let key := (c.applyLemma, asTypes.map ExprPtr.mk, excessArgs.size)
-  if let some rule := s[key]? then return rule
-  let rule ← c.mkBackwardRuleForLattice as excessArgs resultType?
+public def mkLatticeSplitRuleCached (headName : Name) (rhs : Expr)
+    (rewriteNames terminalNames : Array Name) : VCGenM (Option BackwardRule) := do
+  let argTypes ← (rhs.getAppArgs.mapM Sym.inferType : SymM (Array Expr))
+  let key := (headName, argTypes.map ExprPtr.mk, rhs.getAppNumArgs)
+  if let some rule := (← get).latticeBackwardRuleCache[key]? then return some rule
+  let terminals ← mkLatticeTerminals terminalNames
+  let some rule ← mkLatticeSplitRule rhs rewriteNames terminals | return none
   let rule ← rule.shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
+  return some rule
+
+/-- Move the frame variable to the front of a frame rule's subgoals. The frame is the sole subgoal
+another subgoal (the pre-VC and the `WP.Frames` condition) depends on, so applying the rule surfaces
+it first, ready to be assigned the inferred frame. -/
+private def hoistFrameVar (rule : BackwardRule) : MetaM BackwardRule := do
+  let p := rule.pattern
+  let aux := p.varTypes.mapIdx fun i _ => mkFVar ⟨.num `_frame_hoist i⟩
+  let dependsOn (i : Nat) : Bool := rule.resultPos.any fun j =>
+    j != i && (p.varTypes[j]!.instantiateRevRange 0 j aux).containsFVar aux[i]!.fvarId!
+  let some fIdx := rule.resultPos.find? dependsOn
+    | throwError "frame: could not locate the frame variable in the frame rule"
+  return { rule with resultPos := fIdx :: rule.resultPos.filter (· != fIdx) }
+
+/--
+Cached version of the `F`-abstract upper-adjoint frame rule for a frame operator `op : R → Pred → Pred`.
+
+The rule concludes `pre ⊑ wp prog Q E s⃗` from the framed precondition
+`pre ⊑ op F (wp prog (fun a => upperAdjoint (op F) (Q a)) E) s⃗` and the frame condition
+`WP.Frames op prog F`, with the frame `F` left schematic so a single rule serves every inferred frame.
+Its subgoals lead with `F`, so the caller assigns the inferred frame before decomposing the rest.
+
+Cache key: `(instWP, excessArgs.size)` (the operator is determined by the monad).
+-/
+public def mkFrameBackwardRuleCached (op : Expr) (info : WPApp) : VCGenM BackwardRule := do
+  let key := (ExprPtr.mk info.instWP, info.excessArgs.size)
+  if let some rule := (← get).frameBackwardRuleCache[key]? then return rule
+  -- Pin the monad and the operator, leaving the frame `F`, program, and postconditions schematic;
+  -- `tryMkBackwardRuleFromSpec` turns them into rule parameters and `hoistFrameVar` surfaces `F`.
+  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.WP.Frames.op_wp_upperAdjoint_le_wp
+    ((info.args.take 7).map some ++ #[none, some op, none])
+  let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
+    | throwError "frame: could not build the upper-adjoint frame spec for operator{indentExpr op}"
+  let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
+    | throwError "frame: could not build the frame rule for operator{indentExpr op}"
+  let rule ← (← hoistFrameVar rule).shareCommon
+  modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key rule }
   return rule
 
 end VCGen

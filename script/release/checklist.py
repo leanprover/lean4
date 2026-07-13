@@ -728,11 +728,25 @@ class LeanChecker(RepoChecker):
         what = f"[u link={workflow.html_url}]docs.yaml workflow[/u link] on [b]{e(repos.LEAN4_API_DOCS.gh_full_name)}[/b]"
 
         if not self.prompt(f"Trigger {what}?"):
-            self.cl.success(f"{what} not triggered")
+            self.cl.fail(f"{what} not triggered")
             return
 
         workflow.create_dispatch(ref=grepo.default_branch)
         self.cl.success(f"{what} triggered")
+
+    def check_zulip_post(self) -> None:
+        what = "Zulip release announcement"
+
+        if not self.prompt(f"Post {what}?"):
+            self.cl.success(f"{what} posted")
+        else:
+            self.cl.fail(f"{what} not posted")
+
+    def check_notify_ashley(self) -> None:
+        if self.prompt("Tell Ashley that the release is finished."):
+            self.cl.success("Ashley notified")
+        else:
+            self.cl.fail("Ashley not notified")
 
     def check(self) -> None:
         self.cl.section("Prepare release cycle")
@@ -760,8 +774,10 @@ class LeanChecker(RepoChecker):
 
         self.cl.ensure_success()
 
-        self.cl.section("API docs")
+        self.cl.section("Post release")
         self.check_api_docs_workflow()
+        self.check_zulip_post()
+        self.check_notify_ashley()
 
         self.cl.ensure_success()
 

@@ -251,7 +251,7 @@ precondition, leaving the residual `pre₀ ⊑ R`. -/
   prog := ``HeapM
   mkOpAppM := fun _ => pure (mkConst ``sepConj)
   resourceTy := fun _ => pure (mkConst ``HProp)
-  op := { head := ``sepConj, terminal? := ``sepConj_frame_r }
+  op := { head := ``sepConj, numConst := 0, terminal? := ``sepConj_frame_r }
   proc := some sepConjFrameProc
 
 /-! ## The `iFrame` example: carry a disjoint cell across a `store`

@@ -584,7 +584,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective), then
   -- discharge a residual entailment against the lifted hypothesis.
   if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
-  if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
+  if let some gs ← splitLatticeOp? goal α rhs then return .goals scope gs
   if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
 
   -- Phase 4: wp decomposition. The program-shape steps below all consume one unit of fuel

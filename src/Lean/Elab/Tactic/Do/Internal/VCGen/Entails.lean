@@ -90,14 +90,14 @@ built-in connective nor a frame operator, or its rule does not apply.
 An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed terminal
 `top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
 -/
-public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
+public def splitLatticeOp? (goal : MVarId) (α rhs : Expr) :
     VCGenM (Option (List MVarId)) := do
   -- Refold a meet upper adjoint to `F ⇨ Q` up front, so the dispatch below takes the clean `⇨` path.
   let (goal, rhs) := (← refoldHimpUpperAdjoint? goal rhs).getD (goal, rhs)
   let some headName := rhs.getAppFn.constName? | return none
   -- A split applies only for a built-in connective or a registered frame operator.
   let some op := (← read).latticeOps[headName]? | return none
-  let rule ← mkLatticeOpRuleCached rhs op
+  let rule ← mkLatticeOpRuleCached α rhs op
   match ← rule.applyChecked goal with
   | .goals goals => return some goals
   | .failed => return none

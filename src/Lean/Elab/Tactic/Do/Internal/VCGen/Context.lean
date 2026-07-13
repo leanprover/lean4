@@ -163,14 +163,14 @@ public structure VCGen.State where
   -/
   splitBackwardRuleCache : Std.HashMap (Name × ExprPtr × Nat) BackwardRule := {}
   /--
-  A cache mapping lattice connectives to their backward rule to apply.
-  The particular rule depends on the rule name, the monad, and the number of excess state
-  arguments that the weakest precondition target is applied to.
+  A cache mapping lattice connectives to their backward rule to apply, keyed by the operator head
+  and the assertion type. The assertion type fixes the operator's carrier and the excess state
+  arguments (its domain), which together with the head determine the rule.
 
-  The argument types are keyed by `ExprPtr`, so lookups compare them by pointer rather than
-  structurally. This is sound because they are subterms of the hash-consed goal target.
+  The assertion type is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
+  This is sound because it is a subterm of the hash-consed goal target.
   -/
-  latticeBackwardRuleCache : Std.HashMap (Name × Array ExprPtr × Nat) BackwardRule := {}
+  latticeBackwardRuleCache : Std.HashMap (Name × ExprPtr) BackwardRule := {}
   /-- Caches the `F`-abstract upper-adjoint frame rule (`op_wp_upperAdjoint_le_wp`), keyed by the
   `WPMonad` instance and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}

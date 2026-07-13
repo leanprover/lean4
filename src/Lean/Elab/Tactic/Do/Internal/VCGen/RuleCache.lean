@@ -71,12 +71,13 @@ Cached construction of a lattice-split backward rule for the operator heading `r
 the rewrite and terminal sets are assembled from the built-in seeds and the operator's `@[frameproc]`
 contributions (`fp?`); a cache hit skips that work.
 
-Cache key: `(operator head, argument types, argument count)`.
+The assertion type `α` is the carrier of the entailment's `PartialOrder.rel`, supplied by the caller.
+
+Cache key: `(operator head, assertion type)`.
 -/
-public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
+public def mkLatticeOpRuleCached (α rhs : Expr) (op : LatticeOp) :
     VCGenM BackwardRule := do
-  let argTypes ← (rhs.getAppArgs.mapM Sym.inferType : SymM (Array Expr))
-  let key := (op.head, argTypes.map ExprPtr.mk, rhs.getAppNumArgs)
+  let key := (op.head, ExprPtr.mk α)
   if let some rule := (← get).latticeBackwardRuleCache[key]? then return rule
   let rule ← (← mkLatticeOpRule rhs op).shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }

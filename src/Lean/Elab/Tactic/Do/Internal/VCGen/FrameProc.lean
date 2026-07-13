@@ -32,6 +32,11 @@ empty split (the shared built-in rewrites and terminals cover it); a frame opera
 public structure VCGen.LatticeOp where
   /-- Head constant of the operator this split decomposes. Keys the `latticeOps` table. -/
   head : Name
+  /-- The number of leading arguments held constant during rule construction: the operator's carrier
+  type and its typeclass instances. The operands and excess state arguments after them become the
+  rule's schematic parameters. `2` for a connective over a `CompleteLattice` carrier; `0` for a
+  monomorphic operator. -/
+  numConst : Nat := 2
   /-- Distribution and unfolding equalities that saturate the operator applied to state arguments. -/
   rewrites : Array Name := #[]
   /-- The operator's terminal `⊑`-introduction rule, or `none` when it saturates to another operator's

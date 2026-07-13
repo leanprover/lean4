@@ -158,17 +158,11 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM BackwardRule :=
   let terminals ← mkLatticeTerminals
     (builtinLatticeOps.foldl (fun ts s => ts ++ s.terminal?.toArray) op.terminal?.toArray)
   rhs.withApp fun head args => do
-    -- Keep type and instance arguments concrete; make the operator's value arguments and the excess
-    -- state arguments schematic so the rule serves every operand and state chain of this shape.
-    let bis ← forallTelescopeReducing (← Meta.inferType head) fun xs _ =>
-      xs.mapM fun x => return (← x.fvarId!.getDecl).binderInfo
-    let mut args' := #[]
-    for h : i in [0:args.size] do
-      let a := args[i]
-      let schematic := if h' : i < bis.size then bis[i] matches .default else true
-      let a' ← if schematic then mkFreshExprMVar (← Meta.inferType a) else pure a
-      args' := args'.push a'
-    let rhs' := mkAppN head args'
+    -- Hold the operator's `numConst` leading arguments (its carrier type and typeclass instances)
+    -- concrete; make the operands and excess state arguments after them schematic, so the rule serves
+    -- every operand and state chain of this shape.
+    let vars ← (args.extract op.numConst).mapM fun a => do mkFreshExprMVar (← Meta.inferType a)
+    let rhs' := mkAppN head (args.extract 0 op.numConst ++ vars)
     -- Saturate the operator and prove `pre ⊑ reduced`: fire the terminal keyed by the reduced head,
     -- or hand back the residual entailment as the subgoal when the head has none. An irreducible
     -- operator with no terminal would make that residual the original goal, so no rule is produced.

@@ -52,7 +52,7 @@ uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MacroScopesView_isSuffixOf(lean_object*, lean_object*);
-lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_privateToUserName_x3f(lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -301,7 +301,7 @@ static const lean_object* l___private_Lean_ResolveName_0__Lean_initFn___closed__
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_initFn_00___x40_Lean_ResolveName_1437735408____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_initFn_00___x40_Lean_ResolveName_1437735408____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_aliasExtension;
-LEAN_EXPORT lean_object* lean_add_alias(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_addAlias(lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Lean_getAliasState___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Name_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_getAliasState___closed__0 = (const lean_object*)&l_Lean_getAliasState___closed__0_value;
 static const lean_closure_object l_Lean_getAliasState___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Name_hash___override___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
@@ -3177,7 +3177,7 @@ v_res_869_ = l___private_Lean_ResolveName_0__Lean_initFn_00___x40_Lean_ResolveNa
 return v_res_869_;
 }
 }
-LEAN_EXPORT lean_object* lean_add_alias(lean_object* v_env_870_, lean_object* v_a_871_, lean_object* v_e_872_){
+LEAN_EXPORT lean_object* l_Lean_addAlias(lean_object* v_env_870_, lean_object* v_a_871_, lean_object* v_e_872_){
 _start:
 {
 lean_object* v___x_873_; lean_object* v_toEnvExtension_874_; lean_object* v_asyncMode_875_; lean_object* v___x_876_; lean_object* v___x_877_; lean_object* v___x_878_; 
@@ -7405,7 +7405,7 @@ lean_dec_ref_known(v___x_2793_, 1);
 v_fullDeclView_2795_ = l_Lean_extractMacroScopes(v_val_2794_);
 v_name_2818_ = lean_ctor_get(v_fullDeclView_2795_, 0);
 lean_inc_n(v_name_2818_, 2);
-v___x_2819_ = lean_private_to_user_name(v_name_2818_);
+v___x_2819_ = l_Lean_privateToUserName_x3f(v_name_2818_);
 if (lean_obj_tag(v___x_2819_) == 0)
 {
 v___y_2797_ = v_name_2818_;

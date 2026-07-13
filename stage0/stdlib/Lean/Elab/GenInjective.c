@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_mkCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkInjectiveTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -79,7 +79,7 @@ lean_object* v_a_11_; lean_object* v___x_12_;
 v_a_11_ = lean_ctor_get(v___x_10_, 0);
 lean_inc_n(v_a_11_, 2);
 lean_dec_ref_known(v___x_10_, 1);
-v___x_12_ = l_mkCtorIdx(v_a_11_, v___y_5_, v___y_6_, v___y_7_, v___y_8_);
+v___x_12_ = l_Lean_mkCtorIdx(v_a_11_, v___y_5_, v___y_6_, v___y_7_, v___y_8_);
 if (lean_obj_tag(v___x_12_) == 0)
 {
 lean_object* v___x_13_; 

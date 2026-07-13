@@ -103,7 +103,7 @@ lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_instBEqExtraModUse_beq(lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -3503,7 +3503,8 @@ v_reusejp_1018_:
 {
 lean_object* v___x_1020_; lean_object* v___x_1021_; 
 v___x_1020_ = lean_st_ref_set(v_a_1004_, v___x_1019_);
-v___x_1021_ = lean_erase_macro_scopes(v_declName_1010_);
+v___x_1021_ = l_Lean_Name_eraseMacroScopes(v_declName_1010_);
+lean_dec(v_declName_1010_);
 if (lean_obj_tag(v___x_1021_) == 1)
 {
 lean_object* v_str_1022_; lean_object* v___x_1023_; uint32_t v___x_1024_; uint32_t v___x_1025_; uint8_t v___x_1026_; 
@@ -6405,30 +6406,30 @@ goto v___jp_1972_;
 v___jp_1986_:
 {
 uint8_t v___x_1989_; 
-v___x_1989_ = lean_nat_dec_lt(v___x_1959_, v___y_1987_);
+v___x_1989_ = lean_nat_dec_lt(v___x_1959_, v___y_1988_);
 if (v___x_1989_ == 0)
 {
-lean_dec_ref(v___y_1988_);
-lean_dec(v___y_1987_);
+lean_dec(v___y_1988_);
+lean_dec_ref(v___y_1987_);
 goto v___jp_1983_;
 }
 else
 {
 if (v___x_1989_ == 0)
 {
-lean_dec_ref(v___y_1988_);
-lean_dec(v___y_1987_);
+lean_dec(v___y_1988_);
+lean_dec_ref(v___y_1987_);
 goto v___jp_1983_;
 }
 else
 {
 size_t v___x_1990_; size_t v___x_1991_; uint8_t v___x_1992_; 
 v___x_1990_ = ((size_t)0ULL);
-v___x_1991_ = lean_usize_of_nat(v___y_1987_);
-lean_dec(v___y_1987_);
+v___x_1991_ = lean_usize_of_nat(v___y_1988_);
+lean_dec(v___y_1988_);
 lean_inc(v___x_1982_);
-v___x_1992_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(v___x_1982_, v___y_1988_, v___x_1990_, v___x_1991_);
-lean_dec_ref(v___y_1988_);
+v___x_1992_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(v___x_1982_, v___y_1987_, v___x_1990_, v___x_1991_);
+lean_dec_ref(v___y_1987_);
 if (v___x_1992_ == 0)
 {
 goto v___jp_1983_;
@@ -6458,16 +6459,16 @@ v___x_1998_ = lean_array_get_size(v_a_1997_);
 v___x_1999_ = lean_nat_dec_lt(v___x_1959_, v___x_1998_);
 if (v___x_1999_ == 0)
 {
-v___y_1987_ = v___x_1998_;
-v___y_1988_ = v_a_1997_;
+v___y_1987_ = v_a_1997_;
+v___y_1988_ = v___x_1998_;
 goto v___jp_1986_;
 }
 else
 {
 if (v___x_1999_ == 0)
 {
-v___y_1987_ = v___x_1998_;
-v___y_1988_ = v_a_1997_;
+v___y_1987_ = v_a_1997_;
+v___y_1988_ = v___x_1998_;
 goto v___jp_1986_;
 }
 else
@@ -6478,8 +6479,8 @@ v___x_2001_ = lean_usize_of_nat(v___x_1998_);
 v___x_2002_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__5(v_a_1997_, v___x_2000_, v___x_2001_);
 if (v___x_2002_ == 0)
 {
-v___y_1987_ = v___x_1998_;
-v___y_1988_ = v_a_1997_;
+v___y_1987_ = v_a_1997_;
+v___y_1988_ = v___x_1998_;
 goto v___jp_1986_;
 }
 else

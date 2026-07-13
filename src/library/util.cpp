@@ -15,9 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive.h"
 #include "library/util.h"
 #include "library/suffixes.h"
-#include "library/annotation.h"
 #include "library/constants.h"
-#include "library/replace_visitor.h"
 #include "library/num.h"
 #include "githash.h" // NOLINT
 
@@ -671,91 +669,6 @@ expr mk_nary_app(expr const & op, unsigned num_nary_args, expr const * nary_args
         e = mk_app(op, nary_args[i], e);
     }
     return e;
-}
-
-bool is_annotated_lamba(expr const & e) {
-    return
-        is_lambda(e) ||
-        (is_annotation(e) && is_lambda(get_nested_annotation_arg(e)));
-}
-
-bool is_annotated_head_beta(expr const & t) {
-    return is_app(t) && is_annotated_lamba(get_app_fn(t));
-}
-
-expr annotated_head_beta_reduce(expr const & t) {
-    if (!is_annotated_head_beta(t)) {
-        return t;
-    } else {
-        buffer<expr> args;
-        expr f = get_app_rev_args(t, args);
-        if (is_annotation(f))
-            f = get_nested_annotation_arg(f);
-        lean_assert(is_lambda(f));
-        return annotated_head_beta_reduce(apply_beta(f, args.size(), args.data()));
-    }
-}
-
-expr try_eta(expr const & e) {
-    if (is_lambda(e)) {
-        expr const & b = binding_body(e);
-        if (is_lambda(b)) {
-            expr new_b = try_eta(b);
-            if (is_eqp(b, new_b)) {
-                return e;
-            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_loose_bvar(app_fn(new_b), 0)) {
-                return lower_loose_bvars(app_fn(new_b), 1);
-            } else {
-                return update_binding(e, binding_domain(e), new_b);
-            }
-        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_loose_bvar(app_fn(b), 0)) {
-            return lower_loose_bvars(app_fn(b), 1);
-        } else {
-            return e;
-        }
-    } else {
-        return e;
-    }
-}
-
-template<bool Eta, bool Beta>
-class eta_beta_reduce_fn : public replace_visitor {
-public:
-    virtual expr visit_app(expr const & e) override {
-        expr e1 = replace_visitor::visit_app(e);
-        if (Beta && is_head_beta(e1)) {
-            return visit(head_beta_reduce(e1));
-        } else {
-            return e1;
-        }
-    }
-
-    virtual expr visit_lambda(expr const & e) override {
-        expr e1 = replace_visitor::visit_lambda(e);
-        if (Eta) {
-            while (true) {
-                expr e2 = try_eta(e1);
-                if (is_eqp(e1, e2))
-                    return e1;
-                else
-                    e1 = e2;
-            }
-        } else {
-            return e1;
-        }
-    }
-};
-
-expr beta_reduce(expr t) {
-    return eta_beta_reduce_fn<false, true>()(t);
-}
-
-expr eta_reduce(expr t) {
-    return eta_beta_reduce_fn<true, false>()(t);
-}
-
-expr beta_eta_reduce(expr t) {
-    return eta_beta_reduce_fn<true, true>()(t);
 }
 
 expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k) {

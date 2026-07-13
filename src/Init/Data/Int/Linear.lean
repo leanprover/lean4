@@ -14,7 +14,7 @@ public import Init.Data.RArray
 import Init.Data.Int.Cooper
 import Init.Data.Int.LemmasAux
 public section
-namespace Int.Linear
+namespace Int.Internal.Linear
 
 /-! Helper definitions and theorems for constructing linear arithmetic proofs. -/
 
@@ -856,7 +856,7 @@ theorem dvd_coeff (ctx : Context) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ 
 
 private theorem dvd_gcd_of_dvd (d a x p : Int) (h : d ∣ a * x + p) : gcd d a ∣ p := by
   rcases h with ⟨k, h⟩
-  simp [Int.Linear.gcd]
+  simp [Int.Internal.Linear.gcd]
   replace h := congrArg (· - a*x) h
   simp at h
   rcases @Int.gcd_dvd_left d a with ⟨k₁, h₁⟩
@@ -979,6 +979,10 @@ theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm.beq' p
   intro; subst p₂
   intro h₁
   simp [Poly.denote_norm ctx p₁, h₁]
+
+theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
+  intro ⟨k, h⟩
+  rw [h, Int.zero_mul]
 
 theorem le_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp at h
@@ -2190,7 +2194,7 @@ theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a%b') : a % b = k 
 theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b = b') (h₃ : k == a'^b'.toNat) : a^b = k := by
   simp [← h₁, ← h₂] at h₃; simp [h₃]
 
-end Int.Linear
+end Int.Internal.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by
   apply propext; constructor

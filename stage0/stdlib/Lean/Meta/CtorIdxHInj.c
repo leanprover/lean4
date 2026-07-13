@@ -25,7 +25,7 @@ lean_object* l_Lean_mkLevelParam(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-lean_object* l_mkCtorIdxName(lean_object*);
+lean_object* l_Lean_mkCtorIdxName(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,7 +61,7 @@ lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* l_isCtorIdxCore_x3f(lean_object*, lean_object*);
+lean_object* l_Lean_isCtorIdxCore_x3f(lean_object*, lean_object*);
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -175,7 +175,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkCtorIdxHInjTheoremNameFor(lean_object* v_
 _start:
 {
 lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; 
-v___x_4_ = l_mkCtorIdxName(v_indName_3_);
+v___x_4_ = l_Lean_mkCtorIdxName(v_indName_3_);
 v___x_5_ = ((lean_object*)(l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_hinjSuffix___closed__0));
 v___x_6_ = l_Lean_Name_str___override(v___x_4_, v___x_5_);
 return v___x_6_;
@@ -1188,7 +1188,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_mkHInjec
 _start:
 {
 lean_object* v___x_359_; lean_object* v___x_360_; lean_object* v___x_361_; lean_object* v_ctorIdxApp1_362_; lean_object* v___x_363_; lean_object* v_ctorIdxApp2_364_; lean_object* v___x_365_; 
-v___x_359_ = l_mkCtorIdxName(v_name_348_);
+v___x_359_ = l_Lean_mkCtorIdxName(v_name_348_);
 v___x_360_ = l_Lean_mkConst(v___x_359_, v_us_349_);
 v___x_361_ = lean_array_push(v_xs1_350_, v_x1_351_);
 lean_inc_ref(v___x_360_);
@@ -2285,7 +2285,7 @@ return v___x_839_;
 else
 {
 lean_object* v___x_840_; 
-v___x_840_ = l_isCtorIdxCore_x3f(v_env_834_, v_pre_836_);
+v___x_840_ = l_Lean_isCtorIdxCore_x3f(v_env_834_, v_pre_836_);
 if (lean_obj_tag(v___x_840_) == 0)
 {
 uint8_t v___x_841_; 
@@ -2635,7 +2635,7 @@ v_env_959_ = lean_ctor_get(v___x_958_, 0);
 lean_inc_ref(v_env_959_);
 lean_dec(v___x_958_);
 lean_inc(v_pre_954_);
-v___x_960_ = l_isCtorIdxCore_x3f(v_env_959_, v_pre_954_);
+v___x_960_ = l_Lean_isCtorIdxCore_x3f(v_env_959_, v_pre_954_);
 if (lean_obj_tag(v___x_960_) == 1)
 {
 lean_object* v_val_961_; uint8_t v___x_962_; uint8_t v___x_963_; uint8_t v___x_964_; uint8_t v___x_965_; lean_object* v___x_966_; uint64_t v___x_967_; lean_object* v___x_968_; lean_object* v___x_969_; lean_object* v___x_970_; lean_object* v___x_971_; lean_object* v___x_972_; lean_object* v___x_973_; lean_object* v___x_974_; lean_object* v___x_975_; lean_object* v___x_976_; lean_object* v___x_977_; lean_object* v___x_978_; lean_object* v___x_979_; lean_object* v___f_980_; lean_object* v___x_981_; 

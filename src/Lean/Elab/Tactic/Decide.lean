@@ -119,13 +119,17 @@ where
     catch ex =>
       -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
       throwError MessageData.ofLazyM (es := #[expectedType]) do
-        let r ← withAtLeastTransparency .default <| whnf s
-        if r.isAppOf ``isTrue then
-          return m!"\
-            Tactic `{tacticName}` failed. The elaborator is able to reduce the \
-            `{.ofConstName ``Decidable}` instance, but the kernel fails with:\n\
-            {indentD ex.toMessageData}"
-        diagnose expectedType s r
+        -- Report original kernel exception if elab fails as well
+        tryCatchRuntimeEx
+          (do
+            let r ← withAtLeastTransparency .default <| whnf s
+            if r.isAppOf ``isTrue then
+              return m!"\
+                Tactic `{tacticName}` failed. The elaborator is able to reduce the \
+                `{.ofConstName ``Decidable}` instance, but the kernel fails with:\n\
+                {indentD ex.toMessageData}"
+            diagnose expectedType s r)
+          (fun _ => return ex.toMessageData)
 
   diagnose (expectedType s : Expr) (r : Expr) : MetaM MessageData := do
     if r.isAppOf ``isFalse then

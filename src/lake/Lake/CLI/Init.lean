@@ -420,7 +420,7 @@ def initPkg
     let root := name
     let rootFile := Lean.modToFilePath dir root "lean"
     if tmp = .exe || (← rootFile.pathExists) then
-      return (root, some rootFile)
+      return (root, none)
     else
       let root := toUpperCamelCase name
       let rootFile := Lean.modToFilePath dir root "lean"

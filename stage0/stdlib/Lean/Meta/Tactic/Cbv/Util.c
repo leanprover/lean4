@@ -22,7 +22,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_getUInt16Value_x3f(lean_object*);
 lean_object* l_Lean_Meta_Sym_getIntValue_x3f(lean_object*);
 lean_object* l_Lean_Meta_isProofQuick(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_inferType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isPropQuick(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_getUInt64Value_x3f(lean_object*);
@@ -1443,7 +1443,7 @@ default:
 {
 lean_object* v___x_427_; 
 lean_del_object(v___x_414_);
-v___x_427_ = l_Lean_Meta_Sym_inferType___redArg(v_e_403_, v_a_405_, v_a_406_, v_a_407_, v_a_408_, v_a_409_);
+v___x_427_ = l_Lean_Meta_Sym_inferType(v_e_403_, v_a_404_, v_a_405_, v_a_406_, v_a_407_, v_a_408_, v_a_409_);
 if (lean_obj_tag(v___x_427_) == 0)
 {
 lean_object* v_a_428_; lean_object* v___x_429_; 
@@ -1780,7 +1780,7 @@ default:
 {
 lean_object* v___x_510_; 
 lean_del_object(v___x_497_);
-v___x_510_ = l_Lean_Meta_Sym_inferType___redArg(v_e_486_, v_a_488_, v_a_489_, v_a_490_, v_a_491_, v_a_492_);
+v___x_510_ = l_Lean_Meta_Sym_inferType(v_e_486_, v_a_487_, v_a_488_, v_a_489_, v_a_490_, v_a_491_, v_a_492_);
 if (lean_obj_tag(v___x_510_) == 0)
 {
 lean_object* v_a_511_; lean_object* v___x_512_; 

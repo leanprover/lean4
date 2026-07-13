@@ -35,7 +35,7 @@ lean_object* l_Lean_Meta_Sym_Simp_simpTelescope___boxed(lean_object*, lean_objec
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_Simp_dischargeSimpSelf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lean_Meta_Sym_Simp_mkEqTrans___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_Simp_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_Grind_symDischargerElabAttribute;
 lean_object* l_Lean_Meta_Sym_Simp_dischargeNone___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2425,6 +2425,7 @@ lean_inc_ref(v___y_952_);
 lean_inc(v___y_951_);
 lean_inc_ref(v___y_950_);
 lean_inc(v___y_949_);
+lean_inc_ref(v___y_948_);
 lean_inc_ref(v_e_x27_975_);
 v___x_981_ = lean_apply_11(v_a_943_, v_e_x27_975_, v___y_945_, v___y_946_, v___y_947_, v___y_948_, v___y_949_, v___y_950_, v___y_951_, v___y_952_, v___y_953_, lean_box(0));
 if (lean_obj_tag(v___x_981_) == 0)
@@ -2456,6 +2457,7 @@ lean_dec_ref(v___y_952_);
 lean_dec(v___y_951_);
 lean_dec_ref(v___y_950_);
 lean_dec(v___y_949_);
+lean_dec_ref(v___y_948_);
 lean_dec_ref(v___y_944_);
 v_done_986_ = lean_ctor_get_uint8(v_a_982_, 0);
 v_contextDependent_987_ = lean_ctor_get_uint8(v_a_982_, 1);
@@ -2542,12 +2544,13 @@ v_resetjp_1000_:
 {
 lean_object* v___x_1003_; 
 lean_inc_ref(v_e_x27_996_);
-v___x_1003_ = l_Lean_Meta_Sym_Simp_mkEqTrans___redArg(v___y_944_, v_e_x27_975_, v_proof_976_, v_e_x27_996_, v_proof_997_, v___y_949_, v___y_950_, v___y_951_, v___y_952_, v___y_953_);
+v___x_1003_ = l_Lean_Meta_Sym_Simp_mkEqTrans(v___y_944_, v_e_x27_975_, v_proof_976_, v_e_x27_996_, v_proof_997_, v___y_948_, v___y_949_, v___y_950_, v___y_951_, v___y_952_, v___y_953_);
 lean_dec(v___y_953_);
 lean_dec_ref(v___y_952_);
 lean_dec(v___y_951_);
 lean_dec_ref(v___y_950_);
 lean_dec(v___y_949_);
+lean_dec_ref(v___y_948_);
 if (lean_obj_tag(v___x_1003_) == 0)
 {
 lean_object* v_a_1004_; lean_object* v___x_1006_; uint8_t v_isShared_1007_; uint8_t v_isSharedCheck_1016_; 
@@ -2682,6 +2685,7 @@ lean_dec_ref(v___y_952_);
 lean_dec(v___y_951_);
 lean_dec_ref(v___y_950_);
 lean_dec(v___y_949_);
+lean_dec_ref(v___y_948_);
 lean_dec_ref(v___y_944_);
 return v___x_981_;
 }

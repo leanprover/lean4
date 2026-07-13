@@ -22,7 +22,7 @@ Appends two byte arrays.
 In compiled code, calls to {name}`ByteArray.append` are replaced with the much more efficient
 {name (scope:="Init.Data.ByteArray.Basic")}`ByteArray.fastAppend`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 protected def append (a b : ByteArray) : ByteArray :=
   ⟨⟨a.data.toList ++ b.data.toList⟩⟩
 

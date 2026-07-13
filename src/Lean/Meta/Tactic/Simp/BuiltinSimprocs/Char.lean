@@ -10,25 +10,30 @@ public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt
 
 public section
 
-namespace Char
-open Lean Meta Simp
+namespace Lean.Char
+open Meta Simp
 
 @[inherit_doc getCharValue?]
 def fromExpr? (e : Expr) : SimpM (Option Char) :=
   getCharValue? e
 
-@[inline] def reduceUnary [ToExpr α] (declName : Name) (op : Char → α) (arity : Nat := 1) (e : Expr) : SimpM DStep := do
+end Lean.Char
+
+namespace Char
+open Lean Meta Simp Lean.Char
+
+@[inline] private def reduceUnary [ToExpr α] (declName : Name) (op : Char → α) (arity : Nat := 1) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some c ← fromExpr? e.appArg! | return .continue
   return .done <| toExpr (op c)
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Char → Char → Bool) (e : Expr) : SimpM Step := do
+@[inline] private def reduceBinPred (declName : Name) (arity : Nat) (op : Char → Char → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
   evalPropStep e (op n m)
 
-@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : Char → Char → Bool) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBoolPred (declName : Name) (arity : Nat) (op : Char → Char → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue

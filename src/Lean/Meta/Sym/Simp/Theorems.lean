@@ -145,14 +145,14 @@ where
       mkLambdaFVars xs (← wrap h)
 
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
-  let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey
+  let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern.varTypes.size (mkConst declName) adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
   return { expr, pattern, rhs, perm }
 
 /-- Create a `Theorem` from a proof expression. Handles equalities, `¬`, `↔`, and propositions. -/
 def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
-  let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey
+  let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern.varTypes.size e adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
   return { expr, pattern, rhs, perm }

@@ -191,6 +191,15 @@ sequence of `grind` tactics.
 macro dot:unicode("· ", ". ") s:grindSeq : grind => `(grind| next%$dot =>%$dot $s:grindSeq )
 
 /--
+* `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
+  or else fails.
+* `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses
+  with inaccessible names to the given names.
+* `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
+-/
+syntax (name := «case») "case " sepBy1(caseArg, " | ") " => " grindSeq : grind
+
+/--
 `any_goals tac` applies the tactic `tac` to every goal,
 concatenating the resulting goals for successful tactic applications.
 If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
@@ -336,6 +345,20 @@ Only available in `sym =>` mode.
 - `dsimp myVariant [id₁, id₂, ...]` — named variant with extra declarations
 -/
 syntax (name := symDSimp) "dsimp" (ppSpace colGt ident)? (" [" ("*" <|> ident),* "]")? : grind
+
+/--
+`rw [h₁, ..., hₙ]` rewrites the goal target using the given equations or iffs, left to right.
+Use `← h` to rewrite right to left. Only available in `sym =>` mode, and it only rewrites the
+target: in `sym =>` mode hypotheses are never modified.
+
+Premises of a conditional rewrite rule that cannot be resolved by unification or type class
+resolution become new goals.
+
+`rw` is **not** a high-performance tactic: it does not exploit the maximal sharing maintained
+by `sym =>` mode, and should be used for surgical changes to the goal, not for bulk
+simplification. Use `simp`/`dsimp` variants for that.
+-/
+syntax (name := symRw) "rw " rwRuleSeq : grind
 
 /-- `exact e` closes the main goal if its target type matches that of `e`. -/
 macro "exact " e:term : grind => `(grind| tactic => exact $e:term)

@@ -37,7 +37,7 @@ corresponding branch.
 -/
 
 namespace Lean.Meta.Sym.Simp
-open Internal
+open Lean.Meta.Sym.Internal
 
 def isCbvNoncomputable (p : Name) : CoreM Bool := do
   let evalLemmas ← Tactic.Cbv.getCbvEvalLemmas p

@@ -50,11 +50,14 @@ Finds the highlighted code segments in an inline element.
 -/
 private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if container.val.typeName == name then
-      if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap (findInInline name)
   | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
@@ -64,13 +67,16 @@ Finds the highlighted code segments in a block element.
 -/
 private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
   | .other container _ =>
-    if container.val.typeName == name then
-      if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
-        #[lb.commands]
-      else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lb : Data.LeanBlock) := val.get? Data.LeanBlock then
+          #[lb.commands]
+        else if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .para inlines => inlines.flatMap (findInInline name)
   | .concat blocks | .blockquote blocks => blocks.flatMap (findInBlock name)
   | .dl items => items.flatMap fun ⟨x, y⟩ => x.flatMap (findInInline name) ++ y.flatMap (findInBlock name)

@@ -100,16 +100,16 @@ structure Selectable (α : Type) where
     -/
     cont : β → Async α
 
-private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α :=
+private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α × StdGen :=
   go xs gen 0
 where
-  go (xs : Array α) (gen : StdGen) (i : Nat) : Array α :=
+  go (xs : Array α) (gen : StdGen) (i : Nat) : Array α × StdGen :=
     if _ : i < xs.size - 1 then
       let (j, gen) := randNat gen i (xs.size - 1)
       let xs := xs.swapIfInBounds i j
       go xs gen (i + 1)
     else
-      xs
+      (xs, gen)
 
 /--
 Performs fair and data-loss free multiplexing on the `Selectable`s in `selectables`.
@@ -126,9 +126,15 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
   if selectables.isEmpty then
     throw <| .userError "Selectable.one requires at least one Selectable"
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
+  /-
+  It might happen that two `Selectable.one` calls race this access to `IO.stdGenRef` and generate
+  the same random numbers for this shuffle. We believe this is okay as the job of this shuffle is
+  to introduce some basic fairness to the event sources across multiple sequential calls so
+  concurrent calls should not matter too much.
+  -/
+  let gen ← IO.stdGenRef.get
+  let (selectables, gen) := shuffleIt selectables gen
+  IO.stdGenRef.set gen
 
   let gate ← IO.Promise.new
 
@@ -192,9 +198,10 @@ def Selectable.tryOne (selectables : Array (Selectable α)) : Async (Option α) 
   if selectables.isEmpty then
     return none
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
+  -- See note at Selectable.one
+  let gen ← IO.stdGenRef.get
+  let (selectables, gen) := shuffleIt selectables gen
+  IO.stdGenRef.set gen
 
   for selectable in selectables do
     if let some val ← selectable.selector.tryFn then
@@ -210,9 +217,10 @@ This allows the multiplexing operation to be composed with other selectors.
 def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) := do
   return {
     tryFn := do
-      let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-      let gen := mkStdGen seed
-      let selectables := shuffleIt selectables gen
+      -- See note at Selectable.one
+      let gen ← IO.stdGenRef.get
+      let (selectables, gen) := shuffleIt selectables gen
+      IO.stdGenRef.set gen
 
       for selectable in selectables do
         if let some val ← selectable.selector.tryFn then
@@ -223,9 +231,10 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
     registerFn := fun waiter => do
       let gate ← IO.Promise.new
 
-      let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-      let gen := mkStdGen seed
-      let selectables := shuffleIt selectables gen
+      -- See note at Selectable.one
+      let gen ← IO.stdGenRef.get
+      let (selectables, gen) := shuffleIt selectables gen
+      IO.stdGenRef.set gen
 
       for selectable in selectables do
         let waiterPromise ← IO.Promise.new

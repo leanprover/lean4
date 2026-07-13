@@ -14,6 +14,8 @@ public section
 namespace Std
 namespace Time
 
+open Internal
+
 /--
 Represents a date and time with timezone information.
 -/
@@ -185,19 +187,21 @@ def dayOfYear (date : DateTime) : Day.Ordinal.OfYear date.date.get.date.year.isL
   ValidDate.dayOfYear ⟨(date.date.get.date.month, date.date.get.date.day), date.date.get.date.valid⟩
 
 /--
-Determines the week of the year for the given `DateTime`, using `firstDay` as the start of the week.
+Determines the week of the year for the given `DateTime`, using `firstDay` as the start of the week
+and `minDays` as the minimum number of days a week must have in the new year to count as week 1.
 -/
 @[inline]
-def weekOfYear (date : DateTime) (firstDay : Weekday := .monday) : Week.OfYear.Ordinal :=
-  date.date.get.weekOfYear firstDay
+def weekOfYear (dt : DateTime) (firstDay : Weekday := .monday) (minDays : Bounded.LE 0 6 := Bounded.LE.mk 4 (by decide)) : Week.OfYear.Ordinal :=
+  PlainDate.weekOfYear dt.date.get.date firstDay minDays
 
 /--
-Returns the week-based year for the given `DateTime`, using `firstDay` as the start of the week.
+Returns the week-based year for the given `DateTime`, using `firstDay` as the start of the week
+and `minDays` as the minimum number of days a week must have in the new year to count as week 1.
 The week-based year may differ from the calendar year for dates near the start or end of the year.
 -/
 @[inline]
-def weekYear (date : DateTime) (firstDay : Weekday := .monday) : Year.Offset :=
-  date.date.get.weekYear firstDay
+def weekYear (date : DateTime) (firstDay : Weekday := .monday) (minDays : Bounded.LE 0 6 := Bounded.LE.mk 4 (by decide)) : Year.Offset :=
+  date.date.get.weekYear firstDay minDays
 
 /--
 Returns the aligned week of the month for a `DateTime`. Weeks are fixed 7-day slots

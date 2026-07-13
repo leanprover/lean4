@@ -8,6 +8,7 @@ module
 
 prelude
 import Lean.Elab.DocString
+public import Lean.DocString.DeferredCheck
 public import Lean.DocString.Parser
 public import Lean.Elab.Term.TermElabM
 
@@ -174,13 +175,26 @@ def reportVersoParseFailure
 
 open Lean.Doc in
 /--
+The result of elaborating a Verso docstring, which consists of the docstring contents paired with a
+set of deferred checks.
+-/
+public structure VersoDocResult extends VersoDocString where
+  /--
+  Checks that cannot be carried out during elaboration, typically because they require information
+  that is not yet available.
+  -/
+  deferredChecks : Array DeferredCheck
+
+
+open Lean.Doc in
+/--
 Elaborates already-parsed Verso `blocks` for the specified declaration with interactive features
 disabled, reporting any elaboration messages at the current reference. When `fileMap?` is provided,
 message positions are interpreted against it.
 -/
 private def execVersoBlocks
     (declName : Name) (binders : Syntax) (blocks : Array Syntax) (fileMap? : Option FileMap) :
-    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+    TermElabM VersoDocResult := do
   let msgs ← Core.getAndEmptyMessageLog
   let (val, msgs') ←
     try
@@ -195,7 +209,8 @@ private def execVersoBlocks
       Core.setMessageLog msgs
   for msg in msgs'.toArray do
     logAt (← getRef) msg.data (severity := msg.severity) (isSilent := msg.isSilent)
-  pure val
+  let ((text, subsections), deferredChecks) := val
+  pure { text, subsections, deferredChecks }
 
 open Lean.Doc in
 open Parser in
@@ -209,7 +224,7 @@ node that contains a sequence of bracketed binders, or an empty null node when n
 -/
 def versoDocStringOfText
     (declName : Name) (binders : Syntax) (docComment : String) :
-    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+    TermElabM VersoDocResult := do
   let env ← getEnv
   let ictx : InputContext := .mk docComment (← getFileName)
   let text := ictx.fileMap
@@ -226,7 +241,7 @@ def versoDocStringOfText
   if !s.allErrors.isEmpty then
     for (_, _, err) in s.allErrors do
       logError err.toString
-    return (#[], #[])
+    return { text := #[], subsections := #[], deferredChecks := #[] }
   else
     execVersoBlocks declName binders s.stxStack.back.getArgs (fileMap? := some text)
 
@@ -244,15 +259,16 @@ are available, pass `Syntax.missing` or an empty null node.
 
 def versoDocString
     (declName : Name) (binders : Syntax) (docComment : TSyntax ``docComment) :
-    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) := do
+    TermElabM VersoDocResult := do
   -- A docstring already parsed as Verso, or one re-parsable from its source range, supports
   -- interactive features. A macro-generated docstring has neither, so fall back to its text.
   let body := docComment.raw[1]
   if (body.getPos? (canonicalOnly := true)).isSome then
     -- Source positions are available, so re-parse from source for interactive features.
     if let some stx ← parseVersoDocString docComment then
-      Doc.elabBlocks (stx.getArgs.map (⟨·⟩)) |>.exec declName binders
-    else return (#[], #[])
+      let ((text, subsections), deferredChecks) ← Doc.elabBlocks (stx.getArgs.map (⟨·⟩)) |>.exec declName binders
+      return { text, subsections, deferredChecks }
+    else return { text := #[], subsections := #[], deferredChecks := #[] }
   else if body.isOfKind ``versoCommentBody then
     if body[0].isOfKind `Lean.Doc.Syntax.parseFailure then
       -- The markup failed to parse, so re-parse its text to report the error.
@@ -271,7 +287,7 @@ Parses and elaborates a Verso module docstring.
 -/
 def versoModDocString
     (range : DeclarationRange) (doc : TSyntax ``document) :
-    TermElabM VersoModuleDocs.Snippet := do
+    TermElabM (VersoModuleDocs.Snippet × Array Doc.DeferredCheck) := do
   let level := getMainVersoModuleDocs (← getEnv) |>.terminalNesting |>.map (· + 1)
   Doc.elabModSnippet range (doc.raw.getArgs.map (⟨·⟩)) (level.getD 0) |>.execForModule
 
@@ -284,7 +300,7 @@ interactive features are disabled.
 -/
 def versoDocStringFromString
     (declName : Name) (docComment : String) :
-    TermElabM (Array (Doc.Block ElabInline ElabBlock) × Array (Doc.Part ElabInline ElabBlock Empty)) :=
+    TermElabM VersoDocResult :=
   versoDocStringOfText declName (mkNullNode #[]) docComment
 
 /--
@@ -305,10 +321,11 @@ def addMarkdownDocString
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
 /--
-Adds an elaborated Verso docstring to the environment.
+Adds an elaborated Verso docstring to the environment, recording its `deferred` checks under this
+declaration as their `site`.
 -/
 def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadError m]
-    (declName : Name) (docs : VersoDocString) : m Unit := do
+    (declName : Name) (docs : VersoDocString) (deferred : Array Doc.DeferredCheck) : m Unit := do
   -- The decl name can be anonymous due to attempts to elaborate incomplete syntax. If the name is
   -- anonymous, the `MapDeclarationExtension.insert` panics due to not being on the right async
   -- branch. Better to just do nothing.
@@ -316,17 +333,23 @@ def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadErr
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env =>
-    versoDocStringExt.insert env declName docs
+    let env := versoDocStringExt.insert env declName docs
+    deferred.foldl (init := env) fun env c =>
+      Doc.deferredCheckExt.addEntry env { c with site := .decl declName }
 
 /--
 Adds an elaborated Verso module docstring to the environment.
 -/
 def addVersoModDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadError m]
-  (docs : VersoModuleDocs.Snippet) : m Unit := do
+  (docs : VersoModuleDocs.Snippet) (deferred : Array Doc.DeferredCheck) : m Unit := do
   if (getMainModuleDoc (← getEnv)).isEmpty then
+    -- The snippet's index is the number of snippets already present.
+    let n := (getMainVersoModuleDocs (← getEnv)).snippets.size
     match addVersoModuleDocSnippet (← getEnv) docs with
     | .error e => throwError "Error adding module docs: {indentD <| toMessageData e}"
-    | .ok env' => setEnv env'
+    | .ok env' =>
+      setEnv <| deferred.foldl (init := env') fun env c =>
+        Doc.deferredCheckExt.addEntry env { c with site := .moduleDoc n }
   else
     throwError m!"Can't add Verso-format module docs because there is already Markdown-format content present."
 
@@ -344,8 +367,8 @@ def addVersoDocString
     TermElabM Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
-  let (blocks, parts) ← versoDocString declName binders docComment
-  addVersoDocStringCore declName ⟨blocks, parts⟩
+  let { toVersoDocString, deferredChecks } ← versoDocString declName binders docComment
+  addVersoDocStringCore declName toVersoDocString deferredChecks
 
 /--
 Adds a Verso docstring to the environment from a string value, which disables the interactive
@@ -355,8 +378,8 @@ def addVersoDocStringFromString (declName : Name) (docComment : String) :
     TermElabM Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
-  let (blocks, parts) ← versoDocStringFromString declName docComment
-  addVersoDocStringCore declName ⟨blocks, parts⟩
+  let { toVersoDocString, deferredChecks } ← versoDocStringFromString declName docComment
+  addVersoDocStringCore declName toVersoDocString deferredChecks
 
 
 /--
@@ -442,5 +465,5 @@ are available, pass `Syntax.missing` or an empty null node.
 def addVersoModDocString
     (range : DeclarationRange) (docComment : TSyntax ``document) :
     TermElabM Unit := do
-  let snippet ← versoModDocString range docComment
-  addVersoModDocStringCore snippet
+  let (snippet, deferred) ← versoModDocString range docComment
+  addVersoModDocStringCore snippet deferred

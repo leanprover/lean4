@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Nat.Coprime
-public import Init.Data.OfScientific
+public import Init.Data.OfScientific.Basic
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.String.Defs
 public import Init.Data.ToString.Macro
@@ -275,6 +275,7 @@ unfold it. Use `Rat.add_def` instead.)
 instance : Add Rat := ⟨Rat.add⟩
 
 /-- Negation of rational numbers. -/
+@[implicit_reducible]
 protected def neg (a : Rat) : Rat :=
   { a with num := -a.num, reduced := by rw [Int.natAbs_neg]; exact a.reduced }
 

@@ -4,7 +4,7 @@ inductive Ty
   | base
   | arr (a b : Ty)
 
-def Cxt := List Ty
+@[instance_reducible] def Cxt := List Ty
 
 inductive Var : (g : Cxt) → (a : Ty) → Type
   | vz {g a}   : Var (a :: g) a

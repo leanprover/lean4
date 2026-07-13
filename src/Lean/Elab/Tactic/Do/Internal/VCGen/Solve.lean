@@ -216,6 +216,12 @@ private def replaceProgDefEq (goal : MVarId) (info : WPInfo) (prog : Expr) :
   let newTarget ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
   goal.replaceTargetDefEq newTarget
 
+/-- Strip an `mdata` wrapper (such as the `save_info` annotation left by spec elaboration)
+from the program in `goal`'s target, so the remaining strategies see the bare term. -/
+private def wpConsumeMData? (goal : MVarId) (info : WPInfo) : VCGenM (Option MVarId) := do
+  let .mdata .. := info.prog | return none
+  return some (← replaceProgDefEq goal info info.prog.consumeMData)
+
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
 private def wpLet? (goal : MVarId) (info : WPInfo) : VCGenM (Option MVarId) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
@@ -501,6 +507,8 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     -- Stop if the program matches the `until` pattern.
     if ← matchesUntilPattern info.m info.prog then
       return .stop (.untilPatternMatched info.m)
+    if let some g ← wpConsumeMData? goal info then
+      return .goals scope [g]
     if let some g ← wpLet? goal info then
       VCGen.burnOne
       return .goals scope [g]

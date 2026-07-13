@@ -260,9 +260,7 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
 }
 
 static inline void lean_dealloc(lean_object * o, size_t sz) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    dealloc(o, sz);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
     mi_free_size(o, sz);
 #else
     free_sized(o, sz);
@@ -360,9 +358,7 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
          lean_del_core(o, g_to_free);
      }
 #endif
-#ifdef LEAN_SMALL_ALLOCATOR
-    return (lean_object*)alloc(sz);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
     void * r = mi_malloc(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)r;
@@ -2795,7 +2791,7 @@ extern "C" LEAN_EXPORT object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
     return lean_apply_1(fn, lean_box(0));
 }
 
-extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
+extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(b_obj_arg s, obj_arg a) {
     if (!lean_is_scalar(a) && !lean_is_exclusive(a)) {
         io_eprintln(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }

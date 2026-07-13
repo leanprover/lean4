@@ -828,6 +828,7 @@ theorem getLast_eq_getLastD {a l} (h) : @getLast α (a::l) h = getLastD l a := b
 
 @[simp, grind =] theorem getLast_singleton {a} (h) : @getLast α [a] h = a := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem getLast!_cons_eq_getLastD [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
 

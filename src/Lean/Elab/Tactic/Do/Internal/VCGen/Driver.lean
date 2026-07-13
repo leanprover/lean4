@@ -151,7 +151,10 @@ public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
     Grind.GrindM Result := do
   let initState : State :=
     { fuel := match stepLimit? with | some n => .limited n | none => .unlimited, frameDB? }
-  let ((), state) ← StateRefT'.run (ReaderT.run (work scope goal) ctx) initState
+  -- VCGen temporarily violates the `SymM` folded-projections invariant: `reduceHead?`
+  -- exposes kernel projections in intermediate terms and restores the invariant in its
+  -- final result, so the `shareCommon` kernel-projection check is disabled.
+  let ((), state) ← Sym.withoutFoldProjsCheck <| StateRefT'.run (ReaderT.run (work scope goal) ctx) initState
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
   _ ← state.vcs.mapIdxM fun idx g => do

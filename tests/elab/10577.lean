@@ -45,4 +45,4 @@ open Lean
 /-- error: (kernel) let-declaration type mismatch 'a' -/
 #guard_msgs in
 run_meta
-  setEnv (← ofExceptKernelException <| (← getEnv).addDeclCore 0 decl_0 none)
+  setEnv (← ofExceptKernelException <| (← getEnv).addDeclCore 0 0 decl_0 none)

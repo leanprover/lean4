@@ -216,6 +216,15 @@ structure Ilean where
   decls         : Lsp.Decls
   deriving FromJson, ToJson
 
+/-- Extra data stored with an `.ilean` loaded and written to disk for mmapping -/
+structure Milean extends Ilean where
+  /-- The path where this `.ilean` comes from -/
+  path : System.FilePath
+  /-- The `.ilean.hash` value, as computed by Lake.fetchFileHash from the `.ilean` JSON. -/
+  hash : UInt64
+  /-- The last-modified time from the `.ilean` JSON -/
+  modified : FS.SystemTime
+
 namespace Ilean
 
 open Lean.IO

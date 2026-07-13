@@ -1669,6 +1669,23 @@ def findWorkerPath : IO System.FilePath := do
     workerPath := System.FilePath.mk path
   return workerPath
 
+/-- Given `<path>`, attempt to read a file `<path>.hash` containing a 64-bit hex value -/
+public def loadHash (baseFile : System.FilePath) : IO (Option UInt64) := do
+  try
+    let contents ← FS.readBinFile (baseFile.toString ++ ".hash")
+    if contents.size != 16 then return .none
+
+    let mut result: UInt64 := 0
+    for byte in contents do
+      result := result.shiftLeft 4
+      if '0'.toUInt8 ≤ byte && byte ≤ '9'.toUInt8 then result := result + (byte - '0'.toUInt8).toUInt64
+      else if 'a'.toUInt8 ≤ byte && byte ≤ 'f'.toUInt8 then result := result + (byte - 'a'.toUInt8 + 10).toUInt64
+      else if 'A'.toUInt8 ≤ byte && byte ≤ 'F'.toUInt8 then result := result + (byte - 'A'.toUInt8 + 10).toUInt64
+      else return .none
+    return .some result
+  catch _ =>
+    pure none
+
 /--
 Starts loading .ileans present in the search path asynchronously in an IO task.
 This ensures that server startup is not blocked by loading the .ileans.
@@ -1678,9 +1695,33 @@ results in requests that need references.
 def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit := do
   let task ← ServerTask.IO.asTask do
     let oleanSearchPath ← Lean.searchPathRef.get
+    let stderr ← getStderr
+
+    let mut mileans : Std.TreeMap String Milean := {}
+    stderr.write s!"searchpath {oleanSearchPath}".toByteArray
+    for path in ← oleanSearchPath.findAllWithExt "milean" do
+      try
+        let (milean, _region) ← unsafe CompactedRegion.read (α := Milean) path #[]
+        unless milean.modified == (← milean.path.metadata).modified do
+          throw (.userError s!"milean is for ilean modified modified at t={milean.modified.sec}, ilean modified at {(← milean.path.metadata).modified.sec}")
+        let .some hash ← loadHash milean.path
+          | throw (.userError "No .hash file for ilean")
+        unless hash == milean.hash do
+          throw (.userError s!"milean is for ilean with hash {milean.hash}, ilean hash is {hash}")
+        if !mileans.contains milean.path.toString then
+          mileans := mileans.insert milean.path.toString milean
+      catch err =>
+        stderr.write s!"error loading {path}: {err}".toByteArray
+        pure () -- Ignore errors from compacted regions not matching (stale mileans)
+
+    let mut mileanCount := 0
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try
-        let ilean ← Ilean.load path
+        let ilean ← match mileans.get? path.toString with
+          | .none => Ilean.load path
+          | .some il =>
+            mileanCount := mileanCount + 1
+            pure il.toIlean
         referenceData.atomically do
           let rd ← get
           let rd ← rd.modifyReferencesM (·.addIlean path ilean)
@@ -1690,8 +1731,18 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
         -- ilean load errors should not be fatal, but we *should* log them
         -- when we add logging to the server
         pure ()
+    if mileans.size > 0 then
+      stderr.write s!"loaded {mileans.size} milean(s), used {mileanCount} milean(s)".toByteArray
   referenceData.atomically <| modify fun rd =>
     { rd with loadingTask := task.mapCheap fun _ => () }
+where
+  /-- Load ilean, but return milean if suitable -/
+  findIlean (mileans : Std.TreeMap String Milean) (path : System.FilePath) : IO (Except String (Option Ilean)) := do
+    let .some milean := mileans.get? path.toString | return .ok .none
+    if milean.modified != (← path.metadata).modified then return .error "Modification dates don't match"
+    let .some hash ← loadHash path | return .error "No .hash file for ilean"
+    if milean.hash != hash then return .error "Hashes don't match"
+    return .ok <| .some milean.toIlean
 
 def runMessageLoggingTask (logData : LogData) : IO Unit := do
   let some ch := logData.chan?

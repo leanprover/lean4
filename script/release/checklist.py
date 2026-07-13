@@ -752,9 +752,9 @@ class LeanChecker(RepoChecker):
 
         message = ""
         if self.version.is_stable:
-            message += f"We have a new stable release of Lean `{self.version.tag}`! "
+            message += f"We have a new stable release of Lean, `{self.version.tag}`! "
         else:
-            message += f"We have a new release candidate of Lean `{self.version.tag}`. "
+            message += f"We have a new release candidate of Lean, `{self.version.tag}`. "
         message += f"See the [release notes]({release_notes_url}) for more information."
         message += "\n\n"
         message += "The usual repos are all available with the new toolchain "

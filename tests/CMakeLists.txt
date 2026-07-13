@@ -323,14 +323,7 @@ add_test_pile(
     sync_mutex.lean # Flaky
   ${ELAB_FIXTURES}
 )
-add_test_pile(
-  elab_bench
-  *.lean
-  BENCH
-  PART2
-  EXCEPT
-    grind_bitvec2.lean # Broken since #14371
-  ${ELAB_FIXTURES})
+add_test_pile(elab_bench *.lean BENCH PART2 ${ELAB_FIXTURES})
 add_test_pile(elab_fail *.lean ${ELAB_FIXTURES})
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)

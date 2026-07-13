@@ -451,6 +451,10 @@ public def size (t : ImportedConsts α) : Nat :=
 public def fold (t : ImportedConsts α) (f : σ → Name → α → σ) (init : σ) : σ :=
   t.foldl f init
 
+@[inherit_doc foldlM]
+public def foldM [Monad m] (t : ImportedConsts α) (f : σ → Name → α → m σ) (init : σ) : m σ :=
+  t.foldlM f init
+
 public def toList (t : ImportedConsts α) : List (Name × α) :=
   t.foldl (fun l n v => (n, v) :: l) []
 

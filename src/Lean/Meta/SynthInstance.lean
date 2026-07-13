@@ -1541,11 +1541,30 @@ private def insertCachedResult (key : SynthInstanceCacheKey) (entry : SynthInsta
     modifyCache fun c => { c with synthInstance := c.synthInstance.insert key entry }
 
 /--
+Whether the query determined every metavariable of an applied cache entry.
+
+Reopening an entry mints a fresh metavariable for each one the value was abstracted over, and only
+the `isDefEq` in `assignOutParams` can tie them back to the query. Unifying successfully is not
+enough: a universe the query does not pin stays unassigned and leaks into the term (`declaration
+contains universe level metavariables`, `stuck at solving universe constraint`). Such a value was a
+degree of freedom of the elaboration that produced it, so the entry does not answer this query.
+-/
+private def queryDetermines (type : Expr) (result : Expr) : MetaM Bool := do
+  let qLevels := (collectLevelMVars {} type).result
+  for u in (collectLevelMVars {} result).result do
+    unless qLevels.contains u do return false
+  let qMVars := (type.collectMVars {}).result
+  for m in (result.collectMVars {}).result do
+    unless qMVars.contains m do return false
+  return true
+
+/--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
 -/
-private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
-  let some abstResult := abstResult? | return none
+private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) :
+    MetaM (Option (Option Expr)) := do
+  let some abstResult := abstResult? | return some none
   if abstResult.numMVars == 0 then
     /-
     Result does not introduce new metavariables, thus we don't need to perform (again)
@@ -1561,23 +1580,48 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
       else
         let us ← abstResult.paramNames.mapM fun _ => mkFreshLevelMVar
         pure (abstResult.expr.instantiateLevelParamsArray abstResult.paramNames us)
+    -- The entry does not answer this query. Once the key is normalized it no longer determines the
+    -- result, so this is not "there is no instance" but "this entry is not applicable": the caller
+    -- must run the search. Reporting it as a failure is a completeness bug.
     unless (← assignOutParams type e) do
       return none
-    return some e
+    let e ← instantiateMVars e
+    unless (← queryDetermines type e) do return none
+    return some (some e)
   else
-    applyAbstractResult? type abstResult?
+    -- As `applyAbstractResult?`, but a failure to unify means the entry is not applicable.
+    let (_, _, result) ← openAbstractMVarsResult abstResult
+    unless (← assignOutParams type result) do
+      return none
+    let result ← instantiateMVars result
+    unless (← queryDetermines type result) do return none
+    check result
+    return some (some result)
 
 /--
 Abstracts the metavariables a cached value still mentions, on top of the abstraction the search
 already performed one depth down. Binders introduced here wrap the existing ones, so both counts are
 kept in `mvars` and both universe parameter sets in `paramNames`.
 -/
-private def abstractRemaining (r : AbstractMVarsResult) : MetaM AbstractMVarsResult := do
-  unless r.expr.hasMVar do return r
-  let r2 ← abstractMVars r.expr
-  return { paramNames := r.paramNames ++ r2.paramNames
-           mvars      := r.mvars ++ r2.mvars
-           expr       := r2.expr }
+private def abstractRemaining (queryMVars : Array MVarId) (r : AbstractMVarsResult) :
+    MetaM (Option AbstractMVarsResult) := do
+  unless r.expr.hasMVar do return some r
+  let e ← instantiateMVars r.expr
+  for m in (e.collectMVars {}).result do
+    -- On a hit, `openAbstractMVarsResult` mints a fresh metavariable for each abstracted one, and
+    -- the only thing that can re-determine it is the `isDefEq` in `assignOutParams`, which unifies
+    -- the query with the result's type. A metavariable of the value that the query does not mention
+    -- is a degree of freedom of the elaboration that created it: re-minting it for another query
+    -- would leave it unconstrained, so the value must not be reused. This mirrors the universe case
+    -- in `abstractResultLevels` and the free-variable case in `abstractOverClosure?`.
+    unless queryMVars.contains m do return none
+  -- `levels := false`: universes are handled by `abstractResultLevels`, which refuses the ones the
+  -- query does not determine. Letting `abstractMVars` abstract them here would bypass that check,
+  -- and that was what still broke `QPF/Univariate/Basic`.
+  let r2 ← abstractMVars e (levels := false)
+  return some { paramNames := r.paramNames ++ r2.paramNames
+                mvars      := r.mvars ++ r2.mvars
+                expr       := r2.expr }
 
 /--
 Abstracts the universe metavariables still mentioned by a cached value into universe parameters.
@@ -1590,7 +1634,7 @@ reopened in a declaration whose metavariable context does not have them. `openAb
 mints a fresh universe metavariable per parameter on every use, and the `isDefEq` in
 `assignOutParams` unifies them against the actual query.
 -/
-private def abstractResultLevels (keyLevelMVars : Array LMVarId) (r : AbstractMVarsResult) :
+private def abstractResultLevels (queryLevelMVars : Array LMVarId) (r : AbstractMVarsResult) :
     MetaM (Option AbstractMVarsResult) := do
   unless r.expr.hasLevelMVar do return some r
   let e ← instantiateMVars r.expr
@@ -1600,11 +1644,13 @@ private def abstractResultLevels (keyLevelMVars : Array LMVarId) (r : AbstractMV
   let mut names := r.paramNames
   let mut m : Std.HashMap LMVarId Level := {}
   for id in st.result do
-    -- A universe metavariable the key does not mention is a degree of freedom of the *querying*
-    -- elaboration, resolved by ambient constraints rather than by the query (`Small` is the standard
-    -- example). Re-minting it for another query leaves it unconstrained, so such a value must not be
-    -- reused at all; see `insertCachedResult`.
-    unless keyLevelMVars.contains id do return none
+    -- On a hit the only thing that re-determines a universe is the `isDefEq` in `assignOutParams`,
+    -- which unifies the *query type* with the result's type. A universe metavariable the query type
+    -- does not mention is therefore a degree of freedom of the elaboration that created the value,
+    -- resolved by ambient constraints (`Small` is the standard example); re-minting it for another
+    -- query would leave it unconstrained, so such a value must not be reused. See
+    -- `insertCachedResult`.
+    unless queryLevelMVars.contains id do return none
     let n := Name.mkNum `_snu names.size
     names := names.push n
     m := m.insert id (mkLevelParam n)
@@ -1616,7 +1662,8 @@ private def abstractResultLevels (keyLevelMVars : Array LMVarId) (r : AbstractMV
 /-- Helper function for caching synthesized type class instances. -/
 private def cacheResult (cacheKey : SynthInstanceCacheKey) (relSynthPendingDepth : Option Nat)
     (kind : PreprocessKind) (normalized : Bool) (abstResult? : Option AbstractMVarsResult)
-    (result? : Option Expr) (keyLevelMVars : Array LMVarId := #[]) : MetaM Unit := do
+    (result? : Option Expr) (queryLevelMVars : Array LMVarId := #[])
+    (queryMVars : Array MVarId := #[]) : MetaM Unit := do
   -- The stored value: for a closed result we store the concrete `result` expr with an empty
   -- `AbstractMVarsResult` so that `applyCachedAbstractResult?` can skip re-`check`ing it.
   -- `none` here means the value cannot be reused at all and nothing is cached.
@@ -1638,10 +1685,12 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (relSynthPendingDepth
           -- Re-abstract at the *caller's* depth: the `abstractMVars` inside the search ran one depth
           -- down, where the querying declaration's own metavariables count as constants and stay in
           -- the term, and the key no longer distinguishes them.
-          let r ← abstractRemaining r
-          match ← abstractResultLevels keyLevelMVars r with
+          match ← abstractRemaining queryMVars r with
           | none   => pure none
-          | some v => pure (some (some v))
+          | some r =>
+            match ← abstractResultLevels queryLevelMVars r with
+            | none   => pure none
+            | some v => pure (some (some v))
   let some value? := value?? | return ()
   -- Only context-free entries may be persisted: a key without metavariables, a key that does not
   -- depend on the identity of any free variable, and a closed value (no abstracted metavariables,
@@ -2099,12 +2148,15 @@ classified `.noMVars` (`Expr.hasMVar` does not see them) and never reaches that 
 -/
 def canonKeyLevels (key : SynthInstanceCacheKey) : SynthInstanceCacheKey × Array LMVarId := Id.run do
   let mut st : CollectLevelMVars.State := {}
-  st := collectLevelMVars st key.type
+  if key.type.hasLevelMVar then
+    st := collectLevelMVars st key.type
   for t in key.normFVarTypes do
-    st := collectLevelMVars st t
+    if t.hasLevelMVar then
+      st := collectLevelMVars st t
   for v? in key.normFVarValues do
     if let some v := v? then
-      st := collectLevelMVars st v
+      if v.hasLevelMVar then
+        st := collectLevelMVars st v
   if st.result.isEmpty then
     return (key, #[])
   let mut m : Std.HashMap LMVarId Level := {}
@@ -2115,10 +2167,19 @@ def canonKeyLevels (key : SynthInstanceCacheKey) : SynthInstanceCacheKey × Arra
   let f? : Level → Option Level := fun
     | .mvar id => m[id]?
     | _        => none
+  -- `Expr.replaceLevel` allocates a fresh cache of `ReplaceLevelImpl.cacheSize` entries on every
+  -- call, so rewrite every component of the key in a single traversal rather than one per component.
+  let placeholder := mkSort .zero
+  let n := key.normFVarTypes.size
+  let args := #[key.type] ++ key.normFVarTypes
+    ++ key.normFVarValues.map (·.getD placeholder)
+  let bundle := (mkAppN (mkConst `_snu) args).replaceLevel f?
+  let args := bundle.getAppArgs
   return ({ key with
-    type := key.type.replaceLevel f?,
-    normFVarTypes := key.normFVarTypes.map (·.replaceLevel f?),
-    normFVarValues := key.normFVarValues.map (·.map (·.replaceLevel f?)) }, st.result)
+    type := args[0]!,
+    normFVarTypes := args.extract 1 (1 + n),
+    normFVarValues := key.normFVarValues.mapIdx fun i v? => v?.map fun _ => args[1 + n + i]! },
+    st.result)
 
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let lookupT0 ← if synthInstanceCacheStatsEnabled then IO.monoNanosNow else pure 0
@@ -2181,7 +2242,14 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       if nLevelMVars > 0 then
         { s with levelNormKeys := s.levelNormKeys + 1, levelNormMVars := s.levelNormMVars + nLevelMVars }
       else s
-    let (baseKey, keyLevelMVars) := if synthLevelNorm then canonKeyLevels baseKey else (baseKey, #[])
+    -- What `assignOutParams` can re-determine on a hit is exactly what the query mentions: it
+    -- unifies `type` with the result's type. Anything else in a value is a degree of freedom of the
+    -- elaboration that produced it and makes the value unshareable.
+    let queryLevelMVars := if synthLevelNorm && baseKey.type.hasLevelMVar then
+        (collectLevelMVars {} baseKey.type).result
+      else #[]
+    let queryMVars := if synthLevelNorm && type.hasMVar then (type.collectMVars {}).result else #[]
+    let (baseKey, _) := if synthLevelNorm then canonKeyLevels baseKey else (baseKey, #[])
     if synthDumpKey && nLevelMVars > 0 then
       IO.eprintln s!"ALGKEY\ttype={baseKey.type}\tLI={baseKey.localInsts.map (·.className)}\t\
         FT={baseKey.normFVarTypes}\tFV={baseKey.normFVarValues}\tSC={baseKey.activeScopedInsts.size}\t\
@@ -2193,16 +2261,32 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let stuckKey  := { rawBaseKey with synthPendingDepth := some synthPendingDepth }
     let maxSynthPending := maxSynthPendingDepth.get (← getOptions)
     let depthShareEnabled := (← IO.getEnv "LEAN_NO_DEPTH_SHARE") != some "1"
-    let applyCached (entryHash : UInt64) (entry : SynthInstanceCacheEntry) : MetaM (Option Expr) := do
-      trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
+    /-
+    Applies a cache entry, or returns `none` if the entry does not answer this query, in which case
+    the search has to run. A normalized key no longer determines the result, so an entry can fail to
+    unify with the query; reporting that as "no instance exists" loses instances that do exist.
+    -/
+    let applyCached (entryHash : UInt64) (entry : SynthInstanceCacheEntry) (fromPersistent : Bool)
+        (activity : SynthPendingActivity) : MetaM (Option (Option Expr)) := do
+      let saved ← saveState
       -- Re-instantiate the closure-abstracted result with the current context's free variables.
       let abstResult? := match normCtx? with
         | some c => entry.result.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
         | none   => entry.result
-      let result? ← applyCachedAbstractResult? type abstResult?
+      let some result? ← applyCachedAbstractResult? type abstResult?
+        | do
+          -- Undo the metavariables `openAbstractMVarsResult` minted before the failed unification.
+          saved.restore
+          return none
+      trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
       trace[Meta.synthInstance] "result {result?} (cached)"
+      recordSynthInstanceCacheStat fun s =>
+        if fromPersistent then { s with hitPersistent := s.hitPersistent + 1 }
+        else { s with hitTransient := s.hitTransient + 1 }
+      -- Reusing the entry re-enacts its `synthPending` decisions at the current depth.
+      foldActivity activity
       recordLookupOutcome sharedKey rawBaseKey entryHash (isHit := true) result? lookupT0 lookupHb0 depParent lookupMCtx
-      return result?
+      return some result?
     let sharedEntry? ← if !depthShareEnabled then pure none else match ← findCachedResult? sharedKey with
       | some (entry, fromPersistent) =>
         match entry.relSynthPendingDepth with
@@ -2212,20 +2296,20 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
           -- depth; see `SynthInstanceCacheEntry.relSynthPendingDepth`.
           pure (if synthPendingDepth + rel ≤ maxSynthPending then some (entry, fromPersistent) else none)
       | none => pure none
-    if let some (entry, fromPersistent) := sharedEntry? then
-      recordSynthInstanceCacheStat fun s =>
-        if fromPersistent then { s with hitPersistent := s.hitPersistent + 1 } else { s with hitTransient := s.hitTransient + 1 }
-      -- Reusing the entry re-enacts its `synthPending` decisions at the current depth.
-      foldActivity { maxDepth := entry.relSynthPendingDepth.map (synthPendingDepth + ·) }
-      applyCached (hash sharedKey) entry
-    else if let some (entry, fromPersistent) ← findCachedResult? depthKey then
-      recordSynthInstanceCacheStat fun s =>
-        if fromPersistent then { s with hitPersistent := s.hitPersistent + 1 } else { s with hitTransient := s.hitTransient + 1 }
-      -- The entry's synthesis hit the `maxSynthPendingDepth` give-up, so reusing it keeps the
-      -- enclosing query depth-exact as well.
-      foldActivity { maxDepth := some synthPendingDepth, guardHit := true }
-      applyCached (hash depthKey) entry
-    else
+    let cached? : Option (Option Expr) ←
+      if let some (entry, fromPersistent) := sharedEntry? then
+        applyCached (hash sharedKey) entry fromPersistent
+          { maxDepth := entry.relSynthPendingDepth.map (synthPendingDepth + ·) }
+      else if let some (entry, fromPersistent) ← findCachedResult? depthKey then
+        -- The entry's synthesis hit the `maxSynthPendingDepth` give-up, so reusing it keeps the
+        -- enclosing query depth-exact as well.
+        applyCached (hash depthKey) entry fromPersistent
+          { maxDepth := some synthPendingDepth, guardHit := true }
+      else
+        pure none
+    match cached? with
+    | some result? => return result?
+    | none =>
       let stuckMemoEnabled := (← IO.getEnv "LEAN_NO_STUCK_MEMO") != some "1"
       if let some fingerprint := (← get).cache.synthStuck.find? stuckKey then
         -- The same query already got stuck on a metavariable; the blocking metavariable is still
@@ -2289,12 +2373,12 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       let key := if activity.guardHit || !depthShareEnabled then depthKey else sharedKey
       let rel := if depthShareEnabled then activity.maxDepth.map (· - synthPendingDepth) else none
       match normCtx? with
-      | none   => cacheResult key rel kind (normalized := false) abstResult? result? keyLevelMVars
+      | none   => cacheResult key rel kind (normalized := false) abstResult? result? queryLevelMVars queryMVars
       | some c =>
         -- Store the result over the canonical closure variables; skip caching (this query only) if
         -- the result escapes the closure and so is not context-free.
         match SynthNorm.abstractValue? c abstResult? result? with
-        | some (nAbstResult?, nResult?) => cacheResult key rel kind (normalized := true) nAbstResult? nResult? keyLevelMVars
+        | some (nAbstResult?, nResult?) => cacheResult key rel kind (normalized := true) nAbstResult? nResult? queryLevelMVars queryMVars
         | none => recordSynthInstanceCacheStat fun s => { s with abstractSkip := s.abstractSkip + 1 }
       recordLookupOutcome sharedKey rawBaseKey (hash key) (isHit := false) result? lookupT0 lookupHb0 depParent lookupMCtx
       return result?

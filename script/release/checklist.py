@@ -738,9 +738,40 @@ class LeanChecker(RepoChecker):
         what = "Zulip release announcement"
 
         if not self.prompt(f"Post {what}?"):
-            self.cl.success(f"{what} posted")
-        else:
             self.cl.fail(f"{what} not posted")
+            return
+
+        proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
+        proofwidgets_tag = util.get_proofwidgets_release_for(proofwidgets, self.version)
+        if proofwidgets_tag is None:
+            self.cl.fail("ProofWidgets release tag not found")
+            return
+
+        release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{self.version.stable}/"
+
+        message = ""
+        if self.version.is_stable:
+            message += f"We have a new stable release of Lean `{self.version.tag}`! "
+        else:
+            message += f"We have a new release candidate of Lean `{self.version.tag}`. "
+        message += f"See the [release notes]({release_notes_url}) for more information."
+        message += "\n\n"
+        message += "The usual repos are all available with the new toolchain "
+        message += f"at their respective `{self.version.tag}` tags "
+        message += f"and ProofWidgets at `{proofwidgets_tag.name}`). "
+        message += "We encourage all projects downstream "
+        message += f"to update to `{self.version.tag}` when possible, and "
+        message += "to release their own corresponding toolchain tags after updating."
+
+        print()
+        print(e(message))
+        print()
+
+        if not self.prompt(f"Posted {what}?"):
+            self.cl.fail(f"{what} not posted")
+            return
+
+        self.cl.success(f"{what} posted")
 
     def check_notify_ashley(self) -> None:
         if self.prompt("Tell Ashley that the release is finished."):

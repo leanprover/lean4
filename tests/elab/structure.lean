@@ -24,7 +24,7 @@ inductive D
   | mk (x y z : Nat) : D
 
 /--
-info: #[constants, quotInit, diagnostics, allImportedConsts, importedExtraConsts, extensions, irBaseExts, header]
+info: #[constants, quotInit, diagnostics, allImportedConsts, importedExtraConsts, const2ModIdxThunk, extensions, irBaseExts, header]
 #[toS2, toS1, x, y, z, toS3, w, s]
 (some [S4.toS2, S2.toS1])
 #[S2, S3]

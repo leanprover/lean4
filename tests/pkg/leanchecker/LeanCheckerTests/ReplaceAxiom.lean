@@ -46,6 +46,7 @@ open Lean Elab Meta in
     env.toKernelEnv.diagnostics
     env.toKernelEnv.allImportedConsts
     env.toKernelEnv.importedExtraConsts
+    env.toKernelEnv.const2ModIdxThunk
     (Lean.Kernel.Environment.extensions env.toKernelEnv)
     {}
     env.header

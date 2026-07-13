@@ -254,6 +254,11 @@ structure Environment where
   -/
   importedExtraConsts     : ImportedConsts Unit := .empty
   /--
+  Mapping from imported constant name (including `importedExtraConsts`) to its module index,
+  forced on first use; see `Environment.const2ModIdx`.
+  -/
+  const2ModIdxThunk       : Thunk (Std.HashMap Name ModuleIdx) := .pure {}
+  /--
   Environment extensions. It also includes user-defined extensions.
   -/
   private extensions      : Array EnvExtensionState
@@ -1212,19 +1217,23 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   -- async constants are always from the current module
   env.base.get env |>.getModuleIdxFor? declName
 
-/--
-Reconstructs the mapping from imported constant name to the index of the module declaring it,
-including auxiliary code-generator constants. The reconstruction walks all imported constants, so
-callers that only need single lookups should prefer `getModuleIdxFor?`, and iteration is usually
-better served by `env.header.moduleData`.
--/
-def const2ModIdx (env : Environment) : Std.HashMap Name ModuleIdx := Id.run do
-  let base := env.base.get env
+/-- Computes `Kernel.Environment.const2ModIdxThunk`'s value; see `Environment.const2ModIdx`. -/
+private def mkConst2ModIdx (consts : ImportedConsts ConstantInfo) (extras : ImportedConsts Unit) :
+    Std.HashMap Name ModuleIdx := Id.run do
   let mut m : Std.HashMap Name ModuleIdx ←
-    base.allImportedConsts.foldlEntriesM (m := Id) (init := {}) fun m n (_, modIdx) =>
+    consts.foldlEntriesM (m := Id) (init := {}) fun m n (_, modIdx) =>
       m.insert n modIdx
-  base.importedExtraConsts.foldlEntriesM (m := Id) (init := m) fun m n (_, modIdx) =>
+  extras.foldlEntriesM (m := Id) (init := m) fun m n (_, modIdx) =>
     m.insertIfNew n modIdx
+
+/--
+The mapping from imported constant name to the index of the module declaring it, including
+auxiliary code-generator constants. The mapping is computed on first use by walking all imported
+constants, so callers that only need single lookups should prefer `getModuleIdxFor?`, and iteration
+is usually better served by `env.header.moduleData`.
+-/
+def const2ModIdx (env : Environment) : Std.HashMap Name ModuleIdx :=
+  (env.base.get env).const2ModIdxThunk.get
 
 def isImportedConst (env : Environment) (declName : Name) : Bool :=
   env.getModuleIdxFor? declName |>.isSome
@@ -2405,6 +2414,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     constants := { map₁ := privImported }
     allImportedConsts := privImported
     importedExtraConsts
+    const2ModIdxThunk := ⟨fun _ => Environment.mkConst2ModIdx privImported importedExtraConsts⟩
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
     extensions      := exts
     irBaseExts      := exts

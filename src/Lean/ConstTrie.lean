@@ -350,24 +350,36 @@ private partial def mergeCands (key : Name) (cands : Array (Nat × ConstTrie α)
   let entries := cands.filterMap fun (i, t) => t.val?.map ((·, i))
   if entries.size > 1 then
     modify (·.push { name := key, entries })
-  let all := cands.flatMap fun (i, t) => t.children.map ((i, ·))
-  let all := all.qsort fun (i₁, c₁) (i₂, c₂) =>
-    c₁.key.hash < c₂.key.hash || (c₁.key.hash == c₂.key.hash && i₁ < i₂)
+  -- Flatten the candidates' children with their key hashes so that sort comparisons stay within
+  -- the flattened elements, then sort by (hash, module order).
+  let mut total := 0
+  for (_, t) in cands do
+    total := total + t.children.size
+  let mut all : Array (UInt64 × Nat × ConstTrie α) := .mkEmpty total
+  for (i, t) in cands do
+    for c in t.children do
+      all := all.push (c.key.hash, i, c)
+  let sorted := all.qsort fun (h₁, i₁, _) (h₂, i₂, _) => h₁ < h₂ || (h₁ == h₂ && i₁ < i₂)
   let mut children := #[]
   let mut idx := 0
-  while idx < all.size do
-    -- gather the run of children with the same key hash, partitioned by actual key in case of
-    -- hash collisions
-    let hash₀ := all[idx]!.2.key.hash
-    let mut groups : Array (Array (Nat × ConstTrie α)) := #[]
-    while idx < all.size && all[idx]!.2.key.hash == hash₀ do
-      let (i, c) := all[idx]!
-      match groups.findIdx? fun g => lastPartEq g[0]!.2.key c.key with
-      | some gi => groups := groups.modify gi (·.push (i, c))
-      | none    => groups := groups.push #[(i, c)]
-      idx := idx + 1
-    for g in groups do
-      children := children.push (← mergeCands g[0]!.2.key g)
+  while idx < sorted.size do
+    let (hash₀, i, c) := sorted[idx]!
+    idx := idx + 1
+    if idx == sorted.size || sorted[idx]!.1 != hash₀ then
+      -- sole child with this key hash, so from a single module: borrow the subtree
+      children := children.push (.mod i c)
+    else
+      -- gather the run of children with the same key hash, partitioned by actual key in case of
+      -- hash collisions
+      let mut groups : Array (Array (Nat × ConstTrie α)) := #[#[(i, c)]]
+      while idx < sorted.size && sorted[idx]!.1 == hash₀ do
+        let (_, i, c) := sorted[idx]!
+        match groups.findIdx? fun g => lastPartEq g[0]!.2.key c.key with
+        | some gi => groups := groups.modify gi (·.push (i, c))
+        | none    => groups := groups.push #[(i, c)]
+        idx := idx + 1
+      for g in groups do
+        children := children.push (← mergeCands g[0]!.2.key g)
   return .merged key entries[0]? children (buildChildIndex children ImportedConsts.key)
 
 /--

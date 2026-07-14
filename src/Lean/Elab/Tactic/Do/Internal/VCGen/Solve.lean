@@ -435,8 +435,7 @@ private def specPreOf? (subgoals : List MVarId) : VCGenM (Option Expr) := do
 Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either frame or apply it.
 
 - A monad structural combinator, a post-parametric spec, or an already-framed residual applies its
-  spec directly: such a spec threads its postcondition, so the frame rides along without the frame
-  machinery.
+  spec directly.
 - Otherwise the frame operator for the monad is selected (the `@[frameproc]` registered for the
   program type, or the default meet frame). The choice is per node, since sub-programs may reach a
   different monad (e.g. a `monadLift`ed base call).

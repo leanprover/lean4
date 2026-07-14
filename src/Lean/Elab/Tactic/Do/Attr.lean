@@ -339,9 +339,8 @@ structure SpecTheorem where
   /-- The kind of spec theorem: triple or simp. -/
   kind : SpecTheoremKind := .triple
   /-- Whether the spec is parametric in its postcondition: the post is a schematic variable occurring
-  only in tail position in the precondition and in no premise. Such a spec threads its postcondition, so
-  applying it directly keeps the goal's precondition, and any frame within it, available to the
-  continuation; `vcgen` applies it without the frame machinery. Opt out with a trivial `Q = Q` premise. -/
+  only in tail position in the precondition and in no premise. Such a spec does not take part in the
+  frame machinery. Opt out with a trivial `Q = Q` premise. -/
   postParametric : Bool := false
   priority : Nat := eval_prio default
   deriving Inhabited
@@ -423,17 +422,13 @@ def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
     varInfos? := newVarInfos?
     checkTypeMask? := newCheckTypeMask? }
 
-/-- The application-argument index of `declName`'s parameter named `paramName`, read from its
-signature. -/
-def paramIdx? (declName paramName : Name) : MetaM (Option Nat) := do
+/-- The application-argument index of `declName`'s program parameter `x`, read from its signature. -/
+def progArgIdx? (declName : Name) : MetaM (Option Nat) := do
   forallTelescope (← getConstInfo declName).type fun xs _ => do
     for i in [0:xs.size] do
-      if (← xs[i]!.fvarId!.getUserName) == paramName then
+      if (← xs[i]!.fvarId!.getUserName) == `x then
         return some i
     return none
-
-/-- The application-argument index of `declName`'s program parameter `x`, read from its signature. -/
-def progArgIdx? (declName : Name) : MetaM (Option Nat) := paramIdx? declName `x
 
 /-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
 either `Triple` or `pre ⊑ wp …` shape. -/
@@ -451,25 +446,18 @@ private def occursMVar (mvarId : MVarId) (e : Expr) : Bool :=
   Option.isSome <| e.find? fun s => match s with | .mvar m => m == mvarId | _ => false
 
 /-- Whether every occurrence of the post metavariable `q` in `e` is in tail position: as the post
-argument of a `wp` (index `wpPost`), applied at the tail, or under a lambda; any other occurrence
-fails. -/
-private partial def postInTail (q : MVarId) (wpPost : Nat) (e : Expr) : Bool :=
+argument of a `wp`, applied at the tail, or under a lambda; any other occurrence fails. -/
+private partial def postInTail (q : MVarId) (e : Expr) : Bool :=
   match e with
   | .mvar _ => true
-  | .mdata _ b => postInTail q wpPost b
-  | .lam _ dom body _ => !occursMVar q dom && postInTail q wpPost body
+  | .mdata _ b => postInTail q b
+  | .lam _ dom body _ => !occursMVar q dom && postInTail q body
   | _ =>
-    if !e.isApp then !occursMVar q e else
     match e.getAppFn with
-    | .mvar m =>
-      if m == q then e.getAppArgs.all (!occursMVar q ·) else !occursMVar q e
-    | .const c _ =>
-      if c == ``wp then
-        let args := e.getAppArgs
-        wpPost < args.size &&
-          (args.mapIdx fun i a => if i == wpPost then postInTail q wpPost a else !occursMVar q a).all id
-      else !occursMVar q e
-    | _ => !occursMVar q e
+    | .mvar m => if m == q then e.getAppArgs.all (!occursMVar q ·) else !occursMVar q e
+    | _ =>
+      let_expr wp _ _ _ _ _ _ _ prog post epost := e | !occursMVar q e
+      !occursMVar q prog && !occursMVar q epost && postInTail q post
 
 /-- Whether a spec is parametric in its postcondition: the post is a schematic variable occurring only
 in tail position in the precondition and in no premise, program, or exception postcondition. The
@@ -481,8 +469,7 @@ def isPostParametric (concl : Expr) (binders : Array Expr) : MetaM Bool := do
   for b in binders do
     if occursMVar q (← inferType b) then return false
   unless occursMVar q pre do return false
-  let some wpPost ← paramIdx? ``wp `post | return false
-  return postInTail q wpPost pre
+  return postInTail q pre
 
 /--
 Selects the program a spec conclusion is keyed on: the program of a `Triple`, or the program inside

@@ -319,6 +319,12 @@ structure State where
   -/
   caseSplits : Bool := false
   /--
+  Cumulative number of steps performed by the model search.
+  The model search is interrupted when this counter reaches the `liaSteps`
+  configuration threshold, and the solver becomes incomplete.
+  -/
+  steps : Nat := 0
+  /--
   `conflict?` is `some ..` if a contradictory constraint was derived.
   This field is only set when `caseSplits` is `true`. Otherwise, we
   can convert `UnsatProof` into a Lean term and close the current `grind` goal.

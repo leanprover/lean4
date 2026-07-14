@@ -9,6 +9,7 @@ prelude
 public import Lean.PostprocessTraces.Basic
 public import Lean.PostprocessTraces.PostprocessTracesCommand
 public import Lean.PostprocessTraces.StoredTraces
+public import Lean.PostprocessTraces.Postprocessors
 
 /-!
 # Experimental: Trace Postprocessors

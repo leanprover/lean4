@@ -102,11 +102,18 @@ meta def storeTraces (declName : Name) (t : StoredTrace) : CoreM Unit :=
 
 namespace StoredTrace
 
+/-- All trace trees of the stored trace, across all of its messages. -/
+meta def trees (t : StoredTrace) : Array TraceTree :=
+  t.messages.flatMap fun msg =>
+    match traceContainer? msg.data with
+    | some (_, roots) => roots.map TraceTree.ofMessageData
+    | none            => #[]
+
 /--
 Applies a postprocessor to every trace message of the stored trace, dropping messages whose
 roots were all removed.
 -/
-private meta def postprocess (t : StoredTrace) (post : TracePostprocessor) : CoreM StoredTrace :=
+meta def postprocess (t : StoredTrace) (post : TracePostprocessor) : CoreM StoredTrace :=
   return ⟨← t.messages.filterMapM (postprocessMessage post ·)⟩
 
 end StoredTrace

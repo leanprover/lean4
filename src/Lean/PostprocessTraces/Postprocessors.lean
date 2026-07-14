@@ -9,6 +9,8 @@ prelude
 public import Lean.PostprocessTraces.Basic
 import Lean.CoreM
 
+public section
+
 namespace Lean.PostprocessTraces
 
 private def containsSubstr (s pat : String) : Bool :=

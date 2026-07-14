@@ -39,11 +39,6 @@ set_option trace.Meta.synthInstance true in
 store_traces_as myTrace in
 example : Inhabited (Nat × Bool) := inferInstance
 
--- `#trace_roots` lists the stored roots with index, class, position, and size.
-/-- info: #0 [Meta.synthInstance] 40:36 (21 nodes) ✅️ Inhabited (Nat × Bool) -/
-#guard_msgs in
-#trace_roots myTrace
-
 -- `#postprocess_traces` re-renders the stored trace through a postprocessor without re-running
 -- the stored command.
 /--
@@ -67,17 +62,15 @@ trace: [Meta.synthInstance] ✅️ Inhabited (Nat × Bool)
 #guard_msgs in
 #postprocess_traces myTrace filterSubtrees (ofClass `Meta.synthInstance.tryResolve)
 
-/--
-error: unknown stored trace `notStored` (stored traces: `myTrace`); store one using `store_traces_as notStored in <command>`
--/
+/-- error: Unknown constant `notStored` -/
 #guard_msgs in
-#trace_roots notStored
+#postprocess_traces notStored id
 
 -- The stored trace is a real declaration of type `CoreM StoredTrace`, so arbitrary
 -- metaprograms can inspect it.
 /-- info: 1 -/
 #guard_msgs in
-#eval do return (← myTrace).roots.size
+#eval do return (← myTrace).trees.size
 
 -- `StoredTrace.postprocess` applies a postprocessor programmatically.
 /-- info: #["✅️ Inhabited Nat", "✅️ Inhabited Bool", "✅️ Inhabited (Nat × Bool)"] -/
@@ -85,7 +78,7 @@ error: unknown stored trace `notStored` (stored traces: `myTrace`); store one us
 open Lean PostprocessTraces in
 #eval show Lean.CoreM _ from do
   let t ← (← myTrace).postprocess (hoist (ofClass `Meta.synthInstance.answer))
-  t.roots.mapM (·.headText)
+  t.trees.mapM (·.headText)
 
 -- Stored trace names live in the current namespace, like any other declaration.
 namespace Nested
@@ -104,6 +97,14 @@ store_traces_as inner in
 example : Inhabited Bool := inferInstance
 end Nested
 
-/-- info: #0 [Meta.synthInstance] 104:28 (7 nodes) ✅️ Inhabited Bool -/
+/--
+trace: [Meta.synthInstance] ✅️ Inhabited Bool
+  [Meta.synthInstance] ✅️ new goal Inhabited Bool
+    [Meta.synthInstance.instances] #[@instInhabitedOfMonad, instInhabitedBool]
+  [Meta.synthInstance.apply] ✅️ apply instInhabitedBool to Inhabited Bool
+    [Meta.synthInstance.tryResolve] ✅️ Inhabited Bool ≟ Inhabited Bool
+    [Meta.synthInstance.answer] ✅️ Inhabited Bool
+  [Meta.synthInstance] result instInhabitedBool
+-/
 #guard_msgs in
-#trace_roots Nested.inner
+#postprocess_traces Nested.inner (filterSubtrees (fun _ => pure true))

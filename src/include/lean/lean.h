@@ -1218,6 +1218,9 @@ static inline uint8_t lean_string_get_byte_fast(b_lean_obj_arg s, b_lean_obj_arg
   size_t idx = lean_unbox(i);
   return str[idx];
 }
+static inline uint8_t lean_string_uget_byte_fast(b_lean_obj_arg s, size_t i) {
+  return (uint8_t)lean_string_cstr(s)[i];
+}
 
 LEAN_EXPORT lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_EXPORT lean_obj_res lean_string_utf8_next_fast_cold(size_t i, unsigned char c);

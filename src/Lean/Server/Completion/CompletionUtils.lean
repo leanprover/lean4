@@ -10,7 +10,7 @@ public import Lean.Meta.WHNF
 
 public section
 
-partial def String.charactersIn (a b : String) : Bool :=
+partial def Lean.String.charactersIn (a b : String) : Bool :=
   goFastScalar ⟨0⟩ ⟨0⟩
 where
   /-

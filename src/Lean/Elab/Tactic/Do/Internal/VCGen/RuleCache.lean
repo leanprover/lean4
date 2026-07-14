@@ -82,40 +82,15 @@ public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
   return rule
 
-/-- Move the frame variable to the front of a frame rule's subgoals. The frame is the sole subgoal
-another subgoal (the pre-VC and the `WP.Frames` condition) depends on, so applying the rule surfaces
-it first, ready to be assigned the inferred frame. -/
-private def hoistFrameVar (rule : BackwardRule) : MetaM BackwardRule := do
-  let p := rule.pattern
-  let aux := p.varTypes.mapIdx fun i _ => mkFVar ⟨.num `_frame_hoist i⟩
-  let dependsOn (i : Nat) : Bool := rule.resultPos.any fun j =>
-    j != i && (p.varTypes[j]!.instantiateRevRange 0 j aux).containsFVar aux[i]!.fvarId!
-  let some fIdx := rule.resultPos.find? dependsOn
-    | throwError "frame: could not locate the frame variable in the frame rule"
-  return { rule with resultPos := fIdx :: rule.resultPos.filter (· != fIdx) }
-
 /--
-Cached version of the `F`-abstract upper-adjoint frame rule for a frame operator `op : R → Pred → Pred`.
-
-The rule concludes `pre ⊑ wp prog Q E s⃗` from the framed precondition
-`pre ⊑ op F (wp prog (fun a => upperAdjoint (op F) (Q a)) E) s⃗` and the frame condition
-`WP.Frames op prog F`, with the frame `F` left schematic so a single rule serves every inferred frame.
-Its subgoals lead with `F`, so the caller assigns the inferred frame before decomposing the rest.
+Cached version of `mkFrameBackwardRule`.
 
 Cache key: `(instWP, excessArgs.size)` (the operator is determined by the monad).
 -/
 public def mkFrameBackwardRuleCached (op : Expr) (info : WPApp) : VCGenM BackwardRule := do
   let key := (ExprPtr.mk info.instWP, info.excessArgs.size)
   if let some rule := (← get).frameBackwardRuleCache[key]? then return rule
-  -- Pin the monad and the operator, leaving the frame `F`, program, and postconditions schematic;
-  -- `tryMkBackwardRuleFromSpec` turns them into rule parameters and `hoistFrameVar` surfaces `F`.
-  let specProof ← Meta.mkAppOptM ``Std.Internal.Do.WP.Frames.op_wp_upperAdjoint_le_wp
-    ((info.args.take 7).map some ++ #[none, some op, none])
-  let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
-    | throwError "frame: could not build the upper-adjoint frame spec for operator{indentExpr op}"
-  let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
-    | throwError "frame: could not build the frame rule for operator{indentExpr op}"
-  let rule ← (← hoistFrameVar rule).shareCommon
+  let rule ← (← mkFrameBackwardRule op info).shareCommon
   modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key rule }
   return rule
 

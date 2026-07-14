@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
+import Lean.TrustedAxiomAttr
 import all Lean.Elab.ErrorUtils
 public section
 namespace Lean.Elab
@@ -1441,6 +1442,14 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
       addPreDefinitions docCtx preDefs
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
+    if Linter.getLinterValue linter.untrustedAxioms (← Linter.getLinterOptions) then
+      -- lint on the kernel-check chain so that `collectAxioms` does not block elaboration
+      let act ← Core.wrapAsyncAsSnapshot (cancelTk? := none)
+          (desc := s!"linting axioms of {headers.map (·.declName)}") fun _ =>
+        for header in headers do
+          withRef header.declId <| warnIfUsesUntrustedAxioms header.declName
+      let task ← BaseIO.mapTask act (← getEnv).checked
+      Core.logSnapshotTask { stx? := none, reportingRange := .skip, cancelTk? := none, task }
 
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do

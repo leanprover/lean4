@@ -338,6 +338,11 @@ structure SpecTheorem where
   proof : SpecProof
   /-- The kind of spec theorem: triple or simp. -/
   kind : SpecTheoremKind := .triple
+  /-- Whether the spec is parametric in its postcondition: the post is a schematic variable occurring
+  only in tail position in the precondition and in no premise. A sufficient syntactic condition for the
+  spec to carry any frame automatically, so `vcgen` applies it without the frame machinery. Opt out with
+  a trivial `Q = Q` premise. -/
+  postParametric : Bool := false
   priority : Nat := eval_prio default
   deriving Inhabited
 
@@ -418,13 +423,82 @@ def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
     varInfos? := newVarInfos?
     checkTypeMask? := newCheckTypeMask? }
 
-/-- The application-argument index of `declName`'s program parameter `x`, read from its signature. -/
-def progArgIdx? (declName : Name) : MetaM (Option Nat) := do
+/-- The application-argument index of `declName`'s parameter named `paramName`, read from its
+signature. -/
+def paramIdx? (declName paramName : Name) : MetaM (Option Nat) := do
   forallTelescope (← getConstInfo declName).type fun xs _ => do
     for i in [0:xs.size] do
-      if (← xs[i]!.fvarId!.getUserName) == `x then
+      if (← xs[i]!.fvarId!.getUserName) == paramName then
         return some i
     return none
+
+/-- The application-argument index of `declName`'s program parameter `x`, read from its signature. -/
+def progArgIdx? (declName : Name) : MetaM (Option Nat) := paramIdx? declName `x
+
+/-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
+either `Triple` or `pre ⊑ wp …` shape. -/
+def specComponents? (concl : Expr) : MetaM (Option (Expr × Expr × Expr × Expr)) := do
+  match_expr concl with
+  | PartialOrder.rel _α _inst pre rhs =>
+    unless rhs.getAppFn.isConstOf ``wp do return none
+    let args := rhs.getAppArgs
+    let some xi ← paramIdx? ``wp `x | return none
+    let some qi ← paramIdx? ``wp `post | return none
+    let some ei ← paramIdx? ``wp `epost | return none
+    let some prog := args[xi]? | return none
+    let some post := args[qi]? | return none
+    let some epost := args[ei]? | return none
+    return some (pre, prog, post, epost)
+  | _ =>
+    unless concl.getAppFn.isConstOf ``Triple do return none
+    let args := concl.getAppArgs
+    let some pi ← paramIdx? ``Triple `pre | return none
+    let some xi ← paramIdx? ``Triple `x | return none
+    let some qi ← paramIdx? ``Triple `post | return none
+    let some ei ← paramIdx? ``Triple `epost | return none
+    let some pre := args[pi]? | return none
+    let some prog := args[xi]? | return none
+    let some post := args[qi]? | return none
+    let some epost := args[ei]? | return none
+    return some (pre, prog, post, epost)
+
+/-- Does the metavariable `mvarId` occur in `e`? -/
+private def occursMVar (mvarId : MVarId) (e : Expr) : Bool :=
+  Option.isSome <| e.find? fun s => match s with | .mvar m => m == mvarId | _ => false
+
+/-- Whether every occurrence of the post metavariable `q` in `e` is in tail position: as the post
+argument of a `wp` (index `wpPost`), applied at the tail, or under a lambda; any other occurrence
+fails. -/
+private partial def postInTail (q : MVarId) (wpPost : Nat) (e : Expr) : Bool :=
+  match e with
+  | .mvar _ => true
+  | .mdata _ b => postInTail q wpPost b
+  | .lam _ dom body _ => !occursMVar q dom && postInTail q wpPost body
+  | _ =>
+    if !e.isApp then !occursMVar q e else
+    match e.getAppFn with
+    | .mvar m =>
+      if m == q then e.getAppArgs.all (!occursMVar q ·) else !occursMVar q e
+    | .const c _ =>
+      if c == ``wp then
+        let args := e.getAppArgs
+        wpPost < args.size &&
+          (args.mapIdx fun i a => if i == wpPost then postInTail q wpPost a else !occursMVar q a).all id
+      else !occursMVar q e
+    | _ => !occursMVar q e
+
+/-- Whether a spec is parametric in its postcondition: the post is a schematic variable occurring only
+in tail position in the precondition and in no premise, program, or exception postcondition. The
+`binders` are the spec's `∀`-telescoped parameters and premises. -/
+def isPostParametric (concl : Expr) (binders : Array Expr) : MetaM Bool := do
+  let some (pre, prog, post, epost) ← specComponents? concl | return false
+  let .mvar q := post.eta | return false
+  if occursMVar q prog || occursMVar q epost then return false
+  for b in binders do
+    if occursMVar q (← inferType b) then return false
+  unless occursMVar q pre do return false
+  let some wpPost ← paramIdx? ``wp `post | return false
+  return postInTail q wpPost pre
 
 /--
 Selects the program a spec conclusion is keyed on: the program of a `Triple`, or the program inside
@@ -461,13 +535,14 @@ def mkSpecPatternFromExpr (expr : Expr)
 private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM (Option SpecTheorem) := do
   let (levelParams, expr) ← proof.getProof
   let type ← instantiateMVars type
-  let (_, _, type) ← forallMetaTelescope type
+  let (binders, _, type) ← forallMetaTelescope type
   -- Reduce reducible abbreviations so a proof whose type is an abbreviation like
   -- `abbrev s := ⦃P⦄ prog ⦃Q⦄` is recognized as a triple spec.
   let type ← whnfR type
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
-  return some { pattern, proof, priority := prio }
+  let postParametric ← isPostParametric type binders
+  return some { pattern, proof, priority := prio, postParametric }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let info ← getConstInfo declName

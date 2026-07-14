@@ -1523,6 +1523,7 @@ can be used to:
 * `splitNatSub`: for each appearance of `((a - b : Nat) : Int)`, split on `a ≤ b` if necessary.
 * `splitNatAbs`: for each appearance of `Int.natAbs a`, split on `0 ≤ a` if necessary.
 * `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
+
 Currently, all of these are on by default.
 -/
 syntax (name := omega) "omega" optConfig : tactic

@@ -21,7 +21,7 @@ but rather checks that they are identical to constructors or recursors generated
 after replaying any inductive definitions occurring in `constantMap`.
 
 `replay` can be used either as:
-* a verifier for an `Kernel.Environment`, by sending everything to the kernel, or
+* a verifier for a `Kernel.Environment`, by sending everything to the kernel, or
 * a mechanism to safely transfer constants from one `Kernel.Environment` to another.
 
 -/
@@ -168,7 +168,7 @@ end Replay
 open Replay
 
 /--
-"Replay" some constants into an `Kernel.Environment`, sending them to the kernel for checking.
+"Replay" some constants into a `Kernel.Environment`, sending them to the kernel for checking.
 
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.

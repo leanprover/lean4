@@ -169,19 +169,20 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM BackwardRule :=
     let (reduced, eqProof?) ← saturateLatticeOp rewrites rhs'
     let pre ← mkFreshExprMVar (← Meta.inferType rhs')
     let redHead := reduced.getAppFn.constName?.getD .anonymous
-    let termProof ← if let some (termLemma, rhsArgCount) := terminals[redHead]? then
-        let args := reduced.getAppArgs
-        mkPointFrameApply termLemma (mkAppN reduced.getAppFn (args.extract 0 rhsArgCount)) pre
-          (args.extract rhsArgCount).toList
-      else if eqProof?.isNone then
+    let termProof? ← terminals[redHead]?.mapM fun (termLemma, rhsArgCount) => do
+      let args := reduced.getAppArgs
+      mkPointFrameApply termLemma (mkAppN reduced.getAppFn (args.extract 0 rhsArgCount)) pre
+        (args.extract rhsArgCount).toList
+    let prf ←
+      match (termProof?, eqProof?) with
+      | (none, none) =>
         throwError "frame operator `{op.head}` neither reduces nor has a registered terminal; its \
           lattice split rule would be the identity"
-      else mkFreshExprMVar (← mkAppM ``PartialOrder.rel #[pre, reduced])
-    -- Lift the saturation equality `rhs' = reduced` through `pre ⊑ ·`, turning the terminal proof of
-    -- `pre ⊑ reduced` into a proof of `pre ⊑ rhs'`.
-    let prf ← match eqProof? with
-      | none => pure termProof
-      | some eqProof =>
+      | (some termProof, none) => pure termProof
+      | (_, some eqProof) =>
+        -- Lift the saturation equality `rhs' = reduced` through `pre ⊑ ·`, turning the terminal proof of
+        -- `pre ⊑ reduced` into a proof of `pre ⊑ rhs'`.
+        let termProof ← termProof?.getDM (mkFreshExprMVar (← mkAppM ``PartialOrder.rel #[pre, reduced]))
         let relPre ← mkAppM ``PartialOrder.rel #[pre]
         let eqMp ← mkAppM ``Eq.mp #[← mkEqSymm (← mkCongrArg relPre eqProof)]
         pure (mkApp eqMp termProof)

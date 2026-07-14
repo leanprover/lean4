@@ -186,7 +186,8 @@ lowercase value, otherwise leave it untouched.
 -/
 @[inline]
 def UInt8.toAsciiLower (b : UInt8) : UInt8 :=
-  -- Branchless: `b - 65 < 26` iff `b` is an uppercase ASCII letter, thanks to wraparound.
+  -- LLVM also manages to turn the naive `if` into branchless code, but this implementation happens
+  -- to generate slighly better assembly.
   b + ((decide (b - 65 < 26)).toUInt8 <<< 5)
 
 /-- Converts a `Fin UInt16.size` into the corresponding `UInt16`. -/

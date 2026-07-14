@@ -19,7 +19,7 @@ irrelevant subtrees, hoisting the interesting ones, or pre-expanding the paths t
 
 A trace postprocessor (`Lean.PostprocessTraces.TracePostprocessor`) receives the array of trace roots of
 one trace message and returns the transformed roots. The `Lean.PostprocessTraces` namespace provides a
-small set of operations (`filter`, `hoist`, `expand`, `countNodes`, `timeInside`, `selfTime`)
+small set of operations (`filterSubtrees`, `hoist`, `exposeSubtrees`, `countNodes`, `selfTime`)
 that compose left-to-right with `>=>`. The selecting operations take a pattern
 (`Lean.PostprocessTraces.TracePattern`), a predicate on trace subtrees; built-in patterns select by trace
 class (`ofClass`), text (`containsString`), result (`succeeded`, `failed`, `errored`,
@@ -410,22 +410,6 @@ private def formatMs (ms : Float) : String :=
   s!"{tenths / 10}.{tenths % 10}ms"
 
 /--
-Appends the number of milliseconds spent inside each subtree to the subtree's head message.
-Timing information is only available with `set_option trace.profiler true`; nodes without it are
-not annotated.
--/
-partial def timeInside : TracePostprocessor := fun roots =>
-  return roots.map go
-where
-  go : TraceTree → TraceTree
-    | .leaf msg => .leaf msg
-    | .node data msg children wrap =>
-      let msg :=
-        if data.startTime == 0 then msg
-        else m!"{msg} ({formatMs ((data.stopTime - data.startTime) * 1000)})"
-      .node data msg (children.map go) wrap
-
-/--
 Appends the number of milliseconds spent inside each subtree but outside of its child nodes to
 the subtree's head message. Timing information is only available with
 `set_option trace.profiler true`; nodes without it are not annotated.
@@ -438,7 +422,7 @@ where
     | t@(.node data msg children wrap) =>
       let msg :=
         if data.startTime == 0 then msg
-        else m!"{msg} ({formatMs (t.selfElapsed * 1000)})"
+        else m!"{msg} (self: {formatMs (t.selfElapsed * 1000)})"
       .node data msg (children.map go) wrap
 
 end Postprocessors

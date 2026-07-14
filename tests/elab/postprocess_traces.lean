@@ -74,22 +74,12 @@ private def sampleTree : TraceTree :=
     mkTree `d "other branch" #[mkTree `zeta "leaf"] (collapsed := false)
   ]
 
--- `timeInside` appends each node's elapsed time to its head message.
-/--
-info: [a] [0.100000] root (100.0ms)
-  [b] [0.030000] fast leaf (30.0ms)
-  [c] [0.060000] slow branch (60.0ms)
-    [d] [0.020000] grandchild (20.0ms)
--/
-#guard_msgs in
-#eval runPost timeInside #[timedTree]
-
 -- `selfTime` appends the time not accounted for by child nodes.
 /--
-info: [a] [0.100000] root (10.0ms)
-  [b] [0.030000] fast leaf (30.0ms)
-  [c] [0.060000] slow branch (40.0ms)
-    [d] [0.020000] grandchild (20.0ms)
+info: [a] [0.100000] root (self: 10.0ms)
+  [b] [0.030000] fast leaf (self: 30.0ms)
+  [c] [0.060000] slow branch (self: 40.0ms)
+    [d] [0.020000] grandchild (self: 20.0ms)
 -/
 #guard_msgs in
 #eval runPost selfTime #[timedTree]
@@ -97,7 +87,7 @@ info: [a] [0.100000] root (10.0ms)
 -- Nodes without profiling data are not annotated with times.
 /-- info: [e] no timings -/
 #guard_msgs in
-#eval runPost (timeInside >=> selfTime) #[mkTree `e "no timings"]
+#eval runPost selfTime #[mkTree `e "no timings"]
 
 -- `countNodes` appends subtree sizes.
 /--

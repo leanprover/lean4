@@ -960,8 +960,8 @@ with the trace postprocessor `post : Lean.PostprocessTraces.TracePostprocessor` 
 
 The postprocessor receives the array of trace roots of each trace message and returns the
 transformed roots; returning an empty array drops the message entirely. The `Lean.PostprocessTraces`
-namespace (automatically opened in `post`) provides operations such as `filter`, `hoist`,
-`expand`, and `timeInside`, which take patterns such as `ofClass`, `containsString`, and
+namespace (automatically opened in `post`) provides operations such as `filterSubtrees`, `hoist`,
+`exposeSubtrees`, and `selfTime`, which take patterns such as `ofClass`, `containsString`, and
 `minTimeMs` and compose left-to-right with `>=>`. User-defined postprocessors and patterns are
 ordinary functions.
 

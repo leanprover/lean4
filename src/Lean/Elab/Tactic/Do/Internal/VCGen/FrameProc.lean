@@ -21,7 +21,11 @@ namespace Lean.Elab.Tactic.Do.Internal
 /-- A frame inference procedure: given the resource type `R` of the applicable frame operator
 `op : R → Pred → Pred`, the goal's precondition, the `wp` metadata of a spec-ready program, and the
 spec's precondition instantiated at the call site (the RHS of the spec's precondition VC `pre ⊑ ·`),
-optionally produce a frame `F : R` to peel off. `none` leaves the spec to apply directly. -/
+optionally produce a frame `F : R` to peel off. `none` leaves the spec to apply directly.
+
+The frame is inspected against a speculative spec application whose metavariable context is reset
+before `F` is used, so `F` must be fully instantiated and built from terms that predate that
+application (the precondition, or a result run through `instantiateMVars`). -/
 public abbrev VCGen.FrameInferenceProc :=
   Expr → Expr → VCGen.WPApp → Expr → SymM (Option Expr)
 

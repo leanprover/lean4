@@ -73,14 +73,9 @@ private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (N
     m := m.insert h (n, rhs.getAppNumArgs)
   return m
 
-/-- Lift an equality `lhs = rhs` to `(lhs args...) = (rhs args...)`. -/
-private def liftEqByArgs (eqPrf : Expr) (args : List Expr) : MetaM Expr := do
-  if args.isEmpty then return eqPrf
-  let some (_, lhs, _rhs) := (← Meta.inferType eqPrf).eq?
-    | throwError "expected equality proof, got {indentExpr (← Meta.inferType eqPrf)}"
-  let context ← withLocalDecl `x .default (← Meta.inferType lhs) fun x =>
-    mkLambdaFVars #[x] (mkAppN x args.toArray)
-  mkCongrArg context eqPrf
+/-- Lift an equality `lhs = rhs` between functions to `(lhs args...) = (rhs args...)`. -/
+private def liftEqByArgs (eqPrf : Expr) (args : List Expr) : MetaM Expr :=
+  args.foldlM (fun h a => mkCongrFun h a) eqPrf
 
 /--
 Saturate `e` by rewriting at the root with the first applicable equation from `rewrites`, handling
@@ -153,10 +148,11 @@ For `⊓`, produces `∀ a b s⃗ pre, pre ⊑ a s⃗ → pre ⊑ b s⃗ → pre
 -/
 public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM BackwardRule := do
   -- Merge the operator's own rewrites and terminal with the built-in connective seeds: saturation can
-  -- reduce to any built-in connective, so its rewrites and terminals are always in scope.
+  -- reduce to any built-in connective, so its rewrites and terminals are always in scope. On a head
+  -- clash the operator's own contribution wins: its rewrite is tried first, its terminal inserted last.
   let rewrites := builtinLatticeOps.foldl (· ++ ·.rewrites) op.rewrites
   let terminals ← mkLatticeTerminals
-    (builtinLatticeOps.foldl (fun ts s => ts ++ s.terminal?.toArray) op.terminal?.toArray)
+    (builtinLatticeOps.foldl (fun ts s => ts ++ s.terminal?.toArray) #[] ++ op.terminal?.toArray)
   rhs.withApp fun head args => do
     -- Hold the operator's `numConst` leading arguments (its carrier type and typeclass instances)
     -- concrete; make the operands and excess state arguments after them schematic, so the rule serves

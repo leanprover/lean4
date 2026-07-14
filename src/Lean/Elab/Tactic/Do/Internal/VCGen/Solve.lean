@@ -290,16 +290,18 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
     throwError "No spec matching the monad {monad} found for program {prog}. \
       Candidates were {thms.map (·.proof)}."
 
-/-- Select the highest-priority `@[spec]` theorem matching `prog`, or the candidate list when none
-matches. Hands `findSpecs` the sole reference to the spec database so its in-place pattern
-internalization does not copy the discrimination tree, then threads the updated database back into
-the returned scope. -/
-private def findSpec (scope : VCGen.Scope) (prog : Expr) :
-    VCGenM (VCGen.Scope × Except (Array SpecTheorem) SpecTheorem) := do
+/-- Select the highest-priority `@[spec]` theorem matching `prog`, or a stop result when none matches.
+Hands `findSpecs` the sole reference to the spec database so its in-place pattern internalization does
+not copy the discrimination tree, then threads the updated database back into the returned scope. -/
+private def findSpec (scope : VCGen.Scope) (prog monad : Expr) :
+    VCGenM (VCGen.Scope × Except SolveResult SpecTheorem) := do
   let specs := scope.specs
   let scope := { scope with specs := default }
   let (result, specs) ← SpecTheorems.findSpecs specs prog
-  return ({ scope with specs }, result)
+  let scope := { scope with specs }
+  match result with
+  | .ok thm => return (scope, .ok thm)
+  | .error thms => return (scope, .error (← stopOrErrorOnMissingSpec prog monad thms))
 
 /-- Apply the cached backward rule of the selected `@[spec]` theorem `thm`, returning its subgoals, or
 `none` when no rule matches the goal's monad. -/
@@ -465,10 +467,10 @@ framed residual where its precondition and postcondition VCs are solvable.
 -/
 private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
-  let (scope, spec) ← findSpec scope info.prog
+  let (scope, spec) ← findSpec scope info.prog info.M
   let thm ← match spec with
     | .ok thm => pure thm
-    | .error thms => return ← stopOrErrorOnMissingSpec info.prog info.M thms
+    | .error res => return res
   if isStructuralCombinator info.prog || isFramedPost info.post then
     return ← applySpec scope goal info thm
   let fp ← frameProcFor info

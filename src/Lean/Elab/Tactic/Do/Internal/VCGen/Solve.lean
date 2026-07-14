@@ -92,41 +92,6 @@ private def tripleUnfold? (goal : MVarId) (target : Expr) : VCGenM (Option MVarI
   unless target.isAppOf ``Triple do return none
   return some (← unfoldTriple goal)
 
-/-- True iff `m` carries a `WPMonad m _ _` instance, i.e. it is a genuine weakest-precondition monad
-rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPred` `outParam`s are left
-as metavariables for instance search to fill; instance search runs at default transparency, while the
-caller reduces types at reducible transparency. -/
-private def isWPMonad (m : Expr) : MetaM Bool := withDefault do
-  try
-    let wpm ← mkConstWithFreshMVarLevels ``Std.Internal.Do.WPMonad
-    let (args, _, _) ← forallMetaTelescopeReducing (← inferType wpm)
-    unless ← isDefEq args[0]! m do return false
-    return (← synthInstance? (mkAppN wpm args)).isSome
-  catch _ => return false
-
-/-- Infer the program type of a `vcgen` goal, the key for frame-procedure selection and the expected
-type for elaborating `frames`/`until` patterns. Peels leading binders, then reads the program type
-from a bare `wp …` target, a `pre ⊑ wp …` entailment, or a `Triple`. When the program type is `m α`
-with `m` a `WPMonad`, the monad `m` is returned (frameprocs are keyed by monad); otherwise the whole
-program type is returned, so deep embeddings key on their own head. Returns `none` when the goal
-exposes no program. -/
-public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducible do
-  forallTelescopeReducing goalType fun _ body => do
-    let progTy? : Option Expr :=
-      if let some info := isWPApp? body then
-        some info.Prog
-      else if let some (_, _, _, rhs) := body.app4? ``Lean.Order.PartialOrder.rel then
-        (isWPApp? rhs).map (·.Prog)
-      else
-        body.withApp fun head args =>
-          if head.isConstOf ``Std.Internal.Do.Triple && args.size ≥ 3 then some args[2]! else none
-    let some progTy := progTy? | return none
-    let progTy ← whnf progTy
-    if progTy.isApp then
-      if ← isWPMonad progTy.appFn! then
-        return some progTy.appFn!
-    return some progTy
-
 /-- Strategy 3b: turn a bare `wp` application target (a `Prop`) into `⊤ ⊑ wp …`. Entry-point
 goals produced by the `of_wp_run_eq` lemmas have this shape. -/
 private def bareWPToLe? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do

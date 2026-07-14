@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.Internal.VCGen.WPApp
+import Std.Internal.Do.Order.Basic
+import Lean.Meta.AppBuilder
 
 /-!
 The metadata a frame inference procedure operates on: the `wp` application metadata `WPApp` and the
@@ -76,5 +78,15 @@ public instance : Inhabited VCGen.FrameProcs := ⟨{}⟩
 public def VCGen.FrameProcs.insert (s : FrameProcs) (fp : FrameProc) : FrameProcs :=
   { byProg := s.byProg.insert fp.prog fp
     latticeOps := s.latticeOps.insert fp.op.head fp.op }
+
+/-- The default frame operator: lattice meet `pre ⊓ F`, the Hoare frame every complete lattice carries.
+Framed only through an explicit `frames` clause (`proc := none`); used for a monad with no registered
+`@[frameproc]`. -/
+public def VCGen.meetFrameProc : VCGen.FrameProc where
+  prog := ``Lean.Order.meet
+  mkOpAppM info := Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
+  resourceTy info := pure info.Pred
+  op := { head := ``Lean.Order.meet }
+  proc := none
 
 end Lean.Elab.Tactic.Do.Internal

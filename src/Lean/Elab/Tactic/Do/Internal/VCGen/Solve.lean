@@ -304,9 +304,9 @@ private def findSpec (scope : VCGen.Scope) (prog monad : Expr) :
   | .error thms => return (scope, .error (← stopOrErrorOnMissingSpec prog monad thms))
 
 /-- Apply the cached backward rule of the selected `@[spec]` theorem `thm`, returning its subgoals, or
-`none` when no rule matches the goal's monad. -/
-private def applySpecCore (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
-    VCGenM (Option (List MVarId)) := do
+a stop result when no rule matches the goal's monad. Reached from `applyFrameOrSpec`. -/
+private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
+    VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
   let some rule ←
     try
@@ -317,7 +317,7 @@ private def applySpecCore (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
         target:{indentExpr (← goal.getType)}\n\
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}"
-    | return none
+    | return ← stopOrErrorOnMissingSpec info.prog info.M #[thm]
   let .goals goals ← rule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | do
       let ruleType ← Meta.inferType rule.expr
@@ -326,13 +326,6 @@ private def applySpecCore (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}\n\
         rule type:{indentExpr ruleType}"
-  return some goals
-
-/-- Strategy 11e: apply the cached backward rule of the selected `@[spec]` theorem `thm`. -/
-private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
-    VCGenM SolveResult := do
-  let some goals ← applySpecCore goal info thm
-    | stopOrErrorOnMissingSpec info.prog info.M #[thm]
   return .goals scope goals
 
 /-- True iff the program matches the `until` pattern, in which case VC generation stops at this
@@ -412,23 +405,6 @@ private def isStructuralCombinator (prog : Expr) : Bool :=
       ``SeqLeft.seqLeft].contains head
   | none => false
 
-/-- The default frame operator: lattice meet `pre ⊓ F`, the Hoare frame every complete lattice carries.
-Framed only through an explicit `frames` clause (`proc := none`); used for a monad with no registered
-`@[frameproc]`. -/
-private def meetFrameProc : FrameProc where
-  prog := ``Lean.Order.meet
-  mkOpAppM info := Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
-  resourceTy info := pure info.Pred
-  op := .meet
-  proc := none
-
-/-- The frame procedure for `info`'s monad: the `@[frameproc]` registered for the program type, or the
-default meet frame when none is registered. The choice is per node, since a program may reach
-sub-programs in different monads (e.g. a `monadLift`ed base call). -/
-private def frameProcFor (info : WPApp) : VCGenM FrameProc := do
-  let procs := (← read).frameProcs.byProg
-  return info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
-
 /-- Apply the upper-adjoint frame rule for `fp`'s operator and frame `F`, assigning the schematic frame
 variable to `F`. Returns the frame VCs, the frame condition `WP.Frames op prog F`, and the
 precondition that carries on to the program's own spec. Builds the operator here, since this runs only
@@ -458,12 +434,14 @@ private def specPreOf? (subgoals : List MVarId) : VCGenM (Option Expr) := do
 /--
 Handle a spec-ready program `info.prog`: select its `@[spec]` theorem and either frame or apply it.
 
-A monad structural combinator or an already-framed residual applies its spec directly. Otherwise the
-frame operator is selected and an explicit `frames` clause takes precedence, framing eagerly. Failing
-that, the spec is applied speculatively and its precondition VC `pre ⊑ specPre` is handed to the frame
-procedure: when the procedure finds no frame the application is kept; when it returns a frame `F` the
-application is rolled back and the frame rule is applied instead, so the spec re-applies against the
-framed residual where its precondition and postcondition VCs are solvable.
+- A monad structural combinator or an already-framed residual applies its spec directly.
+- Otherwise the frame operator for the monad is selected (the `@[frameproc]` registered for the
+  program type, or the default meet frame). The choice is per node, since sub-programs may reach a
+  different monad (e.g. a `monadLift`ed base call).
+- An explicit `frames` clause takes precedence, framing eagerly.
+- Failing that, the spec is applied speculatively and its precondition VC `pre ⊑ specPre` is handed to
+  the frame procedure: no frame keeps the application; a frame `F` rolls it back and applies the frame
+  rule instead, so the spec re-applies against the framed residual where its VCs are solvable.
 -/
 private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) (info : WPApp) :
     VCGenM SolveResult := goal.withContext do
@@ -473,7 +451,8 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
     | .error res => return res
   if isStructuralCombinator info.prog || isFramedPost info.post then
     return ← applySpec scope goal info thm
-  let fp ← frameProcFor info
+  let procs := (← read).frameProcs.byProg
+  let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let resourceTy ← fp.resourceTy info
   if let some F ← matchFrame? resourceTy info then
     return .goals scope (← applyFrameRule goal info fp F)
@@ -481,15 +460,15 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
   -- Apply the spec speculatively, then let the frame procedure inspect its precondition VC. No frame
   -- keeps the application; a frame rolls it back and frames instead.
   let saved ← Meta.saveState
-  let some subgoals ← applySpecCore goal info thm
-    | stopOrErrorOnMissingSpec info.prog info.M #[thm]
+  let .goals _ subgoals ← applySpec scope goal info thm
+    | throwError "vcgen: speculative spec application for{indentExpr info.prog} did not produce goals"
   let frame? ← match ← specPreOf? subgoals with
     | some specPre => proc resourceTy pre info specPre
     | none => pure none
   let some F := frame? | return .goals scope subgoals
   -- Capture the frame before rolling back: `saved.restore` un-assigns the speculative metavariables,
-  -- so instantiate `F` against them now, then hash-cons it.
-  let F ← shareCommon (← instantiateMVars F)
+  -- so instantiate `F` against them now (and reshare).
+  let F ← instantiateMVarsS F
   trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr F}"
   saved.restore
   return .goals scope (← applyFrameRule goal info fp F)

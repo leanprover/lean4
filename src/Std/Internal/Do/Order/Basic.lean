@@ -405,11 +405,7 @@ theorem CompleteLattice.ofProp_intro_r [CompleteLattice l] (p : Prop) (x y : l) 
     next hp => exact PartialOrder.rel_trans (meet_le_right ⊤ x) (h hp)
     next => exact PartialOrder.rel_trans (meet_le_left ⊥ x) (bot_le _)
 
-/-- Pointwise characterization of `CompleteLattice.ofProp` on a function lattice.
-
-Not a `grind` lemma: its type-class parameter `β` occurs only in the arrow-typed argument `σ → β` and
-in the RHS, so no e-match trigger can instantiate it. The `Prop`-valued `ofProp_apply_1 … ofProp_apply_5`
-below cover the cases `grind` needs (final goals are `Prop`). -/
+/-- Pointwise characterization of `CompleteLattice.ofProp` on a function lattice. -/
 @[simp] theorem CompleteLattice.ofProp_apply
     {σ : Type v} {β : Type u} [CompleteLattice β] (p : Prop) (s : σ) :
     (⌜p⌝ : σ → β) s = (⌜p⌝ : β) := by

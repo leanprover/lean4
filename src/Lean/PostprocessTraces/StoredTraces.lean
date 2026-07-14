@@ -14,12 +14,12 @@ import Lean.CoreM
 # Experimental: Stored Traces
 
 Iterating on a trace postprocessor with `postprocess_traces` re-runs the traced command on every
-edit, which is impractical if the command is slow. `store_trace_as t in cmd` runs `cmd` once and
+edit, which is impractical if the command is slow. `store_traces_as t in cmd` runs `cmd` once and
 stores its trace messages under the name `t`; `#trace_roots t` and `#postprocess_traces t post`
 then inspect the stored trace without re-running `cmd`.
 
 Stored traces are kept in an in-memory environment extension and are only available in the file
-that stored them; they are not exported to `.olean` files. `store_trace_as` declares
+that stored them; they are not exported to `.olean` files. `store_traces_as` declares
 `t : CoreM StoredTrace`, which merely references the stored data, so that metaprograms can
 inspect the trace as well.
 -/
@@ -31,36 +31,36 @@ namespace Lean.PostprocessTraces
 open Lean.Elab.PostprocessTraces
 
 /--
-Experimental. `store_trace_as` and the library around it are expected to change in the future.
+Experimental. `store_traces_as` and the library around it are expected to change in the future.
 
-`store_trace_as t in cmd` runs `cmd`, reports its output unchanged, and additionally stores the
+`store_traces_as t in cmd` runs `cmd`, reports its output unchanged, and additionally stores the
 trace messages it produced under the name `t`. The stored trace can then be inspected
 without re-running `cmd` using `#trace_roots t` and `#postprocess_traces t post`, which is useful
 when `cmd` is slow and the right trace postprocessor is found iteratively.
 
-`store_trace_as` also adds a declaration `t : CoreM Lean.PostprocessTraces.StoredTrace` to the
+`store_traces_as` also adds a declaration `t : CoreM Lean.PostprocessTraces.StoredTrace` to the
 environment, so the trace can be inspected by arbitrary metaprograms, e.g.
 `#eval do return (← t).roots.size`. The declaration only references the trace data, which is
 kept in memory for the current file only; it is not exported to `.olean` files.
 -/
-scoped syntax (name := storeTraceAsCmd)
-  "store_trace_as " ident " in" ppLine command : command
+scoped syntax (name := storeTracesAsCmd)
+  "store_traces_as " ident " in" ppLine command : command
 
 /--
 Experimental. `#postprocess_traces` and the library around it are expected to change in the
 future.
 
 `#postprocess_traces t post` applies the trace postprocessor `post : TracePostprocessor` to the
-trace stored as `t` by `store_trace_as t in cmd` and then renders the resulting trace tree.
+trace stored as `t` by `store_traces_as t in cmd` and then renders the resulting trace tree.
 See `postprocess_traces` for the available operations and patterns.
 -/
 scoped syntax (name := postprocessStoredTracesCmd)
   "#postprocess_traces " ident ppSpace term : command
 
 /--
-A trace stored by `store_trace_as t in cmd`, for inspection in metaprograms.
+A trace stored by `store_traces_as t in cmd`, for inspection in metaprograms.
 
-`store_trace_as` declares `t : CoreM StoredTrace`, so the stored trace can be retrieved in any
+`store_traces_as` declares `t : CoreM StoredTrace`, so the stored trace can be retrieved in any
 metaprogram that can run `CoreM`, e.g. `#eval do return (← t).roots.size`. The trace data itself
 is kept in an in-memory environment extension and is only available in the file that stored it;
 in particular, it is not exported to `.olean` files. The declaration only holds a reference, so
@@ -87,7 +87,7 @@ meta def allStoredTraces (env : Environment) : List (Name × StoredTrace) :=
 
 /--
 Returns the trace stored under the declaration `declName`. This is the implementation of the
-declarations created by `store_trace_as`; the trace data is only available in the file that
+declarations created by `store_traces_as`; the trace data is only available in the file that
 stored it.
 -/
 meta def findStoredTrace (declName : Name) : CoreM StoredTrace := do
@@ -97,7 +97,7 @@ meta def findStoredTrace (declName : Name) : CoreM StoredTrace := do
   return t
 
 /-- Stores `t` under the declaration `declName`, overwriting any previously stored trace. -/
-meta def storeTrace (declName : Name) (t : StoredTrace) : CoreM Unit :=
+meta def storeTraces (declName : Name) (t : StoredTrace) : CoreM Unit :=
   modifyEnv (storedTracesExt.modifyState · (·.insert declName t))
 
 namespace StoredTrace
@@ -116,9 +116,9 @@ end Lean.PostprocessTraces
 namespace Lean.Elab.PostprocessTraces
 open Lean.PostprocessTraces Command
 
-@[command_elab Lean.PostprocessTraces.storeTraceAsCmd]
+@[command_elab Lean.PostprocessTraces.storeTracesAsCmd]
 meta def elabStoreTraceAs : CommandElab
-  | `(command| store_trace_as $id in $cmd) => do
+  | `(command| store_traces_as $id in $cmd) => do
     -- the trace data is only available in the file that stored it, so the declaration is private
     let declName := mkPrivateName (← getEnv) ((← getScope).currNamespace ++ id.getId)
     let msgs ← runAndCollectMessages cmd
@@ -136,17 +136,17 @@ meta def elabStoreTraceAs : CommandElab
       safety      := .safe
     }
     liftCoreM <| addDocStringCore declName
-      s!"A trace stored by `store_trace_as` (`{(← getFileName)}`); \
+      s!"A trace stored by `store_traces_as` (`{(← getFileName)}`); \
         inspect it with `#trace_roots {id.getId}` and \
         `#postprocess_traces {id.getId} <postprocessor>`, or in metaprograms, e.g. \
         `#eval do return (← {id.getId}).roots.size`."
     addDeclarationRangesFromSyntax declName (← getRef) id
     addConstInfo id declName
-    liftCoreM <| storeTrace declName ⟨msgs.filter (·.isTrace)⟩
+    liftCoreM <| storeTraces declName ⟨msgs.filter (·.isTrace)⟩
   | _ => throwUnsupportedSyntax
 
 /--
-Resolves the name of a trace stored by `store_trace_as` (relative to the current namespace,
+Resolves the name of a trace stored by `store_traces_as` (relative to the current namespace,
 like any other constant) and returns the stored trace, or throws an error listing the available
 names.
 -/
@@ -159,7 +159,7 @@ private meta def resolveStoredTrace (id : Ident) : CommandElabM StoredTrace := d
           m!"no traces have been stored in this file"
         else
           m!"stored traces: {MessageData.joinSep available ", "}"
-      throwErrorAt id "unknown stored trace `{id.getId}` ({hint}); store one using `store_trace_as {id.getId} in <command>`"
+      throwErrorAt id "unknown stored trace `{id.getId}` ({hint}); store one using `store_traces_as {id.getId} in <command>`"
   return t
 
 @[command_elab Lean.PostprocessTraces.postprocessStoredTracesCmd]

@@ -3,14 +3,14 @@ module
 meta import Lean.PostprocessTraces
 
 /-!
-Tests for stored traces: the `store_trace_as t in cmd` command, the `#trace_roots t` and
+Tests for stored traces: the `store_traces_as t in cmd` command, the `#trace_roots t` and
 `#postprocess_traces t post` commands that inspect a stored trace without re-running `cmd`, and
 the `Lean.PostprocessTraces.StoredTrace` API for metaprograms.
 -/
 
 open scoped Lean.PostprocessTraces
 
--- `store_trace_as` reports the trace unchanged and stores it for later inspection.
+-- `store_traces_as` reports the trace unchanged and stores it for later inspection.
 /--
 trace: [Meta.synthInstance] ✅️ Inhabited (Nat × Bool)
   [Meta.synthInstance] ✅️ new goal Inhabited (Nat × Bool)
@@ -36,7 +36,7 @@ trace: [Meta.synthInstance] ✅️ Inhabited (Nat × Bool)
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-store_trace_as myTrace in
+store_traces_as myTrace in
 example : Inhabited (Nat × Bool) := inferInstance
 
 -- `#trace_roots` lists the stored roots with index, class, position, and size.
@@ -68,7 +68,7 @@ trace: [Meta.synthInstance] ✅️ Inhabited (Nat × Bool)
 #postprocess_traces myTrace filterSubtrees (ofClass `Meta.synthInstance.tryResolve)
 
 /--
-error: unknown stored trace `notStored` (stored traces: `myTrace`); store one using `store_trace_as notStored in <command>`
+error: unknown stored trace `notStored` (stored traces: `myTrace`); store one using `store_traces_as notStored in <command>`
 -/
 #guard_msgs in
 #trace_roots notStored
@@ -100,7 +100,7 @@ trace: [Meta.synthInstance] ✅️ Inhabited Bool
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-store_trace_as inner in
+store_traces_as inner in
 example : Inhabited Bool := inferInstance
 end Nested
 

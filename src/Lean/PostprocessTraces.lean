@@ -30,7 +30,7 @@ and patterns as ordinary functions.
 Entry points:
 - `postprocess_traces post in cmd` (see `Lean.PostprocessTraces.Command`) transforms the trace
   messages produced by `cmd` with `post`.
-- `store_trace_as t in cmd` (see `Lean.PostprocessTraces.StoredTraces`) stores the trace messages of
+- `store_traces_as t in cmd` (see `Lean.PostprocessTraces.StoredTraces`) stores the trace messages of
   `cmd` under the name `t`, so that slow commands do not have to be re-run while iterating on a
   postprocessor.
 

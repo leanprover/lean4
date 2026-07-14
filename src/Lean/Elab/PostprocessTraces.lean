@@ -8,27 +8,26 @@ module
 prelude
 public import Lean.Elab.Command
 import Lean.Elab.Eval
-import Init.Data.String.Search  -- needed for `String.find?`
 
 /-!
-# Trace postprocessors: `trace_view`
+# Trace postprocessors: `postprocess_traces`
 
 Trace messages of complex elaboration tasks can be very large, and finding the relevant part in
 the editor requires a lot of clicking and searching. This module provides trace postprocessors:
 functions that transform the trace of a command before it is reported, e.g. by filtering out
 irrelevant subtrees, hoisting the interesting ones, or pre-expanding the paths to matches.
 
-A trace postprocessor (`Lean.TraceView.TracePostprocessor`) receives the array of trace roots of
-one trace message and returns the transformed roots. The `Lean.TraceView` namespace provides a
+A trace postprocessor (`Lean.PostprocessTraces.TracePostprocessor`) receives the array of trace roots of
+one trace message and returns the transformed roots. The `Lean.PostprocessTraces` namespace provides a
 small set of operations (`filter`, `hoist`, `expand`, `countNodes`, `timeInside`, `selfTime`)
 that compose left-to-right with `>=>`. The selecting operations take a pattern
-(`Lean.TraceView.TracePattern`), a predicate on trace subtrees; built-in patterns select by trace
+(`Lean.PostprocessTraces.TracePattern`), a predicate on trace subtrees; built-in patterns select by trace
 class (`ofClass`), text (`containsString`), result (`succeeded`, `failed`, `errored`,
 `unsuccessful`), size (`minNodes`), and time (`minTimeMs`, `minSelfTimeMs`). Users can define
 their own postprocessors and patterns as ordinary functions.
 
 Syntax:
-`trace_view post in cmd` transforms the trace messages produced by `cmd` with `post`.
+`postprocess_traces post in cmd` transforms the trace messages produced by `cmd` with `post`.
 
 Traces are stored as `MessageData` (see `MessageData.trace`); `TraceTree` is a structured view of
 such messages that takes care of the context wrappers (`MessageData.withContext` etc.) around
@@ -37,7 +36,7 @@ trace nodes.
 
 public section
 
-namespace Lean.TraceView
+namespace Lean.PostprocessTraces
 
 /--
 A structured view of a trace message (`MessageData.trace`), used by trace postprocessors
@@ -85,7 +84,7 @@ Traces are reported as one message per source range inside a command, and a post
 applied to each of these messages separately; it therefore cannot move trace roots from one
 source range to another.
 
-Postprocessors are applied by the `trace_view post in cmd` command and can be composed
+Postprocessors are applied by the `postprocess_traces post in cmd` command and can be composed
 left-to-right with `>=>`.
 -/
 abbrev TracePostprocessor := Array TraceTree → CoreM (Array TraceTree)
@@ -125,10 +124,10 @@ private def postprocessMessage (post : TracePostprocessor) (msg : Message) :
     return none
   return some { msg with data := rebuild (roots.map (·.toMessageData)) }
 
-end Lean.TraceView
+end Lean.PostprocessTraces
 
-namespace Lean.Elab.TraceView
-open Lean.TraceView Command
+namespace Lean.Elab.PostprocessTraces
+open Lean.PostprocessTraces Command
 
 /--
 Runs a command and returns all messages (sync and async) it produces, clearing the snapshot
@@ -155,11 +154,11 @@ private def runAndCollectMessages (cmd : Syntax) : CommandElabM (Array Message) 
       messages        := saved ++ st.messages }
 
 /--
-Evaluates a term of type `TracePostprocessor`, with the `Lean.TraceView` namespace opened so
+Evaluates a term of type `TracePostprocessor`, with the `Lean.PostprocessTraces` namespace opened so
 that the built-in operations and patterns are available unqualified.
 -/
 private def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
-  let post ← `(open Lean.TraceView in ($post : TracePostprocessor))
+  let post ← `(open Lean.PostprocessTraces in ($post : TracePostprocessor))
   let type := mkConst ``TracePostprocessor
   withoutModifyingEnv do
     let e ← Term.elabTermEnsuringType post type
@@ -185,8 +184,9 @@ private def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostproc
   finally
     modify fun st => { st with traceState := savedTrace }
 
-@[builtin_command_elab Lean.TraceView.traceViewCmd] def elabTraceView : CommandElab
-  | `(command| trace_view $post in $cmd) => do
+@[builtin_command_elab Lean.PostprocessTraces.postprocessTracesCmd]
+private def elabPostprocessTraces : CommandElab
+  | `(command| postprocess_traces $post in $cmd) => do
     -- on errors in `post`, log them and fall back to the identity postprocessor so that `cmd`
     -- still elaborates, e.g. while the postprocessor term is being edited
     let post ← try
@@ -204,11 +204,9 @@ private def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostproc
         modify fun st => { st with messages := st.messages.add msg }
   | _ => throwUnsupportedSyntax
 
-end Lean.Elab.TraceView
+end Lean.Elab.PostprocessTraces
 
-namespace Lean.TraceView
-
-section Postprocessors
+namespace Lean.PostprocessTraces
 
 /--
 A pattern selects the trace subtrees that an operation acts on (see `filter`, `hoist`, and
@@ -357,12 +355,14 @@ def minSelfTimeMs (ms : Float) : TracePattern := fun t =>
 
 end TracePatterns
 
+section Postprocessors
+
 /--
 Keeps only the subtrees matching `p`, together with their ancestors for context; all other nodes
 are removed. Matching subtrees are kept in their entirety and not searched for nested matches
 (see `TraceTree.filterSubtrees`).
 -/
-def filter (p : TracePattern) : TracePostprocessor := fun roots =>
+def filterSubtrees (p : TracePattern) : TracePostprocessor := fun roots =>
   roots.filterMapM (·.filterSubtrees p)
 
 /--
@@ -379,7 +379,7 @@ opens already showing all matches. No nodes are removed, and all other nodes, in
 matches themselves, keep their expansion state. Matching subtrees are not searched for nested
 matches.
 -/
-partial def expand (p : TracePattern) : TracePostprocessor := fun roots =>
+partial def exposeSubtrees (p : TracePattern) : TracePostprocessor := fun roots =>
   roots.mapM fun root => return (← go root).1
 where
   /-- Returns the transformed tree and whether it contains a match. -/
@@ -443,4 +443,4 @@ where
 
 end Postprocessors
 
-end Lean.TraceView
+end Lean.PostprocessTraces

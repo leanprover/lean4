@@ -1,12 +1,12 @@
 import Lean
 
 /-!
-Tests for trace postprocessors: the `trace_view post in cmd` command, the built-in patterns and
-operations in `Lean.TraceView`, and the fallback to the identity postprocessor on errors in the
+Tests for trace postprocessors: the `postprocess_traces post in cmd` command, the built-in patterns and
+operations in `Lean.PostprocessTraces`, and the fallback to the identity postprocessor on errors in the
 postprocessor term.
 -/
 
-open scoped Lean.TraceView
+open scoped Lean.PostprocessTraces
 
 -- `filter` keeps the matching subtrees plus their ancestors for context.
 /--
@@ -16,7 +16,7 @@ trace: [Meta.synthInstance] ✅️ Inhabited (List Nat)
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-trace_view filter (containsString "tryResolve") in
+postprocess_traces filterSubtrees (containsString "tryResolve") in
 example : Inhabited (List Nat) := inferInstance
 
 -- `hoist` makes the matching subtrees the new roots; `ofClass` selects nodes by their exact
@@ -24,7 +24,7 @@ example : Inhabited (List Nat) := inferInstance
 /-- trace: [Meta.synthInstance.instances] #[@instInhabitedOfMonad, @instInhabitedList] -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-trace_view hoist (ofClass `Meta.synthInstance.instances) in
+postprocess_traces hoist (ofClass `Meta.synthInstance.instances) in
 example : Inhabited (List Nat) := inferInstance
 
 -- Operations compose left-to-right with `>=>`.
@@ -34,13 +34,13 @@ trace: [Meta.synthInstance.apply] ✅️ apply @instInhabitedList to Inhabited (
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-trace_view hoist (containsString "synthInstance.apply") >=> filter (containsString "tryResolve") in
+postprocess_traces hoist (containsString "synthInstance.apply") >=> filterSubtrees (containsString "tryResolve") in
 example : Inhabited (List Nat) := inferInstance
 
 -- A postprocessor returning no roots drops the trace message entirely.
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
-trace_view (fun _ => return #[]) in
+postprocess_traces (fun _ => return #[]) in
 example : Inhabited (List Nat) := inferInstance
 
 /-!
@@ -48,7 +48,7 @@ The remaining operations and patterns are tested on synthetic trees so that node
 timings are deterministic. Times are given in seconds, as in `TraceData`.
 -/
 
-open Lean TraceView
+open Lean PostprocessTraces
 
 private def mkTree (cls : Name) (msg : String) (kids : Array TraceTree := #[])
     (collapsed := true) (start : Float := 0) (stop : Float := 0)
@@ -117,7 +117,7 @@ info: [a] [0.100000] root
     [d] [0.020000] grandchild
 -/
 #guard_msgs in
-#eval runPost (filter (minSelfTimeMs 35)) #[timedTree]
+#eval runPost (filterSubtrees (minSelfTimeMs 35)) #[timedTree]
 
 -- Patterns are ordinary predicates and can combine built-in patterns with custom conditions.
 /--
@@ -126,7 +126,7 @@ info: [a] [0.100000] root
     [d] [0.020000] grandchild
 -/
 #guard_msgs in
-#eval runPost (filter fun t => return (← minTimeMs 50 t) && t.cls? != some `a) #[timedTree]
+#eval runPost (filterSubtrees fun t => return (← minTimeMs 50 t) && t.cls? != some `a) #[timedTree]
 
 private def resultTree : TraceTree :=
   mkTree `a "root" #[
@@ -142,7 +142,7 @@ info: [a] root
   [d] 💥️ error step
 -/
 #guard_msgs in
-#eval runPost (filter unsuccessful) #[resultTree]
+#eval runPost (filterSubtrees unsuccessful) #[resultTree]
 
 -- `failed` and `errored` distinguish the two unsuccessful results.
 /--
@@ -150,7 +150,7 @@ info: [a] root
   [c] ❌️ failed step
 -/
 #guard_msgs in
-#eval runPost (filter failed) #[resultTree]
+#eval runPost (filterSubtrees failed) #[resultTree]
 
 /-- info: [d] 💥️ error step -/
 #guard_msgs in
@@ -177,22 +177,22 @@ private partial def collapsedFlags (t : TraceTree) : String :=
 /-- info: "a:open[b:open[c:closed],d:open[zeta:closed]]" -/
 #guard_msgs in
 #eval show Lean.CoreM _ from do
-  return collapsedFlags (← expand (containsString "needle") #[sampleTree])[0]!
+  return collapsedFlags (← exposeSubtrees (containsString "needle") #[sampleTree])[0]!
 
 -- Matching by trace class works too.
 /-- info: "a:open[b:closed[c:closed],d:open[zeta:closed]]" -/
 #guard_msgs in
 #eval show Lean.CoreM _ from do
-  return collapsedFlags (← expand (containsString "zeta") #[sampleTree])[0]!
+  return collapsedFlags (← exposeSubtrees (containsString "zeta") #[sampleTree])[0]!
 
 -- Without a match, all expansion states are unchanged.
 /-- info: "a:closed[b:closed[c:closed],d:open[zeta:closed]]" -/
 #guard_msgs in
 #eval show Lean.CoreM _ from do
-  return collapsedFlags (← expand (containsString "no such text") #[sampleTree])[0]!
+  return collapsedFlags (← exposeSubtrees (containsString "no such text") #[sampleTree])[0]!
 
 /-!
-On errors in the postprocessor term, `trace_view` logs the error and falls back to the identity
+On errors in the postprocessor term, `postprocess_traces` logs the error and falls back to the identity
 postprocessor, so the command still runs and reports its unmodified traces.
 -/
 
@@ -203,7 +203,7 @@ trace: [debug] hello
 -/
 #guard_msgs in
 set_option trace.debug true in
-trace_view nonexistentPostprocessor in
+postprocess_traces nonexistentPostprocessor in
 run_cmd trace[debug] "hello"
 
 /--
@@ -218,7 +218,7 @@ trace: [debug] hello
 -/
 #guard_msgs in
 set_option trace.debug true in
-trace_view "not a postprocessor" in
+postprocess_traces "not a postprocessor" in
 run_cmd trace[debug] "hello"
 
 /-!
@@ -235,7 +235,7 @@ trace: [debug] hello
 -/
 #guard_msgs in
 set_option trace.debug true in
-trace_view filter (ofClass `debug) in
+postprocess_traces filterSubtrees (ofClass `debug) in
 run_cmd do
   logInfo "hi there"
   trace[debug] "hello"
@@ -248,7 +248,7 @@ trace: [debug] hello
 -/
 #guard_msgs in
 set_option trace.debug true in
-trace_view (fun roots => do logWarning "postprocessor ran"; return roots) in
+postprocess_traces (fun roots => do logWarning "postprocessor ran"; return roots) in
 run_cmd trace[debug] "hello"
 
 -- A postprocessor that throws at runtime is reported, and the affected message is shown
@@ -260,5 +260,5 @@ trace: [debug] hello
 -/
 #guard_msgs in
 set_option trace.debug true in
-trace_view (fun _ => throwError "oh no") in
+postprocess_traces (fun _ => throwError "oh no") in
 run_cmd trace[debug] "hello"

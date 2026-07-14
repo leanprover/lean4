@@ -952,14 +952,14 @@ This is mostly useful for debugging info trees.
 syntax (name := infoTreesCmd)
   "#info_trees" " in" ppLine command : command
 
-namespace TraceView
+namespace PostprocessTraces
 
 /--
-`trace_view post in cmd` runs `cmd` and transforms every trace message it produces
-with the trace postprocessor `post : Lean.TraceView.TracePostprocessor` before it is reported.
+`postprocess_traces post in cmd` runs `cmd` and transforms every trace message it produces
+with the trace postprocessor `post : Lean.PostprocessTraces.TracePostprocessor` before it is reported.
 
 The postprocessor receives the array of trace roots of each trace message and returns the
-transformed roots; returning an empty array drops the message entirely. The `Lean.TraceView`
+transformed roots; returning an empty array drops the message entirely. The `Lean.PostprocessTraces`
 namespace (automatically opened in `post`) provides operations such as `filter`, `hoist`,
 `expand`, and `timeInside`, which take patterns such as `ofClass`, `containsString`, and
 `minTimeMs` and compose left-to-right with `>=>`. User-defined postprocessors and patterns are
@@ -969,14 +969,14 @@ For example, the following only shows the instance-synthesis steps that mention 
 together with their ancestors:
 ```lean
 set_option trace.Meta.synthInstance true in
-trace_view filter (containsString "tryResolve") in
+postprocess_traces filter (containsString "tryResolve") in
 example : Inhabited (List Nat) := inferInstance
 ```
 -/
-scoped syntax (name := traceViewCmd)
-  "trace_view " term " in" ppLine command : command
+scoped syntax (name := postprocessTracesCmd)
+  "postprocess_traces " term " in" ppLine command : command
 
-end TraceView
+end PostprocessTraces
 
 /--
 Specify a library suggestion engine.

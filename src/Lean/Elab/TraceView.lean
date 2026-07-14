@@ -274,29 +274,6 @@ def headText : TraceTree → BaseIO String
 def result? (t : TraceTree) : Option TraceResult :=
   t.data?.bind (·.result?)
 
-/-- The number of nodes in this tree (including the root and leaf messages). -/
-partial def size (t : TraceTree) : Nat :=
-  t.children.foldl (fun n c => n + c.size) 1
-
-/--
-Whether this tree contains at least `n` nodes (in the sense of `size`).
-Unlike `size`, this visits at most `n` nodes.
--/
-partial def sizeAtLeast (t : TraceTree) (n : Nat) : Bool :=
-  go t n == 0
-where
-  /-- Returns how many of the `need`ed nodes remain to be found after counting `t`. -/
-  go (t : TraceTree) (need : Nat) : Nat :=
-    match need with
-    | 0 => 0
-    | need + 1 => Id.run do
-      let mut need := need
-      for c in t.children do
-        if need == 0 then
-          break
-        need := go c need
-      return need
-
 /--
 Collects all maximal subtrees satisfying `p` in `acc`: adds `t` itself if `p t` holds, and
 otherwise recurses into the children. Matching subtrees are not searched for nested matches.
@@ -363,13 +340,6 @@ Matches the trace nodes whose action did not succeed, i.e. failed (❌️) or th
 -/
 def unsuccessful : TracePattern := fun t =>
   return t.result? == some .failure || t.result? == some .error
-
-/--
-Matches the subtrees that contain at least `n` nodes.
-Scales to large traces: each candidate subtree is only searched until `n` nodes are found.
--/
-def minNodes (n : Nat) : TracePattern := fun t =>
-  return t.sizeAtLeast n
 
 /--
 Matches the subtrees whose action took at least `ms` milliseconds.

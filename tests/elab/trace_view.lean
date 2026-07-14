@@ -119,18 +119,6 @@ info: [a] [0.100000] root
 #guard_msgs in
 #eval runPost (filter (minSelfTimeMs 35)) #[timedTree]
 
--- `minNodes` with `hoist` drops the second root, which has too few nodes; nested matches such
--- as `b` are not hoisted separately.
-/--
-info: [a] root
-  [b] mid
-    [c] the needle is here
-  [d] other branch
-    [zeta] leaf
--/
-#guard_msgs in
-#eval runPost (hoist (minNodes 2)) #[sampleTree, mkTree `e "tiny"]
-
 -- Patterns are ordinary predicates and can combine built-in patterns with custom conditions.
 /--
 info: [a] [0.100000] root

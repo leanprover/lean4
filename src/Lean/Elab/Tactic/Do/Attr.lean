@@ -443,10 +443,11 @@ def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
 
 /-- Does the metavariable `mvarId` occur in `e`? -/
 private def occursMVar (mvarId : MVarId) (e : Expr) : Bool :=
-  Option.isSome <| e.find? fun s => match s with | .mvar m => m == mvarId | _ => false
+  (Expr.mvar mvarId).occurs e
 
 /-- Whether every occurrence of the post metavariable `q` in `e` is in tail position: as the post
-argument of a `wp`, applied at the tail, or under a lambda; any other occurrence fails. -/
+argument of a `wp`, conjoined with (`⊓`/`∧`) or implied by (`⇨`) an extra assertion, applied at the
+tail, or under a lambda; any other occurrence fails. -/
 private partial def postInTail (q : MVarId) (e : Expr) : Bool :=
   match e with
   | .mvar _ => true
@@ -456,8 +457,13 @@ private partial def postInTail (q : MVarId) (e : Expr) : Bool :=
     match e.getAppFn with
     | .mvar m => if m == q then e.getAppArgs.all (!occursMVar q ·) else !occursMVar q e
     | _ =>
-      let_expr wp _ _ _ _ _ _ _ prog post epost := e | !occursMVar q e
-      !occursMVar q prog && !occursMVar q epost && postInTail q post
+      match_expr e with
+      | Lean.Order.meet _ _ a b => postInTail q a && postInTail q b
+      | And a b => postInTail q a && postInTail q b
+      | Lean.Order.himp _ _ a b => !occursMVar q a && postInTail q b
+      | wp _ _ _ _ _ _ _ prog post epost =>
+        !occursMVar q prog && !occursMVar q epost && postInTail q post
+      | _ => !occursMVar q e
 
 /-- Whether a spec is parametric in its postcondition: the post is a schematic variable occurring only
 in tail position in the precondition and in no premise, program, or exception postcondition. The

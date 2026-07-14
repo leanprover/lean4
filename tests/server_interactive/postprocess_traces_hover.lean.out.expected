@@ -4,7 +4,7 @@
  {"start": {"line": 15, "character": 19}, "end": {"line": 15, "character": 29}},
  "contents":
  {"value":
-  "```lean\nLean.PostprocessTraces.countNodes : TracePostprocessor\n```\n***\nAppends the number of nodes inside each subtree to the subtree's head message. \n***\n*import Lean.PostprocessTraces.Basic*",
+  "```lean\nLean.PostprocessTraces.countNodes : TracePostprocessor\n```\n***\nAppends the number of nodes inside each subtree to the subtree's head message. \n***\n*import Lean.PostprocessTraces.Postprocessors*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///postprocess_traces_hover.lean"},
  "position": {"line": 20, "character": 24}}
@@ -12,5 +12,5 @@
  {"start": {"line": 20, "character": 19}, "end": {"line": 20, "character": 33}},
  "contents":
  {"value":
-  "```lean\nLean.PostprocessTraces.filterSubtrees (p : TracePattern) : TracePostprocessor\n```\n***\nKeeps only the subtrees matching `p`, together with their ancestors for context; all other nodes\nare removed. Matching subtrees are kept in their entirety and not searched for nested matches\n(see `TraceTree.filterSubtrees`).\n\n***\n*import Lean.PostprocessTraces.Basic*",
+  "```lean\nLean.PostprocessTraces.filterSubtrees (p : TracePattern) : TracePostprocessor\n```\n***\nKeeps only the subtrees matching `p`, together with their ancestors for context; all other nodes\nare removed. Matching subtrees are kept in their entirety and not searched for nested matches\n(see `TraceTree.filterSubtrees`).\n\n***\n*import Lean.PostprocessTraces.Postprocessors*",
   "kind": "markdown"}}

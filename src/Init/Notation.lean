@@ -952,32 +952,6 @@ This is mostly useful for debugging info trees.
 syntax (name := infoTreesCmd)
   "#info_trees" " in" ppLine command : command
 
-namespace PostprocessTraces
-
-/--
-`postprocess_traces post in cmd` runs `cmd` and transforms every trace message it produces
-with the trace postprocessor `post : Lean.PostprocessTraces.TracePostprocessor` before it is reported.
-
-The postprocessor receives the array of trace roots of each trace message and returns the
-transformed roots; returning an empty array drops the message entirely. The `Lean.PostprocessTraces`
-namespace (automatically opened in `post`) provides operations such as `filterSubtrees`, `hoist`,
-`exposeSubtrees`, and `selfTime`, which take patterns such as `ofClass`, `containsString`, and
-`minTimeMs` and compose left-to-right with `>=>`. User-defined postprocessors and patterns are
-ordinary functions.
-
-For example, the following only shows the instance-synthesis steps that mention `tryResolve`,
-together with their ancestors:
-```lean
-set_option trace.Meta.synthInstance true in
-postprocess_traces filter (containsString "tryResolve") in
-example : Inhabited (List Nat) := inferInstance
-```
--/
-scoped syntax (name := postprocessTracesCmd)
-  "postprocess_traces " term " in" ppLine command : command
-
-end PostprocessTraces
-
 /--
 Specify a library suggestion engine.
 Note that Lean does not ship a default library suggestion engine,

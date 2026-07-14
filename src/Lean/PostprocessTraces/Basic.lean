@@ -6,11 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Lean.Elab.Command
-import Lean.Elab.Eval
+public meta import Lean.Elab.Command
+public meta import Lean.Meta.Eval
+import Lean.CoreM
 
 /-!
-# Trace postprocessors: `postprocess_traces`
+# Experimental: Trace Postprocessors and the `postprocess_traces` Command
 
 Trace messages of complex elaboration tasks can be very large, and finding the relevant part in
 the editor requires a lot of clicking and searching. This module provides trace postprocessors:
@@ -23,7 +24,7 @@ small set of operations (`filterSubtrees`, `hoist`, `exposeSubtrees`, `countNode
 that compose left-to-right with `>=>`. The selecting operations take a pattern
 (`Lean.PostprocessTraces.TracePattern`), a predicate on trace subtrees; built-in patterns select by trace
 class (`ofClass`), text (`containsString`), result (`succeeded`, `failed`, `errored`,
-`unsuccessful`), size (`minNodes`), and time (`minTimeMs`, `minSelfTimeMs`). Users can define
+`unsuccessful`), and time (`minTimeMs`, `minSelfTimeMs`). Users can define
 their own postprocessors and patterns as ordinary functions.
 
 Syntax:
@@ -37,6 +38,30 @@ trace nodes.
 public section
 
 namespace Lean.PostprocessTraces
+
+/--
+Experimental. `postprocess_traces` and the library around it are expected to change in the future.
+
+`postprocess_traces post in cmd` runs `cmd` and transforms every trace message it produces
+with the trace postprocessor `post : Lean.PostprocessTraces.TracePostprocessor` before it is reported.
+
+The postprocessor receives the array of trace roots of each trace message and returns the
+transformed roots; returning an empty array drops the message entirely. The `Lean.PostprocessTraces`
+namespace (automatically opened in `post`) provides operations such as `filterSubtrees`, `hoist`,
+`exposeSubtrees`, and `selfTime`, which take patterns such as `ofClass`, `containsString`, and
+`minTimeMs` and compose left-to-right with `>=>`. User-defined postprocessors and patterns are
+ordinary functions.
+
+For example, the following only shows the instance-synthesis steps that mention `tryResolve`,
+together with their ancestors:
+```lean
+set_option trace.Meta.synthInstance true in
+postprocess_traces filter (containsString "tryResolve") in
+example : Inhabited (List Nat) := inferInstance
+```
+-/
+scoped syntax (name := postprocessTracesCmd)
+  "postprocess_traces " term " in" ppLine command : command
 
 /--
 A structured view of a trace message (`MessageData.trace`), used by trace postprocessors
@@ -61,7 +86,7 @@ instance : Inhabited TraceTree := ⟨.leaf .nil⟩
 Decomposes trace `MessageData` into a `TraceTree`. The `MessageData` can be reconstructed using
 `TraceTree.toMessageData`.
 -/
-partial def TraceTree.ofMessageData (msg : MessageData) : TraceTree :=
+meta partial def TraceTree.ofMessageData (msg : MessageData) : TraceTree :=
   go id msg
 where
   go (wrap : MessageData → MessageData) : MessageData → TraceTree
@@ -71,7 +96,7 @@ where
     | m => .leaf (wrap m)
 
 /-- Reassembles the `MessageData` of a trace tree. -/
-partial def TraceTree.toMessageData : TraceTree → MessageData
+meta partial def TraceTree.toMessageData : TraceTree → MessageData
   | .node data msg children wrap => wrap (.trace data msg (children.map toMessageData))
   | .leaf msg => msg
 
@@ -96,7 +121,7 @@ Decomposes the synthetic container message produced by `addTraceAsMessages`
 (``.tagged `trace <| .trace _ _ roots``, possibly inside context wrappers) into its trace roots,
 together with a function that reassembles the container from transformed roots.
 -/
-private partial def traceContainer? (data : MessageData) :
+private meta partial def traceContainer? (data : MessageData) :
     Option ((Array MessageData → MessageData) × Array MessageData) :=
   go id data
 where
@@ -115,7 +140,7 @@ where
 Applies `post` to a trace message (see `addTraceAsMessages`), returning `none` if the
 postprocessor dropped all roots of the message. Non-trace messages are returned unchanged.
 -/
-private def postprocessMessage (post : TracePostprocessor) (msg : Message) :
+private meta def postprocessMessage (post : TracePostprocessor) (msg : Message) :
     CoreM (Option Message) := do
   let some (rebuild, roots) := traceContainer? msg.data
     | return some msg
@@ -134,7 +159,7 @@ Runs a command and returns all messages (sync and async) it produces, clearing t
 tasks after collection so that async messages are not reported twice. The surrounding message
 log is unaffected; it is restored even if the command is interrupted.
 -/
-private def runAndCollectMessages (cmd : Syntax) : CommandElabM (Array Message) := do
+private meta def runAndCollectMessages (cmd : Syntax) : CommandElabM (Array Message) := do
   let saved := (← get).messages
   -- `elabCommandTopLevel` resets the info state; save the trees recorded so far (e.g. for the
   -- postprocessor term) so that hovers and completions keep working
@@ -157,7 +182,7 @@ private def runAndCollectMessages (cmd : Syntax) : CommandElabM (Array Message) 
 Evaluates a term of type `TracePostprocessor`, with the `Lean.PostprocessTraces` namespace opened so
 that the built-in operations and patterns are available unqualified.
 -/
-private def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
+private meta def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
   let post ← `(open Lean.PostprocessTraces in ($post : TracePostprocessor))
   let type := mkConst ``TracePostprocessor
   withoutModifyingEnv do
@@ -177,15 +202,15 @@ private def evalPostprocessor (post : Term) : TermElabM TracePostprocessor := do
 Evaluates the postprocessor without leaking the traces produced by elaborating the postprocessor
 term itself into the (typically trace-enabled) surrounding context.
 -/
-private def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostprocessor := do
+private meta def evalPostprocessorTopLevel (post : Term) : CommandElabM TracePostprocessor := do
   let savedTrace := (← get).traceState
   try
     runTermElabM fun _ => evalPostprocessor post
   finally
     modify fun st => { st with traceState := savedTrace }
 
-@[builtin_command_elab Lean.PostprocessTraces.postprocessTracesCmd]
-private def elabPostprocessTraces : CommandElab
+@[command_elab Lean.PostprocessTraces.postprocessTracesCmd]
+meta def elabPostprocessTraces : CommandElab
   | `(command| postprocess_traces $post in $cmd) => do
     -- on errors in `post`, log them and fall back to the identity postprocessor so that `cmd`
     -- still elaborates, e.g. while the postprocessor term is being edited
@@ -211,7 +236,7 @@ namespace Lean.PostprocessTraces
 /--
 A pattern selects the trace subtrees that an operation acts on (see `filter`, `hoist`, and
 `expand`). Patterns are ordinary predicates: the built-in ones (such as `containsString`,
-`unsuccessful`, `minNodes`, or `minTimeMs`) can be combined with custom conditions in a `fun`.
+`unsuccessful`, or `minTimeMs`) can be combined with custom conditions in a `fun`.
 -/
 abbrev TracePattern := TraceTree → CoreM Bool
 

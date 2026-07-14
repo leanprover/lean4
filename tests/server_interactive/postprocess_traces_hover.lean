@@ -1,4 +1,6 @@
-import Lean
+module
+
+meta import Lean.PostprocessTraces
 --^ waitForILeans
 
 /-!

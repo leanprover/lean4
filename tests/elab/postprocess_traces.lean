@@ -1,4 +1,6 @@
-import Lean
+module
+
+meta import Lean.PostprocessTraces
 
 /-!
 Tests for trace postprocessors: the `postprocess_traces post in cmd` command, the built-in patterns and
@@ -50,25 +52,25 @@ timings are deterministic. Times are given in seconds, as in `TraceData`.
 
 open Lean PostprocessTraces
 
-private def mkTree (cls : Name) (msg : String) (kids : Array TraceTree := #[])
+private meta def mkTree (cls : Name) (msg : String) (kids : Array TraceTree := #[])
     (collapsed := true) (start : Float := 0) (stop : Float := 0)
     (result : Option TraceResult := none) : TraceTree :=
   .node { cls, collapsed, startTime := start, stopTime := stop, result? := result } m!"{msg}"
     kids id
 
-private def runPost (post : TracePostprocessor) (roots : Array TraceTree) : Lean.CoreM Unit := do
+private meta def runPost (post : TracePostprocessor) (roots : Array TraceTree) : Lean.CoreM Unit := do
   for root in (← post roots) do
     IO.println (← root.toMessageData.toString)
 
 -- The generic trace formatter prints the elapsed seconds of profiled nodes in brackets after
 -- the trace class.
-private def timedTree : TraceTree :=
+private meta def timedTree : TraceTree :=
   mkTree `a "root" (start := 1.0) (stop := 1.1) #[
     mkTree `b "fast leaf" (start := 1.0) (stop := 1.03),
     mkTree `c "slow branch" (start := 1.03) (stop := 1.09) #[
       mkTree `d "grandchild" (start := 1.03) (stop := 1.05)]]
 
-private def sampleTree : TraceTree :=
+private meta def sampleTree : TraceTree :=
   mkTree `a "root" #[
     mkTree `b "mid" #[mkTree `c "the needle is here"],
     mkTree `d "other branch" #[mkTree `zeta "leaf"] (collapsed := false)
@@ -118,7 +120,7 @@ info: [a] [0.100000] root
 #guard_msgs in
 #eval runPost (filterSubtrees fun t => return (← minTimeMs 50 t) && t.cls? != some `a) #[timedTree]
 
-private def resultTree : TraceTree :=
+private meta def resultTree : TraceTree :=
   mkTree `a "root" #[
     mkTree `b "ok step" (result := some .success),
     mkTree `c "failed step" (result := some .failure),
@@ -156,7 +158,7 @@ info: [a] root
 test the flags directly.
 -/
 
-private partial def collapsedFlags (t : TraceTree) : String :=
+private meta partial def collapsedFlags (t : TraceTree) : String :=
   let state := if (t.data?.map (·.collapsed)).getD true then "closed" else "open"
   let head := s!"{t.cls?.getD .anonymous}:{state}"
   if t.children.isEmpty then head

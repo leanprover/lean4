@@ -373,8 +373,8 @@ private def elabFrame (resourceTy : Expr) (entry : FrameEntry) (res : Sym.MatchU
     let frameExpr ← Lean.Elab.Term.TermElabM.run' do
       let e ← Lean.Elab.Term.elabTermEnsuringType entry.frameStx (some resourceTy)
       Lean.Elab.Term.synthesizeSyntheticMVarsNoPostponing
-      instantiateMVars e
-    mkLetFVars fvs frameExpr
+      mkLetFVars fvs e
+    instantiateMVarsS frameExpr
 
 /-- Find an unretired `frames` alternative matching the program (earliest source order wins),
 elaborate its frame at the resource type `resourceTy`, and retire it so it applies at most once. -/

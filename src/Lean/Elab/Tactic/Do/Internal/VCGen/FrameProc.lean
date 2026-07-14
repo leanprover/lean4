@@ -23,9 +23,8 @@ namespace Lean.Elab.Tactic.Do.Internal
 spec's precondition instantiated at the call site (the RHS of the spec's precondition VC `pre ⊑ ·`),
 optionally produce a frame `F : R` to peel off. `none` leaves the spec to apply directly.
 
-The frame is inspected against a speculative spec application whose metavariable context is reset
-before `F` is used, so `F` must be fully instantiated and built from terms that predate that
-application (the precondition, or a result run through `instantiateMVars`). -/
+The caller instantiates and hash-conses `F` before the speculative spec application's metavariable
+context is reset, so `F` may mention metavariables assigned during that application. -/
 public abbrev VCGen.FrameInferenceProc :=
   Expr → Expr → VCGen.WPApp → Expr → SymM (Option Expr)
 

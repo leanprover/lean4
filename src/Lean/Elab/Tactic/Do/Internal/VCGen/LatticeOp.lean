@@ -73,10 +73,6 @@ private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (N
     m := m.insert h (n, rhs.getAppNumArgs)
   return m
 
-/-- Lift an equality `lhs = rhs` between functions to `(lhs args...) = (rhs args...)`. -/
-private def liftEqByArgs (eqPrf : Expr) (args : List Expr) : MetaM Expr :=
-  args.foldlM (fun h a => mkCongrFun h a) eqPrf
-
 /--
 Saturate `e` by rewriting at the root with the first applicable equation from `rewrites`, handling
 over-application, until none applies. Returns the reduced expression and, when a rewrite fired, a proof
@@ -99,7 +95,8 @@ private partial def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel :
         let ePrefix := mkAppN e.getAppFn (eArgs.extract 0 m)
         let extra := eArgs.extract m eArgs.size
         if ← isDefEq lhs ePrefix then
-          let stepProof ← liftEqByArgs (mkAppN lemConst mvars) extra.toList
+          -- Lift the equation `lhs = rhs` across the over-application `extra` with iterated `congrFun`.
+          let stepProof ← extra.foldlM (fun h a => mkCongrFun h a) (mkAppN lemConst mvars)
           let (reduced, rest?) ← saturateLatticeOp rewrites (mkAppN rhs extra) (fuel - 1)
           let proof ← match rest? with
             | none => pure stepProof

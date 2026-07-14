@@ -162,7 +162,6 @@ private def ofPropPreIntro? (goal : MVarId) (pre : Expr) : VCGenM (Option (MVarI
 `le_of_imp_top_le`, leaving `⊤ ⊑ rhs`. Runs after `True` and `⊤` preconditions are handled, so
 `φ` carries information worth keeping. Returns the new goal and the introduced hypothesis. -/
 private def barePreIntro? (goal : MVarId) (α pre : Expr) : VCGenM (Option (MVarId × FVarId)) := do
-  trace[Elab.Tactic.Do.vcgen] "barePreIntro? isProp={α.isProp} α={α} pre={pre}"
   unless α.isProp do return none
   if pre.isAppOf ``Lean.Order.top then return none
   return some (← introPre (← read).backwardRules.propPreIntro goal)
@@ -486,6 +485,9 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
     | some specPre => proc resourceTy pre info specPre
     | none => pure none
   let some F := frame? | return .goals scope subgoals
+  -- Capture the frame before rolling back: `saved.restore` un-assigns the speculative metavariables,
+  -- so instantiate `F` against them now, then hash-cons it.
+  let F ← shareCommon (← instantiateMVars F)
   trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr F}"
   saved.restore
   return .goals scope (← applyFrameRule goal info fp F)

@@ -339,9 +339,9 @@ structure SpecTheorem where
   /-- The kind of spec theorem: triple or simp. -/
   kind : SpecTheoremKind := .triple
   /-- Whether the spec is parametric in its postcondition: the post is a schematic variable occurring
-  only in tail position in the precondition and in no premise. A sufficient syntactic condition for the
-  spec to carry any frame automatically, so `vcgen` applies it without the frame machinery. Opt out with
-  a trivial `Q = Q` premise. -/
+  only in tail position in the precondition and in no premise. Such a spec threads its postcondition, so
+  applying it directly keeps the goal's precondition, and any frame within it, available to the
+  continuation; `vcgen` applies it without the frame machinery. Opt out with a trivial `Q = Q` premise. -/
   postParametric : Bool := false
   priority : Nat := eval_prio default
   deriving Inhabited
@@ -437,30 +437,14 @@ def progArgIdx? (declName : Name) : MetaM (Option Nat) := paramIdx? declName `x
 
 /-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
 either `Triple` or `pre ⊑ wp …` shape. -/
-def specComponents? (concl : Expr) : MetaM (Option (Expr × Expr × Expr × Expr)) := do
+def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
   match_expr concl with
-  | PartialOrder.rel _α _inst pre rhs =>
-    unless rhs.getAppFn.isConstOf ``wp do return none
-    let args := rhs.getAppArgs
-    let some xi ← paramIdx? ``wp `x | return none
-    let some qi ← paramIdx? ``wp `post | return none
-    let some ei ← paramIdx? ``wp `epost | return none
-    let some prog := args[xi]? | return none
-    let some post := args[qi]? | return none
-    let some epost := args[ei]? | return none
-    return some (pre, prog, post, epost)
-  | _ =>
-    unless concl.getAppFn.isConstOf ``Triple do return none
-    let args := concl.getAppArgs
-    let some pi ← paramIdx? ``Triple `pre | return none
-    let some xi ← paramIdx? ``Triple `x | return none
-    let some qi ← paramIdx? ``Triple `post | return none
-    let some ei ← paramIdx? ``Triple `epost | return none
-    let some pre := args[pi]? | return none
-    let some prog := args[xi]? | return none
-    let some post := args[qi]? | return none
-    let some epost := args[ei]? | return none
-    return some (pre, prog, post, epost)
+  | PartialOrder.rel _ _ pre rhs =>
+    match_expr rhs with
+    | wp _ _ _ _ _ _ _ prog post epost => some (pre, prog, post, epost)
+    | _ => none
+  | Triple _ _ _ _ _ _ x _ pre post epost => some (pre, x, post, epost)
+  | _ => none
 
 /-- Does the metavariable `mvarId` occur in `e`? -/
 private def occursMVar (mvarId : MVarId) (e : Expr) : Bool :=
@@ -491,7 +475,7 @@ private partial def postInTail (q : MVarId) (wpPost : Nat) (e : Expr) : Bool :=
 in tail position in the precondition and in no premise, program, or exception postcondition. The
 `binders` are the spec's `∀`-telescoped parameters and premises. -/
 def isPostParametric (concl : Expr) (binders : Array Expr) : MetaM Bool := do
-  let some (pre, prog, post, epost) ← specComponents? concl | return false
+  let some (pre, prog, post, epost) := specComponents? concl | return false
   let .mvar q := post.eta | return false
   if occursMVar q prog || occursMVar q epost then return false
   for b in binders do

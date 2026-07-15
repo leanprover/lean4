@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.VCGen.Basic
+public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
 public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
 public import Lean.Meta.Sym.Apply
@@ -134,11 +135,27 @@ public structure VCGen.Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
+/-- Definition-site info for a `__do_jp` synthetic spec, indexed by the JP's let-fvar.
+
+Recorded by `tryJoinPointDef` when it registers the JP's synthetic spec, and consulted by
+`tryAssignJPHyps` at each jump site to assign the alt-specific precondition mvar
+`hypsMVars[altIdx]` to an existential closure over the jump site's local context. -/
+public structure JPDefInfo where
+  /-- Per-alt synthetic-opaque precondition mvars. Each has type
+  `(joinParams ++ altParams) → Pred`, assigned at the corresponding jump site. -/
+  hypsMVars : Array MVarId
+  /-- The join point's continuation splitter; its discriminant selects the alt at each jump site. -/
+  splitInfo : Lean.Elab.Tactic.Do.SplitInfo
+  /-- Size of the local context at the JP definition site. Locals introduced beyond this index
+  are alt-local and get existentially closed when building the jump-site `φ`. -/
+  outerLCtxSize : Nat
+  deriving Inhabited
+
 public structure VCGen.Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
-  /-- `__do_jp` fvars currently in scope. -/
-  jps : FVarIdMap JumpSiteInfo := {}
+  /-- `__do_jp` fvars currently in scope, mapped to their def-site info. -/
+  jps : FVarIdMap JPDefInfo := {}
   /-- The most recently lifted pure precondition. `tryLiftedHyp` closes handoff VCs against
   it without walking the local context. -/
   lastLiftedPre? : Option FVarId := none
@@ -212,10 +229,10 @@ public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.Grind
 
 namespace VCGen
 
-public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Scope :=
+public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JPDefInfo) : Scope :=
   { s with jps := s.jps.insert fv info }
 
-public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JumpSiteInfo :=
+public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JPDefInfo :=
   s.jps.get? fv
 
 public def Scope.insertSpec (s : Scope) (thm : SpecTheorem) : Scope :=

@@ -111,17 +111,18 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     match ← solve s.scope goal.mvarId with
     | .stop _reason =>
       emitVC goal
-    | .goals scope subgoals =>
+    | .goals scopedSubgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.
       -- Non-invariant subgoals go to the worklist as usual and will eventually go through `emitVC`.
-      let subgoals ← handleInvariantSubgoals subgoals
+      let mvarIds ← handleInvariantSubgoals (scopedSubgoals.map Prod.snd)
       let goal ←
-        if subgoals.size > 1 then
+        if mvarIds.size > 1 then
           processHypotheses goal
         else
           pure goal
-      worklist := worklist ++ subgoals.reverse.map (fun mv =>
+      let kept := scopedSubgoals.filter (fun (_, mv) => mvarIds.contains mv)
+      worklist := worklist ++ kept.reverse.toArray.map (fun (scope, mv) =>
         { goal := { goal with mvarId := mv }, scope })
 
 public structure Result where

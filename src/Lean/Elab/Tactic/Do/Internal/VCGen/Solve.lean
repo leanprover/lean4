@@ -44,10 +44,14 @@ public inductive SolveResult.StopReason where
 
 /-- The result of one `solve` step of VC generation. -/
 public inductive SolveResult where
-  /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. -/
-  | goals (scope : VCGen.Scope) (subgoals : List MVarId)
+  /-- Successfully decomposed the goal. Each subgoal carries its own scope. -/
+  | goals (subgoals : List (VCGen.Scope × MVarId))
   /-- No further progress possible; emit the current goal as a VC. -/
   | stop (reason : SolveResult.StopReason)
+
+/-- Decomposition result whose subgoals all share `scope`. -/
+public def SolveResult.goalsInScope (scope : VCGen.Scope) (subgoals : List MVarId) : SolveResult :=
+  .goals (subgoals.map (scope, ·))
 
 private def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
@@ -73,19 +77,10 @@ private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List 
     throwError "Failed to intro forall target {goal}"
   return some [goal']
 
-private def throwIfUnsupportedJP (name : Name) (val : Expr) : VCGenM Unit := do
-  if (← read).useJP && Lean.Elab.Tactic.Do.isJP name && val.isLambda then
-    throwError "vcgen: shared-continuation handling for `__do_jp` is not yet \
-      implemented. Detection point reached at {name}; the upstream \
-      `Lean.Elab.Tactic.Do.onJoinPoint` (`src/Lean/Elab/Tactic/Do/VCGen.lean:215`) \
-      needs to be ported to the worklist style. Drop `(jp := true)` to fall back \
-      to the default zeta-unfold behaviour."
-
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
 introduce it into the local context. -/
 private def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let .letE name _ val body _ := target | return none
-  throwIfUnsupportedJP name val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     return some (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS body #[val]))
@@ -221,11 +216,92 @@ private def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVar
   let .mdata .. := info.prog | return none
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
+/-- Hoist a program-head `let` to the goal target and introduce it, returning the introduced fvar
+and the new goal. -/
+private def hoistProgLetIntro (goal : MVarId) (info : WPApp) :
+    VCGenM (Option (FVarId × MVarId)) := do
+  let .letE name type val body nondep := info.prog.getAppFn | return none
+  let prog ← betaRevS body info.prog.getAppRevArgs
+  let wp ← mkAppNS info.head <| info.args.set! 7 prog
+  let rhs ← mkAppNS wp info.excessArgs
+  let target ← goal.getType
+  let relArgs := target.getAppArgs
+  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
+  let hoisted ← goal.replaceTargetDefEqFast (Expr.letE name type val target nondep)
+  let .goal newDecls newGoal ← Sym.intros hoisted | return none
+  let some fvId := newDecls[0]? | return none
+  return some (fvId, newGoal)
+
+/-- `+jp`: when the program is `let __do_jp := fun args => body; rest` with `rest` an `if`/`match`,
+register a `Triple` spec for `__do_jp` and return two subgoals, `body` and `rest`. Then `body` is
+proved once and each jump `__do_jp args` in `rest` closes via `applySpec`, rather than inlining
+`body` at every jump.
+
+The spec's precondition splits the same way as `rest`: in branch `i` it is a fresh metavariable
+`?Hᵢ`, which the jump in that branch fills in with the facts that hold there. -/
+private def tryJoinPointDef (scope : Scope) (goal : MVarId) (info : WPApp) :
+    VCGenM (Option SolveResult) := do
+  unless (← read).useJP do return none
+  let .letE name _ val _ _ := info.prog.getAppFn | return none
+  unless Lean.Elab.Tactic.Do.isJP name do return none
+  unless val.isLambda do return none
+  let some (fvId, newGoal) ← hoistProgLetIntro goal info | return none
+  -- `Sym.intros` introduces every `let` as a dependent decl; restore the `have`'s nondep-ness so
+  -- the spec keys on `@fv joinParams` rather than zeta-reducing to the body.
+  newGoal.modifyLCtx fun lctx =>
+    if let some decl := lctx.find? fvId then
+      lctx.modifyLocalDecl fvId fun _ => decl.setNondep true
+    else lctx
+  newGoal.withContext do
+  let fv := mkFVar fvId
+
+  let newTarget ← newGoal.getType
+  let_expr PartialOrder.rel _α _inst _pre rhs := newTarget
+    | return some (.goalsInScope scope [newGoal])
+  let some info' := isWPApp? rhs
+    | return some (.goalsInScope scope [newGoal])
+  let Q := info'.post
+  let some sinfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info'.prog
+    | return some (.goalsInScope scope [newGoal])
+  let some resTy := sinfo.resTy
+    | return some (.goalsInScope scope [newGoal])
+  let Pred := info'.Pred
+  let joinTy ← liftMetaM <| Meta.inferType fv
+  let numJoinParams ← liftMetaM <| Lean.Elab.Tactic.Do.getNumJoinParams joinTy resTy
+
+  -- Create the `?Hᵢ` mvars in the outer local context so the rule construction's `abstractMVars`
+  -- keeps them shared across jump sites instead of lifting the splitter telescope into each.
+  let outerLCtx ← liftMetaM getLCtx
+  let outerLocalInsts ← liftMetaM getLocalInstances
+  let (bodyTy, hypsMVars) ← liftMetaM <|
+    Meta.forallBoundedTelescope joinTy numJoinParams fun joinParams _ => do
+      let hypsMVarsRef ← IO.mkRef (#[] : Array MVarId)
+      let pjpBody ← sinfo.splitWith Pred (useSplitter := true)
+          fun _name _expAltType _idx altFVars => do
+        let allBinders := joinParams ++ altFVars.all
+        let mvarTy ← Meta.mkForallFVars allBinders Pred
+        let hypsMVar ← Meta.mkFreshExprMVarAt outerLCtx outerLocalInsts mvarTy .syntheticOpaque
+        hypsMVarsRef.modify (·.push hypsMVar.mvarId!)
+        pure (mkAppN hypsMVar allBinders)
+      let tripleTy ← Meta.mkAppOptM ``Std.Internal.Do.Triple
+        #[info'.Pred, info'.EPred, info'.Prog, info'.Value, info'.args[4]!, info'.args[5]!,
+          mkAppN fv joinParams, info'.instWP, pjpBody, Q, info'.args[9]!]
+      pure (← Meta.mkForallFVars joinParams tripleTy, ← hypsMVarsRef.get)
+
+  let bodyMV ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar bodyTy (← newGoal.getTag)
+  let some joinSpec ← liftMetaM <| SpecAttr.mkSpecTheoremFromStx (← getRef) bodyMV
+    | return some (.goalsInScope scope [newGoal])
+
+  let outerLCtxSize := (← newGoal.getDecl).lctx.numIndices
+  let jpDefInfo : JPDefInfo := { hypsMVars, splitInfo := sinfo, outerLCtxSize }
+  -- `bodyMV` keeps the original scope so its own head is not treated as a JP.
+  let restScope := (scope.insertSpec joinSpec).registerJP fvId jpDefInfo
+  return some (.goals [(restScope, newGoal), (scope, bodyMV.mvarId!)])
+
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
 private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
-  let .letE name type val body nondep := info.prog.getAppFn | return none
+  let .letE name _type val body _nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
-  throwIfUnsupportedJP name val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
@@ -233,15 +309,7 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     return some (← replaceProgDefEq goal info prog)
   else
     trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
-    let prog ← mkAppRevS body appArgs
-    let wp ← mkAppNS info.head <| info.args.set! 7 prog
-    let rhs ← mkAppNS wp info.excessArgs
-    let target ← goal.getType
-    let relArgs := target.getAppArgs
-    let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
-    let target := Expr.letE name type val target nondep
-    let goal ← goal.replaceTargetDefEqFast target
-    let .goal _ goal ← Sym.intros goal
+    let some (_, goal) ← hoistProgLetIntro goal info
       | throwError "Failed to intro hoisted let"
     return some goal
 
@@ -264,12 +332,13 @@ private def wpMatch? (goal : MVarId) (info : WPApp) :
     | .closed => continue
   return some simpGoals.toList
 
-/-- Strategy 11c: zeta-unfold a local let-bound fvar used as the program head. -/
-private def wpFVarZeta? (goal : MVarId) (info : WPApp) :
+/-- Strategy 11c: zeta-unfold a let-bound fvar used as the program head, unless it is a registered JP. -/
+private def wpFVarZeta? (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option MVarId) := do
   let f := info.prog.getAppFn
   let some fvarId := f.fvarId? | return none
-  let some val ← fvarId.getValue? | return none
+  if (scope.knownJP? fvarId).isSome then return none
+  let some val ← fvarId.getValue? (allowNondep := true) | return none
   trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
   let prog ← shareCommonInc (val.betaRev info.prog.getAppRevArgs)
   return some (← replaceProgDefEq goal info prog)
@@ -296,6 +365,61 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
     throwError "No spec matching the monad {monad} found for program {prog}. \
       Candidates were {thms.map (·.proof)}."
 
+/-- At a JP jump site `__do_jp args`, assign the applicable alt's precondition mvar `?Hᵢ` to an
+existential closure of the join-argument equalities over the jump site's local context. -/
+private def tryAssignJPHyps (jpInfo : JPDefInfo) (e Pred : Expr) : VCGenM Unit := do
+  let info := jpInfo.splitInfo
+  let joinArgs := e.getAppArgs
+  -- The applicable alt is the one whose discriminant `rwIfOrMatcher` succeeds on here.
+  let mut altIdx? : Option Nat := none
+  for idx in [:info.altInfos.size] do
+    let resOpt ← liftMetaM <| try
+      some <$> Lean.Elab.Tactic.Do.rwIfOrMatcher idx info.expr
+    catch _ => pure none
+    let some res := resOpt | continue
+    if res.proof?.isNone then continue
+    altIdx? := some idx
+    break
+  let some altIdx := altIdx? | return
+  unless altIdx < jpInfo.hypsMVars.size do return
+  let hypsMVar := jpInfo.hypsMVars[altIdx]!
+  if ← hypsMVar.isAssigned then return
+  trace[Elab.Tactic.Do.vcgen] "JP jump: alt {altIdx} args={joinArgs}"
+  liftMetaM do
+    let mvarTy ← hypsMVar.getType
+    let lctx ← getLCtx
+    let newLocalDecls := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push
+      |>.filterMap id
+      |>.filter (fun decl => !decl.isImplementationDetail)
+    let newLocals := newLocalDecls.map LocalDecl.toExpr
+    -- Telescope only the mvar's own binders (joinParams ++ altFVars); `Pred` itself may be a
+    -- function (e.g. `σ → Prop`) whose arguments must not be captured as extra binders.
+    let predArity ← Meta.forallTelescopeReducing Pred fun xs _ => pure xs.size
+    let mvarArity ← Meta.forallTelescopeReducing mvarTy fun xs _ => pure (xs.size - predArity)
+    Meta.forallBoundedTelescope mvarTy mvarArity fun allBinders _ => do
+      let numJP := joinArgs.size
+      unless numJP ≤ allBinders.size do return
+      let jpBinders := allBinders.extract 0 numJP
+      -- `⌜jpBinders = joinArgs⌝`, existentially/let-closed over the alt-local decls to be valid in
+      -- the mvar's def-site context.
+      let eqs ← (jpBinders.mapIdx fun i jp => (jp, i)).mapM fun (jp, i) => Meta.mkEq jp joinArgs[i]!
+      let φProp := (mkAndN eqs.toList).abstract newLocals
+      let (_, φPropClosed) ← newLocalDecls.foldrM (init := (newLocals, φProp))
+          fun decl (locals, φ) => do
+        let locals := locals.pop
+        let type := (← instantiateMVars decl.type).abstract locals
+        match decl.value? with
+        | some v =>
+          let val := (← instantiateMVars v).abstract locals
+          return (locals, Lean.mkLet decl.userName type val φ (nondep := decl.isNondep))
+        | none =>
+          let typeLevel ← Meta.getLevel decl.type
+          return (locals, mkApp2 (mkConst ``Exists [typeLevel]) type (Expr.lam decl.userName type φ .default))
+      -- Embed `φ_prop : Prop` as an assertion of type `Pred` via `⌜·⌝ = CompleteLattice.ofProp`.
+      let instCL ← Meta.synthInstance (← Meta.mkAppM ``Lean.Order.CompleteLattice #[Pred])
+      let φPred ← Meta.mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[Pred, instCL, φPropClosed]
+      hypsMVar.assign (← Meta.mkLambdaFVars allBinders φPred)
+
 /-- Select the highest-priority `@[spec]` theorem matching `prog`, or a stop result when none matches.
 Hands `findSpecs` the sole reference to the spec database so its in-place pattern internalization does
 not copy the discrimination tree, then threads the updated database back into the returned scope. -/
@@ -321,9 +445,15 @@ a stop result when no rule matches the goal's monad. Reached from `applyFrameOrS
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
     VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
+  -- At a JP jump site, assign its alt precondition, then build the rule at a fresh mvar depth so the
+  -- synthetic body/precondition mvars survive `abstractMVars` as constants (shared across jump sites).
+  let jpInfo? := info.prog.getAppFn.fvarId?.bind scope.knownJP?
+  if let some jpInfo := jpInfo? then
+    tryAssignJPHyps jpInfo info.prog info.Pred
   let some rule ←
     try
-      mkBackwardRuleFromSpecCached thm info |>.run
+      let build := (mkBackwardRuleFromSpecCached thm info).run
+      if jpInfo?.isSome then Meta.withNewMCtxDepth (allowLevelAssignments := false) build else build
     catch ex =>
       throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
         error: {ex.toMessageData}\n\
@@ -344,7 +474,7 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm 
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}\n\
         rule type:{indentExpr ruleType}"
-  return .goals scope goals
+  return .goalsInScope scope goals
 
 /-- True iff the program matches the `until` pattern, in which case VC generation stops at this
 goal. -/
@@ -459,29 +589,55 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
   let thm ← match spec with
     | .ok thm => pure thm
     | .error res => return res
-  if thm.conjunctivePre || isFramedPost info.post then
+  -- A JP jump site applies its synthetic spec directly, bypassing framing.
+  let isJP := (info.prog.getAppFn.fvarId?.bind scope.knownJP?).isSome
+  if thm.conjunctivePre || isFramedPost info.post || isJP then
     return ← applySpec scope goal info thm
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc
   let resourceTy ← fp.resourceTy info
   if let some F ← matchFrame? resourceTy info then
-    return .goals scope (← applyFrameRule goal info fp F)
+    return .goalsInScope scope (← applyFrameRule goal info fp F)
   let some proc := fp.proc | return ← applySpec scope goal info thm
   -- Apply the spec speculatively, then let the frame procedure inspect its precondition VC. No frame
   -- keeps the application; a frame rolls it back and frames instead.
   let saved ← Meta.saveState
-  let .goals _ subgoals ← applySpec scope goal info thm
+  let .goals scopedSubgoals ← applySpec scope goal info thm
     | throwError "vcgen: speculative spec application for{indentExpr info.prog} did not produce goals"
+  let subgoals := scopedSubgoals.map Prod.snd
   let frame? ← match ← specPreOf? subgoals with
     | some specPre => proc resourceTy pre info specPre
     | none => pure none
-  let some F := frame? | return .goals scope subgoals
+  let some F := frame? | return .goals scopedSubgoals
   -- Capture the frame before rolling back: `saved.restore` un-assigns the speculative metavariables,
   -- so instantiate `F` against them now (and reshare).
   let F ← instantiateMVarsS F
   trace[Elab.Tactic.Do.vcgen] "`@[frameproc]` matched {info.prog}; frame:{indentExpr F}"
   saved.restore
-  return .goals scope (← applyFrameRule goal info fp F)
+  return .goalsInScope scope (← applyFrameRule goal info fp F)
+
+/-- Rewrite a splitter on the entailment RHS (`relFn α inst pre _`) with the alt's discriminant
+evidence, reducing a jump site's `Pjp args` precondition to its alt component. -/
+private def tryRwSplitterRHS (goal : MVarId) (relFn α inst pre rhs : Expr) :
+    VCGenM (Option MVarId) := do
+  let some info ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? rhs | return none
+  for idx in [:info.altInfos.size] do
+    let res? ← liftMetaM <| try
+      some <$> Lean.Elab.Tactic.Do.rwIfOrMatcher idx rhs
+    catch _ => pure none
+    let some res := res? | continue
+    let some _ := res.proof? | continue
+    trace[Elab.Tactic.Do.vcgen] "rw-splitter-rhs: alt {idx} → {res.expr}"
+    let rhsTy ← liftMetaM <| Meta.inferType rhs
+    let motive ← liftMetaM <| Meta.withLocalDeclD `t rhsTy fun t =>
+      Meta.mkLambdaFVars #[t] (mkAppN relFn #[α, inst, pre, t])
+    let res' ← liftMetaM <| Lean.Meta.Simp.mkCongrArg motive res
+    let some eqProof' := res'.proof? | continue
+    -- Beta-reduce the `(fun t => pre ⊑ t) res.expr` redex so the emitted VC is the clean
+    -- `pre ⊑ ?Hᵢ_body[…]`.
+    let newTarget ← liftMetaM (Core.betaReduce res'.expr : CoreM _)
+    return some (← goal.replaceTargetEq newTarget eqProof')
+  return none
 
 /--
 The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.
@@ -515,12 +671,12 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"
 
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
-  if let some g ← consumeMData? goal target then return .goals scope [g]
-  if let some gs ← forallIntro? goal target then return .goals scope gs
-  if let some g ← targetLetIntro? goal target then return .goals scope [g]
-  if let some g ← tripleUnfold? goal target then return .goals scope [g]
-  if let some g ← bareWPToLe? goal target then return .goals scope [g]
-  if let some gs ← liftedHypBare? scope goal target then return .goals scope gs
+  if let some g ← consumeMData? goal target then return .goalsInScope scope [g]
+  if let some gs ← forallIntro? goal target then return .goalsInScope scope gs
+  if let some g ← targetLetIntro? goal target then return .goalsInScope scope [g]
+  if let some g ← tripleUnfold? goal target then return .goalsInScope scope [g]
+  if let some g ← bareWPToLe? goal target then return .goalsInScope scope [g]
+  if let some gs ← liftedHypBare? scope goal target then return .goalsInScope scope gs
 
   let_expr PartialOrder.rel α inst pre rhs := target
     | return .stop (.noEntailment target)
@@ -533,8 +689,8 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
 
   -- Phase 2: close reflexive goals, then drive `pre` toward `⊤`, lifting any pure content so a
   -- later spec application sees a `⊤` precondition.
-  if let some gs ← rfl? goal then return .goals scope gs
-  if let some (scope, gs) ← normalizePre? scope goal α pre target then return .goals scope gs
+  if let some gs ← rfl? goal then return .goalsInScope scope gs
+  if let some (scope, gs) ← normalizePre? scope goal α pre target then return .goalsInScope scope gs
 
   -- Collect new local specs before any strategy that may emit multiple subgoals
   -- (`wpMatch?`, `splitLatticeOp?`) or apply a registered spec (`applySpec`).
@@ -542,10 +698,10 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
 
   -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective or a
   -- forall, then discharge a residual entailment against the lifted hypothesis).
-  if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
-  if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
-  if let some gs ← splitForallLe? goal rhs then return .goals scope gs
-  if let some gs ← liftedHyp? scope goal α pre rhs then return .goals scope gs
+  if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goalsInScope scope [g]
+  if let some gs ← splitLatticeOp? goal rhs then return .goalsInScope scope gs
+  if let some gs ← splitForallLe? goal rhs then return .goalsInScope scope gs
+  if let some gs ← liftedHyp? scope goal α pre rhs then return .goalsInScope scope gs
 
   -- Phase 4: wp decomposition. The program-shape steps below all consume one unit of fuel
   -- (the `stepLimit` config option) when they make progress.
@@ -555,24 +711,31 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     if ← matchesUntilPattern info.prog then
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
-      return .goals scope [g]
+      return .goalsInScope scope [g]
+    if let some r ← tryJoinPointDef scope goal info then
+      VCGen.burnOne
+      return r
     if let some g ← wpLet? goal info then
       VCGen.burnOne
-      return .goals scope [g]
+      return .goalsInScope scope [g]
     if let some gs ← wpMatch? goal info then
       VCGen.burnOne
-      return .goals scope gs
-    if let some g ← wpFVarZeta? goal info then
+      return .goalsInScope scope gs
+    if let some g ← wpFVarZeta? scope goal info then
       VCGen.burnOne
-      return .goals scope [g]
+      return .goalsInScope scope [g]
     if let some g ← wpHeadReduce? goal info then
       VCGen.burnOne
-      return .goals scope [g]
+      return .goalsInScope scope [g]
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne
       return ← applyFrameOrSpec scope goal pre info
     throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
+
+  -- Reduce a jump site's `Pjp args` splitter precondition before classifying the goal as a VC.
+  if let some g ← tryRwSplitterRHS goal target.getAppFn α inst pre rhs then
+    return .goalsInScope scope [g]
 
   return .stop (.noProgress pre rhs)
 

@@ -466,6 +466,10 @@ structure SynthNormClosure where
   /-- The canonical value of each let-bound closure variable; `none` for the others. -/
   values          : Array (Option Expr)
   canonLocalInsts : LocalInstances
+  /-- Assigns each source universe parameter of the closure its canonical position. -/
+  lmap            : Std.HashMap Name Nat
+  /-- Canonical position to source universe parameter (inverse of `lmap`). -/
+  levelOrder      : Array Name
 
 /--
 `SynthNormClosure` memoized for the local instances it was computed from. The closure does not

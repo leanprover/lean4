@@ -12,6 +12,8 @@ public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Lean.Util.CollectLevelMVars
+import Lean.Util.CollectLevelParams
+import Lean.Util.ReplaceLevel
 import Init.While
 
 public section
@@ -984,12 +986,20 @@ namespace SynthNorm
 /-- Canonical positional free-variable identifier used in the normalized cache key. -/
 private def canonFVarId (i : Nat) : FVarId := ⟨.mkNum `_snf i⟩
 
+/-- Canonical positional universe-parameter name used in the normalized cache key. -/
+private def canonLevelParam (i : Nat) : Name := .mkNum `_snl i
+
 private structure State where
   /-- Assigns each source free variable its canonical position. Persistent, so that a memoized
   closure seeds a query's state in constant time. -/
   fmap  : PersistentHashMap FVarId Nat := {}
   /-- Canonical position to source free variable (inverse of `fmap`), for re-instantiation. -/
   order : Array FVarId := #[]
+  /-- Assigns each source universe parameter its canonical position (rigid, so a bijective renaming
+  like `fmap`). Seeded from the memoized closure. -/
+  lmap  : Std.HashMap Name Nat := {}
+  /-- Canonical position to source universe parameter (inverse of `lmap`), for re-instantiation. -/
+  levelOrder : Array Name := #[]
   /-- Canonical position to the (recursively normalized) type of that free variable. -/
   types : Array Expr := #[]
   /-- Canonical position to the normalized value of that free variable, if it is let-bound. -/
@@ -1009,6 +1019,27 @@ private structure State where
 
 private abbrev M := ReaderT LocalContext (StateT State MetaM)
 
+builtin_initialize synthParamNorm : Bool ←
+  return (← IO.getEnv "LEAN_NO_PARAM_NORM").isNone
+
+/-- Renames each universe parameter to a canonical positional name by first-occurrence order, so that
+queries differing only by a renaming of universe parameters coincide. Metavariables are left as they
+are. The `__wild__` output marker is left untouched. -/
+private partial def normLevel (u : Level) : M Level := do
+  match u with
+  | .succ v   => return u.updateSucc! (← normLevel v)
+  | .max a b  => return u.updateMax! (← normLevel a) (← normLevel b)
+  | .imax a b => return u.updateIMax! (← normLevel a) (← normLevel b)
+  | .param n  =>
+    if n == `__wild__ then return u
+    match (← get).lmap[n]? with
+    | some i => return mkLevelParam (canonLevelParam i)
+    | none   =>
+      let i := (← get).levelOrder.size
+      modify fun s => { s with lmap := s.lmap.insert n i, levelOrder := s.levelOrder.push n }
+      return mkLevelParam (canonLevelParam i)
+  | _ => return u
+
 /--
 Renames every free variable to a canonical positional identifier by first-occurrence order,
 recording and recursively normalizing each one's type, and its value if it is let-bound. Sets
@@ -1017,7 +1048,7 @@ context-free and so cannot be soundly normalized.
 -/
 private partial def normExpr (e : Expr) : M Expr := do
   if (← get).bail then return e
-  unless e.hasFVar do return e
+  unless e.hasFVar || (synthParamNorm && e.hasLevelParam) do return e
   match e with
   | .fvar id =>
     if let some i := (← get).fmap.find? id then
@@ -1072,6 +1103,8 @@ private partial def normExpr (e : Expr) : M Expr := do
       | .letE n t v b nd  => pure <| .letE n (← normExpr t) (← normExpr v) (← normExpr b) nd
       | .mdata m b        => pure <| .mdata m (← normExpr b)
       | .proj s i b       => pure <| .proj s i (← normExpr b)
+      | .const c us       => if synthParamNorm then pure <| .const c (← us.mapM normLevel) else pure e
+      | .sort u           => if synthParamNorm then pure <| .sort (← normLevel u) else pure e
       | e                 => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r
@@ -1084,6 +1117,9 @@ structure Context where
   fvarValues      : Array (Option Expr)
   fmap            : PersistentHashMap FVarId Nat
   order           : Array FVarId
+  /-- Source universe parameter by canonical position (`levelOrder[i]` is the parameter renamed to
+  `_snl.i` in the key); used to restore a reopened value's universes. -/
+  levelOrder      : Array Name
 
 /--
 Whether a memoized closure is still valid: every closure variable whose type mentions a
@@ -1114,10 +1150,28 @@ private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormC
   let closure? :=
     if st.bail then none
     else some { fmap := st.fmap, order := st.order, types := st.types, values := st.values,
-                canonLocalInsts }
+                canonLocalInsts, lmap := st.lmap, levelOrder := st.levelOrder }
   modifyCache fun c =>
     { c with synthNormClosure := some { localInsts, mvarTyped := st.mvarTyped, closure? } }
   return closure?
+
+/--
+Renames a cache value's source universe parameters to the canonical positions of `levelOrder`
+(matching the key), or `none` if it mentions a parameter outside `levelOrder` — reopen could not
+restore such a parameter, so the value is not context-free and must not be shared.
+-/
+private def canonValueParams? (levelOrder : Array Name) (e : Expr) : Option Expr := Id.run do
+  if levelOrder.isEmpty then return some e
+  unless e.hasLevelParam do return some e
+  let mut rev : Std.HashMap Name Nat := {}
+  for i in *...levelOrder.size do rev := rev.insert levelOrder[i]! i
+  let f? : Level → Option Level := fun
+    | .param n => (rev[n]?).map fun i => mkLevelParam (canonLevelParam i)
+    | _        => none
+  let e := e.replaceLevel f?
+  for n in (collectLevelParams {} e).params do
+    unless n == `__wild__ || (`_snl).isPrefixOf n do return none
+  return some e
 
 /--
 Computes the free-variable-normalized cache context for a `.noMVars` query, or `none` if it cannot
@@ -1130,13 +1184,14 @@ def normalizeContext? (cacheKeyType : Expr) (localInsts : LocalInstances) :
     MetaM (Option Context) := do
   let some closure ← getClosure? localInsts | return none
   let lctx ← getLCtx
-  -- Seed from the memoized closure; the query type may extend it with further free variables.
+  -- Seed from the memoized closure; the query type may extend it with further free variables and
+  -- universe parameters.
   let st0 : State := { fmap := closure.fmap, order := closure.order, types := closure.types,
-                       values := closure.values }
+                       values := closure.values, lmap := closure.lmap, levelOrder := closure.levelOrder }
   let (normType, st) ← (normExpr cacheKeyType).run lctx |>.run st0
   if st.bail then return none
   return some { normType, canonLocalInsts := closure.canonLocalInsts, fvarTypes := st.types,
-                fvarValues := st.values, fmap := st.fmap, order := st.order }
+                fvarValues := st.values, fmap := st.fmap, order := st.order, levelOrder := st.levelOrder }
 
 /--
 Abstracts the closure free variables of `e` into loose bound variables (positional, by the closure
@@ -1158,20 +1213,28 @@ def abstractOverClosure? (ctx : Context) (e : Expr) : Option Expr :=
 /-- Abstracts the free variables of a cache value, or `none` if the result escapes the closure. -/
 def abstractValue? (ctx : Context) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) :
     Option (Option AbstractMVarsResult × Option Expr) := do
+  let abstract (e : Expr) : Option Expr := do
+    canonValueParams? ctx.levelOrder (← abstractOverClosure? ctx e)
   let abstResult? ← match abstResult? with
     | none   => some none
-    | some a => (abstractOverClosure? ctx a.expr).map fun e => some { a with expr := e }
+    | some a => (abstract a.expr).map fun e => some { a with expr := e }
   let result? ← match result? with
     | none   => some none
-    | some r => (abstractOverClosure? ctx r).map some
+    | some r => (abstract r).map some
   some (abstResult?, result?)
 
 /--
 Re-instantiates a closure-abstracted value (see `abstractOverClosure?`) with the current context's
 closure free variables `order`.
 -/
-def reopen (order : Array FVarId) (e : Expr) : Expr :=
-  e.instantiateRev (order.map Expr.fvar)
+def reopen (order : Array FVarId) (levelOrder : Array Name) (e : Expr) : Expr :=
+  let e := e.instantiateRev (order.map Expr.fvar)
+  if levelOrder.isEmpty || !e.hasLevelParam then e
+  else
+    let f? : Level → Option Level := fun
+      | .param (.num pre i) => if pre == `_snl && i < levelOrder.size then some (mkLevelParam levelOrder[i]!) else none
+      | _                   => none
+    e.replaceLevel f?
 
 end SynthNorm
 
@@ -1256,7 +1319,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
       -- Re-instantiate the closure-abstracted result with the current context's free variables.
       let abstResult? := match normCtx? with
-        | some c => entry.result.map fun a => { a with expr := SynthNorm.reopen c.order a.expr }
+        | some c => entry.result.map fun a => { a with expr := SynthNorm.reopen c.order c.levelOrder a.expr }
         | none   => entry.result
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"

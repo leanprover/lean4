@@ -295,7 +295,7 @@ _register(VERSO_SLIDES)
 VERSO_TEMPLATES = ReleaseRepo(
     github=("leanprover", "verso-templates"),
     toolchain_file="basic-book/lean-toolchain",
-    rc1_pr_base="downstream",
+    rc1_pr_base="default",
     release_tag="lean",
     strong_deps=[VERSO, VERSO_SLIDES],
 )

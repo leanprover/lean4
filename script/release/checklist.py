@@ -750,22 +750,22 @@ class LeanChecker(RepoChecker):
 
         release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{self.version.stable}/"
 
-        message = ""
+        msg = ""
         if self.version.is_stable:
-            message += f"We have a new stable release of Lean, `{self.version.tag}`! "
+            msg += f"We have a new stable release of Lean, `{self.version.tag}`! "
         else:
-            message += f"We have a new release candidate of Lean, `{self.version.tag}`. "
-        message += f"See the [release notes]({release_notes_url}) for more information."
-        message += "\n\n"
-        message += "The usual repos are all available with the new toolchain "
-        message += f"at their respective `{self.version.tag}` tags "
-        message += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
-        message += "We encourage all projects downstream "
-        message += f"to update to `{self.version.tag}` when possible, and "
-        message += "to release their own corresponding toolchain tags after updating."
+            msg += f"We have a new release candidate of Lean, `{self.version.tag}`. "
+        msg += f"See the [release notes]({release_notes_url}) for more information."
+        msg += "\n\n"
+        msg += "The usual repos are all available with the new toolchain "
+        msg += f"at their respective `{self.version.tag}` tags "
+        msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+        msg += "We encourage all projects downstream "
+        msg += f"to update to `{self.version.tag}` when possible, and "
+        msg += "to release their own corresponding toolchain tags after updating."
 
         print()
-        print(e(message))
+        print(e(msg))
         print()
 
         if not self.prompt(f"Posted {what}?"):

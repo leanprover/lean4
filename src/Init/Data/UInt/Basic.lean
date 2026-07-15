@@ -190,6 +190,15 @@ def UInt8.toAsciiLower (b : UInt8) : UInt8 :=
   -- to generate slighly better assembly.
   b + ((decide (b - 65 < 26)).toUInt8 <<< 5)
 
+/--
+If `b` is the ASCII value of a lowercase character return the corresponding
+uppercase value, otherwise leave it untouched.
+-/
+@[inline]
+def UInt8.toAsciiUpper (b : UInt8) : UInt8 :=
+  -- See comment on `toAsciiLower` above.
+  b - ((decide (b - 97 < 26)).toUInt8 <<< 5)
+
 /-- Converts a `Fin UInt16.size` into the corresponding `UInt16`. -/
 @[inline] def UInt16.ofFin (a : Fin UInt16.size) : UInt16 := ⟨⟨a⟩⟩
 

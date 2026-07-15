@@ -207,12 +207,16 @@ private def getOptRotation (stx : Syntax) : Nat :=
   finally
     popScope
 
-@[builtin_tactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.set_option, builtin_incremental]
+def elabSetOption : Tactic := fun stx => do
   let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
   withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
-      evalTactic stx[5]
+      -- disable incrementality for `diagnostics` as reuse would skip counter accumulation in
+      -- reused steps and thus under-report in `reportDiag` below
+      Term.withoutTacticIncrementality (stx[1].getId == `diagnostics) do
+        Term.withNarrowedArgTacticReuse (argIdx := 5) evalTactic stx
     finally
       if stx[1].getId == `diagnostics then
         reportDiag

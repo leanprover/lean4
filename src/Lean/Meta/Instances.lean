@@ -77,15 +77,28 @@ structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
+  /--
+  Names of instances added with the `local` attribute kind into this state, in insertion order.
+  Local instances are delimited by their surrounding scope, which restores the previous
+  `Instances` state (and thereby the previous value of this field) when it is closed. The field
+  is part of the type class resolution cache key (`SynthInstanceCacheKey.localAttrInsts`), so
+  cache entries never leak into or out of scopes with local instances.
+  -/
+  localInstanceNames : Array Name := #[]
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
+  let d := if e.attrKind matches .local then
+    { d with localInstanceNames := d.localInstanceNames.push (e.globalName?.getD .anonymous) }
+  else
+    d
   match e.globalName? with
   | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
-  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
+  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName,
+           localInstanceNames := d.localInstanceNames.filter (· != declName) }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
@@ -100,6 +113,42 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
   }
+
+/--
+Persistent tier of the `synthInstance` result cache; see `Lean.Meta.SynthInstance`. It is stored
+in an environment extension so that it persists across commands; it is not stored in `.olean`
+files. It is registered in this module so that `addInstance` can invalidate it.
+
+Only *context-free* entries are stored here: keys without metavariables and closed results.
+Context-sensitive entries (whose validity depends on the ambient metavariable context) live in
+the transient `Meta.Cache.synthInstance` tier instead.
+
+The cache map is stored behind an `IO.Ref` (`none` only as an unreachable `Inhabited` fallback):
+cache *fills* mutate the ref and thus survive elaborator backtracking, like the `Meta.Cache`
+caches, which are deliberately not restored by `Meta.SavedState.restore` either. *Invalidation*
+replaces the ref, which is an environment modification and is thus correctly reverted when the
+environment is rolled back, e.g. when a speculatively added instance is discarded together with
+the cache entries that were computed with it.
+
+Note that environment values derived from the same environment share the ref and thus the cache;
+this is sound for context-free entries, but e.g. incremental reuse across edits may require
+replacing the ref explicitly in the future.
+-/
+builtin_initialize synthInstanceCacheExt : EnvExtension (Option (IO.Ref SynthInstanceCache)) ←
+  registerEnvExtension (some <$> IO.mkRef {}) (asyncMode := .local)  -- mere cache, keep local
+
+/--
+Resets the type class resolution cache by replacing its `IO.Ref`.
+
+The cache is reset automatically when an instance is added via `addInstance` or erased, and
+activation of scoped instances is accounted for in the cache key
+(`SynthInstanceCacheKey.activeScopedInsts`). Other changes that may affect typeclass resolution,
+e.g. closing a section containing local instances or changing the reducibility status of a
+pre-existing declaration, require calling this function explicitly.
+-/
+def resetSynthInstanceCache : CoreM Unit := do
+  let ref ← IO.mkRef {}
+  modify fun s => { s with env := synthInstanceCacheExt.setState s.env (some ref) }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
@@ -302,6 +351,7 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+  resetSynthInstanceCache
 
 /-
 Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
@@ -351,6 +401,7 @@ builtin_initialize
       let s := instanceExtension.getState (← getEnv)
       let s ← s.erase declName
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
+      resetSynthInstanceCache
   }
 
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=

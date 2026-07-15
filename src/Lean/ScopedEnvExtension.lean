@@ -208,6 +208,19 @@ def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β �
   | top :: _ => top.state
   | _        => unreachable!
 
+/--
+Returns the active scopes of `ext` that have scoped entries, in a canonical order. Activated
+namespaces without scoped entries for this extension are omitted, so the result only changes when
+the set of activated scoped entries may have changed.
+-/
+def ScopedEnvExtension.getActiveScopesWithEntries (ext : ScopedEnvExtension α β σ)
+    (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : Array Name :=
+  let s := ext.ext.getState (asyncMode := asyncMode) env
+  match s.stateStack with
+  | top :: _ => top.activeScopes.foldl (init := #[]) fun acc ns =>
+      if s.scopedEntries.map.contains ns then acc.push ns else acc
+  | _ => #[]
+
 def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with

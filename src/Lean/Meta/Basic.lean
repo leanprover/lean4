@@ -329,10 +329,67 @@ structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
   type              : Expr
   /--
-  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
-  See issue #2522.
+  For a normalized (`.noMVars`, fvar-typed) query, the canonical types of the free variables
+  referenced by `type`/`localInsts`, indexed by their canonical position (see the fvar
+  normalization in `SynthInstance.lean`). Free variables in `type` and `localInsts` are renamed
+  to positional canonical identifiers, so structurally identical queries in different local
+  contexts share a cache entry. Empty for non-normalized (raw) keys.
   -/
-  synthPendingDepth : Nat
+  normFVarTypes     : Array Expr := #[]
+  /--
+  For each closure position, the canonical value of that free variable if it is let-bound, and
+  `none` otherwise. A let-bound variable's value is visible to definitional unfolding, so contexts
+  that agree on the types but not the values are not interchangeable. Empty for raw keys.
+  -/
+  normFVarValues    : Array (Option Expr) := #[]
+  /--
+  Value of `synthPendingDepth` when the instance was synthesized or failed to be
+  synthesized, or `none` if the result can be reused at other depths.
+
+  `synthPendingDepth` can influence the result of a query because `synthPending` gives up
+  when `synthPendingDepth > maxSynthPendingDepth`, so a result may not be reused at a
+  different depth (see issue #2522). However, this is the *only* way the depth can influence
+  a query. Thus, if no `synthPending` invocation gave up while synthesizing an instance, the
+  result is valid at every depth at which the guard still cannot trigger, and is stored with
+  `synthPendingDepth := none` together with a validity bound in the cache entry (see
+  `SynthInstanceCacheEntry.relSynthPendingDepth`). Only results whose synthesis hit the
+  give-up threshold remain keyed by their exact depth.
+  -/
+  synthPendingDepth : Option Nat
+  /--
+  Namespaces with scoped instances that are currently activated (e.g. via `open`), in canonical
+  order. Keying the cache by this set keeps entries from outside a scope valid after the scope
+  ends, e.g. for the `open Classical in` expansion of `by_cases`.
+  -/
+  activeScopedInsts : Array Name
+  /--
+  Instances currently added with the `local` attribute kind (`Instances.localInstanceNames`).
+  Like `activeScopedInsts`, keying the cache by this set keeps entries from outside a scope
+  containing `attribute [local instance]` valid after the scope ends, and prevents entries
+  computed with the local instance from leaking out of the scope.
+  -/
+  localAttrInsts    : Array Name
+  /--
+  Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
+  The cache persists across commands, so results (in particular failures) obtained under a
+  different size limit must not be reused.
+  -/
+  maxResultSize     : Nat
+  /-- Value of `backward.synthInstance.canonInstances`. -/
+  canonInstances    : Bool
+  /--
+  Values of `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types`.
+  They control whether `isDefEq` bumps the transparency when assigning a metavariable, and hence
+  which of several definitionally equal terms an instance's implicit arguments are assigned. The
+  cache persists across commands, which may set them differently.
+  -/
+  respectTransparency      : Bool
+  respectTransparencyTypes : Bool
+  /--
+  Value of `Environment.isExporting`: in the exporting state, fewer definitions can be unfolded,
+  which can change the result of typeclass resolution.
+  -/
+  isExporting       : Bool
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -345,7 +402,20 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/-- Entry of the type class resolution cache. -/
+structure SynthInstanceCacheEntry where
+  /--
+  Maximum `synthPendingDepth` at which a `synthPending` decision was reached during the
+  synthesis, relative to the query's own `synthPendingDepth`, or `none` if no such decision
+  was reached. An entry stored under `synthPendingDepth := none` may be reused by a query at
+  depth `d` iff `relSynthPendingDepth` is `none` or `d + relSynthPendingDepth` does not
+  exceed `maxSynthPendingDepth`: under that bound no `synthPending` invocation can reach the
+  give-up threshold, so the synthesis behaves identically at depth `d`.
+  -/
+  relSynthPendingDepth : Option Nat := none
+  result               : Option AbstractMVarsResult
+
+abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey SynthInstanceCacheEntry
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -384,15 +454,74 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
+The free-variable normalization of a local instance context: the canonical position of every free
+variable reachable from the local instances (transitively via their types), that variable's
+recursively normalized type, and the local instances themselves over the canonical variables. See
+the normalization in `SynthInstance.lean`.
+-/
+structure SynthNormClosure where
+  fmap            : PersistentHashMap FVarId Nat
+  order           : Array FVarId
+  types           : Array Expr
+  /-- The canonical value of each let-bound closure variable; `none` for the others. -/
+  values          : Array (Option Expr)
+  canonLocalInsts : LocalInstances
+
+/--
+`SynthNormClosure` memoized for the local instances it was computed from. The closure does not
+depend on the query, so every type class query made under the same local instances shares it;
+recomputing it per query dominates the cost of building a cache key.
+-/
+structure SynthNormClosureMemo where
+  /-- The local instances the closure was computed for. -/
+  localInsts : LocalInstances
+  /--
+  The closure variables whose raw `LocalDecl` type or let-value mentions a metavariable, with the
+  instantiation the closure was built from (`true` = the value, `false` = the type). A `LocalDecl`
+  is immutable, so only these can change: a metavariable may be assigned, or an assignment reverted
+  by backtracking.
+  -/
+  mvarTyped : Array (FVarId × Bool × Expr)
+  /-- `none` if the local instance context cannot be soundly normalized. -/
+  closure? : Option SynthNormClosure
+
+/--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
+
+The `synthInstance` field is only the *transient* tier of the type class resolution cache: it
+holds context-sensitive entries (keys containing metavariables, or results with abstracted
+metavariables), whose validity is tied to the current elaboration context. Context-free entries
+are stored in an environment extension instead so that they persist across commands (see
+`synthInstanceCacheExt`).
 -/
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
+  /--
+  Typeclass queries whose resolution got stuck on a metavariable (`isDefEqStuck`). Such queries
+  are retried whenever the elaborator makes any progress (see `synthesizeSyntheticMVars`), so
+  memoizing stuckness lets the retries fail fast instead of re-running the search setup each
+  time. If the blocking metavariable is assigned in the meantime, the retried query has a
+  different (more instantiated) key and is not affected by the memoized entry.
+
+  Entries are recorded only when stuckness is a pure function of the key and the associated
+  fingerprint of assignable level metavariables; see `stuckMemoFingerprint?`.
+
+  Kept transient (per-`Meta.State`). It is a candidate for metavariable normalization: stuck
+  queries are metavariable-headed, so normalizing the blocking metavariables could let more
+  retries share a memoized entry.
+  -/
+  synthStuck     : PHashMap SynthInstanceCacheKey (Array LMVarId) := {}
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
+  /--
+  One-slot memo for the free-variable normalization of the local instance context; see
+  `SynthNormClosureMemo`. One slot suffices because the local instances change rarely relative to
+  the number of type class queries made under them.
+  -/
+  synthNormClosure : Option SynthNormClosureMemo := none
   deriving Inhabited
 
 /--
@@ -461,6 +590,17 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 }
 
 /--
+Accumulated `synthPending` decisions of a type class query, used by the type class
+resolution cache to bound the `synthPendingDepth` values at which the result may be reused.
+See `SynthInstanceCacheEntry.relSynthPendingDepth`.
+-/
+structure SynthPendingActivity where
+  /-- Maximum `synthPendingDepth` at which a `synthPending` decision was reached. -/
+  maxDepth : Option Nat := none
+  /-- Whether some `synthPending` invocation gave up because of `maxSynthPendingDepth`. -/
+  guardHit : Bool       := false
+
+/--
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
@@ -500,6 +640,15 @@ structure Context where
     Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
+  /--
+  When set, the reference accumulates the `synthPending` decisions reached during the
+  current type class query, i.e. behavior that may depend on `synthPendingDepth`. The type
+  class resolution cache uses this to decide at which depths a result may be reused; see
+  `SynthInstanceCacheKey.synthPendingDepth` and `SynthInstanceCacheEntry.relSynthPendingDepth`.
+  The reference is intentionally not part of the backtrackable state: a `synthPending`
+  invocation in a discarded search branch still influenced the search outcome.
+  -/
+  synthPendingActivityRef? : Option (IO.Ref SynthPendingActivity) := none
   /--
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
@@ -653,13 +802,13 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6, c7⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6, c7⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm, c7⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm, c7⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }
@@ -676,9 +825,6 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
-
-@[inline] def resetSynthInstanceCache : MetaM Unit :=
-  modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then

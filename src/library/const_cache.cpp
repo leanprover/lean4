@@ -24,6 +24,12 @@ entry would have to be leaked (it may still be read concurrently), and colliding
 then leak one entry per alternation, without bound. Instead, a miss inserts into the first empty
 slot of the window, or not at all if the window is full. This bounds the cache's memory by the
 table size at the cost of recomputing lookups that lose all slots of their window.
+
+The table is sized to the import set (see `lean_imported_consts_cache_reserve`): with more distinct
+names than slots, sweep-style workloads (e.g. per-declaration linting at mathlib scale) displace
+each other's entries and degrade every lookup to a full tree walk. Growth publishes a fresh table
+via an atomic pointer; old tables are leaked as concurrent readers may still probe them, with total
+leakage below the final table's size thanks to geometric growth.
 */
 
 extern "C" void lean_mark_persistent_unshared(lean_object * o);
@@ -38,19 +44,30 @@ struct entry {
     lean_object * m_val;
 };
 
-constexpr size_t num_slots = 1 << 18;
+constexpr size_t initial_num_slots = 1 << 18;
+constexpr size_t max_num_slots = 1 << 26;
 constexpr size_t probe_window = 8;
-std::atomic<entry *> g_slots[num_slots];
+
+struct table {
+    // power of two
+    size_t m_num_slots;
+    std::atomic<entry *> * m_slots;
+};
+
+std::atomic<entry *> g_initial_slots[initial_num_slots];
+table g_initial_table = { initial_num_slots, g_initial_slots };
+std::atomic<table *> g_table{&g_initial_table};
 }
 
 static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
         lean_object * (*core)(lean_obj_arg, lean_obj_arg)) {
+    table * t = g_table.load(std::memory_order_acquire);
     uint64_t h = lean_name_hash(n) ^ (reinterpret_cast<uintptr_t>(root) >> 4);
-    size_t slot = static_cast<size_t>(h) & (num_slots - 1);
-    size_t empty = num_slots;
+    size_t slot = static_cast<size_t>(h) & (t->m_num_slots - 1);
+    size_t empty = t->m_num_slots;
     for (size_t i = 0; i < probe_window; i++) {
-        size_t s = (slot + i) & (num_slots - 1);
-        entry * e = g_slots[s].load(std::memory_order_acquire);
+        size_t s = (slot + i) & (t->m_num_slots - 1);
+        entry * e = t->m_slots[s].load(std::memory_order_acquire);
         if (!e) {
             empty = s;
             // entries are only inserted at the window's first empty slot, so stop searching
@@ -64,7 +81,7 @@ static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
     }
     lean_inc(root); lean_inc(n);
     lean_object * r = core(root, n);
-    if (empty == num_slots)
+    if (empty == t->m_num_slots)
         return r;
     // The value is handed to and `inc`ed by arbitrary reader threads; marking it persistent keeps
     // hits free of atomic RC and of coherence traffic on hot values. The unshared variant only
@@ -75,7 +92,8 @@ static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
     lean_inc(n);
     entry * ne = new entry{root, n, r};
     entry * expected = nullptr;
-    if (!g_slots[empty].compare_exchange_strong(expected, ne, std::memory_order_release,
+    // if the table was swapped concurrently, this inserts into the old table and is merely lost
+    if (!t->m_slots[empty].compare_exchange_strong(expected, ne, std::memory_order_release,
             std::memory_order_relaxed)) {
         // lost an insertion race; drop the new entry rather than probing on
         lean_dec(root); lean_dec(n);
@@ -94,10 +112,28 @@ extern "C" LEAN_EXPORT lean_obj_res lean_imported_extra_consts_find_entry_cached
     return find_cached(root, n, lean_imported_extra_consts_find_entry_core);
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_cache_reserve(size_t num_names, lean_object * /* w */) {
+    size_t target = initial_num_slots;
+    while (target < max_num_slots && target < 2 * num_names)
+        target *= 2;
+    table * cur = g_table.load(std::memory_order_acquire);
+    while (target > cur->m_num_slots) {
+        table * nt = new table{target, new std::atomic<entry *>[target]()};
+        if (g_table.compare_exchange_strong(cur, nt, std::memory_order_release,
+                std::memory_order_acquire))
+            break;
+        // `cur` was reloaded; retry against the concurrently published table
+        delete[] nt->m_slots;
+        delete nt;
+    }
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_cache_reset(lean_object * /* w */) {
-    for (size_t i = 0; i < num_slots; i++) {
+    table * t = g_table.load(std::memory_order_acquire);
+    for (size_t i = 0; i < t->m_num_slots; i++) {
         // entries (and their pins) are leaked: concurrent readers may still dereference them
-        g_slots[i].store(nullptr, std::memory_order_release);
+        t->m_slots[i].store(nullptr, std::memory_order_release);
     }
     return lean_io_result_mk_ok(lean_box(0));
 }

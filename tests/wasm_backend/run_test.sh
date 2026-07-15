@@ -1,10 +1,13 @@
 source_init "$1"
 
-if [[ "$1" == "ui_abi.lean" ]]; then
-  mkdir -p _tmp_ui_abi
-  trap 'rm -f _tmp_ui_abi/UiAbi.ir _tmp_ui_abi/UiAbi.ir.sig _tmp_ui_abi/UiAbi.olean _tmp_ui_abi/UiAbi.ilean _tmp_ui_abi/UiAbi.olean.private _tmp_ui_abi/UiAbi.olean.server; rmdir _tmp_ui_abi 2>/dev/null || true' EXIT
-  lean -o _tmp_ui_abi/UiAbi.olean UiAbi.lean || fail "Failed to compile UI ABI module"
-  capture_only "$1" env LEAN_PATH="_tmp_ui_abi:${LEAN_PATH-}" lean "$1"
+if [[ "$1" == "ui_abi.lean" || "$1" == "persistent_tree.lean" ]]; then
+  module_dir="_tmp_${1%.lean}_module"
+  mkdir -p "$module_dir"
+  trap 'rm -f "$module_dir"/*; rmdir "$module_dir" 2>/dev/null || true' EXIT
+  module="UiAbi"
+  [[ "$1" == "persistent_tree.lean" ]] && module="PersistentTree"
+  lean -o "$module_dir/$module.olean" "$module.lean" || fail "Failed to compile $module module"
+  capture_only "$1" env LEAN_PATH="$module_dir:${LEAN_PATH-}" lean "$1"
   check_out_file
   exit 0
 fi

@@ -40,22 +40,27 @@ const boot = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
 if (boot.count === 0 || boot.overflowed) throw new Error("invalid boot effect batch");
 if (boot.recordsPtr + boot.count * boot.recordSize > memory.buffer.byteLength) throw new Error("effect batch OOB");
 
-model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.intro, 0, 0) >>> 0;
+const setInput = (text) => {
+  const bytes = new TextEncoder().encode(text);
+  const ptr = instance.exports.lean_ui_event_ptr() >>> 0;
+  new Uint8Array(memory.buffer, ptr, bytes.length).set(bytes);
+  model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.input, ptr, bytes.length) >>> 0;
+};
+
+setInput("4");
+model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + 4 * 16, 0, 0) >>> 0;
 const click = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
 if (click.count === 0 || click.overflowed) throw new Error("invalid click effect batch");
 
-for (let demo = 1; demo < 10; demo++) {
-  model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.selectBase + demo, 0, 0) >>> 0;
-  for (let action = 0; action < 3; action++) {
-    model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + demo * 16 + action, 0, 0) >>> 0;
-  }
-  const batch = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
-  if (batch.count === 0 || batch.overflowed) throw new Error(`invalid demo ${demo} batch`);
-}
+setInput("12");
+model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + 4 * 16, 0, 0) >>> 0;
+model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.selectBase + 1, 0, 0) >>> 0;
 
-const payload = new TextEncoder().encode("λ n => n");
+const payload = new TextEncoder().encode("6");
 const payloadPtr = instance.exports.lean_ui_event_ptr() >>> 0;
 new Uint8Array(memory.buffer, payloadPtr, payload.length).set(payload);
 model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.input, payloadPtr, payload.length) >>> 0;
-model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.tick, 0, 0) >>> 0;
-console.log(`boot=${boot.count} click=${click.count} demos=10 payload=${payload.length} model=${model}`);
+model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + 4 * 16, 0, 0) >>> 0;
+const branch = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
+if (branch.count === 0 || branch.overflowed) throw new Error("invalid branch effect batch");
+console.log(`boot=${boot.count} insert=${click.count} branch=${branch.count} payload=${payload.length} model=${model}`);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lean/WASM UI laboratory</title>
+  <title>Lean/WASM persistent tree laboratory</title>
   <style>
     :root {
       font-family: "Iosevka", "JetBrains Mono", ui-monospace, monospace;
@@ -16,7 +16,7 @@
       --muted: #8b9bb4;
       --danger: #f7768e;
     }
-    body { max-width: 44rem; margin: 1.5rem auto; padding: 0 1rem; line-height: 1.45; }
+    body { max-width: 64rem; margin: 1.5rem auto; padding: 0 1rem; line-height: 1.45; }
     h1 { font-size: 1.2rem; font-weight: 600; color: #fff; }
     p { color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.95rem; }
     a { color: var(--accent); }
@@ -95,15 +95,28 @@
     .payload-bar { display: flex; gap: 0.5rem; margin: 0.8rem 0; }
     .payload-bar input { flex: 1; color: white; background: #111923; border: 1px solid var(--border);
       border-radius: 6px; padding: 0.55rem 0.7rem; font: inherit; }
+    .version-strip { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.65rem 0; }
+    .version-pill { font: 0.8rem system-ui, sans-serif; color: var(--muted); background: #111923;
+      border: 1px solid var(--border); border-radius: 999px; padding: 0.35rem 0.65rem; cursor: pointer; }
+    .version-pill.active { color: white; border-color: var(--accent); background: #20304a; }
+    .tree-stage { min-height: 20rem; overflow: auto; display: grid; place-items: start center;
+      padding: 1.25rem 0.5rem; border: 1px solid var(--border); border-radius: 8px; background: #0d141e; }
+    .tree-branch { display: grid; justify-items: center; gap: 0.65rem; min-width: 5rem; }
+    .tree-children { display: flex; align-items: start; justify-content: center; gap: 1rem; }
+    .tree-node { min-width: 3.4rem; text-align: center; padding: 0.4rem 0.55rem; }
+    .tree-empty { color: #3c4655; min-width: 2rem; text-align: center; }
+    .legend { display: flex; gap: 1rem; margin-top: 0.8rem; color: var(--muted); font: 0.78rem system-ui, sans-serif; }
+    .legend-shared::before { content: "● "; color: var(--green); }
+    .legend-fresh::before { content: "● "; color: #e0af68; }
   </style>
 </head>
 <body>
-  <h1>Lean/WASM UI laboratory</h1>
+  <h1>Lean/WASM persistent tree laboratory</h1>
   <p>
-    Ten interactive demos rendered by one Lean fiber reconciler through a typed linear-memory
-    effect batch. DOM handlers use numeric IDs; the term editor below exercises UTF-8 payload events.
+    Insert keys into an immutable binary-search tree, select an older version, and branch from it.
+    Stable node IDs make structural sharing and path copying visible through the Lean reconciler.
   </p>
-  <div class="payload-bar"><input id="demo-input" value="λ x => x" aria-label="Term payload" /></div>
+  <div class="payload-bar"><input id="demo-input" value="6" inputmode="numeric" aria-label="Tree key" /></div>
   <p>
     <a href="./">scalar demo</a> ·
     <a href="./core_rt.html">core RT</a>

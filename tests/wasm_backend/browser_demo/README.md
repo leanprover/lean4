@@ -42,21 +42,13 @@ The UI crosses the JS/WASM boundary once per frame through a fixed-layout effect
 memory. `../UiAbi.lean` is the canonical opcode and handler contract;
 `generate_ui_abi.py` emits the JavaScript constants and decoder plus TypeScript declarations.
 
-The UI laboratory contains ten routed demos backed by the same Lean model and reconciler:
-
-1. proof-state playground;
-2. interactive lambda-term evaluator with UTF-8 input payloads;
-3. keyed counter and reconciliation laboratory;
-4. timer-driven cellular automaton canvas;
-5. persistent data-structure sharing visualizer;
-6. constraint propagation grid;
-7. deterministic distributed state-machine simulator;
-8. theorem-driven logic dungeon;
-9. canvas waveform viewer;
-10. live UI ABI explorer.
+The UI laboratory focuses on one persistent binary-search-tree application. Inserting a key creates
+an immutable version by path copying. Selecting any earlier version before inserting creates a
+branch, while stable node IDs and keyed elements show which subtrees are shared with the parent.
+The pure model in `../PersistentTree.lean` separately tests version branching and node identity.
 
 `build_ui.sh` validates the linked module and runs `ui_abi_smoke.mjs`, which boots the application,
-selects and acts on all ten routes, sends a non-ASCII payload, and dispatches a timer tick.
+inserts two keys, selects an earlier root, inserts a third key, and validates each effect batch.
 
 ## What this is (and is not)
 

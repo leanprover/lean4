@@ -257,14 +257,8 @@ async function main() {
   nodes.set(0, appEl);
   model = exp.lean_ui_boot(0) >>> 0;
   let stats = applyEffects(exp, mem);
-  const requestedDemo = Number(new URLSearchParams(location.search).get("demo"));
-  if (Number.isInteger(requestedDemo) && requestedDemo >= 0 && requestedDemo < 10) {
-    model = exp.lean_ui_dispatch(model, UI_ABI.handler.selectBase + requestedDemo, 0, 0) >>> 0;
-    stats = applyEffects(exp, mem);
-  }
   setStatus(
-    `Booted. ${nGoals(model)} goal(s). effects=${stats.count}. ` +
-      `Use tactics or click a hypothesis to exact.`
+    `Booted persistent tree. effects=${stats.count}. Select any version to branch from it.`
   );
 }
 
@@ -276,7 +270,3 @@ main().catch((e) => {
 document.getElementById("demo-input")?.addEventListener("input", (event) => {
   dispatchEvent(UI_ABI.handler.input, event.currentTarget.value);
 });
-
-setInterval(() => {
-  if (exp && document.visibilityState === "visible") dispatchEvent(UI_ABI.handler.tick);
-}, 750);

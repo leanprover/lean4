@@ -106,6 +106,25 @@ LEAN_EXPORT lean_object * lean_ui_u32_to_string(uint32_t value) {
     return lean_mk_string(buffer);
 }
 
+LEAN_EXPORT uint32_t lean_ui_string_is_u32(b_lean_obj_arg value) {
+    char const * cursor = lean_string_cstr(value);
+    if (!*cursor) return 0;
+    uint64_t parsed = 0;
+    for (; *cursor; ++cursor) {
+        if (*cursor < '0' || *cursor > '9') return 0;
+        parsed = parsed * 10 + static_cast<uint32_t>(*cursor - '0');
+        if (parsed > UINT32_MAX) return 0;
+    }
+    return 1;
+}
+
+LEAN_EXPORT uint32_t lean_ui_string_to_u32(b_lean_obj_arg value) {
+    uint32_t parsed = 0;
+    for (char const * cursor = lean_string_cstr(value); *cursor; ++cursor)
+        parsed = parsed * 10 + static_cast<uint32_t>(*cursor - '0');
+    return parsed;
+}
+
 LEAN_EXPORT lean_object * lean_ui_load_fiber(uint32_t) {
     if (!fiber) return lean_box(0);
     lean_inc(fiber);

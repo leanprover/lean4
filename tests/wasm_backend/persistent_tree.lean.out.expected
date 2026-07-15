@@ -1,0 +1,5 @@
+versions=4 selected=3 parent=(some 1)
+sizes=1,2,3,3
+shared-left=true
+branch-shared-right=true
+fresh-roots=true

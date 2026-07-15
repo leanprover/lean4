@@ -2,6 +2,7 @@ module
 
 import Lean
 import UiAbi
+public import PersistentTree
 
 /-!
 Fiber UI demo using a typed effect batch and numeric handler IDs.
@@ -165,12 +166,13 @@ public structure Model where
   goals : Array Goal := #[]
   history : Array (Array Goal) := #[]
   msg : String := ""
-  demo : UInt32 := 0
+  demo : UInt32 := 4
   value : UInt32 := 0
   aux : UInt32 := 0
   running : Bool := false
   tick : UInt32 := 0
-  input : String := "λ x => x"
+  input : String := "6"
+  tree : PersistentTree.Model := PersistentTree.initial
 
 instance : Inhabited Model where
   default := { goals := #[], history := #[], msg := "" }
@@ -178,7 +180,10 @@ instance : Inhabited Model where
 def Model.initial : Model :=
   { goals := #[{ hyps := #[], target := .imp (.atom 0) (.imp (.atom 1) (.and_ (.atom 0) (.atom 1))) }]
     history := #[]
-    msg := "Prove: P → Q → P ∧ Q" }
+    msg := "Insert a key or select an older version to branch from it."
+    demo := 4
+    input := "6"
+    tree := PersistentTree.initial }
 
 public inductive Event where
   | intro | constructor | cases | exact (i : UInt32) | undo | reset
@@ -202,7 +207,7 @@ def Event.ofHandlerId (id : UInt32) : Option Event :=
   else if id == UiAbi.Handler.reset then some .reset
   else if id >= UiAbi.Handler.exactBase && id < UiAbi.Handler.exactBase + 8 then
     some (.exact (id - UiAbi.Handler.exactBase))
-  else if id >= UiAbi.Handler.selectBase && id < UiAbi.Handler.selectBase + 10 then
+  else if id >= UiAbi.Handler.selectBase && id < UiAbi.Handler.selectBase + 64 then
     some (.select (id - UiAbi.Handler.selectBase))
   else if id >= UiAbi.Handler.actionBase && id < UiAbi.Handler.actionBase + 160 then
     let n := id - UiAbi.Handler.actionBase
@@ -304,6 +309,12 @@ opaque stringFromUtf8 : UInt32 → UInt32 → String
 
 @[extern "lean_ui_u32_to_string", never_extract]
 opaque u32Text : UInt32 → String
+
+@[extern "lean_ui_string_is_u32", never_extract]
+opaque isU32Text : @& String → UInt32
+
+@[extern "lean_ui_string_to_u32", never_extract]
+opaque u32OfText : @& String → UInt32
 
 @[extern "lean_ui_load_fiber", never_extract]
 opaque loadFiberRaw : UInt32 → Option Fiber
@@ -456,7 +467,8 @@ def update (m : Model) (payload : String) : Event → Model
   | .exact i => tacExact m i
   | .undo => tacUndo m
   | .reset => tacReset m
-  | .select demo => { m with demo, msg := "demo selected", value := 0, aux := 0, running := false, tick := 0 }
+  | .select version =>
+    { m with tree := PersistentTree.select m.tree version, msg := "Selected an earlier root; the next insert creates a branch." }
   | .action demo action =>
     if demo != m.demo then m
     else match demo with
@@ -469,9 +481,17 @@ def update (m : Model) (payload : String) : Event → Model
       | 3 => if action == 0 then { m with running := !m.running, msg := "toggle simulation" }
         else if action == 1 then { m with value := m.value + 1, msg := "single generation" }
         else { m with value := 0, running := false, msg := "clear grid" }
-      | 4 => if action == 0 then { m with value := m.value + 1, msg := "insert node" }
-        else if action == 1 then { m with aux := m.aux + 1, msg := "fork version" }
-        else { m with value := if m.value == 0 then 0 else m.value - 1, msg := "previous root" }
+      | 4 =>
+        if action == 0 then
+          let input := m.input
+          if isU32Text input == 0 then { m with msg := "Enter an integer from 0 through 4294967295." }
+          else
+            let tree := PersistentTree.insert m.tree (u32OfText input)
+            if tree.versions.size == m.tree.versions.size then { m with msg := "That key already exists in this version." }
+            else { m with tree, msg := "Inserted a key with path copying; untouched subtrees retain their node IDs." }
+        else if action == 2 then
+          { m with tree := PersistentTree.initial, input := "6", msg := "Reset to version 0." }
+        else m
       | 5 => if action == 0 then { m with value := min 9 (m.value + 1), msg := "propagate" }
         else if action == 1 then { m with aux := m.aux + 1, msg := "guess branch" }
         else { m with value := if m.value == 0 then 0 else m.value - 1, msg := "backtrack" }
@@ -558,109 +578,52 @@ def viewProof (m : Model) : Element :=
     </div>
   </div>)
 
-def demoNames : Array String := #[
-  "Proof playground", "Term evaluator", "Counter laboratory", "Cellular automaton",
-  "Persistent structures", "Constraint solver", "State-machine simulator",
-  "Proof game", "Waveform viewer", "ABI explorer"
-]
-
-def demoDescriptions : Array String := #[
-  "Apply tactics to P → Q → P ∧ Q and inspect keyed proof-state reconciliation.",
-  "Step and rewind a tiny λ-term while editing its UTF-8 source payload.",
-  "Compare keyed updates while watching the model counter and frame ticks.",
-  "Run a canvas-backed cellular system driven by a host timer subscription.",
-  "Walk immutable tree versions and visualize structural sharing.",
-  "Step propagation and backtracking in a compact constraint grid.",
-  "Advance a deterministic distributed protocol with message delivery rounds.",
-  "Explore a logic dungeon where verified actions unlock the next room.",
-  "Pan through a canvas waveform and advance its event cursor.",
-  "Inspect effect record sizes, handler IDs, batches, and host ticks."
-]
-
 def demoAction (demo action : UInt32) : UInt32 := UiAbi.Handler.action demo action
 
-def demoTabs (active : UInt32) : Array Element :=
-  arrayMapIdx demoNames fun i name =>
-    let id := i.toUInt32
-    let cls := if id == active then "demo-tab active" else "demo-tab"
-    (<button key={id} class={cls} on={UiAbi.Handler.select id}>{Element.label name}</button>)
+partial def treeContainsId (wanted : UInt32) : PersistentTree.Tree → Bool
+  | .empty => false
+  | .node id _ left right => id == wanted || treeContainsId wanted left || treeContainsId wanted right
 
-def metric (label value : String) : Element :=
-  (<div class="metric"><span class="metric-label">{Element.label label}</span>
-    <span class="metric-value">{Element.label value}</span></div>)
-
-def demoVisualization (m : Model) : Element :=
-  match m.demo with
-  | 1 => (<div class="term-tree">
-      <div class="term-node">{Element.label ("source: " ++ m.input)}</div>
-      <div class="term-arrow">{Element.label ("reduction step " ++ u32Text m.value)}</div>
-      <div class="term-node result">{Element.label (if m.value % 2 == 0 then "λ x => x" else "normal form: identity")}</div>
+partial def viewTree (sharedWith : Option PersistentTree.Tree) : PersistentTree.Tree → Element
+  | .empty => (<div class="tree-empty">{Element.label "·"}</div>)
+  | .node id key left right =>
+    let shared := sharedWith.any (treeContainsId id)
+    let cls := if shared then "tree-node shared" else "tree-node fresh"
+    (<div key={id} class="tree-branch">
+      <div class={cls}>{Element.label (u32Text key ++ "  #" ++ u32Text id)}</div>
+      <div class="tree-children">{#[viewTree sharedWith left, viewTree sharedWith right]}</div>
     </div>)
-  | 2 => (<div class="counter-grid">{#[metric "counter" (u32Text m.value),
-      metric "instances" (u32Text (m.value + 1)),
-      metric "reconciliation" (if m.aux == 0 then "positional" else "keyed") ]}</div>)
-  | 3 => (<canvas class="demo-canvas automaton" />)
-  | 4 => (<div class="tree-viz">
-      <div class="tree-node root-node">{Element.label ("root v" ++ u32Text m.aux)}</div>
-      <div class="tree-level">{#[
-        (<span class="tree-node shared">{Element.label "shared left"}</span>),
-        (<span class="tree-node fresh">{Element.label ("inserted nodes " ++ u32Text m.value)}</span>)]}</div>
-    </div>)
-  | 5 => (<div class="constraint-grid">{arrayMapIdx #["1", "·", "3", "·", "2", "·", "4", "·", "1"] fun i x =>
-      let solved := i < m.value.toNat
-      (<span key={i.toUInt32} class={if solved then "constraint-cell solved" else "constraint-cell"}>
-        {Element.label (if solved then u32Text ((i.toUInt32 % 4) + 1) else x)}</span>)}</div>)
-  | 6 => (<div class="raft-viz">{#[
-      (<div class={if m.running then "raft-node leader partitioned" else "raft-node leader"}>
-        {Element.label ("leader · log " ++ u32Text m.value)}</div>),
-      (<div class="message-flight">{Element.label ("append entries → round " ++ u32Text m.tick)}</div>),
-      (<div class="raft-node">{Element.label ("followers alive: " ++ u32Text (2 - min 2 m.aux))}</div>)]}</div>)
-  | 7 => (<div class="dungeon"><div class="room unlocked">{Element.label "axiom hall"}</div>
-      <div class="door">{Element.label (if m.aux > 1 then "✓ theorem gate open" else "🔒 prove 2 lemmas")}</div>
-      <div class="room">{Element.label "induction tower"}</div></div>)
-  | 8 => (<canvas class="demo-canvas waveform" />)
-  | 9 => (<div class="abi-grid">{#[metric "batch header" "32 bytes", metric "effect record" "32 bytes",
-      metric "handler" (u32Text (demoAction m.demo 0)), metric "synthetic effects" (u32Text m.value),
-      metric "payload bytes" (u32Text m.aux), metric "malformed" (if m.running then "armed" else "off")]}</div>)
-  | _ => (<div class="demo-placeholder">{Element.label "Select a control to advance this model."}</div>)
 
-def demoControlLabels (demo : UInt32) : String × String × String :=
-  match demo with
-  | 1 => ("β-reduce", "normalize", "rewind")
-  | 2 => ("add counter", "toggle keys", "clear")
-  | 3 => ("run / pause", "single generation", "clear grid")
-  | 4 => ("insert", "fork version", "previous root")
-  | 5 => ("propagate", "guess", "backtrack")
-  | 6 => ("deliver message", "partition", "crash follower")
-  | 7 => ("move east", "prove lemma", "restart")
-  | 8 => ("pan right", "zoom in", "next edge")
-  | 9 => ("emit effect", "grow payload", "malform batch")
-  | _ => ("step", "rewind", "reset")
+def parentTree? (m : PersistentTree.Model) : Option PersistentTree.Tree :=
+  match (PersistentTree.selectedVersion m).parent with
+  | none => none
+  | some parentId => (m.versions.find? fun v => v.id == parentId).map (·.root)
 
-def demoControls (demo : UInt32) : Element :=
-  let (a, b, c) := demoControlLabels demo
-  (<div class="tactics">
-    <button class="tac" on={demoAction demo 0}>{Element.label a}</button>
-    <button class="tac" on={demoAction demo 1}>{Element.label b}</button>
-    <button class="tac tac-reset" on={demoAction demo 2}>{Element.label c}</button>
-  </div>)
-
-def viewDemo (m : Model) : Element :=
-  let idx := m.demo.toNat
-  let title := if h : idx < demoNames.size then demoNames[idx] else "Demo"
-  let description := if h : idx < demoDescriptions.size then demoDescriptions[idx] else ""
-  (<div class="root demo-root">
-    <div class="title">{Element.label title}</div>
-    <div class="msg">{Element.label description}</div>
-    <div class="demo-stage">{demoVisualization m}</div>
-    {demoControls m.demo}
-    <div class="hint">{Element.label ("value=" ++ u32Text m.value ++ " · tick=" ++ u32Text m.tick)}</div>
-  </div>)
+def versionTabs (m : PersistentTree.Model) : Array Element :=
+  arrayMapIdx m.versions fun i version =>
+    let idx := i.toUInt32
+    let cls := if idx == m.selected then "version-pill active" else "version-pill"
+    let parent := match version.parent with | some p => " ← v" ++ u32Text p | none => ""
+    (<button key={version.id} class={cls} on={UiAbi.Handler.select idx}>
+      {Element.label ("v" ++ u32Text version.id ++ parent)}
+    </button>)
 
 def view (m : Model) : Element :=
-  (<div class="showcase-shell">
-    <div class="demo-tabs">{demoTabs m.demo}</div>
-    {if m.demo == 0 then viewProof m else viewDemo m}
+  let version := PersistentTree.selectedVersion m.tree
+  (<div class="root tree-lab">
+    <div class="title">{Element.label "Persistent tree laboratory"}</div>
+    <div class="msg">{Element.label m.msg}</div>
+    <div class="version-strip">{versionTabs m.tree}</div>
+    <div class="tree-stage">{viewTree (parentTree? m.tree) version.root}</div>
+    <div class="tactics">
+      <button class="tac" on={demoAction 4 0}>{Element.label ("insert " ++ m.input)}</button>
+      <button class="tac tac-reset" on={demoAction 4 2}>{Element.label "reset"}</button>
+    </div>
+    <div class="legend">{#[
+      (<span class="legend-shared">{Element.label "green = shared with parent version"}</span>),
+      (<span class="legend-fresh">{Element.label "gold = path-copied for this version"}</span>)]}</div>
+    <div class="hint">{Element.label ("version v" ++ u32Text version.id ++ " · " ++
+      u32Text (PersistentTree.size version.root).toUInt32 ++ " nodes · select an older version before inserting to branch")}</div>
   </div>)
 
 /-! ### Reconciler -/

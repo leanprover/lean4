@@ -291,56 +291,65 @@ class DownstreamChecker(RepoChecker):
             self._bump_toolchain_unicode_basic()
             return
 
-        # Normally:
+        # Normally; also RC1, rc1_pr_base == "default":
         # 1. Create bump branch from origin/main
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to origin
-        # 4. Create PR to origin/main
+        # 2. Create bump commit
+        # 3. Push branch to origin (or nightly, if specified)
+        # 4. Create bump PR to origin/main
 
-        # Nightly:
-        # 1. Create bump branch from origin/main
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to nightly
-        # 4. Create PR to origin/main
+        # RC1, rc1_pr_base == "bump":
+        # 1. Create bump branch from origin/bump/v* (or nightly/bump/v*, if specified)
+        # 2. Create bump commit
+        # 3. Push branch to origin (or nightly, if specified)
+        # 4. Create bump PR to origin/main
 
-        # Normally, with RC1 and bump branch:
-        # 1. Switch to origin/bump/v*
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to origin
-        # 4. Create PR to origin/main
+        # RC1, rc1_pr_base == "downstream":
+        # 1. Create bump branch in downstream-lean4, based off of downstream's origin/master
+        #   1.1. Fetch that branch into the local repo, so the remaining steps stay normal
+        # 2. Create bump commit
+        # 3. Push branch to origin (or nightly, if specified)
+        # 4. Create bump PR to origin/main
 
-        # Nightly, with RC1 and bump branch:
-        # 1. Switch to nightly/bump/v*
-        # 2. Edit files 'n stuff and commit
-        # 3. Push branch to nightly
-        # 4. Create PR to origin/main
-
+        # Determine bump PR info
         base = self.grepo.default_branch
         head = f"bump-to-{self.version}"
-        nightly = None
-
-        use_bump_branch = self.rrepo.bump_branch and self.version.rc == 1
-        if use_bump_branch:
+        if self.version.rc == 1 and self.rrepo.rc1_pr_base == "bump":
             head = util.get_bump_branch(self.version)
-            nightly = self.rrepo.nightly
-
         title = util.get_toolchain_bump_message(self.version)
+
+        # If a bump PR already exists, we don't have to do any actual work.
         if self.check_pr(base=base, head=head, title=title):
             return
 
-        self.lrepo.prepare(nightly=nightly)
-        if use_bump_branch:
-            self.lrepo.switch(head, remote="nightly" if nightly else "origin")
+        # Get the head branch into self.lrepo from whatever rc1 or non-rc1 source is appropriate
+        self.lrepo.prepare(nightly=self.rrepo.nightly)
+        if self.version.rc == 1 and self.rrepo.rc1_pr_base == "bump":
+            # `head` has already been set to the bump branch name earlier
+            remote = "nightly" if self.rrepo.nightly else "origin"
+            self.lrepo.switch(head, remote=remote)
+        elif self.version.rc == 1 and self.rrepo.rc1_pr_base == "downstream":
+            dsl = repos.DOWNSTREAM_LEAN4.local
+            dsl.prepare()
+            dsl.switch("master")
+            dsl.run(
+                *("python", ".downstream/split.py", ".", self.rrepo.gh_name, head),
+                *("-m", "chore: adaptations from downstream-lean4"),
+            )
+            # See also LocalRepo.prepare and LocalRepo.switch
+            self.lrepo.git("fetch", "--force", dsl.path, head)
+            self.lrepo.git("switch", "-C", head, "FETCH_HEAD")
         else:
             self.lrepo.create_branch(head)
 
+        # Create bump commit
         self._bump_toolchain_in_worktree()
         self.lrepo.commit(title)
 
-        self.create_pr(base=base, head=head, title=title, nightly=nightly)
+        # Create bump PR
+        self.create_pr(base=base, head=head, title=title, nightly=self.rrepo.nightly)
 
     def check_next_bump_branch(self) -> None:
-        if not self.rrepo.bump_branch:
+        if self.rrepo.rc1_pr_base != "bump":
             return
 
         grepo = self.grepo

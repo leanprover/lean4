@@ -274,6 +274,13 @@ structure UnifyM.Context where
   pattern   : Pattern
   unify     : Bool := true
   zetaDelta : Bool := true
+  /--
+  `mvarCounter` at the start of the match/unify operation. Metavariables with
+  `decl.index ≥ mvarCounterSaved` were created by this operation (for uncovered pattern
+  variables and instances); metavariables with a smaller index occur in the target term
+  and must be treated as opaque atoms when `unify := false`.
+  -/
+  mvarCounterSaved : Nat := 0
 
 structure UnifyM.State where
   eAssignment  : Array (Option Expr)   := #[]
@@ -1108,8 +1115,17 @@ def processPendingExpr (mvarsToCheckType : Array MVarId) : UnifyM Bool := do
   let args := (← get).args
   let unify := (← read).unify
   let zetaDelta := (← read).zetaDelta
+  -- **Note**: An arg can also be a metavariable *occurring in the target term* (bound to a
+  -- pattern variable). Those must not be assignable: assignments made here are discarded by
+  -- `withNewMCtxDepth` at `Theorem.rewrite`, and a match depending on them would be bogus.
+  -- Only metavariables created by this match (index ≥ `mvarCounterSaved`) are assignable.
+  let mvarCounterSaved := (← read).mvarCounterSaved
+  let mctx ← getMCtx
   let mvarsNew := if unify then #[] else args.filterMap fun
-    | .mvar mvarId => some mvarId
+    | .mvar mvarId =>
+      match mctx.findDecl? mvarId with
+      | some decl => if decl.index ≥ mvarCounterSaved then some mvarId else none
+      | none => none
     | _ => none
   DefEqM.run unify zetaDelta mvarsNew mvarsToCheckType do
     for (t, s) in ePending do
@@ -1128,7 +1144,8 @@ def processPending (mvarsToCheckType : Array MVarId) : UnifyM Bool := do
 abbrev UnifyM.run (pattern : Pattern) (unify : Bool) (zetaDelta : Bool) (k : UnifyM α) : SymM α := do
   let eAssignment := pattern.varTypes.map fun _ => none
   let uAssignment := pattern.levelParams.toArray.map fun _ => none
-  k { unify, zetaDelta, pattern } |>.run' { eAssignment, uAssignment }
+  let mvarCounterSaved := (← getMCtx).mvarCounter
+  k { unify, zetaDelta, pattern, mvarCounterSaved } |>.run' { eAssignment, uAssignment }
 
 public structure MatchUnifyResult where
   us : List Level
@@ -1164,8 +1181,10 @@ Returns `some result` if matching succeeds, where `result` contains:
 - `us`: Level assignments for the pattern's universe variables
 - `args`: Expression assignments for the pattern's bound variables
 
+Unassigned metavariables in `e` are treated as opaque atoms: a pattern variable can be
+bound to one, but it is never assigned. Use `unify?` to solve for metavariables in `e`.
+
 Matching fails if:
-- The term contains metavariables (use `unify?` instead)
 - Structural mismatch after reducible unfolding
 
 Instance arguments are synthesized (or assigned by unification). Any that cannot be resolved are

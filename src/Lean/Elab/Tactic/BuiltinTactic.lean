@@ -72,7 +72,9 @@ where
     -- compare (trimmed) `tac` for `finished`/`next` reuse, focus on remainder of script
     Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0].unsetTrailing, mkNullNode stx.getArgs[1...*])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
-        | do evalTactic tac; goOdd stxs
+        -- NOTE: make sure to use `untrimmedTac` in this non-incremental case since there is no
+        -- reuse opportunity anyway and we skip the whitespace save below
+        | do evalTactic untrimmedTac; goOdd stxs
       let mut reusableResult? := none
       let mut oldNext? := none
       if let some old := snap.old? then

@@ -125,6 +125,30 @@ theorem EPost.Cons.head_bot {eh : Type u} {et : Type v}
   have h : (⊥ : EPost.Cons eh et) ⊑ EPost.Cons.mk (⊥ : eh) (⊥ : et) := bot_le _
   exact EPost.Cons.le_head h
 
+/-- `mk` of the componentwise meets is below the meet. -/
+private theorem EPost.Cons.mk_meet_le {eh : Type u} {et : Type v}
+    [CompleteLattice eh] [CompleteLattice et] (p q : EPost.Cons eh et) :
+    EPost.Cons.mk (p.head ⊓ q.head) (p.tail ⊓ q.tail) ⊑ p ⊓ q :=
+  le_meet _ _ _
+    (EPost.Cons.mk_le _ _ _ (meet_le_left _ _) (meet_le_left _ _))
+    (EPost.Cons.mk_le _ _ _ (meet_le_right _ _) (meet_le_right _ _))
+
+/-- The head component of a meet is the meet of the head components. -/
+@[simp] theorem EPost.Cons.head_meet {eh : Type u} {et : Type v}
+    [CompleteLattice eh] [CompleteLattice et] (p q : EPost.Cons eh et) :
+    (p ⊓ q).head = p.head ⊓ q.head :=
+  PartialOrder.rel_antisymm
+    (le_meet _ _ _ (EPost.Cons.le_head (meet_le_left _ _)) (EPost.Cons.le_head (meet_le_right _ _)))
+    (EPost.Cons.le_head (EPost.Cons.mk_meet_le p q))
+
+/-- The tail component of a meet is the meet of the tail components. -/
+@[simp] theorem EPost.Cons.tail_meet {eh : Type u} {et : Type v}
+    [CompleteLattice eh] [CompleteLattice et] (p q : EPost.Cons eh et) :
+    (p ⊓ q).tail = p.tail ⊓ q.tail :=
+  PartialOrder.rel_antisymm
+    (le_meet _ _ _ (EPost.Cons.le_tail (meet_le_left _ _)) (EPost.Cons.le_tail (meet_le_right _ _)))
+    (EPost.Cons.le_tail (EPost.Cons.mk_meet_le p q))
+
 /-!
 ## Notation
 

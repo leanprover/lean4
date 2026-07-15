@@ -78,8 +78,8 @@ theorem WP.Frames.of_wp_conjunctive {Prog : Type u} {Value : Type v} {Pred : Typ
   intro Q E
   refine PartialOrder.rel_trans (y := wp x (fun _ => F) E ⊓ wp x Q E) ?_ ?_
   · exact le_meet _ _ _ (PartialOrder.rel_trans (meet_le_left _ _) (h E)) (meet_le_right _ _)
-  · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le x (fun _ => F) Q E)
-      (WP.wp_consequence _ _ _ _ ?_)
+  · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le x (fun _ => F) Q E E)
+      (WP.wp_consequence_econs _ _ _ _ _ ?_ (meet_le_left _ _))
     intro a
     simp only [meet_apply]
     exact PartialOrder.rel_refl

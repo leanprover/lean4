@@ -108,15 +108,11 @@ Runs before the precondition lift so a spec handoff `pre ⊑ specPre` closes by 
 than an assumption search. The pattern matcher keeps synthetic-opaque invariant holes rigid, so
 `⊤ ⊑ ?inv args` is left untouched. -/
 private def rfl? (goal : MVarId) : VCGenM (Option (List MVarId)) := do
-  -- Reflexivity is best-effort: the unifier can throw on an un-decomposed program-head `let` (e.g. a
-  -- chained `__do_jp`); treat that as "not reflexive here" and let `wp` decomposition handle it.
-  let saved ← Meta.saveState
-  let res ← try
-      (← read).backwardRules.refl.apply goal
-    catch _ =>
-      saved.restore
-      return none
-  let .goals gs := res | return none
+  -- Reflexivity is best-effort: the unifier throws on an un-decomposed program-head `let` (e.g. a
+  -- chained `__do_jp`) rather than reporting "not equal". A throw leaves `goal` unassigned, so
+  -- treat it as "not reflexive here" and let `wp` decomposition handle the `let`.
+  let .goals gs ← try (← read).backwardRules.refl.apply goal catch _ => return none
+    | return none
   trace[Elab.Tactic.Do.vcgen] "Solved by rfl {goal}"
   return some gs
 
@@ -297,7 +293,7 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let (bodyTy, hypsMVars) ← liftMetaM <|
     Meta.forallBoundedTelescope joinTy numJoinParams fun joinParams _ => do
       let hypsMVarsRef ← IO.mkRef (#[] : Array MVarId)
-      let pjpBody ← sinfo.splitWith Pred (useSplitter := true)
+      let pjpBody ← sinfo.splitWith Pred (useSplitter := false)
           fun _name _expAltType _idx altFVars => do
         let allBinders := joinParams ++ altFVars.all
         let mvarTy ← Meta.mkForallFVars allBinders Pred

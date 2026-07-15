@@ -135,12 +135,27 @@ class DownstreamChecker(RepoChecker):
     def _bump_toolchain_mathlib4(self) -> None:
         self._bump_toolchain(self.lrepo.path)
 
-        # For rc1 PRs
-        util.edit(
-            self.lrepo.path / "lakefile.lean",
-            r' @ git "nightly-testing"',
-            f' @ git "{self.version}"',
-        )
+        if self.version.rc == 1:
+            lakefile = self.lrepo.path / "lakefile.lean"
+            util.edit(
+                lakefile,
+                '"batteries" @ git "nightly-testing"',
+                '"batteries" @ git "main"',
+            )
+            util.edit(lakefile, '"Qq" @ git "nightly-testing"', '"Qq" @ git "master"')
+            util.edit(
+                lakefile, '"aesop" @ git "nightly-testing"', '"aesop" @ git "master"'
+            )
+            util.edit(
+                lakefile,
+                '"proofwidgets" @ git "nightly-testing"',
+                '"proofwidgets" @ git "main"',
+            )
+            util.edit(
+                lakefile,
+                '"plausible" @ git "nightly-testing"',
+                '"plausible" @ git "main"',
+            )
 
         self._bump_toolchain_deps(self.lrepo.path)
 

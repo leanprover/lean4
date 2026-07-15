@@ -25,7 +25,8 @@ public structure Model where
   nextVersionId : UInt32
   deriving Inhabited
 
-private def insertTree (key nextId : UInt32) : Tree → Tree × UInt32 × Bool
+private def insertTree (key nextId : UInt32) (tree : @& Tree) : Tree × UInt32 × Bool :=
+  match tree with
   | .empty => (.node nextId key .empty .empty, nextId + 1, true)
   | old@(.node _ oldKey left right) =>
     if key == oldKey then (old, nextId, false)
@@ -47,11 +48,22 @@ public def selectedVersion (m : @& Model) : Version :=
 public def select (m : @& Model) (index : UInt32) : Model :=
   if index.toNat < m.versions.size then { m with selected := index } else m
 
+private def contains (key : UInt32) (tree : @& Tree) : Bool :=
+  match tree with
+  | .empty => false
+  | .node _ oldKey left right =>
+    if key == oldKey then true else if key < oldKey then contains key left else contains key right
+
+public def hasKey (m : @& Model) (key : UInt32) : Bool :=
+  contains key (selectedVersion m).root
+
 public def insert (m : @& Model) (key : UInt32) : Model :=
   let base := selectedVersion m
-  let (root, nextNodeId, changed) := insertTree key m.nextNodeId base.root
-  if !changed then m
+  if hasKey m key then
+    { versions := m.versions, selected := m.selected, nextNodeId := m.nextNodeId,
+      nextVersionId := m.nextVersionId }
   else
+    let (root, nextNodeId, _) := insertTree key m.nextNodeId base.root
     let version : Version :=
       { id := m.nextVersionId, parent := some base.id, inserted := some key, root }
     { versions := m.versions.push version

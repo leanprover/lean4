@@ -3,3 +3,4 @@ sizes=1,2,3,3
 shared-left=true
 branch-shared-right=true
 fresh-roots=true
+duplicate-unchanged=true

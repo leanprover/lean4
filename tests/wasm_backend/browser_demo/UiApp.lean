@@ -486,9 +486,11 @@ def update (m : Model) (payload : String) : Event → Model
           let input := m.input
           if isU32Text input == 0 then { m with msg := "Enter an integer from 0 through 4294967295." }
           else
-            let tree := PersistentTree.insert m.tree (u32OfText input)
-            if tree.versions.size == m.tree.versions.size then { m with msg := "That key already exists in this version." }
-            else { m with tree, msg := "Inserted a key with path copying; untouched subtrees retain their node IDs." }
+            let key := u32OfText input
+            if PersistentTree.hasKey m.tree key then { m with msg := "That key already exists in this version." }
+            else
+              let tree := PersistentTree.insert m.tree key
+              { m with tree, msg := "Inserted a key with path copying; untouched subtrees retain their node IDs." }
         else if action == 2 then
           { m with tree := PersistentTree.initial, input := "6", msg := "Reset to version 0." }
         else m

@@ -51,6 +51,9 @@ setInput("4");
 model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + 4 * 16, 0, 0) >>> 0;
 const click = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
 if (click.count === 0 || click.overflowed) throw new Error("invalid click effect batch");
+model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + 4 * 16, 0, 0) >>> 0;
+const duplicate = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
+if (duplicate.overflowed) throw new Error("invalid duplicate effect batch");
 
 setInput("12");
 model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + 4 * 16, 0, 0) >>> 0;
@@ -63,4 +66,4 @@ model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.input, payloadPt
 model = instance.exports.lean_ui_dispatch(model, UI_ABI.handler.actionBase + 4 * 16, 0, 0) >>> 0;
 const branch = readUiBatch(memory, instance.exports.lean_ui_batch(0) >>> 0);
 if (branch.count === 0 || branch.overflowed) throw new Error("invalid branch effect batch");
-console.log(`boot=${boot.count} insert=${click.count} branch=${branch.count} payload=${payload.length} model=${model}`);
+console.log(`boot=${boot.count} insert=${click.count} duplicate=${duplicate.count} branch=${branch.count} payload=${payload.length} model=${model}`);

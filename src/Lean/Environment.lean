@@ -254,11 +254,6 @@ structure Environment where
   -/
   importedExtraConsts     : ImportedConsts Unit := .empty
   /--
-  Mapping from imported constant name (including `importedExtraConsts`) to its module index,
-  forced on first use; see `Environment.const2ModIdx`.
-  -/
-  const2ModIdxThunk       : Thunk (Std.HashMap Name ModuleIdx) := .pure {}
-  /--
   Environment extensions. It also includes user-defined extensions.
   -/
   private extensions      : Array EnvExtensionState
@@ -1256,7 +1251,7 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   -- async constants are always from the current module
   env.base.get env |>.getModuleIdxFor? declName
 
-/-- Computes `Kernel.Environment.const2ModIdxThunk`'s value; see `Environment.const2ModIdx`. -/
+/-- Computes `Environment.const2ModIdx`'s value. -/
 private def mkConst2ModIdx (consts : ImportedConsts ConstantInfo) (extras : ImportedConsts Unit) :
     Std.HashMap Name ModuleIdx := Id.run do
   let mut m : Std.HashMap Name ModuleIdx ←
@@ -1266,13 +1261,40 @@ private def mkConst2ModIdx (consts : ImportedConsts ConstantInfo) (extras : Impo
     m.insertIfNew n modIdx
 
 /--
+Memoizes `Environment.const2ModIdx` per import set, keyed by the identity of the imported-constants
+view. Memoizing in a global instead of a `Thunk` in the environment keeps the map out of compacted
+environments such as `--incr-header-save` snapshots, where compaction would force the thunk. Only
+the most recent generations are retained so that old import sets can be freed.
+-/
+private builtin_initialize const2ModIdxCacheRef :
+    IO.Ref (List (ImportedConsts ConstantInfo × Std.HashMap Name ModuleIdx)) ← IO.mkRef []
+
+@[noinline] private unsafe def const2ModIdxMemoUnsafe
+    (consts : ImportedConsts ConstantInfo) (mk : Thunk (Std.HashMap Name ModuleIdx)) :
+    Std.HashMap Name ModuleIdx := unsafeBaseIO do
+  for (root, m) in (← const2ModIdxCacheRef.get) do
+    if ptrEq root consts then
+      return m
+  let m := mk.get
+  const2ModIdxCacheRef.modify fun cached =>
+    if cached.any (ptrEq ·.1 consts) then cached else (consts, m) :: cached.take 3
+  return m
+
+@[implemented_by const2ModIdxMemoUnsafe]
+private def const2ModIdxMemo (consts : ImportedConsts ConstantInfo)
+    (mk : Thunk (Std.HashMap Name ModuleIdx)) : Std.HashMap Name ModuleIdx :=
+  mk.get
+
+/--
 The mapping from imported constant name to the index of the module declaring it, including
-auxiliary code-generator constants. The mapping is computed on first use by walking all imported
-constants, so callers that only need single lookups should prefer `getModuleIdxFor?`, and iteration
-is usually better served by `env.header.moduleData`.
+auxiliary code-generator constants. The mapping is computed on first use per import set by walking
+all imported constants, so callers that only need single lookups should prefer `getModuleIdxFor?`,
+and iteration is usually better served by `env.header.moduleData`.
 -/
 def const2ModIdx (env : Environment) : Std.HashMap Name ModuleIdx :=
-  (env.base.get env).const2ModIdxThunk.get
+  let base := env.base.get env
+  const2ModIdxMemo base.allImportedConsts
+    ⟨fun _ => mkConst2ModIdx base.allImportedConsts base.importedExtraConsts⟩
 
 def isImportedConst (env : Environment) (declName : Name) : Bool :=
   env.getModuleIdxFor? declName |>.isSome
@@ -1284,6 +1306,17 @@ def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
   match env.findAsync? declName with
   | some { kind := .defn, constInfo, .. } => (constInfo.get matches .defnInfo { safety := .safe, .. })
   | _ => false
+
+/--
+Forces lazily merged parts of the imported views; see `ImportedConsts.forceExpanded`. Intended for
+environments about to be compacted, e.g. by `--incr-header-save`.
+-/
+public def forceLazyImportedViews (env : Environment) : Environment :=
+  let kenv := env.checked.get
+  let extras := kenv.importedExtraConsts.forceExpanded
+  let env := env.setCheckedSync { kenv with importedExtraConsts := extras }
+  -- `base.public` shares the same view object; substitute the same forced tree there
+  { env with base.public := { env.base.public with importedExtraConsts := extras } }
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
   env.header.moduleName2Idx[moduleName]?
@@ -2453,7 +2486,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     constants := { map₁ := privImported }
     allImportedConsts := privImported
     importedExtraConsts
-    const2ModIdxThunk := ⟨fun _ => Environment.mkConst2ModIdx privImported importedExtraConsts⟩
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
     extensions      := exts
     irBaseExts      := exts

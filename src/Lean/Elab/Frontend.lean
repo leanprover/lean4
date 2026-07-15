@@ -357,6 +357,8 @@ def runFrontend
     let moduleArts := regionsToModuleArtifacts env.header.regions
     IO.FS.writeFile (incrFile.addExtension "deps") (toJson moduleArts).compress
     Runtime.forget compactor
+    -- The run ends after persisting, so cached lookups will not be useful anymore.
+    ImportedConsts.resetCache
 
   -- save full incremental snapshot for next invocation
   if let some incrFile := incrSaveFileName? then

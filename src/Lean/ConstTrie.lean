@@ -368,6 +368,14 @@ public def findExtraModIdxCached? (t : ImportedConsts Unit) (n : Name) : Option 
   | some (_, modIdx) => some modIdx
   | none             => none
 
+/--
+Empties the process-global lookup cache, e.g. after persisting the environment when the cache
+contents are not expected to be useful anymore. Entries are leaked, as concurrent readers may still
+hold them; clearing merely reopens their slots.
+-/
+@[extern "lean_imported_consts_cache_reset"]
+public opaque resetCache : IO Unit
+
 public def find? (t : ImportedConsts α) (n : Name) : Option α :=
   let path := prefixesOf n
   t.findValAux path path.size
@@ -503,6 +511,18 @@ where
       match findHashIdx? hs cs key n with
       | some i => .merged k e? (cs.modify i f) hs
       | none   => .merged k e? cs hs
+
+/--
+Recursively forces all lazily merged nodes into `merged` nodes. Compacting an environment, such
+as for `--incr-header-save`, forces the thunks anyway; doing so eagerly instead avoids running
+merges in the middle of compaction and compacting the thunk wrappers themselves.
+-/
+public partial def forceExpanded : ImportedConsts α → ImportedConsts α
+  | .lazy k cands expanded =>
+    let (cs, hs) := expanded.get
+    .merged k (candsEntry? cands) (cs.map forceExpanded) hs
+  | .merged k e? cs hs => .merged k e? (cs.map forceExpanded) hs
+  | t                  => t
 
 /-- Overwrites the entry for `n`, which must be a `Duplicate`-reported name. -/
 public def setEntry (t : ImportedConsts α) (n : Name) (e : α × Nat) : ImportedConsts α :=

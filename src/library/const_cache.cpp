@@ -93,4 +93,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_find_entry_cached(b_lea
 extern "C" LEAN_EXPORT lean_obj_res lean_imported_extra_consts_find_entry_cached(b_lean_obj_arg root, b_lean_obj_arg n) {
     return find_cached(root, n, lean_imported_extra_consts_find_entry_core);
 }
+
+extern "C" LEAN_EXPORT lean_obj_res lean_imported_consts_cache_reset(lean_object * /* w */) {
+    for (size_t i = 0; i < num_slots; i++) {
+        // entries (and their pins) are leaked: concurrent readers may still dereference them
+        g_slots[i].store(nullptr, std::memory_order_release);
+    }
+    return lean_io_result_mk_ok(lean_box(0));
+}
 }

@@ -340,9 +340,9 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .coreToInt a b toIntThm lhs rhs =>
     let h := mkApp toIntThm (← mkEqProof a b)
     return mkApp6 (mkConst ``Int.Internal.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
-  | .defn e p =>
+  | .defn e e' =>
     let x ← getVarOf e
-    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def) (← getContext) (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
+    return mkApp6 (mkConst ``Int.Internal.Linear.eq_def_struct) (← getContext) (← mkVarDecl x) (← mkExprDecl e') (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
   | .defnNat h x e =>
     return mkApp6 (mkConst ``Int.Internal.Linear.eq_def') (← getContext) (← mkVarDecl x) (← mkExprDecl e) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .norm c =>
@@ -367,11 +367,11 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.eq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
-  | .defnCommRing e p re rp p' =>
+  | .defnCommRing e e' p re rp p' =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     let x ← getVarOf e
-    return mkApp8 (mkConst ``Int.Internal.Linear.eq_def_norm) (← getContext)
-      (← mkVarDecl x) (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
+    return mkApp9 (mkConst ``Int.Internal.Linear.eq_def_struct_norm) (← getContext)
+      (← mkVarDecl x) (← mkExprDecl e') (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
       eagerReflBoolTrue (← mkEqRefl e) h
   | .defnNatCommRing h₁ x e' p re rp p' =>
     let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue

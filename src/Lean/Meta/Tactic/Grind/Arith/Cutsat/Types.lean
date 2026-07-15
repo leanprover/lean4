@@ -83,8 +83,8 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
-  | /-- `e` is `p` -/
-    defn (e : Expr) (p : Poly)
+  | /-- `e` is `e'` -/
+    defn (e : Expr) (e' : Int.Internal.Linear.Expr)
   | defnNat (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
@@ -94,7 +94,7 @@ inductive EqCnstrProof where
     ofZeroDvd (c : DvdCnstr)
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
-  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnCommRing (e : Expr) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
   | /--

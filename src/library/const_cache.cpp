@@ -26,6 +26,7 @@ slot of the window, or not at all if the window is full. This bounds the cache's
 table size at the cost of recomputing lookups that lose all slots of their window.
 */
 
+extern "C" void lean_mark_persistent_unshared(lean_object * o);
 extern "C" lean_object * lean_imported_consts_find_entry_core(lean_obj_arg root, lean_obj_arg n);
 extern "C" lean_object * lean_imported_extra_consts_find_entry_core(lean_obj_arg root, lean_obj_arg n);
 
@@ -65,9 +66,10 @@ static lean_obj_res find_cached(b_lean_obj_arg root, b_lean_obj_arg n,
     lean_object * r = core(root, n);
     if (empty == num_slots)
         return r;
-    // the value is handed to and `inc`ed by arbitrary reader threads; its fresh nodes are still
-    // single-threaded here, so marking is race-free
-    lean_mark_mt(r);
+    // The value is handed to and `inc`ed by arbitrary reader threads; marking it persistent keeps
+    // hits free of atomic RC and of coherence traffic on hot values. The unshared variant only
+    // writes thread-owned counts, so it is race-free where plain `lean_mark_persistent` is not.
+    lean_mark_persistent_unshared(r);
     // pin root and key; hits only compare them, so they need no special marking
     lean_inc(root);
     lean_inc(n);

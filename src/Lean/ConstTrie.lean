@@ -209,6 +209,8 @@ public def ofNames (names : Array Name) : ConstTrie Unit := Id.run do
 
 end ConstTrie
 
+-- `Thunk` fields have no `sizeOf` theorems
+set_option genSizeOfSpec false in
 /--
 Merged view of the per-module constant prefix trees of all imported modules. Node keys and lookup
 work like in `ConstTrie`; subtrees whose prefix occurs in only a single module are borrowed
@@ -223,6 +225,15 @@ public inductive ImportedConsts (α : Type) where
   -/
   | merged (key : Name) (entry? : Option (α × Nat)) (children : Array (ImportedConsts α))
       (childIndex : ByteArray)
+  /--
+  Like `merged`, but with the children computed on first descent from the candidate subtrees
+  sharing the prefix, one level at a time. Thunk forcing is thread-safe and supported on
+  persistent objects, so lazy nodes are safe to share across elaboration threads. Used for views
+  whose `Duplicate`s nobody consumes; entry lookups at the prefix itself answer directly from
+  `cands` without forcing.
+  -/
+  | lazy (key : Name) (cands : Array (Nat × ConstTrie α))
+      (expanded : Thunk (Array (ImportedConsts α) × ByteArray))
 
 public instance : Inhabited (ImportedConsts α) := ⟨.merged .anonymous none #[] .empty⟩
 
@@ -233,15 +244,31 @@ public def empty : ImportedConsts α := .merged .anonymous none #[] .empty
 def key : ImportedConsts α → Name
   | .mod _ t     => t.key
   | .merged k .. => k
+  | .lazy k ..   => k
 
 /-- Creates a `merged` node, computing the child index; `children` must be sorted by key hash. -/
 public def mkMerged (key : Name) (entry? : Option (α × Nat))
     (children : Array (ImportedConsts α)) : ImportedConsts α :=
   .merged key entry? children (buildChildIndex children ImportedConsts.key)
 
+/-- The entry of the prefix shared by `cands`: the first candidate value, with its module. -/
+private def candsEntry? (cands : Array (Nat × ConstTrie α)) : Option (α × Nat) := Id.run do
+  for (i, t) in cands do
+    if let some v := t.val? then
+      return some (v, i)
+  return none
+
 /-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
 private partial def findValAux : ImportedConsts α → Array Name → Nat → Option α
   | .mod _ tr, path, i => tr.findAux path i
+  | .lazy _ cands expanded, path, i =>
+    if i == 0 then
+      (candsEntry? cands).map (·.1)
+    else
+      let (cs, hs) := expanded.get
+      match findHashIdx? hs cs key path[i - 1]! with
+      | some j => findValAux cs[j]! path (i - 1)
+      | none   => none
   | .merged _ e? cs hs, path, i =>
     if i == 0 then
       match e? with
@@ -257,6 +284,14 @@ private partial def findModIdxAux : ImportedConsts α → Array Name → Nat →
     match tr.findAux path i with
     | some _ => some modIdx
     | none   => none
+  | .lazy _ cands expanded, path, i =>
+    if i == 0 then
+      (candsEntry? cands).map (·.2)
+    else
+      let (cs, hs) := expanded.get
+      match findHashIdx? hs cs key path[i - 1]! with
+      | some j => findModIdxAux cs[j]! path (i - 1)
+      | none   => none
   | .merged _ e? cs hs, path, i =>
     if i == 0 then
       match e? with
@@ -272,6 +307,14 @@ private partial def findEntryAux : ImportedConsts α → Array Name → Nat → 
     match tr.findAux path i with
     | some v => some (v, modIdx)
     | none   => none
+  | .lazy _ cands expanded, path, i =>
+    if i == 0 then
+      candsEntry? cands
+    else
+      let (cs, hs) := expanded.get
+      match findHashIdx? hs cs key path[i - 1]! with
+      | some j => findEntryAux cs[j]! path (i - 1)
+      | none   => none
   | .merged _ e? cs hs, path, i =>
     if i == 0 then
       e?
@@ -392,6 +435,55 @@ public def mergeModuleTrees (trees : Array (Nat × ConstTrie α)) :
     ImportedConsts α × Array (Duplicate α) :=
   mergeCands .anonymous trees |>.run #[]
 
+/-- `mergeCands` without duplicate reporting, producing lazily expanded nodes. -/
+private partial def mergeLazy (key : Name) (cands : Array (Nat × ConstTrie α)) :
+    ImportedConsts α :=
+  if cands.size == 1 then
+    let (i, t) := cands[0]!
+    .mod i t
+  else
+    .lazy key cands (Thunk.mk fun _ => expandLazy cands)
+where
+  expandLazy (cands : Array (Nat × ConstTrie α)) :
+      Array (ImportedConsts α) × ByteArray := Id.run do
+    let mut total := 0
+    for (_, t) in cands do
+      total := total + t.children.size
+    let mut all : Array (UInt64 × Nat × ConstTrie α) := .mkEmpty total
+    for (i, t) in cands do
+      for c in t.children do
+        all := all.push (c.key.hash, i, c)
+    let sorted := all.qsort fun (h₁, i₁, _) (h₂, i₂, _) => h₁ < h₂ || (h₁ == h₂ && i₁ < i₂)
+    let mut children := #[]
+    let mut idx := 0
+    while idx < sorted.size do
+      let (hash₀, i, c) := sorted[idx]!
+      idx := idx + 1
+      if idx == sorted.size || sorted[idx]!.1 != hash₀ then
+        -- sole child with this key hash, so from a single module: borrow the subtree
+        children := children.push (.mod i c)
+      else
+        -- gather the run of children with the same key hash, partitioned by actual key in case
+        -- of hash collisions
+        let mut groups : Array (Array (Nat × ConstTrie α)) := #[#[(i, c)]]
+        while idx < sorted.size && sorted[idx]!.1 == hash₀ do
+          let (_, i, c) := sorted[idx]!
+          match groups.findIdx? fun g => lastPartEq g[0]!.2.key c.key with
+          | some gi => groups := groups.modify gi (·.push (i, c))
+          | none    => groups := groups.push #[(i, c)]
+          idx := idx + 1
+        for g in groups do
+          children := children.push (mergeLazy g[0]!.2.key g)
+    return (children, buildChildIndex children ImportedConsts.key)
+
+/--
+Like `mergeModuleTrees`, but merging each node's children on first descent instead of eagerly.
+No `Duplicate`s are reported; an entry declared by several modules resolves to the first
+module's value, as in the eager merge. Intended for views whose duplicates are not consumed.
+-/
+public def mergeModuleTreesLazy (trees : Array (Nat × ConstTrie α)) : ImportedConsts α :=
+  mergeLazy .anonymous trees
+
 /--
 Replaces the node for `n` using `f`. `n` must be a prefix shared by several modules, such as a
 `Duplicate` name; single-module subtrees are never modified.
@@ -406,6 +498,7 @@ where
   @[inline] modifyChild (n : Name) (f : ImportedConsts α → ImportedConsts α) :
       ImportedConsts α → ImportedConsts α
     | t@(.mod ..)       => t
+    | t@(.lazy ..)      => t
     | .merged k e? cs hs =>
       match findHashIdx? hs cs key n with
       | some i => .merged k e? (cs.modify i f) hs
@@ -426,6 +519,11 @@ public partial def foldlM [Monad m] (t : ImportedConsts α) (f : σ → Name →
     if let some (v, _) := e? then
       s ← f s k v
     cs.foldlM (fun s c => c.foldlM f s) s
+  | .lazy k cands expanded =>
+    let mut s := init
+    if let some (v, _) := candsEntry? cands then
+      s ← f s k v
+    (expanded.get).1.foldlM (fun s c => c.foldlM f s) s
 
 public def foldl (t : ImportedConsts α) (f : σ → Name → α → σ) (init : σ) : σ :=
   t.foldlM (m := Id) f init
@@ -440,6 +538,11 @@ public partial def foldlEntriesM [Monad m] (t : ImportedConsts α)
     if let some e := e? then
       s ← f s k e
     cs.foldlM (fun s c => c.foldlEntriesM f s) s
+  | .lazy k cands expanded =>
+    let mut s := init
+    if let some e := candsEntry? cands then
+      s ← f s k e
+    (expanded.get).1.foldlM (fun s c => c.foldlEntriesM f s) s
 
 public def forM [Monad m] (t : ImportedConsts α) (f : Name → α → m PUnit) : m PUnit :=
   t.foldlM (fun _ n v => f n v) ⟨⟩

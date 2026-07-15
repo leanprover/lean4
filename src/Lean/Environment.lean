@@ -2397,8 +2397,8 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let (privImported, privDups) :=
     ImportedConsts.mergeModuleTrees <| moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie)
   let privImported ← resolveDuplicates s privImported privDups (throwOnConflict := true)
-  let (importedExtraConsts, _) :=
-    ImportedConsts.mergeModuleTrees <| irData.mapIdx fun modIdx data => (modIdx, data.extraConstTrie)
+  let importedExtraConsts :=
+    ImportedConsts.mergeModuleTreesLazy <| irData.mapIdx fun modIdx data => (modIdx, data.extraConstTrie)
   let mut publicTrees := #[]
   if isModule then
     for h : modIdx in *...modules.size do

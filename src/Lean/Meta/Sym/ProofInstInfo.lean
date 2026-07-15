@@ -8,16 +8,24 @@ prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.Util
-import Lean.Meta.Transform
+import Lean.Meta.Sym.Eta
 namespace Lean.Meta.Sym
 
 /--
 Preprocesses types that used for pattern matching and unification.
 -/
-public def preprocessType (type : Expr) : MetaM Expr := do
+public def preprocessType (type : Expr) (zetaReduceLHSOnly := false) : MetaM Expr := do
   let type ← Sym.unfoldReducible type
   let type ← Core.betaReduce type
-  zetaReduce type
+  let type ← if zetaReduceLHSOnly then
+    forallTelescope type fun xs body => do
+      match_expr body with
+      | f@Eq α lhs rhs => mkForallFVars xs <| mkApp3 f α (← zetaReduce lhs) rhs
+      | f@Iff lhs rhs => mkForallFVars xs <| mkApp2 f (← zetaReduce lhs) rhs
+      | _ => zetaReduce type
+  else
+    zetaReduce type
+  etaReduceAll type
 
 /--
 Analyzes whether the given free variables (aka arguments) are proofs or instances.
@@ -59,5 +67,10 @@ public def getProofInstInfo? (declName : Name) : SymM (Option ProofInstInfo) := 
     let r ← mkProofInstInfo? declName
     modify fun s => { s with proofInstInfo := s.proofInstInfo.insert declName r }
     return r
+
+public def getProofInstInfoOfExpr? (e : Expr) : SymM (Option ProofInstInfo) := do
+  match e with
+  | .const declName _ => getProofInstInfo? declName
+  | _ => return none -- TODO: if needed
 
 end Lean.Meta.Sym

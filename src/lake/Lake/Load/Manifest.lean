@@ -6,13 +6,13 @@ Authors: Mac Malone, Gabriel Ebner
 module
 
 prelude
-public import Lean.Data.Json
 public import Lake.Util.Version
 public import Lake.Config.Defaults
-import Lake.Util.Name
+public import Lake.Util.Git
 import Lake.Util.Error
 public import Lake.Util.FilePath
 import Lake.Util.JsonObject
+import Init.Data.Option.Coe
 
 open System Lean
 
@@ -51,11 +51,12 @@ That is, Lake ignores the `-` suffix.
 **v1.x.x** (versioned by a string)
 - `"1.0.0"`: Switches to a semantic versioning scheme
 - `"1.1.0"`: Add optional `scope` package entry field
+- `"1.2.0"`: Add optional `fixedToolchain` manifest field
 -/
-@[inline] public def Manifest.version : StdVer := {major := 1, minor := 1}
+@[inline] public def Manifest.version : StdVer := {major := 1, minor := 2}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
-private inductive PackageEntryV6
+inductive PackageEntryV6
 | path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
     (inputRev? : Option String) (subDir? : Option FilePath)
@@ -75,8 +76,8 @@ public inductive PackageEntrySrc
   /-- A remote Git package. -/
   | git
     (url : String)
-    (rev : String)
-    (inputRev? : Option String)
+    (rev : GitRev)
+    (inputRev? : Option GitRev)
     (subDir? : Option FilePath)
   deriving Inhabited
 
@@ -85,7 +86,9 @@ public structure PackageEntry where
   name : Name
   scope : String := ""
   inherited : Bool
+  /-- The relative path within the package directory to the Lake configuration file. -/
   configFile : FilePath := defaultConfigFile
+  /-- The relative path within the package directory to the Lake manifest file. -/
   manifestFile? : Option FilePath := none
   src : PackageEntrySrc
   deriving Inhabited
@@ -140,7 +143,7 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
       | _ =>
         throw s!"unknown package entry type '{type}'"
     return {
-      name, scope, inherited,
+      name, scope, inherited
       configFile, manifestFile? := manifestFile, src
       : PackageEntry
     }
@@ -149,19 +152,35 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
 
 public instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
+@[inline] public def prettyName (entry : PackageEntry) : String :=
+  entry.name.toString (escape := false)
+
+/-- The directory name used to store the materialized dependency. -/
+@[inline] public def dirName (entry : PackageEntry) : String :=
+   entry.name.toString (escape := false)
+
+@[inline] public def inputRev? (entry : PackageEntry) : Option GitRev :=
+  match entry.src with
+  | .git (inputRev? := rev?) .. => rev?
+  | .path .. => none
+
+/-- **For internal use only.** -/
 @[inline] public def setInherited (entry : PackageEntry) : PackageEntry :=
   {entry with inherited := true}
 
+/-- **For internal use only.** -/
 @[inline] public def setConfigFile (path : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with configFile := path}
 
+/-- **For internal use only.** -/
 @[inline] public def setManifestFile (path? : Option FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with manifestFile? := path?}
 
+/-- **For internal use only.** -/
 @[inline] public def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with src := match entry.src with | .path dir => .path (pkgDir / dir) | s => s}
 
-private def ofV6 : PackageEntryV6 → PackageEntry
+def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
   {name, inherited, src := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
@@ -173,6 +192,7 @@ end PackageEntry
 public structure Manifest where
   name : Name
   lakeDir : FilePath
+  fixedToolchain : Bool
   packagesDir? : Option FilePath := none
   packages : Array PackageEntry := #[]
 
@@ -185,6 +205,7 @@ public def addPackage (entry : PackageEntry) (self : Manifest) : Manifest :=
 public protected def toJson (self : Manifest) : Json :=
   Json.mkObj [
     ("version", toJson version),
+    ("fixedToolchain", toJson self.fixedToolchain),
     ("name", toJson self.name),
     ("lakeDir", toJson self.lakeDir),
     ("packagesDir", toJson self.packagesDir?),
@@ -193,7 +214,7 @@ public protected def toJson (self : Manifest) : Json :=
 
 public instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
-private def getVersion (obj : JsonObject) : Except String SemVerCore := do
+def getVersion (obj : JsonObject) : Except String SemVerCore := do
   let ver : Json ← obj.get "version" <|> obj.get "schemaVersion"
   let ver : SemVerCore ←
     match ver with
@@ -209,7 +230,7 @@ private def getVersion (obj : JsonObject) : Except String SemVerCore := do
   else
     return ver
 
-private def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array PackageEntry) := do
+def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array PackageEntry) := do
   if ver < {minor := 7} then
     (·.map PackageEntry.ofV6) <$> obj.getD "packages" #[]
   else
@@ -218,11 +239,12 @@ private def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array
 public protected def fromJson? (json : Json) : Except String Manifest := do
   let obj ← JsonObject.fromJson? json
   let ver ← getVersion obj
+  let fixedToolchain ← obj.getD "fixedToolchain" false
   let name ← obj.getD "name" Name.anonymous
   let lakeDir ← obj.getD "lakeDir" defaultLakeDir
   let packagesDir? ← obj.get? "packagesDir"
   let packages ← getPackages ver obj
-  return {name, lakeDir, packagesDir?, packages}
+  return {name, lakeDir, packagesDir?, packages, fixedToolchain}
 
 public instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 

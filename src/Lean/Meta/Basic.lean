@@ -6,12 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Lean.Data.LOption
 public import Lean.Class
 public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 
@@ -29,12 +32,14 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
+/-- NOTE: value purely intended for equality comparison, *NOT* following the transparency lattice. -/
 def TransparencyMode.toUInt64 : TransparencyMode → UInt64
   | .all       => 0
   | .default   => 1
   | .reducible => 2
   | .instances => 3
   | .none      => 4
+  | .implicit  => 5
 
 def EtaStructMode.toUInt64 : EtaStructMode → UInt64
   | .all        => 0
@@ -80,7 +85,7 @@ Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
 Recall that when `isDefEq` is trying to check whether
 `?m@C a₁ ... aₙ` and `t` are definitionally equal (`?m@C a₁ ... aₙ =?= t`), where
-`?m@C` as a shorthand for `C |- ?m : t` where `t` is the type of `?m`.
+`?m@C` as a shorthand for `C |- ?m : ty` where `ty` is the type of `?m`.
 We solve it using the assignment `?m := fun a₁ ... aₙ => t` if
 1) `a₁ ... aₙ` are pairwise distinct free variables that are ​*not*​ let-variables.
 2) `a₁ ... aₙ` are not in `C`
@@ -194,23 +199,24 @@ structure Config where
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
 private def Config.toKey (c : Config) : UInt64 :=
   c.transparency.toUInt64 |||
-  (c.foApprox.toUInt64 <<< 2) |||
-  (c.ctxApprox.toUInt64 <<< 3) |||
-  (c.quasiPatternApprox.toUInt64 <<< 4) |||
-  (c.constApprox.toUInt64 <<< 5) |||
-  (c.isDefEqStuckEx.toUInt64 <<< 6) |||
-  (c.unificationHints.toUInt64 <<< 7) |||
-  (c.proofIrrelevance.toUInt64 <<< 8) |||
-  (c.assignSyntheticOpaque.toUInt64 <<< 9) |||
-  (c.offsetCnstrs.toUInt64 <<< 10) |||
-  (c.iota.toUInt64 <<< 11) |||
-  (c.beta.toUInt64 <<< 12) |||
-  (c.zeta.toUInt64 <<< 13) |||
-  (c.zetaDelta.toUInt64 <<< 14) |||
-  (c.univApprox.toUInt64 <<< 15) |||
-  (c.etaStruct.toUInt64 <<< 16) |||
-  (c.proj.toUInt64 <<< 18) |||
-  (c.zetaHave.toUInt64 <<< 20)
+  (c.foApprox.toUInt64 <<< 3) |||
+  (c.ctxApprox.toUInt64 <<< 4) |||
+  (c.quasiPatternApprox.toUInt64 <<< 5) |||
+  (c.constApprox.toUInt64 <<< 6) |||
+  (c.isDefEqStuckEx.toUInt64 <<< 7) |||
+  (c.unificationHints.toUInt64 <<< 8) |||
+  (c.proofIrrelevance.toUInt64 <<< 9) |||
+  (c.assignSyntheticOpaque.toUInt64 <<< 10) |||
+  (c.offsetCnstrs.toUInt64 <<< 11) |||
+  (c.iota.toUInt64 <<< 12) |||
+  (c.beta.toUInt64 <<< 13) |||
+  (c.zeta.toUInt64 <<< 14) |||
+  (c.zetaDelta.toUInt64 <<< 15) |||
+  (c.univApprox.toUInt64 <<< 16) |||
+  (c.etaStruct.toUInt64 <<< 17) |||
+  (c.proj.toUInt64 <<< 19) |||
+  (c.zetaHave.toUInt64 <<< 21) |||
+  (c.zetaUnused.toUInt64 <<< 22)
 
 /-- Configuration with key produced by `Config.toKey`. -/
 structure ConfigWithKey where
@@ -241,6 +247,8 @@ structure ParamInfo where
     This information affects the generation of congruence theorems.
   -/
   isDecInst      : Bool       := false
+  /-- `isInstance` is true if the parameter type is a class instance. -/
+  isInstance     : Bool       := false
   /--
     `higherOrderOutParam` is true if this parameter is a higher-order output parameter
     of local instance.
@@ -560,7 +568,7 @@ abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
 @[always_inline]
-instance : Monad MetaM := let i := inferInstanceAs (Monad MetaM); { pure := i.pure, bind := i.bind }
+instance : Monad MetaM := let i : Monad MetaM := inferInstance; { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (MetaM α) where
   default := fun _ _ => default
@@ -712,20 +720,25 @@ def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
       modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
         { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
 
+@[inline]
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
 
+@[inline]
 def getConfig : MetaM Config :=
   return (← read).config
 
+@[inline]
 def getConfigWithKey : MetaM ConfigWithKey :=
   return (← getConfig).toConfigWithKey
 
 /-- Return the array of postponed universe level constraints. -/
+@[inline]
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
   return (← get).postponed
 
 /-- Set the array of postponed universe level constraints. -/
+@[inline]
 def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := postponed }
 
@@ -738,7 +751,7 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   for the inductive datatype `inductName`.
 
   Recall we have three different settings: `.none` (never use it), `.all` (always use it), `.notClasses`
-  (enabled only for structure-like inductive types that are not classes).
+  (enabled only for non-recursive structure types that are not classes).
 
   The parameter `inductName` affects the result only if the current setting is `.notClasses`.
 -/
@@ -755,6 +768,7 @@ have to hard-code the true arity of these definitions here, and make sure the C 
 We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient.
 -/
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Reduces an expression to its *weak head normal form*.
 This is when the "head" of the top-level expression has been fully reduced.
@@ -763,6 +777,7 @@ The result may contain subexpressions that have not been reduced.
 See `Lean.Meta.whnfImp` for the implementation.
 -/
 @[extern "lean_whnf"] opaque whnf : Expr → MetaM Expr
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
@@ -817,8 +832,11 @@ def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
 See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 -/
 @[extern "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
@@ -894,12 +912,15 @@ def mkConstWithFreshMVarLevels (declName : Name) : MetaM Expr := do
   return mkConst declName (← mkFreshLevelMVarsFor info)
 
 /-- Return current transparency setting/mode. -/
+@[inline]
 def getTransparency : MetaM TransparencyMode :=
   return (← getConfig).transparency
 
+@[inline]
 def shouldReduceAll : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.all
 
+@[inline]
 def shouldReduceReducibleOnly : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.reducible
 
@@ -1098,6 +1119,13 @@ def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
 
 /--
+Replace occurrences of the free variables `fvars` in `e` with `vs`.
+Similar to `Expr.replaceFVars`, but handles metavariables correctly.
+-/
+def _root_.Lean.Expr.replaceFVarsM (e : Expr) (fvars : Array Expr) (vs : Array Expr) : MetaM Expr :=
+  return (← e.abstractM fvars).instantiateRev vs
+
+/--
 Collect forward dependencies for the free variables in `toRevert`.
 Recall that when reverting free variables `xs`, we must also revert their forward dependencies.
 
@@ -1238,8 +1266,8 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 
 @[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
   let config := { ctx.config with transparency }
-  -- Recall that `transparency` is stored in the first 2 bits
-  let key : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
+  -- Recall that `transparency` is stored in the first 3 bits (it has 5 values).
+  let key : UInt64 := ((ctx.configKey >>> (3 : UInt64)) <<< 3) ||| transparency.toUInt64
   { ctx with keyedConfig := { config, key } }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
@@ -1256,14 +1284,24 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 
 /--
 `withReducibleAndInstances x` executes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
-or type class instances are unfolded.
+or `[instance_reducible]` (e.g. instances) are unfolded. `[implicit_reducible]` is **not** unfolded — use
+`withImplicit` for that.
 -/
 @[inline] def withReducibleAndInstances (x : n α) : n α :=
   withTransparency TransparencyMode.instances x
 
 /--
+`withImplicit x` executes `x` using the `.implicit` transparency setting. In this setting `[reducible]`,
+`[instance_reducible]`, and `[implicit_reducible]` definitions are all unfolded. Used for
+definitional equality checks on implicit *value* arguments, where `[implicit_reducible]` definitions
+need to unfold in addition to what `.instances` already unfolds.
+-/
+@[inline] def withImplicit (x : n α) : n α :=
+  withTransparency TransparencyMode.implicit x
+
+/--
 Execute `x` ensuring the transparency setting is at least `mode`.
-Recall that `.all > .default > .instances > .reducible`.
+Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
@@ -1304,7 +1342,7 @@ private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) :
    `constName` is an instance. This difference should be irrelevant for `isClassQuickConst?`. -/
 private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
-  | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
+  | some (ConstantInfo.thmInfo _)          => return none
   | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
   | some info                             => pure (some info)
   | none                                  => throwUnknownConstantAt (← getRef) constName
@@ -1892,10 +1930,9 @@ def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k 
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the local declaration is zeta-reduced into the result.
 -/
-def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) : n Expr := do
-  withLetDecl (n:=n) name type rhs fun x => do
-    let e ← elimMVarDeps #[x] (← k x)
-    return e.replaceFVar x rhs
+def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) : n Expr := do
+  withLetDecl (n:=n) name type rhs (nondep := nondep) (kind := kind) fun x => do
+    (← k x).replaceFVarsM #[x] #[rhs]
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances
@@ -2087,7 +2124,7 @@ def whnfI (e : Expr) : MetaM Expr :=
 /-- `whnf` with at most instances transparency. -/
 def whnfAtMostI (e : Expr) : MetaM Expr := do
   match (← getTransparency) with
-  | .all | .default => withTransparency TransparencyMode.instances <| whnf e
+  | .all | .default | .implicit => withTransparency TransparencyMode.instances <| whnf e
   | _ => whnf e
 
 /--
@@ -2199,10 +2236,14 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
     | _ => throwError "invalid `instantiateForallWithParams`, too many parameters{indentExpr e}"
   return (res, e)
 
+def getPPContext : MetaM PPContext := do
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+           currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
+
 /-- Pretty-print the given expression. -/
 def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
-  let ctxCore  ← readThe Core.Context
-  Lean.ppExprWithInfos { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls } e
+  let ctx ← getPPContext
+  Lean.ppExprWithInfos ctx e
 
 /-- Pretty-print the given expression. -/
 def ppExpr (e : Expr) : MetaM Format := (·.fmt) <$> ppExprWithInfos e
@@ -2283,7 +2324,7 @@ Return `true` if `indVal` is an inductive predicate. That is, `inductive` type i
 def isInductivePredicateVal (indVal : InductiveVal) : MetaM Bool := do
   forallTelescopeReducing indVal.type fun _ type => do
     match (← whnfD type) with
-    | .sort u .. => return u == levelZero
+    | .sort u .. => return u == Level.zero
     | _ => return false
 
 /--
@@ -2487,6 +2528,7 @@ def isDefEqD (t s : Expr) : MetaM Bool :=
 def isDefEqI (t s : Expr) : MetaM Bool :=
   withReducibleAndInstances <| isDefEq t s
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Returns `true` if `mvarId := val` was successfully assigned.
 This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.
@@ -2699,7 +2741,14 @@ where
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
-          withDeclNameForAuxNaming constName do
+          -- Re-privatize private `constName` under the current module so that auxiliary
+          -- declarations generated during realization get names scoped to the realizing module,
+          -- not the original defining module. This prevents name collisions when the same
+          -- constant is realized independently from two modules that are later imported together
+          -- (diamond import pattern).
+          let namePrefix :=
+            if isPrivateName constName then mkPrivateName env constName else constName
+          withDeclNameForAuxNaming namePrefix do
             withoutExporting (when := isPrivateName constName) do
               realize
           -- Meta code working on a non-exported declaration should usually do so inside

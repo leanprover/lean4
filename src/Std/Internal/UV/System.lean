@@ -174,19 +174,19 @@ opaque osEnviron : IO (Array (String × String))
 Gets the value of an environment variable.
 -/
 @[extern "lean_uv_os_getenv"]
-opaque osGetenv : String → IO (Option String)
+opaque osGetenv : @& String → IO (Option String)
 
 /--
 Sets the value of an environment variable.
 -/
 @[extern "lean_uv_os_setenv"]
-opaque osSetenv : String → String → IO Unit
+opaque osSetenv : @& String → @& String → IO Unit
 
 /--
 Unsets an environment variable.
 -/
 @[extern "lean_uv_os_unsetenv"]
-opaque osUnsetenv : String → IO Unit
+opaque osUnsetenv : @& String → IO Unit
 
 /--
 Gets the hostname of the machine.

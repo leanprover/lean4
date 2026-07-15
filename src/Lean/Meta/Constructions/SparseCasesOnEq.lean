@@ -8,11 +8,8 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.AddDecl
 import Lean.Meta.Constructions.SparseCasesOn
-import Lean.Meta.AppBuilder
 import Lean.Meta.HasNotBit
-import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Refl
 
@@ -86,7 +83,7 @@ where
           value := val
         })
 
-private def isName (env : Environment) (n : Name) : Bool :=
+def isName (env : Environment) (n : Name) : Bool :=
   if let .str p "else_eq" := n then
     (getSparseCasesOnInfoCore env p).isSome
   else

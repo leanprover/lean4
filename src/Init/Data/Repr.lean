@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.Data.Format.Basic
+public import Init.Control.Id
+public import Init.Data.UInt.BasicAux
+import Init.Data.Char.Basic
 
 public section
 open Sum Subtype Nat
@@ -350,16 +353,6 @@ end Nat
 
 instance : Repr Nat where
   reprPrec n _ := Nat.repr n
-
-/--
-Returns the decimal string representation of an integer.
--/
-protected def Int.repr : Int → String
-    | ofNat m   => Nat.repr m
-    | negSucc m => String.Internal.append "-" (Nat.repr (succ m))
-
-instance : Repr Int where
-  reprPrec i prec := if i < 0 then Repr.addAppParen i.repr prec else i.repr
 
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n

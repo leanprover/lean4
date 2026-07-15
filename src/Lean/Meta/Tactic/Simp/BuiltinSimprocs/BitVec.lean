@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
+import Init.Data.BitVec.Lemmas
 
 public section
 
@@ -14,7 +15,7 @@ namespace BitVec
 open Lean Meta Simp
 
 /-- A bit-vector literal -/
-structure Literal where
+private structure Literal where
   /-- Size. -/
   n     : Nat
   /-- Actual value. -/
@@ -25,11 +26,11 @@ structure Literal where
 Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a
 bitvector literal.
 -/
-def fromExpr? (e : Expr) : SimpM (Option Literal) := do
+private def fromExpr? (e : Expr) : SimpM (Option Literal) := do
   let some ⟨n, value⟩ ← getBitVecValue? e | return none
   return some { n, value }
 
-def toExpr' (a : BitVec n) : SimpM Expr := do
+private def toExpr' (a : BitVec n) : SimpM Expr := do
   if (← Simp.getConfig).bitVecOfNat then
     return toExpr a
   else
@@ -38,7 +39,7 @@ def toExpr' (a : BitVec n) : SimpM Expr := do
 /--
 Helper function for reducing homogeneous unary bitvector operators.
 -/
-@[inline] def reduceUnary (declName : Name) (arity : Nat)
+@[inline] private def reduceUnary (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
@@ -47,7 +48,7 @@ Helper function for reducing homogeneous unary bitvector operators.
 /--
 Helper function for reducing homogeneous binary bitvector operators.
 -/
-@[inline] def reduceBin (declName : Name) (arity : Nat)
+@[inline] private def reduceBin (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n → BitVec n) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
@@ -58,7 +59,7 @@ Helper function for reducing homogeneous binary bitvector operators.
     return .continue
 
 /-- Simplification procedure for `setWidth`, `zeroExtend` and `signExtend` on `BitVec`s. -/
-@[inline] def reduceExtend (declName : Name)
+@[inline] private def reduceExtend (declName : Name)
     (op : {n : Nat} → (m : Nat) → BitVec n → BitVec m) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName 3 do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
@@ -68,7 +69,7 @@ Helper function for reducing homogeneous binary bitvector operators.
 /--
 Helper function for reducing bitvector functions such as `getLsb` and `getMsb`.
 -/
-@[inline] def reduceGetBit (declName : Name) (op : {n : Nat} → BitVec n → Nat → Bool) (e : Expr)
+@[inline] private def reduceGetBit (declName : Name) (op : {n : Nat} → BitVec n → Nat → Bool) (e : Expr)
     : SimpM DStep := do
   unless e.isAppOfArity declName 3 do return .continue
   let some v ← fromExpr? e.appFn!.appArg! | return .continue
@@ -79,7 +80,7 @@ Helper function for reducing bitvector functions such as `getLsb` and `getMsb`.
 /--
 Helper function for reducing bitvector functions such as `shiftLeft` and `rotateRight`.
 -/
-@[inline] def reduceShift (declName : Name) (arity : Nat)
+@[inline] private def reduceShift (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → Nat → BitVec n) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some v ← fromExpr? e.appFn!.appArg! | return .continue
@@ -90,7 +91,7 @@ Helper function for reducing bitvector functions such as `shiftLeft` and `rotate
 Helper function for reducing `x <<< i` and `x >>> i` where `i` is a bitvector literal,
 into one that is a natural number literal.
 -/
-@[inline] def reduceShiftWithBitVecLit (declName : Name) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceShiftWithBitVecLit (declName : Name) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName 6 do return .continue
   let v := e.appFn!.appArg!
   let some i ← fromExpr? e.appArg! | return .continue
@@ -99,7 +100,7 @@ into one that is a natural number literal.
 /--
 Helper function for reducing bitvector predicates.
 -/
-@[inline] def reduceBinPred (declName : Name) (arity : Nat)
+@[inline] private def reduceBinPred (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
@@ -110,7 +111,7 @@ Helper function for reducing bitvector predicates.
   else
     return .continue
 
-@[inline] def reduceBoolPred (declName : Name) (arity : Nat)
+@[inline] private def reduceBoolPred (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
@@ -165,6 +166,8 @@ builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getL
 builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
 /-- Simplification procedure for `clz` (count leading zeros) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceClz (clz _) := reduceUnary ``BitVec.clz 2 BitVec.clz
+/-- Simplification procedure for `cpop` (population count) on `BitVec`. -/
+builtin_dsimproc [simp, seval] reduceCpop (cpop _) := reduceUnary ``BitVec.cpop 2 BitVec.cpop
 
 /-- Simplification procedure for `getElem`  on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
@@ -238,11 +241,35 @@ builtin_dsimproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
 /-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
 builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let_expr BitVec.ofNat n v ← e | return .continue
-  let some n ← Nat.fromExpr? n | return .continue
   let some v ← Nat.fromExpr? v | return .continue
-  let bv := BitVec.ofNat n v
-  if bv.toNat == v then return .continue -- already normalized
-  return .done <| (← toExpr' (BitVec.ofNat n v))
+  if let some n ← Nat.fromExpr? n then
+    let bv := BitVec.ofNat n v
+    -- `BitVec.ofNat` is the normal form only when `bitVecOfNat := true`; otherwise
+    -- literals must be rewritten to the `OfNat.ofNat` form produced by `toExpr'`.
+    if bv.toNat == v && (← Simp.getConfig).bitVecOfNat then return .continue -- already normalized
+    return .done (← toExpr' (BitVec.ofNat n v))
+  else if (← Simp.getConfig).bitVecOfNat then
+    return .continue
+  else
+    /-
+    **Note** If `bitVecOfNat := false`, we still want to convert terms such as `0#n` to the `OfNat.ofNat` form.
+    Recall that `grind` uses `bitVecOfNat := false`, but many bit-vector theorems such as `sdiv_zero` are stated using
+    terms such as `0#n`. These theorems will not be applicable to terms `x.sdiv 0#32` since `0#32` is normalized using `OfNat.ofNat`.
+    -/
+    return .done (← mkNumeral (mkApp (mkConst ``BitVec) n) v)
+
+/--
+Simplification procedure for ensuring `OfNat.ofNat` bitvector literals are normalized.
+For example, `(17 : BitVec 4)` is reduced to `(1 : BitVec 4)` when `bitVecOfNat := false`,
+and to `1#4` when `bitVecOfNat := true`.
+-/
+builtin_dsimproc [simp, seval] isValue ((OfNat.ofNat _ : BitVec _)) := fun e => do
+  let_expr OfNat.ofNat _ m _ ← e | return .continue
+  let some m ← Nat.fromExpr? m | return .continue
+  let some ⟨_, v⟩ ← getBitVecValue? e | return .continue
+  if v.toNat == m && !(← Simp.getConfig).bitVecOfNat then
+    return .done e -- already normalized; `OfNat.ofNat` is the normal form when `bitVecOfNat := false`
+  return .done (← toExpr' v)
 
 /-- Simplification procedure for `=` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
@@ -302,6 +329,14 @@ builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e =>
   let some len ← Nat.fromExpr? len | return .continue
   return .done <| (← toExpr' (v.value.extractLsb' start len))
 
+/-- Simplification procedure for `extractLsb` on `BitVec`s. -/
+builtin_dsimproc [simp, seval] reduceExtractLsb (extractLsb _ _ _) := fun e => do
+  let_expr extractLsb _ hi lo v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some hi ← Nat.fromExpr? hi | return .continue
+  let some lo ← Nat.fromExpr? lo | return .continue
+  return .done <| (← toExpr' (v.value.extractLsb hi lo))
+
 /-- Simplification procedure for `replicate` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   let_expr replicate _ i v ← e | return .continue
@@ -339,7 +374,7 @@ builtin_dsimproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => d
 Helper function for reducing `(x <<< i) <<< j` (and `(x >>> i) >>> j`) where `i` and `j` are
 natural number literals.
 -/
-@[inline] def reduceShiftShift (declName : Name) (thmName : Name) (e : Expr) : SimpM Step := do
+@[inline] private def reduceShiftShift (declName : Name) (thmName : Name) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName 6 do return .continue
   let aux := e.appFn!.appArg!
   let some i ← Nat.fromExpr? e.appArg! | return .continue

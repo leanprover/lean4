@@ -6,8 +6,10 @@ Authors: Anne Baanen
 module
 
 prelude
-public meta import Lean.Linter.Basic
+public meta import Lean.Linter.Init
 public meta import Lean.Elab.Command
+public import Init.Notation
+import Lean.Data.KVMap
 
 public section
 
@@ -33,6 +35,5 @@ elab doc?:(docComment)? "register_linter_set" name:ident " := " decl:ident* : co
   insertLinterSet name.getId <| decl.foldl (init := ∅) fun names name => names.insert name.getId
   let initializer ← `($[$doc?]? meta initialize $name : Lean.Option Bool ← Lean.Linter.registerSet $(quote name.getId))
   withMacroExpansion (← getRef) initializer <| elabCommand initializer
-
 
 end Lean.Linter

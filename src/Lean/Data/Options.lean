@@ -9,6 +9,7 @@ prelude
 public import Lean.ImportingFlag
 public import Lean.Data.KVMap
 public import Lean.Data.NameMap.Basic
+import Init.Data.ToString.Macro
 
 public section
 
@@ -81,11 +82,17 @@ def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Option
 
 end Options
 
+structure OptionDeprecation where
+  since    : String
+  text?    : Option String := none
+  deriving Inhabited
+
 structure OptionDecl where
   name     : Name
   declName : Name := by exact decl_name%
   defValue : DataValue
   descr    : String := ""
+  deprecation? : Option OptionDeprecation := none
   deriving Inhabited
 
 def OptionDecl.fullDescr (self : OptionDecl) : String := Id.run do
@@ -182,6 +189,7 @@ namespace Option
 protected structure Decl (α : Type) where
   defValue : α
   descr    : String := ""
+  deprecation? : Option OptionDeprecation := none
 
 protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Option α :=
   opts.get? opt.name
@@ -213,6 +221,7 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
     declName := ref
     defValue := KVMap.Value.toDataValue decl.defValue
     descr := decl.descr
+    deprecation? := decl.deprecation?
   }
   return { name := name, defValue := decl.defValue }
 

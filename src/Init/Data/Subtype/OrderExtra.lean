@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Subtype.Order
 public import Init.Data.Ord.Basic
 
 public instance {α : Type u} [Ord α] {P : α → Prop} : Ord (Subtype P) where

@@ -8,6 +8,8 @@ prelude
 public import Init.Grind.Ring.Field
 public import Init.Data.Rat.Basic
 import Init.Data.Rat.Lemmas
+import Init.ByCases
+import Init.Omega
 public section
 namespace Lean.Grind.Field.NormNum
 
@@ -31,7 +33,8 @@ private theorem nonzero_helper {α} [Field α] {z : Int} {n m : Nat} (hn : (n : 
   have : z.natAbs.gcd (n * m) ∣ (n * m) := Nat.gcd_dvd_right z.natAbs (n * m)
   obtain ⟨k, hk⟩ := this
   replace hk := congrArg (fun x : Nat => (x : α)) hk
-  dsimp at hk
+   -- TODO(kmill): remove after stage0 update
+  try dsimp at hk
   rw [Semiring.natCast_mul, Semiring.natCast_mul, h, Semiring.zero_mul] at hk
   replace hk := Field.of_mul_eq_zero hk
   simp_all

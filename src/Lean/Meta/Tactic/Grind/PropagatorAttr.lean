@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Proof
-import Lean.Compiler.InitAttr
 import Init.Grind
 public section
 namespace Lean.Meta.Grind

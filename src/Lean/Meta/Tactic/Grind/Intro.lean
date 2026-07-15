@@ -8,12 +8,12 @@ prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.RevertAll
+import Lean.Meta.Tactic.Grind.MarkAccessible
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 
@@ -275,7 +275,7 @@ private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action :=
     let goal ← GoalM.run' goal do
       let r ← preprocess prop
       let prop' := r.expr
-      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
+      let proof' := mkApp4 (mkConst ``Eq.mp [Level.zero]) prop r.expr (← r.getProof) proof
       add prop' proof' generation
     kp goal
 
@@ -289,6 +289,7 @@ def assertNext : Action := fun goal kna kp => do
     | kna goal
   let goal := { goal with newRawFacts }
   withSplitSource fact.splitSource do
+  withEmatchDiagSource fact.ematchDiagSource do
     assertAt fact.proof fact.prop fact.generation goal kna kp
 
 /--
@@ -299,5 +300,17 @@ def assertAll : Action :=
   assertNext.loop hugeNumber
 
 end Action
+
+/-
+Creates an action that tries all solver extensions using `Action.andAlso`,
+then drains the `newRawFacts` queue via `assertAll`.
+The `assertAll` step is necessary because `processNewFacts` (called by `solverAction` on the
+`.propagated` path) drains the `newFacts` queue (equations and propositions for the e-graph),
+but the resulting propagation cascade (e.g., congruence closure, or-propagation,
+`propagateForallPropDown`) can call `addNewRawFact`, which enqueues to the separate
+`newRawFacts` queue. Without this step, these raw facts are never asserted. See issue #12581.
+-/
+def Solvers.mkAction : IO Action := do
+  return (← Solvers.mkActionCore) >> Action.assertAll
 
 end Lean.Meta.Grind

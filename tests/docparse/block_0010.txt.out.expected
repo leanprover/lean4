@@ -1,0 +1,15 @@
+2 failures:
+  @1 (⟨1, 1⟩): expected identifier
+    "\n    test\n arg}\nHere's a modified paragraph."
+  @45 (⟨4, 28⟩): unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+    ""
+
+Final stack:
+  (Lean.Doc.Syntax.para
+   "para{"
+   [(Lean.Doc.Syntax.role
+     "{"
+     <missing>
+     "["
+     [(Lean.Doc.Syntax.footnote <missing>)]
+     "]")])

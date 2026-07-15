@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.List.OfFn
-public import Init.Data.List.Monadic
+public import Init.Data.List.Control
+public import Init.Data.List.OfFn
+import Init.Data.List.Monadic
 
 public section
 
@@ -23,7 +25,7 @@ Examples:
  * `List.finRange 0 = ([] : List (Fin 0))`
  * `List.finRange 2 = ([0, 1] : List (Fin 2))`
 -/
-@[expose] def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
+@[expose, implicit_reducible] def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 
 @[simp, grind =] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
   simp [List.finRange]

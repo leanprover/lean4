@@ -29,7 +29,7 @@ The monadic version of this iterator is `List.iterM`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def List.iter {α : Type w} (l : List α) :
     Iter (α := ListIterator α) α :=
   ((l.iterM Id).toIter : Iter α)

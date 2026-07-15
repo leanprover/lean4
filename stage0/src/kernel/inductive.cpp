@@ -18,13 +18,13 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_ind_fresh = nullptr;
 
-/**\ brief Return recursor name for the given inductive datatype name */
+/** \brief Return recursor name for the given inductive datatype name */
 name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
-/** \brief Return true if the given declaration is a structure */
-bool is_structure_like(environment const & env, name const & decl_name) {
+/** \brief Return true if the given declaration is a non-recursive structure (an inductive type with one constructor and no indices). */
+bool is_non_rec_structure(environment const & env, name const & decl_name) {
     constant_info I = env.get(decl_name);
     if (!I.is_inductive()) return false;
     inductive_val I_val = I.to_inductive_val();
@@ -814,7 +814,7 @@ struct elim_nested_inductive_result {
         name auxI_name = info->to_constructor_val().get_induct();
         expr const * nested = m_aux2nested.find(auxI_name);
         if (!nested) return optional<pair<expr, name>>();
-        return optional<pair<expr, name>>(*nested, auxI_name);
+        return optional<pair<expr, name>>(std::in_place, *nested, auxI_name);
     }
 
     name restore_constructor_name(environment const & aux_env, name const & cnstr_name) const {

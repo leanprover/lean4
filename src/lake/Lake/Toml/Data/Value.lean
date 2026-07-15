@@ -6,12 +6,14 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Data.Float
+public import Init.Data.Float.Float
 public import Lake.Toml.Data.Dict
 public import Lake.Toml.Data.DateTime
 import Lake.Util.String
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+public import Init.Data.String.Defs
+import Init.Data.ToString.Macro
 
 /-!
 # TOML Value
@@ -66,7 +68,7 @@ public def ppString (s : String) : String :=
     | '\\' => s ++ "\\\\"
     | _ =>
       if c.val < 0x20 || c.val == 0x7F then
-        s ++ "\\u" ++ lpad (String.ofList <| Nat.toDigits 16 c.val.toNat) '0' 4
+        s ++ "\\u" ++ lpadAscii (String.ofList <| Nat.toDigits 16 c.val.toNat) '0' 4
       else
         s.push c
   s.push '\"'

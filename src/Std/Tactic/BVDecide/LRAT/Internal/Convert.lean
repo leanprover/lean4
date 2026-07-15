@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.CNF.RelabelFin
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula
+import Init.Data.Array.Bootstrap
 
 @[expose] public section
 
@@ -50,14 +51,8 @@ def CNF.Clause.convertLRAT' (clause : CNF.Clause (PosFin n)) : Option (DefaultCl
 /--
 Turn a `CNF PosFin` into the representation used by the LRAT checker.
 -/
-def CNF.convertLRAT' (clauses : CNF (PosFin n)) : List (Option (DefaultClause n)) :=
-  clauses.filterMap (fun clause =>
-    match CNF.Clause.convertLRAT' clause with
-    | some clause => some (some clause)
-    -- This might look stupid but we are in an Option (Option x) here so explicitly returning none
-    -- is different from not doing this pattern match.
-    | none => none
-  )
+def CNF.convertLRAT' (clauses : CNF (PosFin n)) : Array (Option (DefaultClause n)) :=
+  clauses.clauses.map CNF.Clause.convertLRAT'
 
 theorem CNF.Clause.mem_lrat_of_mem (clause : CNF.Clause (PosFin n)) (h1 : l ∈ clause)
     (h2 : DefaultClause.ofArray clause.toArray = some lratClause) : l ∈ lratClause.clause := by
@@ -95,7 +90,7 @@ Notably this:
 def CNF.convertLRAT (cnf : CNF Nat) : DefaultFormula (cnf.numLiterals + 1) :=
   let lifted := CNF.lift cnf
   let lratCnf := CNF.convertLRAT' lifted
-  DefaultFormula.ofArray (none :: lratCnf).toArray
+  DefaultFormula.ofArray (#[none] ++ lratCnf)
 
 theorem CNF.convertLRAT_readyForRupAdd (cnf : CNF Nat) :
     DefaultFormula.ReadyForRupAdd (CNF.convertLRAT cnf) := by
@@ -131,17 +126,14 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   apply h1
   simp only [Formula.formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro lratClause hlclause
-  simp only [Formula.toList, DefaultFormula.toList, DefaultFormula.ofArray,
-    CNF.convertLRAT', List.size_toArray, List.toList_toArray,
-    List.map_nil, List.append_nil, List.mem_filterMap, id_eq, exists_eq_right] at hlclause
+  simp only [Formula.toList, DefaultFormula.toList, DefaultFormula.ofArray, convertLRAT',
+    Array.toList_append, Array.toList_map, List.cons_append, List.nil_append, id_eq,
+    List.filterMap_cons_none, List.filterMap_map, List.map_nil, List.append_nil,
+    List.mem_filterMap, Array.mem_toList_iff, Array.mem_iff_getElem] at hlclause
   rcases hlclause with ⟨reflectClause, ⟨hrclause1, hrclause2⟩⟩
-  simp only [CNF.eval, List.all_eq_true] at h2
-  split at hrclause2
-  next heq =>
-    rw [← heq] at hrclause2
-    simp only [Option.some.injEq] at hrclause2
-    simp [CNF.Clause.convertLRAT_sat_of_sat reflectClause hrclause2, h2 reflectClause hrclause1]
-  · contradiction
+  simp only [CNF.eval, Array.all_eq_true] at h2
+  rcases hrclause1 with ⟨i, h, rfl⟩
+  simp [CNF.Clause.convertLRAT_sat_of_sat _ hrclause2, h2 i h]
 
 end Internal
 end LRAT

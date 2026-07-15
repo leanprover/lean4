@@ -7,12 +7,15 @@ module
 
 prelude
 public import Init.Simproc
+public import Init.Grind.Tactics
+public import Init.MetaTypes
+import Init.Data.Nat.Bitwise.Basic
 
 @[expose] public section
 
 set_option linter.missingDocs true -- keep it documented
 
-namespace Lean.Elab.Tactic.BVDecide.Frontend
+namespace Lean.Elab.Tactic.BVDecide
 
 /--
 The various kinds of configurations offered for the SAT solver.
@@ -50,7 +53,7 @@ structure BVDecideConfig where
   /--
   Split hypotheses of the form `h : (x && y) = true` into `h1 : x = true` and `h2 : y = true`.
   This has synergy potential with embedded constraint substitution. Because embedded constraint
-  subsitution is the only use case for this feature it is automatically disabled whenever embedded
+  substitution is the only use case for this feature it is automatically disabled whenever embedded
   constraint substitution is disabled.
   -/
   andFlattening : Bool := true
@@ -93,7 +96,7 @@ structure BVDecideConfig where
   -/
   solverMode : SolverMode := .proof
 
-end Lean.Elab.Tactic.BVDecide.Frontend
+end Lean.Elab.Tactic.BVDecide
 
 
 namespace Lean.Parser
@@ -126,7 +129,7 @@ end Tactic
 Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
 `bv_decide` tactic.
 -/
-syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Auxiliary attribute for builtin `bv_normalize` simprocs.

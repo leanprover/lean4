@@ -1,0 +1,2 @@
+2649.lean:1:4-1:8: warning: declaration uses `sorry`
+2649.lean:3:4-3:8: warning: declaration uses `sorry`

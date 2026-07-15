@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.CoreM
 public import Lake.Toml.Data.Value
 public import Lake.Toml.Grammar
 meta import all Lake.Toml.Grammar -- for quotations
@@ -59,7 +58,7 @@ def elabDecInt (x : TSyntax ``decInt) : CoreM Int := do
   return decodeDecInt <| ← elabLit x "decimal integer"
 
 def decodeMantissa (s : String) : Nat × Nat :=
-  let (m,e) := s.foldl (init := (0,s.length)) fun (m,e) c =>
+  let (m,e) := s.foldl (init := (0,s.lengthAssumingAscii)) fun (m,e) c =>
     match c with
     | '_' => (m,e)
     | '.' => (m,0)

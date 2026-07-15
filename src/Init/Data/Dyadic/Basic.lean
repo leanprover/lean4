@@ -6,9 +6,17 @@ Authors: Kim Morrison, Robin Arnez
 module
 
 prelude
-public import Init.Data.Rat.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
-import Init.Hints
+public import Init.Data.Int.Bitwise.Basic
+public import Init.Data.Order.Classes
+public import Init.Data.Rat.Basic
+import Init.ByCases
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
+import Init.Data.Nat.Bitwise.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Data.Rat.Lemmas
+import Init.Omega
 
 /-!
 # The dyadic rationals
@@ -400,7 +408,7 @@ theorem ofIntWithPrec_shiftLeft_add {n : Nat} :
 
 /-- The "precision" of a dyadic number, i.e. in `n * 2^(-p)` with `n` odd the precision is `p`. -/
 -- TODO: If `WithBot` is upstreamed, replace this with `WithBot Int`.
-def precision : Dyadic → Option Int
+@[instance_reducible] def precision : Dyadic → Option Int
   | .zero => none
   | .ofOdd _ p _ => some p
 

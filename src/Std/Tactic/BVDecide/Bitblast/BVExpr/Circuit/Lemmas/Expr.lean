@@ -17,7 +17,12 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Cpop
+
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+import Init.ByCases
+import Init.Data.Nat.Internal.Linear
+import Init.Omega
 
 @[expose] public section
 
@@ -82,7 +87,7 @@ theorem Inv_insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig 
       · exact hk
       · simp [heq]
     have : ((cache.insert expr refs).map.get k hk) = cache.map.get k hmem := by
-      unfold Cache.insert
+      simp only [Cache.insert]
       rw [Std.DHashMap.get_insert]
       simp [heq]
     specialize hinv k hmem i hi
@@ -158,7 +163,7 @@ theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : 
     apply (goCache aig expr cache).result.property
 
 set_option maxHeartbeats 400000
-
+set_option backward.dsimp.instances true in -- **TODO**: Try to remove it.
 mutual
 
 
@@ -427,6 +432,12 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · rw [← hres]
       simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
       rw [denote_blastClz]
+      intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_cpop]
+      rw [denote_blastCpop]
       intro idx hidx
       rw [goCache_denote_eq]
       exact hinv

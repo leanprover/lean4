@@ -19,6 +19,8 @@ public import Std.Sync.Mutex
 
 public section
 
+open Lean
+
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
 def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : Lean.Syntax.Range)
     (hoverPos : String.Pos.Raw) (includeStop := false) : Bool :=
@@ -485,7 +487,7 @@ def SerializedLspResponse.toSerializedMessage
     ++ "}"
 
 structure RequestHandler where
-  fileSource : Json → Except RequestError FileIdent
+  fileSource : Json → Except RequestError DocumentUri
   handle : Json → RequestM (RequestTask SerializedLspResponse)
 
 builtin_initialize requestHandlers : IO.Ref (PersistentHashMap String RequestHandler) ←
@@ -597,7 +599,7 @@ inductive RequestHandlerCompleteness where
   | «partial» (refreshMethod : String) (refreshIntervalMs : Nat)
 
 structure StatefulRequestHandler where
-  fileSource      : Json → Except RequestError FileIdent
+  fileSource      : Json → Except RequestError DocumentUri
   /--
   `handle` with explicit state management for chaining request handlers.
   This function is pure w.r.t. `lastTaskMutex` and `stateRef`, but not `RequestM`.
@@ -790,7 +792,7 @@ def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask S
         s!"request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"
     | some rh => rh.handle params
 
-def routeLspRequest (method : String) (params : Json) : IO (Except RequestError FileIdent) := do
+def routeLspRequest (method : String) (params : Json) : IO (Except RequestError DocumentUri) := do
   if ← isStatefulLspRequestMethod method then
     match ← lookupStatefulLspRequestHandler method with
     | none => return Except.error <| RequestError.methodNotFound method

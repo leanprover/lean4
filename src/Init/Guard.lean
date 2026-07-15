@@ -6,7 +6,7 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Init.NotationExtra
+public import Init.Conv
 
 public section
 

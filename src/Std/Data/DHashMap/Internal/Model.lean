@@ -11,6 +11,8 @@ public import Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.HashesTo
 public import Std.Data.DHashMap.Internal.AssocList.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.UInt.Lemmas
 
 @[expose] public section
 
@@ -43,6 +45,7 @@ open Std.Internal
 /-! # Setting up the infrastructure -/
 
 /-- Internal implementation detail of the hash map -/
+@[implicit_reducible]
 def bucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α) :
     AssocList α β :=
   let ⟨i, h⟩ := mkIdx self.size h (hash k)
@@ -287,6 +290,7 @@ def getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
   (bucket m.1.buckets m.2 a).getKey? a
 
 /-- Internal implementation detail of the hash map -/
+@[implicit_reducible]
 def containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   (bucket m.1.buckets m.2 a).contains a
 
@@ -526,22 +530,16 @@ theorem contains_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : �
 
 theorem insert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     m.insert a b = m.insertₘ a b := by
-  rw [insert, insertₘ, containsₘ, bucket]
-  dsimp only [Array.ugetElem_eq_getElem, Array.uset]
-  split
-  · simp only [replaceₘ, Subtype.mk.injEq, Raw.mk.injEq, true_and]
-    rw [Array.set_set, updateBucket]
-    simp only [Array.uset, Array.ugetElem_eq_getElem]
-  · rfl
+  simp [insert, insertₘ, containsₘ, bucket, replaceₘ, updateBucket, consₘ]
 
 theorem alter_eq_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : Option (β a) → Option (β a)) : m.alter a f = m.alterₘ a f := by
-    dsimp only [alter, alterₘ, containsₘ, ← bucket_eq]
-    split
-    · congr 2
-      · simp only [withComputedSize, bucket_updateBucket]
-      · simp only [Array.uset, bucket, Array.ugetElem_eq_getElem, Array.set_set, updateBucket]
-    · congr
+  simp only [alter, alterₘ, containsₘ, ← bucket_eq]
+  simp only [AssocList.contains_eq, Array.uset_eq_set, Array.set_set, buckets_withComputedSize,
+    bucket_updateBucket]
+  split
+  · rfl
+  · rfl
 
 theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : β a → β a) : m.modify a f = m.alter a (·.map f) := by
@@ -566,12 +564,12 @@ variable {β : Type v}
 
 theorem alter_eq_alterₘ [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)
     (f : Option β → Option β) : Const.alter m a f = Const.alterₘ m a f := by
-    dsimp only [alter, alterₘ, containsₘ, ← bucket_eq]
+    simp only [alter, alterₘ, containsₘ, ← bucket_eq]
     split
     · congr 2
-      · simp only [withComputedSize, bucket_updateBucket]
+      · simp only [withComputedSize, bucket_updateBucket, AssocList.contains_eq]
       · simp only [Array.uset, bucket, Array.ugetElem_eq_getElem, Array.set_set, updateBucket]
-    · congr
+    · rfl
 
 theorem modify_eq_alter [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)
     (f : β → β) : Const.modify m a f = Const.alter m a (·.map f) := by

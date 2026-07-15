@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Tactic.LibrarySearch
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Tactic.ElabTerm
-public import Lean.Elab.Tactic.Config
+import Lean.Elab.ConfigEval
 
 public section
 

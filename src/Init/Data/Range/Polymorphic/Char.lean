@@ -8,9 +8,10 @@ module
 prelude
 public import Init.Data.Char.Ordinal
 public import Init.Data.Range.Polymorphic.Fin
-import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Range.Polymorphic.Map
 import Init.Data.Char.Order
+import Init.Data.Fin.Lemmas
+import Init.Data.Option.Lemmas
 
 open Std Std.PRange Std.PRange.UpwardEnumerable
 

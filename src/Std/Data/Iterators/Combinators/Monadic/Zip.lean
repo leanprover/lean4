@@ -67,10 +67,9 @@ Right now, the compiler does not unbox the internal state, leading to worse perf
 possible.
 -/
 @[always_inline, inline]
-def IterM.zip
-    (left : IterM (α := α₁) m β₁) (right : IterM (α := α₂) m β₂) :
+def IterM.zip (left : IterM (α := α₁) m β₁) (right : IterM (α := α₂) m β₂) :
     IterM (α := Types.Zip α₁ m α₂ β₂) m (β₁ × β₂) :=
-  .mk ⟨left, none, right⟩ m _
+  ⟨⟨left, none, right⟩⟩
 
 namespace Iterators.Types
 

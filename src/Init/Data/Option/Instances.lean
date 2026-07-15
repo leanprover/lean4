@@ -134,14 +134,14 @@ some ⟨3, ⋯⟩
 none
 ```
 -/
-@[inline, expose] def pelim (o : Option α) (b : β) (f : (a : α) → o = some a → β) : β :=
+@[inline, expose, implicit_reducible] def pelim (o : Option α) (b : β) (f : (a : α) → o = some a → β) : β :=
   match o with
   | none => b
   | some a => f a rfl
 
 /-- Partial filter. If `o : Option α`, `p : (a : α) → o = some a → Bool`, then `o.pfilter p` is
 the same as `o.filter p` but `p` is passed the proof that `o = some a`. -/
-@[inline, expose] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
+@[inline, expose, implicit_reducible] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
   match o with
   | none => none
   | some a => bif p a rfl then o else none
@@ -172,10 +172,10 @@ instance [Monad m] : ForM m (Option α) α :=
   ⟨Option.forM⟩
 
 instance [Monad m] : ForIn' m (Option α) α inferInstance where
-  forIn' x init f := do
+  forIn' x init f :=
     match x with
     | none => return init
-    | some a =>
+    | some a => do
       match ← f a rfl init with
       | .done r | .yield r => return r
 

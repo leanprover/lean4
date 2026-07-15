@@ -5,10 +5,15 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Int.Linear
-public import Init.Grind.Ring.Field
-public import Init.Data.Rat.Lemmas
-public import Init.Grind.Ring.OfScientific
+public import Init.Data.Int.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Linear  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Rat.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Grind.Ring.OfScientific  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.DivMod.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.BitVec.Bootstrap  -- shake: keep (used in `init_grind_norm`)
+public import Init.Omega
+import Init.ByCases
 public section
 
 namespace Lean.Grind
@@ -200,7 +205,7 @@ init_grind_norm
   Int.pow_zero Int.pow_one Int.subNatNat_eq
   -- Int op folding
   Int.add_def Int.mul_def Int.ofNat_eq_coe
-  Int.Linear.sub_fold Int.Linear.neg_fold
+  Int.Internal.Linear.sub_fold Int.Internal.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd
   -- Int alternative div and mod. We just expand them
@@ -230,5 +235,7 @@ init_grind_norm
   -- Semiring
   Semiring.one_mul Semiring.mul_one
   Semiring.zero_mul Semiring.mul_zero
+  -- Bitvectors
+  BitVec.ofNatLT_eq_ofNat
 
 end Lean.Grind

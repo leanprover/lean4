@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.Iterators.Combinators.Monadic.DropWhile
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Bool
 
 @[expose] public section
 
@@ -59,10 +60,11 @@ theorem IterM.step_intermediateDropWhileWithPostcondition {α m β} [Monad m] [I
       return .deflate <| .skip (IterM.Intermediate.dropWhileWithPostcondition P dropping it') (.skip h)
     | .done h =>
       return .deflate <| .done (.done h)) := by
-  simp only [step, Iterator.step]
+  simp only [step, Iterator.step, Intermediate.dropWhileWithPostcondition]
   apply bind_congr
   intro step
-  cases step.inflate using PlausibleIterStep.casesOn <;> rfl
+  simp
+  cases h : step.inflate using PlausibleIterStep.casesOn <;> rfl
 
 theorem IterM.step_dropWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :

@@ -98,6 +98,10 @@ register_builtin_option pp.numericTypes : Bool := {
   defValue := false
   descr    := "(pretty printer) display types of numeric literals"
 }
+register_builtin_option pp.mdata : Bool := {
+  defValue := false
+  descr    := "(pretty printer) displays a representation of mdata annotations"
+}
 register_builtin_option pp.instantiateMVars : Bool := {
   defValue := true
   descr    := "(pretty printer) instantiate mvars before delaborating"
@@ -125,6 +129,11 @@ register_builtin_option pp.mvars.withType : Bool := {
 register_builtin_option pp.mvars.delayed : Bool := {
   defValue := false
   descr    := "(pretty printer) display delayed assigned metavariables when true, otherwise display what they are assigned to"
+}
+register_builtin_option pp.fvars.anonymous : Bool := {
+  defValue := true
+  descr    := "(pretty printer) display names for loose free variables (not in the local context) such as `_fvar.22` when true, \
+    and otherwise display them as `_fvar._`. Useful for stabilizing output in `#guard_msgs`."
 }
 register_builtin_option pp.beta : Bool := {
   defValue := false
@@ -260,12 +269,14 @@ def getPPTagAppFns (o : Options) : Bool := o.get pp.tagAppFns.name (getPPAll o)
 def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
+def getPPMData (o : Options) : Bool := o.get pp.mdata.name pp.mdata.defValue
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
 def getPPMVars (o : Options) : Bool := o.get pp.mvars.name pp.mvars.defValue
 def getPPMVarsAnonymous (o : Options) : Bool := o.get pp.mvars.anonymous.name (pp.mvars.anonymous.defValue && getPPMVars o)
 def getPPMVarsLevels (o : Options) : Bool := o.get pp.mvars.levels.name (pp.mvars.levels.defValue && getPPMVarsAnonymous o)
 def getPPMVarsWithType (o : Options) : Bool := o.get pp.mvars.withType.name pp.mvars.withType.defValue
 def getPPMVarsDelayed (o : Options) : Bool := o.get pp.mvars.delayed.name (pp.mvars.delayed.defValue || getPPAll o)
+def getPPFVarsAnonymous (o : Options) : Bool := o.get pp.fvars.anonymous.name pp.fvars.anonymous.defValue
 def getPPBeta (o : Options) : Bool := o.get pp.beta.name pp.beta.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (pp.proofs.defValue || getPPAll o)

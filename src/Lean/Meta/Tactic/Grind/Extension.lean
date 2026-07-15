@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Expr
-public import Lean.Data.PersistentHashMap
 public import Lean.Meta.Tactic.Grind.Theorems
 public section
 namespace Lean.Meta.Grind
@@ -196,7 +194,7 @@ def mkExtension (name : Name := by exact decl_name%) : IO Extension :=
     name     := name
     initial  := {}
     addEntry := ExtensionState.addEntry
-    exportEntry? := fun lvl e => do
+    exportEntry? := fun _ e =>
       -- export only annotations on public decls
       let declName := match e with
         | .inj thm | .ematch thm =>
@@ -204,8 +202,8 @@ def mkExtension (name : Name := by exact decl_name%) : IO Extension :=
           | .decl declName => declName
           | _ => unreachable!
         | .ext declName | .cases declName _ | .funCC declName => declName
-      guard (lvl == .private || !isPrivateName declName)
-      return e
+      if isPrivateName declName then ⟨none, none, some e⟩
+      else .uniform (some e)
   }
 
 /--

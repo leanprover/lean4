@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Data.Nat.Fold
 public import Init.Data.UInt.Basic
-import Init.Data.String.Basic
+import Init.Data.String.Defs
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 
@@ -225,7 +227,7 @@ variable {β : Type v}
 set_option linter.unusedVariables.funArgs false in
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
-    (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
+    (f : α → β → m (ForInStep β)) (n : @&PersistentArrayNode α) (b : β) : m (ForInStep β) := do
   let mut b := b
   match n with
   | leaf vs =>
@@ -241,7 +243,7 @@ partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield bNew => b := bNew
     return ForInStep.yield b
 
-@[specialize] protected def forIn (t : PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
+@[specialize] protected def forIn (t : @&PersistentArray α) (init : β) (f : α → β → m (ForInStep β)) : m β := do
   match (← forInAux (inh := ⟨init⟩) f t.root init) with
   | ForInStep.done b  => pure b
   | ForInStep.yield b =>
@@ -395,10 +397,6 @@ def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v
 
-end Lean
-
-open Lean (PersistentArray)
-
 /--
 Converts a list to a persistent array.
 -/
@@ -410,3 +408,5 @@ def List.toPArray' {α : Type u} (xs : List α) : PersistentArray α :=
 
 def Array.toPArray' {α : Type u} (xs : Array α) : PersistentArray α :=
   xs.foldl (init := .empty) fun p x => p.push x
+
+end Lean

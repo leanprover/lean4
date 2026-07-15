@@ -15,7 +15,9 @@ public import Lean.Server.InfoUtils
 
 public section
 
-namespace IO
+open Lean IO FS
+
+namespace Lean.IO
 
 /-- Throws an `IO.userError`. -/
 def throwServerError (err : String) : IO α :=
@@ -68,7 +70,7 @@ def withPrefix (a : Stream) (pre : String) : Stream :=
       a.putStr (pre ++ s) }
 
 end FS.Stream
-end IO
+end Lean.IO
 
 namespace Lean.Server
 
@@ -117,7 +119,7 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
   -- If this is ever a problem, we could store a second unnormalized FileMap, edit it, and normalize it here.
   (pre ++ newText.crlfToLf ++ post).toFileMap
 
-open IO
+open Lean.IO
 
 open Lsp
 
@@ -133,12 +135,14 @@ def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (ol
   changes.foldl applyDocumentChange oldText
 
 /-- Constructs a `textDocument/publishDiagnostics` notification. -/
-def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) :
+def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic)
+    (isIncremental : Option Bool := none) :
     JsonRpc.Notification Lsp.PublishDiagnosticsParams where
   method := "textDocument/publishDiagnostics"
   param  := {
     uri         := m.uri
     version?    := some m.version
+    isIncremental? := isIncremental
     diagnostics := diagnostics
   }
 

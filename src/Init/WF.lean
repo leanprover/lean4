@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.BinderNameHint
-public import Init.Data.Nat.Basic
+public import Init.Grind.Tactics
+import Init.Data.Nat.Basic
 
 public section
 
@@ -143,6 +144,7 @@ end WellFounded
 open WellFounded
 
 -- Empty relation is well-founded
+@[instance_reducible]
 def emptyWf {α : Sort u} : WellFoundedRelation α where
   rel := emptyRelation
   wf  := by
@@ -204,12 +206,19 @@ theorem Acc.transGen (h : Acc r a) : Acc (TransGen r) a := by
 theorem acc_transGen_iff : Acc (TransGen r) a ↔ Acc r a :=
   ⟨Subrelation.accessible TransGen.single, Acc.transGen⟩
 
+/--
+If `Acc r x` holds and `y` is transitively related to `x`, then `Acc r y` holds, too.
+-/
+theorem Acc.inv_of_transGen {x y : α} (h₁ : Acc r x) (h₂ : Relation.TransGen r y x) : Acc r y := by
+  simpa [acc_transGen_iff] using h₁.transGen.inv h₂
+
 theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
   ⟨fun a ↦ (h.apply a).transGen⟩
 
 namespace Nat
 
 -- less-than is well-founded
+@[instance_reducible]
 def lt_wfRel : WellFoundedRelation Nat where
   rel := (· < ·)
   wf  := by
@@ -354,6 +363,7 @@ theorem RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.L
   | intro h₁ h₂ => exact Prod.Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
+@[instance_reducible]
 def rprod (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := RProd ha.rel hb.rel
   wf  := by
@@ -446,6 +456,7 @@ section
 def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun _ => β) → @PSigma α (fun _ => β) → Prop :=
   RevLex emptyRelation s
 
+@[instance_reducible]
 def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFoundedRelation (PSigma fun _ : α => β) where
   rel := SkipLeft α hb.rel
   wf  := revLex emptyWf.wf hb.wf
@@ -464,6 +475,7 @@ variable (h : α → Nat)
 variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) → motive x)
 
 /-- Helper gadget that prevents reduction of `Nat.eager n` unless `n` evaluates to a ground term. -/
+@[implicit_reducible]
 def Nat.eager (n : Nat) : Nat :=
   if Nat.beq n n = true then n else n
 
@@ -478,12 +490,15 @@ In contrast to `WellFounded.fix`, this fixpoint operator reduces on closed terms
 when `h x` evaluates to a ground value)
 
 -/
+@[implicit_reducible]
 def Nat.fix : (x : α) → motive x :=
   let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
     Nat.rec
       (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
-      (fun _ ih x hfuel => F x (fun y hy => ih y (Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
+      (fun _ ih x hfuel => F x (fun y hy => ih y (by exact Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
   fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)
+
+attribute [implicit_reducible] Nat.fix.go
 
 protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :
     Nat.fix.go h F fuel₁ x h₁ = Nat.fix.go h F fuel₂ x h₂ := by
@@ -508,7 +523,7 @@ The `wfParam` gadget is used internally during the construction of recursive fun
 wellfounded recursion, to keep track of the parameter for which the automatic introduction
 of `List.attach` (or similar) is plausible.
 -/
-def wfParam {α : Sort u} (a : α) : α := a
+@[implicit_reducible] def wfParam {α : Sort u} (a : α) : α := a
 
 /--
 Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the

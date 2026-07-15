@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Command
-meta import Lean.Parser.Term
 
 public section
 

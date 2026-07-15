@@ -9,11 +9,12 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.AddDecl
-import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Linter.Deprecated
 
 open Lean Meta
+
+namespace Lean
 
 register_builtin_option genCtorIdx : Bool := {
   defValue := true
@@ -66,7 +67,7 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
           pure (mkRawNatLit 0)
         else
           let motive ← mkLambdaFVars (indices.push x) natType
-          let mut value := mkConst casesOnName (levelOne::us)
+          let mut value := mkConst casesOnName (Level.one::us)
           value := mkAppN value params
           value := mkApp value motive
           value := mkAppN value indices
@@ -92,20 +93,27 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
       modifyEnv fun env => addProtected env declName
       if info.numCtors = 1 then
         setInlineAttribute declName .macroInline
+      if isMarkedMeta (← getEnv) indName then
+        modifyEnv (markMeta · declName)
       compileDecl decl
       enableRealizationsForConst declName
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then
         let aliasName := mkToCtorIdxName indName
-        addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+        addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
           (name        := aliasName)
           (levelParams := info.levelParams)
           (type        := declType)
           (value       := mkConst declName us)
           (hints       := ReducibilityHints.abbrev)
         ))
+        if isMarkedMeta (← getEnv) indName then
+          modifyEnv (markMeta · aliasName)
+        compileDecls #[aliasName]
         modifyEnv fun env => addToCompletionBlackList env aliasName
         modifyEnv fun env => addProtected env aliasName
         setReducibleAttribute aliasName
         Lean.Linter.setDeprecated aliasName { newName? := some declName, since? := "2025-08-25" }
+
+end Lean

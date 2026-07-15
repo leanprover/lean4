@@ -14,13 +14,13 @@ public import Lean.Server.FileWorker.SignatureHelp
 public import Lean.Server.Completion
 public import Lean.Server.References
 public import Lean.Server.Completion.CompletionItemCompression
-meta import Lean.Parser.Module
 
 public import Lean.Widget.Diff
 
 public section
 
 namespace Lean.Server.FileWorker
+open Lean
 open Lsp
 open RequestM
 open Snapshots
@@ -49,7 +49,7 @@ def handleCompletion (p : CompletionParams)
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return { items := #[], isIncomplete := true }
-    Completion.find? doc.meta.mod p.position doc.meta.text pos cmdStx infoTree caps
+    Completion.find? doc.meta.uri p.position doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects

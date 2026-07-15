@@ -17,6 +17,7 @@ public import Lean.Elab.Tactic.Location
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Simproc
+public import Lean.Elab.Tactic.CbvSimproc
 public import Lean.Elab.Tactic.BuiltinTactic
 public import Lean.Elab.Tactic.Split
 public import Lean.Elab.Tactic.Conv
@@ -44,9 +45,11 @@ public import Lean.Elab.Tactic.DiscrTreeKey
 public import Lean.Elab.Tactic.BVDecide
 public import Lean.Elab.Tactic.BoolToPropSimps
 public import Lean.Elab.Tactic.Classical
+public import Lean.Elab.Tactic.Impossible
 public import Lean.Elab.Tactic.Grind
 public import Lean.Elab.Tactic.Monotonicity
 public import Lean.Elab.Tactic.Try
+public import Lean.Elab.Tactic.AutoTry
 public import Lean.Elab.Tactic.AsAuxLemma
 public import Lean.Elab.Tactic.TreeTacAttr
 public import Lean.Elab.Tactic.ExposeNames
@@ -54,3 +57,5 @@ public import Lean.Elab.Tactic.SimpArith
 public import Lean.Elab.Tactic.Show
 public import Lean.Elab.Tactic.Lets
 public import Lean.Elab.Tactic.Do
+public import Lean.Elab.Tactic.Decide
+public import Lean.Elab.Tactic.Cbv

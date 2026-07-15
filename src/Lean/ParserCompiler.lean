@@ -11,6 +11,7 @@ public import Lean.Meta.WHNF
 public import Lean.KeyedDeclsAttribute
 public import Lean.ParserCompiler.Attribute
 public import Lean.Parser.Extension
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
@@ -109,9 +110,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         }
         -- usually `meta` is inferred during compilation for auxiliary definitions, but as
         -- `ctx.combinatorAttr` may enforce correct use of the modifier, infer now.
-        if isMarkedMeta (← getEnv) c then
-          modifyEnv (markMeta · c')
-        addAndCompile decl
+        addAndCompile decl (markMeta := isMarkedMeta (← getEnv) c)
         modifyEnv (ctx.combinatorAttr.setDeclFor · c c')
         if cinfo.type.isConst then
           if let some kind ← parserNodeKind? cinfo.value! then

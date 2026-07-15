@@ -12,6 +12,7 @@ import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
 import Lean.Meta.SameCtorUtils
+import Init.Data.Array.OfFn
 
 namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
@@ -171,7 +172,7 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : T
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
   else
-    `( match decEq ($(mkCIdent ctorIdxName) $x1:ident) ($(mkCIdent ctorIdxName) $x2:ident) with
+    `( match Nat.decEq ($(mkCIdent ctorIdxName) $x1:ident) ($(mkCIdent ctorIdxName) $x2:ident) with
       | .isTrue h => $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
       | .isFalse _ => false)
 

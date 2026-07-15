@@ -6,7 +6,8 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.PropLemmas
+public import Init.Data.Int.Basic
+import Init.PropLemmas
 
 public section
 
@@ -363,7 +364,8 @@ protected theorem subNatNat_eq_coe {m n : Nat} : subNatNat m n = ↑m - ↑n := 
   rw [← Int.subNatNat_eq_coe]
   refine subNatNat_elim m n (fun m n i => toNat i = m - n) (fun i n => ?_) (fun i n => ?_)
   · exact (Nat.add_sub_cancel_left ..).symm
-  · dsimp; rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
+  · try dsimp -- TODO(kmill) remove after stage0 update
+    rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
 
 theorem toNat_of_nonpos : ∀ {z : Int}, z ≤ 0 → z.toNat = 0
   | 0, _ => rfl

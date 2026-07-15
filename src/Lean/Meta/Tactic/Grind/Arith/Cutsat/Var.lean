@@ -6,12 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+import Lean.Meta.IntInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_cutsat_propagate_nonlinear"]
 opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
 
@@ -63,6 +64,7 @@ where
         registerNonlinearOcc e x
     | _ => registerNonlinearOcc e x
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_mk_var]
 def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then

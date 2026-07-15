@@ -7,8 +7,13 @@ module
 
 prelude
 public import Lean.DeclarationRange
-public import Lean.DocString.Markdown
+public import Lean.DocString.Types
+public import Lean.DocString.DeferredCheck
 public import Init.Data.String.Extra
+public import Init.Data.String.TakeDrop
+public import Init.Data.String.Search
+public import Init.Data.String.Length
+import Init.Omega
 
 public section
 
@@ -21,42 +26,86 @@ namespace Lean
 
 
 /--
-Saved data that describes the contents. The `name` should determine both the type of the value and
-its interpretation; if in doubt, use the name of the elaborator that produces the data.
+Saved data that describes a custom inline element.
+
+The type of value contained within the `Dynamic` determines the interpretation of the custom
+element, including how it is rendered to Markdown for the language server.
 -/
-structure ElabInline where
-  name : Name
-  val : Dynamic
+inductive ElabInline where
+  /--
+  A custom inline element. The type of the value in the `Dynamic` determines how it is interpreted
+  and rendered.
+  -/
+  | custom (val : Dynamic)
+  /--
+  A deferred check that lacked sufficient information when it was used (e.g. a forward references to
+  a name in a downstream module). The `index` identifies it among the docstring's deferred checks
+  that are stored in an environment extension. Inline and block deferred checks use the same
+  counter.
+  -/
+  | deferred (index : Nat)
 
 instance : Repr ElabInline where
-  reprPrec v _ :=
-    .group <| .nestD <|
-      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
-      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
-
-instance : Doc.MarkdownInline ElabInline where
-  -- TODO extensibility
-  toMarkdown go _i content := content.forM go
-
+  reprPrec v _ := match v with
+    | .custom val => .group <| "ElabInline.custom" ++ .line ++ "(.mk " ++ repr val.typeName ++ " _)"
+    | .deferred index => .group <| "ElabInline.deferred" ++ .line ++ repr index
 
 /--
-Saved data that describes the contents. The `name` should determine both the type of the value and
-its interpretation; if in doubt, use the name of the elaborator that produces the data.
+Saved data that describes a custom block element.
+
+The type of value contained within the `Dynamic` determines the interpretation of the custom
+element, including how it is rendered to Markdown for the language server.
 -/
-structure ElabBlock where
-  name : Name
-  val : Dynamic
+inductive ElabBlock where
+  /--
+  A custom block element. The type of the value in the `Dynamic` determines how it is interpreted
+  and rendered.
+  -/
+  | custom (val : Dynamic)
+  /--
+  A deferred check that lacked sufficient information when it was used (e.g. a forward references to
+  a name in a downstream module). The `index` identifies it among the docstring's deferred checks
+  that are stored in an environment extension. Inline and block deferred checks use the same
+  counter.
+  -/
+  | deferred (index : Nat)
 
 instance : Repr ElabBlock where
-  reprPrec v _ :=
-    .group <| .nestD <|
-      .group (.nestD ("{ name :=" ++ .line ++ repr v.name)) ++ .line ++
-      .group (.nestD ("val :=" ++ .line ++ "Dynamic.mk " ++ repr v.val.typeName ++ " _ }"))
+  reprPrec v _ := match v with
+    | .custom val => .group <| "ElabBlock.custom" ++ .line ++ "(.mk " ++ repr val.typeName ++ " _)"
+    | .deferred index => .group <| "ElabBlock.deferred" ++ .line ++ repr index
 
+/--
+A custom inline element `val`. The type `α` determines how it is interpreted. In contexts where `α`
+is not understood, `content` is used as a fallback.
+-/
+@[inline] def Doc.Inline.custom {α} [TypeName α] (val : α)
+    (content : Array (Doc.Inline ElabInline)) : Doc.Inline ElabInline :=
+  .other (.custom (.mk val)) content
 
--- TODO extensible toMarkdown
-instance : Doc.MarkdownBlock ElabInline ElabBlock where
-  toMarkdown _goI goB _b content := content.forM goB
+/--
+An inline element with a deferred check. The `index` is a 0-based index into the current docstring's
+deferred checks, in source order. Block and inline deferred elements share a counter.
+-/
+@[inline] def Doc.Inline.deferred (index : Nat)
+    (content : Array (Doc.Inline ElabInline)) : Doc.Inline ElabInline :=
+  .other (.deferred index) content
+
+/--
+A custom block element `val`. The type `α` determines how it is interpreted. In contexts where `α`
+is not understood, `content` is used as a fallback.
+-/
+@[inline] def Doc.Block.custom {α} [TypeName α] (val : α)
+    (content : Array (Doc.Block ElabInline ElabBlock)) : Doc.Block ElabInline ElabBlock :=
+  .other (.custom (.mk val)) content
+
+/--
+A block element with a deferred check. The `index` is a 0-based index into the current docstring's
+deferred checks, in source order. Block and inline deferred elements share a counter.
+-/
+@[inline] def Doc.Block.deferred (index : Nat)
+    (content : Array (Doc.Block ElabInline ElabBlock)) : Doc.Block ElabInline ElabBlock :=
+  .other (.deferred index) content
 
 structure VersoDocString where
   text : Array (Doc.Block ElabInline ElabBlock)
@@ -68,31 +117,30 @@ register_builtin_option doc.verso : Bool := {
   descr := "whether to use Verso syntax in docstrings"
 }
 
+register_builtin_option doc.verso.module : Bool := {
+  defValue := false,
+  descr := "whether to use Verso syntax in module docstrings (falls back to `doc.verso` if not set)"
+}
+
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
 builtin_initialize docStringExt : MapDeclarationExtension String ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 private builtin_initialize inheritDocStringExt : MapDeclarationExtension Name ←
-  mkMapDeclarationExtension (exportEntriesFn := fun _ s level =>
-    if level < .server then
-      {}
-    else
-      s.toArray)
+  mkMapDeclarationExtension (exportEntriesFn := fun _ s =>
+    let ents := s.toArray
+    { exported := #[], server := ents, «private» := ents })
 
 private builtin_initialize builtinVersoDocStrings : IO.Ref (NameMap VersoDocString) ← IO.mkRef {}
 builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 
 /--
 Adds a builtin docstring to the compiler.
@@ -161,27 +209,6 @@ partial def findInternalDocString? (env : Environment) (declName : Name) (includ
       return some (.inr doc)
   return none
 
-/--
-Finds a docstring without performing any alias resolution or enrichment with extra metadata. The
-result is rendered as Markdown.
-
-Docstrings to be shown to a user should be looked up with `Lean.findDocString?` instead.
--/
-def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) := do
-  match (← findInternalDocString? env declName (includeBuiltin := includeBuiltin)) with
-  | some (.inl str) => return some str
-  | some (.inr verso) => return some (toMarkdown verso)
-  | none => return none
-
-where
-  toMarkdown : VersoDocString → String
-  | .mk bs ps => Doc.MarkdownM.run' do
-      for b in bs do
-        Doc.ToMarkdown.toMarkdown b
-      for p in ps do
-        Doc.ToMarkdown.toMarkdown p
-
-
 structure ModuleDoc where
   doc : String
   declarationRange : DeclarationRange
@@ -190,11 +217,9 @@ private builtin_initialize moduleDocExt :
     SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
@@ -219,6 +244,12 @@ def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Comman
       throwErrorAt stx "unexpected doc string{indentD stx}"
   | _ =>
     throwErrorAt stx "unexpected doc string{indentD stx}"
+
+/--
+Checks whether `stx` is a docstring that was parsed as Verso rather than Markdown.
+-/
+def isVersoDocComment (stx : TSyntax `Lean.Parser.Command.docComment) : Bool :=
+  stx.raw[1].isOfKind `Lean.Parser.Command.versoCommentBody
 
 
 
@@ -275,24 +306,12 @@ def addPart (snippet : Snippet) (level : Nat) (range : DeclarationRange) (part :
 
 end VersoModuleDocs.Snippet
 
-open Lean Doc ToMarkdown MarkdownM in
-instance : ToMarkdown VersoModuleDocs.Snippet where
-  toMarkdown
-    | {text, sections, ..} => do
-      text.forM toMarkdown
-      endBlock
-      for (level, _, part) in sections do
-        push ("".pushn '#' (level + 1))
-        push " "
-        for i in part.title do toMarkdown i
-        endBlock
-        for b in part.content do toMarkdown b
-        endBlock
-
 structure VersoModuleDocs where
   snippets : PersistentArray VersoModuleDocs.Snippet := {}
-  terminalNesting : Option Nat := snippets.findSomeRev? (·.terminalNesting)
 deriving Inhabited
+
+def VersoModuleDocs.terminalNesting : VersoModuleDocs → Option Nat
+  | VersoModuleDocs.mk snippets => snippets.findSomeRev? (·.terminalNesting)
 
 instance : Repr VersoModuleDocs where
   reprPrec v _ :=
@@ -316,10 +335,7 @@ def add (docs : VersoModuleDocs) (snippet : Snippet) : Except String VersoModule
   unless docs.canAdd snippet do
     throw "Can't nest this snippet here"
 
-  return { docs with
-    snippets := docs.snippets.push snippet,
-    terminalNesting := snippet.terminalNesting
-  }
+  return { docs with snippets := docs.snippets.push snippet }
 
 def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   let ok :=
@@ -329,10 +345,7 @@ def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   if not ok then
     panic! "Can't nest this snippet here"
   else
-    { docs with
-      snippets := docs.snippets.push snippet,
-      terminalNesting := snippet.terminalNesting
-    }
+    { docs with snippets := docs.snippets.push snippet }
 
 
 private structure DocFrame where
@@ -401,11 +414,9 @@ private builtin_initialize versoModuleDocExt :
     SimplePersistentEnvExtension VersoModuleDocs.Snippet VersoModuleDocs ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.add! e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 

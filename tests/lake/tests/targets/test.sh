@@ -1,56 +1,51 @@
 #!/usr/bin/env bash
-set -exo pipefail
+source ../common.sh
 
 # Prevent MSYS2 from automatically transforming path-like targets
 [ "$OSTYPE" == "cygwin" -o "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
-
-if [ "$OS" = Windows_NT ]; then
-LIB_PREFIX=
-SHARED_LIB_EXT=dll
-elif [ "`uname`" = Darwin ]; then
-LIB_PREFIX=lib
-SHARED_LIB_EXT=dylib
-else
-LIB_PREFIX=lib
-SHARED_LIB_EXT=so
-fi
 
 PKG=targets
 
 ./clean.sh
 
-# Test error on nonexistent facet
-$LAKE build targets:noexistent && exit 1 || true
+# Test errors on nonexistent facets
+test_err 'unknown package facet `bogus`' build targets:bogus
+test_err 'unknown lean_lib facet `bogus`' build Foo:bogus
+test_err 'unknown module facet `bogus`'  build +Foo:bogus
+test_err 'unknown lean_exe facet `bogus`' build a:bogus
 
 # Test custom targets and package, library, and module facets
+# `diff_out` runs as the tail of a pipeline, so its expected-output argument
+# must be a real file. Do not inline it via process substitution
+# (e.g. `$LAKE build bark | diff_out '/Bark!/' <(cat << 'EOF' ... EOF)`): the
+# resulting `/dev/fd` is not reliably inherited by the `diff` inside `diff_out`
+# on macOS, which then fails with `Bad file descriptor`.
 diff_out() {
   awk "/Ran/,$1" | sed '/Ran/ s/^[^R]*//' | diff -u --strip-trailing-cr $2 -
 }
-$LAKE build bark | diff_out '/Bark!/' <(cat << 'EOF'
+cat << 'EOF' > produced.expected
 Ran targets/bark
 info: Bark!
 EOF
-)
-$LAKE build targets/bark_bark | diff_out '0' <(cat << 'EOF'
+$LAKE build bark | diff_out '/Bark!/' produced.expected
+cat << 'EOF' > produced.expected
 Ran targets/bark
 info: Bark!
 Build completed successfully (2 jobs).
 EOF
-)
-$LAKE build targets:print_name | diff_out '/^targets/' <(cat << 'EOF'
+$LAKE build targets/bark_bark | diff_out '0' produced.expected
+cat << 'EOF' > produced.expected
 Ran targets:print_name
 info: stdout/stderr:
 targets
 EOF
-)
-$LAKE build Foo:print_name | diff_out '/^Foo/' <(cat << 'EOF'
+$LAKE build targets:print_name | diff_out '/^targets/' produced.expected
+cat << 'EOF' > produced.expected
 Ran targets/Foo:print_name
 info: stdout/stderr:
 Foo
 EOF
-)
+$LAKE build Foo:print_name | diff_out '/^Foo/' produced.expected
 $LAKE build Foo.Bar:print_src | grep --color Bar.lean
 
 # Test the module `deps` facet
@@ -126,3 +121,6 @@ test -f .lake/build/ir/Bar.c.o.export
 $LAKE build -v src/a.lean
 test -f .lake/build/lib/lean/a.olean
 test ! -f .lake/build/bin/a
+
+# Cleanup
+rm -f produced.out produced.expected

@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: François G. Dorais
 -/
 module
-
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Fin.Lemmas
-
+public import Init.Ext
+import Init.Data.Fin.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.TacticsExtra
+import Init.WFTactics
+import Init.Hints
 public section
 
 namespace Fin
@@ -20,9 +24,9 @@ nesting to the left.
 Example:
  * `Fin.foldl 3 (· + ·.val) (0 : Nat) = ((0 + (0 : Fin 3).val) + (1 : Fin 3).val) + (2 : Fin 3).val`
 -/
-@[inline] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
-  /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`  -/
-  @[specialize] loop (x : α) (i : Nat) : α :=
+@[inline, expose] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
+  /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`. -/
+  @[specialize, semireducible] loop (x : α) (i : Nat) : α :=
     if h : i < n then loop (f x ⟨i, h⟩) (i+1) else x
   termination_by n - i
 

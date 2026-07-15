@@ -28,6 +28,7 @@ Note: The following definitions were not unfolded because their definition is no
 #guard_msgs in
 example : f = 1 := rfl
 
+set_option pp.mvars.anonymous false in
 /--
 error: Tactic `apply` failed: could not unify the conclusion of `@rfl`
   ?a = ?a
@@ -35,7 +36,7 @@ with the goal
   f = 1
 
 Note: The full type of `@rfl` is
-  ∀ {α : Sort ?u.115} {a : α}, a = a
+  ∀ {α : Sort _} {a : α}, a = a
 
 Note: The following definitions were not unfolded because their definition is not exposed:
   f ↦ 1
@@ -71,6 +72,7 @@ error: failed to synthesize instance of type class
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
+set_option warn.classDefReducibility false in
 def fX : X := inferInstance
 
 /-- error: `dsimp` made no progress -/

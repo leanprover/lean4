@@ -9,12 +9,8 @@ prelude
 public import Lake.Config.Env
 public import Lake.Config.Lang
 import Lake.Util.Git
-import Lake.Util.Version
-import Lake.Config.Package
-import Lake.Config.Workspace
-import Lake.Load.Config
 import Lake.Load.Workspace
-import Lake.Build.Actions
+import Init.Data.String.Modify
 
 namespace Lake
 open Git System
@@ -424,7 +420,7 @@ def initPkg
     let root := name
     let rootFile := Lean.modToFilePath dir root "lean"
     if tmp = .exe || (← rootFile.pathExists) then
-      return (root, some rootFile)
+      return (root, none)
     else
       let root := toUpperCamelCase name
       let rootFile := Lean.modToFilePath dir root "lean"

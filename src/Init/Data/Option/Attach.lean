@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Option.Array
 public import Init.Data.Array.Attach
+public import Init.Data.Option.Lemmas
+import Init.Data.Bool
+import Init.Data.Option.Array
+import Init.Data.Option.List
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -318,7 +322,7 @@ If this function is encountered in a proof state, the right approach is usually 
 
 It is a synonym for `Option.map Subtype.val`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
 
 @[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl
@@ -440,7 +444,7 @@ instance : MonadAttach Option where
   CanReturn x a := x = some a
   attach x := x.attach
 
-public instance : LawfulMonadAttach Option where
+instance : LawfulMonadAttach Option where
   map_attach {α} x := by simp [MonadAttach.attach]
   canReturn_map_imp {α P x a} := by
     cases x
@@ -451,7 +455,7 @@ end Option
 
 namespace OptionT
 
-public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
+instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (OptionT m) where
   map_attach {α} x := by
     apply OptionT.ext
@@ -462,7 +466,7 @@ public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAtta
     | ⟨some a, _⟩ => simp [OptionT.pure, OptionT.mk]
     | ⟨none, _⟩ => simp
 
-public instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
     LawfulMonadAttach (OptionT m) where
   canReturn_map_imp {α P x a} h := by
     simp only [MonadAttach.CanReturn, OptionT.run_map] at h

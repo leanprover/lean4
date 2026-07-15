@@ -197,9 +197,9 @@ environment environment::add_theorem(declaration const & d, bool check) const {
         sharecommon_persistent_fn share;
         expr val(share(v.get_value().raw()));
         expr type(share(v.get_type().raw()));
+        check_constant_val(*this, v.to_constant_val(), checker);
         if (!checker.is_prop(type))
             throw theorem_type_is_not_prop(*this, v.get_name(), type);
-        check_constant_val(*this, v.to_constant_val(), checker);
         check_no_metavar_no_fvar(*this, v.get_name(), val);
         expr val_type = checker.check(val, v.get_lparams());
         if (!checker.is_def_eq(val_type, type))
@@ -269,13 +269,14 @@ environment environment::add(declaration const & d, bool check) const {
     lean_unreachable();
 }
 /*
-addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize) (decl : @& Declaration)
   (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
 */
-extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat, object * decl,
-    object * opt_cancel_tk) {
+extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat, size_t max_rec_depth,
+    object * decl, object * opt_cancel_tk) {
     scope_max_heartbeat s(max_heartbeat);
-    scope_cancel_tk s2(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));
+    scope_max_rec_depth s2(max_rec_depth);
+    scope_cancel_tk s3(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));
     return catch_kernel_exceptions<environment>([&]() {
             return environment(env).add(declaration(decl, true));
         });

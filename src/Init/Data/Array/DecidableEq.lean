@@ -7,8 +7,14 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.BEq
-public import Init.Data.List.Nat.BEq
+public import Init.Data.Array.Basic
+public import Init.Data.Nat.Lemmas
+import Init.ByCases
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
+import Init.Data.List.Nat.BEq
+import Init.RCases
 
 public section
 
@@ -81,6 +87,7 @@ private theorem isEqvAux_self (r : α → α → Bool) (hr : ∀ a, r a a) (xs :
   induction i with
   | zero => simp [Array.isEqvAux]
   | succ i ih =>
+    set_option backward.isDefEq.respectTransparency false in
     simp_all only [isEqvAux, Bool.and_self]
 
 theorem isEqv_self_beq [BEq α] [ReflBEq α] (xs : Array α) : Array.isEqv xs xs (· == ·) = true := by

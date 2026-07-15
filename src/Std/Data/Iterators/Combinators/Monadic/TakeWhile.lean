@@ -85,7 +85,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (IterM.mk (Types.TakeWhile.mk (P := P) it) m β : IterM m β)
+  (⟨Types.TakeWhile.mk (P := P) it⟩ : IterM m β)
 
 /--
 Given an iterator `it` and a monadic predicate `P`, `it.takeWhileM P` is an iterator that outputs
@@ -155,7 +155,7 @@ In this case, the `Finite` (or `Productive`) instance needs to be proved manuall
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
 it terminates.
 -/
-@[always_inline, inline]
+@[always_inline, inline, implicit_reducible]
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (it.takeWhileWithPostcondition (pure ∘ ULift.up ∘ P) : IterM m β)
 

@@ -18,9 +18,10 @@ open Lean Parser Command Std
 set_option linter.all true
 
 private meta def convertText : Text → MacroM (TSyntax `term)
-  | .short  => `(Std.Time.Text.short)
-  | .full   => `(Std.Time.Text.full)
-  | .narrow => `(Std.Time.Text.narrow)
+  | .short          => `(Std.Time.Text.short)
+  | .full           => `(Std.Time.Text.full)
+  | .narrow         => `(Std.Time.Text.narrow)
+  | .twoLetterShort => `(Std.Time.Text.twoLetterShort)
 
 private meta def convertNumber : Number → MacroM (TSyntax `term)
   | ⟨padding⟩ => `(Std.Time.Number.mk $(quote padding))
@@ -35,9 +36,14 @@ private meta def convertYear : Year → MacroM (TSyntax `term)
   | .fourDigit => `(Std.Time.Year.fourDigit)
   | .extended n => `(Std.Time.Year.extended $(quote n))
 
+private meta def convertZoneId : ZoneId → MacroM (TSyntax `term)
+  | .unknown => `(Std.Time.ZoneId.unknown)
+  | .short   => `(Std.Time.ZoneId.short)
+  | .full    => `(Std.Time.ZoneId.full)
+
 private meta def convertZoneName : ZoneName → MacroM (TSyntax `term)
   | .short => `(Std.Time.ZoneName.short)
-  | .full => `(Std.Time.ZoneName.full)
+  | .full  => `(Std.Time.ZoneName.full)
 
 private meta def convertOffsetX : OffsetX → MacroM (TSyntax `term)
   | .hour => `(Std.Time.OffsetX.hour)
@@ -59,25 +65,28 @@ private meta def convertModifier : Modifier → MacroM (TSyntax `term)
   | .G p => do `(Std.Time.Modifier.G $(← convertText p))
   | .y p => do `(Std.Time.Modifier.y $(← convertYear p))
   | .u p => do `(Std.Time.Modifier.u $(← convertYear p))
+  | .Y p => do `(Std.Time.Modifier.Y $(← convertYear p))
   | .D p => do `(Std.Time.Modifier.D $(← convertNumber p))
-  | .MorL p =>
-    match p with
-    | .inl num => do `(Std.Time.Modifier.MorL (.inl $(← convertNumber num)))
-    | .inr txt => do `(Std.Time.Modifier.MorL (.inr $(← convertText txt)))
+  | .M (.inl num) => do `(Std.Time.Modifier.M (.inl $(← convertNumber num)))
+  | .M (.inr txt) => do `(Std.Time.Modifier.M (.inr $(← convertText txt)))
+  | .L (.inl num) => do `(Std.Time.Modifier.L (.inl $(← convertNumber num)))
+  | .L (.inr txt) => do `(Std.Time.Modifier.L (.inr $(← convertText txt)))
   | .d p => do `(Std.Time.Modifier.d $(← convertNumber p))
-  | .Qorq p =>
-    match p with
-    | .inl num => do `(Std.Time.Modifier.Qorq (.inl $(← convertNumber num)))
-    | .inr txt => do `(Std.Time.Modifier.Qorq (.inr $(← convertText txt)))
+  | .Q (.inl num) => do `(Std.Time.Modifier.Q (.inl $(← convertNumber num)))
+  | .Q (.inr txt) => do `(Std.Time.Modifier.Q (.inr $(← convertText txt)))
+  | .q (.inl num) => do `(Std.Time.Modifier.q (.inl $(← convertNumber num)))
+  | .q (.inr txt) => do `(Std.Time.Modifier.q (.inr $(← convertText txt)))
   | .w p => do `(Std.Time.Modifier.w $(← convertNumber p))
   | .W p => do `(Std.Time.Modifier.W $(← convertNumber p))
   | .E p => do `(Std.Time.Modifier.E $(← convertText p))
-  | .eorc p =>
-    match p with
-    | .inl num => do `(Std.Time.Modifier.eorc (.inl $(← convertNumber num)))
-    | .inr txt => do `(Std.Time.Modifier.eorc (.inr $(← convertText txt)))
+  | .e (.inl num) => do `(Std.Time.Modifier.e (.inl $(← convertNumber num)))
+  | .e (.inr txt) => do `(Std.Time.Modifier.e (.inr $(← convertText txt)))
+  | .c (.inl num) => do `(Std.Time.Modifier.c (.inl $(← convertNumber num)))
+  | .c (.inr txt) => do `(Std.Time.Modifier.c (.inr $(← convertText txt)))
   | .F p => do `(Std.Time.Modifier.F $(← convertNumber p))
   | .a p => do `(Std.Time.Modifier.a $(← convertText p))
+  | .b p => do `(Std.Time.Modifier.b $(← convertText p))
+  | .B p => do `(Std.Time.Modifier.B $(← convertText p))
   | .h p => do `(Std.Time.Modifier.h $(← convertNumber p))
   | .K p => do `(Std.Time.Modifier.K $(← convertNumber p))
   | .k p => do `(Std.Time.Modifier.k $(← convertNumber p))
@@ -88,8 +97,9 @@ private meta def convertModifier : Modifier → MacroM (TSyntax `term)
   | .A p => do `(Std.Time.Modifier.A $(← convertNumber p))
   | .n p => do `(Std.Time.Modifier.n $(← convertNumber p))
   | .N p => do `(Std.Time.Modifier.N $(← convertNumber p))
-  | .V => `(Std.Time.Modifier.V)
+  | .V p => do `(Std.Time.Modifier.V $(← convertZoneId p))
   | .z p => do `(Std.Time.Modifier.z $(← convertZoneName p))
+  | .v p => do `(Std.Time.Modifier.v $(← convertZoneName p))
   | .O p => do `(Std.Time.Modifier.O $(← convertOffsetO p))
   | .X p => do `(Std.Time.Modifier.X $(← convertOffsetX p))
   | .x p => do `(Std.Time.Modifier.x $(← convertOffsetX p))
@@ -133,13 +143,13 @@ private meta def convertPlainTime (d : Std.Time.PlainTime) : MacroM (TSyntax `te
 private meta def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainDateTime.mk $(← convertPlainDate d.date) $(← convertPlainTime d.time))
 
-private meta def convertZonedDateTime (d : Std.Time.ZonedDateTime) (identifier := false) : MacroM (TSyntax `term) := do
+private meta def convertDateTime (d : Std.Time.DateTime) (identifier := false) : MacroM (TSyntax `term) := do
   let plain ← convertPlainDateTime d.toPlainDateTime
 
   if identifier then
-    `(Std.Time.ZonedDateTime.ofPlainDateTime $plain <$> Std.Time.Database.defaultGetZoneRules $(Syntax.mkStrLit d.timezone.name))
+    `(Std.Time.DateTime.ofPlainDateTime $plain <$> Std.Time.Database.defaultGetZoneRules $(Syntax.mkStrLit d.timezone.name))
   else
-    `(Std.Time.ZonedDateTime.ofPlainDateTime $plain (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
+    `(Std.Time.DateTime.ofPlainDateTime $plain (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
 
 /--
 Defines a syntax for zoned datetime values. It expects a string representing a datetime with
@@ -158,7 +168,6 @@ Example:
 `zoned("2024-10-13T15:00:00", timezone)`
 -/
 syntax "zoned(" str "," term ")" : term
-
 
 /--
 Defines a syntax for datetime values without timezone. The input should be a string in an
@@ -204,21 +213,20 @@ Example:
 -/
 syntax "timezone(" str ")" : term
 
-
 macro_rules
   | `(zoned( $date:str )) => do
-      match ZonedDateTime.fromLeanDateTimeWithZoneString date.getString with
-      | .ok res => do return ← convertZonedDateTime res
+      match DateTime.fromLeanDateTimeWithZoneString date.getString with
+      | .ok res => do return ← convertDateTime res
       | .error _ =>
-        match ZonedDateTime.fromLeanDateTimeWithIdentifierString date.getString with
-        | .ok res => do return ← convertZonedDateTime res (identifier := true)
+        match DateTime.fromLeanDateTimeWithIdentifierString date.getString with
+        | .ok res => do return ← convertDateTime res (identifier := true)
         | .error res => Macro.throwErrorAt date s!"error: {res}"
 
   | `(zoned( $date:str, $timezone )) => do
       match PlainDateTime.fromLeanDateTimeString date.getString with
       | .ok res => do
         let plain ← convertPlainDateTime res
-        `(Std.Time.ZonedDateTime.ofPlainDateTime $plain $timezone)
+        `(Std.Time.DateTime.ofPlainDateTime $plain $timezone)
       | .error res => Macro.throwErrorAt date s!"error: {res}"
 
   | `(datetime( $date:str )) => do

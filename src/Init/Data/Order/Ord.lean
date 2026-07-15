@@ -10,6 +10,12 @@ import Init.Data.List.Lemmas
 import Init.Data.Array.DecidableEq
 public import Init.Data.Ord.Array
 public import Init.Data.BEq
+public import Init.Data.Array.Basic
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.Int.Order
+import Init.Data.List.Nat.BEq
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -469,7 +475,7 @@ end LawfulBEq
 
 attribute [local instance] beqOfOrd in
 instance {α : Type u} {_ : Ord α} : LawfulBEqOrd α where
-  compare_eq_iff_beq {a b} := by simp only [beqOfOrd, Ordering.isEq_iff_eq_eq]
+  compare_eq_iff_beq {a b} := by simp only [BEq.beq, Ordering.isEq_iff_eq_eq]
 
 end Std
 
@@ -634,7 +640,7 @@ instance {α β} [Ord α] [Ord β] [TransOrd α] [TransOrd β] :
 
 instance {α β} [Ord α] [Ord β] [LawfulEqOrd α] [LawfulEqOrd β] : LawfulEqOrd (α × β) where
   eq_of_compare {a b} h := by
-    simp only [lexOrd, compareLex_eq_eq, compareOn] at h
+    simp only [compare, compareLex_eq_eq, compareOn] at h
     ext
     · exact LawfulEqOrd.eq_of_compare h.1
     · exact LawfulEqOrd.eq_of_compare h.2

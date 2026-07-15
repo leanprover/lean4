@@ -7,13 +7,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Simp.Arith.Int.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ReorderVars
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -225,7 +222,7 @@ Thus,
 So, we take `w = (cdiv (v - b) d)*d + b`
 -/
 def DvdSolution.ge (s : DvdSolution) (v : Int) : Int :=
-  (Int.Linear.cdiv (v - s.b) s.d)*s.d + s.b
+  (Int.Internal.Linear.cdiv (v - s.b) s.d)*s.d + s.b
 
 /--
 Given a divisibility constraint solution space `s := { b, d }`,
@@ -320,7 +317,7 @@ def resolveCooperUnary (pred : CooperSplitPred) : SearchM Bool := do
   let .add c _ (.num e) := c₃.p | return false
   let d := c₃.d
   let (1, α, _) := gcdExt c d | return false
-  unless -b < Int.Linear.cdiv (a - -α * e % d) d * d + -α * e % d do
+  unless -b < Int.Internal.Linear.cdiv (a - -α * e % d) d * d + -α * e % d do
     return false
   setInconsistent (.cooper pred.c₁ pred.c₂ c₃)
   return true
@@ -515,6 +512,12 @@ private def searchAssignmentMain : SearchM Unit := do
       return ()
     if let some c := (← get').conflict? then
       resolveConflict c
+    else if (← checkMaxSteps) then
+      -- Interrupt the search. Remark: we do not interrupt while a conflict is unresolved
+      -- because the cutsat state would be left with a pending `conflict?`.
+      trace[grind.debug.lia.search] "search interrupted, maximum number of steps reached"
+      setImprecise
+      return ()
     else
       let x : Var := (← get').assignment.size
       trace[grind.debug.lia.search] "next var: {← getVar x}, {x}, {(← get').assignment.toList}"
@@ -533,6 +536,7 @@ private def searchQLiaAssignment : GoalM Bool := do
     searchAssignmentMain
     let precise := (← get).precise
     resetDecisionStack
+    saveSteps
     return precise
   go .rat |>.run' {}
 
@@ -554,6 +558,7 @@ private def searchLiaAssignment : GoalM Unit := do
   let go : SearchM Unit := do
     searchAssignmentMain
     resetDecisionStack
+    saveSteps
   traceActiveCnstrs
   reorderVars
   traceActiveCnstrs
@@ -569,6 +574,8 @@ def searchAssignment : GoalM Unit := do
     searchLiaAssignment
     trace[grind.debug.lia.search] "after search int model, inconsistent: {← isInconsistent}"
     if (← isInconsistent) then return ()
+  -- If the search was interrupted (`liaSteps` threshold), the assignment is partial.
+  unless (← hasAssignment) do return ()
   -- TODO: constructing a model is only worth if `grind` will **not** continue searching.
   assignElimVars
 
@@ -582,6 +589,10 @@ The result is `false` if module already has a satisfying assignment.
 -/
 def check : GoalM Bool := do profileitM Exception "grind cutsat" (← getOptions) do
   if (← hasAssignment) then
+    return false
+  else if (← get').steps ≥ (← getConfig).liaSteps then
+    -- A previous search reached the `liaSteps` threshold. The solver is disabled to
+    -- ensure `grind` does not keep restarting the (bounded) search at every iteration.
     return false
   else
     searchAssignment

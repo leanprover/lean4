@@ -7,8 +7,6 @@ module
 
 prelude
 public import Lean.Server.Requests
-import Lean.DocString.Syntax
-import Init.Data.List.Sort
 
 public section
 
@@ -48,7 +46,7 @@ structure LeanSemanticToken where
   stx  : Syntax
   /-- Type of the semantic token. -/
   type : SemanticTokenType
-  /-- In case of overlap, higher-priority tokens will take precendence -/
+  /-- In case of overlap, higher-priority tokens will take precedence -/
   priority : Nat := 5
 
 /-- Semantic token information with absolute LSP positions. -/
@@ -59,7 +57,7 @@ structure AbsoluteLspSemanticToken where
   tailPos : Lsp.Position
   /-- Start position of the semantic token. -/
   type    : SemanticTokenType
-  /-- In case of overlap, higher-priority tokens will take precendence -/
+  /-- In case of overlap, higher-priority tokens will take precedence -/
   priority : Nat := 5
   deriving BEq, Hashable, FromJson, ToJson
 
@@ -488,8 +486,8 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
         stx.getArgs.map (collectSyntaxBasedSemanticTokens text) |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
-    let isRegularKeyword := val.length > 0 && isIdFirst val.front
-    let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (String.Pos.Raw.get val ⟨1⟩)
+    let isRegularKeyword := val.front?.any isIdFirst
+    let isHashKeyword := ((val.dropPrefix? '#').bind (·.front?)).any isIdFirst
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
     return tokens.push { stx, type := keywordSemanticTokenMap.getD val .keyword }

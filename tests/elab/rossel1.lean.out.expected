@@ -1,0 +1,12 @@
+@Lineage.container'.eq_1 : ∀ {rtr : Reactor} {i : ID} (rtr' : Reactor) (i' : ID) (rtr'_1 : Reactor) (i'_1 : ID)
+  (l : Lineage rtr'_1 i) (h : rtr'.nested i'_1 = some rtr'_1) (a : rtr.nested i' = some rtr'),
+  ((l.nested h).nested a).container' = (l.nested h).container'
+@Lineage.container'.eq_2 : ∀ {rtr : Reactor} {i : ID} (rtr' : Reactor) (i' : ID) (a : Lineage rtr' i)
+  (a_1 : rtr.nested i' = some rtr'),
+  (∀ (rtr'_1 : Reactor) (i' : ID) (l : Lineage rtr'_1 i) (h : rtr'.nested i' = some rtr'_1), a = l.nested h → False) →
+    (a.nested a_1).container' = (some i', rtr')
+@Lineage.container'.eq_3 : ∀ {rtr : Reactor} {i : ID} (x : Lineage rtr i),
+  (∀ (rtr' : Reactor) (i' : ID) (rtr'_1 : Reactor) (i'_1 : ID) (l : Lineage rtr'_1 i)
+      (h : rtr'.nested i'_1 = some rtr'_1) (a : rtr.nested i' = some rtr'), x = (l.nested h).nested a → False) →
+    (∀ (rtr' : Reactor) (i' : ID) (a : Lineage rtr' i) (a_1 : rtr.nested i' = some rtr'), x = a.nested a_1 → False) →
+      x.container' = (none, rtr)

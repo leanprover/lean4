@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Command
-public import Lean.Data.OpenDecl
 
 namespace Lean.Elab.Command
 

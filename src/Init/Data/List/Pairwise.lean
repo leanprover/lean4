@@ -7,6 +7,11 @@ module
 
 prelude
 public import Init.Data.List.Attach
+import Init.ByCases
+import Init.Data.List.Count
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -43,7 +48,7 @@ theorem Pairwise.rel_getElem_of_lt {l : List α} {i j} {hi : i < l.length} {hj :
 @[grind →] theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R
   | .slnil, h => h
   | .cons _ s, .cons _ h₂ => h₂.sublist s
-  | .cons₂ _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
+  | .cons_cons _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
 
 theorem Pairwise.imp {α R S} (H : ∀ {a b}, R a b → S a b) :
     ∀ {l : List α}, l.Pairwise R → l.Pairwise S
@@ -234,7 +239,7 @@ theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l �
     constructor <;> intro h
     · intro
       | a, b, .cons _ hab => exact IH.mp h.2 hab
-      | _, b, .cons₂ _ hab => refine h.1 _ (hab.subset ?_); simp
+      | _, b, .cons_cons _ hab => refine h.1 _ (hab.subset ?_); simp
     · constructor
       · intro x hx
         apply h
@@ -338,6 +343,44 @@ grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₂
 
 theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Nodup.sublist
+
+theorem getElem?_inj {l : List α} (h₀ : i < l.length) (h₁ : List.Nodup l) :
+    l[i]? = l[j]? ↔ i = j :=
+  ⟨by
+    intro h₂
+    induction l generalizing i j with
+    | nil => cases h₀
+    | cons x xs ih =>
+      match i, j with
+      | 0, 0 => rfl
+      | i+1, j+1 =>
+        cases h₁ with
+        | cons ha h₁ =>
+          simp only [getElem?_cons_succ] at h₂
+          exact congrArg (· + 1) (ih (Nat.lt_of_succ_lt_succ h₀) h₁ h₂)
+      | i+1, 0 => ?_
+      | 0, j+1 => ?_
+      all_goals
+        simp only [getElem?_cons_zero, getElem?_cons_succ] at h₂
+        cases h₁; rename_i h' h
+        have := h x ?_ rfl; cases this
+        rw [mem_iff_getElem?]
+      exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
+      , by simp +contextual⟩
+
+theorem getElem_inj {xs : List α}
+    {h₀ : i < xs.length} {h₁ : j < xs.length} (h : Nodup xs) : xs[i] = xs[j] ↔ i = j := by
+  simpa only [List.getElem_eq_getElem?_get, Option.get_inj] using getElem?_inj h₀ h
+
+theorem getD_inj {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) :
+    xs.getD i fallback = xs.getD j fallback ↔ i = j := by
+  simp only [List.getD_eq_getElem?_getD]
+  rw [Option.getD_inj, getElem?_inj] <;> simpa
+
+theorem getElem!_inj [Inhabited α] {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs[i]! = xs[j]! ↔ i = j := by
+  simpa only [getElem!_eq_getElem?_getD, ← getD_eq_getElem?_getD] using getD_inj h₀ h₁ h₂
 
 @[simp, grind =] theorem nodup_replicate {n : Nat} {a : α} :
     (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]

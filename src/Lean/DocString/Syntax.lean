@@ -8,7 +8,7 @@ module
 
 prelude
 public import Lean.Parser.Term.Basic
-meta import Lean.Parser.Term.Basic
+public meta import Lean.Parser.Term.Basic
 
 
 /-!

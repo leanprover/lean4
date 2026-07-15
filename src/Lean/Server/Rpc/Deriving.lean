@@ -30,6 +30,9 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
   let mut encInits := #[]
   let mut decInits := #[]
   for fieldName in fields do
+    if fieldName == `__rpcref then
+        throwError "'__rpcref' is reserved and cannot be used as a field name. \
+          See the `RpcEncodable` docstring."
     let fid := mkIdent fieldName
     fieldIds := fieldIds.push fid
     if isOptField fieldName then
@@ -57,7 +60,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
         return { $decInits:structInstField,* }
   )
 
-private def matchAltTerm := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
+private meta def matchAltTerm := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
 private instance : Coe (TSyntax ``matchAltTerm) (TSyntax ``Parser.Term.matchAlt) where coe s := ⟨s⟩
 
 private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr)
@@ -72,6 +75,9 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     -- create the constructor
     let fieldStxs ← argVars.mapM fun arg => do
       let name := (← getFVarLocalDecl arg).userName
+      if name == `__rpcref then
+        throwError "'__rpcref' is reserved and cannot be used as an argument name. \
+          See the `RpcEncodable` docstring."
       `(bracketedBinderF| ($(mkIdent name) : Json))
     let pktCtor ← `(Parser.Command.ctor|
       | $ctorId:ident $[$fieldStxs]* : RpcEncodablePacket)

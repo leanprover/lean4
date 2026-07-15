@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Meta.Sym.ExprPtr
 import Lean.Meta.Sym.Util
 import Lean.Meta.Tactic.Grind.Util
 public section
@@ -110,7 +109,7 @@ where
     let e ← eraseIrrelevantMData e
     /- We must fold kernel projections like it is done in the preprocessor. -/
     let e ← foldProjs e
-    normalizeLevels e
+    Sym.normalizeLevels e
 
 private def markNestedProof (e : Expr) : M Expr := do
   let prop ← inferType e

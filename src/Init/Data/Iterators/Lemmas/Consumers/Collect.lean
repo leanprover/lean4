@@ -6,18 +6,26 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Basic
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Collect
 import all Init.Data.Iterators.Consumers.Total
 import all Init.Data.Iterators.Consumers.Monadic.Total
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Option.Lemmas
 
 public section
 
 namespace Std
 open Std.Iterators
+
+@[simp]
+theorem IterM.run_toList_mk' {α : Type u} {β : Type u} [Std.Iterator α Id β] (a : α) :
+    (Std.IterM.mk (m := Id) a).toList.run = (Std.Iter.mk a).toList := rfl
 
 theorem Iter.toArray_eq_toArray_toIterM {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
@@ -52,6 +60,12 @@ theorem Iter.toListRev_ensureTermination_eq_toListRev {α β} [Iterator α Id β
   (rfl)
 
 @[simp]
+theorem IterM.toArray_toIter {α β} [Iterator α Id β] [Finite α Id]
+    {it : IterM (α := α) Id β} :
+    it.toIter.toArray = it.toArray.run :=
+  (rfl)
+
+@[simp]
 theorem IterM.toList_toIter {α β} [Iterator α Id β] [Finite α Id]
     {it : IterM (α := α) Id β} :
     it.toIter.toList = it.toList.run :=
@@ -74,7 +88,7 @@ theorem Iter.toList_toArray_ensureTermination {α β} [Iterator α Id β] [Finit
     it.ensureTermination.toArray.toList = it.toList := by
   simp
 
-@[simp]
+@[cbv_eval ←, simp]
 theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
     it.toList.toArray = it.toArray := by
@@ -96,6 +110,7 @@ theorem Iter.reverse_toListRev_ensureTermination [Iterator α Id β] [Finite α 
     it.ensureTermination.toListRev.reverse = it.toList := by
   simp
 
+@[cbv_eval]
 theorem Iter.toListRev_eq {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
     it.toListRev = it.toList.reverse := by
@@ -163,12 +178,14 @@ theorem Iter.getElem?_toList_eq_atIdxSlow? {α β}
     {it : Iter (α := α) β} {k : Nat} :
     it.toList[k]? = it.atIdxSlow? k := by
   induction it using Iter.inductSteps generalizing k with | step it ihy ihs
-  rw [toList_eq_match_step, atIdxSlow?]
-  obtain ⟨step, h⟩ := it.step
-  cases step
-  · cases k <;> simp [ihy h]
-  · simp [ihs h]
-  · simp
+  rw [toList_eq_match_step, atIdxSlow?, WellFounded.extrinsicFix₂_eq_apply]
+  · obtain ⟨step, h⟩ := it.step
+    cases step
+    · cases k <;> simp [ihy h, atIdxSlow?]
+    · simp [ihs h, atIdxSlow?]
+    · simp
+  · apply InvImage.wf
+    exact WellFoundedRelation.wf
 
 theorem Iter.toList_eq_of_atIdxSlow?_eq {α₁ α₂ β}
     [Iterator α₁ Id β] [Finite α₁ Id]

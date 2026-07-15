@@ -6,8 +6,8 @@ Authors: Joseph Rotella
 module
 
 prelude
-meta import Lean.ErrorExplanation
 public import Lean.Widget.UserWidget
+meta import Lean.Widget.UserWidget
 
 public section
 

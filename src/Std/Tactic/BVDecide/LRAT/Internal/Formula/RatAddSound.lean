@@ -7,6 +7,10 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
+import Init.ByCases
+import Init.Data.Array.Range
+import Init.Data.Int.OfNat
+import Init.Data.Nat.Internal.Linear
 
 @[expose] public section
 
@@ -39,7 +43,6 @@ theorem mem_of_necessary_assignment {n : Nat} {p : (PosFin n) → Bool} {c : Def
     next hne => simp [h] at pv
   · specialize p'_not_entails_c v
     have h := p'_not_entails_c.2 v_in_c
-    simp only at h
     split at h
     next heq => simp [Literal.negate, ← heq, h, v_in_c]
     next hne => simp [h] at pv
@@ -62,6 +65,7 @@ theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c 
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
     · grind
 
+open Classical in
 theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ AssignmentsInvariant f) (units : CNF.Clause (PosFin n)) :
     AssignmentsInvariant (insertRatUnits f units).1 := by
@@ -71,13 +75,13 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
   intro i b hb p hp
   simp only [(· ⊨ ·), Clause.eval] at hp
   simp only [toList, List.append_assoc,
-    List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe,
+    List.any_eq_true, Prod.exists, Bool.exists_bool, decide_eq_true_eq,
     List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map] at hp
   have pf : p ⊨ f := by
     simp only [(· ⊨ ·), Clause.eval]
     simp only [toList, List.append_assoc,
       List.any_eq_true, Prod.exists, Bool.exists_bool,
-      Bool.decide_coe, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map]
+      decide_eq_true_eq, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map]
     intro c cf
     rcases cf with cf | cf | cf
     · specialize hp c (Or.inl cf)
@@ -129,7 +133,7 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
       rcases hp with ⟨hp1, hp2⟩ | ⟨hp1, hp2⟩
       · simp only [b_eq_b', ← hp1.2, (· ⊨ ·)]
         rw [hp1.1] at hp2
-        exact of_decide_eq_true hp2
+        exact hp2
       · simp only [b_eq_b', ← hp1.2, (· ⊨ ·)]
         rw [hp1.1] at hp2
         exact hp2
@@ -171,7 +175,6 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
       · rfl
     have hp1 := hp j1_unit ((Or.inr ∘ Or.inr) j1_unit_in_insertRatUnits_res)
     have hp2 := hp j2_unit ((Or.inr ∘ Or.inr) j2_unit_in_insertRatUnits_res)
-    simp only at hp1 hp2
     rcases hp1 with ⟨i1, hp1⟩
     rcases hp2 with ⟨i2, hp2⟩
     simp only [Fin.getElem_fin] at h1 h2
@@ -420,10 +423,10 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     rw [Array.mem_filter]
     constructor
     · grind
-    · rw [Array.getElem_toList] at c'_in_f
-      simp only [Array.getElem_range, getElem!_def, i_lt_f_clauses_size, Array.getElem?_eq_getElem,
-        c'_in_f, contains_iff]
-      simpa [Clause.toList] using negPivot_in_c'
+    · split
+      · grind
+      · simp [Clause.toList] at negPivot_in_c'
+        grind [contains_iff]
   rcases List.get_of_mem h with ⟨j, h'⟩
   have j_in_bounds : j < ratHints.size := by
     have j_property := j.2
@@ -469,6 +472,7 @@ theorem performRatCheck_success_of_performRatCheck_fold_success {n : Nat} (f : D
   have h := (Array.foldl_induction motive h_base h_inductive).2 performRatCheck_fold_success i
   simpa [getElem!_def, i.2, dite_true] using h
 
+open Classical in
 theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormula n)
     (f_readyForRatAdd : ReadyForRatAdd f) (c : DefaultClause n) (pivot : Literal (PosFin n))
     (rupHints : Array Nat) (ratHints : Array (Nat × Array Nat))
@@ -541,7 +545,7 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
           apply h c' hc' p
           simp only [(· ⊨ ·), Clause.eval]
           simp only [List.any_eq_true, Prod.exists, Bool.exists_bool,
-            Bool.decide_coe, List.all_eq_true, decide_eq_true_eq]
+            decide_eq_true_eq, List.all_eq_true, decide_eq_true_eq]
           intro c'' hc''
           simp only [toList, clauses_performRupCheck, rupUnits_performRupCheck,
             ratUnits_performRupCheck] at hc''
@@ -565,8 +569,7 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
               simp only [Bool.not_eq_true] at h
               assumption
           · simp only [(· ⊨ ·), Clause.eval] at pf
-            simp only [List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe, List.all_eq_true] at pf
-            simp only [Bool.decide_eq_false, Bool.not_eq_true'] at pf
+            simp only [List.any_eq_true, Prod.exists, Bool.exists_bool, decide_eq_true_eq, List.all_eq_true] at pf
             apply pf
             assumption
         have p'_entails_c'_del_negPivot : p' ⊨ c'.delete (Literal.negate pivot) := entails_of_irrelevant_assignment h

@@ -33,6 +33,7 @@ public:
         expr_map<expr>            m_whnf;
         equiv_manager             m_eqv_manager;
         expr_pair_set             m_failure;
+        expr_map<expr>            m_unfold;
         friend type_checker;
     public:
         state(environment const & env);
@@ -115,7 +116,7 @@ public:
     type_checker(state & st, definition_safety ds = definition_safety::safe):type_checker(st, local_ctx(), ds) {}
     type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe);
     type_checker(environment const & env, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe):type_checker(env, local_ctx(), diag, ds) {}
-    type_checker(type_checker &&);
+    type_checker(type_checker &&) noexcept;
     type_checker(type_checker const &) = delete;
     ~type_checker();
 

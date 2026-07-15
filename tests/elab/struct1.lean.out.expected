@@ -1,0 +1,18 @@
+C.{u, v, u_1, u_2} (β : Type u_1) (α : Type u_2) (δ : Type u) (η : Type v) : Type (max u_1 u_2)
+C : Type u_3 → Type u_4 → Type u_1 → Type u_2 → Type (max u_3 u_4)
+@C.mk2 : {β : Type u_3} → {α : Type u_4} → {δ : Type u_1} → {η : Type u_2} → A β → B α → Nat → C β α δ η
+{ x := 10, y := 20, z := 30, w := 40 } : C Nat Nat Nat Nat
+@C.recOn : {β : Type u_4} →
+  {α : Type u_5} →
+    {δ : Type u_2} →
+      {η : Type u_3} →
+        {motive : C β α δ η → Sort u_1} →
+          (t : C β α δ η) →
+            ((toA : A β) → (toB : B α) → (w : Nat) → motive { toA := toA, toB := toB, w := w }) → motive t
+C.w.{u, v, u_1, u_2} {β : Type u_1} {α : Type u_2} {δ : Type u} {η : Type v} (self : C β α δ η) : Nat
+fun c => c.x : C Nat Nat Nat Nat → Nat
+@Tst.comm : ∀ {α : Type u_1} [self : Tst α] (a b : α), a * b = b * a
+@Tst.toMul : {α : Type u_1} → [self : Tst α] → Mul α
+{ x := 10, y := 20, z := 30 } : C Nat Nat Nat Nat
+@Boo.y._default : {α : Type u_1} → (α → α → α) → α → α
+{ add := Nat.add, x := 10 } : Boo Nat

@@ -9,9 +9,12 @@ prelude
 import all Init.Data.Option.BasicAux
 public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
-public import Init.Data.BEq
-public import Init.Classical
 public import Init.Ext
+public import Init.Data.Option.BasicAux
+public import Init.PropLemmas
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
 
 public section
 
@@ -78,6 +81,15 @@ theorem get_inj {o1 o2 : Option α} {h1} {h2} :
     o1.get h1 = o2.get h2 ↔ o1 = o2 := by
   match o1, o2, h1, h2 with
   | some a, some b, _, _ => simp only [Option.get_some, Option.some.injEq]
+
+theorem getD_inj {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) {fallback} :
+    o₁.getD fallback = o₂.getD fallback ↔ o₁ = o₂ := by
+  match o₁, o₂, h₁, h₂ with
+  | some a, some b, _, _ => simp only [Option.getD_some, Option.some.injEq]
+
+theorem get!_inj [Inhabited α] {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) :
+    o₁.get! = o₂.get! ↔ o₁ = o₂ := by
+  simpa [get!_eq_getD] using getD_inj h₁ h₂
 
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb
@@ -741,7 +753,7 @@ theorem elim_guard : (guard p a).elim b f = if p a then f a else b := by
   cases h : p a <;> simp [*, guard]
 
 @[simp]
-theorem Option.elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
+theorem elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
     (o.map f).elim g' g = o.elim g' (g ∘ f) := by
   cases o <;> simp
 
@@ -817,6 +829,9 @@ end choice
 theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := by
   cases h; simp
 
+theorem or_eq_left_of_isSome {o o' : Option α} : o.isSome = true → o.or o' = o := by
+  cases o <;> simp
+
 @[simp, grind =] theorem or_some {o : Option α} : o.or (some a) = some (o.getD a) := by
   cases o <;> rfl
 
@@ -882,6 +897,10 @@ theorem get!_or {o o' : Option α} [Inhabited α] : (o.or o').get! = o.getD o'.g
 theorem guard_or_guard : (guard p a).or (guard q a) = guard (fun x => p x || q x) a := by
   simp only [guard]
   split <;> simp_all
+
+theorem any_or_of_any_left {o₁ o₂ : Option α} {f : α → Bool} (h : o₁.any f) :
+    (o₁.or o₂).any f := by
+  cases o₁ <;> simp_all
 
 /-! ### `orElse` -/
 
@@ -1053,7 +1072,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite {p : Prop} {_ : Decidable p} (h) :
     (if p then some b else none).get h = b := by
-  simpa using get_dite (p := p) (fun _ => b) (by simpa using h)
+  simpa using! get_dite (p := p) (fun _ => b) (by simpa using h)
 
 @[simp] theorem get_dite' {p : Prop} {_ : Decidable p} (b : ¬ p → β) (w) :
     (if h : p then none else some (b h)).get w = b (by simpa using w) := by
@@ -1065,7 +1084,7 @@ theorem mem_ite_none_right {x : α} {_ : Decidable p} {l : Option α} :
 
 @[simp] theorem get_ite' {p : Prop} {_ : Decidable p} (h) :
     (if p then none else some b).get h = b := by
-  simpa using get_dite' (p := p) (fun _ => b) (by simpa using h)
+  simpa using! get_dite' (p := p) (fun _ => b) (by simpa using h)
 
 end ite
 

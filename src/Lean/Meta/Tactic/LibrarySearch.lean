@@ -13,7 +13,7 @@ public import Lean.Util.Heartbeats
 import Init.Grind.Util
 import Init.Try
 import Lean.Elab.Tactic.Basic
-import Lean.Linter.Deprecated
+import Init.Omega
 
 public section
 
@@ -137,13 +137,14 @@ to find candidate lemmas.
 
 open LazyDiscrTree (InitEntry findMatches)
 
-private def addImport (name : Name) (constInfo : ConstantInfo) :
+private def addImport (name : Name) (c : AsyncConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) := do
   -- Don't report deprecated lemmas.
   if Linter.isDeprecated (← getEnv) name then return #[]
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[] else
-  forallTelescope constInfo.type fun _ type => do
+  -- Only the signature is needed; this avoids blocking on async theorem bodies (lean4#13705).
+  forallTelescope c.toConstantVal.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
     let a := #[e]
     if e.key == .const ``Iff 2 then
@@ -153,17 +154,12 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
     else
       pure a
 
-/-- Stores import discrimination tree. -/
-private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))
-
-private builtin_initialize defaultLibSearchState : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ← do
+/-- Process-global cache for the imported-declarations discrimination tree. This must *not* live in
+an environment extension: the snapshot used by `--incr-load` compacts the whole environment object
+(including non-persistent extension state), and a mutable `IO.Ref` baked into the read-only mapped
+region is unsound to read or write. A process-global ref is rebuilt per process instead. -/
+private builtin_initialize ext : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ←
   IO.mkRef .none
-
-private instance : Inhabited LibSearchState where
-  default := defaultLibSearchState
-
-private builtin_initialize ext : EnvExtension LibSearchState ←
-  registerEnvExtension (IO.mkRef .none)
 
 /--
 We drop `.star` and `Eq * * *` from the discriminator trees because
@@ -181,16 +177,15 @@ initialization performance.
 -/
 private def constantsPerImportTask : Nat := 6500
 
-/-- Environment extension for caching star-indexed lemmas.
-    Used for fallback when primary search finds nothing for fvar-headed goals. -/
-private builtin_initialize starLemmasExt : EnvExtension (IO.Ref (Option (Array (Name × DeclMod)))) ←
-  registerEnvExtension (IO.mkRef .none)
+/-- Process-global cache for star-indexed lemmas (see `ext`); used as a fallback when primary search
+    finds nothing for fvar-headed goals. -/
+private builtin_initialize starLemmasExt : IO.Ref (Option (Array (Name × DeclMod))) ←
+  IO.mkRef .none
 
 /-- Create function for finding relevant declarations.
     Also captures dropped entries in starLemmasExt for fallback search. -/
 def libSearchFindDecls (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
-  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
-  let droppedRef := starLemmasExt.getState (←getEnv)
+  let droppedRef := starLemmasExt
   findMatches ext addImport
       (droppedKeys := droppedKeys)
       (constantsPerTask := constantsPerImportTask)
@@ -199,8 +194,7 @@ def libSearchFindDecls (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
 
 /-- Get star-indexed lemmas (lazily computed during tree initialization). -/
 def getStarLemmas : MetaM (Array (Name × DeclMod)) := do
-  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
-  let ref := starLemmasExt.getState (←getEnv)
+  let ref := starLemmasExt
   match ←ref.get with
   | some lemmas => return lemmas
   | none =>
@@ -222,11 +216,6 @@ def mkHeartbeatCheck (leavePercent : Nat) : MetaM (MetaM Bool) := do
       pure false
     else do
       return (← getRemainingHeartbeats) < hbThreshold
-
-private def librarySearchEmoji : Except ε (Option α) → String
-| .error _ => bombEmoji
-| .ok (some _) => crossEmoji
-| .ok none => checkEmoji
 
 /--
 Interleave x y interleaves the elements of x and y until one is empty and then returns
@@ -291,8 +280,6 @@ def librarySearchSymm (searchFn : CandidateFinder) (goal : MVarId) : MetaM (Arra
   else
     pure $ l1.map (coreGoalCtx, ·)
 
-private def emoji (e : Except ε α) := if e.toBool then checkEmoji else crossEmoji
-
 /-- Create lemma from name and mod. -/
 def mkLibrarySearchLemma (lem : Name) (mod : DeclMod) : MetaM Expr := do
   let lem ← mkConstWithFreshMVarLevels lem
@@ -319,7 +306,7 @@ private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM 
   let ((goal, mctx), (name, mod)) := cand
   let ppMod (mod : DeclMod) : MessageData :=
         match mod with | .none => "" | .mp => " with mp" | .mpr => " with mpr"
-  withTraceNode `Tactic.librarySearch (return m!"{emoji ·} trying {name}{ppMod mod} ") do
+  withTraceNode `Tactic.librarySearch (fun _ => return m!"trying {name}{ppMod mod} ") do
     setMCtx mctx
     let lem ← mkLibrarySearchLemma name mod
     let newGoals ← goal.apply lem cfg
@@ -371,7 +358,7 @@ private def librarySearch' (goal : MVarId)
     (includeStar : Bool := true)
     (collectAll : Bool := false) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
-  withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
+  withTraceNode `Tactic.librarySearch (fun _ => return m!"{← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
     let cfg : ApplyConfig := { allowSynthFailures := true }
     let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats

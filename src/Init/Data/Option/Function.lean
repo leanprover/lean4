@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Function
-import Init.Data.Option.Lemmas
+import Init.NotationExtra
 
 public section
 

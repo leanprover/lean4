@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
+import Init.Grind.Ordered.Order
+import Init.RCases
 
 public section
 

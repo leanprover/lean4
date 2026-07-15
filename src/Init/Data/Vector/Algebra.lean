@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
 public import Init.Grind
+public import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 
 /-!
 # Componentwise algebraic structures on `Vector α n`.
@@ -74,6 +75,7 @@ def mul [Mul α] (xs ys : Vector α n) : Vector α n :=
 Pointwise multiplication of vectors.
 This is not a global instance as in some applications different multiplications may be relevant.
 -/
+@[instance_reducible]
 def instMul [Mul α] : Mul (Vector α n) := ⟨mul⟩
 
 section mul

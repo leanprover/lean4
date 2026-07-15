@@ -12,7 +12,6 @@ import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.NatTable
 import Lean.Elab.App
-import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean
 

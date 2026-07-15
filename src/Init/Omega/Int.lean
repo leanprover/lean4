@@ -6,7 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Fin.Basic
+public import Init.Data.Int.DivMod.Basic
+public import Init.WF
+import Init.ByCases
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.PropLemmas
 
 public section
 
@@ -98,7 +104,6 @@ theorem ofNat_sub_dichotomy {a b : Nat} :
   by_cases h : b ≤ a
   · left
     have t := Int.ofNat_sub h
-    simp at t
     exact ⟨h, t⟩
   · right
     have t := Nat.not_le.mp h

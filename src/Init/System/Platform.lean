@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.String.Bootstrap
+public import Init.Data.Nat.Div.Basic
+public import Init.SimpLemmas
+import Init.Data.Nat.Basic
+import Init.Data.String.Bootstrap
 
 public section
 
@@ -51,6 +54,12 @@ compiled.
 The LLVM target triple of the current platform. Empty if missing when Lean was compiled.
 -/
 def target : String := getTarget ()
+
+/--
+The platform's native concurrency limit (number of hardware threads), or `0` if indeterminate.
+-/
+@[extern "lean_internal_get_hardware_concurrency"]
+opaque Internal.getHardwareConcurrency : Unit → UInt32
 
 @[simp]
 theorem numBits_pos : 0 < numBits := by

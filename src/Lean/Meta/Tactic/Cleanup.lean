@@ -8,11 +8,11 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.CollectFVars
-import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
 
-private partial def cleanupCore (mvarId : MVarId) (toPreserve : Array FVarId) (indirectProps : Bool) : MetaM MVarId := do
+partial def cleanupCore (mvarId : MVarId) (toPreserve : Array FVarId) (indirectProps : Bool) : MetaM MVarId := do
   mvarId.withContext do
     mvarId.checkNotAssigned `cleanup
     let used ← collectUsed |>.run' (false, {})

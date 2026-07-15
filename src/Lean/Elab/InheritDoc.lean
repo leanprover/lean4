@@ -6,7 +6,8 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Lean.DocString.Add
+import Lean.Elab.InfoTree.Main
+import Lean.DocString.Markdown
 
 namespace Lean
 

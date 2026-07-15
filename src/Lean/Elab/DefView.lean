@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 module
-
 prelude
 public import Lean.Elab.DeclNameGen
 public import Lean.Elab.DeclUtil
-
 public section
-
 namespace Lean.Elab
 
 inductive DefKind where
@@ -56,7 +53,7 @@ structure BodyProcessedSnapshot extends Language.Snapshot where
   moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Nonempty
 instance : Language.ToSnapshotTree BodyProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform, ← s.moreSnaps.mapM (·.transform)⟩
 
 /-- Snapshot after elaboration of a definition header. -/
 structure HeaderProcessedSnapshot extends Language.Snapshot where
@@ -76,11 +73,9 @@ structure HeaderProcessedSnapshot extends Language.Snapshot where
   moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Nonempty
 instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    (match s.tacSnap? with
-      | some tac => #[tac.map (sync := true) toSnapshotTree]
-      | none     => #[]) ++
-    #[s.bodySnap.map (sync := true) toSnapshotTree] ++ s.moreSnaps⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform,
+    (← s.tacSnap?.toArray.mapM (·.transform)) ++
+    #[← s.bodySnap.transform] ++ (← s.moreSnaps.mapM (·.transform))⟩
 
 /-- State before elaboration of a mutual definition. -/
 structure DefParsed where
@@ -99,8 +94,8 @@ structure DefsParsedSnapshot extends Language.Snapshot where
   defs : Array DefParsed
 deriving Nonempty, TypeName
 instance : Language.ToSnapshotTree DefsParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    s.defs.map (·.headerProcessedSnap.map (sync := true) toSnapshotTree)⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform,
+    ← s.defs.mapM (·.headerProcessedSnap.transform)⟩
 
 end Snapshots
 
@@ -117,8 +112,8 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
-  /-- The docstring, if present, and whether it's Verso -/
-  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /-- The docstring, if present. -/
+  docString?    : Option (TSyntax ``Parser.Command.docComment)
   /--
   Snapshot for incremental processing of this definition.
 
@@ -132,7 +127,9 @@ structure DefView where
 def DefView.isInstance (view : DefView) : Bool :=
   view.modifiers.attrs.any fun attr => attr.name == `instance
 
-/-- Prepends the `defeq` attribute, removing existing ones if there are any -/
+/-- Prepends the `defeq` attribute, removing existing ones if there are any.
+The `defeq` attribute's validator also tags `backward_defeq` on success, so the
+superset invariant `defeq ⊆ backward_defeq` is preserved. -/
 def DefView.markDefEq (view : DefView) : DefView :=
   { view with modifiers :=
       view.modifiers.filterAttrs (·.name != `defeq) |>.addFirstAttr { name := `defeq } }
@@ -167,9 +164,10 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
+  -- NOTE: `[instance_reducible]` is added conditionally in `elabMutualDef`
   let attrStx         ← `(attr| instance $(quote prio):num)
-  let (binders, type) := expandDeclSig stx[4]
   let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
+  let (binders, type) := expandDeclSig stx[4]
   let declId ← match stx[3].getOptional? with
     | some declId =>
       if ← isTracingEnabledFor `Elab.instance.mkInstanceName then

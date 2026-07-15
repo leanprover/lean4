@@ -11,6 +11,7 @@ import Lake.Util.JsonObject
 import Lake.Util.Proc
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+import Init.TacticsExtra  -- shake: keep (out-of-line macro_rules def, fix)
 
 open Lean
 

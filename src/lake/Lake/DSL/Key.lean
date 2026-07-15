@@ -6,7 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-import Lake.Build.Key
+import Lake.Build.Key  -- shake: keep (builtin macro output dependency)
 import Lake.DSL.Syntax
 import Lake.Util.Name
 

@@ -14,6 +14,7 @@ import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
 import Lean.Meta.SameCtorUtils
+import Init.Data.Array.OfFn
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
@@ -110,7 +111,7 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
   let x1 := mkIdent header.targetNames[0]!
   let x2 := mkIdent header.targetNames[1]!
   let ctorIdxName := mkCtorIdxName indVal.name
-  -- NB: the getMatcherInfo? assumes all mathcers are called `match_`
+  -- NB: the getMatcherInfo? assumes all matchers are called `match_`
   let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `match_on_same_ctor)
   mkCasesOnSameCtor casesOnSameCtorName indVal.name
   let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do
@@ -248,7 +249,7 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
   withLocalDeclD `x enumType fun x => do
     let resultType := mkApp2 eqEnum (mkApp ofNat (mkApp ctorIdx x)) x
     let motive     ← mkLambdaFVars #[x] resultType
-    let casesOn    := mkConst (mkCasesOnName declName) (levelZero :: levels)
+    let casesOn    := mkConst (mkCasesOnName declName) (Level.zero :: levels)
     let mut value  := mkApp2 casesOn motive x
     for ctor in ctors do
       value := mkApp value (mkApp rflEnum (mkConst ctor levels))

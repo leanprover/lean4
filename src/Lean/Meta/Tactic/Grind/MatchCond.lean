@@ -5,12 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind
-import Init.Simproc
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Grind.ProveEq
-import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
 public section
 namespace Lean.Meta.Grind
 /-
@@ -282,7 +280,6 @@ where
     trace_goal[grind.debug.matchCond] "go?: {← inferType h}"
     let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
-    let target ← (← get).mvarId.getType
     -- We use `shareCommon` here because we may accessing a new expression
     -- created when we infer the type of the `noConfusion` term below
     let lhs ← shareCommon lhs
@@ -300,7 +297,8 @@ where
       let some ctorLhs ← isConstructorApp? root.self | return none
       let some ctorRhs ← isConstructorApp? rhs | return none
       -- See comment on `shareCommon` above.
-      let h ← mkNoConfusion target h
+      -- Recall that `match`-expression conditions always have `False` as their conclusion.
+      let h ← mkNoConfusion (← getFalseExpr) h
       if ctorLhs.name ≠ ctorRhs.name then
         return some h
       else

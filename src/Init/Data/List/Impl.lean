@@ -6,7 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Bootstrap
+public import Init.Ext
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -115,6 +119,12 @@ Example:
         filterMap]
       split <;> simp [*]
   exact (go l #[]).symm
+
+/-! ### reduceOption -/
+
+/-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
+@[inline, expose] def reduceOption {α} : List (Option α) → List α :=
+  List.filterMap id
 
 /-! ### foldr -/
 

@@ -9,15 +9,16 @@ prelude
 public import Lean.Compiler.NameMangling
 public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
-public import Lean.Compiler.IR.SimpCase
-public import Lean.Compiler.IR.Boxing
-public import Lean.Compiler.IR.ResetReuse
 public import Lean.Compiler.IR.LLVMBindings
+import Lean.Compiler.LCNF.Types
 import Lean.Compiler.ModPkgExt
+import Lean.Runtime
+import Lean.Compiler.ClosedTermCache
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
-open Lean.IR.ExplicitBoxing (isBoxedName)
+open Lean.Compiler.LCNF (isBoxedName)
 
 namespace Lean.IR
 /-
@@ -31,6 +32,7 @@ time. These changes can likely be done similar to the ones in EmitC:
     - function decls need to be fixed
     - full applications need to be fixed
     - tail calls need to be fixed
+- closed term static initializers
 -/
 
 def leanMainFn := "_lean_main"
@@ -537,14 +539,12 @@ def emitFnDecls : M llvmctx Unit := do
   let env ← getEnv
   let decls := getDecls env
   let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {}
-  let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
-  let usedDecls := usedDecls.toList
-  for n in usedDecls do
-    let decl ← getDecl n
+  let usedDecls := collectUsedDecls env decls
+  usedDecls.forM fun n => do
+    let decl ← getDecl n;
     match getExternNameFor env `c decl.name with
     | some cName => emitExternDeclAux decl cName
     | none       => emitFnDecl decl (!modDecls.contains n)
-  return ()
 
 def emitLhsSlot_ (x : VarId) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   let state ← get
@@ -1080,7 +1080,7 @@ def emitSSet (builder : LLVM.Builder llvmctx) (x : VarId) (n : Nat) (offset : Na
 def emitDel (builder : LLVM.Builder llvmctx) (x : VarId) : M llvmctx Unit := do
   let argtys := #[ ← LLVM.voidPtrType llvmctx]
   let retty  ← LLVM.voidType llvmctx
-  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty "lean_free_object" argtys
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty "lean_del_object" argtys
   let xv ← emitLhsVal builder x
   let fnty ← LLVM.functionType retty argtys
   let _ ← LLVM.buildCall2 builder fnty fn  #[xv]

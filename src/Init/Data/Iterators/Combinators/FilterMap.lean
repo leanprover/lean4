@@ -282,17 +282,17 @@ def Iter.mapM {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
     [Monad m] [MonadAttach m] (f : β → m γ) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapM f : IterM m γ)
 
-@[always_inline, inline, inherit_doc IterM.filterMap, expose]
+@[cbv_opaque, always_inline, inline, inherit_doc IterM.filterMap, expose]
 def Iter.filterMap {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
     (f : β → Option γ) (it : Iter (α := α) β) :=
   ((it.toIterM.filterMap f).toIter : Iter γ)
 
-@[always_inline, inline, inherit_doc IterM.filter, expose]
+@[cbv_opaque, always_inline, inline, inherit_doc IterM.filter, expose]
 def Iter.filter {α : Type w} {β : Type w} [Iterator α Id β]
     (f : β → Bool) (it : Iter (α := α) β) :=
   ((it.toIterM.filter f).toIter : Iter β)
 
-@[always_inline, inline, inherit_doc IterM.map, expose]
+@[cbv_opaque, always_inline, inline, inherit_doc IterM.map, expose]
 def Iter.map {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
     (f : β → γ) (it : Iter (α := α) β) :=
   ((it.toIterM.map f).toIter : Iter γ)

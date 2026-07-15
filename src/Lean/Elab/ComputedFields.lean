@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Constructions.CasesOn
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Compiler.ExternAttr
 
 public section
 
@@ -103,16 +104,18 @@ def validateComputedFields : M Unit := do
     if indices.any (ty.containsFVar ·.fvarId!) then
       throwError "computed field {cf}'s type must not depend on indices{indentExpr ty}"
 
-def mkImplType : M Unit := do
+def mkImplType : M Name := do
   let {name, isUnsafe, type, ctors, levelParams, numParams, lparams, params, compFieldVars, ..} ← read
+  let name := name ++ `_impl
   addDecl <| .inductDecl levelParams numParams
     (isUnsafe := isUnsafe) -- Note: inlining is disabled with unsafe inductives
-    [{ name := name ++ `_impl, type,
+    [{ name, type,
        ctors := ← ctors.mapM fun ctor => do
          forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields retTy => do
-           let retTy := mkAppN (mkConst (name ++ `_impl) lparams) retTy.getAppArgs
+           let retTy := mkAppN (mkConst name lparams) retTy.getAppArgs
            let type ← mkForallFVars (params ++ (if ← isScalarField ctor then #[] else compFieldVars) ++ fields) retTy
            return { name := ctor ++ `_impl, type } }]
+  return name
 
 def overrideCasesOn : M Unit := do
   let {name, numIndices, ctors, lparams, params, compFieldVars, ..} ← read
@@ -185,8 +188,9 @@ def overrideComputedFields : M Unit := do
                 ← getComputedFieldValue cfn (mkAppN (mkConst ctor lparams) (params ++ fields))
             else
               mkLambdaFVars (compFieldVars ++ fields) cf
+    let cfnOverride := cfn ++ `_override
     addDecl <| .defnDecl {
-      name := cfn ++ `_override
+      name := cfnOverride
       levelParams
       type := ← mkForallFVars (params ++ indices ++ #[val]) (← inferType cf)
       value := ← mkLambdaFVars (params ++ indices ++ #[val]) <|
@@ -196,7 +200,9 @@ def overrideComputedFields : M Unit := do
       safety := .unsafe
       hints := .opaque
     }
-    setImplementedBy cfn (cfn ++ `_override)
+    if let some inlineAttr := Compiler.getInlineAttribute? (← getEnv) cfn then
+      setInlineAttribute cfnOverride inlineAttr
+    setImplementedBy cfn cfnOverride
 
 def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM Unit := do
   let ind ← getConstInfoInduct declName
@@ -214,7 +220,8 @@ def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM
       let ctx := { ind with lparams, params, compFields, compFieldVars, indices, val }
       ReaderT.run (r := ctx) do
         validateComputedFields
-        mkImplType
+        let ty ← mkImplType
+        Lean.compileDecls #[ty]
         overrideCasesOn
         overrideConstructors
         overrideComputedFields

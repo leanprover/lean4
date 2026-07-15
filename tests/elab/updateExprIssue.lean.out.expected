@@ -1,0 +1,23 @@
+[Compiler.saveMono] size: 17
+    def sefFn e f : Expr :=
+      cases e : Expr
+      | Lean.Expr.app._impl data fn.1 arg.2 =>
+        jp _jp.3 _y.4 : Expr :=
+          cases _y.4 : Expr
+          | Bool.false =>
+            let _x.5 := Expr.app._override f arg.2;
+            return _x.5
+          | Bool.true =>
+            return e;
+        let _x.6 := ptrAddrUnsafe ◾ fn.1;
+        let _x.7 := ptrAddrUnsafe ◾ f;
+        let _x.8 := USize.decEq _x.6 _x.7;
+        cases _x.8 : Expr
+        | Bool.false =>
+          goto _jp.3 _x.8
+        | Bool.true =>
+          let _x.9 := ptrAddrUnsafe ◾ arg.2;
+          let _x.10 := USize.decEq _x.9 _x.9;
+          goto _jp.3 _x.10
+      | _ =>
+        return e

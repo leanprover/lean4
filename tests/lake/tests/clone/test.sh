@@ -6,20 +6,13 @@ source ../common.sh
 # Test Lake's management of a single Git-cloned dependency.
 
 echo "# SETUP"
-set -x
 mkdir hello
 pushd hello
 $LAKE init hello
 rm -f lean-toolchain
 $LAKE update
-git init
-git checkout -b master
-git config user.name test
-git config user.email test@example.com
-git add --all
-git commit -m "initial commit"
+init_git
 popd
-set +x
 
 HELLO_MAP="{\"hello\" : \"file://$(pwd)/hello\"}"
 
@@ -74,4 +67,5 @@ git -C .lake/packages/hello remote set-url origin $TEST_URL
 LAKE_PKG_URL_MAP=$TEST_MAP test_no_warn build
 
 # Cleanup
+rm -rf hello/.git
 rm -f produced.out

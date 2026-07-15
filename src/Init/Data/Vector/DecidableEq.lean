@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 
 public section
 
@@ -25,7 +26,7 @@ theorem isEqv_eq_decide (xs ys : Vector α n) (r) :
     Vector.isEqv xs ys r = decide (∀ (i : Nat) (h' : i < n), r xs[i] ys[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, h⟩
-  simp [Array.isEqv_eq_decide, h]
+  simp -implicitDefEqProofs [Array.isEqv_eq_decide, h]
 
 @[simp] theorem isEqv_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray.isEqv ys.toArray r) = (xs.isEqv ys r) := by
   simp [isEqv_eq_decide, Array.isEqv_eq_decide]

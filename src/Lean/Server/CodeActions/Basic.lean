@@ -36,12 +36,12 @@ structure CodeActionResolveData where
   providerResultIndex : Nat
   deriving ToJson, FromJson
 
-def CodeAction.getFileSource! (ca : CodeAction) : FileIdent :=
-  let r : Except String FileIdent := do
+def CodeAction.getFileSource! (ca : CodeAction) : DocumentUri :=
+  let r : Except String DocumentUri := do
     let some data := ca.data?
       | throw s!"no data param on code action {ca.title}"
     let data : CodeActionResolveData ← fromJson? data
-    return .uri data.params.textDocument.uri
+    return data.params.textDocument.uri
   match r with
   | Except.ok uri => uri
   | Except.error e => panic! e
@@ -134,7 +134,6 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         RequestM.checkCancelled
         let cas ← cap params snap
         cas.mapIdxM fun i lca => do
-          if lca.lazy?.isNone then return lca.eager
           let data : CodeActionResolveData := {
             params, providerName, providerResultIndex := i
           }
@@ -165,7 +164,8 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
       let some lazy := ca.lazy?
-        | throw <| RequestError.internalError s!"Can't resolve; nothing further to resolve."
+        -- Eager code action - return unchanged
+        | return param
       let r ← liftM lazy
       return r
 

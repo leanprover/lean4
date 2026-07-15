@@ -7,14 +7,13 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.Attach
-public import Init.Data.Iterators.Combinators.FilterMap
 
 public section
 
 namespace Std
 open Std.Iterators
 
-@[always_inline, inline, expose, inherit_doc IterM.attachWith]
+@[cbv_opaque, always_inline, inline, expose, inherit_doc IterM.attachWith]
 def Iter.attachWith {α β : Type w}
     [Iterator α Id β]
     (it : Iter (α := α) β) (P : β → Prop) (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :

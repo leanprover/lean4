@@ -8,6 +8,8 @@ module
 prelude
 public import Init.ByCases
 public import Std.Do.SPred.Laws
+import Init.Classical
+import Init.TacticsExtra
 
 @[expose] public section
 
@@ -154,6 +156,8 @@ theorem pure_forall {φ : α → Prop} : (∀ x, (⌜φ x⌝ : SPred σs)) ⊣�
 
 theorem pure_exists {φ : α → Prop} : (∃ x, ⌜φ x⌝ : SPred σs) ⊣⊢ₛ ⌜∃ x, φ x⌝ := bientails.iff.mpr ⟨exists_elim fun a => pure_mono (⟨a, ·⟩), pure_elim' fun ⟨x, h⟩ => (pure_intro h).trans (exists_intro' x .rfl)⟩
 
+theorem down_pure_intro {φ : Prop} (h : φ) : (pure (σs:=[]) φ).down := by simp [h]
+
 @[simp, grind =] theorem true_intro_simp : (Q ⊢ₛ ⌜True⌝) ↔ True := iff_true_intro true_intro
 
 @[simp] theorem _root_.ULift.down_dite {φ : Prop} [Decidable φ] (t : φ → α) (e : ¬φ → α) : (ULift.down (if h : φ then ⟨t h⟩ else ⟨e h⟩)) = if h : φ then t h else e h := apply_dite _ _ _ _
@@ -168,13 +172,16 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 
 -- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
 theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
-@[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+theorem apply_pure_cons_entails_l {σ : Type u} {s : σ} (h : pure (σs:=σs) φ ⊢ₛ Q) : pure (σs:=σ::σs) φ s ⊢ₛ Q := by simpa using h
+theorem apply_pure_cons_entails_r {σ : Type u} {s : σ} (h : P ⊢ₛ pure (σs:=σs) φ) : P ⊢ₛ pure (σs:=σ::σs) φ s := by simpa using h
+
+@[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) ↔ (P ⊢ₛ Q) := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
 -- The following lemmas work around a DefEq incompleteness that would be fixed by #9015.
-@[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q = (∀ s, (P s).down → (Q s).down) := rfl
-@[simp] theorem entails_2 {P Q : SPred [σ₁, σ₂]} : SPred.entails P Q = (∀ s₁ s₂, (P s₁ s₂).down → (Q s₁ s₂).down) := rfl
-@[simp] theorem entails_3 {P Q : SPred [σ₁, σ₂, σ₃]} : SPred.entails P Q = (∀ s₁ s₂ s₃, (P s₁ s₂ s₃).down → (Q s₁ s₂ s₃).down) := rfl
-@[simp] theorem entails_4 {P Q : SPred [σ₁, σ₂, σ₃, σ₄]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄, (P s₁ s₂ s₃ s₄).down → (Q s₁ s₂ s₃ s₄).down) := rfl
-@[simp] theorem entails_5 {P Q : SPred [σ₁, σ₂, σ₃, σ₄, σ₅]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄ s₅, (P s₁ s₂ s₃ s₄ s₅).down → (Q s₁ s₂ s₃ s₄ s₅).down) := rfl
+@[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q ↔ (∀ s, (P s).down → (Q s).down) := iff_of_eq rfl
+@[simp] theorem entails_2 {P Q : SPred [σ₁, σ₂]} : SPred.entails P Q ↔ (∀ s₁ s₂, (P s₁ s₂).down → (Q s₁ s₂).down) := iff_of_eq rfl
+@[simp] theorem entails_3 {P Q : SPred [σ₁, σ₂, σ₃]} : SPred.entails P Q ↔ (∀ s₁ s₂ s₃, (P s₁ s₂ s₃).down → (Q s₁ s₂ s₃).down) := iff_of_eq rfl
+@[simp] theorem entails_4 {P Q : SPred [σ₁, σ₂, σ₃, σ₄]} : SPred.entails P Q ↔ (∀ s₁ s₂ s₃ s₄, (P s₁ s₂ s₃ s₄).down → (Q s₁ s₂ s₃ s₄).down) := iff_of_eq rfl
+@[simp] theorem entails_5 {P Q : SPred [σ₁, σ₂, σ₃, σ₄, σ₅]} : SPred.entails P Q ↔ (∀ s₁ s₂ s₃ s₄ s₅, (P s₁ s₂ s₃ s₄ s₅).down → (Q s₁ s₂ s₃ s₄ s₅).down) := iff_of_eq rfl
 
 /-! # Tactic support -/
 
@@ -191,7 +198,7 @@ class PropAsSPredTautology (φ : Prop) {σs : outParam (List (Type u))} (P : out
   /-- A proof that `φ` and `P` are logically equivalent. -/
   iff : φ ↔ ⊢ₛ P
 instance {φ : SPred []} : PropAsSPredTautology φ.down φ where iff := true_imp_iff.symm
-instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := iff_of_eq (entails_true_intro P Q).symm
+instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := (entails_true_intro P Q).symm
 instance : PropAsSPredTautology (⊢ₛ P) P where iff := Iff.rfl
 
 /--

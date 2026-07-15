@@ -8,9 +8,13 @@ module
 prelude
 import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.List.Lex
 import Init.Data.Range.Polymorphic.NatLemmas
+public import Init.Data.BEq
+import Init.Data.Array.DecidableEq
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Lex
+import Init.Data.Range.Polymorphic.Lemmas
 
 public section
 
@@ -74,7 +78,7 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
   simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
     Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.Rco.forIn'_eq_forIn'_toList]
   rw [cons_lex_cons.forIn'_congr_aux (Nat.toList_rco_eq_cons (by omega)) rfl (fun _ _ _ => rfl)]
-  simp only [bind_pure_comp, map_pure, Nat.toList_rco_succ_succ, Nat.add_comm 1]
+  simp only [Nat.toList_rco_succ_succ, Nat.add_comm 1]
   cases h : lt a b
   · cases h' : a == b <;> simp [bne, *]
   · simp [*]

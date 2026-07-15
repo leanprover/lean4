@@ -18,13 +18,16 @@ indexing fields more convenient.
 namespace Lake
 
 /-- A JSON object (`Json.obj` data). -/
-@[expose] public abbrev JsonObject :=
+public abbrev JsonObject :=
   Std.TreeMap.Raw String Json
 
 namespace JsonObject
 
 @[inline] public def mk (val : Std.TreeMap.Raw String Json) : JsonObject :=
   val
+
+@[inline] public def empty : JsonObject :=
+  Std.TreeMap.Raw.empty
 
 @[inline] public protected def toJson (obj : JsonObject) : Json :=
   .obj obj
@@ -36,6 +39,9 @@ public instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
   json.getObj?
 
 public instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
+
+@[inline] public nonrec def contains (obj : JsonObject) (prop : String) : Bool :=
+  obj.contains prop
 
 public def insertJson (obj : JsonObject) (prop : String) (val : Json) : JsonObject :=
   obj.insert prop (toJson val) -- specializes `insert`
@@ -57,10 +63,16 @@ public def getJson? (obj : JsonObject) (prop : String) : Option Json :=
   | none => throw s!"property not found: {prop}"
   | some val => fromJson? val |>.mapError (s!"{prop}: {·}")
 
+@[inline] public def getAs (α) [FromJson α] (obj : JsonObject) (prop : String) : Except String α :=
+  obj.get prop
+
 @[inline] public def get? [FromJson α] (obj : JsonObject) (prop : String) : Except String (Option α) :=
   match obj.getJson? prop with
   | none => pure none
   | some val => fromJson? val |>.mapError (s!"{prop}: {·}")
+
+@[inline] public def getAs? (α) [FromJson α] (obj : JsonObject) (prop : String) : Except String (Option α) :=
+  obj.get? prop
 
 @[macro_inline, expose] public def getD [FromJson α] (obj : JsonObject) (prop : String) (default : α) : Except String α := do
   return (← obj.get? prop).getD default

@@ -7,7 +7,8 @@ module
 
 prelude
 public meta import Lean.Elab.Command
-import Lean.Elab.Tactic.Basic
+public import Init.Notation
+import Lean.Exception
 
 /-!
 # The `reprove` command

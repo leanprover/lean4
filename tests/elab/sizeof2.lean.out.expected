@@ -1,0 +1,3 @@
+theorem Expr.app.sizeOf_spec.{u} : ∀ {α : Type u} [inst : SizeOf α] (f : String) (a : List (Arg α)),
+  sizeOf (Expr.app f a) = 1 + sizeOf f + sizeOf a :=
+fun {α} [SizeOf α] f a => congrArg (1 + sizeOf f).add (Arg._sizeOf_3_eq a)

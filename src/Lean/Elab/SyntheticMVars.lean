@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Util.NumObjs
 public import Lean.Util.ForEachExpr
 public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
@@ -573,7 +572,7 @@ mutual
     Return `true` if at least one of them was synthesized. -/
   private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
     let ctx ← read
-    traceAtCmdPos `Elab.resuming fun _ =>
+    traceAtCmdPos `Elab.resume fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
     let pendingMVars    := (← get).pendingMVars
     let numSyntheticMVars := pendingMVars.length
@@ -583,6 +582,7 @@ mutual
     -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
     -- It would not be incorrect to use `filterM`.
     let remainingPendingMVars ← pendingMVars.filterRevM fun mvarId => do
+       checkSystem "synthesize pending MVars"
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
        traceM `Elab.postpone (mvarId.withContext do addMessageContext m!"resuming {mkMVar mvarId}")
        let succeeded ← synthesizeSyntheticMVar mvarId postponeOnError runTactics

@@ -29,7 +29,7 @@ structure Context where
   Declaration where lambda lifting is being applied.
   We use it to provide the "base name" for auxiliary declarations and the flag `safe`.
   -/
-  mainDecl : Decl
+  mainDecl : Decl .pure
   /--
   If true, the lambda-lifted functions inherit the inline attribute from `mainDecl`.
   We use this feature to implement `@[inline] instance ...` and `@[always_inline] instance ...`
@@ -51,7 +51,7 @@ structure State where
   /--
   New auxiliary declarations
   -/
-  decls  : Array Decl := #[]
+  decls  : Array (Decl .pure) := #[]
   /--
   Next index for generating auxiliary declaration name.
   -/
@@ -64,13 +64,13 @@ abbrev LiftM := ReaderT Context (StateRefT State (ScopeT CompilerM))
 Return `true` if the given declaration takes a local instance as a parameter.
 We lambda lift this kind of local function declaration before specialization.
 -/
-def hasInstParam (decl : FunDecl) : CompilerM Bool :=
+def hasInstParam (decl : FunDecl .pure) : CompilerM Bool :=
   decl.params.anyM fun param => return (← isArrowClass? param.type).isSome
 
 /--
 Return `true` if the given declaration should be lambda lifted.
 -/
-def shouldLift (decl : FunDecl) : LiftM Bool := do
+def shouldLift (decl : FunDecl .pure) : LiftM Bool := do
   let minSize := (← read).minSize
   if decl.value.size < minSize then
     return false
@@ -85,7 +85,7 @@ partial def mkAuxDeclName : LiftM Name := do
   if (← getDecl? nameNew).isNone then return nameNew
   mkAuxDeclName
 
-def replaceFunDecl (decl : FunDecl) (value : LetValue) : LiftM LetDecl := do
+def replaceFunDecl (decl : FunDecl .pure) (value : LetValue .pure) : LiftM (LetDecl .pure) := do
   /- We reuse `decl`s `fvarId` to avoid substitution -/
   let declNew := { fvarId := decl.fvarId, binderName := decl.binderName, type := decl.type, value }
   modifyLCtx fun lctx => lctx.addLetDecl declNew
@@ -97,7 +97,7 @@ open Internalize in
 Create a new auxiliary declaration. The array `closure` contains all free variables
 occurring in `decl`.
 -/
-def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
+def mkAuxDecl (closure : Array (Param .pure)) (decl : FunDecl .pure) : LiftM (LetDecl .pure) := do
   let nameNew ← mkAuxDeclName
   let inlineAttr? ← if (← read).inheritInlineAttrs then pure (← read).mainDecl.inlineAttr? else pure none
   let auxDecl ← go nameNew (← read).mainDecl.safe inlineAttr? |>.run' {}
@@ -113,16 +113,16 @@ def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   let value := .const auxDeclName us (closure.map (.fvar ·.fvarId))
   replaceFunDecl decl value
 where
-  go (nameNew : Name) (safe : Bool) (inlineAttr? : Option InlineAttributeKind) : InternalizeM Decl := do
+  go (nameNew : Name) (safe : Bool) (inlineAttr? : Option InlineAttributeKind) : InternalizeM .pure (Decl .pure):= do
     let params := (← closure.mapM internalizeParam) ++ (← decl.params.mapM internalizeParam)
     let code ← internalizeCode decl.value
     let type ← code.inferType
     let type ← mkForallParams params type
     let value := .code code
-    let decl := { name := nameNew, levelParams := [], params, type, value, safe, inlineAttr?, recursive := false : Decl }
+    let decl := { name := nameNew, levelParams := [], params, type, value, safe, inlineAttr?, recursive := false : Decl .pure }
     return decl.setLevelParams
 
-def etaContractibleDecl? (decl : FunDecl) : LiftM (Option LetDecl) := do
+def etaContractibleDecl? (decl : FunDecl .pure) : LiftM (Option (LetDecl .pure)) := do
   if !(← read).allowEtaContraction then return none
   let .let { fvarId := letVar, value := .const declName us args, .. } (.return retVar) := decl.value
     | return none
@@ -137,11 +137,11 @@ def etaContractibleDecl? (decl : FunDecl) : LiftM (Option LetDecl) := do
   replaceFunDecl decl value
 
 mutual
-  partial def visitFunDecl (funDecl : FunDecl) : LiftM FunDecl := do
+  partial def visitFunDecl (funDecl : FunDecl .pure) : LiftM (FunDecl .pure) := do
     let value ← withParams funDecl.params <| visitCode funDecl.value
     funDecl.update' funDecl.type value
 
-  partial def visitCode (code : Code) : LiftM Code := do
+  partial def visitCode (code : Code .pure) : LiftM (Code .pure) := do
     match code with
     | .let decl k =>
       let k ← withFVar decl.fvarId <| visitCode k
@@ -174,14 +174,14 @@ mutual
     | .unreach .. | .jmp .. | .return .. => return code
 end
 
-def main (decl : Decl) : LiftM Decl := do
+def main (decl : Decl .pure) : LiftM (Decl .pure) := do
   let value ← withParams decl.params <| decl.value.mapCodeM visitCode
   return { decl with value }
 
 end LambdaLifting
 
-partial def Decl.lambdaLifting (decl : Decl) (liftInstParamOnly : Bool) (allowEtaContraction : Bool)
-    (suffix : Name) (inheritInlineAttrs := false) (minSize := 0) : CompilerM (Array Decl) := do
+partial def Decl.lambdaLifting (decl : Decl .pure) (liftInstParamOnly : Bool) (allowEtaContraction : Bool)
+    (suffix : Name) (inheritInlineAttrs := false) (minSize := 0) : CompilerM (Array (Decl .pure)) := do
   let ctx := {
     mainDecl := decl,
     liftInstParamOnly,
@@ -198,6 +198,7 @@ Eliminate all local function declarations.
 -/
 def lambdaLifting : Pass where
   phase      := .mono
+  phaseOut   := .mono
   name       := `lambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl =>
@@ -211,10 +212,11 @@ their body to ensure they are specialized.
 -/
 def eagerLambdaLifting : Pass where
   phase      := .base
+  phaseOut   := .base
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if decl.inlineable || (← Meta.isInstance decl.name) then
+      if decl.inlineable || (← isInstanceReducible decl.name) then
         return decls.push decl
       else
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (allowEtaContraction := false) (suffix := `_elam))

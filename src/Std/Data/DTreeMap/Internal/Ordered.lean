@@ -9,6 +9,7 @@ prelude
 public import Std.Data.DTreeMap.Internal.Def
 public import Std.Data.Internal.Cut
 import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
 
 @[expose] public section
 

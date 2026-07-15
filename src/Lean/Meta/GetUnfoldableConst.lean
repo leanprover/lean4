@@ -5,19 +5,26 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.GlobalInstances
+public import Lean.Meta.Basic
 public section
 namespace Lean.Meta
 
-private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+/--
+Implements the `TransparencyMode` hierarchy for unfolding decisions.
+See `TransparencyMode` and `ReducibilityStatus` for the design rationale.
+-/
+def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | .none => return false
   | .all  => return true
   | .default => return !(← isIrreducible info.name)
   | m =>
-    if (← isReducible info.name) then
+    let status ← getReducibilityStatus info.name
+    if status == .reducible then
       return true
-    else if m == .instances && isGlobalInstance (← getEnv) info.name then
+    else if status == .instanceReducible && (m == .instances || m == .implicit) then
+      return true
+    else if status == .implicitReducible && m == .implicit then
       return true
     else
       return false
@@ -41,11 +48,7 @@ External users wanting to look up names should be using `Lean.getConstInfo`.
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstantAt (← getRef) constName
   match ainfo.kind with
-  | .thm =>
-    if (← shouldReduceAll) then
-      return some ainfo.toConstantInfo
-    else
-      return none
+  | .thm => return none
   | .defn => if (← canUnfold ainfo.toConstantInfo) then return ainfo.toConstantInfo else return none
   | _ => return none
 
@@ -54,7 +57,7 @@ As with `getUnfoldableConst?` but return `none` instead of failing if the consta
 -/
 def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
-  | some (info@(.thmInfo _))  => getTheoremInfo info
+  | some (.thmInfo _)          => return none
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
   | some (.axiomInfo _)       => recordUnfoldAxiom constName; return none
   | _                         => return none

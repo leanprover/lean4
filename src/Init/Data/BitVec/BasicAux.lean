@@ -6,7 +6,7 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-public import Init.Data.Fin.Basic
+public import Init.Grind.Tactics
 
 public section
 
@@ -38,7 +38,7 @@ Usually accessed via the `+` operator.
 
 SMT-LIB name: `bvadd`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 protected def add (x y : BitVec n) : BitVec n := .ofNat n (x.toNat + y.toNat)
 instance : Add (BitVec n) := ⟨BitVec.add⟩
 
@@ -47,7 +47,7 @@ Subtracts one bitvector from another. This can be interpreted as either signed o
 modulo `2^n`. Usually accessed via the `-` operator.
 
 -/
-@[expose]
+@[expose, implicit_reducible]
 protected def sub (x y : BitVec n) : BitVec n := .ofNat n ((2^n - y.toNat) + x.toNat)
 instance : Sub (BitVec n) := ⟨BitVec.sub⟩
 

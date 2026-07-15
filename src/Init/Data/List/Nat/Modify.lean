@@ -7,7 +7,16 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Nat.Erase
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.List.Erase
+import Init.Data.List.Nat.Erase
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 

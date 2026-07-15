@@ -9,10 +9,11 @@ prelude
 public import Init.Data.Iterators.Combinators.Attach
 import all Init.Data.Iterators.Combinators.Attach
 import all Init.Data.Iterators.Combinators.Monadic.Attach
-public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Iterators.Lemmas.Consumers.Loop
 public import Init.Data.Array.Attach
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 public section
 
@@ -33,7 +34,7 @@ theorem Iter.unattach_toList_attachWith [Iterator α Id β]
     ← Id.run_map (f := List.unattach), IterM.map_unattach_toList_attachWith,
     Iter.toList_eq_toList_toIterM]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_attachWith [Iterator α Id β]
     {it : Iter (α := α) β} {hP}
     [Finite α Id] :
@@ -67,7 +68,7 @@ theorem Iter.unattach_toArray_attachWith [Iterator α Id β]
     (it.attachWith P hP).toListRev.unattach = it.toListRev := by
   simp [toListRev_eq]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_attachWith [Iterator α Id β]
     {it : Iter (α := α) β} {hP}
     [Finite α Id] :
@@ -79,12 +80,16 @@ theorem Iter.toArray_attachWith [Iterator α Id β]
   simp [Iter.toList_toArray]
 
 @[simp]
-theorem Iter.count_attachWith [Iterator α Id β]
+theorem Iter.length_attachWith [Iterator α Id β]
     {it : Iter (α := α) β} {hP}
     [Finite α Id] [IteratorLoop α Id Id]
     [LawfulIteratorLoop α Id Id] :
-    (it.attachWith P hP).count = it.count := by
-  rw [← Iter.length_toList_eq_count, toList_attachWith]
+    (it.attachWith P hP).length = it.length := by
+  rw [← Iter.length_toList_eq_length, toList_attachWith]
   simp
+
+set_option linter.defProp false in
+@[deprecated Iter.length_attachWith (since := "2026-01-28")]
+def Iter.count_attachWith := @Iter.length_attachWith
 
 end Std

@@ -5,14 +5,16 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Int.LemmasAux
-public import Init.Data.Int.Cooper
 import all Init.Data.Int.Gcd
-public import Init.Data.AC
 import all Init.Data.AC
 import Init.LawfulBEqTactics
+public import Init.Data.Bool
+public import Init.Data.Int.Gcd
+public import Init.Data.RArray
+import Init.Data.Int.Cooper
+import Init.Data.Int.LemmasAux
 public section
-namespace Int.Linear
+namespace Int.Internal.Linear
 
 /-! Helper definitions and theorems for constructing linear arithmetic proofs. -/
 
@@ -189,7 +191,7 @@ def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
     else
       .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
 
-@[expose] abbrev hugeFuel := 100000000
+abbrev hugeFuel := 100000000
 
 @[expose]
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
@@ -260,6 +262,7 @@ theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := 
   simp only [emod_self, sub_emod_left] at this
   rw [Int.neg_eq_zero, ← this, Eq.comm]
 
+set_option linter.defProp false in
 private abbrev div_mul_cancel_of_mod_zero :=
   @Int.ediv_mul_cancel_of_emod_eq_zero
 
@@ -634,7 +637,6 @@ private theorem eq_of_norm_eq_of_divCoeffs {ctx : Context} {p₁ p₂ : Poly} {k
   have hz : k ≠ 0 := Int.ne_of_gt h₀
   replace h₁ := Poly.denote_div_eq_of_divCoeffs ctx p₁ k h₁
   replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp at h₂
   rw [h₂, ← h₁]; clear h₁ h₂
   apply mul_add_cmod_le_iff
   assumption
@@ -854,7 +856,7 @@ theorem dvd_coeff (ctx : Context) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ 
 
 private theorem dvd_gcd_of_dvd (d a x p : Int) (h : d ∣ a * x + p) : gcd d a ∣ p := by
   rcases h with ⟨k, h⟩
-  simp [Int.Linear.gcd]
+  simp [Int.Internal.Linear.gcd]
   replace h := congrArg (· - a*x) h
   simp at h
   rcases @Int.gcd_dvd_left d a with ⟨k₁, h₁⟩
@@ -977,6 +979,10 @@ theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm.beq' p
   intro; subst p₂
   intro h₁
   simp [Poly.denote_norm ctx p₁, h₁]
+
+theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
+  intro ⟨k, h⟩
+  rw [h, Int.zero_mul]
 
 theorem le_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp at h
@@ -1756,11 +1762,11 @@ private theorem ex_of_dvd {α β a b d x : Int}
     rw [one_emod_eq_one h₀] at h₂
     assumption
   have : ((α * a) * x) % d = (- α * b) % d := by
-    replace h₁ := congrArg (α * ·) h₁; simp only at h₁
+    replace h₁ := congrArg (α * ·) h₁; try simp only at h₁ -- TODO(kmill): remove simp after stage0 update
     rw [Int.mul_add] at h₁
     replace h₁ := congrArg (· - α * b) h₁; simp only [Int.add_sub_cancel] at h₁
     rw [← Int.mul_assoc, Int.mul_left_comm, Int.sub_eq_add_neg] at h₁
-    replace h₁ := congrArg (· % d) h₁; simp only at h₁
+    replace h₁ := congrArg (· % d) h₁; try simp only at h₁ -- TODO(kmill): remove simp after stage0 update
     rw [Int.add_emod, Int.mul_emod_right, Int.zero_add, Int.emod_emod, ← Int.neg_mul] at h₁
     assumption
   have : x % d = (- α * b) % d := by
@@ -2188,7 +2194,7 @@ theorem mod_eq' (a b b' k : Int) (h₁ : b = b') (h₂ : k == a%b') : a % b = k 
 theorem pow_eq (a : Int) (b : Nat) (a' b' k : Int) (h₁ : a = a') (h₂ : ↑b = b') (h₃ : k == a'^b'.toNat) : a^b = k := by
   simp [← h₁, ← h₂] at h₃; simp [h₃]
 
-end Int.Linear
+end Int.Internal.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by
   apply propext; constructor

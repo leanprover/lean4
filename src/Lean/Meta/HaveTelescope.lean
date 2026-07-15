@@ -9,8 +9,8 @@ public import Lean.Meta.Basic
 public import Lean.Meta.MonadSimp
 import Lean.Util.CollectFVars
 import Lean.Util.CollectLooseBVars
-import Lean.Meta.InferType
 import Lean.Meta.AppBuilder
+import Init.While
 public section
 namespace Lean.Meta
 /-!

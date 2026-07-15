@@ -7,10 +7,11 @@ Authors: Joscha Mennicken
 module
 
 prelude
-public import Lean.Expr
 public import Lean.Data.Lsp.Basic
 public import Lean.Data.JsonRpc
 public import Lean.Data.DeclarationRange
+public import Init.Data.Array.GetLit
+import Init.Omega
 
 public section
 
@@ -294,25 +295,17 @@ instance : FromJson ModuleRefs where
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /--
-Used in the `$/lean/ileanHeaderInfo` watchdog <- worker notifications.
-Contains the direct imports of the file managed by a worker.
--/
-structure LeanILeanHeaderInfoParams where
-  /-- Version of the file these imports are from. -/
-  version       : Nat
-  /-- Direct imports of this file. -/
-  directImports : Array ImportInfo
-  deriving FromJson, ToJson
-
-/--
 Used in the `$/lean/ileanHeaderSetupInfo` watchdog <- worker notifications.
-Contains status information about `lake setup-file`.
+Contains status information about `lake setup-file` and the direct imports of the file managed by
+a worker.
 -/
 structure LeanILeanHeaderSetupInfoParams where
   /-- Version of the file these imports are from. -/
   version        : Nat
   /-- Whether setting up the header using `lake setup-file` has failed. -/
   isSetupFailure : Bool
+  /-- Direct imports of this file. -/
+  directImports : Array ImportInfo
   deriving FromJson, ToJson
 
 /--

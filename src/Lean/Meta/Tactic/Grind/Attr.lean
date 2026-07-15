@@ -231,8 +231,11 @@ abbrev ExtensionMap := Std.HashMap Name Extension
 
 builtin_initialize extensionMapRef : IO.Ref ExtensionMap ← IO.mkRef {}
 
-def getExtension? (attrName : Name) : IO (Option Extension) :=
-  return (← extensionMapRef.get)[attrName]?
+def getExtension? (attrName : Name) : CoreM (Option Extension) := do
+  let ext? := (← extensionMapRef.get)[attrName]?
+  if let some ext := ext? then
+    recordExtraModUseFromDecl (isMeta := true) ext.ext.name
+  return ext?
 
 def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Extension := do
   let ext ← mkExtension ref
@@ -244,6 +247,13 @@ def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Exte
   return ext
 
 builtin_initialize grindExt : Extension ← registerAttr `grind
+
+/--
+Extension backing the `@[lia]` attribute. It uses the same recording mechanism as `@[grind]`
+(see `registerAttr`), but provides a separate, smaller E-matching lemma set that the `lia`
+tactic instantiates (e.g. `Nat.max_def`), without enabling the full `@[grind]` set.
+-/
+builtin_initialize liaExt : Extension ← registerAttr `lia
 
 /-- Returns `true` is `declName` is a builtin split or has been tagged with `[grind]` attribute. -/
 def isGlobalSplit (declName : Name) : CoreM Bool := do

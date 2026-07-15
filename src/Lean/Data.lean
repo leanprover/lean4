@@ -25,8 +25,8 @@ public import Lean.Data.Position
 public import Lean.Data.PrefixTree
 public import Lean.Data.SMap
 public import Lean.Data.Trie
-public import Lean.Data.Xml
 public import Lean.Data.NameTrie
-public import Lean.Data.RBTree
-public import Lean.Data.RBMap
+public import Lean.Data.RBTree -- deprecated_module: ignore
+public import Lean.Data.RBMap -- deprecated_module: ignore
 public import Lean.Data.RArray
+public import Lean.Data.Iterators

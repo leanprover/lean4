@@ -7,8 +7,9 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ReplaceS
+import Init.Omega
 namespace Lean.Meta.Sym
-open Internal
+open Lean.Meta.Sym.Internal
 
 /--
 Helper function for implementing `abstractFVars` (and possible variants in the future).
@@ -95,5 +96,17 @@ public def mkLambdaFVarsS (xs : Array Expr) (e : Expr) : SymM Expr := do
     let decl ← x.fvarId!.getDecl
     let type ← abstractFVarsRange decl.type i xs
     mkLambdaS decl.userName decl.binderInfo type b
+
+/--
+Similar to `mkForallFVars`, but uses the more efficient `abstractFVars` and `abstractFVarsRange`,
+and makes the same assumption made by these functions.
+-/
+public def mkForallFVarsS (xs : Array Expr) (e : Expr) : SymM Expr := do
+  let b ← abstractFVars e xs
+  xs.size.foldRevM (init := b) fun i _ b => do
+    let x := xs[i]
+    let decl ← x.fvarId!.getDecl
+    let type ← abstractFVarsRange decl.type i xs
+    mkForallS decl.userName decl.binderInfo type b
 
 end Lean.Meta.Sym

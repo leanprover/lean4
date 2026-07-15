@@ -8,12 +8,15 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Init.Omega
 
 open Lean Meta
 
 /-!
 This module provides builder for efficient `Nat → …` functions based on binary decision trees.
 -/
+
+namespace Lean
 
 /--
 Builds an expression of type `Nat → $type` that returns the `es[i]`, using binary search.
@@ -33,3 +36,5 @@ public def mkNatLookupTable (i : Expr) (type : Expr) (es : Array Expr) : MetaM E
         let high ← go mid stop
         return mkApp4 (mkConst ``cond [u]) type (mkApp2 (mkConst ``Nat.ble) i (mkRawNatLit (mid-1))) low high
     go 0 es.size
+
+end Lean

@@ -6,8 +6,8 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Prelude
-import Init.Data.UInt.Basic
+public import Init.Notation
+import Init.Data.UInt.BasicAux
 
 namespace Lake
 

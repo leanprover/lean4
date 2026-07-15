@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.State
 public import Init.Data.Int.Basic
 public import Init.Data.String.Bootstrap
+import Init.Control.State
+import Init.Data.Nat.Bitwise.Basic
 
 public section
 
@@ -89,7 +90,7 @@ inductive Format where
   ```lean example
   open Std Format in
   def fmtList (l : List Format) : Format :=
-    let f := joinSep l  (", " ++ Format.line)
+    let f := joinSep l  ("," ++ Format.line)
     group (nest 1 <| "[" ++ f ++ "]")
   ```
 
@@ -369,7 +370,7 @@ Creates the format `"[" ++ f ++ "]"` with a flattening group, nesting by one spa
 /--
 Creates a format `l ++ f ++ r` with a flattening group, nesting the contents by the length of `l`.
 
-The group's `FlattenBehavior` is `fill`; for `allOrNone` use `Std.Format.bracketFill`.
+The group's `FlattenBehavior` is `fill`; for `allOrNone` use `Std.Format.bracket`.
 -/
 @[inline] def bracketFill (l : String) (f : Format) (r : String) : Format :=
   fill (nest (String.Internal.length l) $ l ++ f ++ r)
@@ -413,7 +414,7 @@ Renders a `Format` to a string.
 -/
 def pretty (f : Format) (width : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
   let act : StateM State Unit := prettyM f width indent
-  State.out <| act (State.mk "" column) |>.snd
+  State.out <| act.run (State.mk "" column) |>.snd
 
 end Format
 

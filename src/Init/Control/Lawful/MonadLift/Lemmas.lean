@@ -6,9 +6,9 @@ Authors: Quang Dao
 module
 
 prelude
-public import Init.Control.Id
 public import Init.Control.Lawful.Basic
 public import Init.Control.Lawful.MonadLift.Basic
+import Init.Ext
 
 public section
 
@@ -17,7 +17,7 @@ universe u v w
 theorem instMonadLiftTOfMonadLift_instMonadLiftTOfPure [Monad m] [Monad n] {_ : MonadLift m n}
     [LawfulMonadLift m n] : instMonadLiftTOfMonadLift Id m n = Id.instMonadLiftTOfPure := by
   have hext {a b : MonadLiftT Id n} (h : @a.monadLift = @b.monadLift) : a = b := by
-    cases a <;> cases b <;> simp_all
+    cases a; cases b; simp [monadLift] at h; simp [h]
   apply hext
   ext α x
   simp [monadLift, LawfulMonadLift.monadLift_pure]

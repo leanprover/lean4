@@ -7,9 +7,9 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Init.Sym.Lemmas
-import Init.Data.Int.Gcd
 import Lean.Meta.Sym.LitValues
-import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.StringLitProof
+import Lean.Meta.Offset
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -66,7 +66,7 @@ Operations dispatch on the type expression directly. It assumes non-standard ins
 
 def skipIfUnchanged (e : Expr) (result : Result) : Result :=
   match result with
-  | .step e' _ _ => if isSameExpr e e' then .rfl else result
+  | .step e' _ _ cd => if isSameExpr e e' then mkRflResultCD cd else result
   | _ => result
 
 abbrev evalUnary [ToExpr α] (toValue? : Expr → Option α) (op : α → α) (a : Expr) : SimpM Result := do
@@ -378,6 +378,25 @@ def evalFinPred (n : Expr) (trueThm falseThm : Expr) (op : {n : Nat} → Fin n �
 
 open Lean.Sym
 
+/--
+Evaluates `@Eq String a b` for string literal arguments, producing kernel-efficient proofs.
+When equal, uses `eq_self` (no kernel evaluation needed). When different, uses
+`mkStringLitNeProof` which finds the first differing character position and proves
+inequality via `congrArg (List.get?Internal · i)`.
+-/
+def evalStringEq (a b : Expr) : SimpM Result := do
+  let some va := getStringValue? a | return .rfl
+  let some vb := getStringValue? b | return .rfl
+  if va = vb then
+    let e ← getTrueExpr
+    return .step e (mkApp2 (mkConst ``eq_self [.succ .zero]) (mkConst ``String) a) (done := true)
+  else
+    let neProof ← mkStringLitNeProof va vb
+    let proof := mkApp2 (mkConst ``eq_false)
+      (mkApp3 (mkConst ``Eq [.succ .zero]) (mkConst ``String) a b) neProof
+    let e ← getFalseExpr
+    return .step e proof (done := true)
+
 def evalLT (α : Expr) (a b : Expr) : SimpM Result :=
   match_expr α with
   | Nat => evalBinPred getNatValue? (mkConst ``Nat.lt_eq_true) (mkConst ``Nat.lt_eq_false) (. < .) a b
@@ -436,7 +455,7 @@ def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   | Fin n => evalFinPred n (mkConst ``Fin.eq_eq_true) (mkConst ``Fin.eq_eq_false) (. = .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.eq_eq_true) (mkConst ``BitVec.eq_eq_false) (. = .) a b
   | Char => evalBinPred getCharValue? (mkConst ``Char.eq_eq_true) (mkConst ``Char.eq_eq_false) (. = .) a b
-  | String => evalBinPred getStringValue? (mkConst ``String.eq_eq_true) (mkConst ``String.eq_eq_false) (. = .) a b
+  | String => evalStringEq a b
   | _ => return .rfl
 
 def evalDvd (α : Expr) (a b : Expr) : SimpM Result :=
@@ -516,6 +535,67 @@ def evalNot (a : Expr) : SimpM Result :=
   | False => return .step (← getTrueExpr) (mkConst ``Sym.not_false_eq) (done := true)
   | _ => return .rfl
 
+abbrev mkRflBitVec (a : Expr) (n : Nat) : Expr :=
+  mkApp2 (mkConst ``Eq.refl [1]) (mkApp (mkConst ``BitVec) (toExpr n)) a
+
+def evalInt8ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getInt8Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 8) (done := true)
+
+def evalInt16ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getInt16Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 16) (done := true)
+
+def evalInt32ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getInt32Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 32) (done := true)
+
+def evalInt64ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getInt64Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 64) (done := true)
+
+def evalUInt8ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getUInt8Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 8) (done := true)
+
+def evalUInt16ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getUInt16Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 16) (done := true)
+
+def evalUInt32ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getUInt32Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 32) (done := true)
+
+def evalUInt64ToBitVec (a : Expr) : SimpM Result := do
+  let some v ← getUInt64Value? a |>.run | return .rfl
+  let v ← share <| toExpr v.toBitVec
+  return .step v (mkRflBitVec v 64) (done := true)
+
+def evalSetWidth (v x : Expr) : SimpM Result := do
+  let some v ← getNatValue? v |>.run | return .rfl
+  let some x := getBitVecValue? x | return .rfl
+  let x ← share <| toExpr <| x.val.setWidth v
+  return .step x (mkRflBitVec x v) (done := true)
+
+def evalBitVecToNat (a : Expr) : SimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let a ← share (toExpr a.val.toNat)
+  return .step a (mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType a) (done := true)
+
+def evalBitVecOfNat (n a : Expr) : SimpM Result := do
+  let some a ← getNatValue? a |>.run | return .rfl
+  if (← getNatValue? n |>.run).isSome then return .rfl -- already in normal form
+  let some n ← evalNat n |>.run | return .rfl -- TODO: consider using dsimp
+  let r ← share (toExpr (BitVec.ofNat n a))
+  return .step r (mkRflBitVec r n) (done := true)
+
 public structure EvalStepConfig where
   maxExponent := 255
 
@@ -562,6 +642,17 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | BEq.beq α _ a b => evalBEq α a b
   | bne α _ a b => evalBNe α a b
   | Not a => evalNot a
+  | BitVec.setWidth _ v x => evalSetWidth v x
+  | BitVec.toNat _ a => evalBitVecToNat a
+  | BitVec.ofNat n a => evalBitVecOfNat n a
+  | Int8.toBitVec a => evalInt8ToBitVec a
+  | Int16.toBitVec a => evalInt16ToBitVec a
+  | Int32.toBitVec a => evalInt32ToBitVec a
+  | Int64.toBitVec a => evalInt64ToBitVec a
+  | UInt8.toBitVec a => evalUInt8ToBitVec a
+  | UInt16.toBitVec a => evalUInt16ToBitVec a
+  | UInt32.toBitVec a => evalUInt32ToBitVec a
+  | UInt64.toBitVec a => evalUInt64ToBitVec a
   | _  => return .rfl
 
 end Lean.Meta.Sym.Simp

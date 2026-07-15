@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
+public import Init.Ext
 
 public section
 
@@ -20,7 +21,7 @@ The State monad transformer using CPS style.
 An alternative implementation of a state monad transformer that internally uses continuation passing
 style instead of tuples.
 -/
-@[expose] def StateCpsT (σ : Type u) (m : Type u → Type v) (α : Type u) := (δ : Type u) → σ → (α → σ → m δ) → m δ
+@[expose, implicit_reducible] def StateCpsT (σ : Type u) (m : Type u → Type v) (α : Type u) := (δ : Type u) → σ → (α → σ → m δ) → m δ
 
 namespace StateCpsT
 

@@ -85,6 +85,9 @@ def appendSection (m : Array MessageData) (cls : Name) (header : String) (s : Di
 /-- Logs diagnostics and resets the counters -/
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
+    -- Diagnostic output may reference private declarations (e.g. `_match_*`,
+    -- `_sparseCasesOn_*`) that are not visible in exporting mode (issue #13581).
+    withoutExporting do
     let unfoldCounter := (← get).diag.unfoldCounter
     let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
     let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)

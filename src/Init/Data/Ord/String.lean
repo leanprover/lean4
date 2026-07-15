@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Data.Order.Ord
-public import Init.Data.String.Lemmas
+public import Init.Data.String.Basic
+import Init.Data.Char.Lemmas
+import Init.Data.String.Lemmas.StringOrder
 
 public section
 
@@ -23,8 +25,15 @@ open Std
 
 namespace String
 
+/--
+Lexicographic comparison of strings
+-/
+@[extern "lean_string_compare"]
+def compare (s₁ s₂ : @& String) : Ordering :=
+  compareOfLessAndEq s₁ s₂
+
 instance : Ord String where
-  compare x y := compareOfLessAndEq x y
+  compare := String.compare
 
 instance : TransOrd String :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le

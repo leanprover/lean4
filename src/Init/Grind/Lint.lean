@@ -5,8 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Interactive
-public import Init.Grind.Config
+public import Init.Tactics
 public section
 namespace Lean.Grind
 open Parser Tactic Grind

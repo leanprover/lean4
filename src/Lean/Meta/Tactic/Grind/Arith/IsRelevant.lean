@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 public section
@@ -25,6 +24,8 @@ def isSupportedType (α  : Expr) : GoalM Bool := do
 partial def isRelevantPred (e : Expr) : GoalM Bool :=
   match_expr e with
   | Not p => isRelevantPred p
+  | And p q => isRelevantPred p <||> isRelevantPred q
+  | Or p q => isRelevantPred p <||> isRelevantPred q
   | LE.le α _ _ _ => isSupportedType α
   | LT.lt α _ _ _ => isSupportedType α
   | Eq α _ _ => isSupportedType α

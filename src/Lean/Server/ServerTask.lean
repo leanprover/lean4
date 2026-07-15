@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Task
+public import Init.System.IO
 
 public section
 
@@ -145,4 +146,4 @@ def cancel (t : ServerTask α) : BaseIO Unit :=
 
 end Lean.Server.ServerTask
 
-def Task.asServerTask (t : Task α) : Lean.Server.ServerTask α := .mk t
+def Lean.Task.asServerTask (t : Task α) : Lean.Server.ServerTask α := .mk t

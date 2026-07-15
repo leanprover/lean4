@@ -8,7 +8,13 @@ module
 prelude
 public import Init.Data.Iterators.Combinators.Take
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Take
-public import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Consumers.Access
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.Nat.TakeDrop
 
 @[expose] public section
 
@@ -47,21 +53,21 @@ theorem Iter.atIdxSlow?_take {α β}
     [Iterator α Id β] [Productive α Id] {k l : Nat}
     {it : Iter (α := α) β} :
     (it.take k).atIdxSlow? l = if l < k then it.atIdxSlow? l else none := by
-  fun_induction it.atIdxSlow? l generalizing k
-  case case1 it it' out h h' =>
-    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  induction l, it using Iter.atIdxSlow?.induct_unfolding generalizing k
+  case yield_zero it it' out h h' =>
+    simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> simp
-  case case2 it it' out h h' l ih =>
-    simp only [Nat.succ_eq_add_one, atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  case yield_succ it it' out h h' l ih =>
+    simp only [Nat.succ_eq_add_one, atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp [ih]
-  case case3 l it it' h h' ih =>
-    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  case skip_case l it it' h h' ih =>
+    simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp [ih]
-  case case4 l it h h' =>
-    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  case done_case l it h h' =>
+    simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
@@ -83,7 +89,7 @@ theorem Iter.toListRev_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     (it.take n).toListRev = it.toListRev.drop (it.toList.length - n) := by
   rw [toListRev_eq, toList_take_of_finite, List.reverse_take, toListRev_eq]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toArray = it.toArray.take n := by
@@ -103,6 +109,7 @@ theorem Iter.step_toTake {α β} [Iterator α Id β] [Finite α Id]
         | .yield it' out h => .yield it'.toTake out (.yield h Nat.zero_ne_one)
         | .skip it' h => .skip it'.toTake (.skip h Nat.zero_ne_one)
         | .done h => .done (.done h)) := by
+  apply Subtype.ext
   simp only [toTake_eq_toIter_toTake_toIterM, Iter.step, toIterM_toIter, IterM.step_toTake,
     Id.run_bind]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp

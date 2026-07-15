@@ -7,11 +7,8 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.SameCtorUtils
 import Lean.Meta.Constructions.CtorIdx
+import Lean.Meta.Tactic.Subst
 namespace Lean.Meta
 
 def hinjSuffix := "hinj"
@@ -19,7 +16,7 @@ def hinjSuffix := "hinj"
 public def mkCtorIdxHInjTheoremNameFor (indName : Name) : Name :=
   (mkCtorIdxName indName).str hinjSuffix
 
-private partial def mkHInjectiveTheorem? (thmName : Name) (indVal : InductiveVal) : MetaM TheoremVal := do
+partial def mkHInjectiveTheorem? (thmName : Name) (indVal : InductiveVal) : MetaM TheoremVal := do
   let us := indVal.levelParams.map mkLevelParam
   let thmType ←
     forallBoundedTelescope indVal.type (indVal.numParams + indVal.numIndices) fun xs1 _ => do

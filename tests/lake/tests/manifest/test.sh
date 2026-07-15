@@ -3,21 +3,21 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+WORK_DIR="$PWD/work"
+mkdir -p "$WORK_DIR"
+cp -r bar foo lakefile.lean lake-manifest-*.json "$WORK_DIR/"
+cd "$WORK_DIR"
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the bar repository on each test. This requires updating the
 # locked manifest to the new hash to ensure things work properly.
 echo "# SETUP"
-set -x
 pushd bar
-git init
-git checkout -b master
-git config user.name test
-git config user.email test@example.com
-git add --all
-git commit -m "initial commit"
+init_git
 GIT_REV=`git rev-parse HEAD`
 popd
-set +x
 
 LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 
@@ -25,7 +25,7 @@ LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 test_update() {
   test_run update
   sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
-  diff --strip-trailing-cr lake-manifest-latest.json lake-manifest.json
+  test_cmd diff -u --strip-trailing-cr lake-manifest-latest.json lake-manifest.json
 }
 
 # ---
@@ -60,6 +60,4 @@ test_manifest v6
 test_manifest v7
 test_manifest v1.0.0
 test_manifest v1.1.0
-
-# cleanup
-rm -f produced.out
+test_manifest v1.2.0

@@ -6,11 +6,11 @@ Authors: Mac Malone
 module
 
 prelude
+import Init.Control.Do
 public import Lake.Util.JsonObject
 public import Lake.Util.Version
 public import Lake.Config.Env
 public import Lake.Util.Reservoir
-import Lake.Util.Proc
 import Lake.Util.Url
 
 /-! # Package Registries
@@ -102,24 +102,6 @@ public protected def fromJson? (val : Json) : Except String RegistryPkg := do
 public instance : FromJson RegistryPkg := ⟨RegistryPkg.fromJson?⟩
 
 end RegistryPkg
-
-/-- A Reservoir API response object. -/
-public inductive ReservoirResp (α : Type u)
-| data (a : α)
-| error (status : Nat) (message : String)
-
-public protected def ReservoirResp.fromJson? [FromJson α] (val : Json) : Except String (ReservoirResp α) := do
-  let obj ← JsonObject.fromJson? val
-  if let some (err : JsonObject) ← obj.get? "error" then
-    let status ← err.get "status"
-    let message ← err.get "message"
-    return .error status message
-  else if let some (val : Json) ← obj.get? "data" then
-    .data <$> fromJson? val
-  else
-    .data <$> fromJson? val
-
-public instance [FromJson α] : FromJson (ReservoirResp α) := ⟨ReservoirResp.fromJson?⟩
 
 public def Reservoir.pkgApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
    s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"

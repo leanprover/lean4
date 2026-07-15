@@ -7,9 +7,11 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Subtype.Basic
-public import Init.PropLemmas
 public import Init.Control.Lawful.MonadLift.Basic
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.Subtype.Basic
+import Init.PropLemmas
 
 public section
 
@@ -269,6 +271,12 @@ theorem PostconditionT.run_bind' {m : Type w → Type w'} [Monad m] [LawfulMonad
     {α : Type w} {β : Type w} {x : PostconditionT m α} {f : α → PostconditionT m β} :
     (x >>= f).run = x.run >>= (f · |>.run) :=
   run_bind
+
+@[simp]
+protected theorem PostconditionT.run_pure {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {x : α} :
+    (pure x : PostconditionT m α).run = pure x := by
+  simp [run_eq_map]
 
 @[simp]
 theorem PostconditionT.property_lift {m : Type w → Type w'} [Functor m] {α : Type w}

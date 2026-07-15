@@ -6,8 +6,16 @@ Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Div.Lemmas
 import Init.TacticsExtra
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Nat.Div.Basic
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.RCases
 
 public section
 
@@ -352,26 +360,14 @@ theorem tmod_add_mul_tdiv : ∀ a b : Int, tmod a b + b * (a.tdiv b) = a
     rw [Int.neg_mul, ← Int.neg_add]
     exact congrArg (-ofNat ·) (Nat.mod_add_div ..)
 
-@[deprecated tmod_add_mul_tdiv (since := "2025-09-01")]
-def tmod_add_tdiv := @tmod_add_mul_tdiv
-
 theorem mul_tdiv_add_tmod (a b : Int) : b * a.tdiv b + tmod a b = a := by
   rw [Int.add_comm]; apply tmod_add_mul_tdiv ..
-
-@[deprecated mul_tdiv_add_tmod (since := "2025-09-01")]
-def tdiv_add_tmod := @mul_tdiv_add_tmod
 
 theorem tmod_add_tdiv_mul (m k : Int) : tmod m k + m.tdiv k * k = m := by
   rw [Int.mul_comm]; apply tmod_add_mul_tdiv
 
-@[deprecated tmod_add_tdiv_mul (since := "2025-09-01")]
-def tmod_add_tdiv' := @tmod_add_mul_tdiv
-
 theorem tdiv_mul_add_tmod (m k : Int) : m.tdiv k * k + tmod m k = m := by
   rw [Int.mul_comm]; apply mul_tdiv_add_tmod
-
-@[deprecated tdiv_mul_add_tmod (since := "2025-09-01")]
-def tdiv_add_tmod' := @tdiv_mul_add_tmod
 
 theorem tmod_def (a b : Int) : tmod a b = a - b * a.tdiv b := by
   rw [← Int.add_sub_cancel (tmod a b), tmod_add_mul_tdiv]
@@ -399,26 +395,14 @@ theorem fmod_add_mul_fdiv : ∀ a b : Int, a.fmod b + b * a.fdiv b = a
     change -(↑(succ m % succ n) : Int) + -↑(succ n * (succ m / succ n)) = -↑(succ m)
     rw [← Int.neg_add]; exact congrArg (-ofNat ·) <| Nat.mod_add_div ..
 
-@[deprecated fmod_add_mul_fdiv (since := "2025-09-01")]
-def fmod_add_fdiv := @fmod_add_mul_fdiv
-
 theorem fmod_add_fdiv_mul (a b : Int) : a.fmod b + (a.fdiv b) * b = a := by
   rw [Int.mul_comm]; exact fmod_add_mul_fdiv ..
-
-@[deprecated fmod_add_fdiv_mul (since := "2025-09-01")]
-def fmod_add_fdiv' := @fmod_add_fdiv_mul
 
 theorem mul_fdiv_add_fmod (a b : Int) : b * a.fdiv b + a.fmod b = a := by
   rw [Int.add_comm]; exact fmod_add_mul_fdiv ..
 
-@[deprecated mul_fdiv_add_fmod (since := "2025-09-01")]
-def fdiv_add_fmod := @mul_fdiv_add_fmod
-
 theorem fdiv_mul_add_fmod (a b : Int) : (a.fdiv b) * b + a.fmod b = a := by
   rw [Int.mul_comm]; exact mul_fdiv_add_fmod ..
-
-@[deprecated mul_fdiv_add_fmod (since := "2025-09-01")]
-def fdiv_add_fmod' := @mul_fdiv_add_fmod
 
 theorem fmod_def (a b : Int) : a.fmod b = a - b * a.fdiv b := by
   rw [← Int.add_sub_cancel (a.fmod b), fmod_add_mul_fdiv]
@@ -1153,6 +1137,15 @@ theorem ediv_le_iff_le_mul {k x y : Int} (h : 0 < k) : x / k ≤ y ↔ x < y * k
   rw [Int.le_iff_lt_add_one, Int.ediv_lt_iff_lt_mul h, Int.add_mul]
   omega
 
+theorem le_mul_iff_le_left {x y z : Int} (hz : 0 < z) :
+    x ≤ y * z ↔ (x + z - 1) / z ≤ y := by
+  rw [Int.ediv_le_iff_le_mul hz]
+  omega
+
+theorem le_mul_iff_le_right {x y z : Int} (hy : 0 < y) :
+    x ≤ y * z ↔ (x + y - 1) / y ≤ z := by
+  rw [← le_mul_iff_le_left hy, Int.mul_comm]
+
 protected theorem le_mul_of_ediv_le {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ a) (H3 : a / b ≤ c) :
     a ≤ c * b := by
   rw [← Int.ediv_mul_cancel H2]; exact Int.mul_le_mul_of_nonneg_right H3 H1
@@ -1205,6 +1198,11 @@ theorem add_ediv {a b c : Int} (h : c ≠ 0) :
 
 protected theorem ediv_le_ediv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a / c ≤ b / c :=
   Int.le_ediv_of_mul_le H (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H')
+
+theorem ediv_add_ediv_le_add_ediv {x y z : Int} (hz : 0 < z) :
+    x / z + y / z ≤ (x + y) / z := by
+  rw [Int.le_ediv_iff_mul_le hz, Int.add_mul]
+  apply Int.add_le_add <;> apply Int.ediv_mul_le <;> omega
 
 /-- If `n > 0` then `m` is not divisible by `n` iff it is between `n * k` and `n * (k + 1)`
   for some `k`. -/
@@ -1597,7 +1595,7 @@ theorem natAbs_tdiv_le_natAbs (a b : Int) : natAbs (a.tdiv b) ≤ natAbs a := by
   case inv => simp
   induction b using wlog_sign
   case inv => simp
-  simpa using Nat.div_le_self _ _
+  simpa using! Nat.div_le_self _ _
 
 theorem tdiv_le_self {a : Int} (b : Int) (Ha : 0 ≤ a) : a.tdiv b ≤ a := by
   have := Int.le_trans le_natAbs (ofNat_le.2 <| natAbs_tdiv_le_natAbs a b)
@@ -1783,12 +1781,12 @@ theorem ediv_lt_ediv_iff_of_dvd_of_neg_of_neg {a b c d : Int} (hb : b < 0) (hd :
 
 theorem ediv_lt_ediv_of_lt {a b c : Int} (h : a < b) (hcb : c ∣ b) (hc : 0 < c) :
     a / c < b / c :=
-  Int.lt_ediv_of_mul_lt (Int.le_of_lt hc) hcb 
+  Int.lt_ediv_of_mul_lt (Int.le_of_lt hc) hcb
     (Int.lt_of_le_of_lt (Int.ediv_mul_le _ (Int.ne_of_gt hc)) h)
-  
+
 theorem ediv_lt_ediv_of_lt_of_neg {a b c : Int} (h : b < a) (hca : c ∣ a) (hc : c < 0) :
     a / c < b / c :=
-  (Int.ediv_lt_iff_of_dvd_of_neg hc hca).2 
+  (Int.ediv_lt_iff_of_dvd_of_neg hc hca).2
     (Int.lt_of_le_of_lt (Int.mul_ediv_self_le (Int.ne_of_lt hc)) h)
 
 /-! ### `tdiv` and ordering -/
@@ -2985,5 +2983,11 @@ protected theorem dvd_eq_true_of_mod_eq_zero {a b : Int} (h : b % a == 0) : (a �
 protected theorem dvd_eq_false_of_mod_ne_zero {a b : Int} (h : b % a != 0) : (a ∣ b) = False := by
   simp [eq_of_beq] at h
   simp [Int.dvd_iff_emod_eq_zero, h]
+
+theorem ext_ediv_emod {n a b : Int} (h0 : a / n = b / n) (h1 : a % n = b % n) : a = b :=
+  (mul_ediv_add_emod a n).symm.trans (h0 ▸ h1 ▸ mul_ediv_add_emod b n)
+
+theorem ext_ediv_emod_iff (n a b : Int) : a = b ↔ a / n = b / n ∧ a % n = b % n :=
+  ⟨fun h => ⟨h ▸ rfl, h ▸ rfl⟩, fun ⟨h0, h1⟩ => ext_ediv_emod h0 h1⟩
 
 end Int

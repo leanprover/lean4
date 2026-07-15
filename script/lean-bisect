@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import build_artifact
 
 # Constants
-NIGHTLY_PATTERN = re.compile(r'^nightly-(\d{4})-(\d{2})-(\d{2})$')
+NIGHTLY_PATTERN = re.compile(r'^nightly-(\d{4})-(\d{2})-(\d{2})(-rev(\d+))?$')
 VERSION_PATTERN = re.compile(r'^v4\.(\d+)\.(\d+)(-rc\d+)?$')
 # Accept short SHAs (7+ chars) - we'll resolve to full SHA later
 SHA_PATTERN = re.compile(r'^[0-9a-f]{7,40}$')
@@ -158,7 +158,7 @@ def parse_identifier(s: str) -> Tuple[str, str]:
         return ('sha', full_sha)
     error(f"Invalid identifier format: '{s}'\n"
           f"Expected one of:\n"
-          f"  - nightly-YYYY-MM-DD (e.g., nightly-2024-06-15)\n"
+          f"  - nightly-YYYY-MM-DD or nightly-YYYY-MM-DD-revK (e.g., nightly-2024-06-15, nightly-2024-06-15-rev1)\n"
           f"  - v4.X.Y or v4.X.Y-rcK (e.g., v4.8.0, v4.9.0-rc1)\n"
           f"  - commit SHA (short or full)")
 
@@ -244,8 +244,13 @@ def fetch_nightly_tags() -> List[str]:
         if len(data) < 100:
             break
 
-    # Sort by date (nightly-YYYY-MM-DD format sorts lexicographically)
-    tags.sort()
+    # Sort by date and revision (nightly-YYYY-MM-DD-revK needs numeric comparison on rev)
+    def nightly_sort_key(tag):
+        m = NIGHTLY_PATTERN.match(tag)
+        if m:
+            return (int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(5) or 0))
+        return (0, 0, 0, 0)
+    tags.sort(key=nightly_sort_key)
     return tags
 
 def get_commit_for_nightly(nightly: str) -> str:
@@ -1024,6 +1029,7 @@ Range Syntax:
 Identifier Formats:
 
   nightly-YYYY-MM-DD    Nightly build date (e.g., nightly-2024-06-15)
+  nightly-YYYY-MM-DD-revK  Revised nightly (e.g., nightly-2024-06-15-rev1)
                         Uses pre-built toolchains from leanprover/lean4-nightly.
                         Fast: downloads via elan (~30s each).
 
@@ -1151,9 +1157,9 @@ Examples:
     # Validate --nightly-only
     if args.nightly_only:
         if from_val is not None and from_type != 'nightly':
-            error("--nightly-only requires FROM to be a nightly identifier (nightly-YYYY-MM-DD)")
+            error("--nightly-only requires FROM to be a nightly identifier (nightly-YYYY-MM-DD or nightly-YYYY-MM-DD-revK)")
         if to_type != 'nightly':
-            error("--nightly-only requires TO to be a nightly identifier (nightly-YYYY-MM-DD)")
+            error("--nightly-only requires TO to be a nightly identifier (nightly-YYYY-MM-DD or nightly-YYYY-MM-DD-revK)")
 
     if from_val:
         info(f"From: {from_val} ({from_type})")

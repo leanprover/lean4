@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Monadic.Basic
 
 @[expose] public section
 

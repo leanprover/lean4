@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Omega
+public import Init.Grind.Tactics
+import Init.Omega
 
 public section
 

@@ -5,12 +5,15 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Classical
+public import Init.Data.Cast
+public import Init.Grind.Tactics
+public meta import Init.Grind.Tactics
+import Init.Classical
 public section
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/
-def nestedProof (p : Prop) {h : p} : p := h
+theorem nestedProof (p : Prop) {h : p} : p := h
 
 /-- A helper gadget for annotating nested decidable instances in goals. -/
 -- Remark: we currently have special gadgets for the two most common subsingletons in Lean, and are the only
@@ -27,7 +30,13 @@ simpMatchDiscrsOnly (match 0 with | 0 => true | _ => false) = true
 ```
 using `eq_self`.
 -/
-def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
+@[expose] def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
+
+/--
+Gadget for protecting lambda abstractions created by `abstractGroundMismatches?`
+from beta reduction during preprocessing. See `ProveEq.lean` for details.
+-/
+@[expose] def abstractFn {α : Sort u} (a : α) : α := a
 
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b

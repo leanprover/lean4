@@ -7,8 +7,12 @@ module
 
 prelude
 public import Init.Data.Nat.Lcm
-public import Init.Data.Int.DivMod.Lemmas
-public import Init.Data.Int.Pow
+public import Init.Data.Int.DivMod.Basic
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
+import Init.Omega
+import Init.RCases
 
 public section
 

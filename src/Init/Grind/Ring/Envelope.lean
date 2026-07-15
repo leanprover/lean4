@@ -7,8 +7,9 @@ module
 
 prelude
 public import Init.Grind.Ordered.Ring
-public import Init.Data.AC
 import all Init.Data.AC
+import Init.Omega
+import Init.RCases
 
 @[expose] public section
 
@@ -34,6 +35,7 @@ local instance : Std.Associative (· * · : α → α → α) where
 @[local simp] def r : (α × α) → (α × α) → Prop
   | (a, b), (c, d) => ∃ k, a + d + k = b + c + k
 
+@[implicit_reducible]
 def Q := Quot (r α)
 
 variable {α}
@@ -49,7 +51,7 @@ theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
   simp [r]
   intro k₁ h₁ k₂ h₂
   refine ⟨(k₁ + k₂ + b₁ + b₂), ?_⟩
-  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; simp at h₁
+  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; try simp at h₁ -- TODO(kmill): remove simp after stage0 update
   have haux₁ : a₁ + b₂ + k₁ + (b₁ + c₂ + k₂) = (a₁ + c₂) + (k₁ + k₂ + b₁ + b₂) := by ac_rfl
   have haux₂ : a₂ + b₁ + k₁ + (b₁ + c₂ + k₂) = (a₂ + c₁) + (k₁ + k₂ + b₁ + b₂) := by rw [h₂]; ac_rfl
   rw [haux₁, haux₂] at h₁
@@ -102,7 +104,7 @@ def Q.liftOn₂ (q₁ q₂ : Q α)
 
 attribute [local simp] Q.mk Q.liftOn₂
 
-def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
+theorem Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
   Quot.ind mk q
 
 @[local simp] def natCast (n : Nat) : Q α :=
@@ -192,7 +194,7 @@ theorem mul_assoc (a b c : Q α) : mul (mul a b) c = mul a (mul b c) := by
   simp [Semiring.left_distrib, Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
 theorem mul_one (a : Q α) : mul a (natCast 1) = a := by
-obtain ⟨⟨_, _⟩⟩ := a; simp
+  obtain ⟨⟨_, _⟩⟩ := a; simp
 
 theorem one_mul (a : Q α) : mul (natCast 1) a = a := by
   obtain ⟨⟨_, _⟩⟩ := a; simp
@@ -244,6 +246,7 @@ theorem neg_zsmul (i : Int) (a : Q α) : zsmul (-i) a = neg (zsmul i a) := by
     · have : i = 0 := by omega
       simp [this]
 
+@[instance_reducible]
 def ofSemiring : Ring (Q α) := {
   nsmul := ⟨nsmul⟩
   zsmul := ⟨zsmul⟩
@@ -328,7 +331,7 @@ theorem toQ_inj [AddRightCancel α] {a b : α} : toQ a = toQ b → a = b := by
   obtain ⟨k, h₁⟩ := h₁
   exact AddRightCancel.add_right_cancel a b k h₁
 
-instance [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDivisors (OfSemiring.Q α) where
+instance (priority := high) [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDivisors (OfSemiring.Q α) where
   no_nat_zero_divisors := by
     intro k a b h₁ h₂
     replace h₂ : mul (natCast k) a = mul (natCast k) b := h₂
@@ -344,7 +347,7 @@ instance [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDiv
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
 
-instance {p} [Semiring α] [AddRightCancel α] [IsCharP α p] : IsCharP (OfSemiring.Q α) p where
+instance (priority := high) {p} [Semiring α] [AddRightCancel α] [IsCharP α p] : IsCharP (OfSemiring.Q α) p where
   ofNat_ext_iff := by
     intro x y
     constructor
@@ -357,14 +360,14 @@ instance {p} [Semiring α] [AddRightCancel α] [IsCharP α p] : IsCharP (OfSemir
         replace h := AddRightCancel.add_right_cancel _ _ _ h
         simp [Semiring.ofNat_eq_natCast, h]
       have := IsCharP.ofNat_ext_iff p |>.mp h
-      simp at this; assumption
+      exact this
     next =>
       intro h
       have := IsCharP.ofNat_ext_iff (α := α) p |>.mpr h
       apply Quot.sound
       exists 0; simp [← Semiring.ofNat_eq_natCast, this]
 
-instance [LE α] [IsPreorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
+instance (priority := high) [LE α] [IsPreorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
   le a b := Q.liftOn₂ a b (fun (a, b) (c, d) => a + d ≤ b + c)
     (by intro (a₁, b₁) (a₂, b₂) (a₃, b₃) (a₄, b₄)
         simp; intro k₁ h₁ k₂ h₂
@@ -380,19 +383,19 @@ instance [LE α] [IsPreorder α] [OrderedAdd α] : LE (OfSemiring.Q α) where
         rw [this]; clear this
         rw [← OrderedAdd.add_le_left_iff])
 
-instance [LE α] [IsPreorder α] [OrderedAdd α] : LT (OfSemiring.Q α) where
+instance (priority := high) [LE α] [IsPreorder α] [OrderedAdd α] : LT (OfSemiring.Q α) where
   lt a b := a ≤ b ∧ ¬b ≤ a
 
 @[local simp] theorem mk_le_mk [LE α] [IsPreorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) ≤ Q.mk (b₁, b₂) ↔ a₁ + b₂ ≤ a₂ + b₁ := by
   rfl
 
-instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfSemiring.Q α) where
+instance (priority := high) [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfSemiring.Q α) where
   le_refl a := by
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [Semiring.add_comm]; exact le_refl (a₁ + a₂)
+    simp [Semiring.add_comm]
   le_trans {a b c} h₁ h₂ := by
     induction a using Q.ind with | _ a
     induction b using Q.ind with | _ b
@@ -422,7 +425,7 @@ theorem toQ_le [LE α] [IsPreorder α] [OrderedAdd α] {a b : α} : toQ a ≤ to
 theorem toQ_lt [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < b := by
   simp [lt_iff_le_and_not_ge]
 
-instance [LE α] [IsPreorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
+instance (priority := high) [LE α] [IsPreorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) where
   add_le_left_iff := by
     intro a b c
     obtain ⟨⟨a₁, a₂⟩⟩ := a
@@ -436,7 +439,7 @@ instance [LE α] [IsPreorder α] [OrderedAdd α] : OrderedAdd (OfSemiring.Q α) 
     rw [← OrderedAdd.add_le_left_iff]
 
 -- This perhaps works in more generality than `ExistsAddOfLT`?
-instance [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemiring.Q α) where
+instance (priority := high) [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] [ExistsAddOfLT α] : OrderedRing (OfSemiring.Q α) where
   zero_lt_one := by
     rw [← toQ_ofNat, ← toQ_ofNat, toQ_lt]
     exact OrderedRing.zero_lt_one
@@ -504,11 +507,21 @@ theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b
   obtain ⟨⟨b₁, b₂⟩⟩ := b
   apply Quot.sound; refine ⟨0, ?_⟩; simp; ac_rfl
 
+@[instance_reducible]
 def ofCommSemiring : CommRing (OfSemiring.Q α) :=
   { OfSemiring.ofSemiring with
     mul_comm := mul_comm }
 
-attribute [instance] ofCommSemiring
+attribute [instance high] ofCommSemiring
+instance (priority := high) [CommRing (OfSemiring.Q α)] : Add (OfSemiring.Q α) := by infer_instance
+instance (priority := high) [CommRing (OfSemiring.Q α)] : Sub (OfSemiring.Q α) := by infer_instance
+instance (priority := high) [CommRing (OfSemiring.Q α)] : Mul (OfSemiring.Q α) := by infer_instance
+instance (priority := high) [CommRing (OfSemiring.Q α)] : Neg (OfSemiring.Q α) := by infer_instance
+instance (priority := high) [CommRing (OfSemiring.Q α)] : OfNat (OfSemiring.Q α) n := by infer_instance
+attribute [local instance] Semiring.natCast Ring.intCast
+instance (priority := high) [CommRing (OfSemiring.Q α)] : NatCast (OfSemiring.Q α) := by infer_instance
+instance (priority := high) [CommRing (OfSemiring.Q α)] : IntCast (OfSemiring.Q α) := by infer_instance
+instance (priority := high) [CommRing (OfSemiring.Q α)] : HPow (OfSemiring.Q α) Nat (OfSemiring.Q α) := by infer_instance
 
 /-
 Remark: `↑a` is notation for `OfSemiring.toQ a`.

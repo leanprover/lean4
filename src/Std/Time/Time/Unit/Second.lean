@@ -21,7 +21,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for second, which ranges between 0 and 59 or 60. This accounts
 for potential leap second.
 -/
-@[expose] def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 60 else 59))
+def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 60 else 59))
 
 instance : LE (Ordinal leap) where
   le x y := LE.le x.val y.val
@@ -36,7 +36,7 @@ instance : ToString (Ordinal leap) where
   toString r := toString r.val
 
 instance : OfNat (Ordinal leap) n := by
-  have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
+  have inst : OfNat (Bounded.LE 0 (0 + (59 : Nat))) n := inferInstance
   cases leap
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩
@@ -58,7 +58,7 @@ instance : LawfulEqOrd (Ordinal leap) := inferInstanceAs <| LawfulEqOrd (Bounded
 /--
 `Offset` represents an offset in seconds. It is defined as an `Int`.
 -/
-@[expose] def Offset : Type := UnitVal 1
+def Offset : Type := UnitVal 1
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=

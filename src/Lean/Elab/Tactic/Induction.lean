@@ -10,17 +10,23 @@ import Lean.Parser.Tactic
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
-import Lean.Elab.App
-import Lean.Elab.Tactic.Generalize
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Lean.Elab.Binders
+import Lean.Meta.Tactic.Generalize
 
 
 public section
+
+namespace Lean
 
 register_builtin_option tactic.customEliminators : Bool := {
   defValue := true
   descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
     defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
 }
+
+end Lean
 
 end
 
@@ -359,15 +365,17 @@ where
         let altPromises ← altStxs.mapM fun _ => IO.Promise.new
         let cancelTk? := (← readThe Core.Context).cancelTk?
         tacSnap.new.resolve {
-          -- save all relevant syntax here for comparison with next document version
-          stx := mkNullNode altStxs
-          diagnostics := .empty
-          inner? := none
-          finished := {
-            stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
-            -- Do not cover up progress from `next` as no significant work happens after `next` and
-            -- before `finished` is resolved.
-            reportingRange := .skip
+          transformed.raw := {
+            -- save all relevant syntax here for comparison with next document version
+            stx := mkNullNode altStxs
+            diagnostics := .empty
+            inner? := none
+            finished := {
+              stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
+              -- Do not cover up progress from `next` as no significant work happens after `next` and
+              -- before `finished` is resolved.
+              reportingRange := .skip
+            }
           }
           next := Array.zipWith
             (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
@@ -378,10 +386,12 @@ where
             let old ← tacSnap.old?
             -- waiting is fine here: this is the old version of the snapshot resolved above
             -- immediately at the beginning of the tactic
-            let old := old.val.get
+            -- (access to `raw` is fine here as there should be no transformation in this case
+            -- anyway, see `resolve` above)
+            let oldParsed := old.val.get.transformed.raw
             -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
             -- version and picked apart in `applyAltStx`
-            return ⟨old.stx, (← old.next[i]?)⟩
+            return ⟨oldParsed.stx, (← old.val.get.next[i]?)⟩
           new := prom
         }
         finished.resolve {
@@ -997,9 +1007,13 @@ def evalInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
-    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
-    let targets ← withMainContext <| addImplicitTargets elimInfo targets
+    -- Disable tactic incrementality during setup to prevent nested `by` blocks (e.g. in `using`)
+    -- from consuming the snapshot meant for `evalAlts`.
+    let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
+      let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
+      let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
+      let targets ← withMainContext <| addImplicitTargets elimInfo targets
+      return (targets, toTag, elimInfo)
     evalInductionCore stx elimInfo targets toTag
 
 
@@ -1018,7 +1032,7 @@ Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args 
 def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
-    let fnName ← realizeGlobalConstNoOverload id
+    let fnName ← realizeGlobalConstNoOverloadWithInfo id
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
@@ -1079,8 +1093,10 @@ def evalFunInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
-    let targets ← generalizeTargets targets
+    let (elimInfo, targets) ← Term.withoutTacticIncrementality true do
+      let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
+      let targets ← generalizeTargets targets
+      return (elimInfo, targets)
     evalInductionCore stx elimInfo targets
 
 /--
@@ -1120,9 +1136,11 @@ def evalCases : Tactic := fun stx =>
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
     -- syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
-    let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
-    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
-    let targets ← withMainContext <| addImplicitTargets elimInfo targets
+    let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
+      let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
+      let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
+      let targets ← withMainContext <| addImplicitTargets elimInfo targets
+      return (targets, toTag, elimInfo)
     evalCasesCore stx elimInfo targets toTag
 
 @[builtin_tactic Lean.Parser.Tactic.funCases, builtin_incremental]
@@ -1130,8 +1148,10 @@ def evalFunCases : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let (elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
-    let targets ← generalizeTargets targets
+    let (elimInfo, targets) ← Term.withoutTacticIncrementality true do
+      let (elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
+      let targets ← generalizeTargets targets
+      return (elimInfo, targets)
     evalCasesCore stx elimInfo targets
 
 builtin_initialize

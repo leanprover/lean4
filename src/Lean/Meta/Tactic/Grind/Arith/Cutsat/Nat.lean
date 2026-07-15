@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.NatInstTesters
 public section

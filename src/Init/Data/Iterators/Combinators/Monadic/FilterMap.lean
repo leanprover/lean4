@@ -6,8 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.PostconditionMonad
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+import Init.PropLemmas
 
 public section
 
@@ -63,14 +64,14 @@ def IterM.InternalCombinators.filterMap {α β γ : Type w} {m : Type w → Type
     {n : Type w → Type w''} (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n lift f) n γ :=
-  .mk ⟨it⟩ n γ
+  ⟨⟨it⟩⟩
 
 @[always_inline, inline, expose]
 def IterM.InternalCombinators.map {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n γ)
     (it : IterM (α := α) m β) : IterM (α := Map α m n lift f) n γ :=
-  .mk ⟨it⟩ n γ
+  ⟨⟨it⟩⟩
 
 /--
 *Note: This is a very general combinator that requires an advanced understanding of monads,
@@ -167,6 +168,13 @@ instance Map.instIterator {α β γ : Type w} {m : Type w → Type w'} {n : Type
     Iterator (Map α m n lift f) n γ :=
   inferInstanceAs <| Iterator (FilterMap α m n lift _) n γ
 
+theorem Map.instIterator_eq_filterMapInstIterator {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n]
+    [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} :
+    Map.instIterator (α := α) (β := β) (γ := γ) (m := m) (n := n) (lift := lift) (f := f) =
+      FilterMap.instIterator :=
+  rfl
+
 private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
@@ -188,13 +196,11 @@ private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w →
     case done h' =>
       cases h
 
-@[no_expose]
 instance FilterMap.instFinite {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] : Finite (FilterMap α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
-@[no_expose]
 instance Map.instFinite {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n]
     [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} [Finite α m] :
     Finite (Map α m n lift f) n :=
@@ -213,7 +219,6 @@ private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → T
     case skip it' h =>
       exact h
 
-@[no_expose]
 instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :

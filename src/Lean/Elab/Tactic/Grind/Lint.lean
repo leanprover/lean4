@@ -7,12 +7,8 @@ module
 prelude
 public import Lean.Elab.Command
 import Init.Grind.Lint
-import Lean.Data.Name
-import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.EnvExtension
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Meta.Tactic.TryThis
-import Lean.PrettyPrinter
 namespace Lean.Elab.Tactic.Grind
 
 builtin_initialize skipExt : SimplePersistentEnvExtension Name NameSet ←
@@ -33,7 +29,7 @@ builtin_initialize muteExt : SimplePersistentEnvExtension Name NameSet ←
     addImportedFn := mkStateFromImportedEntries (·.insert) {}
   }
 
-open Command Meta Grind
+open Command Meta Lean.Meta.Grind
 
 def checkEMatchTheorem (declName : Name) : CoreM Unit := do
   unless (← Grind.grindExt.isEMatchTheorem declName) do

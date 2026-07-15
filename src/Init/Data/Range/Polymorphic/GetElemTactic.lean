@@ -6,8 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Vector.Basic
-public import Init.Data.Slice.Array.Lemmas
+public meta import Init.Grind.Tactics
+public import Init.Data.Range.Polymorphic.Basic  -- shake: keep (macro output dependency)
+public import Init.Data.Vector.Basic  -- shake: keep (macro output dependency)
+public import Init.Data.Slice.Array.Lemmas  -- shake: keep (macro output dependency)
 
 public section
 

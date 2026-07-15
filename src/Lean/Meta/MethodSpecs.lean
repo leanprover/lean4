@@ -65,7 +65,8 @@ def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
       unless xs == ys do
         throwError "function `{f}` does not take its arguments in the same order as the instance"
       let implName := f.constName!
-      let isExposed := !(← getEnv).header.isModule || (((← getEnv).setExporting true).find? implName).elim false (·.hasValue)
+      let env ← getEnv
+      let isExposed := env.hasExposedBody implName
       unless isExposed do
         privateSpecs := true
       -- Construct the replacement theorems
@@ -127,7 +128,7 @@ def mkSpecTheoremName (env : Environment) (instName : Name) (privateSpecs : Bool
   if privateSpecs then mkPrivateName env thmName else thmName
 
 def startsWithFollowedByNumber (s p : String) : Bool :=
-  s.startsWith p && (s.drop p.length).isNat
+  (s.dropPrefix? p).any (·.isNat)
 
 def isSpecThmLikeSuffix (fieldName : Name) (s : String) : Bool :=
   s == s!"{fieldName}_spec" || startsWithFollowedByNumber s s!"{fieldName}_spec_"

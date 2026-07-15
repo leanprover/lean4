@@ -7,11 +7,15 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.InsertIdx
-public import Init.Data.Array.Range
-public import Init.Data.Range
 -- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
-public import Init.Data.Slice.Array.Iterator
+import Init.Data.Array.Nat
+public import Init.Data.Array.DecidableEq
+public import Init.Data.Range.Polymorphic.RangeIterator
+import Init.Data.Array.InsertIdx
+import Init.Data.Array.MapIdx
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Omega
 
 public section
 
@@ -60,7 +64,7 @@ recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
 
 /-- Convert a vector to a list. -/
-@[expose]
+@[expose, implicit_reducible]
 def toList (xs : Vector α n) : List α := xs.toArray.toList
 
 /-- Custom eliminator for `Vector α n` through `Array α` -/
@@ -234,7 +238,7 @@ We immediately simplify this to the `extract` operation, so there is no verifica
   simp [shrink, take]
 
 /-- Maps elements of a vector using the function `f`. -/
-@[inline, expose] def map (f : α → β) (xs : Vector α n) : Vector β n :=
+@[inline, expose, implicit_reducible] def map (f : α → β) (xs : Vector α n) : Vector β n :=
   ⟨xs.toArray.map f, by simp⟩
 
 /-- Maps elements of a vector using the function `f`, which also receives the index of the element. -/
@@ -274,7 +278,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) : m (Vector β n) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = n) (ys : Vector β (n - i)) : m (Vector β n) := do
     match i, inv with
-    | 0,    _  => pure ys
+    | 0,   inv => return ys.cast (by omega)
     | i+1, inv =>
       have j_lt : j < n := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
@@ -501,6 +505,16 @@ Examples:
 -/
 @[inline, expose] def sum [Add α] [Zero α] (xs : Vector α n) : α :=
   xs.toArray.sum
+
+/--
+Computes the product of the elements of a vector.
+
+Examples:
+ * `#v[a, b, c].prod = a * (b * (c * 1))`
+ * `#v[1, 2, 5].prod = 10`
+-/
+@[inline, expose] def prod [Mul α] [One α] (xs : Vector α n) : α :=
+  xs.toArray.prod
 
 /--
 Pad a vector on the left with a given element.

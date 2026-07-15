@@ -45,38 +45,6 @@ theorem map_getElem_sublist {l : List α} {is : List (Fin l.length)} (h : is.Pai
     rwa [nil_append, ← (drop_append_of_le_length ?_), take_append_drop] at this
     simp [Nat.min_eq_left (Nat.le_of_lt hd.isLt), his]
 
-set_option linter.listVariables false in
-/-- Given a sublist `l' <+ l`, there exists an increasing list of indices `is` such that
-  `l' = is.map fun i => l[i]`. -/
-theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (Fin l.length),
-    l' = is.map (l[·]) ∧ is.Pairwise (· < ·) := by
-  induction h with
-  | slnil => exact ⟨[], by simp⟩
-  | cons _ _ IH =>
-    let ⟨is, IH⟩ := IH
-    refine ⟨is.map (·.succ), ?_⟩
-    set_option backward.isDefEq.respectTransparency false in
-    simpa [Function.comp_def, pairwise_map]
-  | cons_cons _ _ IH =>
-    rcases IH with ⟨is,IH⟩
-    refine ⟨⟨0, by simp [Nat.zero_lt_succ]⟩ :: is.map (·.succ), ?_⟩
-    set_option backward.isDefEq.respectTransparency false in
-    simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
-
-set_option linter.listVariables false in
-theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
-    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length) (_hij : i < j), R l[i] l[j] := by
-  rw [pairwise_iff_forall_sublist]
-  constructor <;> intro h
-  · intro i j hi hj h'
-    apply h
-    simpa [h'] using map_getElem_sublist (is := [⟨i, hi⟩, ⟨j, hj⟩])
-  · intro a b h'
-    have ⟨is, h', hij⟩ := sublist_eq_map_getElem h'
-    rcases is with ⟨⟩ | ⟨a', ⟨⟩ | ⟨b', ⟨⟩⟩⟩ <;> simp at h'
-    rcases h' with ⟨rfl, rfl⟩
-    apply h; simpa using! hij
-
 /-- The list `List.finRange n` is strictly increasing. -/
 theorem pairwise_lt_finRange (n : Nat) : Pairwise (· < ·) (finRange n) := by
   rw [pairwise_iff_getElem]

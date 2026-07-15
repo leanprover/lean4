@@ -216,56 +216,69 @@ private def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVar
   let .mdata .. := info.prog | return none
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
-/-- Hoist a program-head `let` to the goal target and introduce it, returning the introduced fvar
-and the new goal. -/
-private def hoistProgLetIntro (goal : MVarId) (info : WPApp) :
-    VCGenM (Option (FVarId × MVarId)) := do
-  let .letE name type val body nondep := info.prog.getAppFn | return none
-  let prog ← betaRevS body info.prog.getAppRevArgs
-  let wp ← mkAppNS info.head <| info.args.set! 7 prog
-  let rhs ← mkAppNS wp info.excessArgs
-  let target ← goal.getType
-  let relArgs := target.getAppArgs
-  let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
-  let hoisted ← goal.replaceTargetDefEqFast (Expr.letE name type val target nondep)
-  let .goal newDecls newGoal ← Sym.intros hoisted | return none
-  let some fvId := newDecls[0]? | return none
-  return some (fvId, newGoal)
+/-- `+jp`: wrap the continuation of a `__do_jp` let in `jpGadget`, tagging the join point so the
+usual let-introduction runs (`wpLet?`) and `tryJPGadget?` then sets up the shared spec. -/
+private def tryMarkJP? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+  unless (← read).useJP do return none
+  let .letE name ty val body nondep := info.prog.getAppFn | return none
+  unless Lean.Elab.Tactic.Do.isJP name do return none
+  unless val.isLambda do return none
+  if body.getAppFn.isConstOf ``Std.Internal.Do.jpGadget then return none
+  let uα ← liftMetaM <| Meta.getLevel info.Prog
+  let uβ ← liftMetaM <| Meta.getLevel ty
+  let wrapped := Expr.letE name ty val
+    (mkAppN (mkConst ``Std.Internal.Do.jpGadget [uα, uβ]) #[info.Prog, ty, .bvar 0, body]) nondep
+  return some (← replaceProgDefEq goal info (← mkAppRevS wrapped info.prog.getAppRevArgs))
 
-/-- `+jp`: when the program is `let __do_jp := fun args => body; rest` with `rest` an `if`/`match`,
-register a `Triple` spec for `__do_jp` and return two subgoals, `body` and `rest`. Then `body` is
-proved once and each jump `__do_jp args` in `rest` closes via `applySpec`, rather than inlining
-`body` at every jump.
+/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
+private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+  let .letE name type val body nondep := info.prog.getAppFn | return none
+  let appArgs := info.prog.getAppRevArgs
+  if isDuplicable val then
+    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
+    let body' ← Sym.instantiateRevBetaS body #[val]
+    let prog ← mkAppRevS body' appArgs
+    return some (← replaceProgDefEq goal info prog)
+  else
+    trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
+    let prog ← mkAppRevS body appArgs
+    let wp ← mkAppNS info.head <| info.args.set! 7 prog
+    let rhs ← mkAppNS wp info.excessArgs
+    let target ← goal.getType
+    let relArgs := target.getAppArgs
+    let target ← mkAppNS target.getAppFn (relArgs.set! (relArgs.size - 1) rhs)
+    let target := Expr.letE name type val target nondep
+    let goal ← goal.replaceTargetDefEqFast target
+    let .goal _ goal ← Sym.intros goal
+      | throwError "Failed to intro hoisted let"
+    return some goal
+
+/-- `+jp`: at `wp⟦jpGadget fv rest⟧` with `rest` an `if`/`match`, register a `Triple` spec for the
+join point `fv` and split into two subgoals, the JP body and the (gadget-stripped) `rest`. Then
+`body` is proved once and each jump `fv args` in `rest` closes via `applySpec` rather than inlining
+`body`.
 
 The spec's precondition splits the same way as `rest`: in branch `i` it is a fresh metavariable
 `?Hᵢ`, which the jump in that branch fills in with the facts that hold there. -/
-private def tryJoinPointDef (scope : Scope) (goal : MVarId) (info : WPApp) :
+private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option SolveResult) := do
-  unless (← read).useJP do return none
-  let .letE name _ val _ _ := info.prog.getAppFn | return none
-  unless Lean.Elab.Tactic.Do.isJP name do return none
-  unless val.isLambda do return none
-  let some (fvId, newGoal) ← hoistProgLetIntro goal info | return none
-  -- `Sym.intros` introduces every `let` as a dependent decl; restore the `have`'s nondep-ness so
-  -- the spec keys on `@fv joinParams` rather than zeta-reducing to the body.
-  newGoal.modifyLCtx fun lctx =>
+  let_expr Std.Internal.Do.jpGadget _α _β fv rest := info.prog | return none
+  let some fvId := fv.fvarId? | return none
+  -- `Sym.intros` introduced the JP `have` as a dependent decl; restore its nondep-ness so the spec
+  -- keys on `@fv joinParams` rather than zeta-reducing to the body.
+  goal.modifyLCtx fun lctx =>
     if let some decl := lctx.find? fvId then
       lctx.modifyLocalDecl fvId fun _ => decl.setNondep true
     else lctx
-  newGoal.withContext do
-  let fv := mkFVar fvId
-
-  let newTarget ← newGoal.getType
-  let_expr PartialOrder.rel _α _inst _pre rhs := newTarget
-    | return some (.goalsInScope scope [newGoal])
-  let some info' := isWPApp? rhs
-    | return some (.goalsInScope scope [newGoal])
-  let Q := info'.post
-  let some sinfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? info'.prog
-    | return some (.goalsInScope scope [newGoal])
+  goal.withContext do
+  -- Strip the gadget for the rest subgoal.
+  let restGoal ← replaceProgDefEq goal info rest
+  let some sinfo ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? rest
+    | return some (.goalsInScope scope [restGoal])
   let some resTy := sinfo.resTy
-    | return some (.goalsInScope scope [newGoal])
-  let Pred := info'.Pred
+    | return some (.goalsInScope scope [restGoal])
+  let Q := info.post
+  let Pred := info.Pred
   let joinTy ← liftMetaM <| Meta.inferType fv
   let numJoinParams ← liftMetaM <| Lean.Elab.Tactic.Do.getNumJoinParams joinTy resTy
 
@@ -284,34 +297,19 @@ private def tryJoinPointDef (scope : Scope) (goal : MVarId) (info : WPApp) :
         hypsMVarsRef.modify (·.push hypsMVar.mvarId!)
         pure (mkAppN hypsMVar allBinders)
       let tripleTy ← Meta.mkAppOptM ``Std.Internal.Do.Triple
-        #[info'.Pred, info'.EPred, info'.Prog, info'.Value, info'.args[4]!, info'.args[5]!,
-          mkAppN fv joinParams, info'.instWP, pjpBody, Q, info'.args[9]!]
+        #[info.Pred, info.EPred, info.Prog, info.Value, info.args[4]!, info.args[5]!,
+          mkAppN fv joinParams, info.instWP, pjpBody, Q, info.args[9]!]
       pure (← Meta.mkForallFVars joinParams tripleTy, ← hypsMVarsRef.get)
 
-  let bodyMV ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar bodyTy (← newGoal.getTag)
+  let bodyMV ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar bodyTy (← goal.getTag)
   let some joinSpec ← liftMetaM <| SpecAttr.mkSpecTheoremFromStx (← getRef) bodyMV
-    | return some (.goalsInScope scope [newGoal])
+    | return some (.goalsInScope scope [restGoal])
 
-  let outerLCtxSize := (← newGoal.getDecl).lctx.numIndices
+  let outerLCtxSize := (← restGoal.getDecl).lctx.numIndices
   let jpDefInfo : JPDefInfo := { hypsMVars, splitInfo := sinfo, outerLCtxSize }
   -- `bodyMV` keeps the original scope so its own head is not treated as a JP.
   let restScope := (scope.insertSpec joinSpec).registerJP fvId jpDefInfo
-  return some (.goals [(restScope, newGoal), (scope, bodyMV.mvarId!)])
-
-/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
-private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
-  let .letE name _type val body _nondep := info.prog.getAppFn | return none
-  let appArgs := info.prog.getAppRevArgs
-  if isDuplicable val then
-    trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
-    let body' ← Sym.instantiateRevBetaS body #[val]
-    let prog ← mkAppRevS body' appArgs
-    return some (← replaceProgDefEq goal info prog)
-  else
-    trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
-    let some (_, goal) ← hoistProgLetIntro goal info
-      | throwError "Failed to intro hoisted let"
-    return some goal
+  return some (.goals [(restScope, restGoal), (scope, bodyMV.mvarId!)])
 
 /-- Strategy 11b: split an `ite`/`dite`/match program, or iota-reduce a matcher with a concrete
 discriminant. -/
@@ -712,9 +710,11 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
       return .goalsInScope scope [g]
-    if let some r ← tryJoinPointDef scope goal info then
+    if let some r ← tryJPGadget? scope goal info then
       VCGen.burnOne
       return r
+    if let some g ← tryMarkJP? goal info then
+      return .goalsInScope scope [g]
     if let some g ← wpLet? goal info then
       VCGen.burnOne
       return .goalsInScope scope [g]

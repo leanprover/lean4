@@ -446,8 +446,8 @@ private def occursMVar (mvarId : MVarId) (e : Expr) : Bool :=
   (Expr.mvar mvarId).occurs e
 
 /-- Whether every occurrence of the post metavariable `q` in `e` is in tail position: as the post
-argument of a `wp`, conjoined with (`⊓`/`∧`) or implied by (`⇨`) an extra assertion, applied at the
-tail, or under a lambda; any other occurrence fails. -/
+argument of a `wp`, conjoined with (`⊓`/`∧`/`⨅`) or implied by (`⇨`) an extra assertion, applied at
+the tail, or under a lambda; any other occurrence fails. -/
 private partial def postInTail (q : MVarId) (e : Expr) : Bool :=
   match e with
   | .mvar _ => true
@@ -459,6 +459,7 @@ private partial def postInTail (q : MVarId) (e : Expr) : Bool :=
     | _ =>
       match_expr e with
       | Lean.Order.meet _ _ a b => postInTail q a && postInTail q b
+      | Lean.Order.iInf _ _ _ f => postInTail q f
       | And a b => postInTail q a && postInTail q b
       | Lean.Order.himp _ _ a b => !occursMVar q a && postInTail q b
       | wp _ _ _ _ _ _ _ prog post epost =>

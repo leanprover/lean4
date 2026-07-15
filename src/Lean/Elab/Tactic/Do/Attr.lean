@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
 public import Std.Internal.Do.Triple.Basic
+public import Lean.Elab.Tactic.Do.AutoFrame
 import Init.While
 import Init.Syntax
 import Lean.Meta.Sym.Simp.DiscrTree
@@ -338,10 +339,10 @@ structure SpecTheorem where
   proof : SpecProof
   /-- The kind of spec theorem: triple or simp. -/
   kind : SpecTheoremKind := .triple
-  /-- Whether the spec is parametric in its postcondition: the post is a schematic variable occurring
-  only in tail position in the precondition and in no premise. Such a spec does not take part in the
-  frame machinery. Opt out with a trivial `Q = Q` premise. -/
-  postParametric : Bool := false
+  /-- Whether the precondition is conjunctive in the spec's postconditions, so applying the spec
+  directly carries any frame and `vcgen` skips the frame machinery. Opt out with a trivial `Q = Q`
+  premise. -/
+  conjunctivePre : Bool := false
   priority : Nat := eval_prio default
   deriving Inhabited
 
@@ -430,54 +431,6 @@ def progArgIdx? (declName : Name) : MetaM (Option Nat) := do
         return some i
     return none
 
-/-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
-either `Triple` or `pre ⊑ wp …` shape. -/
-def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
-  match_expr concl with
-  | PartialOrder.rel _ _ pre rhs =>
-    match_expr rhs with
-    | wp _ _ _ _ _ _ _ prog post epost => some (pre, prog, post, epost)
-    | _ => none
-  | Triple _ _ _ _ _ _ x _ pre post epost => some (pre, x, post, epost)
-  | _ => none
-
-/-- Does the metavariable `mvarId` occur in `e`? -/
-private def occursMVar (mvarId : MVarId) (e : Expr) : Bool :=
-  (Expr.mvar mvarId).occurs e
-
-/-- Whether every occurrence of the post metavariable `q` in `e` is in tail position: as the post
-argument of a `wp`, conjoined with (`⊓`/`∧`/`⨅`) or implied by (`⇨`) an extra assertion, applied at
-the tail, or under a lambda; any other occurrence fails. -/
-private partial def postInTail (q : MVarId) (e : Expr) : Bool :=
-  match e with
-  | .mvar _ => true
-  | .mdata _ b => postInTail q b
-  | .lam _ dom body _ => !occursMVar q dom && postInTail q body
-  | _ =>
-    match e.getAppFn with
-    | .mvar m => if m == q then e.getAppArgs.all (!occursMVar q ·) else !occursMVar q e
-    | _ =>
-      match_expr e with
-      | Lean.Order.meet _ _ a b => postInTail q a && postInTail q b
-      | Lean.Order.iInf _ _ _ f => postInTail q f
-      | And a b => postInTail q a && postInTail q b
-      | Lean.Order.himp _ _ a b => !occursMVar q a && postInTail q b
-      | wp _ _ _ _ _ _ _ prog post epost =>
-        !occursMVar q prog && !occursMVar q epost && postInTail q post
-      | _ => !occursMVar q e
-
-/-- Whether a spec is parametric in its postcondition: the post is a schematic variable occurring only
-in tail position in the precondition and in no premise, program, or exception postcondition. The
-`binders` are the spec's `∀`-telescoped parameters and premises. -/
-def isPostParametric (concl : Expr) (binders : Array Expr) : MetaM Bool := do
-  let some (pre, prog, post, epost) := specComponents? concl | return false
-  let .mvar q := post.eta | return false
-  if occursMVar q prog || occursMVar q epost then return false
-  for b in binders do
-    if occursMVar q (← inferType b) then return false
-  unless occursMVar q pre do return false
-  return postInTail q pre
-
 /--
 Selects the program a spec conclusion is keyed on: the program of a `Triple`, or the program inside
 the `wp` on the RHS of a `pre ⊑ wp …` entailment. Returns `none` if `type` is neither shape — e.g. a
@@ -519,8 +472,8 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
   let type ← whnfR type
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
-  let postParametric ← isPostParametric type binders
-  return some { pattern, proof, priority := prio, postParametric }
+  let conjunctivePre ← isConjunctiveInPosts type binders
+  return some { pattern, proof, priority := prio, conjunctivePre }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let info ← getConstInfo declName

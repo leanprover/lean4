@@ -41,7 +41,7 @@ lean_object* l_Lean_Syntax_isNatLit_x3f(lean_object*);
 lean_object* l_Lean_Level_addOffset(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 extern lean_object* l_Lean_Elab_relaxedAutoImplicit;
 uint8_t l_Lean_Elab_isValidAutoBoundLevelName(lean_object*, uint8_t);
@@ -1707,7 +1707,7 @@ v___jp_546_:
 lean_object* v___x_547_; lean_object* v___x_548_; lean_object* v___x_549_; lean_object* v___x_550_; lean_object* v___x_551_; lean_object* v___x_552_; lean_object* v___x_553_; 
 v___x_547_ = lean_obj_once(&l_Lean_Elab_Level_elabLevel___closed__18, &l_Lean_Elab_Level_elabLevel___closed__18_once, _init_l_Lean_Elab_Level_elabLevel___closed__18);
 lean_inc(v_paramName_541_);
-v___x_548_ = lean_mk_syntax_ident(v_paramName_541_);
+v___x_548_ = l_Lean_mkIdent(v_paramName_541_);
 v___x_549_ = l_Lean_MessageData_ofSyntax(v___x_548_);
 v___x_550_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_550_, 0, v___x_547_);

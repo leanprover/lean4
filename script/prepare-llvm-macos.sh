@@ -10,6 +10,7 @@ set -uxo pipefail
 
 GMP=${GMP:-$(brew --prefix)}
 LIBUV=${LIBUV:-$(brew --prefix)}
+OPENSSL=${OPENSSL:-$(brew --prefix openssl@3)}
 
 [[ -d llvm ]] || (mkdir llvm; gtar xf $1 --strip-components 1 --directory llvm)
 [[ -d llvm-host ]] || if [[ "$#" -gt 1 ]]; then
@@ -48,7 +49,8 @@ if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
   gcp $GMP/lib/libgmp.a stage1/lib/
   gcp $LIBUV/lib/libuv.a stage1/lib/
-  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv'"
+  gcp $OPENSSL/lib/libssl.a $OPENSSL/lib/libcrypto.a stage1/lib/
+  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lssl -lcrypto'"
 else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
 fi

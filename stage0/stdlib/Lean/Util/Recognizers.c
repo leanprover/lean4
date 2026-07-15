@@ -1094,8 +1094,8 @@ return v___x_347_;
 else
 {
 lean_object* v___x_348_; 
-lean_dec_ref_known(v_pre_333_, 2);
 lean_dec(v_pre_334_);
+lean_dec_ref_known(v_pre_333_, 2);
 lean_dec_ref_known(v_pre_332_, 2);
 lean_dec_ref_known(v_declName_331_, 2);
 v___x_348_ = lean_box(0);
@@ -1115,8 +1115,8 @@ return v___x_349_;
 else
 {
 lean_object* v___x_350_; 
-lean_dec(v_pre_332_);
 lean_dec_ref_known(v_declName_331_, 2);
+lean_dec(v_pre_332_);
 v___x_350_ = lean_box(0);
 return v___x_350_;
 }
@@ -1466,8 +1466,8 @@ return v___x_423_;
 else
 {
 lean_object* v___x_424_; 
-lean_dec(v_pre_371_);
 lean_dec_ref_known(v_declName_370_, 2);
+lean_dec(v_pre_371_);
 lean_dec_ref(v_arg_355_);
 lean_dec_ref(v_arg_353_);
 v___x_424_ = lean_box(0);
@@ -1721,8 +1721,8 @@ return v___x_464_;
 else
 {
 lean_object* v___x_465_; 
-lean_dec(v_pre_429_);
 lean_dec_ref_known(v_pre_428_, 2);
+lean_dec(v_pre_429_);
 lean_dec_ref_known(v_declName_427_, 2);
 lean_dec_ref_known(v_fn_354_, 2);
 lean_dec_ref(v_arg_355_);
@@ -1734,8 +1734,8 @@ return v___x_465_;
 else
 {
 lean_object* v___x_466_; 
-lean_dec_ref_known(v_declName_427_, 2);
 lean_dec(v_pre_428_);
+lean_dec_ref_known(v_declName_427_, 2);
 lean_dec_ref_known(v_fn_354_, 2);
 lean_dec_ref(v_arg_355_);
 lean_dec_ref(v_arg_353_);
@@ -2052,8 +2052,8 @@ return v___x_512_;
 else
 {
 lean_object* v___x_513_; 
-lean_dec_ref_known(v_declName_469_, 2);
 lean_dec(v_pre_470_);
+lean_dec_ref_known(v_declName_469_, 2);
 lean_dec_ref_known(v_fn_426_, 2);
 lean_dec_ref_known(v_fn_354_, 2);
 lean_dec_ref(v_arg_355_);
@@ -2408,8 +2408,8 @@ return v___x_563_;
 else
 {
 lean_object* v___x_564_; 
-lean_dec(v_pre_518_);
 lean_dec_ref_known(v_pre_517_, 2);
+lean_dec(v_pre_518_);
 lean_dec_ref_known(v_declName_516_, 2);
 lean_dec_ref_known(v_fn_468_, 2);
 lean_dec_ref_known(v_fn_426_, 2);
@@ -2423,8 +2423,8 @@ return v___x_564_;
 else
 {
 lean_object* v___x_565_; 
-lean_dec_ref_known(v_declName_516_, 2);
 lean_dec(v_pre_517_);
+lean_dec_ref_known(v_declName_516_, 2);
 lean_dec_ref_known(v_fn_468_, 2);
 lean_dec_ref_known(v_fn_426_, 2);
 lean_dec_ref_known(v_fn_354_, 2);
@@ -3323,8 +3323,8 @@ return v___x_682_;
 else
 {
 lean_object* v___x_683_; 
-lean_dec_ref_known(v_pre_626_, 2);
 lean_dec(v_pre_627_);
+lean_dec_ref_known(v_pre_626_, 2);
 lean_dec_ref_known(v_declName_625_, 2);
 lean_dec_ref_known(v_fn_567_, 2);
 lean_dec_ref_known(v_fn_515_, 2);
@@ -3874,8 +3874,8 @@ return v___x_749_;
 else
 {
 lean_object* v___x_750_; 
-lean_dec(v_pre_689_);
 lean_dec_ref_known(v_pre_688_, 2);
+lean_dec(v_pre_689_);
 lean_dec_ref_known(v_declName_687_, 2);
 lean_dec_ref_known(v_fn_624_, 2);
 lean_dec_ref_known(v_fn_567_, 2);

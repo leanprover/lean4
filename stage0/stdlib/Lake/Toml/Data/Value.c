@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.Value
-// Imports: public import Init.Data.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String import Init.Data.String.TakeDrop import Init.Data.String.Search public import Init.Data.String.Defs import Init.Data.ToString.Macro
+// Imports: public import Init.Data.Float.Float public import Lake.Toml.Data.Dict public import Lake.Toml.Data.DateTime import Lake.Util.String import Init.Data.String.TakeDrop import Init.Data.String.Search public import Init.Data.String.Defs import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2562,7 +2562,7 @@ lean_dec_ref(v_t_806_);
 return v_res_807_;
 }
 }
-lean_object* runtime_initialize_Init_Data_Float(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Toml_Data_Dict(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Toml_Data_DateTime(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_String(uint8_t builtin);
@@ -2575,7 +2575,7 @@ LEAN_EXPORT lean_object* runtime_initialize_Lake_Toml_Data_Value(uint8_t builtin
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Data_Float(builtin);
+res = runtime_initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lake_Toml_Data_Dict(builtin);
@@ -2610,7 +2610,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Data_Float(uint8_t builtin);
+lean_object* initialize_Init_Data_Float_Float(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Data_Dict(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Data_DateTime(uint8_t builtin);
 lean_object* initialize_Lake_Util_String(uint8_t builtin);
@@ -2623,7 +2623,7 @@ LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_Value(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Float(builtin);
+res = initialize_Init_Data_Float_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Toml_Data_Dict(builtin);

@@ -14,7 +14,7 @@ public section
 namespace String
 open Lean Meta Simp
 
-def fromExpr? (e : Expr) : SimpM (Option String) := do
+private def fromExpr? (e : Expr) : SimpM (Option String) := do
   return getStringValue? e
 
 builtin_dsimproc [simp, seval] reduceAppend ((_ ++ _ : String)) := fun e => do
@@ -58,14 +58,14 @@ builtin_dsimproc_decl reduceToSingleton ((_ : String)) := fun e => do
   let [c] := l | return .continue
   return .done <| mkApp (mkConst ``String.singleton) (toExpr c)
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM Step := do
+@[inline] private def reduceBinPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
   evalPropStep e (op n m)
 
 
-@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM DStep := do
+@[inline] private def reduceBoolPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue

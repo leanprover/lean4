@@ -27,7 +27,7 @@ This usually means that the type contains a `max u v` where neither `u` nor `v` 
 themselves; the fix is to provide the universe level explicitly.
 -/
 register_builtin_option linter.checkUnivs : Bool := {
-  defValue := false
+  defValue := true
   descr := "enable the `checkUnivs` linter, which warns when a declaration has a universe \
     parameter that only ever occurs in a `max u v` together with another parameter, never \
     on its own."

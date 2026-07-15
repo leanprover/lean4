@@ -65,7 +65,7 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean
 uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
 lean_object* l_Lean_DeclarationRange_toLspRange(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_Elab_Info_range_x3f(lean_object*);
 lean_object* l_Lean_Syntax_Range_toLspRange(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
@@ -4994,7 +4994,8 @@ lean_ctor_set(v___x_1558_, 0, v___y_1550_);
 lean_ctor_set(v___x_1558_, 1, v_snd_1536_);
 lean_ctor_set(v___x_1558_, 2, v___x_1556_);
 lean_ctor_set(v___x_1558_, 3, v___x_1557_);
-v___x_1559_ = lean_erase_macro_scopes(v_declName_1516_);
+v___x_1559_ = l_Lean_Name_eraseMacroScopes(v_declName_1516_);
+lean_dec(v_declName_1516_);
 if (v_isShared_1555_ == 0)
 {
 lean_ctor_set(v___x_1554_, 1, v___x_1559_);

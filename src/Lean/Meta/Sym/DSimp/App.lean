@@ -11,7 +11,7 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.ProofInstInfo
 import Init.Omega
 namespace Lean.Meta.Sym.DSimp
-open Internal
+open Lean.Meta.Sym.Internal
 
 /-!
 # Simplifying Application Arguments

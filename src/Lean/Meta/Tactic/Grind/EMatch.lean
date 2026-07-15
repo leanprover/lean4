@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Util.CollectLevelMVars
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
@@ -365,10 +366,15 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
 /--
 Given a proposition `prop` corresponding to an equational theorem.
 Annotate the conditions using `Grind.MatchCond`. See `MatchCond.lean`.
+
+Only hypotheses that have the `match`-condition shape `∀ …, _ = _ → … → False` are
+annotated (see `isMatchCondCandidate`). Equational theorems may have other propositional
+hypotheses (e.g., the discriminant equalities of a `match` with proof discriminants),
+and the `MatchCond` propagators assume the annotated conditions have this shape.
 -/
 private partial def annotateEqnTypeConds (prop : Expr) (k : Expr → M Expr := pure) : M Expr := do
   if let .forallE n d b bi := prop then
-    let d := if (← isProp d) then
+    let d := if isMatchCondCandidate d then
       markAsPreMatchCond d
     else
       d
@@ -542,17 +548,41 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
         reportEMatchIssue! "failed to synthesize instance when instantiating {thm.origin.pp}{indentExpr type}"
         failure
 
-private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
+/--
+Constructs a proof of `lhs = rhs` (`lhs ≍ rhs` if `heq := true`) for a delayed
+generalized-pattern equality. `lhs` is a term from the goal and has already been
+internalized. `rhs` is the value the pattern was instantiated with; it is preprocessed,
+and the equality is established using the e-graph. The instantiation fails if `lhs` and
+`rhs` cannot be proved equal. `expectedType` is used for error messages only.
+
+**Note**: `rhs` is an auxiliary term, and it is internalized inside
+`withoutModifyingState`. The equality proof is also constructed there, before the state
+is restored. `rhs` may contain metavariables corresponding to theorem parameters that
+have not been assigned yet; they are abstracted at the end of `instantiateTheorem`. The
+e-graph must not retain terms containing such metavariables: they become dangling
+references when the `withNewMCtxDepth` at `instantiateTheorem` is exited. See issue
+#13773.
+-/
+private def mkGeneralizedPatternEqProof (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) (heq : Bool)
+    : OptionT (StateT Choice M) Expr := do
   assert! (← alreadyInternalized lhs)
   -- We use `dsimp` here to ensure terms such as `Nat.succ x` are normalized as `x+1`.
   let rhs ← preprocessLight (← dsimpCore rhs)
-  internalize rhs (← getGeneration lhs)
-  processNewFacts
-  if (← isEqv lhs rhs) then
-    return rhs
-  else
+  let some proof ← checkEqvToLhs? rhs |
     reportEMatchIssue! "invalid generalized pattern at `{origin.pp}`\nwhen processing argument with type{indentExpr expectedType}\nfailed to prove{indentExpr lhs}\nis equal to{indentExpr rhs}"
     failure
+  return proof
+where
+  checkEqvToLhs? (rhs : Expr) : GoalM (Option Expr) := withoutModifyingState do
+    internalize rhs (← getGeneration lhs)
+    processNewFacts
+    if (← isEqv lhs rhs) then
+      if heq then
+        return some (← mkHEqProof lhs rhs)
+      else
+        return some (← mkEqProof lhs rhs)
+    else
+      return none
 
 private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (origin : Origin) : OptionT (StateT Choice M) Unit := do
   unless (← mvarId.checkedAssign eqProof) do
@@ -583,12 +613,12 @@ private def processDelayed (mvars : Array Expr) (i : Nat) (h : i < mvars.size) :
   match_expr mvarIdType with
   | Eq α lhs rhs =>
     let lhs ← findOriginalGeneralizedPatternLhs lhs
-    let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
-    assignGeneralizedPatternProof mvarId (← mkEqProof lhs rhs) thm.origin
+    let h ← mkGeneralizedPatternEqProof lhs rhs thm.origin mvarIdType (heq := false)
+    assignGeneralizedPatternProof mvarId h thm.origin
   | HEq α lhs β rhs =>
     let lhs ← findOriginalGeneralizedPatternLhs lhs
-    let rhs ← preprocessGeneralizedPatternRHS lhs rhs thm.origin mvarIdType
-    assignGeneralizedPatternProof mvarId (← mkHEqProof lhs rhs) thm.origin
+    let h ← mkGeneralizedPatternEqProof lhs rhs thm.origin mvarIdType (heq := true)
+    assignGeneralizedPatternProof mvarId h thm.origin
   | _ =>
     reportEMatchIssue! "invalid generalized pattern at `{thm.origin.pp}`\nequality type expected{indentExpr mvarIdType}"
     failure

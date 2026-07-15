@@ -1,0 +1,2 @@
+This test uses a timeout while doing a DNS lookup. Under high load, the test may
+fail.

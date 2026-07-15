@@ -1565,24 +1565,24 @@ def elabStructureCommand : InductiveElabDescr where
                     if fieldInfo.kind.isInCtor then
                       enableRealizationsForConst fieldInfo.declName
                   if view.isClass then
-                    -- Set implicitReducible on subobject projections to class parents.
+                    -- Set instanceReducible on subobject projections to class parents.
                     -- mkProjections defers reducibility to addParentInstances, but
                     -- addParentInstances only handles direct parents. Subobject fields
                     -- for non-direct parents (grandparents promoted to constructor
-                    -- subobjects during diamond flattening) also need implicitReducible
+                    -- subobjects during diamond flattening) also need instanceReducible
                     -- to be unfoldable at .instances transparency.
                     for fieldInfo in fieldInfos do
                       if let .subobject parentName := fieldInfo.kind then
                         if isClass (← getEnv) parentName then
-                          setReducibilityStatus fieldInfo.declName .implicitReducible
+                          setReducibilityStatus fieldInfo.declName .instanceReducible
                     addParentInstances parentInfos
                   -- Add field docstrings here (after @[class] attribute is applied)
                   -- so that Verso docstrings can use the class.
                   for field in view.fields do
                     -- may not exist if overriding inherited field
                     if (← getEnv).contains field.declName then
-                      if let some (doc, isVerso) := field.modifiers.docString? then
-                        addDocStringOf isVerso field.declName field.binders doc
+                      if let some doc := field.modifiers.docString? then
+                        addDocString field.declName field.binders doc
                   -- Add terminfo after docstrings so hovers include the docstring.
                   withSaveInfoContext do
                     for field in view.fields do

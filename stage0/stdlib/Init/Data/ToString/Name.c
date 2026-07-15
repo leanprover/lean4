@@ -46,7 +46,7 @@ lean_object* l_panic___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_isIdRest___boxed(lean_object*);
 lean_object* l_String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorLoopIdSearchStep___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
-uint8_t lean_is_inaccessible_user_name(lean_object*);
+uint8_t l_Lean_Name_isInaccessibleUserName(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -2568,7 +2568,7 @@ else
 {
 uint8_t v___x_686_; 
 lean_inc(v_n_681_);
-v___x_686_ = lean_is_inaccessible_user_name(v_n_681_);
+v___x_686_ = l_Lean_Name_isInaccessibleUserName(v_n_681_);
 if (v___x_686_ == 0)
 {
 uint8_t v___x_687_; 
@@ -2713,7 +2713,7 @@ else
 {
 uint8_t v___x_730_; 
 lean_inc(v_n_726_);
-v___x_730_ = lean_is_inaccessible_user_name(v_n_726_);
+v___x_730_ = l_Lean_Name_isInaccessibleUserName(v_n_726_);
 if (v___x_730_ == 0)
 {
 uint8_t v___x_731_; 

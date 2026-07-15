@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_While_0__whileM_erased___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_While_0__repeatM_erased___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonad___redArg(lean_object*);
 lean_object* l_instMonadLiftT___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_lift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadLiftTOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_liftM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateRefT_x27_instMonad___aux__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Mutex_0__Std_BaseMutexImpl;
 lean_object* lean_io_basemutex_new();
@@ -364,7 +364,7 @@ lean_closure_set(v___f_113_, 3, v___f_110_);
 v___f_114_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__4), 3, 2);
 lean_closure_set(v___f_114_, 0, v_toPure_108_);
 lean_closure_set(v___f_114_, 1, v___x_109_);
-v___x_115_ = l___private_Init_While_0__whileM_erased___redArg(v_inst_101_, v___f_113_, v___x_109_);
+v___x_115_ = l___private_Init_While_0__repeatM_erased___redArg(v_inst_101_, v___f_113_, v___x_109_);
 v___x_116_ = lean_apply_4(v_toBind_107_, lean_box(0), lean_box(0), v___x_115_, v___f_114_);
 return v___x_116_;
 }
@@ -705,15 +705,14 @@ lean_closure_set(v___f_284_, 0, v___f_280_);
 lean_closure_set(v___f_284_, 1, v_x_283_);
 lean_inc(v_mutex_278_);
 v___x_285_ = l_Std_Condvar_waitUntil___redArg(v___x_277_, v___f_284_, v_condvar_274_, v_mutex_278_, v_pred_275_);
-v___x_286_ = lean_alloc_closure((void*)(l_StateRefT_x27_instMonad___aux__13___boxed), 9, 8);
+v___x_286_ = lean_alloc_closure((void*)(l_ReaderT_bind___boxed), 8, 7);
 lean_closure_set(v___x_286_, 0, lean_box(0));
 lean_closure_set(v___x_286_, 1, lean_box(0));
-lean_closure_set(v___x_286_, 2, lean_box(0));
-lean_closure_set(v___x_286_, 3, v_inst_270_);
+lean_closure_set(v___x_286_, 2, v_inst_270_);
+lean_closure_set(v___x_286_, 3, lean_box(0));
 lean_closure_set(v___x_286_, 4, lean_box(0));
-lean_closure_set(v___x_286_, 5, lean_box(0));
-lean_closure_set(v___x_286_, 6, v___x_285_);
-lean_closure_set(v___x_286_, 7, v___f_279_);
+lean_closure_set(v___x_286_, 5, v___x_285_);
+lean_closure_set(v___x_286_, 6, v___f_279_);
 v___x_287_ = l_Std_Mutex_atomically___redArg(v_inst_270_, v_inst_271_, v_inst_272_, v_mutex_273_, v___x_286_);
 return v___x_287_;
 }

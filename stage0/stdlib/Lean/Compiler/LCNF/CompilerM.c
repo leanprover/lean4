@@ -5584,8 +5584,8 @@ return v___x_1817_;
 else
 {
 lean_object* v___x_1818_; 
-lean_dec_ref_known(v_e_1774_, 2);
 lean_dec(v_n_1813_);
+lean_dec_ref_known(v_e_1774_, 2);
 v___x_1818_ = lean_box(1);
 return v___x_1818_;
 }
@@ -13294,7 +13294,7 @@ _start:
 lean_object* v___x_4668_; lean_object* v___x_4669_; lean_object* v___x_4670_; lean_object* v___x_4671_; lean_object* v___x_4672_; lean_object* v___x_4673_; 
 v___x_4668_ = ((lean_object*)(l_Lean_Compiler_LCNF_CacheExtension_register___redArg___lam__0___closed__2));
 v___x_4669_ = lean_unsigned_to_nat(14u);
-v___x_4670_ = lean_unsigned_to_nat(177u);
+v___x_4670_ = lean_unsigned_to_nat(178u);
 v___x_4671_ = ((lean_object*)(l_Lean_Compiler_LCNF_CacheExtension_register___redArg___lam__0___closed__1));
 v___x_4672_ = ((lean_object*)(l_Lean_Compiler_LCNF_CacheExtension_register___redArg___lam__0___closed__0));
 v___x_4673_ = l_mkPanicMessageWithDecl(v___x_4672_, v___x_4671_, v___x_4670_, v___x_4669_, v___x_4668_);

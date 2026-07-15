@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-uint8_t l_Nat_decidableBallLT___redArg(lean_object*, lean_object*);
-uint8_t l_Nat_decidableExistsLT_x27___redArg(lean_object*, lean_object*);
+uint8_t l_Nat_decidableBallLTTR___redArg(lean_object*, lean_object*);
+uint8_t l_Nat_decidableExistsLT_x27TR___redArg(lean_object*, lean_object*);
 uint8_t l_Array_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,7 +78,7 @@ lean_object* v___f_17_; uint8_t v___x_18_;
 v___f_17_ = lean_alloc_closure((void*)(l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0___boxed), 4, 2);
 lean_closure_set(v___f_17_, 0, v_xs_15_);
 lean_closure_set(v___f_17_, 1, v_inst_16_);
-v___x_18_ = l_Nat_decidableBallLT___redArg(v_n_14_, v___f_17_);
+v___x_18_ = l_Nat_decidableBallLTTR___redArg(v_n_14_, v___f_17_);
 return v___x_18_;
 }
 }
@@ -87,7 +87,6 @@ _start:
 {
 uint8_t v_res_22_; lean_object* v_r_23_; 
 v_res_22_ = l_Vector_instDecidableForallForallMemOfDecidablePred___redArg(v_n_19_, v_xs_20_, v_inst_21_);
-lean_dec(v_n_19_);
 v_r_23_ = lean_box(v_res_22_);
 return v_r_23_;
 }
@@ -105,7 +104,6 @@ _start:
 {
 uint8_t v_res_35_; lean_object* v_r_36_; 
 v_res_35_ = l_Vector_instDecidableForallForallMemOfDecidablePred(v_00_u03b1_30_, v_n_31_, v_xs_32_, v_p_33_, v_inst_34_);
-lean_dec(v_n_31_);
 v_r_36_ = lean_box(v_res_35_);
 return v_r_36_;
 }
@@ -139,7 +137,7 @@ lean_object* v___f_53_; uint8_t v___x_54_;
 v___f_53_ = lean_alloc_closure((void*)(l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0___boxed), 4, 2);
 lean_closure_set(v___f_53_, 0, v_xs_51_);
 lean_closure_set(v___f_53_, 1, v_inst_52_);
-v___x_54_ = l_Nat_decidableExistsLT_x27___redArg(v_n_50_, v___f_53_);
+v___x_54_ = l_Nat_decidableExistsLT_x27TR___redArg(v_n_50_, v___f_53_);
 return v___x_54_;
 }
 }
@@ -148,7 +146,6 @@ _start:
 {
 uint8_t v_res_58_; lean_object* v_r_59_; 
 v_res_58_ = l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg(v_n_55_, v_xs_56_, v_inst_57_);
-lean_dec(v_n_55_);
 v_r_59_ = lean_box(v_res_58_);
 return v_r_59_;
 }
@@ -166,7 +163,6 @@ _start:
 {
 uint8_t v_res_71_; lean_object* v_r_72_; 
 v_res_71_ = l_Vector_instDecidableExistsAndMemOfDecidablePred(v_00_u03b1_66_, v_n_67_, v_xs_68_, v_p_69_, v_inst_70_);
-lean_dec(v_n_67_);
 v_r_72_ = lean_box(v_res_71_);
 return v_r_72_;
 }

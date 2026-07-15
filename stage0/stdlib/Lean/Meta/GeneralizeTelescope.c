@@ -764,10 +764,10 @@ v___jp_270_:
 {
 if (v_modified_269_ == 0)
 {
-lean_inc_ref(v_expr_267_);
 lean_inc_ref(v_type_268_);
-v___y_256_ = v_type_268_;
-v___y_257_ = v_expr_267_;
+lean_inc_ref(v_expr_267_);
+v___y_256_ = v_expr_267_;
+v___y_257_ = v_type_268_;
 v___y_258_ = v___y_271_;
 v___y_259_ = v___y_272_;
 v___y_260_ = v___y_273_;
@@ -806,10 +806,10 @@ v___x_287_ = l_Lean_throwError___at___00Lean_Meta_GeneralizeTelescope_generalize
 if (lean_obj_tag(v___x_287_) == 0)
 {
 lean_dec_ref_known(v___x_287_, 1);
-lean_inc_ref(v_expr_267_);
 lean_inc_ref(v_type_268_);
-v___y_256_ = v_type_268_;
-v___y_257_ = v_expr_267_;
+lean_inc_ref(v_expr_267_);
+v___y_256_ = v_expr_267_;
+v___y_257_ = v_type_268_;
 v___y_258_ = v___y_271_;
 v___y_259_ = v___y_272_;
 v___y_260_ = v___y_273_;
@@ -864,10 +864,10 @@ return v___x_293_;
 }
 else
 {
-lean_inc_ref(v_expr_267_);
 lean_inc_ref(v_type_268_);
-v___y_256_ = v_type_268_;
-v___y_257_ = v_expr_267_;
+lean_inc_ref(v_expr_267_);
+v___y_256_ = v_expr_267_;
+v___y_257_ = v_type_268_;
 v___y_258_ = v___y_271_;
 v___y_259_ = v___y_272_;
 v___y_260_ = v___y_273_;
@@ -995,8 +995,8 @@ v___jp_255_:
 lean_object* v___x_262_; 
 v___x_262_ = ((lean_object*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1));
 v_baseUserName_236_ = v___x_262_;
-v_e_237_ = v___y_257_;
-v_type_238_ = v___y_256_;
+v_e_237_ = v___y_256_;
+v_type_238_ = v___y_257_;
 v___y_239_ = v___y_258_;
 v___y_240_ = v___y_259_;
 v___y_241_ = v___y_260_;

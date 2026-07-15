@@ -149,7 +149,7 @@ public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
 
 /-- Whether artifacts should be restored by default from the Lake cache for packages in the workspace. -/
 @[inline] public def restoreAllArtifacts? (ws : Workspace) : Option Bool :=
-  ws.root.restoreAllArtifacts?
+  ws.lakeEnv.restoreAllArtifacts? <|> ws.root.restoreAllArtifacts?
 
 /-- Returns the toolchain identifier for the Lake cache corresponding the workspace's toolchain. -/
 @[inline] public def cacheToolchain (ws : Workspace) : CacheToolchain :=
@@ -398,9 +398,9 @@ the workspace's {lean}`leanSrcPath` and Lake's {name (full := LakeInstall.srcDir
 public def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
   self.leanSrcPath ++ self.lakeEnv.leanSrcPath
 
-/-
-The detected `sharedLibPathEnv` value of the environment augmented with
-the workspace's `libPath` and Lean installation's shared library directories.
+/--
+The detected {name}`sharedLibPathEnvVar` value of the environment augmented with
+the workspace's {name}`sharedLibPath` and Lean installation's shared library directories.
 
 The order is Lean's, the workspace's, and then the environment's.
 Lean's comes first because Lean needs to load its own shared libraries from this path.
@@ -418,6 +418,7 @@ public def augmentedEnvVars (self : Workspace) : Array (String × Option String)
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
     ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
+    ("LAKE_RESTORE_ARTIFACTS", if let some b := self.restoreAllArtifacts? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

@@ -107,12 +107,13 @@ namespace Term
 @[builtin_term_parser] def byTactic := leading_parser:leadPrec
   ppAllowUngrouped >> "by " >> Tactic.tacticSeqIndentGt
 
-/-
+/--
   This is the same as `byTactic`, but it uses a different syntax kind. This is
   used by `show` and `suffices` instead of `byTactic` because these syntaxes don't
   support arbitrary terms where `byTactic` is accepted. Mathport uses this to e.g.
   safely find-replace `by exact $e` by `$e` in any context without causing
-  incorrect syntax when the full expression is `show $T by exact $e`. -/
+  incorrect syntax when the full expression is `show $T by exact $e`.
+-/
 def byTactic' := leading_parser
   "by " >> Tactic.tacticSeqIndentGt
 
@@ -199,6 +200,13 @@ Can also be used for creating simple functions when combined with `·`. Here are
 -/
 @[builtin_term_parser] def paren := leading_parser
   hygienicLParen >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
+
+/-- Strip leading `paren` wrappers from `stx`. -/
+partial def dropParens : Syntax → Syntax := fun stx =>
+  match stx with
+  | `(($stx)) => dropParens stx
+  | _         => stx
+
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.
@@ -859,6 +867,10 @@ If `x` cannot be cleared (due to dependencies), it will keep `x` without failing
   "wait_if_type_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 @[builtin_term_parser] def waitIfContainsMVar := leading_parser
   "wait_if_contains_mvar% " >> "?" >> ident >> "; " >> termParser
+/-- `wait_for_expected_type% e` elaborates `e` against its expected type, postponing while that type
+is an unassigned metavariable so an `outParam` determined by instance synthesis is resolved first. -/
+@[builtin_term_parser] def waitForExpectedType := leading_parser
+  "wait_for_expected_type% " >> termParser
 
 @[builtin_term_parser] def defaultOrOfNonempty := leading_parser
   "default_or_ofNonempty% " >> optional "unsafe"

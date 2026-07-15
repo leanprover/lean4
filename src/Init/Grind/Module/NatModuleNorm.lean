@@ -34,9 +34,9 @@ def Poly.denoteN {α} [NatModule α] (ctx : Context α) (p : Poly) : α :=
     else
       k.natAbs • v.denote ctx + denoteN ctx p
 
-def Poly.denoteN_nil {α} [NatModule α] (ctx : Context α) : Poly.denoteN ctx .nil = 0 := rfl
+theorem Poly.denoteN_nil {α} [NatModule α] (ctx : Context α) : Poly.denoteN ctx .nil = 0 := rfl
 
-def Poly.denoteN_add {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
+theorem Poly.denoteN_add {α} [NatModule α] (ctx : Context α) (k : Int) (x : Var) (p : Poly)
     : k ≥ 0 → Poly.denoteN ctx (.add k x p) = k.toNat • x.denote ctx + p.denoteN ctx := by
   intro h; simp [denoteN, cond_eq_ite]; split
   next => omega

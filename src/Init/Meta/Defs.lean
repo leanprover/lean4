@@ -149,7 +149,6 @@ def getRoot : Name → Name
   | str n _             => getRoot n
   | num n _             => getRoot n
 
-@[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
   | Name.str _ s   => (String.Internal.contains s '✝') || s == "_inaccessible"
   | Name.num p _   => isInaccessibleUserName p
@@ -407,6 +406,14 @@ Syntax that represents a tactic.
 -/
 protected abbrev Tactic := TSyntax `tactic
 /--
+Syntax that represents an element of a `do` sequence.
+-/
+abbrev DoElem := TSyntax `doElem
+/--
+Syntax that represents a sequence of `do` elements.
+-/
+abbrev DoSeq := TSyntax `Lean.Parser.Term.doSeq
+/--
 Syntax that represents a precedence (e.g. for an operator).
 -/
 abbrev Prec := TSyntax `prec
@@ -449,7 +456,7 @@ abbrev HexNum := TSyntax hexnumKind
 
 end Syntax
 
-export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit HygieneInfo)
+export Syntax (Term Command DoElem DoSeq Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit HygieneInfo)
 
 namespace TSyntax
 
@@ -747,7 +754,6 @@ def mkCIdent (c : Name) : Ident :=
 /--
 Creates an identifier from a name. The resulting identifier has no source position.
 -/
-@[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
   ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 

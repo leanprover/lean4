@@ -11,7 +11,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-export Int.Linear (Var Poly)
+export Int.Internal.Linear (Var Poly)
 
 deriving instance Hashable for Poly
 
@@ -32,7 +32,7 @@ We handle four categories of linear polynomial constraints (where p is a linear 
 4. Disequality:  `p ≠ 0`
 
 Implementation Details:
-- Polynomials use `Int.Linear.Poly` with sorted linear monomials (leading monomial contains max variable)
+- Polynomials use `Int.Internal.Linear.Poly` with sorted linear monomials (leading monomial contains max variable)
 - Equalities are eliminated eagerly
 - Divisibility constraints are maintained in solved form (one constraint per variable) using `Div-Solve`
 
@@ -82,10 +82,10 @@ inductive EqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
-  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
   | /-- `e` is `p` -/
     defn (e : Expr) (p : Poly)
-  | defnNat (h : Expr) (x : Var) (e' : Int.Linear.Expr)
+  | defnNat (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -93,7 +93,7 @@ inductive EqCnstrProof where
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
-  | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
   | /--
     Linearization proof for `/`
@@ -157,7 +157,7 @@ inductive CooperSplitProof where
 inductive DvdCnstrProof where
   | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
     core (e : Expr)
-  | coreOfNat (e : Expr) (thm : Expr) (d : Nat) (a : Int.Linear.Expr)
+  | coreOfNat (e : Expr) (thm : Expr) (d : Nat) (a : Int.Internal.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)
@@ -179,7 +179,7 @@ structure LeCnstr where
 inductive LeCnstrProof where
   | core (e : Expr)
   | coreNeg (e : Expr) (p : Poly)
-  | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
+  | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
   | ofNatNonneg (a : Expr)
   | bound (h : Expr)
   | dec (h : FVarId)
@@ -209,7 +209,7 @@ inductive DiseqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
-  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
+  | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
@@ -329,9 +329,9 @@ structure State where
   diseqSplits : PHashMap Poly FVarId := {}
   /--
   Pairs `(x, n)` s.t. we have expanded the theorems
-  - `Int.Linear.ediv_emod`
-  - `Int.Linear.emod_nonneg`
-  - `Int.Linear.emod_le`
+  - `Int.Internal.Linear.ediv_emod`
+  - `Int.Internal.Linear.emod_nonneg`
+  - `Int.Internal.Linear.emod_le`
   -/
   divMod : PHashSet (Expr × Int) := {}
   /--

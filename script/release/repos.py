@@ -272,6 +272,7 @@ _register(VERSO_SLIDES)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 VERSO_TEMPLATES = ReleaseRepo(
     github=("leanprover", "verso-templates"),
+    toolchain_file="basic-book/lean-toolchain",
     release_tag="lean",
     strong_deps=[VERSO, VERSO_SLIDES],
 )

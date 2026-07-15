@@ -457,12 +457,21 @@ public def elabCoinductive (coinductiveElabData : Array CoinductiveElabData) : T
   /-
     Finally, we populate the PreDefinitions
   -/
+  let env ← getEnv
   let preDefs : Array PreDefinition := preDefVals.mapIdx fun idx defn =>
+    -- The docstring and `afterCompilation` attributes are handled during inductive
+    -- postprocessing, where the predicate's constructors exist and the binder syntax
+    -- is available.
+    let modifiers := { coinductiveElabData[idx]!.modifiers with docString? := none }
+    let modifiers := modifiers.filterAttrs fun attr =>
+      match getAttributeImpl env attr.name with
+      | .ok impl => impl.applicationTime != .afterCompilation
+      | .error _ => true
     { ref := coinductiveElabData[idx]!.ref
       binders := coinductiveElabData[idx]!.ref
       kind := .def
       levelParams := infos[0]!.levelParams
-      modifiers := coinductiveElabData[idx]!.modifiers
+      modifiers
       declName := namesAndTypes[idx]!.1
       type := namesAndTypes[idx]!.2
       value := defn

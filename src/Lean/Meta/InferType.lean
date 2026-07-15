@@ -14,6 +14,8 @@ public section
 
 namespace Lean
 
+open Lean
+
 /--
 Auxiliary function for instantiating the loose bound variables in `e` with `args[start...stop]`.
 This function is similar to `instantiateRevRange`, but it applies beta-reduction when

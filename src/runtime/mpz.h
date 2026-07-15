@@ -23,7 +23,7 @@ namespace lean {
 /** \brief Wrapper for GMP integers */
 class LEAN_EXPORT mpz {
     friend class object_compactor;
-    friend class compacted_region;
+    friend class region_reader;
 #ifdef LEAN_USE_GMP
     mpz_t m_val;
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }

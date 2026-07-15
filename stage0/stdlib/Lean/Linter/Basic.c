@@ -46,7 +46,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_getOptionDecl(lean_object*);
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Lean_Syntax_isNatLit_x3f(lean_object*);
@@ -1733,7 +1733,8 @@ v_resetjp_486_:
 {
 lean_object* v___x_489_; lean_object* v_optionName_490_; lean_object* v___x_491_; 
 v___x_489_ = l_Lean_Syntax_getId(v_id_471_);
-v_optionName_490_ = lean_erase_macro_scopes(v___x_489_);
+v_optionName_490_ = l_Lean_Name_eraseMacroScopes(v___x_489_);
+lean_dec(v___x_489_);
 lean_inc(v_optionName_490_);
 v___x_491_ = l_Lean_getOptionDecl(v_optionName_490_);
 if (lean_obj_tag(v___x_491_) == 0)

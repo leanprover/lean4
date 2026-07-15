@@ -12,6 +12,8 @@ import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
+public import Init.Data.List.FinRange
+public import Init.Data.List.Find
 
 public section
 
@@ -74,5 +76,43 @@ theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
     rcases is with ⟨⟩ | ⟨a', ⟨⟩ | ⟨b', ⟨⟩⟩⟩ <;> simp at h'
     rcases h' with ⟨rfl, rfl⟩
     apply h; simpa using! hij
+
+/-- The list `List.finRange n` is strictly increasing. -/
+theorem pairwise_lt_finRange (n : Nat) : Pairwise (· < ·) (finRange n) := by
+  rw [pairwise_iff_getElem]
+  intro i j hi hj hlt
+  simp only [getElem_finRange]
+  exact hlt
+
+/-- The list `List.finRange n` is increasing. -/
+theorem pairwise_le_finRange (n : Nat) : Pairwise (· ≤ ·) (finRange n) := by
+  rw [pairwise_iff_getElem]
+  intro i j hi hj hlt
+  simp only [getElem_finRange]
+  exact Fin.le_of_lt hlt
+
+/-- The list `List.finRange n` has no duplicate entries. -/
+theorem nodup_finRange (n : Nat) : (finRange n).Nodup :=
+  (pairwise_lt_finRange n).imp Fin.ne_of_lt
+
+/-- In a list with no duplicates, `idxOf` recovers the index of the element at
+each position. -/
+@[simp]
+theorem Nodup.idxOf_getElem [BEq α] [LawfulBEq α] {xs : List α} (H : Nodup xs)
+    (i : Nat) (h : i < xs.length) : idxOf xs[i] xs = i := by
+  induction xs generalizing i with
+  | nil => exact absurd h (Nat.not_lt_zero i)
+  | cons a l ih =>
+    rw [nodup_cons] at H
+    match i with
+    | 0 => rw [getElem_cons_zero, idxOf_cons_self]
+    | j + 1 =>
+      have hj : j < l.length := Nat.lt_of_succ_lt_succ h
+      have hne : (a == l[j]) = false := by
+        rw [beq_eq_false_iff_ne]
+        exact fun hc => H.1 (hc ▸ getElem_mem hj)
+      rw [getElem_cons_succ, idxOf_cons, hne, cond_false, ih H.2 j hj]
+
+grind_pattern Nodup.idxOf_getElem => Nodup xs, idxOf (xs[i]'h) xs
 
 end List

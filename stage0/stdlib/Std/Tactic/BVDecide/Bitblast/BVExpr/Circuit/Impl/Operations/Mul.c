@@ -91,11 +91,11 @@ v___jp_9_:
 lean_object* v___x_13_; lean_object* v_res_14_; lean_object* v_aig_15_; lean_object* v_vec_16_; lean_object* v___x_17_; lean_object* v___x_18_; 
 v___x_13_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_13_, 0, v___y_12_);
-lean_ctor_set(v___x_13_, 1, v___y_10_);
+lean_ctor_set(v___x_13_, 1, v___y_11_);
 lean_ctor_set(v___x_13_, 2, v_acc_8_);
 lean_inc_ref(v_inst_2_);
 lean_inc_ref(v_inst_1_);
-v_res_14_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_1_, v_inst_2_, v_w_3_, v___y_11_, v___x_13_);
+v_res_14_ = l_Std_Sat_AIG_RefVec_ite___redArg(v_inst_1_, v_inst_2_, v_w_3_, v___y_10_, v___x_13_);
 v_aig_15_ = lean_ctor_get(v_res_14_, 0);
 lean_inc_ref(v_aig_15_);
 v_vec_16_ = lean_ctor_get(v_res_14_, 1);
@@ -186,8 +186,8 @@ lean_object* v___x_43_;
 v___x_43_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_43_, 0, v___x_39_);
 lean_ctor_set_uint8(v___x_43_, sizeof(void*)*1, v___x_20_);
-v___y_10_ = v_vec_36_;
-v___y_11_ = v_aig_35_;
+v___y_10_ = v_aig_35_;
+v___y_11_ = v_vec_36_;
 v___y_12_ = v___x_43_;
 goto v___jp_9_;
 }
@@ -197,8 +197,8 @@ lean_object* v___x_44_;
 v___x_44_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_44_, 0, v___x_39_);
 lean_ctor_set_uint8(v___x_44_, sizeof(void*)*1, v___x_24_);
-v___y_10_ = v_vec_36_;
-v___y_11_ = v_aig_35_;
+v___y_10_ = v_aig_35_;
+v___y_11_ = v_vec_36_;
 v___y_12_ = v___x_44_;
 goto v___jp_9_;
 }

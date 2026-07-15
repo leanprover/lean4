@@ -1307,9 +1307,9 @@ return v___x_352_;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinOp_eval___boxed(lean_object* v_w_353_, lean_object* v_x_354_, lean_object* v_a_355_, lean_object* v_a_356_){
 _start:
 {
-uint8_t v_x_354__boxed_357_; lean_object* v_res_358_; 
-v_x_354__boxed_357_ = lean_unbox(v_x_354_);
-v_res_358_ = l_Std_Tactic_BVDecide_BVBinOp_eval(v_w_353_, v_x_354__boxed_357_, v_a_355_, v_a_356_);
+uint8_t v_x_340__boxed_357_; lean_object* v_res_358_; 
+v_x_340__boxed_357_ = lean_unbox(v_x_354_);
+v_res_358_ = l_Std_Tactic_BVDecide_BVBinOp_eval(v_w_353_, v_x_340__boxed_357_, v_a_355_, v_a_356_);
 lean_dec(v_a_356_);
 lean_dec(v_a_355_);
 lean_dec(v_w_353_);
@@ -5666,9 +5666,9 @@ return v___x_1643_;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinPred_eval___redArg___boxed(lean_object* v_x_1644_, lean_object* v_a_1645_, lean_object* v_a_1646_){
 _start:
 {
-uint8_t v_x_100__boxed_1647_; uint8_t v_res_1648_; lean_object* v_r_1649_; 
-v_x_100__boxed_1647_ = lean_unbox(v_x_1644_);
-v_res_1648_ = l_Std_Tactic_BVDecide_BVBinPred_eval___redArg(v_x_100__boxed_1647_, v_a_1645_, v_a_1646_);
+uint8_t v_x_96__boxed_1647_; uint8_t v_res_1648_; lean_object* v_r_1649_; 
+v_x_96__boxed_1647_ = lean_unbox(v_x_1644_);
+v_res_1648_ = l_Std_Tactic_BVDecide_BVBinPred_eval___redArg(v_x_96__boxed_1647_, v_a_1645_, v_a_1646_);
 lean_dec(v_a_1646_);
 lean_dec(v_a_1645_);
 v_r_1649_ = lean_box(v_res_1648_);
@@ -5686,9 +5686,9 @@ return v___x_1654_;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinPred_eval___boxed(lean_object* v_w_1655_, lean_object* v_x_1656_, lean_object* v_a_1657_, lean_object* v_a_1658_){
 _start:
 {
-uint8_t v_x_113__boxed_1659_; uint8_t v_res_1660_; lean_object* v_r_1661_; 
-v_x_113__boxed_1659_ = lean_unbox(v_x_1656_);
-v_res_1660_ = l_Std_Tactic_BVDecide_BVBinPred_eval(v_w_1655_, v_x_113__boxed_1659_, v_a_1657_, v_a_1658_);
+uint8_t v_x_109__boxed_1659_; uint8_t v_res_1660_; lean_object* v_r_1661_; 
+v_x_109__boxed_1659_ = lean_unbox(v_x_1656_);
+v_res_1660_ = l_Std_Tactic_BVDecide_BVBinPred_eval(v_w_1655_, v_x_109__boxed_1659_, v_a_1657_, v_a_1658_);
 lean_dec(v_a_1658_);
 lean_dec(v_a_1657_);
 lean_dec(v_w_1655_);

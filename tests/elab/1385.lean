@@ -1,6 +1,6 @@
-def S := List Nat
+abbrev S := List Nat
 opaque TSpec : NonemptyType
-def T (s : S) : Type :=  TSpec.type
+abbrev T (s : S) : Type :=  TSpec.type
 instance (s : S) : Nonempty (T s) :=
   TSpec.property
 

@@ -18,21 +18,29 @@ import Init.System.Platform
 
 public section
 
+open Lean in
 set_option hygiene false in
-macro "declare_bitwise_int_theorems" typeName:ident bits:term:arg : command =>
-`(
+macro "declare_bitwise_int_theorems" typeName:ident bits:term:arg : command => do
+  let isISize := typeName.getId == ``ISize
+  let mut cmds ← Syntax.getArgs <$> `(
 namespace $typeName
 
-@[simp, int_toBitVec] protected theorem toBitVec_not {a : $typeName} : (~~~a).toBitVec = ~~~a.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_and (a b : $typeName) : (a &&& b).toBitVec = a.toBitVec &&& b.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_or (a b : $typeName) : (a ||| b).toBitVec = a.toBitVec ||| b.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_xor (a b : $typeName) : (a ^^^ b).toBitVec = a.toBitVec ^^^ b.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_shiftLeft (a b : $typeName) : (a <<< b).toBitVec = a.toBitVec <<< (b.toBitVec.smod $bits) := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_shiftRight (a b : $typeName) : (a >>> b).toBitVec = a.toBitVec.sshiftRight' (b.toBitVec.smod $bits) := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_abs (a : $typeName) : a.abs.toBitVec = a.toBitVec.abs := (rfl)
+@[simp] protected theorem toBitVec_not {a : $typeName} : (~~~a).toBitVec = ~~~a.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_and (a b : $typeName) : (a &&& b).toBitVec = a.toBitVec &&& b.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_or (a b : $typeName) : (a ||| b).toBitVec = a.toBitVec ||| b.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_xor (a b : $typeName) : (a ^^^ b).toBitVec = a.toBitVec ^^^ b.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_shiftLeft (a b : $typeName) : (a <<< b).toBitVec = a.toBitVec <<< (b.toBitVec.smod $bits) := (rfl)
+@[simp] protected theorem toBitVec_shiftRight (a b : $typeName) : (a >>> b).toBitVec = a.toBitVec.sshiftRight' (b.toBitVec.smod $bits) := (rfl)
+@[simp] protected theorem toBitVec_abs (a : $typeName) : a.abs.toBitVec = a.toBitVec.abs := (rfl)
 
-end $typeName
-)
+  )
+  unless isISize do
+    let names := #[`toBitVec_not, `toBitVec_and, `toBitVec_or, `toBitVec_xor, `toBitVec_shiftLeft,
+      `toBitVec_shiftRight, `toBitVec_abs]
+    let idents := names.map fun n => mkIdent (typeName.getId ++ n)
+    cmds := cmds.push <| ← `(attribute [int_toBitVec] $idents*)
+  cmds := cmds.push <| ← `(end $typeName)
+  return ⟨mkNullNode cmds⟩
 declare_bitwise_int_theorems Int8 8
 declare_bitwise_int_theorems Int16 16
 declare_bitwise_int_theorems Int32 32
@@ -55,7 +63,7 @@ theorem Bool.toBitVec_toInt32 {b : Bool} : b.toInt32.toBitVec = (BitVec.ofBool b
 theorem Bool.toBitVec_toInt64 {b : Bool} : b.toInt64.toBitVec = (BitVec.ofBool b).setWidth 64 := by
   cases b <;> simp [toInt64]
 
-@[simp, int_toBitVec]
+@[simp]
 theorem Bool.toBitVec_toISize {b : Bool} :
     b.toISize.toBitVec = (BitVec.ofBool b).setWidth System.Platform.numBits := by
   cases b

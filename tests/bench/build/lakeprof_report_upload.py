@@ -7,8 +7,8 @@ from pathlib import Path
 
 # Determine paths relative to the current file.
 script_file = Path(__file__)
-src_dir = script_file.parent.parent.parent.parent / "src"
 template_file = script_file.parent / "lakeprof_report_template.html"
+src_dir = script_file.parent.parent.parent.parent / "src"
 
 
 def run_stdout(*command: str, cwd: Path | None = None) -> str:

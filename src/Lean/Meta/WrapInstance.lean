@@ -183,6 +183,11 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
         if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
           let name ← mkAuxDeclName
           let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
+          setReducibilityStatus name <|
+            if (← withImplicit <| isDefEq expectedType instType) then
+              .implicitReducible
+            else
+              .semireducible
           if isMeta then modifyEnv (markMeta · name)
           if compile then
             compileDecls (logErrors := logCompileErrors) #[name]
@@ -273,6 +278,11 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
           else
             let name ← mkAuxDeclName
             mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := false))
+            setReducibilityStatus name <|
+              if (← withImplicit <| isDefEq argExpectedType argType) then
+                .implicitReducible
+              else
+                .semireducible
             setInlineAttribute name
             if isMeta then modifyEnv (markMeta · name)
             if compile then

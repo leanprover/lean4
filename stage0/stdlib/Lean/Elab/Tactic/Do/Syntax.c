@@ -24,7 +24,7 @@ lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_SubExpr_Pos_push(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1081,7 +1081,7 @@ _start:
 {
 lean_object* v___x_352_; lean_object* v___x_353_; 
 v___x_352_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_Syntax_0__Std_Do_unexpandPostCondNoThrow___closed__5));
-v___x_353_ = lean_mk_syntax_ident(v___x_352_);
+v___x_353_ = l_Lean_mkIdent(v___x_352_);
 return v___x_353_;
 }
 }
@@ -1446,7 +1446,7 @@ _start:
 {
 lean_object* v___x_582_; lean_object* v___x_583_; 
 v___x_582_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Do_Syntax_0__Std_Do_unexpandPostCondMayThrow___closed__1));
-v___x_583_ = lean_mk_syntax_ident(v___x_582_);
+v___x_583_ = l_Lean_mkIdent(v___x_582_);
 return v___x_583_;
 }
 }

@@ -26,7 +26,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 size_t lean_array_size(lean_object*);
-lean_object* lean_mk_syntax_ident(lean_object*);
+lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -766,7 +766,7 @@ lean_object* v_v_590_; lean_object* v___x_591_; lean_object* v_bs_x27_592_; lean
 v_v_590_ = lean_array_uget(v_bs_588_, v_i_587_);
 v___x_591_ = lean_unsigned_to_nat(0u);
 v_bs_x27_592_ = lean_array_uset(v_bs_588_, v_i_587_, v___x_591_);
-v___x_593_ = lean_mk_syntax_ident(v_v_590_);
+v___x_593_ = l_Lean_mkIdent(v_v_590_);
 v___x_594_ = ((size_t)1ULL);
 v___x_595_ = lean_usize_add(v_i_587_, v___x_594_);
 v___x_596_ = lean_array_uset(v_bs_x27_592_, v_i_587_, v___x_593_);

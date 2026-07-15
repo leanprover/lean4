@@ -275,7 +275,7 @@ private def isDecidableVariant (type : Expr) : Bool :=
 
 @[inherit_doc linter.extra.unusedDecidableInType]
 def unusedDecidableInTypeLinter : Linter where run := withSetOptionIn fun _ => do
-  unless getLinterValueExtra linter.extra.unusedDecidableInType (← getLinterOptions)
+  unless getLinterValue linter.extra.unusedDecidableInType (← getLinterOptions)
       && (← getInfoState).enabled do
     return
   if (← get).messages.hasErrors then
@@ -289,7 +289,7 @@ def unusedDecidableInTypeLinter : Linter where run := withSetOptionIn fun _ => d
         && thm.type.hasInstanceBinderOf isDecidableVariant
     unless thms.isEmpty do liftTermElabM do for thm in thms do
       onUnusedInstancesWhere thm isDecidableVariant fun unusedParams => do
-        logLintIfExtra linter.extra.unusedDecidableInType (← getRef) m!"\
+        logLintIf linter.extra.unusedDecidableInType (← getRef) m!"\
           {unusedInstancesMsg thm.name unusedParams}\n\n\
           Consider removing \
           {if unusedParams.size = 1 then "this hypothesis" else "these hypotheses"} \

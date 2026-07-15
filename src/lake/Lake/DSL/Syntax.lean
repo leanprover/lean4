@@ -137,7 +137,7 @@ subdirectory is specified).
 public syntax fromClause :=
   " from " fromSource
 
-/-
+/--
 A `NameMap String` of Lake options used to configure the dependency.
 This is equivalent to passing `-K` options to the dependency on the command line.
 -/
@@ -401,6 +401,11 @@ scoped syntax (name := scriptDecl)
 
 Defines the `v!"<ver>"` syntax for version literals.
 -/
+
+/-- Helper gadget for decoding versions from arbitrary terms. -/
+scoped syntax:lead (name := evalVer)
+  "eval_ver%" term
+: term
 
 /-- A Lake version literal. -/
 scoped syntax:max (name := verLit)

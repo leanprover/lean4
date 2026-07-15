@@ -6,6 +6,9 @@ Authors: Kim Morrison
 module
 prelude
 public import Init.Grind.Tactics
+import Init.NotationExtra
+import Init.Classical
+
 public section
 namespace Function
 
@@ -66,7 +69,7 @@ theorem Surjective.comp {α β γ} {g : β → γ} {f : α → β} (hg : Surject
       Exists.intro a (show g (f a) = c from Eq.trans (congrArg g ha) hb)
 
 /-- `LeftInverse g f` means that `g` is a left inverse to `f`. That is, `g ∘ f = id`. -/
-@[expose, grind]
+@[expose, grind, implicit_reducible]
 def LeftInverse {α β} (g : β → α) (f : α → β) : Prop :=
   ∀ x, g (f x) = x
 
@@ -76,7 +79,7 @@ def HasLeftInverse {α β} (f : α → β) : Prop :=
   Exists fun finv : β → α => LeftInverse finv f
 
 /-- `RightInverse g f` means that `g` is a right inverse to `f`. That is, `f ∘ g = id`. -/
-@[expose, grind]
+@[expose, grind, implicit_reducible]
 def RightInverse {α β} (g : β → α) (f : α → β) : Prop :=
   LeftInverse f g
 
@@ -132,5 +135,25 @@ protected theorem LeftInverse.id {α β} {g : β → α} {f : α → β} (h : Le
 
 protected theorem RightInverse.id {α β} {g : β → α} {f : α → β} (h : RightInverse g f) : f ∘ g = id :=
   funext h
+
+theorem Injective.exists_leftInverse
+    {α β} {f : α → β} (hf : Injective f) [hα : Nonempty α] :
+    ∃ g : β → α, LeftInverse g f := by
+  classical
+  cases hα; next a0 =>
+  let g : β → α := fun b =>
+    if h : ∃ a, f a = b then Classical.choose h else a0
+  exists g
+  intro a
+  have h : ∃ a', f a' = f a := ⟨a, rfl⟩
+  have hfa : f (Classical.choose h) = f a := Classical.choose_spec h
+  have : Classical.choose h = a := hf hfa
+  simp [g, h, this]
+
+@[deprecated Injective.exists_leftInverse (since := "2026-07-06")]
+theorem Injective.leftInverse
+    {α β} (f : α → β) (hf : Injective f) [hα : Nonempty α] :
+    ∃ g : β → α, LeftInverse g f :=
+  hf.exists_leftInverse
 
 end Function

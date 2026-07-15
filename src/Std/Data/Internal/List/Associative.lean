@@ -444,7 +444,7 @@ theorem DistinctKeys.def [BEq α] {l : List ((a : α) × β a)} :
   ⟨fun h => by simpa [keys_eq_map, List.pairwise_map] using h.distinct,
    fun h => ⟨by simpa [keys_eq_map, List.pairwise_map] using h⟩⟩
 
-open List
+open Std.Internal.List
 
 theorem DistinctKeys.perm_keys [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)}
     (h : Perm (keys l') (keys l)) : DistinctKeys l → DistinctKeys l'
@@ -3507,9 +3507,6 @@ theorem getKey?_insertList_of_mem_of_not_mem [BEq α] [LawfulBEq α]
     (not_contains : containsKey k toInsert = false) :
     List.getKey? k (insertList l toInsert) = some k := by
   simp only [List.getKey?_insertList_of_contains_eq_false_right not_contains, getKey?_eq_some contains]
-
-theorem _root_.Option.or_eq_left_of_isSome {o o' : Option α} : o.isSome = true → o.or o' = o := by
-  cases o <;> simp
 
 theorem insertListIfNew_perm_insertList [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)}
     (hd₁ : DistinctKeys l₁) (hd₂ : DistinctKeys l₂) :

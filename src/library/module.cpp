@@ -165,7 +165,7 @@ static void ensure_compactor_class() {
     }
 }
 
-static lean_object * mk_compactor(void * base_addr, std::vector<compacted_region *> dep_regions,
+static lean_object * mk_compactor(void * base_addr, std::vector<region_view> dep_regions,
                                   bool allow_closures) {
     ensure_compactor_class();
     return lean_alloc_external(g_compactor_class,
@@ -176,14 +176,32 @@ static object_compactor * to_compactor(lean_object * o) {
     return static_cast<object_compactor *>(lean_get_external_data(o));
 }
 
-// Extract `compacted_region *` pointers from an `Array CompactedRegion`.
-static std::vector<compacted_region *> extract_dep_regions(b_obj_arg odep_regions) {
-    std::vector<compacted_region *> result;
+// Field layout of the Lean `CompactedRegion` structure (see `Lean/CompactedRegion.lean`). A region
+// is identified with its whole mapping: object fields 0 = `filePath`, 1 = `root`
+// (a `NonScalar` pointer to the root object); usize slots 2..4 = `size` (mapping size), `baseAddr`
+// (logical mapping base), `bufferOffset` (`root - mappingBase`); a uint8 `isMemoryMapped` at byte
+// offset `sizeof(void*) * 5`.
+static char * region_root(b_obj_arg r)      { return reinterpret_cast<char *>(lean_ctor_get(r, 1)); }
+static size_t region_size(b_obj_arg r)      { return lean_ctor_get_usize(r, 2); }
+static size_t region_base_addr(b_obj_arg r) { return lean_ctor_get_usize(r, 3); }
+// `root` may legitimately sit below the mapping base (its object can be deduplicated into a
+// lower-addressed dep), making `bufferOffset` "negative"; recover the base in integer space so the
+// wrap is defined rather than UB pointer arithmetic.
+static char * region_buffer(b_obj_arg r) {
+    return reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(region_root(r)) - lean_ctor_get_usize(r, 4));
+}
+
+// Extract address-range views from an `Array CompactedRegion` for cross-region pointer relocation.
+// The view spans the whole mapping (`[buffer, buffer + size)` at logical `baseAddr`); since pointers
+// only ever target objects in the data section, the header/trailer slack is harmless.
+static std::vector<region_view> extract_dep_regions(b_obj_arg odep_regions) {
+    std::vector<region_view> result;
     size_t n = lean_array_size(odep_regions);
     result.reserve(n);
     for (size_t i = 0; i < n; i++) {
-        result.push_back(reinterpret_cast<compacted_region *>(
-            lean_unbox_usize(lean_array_get_core(odep_regions, i))));
+        b_obj_arg r = lean_array_get_core(odep_regions, i);
+        result.push_back({ region_buffer(r), region_size(r),
+                           reinterpret_cast<void *>(region_base_addr(r)) });
     }
     return result;
 }
@@ -274,7 +292,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
         // so reserve a bit of space for them (0x7fff...-0x7f00... = 1TB).
         base_addr = base_addr % 0x7f0000000000;
         base_addr = base_addr & ~(ALIGN - 1);
-        std::vector<compacted_region *> dep_regions = extract_dep_regions(odep_regions);
+        std::vector<region_view> dep_regions = extract_dep_regions(odep_regions);
         cs_obj = object_ref(mk_compactor(reinterpret_cast<void *>(base_addr),
                                          std::move(dep_regions), allow_closures));
     }
@@ -412,6 +430,21 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
     return io_result_mk_ok(cs_obj.steal());
 }
 
+static object * mk_compacted_region(b_obj_arg ofname, object * root,
+                                    char * buffer, size_t base_addr, size_t full_sz, bool is_mmap) {
+    object * r = lean_alloc_ctor(0, 2, sizeof(size_t) * 3 + 1);
+    lean_inc(ofname);
+    lean_ctor_set(r, 0, ofname);
+    lean_ctor_set(r, 1, root);
+    lean_ctor_set_usize(r, 2, full_sz);
+    lean_ctor_set_usize(r, 3, base_addr);
+    // Integer subtraction: `root` may be below `buffer` (see `region_buffer`), and the two can be
+    // unrelated allocations, so a pointer subtraction would be UB.
+    lean_ctor_set_usize(r, 4, reinterpret_cast<uintptr_t>(root) - reinterpret_cast<uintptr_t>(buffer));
+    lean_ctor_set_uint8(r, sizeof(void*) * 5, is_mmap ? 1 : 0);
+    return r;
+}
+
 // Implements `Lean.CompactedRegion.read`. Loads a compacted region from disk. `odep_regions`
 // carries `CompactedRegion`s whose address ranges must be known to resolve cross-region pointers
 // in this file. Returns `(α × CompactedRegion)`, where `α` is the type the Lean caller asks the
@@ -420,8 +453,8 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
 // Supports both `v2` and `v3` formats.
 extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_obj_arg odep_regions, object *) {
     std::string olean_fn(lean_string_cstr(ofname));
-    std::vector<compacted_region *> dep_regions = extract_dep_regions(odep_regions);
     try {
+        std::vector<region_view> dep_regions = extract_dep_regions(odep_regions);
 #ifdef LEAN_WINDOWS
         HANDLE h_file = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (h_file == INVALID_HANDLE_VALUE) {
@@ -467,9 +500,8 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 
         char * buffer = nullptr;
         bool is_mmap = false;
-        std::function<void()> free_data;
 
-        // Map file COW-writable. The fallback walk in `compacted_region::read()` writes
+        // Map file COW-writable. The fallback walk in `region_reader::read()` writes
         // fixed pointers back into the region's memory when any dep region didn't land at its
         // saved `base_addr`, so the mapping must be writable. `v3` files additionally patch
         // closure fn pointers in place. Unwritten pages remain shared with the page cache under
@@ -485,7 +517,6 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             lean_always_assert(CloseHandle(h_map));
             if (buffer && buffer == base_addr) {
                 is_mmap = true;
-                free_data = [=]() { lean_always_assert(UnmapViewOfFile(base_addr)); };
             } else if (buffer) {
                 lean_always_assert(UnmapViewOfFile(buffer));
                 buffer = nullptr;
@@ -505,11 +536,23 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             mmap_flags, fd.get(), 0));
         if (buffer != MAP_FAILED && buffer == base_addr) {
             is_mmap = true;
-            free_data = [=]() { lean_always_assert(munmap(buffer, size) == 0); };
         } else {
             if (buffer != MAP_FAILED) munmap(buffer, size);
             buffer = nullptr;
         }
+#endif
+#endif
+
+        // A `--incr-load` snapshot bakes the whole environment into the region, including mutable
+        // `IO.Ref`s (e.g. each `RealizationContext.realizeMapRef`). Realizing on top of a loaded
+        // snapshot stores freshly heap-allocated objects through such a ref; their only root is the
+        // ref cell, which lives inside this mapping. LSan does not scan the mapping, so it would
+        // report those objects as leaks. Register the mapping as a root region so LSan follows the
+        // in-region refs. (The malloc fallback below is covered by `__lsan_ignore_object` instead.)
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        if (is_mmap)
+            __lsan_register_root_region(buffer, size);
 #endif
 #endif
 
@@ -521,9 +564,16 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
                 free(buffer);
                 return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
             }
-            char * buf = buffer;
-            size_t sz = size;
-            free_data = [=]() { free_sized(buf, sz); };
+            // The buffer outlives this call (its lifetime is the Lean `CompactedRegion`'s, freed by
+            // `lean_compacted_region_free`). It is only reached through interior pointers (the
+            // region's `root` and the objects read out of it), and a persistent/`leakEnv` region is
+            // never freed at all, so tell LeakSanitizer not to report it. Under `mmap` (the common
+            // path) the buffer is not a heap allocation and needs no such treatment.
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+            __lsan_ignore_object(buffer);
+#endif
+#endif
         }
 
         // v3 format, default data otherwise
@@ -552,24 +602,49 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             }
         }
 
-        compacted_region * region = new compacted_region(
+        region_reader reader(
             data_section_sz, buffer + data_section_off,
-            base_addr + data_section_off, is_mmap, free_data,
+            base_addr + data_section_off,
             std::move(dep_regions),
             std::move(lib_relocs), std::move(closure_offsets));
-#if defined(__has_feature)
-#if __has_feature(address_sanitizer)
-        __lsan_ignore_object(region);
-#endif
-#endif
-        object * mod = region->read();
+        object * mod = reader.read();
         object * pair = alloc_cnstr(0, 2, 0);
         cnstr_set(pair, 0, mod);
-        cnstr_set(pair, 1, box_size_t(reinterpret_cast<size_t>(region)));
+        // The Lean region is framed by its whole mapping (`buffer`, `base_addr` = the mapped-at
+        // logical address, `size` = the file size), not the inner data section.
+        cnstr_set(pair, 1, mk_compacted_region(ofname, mod,
+            buffer, reinterpret_cast<size_t>(base_addr), size, is_mmap));
         return io_result_mk_ok(pair);
     } catch (exception & ex) {
         return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
     }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(obj_arg region, object *) {
+    char * buffer = region_buffer(region);
+    size_t full_sz = region_size(region);
+    bool is_mmap = lean_ctor_get_uint8(region, sizeof(void*) * 5) != 0;
+    // `root` points into the buffer we are about to release. Overwrite it with a scalar so that
+    // decrementing this structure now, or any reference to it that outlives the `free` (e.g. one
+    // still sitting in `env.header.regions`), does not dereference freed memory. The old value is a
+    // refcount-free buffer object, so it needs no decrement.
+    lean_ctor_set(region, 1, lean_box(0));
+    lean_dec_ref(region);
+    if (is_mmap) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        __lsan_unregister_root_region(buffer, full_sz);
+#endif
+#endif
+#ifdef LEAN_WINDOWS
+        lean_always_assert(UnmapViewOfFile(buffer));
+#else
+        lean_always_assert(munmap(buffer, full_sz) == 0);
+#endif
+    } else {
+        free_sized(buffer, full_sz);
+    }
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 }

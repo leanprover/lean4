@@ -126,6 +126,7 @@ _start:
 {
 lean_object* v_res_28_; 
 v_res_28_ = lean_dbg_trace_if_shared(v_s_26_, v_a_27_);
+lean_dec_ref(v_s_26_);
 return v_res_28_;
 }
 }

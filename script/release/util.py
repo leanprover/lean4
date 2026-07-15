@@ -9,7 +9,6 @@ from pathlib import Path
 from re import Match, Pattern
 from typing import Callable, Literal, NoReturn, Self
 
-import repos
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
 from github.GitRelease import GitRelease
@@ -120,6 +119,9 @@ class Version:
 @dataclass
 class ReleaseRepo:
     github: tuple[str, str]  # (owner, name)
+
+    # Where to look for the toolchain, relative to the repo root.
+    toolchain_file: str = "lean-toolchain"
 
     # If present, nightly-related branches and tags are expected to be in this
     # repo instead of the main repo.
@@ -233,7 +235,7 @@ class LocalRepo:
         self.git("switch", "-C", branch, f"{remote}/{branch}")
 
     def create_branch(
-        self, branch: str, remote: str = "origin", remote_branch: str | None = None
+        self, branch: str, *, remote: str = "origin", remote_branch: str | None = None
     ) -> None:
         if remote_branch is None:
             self.git("switch", "-C", branch, remote)  # Default branch
@@ -342,10 +344,14 @@ def get_file_contents(grepo: Repository, ref: str, path: str | Path) -> str:
 
 
 def edit(
-    path: Path, pattern: Pattern[str] | str, repl: Callable[[Match[str]], str] | str
+    path: Path,
+    pattern: Pattern[str] | str,
+    repl: Callable[[Match[str]], str] | str,
+    count: int = 0,
 ) -> None:
+    print(f"[bright_black]Editing {path}[/]")
     text = path.read_text()
-    text = re.sub(pattern, repl, text)
+    text = re.sub(pattern, repl, text, count=count)
     path.write_text(text)
 
 
@@ -439,9 +445,20 @@ def set_cmake_version(lrepo: LocalRepo, version: CMakeVersion) -> None:
 ###################
 
 
+def get_release_notes_stem_for(version: Version) -> str:
+    return str(version.stable).replace(".", "_")
+
+
 def get_release_notes_path_for(version: Version) -> str:
-    stem = str(version.stable).replace(".", "_")
-    return f"Manual/Releases/{stem}.lean"
+    return f"Manual/Releases/{get_release_notes_stem_for(version)}.lean"
+
+
+def get_release_notes_module_for(version: Version) -> str:
+    return f"Manual.Releases.«{get_release_notes_stem_for(version)}»"
+
+
+def get_release_notes_index_path() -> str:
+    return "Manual/Releases.lean"
 
 
 def get_release_notes_title_for(version: Version, release: GitRelease) -> str:
@@ -479,14 +496,7 @@ def get_toolchain_for(version: Version) -> str:
     return f"leanprover/lean4:{version.tag}"
 
 
-def get_toolchain(grepo: Repository, ref: str) -> str:
-    path = "lean-toolchain"
-
-    if grepo.full_name == repos.VERSO_TEMPLATES.gh_full_name:
-        # Since the templates repo doesn't have a central toolchain file, we're
-        # just using one of the templates' toolchains as a replacement.
-        path = "basic-book/lean-toolchain"
-
+def get_toolchain(grepo: Repository, ref: str, path: str | Path) -> str:
     return get_file_contents(grepo, ref, path).strip()
 
 

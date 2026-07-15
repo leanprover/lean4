@@ -558,7 +558,7 @@ class LeanChecker(RepoChecker):
             self.cl.fatal(f"{what} does not exist")
 
         self.lrepo.prepare()
-        self.lrepo.create_branch(branch_name, remote_branch="nightly-with-mathlib")
+        self.lrepo.create_branch(branch_name, remote_branch="downstream-green")
 
         if not self.prompt(f"Push branch [b]{e(branch_name)}[/b]?"):
             self.cl.fatal(f"{what} does not exist")

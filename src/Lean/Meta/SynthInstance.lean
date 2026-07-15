@@ -940,20 +940,23 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
     applyAbstractResult? type abstResult?
 
 /-- Helper function for caching synthesized type class instances. -/
-private def cacheResult (cacheKey : SynthInstanceCacheKey) (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
-  -- **TODO**: simplify this function.
+private def cacheResult (cacheKey : SynthInstanceCacheKey) (relSynthPendingDepth : Option Nat)
+    (kind : PreprocessKind) (abstResult? : Option AbstractMVarsResult) (result? : Option Expr) : MetaM Unit := do
+  let insert (result : Option AbstractMVarsResult) : MetaM Unit :=
+    modify fun s => { s with
+      cache.synthInstance := s.cache.synthInstance.insert cacheKey { relSynthPendingDepth, result } }
   match abstResult? with
-  | none => modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey none }
+  | none => insert none
   | some abstResult =>
     if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty && kind matches .noMVars | .mvarsNoOutputParams then
       match result? with
-      | none => modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey none }
+      | none => insert none
       | some result =>
         -- See `applyCachedAbstractResult?` If new metavariables have **not** been introduced,
         -- we don't need to perform extra checks again when reusing result.
-        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some { expr := result, paramNames := #[], mvars := #[] }) }
+        insert (some { expr := result, paramNames := #[], mvars := #[] })
     else
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey (some abstResult) }
+      insert (some abstResult)
 
 def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   let opts ← getOptions
@@ -966,16 +969,51 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth }
-    match (← get).cache.synthInstance.find? cacheKey with
-    | some abstResult? =>
-      trace[Meta.synthInstance.cache] "cached: {type}"
-      let result? ← applyCachedAbstractResult? type abstResult?
+    let synthPendingDepth := (← read).synthPendingDepth
+    let depthSuffix : MessageData :=
+      if synthPendingDepth == 0 then m!"" else m!" (synthPendingDepth := {synthPendingDepth})"
+    -- Fold `synthPending` activity into the enclosing query's accumulator, if any.
+    let foldActivity (activity : SynthPendingActivity) : MetaM Unit := do
+      if activity.maxDepth.isSome || activity.guardHit then
+        if let some ref := (← read).synthPendingActivityRef? then
+          ref.modify fun a => {
+            maxDepth := match a.maxDepth, activity.maxDepth with
+              | some d₁, some d₂ => some (d₁.max d₂)
+              | some d, none | none, some d => some d
+              | none, none => none
+            guardHit := a.guardHit || activity.guardHit }
+    let applyCached (entry : SynthInstanceCacheEntry) : MetaM (Option Expr) := do
+      trace[Meta.synthInstance.cache] "cached{depthSuffix}: {type}"
+      let result? ← applyCachedAbstractResult? type entry.result
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
-    | none =>
-      trace[Meta.synthInstance.cache] "new: {type}"
-      let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
+    let sharedKey : SynthInstanceCacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := none }
+    let depthKey := { sharedKey with synthPendingDepth := some synthPendingDepth }
+    let maxSynthPending := maxSynthPendingDepth.get (← getOptions)
+    let sharedEntry? :=
+      match (← get).cache.synthInstance.find? sharedKey with
+      | some entry =>
+        match entry.relSynthPendingDepth with
+        | none     => some entry
+        | some rel =>
+          -- Valid iff no `synthPending` invocation can reach the give-up threshold at the
+          -- current depth; see `SynthInstanceCacheEntry.relSynthPendingDepth`.
+          if synthPendingDepth + rel ≤ maxSynthPending then some entry else none
+      | none => none
+    if let some entry := sharedEntry? then
+      -- Reusing the entry re-enacts its `synthPending` decisions at the current depth.
+      foldActivity { maxDepth := entry.relSynthPendingDepth.map (synthPendingDepth + ·) }
+      applyCached entry
+    else if let some entry := (← get).cache.synthInstance.find? depthKey then
+      -- The entry's synthesis hit the `maxSynthPendingDepth` give-up, so reusing it keeps
+      -- the enclosing query depth-exact as well.
+      foldActivity { maxDepth := some synthPendingDepth, guardHit := true }
+      applyCached entry
+    else
+      trace[Meta.synthInstance.cache] "new{depthSuffix}: {type}"
+      let activityRef ← IO.mkRef {}
+      let abstResult? ← withReader (fun ctx => { ctx with synthPendingActivityRef? := some activityRef }) do
+        withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
         | .noMVars =>
           /-
@@ -1002,7 +1040,12 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         | .mvarsOutputParams => SynthInstance.main (← preprocessOutParam type) maxResultSize
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
-      cacheResult cacheKey kind abstResult? result?
+      let activity ← activityRef.get
+      foldActivity activity
+      -- Results whose synthesis hit the `maxSynthPendingDepth` give-up are only valid at
+      -- the exact depth; all others are shared, bounded by their relative activity depth.
+      let key := if activity.guardHit then depthKey else sharedKey
+      cacheResult key (activity.maxDepth.map (· - synthPendingDepth)) kind abstResult? result?
       return result?
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
@@ -1041,8 +1084,15 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
+      let depth := (← read).synthPendingDepth
+      -- Record the `synthPending` decision reached at `depth`; the enclosing type class
+      -- query's cache entry (if any) is only valid at depths where it comes out the same.
+      if let some ref := (← read).synthPendingActivityRef? then
+        ref.modify fun a => { a with maxDepth := some ((a.maxDepth.getD 0).max depth) }
       let max := maxSynthPendingDepth.get (← getOptions)
-      if (← read).synthPendingDepth > max then
+      if depth > max then
+        if let some ref := (← read).synthPendingActivityRef? then
+          ref.modify fun a => { a with guardHit := true }
         trace[Meta.synthPending] "too many nested synthPending invocations"
         recordSynthPendingFailure mvarDecl.type
         return false

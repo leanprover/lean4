@@ -71,6 +71,7 @@ class RepoChecker:
         # pygithub doesn't support because both belong to the same organization:
         # https://github.com/PyGithub/PyGithub/issues/2942
         # So we just give the user a link instead.
+        # TODO https://github.com/PyGithub/PyGithub/pull/3479 was merged, await release and update
         if nightly:
             url = util.create_pr_url(
                 base=self.rrepo,

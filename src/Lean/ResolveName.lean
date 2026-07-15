@@ -98,9 +98,17 @@ def getRevAliases (env : Environment) (e : Name) : List Name :=
 /-! # Global name resolution -/
 namespace ResolveName
 
-private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool :=
-  -- avoid blocking from `Environment.contains` if possible
-  env.containsOnBranch declName || isReservedName env declName || env.contains declName
+/--
+`localOnly` restricts the check to declarations of the current module (plus reserved names), for
+candidate names that cannot come from imports; see `Environment.containsLocally`.
+-/
+private def containsDeclOrReserved (env : Environment) (declName : Name) (localOnly := false) :
+    Bool :=
+  if localOnly then
+    env.containsLocally declName || isReservedName env declName
+  else
+    -- avoid blocking from `Environment.contains` if possible
+    env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
 register_builtin_option backward.privateInPublic : Bool := {
   defValue := false
@@ -115,61 +123,69 @@ register_builtin_option backward.privateInPublic.warn : Bool := {
     `backward.privateInPublic` being enabled."
 }
 
-private partial def resolvePrivateName (env : Environment) (opts : Options) (declName : Name) : Option Name := do
+private partial def resolvePrivateName (env : Environment) (opts : Options) (declName : Name)
+    (localOnly := false) : Option Name := do
   -- No point in checking private names when exporting. This is an optimization but also necessary
   -- for correct visibility checking while we still carry some private names (e.g. kernel-generated
   -- from `inductive`) in the public env.
   guard (!env.isExporting || backward.privateInPublic.get opts)
-  if containsDeclOrReserved env (mkPrivateName env declName) then
+  -- the current module's private names cannot come from imports
+  if containsDeclOrReserved env (mkPrivateName env declName) (localOnly := true) then
     return mkPrivateName env declName
   -- Under the module system, we assume there are at most a few `import all`s and we can just test
-  -- them one by one.
-  guard <| env.header.isModule
+  -- them one by one. A name that cannot come from imports cannot be another module's private name.
+  guard <| env.header.isModule && !localOnly
   env.header.importAllModules.findSome? fun i => do
     let n := mkPrivateNameCore i.module declName
-    guard <| containsDeclOrReserved env n
+    -- only module `i` itself can declare its private names, so consult only its own tree instead
+    -- of walking (and caching a miss in) the merged imported view
+    guard <| env.moduleDeclares i.module n || isReservedName env n
     return n
 
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
-private def resolveQualifiedName (env : Environment) (opts : Options) (ns : Name) (id : Name) : List Name := Id.run do
+private def resolveQualifiedName (env : Environment) (opts : Options) (ns : Name) (id : Name)
+    (localOnly := false) : List Name := Id.run do
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
   let resolvedIds   := getAliases env resolvedId (skipProtected := id.isAtomic)
   if !id.isAtomic || !isProtected env resolvedId then
-    if containsDeclOrReserved env resolvedId then
+    if containsDeclOrReserved env resolvedId localOnly then
       return resolvedId :: resolvedIds
-    else if let some resolvedIdPrv := resolvePrivateName env opts resolvedId then
+    else if let some resolvedIdPrv := resolvePrivateName env opts resolvedId localOnly then
       return resolvedIdPrv :: resolvedIds
   return resolvedIds
 
 /-- Check surrounding namespaces -/
-private def resolveUsingNamespace (env : Environment) (opts : Options) (id : Name) : Name → List Name
+private def resolveUsingNamespace (env : Environment) (opts : Options) (id : Name)
+    (localOnly : Bool) : Name → List Name
   | ns@(.str p _) =>
-    match resolveQualifiedName env opts ns id with
-    | []          => resolveUsingNamespace env opts id p
+    match resolveQualifiedName env opts ns id localOnly with
+    | []          => resolveUsingNamespace env opts id localOnly p
     | resolvedIds => resolvedIds
   | _ => []
 
 /-- Check exact name -/
-private def resolveExact (env : Environment) (opts : Options) (id : Name) : Option Name :=
+private def resolveExact (env : Environment) (opts : Options) (id : Name) (localOnly : Bool) :
+    Option Name :=
   if id.isAtomic then none
   else
     let resolvedId := id.replacePrefix rootNamespace Name.anonymous
-    if containsDeclOrReserved env resolvedId then some resolvedId
+    if containsDeclOrReserved env resolvedId localOnly then some resolvedId
     else
       -- We also allow `_root_` when accessing private declarations.
       -- If we change our minds, we should just replace `resolvedId` with `id`
-      resolvePrivateName env opts resolvedId
+      resolvePrivateName env opts resolvedId localOnly
 
 /-- Check `OpenDecl`s -/
-private def resolveOpenDecls (env : Environment) (opts : Options) (id : Name) : List OpenDecl → List Name → List Name
+private def resolveOpenDecls (env : Environment) (opts : Options) (id : Name)
+    (localOnly : Bool) : List OpenDecl → List Name → List Name
   | [], resolvedIds => resolvedIds
   | OpenDecl.simple ns exs :: openDecls, resolvedIds =>
     if exs.contains id then
-      resolveOpenDecls env opts id openDecls resolvedIds
+      resolveOpenDecls env opts id localOnly openDecls resolvedIds
     else
-      let newResolvedIds := resolveQualifiedName env opts ns id
-      resolveOpenDecls env opts id openDecls (newResolvedIds ++ resolvedIds)
+      let newResolvedIds := resolveQualifiedName env opts ns id localOnly
+      resolveOpenDecls env opts id localOnly openDecls (newResolvedIds ++ resolvedIds)
   | OpenDecl.explicit openedId resolvedId :: openDecls, resolvedIds =>
     let resolvedIds :=
       if openedId == id then
@@ -182,7 +198,25 @@ private def resolveOpenDecls (env : Environment) (opts : Options) (id : Name) : 
           resolvedIds
       else
         resolvedIds
-    resolveOpenDecls env opts id openDecls resolvedIds
+    resolveOpenDecls env opts id localOnly openDecls resolvedIds
+
+/--
+Checks that every module mentioned in a macro-scope context section (`imported ++ ctx`, module
+names separated by unique numeric components, plus `_hygCtx` markers) is `main` itself, i.e. all
+of the name's scopes were minted while elaborating `main`.
+-/
+private def contextLocalTo (main : Name) (imported ctx : Name) : Bool := Id.run do
+  let hygCtx := Name.anonymous.str "_hygCtx"
+  let mut seg := Name.anonymous
+  for c in imported.components ++ ctx.components do
+    match c with
+    | .num _ _ =>
+      unless seg == main || seg == hygCtx || seg.isAnonymous do
+        return false
+      seg := .anonymous
+    | .str _ s => seg := seg.str s
+    | _ => return false
+  return seg == main || seg == hygCtx || seg.isAnonymous
 
 /--
 Primitive global name resolution procedure. It does not trigger actions associated with reserved names.
@@ -194,20 +228,26 @@ executed.
 def resolveGlobalName (env : Environment) (opts : Options) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List (Name × List String) :=
   -- decode macro scopes from name before recursion
   let extractionResult := extractMacroScopes id
+  -- Candidates carrying macro scopes minted by the module being compiled cannot come from imports,
+  -- so their lookups can skip the imported view (and its lookup cache) entirely. The scope context
+  -- is the main module name plus unique numeric and `_hygCtx` suffixes; scopes from other modules
+  -- live in `imported`.
+  let localOnly := !extractionResult.scopes.isEmpty &&
+    contextLocalTo env.mainModule extractionResult.imported extractionResult.ctx
   let rec loop (id : Name) (projs : List String) : List (Name × List String) :=
     match id with
     | .str p s =>
       -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
       let id := { extractionResult with name := id }.review
-      match resolveUsingNamespace env opts id ns with
+      match resolveUsingNamespace env opts id localOnly ns with
       | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map fun id => (id, projs)
       | [] =>
-        match resolveExact env opts id with
+        match resolveExact env opts id localOnly with
         | some newId => [(newId, projs)]
         | none =>
-          let resolvedIds := if containsDeclOrReserved env id then [id] else []
-          let resolvedIds := if let some idPrv := resolvePrivateName env opts id then [idPrv] ++ resolvedIds else resolvedIds
-          let resolvedIds := resolveOpenDecls env opts id openDecls resolvedIds
+          let resolvedIds := if containsDeclOrReserved env id localOnly then [id] else []
+          let resolvedIds := if let some idPrv := resolvePrivateName env opts id localOnly then [idPrv] ++ resolvedIds else resolvedIds
+          let resolvedIds := resolveOpenDecls env opts id localOnly openDecls resolvedIds
           let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with
           | _ :: _ => resolvedIds.eraseDups.map fun id => (id, projs)

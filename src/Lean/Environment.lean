@@ -1174,6 +1174,28 @@ def containsOnBranch (env : Environment) (n : Name) : Bool :=
   (env.asyncConsts.find? n |>.isSome) || (env.base.get env).constants.contains n
 
 /--
+Checks whether the given declaration is declared in the current module itself (on any branch),
+without consulting the imported constants. This is complete, and avoids both the imported-view
+walk and its lookup-cache entry, for names that cannot come from imports, such as names carrying
+the current module's macro scopes or private name prefix.
+-/
+def containsLocally (env : Environment) (n : Name) : Bool :=
+  (env.findAsyncConst? n (skipRealize := true) |>.isSome)
+    || (env.base.get env).constants.map₂.contains n
+
+/--
+Checks whether module `mod` declares `n`, consulting only that module's own data. Sound as a
+containment check for `mod`'s private names, which only `mod` itself can declare; auto-generated
+auxiliary theorems about another module's private declaration (`congr_simp` etc.) are persisted
+by the generating module instead but remain reachable as reserved names, which callers must check
+separately.
+-/
+def moduleDeclares (env : Environment) (mod : Name) (n : Name) : Bool :=
+  match env.header.moduleName2Idx[mod]? with
+  | some idx => env.header.moduleData[idx.toNat]?.any fun d => d.constTrie.find? n |>.isSome
+  | none     => false
+
+/--
 Returns the constants added in the current module, in elaboration tree pre-order: the top-level
 declarations in elaboration order, each followed by its asynchronous sub-declarations, recursively.
 The recursive part can optionally be skipped for theorems for when their sub-decls are unimportant

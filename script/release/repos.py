@@ -256,7 +256,7 @@ VERSO = ReleaseRepo(
     rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[PLAUSIBLE, ILLUMINATE],
-    weak_deps=[MATHLIB4],  # For benchmarks
+    ignored_deps=[MATHLIB4],  # For benchmarks
 )
 _register(VERSO)
 

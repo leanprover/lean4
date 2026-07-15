@@ -108,7 +108,15 @@ Runs before the precondition lift so a spec handoff `pre ⊑ specPre` closes by 
 than an assumption search. The pattern matcher keeps synthetic-opaque invariant holes rigid, so
 `⊤ ⊑ ?inv args` is left untouched. -/
 private def rfl? (goal : MVarId) : VCGenM (Option (List MVarId)) := do
-  let .goals gs ← (← read).backwardRules.refl.apply goal | return none
+  -- Reflexivity is best-effort: the unifier can throw on an un-decomposed program-head `let` (e.g. a
+  -- chained `__do_jp`); treat that as "not reflexive here" and let `wp` decomposition handle it.
+  let saved ← Meta.saveState
+  let res ← try
+      (← read).backwardRules.refl.apply goal
+    catch _ =>
+      saved.restore
+      return none
+  let .goals gs := res | return none
   trace[Elab.Tactic.Do.vcgen] "Solved by rfl {goal}"
   return some gs
 

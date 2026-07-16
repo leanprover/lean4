@@ -507,6 +507,22 @@ def isAssignedMVar (e : Expr) : MetaM Bool :=
   | .mvar mvarId => mvarId.isAssigned
   | _            => return false
 
+/--
+Returns `true` if the mismatched constraint `p =?= e` should be postponed because it may
+become solvable after other arguments assign the pattern variables in `p`. This is the case
+when `p` is `t + k` with pattern variables in `k`, and `e` is a numeral or an offset.
+
+Examples:
+- `3 + (1 + #1) =?= 5`
+- `#1 + #2 =?= 4`
+- `(#1 + 1) + #2 =?= t + 3`
+-/
+def isQuasiOffsetCnstr (p : Expr) (e : Expr) : Bool :=
+  match_expr p with
+  | HAdd.hAdd _ _ _ _ _ k =>
+    k.hasLooseBVars && ((getNatValue? e).isSome || (isOffset? e).isSome)
+  | _ => false
+
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   -- A pattern subterm internalized into the same table as the target shares its pointer, so a
   -- pointer match is a closed term equal to the target with no variables left to bind.
@@ -588,6 +604,10 @@ where
       return true
     else if let some p' := isOffset?' declName p then
       processOffset p' (toOffset e)
+    else if isQuasiOffsetCnstr p e then
+      -- Postpone: constraint may become an offset one after pattern variables are assigned.
+      pushPending p e
+      return true
     else if let some e' := isOffset? e then
       processOffset (toOffset p) e'
     else

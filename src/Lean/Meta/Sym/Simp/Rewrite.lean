@@ -65,7 +65,13 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischar
               return mkRflResultCD isCD
             | .solved val cd =>
               isCD := isCD || cd
-              let val ← instantiateMVarsS val
+              -- Dischargers are not required to return maximally shared proofs. Sharing is
+              -- needed only when the hypothesis occurs in `rhs`, and the proof consequently
+              -- becomes part of the resulting term.
+              let val ← if thm.rhsVarMask.testBit i then
+                shareCommon (← instantiateMVars val)
+              else
+                instantiateMVars val
               mvarId.assign val
               args := args.set i val
       else if arg.hasMVar then

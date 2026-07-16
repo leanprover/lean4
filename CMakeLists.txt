@@ -9,18 +9,18 @@ endif()
 option(USE_MIMALLOC "use mimalloc" ON)
 
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
-# https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
 # Use standard release build (discarding LEAN_EXTRA_CXX_FLAGS etc.) for stage0 by default since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..).
 # Use `STAGE0_` prefix to pass variables to stage0 explicitly.
 get_cmake_property(vars CACHE_VARIABLES)
 foreach(var ${vars})
-  get_property(currentHelpString CACHE "${var}" PROPERTY HELPSTRING)
+  get_property(currentType CACHE "${var}" PROPERTY TYPE)
   if(var MATCHES "STAGE0_(.*)")
     list(APPEND STAGE0_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
   elseif(var MATCHES "STAGE1_(.*)")
     list(APPEND STAGE1_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
-  elseif(currentHelpString MATCHES "No help, variable specified on the command line." OR currentHelpString STREQUAL "")
+  # NOTE: does not catch `-DFOO:BAR=` typed uses
+  elseif(currentType STREQUAL "UNINITIALIZED")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
     if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION|LEAN_VERSION_.*|LEAN_SPECIAL_VERSION_DESC")
       # must forward options that generate incompatible .olean format

@@ -1,6 +1,6 @@
 #include "util/options.h"
 
-// Should we test stage 2 and run update-stage0 on PR merge? NO
+// Should we test stage 2 and run update-stage0 on PR merge? YES
 // (change to "YES" to trigger)
 
 namespace lean {
@@ -16,18 +16,18 @@ options get_option_overrides() {
 
     // uncomment for ABI-breaking changes affecting meta code;
     // see also next option!
-    //opts = opts.update({"interpreter", "prefer_native"}, true);
+    opts = opts.update({"interpreter", "prefer_native"}, true);
 
     // uncomment when enabling `prefer_native` should also affect use
     // of built-in parsers in quotations; this is usually the case, but setting
     // both to `true` may be necessary for handling non-builtin parsers with
     // builtin elaborators
     // TODO: make consistent across stages
-    opts = opts.update({"internal", "parseQuotWithCurrentStage"}, true);
+    //opts = opts.update({"internal", "parseQuotWithCurrentStage"}, true);
 
     // changes to builtin parsers may also require uncommenting the following option if macros/syntax
     // with custom precheck hooks were affected
-    //opts = opts.update({"quotPrecheck"}, false);
+    opts = opts.update({"quotPrecheck"}, false);
 #endif
     return opts;
 }

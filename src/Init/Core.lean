@@ -316,7 +316,7 @@ asserts that there is some `x` of type `α` such that `p x` holds.
 To create an existential proof, use the `exists` tactic,
 or the anonymous constructor notation `⟨x, h⟩`.
 To unpack an existential, use `cases h` where `h` is a proof of `∃ x : α, p x`,
-or `let ⟨x, hx⟩ := h` where `.
+or `let ⟨x, hx⟩ := h`.
 
 Because Lean has proof irrelevance, any two proofs of an existential are
 definitionally equal. One consequence of this is that it is impossible to recover the

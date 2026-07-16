@@ -71,24 +71,18 @@ theorem dmatches_pure_triple : ⦃ True ⦄ dmatches_pure f ⦃ fun r => r > 0 �
   vcgen +jp
   all_goals grind
 
-/- Multi-discriminant dependent matches make the jump-site precondition a proof-carrying existential
-(`∃ … (h : …), … cast … h …`) that `grind` cannot witness; the two `mixed_matches_*` cases are
-exercised once the join point constructs that witness directly.
 def mixed_matches_pure (f : Nat → Option Nat) : Id Nat := do
   let mut x := 0
   match h : f 0, f 10 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
   match h : f 1, f 11 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
   match h : f 2, f 12 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
   match h : f 3, f 13 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
-  match h : f 4, f 14 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
-  match h : f 5, f 15 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
   return x
 
 theorem mixed_matches_pure_triple : ⦃ True ⦄ mixed_matches_pure f ⦃ fun r => r > 0 ⦄ := by
   unfold mixed_matches_pure
   vcgen +jp
   all_goals grind
--/
 
 def if_state (f : Nat → Bool) : StateM Nat Nat := do
   let mut x := 0
@@ -127,8 +121,6 @@ theorem set42_triple : ⦃ fun _ => True ⦄ set42 ⦃ fun _ s => ⌜s > 13⌝ �
   vcgen [set42]
   grind
 
--- Same proof-carrying-existential gap as `mixed_matches_pure`.
-/-
 def mixed_matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
   set 42
   let mut x := 0
@@ -156,7 +148,6 @@ theorem mixed_matches_state_triple : ⦃ fun _ => True ⦄ mixed_matches_state f
   unfold mixed_matches_state
   vcgen +jp
   all_goals grind
--/
 
 def early_return (f : Nat → Option Nat) : Id Nat := do
   let mut x := 1

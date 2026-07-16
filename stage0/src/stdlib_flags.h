@@ -1,7 +1,15 @@
 #include "util/options.h"
 
-// Should we test stage 2 and run update-stage0 on PR merge? NO
-// (change to "YES" to trigger)
+/*
+ ______________________
+< Please update stage0 >
+ ----------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+*/
 
 namespace lean {
 options get_option_overrides() {

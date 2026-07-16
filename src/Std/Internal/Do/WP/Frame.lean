@@ -70,15 +70,15 @@ theorem WP.Frames.of_frameClosure {R : Type t} (op : R → Pred → Pred) [∀ r
   exact PreservesSup.frameClosure_frames op comp hact (f x E) Q F
 
 /-- If `wp x` is conjunctive, then `x` frames `(F ⊓ ·)` when `F` holds before and after running `x`. -/
-theorem WP.Frames.of_wpConjunctive {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
+theorem WP.Frames.of_conjunctive {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
     [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
-    [WPConjunctive Prog Value Pred EPred] {x : Prog} {F : Pred} (h : ∀ E, F ⊑ wp x (fun _ => F) E) :
+    {x : Prog} [WPConjunctive x] {F : Pred} (h : ∀ E, F ⊑ wp x (fun _ => F) E) :
     WP.Frames (· ⊓ ·) x F := by
   constructor
   intro Q E
   refine PartialOrder.rel_trans (y := wp x (fun _ => F) E ⊓ wp x Q E) ?_ ?_
   · exact le_meet _ _ _ (PartialOrder.rel_trans (meet_le_left _ _) (h E)) (meet_le_right _ _)
-  · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le x (fun _ => F) Q E E)
+  · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le (fun _ => F) Q E E)
       (WP.wp_consequence_econs _ _ _ _ _ ?_ (meet_le_left _ _))
     intro a
     simp only [meet_apply]

@@ -41,7 +41,7 @@ every occurrence of `Q`/`E` sits in a conjunctive context — a `wp` postconditi
 exception-postcondition argument, a `⊓`/`∧`/`⨅` operand, a `⇨` consequent, an `EPost.Cons.head`
 projection, applied at a tail, or under a `λ`. An occurrence of `Q`/`E` in a premise is rejected; this
 is the opt-out, so a spec forces rejection with a trivial `Q = Q` premise. See
-`WP.Frames.of_wpConjunctive`.
+`WP.Frames.of_conjunctive`.
 
 The `wp` arm **assumes** the program's `wp` is conjunctive: `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂) = wp x Q₁ E₁ ⊓ wp
 x Q₂ E₂` — a per-program semantic fact, not visible in the syntax, preserved by every combinator. So
@@ -106,6 +106,8 @@ public def isConjunctiveInPosts (concl : Expr) (binders : Array Expr) : MetaM Bo
   let qs := #[post, epost].filterMap fun e => match e.eta with | .mvar q => some q | _ => none
   if qs.isEmpty then return false
   if occursMVar qs prog then return false
+  -- A premise mentioning `Q`/`E` rejects the spec — this is the `Q = Q` opt-out. Incomplete: a
+  -- premise that only pins a postcondition, e.g. `E = ⊥`, is rejected too.
   for b in binders do
     if occursMVar qs (← inferType b) then return false
   return isConjunctiveIn qs pre

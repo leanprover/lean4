@@ -13,7 +13,11 @@ namespace Lean
 namespace CollectAxioms
 
 structure State where
-  /-- Cache mapping constants to their (sorted) axiom dependencies. -/
+  /--
+  Cache mapping constants walked by this run to their (sorted) axiom dependencies. Constants
+  answered by `extFind?` are deliberately not copied into this layer, so it contains exactly the
+  constants whose dependencies were not already recorded elsewhere.
+  -/
   seen   : NameMap (Array Name) := {}
   /-- Axioms accumulated for the current constant being processed. -/
   axioms : NameSet := {}
@@ -28,7 +32,8 @@ private def insertArray (s : NameSet) (axs : Array Name) : NameSet :=
 
 /--
 Collect axioms reachable from constant `c`, using `extFind?` to look up pre-computed axioms
-for imported declarations. Results are cached in `State.seen`.
+for imported and already-recorded declarations. Results for walked constants are cached in
+`State.seen`, the second layer of the cache on top of `extFind?`.
 
 When processing a constant not found in `extFind?` or the cache, the function temporarily
 clears the axiom accumulator, recurses into the constant's dependencies, caches the result
@@ -38,9 +43,9 @@ private partial def collect
     (extFind? : Environment → Name → Option (Array Name))
     (c : Name) : M Unit := do
   let env ← read
-  -- Check extension for pre-computed axioms (imported declarations)
+  -- Check extension for pre-computed axioms (imported and already-recorded declarations)
   if let some axs := extFind? env c then
-    modify fun s => { s with axioms := insertArray s.axioms axs, seen := s.seen.insert c axs }
+    modify fun s => { s with axioms := insertArray s.axioms axs }
     return
   -- Check local cache
   let s ← get
@@ -77,6 +82,8 @@ private partial def collect
 private def collectAndGet
     (extFind? : Environment → Name → Option (Array Name))
     (c : Name) : M (Array Name) := do
+  if let some axs := extFind? (← read) c then
+    return axs
   collect extFind? c
   let some axs := (← get).seen.find? c | panic! s!"collectAndGet: '{c}' not in seen after collect"
   return axs
@@ -163,8 +170,10 @@ public def recordAxioms [Monad m] [MonadEnv m] (decl : Declaration) : m Unit := 
   let s := exportedAxiomsExt.getState env
   let (_, st) := decl.getTopLevelNames.mapM (CollectAxioms.collectAndGet s.find?)
     |>.run privateEnv |>.run {}
+  -- `seen` contains exactly the walked constants; skip walked imported constants missing from
+  -- the export table, which `find?` could never answer from `localEntries`.
   let newEntries := st.seen.foldl (init := #[]) fun acc c axs =>
-    if (env.getModuleIdxFor? c).isNone && !s.localEntries.contains c then
+    if (env.getModuleIdxFor? c).isNone then
       acc.push (c, axs)
     else
       acc

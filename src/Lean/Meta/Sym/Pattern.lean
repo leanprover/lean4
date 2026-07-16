@@ -520,7 +520,7 @@ Examples:
 def isQuasiOffsetCnstr (p : Expr) (e : Expr) : Bool :=
   match_expr p with
   | HAdd.hAdd _ _ _ _ _ k =>
-    k.hasLooseBVars && ((getNatValue? e).isSome || (isOffset? e).isSome)
+    k.hasLooseBVars && ((isNatValue? e).isSome || (isOffset? e).isSome)
   | _ => false
 
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do

@@ -317,17 +317,18 @@ theorem nodup_iff_eq_of_getElem_eq {l : List α} : List.Nodup l ↔
     ← Nat.not_le, Decidable.not_imp_not]
   exact ⟨fun h _ _ hi hj hij => ⟨h _ _ hj hi hij.symm, h _ _ hi hj hij⟩, (And.right <| · · · · · ·)⟩
 
-theorem Nodup.eq_of_getElem_eq {xs : List α} (h : Nodup xs) {hi : i < xs.length}
-    {hj : j < xs.length} : xs[i] = xs[j] → i = j := nodup_iff_eq_of_getElem_eq.mp h _ _ _ _
+theorem Nodup.eq_of_getElem_eq {xs : List α} (h : Nodup xs) (hi : i < xs.length)
+    (hj : j < xs.length) : xs[i] = xs[j] → i = j := nodup_iff_eq_of_getElem_eq.mp h _ _ _ _
 
 theorem Nodup.eq_of_getElem?_eq {xs : List α} (h : Nodup xs) (hi : i < xs.length)
     (hij : xs[i]? = xs[j]?) : i = j := by
   simp [getElem?_def, hi] at hij
-  rcases hij with ⟨_, hij⟩
-  exact h.eq_of_getElem_eq hij
+  rcases hij with ⟨hj, hij⟩
+  exact h.eq_of_getElem_eq hi hj hij
 
 @[simp, grind =] theorem Nodup.getElem_inj {xs : List α} (h : Nodup xs) {hi : i < xs.length}
-    {hj : j < xs.length} : xs[i] = xs[j] ↔ i = j := ⟨h.eq_of_getElem_eq, (getElem_congr rfl · hi)⟩
+    {hj : j < xs.length} : xs[i] = xs[j] ↔ i = j :=
+  ⟨h.eq_of_getElem_eq hi hj, (getElem_congr rfl · hi)⟩
 
 theorem Nodup.getElem?_inj {xs : List α} (h₀ : i < xs.length) (h₁ : xs.Nodup) :
     xs[i]? = xs[j]? ↔ i = j := by

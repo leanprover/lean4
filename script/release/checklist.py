@@ -800,6 +800,9 @@ class LeanChecker(RepoChecker):
         self.cl.success(f"{what} posted")
 
     def check_notify_ashley(self) -> None:
+        if not self.version.is_stable:
+            return
+
         if self.prompt("Tell Ashley that the release is finished."):
             self.cl.success("Ashley notified")
         else:

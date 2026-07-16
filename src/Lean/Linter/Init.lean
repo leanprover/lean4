@@ -107,6 +107,12 @@ register_builtin_option linter.extra : Bool := {
     only available via `lake lint`. An extra linter early-returns unless this option is true."
 }
 
+register_builtin_option linter.coreInternal : Bool := {
+  defValue := false
+  descr := "enables the set of core-internal linters — linters that enforce conventions of the \
+    Lean repository itself and are not intended for use by non-core projects."
+}
+
 /--
 Global registry of options associated with environment linters.
 These are precisely options, whose value will be snapshotted during `addDecl`.

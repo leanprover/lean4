@@ -114,9 +114,15 @@ end $typeName
 
 end Lean
 
+-- The linter exemptions sit on the macro invocations because linters run once per top-level
+-- command and would not see a `set_option … in` inside the macro expansion.
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int8
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int16
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int32
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_sint_simprocs Int64
 
 /-
@@ -125,6 +131,7 @@ However, we do reduce natural literals using the fact this opaque value is at le
 -/
 namespace ISize
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun e => do
   let_expr ISize.toNatClampNeg e ← e | return .continue
   if let some (n, _) ← getOfNatValue? e ``ISize then
@@ -142,6 +149,7 @@ builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun
   let p := mkApp2 (mkConst ``ISize.toNatClampNeg_neg_ofNat_of_le) e p
   return .done { expr := toExpr 0, proof? := p }
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
   let_expr ISize.toInt e ← e | return .continue
   if let some (n, _) ← getOfNatValue? e ``ISize then

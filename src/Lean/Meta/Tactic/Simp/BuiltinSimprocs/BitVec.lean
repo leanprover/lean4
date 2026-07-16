@@ -123,52 +123,75 @@ Helper function for reducing bitvector predicates.
     return .continue
 
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for negation of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceNeg ((- _ : BitVec _)) := reduceUnary ``Neg.neg 3 (- ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for bitwise not of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceNot ((~~~ _ : BitVec _)) :=
   reduceUnary ``Complement.complement 3 (~~~ ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for absolute value of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceAbs (BitVec.abs _) := reduceUnary ``BitVec.abs 2 BitVec.abs
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for bitwise and of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : BitVec _)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for bitwise or of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceOr ((_ ||| _ : BitVec _)) := reduceBin ``HOr.hOr 6 (· ||| ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for bitwise xor of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceXOr ((_ ^^^ _ : BitVec _)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for addition of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceAdd ((_ + _ : BitVec _)) := reduceBin ``HAdd.hAdd 6 (· + ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for multiplication of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceMul ((_ * _ : BitVec _)) := reduceBin ``HMul.hMul 6 (· * ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for subtraction of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSub ((_ - _ : BitVec _)) := reduceBin ``HSub.hSub 6 (· - ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for division of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : BitVec _)) := reduceBin ``HDiv.hDiv 6 (· / ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for the modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : BitVec _)) := reduceBin ``HMod.hMod 6 (· % ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for the unsigned modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceUMod ((umod _ _ : BitVec _)) := reduceBin ``umod 3 umod
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for unsigned division of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceUDiv ((udiv _ _ : BitVec _)) := reduceBin ``udiv 3 udiv
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for division of `BitVec`s using the SMT-LIB conventions. -/
 builtin_dsimproc [simp, seval] reduceSMTUDiv ((smtUDiv _ _ : BitVec _)) := reduceBin ``smtUDiv 3 smtUDiv
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for the signed modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSMod ((smod _ _ : BitVec _)) := reduceBin ``smod 3 smod
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for signed remainder of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSRem ((srem _ _ : BitVec _)) := reduceBin ``srem 3 srem
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for signed t-division of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSDiv ((sdiv _ _ : BitVec _)) := reduceBin ``sdiv 3 sdiv
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for signed division of `BitVec`s using the SMT-LIB conventions. -/
 builtin_dsimproc [simp, seval] reduceSMTSDiv ((smtSDiv _ _ : BitVec _)) := reduceBin ``smtSDiv 3 smtSDiv
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `getLsb` (lowest significant bit) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getLsbD getLsbD
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `getMsb` (most significant bit) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `clz` (count leading zeros) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceClz (clz _) := reduceUnary ``BitVec.clz 2 BitVec.clz
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `cpop` (population count) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceCpop (cpop _) := reduceUnary ``BitVec.cpop 2 BitVec.cpop
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `getElem`  on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
   let_expr getElem _coll _idx _elem _valid _inst v i _h  := e | return .continue
@@ -177,34 +200,44 @@ builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
   let b := v.value.getLsbD i
   return .done <| toExpr b
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=
   reduceShift ``BitVec.shiftLeft 3 BitVec.shiftLeft
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for unsigned shift right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceUShiftRight (BitVec.ushiftRight _ _) :=
   reduceShift ``BitVec.ushiftRight 3 BitVec.ushiftRight
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for signed shift right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceSShiftRight (BitVec.sshiftRight _ _) :=
   reduceShift ``BitVec.sshiftRight 3 BitVec.sshiftRight
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft ((_ <<< _ : BitVec _)) :=
   reduceShift ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft' ((_ <<< (_ : BitVec _) : BitVec _)) :=
   reduceShiftWithBitVecLit ``HShiftLeft.hShiftLeft
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for shift right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftRight ((_ >>> _ : BitVec _)) :=
   reduceShift ``HShiftRight.hShiftRight 6 (· >>> ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
 builtin_dsimproc [simp, seval] reduceHShiftRight' ((_ >>> (_ : BitVec _) : BitVec _)) :=
   reduceShiftWithBitVecLit ``HShiftRight.hShiftRight
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for rotate left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceRotateLeft (BitVec.rotateLeft _ _) :=
   reduceShift ``BitVec.rotateLeft 3 BitVec.rotateLeft
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for rotate right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceRotateRight (BitVec.rotateRight _ _) :=
   reduceShift ``BitVec.rotateRight 3 BitVec.rotateRight
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for append on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceAppend ((_ ++ _ : BitVec _)) := fun e => do
   let_expr HAppend.hAppend _ _ _ _ a b ← e | return .continue
@@ -212,6 +245,7 @@ builtin_dsimproc [simp, seval] reduceAppend ((_ ++ _ : BitVec _)) := fun e => do
   let some v₂ ← fromExpr? b | return .continue
   return .done <| (← toExpr' (v₁.value ++ v₂.value))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for casting `BitVec`s along an equality of the size. -/
 builtin_dsimproc [simp, seval] reduceCast (cast _ _) := fun e => do
   let_expr cast _ m _ v ← e | return .continue
@@ -219,18 +253,21 @@ builtin_dsimproc [simp, seval] reduceCast (cast _ _) := fun e => do
   let some m ← Nat.fromExpr? m | return .continue
   return .done <| (← toExpr' (BitVec.ofNat m v.value.toNat))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `BitVec.toNat`. -/
 builtin_dsimproc [simp, seval] reduceToNat (BitVec.toNat _) := fun e => do
   let_expr BitVec.toNat _ v ← e | return .continue
   let some v ← fromExpr? v | return .continue
   return .done <| mkNatLit v.value.toNat
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `BitVec.toInt`. -/
 builtin_dsimproc [simp, seval] reduceToInt (BitVec.toInt _) := fun e => do
   let_expr BitVec.toInt _ v ← e | return .continue
   let some v ← fromExpr? v | return .continue
   return .done <| toExpr v.value.toInt
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `BitVec.ofInt`. -/
 builtin_dsimproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
   let_expr BitVec.ofInt n i ← e | return .continue
@@ -238,6 +275,7 @@ builtin_dsimproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
   let some i ← Int.fromExpr? i | return .continue
   return .done <| (← toExpr' (BitVec.ofInt n i))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
 builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let_expr BitVec.ofNat n v ← e | return .continue
@@ -258,6 +296,7 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
     -/
     return .done (← mkNumeral (mkApp (mkConst ``BitVec) n) v)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /--
 Simplification procedure for ensuring `OfNat.ofNat` bitvector literals are normalized.
 For example, `(17 : BitVec 4)` is reduced to `(1 : BitVec 4)` when `bitVecOfNat := false`,
@@ -271,39 +310,52 @@ builtin_dsimproc [simp, seval] isValue ((OfNat.ofNat _ : BitVec _)) := fun e => 
     return .done e -- already normalized; `OfNat.ofNat` is the normal form when `bitVecOfNat := false`
   return .done (← toExpr' v)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `=` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `≠` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceNe  (( _ : BitVec _) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `==` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : BitVec _) == _)  :=
   reduceBoolPred ``BEq.beq 4 (· == ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `!=` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : BitVec _) != _)  :=
   reduceBoolPred ``bne 4 (· != ·)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `≤` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLE (( _ : BitVec _) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `>` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceGT (( _ : BitVec _) > _)  := reduceBinPred ``GT.gt 4 (. > .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `≥` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceGE (( _ : BitVec _) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for unsigned less than `ult` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceULT (BitVec.ult _ _) :=
   reduceBoolPred ``BitVec.ult 3 BitVec.ult
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for unsigned less than or equal `ule` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceULE (BitVec.ule _ _) :=
   reduceBoolPred ``BitVec.ule 3 BitVec.ule
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for signed less than `slt` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSLT (BitVec.slt _ _) :=
   reduceBoolPred ``BitVec.slt 3 BitVec.slt
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for signed less than or equal `sle` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSLE (BitVec.sle _ _) :=
   reduceBoolPred ``BitVec.sle 3 BitVec.sle
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `setWidth'` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSetWidth' (setWidth' _ _) := fun e => do
   let_expr setWidth' _ w _ v ← e | return .continue
@@ -314,6 +366,7 @@ builtin_dsimproc [simp, seval] reduceSetWidth' (setWidth' _ _) := fun e => do
   else
     return .continue
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `shiftLeftZeroExtend` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ _) := fun e => do
   let_expr shiftLeftZeroExtend _ v m ← e | return .continue
@@ -321,6 +374,7 @@ builtin_dsimproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ 
   let some m ← Nat.fromExpr? m | return .continue
   return .done <| (← toExpr' (v.value.shiftLeftZeroExtend m))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `extractLsb'` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e => do
   let_expr extractLsb' _ start len v ← e | return .continue
@@ -329,6 +383,7 @@ builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e =>
   let some len ← Nat.fromExpr? len | return .continue
   return .done <| (← toExpr' (v.value.extractLsb' start len))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `extractLsb` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceExtractLsb (extractLsb _ _ _) := fun e => do
   let_expr extractLsb _ hi lo v ← e | return .continue
@@ -337,6 +392,7 @@ builtin_dsimproc [simp, seval] reduceExtractLsb (extractLsb _ _ _) := fun e => d
   let some lo ← Nat.fromExpr? lo | return .continue
   return .done <| (← toExpr' (v.value.extractLsb hi lo))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `replicate` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   let_expr replicate _ i v ← e | return .continue
@@ -344,27 +400,33 @@ builtin_dsimproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   let some i ← Nat.fromExpr? i | return .continue
   return .done <| (← toExpr' (v.value.replicate i))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `setWidth` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSetWidth (setWidth _ _) := reduceExtend ``setWidth setWidth
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `zeroExtend` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceZeroExtend (zeroExtend _ _) := reduceExtend ``zeroExtend zeroExtend
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `signExtend` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceSignExtend (signExtend _ _) := reduceExtend ``signExtend signExtend
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `allOnes` -/
 builtin_dsimproc [simp, seval] reduceAllOnes (allOnes _) := fun e => do
   let_expr allOnes n ← e | return .continue
   let some n ← Nat.fromExpr? n | return .continue
   return .done <| (← toExpr' (allOnes n))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceBitVecOfFin (BitVec.ofFin _)  := fun e => do
   let_expr BitVec.ofFin w v ← e | return .continue
   let some w ← evalNat w |>.run | return .continue
   let some ⟨_, v⟩ ← getFinValue? v | return .continue
   return .done <| (← toExpr' (BitVec.ofNat w v.val))
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => do
   let_expr BitVec.toFin _ v ← e | return .continue
   let some ⟨_, v⟩ ← getBitVecValue? v | return .continue
@@ -387,8 +449,10 @@ natural number literals.
   let proof ← mkEqSymm proof -- we rewrite (x <<< i) <<< j ↦ x <<< (i + j) [the opposite direction]
   return .visit { expr, proof? := some proof }
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc reduceShiftLeftShiftLeft (((_ <<< _ : BitVec _) <<< _ : BitVec _)) :=
   reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_add
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc reduceShiftRightShiftRight (((_ >>> _ : BitVec _) >>> _ : BitVec _)) :=
   reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_add
 

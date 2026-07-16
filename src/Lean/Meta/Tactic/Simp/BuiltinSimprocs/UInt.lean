@@ -88,9 +88,15 @@ end $typeName
 
 end Lean
 
+-- The linter exemptions sit on the macro invocations because linters run once per top-level
+-- command and would not see a `set_option … in` inside the macro expansion.
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt8
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt16
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt32
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 declare_uint_simprocs UInt64
 
 /-
@@ -103,6 +109,7 @@ private def fromExpr (e : Expr) : SimpM (Option USize) := do
   let some (n, _) ← getOfNatValue? e ``USize | return none
   return USize.ofNat n
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
   let_expr USize.toNat e ← e | return .continue
   let some (n, _) ← getOfNatValue? e ``USize | return .continue

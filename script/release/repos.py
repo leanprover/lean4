@@ -172,6 +172,18 @@ QUOTE4 = ReleaseRepo(
 _register(QUOTE4)
 
 
+# To create a new release, open a PR into `main`. In it, bump the toolchain. For
+# `v4.X.0-rc1` releases, you may need to merge `nightly-testing` into the PR.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+LEAN_SEARCH_CLIENT = ReleaseRepo(
+    github=("leanprover-community", "LeanSearchClient"),
+    rc1_pr_base="downstream",
+    release_tag="lean",
+)
+_register(LEAN_SEARCH_CLIENT)
+
+
 # To create a new release, open a PR into `master`. In it, bump the toolchain
 # and all dependencies.
 #

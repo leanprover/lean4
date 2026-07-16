@@ -314,8 +314,8 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ xs : List (F
 theorem nodup_iff_eq_of_getElem_eq {l : List α} : List.Nodup l ↔
     ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length), l[i] = l[j] → i = j := by
   simp only [nodup_iff_pairwise_ne, pairwise_iff_getElem, Nat.le_antisymm_iff,
-    ← Nat.not_le, Decidable.not_imp_not]
-  exact ⟨fun h _ _ hi hj hij => ⟨h _ _ hj hi hij.symm, h _ _ hi hj hij⟩, (And.right <| · · · · · ·)⟩
+    ← Nat.not_le, Decidable.not_imp_not, forall_and, forall_comm (α := Nat)]
+  exact ⟨fun h => ⟨fun i hi j hj => (h _ hj _ hi ·.symm), h⟩, fun ⟨_, h⟩ => h⟩
 
 theorem Nodup.eq_of_getElem_eq {xs : List α} (h : Nodup xs) (hi : i < xs.length)
     (hj : j < xs.length) : xs[i] = xs[j] → i = j := nodup_iff_eq_of_getElem_eq.mp h _ _ _ _

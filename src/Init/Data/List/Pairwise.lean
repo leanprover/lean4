@@ -35,12 +35,11 @@ theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
   induction l with | nil => simp | cons a l ihl =>
     simp only [pairwise_cons, length_cons, mem_iff_getElem, ihl, forall_exists_index,
       forall_comm (α := α), forall_apply_eq_imp_iff]
-    constructor
-    · rintro ⟨h0, hs⟩ (_ | i) (_ | j) hi hj hij <;> try contradiction
+    refine ⟨fun ⟨h0, hs⟩ => ?_, fun h => ?_⟩
+    · rintro (_ | i) (_ | j) hi hj hij <;> try contradiction
       · apply h0
       · apply hs; simpa [succ_lt_succ_iff] using hij
-    · intro h
-      simpa [succ_lt_succ_iff] using And.intro (fun j => h 0 (j + 1)) (fun i j => h (i + 1) (j + 1))
+    · simpa [succ_lt_succ_iff] using And.intro (fun j => h 0 (j + 1)) (fun i j => h (i + 1) (j + 1))
 
 theorem Pairwise.rel_getElem_of_lt {l : List α} {i j} {hi : i < l.length} {hj : j < l.length}
     (h : Pairwise R l) : i < j → R l[i] l[j] := pairwise_iff_getElem.mp h _ _ _ _
@@ -77,9 +76,11 @@ theorem Pairwise.imp_of_mem {S : α → α → Prop}
 
 theorem Pairwise.and (hR : Pairwise R l) (hS : Pairwise S l) :
     l.Pairwise fun a b => R a b ∧ S a b := by
-  rw [pairwise_iff_getElem] at hR hS ⊢
-  simp only [imp_and, forall_and]
-  exact ⟨hR, hS⟩
+  induction hR with
+  | nil => simp only [Pairwise.nil]
+  | cons R1 _ IH =>
+    simp only [pairwise_cons] at hS ⊢
+    exact ⟨fun b bl => ⟨R1 b bl, hS.1 b bl⟩, IH hS.2⟩
 
 theorem pairwise_and_iff : l.Pairwise (fun a b => R a b ∧ S a b) ↔ Pairwise R l ∧ Pairwise S l :=
   ⟨fun h => ⟨h.imp fun h => h.1, h.imp fun h => h.2⟩, fun ⟨hR, hS⟩ => hR.and hS⟩

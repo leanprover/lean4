@@ -44,18 +44,18 @@ theorem em (p : Prop) : p ∨ ¬p :=
   let v : Bool := choose exV
   have u_def : f U u := choose_spec exU
   have v_def : f V v := choose_spec exV
-  have not_uv_or_p : u ≠ v ∨ p :=
+  have huvp : u ≠ v ∨ p :=
     match u, v with
     | false, _ => Or.inr u_def
     | _, true => Or.inr v_def
     | true, false => Or.inl Bool.noConfusion
   have p_implies_uv : p → u = v :=
     fun hp =>
-    have hpred : U = V := by simp [hp, U, V]
+    have hUV : U = V := by simp [hp, U, V]
     have h₀ : ∀ exU exV, choose exU = choose exV := by
-      rw [hpred]; intros; rfl
-    show u = v from h₀ _ _
-  match not_uv_or_p with
+      rw [hUV]; intros; rfl
+    h₀ ..
+  match huvp with
   | Or.inl hne => Or.inr (mt p_implies_uv hne)
   | Or.inr h   => Or.inl h
 

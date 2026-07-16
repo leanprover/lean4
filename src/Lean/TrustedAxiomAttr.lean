@@ -39,10 +39,12 @@ public def warnIfUsesUntrustedAxioms (declName : Name) : CoreM Unit := do
   let env ← getEnv
   let some info := env.find? declName | return
   if info.isUnsafe then return
-  if warn.sorry.get (← getOptions) &&
+  let axioms ← collectAxioms declName
+  -- Check the axioms first: a syntactic `sorry` always shows up as `sorryAx` in them, so we can
+  -- avoid the `hasSorry` term traversal for sorry-free declarations.
+  if axioms.contains ``sorryAx && warn.sorry.get (← getOptions) &&
       (info.type.hasSorry || (info.value? (allowOpaque := true)).any (·.hasSorry)) then
     return
-  let axioms ← collectAxioms declName
   let offending := axioms.filter (!trustedAxiomAttr.hasTag env ·)
   unless offending.isEmpty do
     let axMsgs := offending.toList.map fun ax => m!"`{MessageData.ofConstName ax}`"

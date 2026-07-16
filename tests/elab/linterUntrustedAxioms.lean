@@ -11,6 +11,11 @@ axiom untrustedAx : 1 = 2
 #guard_msgs in
 theorem offByDefault : 1 = 2 := untrustedAx
 
+-- `linter.all` does not enable this linter; it must be enabled explicitly.
+set_option linter.all true in
+#guard_msgs in
+theorem allDoesNotEnable : 1 = 2 := untrustedAx
+
 set_option linter.untrustedAxioms true
 
 /-! Axiom declarations themselves are not linted, only their uses. -/
@@ -121,9 +126,8 @@ Note: This linter can be disabled with `set_option linter.untrustedAxioms false`
 #guard_msgs in
 example : 1 = 2 := untrustedAx
 
-/-! Explicitly disabling the linter wins over `linter.all`. -/
+/-! Explicitly disabling the linter. -/
 
-set_option linter.all true in
 set_option linter.untrustedAxioms false in
 #guard_msgs in
 theorem explicitOff : 1 = 2 := untrustedAx

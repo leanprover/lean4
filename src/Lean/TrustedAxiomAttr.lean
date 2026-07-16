@@ -29,12 +29,14 @@ public register_builtin_option linter.untrustedAxioms : Bool := {
   descr    := "Warn when a declaration added to the environment depends on an axiom that is not \
     tagged with `@[trusted_axiom]`. This should be considered a preliminary elaboration-side \
     check that does not replace the use of external checker tools such as `comparator` with \
-    their own axiom checks."
+    their own axiom checks. Unlike other linters, this linter is not enabled by `linter.all` \
+    but only by setting this option explicitly, as it is useful only with a curated set of \
+    `@[trusted_axiom]` declarations."
 }
 
 open Linter in
 public def warnIfUsesUntrustedAxioms (declName : Name) : CoreM Unit := do
-  unless getLinterValue linter.untrustedAxioms (← getLinterOptions) do return
+  unless linter.untrustedAxioms.get (← getOptions) do return
   if (← MonadLog.hasErrors) then return
   let env ← getEnv
   let some info := env.find? declName | return

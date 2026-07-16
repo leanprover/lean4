@@ -1442,7 +1442,7 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
       addPreDefinitions docCtx preDefs
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
-    if Linter.getLinterValue linter.untrustedAxioms (← Linter.getLinterOptions) then
+    if linter.untrustedAxioms.get (← getOptions) then
       -- lint on the kernel-check chain so that `collectAxioms` does not block elaboration
       let act ← Core.wrapAsyncAsSnapshot (cancelTk? := none)
           (desc := s!"linting axioms of {headers.map (·.declName)}") fun _ =>

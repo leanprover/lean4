@@ -19,13 +19,11 @@ namespace Std.Internal.Do
 
 /-- `wp x` is sub-conjunctive: a meet of postconditions maps below the `wp` of their meet. A
 healthiness condition of the `WP` interpretation for the individual program `x`; it holds for the base
-interpretations and lifts through the transformers. Ranging over `x` rather than the program type lets
-a conjunctive program in an otherwise non-conjunctive interpretation still carry the property. -/
+interpretations and lifts through the transformers. -/
 class WPConjunctive {Prog : Type u} {Value : outParam (Type v)} {Pred : outParam (Type w)}
     {EPred : outParam (Type z)} [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
     (x : Prog) : Prop where
-  /-- A meet of postconditions maps below the `wp` of their meet, jointly in the value and exception
-  postconditions. -/
+  /-- A meet of postconditions maps below the `wp` of their meet. -/
   wp_meet_wp_le (Q₁ Q₂ : Value → Pred) (E₁ E₂ : EPred) :
     wp x Q₁ E₁ ⊓ wp x Q₂ E₂ ⊑ wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)
 

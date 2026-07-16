@@ -10,7 +10,7 @@ public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
 public import Std.Internal.Do.Triple.Basic
-public import Lean.Elab.Tactic.Do.AutoFrame
+public import Lean.Elab.Tactic.Do.ConjunctivePre
 import Init.While
 import Init.Syntax
 import Lean.Meta.Sym.Simp.DiscrTree

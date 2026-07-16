@@ -36,28 +36,20 @@ theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose
 theorem em (p : Prop) : p ∨ ¬p :=
   let U := (p, True)
   let V := (True, p)
-  let f : Prop × Prop → Bool → Prop :=
-    fun p b => bif b then p.2 else p.1
+  let f (p : Prop × Prop) (b : Bool) : Prop := bif b then p.2 else p.1
   have exU : ∃ x, f U x := ⟨true, trivial⟩
   have exV : ∃ x, f V x := ⟨false, trivial⟩
   let u : Bool := choose exU
   let v : Bool := choose exV
   have u_def : f U u := choose_spec exU
   have v_def : f V v := choose_spec exV
-  have huvp : u ≠ v ∨ p :=
+  have huvp : p ∨ u ≠ v :=
     match u, v with
-    | false, _ => Or.inr u_def
-    | _, true => Or.inr v_def
-    | true, false => Or.inl Bool.noConfusion
-  have p_implies_uv : p → u = v :=
-    fun hp =>
-    have hUV : U = V := by simp [hp, U, V]
-    have h₀ : ∀ exU exV, choose exU = choose exV := by
-      rw [hUV]; intros; rfl
-    h₀ ..
-  match huvp with
-  | Or.inl hne => Or.inr (mt p_implies_uv hne)
-  | Or.inr h   => Or.inl h
+    | false, _ => Or.inl u_def
+    | _, true => Or.inl v_def
+    | true, false => Or.inr Bool.noConfusion
+  have p_implies_uv : p → u = v := (by simp [·, u, v, U, V])
+  huvp.imp_right (mt p_implies_uv)
 
 theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ _ : α, True
   | ⟨x⟩ => ⟨x, trivial⟩

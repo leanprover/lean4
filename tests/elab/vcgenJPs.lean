@@ -56,8 +56,6 @@ theorem matches_pure_triple : ⦃ True ⦄ matches_pure f ⦃ fun r => r > 0 ⦄
   vcgen +jp
   all_goals grind
 
-/- Dependent-discriminant matches (`match h : …`) are rejected by `vcgen`'s matcher transform on
-their own, independently of `+jp`. The following three cases are exercised once that support lands.
 def dmatches_pure (f : Nat → Option Nat) : Id Nat := do
   let mut x := 0
   match h : f 0 with | some y => x := x + (cast (congrArg (fun _ => Nat) h) y) + 1 | none => x := x + 2
@@ -73,6 +71,9 @@ theorem dmatches_pure_triple : ⦃ True ⦄ dmatches_pure f ⦃ fun r => r > 0 �
   vcgen +jp
   all_goals grind
 
+/- Multi-discriminant dependent matches make the jump-site precondition a proof-carrying existential
+(`∃ … (h : …), … cast … h …`) that `grind` cannot witness; the two `mixed_matches_*` cases are
+exercised once the join point constructs that witness directly.
 def mixed_matches_pure (f : Nat → Option Nat) : Id Nat := do
   let mut x := 0
   match h : f 0, f 10 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
@@ -126,7 +127,7 @@ theorem set42_triple : ⦃ fun _ => True ⦄ set42 ⦃ fun _ s => ⌜s > 13⌝ �
   vcgen [set42]
   grind
 
--- Blocked on the same dependent-discriminant matcher-transform support.
+-- Same proof-carrying-existential gap as `mixed_matches_pure`.
 /-
 def mixed_matches_state (f : Nat → Option Nat) : StateM Nat Nat := do
   set 42

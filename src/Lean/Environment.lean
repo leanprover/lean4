@@ -2464,10 +2464,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     let some data := mod.irData? loadIRSig |
       throw <| IO.userError s!"missing IR data file for module {mod.module}"
     return data
-  -- Size the lookup cache to the import set; see `ImportedConsts.reserveCache`.
-  let numNames := moduleData.foldl (· + ·.constNames.size) 0
-    + irData.foldl (· + ·.extraConstNames.size) 0
-  ImportedConsts.reserveCache numNames.toUSize
   -- Merge the region-resident per-module prefix trees instead of building hash maps over all
   -- imported constants; only name prefixes shared between modules are allocated here.
   let (privImported, privDups) :=

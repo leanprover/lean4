@@ -376,14 +376,6 @@ hold them; clearing merely reopens their slots.
 @[extern "lean_imported_consts_cache_reset"]
 public opaque resetCache : IO Unit
 
-/--
-Hints the total number of imported constants to the process-global lookup cache, growing its table
-if necessary so that lookups over the whole import set can be cached without displacing each other.
-With more distinct names than slots, sweep-style workloads degrade every lookup to a tree walk.
--/
-@[extern "lean_imported_consts_cache_reserve"]
-public opaque reserveCache (numNames : USize) : IO Unit
-
 public def find? (t : ImportedConsts α) (n : Name) : Option α :=
   let path := prefixesOf n
   t.findValAux path path.size

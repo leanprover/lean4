@@ -9,30 +9,45 @@ prelude
 public import Lean.Meta.Basic
 public import Std.Internal.Do.Triple.Basic
 
-public section
-
 /-!
 # Conjunctive preconditions: a syntactic sufficient condition for automatic framing
 
-`vcgen` may apply a `@[spec]` `specPre Q E ⊑ wp prog Q E` directly, without any frame machinery, and
-still carry an arbitrary frame `F` through the call, exactly when the precondition, read as a function
-of its schematic postconditions `Q`/`E`, is **conjunctive**: `specPre a ⊓ specPre b ⊑ specPre (a ⊓ b)`.
-Reinstantiating `Q ↦ Q ⊓ F` then splits the frame off — `specPre F ⊓ specPre Q ⊑ specPre (F ⊓ Q)` — so
-`specPre F` becomes a side goal and `goalPre` stays on the left of the residual entailment. That is the
-automatic-framing quality this module detects.
+Recall what framing a call `x` asks of us. To carry a frame `F` past `x` — `x` runs without disturbing
+`F` — we must discharge `F ⊓ P ⊑ wp x (fun a => F ⊓ Q a)`: `F` holds beforehand and survives into every
+postcondition. The `F` we supply has to be a frame `wp x` admits, and we want the *strongest* such one.
+We cannot compute it — guessing the strongest frame a `wp` admits is undecidable in general.
 
-`isConjunctiveInPosts` decides a **sufficient syntactic condition** for it: every occurrence of `Q`/`E`
-in the precondition sits in a conjunctive context — a `wp` postcondition or exception-postcondition
-argument, a `⊓`/`∧`/`⨅` operand, a `⇨` consequent, an `EPost.Cons.head` projection, applied at a tail,
-or under a `λ` — and `Q`/`E` occur in no premise nor in the program. Conjunctive contexts compose and
-combine under `⊓`, so a precondition built only from these is conjunctive, hence the spec auto-frames.
+The point of this module: for a **conjunctive** `wp x` we never name `F`. It stays a symbolic stand-in
+for "the strongest admissible frame". Reading the postcondition as `Q ⊓ F` — the real postcondition met
+with the abstract frame — conjunctivity `wp x Q ⊓ wp x F ⊑ wp x (Q ⊓ F)` turns the framed goal
+`F ⊓ P ⊑ wp x (Q ⊓ F)` into
 
-The `wp` argument **assumes** the program's `wp` is conjunctive (`wp x (Q₁ ⊓ Q₂) E = wp x Q₁ E ⊓ wp x
-Q₂ E`). Conjunctivity is a per-program semantic fact, not visible in the spec's syntax, and it is
-preserved by every combinator, so recursing through a `wp` defers the frame decision to that
-sub-program: a leaf whose `wp` is genuinely non-conjunctive states its precondition with a
-non-conjunctive operator, which no arm matches, and is rejected on its own terms. A spec can force
-rejection with a trivial `Q = Q` premise.
+    P ⊑ wp x Q          -- the plain, unframed goal
+    F ⊓ P ⊑ wp x F      -- the frame side-condition: `x` preserves `F`
+
+with `F` never instantiated. It comes from nowhere.
+
+A `@[spec]` `specPre Q E ⊑ wp prog Q E` inherits this the moment `specPre`, read as a function of its
+schematic postconditions `Q`/`E`, is itself conjunctive: `specPre a ⊓ specPre b ⊑ specPre (a ⊓ b)`. Then
+applying the spec directly leaves `goalPre ⊑ specPre Q E`, and the same split carries any frame sitting
+in `goalPre`. Such preconditions, as functions of `Q`/`E`, look like:
+
+    get    ↦  fun s => Q s s
+    throw  ↦  E.head err
+    bind   ↦  wp x (fun a => wp (f a) Q E) E
+
+`isConjunctiveInPosts` decides a **sufficient syntactic condition** for `specPre` being conjunctive:
+every occurrence of `Q`/`E` sits in a conjunctive context — a `wp` postcondition or
+exception-postcondition argument, a `⊓`/`∧`/`⨅` operand, a `⇨` consequent, an `EPost.Cons.head`
+projection, applied at a tail, or under a `λ`. An occurrence of `Q`/`E` in a premise is rejected; this
+is the opt-out, so a spec forces rejection with a trivial `Q = Q` premise. See
+`WP.Frames.of_wpConjunctive`.
+
+The `wp` arm **assumes** the program's `wp` is conjunctive: `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂) = wp x Q₁ E₁ ⊓ wp
+x Q₂ E₂` — a per-program semantic fact, not visible in the syntax, preserved by every combinator. So
+recursing through a `wp` defers the frame decision to that sub-program; a genuinely non-conjunctive
+leaf states its precondition with a non-conjunctive operator that no arm matches, and is rejected on
+its own terms.
 -/
 
 namespace Lean.Elab.Tactic.Do.Internal.SpecAttr
@@ -41,7 +56,7 @@ open Lean Meta Std.Internal.Do Lean.Order
 
 /-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
 either `Triple` or `pre ⊑ wp …` shape. -/
-def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
+private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
   match_expr concl with
   | PartialOrder.rel _ _ pre rhs =>
     match_expr rhs with
@@ -84,17 +99,15 @@ private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
       | _ => false
 
 /-- Whether the spec's precondition is conjunctive in its schematic postconditions (`Q` and/or `E`):
-each occurs only where the precondition is conjunctive, and in no premise nor in the program. Such a
-spec carries any frame when applied directly. The `binders` are the spec's `∀`-telescoped parameters
-and premises. -/
-def isConjunctiveInPosts (concl : Expr) (binders : Array Expr) : MetaM Bool := do
+each occurs only in conjunctive contexts, and in no premise nor in the program. The `binders` are the
+spec's `∀`-telescoped parameters and premises. -/
+public def isConjunctiveInPosts (concl : Expr) (binders : Array Expr) : MetaM Bool := do
   let some (pre, prog, post, epost) := specComponents? concl | return false
   let qs := #[post, epost].filterMap fun e => match e.eta with | .mvar q => some q | _ => none
   if qs.isEmpty then return false
   if occursMVar qs prog then return false
   for b in binders do
     if occursMVar qs (← inferType b) then return false
-  unless occursMVar qs pre do return false
   return isConjunctiveIn qs pre
 
 end Lean.Elab.Tactic.Do.Internal.SpecAttr

@@ -18,7 +18,7 @@ A `frames` alternative attaches a state assertion `F` to a matched program whose
 frame precondition and the `Frames` side goal, and recovers `F` in the postcondition.
 
 The `Frames` side goal is established by `frames_mkFreshNat`, which reduces it through
-`WP.Frames.of_wp_conjunctive` to a preservation triple `F ⊑ wp x (fun _ => F)` (using `WPConjunctive`
+`WP.Frames.of_wpConjunctive` to a preservation triple `F ⊑ wp x (fun _ => F)` (using `WPConjunctive`
 for the monad); `mkFreshNat` writes only `fst`, so it preserves any `snd`-fact.
 
 The `recovers_*` proofs run at the `Id` base monad and register the `_Id` specializations of these
@@ -49,12 +49,12 @@ theorem mkFreshNat_spec_lossy [Monad m] [Assertion Pred] [Assertion EPred] [WPMo
   vcgen <;> simp_all
 
 /-- `mkFreshNat` frames any `P` outside its `fst` footprint. The frame condition reduces through
-`of_wp_conjunctive` to the preservation triple, which holds since `mkFreshNat` overwrites only `fst`. -/
+`of_wpConjunctive` to the preservation triple, which holds since `mkFreshNat` overwrites only `fst`. -/
 theorem frames_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : AppState → Pred}
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (· ⊓ ·) (mkFreshNat : StateT AppState m Nat) P := by
-  refine .of_wp_conjunctive (fun E => ?_)
+  refine .of_wpConjunctive (fun E => ?_)
   -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold mkFreshNat
@@ -113,7 +113,7 @@ theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : AppState → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (· ⊓ ·) (mkFreshSnd : StateT AppState m Nat) P := by
-  refine .of_wp_conjunctive (fun E => ?_)
+  refine .of_wpConjunctive (fun E => ?_)
   -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold mkFreshSnd
@@ -179,7 +179,7 @@ theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : AppState → Pred} {k : Nat}
     (h : ∀ s a, P { s with fst := a } = P s) :
     WP.Frames (· ⊓ ·) (addFst k : StateT AppState m Nat) P := by
-  refine .of_wp_conjunctive (fun E => ?_)
+  refine .of_wpConjunctive (fun E => ?_)
   -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold addFst
@@ -229,7 +229,7 @@ theorem frames_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β, WPConjunctive (m β) β Pred EPred] {P : σ × Nat → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
     WP.Frames (· ⊓ ·) (bumpSnd : StateT (σ × Nat) m Nat) P := by
-  refine .of_wp_conjunctive (fun E => ?_)
+  refine .of_wpConjunctive (fun E => ?_)
   -- FIXME: use `vcgen [bumpSnd] with finish` here once the Pattern.match? level bug is fixed
   intro s
   unfold bumpSnd

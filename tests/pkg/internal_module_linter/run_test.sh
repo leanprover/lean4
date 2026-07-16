@@ -1,6 +1,6 @@
 rm -rf .lake
 
-# Build all test modules; the `Main` lib enables `linter.internalModule` directly via
+# Build all test modules; the `Main` lib enables `linter.coreInternal.internalModule` directly via
 # `leanOptions` in the lakefile, the `SetMain` lib enables only the `linter.coreInternal` set.
 capture lake build Main SetMain
 
@@ -22,7 +22,7 @@ check_out_contains '`viaSetLeaky` is a non-internal declaration in the internal 
 # Internal declarations (private, `Lean` namespace, `Internal` name component) must not be
 # flagged, and neither must declarations in non-internal modules: `UsesInternalHelpers` only
 # contains "Internal" as a substring of a component, and `Regular` does not match at all.
-# `viaSetDisabled` sets `linter.internalModule false` locally, which overrides the enabled set.
+# `viaSetDisabled` sets `linter.coreInternal.internalModule false` locally, which overrides the enabled set.
 for decl in privateHelper pkgTestHelper Internal.helper Impl.Internal.deepHelper substringLeaky regularDef viaSetDisabled; do
   if grep -Fq "\`$decl\`" "$CAPTURED.out.produced"; then
     fail "$decl should not trigger the internalModule linter"

@@ -16,6 +16,6 @@ is registered as a builtin option in `Lean.Linter.Init`. -/
 builtin_initialize
   addBuiltinLinterSet `linter.coreInternal <|
     NameSet.empty
-      |>.insert `linter.internalModule
+      |>.insert `linter.coreInternal.internalModule
 
 end Lean.Linter

@@ -10,7 +10,7 @@ roots = [
   "UsesInternalHelpers",
   "Regular",
 ]
-leanOptions = { linter.internalModule = true }
+leanOptions = { linter.coreInternal.internalModule = true }
 
 [[lean_lib]]
 name = "SetMain"

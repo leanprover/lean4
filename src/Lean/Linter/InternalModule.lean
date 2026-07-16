@@ -27,7 +27,7 @@ This linter is off by default and is not intended for use by non-core projects. 
 of the `linter.coreInternal` set, so it can also be enabled via `set_option linter.coreInternal
 true`.
 -/
-register_builtin_option linter.internalModule : Bool := {
+register_builtin_option linter.coreInternal.internalModule : Bool := {
   defValue := false
   descr := "enable the `internalModule` linter, which warns when a module considered \
     \"internal\" declares a declaration that is not itself \"internal\"."
@@ -63,10 +63,10 @@ def isInternalDecl (declName : Name) : Bool :=
     internalDeclNamespaces.any (·.isPrefixOf declName) ||
     hasInternalNameComponent declName
 
-@[inherit_doc linter.internalModule]
+@[inherit_doc linter.coreInternal.internalModule]
 def internalModuleLinter : Linter where run := withSetOptionIn fun _ => do
   if (← get).messages.hasErrors then return
-  unless getLinterValue linter.internalModule (← getLinterOptions) do return
+  unless getLinterValue linter.coreInternal.internalModule (← getLinterOptions) do return
   let env ← getEnv
   let mainModule := env.mainModule
   -- The linter only constrains declarations introduced by internal modules.
@@ -78,7 +78,7 @@ def internalModuleLinter : Linter where run := withSetOptionIn fun _ => do
       seen := seen.insert declName
       unless env.contains declName do continue
       if isInternalDecl declName then continue
-      logLint linter.internalModule (← getRef)
+      logLint linter.coreInternal.internalModule (← getRef)
         m!"`{.ofConstName declName}` is a non-internal declaration in the internal module \
           `{mainModule}`; declarations in internal modules should themselves be internal.\n\
           \n\

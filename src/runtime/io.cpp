@@ -160,105 +160,11 @@ static FILE * io_get_handle(lean_object * hfile) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname) {
-    object * details = mk_string(strerror(errnum));
-    // Keep in sync with lean_decode_uv_error below
-    switch (errnum) {
-    case EINTR:
-        lean_assert(fname != nullptr);
-        inc_ref(fname);
-        return lean_mk_io_error_interrupted(fname, errnum, details);
-    case ELOOP: case ENAMETOOLONG: case EDESTADDRREQ:
-    case EBADF: case EDOM: case EINVAL: case EILSEQ:
-    case ENOEXEC: case ENOSTR: case ENOTCONN:
-    case ENOTSOCK:
-        if (fname == nullptr) {
-            return lean_mk_io_error_invalid_argument(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_invalid_argument_file(fname, errnum, details);
-        }
-    case ENOENT:
-        lean_assert(fname != nullptr);
-        inc_ref(fname);
-        return lean_mk_io_error_no_file_or_directory(fname, errnum, details);
-    case EACCES: case EROFS: case ECONNABORTED: case EFBIG:
-    case EPERM:
-        if (fname == nullptr) {
-            return lean_mk_io_error_permission_denied(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_permission_denied_file(fname, errnum, details);
-        }
-    case EMFILE: case ENFILE: case ENOSPC:
-    case E2BIG:  case EAGAIN: case EMLINK:
-    case EMSGSIZE: case ENOBUFS: case ENOLCK:
-    case ENOMEM: case ENOSR:
-        if (fname == nullptr) {
-            return lean_mk_io_error_resource_exhausted(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
-        }
-    case EISDIR: case EBADMSG: case ENOTDIR:
-        if (fname == nullptr) {
-            return lean_mk_io_error_inappropriate_type(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
-        }
-    case ENXIO: case EHOSTUNREACH: case ENETUNREACH:
-    case ECHILD: case ECONNREFUSED: case ENODATA:
-    case ENOMSG: case ESRCH:
-        if (fname == nullptr) {
-            return lean_mk_io_error_no_such_thing(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
-        }
-    case EEXIST: case EINPROGRESS: case EISCONN:
-        if (fname == nullptr) {
-            return lean_mk_io_error_already_exists(errnum, details);
-        } else {
-            inc_ref(fname);
-            return lean_mk_io_error_already_exists_file(fname, errnum, details);
-        }
-    case EIO:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_hardware_fault(errnum, details);
-    case ENOTEMPTY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsatisfied_constraints(errnum, details);
-    case ENOTTY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_illegal_operation(errnum, details);
-    case ECONNRESET: case EIDRM: case ENETDOWN: case ENETRESET:
-    case ENOLINK: case EPIPE:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_vanished(errnum, details);
-    case EPROTO: case EPROTONOSUPPORT: case EPROTOTYPE:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_protocol_error(errnum, details);
-    case ETIME: case ETIMEDOUT:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_time_expired(errnum, details);
-    case EADDRINUSE: case EBUSY: case EDEADLK: case ETXTBSY:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_resource_busy(errnum, details);
-    case EADDRNOTAVAIL: case EAFNOSUPPORT: case ENODEV:
-    case ENOPROTOOPT: case ENOSYS: case EOPNOTSUPP:
-    case ERANGE: case ESPIPE: case EXDEV:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_unsupported_operation(errnum, details);
-    case EFAULT:
-    default:
-        lean_assert(fname == nullptr);
-        return lean_mk_io_error_other_error(errnum, details);
-    }
+    return lean_decode_uv_error(uv_translate_sys_error(errnum), fname);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
-    // Keep in sync with lean_decode_io_error above
     switch (errnum) {
     case UV_EINTR:
         lean_assert(fname != nullptr);

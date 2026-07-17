@@ -427,14 +427,26 @@ private def tryAssignJPHyps (jpInfo : JPDefInfo) (e : Expr) : VCGenM (Option (Na
             matchedIdxs := matchedIdxs.push j
             cursor := j + 1
             break
-      let mut restDecls : Array LocalDecl := #[]
-      for j in [:newLocalDecls.size] do
-        unless matchedIdxs.contains j do
-          restDecls := restDecls.push newLocalDecls[j]!
-      let restLocals := restDecls.map LocalDecl.toExpr
-      -- `∃ rest, joinParams = joinArgs`, existentially/let-closing only the unpaired locals; the
-      -- paired ones are then rewritten to the mvar's own alt binders.
       let eqs ← (jpBinders.mapIdx fun i jp => (jp, i)).mapM fun (jp, i) => Meta.mkEq jp joinArgs[i]!
+      -- Close only over the unpaired locals the equalities transitively reference (through kept
+      -- lets' values); split bookkeeping like overlap hypotheses and added discriminant equalities
+      -- is re-derived on the consuming side when the match hypothesis is split, so it is dropped.
+      -- Right-to-left suffices: a local can only reference earlier ones.
+      let mut restDeclsRev : Array LocalDecl := #[]
+      let mut referenced : Array Expr := #[← instantiateMVars (mkAndN eqs.toList)]
+      for j' in [:newLocalDecls.size] do
+        let j := newLocalDecls.size - 1 - j'
+        if matchedIdxs.contains j then continue
+        let decl := newLocalDecls[j]!
+        if referenced.any (·.containsFVar decl.fvarId) then
+          restDeclsRev := restDeclsRev.push decl
+          referenced := referenced.push (← instantiateMVars decl.type)
+          if let some v := decl.value? then
+            referenced := referenced.push (← instantiateMVars v)
+      let restDecls := restDeclsRev.reverse
+      let restLocals := restDecls.map LocalDecl.toExpr
+      -- `∃ rest, joinParams = joinArgs`, existentially/let-closing the kept locals; the paired ones
+      -- are then rewritten to the mvar's own alt binders.
       let (_, φPropClosed) ← restDecls.foldrM (init := (restLocals, (mkAndN eqs.toList).abstract restLocals))
           fun decl (locals, φ) => do
         let locals := locals.pop

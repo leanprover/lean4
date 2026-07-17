@@ -265,14 +265,14 @@ private def keepPred : Nat → Prop := fun n => n = 0
 -- `keepFrame` saturates to a non-connective head, so the default terminal produces a rule.
 run_meta do
   let rhs ← Meta.mkAppM ``keepFrame #[mkNatLit 3, mkConst ``keepPred]
-  let _ ← mkLatticeOpRule rhs { head := ``keepFrame, rewrites := #[``keepFrame_apply] }
+  let _ ← SymM.run <| mkLatticeOpRule rhs { head := ``keepFrame, rewrites := #[``keepFrame_apply] }
 
 -- Stripped of its rewrite the operator neither reduces nor closes, so its split would be the identity.
 /-- error: frame operator `keepFrame` neither reduces nor has a registered terminal; its lattice split rule would be the identity -/
 #guard_msgs in
 run_meta do
   let rhs ← Meta.mkAppM ``keepFrame #[mkNatLit 3, mkConst ``keepPred]
-  let _ ← mkLatticeOpRule rhs { head := ``keepFrame }
+  let _ ← SymM.run <| mkLatticeOpRule rhs { head := ``keepFrame }
 
 /-! ## Looping and automatic framing across calls -/
 

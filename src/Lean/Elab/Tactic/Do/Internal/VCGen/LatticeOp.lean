@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Do.Order.Heyting
 public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProc
+import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
 
@@ -74,36 +75,30 @@ private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (N
   return m
 
 /--
-Saturate `e` by rewriting at the root with the first applicable equation from `rewrites`, handling
-over-application, until none applies. Returns the reduced expression and, when a rewrite fired, a proof
-`e = reduced`. Unification (`isDefEq`) drives the match, so schematic operands are supported. `fuel`
-bounds the rewrite chain, turning a non-terminating `@[frameproc]` rewrite set into an error.
+Saturate `e` by rewriting at the root with the equations from `rewrites`, handling over-application,
+until none applies. Returns the reduced expression and, when a rewrite fired, a proof `e = reduced`.
+`Sym.Simp` pattern matching drives the rewriting, so schematic (metavariable) operands are supported.
+`fuel` bounds the rewrite chain, turning a non-terminating `@[frameproc]` rewrite set into an error.
 -/
-private partial def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
-    MetaM (Expr × Option Expr) := do
-  if fuel == 0 then
-    throwError "lattice saturation did not terminate; a registered `@[frameproc]` rewrite set is \
-      likely non-terminating on{indentExpr e}"
-  for n in rewrites do
-    let saved ← saveState
-    let lemConst ← mkConstWithFreshMVarLevels n
-    let (mvars, _, eqTy) ← forallMetaTelescopeReducing (← Meta.inferType lemConst)
-    if let some (_, lhs, rhs) := (← instantiateMVars eqTy).eq? then
-      let m := lhs.getAppNumArgs
-      if m ≤ e.getAppNumArgs then
-        let eArgs := e.getAppArgs
-        let ePrefix := mkAppN e.getAppFn (eArgs.extract 0 m)
-        let extra := eArgs.extract m eArgs.size
-        if ← isDefEq lhs ePrefix then
-          -- Lift the equation `lhs = rhs` across the over-application `extra` with iterated `congrFun`.
-          let stepProof ← extra.foldlM (fun h a => mkCongrFun h a) (mkAppN lemConst mvars)
-          let (reduced, rest?) ← saturateLatticeOp rewrites (mkAppN rhs extra) (fuel - 1)
-          let proof ← match rest? with
-            | none => pure stepProof
-            | some restProof => mkEqTrans stepProof restProof
-          return (reduced, some proof)
-    saved.restore
-  return (e, none)
+private def saturateLatticeOp (rewrites : Array Name) (e : Expr) (fuel : Nat := 256) :
+    SymM (Expr × Option Expr) := do
+  let thms ← rewrites.foldlM (init := ({} : Simp.Theorems)) fun thms n =>
+    return thms.insert (← Simp.mkTheoremFromDecl n)
+  let step : Simp.Simproc := Simp.Theorems.rewrite thms
+  let e₀ ← shareCommon e
+  go step e₀ e₀ none fuel
+where
+  go (step : Simp.Simproc) (e₀ cur : Expr) (proof? : Option Expr) : Nat → SymM (Expr × Option Expr)
+    | 0 => throwError "lattice saturation did not terminate; a registered `@[frameproc]` rewrite \
+        set is likely non-terminating on{indentExpr cur}"
+    | fuel + 1 => do
+      match ← (step cur).run' with
+      | .rfl .. => return (cur, proof?)
+      | .step next h _ _ =>
+        let proof ← match proof? with
+          | none => pure h
+          | some p => Simp.mkEqTrans e₀ cur p next h
+        go step e₀ next (some proof) fuel
 
 /--
 Point-frame the state chain `ss` of a goal `pre ⊑ opAs s₁ … sₙ`: peel the innermost argument via
@@ -143,7 +138,7 @@ operator neither reduces nor has a terminal, since its rule would be the identit
 For `⊓`, produces `∀ a b s⃗ pre, pre ⊑ a s⃗ → pre ⊑ b s⃗ → pre ⊑ (a ⊓ b) s⃗`. For the opaque residual
 `upperAdjoint f b`, produces `∀ f b s⃗ pre, f (fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ b → pre ⊑ upperAdjoint f b s⃗`.
 -/
-public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : MetaM BackwardRule := do
+public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := do
   -- Merge the operator's own rewrites and terminal with the built-in connective seeds: saturation can
   -- reduce to any built-in connective, so its rewrites and terminals are always in scope. On a head
   -- clash the operator's own contribution wins: its rewrite is tried first, its terminal inserted last.

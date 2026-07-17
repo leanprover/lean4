@@ -116,7 +116,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
             specThms := specThms.insert thm
         catch _ => continue
   let backwardRules ← VCGen.mkBackwardRules
-  let allSpecThms ← extendWithSimpSpecs specThms simpThms
+  let allSpecThms ← addSimpSpecs specThms simpThms
   let ctx : VCGen.Context := { backwardRules }
   return (ctx, { specs := allSpecThms })
 

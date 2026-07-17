@@ -18,8 +18,8 @@ open Lean Meta Elab Tactic Sym
 Spec-theorem database used by `vcgen`. The `@[spec]` attribute already stores
 `Std.Internal.Do` specs as pattern-keyed `SpecTheorem`s (see `Lean.Elab.Tactic.Do.Attr`);
 this module adds the operations the VC generator needs on top: instantiating a spec to
-`pre ⊑ wp …` form, migrating the equational lemmas registered through the `mvcgen_simp`
-side of `@[spec]` into the same database, and looking up the specs matching a program.
+`pre ⊑ wp …` form, folding a `vcgen [...]` call's simp-style arguments into the same
+database, and looking up the specs matching a program.
 -/
 
 namespace Lean.Elab.Tactic.Do.Internal
@@ -79,16 +79,13 @@ public def SpecAttr.SpecTheorem.global? (specThm : SpecTheorem) : Option Name :=
 namespace VCGen
 
 /--
-Extend the `@[spec]` database with the equational lemmas registered through the `mvcgen_simp`
-side of `@[spec]`:
-- simp theorem declarations registered directly as `@[spec]`,
-- unfold entries registered with `attribute [spec] foo`, using stored equation lemmas when
-  available and falling back to `Meta.getEqnsFor?`.
+Extend the spec `database` with the specs a `vcgen [...]` call's simp-style arguments contribute
+(`simpSpecTheorems` over the `simpThms` that `mkSimpContext` collected).
 
 Hoare triple and `⊑ wp` specs are already in `database`: the attribute stores them pattern-keyed
 at annotation time.
 -/
-public def extendWithSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorems) :
+public def addSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorems) :
     MetaM SpecTheorems := do
   let mut specs := database.specs
   -- Erased entries are still inserted into `specs` below; `findSpecs` filters them out
@@ -97,28 +94,16 @@ public def extendWithSimpSpecs (database : SpecTheorems) (simpThms : SimpTheorem
     match SpecProof.ofOrigin o with
     | some p => acc.insert p
     | none => acc
-  -- Add simp spec theorems (equational lemmas registered via `@[spec]`)
-  for simpThm in simpThms.post.values do
-    if let .decl declName .. := simpThm.origin then
-      try
-        if let some newSpec ← mkSpecTheoremFromSimpDecl? declName simpThm.priority then
-          specs := Sym.insertPattern specs newSpec.pattern newSpec
-      catch e =>
-        trace[Elab.Tactic.Do.vcgen] "Failed to add simp spec {declName}: {e.toMessageData}"
-  -- Add definitions to unfold (registered via `attribute [spec] foo`)
-  for declName in simpThms.toUnfold.toList do
-    let eqThms ← match simpThms.toUnfoldThms.find? declName with
-      | some eqThms => pure eqThms
-      | none =>
-        -- No explicit equational theorems stored; generate them via `getEqnsFor?`
-        let some eqThms ← Meta.getEqnsFor? declName | continue
-        pure eqThms
-    for eqThm in eqThms do
-      try
-        if let some newSpec ← mkSpecTheoremFromSimpDecl? eqThm (prio := eval_prio default) then
-          specs := Sym.insertPattern specs newSpec.pattern newSpec
-      catch e =>
-        trace[Elab.Tactic.Do.vcgen] "Failed to add unfold spec {declName}/{eqThm}: {e.toMessageData}"
+  -- Only post-rewrite simp lemmas become specs, so a `↓`-marked (pre-rewrite) argument is dropped.
+  for simpThm in simpThms.pre.values do
+    logWarning m!"`vcgen` uses only post-rewrite simp lemmas as specs; ignoring the pre-rewrite \
+      lemma `{simpThm.origin.key}`."
+  -- `mkSimpContext` splits a bracketed definition into its equations (in `post`) and a `toUnfold`
+  -- entry; feed both back to `simpSpecTheorems` as the `SimpEntry`s the definition would produce.
+  let entries := simpThms.post.values.map (SimpEntry.thm ·)
+    ++ simpThms.toUnfold.toList.toArray.map (SimpEntry.toUnfold ·)
+  for newSpec in ← simpSpecTheorems entries (eval_prio default) do
+    specs := Sym.insertPattern specs newSpec.pattern newSpec
   return { specs, erased }
 
 end VCGen

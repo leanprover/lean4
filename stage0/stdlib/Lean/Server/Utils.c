@@ -20,7 +20,7 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_crlfToLf(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_String_toFileMap(lean_object*);
+lean_object* l_Lean_String_toFileMap(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_mk_io_user_error(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -1143,7 +1143,7 @@ v___x_299_ = lean_string_append(v_pre_295_, v___x_298_);
 lean_dec_ref(v___x_298_);
 v___x_300_ = lean_string_append(v___x_299_, v_post_297_);
 lean_dec_ref(v_post_297_);
-v___x_301_ = l_String_toFileMap(v___x_300_);
+v___x_301_ = l_Lean_String_toFileMap(v___x_300_);
 return v___x_301_;
 }
 }
@@ -1180,7 +1180,7 @@ lean_inc_ref(v_text_311_);
 lean_dec_ref_known(v_x_307_, 1);
 v___x_312_ = l_String_crlfToLf(v_text_311_);
 lean_dec_ref(v_text_311_);
-v___x_313_ = l_String_toFileMap(v___x_312_);
+v___x_313_ = l_Lean_String_toFileMap(v___x_312_);
 return v___x_313_;
 }
 }

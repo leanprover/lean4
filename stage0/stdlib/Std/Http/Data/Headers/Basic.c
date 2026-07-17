@@ -2176,11 +2176,11 @@ if (v___x_667_ == 0)
 lean_dec(v___y_664_);
 if (v___x_667_ == 0)
 {
-return v___y_662_;
+return v___y_663_;
 }
 else
 {
-return v___y_663_;
+return v___y_662_;
 }
 }
 else
@@ -2193,16 +2193,16 @@ if (v_lastIsChunked_669_ == 0)
 {
 if (v___x_667_ == 0)
 {
+return v___y_663_;
+}
+else
+{
 return v___y_662_;
+}
 }
 else
 {
 return v___y_663_;
-}
-}
-else
-{
-return v___y_662_;
 }
 }
 }
@@ -2210,7 +2210,7 @@ else
 {
 lean_dec(v___y_664_);
 lean_dec(v___y_661_);
-return v___y_663_;
+return v___y_662_;
 }
 }
 v___jp_670_:
@@ -2260,8 +2260,8 @@ v___x_687_ = ((lean_object*)(l_Std_Http_Header_TransferEncoding_Validate___close
 v___x_688_ = lean_nat_dec_lt(v___x_685_, v___x_686_);
 if (v___x_688_ == 0)
 {
-v___y_671_ = v___x_684_;
-v___y_672_ = v___y_683_;
+v___y_671_ = v___y_683_;
+v___y_672_ = v___x_684_;
 v___y_673_ = v___x_687_;
 goto v___jp_670_;
 }
@@ -2273,8 +2273,8 @@ if (v___x_689_ == 0)
 {
 if (v___x_688_ == 0)
 {
-v___y_671_ = v___x_684_;
-v___y_672_ = v___y_683_;
+v___y_671_ = v___y_683_;
+v___y_672_ = v___x_684_;
 v___y_673_ = v___x_687_;
 goto v___jp_670_;
 }
@@ -2284,8 +2284,8 @@ size_t v___x_690_; size_t v___x_691_; lean_object* v___x_692_;
 v___x_690_ = ((size_t)0ULL);
 v___x_691_ = lean_usize_of_nat(v___x_686_);
 v___x_692_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1(v_codings_659_, v___x_690_, v___x_691_, v___x_687_);
-v___y_671_ = v___x_684_;
-v___y_672_ = v___y_683_;
+v___y_671_ = v___y_683_;
+v___y_672_ = v___x_684_;
 v___y_673_ = v___x_692_;
 goto v___jp_670_;
 }
@@ -2296,8 +2296,8 @@ size_t v___x_693_; size_t v___x_694_; lean_object* v___x_695_;
 v___x_693_ = ((size_t)0ULL);
 v___x_694_ = lean_usize_of_nat(v___x_686_);
 v___x_695_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1(v_codings_659_, v___x_693_, v___x_694_, v___x_687_);
-v___y_671_ = v___x_684_;
-v___y_672_ = v___y_683_;
+v___y_671_ = v___y_683_;
+v___y_672_ = v___x_684_;
 v___y_673_ = v___x_695_;
 goto v___jp_670_;
 }

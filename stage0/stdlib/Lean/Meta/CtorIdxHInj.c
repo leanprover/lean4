@@ -2646,7 +2646,7 @@ v___x_962_ = 0;
 v___x_963_ = 1;
 v___x_964_ = 0;
 v___x_965_ = 2;
-v___x_966_ = lean_alloc_ctor(0, 0, 19);
+v___x_966_ = lean_alloc_ctor(0, 0, 20);
 lean_ctor_set_uint8(v___x_966_, 0, v___x_962_);
 lean_ctor_set_uint8(v___x_966_, 1, v___x_962_);
 lean_ctor_set_uint8(v___x_966_, 2, v___x_962_);
@@ -2666,6 +2666,7 @@ lean_ctor_set_uint8(v___x_966_, 15, v___x_957_);
 lean_ctor_set_uint8(v___x_966_, 16, v___x_957_);
 lean_ctor_set_uint8(v___x_966_, 17, v___x_957_);
 lean_ctor_set_uint8(v___x_966_, 18, v___x_957_);
+lean_ctor_set_uint8(v___x_966_, 19, v___x_962_);
 v___x_967_ = l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(v___x_966_);
 v___x_968_ = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(v___x_968_, 0, v___x_966_);
@@ -2798,8 +2799,8 @@ else
 {
 uint8_t v___x_1000_; lean_object* v___x_1001_; lean_object* v___x_1002_; 
 lean_dec(v___x_960_);
-lean_dec(v_pre_954_);
 lean_dec_ref_known(v_name_946_, 2);
+lean_dec(v_pre_954_);
 lean_dec(v___x_945_);
 v___x_1000_ = 0;
 v___x_1001_ = lean_box(v___x_1000_);

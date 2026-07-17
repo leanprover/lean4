@@ -147,10 +147,10 @@ Return the VCs and invariant goals.
 `stepLimit?`, when `some n`, seeds the fuel counter to `n`; when `none`, fuel is unlimited.
 -/
 public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
-    (stepLimit? : Option Nat := none) (frameDB? : Option (Deferred FrameDB) := none) :
+    (stepLimit? : Option Nat := none) (frameDB : FrameDB := {}) :
     Grind.GrindM Result := do
   let initState : State :=
-    { fuel := match stepLimit? with | some n => .limited n | none => .unlimited, frameDB? }
+    { fuel := match stepLimit? with | some n => .limited n | none => .unlimited, frameDB }
   -- VCGen temporarily violates the `SymM` folded-projections invariant: `reduceHead?`
   -- exposes kernel projections in intermediate terms and restores the invariant in its
   -- final result, so the `shareCommon` kernel-projection check is disabled.
@@ -160,9 +160,8 @@ public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
   _ ← state.vcs.mapIdxM fun idx g => do
     g.mvarId.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← g.mvarId.getTag).eraseMacroScopes)
   let vcs ← state.vcs.filterM (not <$> ·.mvarId.isAssigned)
-  let unmatchedFrames := match state.frameDB? with
-    | some (.elaborated db) => db.entries.filterMap fun e => if e.retired then none else some e.frameStx
-    | _ => #[]
+  let unmatchedFrames := state.frameDB.entries.filterMap fun e =>
+    if e.retired then none else some e.frameStx
   return {
     invariants := state.invariants,
     vcs,

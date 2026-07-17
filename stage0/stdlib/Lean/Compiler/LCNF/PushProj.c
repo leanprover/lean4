@@ -776,8 +776,8 @@ if (v___x_255_ == 0)
 lean_dec_ref(v___x_248_);
 lean_dec_ref(v___x_247_);
 v___y_220_ = v___y_253_;
-v___y_221_ = v___y_254_;
-v___y_222_ = v_fvar_250_;
+v___y_221_ = v_fvar_250_;
+v___y_222_ = v___y_254_;
 v___y_223_ = v___y_252_;
 v___y_224_ = v___y_251_;
 goto v___jp_219_;
@@ -804,8 +804,8 @@ else
 lean_dec_ref(v___x_248_);
 lean_dec_ref(v___x_247_);
 v___y_220_ = v___y_253_;
-v___y_221_ = v___y_254_;
-v___y_222_ = v_fvar_250_;
+v___y_221_ = v_fvar_250_;
+v___y_222_ = v___y_254_;
 v___y_223_ = v___y_252_;
 v___y_224_ = v___y_251_;
 goto v___jp_219_;
@@ -832,9 +832,9 @@ size_t v_sz_225_; size_t v___x_226_; lean_object* v___x_227_;
 v_sz_225_ = lean_array_size(v_alts_201_);
 v___x_226_ = ((size_t)0ULL);
 lean_inc(v_b_217_);
-lean_inc(v___y_222_);
+lean_inc(v___y_221_);
 lean_inc_ref(v_altsUsed_202_);
-v___x_227_ = l___private_Init_Data_Array_Basic_0__Array_mapFinIdxMUnsafe_map___at___00__private_Lean_Compiler_LCNF_PushProj_0__Lean_Compiler_LCNF_Cases_pushProjs_go_spec__2___redArg(v_altsUsed_202_, v___y_222_, v_b_217_, v_sz_225_, v___x_226_, v_alts_201_, v___y_224_, v___y_223_, v___y_220_, v___y_221_);
+v___x_227_ = l___private_Init_Data_Array_Basic_0__Array_mapFinIdxMUnsafe_map___at___00__private_Lean_Compiler_LCNF_PushProj_0__Lean_Compiler_LCNF_Cases_pushProjs_go_spec__2___redArg(v_altsUsed_202_, v___y_221_, v_b_217_, v_sz_225_, v___x_226_, v_alts_201_, v___y_224_, v___y_223_, v___y_220_, v___y_222_);
 if (lean_obj_tag(v___x_227_) == 0)
 {
 lean_object* v_a_228_; size_t v_sz_229_; lean_object* v___x_230_; 
@@ -842,21 +842,21 @@ v_a_228_ = lean_ctor_get(v___x_227_, 0);
 lean_inc(v_a_228_);
 lean_dec_ref_known(v___x_227_, 1);
 v_sz_229_ = lean_array_size(v_altsUsed_202_);
-v___x_230_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Compiler_LCNF_PushProj_0__Lean_Compiler_LCNF_Cases_pushProjs_go_spec__3(v___y_222_, v_b_217_, v_sz_229_, v___x_226_, v_altsUsed_202_);
-lean_dec(v___y_222_);
+v___x_230_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Compiler_LCNF_PushProj_0__Lean_Compiler_LCNF_Cases_pushProjs_go_spec__3(v___y_221_, v_b_217_, v_sz_229_, v___x_226_, v_altsUsed_202_);
+lean_dec(v___y_221_);
 v_decls_200_ = v_bs_218_;
 v_alts_201_ = v_a_228_;
 v_altsUsed_202_ = v___x_230_;
 v_a_205_ = v___y_224_;
 v_a_206_ = v___y_223_;
 v_a_207_ = v___y_220_;
-v_a_208_ = v___y_221_;
+v_a_208_ = v___y_222_;
 goto _start;
 }
 else
 {
 lean_object* v_a_232_; lean_object* v___x_234_; uint8_t v_isShared_235_; uint8_t v_isSharedCheck_239_; 
-lean_dec(v___y_222_);
+lean_dec(v___y_221_);
 lean_dec_ref(v_bs_218_);
 lean_dec(v_b_217_);
 lean_dec_ref(v_ctxUsed_204_);

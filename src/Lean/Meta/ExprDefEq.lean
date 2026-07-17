@@ -2236,7 +2236,7 @@ inductive DefEqCacheKind where
   | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
 
 private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
-  if t.hasMVar || s.hasMVar || (← read).canUnfold?.isSome then
+  if t.hasMVar || s.hasMVar || (← read).customCanUnfoldPredicate?.isSome then
     return .transient
   else
     return .permanent

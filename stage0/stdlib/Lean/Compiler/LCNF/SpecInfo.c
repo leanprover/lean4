@@ -74,7 +74,7 @@ lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l___private_Lean_Environment_0__Lean_PersistentEnvExtension_getModuleIREntries_unsafe__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_getModuleIREntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
@@ -5639,7 +5639,7 @@ lean_object* v_val_1942_; lean_object* v___x_1956_; lean_object* v___x_1957_; le
 v_val_1942_ = lean_ctor_get(v___x_1941_, 0);
 lean_inc(v_val_1942_);
 lean_dec_ref_known(v___x_1941_, 1);
-v___x_1956_ = l___private_Lean_Environment_0__Lean_PersistentEnvExtension_getModuleIREntries_unsafe__1(lean_box(0), lean_box(0), lean_box(0), v___x_1932_, v___x_1933_, v_env_1930_, v_val_1942_);
+v___x_1956_ = l_Lean_PersistentEnvExtension_getModuleIREntries___redArg(v___x_1932_, v___x_1933_, v_env_1930_, v_val_1942_);
 v___x_1957_ = lean_unsigned_to_nat(0u);
 v___x_1958_ = lean_array_get_size(v___x_1956_);
 v___x_1959_ = lean_nat_dec_lt(v___x_1957_, v___x_1958_);

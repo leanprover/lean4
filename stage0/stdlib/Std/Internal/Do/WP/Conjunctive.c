@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Do.WP.Conjunctive
-// Imports: public import Std.Internal.Do.WP.Basic public import Std.Internal.Do.Order.Lemmas
+// Imports: public import Std.Internal.Do.WP.Basic public import Std.Internal.Do.Order.Instances
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -74,7 +74,7 @@ return v___x_22_;
 }
 }
 lean_object* runtime_initialize_Std_Internal_Do_WP_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Internal_Do_Order_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_Do_Order_Instances(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Do_WP_Conjunctive(uint8_t builtin) {
 lean_object * res;
@@ -83,7 +83,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Std_Internal_Do_WP_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Do_Order_Lemmas(builtin);
+res = runtime_initialize_Std_Internal_Do_Order_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -96,7 +96,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Internal_Do_WP_Basic(uint8_t builtin);
-lean_object* initialize_Std_Internal_Do_Order_Lemmas(uint8_t builtin);
+lean_object* initialize_Std_Internal_Do_Order_Instances(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Do_WP_Conjunctive(uint8_t builtin) {
 lean_object * res;
@@ -105,7 +105,7 @@ _G_initialized = true;
 res = initialize_Std_Internal_Do_WP_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Do_Order_Lemmas(builtin);
+res = initialize_Std_Internal_Do_Order_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Do_WP_Conjunctive(builtin);

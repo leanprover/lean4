@@ -26,3 +26,4 @@ public import Lean.Linter.EnvLinter
 public import Lean.Linter.PersistentLintLog
 public import Lean.Linter.Extra
 public import Lean.Linter.TacticTypeCheck
+public import Lean.Linter.CoreInternal

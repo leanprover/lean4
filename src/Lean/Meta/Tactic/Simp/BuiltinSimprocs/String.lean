@@ -17,6 +17,7 @@ open Lean Meta Simp
 private def fromExpr? (e : Expr) : SimpM (Option String) := do
   return getStringValue? e
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceAppend ((_ ++ _ : String)) := fun e => do
   unless e.isAppOfArity ``HAppend.hAppend 6 do return .continue
   let some a ← fromExpr? e.appFn!.appArg! | return .continue
@@ -32,26 +33,31 @@ private partial def reduceListChar (e : Expr) (s : String) : SimpM DStep := do
   else
     return .continue
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceOfList (String.ofList _) := fun e => do
   unless e.isAppOfArity ``String.ofList 1 do return .continue
   reduceListChar e.appArg! ""
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceToList (String.toList _) := fun e => do
   unless e.isAppOfArity ``String.toList 1 do return .continue
   let some s ← fromExpr? e.appArg! | return .continue
   return .done <| toExpr s.toList
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reducePush (String.push _ _) := fun e => do
   unless e.isAppOfArity ``String.push 2 do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← Char.fromExpr? e.appArg! | return .continue
   return .done <| toExpr (n.push m)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceSingleton (String.singleton _) := fun e => do
   unless e.isAppOfArity ``String.singleton 1 do return .continue
   let some c ← Char.fromExpr? e.appArg! | return .continue
   return .done <| toExpr (String.singleton c)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc_decl reduceToSingleton ((_ : String)) := fun e => do
   let some s ← fromExpr? e | return .continue
   let l := s.toList
@@ -71,23 +77,31 @@ builtin_dsimproc_decl reduceToSingleton ((_ : String)) := fun e => do
   let some m ← fromExpr? e.appArg! | return .continue
   return .done <| toExpr (op n m)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceLT  (( _ : String) < _)  := reduceBinPred ``LT.lt 4 (. < .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceLE  (( _ : String) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceGT  (( _ : String) > _)  := reduceBinPred ``GT.gt 4 (. > .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceGE  (( _ : String) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceEq (( _ : String) = _) := fun e => do
   unless e.isAppOfArity ``Eq 3 do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
   evalEqPropStep e (n = m) (mkStringLitNeProof n m)
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_simproc [simp, seval] reduceNe (( _ : String) ≠ _) := fun e => do
   unless e.isAppOfArity ``Ne 3 do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
   evalNePropStep e (n ≠ m) (mkStringLitNeProof n m)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : String) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : String) != _)  := reduceBoolPred ``bne 4 (. != .)
 
 end String

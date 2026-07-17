@@ -15,7 +15,7 @@ public import Lean.Server.InfoUtils
 
 public section
 
-open IO FS
+open Lean IO FS
 
 namespace Lean.IO
 

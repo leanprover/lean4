@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.ByteArray.Bootstrap
+public import Init.Data.UInt.BasicAux
 import Init.Data.Char.Basic
 
 public section
@@ -135,6 +136,13 @@ opaque dropRight (s : String) (n : Nat) : String
 
 @[extern "lean_string_get_byte_fast"]
 opaque getUTF8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
+
+/--
+Variant of `getUTF8Byte` that takes the byte index as a `USize`, which avoids `Nat` boxing
+in tight loops over the bytes of a string.
+-/
+@[extern "lean_string_uget_byte_fast"]
+opaque ugetUTF8Byte (s : @& String) (n : USize) (h : n.toNat < s.utf8ByteSize) : UInt8
 
 end String.Internal
 

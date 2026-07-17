@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Nat.Coprime
-public import Init.Data.OfScientific
+public import Init.Data.OfScientific.Basic
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.String.Defs
 public import Init.Data.ToString.Macro

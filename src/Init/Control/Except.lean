@@ -27,7 +27,7 @@ protected def pure (a : α) : Except ε α :=
 Transforms a successful result with a function, doing nothing when an exception is thrown.
 
 Examples:
- * `(pure 2 : Except String Nat).map toString = pure 2`
+ * `(pure 2 : Except String Nat).map toString = pure "2"`
  * `(throw "Error" : Except String Nat).map toString = throw "Error"`
 -/
 @[always_inline, inline]

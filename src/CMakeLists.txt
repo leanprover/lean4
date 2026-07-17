@@ -8,7 +8,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
-set(LEAN_VERSION_MINOR 33 CACHE STRING "")
+set(LEAN_VERSION_MINOR 34 CACHE STRING "")
 set(LEAN_VERSION_PATCH 0 CACHE STRING "")
 set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -1064,7 +1064,7 @@ if(LEAN_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
 
-if(USE_LAKE_CACHE AND STAGE EQUAL 1 AND NOT PREV_STAGE)
+if(USE_LAKE_CACHE AND STAGE EQUAL 1)
   set(LAKE_ARTIFACT_CACHE_TOML "true")
 else()
   # The build of stage2+ may depend on local changes made to src/ that are not reflected by the

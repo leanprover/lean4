@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Basic
+public import Lean.Meta.Match.MatchPatternAttr
 public section
 namespace Lean.Meta
 
@@ -29,13 +30,42 @@ def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
     else
       return false
 
+/--
+Alternative can-unfold predicate used inside `whnfMatcher`.
+See module comment above `unfoldNestedDIte` in `Lean.Meta.WHNF`.
+-/
+def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+  if (← canUnfoldDefault cfg info) then
+    return true
+  /- Beyond what the normal transparency allows, we additionally unfold
+     certain definitions to expose constructors in match discriminants. -/
+  if hasMatchPatternAttribute (← getEnv) info.name then
+    return true
+  return info.name == ``OfNat.ofNat -- needed to reduce numeric literals in match discriminants
+   || info.name == ``NatCast.natCast -- needed for `↑m` in match discriminants (pervasive in Int proofs)
+   || info.name == ``Zero.zero || info.name == ``One.one -- needed for `0`/`1` in match discriminants
+   || info.name == ``decEq
+   || info.name == ``Nat.decEq
+   || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
+   || info.name == ``String.decEq || info.name == ``List.hasDecEq
+   || info.name == ``Fin.ofNat -- needed for Fin literal reduction in match discriminants
+   || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
+   || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
+   || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
+   || info.name == ``UInt64.ofNat || info.name == ``UInt64.decEq
+   /- `Fin.ofNat` reduces to `⟨a % n, _⟩`, so we also need to unfold `%` (i.e., `HMod.hMod`
+      and `Mod.mod`) to expose the `Fin.mk` constructor in match discriminants. -/
+   || info.name == ``HMod.hMod || info.name == ``Mod.mod
+
 def canUnfold (info : ConstantInfo) : MetaM Bool := do
   let ctx ← read
   let cfg ← getConfig
-  if let some f := ctx.canUnfold? then
-    f cfg info
-  else
-    canUnfoldDefault cfg info
+  match ctx.customCanUnfoldPredicate? with
+  | some f => f cfg info
+  | none =>
+    match ctx.config.canUnfoldPredicateConfig with
+    | .default => canUnfoldDefault cfg info
+    | .atMatcher => canUnfoldAtMatcher cfg info
 
 /--
 Look up a constant name, returning the `ConstantInfo`

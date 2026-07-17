@@ -34,6 +34,8 @@ private theorem repeatM.body_monotone_of_monadTail [Lean.Order.MonadTail m] [Non
     | .inl a' => h a'
     | .inr _ => Lean.Order.PartialOrder.rel_refl
 
+-- TODO: move out of `Internal`
+set_option linter.coreInternal.internalModule false in
 /-- One-step unfolding of `repeatM` for any `MonadTail m`. -/
 public theorem repeatM_eq_of_monadTail [Lean.Order.MonadTail m] [Nonempty β]
     {f : α → m (α ⊕ β)} (a : α) :

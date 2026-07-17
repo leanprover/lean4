@@ -364,4 +364,8 @@ Returns the path of the primary core shared library
 @[inline] public def getLake : m FilePath :=
   (·.lake) <$> getLakeInstall
 
+/-- Get the Lake shared library (e.g., {lit}`libLake_shared`) in the detected Lake installation. -/
+@[inline] public def getLakeSharedDynlib : m Dynlib :=
+  (·.sharedDynlib) <$> getLakeInstall
+
 end

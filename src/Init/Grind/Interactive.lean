@@ -48,7 +48,9 @@ syntax grindFilter := (colGt grind_filter)?
 A `grind` tactic is a program which receives a `grind` goal. -/
 declare_syntax_cat grind (behavior := both)
 
-syntax grindStep := grind ("|" (colGt ppSpace grind_filter)?)?
+-- The `colGt` before `"|"` prevents the step from consuming a `|` that belongs to an enclosing
+-- tactic (e.g. the next alternative of a `match`, see issue #13822).
+syntax grindStep := grind (colGt "|" (colGt ppSpace grind_filter)?)?
 
 syntax grindSeq1Indented := sepBy1IndentSemicolon(grindStep)
 syntax grindSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(grindStep)) "}"

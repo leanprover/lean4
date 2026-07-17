@@ -20,7 +20,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_synthInstance_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
@@ -1487,7 +1487,7 @@ _start:
 {
 lean_object* v___x_605_; 
 lean_inc_ref(v_type_592_);
-v___x_605_ = l_Lean_Meta_Sym_synthInstanceMeta_x3f(v_type_592_, v___y_600_, v___y_601_, v___y_602_, v___y_603_);
+v___x_605_ = l_Lean_Meta_Sym_synthInstance_x3f___redArg(v_type_592_, v___y_599_, v___y_600_, v___y_601_, v___y_602_, v___y_603_);
 if (lean_obj_tag(v___x_605_) == 0)
 {
 lean_object* v_a_606_; lean_object* v___x_608_; uint8_t v_isShared_609_; uint8_t v_isSharedCheck_618_; 

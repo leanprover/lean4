@@ -6146,9 +6146,9 @@ goto v___jp_2335_;
 v___jp_2329_:
 {
 lean_object* v___x_2333_; lean_object* v___x_2334_; 
-v___x_2333_ = l_Lake_JobState_merge(v___y_2331_, v___y_2332_);
+v___x_2333_ = l_Lake_JobState_merge(v___y_2330_, v___y_2332_);
 v___x_2334_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_2334_, 0, v___y_2330_);
+lean_ctor_set(v___x_2334_, 0, v___y_2331_);
 lean_ctor_set(v___x_2334_, 1, v___x_2333_);
 return v___x_2334_;
 }
@@ -6158,8 +6158,8 @@ lean_object* v_a_2339_;
 v_a_2339_ = lean_ctor_get(v___y_2337_, 1);
 lean_inc(v_a_2339_);
 lean_dec_ref(v___y_2337_);
-v___y_2330_ = v___y_2336_;
-v___y_2331_ = v___y_2338_;
+v___y_2330_ = v___y_2338_;
+v___y_2331_ = v___y_2336_;
 v___y_2332_ = v_a_2339_;
 goto v___jp_2329_;
 }
@@ -6371,9 +6371,9 @@ goto v___jp_2414_;
 v___jp_2408_:
 {
 lean_object* v___x_2412_; lean_object* v___x_2413_; 
-v___x_2412_ = l_Lake_JobState_merge(v___y_2410_, v___y_2411_);
+v___x_2412_ = l_Lake_JobState_merge(v___y_2409_, v___y_2411_);
 v___x_2413_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_2413_, 0, v___y_2409_);
+lean_ctor_set(v___x_2413_, 0, v___y_2410_);
 lean_ctor_set(v___x_2413_, 1, v___x_2412_);
 return v___x_2413_;
 }
@@ -6383,8 +6383,8 @@ lean_object* v_a_2418_;
 v_a_2418_ = lean_ctor_get(v___y_2416_, 1);
 lean_inc(v_a_2418_);
 lean_dec_ref(v___y_2416_);
-v___y_2409_ = v___y_2415_;
-v___y_2410_ = v___y_2417_;
+v___y_2409_ = v___y_2417_;
+v___y_2410_ = v___y_2415_;
 v___y_2411_ = v_a_2418_;
 goto v___jp_2408_;
 }

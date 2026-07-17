@@ -122,7 +122,6 @@ return v___x_11_;
 else
 {
 uint8_t v___x_12_; 
-lean_dec_ref_known(v_x_10_, 1);
 v___x_12_ = 0;
 return v___x_12_;
 }
@@ -132,7 +131,6 @@ else
 if (lean_obj_tag(v_x_10_) == 0)
 {
 uint8_t v___x_13_; 
-lean_dec_ref_known(v_x_9_, 1);
 v___x_13_ = 0;
 return v___x_13_;
 }
@@ -140,11 +138,7 @@ else
 {
 lean_object* v_val_14_; lean_object* v_val_15_; uint8_t v___x_16_; 
 v_val_14_ = lean_ctor_get(v_x_9_, 0);
-lean_inc(v_val_14_);
-lean_dec_ref_known(v_x_9_, 1);
 v_val_15_ = lean_ctor_get(v_x_10_, 0);
-lean_inc(v_val_15_);
-lean_dec_ref_known(v_x_10_, 1);
 v___x_16_ = l_Lean_Parser_instBEqError_beq(v_val_14_, v_val_15_);
 return v___x_16_;
 }
@@ -156,6 +150,8 @@ _start:
 {
 uint8_t v_res_19_; lean_object* v_r_20_; 
 v_res_19_ = l_Option_instBEq_beq___at___00__private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse_spec__0(v_x_17_, v_x_18_);
+lean_dec(v_x_18_);
+lean_dec(v_x_17_);
 v_r_20_ = lean_box(v_res_19_);
 return v_r_20_;
 }
@@ -206,6 +202,7 @@ v_errorMsg_58_ = lean_ctor_get(v_s_56_, 4);
 lean_inc(v_errorMsg_58_);
 v___x_71_ = lean_box(0);
 v___x_72_ = l_Option_instBEq_beq___at___00__private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse_spec__0(v_errorMsg_58_, v___x_71_);
+lean_dec(v_errorMsg_58_);
 if (v___x_72_ == 0)
 {
 v___y_60_ = v___x_52_;

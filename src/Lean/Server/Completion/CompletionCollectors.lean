@@ -15,7 +15,7 @@ public import Lean.Server.RequestCancellation
 public section
 
 namespace Lean.Server.Completion
-open Elab
+open Lean Elab
 open Lean.Lsp
 open Meta
 open FuzzyMatching

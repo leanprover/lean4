@@ -237,7 +237,7 @@ Examples:
  * `"".toList = []`
  * `"\n".toList = ['\n']`
 -/
-@[extern "lean_string_data", expose, implicit_reducible]
+@[extern "lean_string_data", expose]
 def String.toList (s : String) : List Char :=
   (String.Internal.toArray s).toList
 

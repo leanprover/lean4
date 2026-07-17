@@ -167,8 +167,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_internal_set_thread_stack_size(size_t s
     return lean_box(0);
 }
 
-extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv) {
-#ifdef LEAN_MULTI_THREAD
+LEAN_EXPORT void set_thread_stack_size_from_env() {
     const char * stack_size_env = std::getenv("LEAN_STACK_SIZE_KB");
     if (stack_size_env) {
         size_t sz = std::strtoull(stack_size_env, nullptr, 10);
@@ -177,18 +176,24 @@ extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int,
             lthread::set_thread_stack_size(sz);
         }
     }
+}
+
+LEAN_EXPORT void run_with_thread_stack(std::function<void()> const & fn) {
     const char * use_thread_env = std::getenv("LEAN_MAIN_USE_THREAD");
     if (use_thread_env && std::strcmp(use_thread_env, "0") == 0) {
-        return main_fn(argc, argv);
+        fn();
+    } else {
+        // Start new thread to use given/default stack size
+        lthread t(fn);
+        t.join();
     }
-    // Start new thread to use given/default stack size
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv) {
+    set_thread_stack_size_from_env();
     lean_object * res = nullptr;
-    lthread t([&]() { res = main_fn(argc, argv); });
-    t.join();
+    run_with_thread_stack([&]() { res = main_fn(argc, argv); });
     return res;
-#else
-    return main_fn(argc, argv);
-#endif
 }
 
 LEAN_THREAD_VALUE(bool, g_finalizing, false);

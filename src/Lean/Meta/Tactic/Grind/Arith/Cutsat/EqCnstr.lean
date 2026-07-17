@@ -543,6 +543,26 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
     return declName == ``HMul.hMul || declName == ``HPow.hPow
   | _ => unreachable!
 
+/--
+Internalizes the integer expression `e` by introducing a fresh cutsat variable `x` for `e`
+and asserting the equation `x = e` as an `EqCnstr`.
+
+The polynomial `p = toPoly e` represents `e` as a sum of monomials over cutsat variables.
+If `p` is just `1*x + 0` (e.g., `e` is opaque or a nonlinear term like `a*b`), the equation
+`x = x` is trivial and skipped.
+
+Otherwise, the assertion uses one of two paths:
+- `defnCommRing` when `p` contains nonlinear monomials and the comm-ring solver can simplify
+  it to a linear polynomial `p'`. The constraint becomes `x = p'`.
+- `defn` for purely linear polynomials, where the constraint is `x = p`.
+
+We also build the reflective representation `e' : Int.Internal.Linear.Expr` via `toLinearExpr`. It is
+passed to the constraint and used during proof construction: `eq_def_struct` (resp.
+`eq_def_struct_norm`) bridges `x.denote = e.denote` via `Expr.denote`, which faithfully
+preserves expression structure. This avoids a kernel type mismatch when `e` contains
+sub-structure that `Poly.denote'` collapses (e.g., a trailing `+ 0`, where `Poly.denote'`
+drops the `(.num 0)` but `e` still has the explicit `+ 0`). See issue #13572.
+-/
 private def internalizeInt (e : Expr) : GoalM Unit := do
   if (← hasVar e) then return ()
   let p ← toPoly e
@@ -552,11 +572,12 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     -- It is pointless to assert `x = x`
     -- This can happen if `e` is a nonlinear term (e.g., `e` is `a*b`)
     return
+  let e' ← toLinearExpr e
   if let some (re, rp, p') ← p.normCommRing? then
-    let c := { p := .add (-1) x p', h := .defnCommRing e p re rp p' : EqCnstr }
+    let c := { p := .add (-1) x p', h := .defnCommRing e e' p re rp p' : EqCnstr }
     c.assert
   else
-    let c := { p := .add (-1) x p, h := .defn e p : EqCnstr }
+    let c := { p := .add (-1) x p, h := .defn e e' : EqCnstr }
     c.assert
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do

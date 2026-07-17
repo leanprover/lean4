@@ -45,7 +45,8 @@ instance instNatCast : NatCast (BitVec w) where
 
 /-- Theorem for normalizing the bitvector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
-@[simp, bitvec_to_nat, grind =] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
+-- **Note**: `grind` normal form for bitvector literals uses `OfNat.ofNat`. Thus, we should not mark this theorem as a `grind` theorem.
+@[simp, bitvec_to_nat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
 
 -- Note. Mathlib would like this to go the other direction.
 @[simp] theorem natCast_eq_ofNat (w x : Nat) : @Nat.cast (BitVec w) _ x = .ofNat w x := rfl

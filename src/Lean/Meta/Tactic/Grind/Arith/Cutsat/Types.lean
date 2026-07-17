@@ -83,16 +83,18 @@ inductive EqCnstrProof where
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Internal.Linear.Expr)
-  | /-- `e` is `p` -/
-    defn (e : Expr) (p : Poly)
+  | /-- `e` is `e'` -/
+    defn (e : Expr) (e' : Int.Internal.Linear.Expr)
   | defnNat (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
+  | /-- `p = 0` derived from the divisibility constraint `c` of the form `0 ∣ p`. -/
+    ofZeroDvd (c : DvdCnstr)
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
-  | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnCommRing (e : Expr) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Internal.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
   | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
   | /--
@@ -316,6 +318,12 @@ structure State where
   current `grind` goal or not.
   -/
   caseSplits : Bool := false
+  /--
+  Cumulative number of steps performed by the model search.
+  The model search is interrupted when this counter reaches the `liaSteps`
+  configuration threshold, and the solver becomes incomplete.
+  -/
+  steps : Nat := 0
   /--
   `conflict?` is `some ..` if a contradictory constraint was derived.
   This field is only set when `caseSplits` is `true`. Otherwise, we

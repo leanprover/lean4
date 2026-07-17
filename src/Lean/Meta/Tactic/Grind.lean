@@ -16,6 +16,7 @@ public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public import Lean.Meta.Tactic.Grind.Inv
 public import Lean.Meta.Tactic.Grind.Proof
 public import Lean.Meta.Tactic.Grind.Propagate
+public import Lean.Meta.Tactic.Grind.BitVec
 public import Lean.Meta.Tactic.Grind.PP
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Ctor

@@ -242,14 +242,12 @@ public def run (args : Args) : IO UInt32 := do
   for mod in mods do
     unsafe Lean.enableInitializersExecution
     -- Peek at the .olean header to learn whether `mod` participates in the module system.
-    -- If so, import at the public (`exported`) level, mirroring `processHeaderCore`.
+    -- If so, import at the server level level, mirroring `processHeaderCore`, while
+    -- exposing server-level data (i.e. the state of `lintLogExt`).
     let modFile ← findOLean mod
     let (modData, region) ← readModuleData modFile
     let isModule ← getIsModule modData
-    let level :=
-      if isModule then
-        if args.recordExceptions then OLeanLevel.server else OLeanLevel.exported
-      else OLeanLevel.private
+    let level := if isModule then OLeanLevel.server else OLeanLevel.private
     unsafe region.free
     let env ← importModules #[{ module := mod }, envLinterModule] {}
       (trustLevel := 1024) (loadExts := true) (level := level)

@@ -495,17 +495,16 @@ private partial def fillJPExists (g : MVarId) (witnesses : List Expr) : MetaM Un
   | Eq _ lhs _ => g.assign (← Meta.mkEqRefl lhs)
   | _ => throwError "JP witness: unexpected residual{indentExpr ty}"
 
-/-- Close a JP jump subgoal `∀ xs, lhs ⊑ rhs` with definitionally equal sides by reflexivity. The
-synthetic spec's postcondition is the registration goal's, so the jump's post-monotonicity premise
-has the shared postcondition on both sides (up to eta); left to the worklist, the target simp would
-unfold the entailment and re-verify the continuation the postcondition carries, once per jump. -/
+/-- Close a JP jump's post-monotonicity premise `∀ xs, lhs ⊑ rhs` by reflexivity. Both sides are the
+shared continuation the synthetic spec carries as its postcondition, defeq up to the join-point `let`s
+and eta, so `rel_refl lhs` is assigned and the kernel discharges the defeq. Left to the worklist, the
+target simp would re-verify that continuation at every jump. -/
 private def tryCloseTrivialRefl (g : MVarId) : VCGenM Bool :=
-  g.withContext do liftMetaM do
-    Meta.forallTelescope (← g.getType) fun xs body => do
-      let some (α, inst, lhs, rhs) := body.app4? ``PartialOrder.rel | return false
-      unless ← Meta.isDefEqGuarded lhs rhs do return false
-      let prf ← Meta.mkAppOptM ``Lean.Order.PartialOrder.rel_refl #[α, inst, lhs]
-      g.assign (← Meta.mkLambdaFVars xs prf)
+  g.withContext do
+    forallTelescope (← g.getType) fun xs body => do
+      let_expr PartialOrder.rel α inst lhs _rhs := body | return false
+      let prf ← mkAppOptM ``Lean.Order.PartialOrder.rel_refl #[α, inst, lhs]
+      g.assign (← mkLambdaFVars xs prf)
       return true
 
 /-- Record a JP jump's precondition VC `pre ⊑ ⌜match discrs => ?Hᵢ⌝` for `finalizeJPs`, verifying

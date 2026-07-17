@@ -30,6 +30,14 @@ register_builtin_option compiler.checkMeta : Bool := {
     intended only for debugging purposes."
 }
 
+register_builtin_option compiler.eagerToDecl : Bool := {
+  defValue := false
+  descr := "Run the LCNF conversion (`toDecl`/`checkMeta`) eagerly even when compilation is \
+    postponed to `leanir`, so that compilation-type errors such as noncomputability surface at \
+    elaboration time. Set (by raw name) by `Lean.compileDecls` when the caller interprets \
+    compilation failures instead of reporting them."
+}
+
 register_builtin_option compiler.relaxedMetaCheck : Bool := {
   defValue := false
   descr := "Allow mixed `meta`/non-`meta` references in the same module. References to imports are unaffected."

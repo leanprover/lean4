@@ -176,6 +176,13 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
       -- avoid re-compiling the meta defs in this process; the entry for `leanir` is not affected
       modifyEnv (postponedCompileDeclsExt.modifyState · fun s => declNames.foldl (·.erase) s)
     else
+      if (← compiler.eagerToDecl.getM) then
+        -- The caller interprets compilation failures (e.g. `noncomputable section` marking), so
+        -- run the conversion and its checks now; a failure rolls back the postpone entry via the
+        -- caller's state restore, and on success `leanir` re-runs the conversion anyway.
+        let decls ← declNames.mapM toDecl
+        for decl in decls do
+          checkMeta decl
       trace[Compiler] "postponing compilation of {declNames}"
       return
 

@@ -240,4 +240,31 @@ def getImpureDeclIndices (env : Environment) (targets : Array Name) : Std.HashMa
   assert! map.size == targets.size
   return map
 
+/-- A postponed call of `compileDecls`. -/
+structure PostponedCompileDecls where
+  /-- Declaration names of this mutual group. -/
+  declNames : Array Name
+  /-- Options at time of original call, to be restored for tracing etc. -/
+  options : Options
+deriving BEq
+
+/--
+Saves postponed `compileDecls` calls.
+
+We use this state both in `lean` when doing post-hoc compilation of non-meta declarations on `#eval`
+etc. as well as in `leanir` to do separate compilation of all defs.
+-/
+builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecls (NameMap PostponedCompileDecls) ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun _ => {}
+    addEntryFn    := fun s e => e.declNames.foldl (·.insert · e) s
+    toArrayFn     := fun es => es.toArray
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (fun s e => !e.declNames.any s.contains) (fun s e => e.declNames.foldl (·.insert · e) s)
+    exportEntriesFnEx? := some fun _ _ es =>
+      -- `leanir` imports the target module privately
+      { exported := #[], server := #[], «private» := es.toArray }
+  }
+
 end Lean.Compiler.LCNF

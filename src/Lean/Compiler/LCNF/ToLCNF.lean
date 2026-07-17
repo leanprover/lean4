@@ -14,6 +14,7 @@ import Lean.Meta.CasesInfo
 import Lean.Meta.WHNF
 import Lean.Compiler.NoncomputableAttr
 import Lean.Compiler.LCNF.Util
+import Lean.Compiler.LCNF.PhaseExt
 import Init.Data.Format.Macro
 import Init.Omega
 import Lean.OriginalConstKind
@@ -545,14 +546,21 @@ where
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M (Arg .pure) := do
     let env ← getEnv
     let .const declName us ← CSimp.replaceConstant env f | unreachable!
-    -- A kernel recursor reaching this fallback had no structural translation and is never
-    -- compiled, so the reference cannot be satisfied later; fail during `toDecl` so contexts
-    -- interpreting compilation failures (`noncomputable section`) observe the failure even under
-    -- postponed compilation. Must stay behind the structural dispatch: special-cased recursors
-    -- (`Eq.rec`, `False.rec`, ...) never reach this fallback.
+    -- A recursor reference reaching this fallback had no structural translation (special-cased
+    -- recursors like `Eq.rec` and `casesOn` never reach it, `csimp` replacements were applied
+    -- above) and is only satisfiable when an implementation is available: extern/implemented_by,
+    -- already compiled (e.g. `Mathlib.Util.CompileInductive` directly compiles same-module
+    -- `recOn`/`brecOn`, imported ones are visible through their module's entries), or still
+    -- postponed (the dependency resume in `PassManager.run` forces those after `toDecl`).
+    -- Otherwise fail here, during `toDecl`, so contexts interpreting compilation failures
+    -- (`noncomputable section`) observe the failure even under postponed compilation.
     unless (← read).ignoreNoncomputable do
-      if env.find? declName |>.any (· matches .recInfo ..) then
-        throwError f!"code generator does not support recursor `{declName}` yet, consider using 'match ... with' and/or structural recursion"
+      if isRecOnRecursor env declName || isBRecOnRecursor env declName
+          || (env.find? declName |>.any (· matches .recInfo ..)) then
+        unless isExtern env declName || (getImplementedBy? env declName).isSome
+            || (← getBaseDecl? declName).isSome
+            || (postponedCompileDeclsExt.getState env |>.contains declName) do
+          throwError f!"code generator does not support recursor `{declName}` yet, consider using 'match ... with' and/or structural recursion"
     let args ← args.mapM (withoutExpectedType do visitAppArg ·)
     if hasNeverExtractAttribute env declName then
       modify fun s => {s with shouldCache := false }

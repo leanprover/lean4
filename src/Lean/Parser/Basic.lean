@@ -1295,7 +1295,20 @@ def nameLitNoAntiquot : Parser := {
   info := mkAtomicInfo "name"
 }
 
-def identFn : ParserFn := expectTokenFn identKind "identifier"
+def identFn : ParserFn := fun c s =>
+  if c.forbiddenTks.isEmpty then
+    expectTokenFn identKind "identifier" c s
+  else
+    -- A forbidden token used as an identifier (e.g. a non-reserved clause keyword like
+    -- `invariant`) stops the enclosing term, mirroring `mkTokenAndFixPos`.
+    let iniSz  := s.stackSize
+    let iniPos := s.pos
+    let s := expectTokenFn identKind "identifier" c s
+    if s.hasError then s
+    else match s.stxStack.back with
+      | .ident _ rawVal _ _ =>
+        if c.forbiddenTks.contains rawVal.toString then s.mkErrorAt "forbidden token" iniPos iniSz else s
+      | _ => s
 
 def identNoAntiquot : Parser := {
   fn   := identFn

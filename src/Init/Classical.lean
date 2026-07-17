@@ -45,9 +45,9 @@ theorem em (p : Prop) : p ∨ ¬p :=
   have v_def : f V v := choose_spec exV
   have huvp : p ∨ u ≠ v :=
     match u, v with
-    | false, _ => Or.inl u_def
-    | _, true => Or.inl v_def
-    | true, false => Or.inr Bool.noConfusion
+    | false, _ => .inl u_def
+    | _, true => .inl v_def
+    | true, false => .inr Bool.noConfusion
   have p_implies_uv : p → u = v := (by simp [·, u, v, U, V])
   huvp.imp_right (mt p_implies_uv)
 

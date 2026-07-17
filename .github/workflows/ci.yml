@@ -312,8 +312,9 @@ jobs:
               },
               {
                 "name": "Linux RelWithAssert",
-                "os": "ubuntu-latest",
-                "enabled": level >= 2,
+                // Started running out of disk on GitHub standard runners
+                "os": "nscloud-ubuntu-24.04-amd64-8x16",
+                "enabled": large && level >= 2,
                 "test": true,
                 "CMAKE_PRESET": "relwithassert",
                 // * `elab_bench/big_do` crashes with exit code 134

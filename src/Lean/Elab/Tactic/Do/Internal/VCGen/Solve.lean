@@ -401,16 +401,41 @@ private def tryAssignJPHyps (jpInfo : JPDefInfo) (e : Expr) : VCGenM (Option (Na
     let newLocalDecls := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push
       |>.filterMap id
       |>.filter (fun decl => !decl.isImplementationDetail)
-    let newLocals := newLocalDecls.map LocalDecl.toExpr
     let mvarArity ← Meta.forallTelescopeReducing mvarTy fun xs _ => pure xs.size
     Meta.forallBoundedTelescope mvarTy mvarArity fun allBinders _ => do
       let numJP := joinArgs.size
       unless numJP ≤ allBinders.size do return none
       let jpBinders := allBinders.extract 0 numJP
-      -- `∃ locals, joinParams = joinArgs`, existentially/let-closing the alt-local decls to be valid
-      -- in the mvar's def-site context.
+      let altBinders := allBinders.extract numJP allBinders.size
+      -- The body split's alt telescope is the matcher's own alt telescope interleaved with extra
+      -- binders (overlap hypotheses, added discriminant equalities) and followed by lets, so the
+      -- mvar's alt binders form an order-preserving subsequence of the leading non-let jump-site
+      -- locals. Pair them up by type so those locals become the mvar's own binders; everything
+      -- unpaired is closed over below.
+      let mut matchedLocals : Array Expr := #[]
+      let mut matchedBinders : Array Expr := #[]
+      let mut matchedIdxs : Array Nat := #[]
+      let mut cursor := 0
+      for i in [:altBinders.size] do
+        let binderTy := (← Meta.inferType altBinders[i]!).replaceFVars matchedBinders matchedLocals
+        for j in [cursor:newLocalDecls.size] do
+          let decl := newLocalDecls[j]!
+          if decl.value?.isSome then break
+          if ← Meta.isDefEqGuarded binderTy (← instantiateMVars decl.type) then
+            matchedLocals := matchedLocals.push decl.toExpr
+            matchedBinders := matchedBinders.push altBinders[i]!
+            matchedIdxs := matchedIdxs.push j
+            cursor := j + 1
+            break
+      let mut restDecls : Array LocalDecl := #[]
+      for j in [:newLocalDecls.size] do
+        unless matchedIdxs.contains j do
+          restDecls := restDecls.push newLocalDecls[j]!
+      let restLocals := restDecls.map LocalDecl.toExpr
+      -- `∃ rest, joinParams = joinArgs`, existentially/let-closing only the unpaired locals; the
+      -- paired ones are then rewritten to the mvar's own alt binders.
       let eqs ← (jpBinders.mapIdx fun i jp => (jp, i)).mapM fun (jp, i) => Meta.mkEq jp joinArgs[i]!
-      let (_, φPropClosed) ← newLocalDecls.foldrM (init := (newLocals, (mkAndN eqs.toList).abstract newLocals))
+      let (_, φPropClosed) ← restDecls.foldrM (init := (restLocals, (mkAndN eqs.toList).abstract restLocals))
           fun decl (locals, φ) => do
         let locals := locals.pop
         let type := (← instantiateMVars decl.type).abstract locals
@@ -421,10 +446,11 @@ private def tryAssignJPHyps (jpInfo : JPDefInfo) (e : Expr) : VCGenM (Option (Na
         | none =>
           let typeLevel ← Meta.getLevel decl.type
           return (locals, mkApp2 (mkConst ``Exists [typeLevel]) type (Expr.lam decl.userName type φ .default))
+      let φPropClosed := φPropClosed.replaceFVars matchedLocals matchedBinders
       unless ← hypsMVar.isAssigned do
         hypsMVar.assign (← Meta.mkLambdaFVars allBinders φPropClosed)
-      -- The `∃` binders are exactly the non-let locals, in order; hand them back as witnesses.
-      return some (altIdx, (newLocalDecls.filter (·.value?.isNone)).map LocalDecl.toExpr)
+      -- The `∃` binders are exactly the non-let rest locals, in order; hand them back as witnesses.
+      return some (altIdx, (restDecls.filter (·.value?.isNone)).map LocalDecl.toExpr)
 
 /-- Prove `∃ locals, ⋀ joinArgs = joinArgs` by supplying each `∃` binder from `witnesses` (the actual
 locals) and closing the residual equalities by `rfl`. -/

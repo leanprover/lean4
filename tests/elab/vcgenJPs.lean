@@ -77,6 +77,8 @@ def mixed_matches_pure (f : Nat → Option Nat) : Id Nat := do
   match h : f 1, f 11 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
   match h : f 2, f 12 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
   match h : f 3, f 13 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  match h : f 4, f 14 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
+  match h : f 5, f 15 with | some y, some z => x := x + (cast (congrArg (fun _ => Nat) h) y) + z + 1 | _, some _ => x := x + 2 | _, _ => x := x + 1
   return x
 
 theorem mixed_matches_pure_triple : ⦃ True ⦄ mixed_matches_pure f ⦃ fun r => r > 0 ⦄ := by

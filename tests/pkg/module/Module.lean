@@ -9,6 +9,7 @@ import Module.ImportedAllImportedAll
 import Module.NonModule
 import Module.MetaImported
 import Module.MetaEnumDeriving
+import Module.NoncomputableRecOn
 
 /-! # Module system basic tests -/
 

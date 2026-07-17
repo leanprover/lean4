@@ -45,7 +45,6 @@ theorem map_getElem_sublist {l : List α} {is : List (Fin l.length)} (h : is.Pai
     rwa [nil_append, ← (drop_append_of_le_length ?_), take_append_drop] at this
     simp [Nat.min_eq_left (Nat.le_of_lt hd.isLt), his]
 
-<<<<<<< HEAD
 set_option linter.listVariables false in
 /-- Given a sublist `l' <+ l`, there exists an increasing list of indices `is` such that
   `l' = is.map fun i => l[i]`. -/
@@ -64,8 +63,6 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
     set_option backward.isDefEq.respectTransparency false in
     simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
 
-=======
->>>>>>> 27bcb4d7aa (Fixes)
 /-- The list `List.finRange n` is strictly increasing. -/
 theorem pairwise_lt_finRange (n : Nat) : Pairwise (· < ·) (finRange n) := by
   rw [pairwise_iff_getElem]

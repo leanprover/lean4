@@ -397,14 +397,6 @@ private def isFramedPost (post : Expr) : Bool :=
   let body := if post.isLambda then post.bindingBody! else post
   body.consumeMData.getAppFn.isConstOf ``Lean.Order.PreservesSup.upperAdjoint
 
-/-- True iff `prog`'s head is a monad structural combinator, which decomposes through its own spec so
-that frame inference reaches the leaf calls rather than a `bind`/`map`/`seq` node. -/
-private def isStructuralCombinator (prog : Expr) : Bool :=
-  match prog.getAppFn.constName? with
-  | some head => [``Bind.bind, ``Pure.pure, ``Functor.map, ``Seq.seq, ``SeqRight.seqRight,
-      ``SeqLeft.seqLeft].contains head
-  | none => false
-
 /-- Apply the upper-adjoint frame rule for `fp`'s operator and frame `F`, assigning the schematic frame
 variable to `F`. Returns the frame VCs, the frame condition `WP.Frames op prog F`, and the
 precondition that carries on to the program's own spec. Builds the operator here, since this runs only
@@ -449,7 +441,7 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
   let thm ← match spec with
     | .ok thm => pure thm
     | .error res => return res
-  if isStructuralCombinator info.prog || thm.conjunctivePre || isFramedPost info.post then
+  if thm.conjunctivePre || isFramedPost info.post then
     return ← applySpec scope goal info thm
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc

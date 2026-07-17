@@ -1,8 +1,8 @@
 module
 
 /-!
-`recOn` references are rejected during `toDecl` (no structural translation, never compiled as a
-function). Inside `noncomputable section` that failure must be swallowed by marking the definition
+`recOn` references without a compiled implementation in flight are rejected during `toDecl`.
+Inside `noncomputable section` that failure must be swallowed by marking the definition
 `noncomputable` — also under postponed compilation, where the eager `toDecl` run is what observes
 the failure before `leanir` would hit it as a hard error.
 -/

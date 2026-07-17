@@ -545,6 +545,16 @@ where
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M (Arg .pure) := do
     let env ← getEnv
     let .const declName us ← CSimp.replaceConstant env f | unreachable!
+    -- Recursors reaching this fallback had no structural translation and are never compiled as
+    -- functions, so the reference cannot be satisfied later. Fail here, during `toDecl`, rather
+    -- than at the impure-phase signature lookup so that contexts interpreting compilation
+    -- failures (`noncomputable section`) observe the failure even under postponed compilation.
+    -- Restricted to `recOn`/`brecOn` constructions and kernel recursors; other `isAuxRecursor`
+    -- names can be ordinary compiled definitions (e.g. `Eq.ndrec_symm`, `ctorElim`).
+    unless (← read).ignoreNoncomputable do
+      if isRecOnRecursor env declName || isBRecOnRecursor env declName
+          || (env.find? declName |>.any (· matches .recInfo ..)) then
+        throwError f!"code generator does not support recursor `{declName}` yet, consider using 'match ... with' and/or structural recursion"
     let args ← args.mapM (withoutExpectedType do visitAppArg ·)
     if hasNeverExtractAttribute env declName then
       modify fun s => {s with shouldCache := false }

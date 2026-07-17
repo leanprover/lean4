@@ -41,7 +41,7 @@ theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
     · apply hs; simpa [succ_lt_succ_iff] using hij
   · simpa [succ_lt_succ_iff] using And.intro (fun j => h 0 (j + 1)) (fun i j => h (i + 1) (j + 1))
 
-theorem Pairwise.rel_getElem_of_lt {l : List α} {i j} {hi : i < l.length} {hj : j < l.length}
+theorem Pairwise.rel_getElem_of_lt {l : List α} {i j} (hi : i < l.length) (hj : j < l.length)
     (h : Pairwise R l) : i < j → R l[i] l[j] := pairwise_iff_getElem.mp h _ _ _ _
 
 @[grind →] theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R

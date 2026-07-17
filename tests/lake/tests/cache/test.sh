@@ -68,7 +68,7 @@ test_cmd cmp -s "$cache_art" "$local_art"
 
 # Verify supported artifacts use the cache directory
 test_run build test:exe Test:static Test:shared \
-  +Test:dynlib +Test:o.export +Test:o.noexport +Module
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module:c
 test_cached() {
   target="$1"; shift
   art="$($LAKE query $target)"
@@ -89,7 +89,6 @@ test_cached +Test:c
 test_cached +Module:olean
 test_cached +Module:olean.server
 test_cached +Module:olean.private
-test_cached +Module:ir
 
 # Verify no `.hash` files end up in the cache directory
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
@@ -300,10 +299,10 @@ test_cmd cmp -s "$CACHE_DIR/artifacts/$hsh.o" "$CACHE_DIR/artifacts/$hsh.dup"
 # use the build directory with `restoreAllArtifacts`
 test_cmd rm -rf "$CACHE_DIR" .lake/build
 test_run build -R -KrestoreAll=true test:exe Test:static Test:shared \
-  +Test:dynlib +Test:o.export +Test:o.noexport +Module
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module:c
 test_cmd rm -rf .lake/build
 test_run build -v --no-build test:exe Test:static Test:shared \
-  +Test:dynlib +Test:o.export +Test:o.noexport +Module
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module:c
 test_restored() {
   target="$1"; shift
   art="$($LAKE query $target)"

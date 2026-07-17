@@ -162,3 +162,74 @@ theorem early_return_triple : ⦃ True ⦄ early_return f ⦃ fun r => r > 0 ⦄
   unfold early_return
   vcgen +jp
   all_goals grind
+
+-- Two mutable variables: the join carries several join-argument equalities.
+def multi_mut (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 0
+  let mut y := 1
+  match f 0 with | some z => x := x + z; y := y + x | none => y := y + 2
+  match f 1 with | some z => x := x + z + y | none => x := x + y
+  return x + y
+
+theorem multi_mut_triple : ⦃ True ⦄ multi_mut f ⦃ fun r => r > 0 ⦄ := by
+  unfold multi_mut
+  vcgen +jp
+  all_goals grind
+
+-- The shared tail performs an effect, so the join-point body applies specs under the
+-- match-valued precondition hypothesis.
+def monadic_tail (f : Nat → Option Nat) : StateM Nat Nat := do
+  let mut x := 1
+  match f 0 with | some y => x := x + y | none => x := x + 2
+  set x
+  match f 1 with | some y => x := x + y | none => x := x + 2
+  set x
+  return x
+
+theorem monadic_tail_triple : ⦃ fun _ => True ⦄ monadic_tail f ⦃ fun r => ⌜r > 0⌝ ⦄ := by
+  unfold monadic_tail
+  vcgen +jp
+  all_goals grind
+
+-- Literal and successor patterns produce a `Nat.casesOn`-shaped matcher.
+def literal_patterns (n m : Nat) : Id Nat := do
+  let mut x := 1
+  match n with | 0 => x := x + 1 | k+1 => x := x + k + 2
+  match m with | 0 => x := x + 1 | k+1 => x := x + k + 2
+  return x
+
+theorem literal_patterns_triple : ⦃ True ⦄ literal_patterns n m ⦃ fun r => r > 0 ⦄ := by
+  unfold literal_patterns
+  vcgen +jp
+  all_goals grind
+
+/- A split nested inside an alt (the inner join point's body is a jump to the outer one) and a
+throwing alt (the jump behind `throw` is dead code, leaving its precondition unassigned) fail
+under `vcgen +jp` and `mvcgen +jp` alike; these cases are exercised once join points support them.
+def nested_split (f : Nat → Option Nat) : Id Nat := do
+  let mut x := 0
+  match f 0 with
+  | some y => if y > 0 then x := x + y else x := x + 1
+  | none => x := x + 2
+  match f 1 with
+  | some y => if y > 0 then x := x + y else x := x + 1
+  | none => x := x + 2
+  return x
+
+theorem nested_split_triple : ⦃ True ⦄ nested_split f ⦃ fun r => r > 0 ⦄ := by
+  unfold nested_split
+  vcgen +jp
+  all_goals grind
+
+def throwing (f : Nat → Option Nat) : ExceptT String (StateM Nat) Nat := do
+  let mut x := 1
+  match f 0 with | some y => x := x + y | none => throw "none"
+  match f 1 with | some y => x := x + y | none => x := x + 2
+  return x
+
+theorem throwing_triple :
+    ⦃ fun _ => True ⦄ throwing f ⦃ fun r => ⌜r > 0⌝; epost⟨fun _ _ => True⟩ ⦄ := by
+  unfold throwing
+  vcgen +jp
+  all_goals grind
+-/

@@ -165,7 +165,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg f
 
 extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
-    int approx_posix_errnum = approx_posix_errnum;
+    int approx_posix_errnum = -errnum;
     switch (errnum) {
     case UV_EINTR:
         lean_assert(fname != nullptr);

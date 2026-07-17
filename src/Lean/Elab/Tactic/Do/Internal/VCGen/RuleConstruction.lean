@@ -12,7 +12,6 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
-import Lean.Meta.WHNF
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.Internal.SpecAttr
@@ -269,45 +268,34 @@ Normalize an instantiated equality spec `lhs = rhs` (both of type `info.M α`) t
 
 The schematic `Q`/`E` make the postcondition and exception-postcondition VCs collapse in
 `mkSpecBackwardProof`, so the resulting rule rewrites a `wp lhs` goal to a `wp rhs` premise, matching
-the equational behaviour of a simp spec. Leftover dictionary metavariables (abstract-monad equations
-such as `Spec.UnfoldLift.get`) are synthesized first, and dictionary projections in `rhs` are reduced
-so the RHS exposes the actual operation (e.g. `MonadState.modifyGet`'s RHS `inst.modifyGet` reduces to
-`MonadStateOf.modifyGet`). Reducing, rather than folding the projection, is essential: folding would
-turn it back into the keyed head `MonadState.modifyGet` and the rewrite would loop.
+the equational behaviour of a simp spec. Only the monad, the value type and the `WP` instance are
+pinned from the goal, mirroring how `tryMkBackwardRuleFromSpec` treats `⊑ wp` specs; the equation's
+remaining variables, including instance binders, stay schematic and become rule parameters that
+applying the rule binds against the concrete goal program. Dictionary projections this substitution
+exposes in the premise program (e.g. for class projection unfold equations like
+`MonadState.modifyGet.eq_1`) are reduced by `wpHeadReduce?` before the next spec lookup.
 -/
-private def eqSpecToWp? (info : WPApp) (xs : Array Expr) (eqPrf eqType : Expr) :
+private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
     OptionT MetaM (Expr × Expr) := do
-  let_expr Eq eqα lhs rhs := eqType
+  let_expr Eq eqα _lhs _rhs := eqType
     | throwError "simp spec is not an equation: {eqType}"
   -- Recover the value type `α` and confirm the equation is in the goal's monad. `α` is typed at the
   -- monad's domain sort so the equation's element type stays well-formed.
   let α ← mkFreshExprMVar (← inferType info.M).bindingDomain!
   guard <| ← isDefEqGuarded eqα (mkApp info.M α)
-  -- Pin the schematic instance and state metavariables by unifying the equation's LHS with the goal's
-  -- concrete program, so dictionary projections in `rhs` reduce against the real instance.
-  let _ ← show MetaM Bool from commitWhen <| isDefEqGuarded lhs info.prog
-  -- Synthesize leftover dictionary metavariables (e.g. for an abstract-monad lift equation, whose LHS
-  -- does not unify with a concrete program) so the projections in `rhs` reduce against instances.
-  for x in xs do
-    if x.isMVar && !(← x.mvarId!.isAssigned) then
-      try x.mvarId!.assign (← Meta.synthInstance (← Meta.inferType x))
-      catch _ => pure ()
-  -- Reduce dictionary projections to expose the actual operation VCGen continues on.
-  let rhs ← show MetaM Expr from Meta.transform rhs (pre := fun e => do
-    if let .proj .. := e then
-      if let some r ← withDefault <| Meta.reduceProj? e then return .done r
-    return .continue)
+  -- Reusing the goal's `WP` instance below pins the program and value types it is typed at. That
+  -- unification must happen at the current metavariable depth: `mkAppOptM` raises the depth, so the
+  -- equation's type metavariables are read-only there.
+  guard <| ← isDefEqGuarded (mkApp info.M α) info.Prog
   -- `post`/`epost` are schematic metavariables (their VCs collapse downstream).
   let post ← mkFreshExprMVar (userName := `Q) (← mkArrow α info.Pred)
   let epost ← mkFreshExprMVar (userName := `E) info.EPred
-  -- Cast to the reduced RHS so the resulting `wp` rewrites onto the exposed operation.
-  let eqPrf ← mkExpectedTypeHint eqPrf (← mkEq lhs rhs)
   -- Pin the monad and assertion instances from the goal's `wp` arguments. Inferring the monad from
   -- the equation type alone would leave `m β =?= info.M γ` as an underdetermined flex-rigid problem,
-  -- so non-monadic equations like `Option.getD.eq_1` would fail to unify. With `m` fixed, the value
-  -- type is inferred from the equation proof.
+  -- so non-monadic equations like `Option.getD.eq_1` would fail to unify.
   let specProof ← mkAppOptM ``Std.Internal.Do.wp_le_wp_of_eq <|
-    (info.args.extract 0 7).map some ++ #[none, none, some eqPrf, some post, some epost]
+    #[some (mkApp info.M α), some α] ++ (info.args.extract 2 7).map some
+      ++ #[none, none, some eqPrf, some post, some epost]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
 /--
@@ -326,11 +314,11 @@ same way.
 public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     (stateArgNames : Array Name := #[]) : OptionT MetaM BackwardRule := do
   -- Instantiate the spec theorem, creating metavars for all universally quantified params
-  let (xs, _bs, specProof, specType) ← specThm.instantiate
+  let (_xs, _bs, specProof, specType) ← specThm.instantiate
   -- Equality specs (the simp side of `@[spec]`) are normalized to `⊑ wp` form, then handled like
   -- any ordinary `⊑ wp` spec.
   let (specProof, specType) ←
-    if specType.isAppOfArity ``Eq 3 then eqSpecToWp? info xs specProof specType
+    if specType.isAppOfArity ``Eq 3 then eqSpecToWp? info specProof specType
     else pure (specProof, specType)
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
     | throwError "target not a partial order ⊑ application {specType}"

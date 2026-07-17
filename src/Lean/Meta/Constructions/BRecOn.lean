@@ -10,6 +10,7 @@ public import Lean.Meta.Basic
 import Lean.Meta.PProdN
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Refl
+import Lean.Compiler.NoncomputableAttr
 
 namespace Lean
 open Meta
@@ -283,6 +284,8 @@ def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       addDecl (.defnDecl decl)
       setReducibleAttribute decl.name
       modifyEnv fun env => markAuxRecursor env decl.name
+      -- Never compiled (no structural translation in the code generator either)
+      modifyEnv fun env => addNoncomputable env decl.name
       modifyEnv fun env => addProtected env decl.name
 
       let lhs := mkAppN (.const decl.name blvls) below_params

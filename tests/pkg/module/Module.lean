@@ -29,3 +29,8 @@ open Lean
   let _ ← Core.CoreM.toIO (ctx := { fileName := "module.lean", fileMap := default }) (s := { env }) do
     assert! (← findDeclarationRanges? ``f).isSome
     assert! (getModuleDoc? (← getEnv) `Module.Basic).any (·.size >= 1)
+
+/-! `recOn`/`brecOn` constructions are marked `noncomputable` at construction time. -/
+
+run_meta do
+  assert! isNoncomputable (← getEnv) ``TwoCtor.recOn

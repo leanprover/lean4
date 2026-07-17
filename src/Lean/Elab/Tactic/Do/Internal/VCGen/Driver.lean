@@ -124,6 +124,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
       let kept := scopedSubgoals.filter (fun (_, mv) => mvarIds.contains mv)
       worklist := worklist ++ kept.reverse.toArray.map (fun (scope, mv) =>
         { goal := { goal with mvarId := mv }, scope })
+  finalizeJPs
 
 public structure Result where
   /-- All invariant goals emitted during VC generation, in emit order. The MVarId at

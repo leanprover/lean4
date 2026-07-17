@@ -203,9 +203,8 @@ theorem literal_patterns_triple : ⦃ True ⦄ literal_patterns n m ⦃ fun r =>
   vcgen +jp
   all_goals grind
 
-/- A split nested inside an alt (the inner join point's body is a jump to the outer one) and a
-throwing alt (the jump behind `throw` is dead code, leaving its precondition unassigned) fail
-under `vcgen +jp` and `mvcgen +jp` alike; these cases are exercised once join points support them.
+-- A split nested inside an alt: both branches of the inner `if` jump to the same alt of the
+-- outer join point, so its precondition is the disjunction of the two jump payloads.
 def nested_split (f : Nat → Option Nat) : Id Nat := do
   let mut x := 0
   match f 0 with
@@ -221,6 +220,8 @@ theorem nested_split_triple : ⦃ True ⦄ nested_split f ⦃ fun r => r > 0 ⦄
   vcgen +jp
   all_goals grind
 
+-- The `none` alt throws: its jump is dead code behind `throw`, so the alt's precondition is
+-- finalized to `False`.
 def throwing (f : Nat → Option Nat) : ExceptT String (StateM Nat) Nat := do
   let mut x := 1
   match f 0 with | some y => x := x + y | none => throw "none"
@@ -232,4 +233,3 @@ theorem throwing_triple :
   unfold throwing
   vcgen +jp
   all_goals grind
--/

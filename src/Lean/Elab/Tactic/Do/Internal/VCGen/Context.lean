@@ -163,6 +163,18 @@ public structure VCGen.Scope where
   nextDeclIdx : Nat := 0
   deriving Inhabited
 
+/-- A deferred join-point jump: the alt-precondition mvar it targets, its open precondition
+subgoal, the payload proposition (abstracted over the mvar's binders), the witnesses for the
+payload's existentials, and the reduction of the subgoal's precondition match to the applicable
+alt. Resolved by `finalizeJPs`. -/
+public structure JPJumpRecord where
+  hypsMVar : MVarId
+  goal : MVarId
+  payload : Expr
+  witnesses : Array Expr
+  redExpr : Expr
+  redProof : Expr
+
 public structure VCGen.State where
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
@@ -224,6 +236,10 @@ public structure VCGen.State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
+  /-- All join-point alt-precondition mvars, in registration order. Assigned by `finalizeJPs`. -/
+  jpHypsMVars : Array MVarId := #[]
+  /-- Deferred join-point jumps, in jump order. Discharged by `finalizeJPs`. -/
+  jpJumps : Array JPJumpRecord := #[]
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 

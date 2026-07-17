@@ -8,6 +8,7 @@ import Module.ImportedAllPrivateImported
 import Module.ImportedAllImportedAll
 import Module.NonModule
 import Module.MetaImported
+import Module.MetaEnumDeriving
 
 /-! # Module system basic tests -/
 

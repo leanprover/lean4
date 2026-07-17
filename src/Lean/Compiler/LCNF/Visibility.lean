@@ -103,6 +103,12 @@ where go (isMeta isPublic : Bool) (decl : Decl pu) : StateT NameSet CompilerM Un
         continue
       modify (·.insert ref)
       let env ← getEnv
+      -- `leanir` imports the target module (`LeanIR.main`), so refs that were local during
+      -- elaboration take the imported branch of `getIRPhases` and lose its local exemption for
+      -- ctors and decls absent from the kernel env; restore parity with the `lean` session here.
+      if (← compiler.inLeanIR.getM) && env.getModuleIdxFor? ref == env.getModuleIdx? env.mainModule
+          && (env.find? ref |>.all (·.isCtor)) then
+        continue
       if isMeta && isPublic then
         if let some modIdx := env.getModuleIdxFor? ref then
           if isMarkedMeta env ref then

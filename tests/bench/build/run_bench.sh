@@ -29,7 +29,7 @@ LAKE_OVERRIDE_LEAN=true LEAN="$(realpath fake_root/bin/lean)" \
 WRAPPER_PREFIX="$(realpath fake_root)" WRAPPER_OUT="$OUT" \
   lakeprof record -- \
   "$TEST_DIR/measure.py" -t build -d -a -- \
-  make -C "$BUILD_NEXT" -j"$(nproc)" make_stdlib LAKE_EXTRA_ARGS="+Init:olean +Std:olean +Lean:olean +Lake:olean +LakeMain:olean +LeanIR:olean +Leanc:olean +LeanChecker:olean"
+  make -C "$BUILD_NEXT" -j"$(nproc)" make_stdlib LAKE_EXTRA_ARGS="+Init:leanIR +Std:leanIR +Lean:leanIR +Lake:leanIR +LakeMain:leanIR +LeanIR:leanIR +Leanc:leanIR +LeanChecker:leanIR"
 
 
 

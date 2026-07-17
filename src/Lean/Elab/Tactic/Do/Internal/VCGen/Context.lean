@@ -135,20 +135,37 @@ public structure VCGen.Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
-/-- Definition-site info for a `__do_jp` synthetic spec, indexed by the JP's let-fvar.
+/-- Per-alt binder layout of a join point's split: the segment sizes of the alt telescope the body
+split introduces at each jump site (`fields ++ overlaps ++ discrEqs ++ extraEqs`, per
+`MatcherApp.TransformAltFVars.all`), and the number of alt binders of the synthetic spec (the
+matcher alt's own parameters: fields, then discriminant equations, or a single thunk parameter).
+Positions the spec binders within the jump-site telescope without unification. -/
+public structure JPAltLayout where
+  bodyFields : Nat
+  bodyOverlaps : Nat
+  bodyDiscrEqs : Nat
+  bodyExtraEqs : Nat
+  specBinders : Nat
+  deriving Inhabited
 
-Recorded by `tryJoinPointDef` when it registers the JP's synthetic spec, and consulted by
-`tryAssignJPHyps` at each jump site to assign the alt-specific precondition mvar
-`hypsMVars[altIdx]` to an existential closure over the jump site's local context. -/
+/-- Length of the alt telescope the body split introduces at a jump site. -/
+public def JPAltLayout.bodyTeleLen (l : JPAltLayout) : Nat :=
+  l.bodyFields + l.bodyOverlaps + l.bodyDiscrEqs + l.bodyExtraEqs
+
+/-- Definition-site info for a `__do_jp` synthetic spec, indexed by the JP's let-fvar. Recorded when
+the JP's synthetic spec is registered and consulted at each jump site to build the jump's payload
+for the alt-specific precondition mvar `hypsMVars[altIdx]`. -/
 public structure JPDefInfo where
   /-- Per-alt synthetic-opaque precondition mvars. Each has type
-  `(joinParams ++ altParams) → Pred`, assigned at the corresponding jump site. -/
+  `(joinParams ++ altParams) → Prop`, assigned by `finalizeJPs`. -/
   hypsMVars : Array MVarId
   /-- The join point's continuation splitter; its discriminant selects the alt at each jump site. -/
   splitInfo : Lean.Elab.Tactic.Do.SplitInfo
   /-- Size of the local context at the JP definition site. Locals introduced beyond this index
   are alt-local and get existentially closed when building the jump-site `φ`. -/
   outerLCtxSize : Nat
+  /-- Per-alt binder layouts, aligned with `hypsMVars`. -/
+  altLayouts : Array JPAltLayout
   deriving Inhabited
 
 public structure VCGen.Scope where

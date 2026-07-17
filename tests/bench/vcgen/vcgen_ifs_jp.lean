@@ -6,6 +6,9 @@ Authors: Sebastian Graf
 import Cases.IfsJP
 import Driver
 
+/-! Benchmark driver for the `IfsJP` case: `vcgen +jp` on a loop whose body chains `if`s with a
+shared continuation. -/
+
 set_option mvcgen.warning false
 
 open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do

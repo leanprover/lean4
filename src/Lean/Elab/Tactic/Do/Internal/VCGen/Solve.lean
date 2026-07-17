@@ -257,13 +257,29 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
       | throwError "Failed to intro hoisted let"
     return some goal
 
+/-- Per-alt segment sizes of the alt telescope the body split (`mkBackwardRuleForSplit`, splitter
+form with added equalities) introduces at each jump site, computed the same way over the abstracted
+split. -/
+private def computeBodyAltLayouts (sinfo : Lean.Elab.Tactic.Do.SplitInfo) (progTy : Expr) :
+    MetaM (Array (Nat × Nat × Nat × Nat)) := do
+  match sinfo with
+  | .ite _ | .dite _ => return #[(1, 0, 0, 0), (1, 0, 0, 0)]
+  | .matcher _ =>
+    let ref ← IO.mkRef (#[] : Array (Nat × Nat × Nat × Nat))
+    discard <| sinfo.withAbstract progTy fun abstractInfo _ =>
+      abstractInfo.splitWith (mkSort .zero) (useSplitter := true)
+          fun _name _expAltType _idx altFVars => do
+        ref.modify (·.push (altFVars.fields.size, altFVars.overlaps.size,
+          altFVars.discrEqs.size, altFVars.extraEqs.size))
+        pure (mkConst ``True)
+    ref.get
+
 /-- `+jp`: at `wp⟦jpGadget fv rest⟧` with `rest` an `if`/`match`, register a `Triple` spec for the
-join point `fv` and split into two subgoals, the JP body and the (gadget-stripped) `rest`. Then
-`body` is proved once and each jump `fv args` in `rest` closes via `applySpec` rather than inlining
-`body`.
+join point `fv` and split into two subgoals, the JP body and the (gadget-stripped) `rest`. `body`
+is proved once and each jump `fv args` in `rest` closes via `applySpec`.
 
 The spec's precondition splits the same way as `rest`: in branch `i` it is a fresh metavariable
-`?Hᵢ`, which the jump in that branch fills in with the facts that hold there. -/
+`?Hᵢ`, which the jumps in that branch fill in with the facts that hold there. -/
 private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option SolveResult) := do
   let_expr Std.Internal.Do.jpGadget _α _β fv rest := info.prog | return none
@@ -280,13 +296,14 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let numJoinParams ← liftMetaM <| Lean.Elab.Tactic.Do.getNumJoinParams joinTy resTy
 
   -- Create the `?Hᵢ` mvars in the outer local context so the rule construction's `abstractMVars`
-  -- keeps them shared across jump sites instead of lifting the splitter telescope into each.
+  -- keeps them shared across jump sites.
   let outerLCtx ← liftMetaM getLCtx
   let outerLocalInsts ← liftMetaM getLocalInstances
   let instCL ← liftMetaM <| Meta.synthInstance (← Meta.mkAppM ``Lean.Order.CompleteLattice #[info.Pred])
-  let (bodyTy, hypsMVars) ← liftMetaM <|
+  let (bodyTy, hypsMVars, specSizes) ← liftMetaM <|
     Meta.forallBoundedTelescope joinTy numJoinParams fun joinParams _ => do
       let hypsMVarsRef ← IO.mkRef (#[] : Array MVarId)
+      let specSizesRef ← IO.mkRef (#[] : Array Nat)
       -- Split the precondition at `Prop` (each `?Hᵢ` produces a `Prop`) and embed the match via `⌜·⌝`.
       -- Each jump discharges its instance by construction (`ofProp_eq_top` of the witnessed alt); the
       -- body proof case-splits the bare `Prop` match that `⌜φ⌝ s` reduces to.
@@ -296,23 +313,31 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
         let mvarTy ← Meta.mkForallFVars allBinders (mkSort .zero)
         let hypsMVar ← Meta.mkFreshExprMVarAt outerLCtx outerLocalInsts mvarTy .syntheticOpaque
         hypsMVarsRef.modify (·.push hypsMVar.mvarId!)
+        specSizesRef.modify (·.push altFVars.all.size)
         pure (mkAppN hypsMVar allBinders)
       let pjpBody ← Meta.mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[info.Pred, instCL, propMatch]
       let tripleTy ← Meta.mkAppOptM ``Std.Internal.Do.Triple
         #[info.Pred, info.EPred, info.Prog, info.Value, info.args[4]!, info.args[5]!,
           mkAppN fv joinParams, info.instWP, pjpBody, Q, info.args[9]!]
-      pure (← Meta.mkForallFVars joinParams tripleTy, ← hypsMVarsRef.get)
+      pure (← Meta.mkForallFVars joinParams tripleTy, ← hypsMVarsRef.get, ← specSizesRef.get)
+
+  let bodySizes ← liftMetaM <| computeBodyAltLayouts sinfo info.Prog
+  unless bodySizes.size == specSizes.size do
+    throwError "vcgen +jp: alt count mismatch between spec and body splits of{indentExpr rest}"
+  let altLayouts := bodySizes.zipWith (fun (bF, bO, bD, bE) sB =>
+    { bodyFields := bF, bodyOverlaps := bO, bodyDiscrEqs := bD, bodyExtraEqs := bE
+      specBinders := sB : JPAltLayout }) specSizes
 
   -- `finalizeJPs` assigns each `?Hᵢ` the disjunction of its recorded jump payloads (`False` when
   -- no jump reaches the alt, e.g. behind an early `return` or a `throw`).
-  modify fun s => { s with jpHypsMVars := s.jpHypsMVars ++ hypsMVars }
+  modify fun s => { s with jpHypsMVars := hypsMVars.foldl (·.push ·) s.jpHypsMVars }
 
   let bodyMV ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar bodyTy (← goal.getTag)
   let some joinSpec ← liftMetaM <| SpecAttr.mkSpecTheoremFromStx (← getRef) bodyMV
     | return some (.goalsInScope scope [restGoal])
 
   let outerLCtxSize := (← restGoal.getDecl).lctx.numIndices
-  let jpDefInfo : JPDefInfo := { hypsMVars, splitInfo := sinfo, outerLCtxSize }
+  let jpDefInfo : JPDefInfo := { hypsMVars, splitInfo := sinfo, outerLCtxSize, altLayouts }
   -- `bodyMV` keeps the original scope so its own head is not treated as a JP.
   let restScope := (scope.insertSpec joinSpec).registerJP fvId jpDefInfo
   return some (.goals [(restScope, restGoal), (scope, bodyMV.mvarId!)])
@@ -342,7 +367,7 @@ private def wpFVarZeta? (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) :
   let f := info.prog.getAppFn
   let some fvarId := f.fvarId? | return none
   if (scope.knownJP? fvarId).isSome then return none
-  let some val ← fvarId.getValue? (allowNondep := true) | return none
+  let some val ← fvarId.getValue? | return none
   trace[Elab.Tactic.Do.vcgen] "fvar-zeta: {(← fvarId.getUserName)}"
   let prog ← shareCommonInc (val.betaRev info.prog.getAppRevArgs)
   return some (← replaceProgDefEq goal info prog)
@@ -392,61 +417,45 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e : Expr) :
   unless altIdx < jpInfo.hypsMVars.size do return none
   let hypsMVar := jpInfo.hypsMVars[altIdx]!
   trace[Elab.Tactic.Do.vcgen] "JP jump: alt {altIdx} args={joinArgs}"
+  let layout := jpInfo.altLayouts[altIdx]!
   liftMetaM do
     let mvarTy ← hypsMVar.getType
     let lctx ← getLCtx
     let newLocalDecls := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push
       |>.filterMap id
       |>.filter (fun decl => !decl.isImplementationDetail)
-    let mvarArity ← Meta.forallTelescopeReducing mvarTy fun xs _ => pure xs.size
-    Meta.forallBoundedTelescope mvarTy mvarArity fun allBinders _ => do
+    Meta.forallTelescopeReducing mvarTy fun allBinders _ => do
       let numJP := joinArgs.size
       unless numJP ≤ allBinders.size do return none
       let jpBinders := allBinders.extract 0 numJP
       let altBinders := allBinders.extract numJP allBinders.size
-      -- The body split's alt telescope is the matcher's own alt telescope interleaved with extra
-      -- binders (overlap hypotheses, added discriminant equalities) and followed by lets, so the
-      -- mvar's alt binders form an order-preserving subsequence of the leading non-let jump-site
-      -- locals. Pair them up by type so those locals become the mvar's own binders; everything
-      -- unpaired is closed over below.
+      -- The leading jump-site locals are the body split's alt telescope,
+      -- `fields ++ overlaps ++ discrEqs ++ extraEqs` with the sizes recorded in `layout`. The mvar's
+      -- alt binders are the fields and discrEqs of the spec-side split, so they pair positionally;
+      -- the remaining telescope binders are the split's own bookkeeping, which the consuming side
+      -- re-derives when it splits the match/ite hypothesis, and are dropped. Locals beyond the
+      -- telescope (inner split conditions, monadic binders) are kept and closed over below.
+      -- The spec binders are the matcher alt's own parameters, fields first and then discriminant
+      -- equations; a thunked nullary alt has a single `Unit` parameter on the spec side only, which
+      -- stays unpaired and unused.
+      let pairedFields := min layout.specBinders layout.bodyFields
+      let pairedEqs := min (layout.specBinders - pairedFields) layout.bodyDiscrEqs
+      unless altBinders.size == layout.specBinders &&
+          layout.bodyTeleLen ≤ newLocalDecls.size &&
+          layout.specBinders - pairedFields - pairedEqs ≤ 1 do
+        throwError "vcgen +jp: jump-site telescope does not match the recorded alt layout for \
+          {indentExpr e}"
       let mut matchedLocals : Array Expr := #[]
       let mut matchedBinders : Array Expr := #[]
-      let mut matchedIdxs : Array Nat := #[]
-      let mut cursor := 0
-      for i in [:altBinders.size] do
-        let binderTy := (← Meta.inferType altBinders[i]!).replaceFVars matchedBinders matchedLocals
-        for j in [cursor:newLocalDecls.size] do
-          let decl := newLocalDecls[j]!
-          if decl.value?.isSome then break
-          if ← Meta.isDefEqGuarded binderTy (← instantiateMVars decl.type) then
-            matchedLocals := matchedLocals.push decl.toExpr
-            matchedBinders := matchedBinders.push altBinders[i]!
-            matchedIdxs := matchedIdxs.push j
-            cursor := j + 1
-            break
+      for i in [:pairedFields] do
+        matchedLocals := matchedLocals.push newLocalDecls[i]!.toExpr
+        matchedBinders := matchedBinders.push altBinders[i]!
+      for i in [:pairedEqs] do
+        matchedLocals := matchedLocals.push
+          newLocalDecls[layout.bodyFields + layout.bodyOverlaps + i]!.toExpr
+        matchedBinders := matchedBinders.push altBinders[pairedFields + i]!
       let eqs ← (jpBinders.mapIdx fun i jp => (jp, i)).mapM fun (jp, i) => Meta.mkEq jp joinArgs[i]!
-      -- Close over the unpaired locals, dropping only the outer split's own bookkeeping, which the
-      -- consuming side re-derives when it splits the match/ite hypothesis: interleaved overlap
-      -- hypotheses, added equalities on the outer discriminants, and an outer `ite`'s condition
-      -- proof. Facts from within the alt (inner split conditions, monadic binders) are kept.
-      let outerDiscrs : Array Expr := match info with
-        | .matcher m => m.discrs
-        | _ => #[]
-      let iteCond? : Option Expr := match info with
-        | .ite e => some (e.getArg! 1)
-        | _ => none
-      let mut restDecls : Array LocalDecl := #[]
-      for j in [:newLocalDecls.size] do
-        if matchedIdxs.contains j then continue
-        let decl := newLocalDecls[j]!
-        if decl.value?.isNone then
-          if j < cursor then continue
-          let ty ← instantiateMVars decl.type
-          if let some (_, lhs, _) := ty.eq? then
-            if ← outerDiscrs.anyM (Meta.isDefEqGuarded · lhs) then continue
-          if let some c := iteCond? then
-            if (← Meta.isDefEqGuarded ty c) || (← Meta.isDefEqGuarded ty (mkNot c)) then continue
-        restDecls := restDecls.push decl
+      let restDecls := newLocalDecls.extract layout.bodyTeleLen newLocalDecls.size
       let restLocals := restDecls.map LocalDecl.toExpr
       -- `∃ rest, joinParams = joinArgs`, existentially/let-closing the kept locals; the paired ones
       -- are then rewritten to the mvar's own alt binders.
@@ -524,15 +533,15 @@ private partial def proveJPDisjunct (φ : Expr) (idx count : Nat) (witnesses : L
 `?Hᵢ`, then close the jump goal `pre ⊑ ⌜match discrs => ?Hᵢ⌝` with it. The state args a stateful
 assertion is applied to are stripped with `ofProp_apply` (`⌜φ⌝ s = ⌜φ⌝`) and the proof transported
 back to the original goal. -/
-private def dischargeJPJump (r : JPJumpRecord) (idx count : Nat) : VCGenM Unit :=
+private def dischargeJPJump (sctx : Meta.Simp.Context) (r : JPJumpRecord) (idx count : Nat) :
+    VCGenM Unit :=
   r.goal.withContext do liftMetaM do
     let_expr PartialOrder.rel _l _inst pre rhs := ← r.goal.getType
       | throwError "JP finalization: unexpected jump goal{indentExpr (← r.goal.getType)}"
     let φPrf ← proveJPDisjunct (← instantiateMVars r.redExpr) idx count r.witnesses.toList
     let hMatch ← Meta.mkEqMP (← Meta.mkEqSymm r.redProof) φPrf
-    let leProof ← Meta.mkAppM ``Std.Internal.Do.CompleteLattice.le_ofProp #[pre, hMatch]
-    let sthms ← ({} : Meta.SimpTheorems).addConst ``Lean.Order.CompleteLattice.ofProp_apply
-    let (res, _) ← Meta.simp rhs (← Meta.Simp.mkContext (simpTheorems := #[sthms]))
+    let leProof ← Meta.mkAppM ``Lean.Order.le_ofProp #[pre, ← Meta.inferType hMatch, hMatch]
+    let (res, _) ← Meta.simp rhs sctx
     match res.proof? with
     | some rhsEq =>
       let motive ← Meta.withLocalDeclD `x (← Meta.inferType rhs) fun x => do
@@ -545,17 +554,23 @@ jumps provided (`False` when no jump reaches the alt, e.g. behind an early `retu
 then discharge each recorded jump goal with its own disjunct. -/
 public def finalizeJPs : VCGenM Unit := do
   let s ← get
+  if s.jpHypsMVars.isEmpty then return
+  let sthms ← ({} : Meta.SimpTheorems).addConst ``Lean.Order.CompleteLattice.ofProp_apply
+  let sctx ← Meta.Simp.mkContext (simpTheorems := #[sthms])
+  let grouped : Std.HashMap MVarId (Array JPJumpRecord) :=
+    s.jpJumps.foldl (init := {}) fun m r =>
+      m.alter r.hypsMVar (fun rs? => some ((rs?.getD #[]).push r))
   for mv in s.jpHypsMVars do
-    let records := s.jpJumps.filter (·.hypsMVar == mv)
+    let records := grouped.getD mv #[]
     unless ← mv.isAssigned do
       liftMetaM <| Meta.forallTelescopeReducing (← mv.getType) fun bs _ => do
         let props := records.map (·.payload.beta bs)
         let φ := match props.back? with
           | none => mkConst ``False
-          | some last => props.pop.foldr (init := last) (mkApp2 (mkConst ``Or))
+          | some last => props.pop.foldr (init := last) mkOr
         mv.assign (← Meta.mkLambdaFVars bs φ)
     for h : i in [:records.size] do
-      dischargeJPJump records[i] i records.size
+      dischargeJPJump sctx records[i] i records.size
 
 /-- Select the highest-priority `@[spec]` theorem matching `prog`, or a stop result when none matches.
 Hands `findSpecs` the sole reference to the spec database so its in-place pattern internalization does
@@ -616,9 +631,14 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm 
   if let some (altIdx, payload, witnesses) := jpJump? then
     let hypsMVar := (jpInfo?.get!).hypsMVars[altIdx]!
     let mut remaining := #[]
+    let mut deferred := false
     for g in goals do
-      unless ← tryDeferJPPrecond g hypsMVar altIdx payload witnesses do
+      if ← tryDeferJPPrecond g hypsMVar altIdx payload witnesses then
+        deferred := true
+      else
         remaining := remaining.push g
+    unless deferred do
+      throwError "vcgen +jp: jump {indentExpr info.prog}\nyielded no precondition subgoal to defer"
     return .goalsInScope scope remaining.toList
   return .goalsInScope scope goals
 

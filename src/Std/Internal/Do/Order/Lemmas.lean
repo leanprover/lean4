@@ -218,9 +218,6 @@ theorem ofProp_meet_le_right {φ : Prop} (h : φ → Q ⊑ R) : Q ⊓ (⌜φ⌝ 
 theorem ofProp_eq_top {φ : Prop} (h : φ) : (⌜φ⌝ : l) = ⊤ :=
   (ofProp_congr ⟨fun _ => trivial, fun _ => h⟩).trans (CompleteLattice.ofProp_true l)
 
-theorem le_ofProp {φ : Prop} (P : l) (h : φ) : P ⊑ ⌜φ⌝ := by
-  rw [ofProp_eq_top h]; exact le_top P
-
 theorem ofProp_and {φ₁ φ₂ : Prop} : (⌜φ₁⌝ : l) ⊓ ⌜φ₂⌝ = ⌜φ₁ ∧ φ₂⌝ := by
   apply rel_antisymm
   · apply ofProp_meet_le_right

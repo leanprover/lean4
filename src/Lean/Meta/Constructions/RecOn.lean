@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.AddDecl
 public import Lean.Meta.CompletionName
+import Lean.Compiler.NoncomputableAttr
 
 public section
 
@@ -36,6 +37,8 @@ def mkRecOn (n : Name) : MetaM Unit := do
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
   modifyEnv fun env => markAuxRecursor env decl.name
+  -- Never compiled (no structural translation in the code generator either)
+  modifyEnv fun env => addNoncomputable env decl.name
   modifyEnv fun env => addProtected env decl.name
 
 end Lean

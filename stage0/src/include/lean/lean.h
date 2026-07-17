@@ -409,8 +409,9 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
     // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+    // NOTE: `sz` is known at compile time for most callers
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = mi_malloc_small(sz);
+    void * mem = sz <= MI_SMALL_SIZE_MAX ? mi_malloc_small(sz) : mi_malloc(sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)mem;
     o->m_cs_sz = sz;
@@ -1217,6 +1218,9 @@ static inline uint8_t lean_string_get_byte_fast(b_lean_obj_arg s, b_lean_obj_arg
   char const * str = lean_string_cstr(s);
   size_t idx = lean_unbox(i);
   return str[idx];
+}
+static inline uint8_t lean_string_uget_byte_fast(b_lean_obj_arg s, size_t i) {
+  return (uint8_t)lean_string_cstr(s)[i];
 }
 
 LEAN_EXPORT lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);

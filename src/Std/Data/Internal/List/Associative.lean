@@ -2243,7 +2243,7 @@ theorem getEntry?_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) �
     simp only [getEntry?_cons]
     cases h₂ : k₂ == a <;> cases h₁ : k₁ == a <;> try simp; done
     simp only [distinctKeys_cons_iff, containsKey_cons, Bool.or_eq_false_iff] at hl
-    exact ((Bool.eq_false_iff.1 hl.2.1).elim (BEq.trans h₁ (BEq.symm h₂))).elim
+    exact (Bool.eq_false_iff.1 hl.2.1).elim (BEq.trans h₁ (BEq.symm h₂))
   next l₁ l₂ l₃ hl₁₂ _ ih₁ ih₂ => exact (ih₁ hl).trans (ih₂ (hl.perm (hl₁₂.symm)))
 
 theorem getEntryD_of_perm [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)} {a : α} {fallback : (a : α) × β a}

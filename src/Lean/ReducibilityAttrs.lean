@@ -156,7 +156,10 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .semireducible do
           throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .semireducible =>
-        throwError "failed to set `[semireducible]` for `{.ofConstName declName}`, declarations are `[semireducible]` by default{suffix}"
+        if statusOld matches .semireducible then do
+          throwError "failed to set `[semireducible]` for `{.ofConstName declName}` because it already is `[semireducible]`{suffix}"
+        else
+          throwError "failed to set `[semireducible]` for `{.ofConstName declName}`{suffix}"
     | .local =>
       match status with
       | .reducible =>

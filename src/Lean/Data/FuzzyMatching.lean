@@ -21,6 +21,9 @@ import Lean.Server.Completion.CompletionUtils
 public section
 
 namespace Lean
+
+open Lean
+
 namespace FuzzyMatching
 
 section Utils

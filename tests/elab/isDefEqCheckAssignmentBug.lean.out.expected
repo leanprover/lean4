@@ -300,49 +300,6 @@
     [Meta.isDefEq] ✅️ MetaM =?= MetaM
     [Meta.isDefEq] ✅️ Elab.TermElabM =?= Elab.TermElabM
 [Meta.isDefEq] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM =?= MonadEvalT MetaM Elab.Command.CommandElabM
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ MonadEval Elab.TermElabM
-      Elab.Command.CommandElabM =?= MonadEval Elab.TermElabM Elab.Command.CommandElabM
-[Meta.isDefEq] ✅️ Type =?= Type
-[Meta.isDefEq] ✅️ Type =?= Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type =?= Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-      Elab.TermElabM =?= MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-      (ReaderT Elab.Term.Context (StateRefT' IO.RealWorld Elab.Term.State MetaM))
-  [Meta.isDefEq] ✅️ StateRefT' IO.RealWorld Elab.Term.State MetaM =?= StateRefT' IO.RealWorld Elab.Term.State MetaM
-  [Meta.isDefEq] ✅️ Elab.TermElabM =?= ReaderT Elab.Term.Context (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-    [Meta.isDefEq] ✅️ ReaderT Elab.Term.Context
-          (StateRefT' IO.RealWorld Elab.Term.State
-            MetaM) =?= ReaderT Elab.Term.Context (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-[Meta.isDefEq] ✅️ MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-      Elab.TermElabM =?= MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ Type =?= Type
-[Meta.isDefEq] ✅️ Type =?= Type
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ MonadLift MetaM
-      (StateRefT' IO.RealWorld Elab.Term.State
-        MetaM) =?= MonadLift MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-[Meta.isDefEq] ✅️ MonadEval MetaM
-      (StateRefT' IO.RealWorld Elab.Term.State
-        MetaM) =?= MonadEval MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-[Meta.isDefEq] ✅️ Type → Type =?= Type → Type
-[Meta.isDefEq] ✅️ MonadEvalT MetaM MetaM =?= MonadEvalT MetaM MetaM
-[Meta.isDefEq] ✅️ MonadEvalT MetaM
-      (StateRefT' IO.RealWorld Elab.Term.State
-        MetaM) =?= MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
-[Meta.isDefEq] ✅️ MonadEvalT MetaM Elab.TermElabM =?= MonadEvalT MetaM Elab.TermElabM
 [Meta.isDefEq] ✅️ Unit =?= Unit
 [Meta.isDefEq] ✅️ Elab.Command.CommandElabM Unit =?= ?m
   [Meta.isDefEq] Elab.Command.CommandElabM Unit [nonassignable] =?= ?m [assignable]

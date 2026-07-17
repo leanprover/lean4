@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter
-// Imports: public import Lean.Linter.Util public import Lean.Linter.AmbiguousOpen public import Lean.Linter.Builtin public import Lean.Linter.CheckUnivs public import Lean.Linter.ConstructorAsVariable public import Lean.Linter.DefProp public import Lean.Linter.Deprecated public import Lean.Linter.DocsOnAlt public import Lean.Linter.UnusedVariables public import Lean.Linter.MissingDocs public import Lean.Linter.Omit public import Lean.Linter.List public import Lean.Linter.Sets public import Lean.Linter.UnusedSimpArgs public import Lean.Linter.Coe public import Lean.Linter.GlobalAttributeIn public import Lean.Linter.EnvLinter public import Lean.Linter.PersistentLintLog public import Lean.Linter.Extra public import Lean.Linter.TacticTypeCheck
+// Imports: public import Lean.Linter.Util public import Lean.Linter.AmbiguousOpen public import Lean.Linter.Builtin public import Lean.Linter.CheckUnivs public import Lean.Linter.ConstructorAsVariable public import Lean.Linter.DefProp public import Lean.Linter.Deprecated public import Lean.Linter.DocsOnAlt public import Lean.Linter.UnusedVariables public import Lean.Linter.MissingDocs public import Lean.Linter.Omit public import Lean.Linter.List public import Lean.Linter.Sets public import Lean.Linter.UnusedSimpArgs public import Lean.Linter.Coe public import Lean.Linter.GlobalAttributeIn public import Lean.Linter.EnvLinter public import Lean.Linter.PersistentLintLog public import Lean.Linter.Extra public import Lean.Linter.TacticTypeCheck public import Lean.Linter.CoreInternal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33,6 +33,7 @@ lean_object* runtime_initialize_Lean_Linter_EnvLinter(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_PersistentLintLog(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Extra(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_TacticTypeCheck(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_CoreInternal(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Linter(uint8_t builtin) {
 lean_object * res;
@@ -98,6 +99,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_TacticTypeCheck(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Linter_CoreInternal(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -127,6 +131,7 @@ lean_object* initialize_Lean_Linter_EnvLinter(uint8_t builtin);
 lean_object* initialize_Lean_Linter_PersistentLintLog(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Extra(uint8_t builtin);
 lean_object* initialize_Lean_Linter_TacticTypeCheck(uint8_t builtin);
+lean_object* initialize_Lean_Linter_CoreInternal(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter(uint8_t builtin) {
 lean_object * res;
@@ -190,6 +195,9 @@ res = initialize_Lean_Linter_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_TacticTypeCheck(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Linter_CoreInternal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter(builtin);

@@ -980,6 +980,10 @@ theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm.beq' p
   intro h₁
   simp [Poly.denote_norm ctx p₁, h₁]
 
+theorem eq_of_zero_dvd (ctx : Context) (p : Poly) : 0 ∣ p.denote' ctx → p.denote' ctx = 0 := by
+  intro ⟨k, h⟩
+  rw [h, Int.zero_mul]
+
 theorem le_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp at h
   replace h := congrArg (Poly.denote ctx) h
@@ -2036,12 +2040,32 @@ theorem eq_def' (ctx : Context) (x : Var) (e : Expr) (p : Poly)
   rw [← Int.sub_eq_add_neg, Int.sub_self]
 
 @[expose]
+noncomputable def eq_def_struct_cert (x : Var) (e : Expr) (p : Poly) : Bool :=
+  p.beq' (.add (-1) x e.toPoly')
+
+theorem eq_def_struct (ctx : Context) (x : Var) (e : Expr) (p : Poly)
+    : eq_def_struct_cert x e p → x.denote ctx = e.denote ctx → p.denote' ctx = 0 := by
+  simp [eq_def_struct_cert]; intro _ h; subst p
+  simp [Poly.denote, h, Expr.toPoly', Expr.denote_toPoly'_go]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+@[expose]
 noncomputable def eq_def'_norm_cert (x : Var) (e : Expr) (ePoly ePoly' p : Poly) : Bool :=
   ePoly.beq' e.norm |>.and' (p.beq' (.add (-1) x ePoly'))
 
 theorem eq_def'_norm (ctx : Context) (x : Var) (e : Expr) (ePoly ePoly' : Poly) (p : Poly)
     : eq_def'_norm_cert x e ePoly ePoly' p → x.denote ctx = e.denote ctx → ePoly.denote' ctx = ePoly'.denote' ctx → p.denote' ctx = 0 := by
   simp [eq_def'_norm_cert]; intro _ _ h₁ h₂; subst ePoly p; simp [h₁, ← h₂]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+@[expose]
+noncomputable def eq_def_struct_norm_cert (x : Var) (e : Expr) (ePoly ePoly' p : Poly) : Bool :=
+  ePoly.beq' e.toPoly' |>.and' (p.beq' (.add (-1) x ePoly'))
+
+theorem eq_def_struct_norm (ctx : Context) (x : Var) (e : Expr) (ePoly ePoly' : Poly) (p : Poly)
+    : eq_def_struct_norm_cert x e ePoly ePoly' p → x.denote ctx = e.denote ctx → ePoly.denote' ctx = ePoly'.denote' ctx → p.denote' ctx = 0 := by
+  simp [eq_def_struct_norm_cert]; intro _ _ h₁ h₂; subst ePoly p
+  simp [Poly.denote, h₁, ← h₂, Expr.toPoly', Expr.denote_toPoly'_go]
   rw [← Int.sub_eq_add_neg, Int.sub_self]
 
 theorem eq_norm_poly (ctx : Context) (p p' : Poly) : p.denote' ctx = p'.denote' ctx → p.denote' ctx = 0 → p'.denote' ctx = 0 := by

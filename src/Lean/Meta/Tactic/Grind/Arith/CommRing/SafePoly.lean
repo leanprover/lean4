@@ -156,14 +156,20 @@ Simplifies polynomial `p₁` using polynomial `p₂` by rewriting.
 
 This function attempts to rewrite `p₁` by eliminating the first occurrence of
 the leading monomial of `p₂`.
+
+If `checkCoeffDvd` is `true` (and the ring does not implement `NoNatZeroDivisors`),
+a monomial is rewritten only if its coefficient is divisible by the leading
+coefficient of `p₂`, i.e., only if the rewrite does not multiply `p₁` by a
+constant `k₁ ≠ ±1`. See `RingM.Context.checkCoeffDvd`.
 -/
 def _root_.Lean.Grind.CommRing.Poly.simpM? (p₁ p₂ : Poly) : RingM (Option SimpResult) := do
   match p₂ with
   | .add k₂' m₂ p₂ =>
+    let checkCoeff := (← checkCoeffDvd) && !(← noZeroDivisors)
     let rec go? (p₁ : Poly) : RingM (Option SimpResult) := do
       match p₁ with
       | .add k₁' m₁ p₁ =>
-        if m₂.divides m₁ then
+        if m₂.divides m₁ && (!checkCoeff || k₂' ∣ k₁') then
           let m₂ := m₁.div m₂
           let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
           let k₁ := k₂'/g

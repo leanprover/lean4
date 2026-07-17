@@ -1272,7 +1272,7 @@ goto v_resetjp_343_;
 }
 v_resetjp_343_:
 {
-lean_object* v_fst_346_; uint8_t v___y_348_; lean_object* v___y_349_; lean_object* v___y_350_; uint8_t v___y_359_; lean_object* v___y_360_; lean_object* v___y_361_; uint8_t v_isDotIdCompletion_368_; lean_object* v_fst_370_; uint8_t v_snd_371_; 
+lean_object* v_fst_346_; lean_object* v___y_348_; uint8_t v___y_349_; lean_object* v___y_350_; lean_object* v___y_359_; uint8_t v___y_360_; lean_object* v___y_361_; uint8_t v_isDotIdCompletion_368_; lean_object* v_fst_370_; uint8_t v_snd_371_; 
 v_fst_346_ = lean_ctor_get(v_val_342_, 0);
 lean_inc(v_fst_346_);
 lean_dec(v_val_342_);
@@ -1361,10 +1361,10 @@ lean_dec(v_snd_331_);
 v___x_352_ = lean_box(0);
 v___x_353_ = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(v___x_353_, 0, v_fst_346_);
-lean_ctor_set(v___x_353_, 1, v___y_349_);
+lean_ctor_set(v___x_353_, 1, v___y_348_);
 lean_ctor_set(v___x_353_, 2, v___x_351_);
 lean_ctor_set(v___x_353_, 3, v___x_352_);
-lean_ctor_set_uint8(v___x_353_, sizeof(void*)*4, v___y_348_);
+lean_ctor_set_uint8(v___x_353_, sizeof(void*)*4, v___y_349_);
 v___x_354_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_354_, 0, v___y_350_);
 lean_ctor_set(v___x_354_, 1, v_fst_330_);
@@ -1442,8 +1442,8 @@ if (lean_obj_tag(v___x_372_) == 0)
 lean_object* v___x_373_; lean_object* v___x_374_; 
 v___x_373_ = lean_obj_once(&l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f___closed__4, &l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f___closed__4_once, _init_l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f___closed__4);
 v___x_374_ = l_panic___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f_spec__2(v___x_373_);
-v___y_359_ = v_snd_371_;
-v___y_360_ = v_fst_370_;
+v___y_359_ = v_fst_370_;
+v___y_360_ = v_snd_371_;
 v___y_361_ = v___x_374_;
 goto v___jp_358_;
 }
@@ -1453,8 +1453,8 @@ lean_object* v_val_375_;
 v_val_375_ = lean_ctor_get(v___x_372_, 0);
 lean_inc(v_val_375_);
 lean_dec_ref_known(v___x_372_, 1);
-v___y_359_ = v_snd_371_;
-v___y_360_ = v_fst_370_;
+v___y_359_ = v_fst_370_;
+v___y_360_ = v_snd_371_;
 v___y_361_ = v_val_375_;
 goto v___jp_358_;
 }

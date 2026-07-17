@@ -2249,7 +2249,7 @@ than an error.
 
 `Nat.mod` is a wrapper around `Nat.modCore` that special-cases two situations, giving better
 definitional reductions:
- * `Nat.mod 0 m` should reduce to `m`, for all terms `m : Nat`.
+ * `Nat.mod 0 m` should reduce to `0`, for all terms `m : Nat`.
  * `Nat.mod n (m + n + 1)` should reduce to `n` for concrete `Nat` literals `n`.
 
 These reductions help `Fin n` literals work well, because the `OfNat` instance for `Fin` uses

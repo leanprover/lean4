@@ -512,8 +512,12 @@ namespace Syntax
 
 deriving instance BEq for Syntax.Preresolved
 
+/-
+The annotations are necessary because this calls the bootstrapping helper for Substring which does
+not have borrowing annotations.
+-/
 /-- Compare syntax structures modulo source info. -/
-partial def structEq : Syntax → Syntax → Bool
+partial def structEq : @&Syntax → @&Syntax → Bool
   | Syntax.missing, Syntax.missing => true
   | Syntax.node _ k args, Syntax.node _ k' args' => k == k' && args.isEqv args' structEq
   | Syntax.atom _ val, Syntax.atom _ val' => val == val'

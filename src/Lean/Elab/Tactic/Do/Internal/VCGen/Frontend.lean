@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
 public import Lean.Elab.Tactic.Do.VCGen
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Driver
+public import Lean.Elab.Tactic.Do.Internal.VCGen.FrameProcAttr
 public import Lean.Meta.Sym.Simp.Attr
 public import Lean.Meta.Sym.Simp.ControlFlow
 public import Lean.Meta.Sym.Simp.EvalGround
@@ -118,6 +119,41 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   let allSpecThms ← extendWithSimpSpecs specThms simpThms
   let ctx : VCGen.Context := { backwardRules }
   return (ctx, { specs := allSpecThms })
+
+/-- True iff `m` carries a `WPMonad m _ _` instance, i.e. it is a genuine weakest-precondition monad
+rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPred` `outParam`s are left
+as metavariables for instance search to fill; instance search runs at default transparency, while the
+caller reduces types at reducible transparency. -/
+private def isWPMonad (m : Expr) : MetaM Bool := withDefault do
+  try
+    let wpm ← mkConstWithFreshMVarLevels ``Std.Internal.Do.WPMonad
+    let (args, _, _) ← forallMetaTelescopeReducing (← inferType wpm)
+    unless ← isDefEq args[0]! m do return false
+    return (← synthInstance? (mkAppN wpm args)).isSome
+  catch _ => return false
+
+/-- Infer the program type of a `vcgen` goal, the key for frame-procedure selection and the expected
+type for elaborating `frames`/`until` patterns. Peels leading binders, then reads the program type
+from a bare `wp …` target, a `pre ⊑ wp …` entailment, or a `Triple`. When the program type is `m α`
+with `m` a `WPMonad`, the monad `m` is returned (frameprocs are keyed by monad); otherwise the whole
+program type is returned, so deep embeddings key on their own head. Returns `none` when the goal
+exposes no program. -/
+public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducible do
+  forallTelescopeReducing goalType fun _ body => do
+    let progTy? : Option Expr :=
+      if let some info := isWPApp? body then
+        some info.Prog
+      else if let some (_, _, _, rhs) := body.app4? ``Lean.Order.PartialOrder.rel then
+        (isWPApp? rhs).map (·.Prog)
+      else
+        body.withApp fun head args =>
+          if head.isConstOf ``Std.Internal.Do.Triple && args.size ≥ 3 then some args[2]! else none
+    let some progTy := progTy? | return none
+    let progTy ← whnf progTy
+    if progTy.isApp then
+      if ← isWPMonad progTy.appFn! then
+        return some progTy.appFn!
+    return some progTy
 
 end VCGen
 
@@ -251,7 +287,7 @@ private structure ParsedArgs where
   ctx : VCGen.Context
   scope : VCGen.Scope
   invariantAlts? : Option (Std.HashMap Nat Syntax)
-  frameDB? : Option (Deferred FrameDB)
+  frameDB : FrameDB
 
 /-- Build a `Sym.Pattern` from `e` by abstracting the metavariables `xs` into pattern variables.
 `checkTypeMask?` is `none` because `until` holes appear as function arguments, whose types the
@@ -268,41 +304,38 @@ private def mkUntilPattern (xs : Array Expr) (e : Expr) : MetaM Sym.Pattern := d
   let varInfos? ← Sym.mkProofInstArgInfo? xs
   return { levelParams := [], varTypes, pattern, fnInfos, varInfos?, checkTypeMask? := none }
 
-/-- Capture the current elaboration context for a deferred pattern elaboration. The returned action
-runs `k` against the first program's monad `m`, restoring the captured local context, ignoring
-type-class failures, and disabling `sorry` elaboration, while keeping info trees so hovers work on
-the pattern. Shared by `elabUntilPattern` and `elabFrameDB`. -/
-private def withDeferredElab (k : Expr → TermElabM α) : TermElabM (Expr → MetaM α) := do
-  let lctx ← getLCtx
-  let localInsts ← getLocalInstances
-  return fun m =>
-    withLCtx lctx localInsts <| Term.TermElabM.run' <|
-      Term.withoutModifyingElabMetaStateWithInfo <|
-      withTheReader Term.Context ({ · with ignoreTCFailures := true }) <|
-      Term.withoutErrToSorry <| k m
+/-- Run a program-pattern elaboration in the goal context: ignore type-class failures, disable `sorry`
+elaboration, and restore the meta state afterwards while keeping info trees so hovers work on the
+pattern. Shared by `elabUntilPattern` and `elabFrameDB`. -/
+private def withPatternElab (k : TermElabM α) : TermElabM α :=
+  Term.withoutModifyingElabMetaStateWithInfo <|
+  withTheReader Term.Context ({ · with ignoreTCFailures := true }) <|
+  Term.withoutErrToSorry k
 
 /-- Elaborate a program pattern term `p` against the program monad `m` (expected type `m _`, so
 overloaded heads resolve), returning its pattern variables (the collected metavariables: holes and
 synthetic holes) and the resulting `Sym.Pattern`. -/
-private def elabProgPattern (m : Expr) (p : Term) : TermElabM (Array Expr × Sym.Pattern) := do
-  let e ← instantiateMVars (← Term.elabTerm p (some (mkApp m (← mkFreshTypeMVar))))
+private def elabProgPattern (progTy : Expr) (p : Term) : TermElabM (Array Expr × Sym.Pattern) := do
+  -- A monad `m : Type → Type` expects the program at `m _` so its overloaded head resolves; a
+  -- deep-embedding program type is already saturated and is used directly.
+  let expectedTy ← if (← inferType progTy).isArrow
+    then pure (mkApp progTy (← mkFreshTypeMVar)) else pure progTy
+  let e ← instantiateMVars (← Term.elabTerm p (some expectedTy))
   let xs := (e.collectMVars {}).result.map Expr.mvar
   return (xs, ← mkUntilPattern xs e)
 
-/-- Build a deferred `until` pattern (holes `_` allowed, as in `conv in $t`). The pattern term is
-elaborated lazily when the first program is seen in `solve`, using that program's monad `m` as the
-expected type (`m _`) so overloaded heads resolve; the result is cached. The holes become pattern
-variables. -/
-private def elabUntilPattern (p : Term) : TermElabM (IO.Ref (Deferred Sym.Pattern)) := do
-  IO.mkRef <| .deferred <| ← withDeferredElab fun m => withRef p do
-    return (← elabProgPattern m p).2
+/-- Build an `until` pattern (holes `_` allowed, as in `conv in $t`) against the goal program type
+`progTy` as expected type, so overloaded heads resolve. The holes become pattern variables. -/
+private def elabUntilPattern (progTy : Expr) (p : Term) : TermElabM Sym.Pattern :=
+  withPatternElab <| withRef p do
+    return (← elabProgPattern progTy p).2
 
-/-- Build a deferred `frames` database. Each alternative's program pattern (a head applied to
-binder/`_` arguments) is elaborated lazily against the first program's monad `m`, like the `until`
-pattern; a named binder `x` becomes a synthetic hole `?x` so its name can be recovered and bound to
-the matched argument when the frame term is elaborated in `solve`. -/
-private def elabFrameDB (alts : Array Syntax) : TermElabM (Deferred FrameDB) := do
-  return .deferred <| ← withDeferredElab fun m => do
+/-- Build a `frames` database against the goal program type `progTy` as expected type. Each
+alternative's program pattern (a head applied to binder/`_` arguments) is elaborated at `progTy`; a
+named binder `x` becomes a synthetic hole `?x` so its name can be recovered and bound to the matched
+argument when the frame term is elaborated in `solve`. -/
+private def elabFrameDB (progTy : Expr) (alts : Array Syntax) : TermElabM FrameDB :=
+  withPatternElab do
     let mut tree : DiscrTree Nat := .empty
     let mut entries : Array FrameEntry := #[]
     for h : i in [0:alts.size] do
@@ -316,7 +349,7 @@ private def elabFrameDB (alts : Array Syntax) : TermElabM (Deferred FrameDB) := 
           pure (⟨Syntax.node .none ``Lean.Parser.Term.syntheticHole #[mkAtom "?", x.raw]⟩ : Term)
         | _ => `(_)
       let progPat ← `($head $argTerms*)
-      let (xs, pat) ← withRef alt <| elabProgPattern m progPat
+      let (xs, pat) ← withRef alt <| elabProgPattern progTy progPat
       let varNames ← xs.mapM fun x => do
         let nm := (← x.mvarId!.getDecl).userName
         return if nm.isAnonymous then none else some nm
@@ -338,12 +371,21 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
   -- distinguish "default true" from "user-set true"); not yet wired.
   let (ctx, scope) ← VCGen.mkContext stx[2] goal
-  let untilPat? ← if stx[3].isNone then pure none else some <$> elabUntilPattern ⟨stx[3][1]⟩
-  let frameDB? ← if stx[4].isNone then pure none else some <$> elabFrameDB stx[4][1].getArgs
+  -- The program type, inferred once from the goal, is the expected type for the `frames`/`until`
+  -- program patterns (so overloaded heads resolve). A goal with no program cannot be a `vcgen` goal.
+  let some progTy ← VCGen.inferProgType? (← goal.getType)
+    | throwError "vcgen: could not determine the program type of the goal"
+  let frameProcs ← VCGen.getFrameProcs
+  let untilPat? ← if stx[3].isNone then pure none
+    else some <$> elabUntilPattern progTy ⟨stx[3][1]⟩
+  let frameDB ← if stx[4].isNone then pure ({} : FrameDB)
+    else elabFrameDB progTy stx[4][1].getArgs
   let invariantAlts? ← parseInvariantMap stx[5]
   let hypSimpMethods ← elabSimplifyingAssumptions stx[6]
   let ctx := { ctx with
     hypSimpMethods,
+    frameProcs,
+    latticeOps := VCGen.mkLatticeOpTable frameProcs.latticeOps,
     trivial := config.trivial,
     useJP := config.jp,
     errorOnMissingSpec := config.errorOnMissingSpec,
@@ -351,7 +393,7 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
     internalize := config.internalize,
     invariantAlts := invariantAlts?.getD {},
     untilPat? }
-  return { config, ctx, scope, invariantAlts?, frameDB? }
+  return { config, ctx, scope, invariantAlts?, frameDB }
 
 /-- `vcgen` step inside `sym => …` blocks. -/
 @[builtin_grind_tactic Lean.Parser.Tactic.Grind.vcgen]
@@ -359,7 +401,7 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   let goal ← Lean.Elab.Tactic.Grind.getMainGoal
   let args ← parseArgs stx goal.mvarId
   let result ← Lean.Elab.Tactic.Grind.liftGrindM do
-    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit (frameDB? := args.frameDB?)
+    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit (frameDB := args.frameDB)
     if let some alts := args.invariantAlts? then
       elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
     return result

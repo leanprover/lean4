@@ -11,6 +11,7 @@ import Lean.Meta.Sym.Simp.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.ExtraModUses
 import Init.Omega
+import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean.Meta.Sym.Simp
 
@@ -30,7 +31,11 @@ structure Theorem where
   /-- If `true`, the theorem is a permutation rule (e.g., `x + y = y + x`).
   Rewriting is only applied when the result is strictly less than the input
   (using `acLt`), preventing infinite loops. -/
-  perm    : Bool := false
+  perm    : Bool
+  /-- Bitmask of the pattern variables that occur in `rhs`: bit `i` is set iff pattern
+  variable `i` occurs in `rhs`. `Theorem.rewrite` uses it to detect hypothesis proofs that
+  become part of the resulting term and must consequently be maximally shared. -/
+  rhsVarMask : Nat
   deriving Inhabited
 
 instance : BEq Theorem where
@@ -144,18 +149,36 @@ where
       let h := mkAppN expr xs
       mkLambdaFVars xs (← wrap h)
 
+/--
+Computes the bitmask of the pattern variables occurring in `rhs`.
+Pattern variable `i` corresponds to the loose bound variable `numVars - 1 - i` in `rhs`.
+See `Theorem.rewrite`.
+-/
+private def mkRhsVarMask (numVars : Nat) (rhs : Expr) : Nat := Id.run do
+  let mut mask := 0
+  for i in *...numVars do
+    /-
+    **Note**: We are potentially scanning the `rhs` multiple times. We assume this is ok here
+    because the `rhs` is usually small, and we cache the loose bvar range in `Expr`.
+    -/
+    if rhs.hasLooseBVar (numVars - 1 - i) then
+      mask := mask ||| (1 <<< i)
+  return mask
+
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let (pattern, (rhs, adaptation)) ← mkPatternFromDeclWithKey declName selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern.varTypes.size (mkConst declName) adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  return { expr, pattern, rhs, perm }
+  let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
+  return { expr, pattern, rhs, perm, rhsVarMask }
 
 /-- Create a `Theorem` from a proof expression. Handles equalities, `¬`, `↔`, and propositions. -/
 def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
   let (pattern, (rhs, adaptation)) ← mkPatternFromExprWithKey e [] selectEqKey (zetaReduceLHSOnly := true)
   let expr ← wrapProof pattern.varTypes.size e adaptation
   let perm := isPerm pattern.varTypes.size pattern.pattern rhs
-  return { expr, pattern, rhs, perm }
+  let rhsVarMask := mkRhsVarMask pattern.varTypes.size rhs
+  return { expr, pattern, rhs, perm, rhsVarMask }
 
 /--
 Environment extension storing a set of `Sym.Simp` theorems.

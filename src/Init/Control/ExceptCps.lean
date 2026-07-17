@@ -32,13 +32,12 @@ Use a monadic action that may throw an exception as an action that may return an
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
-set_option linter.unusedVariables false in  -- `s` unused
 /--
 Use a monadic action that may throw an exception by providing explicit success and failure
 continuations.
 -/
-@[always_inline, inline, expose]
-def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
+@[always_inline, inline, expose, deprecated_arg s (since := "2026-07-16")]
+def runK {ε α : Type u} (x : ExceptCpsT ε m α) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error
 
 /--
@@ -97,16 +96,16 @@ instance : MonadAttach (ExceptCpsT ε m) := .trivial
 theorem run_bind_throw [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : run (throw e >>= f : ExceptCpsT ε m β) = run (throw e) := rfl
 
 @[simp] theorem runK_pure :
-    runK (pure x : ExceptCpsT ε m α) s ok error = ok x := rfl
+    runK (pure x : ExceptCpsT ε m α) ok error = ok x := rfl
 
-@[simp] theorem runK_lift {α ε : Type u} [Monad m] (x : m α) (s : ε) (ok : α → m β) (error : ε → m β) :
-    runK (ExceptCpsT.lift x : ExceptCpsT ε m α) s ok error = x >>= ok := rfl
+@[simp] theorem runK_lift {α ε : Type u} [Monad m] (x : m α) (ok : α → m β) (error : ε → m β) :
+    runK (ExceptCpsT.lift x : ExceptCpsT ε m α) ok error = x >>= ok := rfl
 
 @[simp] theorem runK_throw [Monad m] :
-    runK (throw e : ExceptCpsT ε m β) s ok error = error e := rfl
+    runK (throw e : ExceptCpsT ε m β) ok error = error e := rfl
 
 @[simp] theorem runK_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT ε m β) :
-    runK (ExceptCpsT.lift x >>= f : ExceptCpsT ε m β) s ok error = x >>= fun a => runK (f a) s ok error := rfl
+    runK (ExceptCpsT.lift x >>= f : ExceptCpsT ε m β) ok error = x >>= fun a => runK (f a) ok error := rfl
 
 @[simp] theorem runCatch_pure [Monad m] : runCatch (pure x : ExceptCpsT α m α) = pure x := rfl
 

@@ -290,23 +290,16 @@ This prevents kernel-level reduction (used by `reduceRecMatcher?` and `reducePro
 from bypassing the `@[cbv_opaque]` attribute.
 -/
 public def withCbvOpaqueGuard (x : MetaM α) : MetaM α := do
-  let prev := (← readThe Meta.Context).canUnfold?
+  let prevCustomCanUnfoldPredicate? := (← readThe Meta.Context).customCanUnfoldPredicate?
+  let prevCanUnfoldPredicateConfig := (← readThe Meta.Context).config.canUnfoldPredicateConfig
   withCanUnfoldPred (fun cfg info => do
     if (← isCbvOpaque info.name) then return false
-    match prev with
-    | some f => f cfg info
-    | none =>
-      -- Duplicates `canUnfoldDefault` from `Lean.Meta.GetUnfoldableConst` (private).
-      match cfg.transparency with
-      | .none => return false
-      | .all  => return true
-      | .default => return !(← isIrreducible info.name)
-      | m =>
-        let status ← getReducibilityStatus info.name
-        if status == .reducible then return true
-        else if status == .instanceReducible && (m == .instances || m == .implicit) then return true
-        else if status == .implicitReducible && m == .implicit then return true
-        else return false
+    match prevCustomCanUnfoldPredicate? with
+    | .some f => f cfg info
+    | .none =>
+      match prevCanUnfoldPredicateConfig with
+      | .default => canUnfoldDefault cfg info
+      | .atMatcher => canUnfoldAtMatcher cfg info
   ) x
 
 builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond

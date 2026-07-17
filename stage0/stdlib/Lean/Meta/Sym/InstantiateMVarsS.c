@@ -19,12 +19,16 @@ lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
+uint8_t l_Lean_Expr_isMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_Sym_instantiateMVarsS_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_Sym_instantiateMVarsS_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_Sym_instantiateMVarsS_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_Sym_instantiateMVarsS_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instantiateMVarsS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instantiateMVarsS___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instantiateMVarsIfMVarAppS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instantiateMVarsIfMVarAppS___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_Sym_instantiateMVarsS_spec__0___redArg(lean_object* v_e_1_, lean_object* v___y_2_){
 _start:
 {
@@ -176,6 +180,42 @@ lean_dec_ref(v_a_64_);
 lean_dec(v_a_63_);
 lean_dec_ref(v_a_62_);
 return v_res_69_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instantiateMVarsIfMVarAppS(lean_object* v_e_70_, lean_object* v_a_71_, lean_object* v_a_72_, lean_object* v_a_73_, lean_object* v_a_74_, lean_object* v_a_75_, lean_object* v_a_76_){
+_start:
+{
+lean_object* v___x_78_; uint8_t v___x_79_; 
+v___x_78_ = l_Lean_Expr_getAppFn(v_e_70_);
+v___x_79_ = l_Lean_Expr_isMVar(v___x_78_);
+lean_dec_ref(v___x_78_);
+if (v___x_79_ == 0)
+{
+lean_object* v___x_80_; 
+v___x_80_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_80_, 0, v_e_70_);
+return v___x_80_;
+}
+else
+{
+lean_object* v___x_81_; 
+v___x_81_ = l_Lean_Meta_Sym_instantiateMVarsS(v_e_70_, v_a_71_, v_a_72_, v_a_73_, v_a_74_, v_a_75_, v_a_76_);
+return v___x_81_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instantiateMVarsIfMVarAppS___boxed(lean_object* v_e_82_, lean_object* v_a_83_, lean_object* v_a_84_, lean_object* v_a_85_, lean_object* v_a_86_, lean_object* v_a_87_, lean_object* v_a_88_, lean_object* v_a_89_){
+_start:
+{
+lean_object* v_res_90_; 
+v_res_90_ = l_Lean_Meta_Sym_instantiateMVarsIfMVarAppS(v_e_82_, v_a_83_, v_a_84_, v_a_85_, v_a_86_, v_a_87_, v_a_88_);
+lean_dec(v_a_88_);
+lean_dec_ref(v_a_87_);
+lean_dec(v_a_86_);
+lean_dec_ref(v_a_85_);
+lean_dec(v_a_84_);
+lean_dec_ref(v_a_83_);
+return v_res_90_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Sym_SymM(uint8_t builtin);

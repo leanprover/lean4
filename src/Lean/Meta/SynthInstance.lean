@@ -12,6 +12,7 @@ public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Init.While
+import Lean.Util.CollectFVars
 
 public section
 namespace Lean.Meta
@@ -844,6 +845,33 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   return defEq
 
 /--
+Returns `true` if the `check` at `applyAbstractResult?` may have observable side effects
+for `result`. The unifications performed by the check operate on expressions derived from
+`result` itself, from the types (and values) of its free variables, and from constant type
+schemes instantiated with `result`'s own universe levels. Thus, if no metavariable is
+reachable through `result` or through the (transitive) types and values of its free
+variables, every unification is between ground expressions and cannot assign anything, so
+the check is redundant. Note that mere absence of metavariables in `result` is not enough:
+in issue #796, the universe constraint flows through the type `E.{?v} a` of a local
+instance occurring in `result`.
+-/
+private def checkMayHaveSideEffects (result : Expr) : MetaM Bool := do
+  if result.hasExprMVar || result.hasLevelMVar then return true
+  let mut s := collectFVars {} result
+  let mut i := 0
+  while h : i < s.fvarIds.size do
+    let localDecl ← s.fvarIds[i].getDecl
+    let type ← instantiateMVars localDecl.type
+    if type.hasExprMVar || type.hasLevelMVar then return true
+    s := collectFVars s type
+    if let some value := localDecl.value? then
+      let value ← instantiateMVars value
+      if value.hasExprMVar || value.hasLevelMVar then return true
+      s := collectFVars s value
+    i := i + 1
+  return false
+
+/--
 Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 -/
 private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
@@ -851,13 +879,11 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   let (_, _, result) ← openAbstractMVarsResult abstResult
   unless (← assignOutParams type result) do return none
   let result ← instantiateMVars result
+  unless (← checkMayHaveSideEffects result) do
+    return some result
   /- We use `check` to propagate universe constraints implied by the `result`.
       Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
       but these assignments are discarded by `withNewMCtxDepth`.
-
-      TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether
-            a universe metavariable from previous universe levels have been assigned or not during TC resolution.
-            We only need to perform the `check` if this kind of assignment have been performed.
 
       The example in the issue #796 exposed this issue.
       ```
@@ -875,6 +901,22 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
       Note that the `e` has type `E.{?v} a`, and `E` is universe polymorphic,
       but the universe does not occur in the parameter `a`. We have that `?v := u` is implied by `@c.{u} a e α b`,
       but this assignment is lost.
+
+      **Note**: We tried to skip this `check` by tracking whether a universe metavariable
+      from a lower depth was assigned during the search (a flag set by the level-unification
+      procedures; such assignments can only happen during TC resolution and are exactly the
+      ones discarded by `withNewMCtxDepth`). The tracking is insufficient: without
+      `checkMayHaveSideEffects`, a clean Mathlib build produced 5 failures
+      (`CategoryTheory/Limits/FilteredColimitCommutesProduct`, `CategoryTheory/Limits/Presheaf`,
+      `Topology/Category/CompHausLike/SigmaComparison`, `Algebra/Category/ModuleCat/Colimits`,
+      `Analysis/CStarAlgebra/ContinuousFunctionalCalculus/Isometric`), ranging from
+      declarations with leaked universe metavariables and kernel type mismatches to
+      "don't know how to synthesize implicit argument". We suspect the situation is
+      analogous to the `isDefEq` test at `tryResolve` (see the **Note** there): the `check`
+      produces unintended side effects (e.g., `trySynthPending` on expression metavariables,
+      universe assignments the search itself never derived) that these few Mathlib places
+      rely on, possibly by accident. We should diagnose whether they work by accident and,
+      if so, fix Mathlib and remove (or further weaken) this `check`.
   -/
   check result
   return some result

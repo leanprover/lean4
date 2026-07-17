@@ -274,6 +274,13 @@ structure UnifyM.Context where
   pattern   : Pattern
   unify     : Bool := true
   zetaDelta : Bool := true
+  /--
+  `mvarCounter` at the start of the match/unify operation. Metavariables with
+  `decl.index ≥ mvarCounterSaved` were created by this operation (for uncovered pattern
+  variables and instances); metavariables with a smaller index occur in the target term
+  and must be treated as opaque atoms when `unify := false`.
+  -/
+  mvarCounterSaved : Nat := 0
 
 structure UnifyM.State where
   eAssignment  : Array (Option Expr)   := #[]
@@ -500,6 +507,22 @@ def isAssignedMVar (e : Expr) : MetaM Bool :=
   | .mvar mvarId => mvarId.isAssigned
   | _            => return false
 
+/--
+Returns `true` if the mismatched constraint `p =?= e` should be postponed because it may
+become solvable after other arguments assign the pattern variables in `p`. This is the case
+when `p` is `t + k` with pattern variables in `k`, and `e` is a numeral or an offset.
+
+Examples:
+- `3 + (1 + #1) =?= 5`
+- `#1 + #2 =?= 4`
+- `(#1 + 1) + #2 =?= t + 3`
+-/
+def isQuasiOffsetCnstr (p : Expr) (e : Expr) : Bool :=
+  match_expr p with
+  | HAdd.hAdd _ _ _ _ _ k =>
+    k.hasLooseBVars && ((isNatValue? e).isSome || (isOffset? e).isSome)
+  | _ => false
+
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   -- A pattern subterm internalized into the same table as the target shares its pointer, so a
   -- pointer match is a closed term equal to the target with no variables left to bind.
@@ -581,6 +604,10 @@ where
       return true
     else if let some p' := isOffset?' declName p then
       processOffset p' (toOffset e)
+    else if isQuasiOffsetCnstr p e then
+      -- Postpone: constraint may become an offset one after pattern variables are assigned.
+      pushPending p e
+      return true
     else if let some e' := isOffset? e then
       processOffset (toOffset p) e'
     else
@@ -924,6 +951,47 @@ def isDefEqApp (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEq
   let numArgs := t.getAppNumArgs
   isDefEqAppWithInfo t s (numArgs - 1) info
 
+/--
+Structural counterpart of `Meta.isDefEqOffset`: solves `Nat` offset/numeral constraints such as
+`8 + 8 =?= 16`, `3 + (1 + 1) =?= 5`, and `?m + 1 =?= 16` using `isNatValue?` and `isOffset?`
+instead of general reduction. Constraints of this form reach `isDefEqMain` when `process`
+postpones a quasi-offset constraint (see `isQuasiOffsetCnstr`) and it is later checked with the
+pattern variables instantiated.
+
+Returns `.undef` if the constraint is not about `Nat` offsets/numerals; a `.false` result is
+definitive because `Sym` assumes canonical forms.
+-/
+def isDefEqOffset (t s : Expr) : DefEqM LBool := do
+  match isNatValue? t, isNatValue? s with
+  | some v₁, some v₂ =>
+    return if v₁ == v₂ then .true else .false
+  | some v₁, none =>
+    -- `v₁ =?= s' + k₂`
+    let some (.add s' k₂) := isOffset? s | return .undef
+    if k₂ ≤ v₁ then
+      toLBoolM <| isDefEqMain (← share (mkNatLit (v₁ - k₂))) s'
+    else
+      return .false
+  | none, some v₂ =>
+    -- `t' + k₁ =?= v₂`
+    let some (.add t' k₁) := isOffset? t | return .undef
+    if k₁ ≤ v₂ then
+      toLBoolM <| isDefEqMain t' (← share (mkNatLit (v₂ - k₁)))
+    else
+      return .false
+  | none, none =>
+    -- `t' + k₁ =?= s' + k₂`
+    let some (.add t' k₁) := isOffset? t | return .undef
+    let some (.add s' k₂) := isOffset? s | return .undef
+    if k₁ == k₂ then
+      toLBoolM <| isDefEqMain t' s'
+    else if k₁ < k₂ then
+      if k₁ == 0 then return .undef
+      toLBoolM <| isDefEqMain t' (← share (mkNatAdd s' (mkNatLit (k₂ - k₁))))
+    else
+      if k₂ == 0 then return .undef
+      toLBoolM <| isDefEqMain (← share (mkNatAdd t' (mkNatLit (k₁ - k₂)))) s'
+
 set_option compiler.ignoreBorrowAnnotation true in
 /--
 `isDefEqMain` implementation.
@@ -983,6 +1051,7 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
     else
     whenUndefDo (tryAssignMillerPattern tFn t s rfl) do
     whenUndefDo (tryAssignMillerPattern sFn s t rfl) do
+    whenUndefDo (isDefEqOffset t s) do
     if let .fvar fvarId₁ := t then
       unless (← read).zetaDelta do return false
       let some val₁ ← fvarId₁.getValue? | return false
@@ -1108,8 +1177,17 @@ def processPendingExpr (mvarsToCheckType : Array MVarId) : UnifyM Bool := do
   let args := (← get).args
   let unify := (← read).unify
   let zetaDelta := (← read).zetaDelta
+  -- **Note**: An arg can also be a metavariable *occurring in the target term* (bound to a
+  -- pattern variable). Those must not be assignable: assignments made here are discarded by
+  -- `withNewMCtxDepth` at `Theorem.rewrite`, and a match depending on them would be bogus.
+  -- Only metavariables created by this match (index ≥ `mvarCounterSaved`) are assignable.
+  let mvarCounterSaved := (← read).mvarCounterSaved
+  let mctx ← getMCtx
   let mvarsNew := if unify then #[] else args.filterMap fun
-    | .mvar mvarId => some mvarId
+    | .mvar mvarId =>
+      match mctx.findDecl? mvarId with
+      | some decl => if decl.index ≥ mvarCounterSaved then some mvarId else none
+      | none => none
     | _ => none
   DefEqM.run unify zetaDelta mvarsNew mvarsToCheckType do
     for (t, s) in ePending do
@@ -1128,7 +1206,8 @@ def processPending (mvarsToCheckType : Array MVarId) : UnifyM Bool := do
 abbrev UnifyM.run (pattern : Pattern) (unify : Bool) (zetaDelta : Bool) (k : UnifyM α) : SymM α := do
   let eAssignment := pattern.varTypes.map fun _ => none
   let uAssignment := pattern.levelParams.toArray.map fun _ => none
-  k { unify, zetaDelta, pattern } |>.run' { eAssignment, uAssignment }
+  let mvarCounterSaved := (← getMCtx).mvarCounter
+  k { unify, zetaDelta, pattern, mvarCounterSaved } |>.run' { eAssignment, uAssignment }
 
 public structure MatchUnifyResult where
   us : List Level
@@ -1164,8 +1243,10 @@ Returns `some result` if matching succeeds, where `result` contains:
 - `us`: Level assignments for the pattern's universe variables
 - `args`: Expression assignments for the pattern's bound variables
 
+Unassigned metavariables in `e` are treated as opaque atoms: a pattern variable can be
+bound to one, but it is never assigned. Use `unify?` to solve for metavariables in `e`.
+
 Matching fails if:
-- The term contains metavariables (use `unify?` instead)
 - Structural mismatch after reducible unfolding
 
 Instance arguments are synthesized (or assigned by unification). Any that cannot be resolved are

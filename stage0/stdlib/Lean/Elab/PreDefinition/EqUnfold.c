@@ -1546,7 +1546,7 @@ v___x_459_ = l_Lean_MessageData_ofExpr(v___x_422_);
 v___x_460_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_460_, 0, v___x_458_);
 lean_ctor_set(v___x_460_, 1, v___x_459_);
-v___x_461_ = l_Lean_throwError___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4___redArg(v___x_460_, v___y_455_, v___y_456_, v___y_454_, v___y_457_);
+v___x_461_ = l_Lean_throwError___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__4___redArg(v___x_460_, v___y_456_, v___y_454_, v___y_457_, v___y_455_);
 v_a_462_ = lean_ctor_get(v___x_461_, 0);
 v_isSharedCheck_469_ = !lean_is_exclusive(v___x_461_);
 if (v_isSharedCheck_469_ == 0)
@@ -1605,10 +1605,10 @@ if (v___x_483_ == 0)
 lean_dec_ref(v___x_480_);
 lean_dec_ref(v___x_442_);
 lean_dec_ref(v___x_441_);
-v___y_454_ = v___y_473_;
-v___y_455_ = v___y_471_;
-v___y_456_ = v___y_472_;
-v___y_457_ = v___y_474_;
+v___y_454_ = v___y_472_;
+v___y_455_ = v___y_474_;
+v___y_456_ = v___y_471_;
+v___y_457_ = v___y_473_;
 goto v___jp_453_;
 }
 else
@@ -1620,10 +1620,10 @@ if (v___x_484_ == 0)
 {
 lean_dec_ref(v___x_442_);
 lean_dec_ref(v___x_441_);
-v___y_454_ = v___y_473_;
-v___y_455_ = v___y_471_;
-v___y_456_ = v___y_472_;
-v___y_457_ = v___y_474_;
+v___y_454_ = v___y_472_;
+v___y_455_ = v___y_474_;
+v___y_456_ = v___y_471_;
+v___y_457_ = v___y_473_;
 goto v___jp_453_;
 }
 else
@@ -3936,7 +3936,7 @@ v___x_1365_ = lean_string_dec_eq(v_str_1342_, v___x_1364_);
 v___x_1366_ = 1;
 v___x_1367_ = 0;
 v___x_1368_ = 2;
-v___x_1369_ = lean_alloc_ctor(0, 0, 19);
+v___x_1369_ = lean_alloc_ctor(0, 0, 20);
 lean_ctor_set_uint8(v___x_1369_, 0, v___x_1361_);
 lean_ctor_set_uint8(v___x_1369_, 1, v___x_1361_);
 lean_ctor_set_uint8(v___x_1369_, 2, v___x_1361_);
@@ -3956,6 +3956,7 @@ lean_ctor_set_uint8(v___x_1369_, 15, v___x_1358_);
 lean_ctor_set_uint8(v___x_1369_, 16, v___x_1358_);
 lean_ctor_set_uint8(v___x_1369_, 17, v___x_1358_);
 lean_ctor_set_uint8(v___x_1369_, 18, v___x_1358_);
+lean_ctor_set_uint8(v___x_1369_, 19, v___x_1361_);
 v___x_1370_ = l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(v___x_1369_);
 v___x_1371_ = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(v___x_1371_, 0, v___x_1369_);

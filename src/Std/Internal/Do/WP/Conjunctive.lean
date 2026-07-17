@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Internal.Do.WP.Basic
-public import Std.Internal.Do.Order.Lemmas
+public import Std.Internal.Do.Order.Instances
 universe u v w z
 @[expose] public section
 

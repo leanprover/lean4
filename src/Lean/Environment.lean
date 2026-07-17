@@ -2422,28 +2422,86 @@ where
     p.isProp
 
 /--
-Resolves the duplicate names reported by `ImportedConsts.mergeModuleTrees` like the previous eager
-hash map construction did: a later declaration replaces the stored first one if it subsumes it, and
-conflicting declarations are an error (private view only; the private pass already checked every
-name occurring in the public view).
+Picks the entry stored for a name declared by several modules from the candidate entries, given in
+module order, like the previous eager hash map construction did: a later declaration replaces the
+first one if it subsumes it. Conflicts have been ruled out by `checkImportConflicts` before.
 -/
-private def resolveDuplicates (s : ImportState) (imported : ImportedConsts ConstantInfo)
-    (dups : Array (ImportedConsts.Duplicate ConstantInfo)) (throwOnConflict : Bool) :
-    IO (ImportedConsts ConstantInfo) := do
-  let mut imported := imported
-  for dup in dups do
-    let (cinfo₀, modIdx₀) := dup.entries[0]!
-    let mut winner := cinfo₀
-    let mut changed := false
-    for (cinfo, modIdx) in dup.entries[1:] do
-      if subsumesInfo imported.find? cinfo winner then
-        winner := cinfo
-        changed := true
-      else if throwOnConflict && !subsumesInfo imported.find? winner cinfo then
-        throwAlreadyImported s modIdx₀ modIdx dup.name
-    if changed then
-      imported := imported.setEntry dup.name (winner, modIdx₀)
-  return imported
+private def resolveImportedEntry (find? : Name → Option ConstantInfo)
+    (entries : Array (ConstantInfo × Nat)) : Option (ConstantInfo × Nat) := Id.run do
+  let some (c₀, i₀) := entries[0]? | return none
+  let mut winner := c₀
+  for (c, _) in entries[1:] do
+    if subsumesInfo find? c winner then
+      winner := c
+  return some (winner, i₀)
+
+/--
+Checks for conflicting declarations of the same name across imported modules, replacing the check
+previously done while eagerly merging all constants (private view only; that pass already checked
+every name occurring in the public view). A pair of modules is exempt if one of the current
+import's direct imports loaded both modules' data, at least at the current import's levels, at its
+own compile: that compile ran this very check on the same (or a larger) name universe, which
+recursively certifies every pair inside its closure down to the pair's first co-importer. The
+duplicate sweep skips covered subtrees, making the check nearly free for common patterns such as
+importing a single aggregator module; level escalations such as `import all` of a module whose
+certifying compile loaded it publicly are conservatively re-checked.
+-/
+private def checkImportConflicts (s : ImportState) (imports : Array Import)
+    (modules : Array ImportedModule) (moduleData : Array ModuleData) : IO Unit := do
+  let n := moduleData.size
+  let mut idxOf : Std.HashMap Name Nat := {}
+  for h : i in *...modules.size do
+    idxOf := idxOf.insert modules[i].module i
+  -- For each of the (first 64) direct imports, replay `importModulesFrom.go`'s level propagation
+  -- from its compile's perspective, bit-parallel over one reverse pass of the topologically
+  -- sorted module list: whether it loaded each module's data at all (`needsData`) and whether at
+  -- the `importAll` level (`allOf`). The direct import's own row is seeded as its compile's root
+  -- state; its own declarations were fully known to it, so the seed also covers them.
+  let mut needsData : Array UInt64 := .replicate n 0
+  let mut allOf : Array UInt64 := .replicate n 0
+  -- bits of direct imports compiled without the module system: they imported everything at `all`
+  let mut privGlobal : UInt64 := 0
+  for h : k in *...imports.size do
+    if k < 64 then
+      if let some i := idxOf[imports[k].module]? then
+        let bit := (1 : UInt64) <<< UInt64.ofNat k
+        needsData := needsData.modify i (· ||| bit)
+        allOf := allOf.modify i (· ||| bit)
+        if !moduleData[i]!.isModule then
+          privGlobal := privGlobal ||| bit
+  for x' in *...n do
+    let x := n - 1 - x'
+    let nd := needsData[x]!
+    if nd != 0 then
+      let ao := allOf[x]!
+      for i in moduleData[x]!.imports do
+        if let some d := idxOf[i.module]? then
+          -- `needsData_B = needsData_A && (i.isExported || importAll_A)`
+          let contrib := nd &&& (if i.isExported then 0xFFFFFFFFFFFFFFFF else ao)
+          if contrib != 0 then
+            needsData := needsData.modify d (· ||| contrib)
+          -- `importAll_B = globalLevel == .private || importAll_A && i.importAll`
+          let aoContrib := (contrib &&& privGlobal) ||| (if i.importAll then ao else 0)
+          if aoContrib != 0 then
+            allOf := allOf.modify d (· ||| aoContrib)
+  -- a certificate covers a module if it loaded its data, at `importAll` level if the current
+  -- import does
+  let mut covered : Array UInt64 := .replicate n 0
+  for x in *...n do
+    covered := covered.set! x
+      (if modules[x]?.any (·.importAll) then needsData[x]! &&& allOf[x]! else needsData[x]!)
+  let dups := ImportedConsts.collectDuplicates
+    (moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie)) covered
+  unless dups.isEmpty do
+    let find? := fun nm => moduleData.findSome? fun d => d.constTrie.find? nm
+    for dup in dups do
+      let some (c₀, i₀) := dup.entries[0]? | continue
+      let mut winner := c₀
+      for (c, i) in dup.entries[1:] do
+        if subsumesInfo find? c winner then
+          winner := c
+        else if !subsumesInfo find? winner c then
+          throwAlreadyImported s i₀ i dup.name
 
 /--
 Constructs environment from `importModulesCore` results.
@@ -2464,11 +2522,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     let some data := mod.irData? loadIRSig |
       throw <| IO.userError s!"missing IR data file for module {mod.module}"
     return data
-  -- Merge the region-resident per-module prefix trees instead of building hash maps over all
-  -- imported constants; only name prefixes shared between modules are allocated here.
-  let (privImported, privDups) :=
-    ImportedConsts.mergeModuleTrees <| moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie)
-  let privImported ← resolveDuplicates s privImported privDups (throwOnConflict := true)
+  -- Merge the region-resident per-module prefix trees lazily instead of building hash maps over
+  -- all imported constants; only name prefixes shared between modules get fresh nodes, on first
+  -- access. Conflicts are checked separately up front, so entry resolution cannot fail.
+  checkImportConflicts s imports modules moduleData
+  let privFind? := fun n => moduleData.findSome? fun d => d.constTrie.find? n
+  let privImported :=
+    ImportedConsts.mergeModuleTreesLazy
+      (moduleData.mapIdx fun modIdx data => (modIdx, data.constTrie))
+      (resolveImportedEntry privFind?)
   let importedExtraConsts :=
     ImportedConsts.mergeModuleTreesLazy <| irData.mapIdx fun modIdx data => (modIdx, data.extraConstTrie)
   let mut publicTrees := #[]
@@ -2478,8 +2540,8 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       if mod.isExported then
         if let some data := mod.publicModule? then
           publicTrees := publicTrees.push (modIdx, data.constTrie)
-  let (publicImported, publicDups) := ImportedConsts.mergeModuleTrees publicTrees
-  let publicImported ← resolveDuplicates s publicImported publicDups (throwOnConflict := false)
+  let publicFind? := fun n => publicTrees.findSome? fun (_, t) => t.find? n
+  let publicImported := ImportedConsts.mergeModuleTreesLazy publicTrees (resolveImportedEntry publicFind?)
 
   let exts ← mkInitialExtensionStates
   let privateBase : Kernel.Environment := {

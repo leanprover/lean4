@@ -3,6 +3,7 @@ import LeanCheckerTests.OpenPrivate
 open private Lean.Environment.setCheckedSync from Lean.Environment
 open private Lean.Kernel.Environment.mk from Lean.Environment
 open private Lean.Kernel.Environment.extensions from Lean.Environment
+open private Lean.Kernel.Environment.irBaseExts from Lean.Environment
 
 open Lean in
 /--
@@ -31,7 +32,7 @@ open Lean Elab Meta in
     env.toKernelEnv.allImportedConsts
     env.toKernelEnv.importedExtraConsts
     (Lean.Kernel.Environment.extensions env.toKernelEnv)
-    {}
+    (Lean.Kernel.Environment.irBaseExts env.toKernelEnv)
     env.header
   Lean.Environment.setCheckedSync env kenv
 

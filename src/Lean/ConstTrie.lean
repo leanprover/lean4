@@ -226,13 +226,12 @@ public inductive ImportedConsts (α : Type) where
   | merged (key : Name) (entry? : Option (α × Nat)) (children : Array (ImportedConsts α))
       (childIndex : ByteArray)
   /--
-  Like `merged`, but with the children computed on first descent from the candidate subtrees
-  sharing the prefix, one level at a time. Thunk forcing is thread-safe and supported on
-  persistent objects, so lazy nodes are safe to share across elaboration threads. Used for views
-  whose `Duplicate`s nobody consumes; entry lookups at the prefix itself answer directly from
-  `cands` without forcing.
+  Like `merged`, but with the entry and children computed on first access from the candidate
+  subtrees sharing the prefix, one level at a time; the entry resolution rule is fixed at merge
+  time (see `mergeModuleTreesLazy`). Thunk forcing is thread-safe and supported on persistent
+  objects, so lazy nodes are safe to share across elaboration threads.
   -/
-  | lazy (key : Name) (cands : Array (Nat × ConstTrie α))
+  | lazy (key : Name) (entry : Thunk (Option (α × Nat)))
       (expanded : Thunk (Array (ImportedConsts α) × ByteArray))
 
 public instance : Inhabited (ImportedConsts α) := ⟨.merged .anonymous none #[] .empty⟩
@@ -251,19 +250,12 @@ public def mkMerged (key : Name) (entry? : Option (α × Nat))
     (children : Array (ImportedConsts α)) : ImportedConsts α :=
   .merged key entry? children (buildChildIndex children ImportedConsts.key)
 
-/-- The entry of the prefix shared by `cands`: the first candidate value, with its module. -/
-private def candsEntry? (cands : Array (Nat × ConstTrie α)) : Option (α × Nat) := Id.run do
-  for (i, t) in cands do
-    if let some v := t.val? then
-      return some (v, i)
-  return none
-
 /-- Walks from `t`, the node for `path[i]` (or the root for `i = path.size`), to `path[0]`. -/
 private partial def findValAux : ImportedConsts α → Array Name → Nat → Option α
   | .mod _ tr, path, i => tr.findAux path i
-  | .lazy _ cands expanded, path, i =>
+  | .lazy _ entry expanded, path, i =>
     if i == 0 then
-      (candsEntry? cands).map (·.1)
+      entry.get.map (·.1)
     else
       let (cs, hs) := expanded.get
       match findHashIdx? hs cs key path[i - 1]! with
@@ -284,9 +276,9 @@ private partial def findModIdxAux : ImportedConsts α → Array Name → Nat →
     match tr.findAux path i with
     | some _ => some modIdx
     | none   => none
-  | .lazy _ cands expanded, path, i =>
+  | .lazy _ entry expanded, path, i =>
     if i == 0 then
-      (candsEntry? cands).map (·.2)
+      entry.get.map (·.2)
     else
       let (cs, hs) := expanded.get
       match findHashIdx? hs cs key path[i - 1]! with
@@ -307,9 +299,9 @@ private partial def findEntryAux : ImportedConsts α → Array Name → Nat → 
     match tr.findAux path i with
     | some v => some (v, modIdx)
     | none   => none
-  | .lazy _ cands expanded, path, i =>
+  | .lazy _ entry expanded, path, i =>
     if i == 0 then
-      candsEntry? cands
+      entry.get
     else
       let (cs, hs) := expanded.get
       match findHashIdx? hs cs key path[i - 1]! with
@@ -443,14 +435,78 @@ public def mergeModuleTrees (trees : Array (Nat × ConstTrie α)) :
     ImportedConsts α × Array (Duplicate α) :=
   mergeCands .anonymous trees |>.run #[]
 
-/-- `mergeCands` without duplicate reporting, producing lazily expanded nodes. -/
-private partial def mergeLazy (key : Name) (cands : Array (Nat × ConstTrie α)) :
-    ImportedConsts α :=
+private partial def collectDupsAux (covered : Array UInt64) (key : Name)
+    (cands : Array (Nat × ConstTrie α)) (acc : Array (Duplicate α)) : Array (Duplicate α) :=
+    Id.run do
+  -- Modules jointly covered by one direct import (a common mask bit) are pairwise
+  -- conflict-checked already; nothing below this prefix needs visiting.
+  unless covered.isEmpty do
+    let mut common : UInt64 := 0xFFFFFFFFFFFFFFFF
+    for (i, _) in cands do
+      common := common &&& covered[i]!
+    if common != 0 then
+      return acc
+  let mut acc := acc
+  let entries := cands.filterMap fun (i, t) => t.val?.map ((·, i))
+  if entries.size > 1 then
+    acc := acc.push { name := key, entries }
+  -- Flatten the candidates' children with their key hashes as in `mergeCands`, but recurse only
+  -- into prefixes occurring in several modules: no duplicate can hide below a single-module
+  -- subtree, so those are skipped without being visited.
+  let mut total := 0
+  for (_, t) in cands do
+    total := total + t.children.size
+  let mut all : Array (UInt64 × Nat × ConstTrie α) := .mkEmpty total
+  for (i, t) in cands do
+    for c in t.children do
+      all := all.push (c.key.hash, i, c)
+  let sorted := all.qsort fun (h₁, i₁, _) (h₂, i₂, _) => h₁ < h₂ || (h₁ == h₂ && i₁ < i₂)
+  let mut idx := 0
+  while idx < sorted.size do
+    let (hash₀, i, c) := sorted[idx]!
+    idx := idx + 1
+    if idx < sorted.size && sorted[idx]!.1 == hash₀ then
+      -- gather the run of children with the same key hash, partitioned by actual key in case of
+      -- hash collisions
+      let mut groups : Array (Array (Nat × ConstTrie α)) := #[#[(i, c)]]
+      while idx < sorted.size && sorted[idx]!.1 == hash₀ do
+        let (_, i, c) := sorted[idx]!
+        match groups.findIdx? fun g => lastPartEq g[0]!.2.key c.key with
+        | some gi => groups := groups.modify gi (·.push (i, c))
+        | none    => groups := groups.push #[(i, c)]
+        idx := idx + 1
+      for g in groups do
+        if g.size > 1 then
+          acc := collectDupsAux covered g[0]!.2.key g acc
+  return acc
+
+/--
+Collects the names declared by more than one of the given modules, with their declarations in
+module order, without building a merged view: only name prefixes occurring in several modules are
+walked. `covered` optionally gives each module a bitmask of covering direct imports; subtrees
+whose modules share a mask bit are skipped, as their pairs are conflict-checked already (see
+`checkImportConflicts`). Intended for detecting import conflicts when the merged view itself is
+built lazily.
+-/
+public def collectDuplicates (trees : Array (Nat × ConstTrie α))
+    (covered : Array UInt64 := #[]) : Array (Duplicate α) :=
+  if trees.size < 2 then #[]
+  else collectDupsAux covered .anonymous trees #[]
+
+/--
+`mergeCands` without duplicate reporting, producing lazily expanded nodes. `resolve` picks the
+entry stored for a prefix from the candidate entries, given in module order; conflicts must have
+been ruled out beforehand, so it cannot fail.
+-/
+private partial def mergeLazy (resolve : Array (α × Nat) → Option (α × Nat)) (key : Name)
+    (cands : Array (Nat × ConstTrie α)) : ImportedConsts α :=
   if cands.size == 1 then
     let (i, t) := cands[0]!
     .mod i t
   else
-    .lazy key cands (Thunk.mk fun _ => expandLazy cands)
+    .lazy key
+      (Thunk.mk fun _ => resolve <| cands.filterMap fun (i, t) => t.val?.map ((·, i)))
+      (Thunk.mk fun _ => expandLazy cands)
 where
   expandLazy (cands : Array (Nat × ConstTrie α)) :
       Array (ImportedConsts α) × ByteArray := Id.run do
@@ -481,16 +537,18 @@ where
           | none    => groups := groups.push #[(i, c)]
           idx := idx + 1
         for g in groups do
-          children := children.push (mergeLazy g[0]!.2.key g)
+          children := children.push (mergeLazy resolve g[0]!.2.key g)
     return (children, buildChildIndex children ImportedConsts.key)
 
 /--
-Like `mergeModuleTrees`, but merging each node's children on first descent instead of eagerly.
-No `Duplicate`s are reported; an entry declared by several modules resolves to the first
-module's value, as in the eager merge. Intended for views whose duplicates are not consumed.
+Like `mergeModuleTrees`, but merging each node's entry and children on first access instead of
+eagerly. No `Duplicate`s are reported; instead, `resolve` picks the entry stored for a name
+declared by several modules from the candidate entries, given in module order. Conflicting
+declarations must have been ruled out beforehand.
 -/
-public def mergeModuleTreesLazy (trees : Array (Nat × ConstTrie α)) : ImportedConsts α :=
-  mergeLazy .anonymous trees
+public def mergeModuleTreesLazy (trees : Array (Nat × ConstTrie α))
+    (resolve : Array (α × Nat) → Option (α × Nat) := (·[0]?)) : ImportedConsts α :=
+  mergeLazy resolve .anonymous trees
 
 /--
 Replaces the node for `n` using `f`. `n` must be a prefix shared by several modules, such as a
@@ -506,7 +564,10 @@ where
   @[inline] modifyChild (n : Name) (f : ImportedConsts α → ImportedConsts α) :
       ImportedConsts α → ImportedConsts α
     | t@(.mod ..)       => t
-    | t@(.lazy ..)      => t
+    | .lazy k e exp =>
+      -- force the node so the modification is not lost on re-expansion
+      let (cs, hs) := exp.get
+      modifyChild n f (.merged k e.get cs hs)
     | .merged k e? cs hs =>
       match findHashIdx? hs cs key n with
       | some i => .merged k e? (cs.modify i f) hs
@@ -518,9 +579,9 @@ as for `--incr-header-save`, forces the thunks anyway; doing so eagerly instead 
 merges in the middle of compaction and compacting the thunk wrappers themselves.
 -/
 public partial def forceExpanded : ImportedConsts α → ImportedConsts α
-  | .lazy k cands expanded =>
+  | .lazy k entry expanded =>
     let (cs, hs) := expanded.get
-    .merged k (candsEntry? cands) (cs.map forceExpanded) hs
+    .merged k entry.get (cs.map forceExpanded) hs
   | .merged k e? cs hs => .merged k e? (cs.map forceExpanded) hs
   | t                  => t
 
@@ -539,9 +600,9 @@ public partial def foldlM [Monad m] (t : ImportedConsts α) (f : σ → Name →
     if let some (v, _) := e? then
       s ← f s k v
     cs.foldlM (fun s c => c.foldlM f s) s
-  | .lazy k cands expanded =>
+  | .lazy k entry expanded =>
     let mut s := init
-    if let some (v, _) := candsEntry? cands then
+    if let some (v, _) := entry.get then
       s ← f s k v
     (expanded.get).1.foldlM (fun s c => c.foldlM f s) s
 
@@ -558,9 +619,9 @@ public partial def foldlEntriesM [Monad m] (t : ImportedConsts α)
     if let some e := e? then
       s ← f s k e
     cs.foldlM (fun s c => c.foldlEntriesM f s) s
-  | .lazy k cands expanded =>
+  | .lazy k entry expanded =>
     let mut s := init
-    if let some e := candsEntry? cands then
+    if let some e := entry.get then
       s ← f s k e
     (expanded.get).1.foldlM (fun s c => c.foldlEntriesM f s) s
 

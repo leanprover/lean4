@@ -495,6 +495,19 @@ private partial def fillJPExists (g : MVarId) (witnesses : List Expr) : MetaM Un
   | Eq _ lhs _ => g.assign (← Meta.mkEqRefl lhs)
   | _ => throwError "JP witness: unexpected residual{indentExpr ty}"
 
+/-- Close a JP jump subgoal `∀ xs, lhs ⊑ rhs` with definitionally equal sides by reflexivity. The
+synthetic spec's postcondition is the registration goal's, so the jump's post-monotonicity premise
+has the shared postcondition on both sides (up to eta); left to the worklist, the target simp would
+unfold the entailment and re-verify the continuation the postcondition carries, once per jump. -/
+private def tryCloseTrivialRefl (g : MVarId) : VCGenM Bool :=
+  g.withContext do liftMetaM do
+    Meta.forallTelescope (← g.getType) fun xs body => do
+      let some (α, inst, lhs, rhs) := body.app4? ``PartialOrder.rel | return false
+      unless ← Meta.isDefEqGuarded lhs rhs do return false
+      let prf ← Meta.mkAppOptM ``Lean.Order.PartialOrder.rel_refl #[α, inst, lhs]
+      g.assign (← Meta.mkLambdaFVars xs prf)
+      return true
+
 /-- Record a JP jump's precondition VC `pre ⊑ ⌜match discrs => ?Hᵢ⌝` for `finalizeJPs`, verifying
 that the match reduces to the applicable alt with the jump's discriminant evidence. Returns `true`
 when `g` was recorded (and thus withheld from the worklist); other subgoals are left. -/
@@ -635,6 +648,8 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm 
     for g in goals do
       if ← tryDeferJPPrecond g hypsMVar altIdx payload witnesses then
         deferred := true
+      else if ← tryCloseTrivialRefl g then
+        pure ()
       else
         remaining := remaining.push g
     unless deferred do

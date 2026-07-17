@@ -291,23 +291,6 @@ theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : 
   refine (pairwise_pmap h).2 (Pairwise.imp_of_mem ?_ hl)
   intros; apply hS; assumption
 
-theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ xs : List (Fin l.length),
-    l' = xs.map (l[·]) ∧ xs.Pairwise (· < ·) := by
-  induction h with
-  | slnil => exact ⟨[], by simp⟩
-  | cons _ _ IH =>
-    let ⟨xs, IH⟩ := IH
-    exists xs.map (·.succ)
-    simp only [length_cons, Fin.getElem_fin, map_map, Function.comp_def, pairwise_map]
-    exact ⟨IH.1, IH.2.imp Nat.succ_lt_succ⟩
-  | cons_cons _ _ IH =>
-    rcases IH with ⟨xs, IH⟩
-    exists 0 :: xs.map (·.succ)
-    simp only [IH, Fin.getElem_fin, ← get_eq_getElem, length_cons, map_cons, get_cons_zero, map_map,
-      Function.comp_def, get_cons_succ', pairwise_cons, mem_map, forall_exists_index, and_imp,
-      forall_apply_eq_imp_iff₂, pairwise_map, true_and]
-    exact ⟨fun _ _ => Nat.zero_lt_succ _, IH.2.imp Nat.succ_lt_succ⟩
-
 /-! ### Nodup -/
 
 @[grind =] theorem nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl

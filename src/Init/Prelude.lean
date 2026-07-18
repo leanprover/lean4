@@ -773,6 +773,7 @@ the array, it reports a panic message, but this does not halt the program,
 so it must still return a value of type `α` (and in fact this is required
 for logical consistency), so in this case it returns `default`.
 -/
+@[weak_specialize] -- specialization isn't worth the cost here usually; but see also `panicCore`
 class Inhabited (α : Sort u) where
   /-- `default` is a function that produces a "default" element of any
   `Inhabited` type. This element does not have any particular specified
@@ -3715,12 +3716,9 @@ Because this is a pure function with side effects, it is marked as
 `@[never_extract]` so that the compiler will not perform common sub-expression
 elimination and other optimizations that assume that the expression is pure.
 -/
-@[noinline, never_extract]
+@[noinline, never_extract, specialize 2]
 def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
   panicCore msg
-
--- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
-attribute [weak_specialize] Inhabited
 
 /--
 The `>>=` operator is overloaded via instances of `bind`.

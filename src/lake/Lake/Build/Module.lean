@@ -259,10 +259,14 @@ where
       let allVisited := if importAll then allVisited.insert mod.name else allVisited
       let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
       -- Widest level seen so far, never below an existing entry's (no demotion). IR is gated on
-      -- `meta import` reachability -- or `nonModule`, whose in-process codegen needs every dep's IR.
-      -- A purely transitive `import all` in a module build keeps `.private` but no IR.
+      -- `meta import` or `import all` reachability -- the latter chains transitively in
+      -- `importModulesCore` (`A ≥ privateAll ∧ A import all B → B ≥ privateAll`, and `privateAll`
+      -- implies `needsIR`): such a module's private initializers are visible and can only be
+      -- interpreted from its `.ir`. Also on `nonModule`, whose in-process codegen needs every
+      -- dep's IR.
       let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
-      let wantIR := metaVisited.contains mod.name || nonModule || existing?.any (fun a => !a.irParts.isEmpty)
+      let wantIR := allVisited.contains mod.name || metaVisited.contains mod.name || nonModule ||
+        existing?.any (fun a => !a.irParts.isEmpty)
       let info ← if wantIR then
           (← mod.metaExportInfo.fetch).await
         else

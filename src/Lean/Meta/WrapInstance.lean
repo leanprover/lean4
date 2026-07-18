@@ -183,8 +183,8 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
 
         if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
           let name ← mkAuxDeclName
-          let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
-            (exposeBody := exposeAux)
+          let wrapped ← withoutExporting (when := !exposeAux) <|
+            mkAuxDefinition name expectedType inst (compile := false)
           setReducibilityStatus name <|
             if (← withImplicit <| isDefEq expectedType instType) then
               .implicitReducible
@@ -279,8 +279,8 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
             mvarId.assign arg
           else
             let name ← mkAuxDeclName
-            mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := false)
-              (exposeBody := exposeAux))
+            mvarId.assign (← withoutExporting (when := !exposeAux) <|
+              mkAuxDefinition name argExpectedType arg (compile := false))
             setReducibilityStatus name <|
               if (← withImplicit <| isDefEq argExpectedType argType) then
                 .implicitReducible

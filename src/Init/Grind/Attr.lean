@@ -198,6 +198,22 @@ Given an application `f a₁ a₂ … aₙ`, when `funCC := true`,
 -/
 syntax grindFunCC  := &"funCC"
 /--
+The `homo` modifier marks a theorem as a homomorphism rule for `grind`.
+
+Homomorphism rules translate terms from a source domain into a target domain that has a
+dedicated solver. A collection of homomorphism rules encodes an algebra homomorphism
+`h : A → B`: each rule states how `h` commutes with a source-domain operation, as in
+`h (f x y) = g (h x) (h y)`. Example: injecting bitvector operations into integer
+arithmetic using `BitVec.toNat`:
+```
+@[grind homo] theorem toNat_add (x y : BitVec w) :
+    (x + y).toNat = (x.toNat + y.toNat) % 2^w
+```
+The rules must be unconditional equations (or `Iff`s). They are applied to fixpoint
+outside the E-graph, and only the final result is internalized.
+-/
+syntax grindHomo   := &"homo"
+/--
 The `norm` modifier instructs `grind` to use a theorem as a normalization rule. That is,
 the theorem is applied during the preprocessing step.
 This feature is meant for advanced users who understand how the preprocessor and `grind`'s search
@@ -273,7 +289,7 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindNorm <|> grindUnfold <|> grindDef
+    <|> grindFunCC <|> grindHomo <|> grindNorm <|> grindUnfold <|> grindDef
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.

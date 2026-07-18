@@ -9,6 +9,8 @@ public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
 public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Grind.Homo
+import Lean.Meta.Sym.Simp.Attr
 import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
@@ -26,6 +28,7 @@ inductive AttrKind where
   | funCC
   | norm (post : Bool) (inv : Bool)
   | unfold
+  | homo
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
@@ -59,6 +62,7 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|norm ↑ ←) => return .norm true true
   | `(Parser.Attr.grindMod|norm ↓ ←) => return .norm (post := false) true
   | `(Parser.Attr.grindMod|unfold) => return .unfold
+  | `(Parser.Attr.grindMod|homo) => return .homo
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
     return .symbol prio
@@ -179,6 +183,10 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
           throwError "declaration to unfold must be set using the default `[grind]` attribute"
         unless (← addDeclToUnfold normExt declName (post := false) (inv := false) (prio := eval_prio default) (attrKind := attrKind)) do
           throwError "cannot mark declaration to be unfolded by `grind`"
+      | .homo =>
+        unless attrName == `grind do
+          throwError "homomorphism rules must be set using the default `[grind]` attribute"
+        Sym.Simp.addSymSimpDecl homoExt "grind homo" declName attrKind
       | .cases eager => ext.addCasesAttr declName eager attrKind
       | .funCC => ext.addFunCCAttr declName attrKind
       | .ext => ext.addExtAttr declName attrKind

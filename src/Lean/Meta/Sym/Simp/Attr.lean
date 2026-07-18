@@ -19,6 +19,31 @@ def addSymSimpTheorem (ext : SymSimpExtension) (declName : Name) (attrKind : Att
   ext.add thm attrKind
 
 /--
+Adds a declaration to the given `Sym.Simp` theorem extension.
+When `declName` is a proposition, it is added as a rewrite theorem.
+When it is a definition, its equation theorems are added.
+`attrName` is only used in error messages.
+-/
+def addSymSimpDecl (ext : SymSimpExtension) (attrName : String) (declName : Name)
+    (attrKind : AttributeKind) : MetaM Unit := do
+  let info ← getAsyncConstInfo declName
+  if (← isProp info.sig.get.type) then
+    addSymSimpTheorem ext declName attrKind
+  else if info.kind matches .defn then
+    if (← Simp.ignoreEquations declName) then
+      throwError "Cannot add `{attrName}` attribute to `{.ofConstName declName}`: \
+        It is a reducible definition or projection. `Sym.simp` does not support unfolding."
+    else if let some eqns ← getEqnsFor? declName then
+      for eqn in eqns do
+        addSymSimpTheorem ext eqn attrKind
+    else
+      throwError "Cannot add `{attrName}` attribute to `{.ofConstName declName}`: \
+        No equation theorems found."
+  else
+    throwError "Cannot add `{attrName}` attribute to `{.ofConstName declName}`: \
+      It is not a proposition nor a definition with equation theorems."
+
+/--
 Creates a `Sym.Simp` attribute for a named theorem set.
 When a proposition is tagged, it is added as a rewrite theorem.
 When a definition is tagged, its equation theorems are added.
@@ -31,24 +56,7 @@ def mkSymSimpAttr (attrName : Name) (attrDescr : String) (ext : SymSimpExtension
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
     add   := fun declName _ attrKind => do
-      let go : MetaM Unit := do
-        let info ← getAsyncConstInfo declName
-        if (← isProp info.sig.get.type) then
-          addSymSimpTheorem ext declName attrKind
-        else if info.kind matches .defn then
-          if (← Simp.ignoreEquations declName) then
-            throwError "Cannot add `{attrName}` attribute to `{.ofConstName declName}`: \
-              It is a reducible definition or projection. `Sym.simp` does not support unfolding."
-          else if let some eqns ← getEqnsFor? declName then
-            for eqn in eqns do
-              addSymSimpTheorem ext eqn attrKind
-          else
-            throwError "Cannot add `{attrName}` attribute to `{.ofConstName declName}`: \
-              No equation theorems found."
-        else
-          throwError "Cannot add `{attrName}` attribute to `{.ofConstName declName}`: \
-            It is not a proposition nor a definition with equation theorems."
-      discard <| go.run {} {}
+      discard <| (addSymSimpDecl ext (toString attrName) declName attrKind).run {} {}
     erase := fun _declName => do
       throwError "Erasing `Sym.simp` attributes is not supported yet."
   }

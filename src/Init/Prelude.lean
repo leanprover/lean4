@@ -847,10 +847,12 @@ instance Pi.instNonempty {α : Sort u} {β : α → Sort v} [(a : α) → Nonemp
 instance : Inhabited (Sort u) where
   default := PUnit
 
-instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
+-- `specialize` overrides the `weak_specialize` on `Inhabited` below, preserving the strong
+-- specialization these declarations had when compiled before the attribute was set.
+@[specialize 3] instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
   default := fun _ => default
 
-instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhabited (β a)] :
+@[specialize 3] instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhabited (β a)] :
     Inhabited ((a : α) → β a) where
   default := fun _ => default
 
@@ -932,7 +934,7 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 /-- Bijection between `α` and `ULift.{v} α` -/
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
-instance [Inhabited α] : Inhabited (ULift α) where
+@[specialize 2] instance [Inhabited α] : Inhabited (ULift α) where
   default := ULift.up default
 
 /--
@@ -3715,7 +3717,7 @@ Because this is a pure function with side effects, it is marked as
 `@[never_extract]` so that the compiler will not perform common sub-expression
 elimination and other optimizations that assume that the expression is pure.
 -/
-@[noinline, never_extract]
+@[noinline, never_extract, specialize 2]
 def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
   panicCore msg
 

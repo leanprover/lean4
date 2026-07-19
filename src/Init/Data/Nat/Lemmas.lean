@@ -14,7 +14,7 @@ public import Init.Data.Nat.Div.Basic
 public import Init.PropLemmas
 import Init.ByCases
 import Init.Data.Nat.Dvd
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Mod
 import Init.Omega
@@ -355,6 +355,7 @@ protected theorem sub_le_sub_iff_left {n m k : Nat} (h : n ≤ k) : k - m ≤ k 
 
 protected theorem sub_lt_of_pos_le (h₀ : 0 < a) (h₁ : a ≤ b) : b - a < b :=
   Nat.sub_lt (Nat.lt_of_lt_of_le h₀ h₁) h₀
+
 protected abbrev sub_lt_self := @Nat.sub_lt_of_pos_le
 
 theorem add_lt_of_lt_sub' {a b c : Nat} : b < c - a → a + b < c := by
@@ -1748,6 +1749,19 @@ grind_pattern shiftLeft_add => (m <<< n) <<< k where
 
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]
+
+theorem lt_mul_div_self_add {x k : Nat} (h : 0 < k) : x < k * (x / k) + k := by
+  rw [← Int.ofNat_lt]
+  simpa using Int.lt_mul_ediv_self_add (by omega)
+
+theorem mul_sub_mod {x n p : Nat} (h : x < n * p) : (n * p - (x + 1)) % n = n - (x % n + 1) := by
+  rw [mod_eq_sub_div_mul, mul_sub_div _ _ _ h, Nat.sub_sub, Nat.add_comm, ← Nat.sub_sub,
+    Nat.mul_comm _ n, ← Nat.mul_sub_left_distrib, Nat.sub_sub_self, mul_succ, Nat.add_comm]
+  · conv in (_ + 1) => rw [← mod_add_div x n, Nat.add_right_comm]
+    apply Nat.add_sub_add_right
+  rw [Nat.succ_le_iff, Nat.div_lt_iff_lt_mul]
+  · rwa [Nat.mul_comm]
+  · refine Nat.pos_of_mul_pos_right (by omega : 0 < n * p)
 
 /-! ### Decidability of predicates -/
 

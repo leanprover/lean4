@@ -364,6 +364,13 @@ In this setting only definitions tagged as `[reducible]` or type class instances
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
 
 /--
+`withImplicit tacs` executes `tacs` using the `.implicit` transparency setting.
+In this setting only definitions tagged as `[reducible]`, `[instance_reducible]` or
+`[implicit_reducible]` are unfolded.
+-/
+syntax (name := withImplicit) "with_implicit " tacticSeq : tactic
+
+/--
 `with_unfolding_all tacs` executes `tacs` using the `.all` transparency setting.
 In this setting all definitions that are not opaque are unfolded.
 -/
@@ -1410,7 +1417,7 @@ Options:
   It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
   and (2) it reduces the `Decidable` instance only once instead of twice.
 - `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
-  admitting the result via an axiom. This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
+  admitting the result via an axiom.
   This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   of the trusted code base.
   Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
@@ -2356,8 +2363,8 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
 /-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
-macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
-  Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
+macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
+  Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"
 
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.
@@ -2452,7 +2459,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
@@ -2466,7 +2473,7 @@ that diverges as compiled to be accepted without an explicit `partial` keyword, 
 remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
 avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
-syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `method_specs_simp` attribute are used by `@[method_specs]` to further
@@ -2478,7 +2485,7 @@ The `method_specs` theorems are created on demand (using the realizable constant
 this simp set should behave the same in all modules. Do not add theorems to it except in the module
 defining the thing you are rewriting.
 -/
-syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
 
 /--
 Register a theorem as a rewrite rule for `cbv` evaluation of a given definition.
@@ -2488,7 +2495,7 @@ You can instruct `cbv` to rewrite the lemma from right-to-left:
 @[cbv_eval ←] theorem my_thm : rhs = lhs := ...
 ```
 -/
-syntax (name := cbv_eval) "cbv_eval" unicode("← ", "<- ")? (ppSpace ident)? : attr
+syntax (name := cbv_eval) "cbv_eval" unicode(" ←", " <-")? (ppSpace ident)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

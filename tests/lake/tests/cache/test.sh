@@ -233,13 +233,68 @@ test_run cache unstage .lake/staging
 # Verify that `cache unstage` fails if staging artifacts are missing
 test_cmd mkdir -p .lake/staging-empty
 test_cmd cp .lake/outputs.jsonl .lake/staging-empty/outputs.jsonl
-test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty
+test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty \
+  --force-overwrite # needed since the artifact is in the cache
+
+# Test stage/unstage behavior regarding `--no-overwrite` / `--force-overwrite`
+test_cmd rm -rf "$CACHE_DIR"
+test_run build Test:static -o .lake/outputs.jsonl
+cache_art=$(echo "$CACHE_DIR"/artifacts/*.a)
+test_exp -s $cache_art
+staging_art=$(echo .lake/staging/*.a)
+test_exp -s $staging_art
+# Verify stage overwritting
+test_cmd rm -rf .lake/staging
+test_run cache stage .lake/outputs.jsonl .lake/staging --no-overwrite
+test_exp -f $staging_art # verify copy can occur with `--no-overwrite`
+test_cmd rm $staging_art
+test_cmd touch $staging_art
+test_exp ! -s $staging_art
+test_run cache stage .lake/outputs.jsonl .lake/staging
+test_exp ! -s $staging_art
+test_run cache stage .lake/outputs.jsonl .lake/staging --force-overwrite
+test_exp -s $staging_art
+# Verify unstage overwritting
+test_cmd rm -rf "$CACHE_DIR"
+test_run cache unstage .lake/staging --no-overwrite
+test_exp -f $cache_art # verify copy can occur with `--no-overwrite`
+test_cmd rm $staging_art
+test_cmd touch $staging_art
+test_exp ! -s $staging_art
+test_run cache unstage .lake/staging
+test_exp -s $cache_art
+test_run cache unstage .lake/staging --force-overwrite
+test_exp ! -s $cache_art
 
 # Verify that `lake cache clean` deletes the cache directory
 test_exp -d "$CACHE_DIR"
-test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
 test_run cache clean
 test_exp ! -d "$CACHE_DIR"
+
+# Verify cached artifacts are not re-downloaded and that
+# artifacts sharing a content hash across extensions are restored locally
+# (and thus that artifacts are deduplicated by hash)
+rm -rf "$CACHE_DIR"
+mkdir -p "$CACHE_DIR/artifacts"
+hsh=0123456789abcdef
+schema_ver=2026-03-17 # cache map schema version
+echo "arbitrary artifact contents" > "$CACHE_DIR/artifacts/$hsh.o"
+# An already-cached artifact is not re-downloaded
+cat <<EOF > .lake/dummy-outputs.jsonl
+"$schema_ver"
+["aaaaaaaaaaaaaaaa","$hsh.o"]
+EOF
+test_run cache get .lake/dummy-outputs.jsonl --scope=test
+# A shared content hash restores each extension by local copy
+test_exp ! -f "$CACHE_DIR/artifacts/$hsh.dup"
+cat <<EOF > .lake/dummy-outputs.jsonl
+"$schema_ver"
+["aaaaaaaaaaaaaaaa","$hsh.o"]
+["bbbbbbbbbbbbbbbb","$hsh.dup"]
+EOF
+test_run cache get .lake/dummy-outputs.jsonl --scope=test
+test_exp -f "$CACHE_DIR/artifacts/$hsh.dup"
+test_cmd cmp -s "$CACHE_DIR/artifacts/$hsh.o" "$CACHE_DIR/artifacts/$hsh.dup"
 
 # Verify all artifacts restore from the cache and
 # use the build directory with `restoreAllArtifacts`
@@ -274,15 +329,24 @@ test_restored +Module:olean.server Module.olean.server
 test_restored +Module:olean.private Module.olean.private
 test_restored +Module:ir Module.ir
 
+# Verify that a hard linked restored executable is given the right
+# permissions to run even if the cached artifact lacked them (e.g.,
+# because it came from `lake cache get`)
+test_cmd chmod 444 $CACHE_DIR/artifacts/*
+test_cmd rm -rf .lake/build/bin
+test_run exe test
+
 # Verify that invalid outputs do not break Lake
 if command -v jq > /dev/null; then # skip if no jq found
   libPath=$($LAKE query Test:static)
   test_cmd rm -f $libPath
   inputHash=$(jq -r '.depHash' $libPath.trace)
   echo $inputHash
+  test_cmd rm -f $libPath.trace
   echo bogus > "$CACHE_DIR/outputs/test/$inputHash.json"
   test_out 'invalid JSON' build Test:static
-  test_cmd rm -f $libPath
+  test_exp -f $libPath
+  test_cmd rm -f $libPath $libPath.trace
   echo '"bogus"' > "$CACHE_DIR/outputs/test/$inputHash.json"
   test_out 'some output(s) have issues' build Test:static
   test_exp -f $libPath

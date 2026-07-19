@@ -348,11 +348,11 @@ prior tactics (such as `unfold`) leaving the goal in a state that's type-correct
 def withInstancesTypeCheckNote [MonadControlT MetaM m] [Monad m] (e : Expr) (x : m α) : m α := do
   let typeCheckNote := MessageData.ofLazyM (es := #[e]) do
     try
-      check e .instances
+      check e .implicit
       return .nil
     catch e =>
       return MessageData.note m!"The target expression is not type-correct \
-        under the `instances` transparency level, which may have triggered the failure. \
+        under the `implicit` transparency level, which may have triggered the failure. \
         This is usually caused by unfolding of semireducible definitions in prior tactic steps. \
         Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.\n\
         Full error:\

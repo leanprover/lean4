@@ -52,10 +52,12 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: 11.0
     steps:
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
+        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
         if: runner.os == 'Linux' && !matrix.cmultilib
+        with:
+          summarize: false
       - name: Install MSYS2
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: clang64
           # `:` means do not prefix with msystem
@@ -83,7 +85,7 @@ jobs:
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v14
+        uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
         with:
           version: 3.1.44
           actions-cache-folder: emsdk
@@ -96,7 +98,7 @@ jobs:
         if: matrix.cmultilib
       - name: Restore Cache
         id: restore-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
@@ -131,7 +133,9 @@ jobs:
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          OPTIONS=(-DWFAIL=ON)
+          # opt into `LEAN_HEADER_SNAPSHOTS` as suspected issue with incremental builds does not
+          # affect CI
+          OPTIONS=(-DWFAIL=ON -DLEAN_HEADER_SNAPSHOTS=ON)
           if [[ -n '${{ matrix.release }}' ]]; then
             # this also enables githash embedding into stage 1 library, which prohibits reusing
             # `.olean`s across commits, so we don't do it in the fast non-release CI
@@ -182,7 +186,7 @@ jobs:
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown
         if: steps.restore-cache.outputs.cache-hit != 'true' && !cancelled()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           # NOTE: must be in sync with `restore` above
           path: |
@@ -213,7 +217,8 @@ jobs:
       - name: Verify Lake Cache
         if: steps.upload-lake-cache.outcome == 'success'
         run: |
-          mv build/stage1/lib/lean build/stage1/lib/lean.bak
+          cp -r build/stage1 build/stage1.bak
+          rm -rf build/stage1/lib
           cd src
           ../build/stage0/bin/lake cache clean
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
@@ -222,8 +227,9 @@ jobs:
       - name: Restore Build
         if: steps.upload-lake-cache.outcome == 'success'
         run: |
-          rm -rf build/stage1/lib/lean
-          mv build/stage1/lib/lean.bak build/stage1/lib/lean
+          build/stage0/bin/lake cache clean
+          rm -rf build/stage1
+          mv build/stage1.bak build/stage1
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install
@@ -250,7 +256,7 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: matrix.release
         with:
           name: build-${{ matrix.name }}
@@ -265,8 +271,13 @@ jobs:
           ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/$TARGET_STAGE -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: matrix.test
+      # copy failed tests' output into the `<failure>` elements shown by the test summary
+      - name: Embed Test Output
+        run: |
+          python3 script/junit_embed_output.py build/$TARGET_STAGE/test-results.xml
+        if: always() && steps.test.conclusion == 'failure'
       - name: Test Summary
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: build/${{ env.TARGET_STAGE }}/test-results.xml
         # prefix `if` above with `always` so it's run even if tests failed

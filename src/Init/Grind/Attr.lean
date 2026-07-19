@@ -198,6 +198,22 @@ Given an application `f a₁ a₂ … aₙ`, when `funCC := true`,
 -/
 syntax grindFunCC  := &"funCC"
 /--
+The `homo` modifier marks a theorem as a homomorphism rule for `grind`.
+
+Homomorphism rules translate terms from a source domain into a target domain that has a
+dedicated solver. A collection of homomorphism rules encodes an algebra homomorphism
+`h : A → B`: each rule states how `h` commutes with a source-domain operation, as in
+`h (f x y) = g (h x) (h y)`. Example: injecting bitvector operations into integer
+arithmetic using `BitVec.toNat`:
+```
+@[grind homo] theorem toNat_add (x y : BitVec w) :
+    (x + y).toNat = (x.toNat + y.toNat) % 2^w
+```
+The rules must be unconditional equations (or `Iff`s). They are applied to fixpoint
+outside the E-graph, and only the final result is internalized.
+-/
+syntax grindHomo   := &"homo"
+/--
 The `norm` modifier instructs `grind` to use a theorem as a normalization rule. That is,
 the theorem is applied during the preprocessing step.
 This feature is meant for advanced users who understand how the preprocessor and `grind`'s search
@@ -236,7 +252,7 @@ example : f x ≥ g x := by grind
 example : f x + g x ≥ 4 := by grind
 ```
 -/
-syntax grindNorm  := &"norm" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")?
+syntax grindNorm  := &"norm" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore(" ←" <|> " <-")?
 /--
 The `unfold` modifier instructs `grind` to unfold the given definition during the preprocessing step.
 Example:
@@ -273,7 +289,7 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindNorm <|> grindUnfold <|> grindDef
+    <|> grindFunCC <|> grindHomo <|> grindNorm <|> grindUnfold <|> grindDef
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.
@@ -317,5 +333,23 @@ Like `@[grind!]`, but also prints the pattern(s) selected by `grind`
 as info messages. Combines minimal subexpression selection with debugging output.
 -/
 syntax (name := grind!?) "grind!?" (ppSpace grindMod)? : attr
+
+/--
+Marks a theorem or definition for use by the `lia` (linear integer arithmetic) tactic.
+
+`lia` is `grind` restricted to the `cutsat` solver. It does not use the `@[grind]` lemma
+set, but `cutsat` benefits from a small amount of instantiation, e.g. of `Nat.max_def` and
+`Nat.min_def`. Lemmas tagged with `@[lia]` form a dedicated set that `lia` instantiates via
+E-matching, without enabling the much larger `@[grind]` set.
+
+The modifiers are the same as for `@[grind]`, e.g. `@[lia =]`, `@[lia ←]`, `@[lia →]`.
+-/
+syntax (name := lia) "lia" (ppSpace grindMod)? : attr
+/-- Like `@[lia]`, but enforces the minimal indexable subexpression condition (see `@[grind!]`). -/
+syntax (name := lia!) "lia!" (ppSpace grindMod)? : attr
+/-- Like `@[lia]`, but also prints the pattern(s) selected by `lia` as info messages. -/
+syntax (name := lia?) "lia?" (ppSpace grindMod)? : attr
+/-- Like `@[lia!]`, but also prints the pattern(s) selected by `lia` as info messages. -/
+syntax (name := lia!?) "lia!?" (ppSpace grindMod)? : attr
 end Attr
 end Lean.Parser

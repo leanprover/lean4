@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.MonadAttach.Instances
-// Imports: import Init.Control.Lawful.MonadAttach.Lemmas public import Init.Control.Lawful.Basic public import Init.Control.State public import Init.Control.StateRef public import Init.Ext
+// Imports: import Init.Control.Lawful.MonadAttach.Lemmas public import Init.Control.Lawful.Basic public import Init.Control.State public import Init.Control.StateRef public import Init.Control.EState public import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,10 @@ LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__ExceptT_bindCont_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__instLawfulMonadAttachExceptTOfLawfulMonad_match__2_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__instLawfulMonadAttachExceptTOfLawfulMonad_match__2_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_instMonadAttach_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_instMonadAttach_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_bind_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_bind_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__instMonadAttachExceptTOfMonad_match__1_splitter___redArg(lean_object* v_a_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
@@ -180,10 +184,127 @@ return v___x_67_;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_instMonadAttach_match__1_splitter___redArg(lean_object* v_x_68_, lean_object* v_h__1_69_, lean_object* v_h__2_70_){
+_start:
+{
+if (lean_obj_tag(v_x_68_) == 0)
+{
+lean_object* v_a_71_; lean_object* v_a_72_; lean_object* v___x_73_; 
+lean_dec(v_h__2_70_);
+v_a_71_ = lean_ctor_get(v_x_68_, 0);
+lean_inc(v_a_71_);
+v_a_72_ = lean_ctor_get(v_x_68_, 1);
+lean_inc(v_a_72_);
+lean_dec_ref_known(v_x_68_, 2);
+v___x_73_ = lean_apply_3(v_h__1_69_, v_a_71_, v_a_72_, lean_box(0));
+return v___x_73_;
+}
+else
+{
+lean_object* v_a_74_; lean_object* v_a_75_; lean_object* v___x_76_; 
+lean_dec(v_h__1_69_);
+v_a_74_ = lean_ctor_get(v_x_68_, 0);
+lean_inc(v_a_74_);
+v_a_75_ = lean_ctor_get(v_x_68_, 1);
+lean_inc(v_a_75_);
+lean_dec_ref_known(v_x_68_, 2);
+v___x_76_ = lean_apply_3(v_h__2_70_, v_a_74_, v_a_75_, lean_box(0));
+return v___x_76_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_instMonadAttach_match__1_splitter(lean_object* v_00_u03b5_77_, lean_object* v_00_u03c3_78_, lean_object* v_00_u03b1_79_, lean_object* v_motive_80_, lean_object* v_x_81_, lean_object* v_h__1_82_, lean_object* v_h__2_83_){
+_start:
+{
+if (lean_obj_tag(v_x_81_) == 0)
+{
+lean_object* v_a_84_; lean_object* v_a_85_; lean_object* v___x_86_; 
+lean_dec(v_h__2_83_);
+v_a_84_ = lean_ctor_get(v_x_81_, 0);
+lean_inc(v_a_84_);
+v_a_85_ = lean_ctor_get(v_x_81_, 1);
+lean_inc(v_a_85_);
+lean_dec_ref_known(v_x_81_, 2);
+v___x_86_ = lean_apply_3(v_h__1_82_, v_a_84_, v_a_85_, lean_box(0));
+return v___x_86_;
+}
+else
+{
+lean_object* v_a_87_; lean_object* v_a_88_; lean_object* v___x_89_; 
+lean_dec(v_h__1_82_);
+v_a_87_ = lean_ctor_get(v_x_81_, 0);
+lean_inc(v_a_87_);
+v_a_88_ = lean_ctor_get(v_x_81_, 1);
+lean_inc(v_a_88_);
+lean_dec_ref_known(v_x_81_, 2);
+v___x_89_ = lean_apply_3(v_h__2_83_, v_a_87_, v_a_88_, lean_box(0));
+return v___x_89_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_bind_match__1_splitter___redArg(lean_object* v_x_90_, lean_object* v_h__1_91_, lean_object* v_h__2_92_){
+_start:
+{
+if (lean_obj_tag(v_x_90_) == 0)
+{
+lean_object* v_a_93_; lean_object* v_a_94_; lean_object* v___x_95_; 
+lean_dec(v_h__2_92_);
+v_a_93_ = lean_ctor_get(v_x_90_, 0);
+lean_inc(v_a_93_);
+v_a_94_ = lean_ctor_get(v_x_90_, 1);
+lean_inc(v_a_94_);
+lean_dec_ref_known(v_x_90_, 2);
+v___x_95_ = lean_apply_2(v_h__1_91_, v_a_93_, v_a_94_);
+return v___x_95_;
+}
+else
+{
+lean_object* v_a_96_; lean_object* v_a_97_; lean_object* v___x_98_; 
+lean_dec(v_h__1_91_);
+v_a_96_ = lean_ctor_get(v_x_90_, 0);
+lean_inc(v_a_96_);
+v_a_97_ = lean_ctor_get(v_x_90_, 1);
+lean_inc(v_a_97_);
+lean_dec_ref_known(v_x_90_, 2);
+v___x_98_ = lean_apply_2(v_h__2_92_, v_a_96_, v_a_97_);
+return v___x_98_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadAttach_Instances_0__EStateM_bind_match__1_splitter(lean_object* v_00_u03b5_99_, lean_object* v_00_u03c3_100_, lean_object* v_00_u03b1_101_, lean_object* v_motive_102_, lean_object* v_x_103_, lean_object* v_h__1_104_, lean_object* v_h__2_105_){
+_start:
+{
+if (lean_obj_tag(v_x_103_) == 0)
+{
+lean_object* v_a_106_; lean_object* v_a_107_; lean_object* v___x_108_; 
+lean_dec(v_h__2_105_);
+v_a_106_ = lean_ctor_get(v_x_103_, 0);
+lean_inc(v_a_106_);
+v_a_107_ = lean_ctor_get(v_x_103_, 1);
+lean_inc(v_a_107_);
+lean_dec_ref_known(v_x_103_, 2);
+v___x_108_ = lean_apply_2(v_h__1_104_, v_a_106_, v_a_107_);
+return v___x_108_;
+}
+else
+{
+lean_object* v_a_109_; lean_object* v_a_110_; lean_object* v___x_111_; 
+lean_dec(v_h__1_104_);
+v_a_109_ = lean_ctor_get(v_x_103_, 0);
+lean_inc(v_a_109_);
+v_a_110_ = lean_ctor_get(v_x_103_, 1);
+lean_inc(v_a_110_);
+lean_dec_ref_known(v_x_103_, 2);
+v___x_111_ = lean_apply_2(v_h__2_105_, v_a_109_, v_a_110_);
+return v___x_111_;
+}
+}
+}
 lean_object* runtime_initialize_Init_Control_Lawful_MonadAttach_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_Lawful_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_State(uint8_t builtin);
 lean_object* runtime_initialize_Init_Control_StateRef(uint8_t builtin);
+lean_object* runtime_initialize_Init_Control_EState(uint8_t builtin);
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Control_Lawful_MonadAttach_Instances(uint8_t builtin) {
@@ -202,6 +323,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Control_StateRef(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Control_EState(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -218,6 +342,7 @@ lean_object* initialize_Init_Control_Lawful_MonadAttach_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin);
 lean_object* initialize_Init_Control_State(uint8_t builtin);
 lean_object* initialize_Init_Control_StateRef(uint8_t builtin);
+lean_object* initialize_Init_Control_EState(uint8_t builtin);
 lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_MonadAttach_Instances(uint8_t builtin) {
@@ -234,6 +359,9 @@ res = initialize_Init_Control_State(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_StateRef(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_EState(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Ext(builtin);

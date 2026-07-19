@@ -21,7 +21,7 @@ form.
 -/
 public structure ForwardArg where
   binders : Array (TSyntax ``funBinder)
-  body    : TSyntax ``doSeq
+  body    : DoSeq
 
 /--
 If `e` is a function application whose last argument effect-forwards into the enclosing `do`

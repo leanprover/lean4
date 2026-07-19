@@ -32,7 +32,7 @@ local instance : Std.Commutative (· + · : α → α → α) where
 @[local simp] def r : (α × α) → (α × α) → Prop
   | (a, b), (c, d) => ∃ k, a + d + k = b + c + k
 
-def Q := Quot (r α)
+@[expose, implicit_reducible] def Q := Quot (r α)
 
 variable {α}
 
@@ -68,7 +68,7 @@ def Q.liftOn₂ (q₁ q₂ : Q α)
 
 attribute [local simp] Q.mk Q.liftOn₂ AddCommMonoid.add_zero
 
-def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
+theorem Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
   Quot.ind mk q
 
 @[local simp] def nsmul (n : Nat) (q : Q α) : (Q α) :=
@@ -204,7 +204,7 @@ theorem zsmul_natCast_eq_nsmul (n : Nat) (a : Q α) : zsmul (n : Int) a = nsmul 
   induction a using Q.ind with | _ a
   rcases a with ⟨a₁, a₂⟩; simp; omega
 
-@[implicit_reducible]
+@[instance_reducible]
 def ofNatModule : IntModule (Q α) := {
   nsmul := ⟨nsmul⟩,
   zsmul := ⟨zsmul⟩,

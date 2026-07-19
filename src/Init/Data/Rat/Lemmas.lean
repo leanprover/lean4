@@ -173,12 +173,6 @@ theorem mk_eq_divInt {num den nz c} : ⟨num, den, nz, c⟩ = num /. (den : Nat)
 
 theorem num_divInt_den (a : Rat) : a.num /. a.den = a := by rw [divInt_ofNat, mkRat_self]
 
-@[deprecated mk_eq_divInt (since := "2025-10-29")]
-theorem mk'_eq_divInt {n d h c} : (⟨n, d, h, c⟩ : Rat) = n /. d := (num_divInt_den _).symm
-
-@[deprecated num_divInt_den (since := "2025-08-22")]
-abbrev divInt_self := @num_divInt_den
-
 @[simp] theorem zero_divInt (n) : 0 /. n = 0 := by cases n <;> simp [divInt]
 
 @[simp] theorem divInt_zero (n) : n /. 0 = 0 := mkRat_zero n
@@ -201,9 +195,6 @@ theorem divInt_eq_divInt_iff (z₁ : d₁ ≠ 0) (z₂ : d₂ ≠ 0) :
   rcases Int.eq_nat_or_neg d₂ with ⟨_, rfl | rfl⟩ <;>
   simp_all [divInt_neg', Int.neg_eq_zero,
     mkRat_eq_iff, Int.neg_mul, Int.mul_neg, Int.eq_neg_comm, eq_comm]
-
-@[deprecated divInt_eq_divInt_iff (since := "2025-08-22")]
-abbrev divInt_eq_iff := @divInt_eq_divInt_iff
 
 theorem divInt_mul_left {a : Int} (a0 : a ≠ 0) : (a * n) /. (a * d) = n /. d := by
   if d0 : d = 0 then simp [d0] else
@@ -279,11 +270,6 @@ def numDenCasesOn''.{u} {C : Rat → Sort u} (a : Rat)
 
 @[simp] theorem num_natCast (n : Nat) : (n : Rat).num = n := rfl
 @[simp] theorem den_natCast (n : Nat) : (n : Rat).den = 1 := rfl
-
-@[deprecated num_ofNat (since := "2025-08-22")]
-abbrev ofNat_num := @num_ofNat
-@[deprecated den_ofNat (since := "2025-08-22")]
-abbrev ofNat_den := @den_ofNat
 
 theorem add_def (a b : Rat) :
     a + b = normalize (a.num * b.den + b.num * a.den) (a.den * b.den)
@@ -995,11 +981,6 @@ protected theorem lt_div_iff' {a b c : Rat} (hc : 0 < c) : a < b / c ↔ c * a <
 @[simp] theorem den_intCast (a : Int) : (a : Rat).den = 1 := rfl
 
 @[simp] theorem num_intCast (a : Int) : (a : Rat).num = a := rfl
-
-@[deprecated den_intCast (since := "2025-08-22")]
-abbrev intCast_den := @den_intCast
-@[deprecated num_intCast (since := "2025-08-22")]
-abbrev intCast_num := @num_intCast
 
 /-!
 The following lemmas are later subsumed by e.g. `Int.cast_add` and `Int.cast_mul` in Mathlib

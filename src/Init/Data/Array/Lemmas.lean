@@ -22,7 +22,7 @@ import Init.Data.List.Nat.Modify
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range
 import Init.Data.List.Zip
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.Simproc
 import Init.Data.Option.Lemmas
 import Init.Data.Prod
@@ -1872,7 +1872,7 @@ theorem getElem_of_append {xs ys zs : Array α} (eq : xs = ys.push a ++ zs) (h :
   rw [← getElem?_eq_getElem, eq, getElem?_append_left (by simp; omega), ← h]
   simp
 
-@[simp] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := rfl
+@[simp] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := (rfl)
 
 @[simp] theorem append_singleton_assoc {a : α} {xs ys : Array α} : xs ++ (#[a] ++ ys) = xs.push a ++ ys := by
   rw [← append_assoc, append_singleton]
@@ -2833,9 +2833,8 @@ theorem getElem_extract_aux {xs : Array α} {start stop : Nat} (h : i < (xs.extr
 
 @[simp, grind =] theorem getElem_extract {xs : Array α} {start stop : Nat}
     (h : i < (xs.extract start stop).size) :
-    (xs.extract start stop)[i] = xs[start + i]'(getElem_extract_aux h) :=
-  show (extract.loop xs (min stop xs.size - start) start #[])[i]
-    = xs[start + i]'(getElem_extract_aux h) by rw [getElem_extract_loop_ge]; rfl; exact Nat.zero_le _
+    (xs.extract start stop)[i] = xs[start + i]'(getElem_extract_aux h) := by
+  simp [extract, getElem_extract_loop_ge]
 
 theorem getElem?_extract {xs : Array α} {start stop : Nat} :
     (xs.extract start stop)[i]? = if i < min stop xs.size - start then xs[start + i]? else none := by
@@ -4348,6 +4347,7 @@ theorem sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum :
   cases as
   simp [Array.sum, List.sum]
 
+set_option linter.defProp false in
 @[deprecated sum_toList (since := "2026-01-14")]
 def sum_eq_sum_toList := @sum_toList
 
@@ -4691,6 +4691,29 @@ theorem toList_fst_unzip {xs : Array (α × β)} :
 
 theorem toList_snd_unzip {xs : Array (α × β)} :
     xs.unzip.2.toList = xs.toList.unzip.2 := by simp
+
+theorem getElem?_eq_some_getElem! [Inhabited α] (xs : Array α) (i : Nat)
+    (h : i < xs.size) : xs[i]? = some xs[i]! := by
+  rw [getElem!_pos xs i h]
+  exact getElem?_pos xs i h
+
+theorem size_set! (xs : Array α) (i : Nat) (x : α) :
+    (xs.set! i x).size = xs.size := by
+  simp only [set!_eq_setIfInBounds, size_setIfInBounds]
+
+theorem getElem!_set!_self [Inhabited α] (xs : Array α) (i : Nat) (x : α) (hi : i < xs.size) :
+    (xs.set! i x)[i]! = x := by
+  simp only [set!_eq_setIfInBounds, getElem!_eq_getD, getD_eq_getD_getElem?,
+    getElem?_setIfInBounds_self_of_lt hi, Option.getD_some]
+
+theorem getElem!_set!_ne [Inhabited α] (xs : Array α) (i j : Nat) (x : α) (hij : i ≠ j) :
+    (xs.set! i x)[j]! = xs[j]! := by
+  simp only [set!_eq_setIfInBounds, getElem!_eq_getD, getD_eq_getD_getElem?,
+    getElem?_setIfInBounds_ne hij]
+
+@[simp] theorem toList_set! {xs : Array α} {i : Nat} {x : α} :
+    (xs.set! i x).toList = xs.toList.set i x := by
+  simp [set!_eq_setIfInBounds]
 
 end Array
 

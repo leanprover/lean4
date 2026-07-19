@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Attr
-public import Lean.Meta.Tactic.Grind.RevertAll
+public import Lean.Meta.Tactic.Grind.MarkAccessible
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Cases
@@ -16,6 +16,7 @@ public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public import Lean.Meta.Tactic.Grind.Inv
 public import Lean.Meta.Tactic.Grind.Proof
 public import Lean.Meta.Tactic.Grind.Propagate
+public import Lean.Meta.Tactic.Grind.BitVec
 public import Lean.Meta.Tactic.Grind.PP
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Ctor

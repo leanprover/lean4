@@ -360,26 +360,14 @@ theorem tmod_add_mul_tdiv : ∀ a b : Int, tmod a b + b * (a.tdiv b) = a
     rw [Int.neg_mul, ← Int.neg_add]
     exact congrArg (-ofNat ·) (Nat.mod_add_div ..)
 
-@[deprecated tmod_add_mul_tdiv (since := "2025-09-01")]
-def tmod_add_tdiv := @tmod_add_mul_tdiv
-
 theorem mul_tdiv_add_tmod (a b : Int) : b * a.tdiv b + tmod a b = a := by
   rw [Int.add_comm]; apply tmod_add_mul_tdiv ..
-
-@[deprecated mul_tdiv_add_tmod (since := "2025-09-01")]
-def tdiv_add_tmod := @mul_tdiv_add_tmod
 
 theorem tmod_add_tdiv_mul (m k : Int) : tmod m k + m.tdiv k * k = m := by
   rw [Int.mul_comm]; apply tmod_add_mul_tdiv
 
-@[deprecated tmod_add_tdiv_mul (since := "2025-09-01")]
-def tmod_add_tdiv' := @tmod_add_mul_tdiv
-
 theorem tdiv_mul_add_tmod (m k : Int) : m.tdiv k * k + tmod m k = m := by
   rw [Int.mul_comm]; apply mul_tdiv_add_tmod
-
-@[deprecated tdiv_mul_add_tmod (since := "2025-09-01")]
-def tdiv_add_tmod' := @tdiv_mul_add_tmod
 
 theorem tmod_def (a b : Int) : tmod a b = a - b * a.tdiv b := by
   rw [← Int.add_sub_cancel (tmod a b), tmod_add_mul_tdiv]
@@ -407,26 +395,14 @@ theorem fmod_add_mul_fdiv : ∀ a b : Int, a.fmod b + b * a.fdiv b = a
     change -(↑(succ m % succ n) : Int) + -↑(succ n * (succ m / succ n)) = -↑(succ m)
     rw [← Int.neg_add]; exact congrArg (-ofNat ·) <| Nat.mod_add_div ..
 
-@[deprecated fmod_add_mul_fdiv (since := "2025-09-01")]
-def fmod_add_fdiv := @fmod_add_mul_fdiv
-
 theorem fmod_add_fdiv_mul (a b : Int) : a.fmod b + (a.fdiv b) * b = a := by
   rw [Int.mul_comm]; exact fmod_add_mul_fdiv ..
-
-@[deprecated fmod_add_fdiv_mul (since := "2025-09-01")]
-def fmod_add_fdiv' := @fmod_add_fdiv_mul
 
 theorem mul_fdiv_add_fmod (a b : Int) : b * a.fdiv b + a.fmod b = a := by
   rw [Int.add_comm]; exact fmod_add_mul_fdiv ..
 
-@[deprecated mul_fdiv_add_fmod (since := "2025-09-01")]
-def fdiv_add_fmod := @mul_fdiv_add_fmod
-
 theorem fdiv_mul_add_fmod (a b : Int) : (a.fdiv b) * b + a.fmod b = a := by
   rw [Int.mul_comm]; exact mul_fdiv_add_fmod ..
-
-@[deprecated mul_fdiv_add_fmod (since := "2025-09-01")]
-def fdiv_add_fmod' := @mul_fdiv_add_fmod
 
 theorem fmod_def (a b : Int) : a.fmod b = a - b * a.fdiv b := by
   rw [← Int.add_sub_cancel (a.fmod b), fmod_add_mul_fdiv]

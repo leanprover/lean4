@@ -57,7 +57,18 @@ def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exce
     (synthInstanceCore? type none)
     (fun _ => pure none)
 
-abbrev synthInstance? (type : Expr) : SymM (Option Expr) :=
+/--
+Registers `inst` as **the** instance for `type`. `synthInstance?` returns it without
+running typeclass resolution, making `inst` the canonical representative for `type`.
+Intended for satellite modules that construct instances for types they create themselves
+(e.g., `grind linarith`'s envelope type `IntModule.OfNatModule.Q`).
+-/
+def registerInstance (type inst : Expr) : SymM Unit :=
+  modify fun s => { s with instanceOverrides := s.instanceOverrides.insert type inst }
+
+def synthInstance? (type : Expr) : SymM (Option Expr) := do
+  if let some inst := (← get).instanceOverrides.find? type then
+    return some inst
   synthInstanceMeta? type
 
 def synthInstance (type : Expr) : SymM Expr := do

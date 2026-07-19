@@ -441,7 +441,7 @@ public partial def enumsPass : Pass where
 
       -- same for fixed integers
       if cfg.fixedInt then
-        relevantLemmas := relevantLemmas.push (← intToBitVecExt.getTheorems)
+        relevantLemmas := relevantLemmas.push (← metaIntToBitVecExt.getTheorems)
 
       let simpCtx ← Simp.mkContext
         (config := {

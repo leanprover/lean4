@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.DSimp
-// Imports: public import Lean.Meta.Sym.DSimp.DSimpM public import Lean.Meta.Sym.DSimp.Result public import Lean.Meta.Sym.DSimp.DSimproc public import Lean.Meta.Sym.DSimp.App public import Lean.Meta.Sym.DSimp.Lambda public import Lean.Meta.Sym.DSimp.Forall public import Lean.Meta.Sym.DSimp.Let public import Lean.Meta.Sym.DSimp.Main public import Lean.Meta.Sym.DSimp.Reduce public import Lean.Meta.Sym.DSimp.Variant
+// Imports: public import Lean.Meta.Sym.DSimp.DSimpM public import Lean.Meta.Sym.DSimp.Result public import Lean.Meta.Sym.DSimp.DSimproc public import Lean.Meta.Sym.DSimp.App public import Lean.Meta.Sym.DSimp.Lambda public import Lean.Meta.Sym.DSimp.Forall public import Lean.Meta.Sym.DSimp.Let public import Lean.Meta.Sym.DSimp.Main public import Lean.Meta.Sym.DSimp.Reduce public import Lean.Meta.Sym.DSimp.Variant public import Lean.Meta.Sym.DSimp.EvalGround
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_Let(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_Main(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_Reduce(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_Variant(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_DSimp_EvalGround(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_DSimp(uint8_t builtin) {
 lean_object * res;
@@ -58,6 +59,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Sym_DSimp_Variant(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_DSimp_EvalGround(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -77,6 +81,7 @@ lean_object* initialize_Lean_Meta_Sym_DSimp_Let(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_DSimp_Main(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_DSimp_Reduce(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_DSimp_Variant(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_DSimp_EvalGround(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_DSimp(uint8_t builtin) {
 lean_object * res;
@@ -110,6 +115,9 @@ res = initialize_Lean_Meta_Sym_DSimp_Reduce(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_DSimp_Variant(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_DSimp_EvalGround(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Sym_DSimp(builtin);

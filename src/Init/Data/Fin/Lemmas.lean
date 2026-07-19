@@ -11,7 +11,7 @@ public import Init.Data.Order.Classes
 public import Init.NotationExtra
 import Init.ByCases
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Init.TacticsExtra
 import Init.Hints
@@ -123,7 +123,7 @@ For example, for `x : Fin k` and `n : Nat`,
 it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
 silently introducing wraparound arithmetic.
 -/
-@[implicit_reducible]
+@[instance_reducible]
 def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat n a
 
@@ -144,7 +144,7 @@ This is not a global instance, but may be activated locally via `open Fin.IntCas
 
 See the doc-string for `Fin.NatCast.instNatCast` for more details.
 -/
-@[implicit_reducible]
+@[instance_reducible]
 def instIntCast (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
@@ -152,7 +152,7 @@ attribute [scoped instance] instIntCast
 
 end IntCast
 
-open IntCast in
+open Fin.IntCast in
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
     (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 
@@ -519,8 +519,6 @@ theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
 
 @[simp, grind =] theorem cast_cast {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
     (i.cast h).cast h' = i.cast (Eq.trans h h') := rfl
-
-@[deprecated cast_cast (since := "2025-09-03")] abbrev cast_trans := @cast_cast
 
 theorem castLE_of_eq {m n : Nat} (h : m = n) {h' : m ≤ n} : castLE h' = Fin.cast h := rfl
 
@@ -1012,7 +1010,7 @@ For the induction:
 
 @[simp, grind =] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction, reverseInduction.go]; simp; rfl
+  rw [reverseInduction, reverseInduction.go]; simp
 
 private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
     (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
@@ -1023,7 +1021,7 @@ private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) �
   | succ j ih =>
     rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
     by_cases hij : i = j
-    · subst hij; simp [reverseInduction.go]; rfl
+    · subst hij; simp [reverseInduction.go]
     · dsimp only
       rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
 

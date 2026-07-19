@@ -65,6 +65,7 @@ public structure LakeOptions where
   outFormat : OutFormat := .text
   offline : Bool := false
   outputsFile? : Option FilePath := none
+  overwrite? : Option Bool := none
   forceDownload : Bool := false
   mappingsOnly : Bool := false
   service? : Option String := none
@@ -239,6 +240,35 @@ where
   isValidRepoChar (c : Char) : Bool :=
     c.isAlphanum || c == '-' || c == '_' || c == '.' || c == '/'
 
+def flushLinterOptions : CliM PUnit := do
+  modifyThe LakeOptions fun opts =>
+    { opts with builtinLint.linterOverrides := #[] }
+
+def modifyLintOnlyFlag (b : Bool) : CliM PUnit := do
+  modifyThe LakeOptions fun opts =>
+    { opts with builtinLint := {opts.builtinLint with lintOnly := b} }
+
+/--
+Parses a comma-separated list of Boolean-valued `Lean.Option` names.
+If the name is prefixed with `-`, this means that option will be set to `false`.
+Otherwise, it will be `true`.
+-/
+def parseLintersSpec (spec : String) : CliM PUnit := do
+  let mut entries : Array (Lean.Name × Bool) := #[]
+  for raw in spec.split (· == ',') do
+    let mut s := raw.trimAscii
+    let mut optionValue := true
+    if s.isEmpty then continue
+    if s.startsWith "-" then
+      s := (s.drop 1).trimAscii
+      optionValue := false
+    if s.startsWith "." then
+      s := "linter" ++ s
+    entries := entries.push (s.toName, optionValue)
+  modifyThe LakeOptions fun opts =>
+    { opts with runBuiltinLint := true, builtinLint.linterOverrides :=
+        opts.builtinLint.linterOverrides ++ entries }
+
 def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
 | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
@@ -256,6 +286,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
+| "--no-overwrite" => modifyThe LakeOptions ({· with overwrite? := some false})
+| "--force-overwrite" => modifyThe LakeOptions ({· with overwrite? := some true})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
 | "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
 | "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
@@ -313,14 +345,23 @@ def lakeLongOption : (opt : String) → CliM PUnit
 -- Builtin lint options (using any of these implicitly enables --builtin-lint)
 | "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
 | "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
-| "--extra" => modifyThe LakeOptions ({· with
-    runBuiltinLint := true, builtinLint.scope := .extra, builtinLint.only := #[]})
-| "--lint-all" => modifyThe LakeOptions ({· with
-    runBuiltinLint := true, builtinLint.scope := .all, builtinLint.only := #[]})
+| "--record-exceptions" =>
+  modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.recordExceptions := true})
+| "--linters" => do
+  let opts ← getThe LakeOptions
+  if opts.builtinLint.lintOnly then
+    flushLinterOptions
+    modifyLintOnlyFlag false
+  let spec ← takeOptArg "--linters" "comma-separated linter spec"
+  parseLintersSpec spec
 | "--lint-only" => do
-  let name ← takeOptArg "--lint-only" "linter name"
-  modifyThe LakeOptions fun opts =>
-    {opts with runBuiltinLint := true, builtinLint.only := opts.builtinLint.only.push name.toName}
+  let opts ← getThe LakeOptions
+  if !opts.builtinLint.lintOnly then
+    flushLinterOptions
+    modifyLintOnlyFlag true
+  let spec ← takeOptArg "--lint-only" "comma-separated linter spec"
+  parseLintersSpec spec
+
 -- Shared options
 | "--force" => modifyThe LakeOptions ({· with shake.force := true})
 -- Shake options
@@ -429,6 +470,10 @@ protected def get : CliM PUnit := do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
+  let overwrite := opts.overwrite?.getD true
+  unless overwrite do
+    -- artifacts of skipped mappings with `--no-overwrite` cannot be cleanly handled
+    error "`--no-overwrite` is not supported for `cache get`"
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
       error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"
@@ -449,7 +494,7 @@ protected def get : CliM PUnit := do
       else
         return ws.defaultCacheService
     let map ← CacheMap.load file
-    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope)
+    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope) overwrite
     let descrs ← map.collectOutputDescrs
     service.downloadArtifacts descrs cache remoteScope opts.forceDownload
   else
@@ -494,7 +539,7 @@ protected def get : CliM PUnit := do
           return map
         else
           findOutputs cache service pkg remoteScope opts platform toolchain
-      cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
+      cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
       unless opts.mappingsOnly do
         let descrs ← map.collectOutputDescrs
         service.downloadArtifacts descrs cache remoteScope opts.forceDownload
@@ -508,7 +553,7 @@ protected def get : CliM PUnit := do
         let toolchain := cacheToolchain pkg toolchain
         try
           let map ← findOutputs cache service pkg remoteScope opts platform toolchain
-          cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
+          cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
           unless opts.mappingsOnly do
             let descrs ← map.collectOutputDescrs
             service.downloadArtifacts descrs cache remoteScope opts.forceDownload
@@ -641,7 +686,8 @@ protected def add : CliM PUnit := do
       error (serviceNotFound service ws.lakeConfig.config.cache.services)
     return some (.ofString service)
   let map ← CacheMap.load file
-  ws.lakeCache.writeMap localScope map service? opts.scope?
+  let overwrite := opts.overwrite?.getD true
+  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
 private def stagingOutputsFile := "outputs.jsonl"
 
@@ -663,9 +709,12 @@ protected def stage : CliM PUnit := do
   let descrs ← map.collectOutputDescrs
   IO.FS.createDirAll stagingDir
   copyFile mappingsFile (stagingDir / stagingOutputsFile)
+  let overwrite := opts.overwrite?.getD false
   let ok ← descrs.foldlM (init := true) fun ok descr => do
     let cachePath := cache.artifactDir / descr.relPath
     let stagingPath := stagingDir / descr.relPath
+    unless overwrite || !(← stagingPath.pathExists) do
+      return ok
     match (← copyFile cachePath stagingPath |>.toBaseIO) with
     | .ok _ =>
       return ok
@@ -703,9 +752,16 @@ protected def unstage : CliM PUnit := do
   let descrs ← map.collectOutputDescrs
   let artDir := ws.lakeCache.artifactDir
   IO.FS.createDirAll artDir
+  let overwrite := opts.overwrite?.getD false
   let ok ← descrs.foldlM (init := true) fun ok descr => do
     let cachePath := artDir/ descr.relPath
     let stagingPath := stagingDir / descr.relPath
+    if (← cachePath.pathExists) then
+      if overwrite then
+        -- Cache artifacts are read-only, so the old artifact must be deleted first.
+        IO.FS.removeFile cachePath
+      else
+        return ok
     match (← copyFile stagingPath cachePath |>.toBaseIO) with
     | .ok _ =>
       return ok
@@ -718,7 +774,7 @@ protected def unstage : CliM PUnit := do
   unless ok do
     logError "failed to copy all outputs to the staging directory"
     exit 1
-  ws.lakeCache.writeMap localScope map service? opts.scope?
+  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
 protected def putStaged : CliM PUnit := do
   processOptions lakeOption
@@ -978,7 +1034,7 @@ private def runBuiltinLint
   if mods.isEmpty then
     error "no modules specified and there are no applicable default targets"
   let args := opts.builtinLint
-  let args := {args with mods}
+  let args := {args with mods, srcSearchPath := ws.augmentedLeanSrcPath}
   let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
   let lintOpts := BuiltinLint.leanOptOverrides args
   let overrides : Lean.NameMap Lean.LeanOptions :=

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.MonadEnv
+public import Lean.EnvExtension
 import Init.Data.Function
 
 public section
@@ -46,8 +47,10 @@ participate in `getLinterValue` like any user-declared set.
 -/
 builtin_initialize builtinLinterSetsRef : IO.Ref (Array (Name × NameSet)) ← IO.mkRef #[]
 
-/-- Register a builtin linter set entry. Only valid during initialization;
-use `register_builtin_linter_set` rather than calling this directly. -/
+/-- 
+  Register a builtin linter set entry. 
+  Only valid during initialization.
+-/
 def addBuiltinLinterSet (setName : Name) (linterNames : NameSet) : IO Unit := do
   builtinLinterSetsRef.modify (·.push (setName, linterNames))
 
@@ -106,11 +109,29 @@ register_builtin_option linter.extra : Bool := {
     only available via `lake lint`. An extra linter early-returns unless this option is true."
 }
 
+register_builtin_option linter.coreInternal : Bool := {
+  defValue := false
+  descr := "enables the set of core-internal linters — linters that enforce conventions of the \
+    Lean repository itself and are not intended for use by non-core projects."
+}
+
+/--
+Global registry of options associated with environment linters.
+These are precisely options, whose value will be snapshotted during `addDecl`.
+-/
+builtin_initialize envLinterOptionsRef : IO.Ref (Array (Lean.Option Bool)) ← IO.mkRef #[]
+
+def addEnvLinterOption (opt : Lean.Option Bool) : IO Unit :=
+  envLinterOptionsRef.modify (·.push opt)
+
 def getLinterAll (o : LinterOptions) (defValue := linter.all.defValue) : Bool :=
     o.get linter.all.name defValue
 
 def getLinterValue (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
   o.get opt.name (getLinterAll o <| (o.getSet opt).any (o.get? · == some true) || opt.defValue)
+
+def isLinterEnabledByOptions (name : Name) (o : LinterOptions) : Bool :=
+  o.get name (getLinterAll o <| (o.linterSets.getD name #[]).any (o.get? · == some true))
 
 /--
 Tag attached by `logLint` to every linter warning so consumers
@@ -123,6 +144,7 @@ def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
   let disable := .note m!"This linter can be disabled with `set_option {linterOption.name} false`"
   logWarningAt stx <|
+    .ofOriginatingSyntax stx <|
     .tagged linterOption.name <|
     .tagged linterMessageTag m!"{msg}{disable}"
 
@@ -144,3 +166,17 @@ Whether a linter option is enabled or not is determined by the following sequenc
 def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
   if getLinterValue linterOption (← getLinterOptions) then logLint linterOption stx msg
+
+abbrev EnvLinterSnapshot := NameMap Bool
+
+/--
+The `envLinterSnapshotExt` extension saves the state of all (Boolean-valued) `Lean.Option`s
+associated with environment linters.
+-/
+builtin_initialize envLinterSnapshotExt : MapDeclarationExtension EnvLinterSnapshot ←
+  -- `.asyncEnv`: the snapshot is written from within the declaration's own (async) elaboration
+  -- via `addDecl`, so the modification happens on the declaration's async branch, not a parent.
+  mkMapDeclarationExtension `envLinterSnapshotExt (asyncMode := .sync)
+
+def getEnvLinterSnapshotEntry? (env : Environment) (declName optName : Name) : Option Bool :=
+  envLinterSnapshotExt.find? env declName >>= (·.find? optName)

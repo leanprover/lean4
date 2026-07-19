@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 lean_object* l_Lean_instFromJsonJson___lam__0(lean_object*);
 lean_object* l_Lake_JsonObject_getJson_x3f(lean_object*, lean_object*);
-lean_object* l_Option_fromJson_x3f___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Option_fromJson_x3f___redArg(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lake_JsonObject_fromJson_x3f(lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
@@ -216,7 +216,7 @@ v_val_152_ = lean_ctor_get(v___x_151_, 0);
 lean_inc(v_val_152_);
 lean_dec_ref_known(v___x_151_, 1);
 v___x_153_ = ((lean_object*)(l_Lake_ReservoirResp_fromJson_x3f___redArg___closed__4));
-v___x_154_ = l_Option_fromJson_x3f___redArg(v___x_153_, v_val_152_);
+v___x_154_ = l_Lean_Option_fromJson_x3f___redArg(v___x_153_, v_val_152_);
 if (lean_obj_tag(v___x_154_) == 0)
 {
 lean_object* v_a_155_; lean_object* v___x_157_; uint8_t v_isShared_158_; uint8_t v_isSharedCheck_164_; 
@@ -624,7 +624,7 @@ lean_object* v_val_129_; lean_object* v___x_130_;
 v_val_129_ = lean_ctor_get(v___x_128_, 0);
 lean_inc(v_val_129_);
 lean_dec_ref_known(v___x_128_, 1);
-v___x_130_ = l_Option_fromJson_x3f___redArg(v___f_125_, v_val_129_);
+v___x_130_ = l_Lean_Option_fromJson_x3f___redArg(v___f_125_, v_val_129_);
 if (lean_obj_tag(v___x_130_) == 0)
 {
 lean_object* v_a_131_; lean_object* v___x_133_; uint8_t v_isShared_134_; uint8_t v_isSharedCheck_140_; 

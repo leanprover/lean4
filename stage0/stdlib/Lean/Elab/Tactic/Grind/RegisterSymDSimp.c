@@ -1743,8 +1743,8 @@ v_resetjp_437_:
 {
 lean_object* v___x_440_; lean_object* v___x_441_; lean_object* v___x_442_; lean_object* v___x_443_; lean_object* v___x_445_; 
 v___x_440_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_440_, 0, v___y_423_);
-lean_ctor_set(v___x_440_, 1, v___y_422_);
+lean_ctor_set(v___x_440_, 0, v___y_422_);
+lean_ctor_set(v___x_440_, 1, v___y_423_);
 lean_ctor_set(v___x_440_, 2, v___y_424_);
 v___x_441_ = l_Lean_Meta_Sym_DSimp_symDSimpVariantExtension;
 v___x_442_ = lean_alloc_ctor(0, 2, 0);
@@ -1828,8 +1828,8 @@ if (lean_obj_tag(v_snd_466_) == 0)
 lean_object* v___x_468_; 
 v___x_468_ = lean_unsigned_to_nat(100000u);
 v___y_421_ = v___y_453_;
-v___y_422_ = v_fst_465_;
-v___y_423_ = v_fst_462_;
+v___y_422_ = v_fst_462_;
+v___y_423_ = v_fst_465_;
 v___y_424_ = v___x_468_;
 goto v___jp_420_;
 }
@@ -1840,8 +1840,8 @@ v_val_469_ = lean_ctor_get(v_snd_466_, 0);
 lean_inc(v_val_469_);
 lean_dec_ref_known(v_snd_466_, 1);
 v___y_421_ = v___y_453_;
-v___y_422_ = v_fst_465_;
-v___y_423_ = v_fst_462_;
+v___y_422_ = v_fst_462_;
+v___y_423_ = v_fst_465_;
 v___y_424_ = v_val_469_;
 goto v___jp_420_;
 }

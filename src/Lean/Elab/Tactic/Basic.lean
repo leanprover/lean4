@@ -262,7 +262,9 @@ where
                     let old ← snap.old?
                     -- If the kind is equal, we can assume the old version was a macro as well
                     guard <| old.stx.isOfKind stx.getKind
-                    let state ← old.val.get.finished.get.state?
+                    -- (access to `raw` is fine here as there should be no transformation in this
+                    -- case anyway, see `resolve` below)
+                    let state ← old.val.get.transformed.raw.finished.get.state?
                     guard <| state.term.meta.core.nextMacroScope == nextMacroScope
                     -- check absence of traces; see Note [Incremental Macros]
                     guard <| state.term.meta.core.traceState.traces.size == 0
@@ -274,13 +276,15 @@ where
                   -- Store new unfolding in the snapshot tree
                   let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
-                    stx := stx'
-                    diagnostics := .empty
-                    inner? := none
-                    finished := .finished stx' {
+                    transformed.raw := {
+                      stx := stx'
                       diagnostics := .empty
-                      state? := (← Tactic.saveState)
-                      moreSnaps := #[]
+                      inner? := none
+                      finished := .finished stx' {
+                        diagnostics := .empty
+                        state? := (← Tactic.saveState)
+                        moreSnaps := #[]
+                      }
                     }
                     next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
@@ -289,7 +293,8 @@ where
                     new := promise
                     old? := do
                       let old ← old?
-                      return ⟨old.stx, (← old.next[0]?)⟩
+                      -- (access to `raw`: as above)
+                      return ⟨old.transformed.raw.stx, (← old.next[0]?)⟩
                   } }) do
                     evalTactic stx'
                   return

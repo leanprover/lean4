@@ -35,3 +35,23 @@ example : gen_term 2 := by
 example : gen_term 70 := by
   run_tac liftMetaTactic1 fun mvarId => test mvarId
   constructor
+
+def testUnhygienic  (mvarId : MVarId) : MetaM MVarId := do
+  SymM.run do
+    let .goal _ mvarId ← intros mvarId (hygienic := false) | failure
+    return mvarId
+
+/--
+trace: z : Nat := 0
+x y : Nat
+z_1 : Nat := x + y
+y_1 : Nat := y + 1
+this : y_1 ≥ 0 := Nat.zero_le y_1
+x_1 : Nat
+⊢ True
+-/
+#guard_msgs in
+example : gen_term 1 := by
+  run_tac liftMetaTactic1 fun mvarId => testUnhygienic mvarId
+  trace_state
+  constructor

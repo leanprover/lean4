@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lemmas
-// Imports: public import Init.Data.List.ToArray import all Init.Data.List.Control import all Init.Data.Array.Basic import all Init.Data.Array.Bootstrap public import Init.Data.Nat.Lemmas public import Init.Data.Nat.MinMax import Init.ByCases import Init.Data.Array.DecidableEq import Init.Data.Bool import Init.Data.Fin.Lemmas import Init.Data.List.Find import Init.Data.List.Nat.Basic import Init.Data.List.Nat.Modify import Init.Data.List.Nat.TakeDrop import Init.Data.List.Range import Init.Data.List.Zip import Init.Data.Nat.Linear import Init.Data.Nat.Simproc import Init.Data.Option.Lemmas import Init.Data.Prod import Init.Omega import Init.TacticsExtra
+// Imports: public import Init.Data.List.ToArray import all Init.Data.List.Control import all Init.Data.Array.Basic import all Init.Data.Array.Bootstrap public import Init.Data.Nat.Lemmas public import Init.Data.Nat.MinMax import Init.ByCases import Init.Data.Array.DecidableEq import Init.Data.Bool import Init.Data.Fin.Lemmas import Init.Data.List.Find import Init.Data.List.Nat.Basic import Init.Data.List.Nat.Modify import Init.Data.List.Nat.TakeDrop import Init.Data.List.Range import Init.Data.List.Zip import Init.Data.Nat.Internal.Linear import Init.Data.Nat.Simproc import Init.Data.Option.Lemmas import Init.Data.Prod import Init.Omega import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-uint8_t l_Nat_decidableBallLT___redArg(lean_object*, lean_object*);
+uint8_t l_Nat_decidableBallLTTR___redArg(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,7 +34,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-uint8_t l_Nat_decidableExistsLT_x27___redArg(lean_object*, lean_object*);
+uint8_t l_Nat_decidableExistsLT_x27TR___redArg(lean_object*, lean_object*);
 uint8_t l_Array_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_instDecidableForallForallMemOfDecidablePred___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instDecidableForallForallMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -233,7 +233,7 @@ lean_closure_set(v___f_16_, 0, v_xs_14_);
 lean_closure_set(v___f_16_, 1, v_inst_15_);
 v___x_17_ = lean_array_get_size(v_xs_14_);
 lean_dec_ref(v_xs_14_);
-v___x_18_ = l_Nat_decidableBallLT___redArg(v___x_17_, v___f_16_);
+v___x_18_ = l_Nat_decidableBallLTTR___redArg(v___x_17_, v___f_16_);
 return v___x_18_;
 }
 }
@@ -295,7 +295,7 @@ lean_closure_set(v___f_49_, 0, v_xs_47_);
 lean_closure_set(v___f_49_, 1, v_inst_48_);
 v___x_50_ = lean_array_get_size(v_xs_47_);
 lean_dec_ref(v_xs_47_);
-v___x_51_ = l_Nat_decidableExistsLT_x27___redArg(v___x_50_, v___f_49_);
+v___x_51_ = l_Nat_decidableExistsLT_x27TR___redArg(v___x_50_, v___f_49_);
 return v___x_51_;
 }
 }
@@ -399,9 +399,9 @@ return v___x_91_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___redArg___boxed(lean_object* v_____do__lift_92_, lean_object* v_h__1_93_, lean_object* v_h__2_94_){
 _start:
 {
-uint8_t v_____do__lift_26__boxed_95_; lean_object* v_res_96_; 
-v_____do__lift_26__boxed_95_ = lean_unbox(v_____do__lift_92_);
-v_res_96_ = l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___redArg(v_____do__lift_26__boxed_95_, v_h__1_93_, v_h__2_94_);
+uint8_t v_____do__lift_24__boxed_95_; lean_object* v_res_96_; 
+v_____do__lift_24__boxed_95_ = lean_unbox(v_____do__lift_92_);
+v_res_96_ = l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___redArg(v_____do__lift_24__boxed_95_, v_h__1_93_, v_h__2_94_);
 return v_res_96_;
 }
 }
@@ -429,9 +429,9 @@ return v___x_104_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___boxed(lean_object* v_motive_105_, lean_object* v_____do__lift_106_, lean_object* v_h__1_107_, lean_object* v_h__2_108_){
 _start:
 {
-uint8_t v_____do__lift_37__boxed_109_; lean_object* v_res_110_; 
-v_____do__lift_37__boxed_109_ = lean_unbox(v_____do__lift_106_);
-v_res_110_ = l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter(v_motive_105_, v_____do__lift_37__boxed_109_, v_h__1_107_, v_h__2_108_);
+uint8_t v_____do__lift_35__boxed_109_; lean_object* v_res_110_; 
+v_____do__lift_35__boxed_109_ = lean_unbox(v_____do__lift_106_);
+v_res_110_ = l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter(v_motive_105_, v_____do__lift_35__boxed_109_, v_h__1_107_, v_h__2_108_);
 return v_res_110_;
 }
 }
@@ -1600,7 +1600,7 @@ lean_object* runtime_initialize_Init_Data_List_Nat_Modify(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Range(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Zip(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
@@ -1659,7 +1659,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Simproc(builtin);
@@ -1704,7 +1704,7 @@ lean_object* initialize_Init_Data_List_Nat_Modify(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Zip(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Prod(uint8_t builtin);
@@ -1763,7 +1763,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Simproc(builtin);

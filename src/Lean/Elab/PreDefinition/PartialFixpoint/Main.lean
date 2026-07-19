@@ -24,13 +24,10 @@ open Lean.Order
 private def replaceRecApps (recFnNames : Array Name) (fixedParamPerms : FixedParamPerms) (f : Expr) (e : Expr) : MetaM Expr := do
   assert! recFnNames.size = fixedParamPerms.perms.size
   let t ← inferType f
-  return e.replace fun e => do
-    let fn := e.getAppFn
-    guard fn.isConst
-    let idx ← recFnNames.idxOf? fn.constName!
-    let args := e.getAppArgs
+  Meta.transform e fun e => e.withApp fun fn args => do
+    let some idx := fn.constName?.bind (recFnNames.idxOf? ·) | return .continue
     let varying := fixedParamPerms.perms[idx]!.pickVarying args
-    return mkAppN (PProdN.proj recFnNames.size idx t f) varying
+    return .continue (mkAppN (PProdN.proj recFnNames.size idx t f) varying)
 
 /--
 For pretty error messages:
@@ -115,7 +112,9 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
       mkLambdaFVars xs inst
 
   let declNames := preDefs.map (·.declName)
-  let fixedParamPerms ← getFixedParamPerms preDefs
+  let fixedParamPerms ← withoutModifyingEnv do
+    preDefs.forM (addAsAxiom ·)
+    getFixedParamPerms preDefs
   fixedParamPerms.perms[0]!.forallTelescope preDefs[0]!.type fun fixedArgs => do
     -- Either: ∀ x y, CCPO (rᵢ x y)
     -- Or:     ∀ x y, CompleteLattice (rᵢ x y)

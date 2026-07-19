@@ -14,7 +14,7 @@ import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
 namespace Lean.Meta.Sym.Simp
-open Internal
+open Lean.Meta.Sym.Internal
 
 /--
 Simplifies a non-dependent `if-then-else` expression.

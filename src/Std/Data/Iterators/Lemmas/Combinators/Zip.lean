@@ -41,7 +41,7 @@ noncomputable def Iter.Intermediate.zip [Iterator α₁ Id β₁]
     ((fun x => ⟨x.1, x.2.choose.toIterM, x.2.choose_spec⟩) <$> memo)
     it₂.toIterM).toIter
 
-def Iter.Intermediate.zip_inj [Iterator α₁ Id β₁] :
+theorem Iter.Intermediate.zip_inj [Iterator α₁ Id β₁] :
     ∀ {it₁ it₁' : Iter (α := α₁) β₁} {memo memo'} {it₂ it₂' : Iter (α := α₂) β₂},
       zip it₁ memo it₂ = zip it₁' memo' it₂' ↔ it₁ = it₁' ∧ memo = memo' ∧ it₂ = it₂' := by
   intro it₁ it₁' memo memo' it₂ it₂'
@@ -53,7 +53,7 @@ def Iter.Intermediate.zip_inj [Iterator α₁ Id β₁] :
   · rintro ⟨rfl, rfl, rfl⟩
     rfl
 
-def Iter.Intermediate.zip_surj [Iterator α₁ Id β₁] :
+theorem Iter.Intermediate.zip_surj [Iterator α₁ Id β₁] :
     ∀ it : Iter (α := Zip α₁ Id α₂ β₂) (β₁ × β₂), ∃ it₁ memo it₂, it = Intermediate.zip it₁ memo it₂ := by
   refine fun it => ⟨it.internalState.left.toIter,
       (fun x => ⟨x.1, x.2.choose.toIter, x.2.choose_spec⟩) <$> it.internalState.memoizedLeft,

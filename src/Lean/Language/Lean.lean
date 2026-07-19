@@ -228,6 +228,8 @@ the tactic snapshot at hand *and all further snapshots* so that we can cancel th
 of waiting for elaboration to visit those later snapshots.
 -/
 
+open Lean
+
 set_option linter.missingDocs true
 
 namespace Lean.Language.Lean
@@ -808,5 +810,40 @@ where goCmd snap :=
     goCmd next.get
   else
     snap.elabSnap.resultSnap.get.cmdState
+
+/--
+Returns `snap` with all elaborated command data discarded, retaining only the imported
+environment from the header.
+-/
+def truncateToHeader (snap : InitialSnapshot) : InitialSnapshot := Id.run do
+  let some parsed := snap.result? | return snap
+  let processed := parsed.processedSnap.get
+  let some hps := processed.result? | return snap
+  -- Construct a synthetic terminal CommandParsedSnapshot whose cmdState is the
+  -- initial post-import state, effectively representing "no commands elaborated".
+  let resultSnap : CommandResultSnapshot := {
+    diagnostics := .empty
+    cmdState := hps.cmdState
+  }
+  let elabSnap : CommandElaboratingSnapshot := {
+    diagnostics := .empty
+    elabSnap := default
+    resultSnap := .finished none resultSnap
+    infoTreeSnap := .finished none { diagnostics := .empty }
+    reportSnap := default
+  }
+  let termCmd : CommandParsedSnapshot := {
+    diagnostics := .empty
+    stx := .missing
+    parserState := default
+    elabSnap
+    nextCmdSnap? := none
+  }
+  let newProcessed : HeaderProcessedSnapshot := { processed with
+    result? := some { hps with
+      firstCmdSnap := .finished none termCmd } }
+  { snap with
+    result? := some { parsed with
+      processedSnap := .finished none newProcessed } }
 
 end Lean

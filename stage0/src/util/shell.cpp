@@ -39,7 +39,6 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "initialize/init.h"
 #include "library/ir_interpreter.h"
-#include "util/path.h"
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1
@@ -192,6 +191,9 @@ static struct option g_long_options[] = {
     {"json",         no_argument,       0, 'J'},
     {"print-prefix", no_argument,       0, 'x'},
     {"print-libdir", no_argument,       0, 'L'},
+    {"incr-save",    required_argument, 0, 'Y'},
+    {"incr-load",    required_argument, 0, 'Z'},
+    {"incr-header-save", required_argument, 0, 'H'},
 #ifdef LEAN_DEBUG
     {"debug",        required_argument, 0, 'B'},
 #endif
@@ -199,7 +201,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:eE:"
+    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:eE:Y:Z:H:"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -317,7 +319,11 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         std::cerr << "error: " << ex.what() << std::endl;
         return 1;
     }
-    consume_io_result(lean_enable_initializer_execution());
+    lean_enable_initializer_execution();
+
+    // Default the configured thread stack size from the environment as in `lean_run_main`;
+    // `--tstack` below overrides it.
+    set_thread_stack_size_from_env();
 
     int rc;
     object_ref shell_opts;
@@ -346,12 +352,16 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
     scoped_task_manager scope_task_man(get_shell_num_threads(shell_opts));
 
-    try {
-        return run_shell_main(argc - optind, argv + optind, shell_opts);
-    } catch (lean::throwable & ex) {
-        std::cerr << ex.what() << "\n";
-    } catch (std::bad_alloc & ex) {
-        std::cerr << "out of memory" << std::endl;
-    }
-    return 1;
+    int shell_rc = 1;
+    // Do not rely on OS thread stack size, as for Lean executables
+    run_with_thread_stack([&]() {
+        try {
+            shell_rc = run_shell_main(argc - optind, argv + optind, shell_opts);
+        } catch (lean::throwable & ex) {
+            std::cerr << ex.what() << "\n";
+        } catch (std::bad_alloc & ex) {
+            std::cerr << "out of memory" << std::endl;
+        }
+    });
+    return shell_rc;
 }

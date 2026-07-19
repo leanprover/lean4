@@ -2,8 +2,20 @@ import Lean.Linter.EnvLinter
 
 open Lean Meta Lean.Linter Lean.Elab.Command
 
--- A dummy extra linter that flags any declaration whose name ends with "Extra".
-@[builtin_env_linter extra] public meta def dummyExtra : Lean.Linter.EnvLinter.EnvLinter where
+/-- Option gating the dummy env linter; off by default. Enabled per build via
+`--linters=linter.dummyExtra` (or `--linters=linter.all`). -/
+register_option linter.dummyExtra : Bool := {
+  defValue := false
+  descr := "(test) flag declarations whose name ends with 'Extra'"
+}
+
+initialize addEnvLinterOption linter.dummyExtra
+
+-- A dummy env linter that flags any declaration whose name ends with "Extra".
+-- It runs on a declaration iff `linter.dummyExtra` was enabled when that
+-- declaration was built (recorded in the per-declaration snapshot).
+@[builtin_env_linter linter.dummyExtra]
+public meta def dummyExtra : Lean.Linter.EnvLinter.EnvLinter where
   noErrorsFound := "No declarations ending with 'Extra' found."
   errorsFound := "EXTRA VIOLATIONS:"
   test declName := do
@@ -13,7 +25,7 @@ open Lean Meta Lean.Linter Lean.Elab.Command
 
 -- A dummy extra text linter: fires on every `declaration` command, but only
 -- when `linter.extra = true`. Tags its warnings with `linter.extra` via
--- `logLint`, which is how `lake lint --extra` identifies extra-scope entries.
+-- `logLint`, so it is enabled by `--linters=linter.extra`.
 def dummyExtraTextLinter : Linter where
   run cmdStx := do
     unless getLinterValue linter.extra (← getLinterOptions) do return

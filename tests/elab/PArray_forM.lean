@@ -2,6 +2,7 @@ import Lean.Data.PersistentArray
 /-!
 Test `PersistentArray.forM` with nonzero start position.
 -/
+open Lean
 
 def mk (n : Nat) : Lean.PersistentArray Nat :=
   List.range n |>.toPArray'

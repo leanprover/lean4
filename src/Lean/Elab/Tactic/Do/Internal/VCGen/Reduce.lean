@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.WHNF
-import Lean.Meta.Sym
+import Lean.Meta.Sym.Util
 
 open Lean Meta Sym
 

@@ -52,6 +52,8 @@ class PartialOrder (α : Sort u) where
 
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 
+attribute [grind .] PartialOrder.rel_refl
+
 section PartialOrder
 
 variable {α  : Sort u} [PartialOrder α]
@@ -114,7 +116,7 @@ theorem le_csup {c : α → Prop} (hc : chain c) {y : α} (hy : c y) : y ⊑ csu
 
 def empty_chain (α) : α → Prop := fun _ => False
 
-def chain_empty (α : Sort u) [PartialOrder α] : chain (empty_chain α) := by
+theorem chain_empty (α : Sort u) [PartialOrder α] : chain (empty_chain α) := by
   intro x y hx hy; contradiction
 
 /--
@@ -290,7 +292,7 @@ theorem admissible_or (P Q : α → Prop)
     intro x ⟨hcx, hQx⟩
     exact hQx
 
-def admissible_pi (P : α → β → Prop)
+theorem admissible_pi (P : α → β → Prop)
   (hadm₁ : ∀ y, admissible (fun x => P x y)) : admissible (fun x => ∀ y, P x y) :=
     fun c hchain h y => hadm₁ y c hchain fun x hx => h x hx y
 
@@ -568,7 +570,7 @@ theorem fun_sup_eq [∀ x, CompleteLattice (β x)] (c : (∀ x, β x) → Prop) 
   · apply fun_sup_is_sup
   · apply CompleteLattice.sup_spec
 
-def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
+theorem admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
   (hadm : admissible (P x)) : admissible (fun (f : ∀ x, β x) => P x (f x)) := by
   intro c hchain h
   rw [← fun_csup_eq]
@@ -576,7 +578,7 @@ def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
   rintro _ ⟨f, hcf, rfl⟩
   apply h _ hcf
 
-def admissible_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : ∀ x, admissible (P x)) :
+theorem admissible_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : ∀ x, admissible (P x)) :
     admissible (fun (f : ∀ x, β x) => ∀ x, P x (f x)) := by
   apply admissible_pi
   intro
@@ -767,6 +769,23 @@ This is intended to be used in the construction of `partial_fixpoint`, and not m
 -/
 @[expose] def FlatOrder {α : Sort u} (b : α) := α
 
+def FlatOrder.mk {α : Sort u} (b : α) (x : α) : FlatOrder b := x
+
+def FlatOrder.inner {α : Sort u} {b : α} (x : FlatOrder b) : α := x
+
+theorem FlatOrder.mk_inner {α : Sort u} {b : α} {x : FlatOrder b} :
+    FlatOrder.mk b x.inner = x :=
+  (rfl)
+
+theorem FlatOrder.inner_mk {α : Sort u} {b : α} {x : α} :
+    (FlatOrder.mk b x).inner = x :=
+  (rfl)
+
+@[simp]
+theorem FlatOrder.mk_inj {α : Sort u} {b : α} {x y : α} :
+    FlatOrder.mk b x = FlatOrder.mk b y ↔ x = y :=
+  Iff.rfl
+
 variable {b : α}
 
 /--
@@ -793,7 +812,7 @@ private theorem Classical.some_spec₂ {α : Sort _} {p : α → Prop} {h : ∃ 
 noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   by_cases h : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · exact Classical.choose h
-  · exact b
+  · exact .mk b b
 
 theorem flat_csup_is_sup (c : FlatOrder b → Prop) (hc : chain c) :
     is_sup c (flat_csup c) := by
@@ -838,7 +857,7 @@ theorem flat_csup_eq (c : FlatOrder b → Prop) (hchain : chain c) :
   · apply flat_csup_is_sup _ hchain
   · apply CCPO.csup_spec
 
-theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
+theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P (.mk b b)) : admissible P := by
   intro c hchain h
   by_cases h' : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · simp [← flat_csup_eq, flat_csup, h']
@@ -889,6 +908,7 @@ instance : MonoBind Option where
 
 theorem Option.admissible_eq_some (P : Prop) (y : α) :
     admissible (fun (x : Option α) => x = some y → P) := by
+  change admissible fun x : FlatOrder none => x = .mk _ (some y) → P
   apply admissible_flatOrder; simp
 
 instance [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _

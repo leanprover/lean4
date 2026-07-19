@@ -52,7 +52,7 @@ public structure ReflectionResult where
 public abbrev UnsatProver (α : Type) := MVarId → ReflectionResult → Std.HashMap Nat (Nat × Expr × Bool) →
     MetaM (Except CounterExample (UnsatProver.Result α))
 
-def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
+public def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let hyps ← getPropHyps
   let mut sats := #[]
   let mut unusedHypotheses := {}

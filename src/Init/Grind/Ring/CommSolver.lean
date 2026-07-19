@@ -18,7 +18,7 @@ public import Init.Data.RArray
 public import Init.Ext
 import Init.Data.Hashable
 import Init.Data.Int.LemmasAux
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Grind.Ordered.Order
 import Init.Omega
 import Init.WFTactics
@@ -1593,7 +1593,7 @@ theorem div {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (p₁ :
 noncomputable def unsat_eq_cert (p : Poly) (k : Int) : Bool :=
   !Int.beq' k 0 |>.and' (p.beq' (.num k))
 
-def unsat_eq {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (p : Poly) (k : Int)
+theorem unsat_eq {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (p : Poly) (k : Int)
     : unsat_eq_cert p k → p.denote ctx = 0 → False := by
   simp [unsat_eq_cert]; intro h _; subst p; simp [Poly.denote]
   have := IsCharP.intCast_eq_zero_iff (α := α) 0 k
@@ -1658,7 +1658,7 @@ theorem superposeC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ 
 noncomputable def mul_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
   p₁.mulConstC k c |>.beq' p
 
-def mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
+theorem mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
     : mul_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
   simp [mul_certC]; intro _ h; subst p
   simp [Poly.denote_mulConstC, *, mul_zero]
@@ -1666,7 +1666,7 @@ def mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k
 noncomputable def div_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
   !Int.beq' k 0 |>.and' ((p.mulConstC k c).beq' p₁)
 
-def divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
+theorem divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
     : div_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
   simp [div_certC]; intro hnz _ h; subst p₁
   simp [Poly.denote_mulConstC, ← zsmul_eq_intCast_mul] at h
@@ -1683,7 +1683,7 @@ theorem simpC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int
 noncomputable def unsat_eq_certC (p : Poly) (k : Int) (c : Nat) : Bool :=
   !Int.beq' (k % c) 0 |>.and' (p.beq' (.num k))
 
-def unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int)
+theorem unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int)
     : unsat_eq_certC p k c → p.denote ctx = 0 → False := by
   simp [unsat_eq_certC]; intro h _; subst p; simp [Poly.denote]
   have := IsCharP.intCast_eq_zero_iff (α := α) c k

@@ -53,12 +53,6 @@ theorem size_rcc {a b : Nat} :
     (a...=b).size = b + 1 - a := by
   simp [Rcc.size, Rxc.HasSize.size]
 
-@[deprecated size_rcc (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Rcc := @_root_.Nat.size_rcc
-
-@[deprecated size_rcc (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_rcc := @_root_.Nat.size_rcc
-
 @[simp]
 theorem length_toList_rcc {a b : Nat} :
     (a...=b).toList.length = b + 1 - a := by
@@ -75,12 +69,6 @@ theorem size_rco {a b : Nat} :
   simp only [Rco.size, Rxo.HasSize.size, Rxc.HasSize.size]
   omega
 
-@[deprecated size_rco (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Rco := @_root_.Nat.size_rco
-
-@[deprecated size_rco (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_rco := @_root_.Nat.size_rco
-
 @[simp]
 theorem length_toList_rco {a b : Nat} :
     (a...b).toList.length = b - a := by
@@ -95,12 +83,6 @@ theorem size_toArray_rco {a b : Nat} :
 theorem size_roc {a b : Nat} :
     (a<...=b).size = b - a := by
   simp [Roc.size, Rxc.HasSize.size]
-
-@[deprecated size_roc (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Roc := @_root_.Nat.size_roc
-
-@[deprecated size_roc (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_roc := @_root_.Nat.size_roc
 
 @[simp]
 theorem length_toList_roc {a b : Nat} :
@@ -117,12 +99,6 @@ theorem size_roo {a b : Nat} :
     (a<...b).size = b - a - 1 := by
   simp [Roo.size, Rxo.HasSize.size, Rxc.HasSize.size]
 
-@[deprecated size_roo (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Roo := @_root_.Nat.size_roo
-
-@[deprecated size_roo (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_roo := @_root_.Nat.size_roo
-
 @[simp]
 theorem length_toList_roo {a b : Nat} :
     (a<...b).toList.length = b - a - 1 := by
@@ -138,12 +114,6 @@ theorem size_ric {b : Nat} :
     (*...=b).size = b + 1 := by
   simp [Ric.size, Rxc.HasSize.size, Least?.least?]
 
-@[deprecated size_ric (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Ric := @_root_.Nat.size_ric
-
-@[deprecated size_ric (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_ric := @_root_.Nat.size_ric
-
 @[simp]
 theorem length_toList_ric {b : Nat} :
     (*...=b).toList.length = b + 1 := by
@@ -158,12 +128,6 @@ theorem size_toArray_ric {b : Nat} :
 theorem size_rio {b : Nat} :
     (*...b).size = b := by
   simp [Rio.size, Rxo.HasSize.size, Rxc.HasSize.size, Least?.least?]
-
-@[deprecated size_rio (since := "2025-10-30")]
-def _root_.Std.PRange.Nat.size_Rio := @_root_.Nat.size_rio
-
-@[deprecated size_rio (since := "2025-12-01")]
-def _root_.Std.PRange.Nat.size_rio := @_root_.Nat.size_rio
 
 @[simp]
 theorem length_toList_rio {b : Nat} :
@@ -194,9 +158,11 @@ theorem toList_rco_succ_succ {m n : Nat} :
     ((m+1)...(n+1)).toList = (m...n).toList.map (· + 1) := by
   simp [← succ_eq, Rco.toList_succ_succ_eq_map]
 
+set_option linter.defProp false in
 @[deprecated _root_.Nat.toList_rco_succ_succ (since := "2025-10-30")]
 def _root_.Std.PRange.Nat.toList_Rco_succ_succ := @_root_.Nat.toList_rco_succ_succ
 
+set_option linter.defProp false in
 @[deprecated _root_.Nat.toList_rco_succ_succ (since := "2025-12-01")]
 def _root_.Std.PRange.Nat.toList_rco_succ_succ := @_root_.Nat.toList_rco_succ_succ
 

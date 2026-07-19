@@ -873,7 +873,7 @@ structure DivModState.Lawful {w : Nat} (args : DivModArgs w) (qr : DivModState w
   hdiv : args.n.toNat >>> qr.wn = args.d.toNat * qr.q.toNat + qr.r.toNat
 
 /-- A lawful DivModState implies `w > 0`. -/
-def DivModState.Lawful.hw {args : DivModArgs w} {qr : DivModState w}
+theorem DivModState.Lawful.hw {args : DivModArgs w} {qr : DivModState w}
     {h : DivModState.Lawful args qr} : 0 < w := by
   have hd := h.hdPos
   rcases w with rfl | w
@@ -891,7 +891,7 @@ def DivModState.init (w : Nat) : DivModState w := {
 }
 
 /-- The initial state is lawful. -/
-def DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) :
+theorem DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) :
     DivModState.Lawful args (DivModState.init w) := by
   simp only [BitVec.DivModState.init]
   exact {
@@ -951,7 +951,7 @@ structure DivModState.Poised {w : Nat} (args : DivModArgs w) (qr : DivModState w
 In the shift subtract input, the dividend is at least one bit long (`wn > 0`), so
 the remainder has bits to be computed (`wr < w`).
 -/
-def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w := by
+theorem DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w := by
   have hwrn := h.hwrn
   have hwn_lt := h.hwn_lt
   omega
@@ -2012,8 +2012,7 @@ theorem getElem_smod {x y : BitVec w} (h : i < w) :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y))[i]
       | true, true => (-(-x % -y))[i] := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem getLsbD_smod {x y : BitVec w} :
     (x.smod y).getLsbD i =
@@ -2037,8 +2036,7 @@ theorem getMsbD_smod {x y : BitVec w} :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y)).getMsbD i
       | true, true => (-(-x % -y)).getMsbD i := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem msb_smod {x y : BitVec w} :
     (x.smod y).msb = (x.msb && y = 0) || (y.msb && (x.smod y) ≠ 0) := by

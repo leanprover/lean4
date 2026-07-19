@@ -33,7 +33,7 @@ If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` 
       e ← if eIsSeq then pure e else `(doSeq|$(⟨e⟩):doElem)
       e ← match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $(⟨e⟩))
-        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $(⟨e⟩))
+        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d:term with | $pat:term => $t | _ => $(⟨e⟩))
         | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $(⟨e⟩))
         | _                          => Macro.throwUnsupported
       eIsSeq := false

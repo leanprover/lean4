@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Queries
-// Imports: public import Init.Data.Nat.Compare public import Std.Data.DTreeMap.Internal.Balanced public import Std.Data.DTreeMap.Internal.Ordered public import Init.BinderPredicates public import Init.Data.Option.BasicAux import Init.Data.Nat.Lemmas import Init.Data.Nat.Linear import Init.Omega import Init.RCases import Init.WFTactics
+// Imports: public import Init.Data.Nat.Compare public import Std.Data.DTreeMap.Internal.Balanced public import Std.Data.DTreeMap.Internal.Ordered public import Init.BinderPredicates public import Init.Data.Option.BasicAux import Init.Data.Nat.Lemmas import Init.Data.Nat.Internal.Linear import Init.Omega import Init.RCases import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1104,9 +1104,9 @@ return v___x_230_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter___redArg___boxed(lean_object* v_x_231_, lean_object* v_h__1_232_, lean_object* v_h__2_233_, lean_object* v_h__3_234_){
 _start:
 {
-uint8_t v_x_36__boxed_235_; lean_object* v_res_236_; 
-v_x_36__boxed_235_ = lean_unbox(v_x_231_);
-v_res_236_ = l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter___redArg(v_x_36__boxed_235_, v_h__1_232_, v_h__2_233_, v_h__3_234_);
+uint8_t v_x_33__boxed_235_; lean_object* v_res_236_; 
+v_x_33__boxed_235_ = lean_unbox(v_x_231_);
+v_res_236_ = l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter___redArg(v_x_33__boxed_235_, v_h__1_232_, v_h__2_233_, v_h__3_234_);
 return v_res_236_;
 }
 }
@@ -1148,9 +1148,9 @@ return v___x_247_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter___boxed(lean_object* v_motive_248_, lean_object* v_x_249_, lean_object* v_h__1_250_, lean_object* v_h__2_251_, lean_object* v_h__3_252_){
 _start:
 {
-uint8_t v_x_51__boxed_253_; lean_object* v_res_254_; 
-v_x_51__boxed_253_ = lean_unbox(v_x_249_);
-v_res_254_ = l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter(v_motive_248_, v_x_51__boxed_253_, v_h__1_250_, v_h__2_251_, v_h__3_252_);
+uint8_t v_x_48__boxed_253_; lean_object* v_res_254_; 
+v_x_48__boxed_253_ = lean_unbox(v_x_249_);
+v_res_254_ = l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter(v_motive_248_, v_x_48__boxed_253_, v_h__1_250_, v_h__2_251_, v_h__3_252_);
 return v_res_254_;
 }
 }
@@ -11344,7 +11344,7 @@ lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Ordered(uint8_t built
 lean_object* runtime_initialize_Init_BinderPredicates(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_BasicAux(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_RCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
@@ -11371,7 +11371,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
@@ -11398,7 +11398,7 @@ lean_object* initialize_Std_Data_DTreeMap_Internal_Ordered(uint8_t builtin);
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_RCases(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
@@ -11425,7 +11425,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

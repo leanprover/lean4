@@ -36,6 +36,7 @@ Dischargers attempt to prove side conditions of conditional rewrite rules.
 ### Primitives
 - `self` — recursive simplifier discharge (`dischargeSimpSelf`)
 - `none` — no discharge, only unconditional rewrites apply (`dischargeNone`)
+- `grind` — discharge using `grind` (`Grind.Goal.mkSymSimpDischarger`)
 -/
 
 declare_syntax_cat sym_simproc (behavior := both)
@@ -90,6 +91,14 @@ syntax (name := dischNone) "none" : sym_discharger
 
 /-- Parenthesized discharger expression. -/
 syntax (name := dischParen) "(" sym_discharger ")" : sym_discharger
+
+/--
+Calls `grind` to prove side conditions. The goal's internalized hypotheses (hypotheses are
+internalized when the `sym =>` block starts and by tactics such as `intro` and `internalize`)
+are shared across discharge attempts; the remaining local declarations (e.g., introduced by
+`Sym.simp` when entering binders) are internalized on each attempt.
+-/
+syntax (name := dischGrind) "grind" : sym_discharger
 
 end Lean.Parser.Sym.Simp
 

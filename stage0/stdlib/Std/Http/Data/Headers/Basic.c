@@ -2125,7 +2125,7 @@ return v_r_654_;
 LEAN_EXPORT uint8_t l_Std_Http_Header_TransferEncoding_Validate(lean_object* v_codings_659_){
 _start:
 {
-uint8_t v___y_661_; uint8_t v___y_662_; lean_object* v___y_663_; lean_object* v___y_664_; uint8_t v___y_671_; uint8_t v___y_672_; lean_object* v___y_673_; uint8_t v___y_683_; lean_object* v___x_697_; lean_object* v___x_698_; uint8_t v___x_699_; 
+lean_object* v___y_661_; uint8_t v___y_662_; uint8_t v___y_663_; lean_object* v___y_664_; uint8_t v___y_671_; uint8_t v___y_672_; lean_object* v___y_673_; uint8_t v___y_683_; lean_object* v___x_697_; lean_object* v___x_698_; uint8_t v___x_699_; 
 v___x_697_ = lean_array_get_size(v_codings_659_);
 v___x_698_ = lean_unsigned_to_nat(0u);
 v___x_699_ = lean_nat_dec_eq(v___x_697_, v___x_698_);
@@ -2165,22 +2165,22 @@ v___jp_660_:
 {
 lean_object* v___x_665_; uint8_t v___x_666_; 
 v___x_665_ = lean_unsigned_to_nat(1u);
-v___x_666_ = lean_nat_dec_lt(v___x_665_, v___y_663_);
+v___x_666_ = lean_nat_dec_lt(v___x_665_, v___y_661_);
 if (v___x_666_ == 0)
 {
 uint8_t v___x_667_; 
-v___x_667_ = lean_nat_dec_eq(v___y_663_, v___x_665_);
-lean_dec(v___y_663_);
+v___x_667_ = lean_nat_dec_eq(v___y_661_, v___x_665_);
+lean_dec(v___y_661_);
 if (v___x_667_ == 0)
 {
 lean_dec(v___y_664_);
 if (v___x_667_ == 0)
 {
-return v___y_662_;
+return v___y_663_;
 }
 else
 {
-return v___y_661_;
+return v___y_662_;
 }
 }
 else
@@ -2193,24 +2193,24 @@ if (v_lastIsChunked_669_ == 0)
 {
 if (v___x_667_ == 0)
 {
-return v___y_662_;
-}
-else
-{
-return v___y_661_;
-}
+return v___y_663_;
 }
 else
 {
 return v___y_662_;
+}
+}
+else
+{
+return v___y_663_;
 }
 }
 }
 else
 {
 lean_dec(v___y_664_);
-lean_dec(v___y_663_);
-return v___y_661_;
+lean_dec(v___y_661_);
+return v___y_662_;
 }
 }
 v___jp_670_:
@@ -2227,9 +2227,9 @@ if (v___x_678_ == 0)
 lean_object* v___x_679_; 
 lean_dec(v___x_677_);
 v___x_679_ = lean_box(0);
-v___y_661_ = v___y_671_;
-v___y_662_ = v___y_672_;
-v___y_663_ = v_chunkedCount_674_;
+v___y_661_ = v_chunkedCount_674_;
+v___y_662_ = v___y_671_;
+v___y_663_ = v___y_672_;
 v___y_664_ = v___x_679_;
 goto v___jp_660_;
 }
@@ -2241,9 +2241,9 @@ lean_dec(v___x_677_);
 lean_inc(v___x_680_);
 v___x_681_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_681_, 0, v___x_680_);
-v___y_661_ = v___y_671_;
-v___y_662_ = v___y_672_;
-v___y_663_ = v_chunkedCount_674_;
+v___y_661_ = v_chunkedCount_674_;
+v___y_662_ = v___y_671_;
+v___y_663_ = v___y_672_;
 v___y_664_ = v___x_681_;
 goto v___jp_660_;
 }

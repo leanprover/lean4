@@ -47,7 +47,7 @@ partial def LeCnstr.applySubsts (c : LeCnstr) : GoalM LeCnstr := withIncRecDepth
   let c ← c.applyEq a x c₁ b
   applySubsts c
 
-def _root_.Int.Linear.Poly.isNegEq (p₁ p₂ : Poly) : Bool :=
+def _root_.Int.Internal.Linear.Poly.isNegEq (p₁ p₂ : Poly) : Bool :=
   match p₁, p₂ with
   | .num k₁, .num k₂ => k₁ == -k₂
   | .add a₁ x p₁, .add a₂ y p₂ => a₁ == -a₂ && x == y && isNegEq p₁ p₂

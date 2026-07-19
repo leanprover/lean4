@@ -2580,7 +2580,7 @@ LEAN_EXPORT lean_object* l___private_Lake_CLI_Build_0__Lake_resolveDefaultPackag
 _start:
 {
 lean_object* v_defaultTargets_794_; lean_object* v___x_795_; lean_object* v___x_796_; lean_object* v___x_797_; uint8_t v___x_798_; 
-v_defaultTargets_794_ = lean_ctor_get(v_pkg_793_, 16);
+v_defaultTargets_794_ = lean_ctor_get(v_pkg_793_, 17);
 lean_inc_ref(v_defaultTargets_794_);
 v___x_795_ = lean_unsigned_to_nat(0u);
 v___x_796_ = ((lean_object*)(l___private_Lake_CLI_Build_0__Lake_resolveDefaultPackageTarget___closed__0));

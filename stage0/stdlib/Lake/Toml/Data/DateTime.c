@@ -3051,8 +3051,8 @@ else
 lean_inc(v_endExclusive_709_);
 lean_inc(v_startInclusive_708_);
 lean_inc_ref(v_str_707_);
-lean_dec_ref_known(v___x_778_, 2);
 lean_dec(v_tail_779_);
+lean_dec_ref_known(v___x_778_, 2);
 v___y_726_ = v___x_775_;
 goto v___jp_725_;
 }

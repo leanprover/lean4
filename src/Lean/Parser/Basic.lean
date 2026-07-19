@@ -944,7 +944,7 @@ def mkTokenAndFixPos (startPos : String.Pos.Raw) (tk : Option Token) : ParserFn 
   match tk with
   | none    => s.mkErrorAt "token" startPos
   | some tk =>
-    if c.forbiddenTk? == some tk then
+    if c.forbiddenTks.contains tk then
       s.mkErrorAt "forbidden token" startPos
     else
       let leading   := c.mkEmptySubstringAt startPos
@@ -1578,7 +1578,9 @@ would be treated as an application.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withForbidden (tk : Token) (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with forbiddenTk? := tk }) p
+  adaptCacheableContext
+    (fun c => if c.forbiddenTks.contains tk then c
+              else { c with forbiddenTks := c.forbiddenTks.push tk }) p
 
 /-- `withoutForbidden(p)` runs `p` disabling the "forbidden token" (see `withForbidden`), if any.
 This is usually used by bracketing constructs like `(...)` because there is no parsing ambiguity
@@ -1586,7 +1588,7 @@ inside these nested constructs.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withoutForbidden (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with forbiddenTk? := none }) p
+  adaptCacheableContext ({ · with forbiddenTks := #[] }) p
 
 def eoiFn : ParserFn := fun c s =>
   let i := s.pos

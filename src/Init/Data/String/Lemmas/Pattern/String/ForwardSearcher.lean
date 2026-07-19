@@ -325,8 +325,8 @@ theorem isTable_buildTableGo {pat : Slice} {table : Array Nat} {ht₀ ht h}
   fun_induction buildTable.go with
   | case1 t ht₀ ht h hlt patByte dist ih =>
     refine ih (ht'.push (by simp; omega) ?_)
-    simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, ht'.eq_prefixFunction, dist,
-      patByte]
+    simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte_eq_getElem,
+      ht'.eq_prefixFunction, dist, patByte]
     rw [computeDistance_eq_prefixFunctionRecurrence _ _ rfl _ ht',
       prefixFunctionRecurrence_eq_prefixFunction]
     · exact prefixFunction_le_prefixFunction_sub_one_add_one ht₀

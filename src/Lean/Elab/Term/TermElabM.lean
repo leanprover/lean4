@@ -181,6 +181,11 @@ structure State where
   levelNames        : List Name       := []
   syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
   pendingMVars      : List MVarId := {}
+  /-- Last instantiated goal type per still-pending `.typeClass` mvar whose synthesis
+  attempt failed; used (option `Elab.tcSkipUnchanged`) to skip re-attempts when the
+  goal is unchanged — the resumption loop otherwise re-tries every pending TC mvar
+  after each single success, which is quadratic in chained-literal statements. -/
+  tcSynthAttempt    : MVarIdMap Expr := {}
   /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
   mvarErrorInfos    : List MVarErrorInfo := []
   /-- List of data to be able to localize universe level metavariable errors to particular expressions. -/

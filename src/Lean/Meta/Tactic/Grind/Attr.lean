@@ -188,7 +188,7 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
       | .homo =>
         unless attrName == `grind do
           throwError "homomorphism rules must be set using the default `[grind]` attribute"
-        Sym.Simp.addSymSimpDecl homoExt "grind homo" declName attrKind
+        Sym.Simp.addSymSimpDecl homoExt "grind homo" declName attrKind (validate := validateHomoTheorem)
       | .homoPred =>
         unless attrName == `grind do
           throwError "homomorphism predicates must be set using the default `[grind]` attribute"

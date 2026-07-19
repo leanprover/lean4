@@ -17,6 +17,55 @@ builtin_initialize homoExt : Sym.Simp.SymSimpExtension ← Sym.Simp.mkSymSimpExt
 def getHomoTheorems : CoreM Sym.Simp.Theorems :=
   homoExt.getTheorems
 
+/--
+Ensures a `[grind homo]` theorem can be applied by `Sym.simp` without a discharger.
+Instance-implicit parameters are synthesized during rewriting and need not be
+determined by the left-hand side. Every other parameter must be inferable from the
+left-hand side: it must occur in the left-hand side itself (as in
+`(BitVec.cast h a).toNat = a.toNat`, where `h` is instantiated by matching), or in the
+type of a parameter that does (such parameters are assigned by type unification).
+A propositional hypothesis failing this test makes the rule conditional: it would have
+to be discharged when the rule is applied, so the rule would never fire. Any other
+parameter failing the test cannot be instantiated at all (e.g. it occurs only in the
+right-hand side).
+-/
+def validateHomoTheorem (declName : Name) : MetaM Unit := do
+  let info ← getConstInfo declName
+  forallTelescope info.type fun xs concl => do
+    let lhs := match_expr concl with
+      | Eq _ lhs _ => lhs
+      | Iff lhs _ => lhs
+      | Not p => p
+      | _ => concl
+    let mut covered : FVarIdSet := {}
+    for x in xs do
+      if lhs.containsFVar x.fvarId! then
+        covered := covered.insert x.fvarId!
+    -- Close under occurrence in the types of covered parameters.
+    let mut changed := true
+    while changed do
+      changed := false
+      for x in xs do
+        unless covered.contains x.fvarId! do
+          for y in xs do
+            if covered.contains y.fvarId! && (← inferType y).containsFVar x.fvarId! then
+              covered := covered.insert x.fvarId!
+              changed := true
+              break
+    for x in xs do
+      if (← getFVarLocalDecl x).binderInfo matches .instImplicit then
+        continue
+      unless covered.contains x.fvarId! do
+        let xType ← inferType x
+        if (← isProp xType) then
+          throwError "invalid `[grind homo]` theorem, `{.ofConstName declName}` is conditional: \
+            hypothesis{indentExpr xType}\nis not determined by the left-hand side and would have \
+            to be discharged when the rule is applied. Homomorphism rules must be unconditional; \
+            use E-matching attributes such as `[grind =]` or `[grind →]` for conditional theorems"
+        else
+          throwError "invalid `[grind homo]` theorem, parameter `{x}` of \
+            `{.ofConstName declName}` is not determined by the left-hand side of the rule"
+
 /-- A theorem tagged with the `[grind homo_pred]` attribute. -/
 structure HomoPredTheorem where
   /-- Name of the theorem. -/

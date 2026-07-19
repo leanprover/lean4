@@ -216,7 +216,9 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
       · simp only [UInt32.ofNatLT_toNat, dite_eq_ite, left_eq_ite_iff, Nat.not_lt,
           Nat.reduceLeDiff, UInt32.left_eq_add]
         grind [UInt32.lt_iff_toNat_lt]
-      · grind
+      · rename_i hn
+        simp only [UInt32.lt_iff_toNat_lt, UInt32.toNat_ofNat] at h hn
+        omega
     · simp [coe_ordinal, -toNat_val]
       grind [UInt32.lt_iff_toNat_lt]
   | case2 =>
@@ -228,7 +230,9 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
     · simp only [coe_ordinal, Option.map_some, Option.some.injEq, Char.ext_iff, val_ofOrdinal,
         UInt32.ofNatLT_add, UInt32.reduceOfNatLT]
       split
-      · grind
+      · rename_i h1 h2 _ h3
+        simp only [← UInt32.toNat_inj, UInt32.lt_iff_toNat_lt, UInt32.toNat_ofNat] at h1 h2 h3
+        omega
       · rw [dif_neg]
         · simp only [← UInt32.toNat_inj, UInt32.toNat_add, UInt32.reduceToNat, Nat.reducePow,
             UInt32.toNat_ofNatLT, Nat.mod_add_mod]

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Fin.OverflowAware
 import Init.Grind
+import Init.ByCases
 import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
 import Init.Data.Nat.Internal.Linear
@@ -70,9 +71,24 @@ theorem rxcHasSize_eq :
     Rxc.HasSize.size (α := Fin n) = fun (lo hi : Fin n) => (hi + 1 - lo : Nat) := rfl
 
 instance : Rxc.LawfulHasSize (Fin n) where
-  size_eq_zero_of_not_le bound x := by grind
-  size_eq_one_of_succ?_eq_none lo hi := by grind
-  size_eq_succ_of_succ?_eq_some lo hi x := by grind
+  size_eq_zero_of_not_le bound x h := by
+    simp only [rxcHasSize_eq, Fin.le_def] at h ⊢
+    omega
+  size_eq_one_of_succ?_eq_none lo hi h h' := by
+    simp only [pRangeSucc?_eq, Fin.addNat?_eq_dif] at h'
+    simp only [rxcHasSize_eq, Fin.le_def] at h ⊢
+    by_cases hc : (lo : Nat) + 1 < n
+    · simp [hc] at h'
+    · have := hi.isLt
+      omega
+  size_eq_succ_of_succ?_eq_some lo hi x h h' := by
+    simp only [pRangeSucc?_eq, Fin.addNat?_eq_dif] at h'
+    by_cases hc : (lo : Nat) + 1 < n
+    · simp only [hc, dif_pos, Option.some.injEq] at h'
+      subst h'
+      simp only [rxcHasSize_eq, Fin.le_def] at h ⊢
+      omega
+    · simp [hc] at h'
 
 instance : Rxc.IsAlwaysFinite (Fin n) := inferInstance
 

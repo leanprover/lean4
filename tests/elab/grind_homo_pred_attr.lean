@@ -26,12 +26,17 @@ attribute [grind homo_pred] wu_lower
 attribute [grind homo_pred] wu_upper
 attribute [grind homo_pred] le_iff
 
-/-- Displays the contents of the `[grind homo_pred]` extension. -/
+/--
+Displays the `[grind homo_pred]` entries registered by this file. The extension also
+contains the predicates from `Init.Grind.Homo`, so we only display the theorems
+declared at the root namespace (i.e. the ones in this file).
+-/
 def showPredMap : MetaM Unit := do
   let map ← getHomoPredTheorems
   for (key, thms) in map do
     for thm in thms do
-      logInfo m!"{key} -> {thm.declName} (arity {thm.arity})"
+      if thm.declName.getPrefix.isAnonymous then
+        logInfo m!"{key} -> {thm.declName} (arity {thm.arity})"
 
 /--
 info: LE.le -> le_iff (arity 2)
@@ -86,6 +91,14 @@ error: invalid `[grind homo_pred]` theorem, the conclusion of `not_covering` doe
 -/
 #guard_msgs in
 attribute [grind homo_pred] not_covering
+
+axiom all_implicit {a b : W} : a ≤ b ↔ wu a ≤ wu b
+
+/--
+error: invalid `[grind homo_pred]` theorem, `all_implicit` must have at least one explicit parameter; the trigger is inferred from an application whose trailing arguments are the theorem's explicit parameters
+-/
+#guard_msgs in
+attribute [grind homo_pred] all_implicit
 
 /-- error: homomorphism predicates must be set using the default `[grind]` attribute -/
 #guard_msgs in

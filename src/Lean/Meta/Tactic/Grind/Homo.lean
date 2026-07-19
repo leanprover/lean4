@@ -101,6 +101,10 @@ def addHomoPredAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit :=
     throwError "invalid `[grind homo_pred]` theorem, `{.ofConstName declName}` is not a proposition"
   forallTelescope info.type fun xs type => do
     let xsExplicit ← xs.filterM fun x => return (← getFVarLocalDecl x).binderInfo.isExplicit
+    if xsExplicit.isEmpty then
+      throwError "invalid `[grind homo_pred]` theorem, `{.ofConstName declName}` must have \
+        at least one explicit parameter; the trigger is inferred from an application whose \
+        trailing arguments are the theorem's explicit parameters"
     let found? := type.find? fun e => Id.run do
       unless e.isApp && e.getAppFn.isConst do return false
       let args := e.getAppArgs

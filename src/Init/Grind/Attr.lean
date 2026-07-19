@@ -214,6 +214,25 @@ outside the E-graph, and only the final result is internalized.
 -/
 syntax grindHomo   := &"homo"
 /--
+The `homo_pred` modifier marks a theorem as a homomorphism predicate for `grind`.
+
+Homomorphism predicates are facts that `grind` instantiates eagerly for the terms it
+internalizes. The conclusion of the theorem must contain an application `f a₁ … aₙ`
+whose trailing arguments are exactly the theorem's explicit parameters; the head
+symbol `f` becomes the trigger. Whenever `grind` internalizes a term with head `f`,
+the theorem is instantiated with the term's trailing arguments, and the resulting
+fact is asserted. Typical uses are range facts for injection functions, and
+translations of relations into a target domain. Examples:
+```
+@[grind homo_pred] theorem BitVec.toNat_range (x : BitVec w) : x.toNat < 2^w
+@[grind homo_pred] theorem UInt8.le_iff (a b : UInt8) : a ≤ b ↔ a.toBitVec ≤ b.toBitVec
+```
+The first theorem is triggered by terms of the form `BitVec.toNat x`, and the second
+one by `a ≤ b` applications. `grind` uses the types of `a` and `b` to discard
+irrelevant instantiations.
+-/
+syntax grindHomoPred := &"homo_pred"
+/--
 The `norm` modifier instructs `grind` to use a theorem as a normalization rule. That is,
 the theorem is applied during the preprocessing step.
 This feature is meant for advanced users who understand how the preprocessor and `grind`'s search
@@ -289,7 +308,7 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindHomo <|> grindNorm <|> grindUnfold <|> grindDef
+    <|> grindFunCC <|> grindHomoPred <|> grindHomo <|> grindNorm <|> grindUnfold <|> grindDef
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.

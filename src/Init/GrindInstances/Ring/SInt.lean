@@ -69,11 +69,11 @@ instance : IsCharP Int8 (2 ^ 8) := IsCharP.mk' _ _
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int8 (.sint 8) := inferInstance
-example : ToInt.Neg Int8 (.sint 8) := inferInstance
-example : ToInt.Sub Int8 (.sint 8) := inferInstance
+-- [ToInt experiment] example : ToInt.Add Int8 (.sint 8) := inferInstance
+-- [ToInt experiment] example : ToInt.Neg Int8 (.sint 8) := inferInstance
+-- [ToInt experiment] example : ToInt.Sub Int8 (.sint 8) := inferInstance
 
-instance : ToInt.Pow Int8 (.sint 8) := ToInt.pow_of_semiring (by simp)
+-- [ToInt experiment] instance : ToInt.Pow Int8 (.sint 8) := ToInt.pow_of_semiring (by simp)
 
 @[expose, instance_reducible]
 def Int16.natCast : NatCast Int16 where
@@ -124,11 +124,11 @@ instance : IsCharP Int16 (2 ^ 16) := IsCharP.mk' _ _
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int16 (.sint 16) := inferInstance
-example : ToInt.Neg Int16 (.sint 16) := inferInstance
-example : ToInt.Sub Int16 (.sint 16) := inferInstance
+-- [ToInt experiment] example : ToInt.Add Int16 (.sint 16) := inferInstance
+-- [ToInt experiment] example : ToInt.Neg Int16 (.sint 16) := inferInstance
+-- [ToInt experiment] example : ToInt.Sub Int16 (.sint 16) := inferInstance
 
-instance : ToInt.Pow Int16 (.sint 16) := ToInt.pow_of_semiring (by simp)
+-- [ToInt experiment] instance : ToInt.Pow Int16 (.sint 16) := ToInt.pow_of_semiring (by simp)
 
 @[expose, instance_reducible]
 def Int32.natCast : NatCast Int32 where
@@ -179,11 +179,11 @@ instance : IsCharP Int32 (2 ^ 32) := IsCharP.mk' _ _
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int32 (.sint 32) := inferInstance
-example : ToInt.Neg Int32 (.sint 32) := inferInstance
-example : ToInt.Sub Int32 (.sint 32) := inferInstance
+-- [ToInt experiment] example : ToInt.Add Int32 (.sint 32) := inferInstance
+-- [ToInt experiment] example : ToInt.Neg Int32 (.sint 32) := inferInstance
+-- [ToInt experiment] example : ToInt.Sub Int32 (.sint 32) := inferInstance
 
-instance : ToInt.Pow Int32 (.sint 32) := ToInt.pow_of_semiring (by simp)
+-- [ToInt experiment] instance : ToInt.Pow Int32 (.sint 32) := ToInt.pow_of_semiring (by simp)
 
 @[expose, instance_reducible]
 def Int64.natCast : NatCast Int64 where
@@ -234,11 +234,11 @@ instance : IsCharP Int64 (2 ^ 64) := IsCharP.mk' _ _
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add Int64 (.sint 64) := inferInstance
-example : ToInt.Neg Int64 (.sint 64) := inferInstance
-example : ToInt.Sub Int64 (.sint 64) := inferInstance
+-- [ToInt experiment] example : ToInt.Add Int64 (.sint 64) := inferInstance
+-- [ToInt experiment] example : ToInt.Neg Int64 (.sint 64) := inferInstance
+-- [ToInt experiment] example : ToInt.Sub Int64 (.sint 64) := inferInstance
 
-instance : ToInt.Pow Int64 (.sint 64) := ToInt.pow_of_semiring (by simp)
+-- [ToInt experiment] instance : ToInt.Pow Int64 (.sint 64) := ToInt.pow_of_semiring (by simp)
 
 @[expose, instance_reducible]
 def ISize.natCast : NatCast ISize where
@@ -291,11 +291,11 @@ instance : IsCharP ISize (2 ^ numBits) := IsCharP.mk' _ _
       ← Int.dvd_iff_bmod_eq_zero, ← Nat.dvd_iff_mod_eq_zero, Int.ofNat_dvd_right])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add ISize (.sint numBits) := inferInstance
-example : ToInt.Neg ISize (.sint numBits) := inferInstance
-example : ToInt.Sub ISize (.sint numBits) := inferInstance
+-- [ToInt experiment] example : ToInt.Add ISize (.sint numBits) := inferInstance
+-- [ToInt experiment] example : ToInt.Neg ISize (.sint numBits) := inferInstance
+-- [ToInt experiment] example : ToInt.Sub ISize (.sint numBits) := inferInstance
 
-instance : ToInt.Pow ISize (.sint numBits) :=
-  ToInt.pow_of_semiring (by simp)
+-- [ToInt experiment] instance : ToInt.Pow ISize (.sint numBits) :=
+-- [ToInt experiment]   ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

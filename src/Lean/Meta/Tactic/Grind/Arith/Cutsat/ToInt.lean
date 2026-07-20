@@ -415,12 +415,10 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   | Zero.zero _ _ =>
     let some thm ← getZeroThm? | mkToIntVar e
     return (mkIntLit 0, thm)
-  | OfNat.ofNat _ n inst =>
+  | OfNat.ofNat _ n _inst =>
     let some n ← getNatValue? n | mkToIntVar e
-    if n == 0 then
-      if let some (k, neZeroInst) ← isFinInstOfNat? inst then
-        let h := mkApp2 (mkConst ``Lean.Grind.ofNat_FinZero) k neZeroInst
-        return (mkIntLit 0, h)
+    -- [ToInt experiment] `Fin` zero special case disabled together with the `ToInt`
+    -- instances; it constructed the result via `Lean.Grind.ofNat_FinZero`.
     toIntOfNat e n
   | BitVec.ofNat _ n =>
     let some n ← getNatValue? n | mkToIntVar e

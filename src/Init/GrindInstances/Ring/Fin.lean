@@ -139,22 +139,22 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
     simp only [Nat.zero_mod]
     simp only [Fin.mk.injEq])
 
-example [NeZero n] : ToInt.Neg (Fin n) (.co 0 n) := inferInstance
-example [NeZero n] : ToInt.Sub (Fin n) (.co 0 n) := inferInstance
+-- [ToInt experiment] example [NeZero n] : ToInt.Neg (Fin n) (.co 0 n) := inferInstance
+-- [ToInt experiment] example [NeZero n] : ToInt.Sub (Fin n) (.co 0 n) := inferInstance
 
-set_option backward.isDefEq.respectTransparency false in
-instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
-  toInt_pow x k := by
-    induction k with
-    | zero =>
-      match n, i with
-      | 1, _ => simp
-      | (n + 2), _ =>
-        simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
-        rw [Int.emod_eq_of_lt] <;> omega
-    | succ k ih =>
-      rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
-        ← IntInterval.wrap_mul (by simp), Int.pow_succ, ToInt.wrap_toInt]
+-- [ToInt experiment] set_option backward.isDefEq.respectTransparency false in
+-- [ToInt experiment] instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
+-- [ToInt experiment]   toInt_pow x k := by
+-- [ToInt experiment]     induction k with
+-- [ToInt experiment]     | zero =>
+-- [ToInt experiment]       match n, i with
+-- [ToInt experiment]       | 1, _ => simp
+-- [ToInt experiment]       | (n + 2), _ =>
+-- [ToInt experiment]         simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
+-- [ToInt experiment]         rw [Int.emod_eq_of_lt] <;> omega
+-- [ToInt experiment]     | succ k ih =>
+-- [ToInt experiment]       rw [pow_succ, ToInt.Mul.toInt_mul, ih, ← ToInt.wrap_toInt,
+-- [ToInt experiment]         ← IntInterval.wrap_mul (by simp), Int.pow_succ, ToInt.wrap_toInt]
 
 instance : PowIdentity (Fin 2) 2 where
   pow_eq x := by

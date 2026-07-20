@@ -55,6 +55,12 @@ private def isDuplicable (e : Expr) : Bool := match e with
   | .lam .. | .forallE .. | .letE .. => false
   | .app .. => e.isAppOf ``OfNat.ofNat
 
+/-- Strip an annotation, such as the `noImplicitLambda` metadata a tactic `have`/`let`/`suffices`
+leaves on the goal, so later strategies and the backward rules they invoke see the bare target. -/
+private def consumeMData? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
+  unless target.isMData do return none
+  return some (← goal.replaceTargetDefEqFast target.consumeMData)
+
 /-- Strategy 1: simp the target, then introduce binders if the target is a `∀`. -/
 private def forallIntro? (goal : MVarId) (target : Expr) : VCGenM (Option (List MVarId)) := do
   unless target.isForall do return none
@@ -505,6 +511,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"
 
   -- Phase 1: simplify `target` until it is of the form `pre ⊑ rhs`.
+  if let some g ← consumeMData? goal target then return .goals scope [g]
   if let some gs ← forallIntro? goal target then return .goals scope gs
   if let some g ← targetLetIntro? goal target then return .goals scope [g]
   if let some g ← tripleUnfold? goal target then return .goals scope [g]

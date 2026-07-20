@@ -140,6 +140,7 @@ program type is returned, so deep embeddings key on their own head. Returns `non
 exposes no program. -/
 public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducible do
   forallTelescopeReducing goalType fun _ body => do
+    let body := body.consumeMData
     let progTy? : Option Expr :=
       if let some info := isWPApp? body then
         some info.Prog

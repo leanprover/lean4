@@ -83,21 +83,51 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
 }
 
 /--
-Controls whether assignments to instance-typed metavariables (see
-`MetavarContext.instanceTypedMVars`) must preserve the metavariable's type up to
-`TransparencyMode.instances`.
+Controls how assignments to instance-typed metavariables (see
+`MetavarContext.instanceTypedMVars`) are restricted so that the final value of a
+metavariable created for an instance-implicit argument has the type the metavariable was
+created with, up to `TransparencyMode.instances`. This prevents unification from committing
+to an instance for a type that is different at instance-resolution time. See issue #9077.
 
-When `true`, assigning a value to a metavariable created for an instance-implicit argument
-requires the value's type to match the metavariable's type at `.instances` transparency, and
-all metavariables occurring in the assigned value inherit this requirement. This prevents
-unification from committing to an instance for a type that is different at
-instance-resolution time. See issue #9077.
+Valid values:
+- `"none"`: no restriction (the behavior before the fix for issue #9077).
+- `"mark"`: the value's type must match the metavariable's type at `.instances`
+  transparency, and the metavariables in type-determining (spine) positions of the value
+  inherit the restriction.
+- `"synth"`: the value must be free of metavariables and its type must match at `.instances`
+  transparency. Otherwise, the instance is synthesized directly and the value must be
+  definitionally equal to the synthesized instance; if synthesis fails, the assignment (and
+  with it the current unification attempt) fails.
+- `"markOrSynth"`: like `"synth"`, but a value whose spine metavariables are all themselves
+  instance-typed is also accepted, provided its type matches at `.instances` transparency.
 -/
-register_builtin_option backward.isDefEq.instanceTypes : Bool := {
-  defValue := true
-  descr    := "if true (the default), require assignments to instance metavariables to \
-  preserve the type up to `.instances` transparency"
+register_builtin_option backward.isDefEq.instanceTypes : String := {
+  defValue := "mark"
+  descr    := "controls how assignments to instance metavariables are restricted to \
+  preserve the type up to `.instances` transparency; valid values: \"none\", \"mark\", \
+  \"synth\", \"markOrSynth\""
 }
+
+/-- Assignment policy for instance-typed metavariables. See `backward.isDefEq.instanceTypes`. -/
+inductive InstanceTypesMode where
+  /-- No restriction. -/
+  | none
+  /-- Check the value's type at `.instances` transparency and propagate the restriction to
+  the value's spine metavariables. -/
+  | mark
+  /-- Require an mvar-free value whose type matches at `.instances` transparency; otherwise
+  synthesize the instance and unify the value with it. -/
+  | synth
+  /-- Like `synth`, but also accept values whose spine metavariables are all instance-typed. -/
+  | markOrSynth
+
+def getInstanceTypesMode : CoreM InstanceTypesMode := do
+  match backward.isDefEq.instanceTypes.get (← getOptions) with
+  | "none"        => return .none
+  | "mark"        => return .mark
+  | "synth"       => return .synth
+  | "markOrSynth" => return .markOrSynth
+  | val => throwError "invalid value `{val}` for option `backward.isDefEq.instanceTypes`, valid values are \"none\", \"mark\", \"synth\", and \"markOrSynth\""
 
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
@@ -548,6 +578,29 @@ where
     | _ => return ()
 
 /--
+Return `true` if all metavariables in type-determining (spine) positions of `e` are
+instance-typed (see `markInstanceTypedSpineMVars` for why only spine positions matter). A
+delayed-assigned spine metavariable need not be instance-typed itself — it will never be
+assigned directly — but the spine of its pending metavariable is checked instead.
+-/
+partial def spineMVarsAreInstanceTyped (e : Expr) : MetaM Bool := go e
+where
+  go (e : Expr) : MetaM Bool := do
+    unless e.hasExprMVar do return true
+    match e with
+    | .mvar mvarId =>
+      if let some d ← getDelayedMVarAssignment? mvarId then
+        go (mkMVar d.mvarIdPending)
+      else
+        mvarId.isInstanceTyped
+    | .app f _ => go f
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => go v <&&> go b
+    | .proj _ _ s => go s
+    | .mdata _ b => go b
+    | _ => return true
+
+/--
 Type check for assignments to instance-typed metavariables: the value's type must agree with
 the metavariable's type at `.instances` transparency.
 
@@ -572,12 +625,38 @@ private def checkInstanceTypedTypes (mvarType vType v : Expr) : MetaM Bool := do
   forallTelescope mvarType fun xs body => do
     withInstancesConfig <| Meta.isExprDefEqAux body (← inferType (mkAppN v xs))
 
+/--
+Fallback for assignments to instance-typed metavariables in the `synth` and `markOrSynth`
+modes of `backward.isDefEq.instanceTypes` when the candidate value `v` is not directly
+acceptable: synthesize the instance for the metavariable's type, assign it, and require `v`
+to be definitionally equal to the synthesized instance. This mirrors the elaboration order
+in which instance arguments were synthesized first and only then unified. Fails without
+modifying the state if synthesis fails — e.g. because the metavariable's type still contains
+metavariables, or because of the `maxSynthPendingDepth` limit — or if `v` does not match the
+synthesized instance.
+-/
+private def synthInstanceTypedMVarAndUnify (mvar v : Expr) : MetaM Bool := do
+  checkpointDefEq do
+    unless (← Meta.synthPending mvar.mvarId!) do
+      if (← isDiagnosticsEnabled) then
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe candidate value{indentExpr v}\nwas rejected and the instance could not be synthesized directly.\nWorkaround: `set_option backward.isDefEq.instanceTypes \"none\"`"
+      return false
+    let inst ← instantiateMVars mvar
+    if (← Meta.isExprDefEqAux v inst) then
+      return true
+    else
+      if (← isDiagnosticsEnabled) then
+        trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe rejected candidate value{indentExpr v}\nis not definitionally equal to the synthesized instance{indentExpr inst}\nWorkaround: `set_option backward.isDefEq.instanceTypes \"none\"`"
+      return false
+
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
-    else if (← mvar.mvarId!.isInstanceTyped) && backward.isDefEq.instanceTypes.get (← getOptions) then
+    let mode ← if (← mvar.mvarId!.isInstanceTyped) then getInstanceTypesMode else pure InstanceTypesMode.none
+    match mode with
+    | .mark =>
       /- The final value of an instance metavariable must have a type that agrees with the
          metavariable's type at `.instances` transparency (issue #9077). We instantiate `v` first
          so that the check sees the types of values assigned to metavariables in `v` (their own
@@ -594,9 +673,26 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       else
         if (← isDiagnosticsEnabled) then withInferTypeConfig do
           if (← Meta.isExprDefEqAux mvarType vType) then
-            trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.instances` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.instanceTypes false`"
+            trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.instances` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.instanceTypes \"none\"`"
         return false
-    else
+    | .synth | .markOrSynth =>
+      /- The value of an instance metavariable must be determined by instance synthesis, up
+         to defeq at `.instances` transparency: either the candidate value already is such a
+         value — mvar-free (`synth`) resp. with only instance metavariables in its spine
+         (`markOrSynth`) — and has the right type, or we synthesize the instance now and
+         require the candidate to be defeq to the result. -/
+      let v ← instantiateMVars v
+      let directOk ← match mode with
+        | .synth => pure !v.hasExprMVar
+        | _      => spineMVarsAreInstanceTyped v
+      if directOk then
+        let mvarType ← inferType mvar
+        let vType ← inferType v
+        if (← checkInstanceTypedTypes mvarType vType v) then
+          mvar.mvarId!.assign v
+          return true
+      synthInstanceTypedMVarAndUnify mvar v
+    | .none =>
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
       let vType ← inferType v

@@ -168,15 +168,15 @@ def getDeclsInCurrModule : CoreM (Array Name) := do
 
 /-- Get the list of all declarations in the environment. -/
 def getAllDecls : CoreM (Array Name) := do
-  pure $ (← getEnv).constants.map₁.fold (init := ← getDeclsInCurrModule) fun r k _ => r.push k
+  pure $ (← getEnv).constants.map₁.foldl (init := ← getDeclsInCurrModule) (fun r k _ => r.push k)
 
 /-- Get the list of all declarations in the specified package. -/
 def getDeclsInPackage (pkg : Name) : CoreM (Array Name) := do
   let env ← getEnv
   let mut decls ← getDeclsInCurrModule
   let modules := env.header.moduleNames.map (pkg.isPrefixOf ·)
-  return env.constants.map₁.fold (init := decls) fun decls declName _ =>
-    if modules[env.const2ModIdx[declName]?.get!]! then
+  return env.constants.map₁.foldl (init := decls) fun decls declName _ =>
+    if modules[env.getModuleIdxFor? declName |>.get!]! then
       decls.push declName
     else decls
 

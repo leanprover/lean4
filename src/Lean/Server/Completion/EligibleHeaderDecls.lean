@@ -69,7 +69,6 @@ def getEligibleHeaderDecls (env : Environment) : MetaM EligibleHeaderDecls := do
       return eligibleHeaderDecls
     | none =>
       let mut eligibleHeaderDecls : EligibleHeaderDecls := {}
-      -- map₁ are the header decls
       for (declName, c) in env.constants.map₁ do
         if allowCompletion env declName then
           let kind ← getCompletionKindForDecl c
@@ -87,7 +86,7 @@ def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT MetaM m]
     (f : Name → EligibleDecl → m PUnit) : m PUnit := do
   let env ← getEnv
   (← getEligibleHeaderDecls env).forM f
-  -- map₂ are exactly the local decls
+  -- `map₂` are exactly the local decls
   env.constants.map₂.forM fun name c => do
     if allowCompletion env name then
       f name {

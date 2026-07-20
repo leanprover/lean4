@@ -361,7 +361,7 @@ def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
   IO.stdGenRef.set gen
   let env ← getEnv
   let max := cfg.maxSuggestions
-  let consts := env.const2ModIdx.keysArray
+  let consts := env.constants.map₁.foldl (fun cs n _ => cs.push n) #[]
   let mut suggestions := #[]
   while suggestions.size < max do
     let i ← IO.rand 0 consts.size
@@ -374,7 +374,7 @@ def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
 def currentFile : Selector := fun _ cfg => do
   let env ← getEnv
   let max := cfg.maxSuggestions
-  -- Use map₂ from the staged map, which contains locally defined constants
+  -- `map₂` contains the locally defined constants
   let mut suggestions := #[]
   for (name, _) in env.constants.map₂ do
     if suggestions.size >= max then

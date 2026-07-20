@@ -819,11 +819,21 @@ def truncateToHeader (snap : InitialSnapshot) : InitialSnapshot := Id.run do
   let some parsed := snap.result? | return snap
   let processed := parsed.processedSnap.get
   let some hps := processed.result? | return snap
+  -- Pre-force lazily merged import views: the compactor would force the thunks anyway, and doing
+  -- it eagerly instead allows substituting plain merged nodes for the lazy wrappers, keeping
+  -- thunks, their closures, and the captured candidate lists out of the compacted region.
+  let env := hps.cmdState.env.forceLazyImportedViews
+  -- The env is also captured by the header info tree's command context; substitute it there and
+  -- in `metaSnap` below as well so the unforced env does not additionally end up in the region.
+  let trees := hps.cmdState.infoState.trees.map fun
+    | .context (.commandCtx ci) t => .context (.commandCtx { ci with env }) t
+    | t                           => t
+  let cmdState := { hps.cmdState with env, infoState.trees := trees }
   -- Construct a synthetic terminal CommandParsedSnapshot whose cmdState is the
   -- initial post-import state, effectively representing "no commands elaborated".
   let resultSnap : CommandResultSnapshot := {
     diagnostics := .empty
-    cmdState := hps.cmdState
+    cmdState
   }
   let elabSnap : CommandElaboratingSnapshot := {
     diagnostics := .empty
@@ -840,7 +850,10 @@ def truncateToHeader (snap : InitialSnapshot) : InitialSnapshot := Id.run do
     nextCmdSnap? := none
   }
   let newProcessed : HeaderProcessedSnapshot := { processed with
+    metaSnap := { processed.metaSnap with
+      task := .pure { processed.metaSnap.get with infoTree? := trees[0]? } }
     result? := some { hps with
+      cmdState
       firstCmdSnap := .finished none termCmd } }
   { snap with
     result? := some { parsed with

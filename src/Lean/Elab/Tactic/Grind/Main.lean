@@ -146,6 +146,7 @@ def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
   modifyEnv fun env => Grind.grindExt.modifyState env fun ext => { ext with casesTypes := {}, inj := {}, ematch := {} }
   modifyEnv fun env => Grind.homoExt.modifyState env fun _ => {}
   modifyEnv fun env => Grind.homoPredExt.modifyState env fun _ => {}
+  modifyEnv fun env => Grind.homoSourceTypesExt.modifyState env fun _ => {}
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]

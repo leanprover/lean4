@@ -102,9 +102,33 @@ error: invalid `[grind homo]` theorem, parameter `y` of `wu_rhs` is not determin
 #guard_msgs in
 attribute [grind homo] wu_rhs
 
-/-! `reset_grind_attrs%` clears the homo extension. -/
+/-! Registering the `=`-injection rule `wu_eq` records `W` as a homomorphism source
+type. Generic injections over a variable type are rejected: the engine tracks source
+terms by the head constant of their type. -/
+
+/-- info: true -/
+#guard_msgs in
+run_meta logInfo m!"{(← getHomoSourceTypes).contains ``W}"
+
+axiom toI : ∀ {α : Type}, α → Int
+
+axiom toI_eq {α : Type} (a b : α) : (a = b) ↔ (toI a = toI b)
+
+/--
+error: invalid `[grind homo]` theorem, the source type of the `=`-injection rule `toI_eq` is not headed by a constant
+  α
+homomorphism rules translate concrete types; generic injections cannot be tracked by the E-graph
+-/
+#guard_msgs in
+attribute [grind homo] toI_eq
+
+/-! `reset_grind_attrs%` clears the homo extension and the recorded source types. -/
 
 reset_grind_attrs%
 
 #guard_msgs in
 run_meta checkMatches
+
+/-- info: false -/
+#guard_msgs in
+run_meta logInfo m!"{(← getHomoSourceTypes).contains ``W}"

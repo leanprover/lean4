@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.Theorems
+import Lean.Meta.Sym.Simp.Attr
+import Lean.Meta.DiscrTree.Util
 import Lean.Meta.AppBuilder
 public section
 namespace Lean.Meta.Grind
@@ -16,6 +18,22 @@ builtin_initialize homoExt : Sym.Simp.SymSimpExtension ← Sym.Simp.mkSymSimpExt
 /-- Returns the homomorphism rules tagged with the `[grind homo]` attribute. -/
 def getHomoTheorems : CoreM Sym.Simp.Theorems :=
   homoExt.getTheorems
+
+/--
+Extension collecting the homomorphism *source types*: the head constants `F` of the
+types `τ = F …` for which a `[grind homo]` rule translates `Eq τ`. The engine marks
+terms of these types as solver terms so that the E-graph reports their equalities and
+disequalities (see `SolverExtension.markTerm`).
+-/
+builtin_initialize homoSourceTypesExt : SimpleScopedEnvExtension Name NameSet ←
+  registerSimpleScopedEnvExtension {
+    initial  := {}
+    addEntry := fun s n => s.insert n
+  }
+
+/-- Returns the head constants of the homomorphism source types. -/
+def getHomoSourceTypes : CoreM NameSet :=
+  return homoSourceTypesExt.getState (← getEnv)
 
 /--
 Ensures a `[grind homo]` theorem can be applied by `Sym.simp` without a discharger.
@@ -65,6 +83,37 @@ def validateHomoTheorem (declName : Name) : MetaM Unit := do
         else
           throwError "invalid `[grind homo]` theorem, parameter `{x}` of \
             `{.ofConstName declName}` is not determined by the left-hand side of the rule"
+
+/--
+If `declName` is an `=`-injection rule — a rule whose left-hand side is an equality
+`Eq τ _ _` — checks that its source type `τ` is headed by a constant `F` and returns
+`F`. The engine marks terms as solver terms by the head constant of their type; a rule
+over a variable type (e.g. a class-generic injection `(a = b) ↔ toI a = toI b`) has no
+head constant, and would silently never fire on asserted equalities.
+-/
+private def checkEqInjection? (declName : Name) : MetaM (Option Name) := do
+  let info ← getConstInfo declName
+  forallTelescope info.type fun _ concl => do
+    let lhs := match_expr concl with
+      | Eq _ lhs _ => lhs
+      | Iff lhs _ => lhs
+      | _ => concl
+    let_expr Eq τ _ _ := lhs | return none
+    let .const F _ := τ.getAppFn
+      | throwError "invalid `[grind homo]` theorem, the source type of the `=`-injection rule \
+          `{.ofConstName declName}` is not headed by a constant{indentExpr τ}\nhomomorphism rules \
+          translate concrete types; generic injections cannot be tracked by the E-graph"
+    return some F
+
+/--
+Validates and registers a `[grind homo]` theorem, recording the source type of
+`=`-injection rules. See `validateHomoTheorem`.
+-/
+def addHomoAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  Sym.Simp.addSymSimpDecl homoExt "grind homo" declName attrKind (validate := fun declName => do
+    validateHomoTheorem declName
+    if let some F ← checkEqInjection? declName then
+      homoSourceTypesExt.add F attrKind)
 
 /-- A theorem tagged with the `[grind homo_pred]` attribute. -/
 structure HomoPredTheorem where

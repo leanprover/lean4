@@ -49,11 +49,11 @@ instance : IsCharP (BitVec w) (2 ^ w) := IsCharP.mk' _ _
   (ofNat_eq_zero_iff := fun x => by simp [BitVec.toNat_eq])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add (BitVec w) (.uint w) := inferInstance
-example : ToInt.Neg (BitVec w) (.uint w) := inferInstance
-example : ToInt.Sub (BitVec w) (.uint w) := inferInstance
+-- [ToInt experiment] example : ToInt.Add (BitVec w) (.uint w) := inferInstance
+-- [ToInt experiment] example : ToInt.Neg (BitVec w) (.uint w) := inferInstance
+-- [ToInt experiment] example : ToInt.Sub (BitVec w) (.uint w) := inferInstance
 
-instance : ToInt.Pow (BitVec w) (.uint w) :=
-  ToInt.pow_of_semiring (by simp)
+-- [ToInt experiment] instance : ToInt.Pow (BitVec w) (.uint w) :=
+-- [ToInt experiment]   ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

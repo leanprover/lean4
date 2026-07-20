@@ -18,6 +18,8 @@ import Init.System.Platform
 
 public section
 
+/- ToInt instances disabled (grind_homo_5 experiment):
+
 namespace Lean.Grind
 
 /-! ## Instances for concrete types-/
@@ -565,3 +567,5 @@ instance : ToInt.LT ISize (.sint System.Platform.numBits) where
   lt_iff x y := by simpa using ISize.lt_iff_toInt_lt
 
 end Lean.Grind
+
+-/

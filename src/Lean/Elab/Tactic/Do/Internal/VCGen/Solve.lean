@@ -333,7 +333,11 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   modify fun s => { s with jpHypsMVars := hypsMVars.foldl (·.push ·) s.jpHypsMVars }
 
   let bodyMV ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar bodyTy (← goal.getTag)
-  let some joinSpec ← liftMetaM <| SpecAttr.mkSpecTheoremFromStx (← getRef) bodyMV
+  -- Bind the body proof as a local hypothesis so each jump references it by fvar (`jpProof joinArgs`),
+  -- keeping the shared continuation proof in one `let` binding that survives proof-term instantiation.
+  let restGoal ← liftMetaM <| restGoal.define `jpProof bodyTy bodyMV
+  let (jpProofFVar, restGoal) ← liftMetaM <| restGoal.intro1P
+  let some joinSpec ← liftMetaM <| restGoal.withContext <| SpecAttr.mkSpecTheoremFromLocal jpProofFVar
     | return some (.goalsInScope scope [restGoal])
 
   let outerLCtxSize := (← restGoal.getDecl).lctx.numIndices

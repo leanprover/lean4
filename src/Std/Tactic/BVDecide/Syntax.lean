@@ -124,21 +124,4 @@ syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic
-
-/--
-Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
-`bv_decide` tactic.
--/
-syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? unicode(" ←", " <-")? (ppSpace prio)? : attr
-
-/--
-Auxiliary attribute for builtin `bv_normalize` simprocs.
--/
-syntax (name := bvNormalizeProcBuiltinAttr) "builtin_bv_normalize_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
-
-macro_rules
-  | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [bv_normalize] $n:ident ($pattern:term) := $body) => do
-    `($[$doc?:docComment]? builtin_simproc_decl $n ($pattern) := $body
-      attribute [$kind builtin_bv_normalize_proc $[$pre?]?] $n)
-
 end Lean.Parser

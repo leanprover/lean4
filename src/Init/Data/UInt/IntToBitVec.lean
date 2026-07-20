@@ -51,8 +51,7 @@ theorem USize.ne_iff_toBitVec32_ne {a b : USize} (h : System.Platform.numBits = 
   subst h
   rfl
 
-@[int_toBitVec]
-theorem USize.toBitVec32_ofNat (n : Nat) (h : System.Platform.numBits = 32) :
+theorem USize.toBitVec32_ofNat (h : System.Platform.numBits = 32) (n : Nat) :
     toBitVec32 (no_index (OfNat.ofNat n)) h = BitVec.ofNat _ n := by
   simp only [USize.toBitVec32_eq_toBitVec]
   generalize 32 = x at *
@@ -292,8 +291,7 @@ theorem USize.ne_iff_toBitVec64_ne {a b : USize} (h : System.Platform.numBits = 
   subst h
   rfl
 
-@[int_toBitVec]
-theorem USize.toBitVec64_ofNat (n : Nat) (h : System.Platform.numBits = 64) :
+theorem USize.toBitVec64_ofNat (h : System.Platform.numBits = 64) (n : Nat) :
     toBitVec64 (no_index (OfNat.ofNat n)) h = BitVec.ofNat _ n := by
   simp only [USize.toBitVec64_eq_toBitVec]
   generalize 64 = x at *

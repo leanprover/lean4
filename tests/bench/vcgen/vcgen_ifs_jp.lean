@@ -20,4 +20,4 @@ set_option maxHeartbeats 10000000
 -- `+jp` shares each trailing continuation across the splitter alts; without it every alt
 -- zeta-unfolds the `__do_jp` body and the VC count grows exponentially in the number of `if`s.
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| vcgen +jp) `(tactic| sorry)
-  [3]
+  [30]

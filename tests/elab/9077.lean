@@ -158,6 +158,55 @@ set_option backward.isDefEq.instanceTypes "markOrSynth" in
 variable (E : Type) [iQ : Q E] in
 #synth M (G (Copy E) iQ)
 
+/-!
+Scenario 4 (minimized from `let x : Std.HashSet _ := ∅` in Mathlib): the goal type contains
+the *caller's* pending instance metavariables (created for the instance-implicit arguments
+of `Box` while its type argument is still undetermined), and unification assigns them to the
+search's subgoal metavariables. These caller metavariables are not assignable during the
+search, so `"markOrSynth"` accepts them in the spine; the elaborator synthesizes them later,
+once `useBox x` determines the type argument. `"synth"` cannot accept the assignment (the
+value is not mvar-free) and its fallback cannot synthesize `R ?α` with `?α` undetermined, so
+it fails.
+-/
+
+class R (α : Type) where
+structure Box (α : Type) [R α] where mk' ::
+class Init (γ : Type) where init : γ
+instance instR : R Nat := ⟨⟩
+instance instInitBox (α : Type) [R α] : Init (Box α) := ⟨⟨⟩⟩
+
+def useBox (_b : Box Nat) : Nat := 0
+
+#guard_msgs in
+set_option backward.isDefEq.instanceTypes "none" in
+example : Nat :=
+  let x : Box _ := Init.init
+  useBox x
+
+#guard_msgs in
+set_option backward.isDefEq.instanceTypes "mark" in
+example : Nat :=
+  let x : Box _ := Init.init
+  useBox x
+
+/--
+error: failed to synthesize instance of type class
+  Init (Box ?m.1)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+set_option backward.isDefEq.instanceTypes "synth" in
+example : Nat :=
+  let x : Box _ := Init.init
+  useBox x
+
+#guard_msgs in
+set_option backward.isDefEq.instanceTypes "markOrSynth" in
+example : Nat :=
+  let x : Box _ := Init.init
+  useBox x
+
 /-! An invalid option value is reported when the check is first consulted. -/
 
 /--

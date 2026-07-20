@@ -67,26 +67,23 @@ inductive RefIdent where
 namespace RefIdent
 
 /-- Shortened representation of `RefIdent` for more compact serialization. -/
-inductive RefIdentJsonRepr
-  /-- Shortened representation of `RefIdent.const` for more compact serialization. -/
-  | c (m n : String)
-  /-- Shortened representation of `RefIdent.fvar` for more compact serialization. -/
-  | f (m : String) (i : String)
-  deriving FromJson, ToJson
+abbrev RefIdentJsonRepr := Nat × String × String
+deriving instance FromJson, ToJson for RefIdentJsonRepr
 
 /-- Converts `id` to its compact serialization representation. -/
 def toJsonRepr : (id : RefIdent) → RefIdentJsonRepr
-  | const moduleName identName => .c moduleName identName
-  | fvar moduleName id => .f moduleName id
+  | const moduleName identName => (0, moduleName, identName)
+  | fvar moduleName id => (1, moduleName, id)
 
 /-- Converts `repr` to `RefIdent`. -/
-def fromJsonRepr : (repr : RefIdentJsonRepr) → RefIdent
-  | .c m n => const m n
-  | .f m i => fvar m i
+def fromJsonRepr? : (repr : RefIdentJsonRepr) → Except String RefIdent
+  | (0, m, n) => return const m n
+  | (1, m, i) => return fvar m i
+  | _ => throw "expected 0 or 1"
 
 /-- Converts `RefIdent` from a JSON for `RefIdentJsonRepr`. -/
 def fromJson? (s : Json) : Except String RefIdent :=
-  return fromJsonRepr (← Lean.FromJson.fromJson? s)
+  Lean.FromJson.fromJson? s >>= fromJsonRepr?
 
 /-- Converts `RefIdent` to a JSON for `RefIdentJsonRepr`. -/
 def toJson (id : RefIdent) : Json :=
@@ -280,19 +277,30 @@ instance : FromJson RefInfo where
 @[expose] def ModuleRefs := Std.TreeMap RefIdent RefInfo
   deriving EmptyCollection
 
-instance [Monad m] : ForIn m ModuleRefs (RefIdent × RefInfo) where
-  forIn map init f :=
-    let map : Std.TreeMap RefIdent RefInfo := map
-    forIn map init f
+instance [Monad m] : ForIn m ModuleRefs (RefIdent × RefInfo) :=
+  inferInstanceAs (ForIn m (Std.TreeMap RefIdent RefInfo) _)
 
 instance : ToJson ModuleRefs where
-  toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toJson.compress, toJson info)
+  toJson m := Id.run do
+    let mut a := #[]
+    for (ident, info) in m do
+      a := a.push ident.toJson |>.push (toJson info)
+    return Json.arr a
 
 instance : FromJson ModuleRefs where
   fromJson? j := do
-    let node ← j.getObj?
-    node.foldlM (init := ∅) fun m k v =>
-      return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
+    let a ← j.getArr?
+    if _ : a.size % 2 = 0 then
+      let mut m := {}
+      for h : i in [0:a.size:2] do
+        have : i + 1 < a.size := by
+          have : i < a.size := h.2.1
+          have : i % 2 = 0 := h.2.2
+          omega
+        m := m.insert (← RefIdent.fromJson? a[i]) (← fromJson? a[i+1])
+      return m
+    else
+      throw "expected even-length array"
 
 /--
 Used in the `$/lean/ileanHeaderSetupInfo` watchdog <- worker notifications.

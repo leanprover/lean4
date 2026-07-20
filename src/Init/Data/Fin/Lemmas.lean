@@ -1122,7 +1122,7 @@ theorem sub_ofNat [NeZero n] (x : Fin n) (y : Nat) :
 
 private theorem _root_.Nat.mod_eq_sub_of_lt_two_mul {x n} (h₁ : n ≤ x) (h₂ : x < 2 * n) :
     x % n = x - n := by
-  rw [Nat.mod_eq, if_pos (by omega), Nat.mod_eq_of_lt (by omega)]
+  rw [Nat.mod_eq_ite, if_pos (by omega), Nat.mod_eq_of_lt (by omega)]
 
 theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a := by
   rw [sub_def, le_def]

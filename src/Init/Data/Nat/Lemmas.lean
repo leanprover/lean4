@@ -1564,7 +1564,7 @@ theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x 
   match x with
   | 0 => simp
   | x + 1 =>
-    rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq]
+    rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq_ite]
     simp +arith [m_pos]
 
 theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by

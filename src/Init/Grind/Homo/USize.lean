@@ -17,7 +17,7 @@ Homomorphism rules for `USize` used by the `grind` tactic.
 The injection function is `USize.toBitVec`.
 -/
 
-attribute [grind homo]
+attribute [grind hom]
   USize.toBitVec_add USize.toBitVec_sub USize.toBitVec_mul USize.toBitVec_div USize.toBitVec_mod
   USize.toBitVec_and USize.toBitVec_or USize.toBitVec_xor USize.toBitVec_shiftLeft USize.toBitVec_shiftRight
   USize.toBitVec_zero USize.toBitVec_one USize.toBitVec_not USize.toBitVec_neg
@@ -25,8 +25,8 @@ attribute [grind homo]
   USize.toBitVec_ofNat USize.toBitVec_ofNat'
   USize.toBitVec_toUInt8 USize.toBitVec_toUInt16 USize.toBitVec_toUInt32 USize.toBitVec_toUInt64 USize.toBitVec_toISize
 
-@[grind homo] theorem Lean.Grind.USize.toNat_eq_toBitVec_toNat (x : USize) : x.toNat = x.toBitVec.toNat := rfl
+@[grind hom] theorem Lean.Grind.USize.toNat_eq_toBitVec_toNat (x : USize) : x.toNat = x.toBitVec.toNat := rfl
 
 /-! Translations of `≤` and `<` into the target domain. -/
 
-attribute [grind homo] USize.le_iff_toBitVec_le USize.lt_iff_toBitVec_lt
+attribute [grind hom] USize.le_iff_toBitVec_le USize.lt_iff_toBitVec_lt

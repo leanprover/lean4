@@ -65,8 +65,6 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|unfold) => return .unfold
   | `(Parser.Attr.grindMod|hom) => return .homo
   | `(Parser.Attr.grindMod|hom_pred) => return .homoPred
-  | `(Parser.Attr.grindMod|homo) => return .homo
-  | `(Parser.Attr.grindMod|homo_pred) => return .homoPred
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
     return .symbol prio

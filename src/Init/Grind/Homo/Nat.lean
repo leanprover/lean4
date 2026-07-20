@@ -17,7 +17,7 @@ decomposes bitwise operations, and the `%`-cleanup rules remove the redundant
 modular wrappers produced by the `BitVec.toNat` injection.
 -/
 
-attribute [grind homo]
+attribute [grind hom]
   Nat.shiftLeft_eq Nat.shiftRight_eq_div_pow
   Nat.mod_add_mod Nat.add_mod_mod Nat.mod_mul_mod Nat.mul_mod_mod
   Nat.testBit_and Nat.testBit_or Nat.testBit_xor

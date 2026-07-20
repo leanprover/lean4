@@ -20,7 +20,7 @@ Homomorphism rules for `List` used by the `grind` tactic.
 The injection function is `List.length`.
 -/
 
-attribute [grind homo]
+attribute [grind hom]
   List.length_nil List.length_cons List.length_append List.length_drop List.length_take
   List.length_reverse List.length_map List.length_replicate List.length_tail List.length_concat
   List.length_zipWith List.length_zip List.length_set List.length_insertIdx List.length_eraseIdx

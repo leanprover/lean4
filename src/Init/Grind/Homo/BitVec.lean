@@ -16,7 +16,7 @@ The unsigned fragment is injected into `Nat` via `BitVec.toNat`, and the signed
 fragment into `Int` via `BitVec.toInt`.
 -/
 
-attribute [grind homo]
+attribute [grind hom]
   BitVec.toNat_add BitVec.toNat_sub BitVec.toNat_mul BitVec.toNat_udiv BitVec.toNat_umod
   BitVec.toNat_neg BitVec.toNat_and BitVec.toNat_or BitVec.toNat_xor
   BitVec.toNat_shiftLeft BitVec.toNat_ushiftRight BitVec.toNat_append
@@ -33,14 +33,14 @@ attribute [grind homo]
 
 /-! Homomorphism predicates: range facts for the injection functions, instantiated by
 `grind` for the terms it internalizes. The `2 * toInt` bounds are restated with an
-explicit parameter, as required by the `[grind homo_pred]` trigger inference. -/
+explicit parameter, as required by the `[grind hom_pred]` trigger inference. -/
 
-attribute [grind homo_pred] BitVec.isLt
+attribute [grind hom_pred] BitVec.isLt
 
-@[grind homo_pred] theorem Lean.Grind.BitVec.neg_two_pow_le_two_mul_toInt {w : Nat} (x : BitVec w) :
+@[grind hom_pred] theorem Lean.Grind.BitVec.neg_two_pow_le_two_mul_toInt {w : Nat} (x : BitVec w) :
     -2^w ≤ 2 * x.toInt :=
   _root_.BitVec.le_two_mul_toInt
 
-@[grind homo_pred] theorem Lean.Grind.BitVec.two_mul_toInt_lt_two_pow {w : Nat} (x : BitVec w) :
+@[grind hom_pred] theorem Lean.Grind.BitVec.two_mul_toInt_lt_two_pow {w : Nat} (x : BitVec w) :
     2 * x.toInt < 2^w :=
   _root_.BitVec.two_mul_toInt_lt

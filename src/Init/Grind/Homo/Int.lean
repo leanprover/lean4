@@ -22,7 +22,7 @@ arithmetic, and the `%`-cleanup rules remove redundant modular wrappers produced
 by injections into `Int`.
 -/
 
-attribute [grind homo]
+attribute [grind hom]
   Int.natCast_add Int.natCast_mul Int.natCast_pow
   Int.shiftLeft_eq Int.shiftRight_eq_div_pow
   Int.ofNat_toNat Int.toNat_sub'
@@ -30,8 +30,8 @@ attribute [grind homo]
   Int.emod_sub_emod Int.sub_emod_emod
   Int.emod_emod
 
-@[grind homo] theorem Lean.Grind.Int.emod_mul_emod (m n k : Int) : m % n * k % n = m * k % n := by
+@[grind hom] theorem Lean.Grind.Int.emod_mul_emod (m n k : Int) : m % n * k % n = m * k % n := by
   rw [Int.mul_emod, Int.emod_emod, ← Int.mul_emod]
 
-@[grind homo] theorem Lean.Grind.Int.mul_emod_emod (m n k : Int) : m * (n % k) % k = m * n % k := by
+@[grind hom] theorem Lean.Grind.Int.mul_emod_emod (m n k : Int) : m * (n % k) % k = m * n % k := by
   rw [Int.mul_emod, Int.emod_emod, ← Int.mul_emod]

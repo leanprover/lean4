@@ -232,12 +232,6 @@ one by `a ≤ b` applications. `grind` uses the types of `a` and `b` to discard
 irrelevant instantiations.
 -/
 syntax grindHomPred := &"hom_pred"
-/-- Deprecated spelling of the `hom` modifier. It behaves like `hom` and will be
-removed. -/
-syntax grindHomo   := &"homo"
-/-- Deprecated spelling of the `hom_pred` modifier. It behaves like `hom_pred` and will
-be removed. -/
-syntax grindHomoPred := &"homo_pred"
 /--
 The `norm` modifier instructs `grind` to use a theorem as a normalization rule. That is,
 the theorem is applied during the preprocessing step.
@@ -314,7 +308,7 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindHomPred <|> grindHom <|> grindHomoPred <|> grindHomo
+    <|> grindFunCC <|> grindHomPred <|> grindHom
     <|> grindNorm <|> grindUnfold <|> grindDef
 
 /--

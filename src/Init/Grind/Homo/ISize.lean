@@ -17,7 +17,7 @@ Homomorphism rules for `ISize` used by the `grind` tactic.
 The injection function is `ISize.toBitVec`.
 -/
 
-attribute [grind homo]
+attribute [grind hom]
   ISize.toBitVec_add ISize.toBitVec_sub ISize.toBitVec_mul ISize.toBitVec_div ISize.toBitVec_mod
   ISize.toBitVec_and ISize.toBitVec_or ISize.toBitVec_xor ISize.toBitVec_shiftLeft ISize.toBitVec_shiftRight
   ISize.toBitVec_zero ISize.toBitVec_one ISize.toBitVec_not ISize.toBitVec_neg
@@ -25,8 +25,8 @@ attribute [grind homo]
   ISize.toBitVec_ofNat
   ISize.toBitVec_toInt8 ISize.toBitVec_toInt16 ISize.toBitVec_toInt32 ISize.toBitVec_toInt64 ISize.toBitVec_toUSize
 
-@[grind homo] theorem Lean.Grind.ISize.toInt_eq_toBitVec_toInt (x : ISize) : x.toInt = x.toBitVec.toInt := rfl
+@[grind hom] theorem Lean.Grind.ISize.toInt_eq_toBitVec_toInt (x : ISize) : x.toInt = x.toBitVec.toInt := rfl
 
 /-! Translations of `≤` and `<` into the target domain. -/
 
-attribute [grind homo] ISize.le_iff_toInt_le ISize.lt_iff_toInt_lt
+attribute [grind hom] ISize.le_iff_toInt_le ISize.lt_iff_toInt_lt

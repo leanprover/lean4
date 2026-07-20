@@ -122,17 +122,6 @@ homomorphism rules translate concrete types; generic injections cannot be tracke
 #guard_msgs in
 attribute [grind hom] toI_eq
 
-/-! The deprecated spellings behave like `hom`/`hom_pred`. -/
-
-#guard_msgs in
-attribute [grind homo] wu_mul
-
-/--
-error: homomorphism rules should be registered using the `@[grind hom]` attribute
--/
-#guard_msgs in
-example : True := by grind [homo wu_add]
-
 /-! `reset_grind_attrs%` clears the homo extension and the recorded source types. -/
 
 reset_grind_attrs%

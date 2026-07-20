@@ -63,6 +63,8 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|norm ↑ ←) => return .norm true true
   | `(Parser.Attr.grindMod|norm ↓ ←) => return .norm (post := false) true
   | `(Parser.Attr.grindMod|unfold) => return .unfold
+  | `(Parser.Attr.grindMod|hom) => return .homo
+  | `(Parser.Attr.grindMod|hom_pred) => return .homoPred
   | `(Parser.Attr.grindMod|homo) => return .homo
   | `(Parser.Attr.grindMod|homo_pred) => return .homoPred
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>

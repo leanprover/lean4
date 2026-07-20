@@ -1,7 +1,7 @@
 import Lean
 
 /-!
-Tests that the `[grind homo]` environment extension is populated by the homomorphism
+Tests that the `[grind hom]` environment extension is populated by the homomorphism
 rules in `Init.Grind.Homo`. We check both direct retrieval (`getHomoTheorems` +
 `Theorems.getMatch`) and that the registered theorems can be used to perform
 rewriting: a small metaprogram applies the homomorphisms to fixpoint using `Sym.simp`
@@ -10,7 +10,7 @@ and verifies the generated proofs.
 
 open Lean Meta Lean.Meta.Sym Lean.Meta.Sym.Simp
 
-/-- Prints the `[grind homo]` rules matching the (instantiated) body of `declName`. -/
+/-- Prints the `[grind hom]` rules matching the (instantiated) body of `declName`. -/
 def showMatches (declName : Name) : MetaM Unit := do
   let value := (← getConstInfoDefn declName).value
   lambdaTelescope value fun _ body => SymM.run do
@@ -20,7 +20,7 @@ def showMatches (declName : Name) : MetaM Unit := do
       logInfo m!"{thm.expr}"
 
 /--
-Applies the `[grind homo]` rules to the body of `declName` to fixpoint using `Sym.simp`,
+Applies the `[grind hom]` rules to the body of `declName` to fixpoint using `Sym.simp`,
 prints the result, and checks the generated proof.
 -/
 def applyHomo (declName : Name) : MetaM Unit := do
@@ -139,7 +139,7 @@ run_meta applyHomo ``i64Eq
 /-! Homomorphism predicates from `Init.Grind.Homo`: range facts and relation
 translations are instantiated for representative terms via `mkHomoPredInstances`. -/
 
-/-- Instantiates the `[grind homo_pred]` theorems for the body of `declName`. -/
+/-- Instantiates the `[grind hom_pred]` theorems for the body of `declName`. -/
 def showPredInstances (declName : Name) : MetaM Unit := do
   let value := (← getConstInfoDefn declName).value
   lambdaTelescope value fun _ body => do

@@ -263,8 +263,8 @@ def processParam (params : Grind.Params)
   | .funCC =>
     params := params.insertFunCC declName
   | .norm .. => throwError "normalization theorems should be registered using the `@[grind norm]` attribute"
-  | .homo => throwError "homomorphism rules should be registered using the `@[grind homo]` attribute"
-  | .homoPred => throwError "homomorphism predicates should be registered using the `@[grind homo_pred]` attribute"
+  | .homo => throwError "homomorphism rules should be registered using the `@[grind hom]` attribute"
+  | .homoPred => throwError "homomorphism predicates should be registered using the `@[grind hom_pred]` attribute"
   | .unfold => throwError "declarations to be unfolded during normalization should be registered using the `@[grind unfold]` attribute"
   return params
 

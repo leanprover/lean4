@@ -198,7 +198,7 @@ Given an application `f a₁ a₂ … aₙ`, when `funCC := true`,
 -/
 syntax grindFunCC  := &"funCC"
 /--
-The `homo` modifier marks a theorem as a homomorphism rule for `grind`.
+The `hom` modifier marks a theorem as a homomorphism rule for `grind`.
 
 Homomorphism rules translate terms from a source domain into a target domain that has a
 dedicated solver. A collection of homomorphism rules encodes an algebra homomorphism
@@ -206,15 +206,15 @@ dedicated solver. A collection of homomorphism rules encodes an algebra homomorp
 `h (f x y) = g (h x) (h y)`. Example: injecting bitvector operations into integer
 arithmetic using `BitVec.toNat`:
 ```
-@[grind homo] theorem toNat_add (x y : BitVec w) :
+@[grind hom] theorem toNat_add (x y : BitVec w) :
     (x + y).toNat = (x.toNat + y.toNat) % 2^w
 ```
 The rules must be unconditional equations (or `Iff`s). They are applied to fixpoint
 outside the E-graph, and only the final result is internalized.
 -/
-syntax grindHomo   := &"homo"
+syntax grindHom    := &"hom"
 /--
-The `homo_pred` modifier marks a theorem as a homomorphism predicate for `grind`.
+The `hom_pred` modifier marks a theorem as a homomorphism predicate for `grind`.
 
 Homomorphism predicates are facts that `grind` instantiates eagerly for the terms it
 internalizes. The conclusion of the theorem must contain an application `f a₁ … aₙ`
@@ -224,13 +224,19 @@ the theorem is instantiated with the term's trailing arguments, and the resultin
 fact is asserted. Typical uses are range facts for injection functions, and
 translations of relations into a target domain. Examples:
 ```
-@[grind homo_pred] theorem BitVec.toNat_range (x : BitVec w) : x.toNat < 2^w
-@[grind homo_pred] theorem UInt8.le_iff (a b : UInt8) : a ≤ b ↔ a.toBitVec ≤ b.toBitVec
+@[grind hom_pred] theorem BitVec.toNat_range (x : BitVec w) : x.toNat < 2^w
+@[grind hom_pred] theorem UInt8.le_iff (a b : UInt8) : a ≤ b ↔ a.toBitVec ≤ b.toBitVec
 ```
 The first theorem is triggered by terms of the form `BitVec.toNat x`, and the second
 one by `a ≤ b` applications. `grind` uses the types of `a` and `b` to discard
 irrelevant instantiations.
 -/
+syntax grindHomPred := &"hom_pred"
+/-- Deprecated spelling of the `hom` modifier. It behaves like `hom` and will be
+removed. -/
+syntax grindHomo   := &"homo"
+/-- Deprecated spelling of the `hom_pred` modifier. It behaves like `hom_pred` and will
+be removed. -/
 syntax grindHomoPred := &"homo_pred"
 /--
 The `norm` modifier instructs `grind` to use a theorem as a normalization rule. That is,
@@ -308,7 +314,8 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindHomoPred <|> grindHomo <|> grindNorm <|> grindUnfold <|> grindDef
+    <|> grindFunCC <|> grindHomPred <|> grindHom <|> grindHomoPred <|> grindHomo
+    <|> grindNorm <|> grindUnfold <|> grindDef
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.

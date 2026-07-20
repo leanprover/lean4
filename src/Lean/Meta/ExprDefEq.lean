@@ -99,7 +99,8 @@ Valid values:
   definitionally equal to the synthesized instance; if synthesis fails, the assignment (and
   with it the current unification attempt) fails.
 - `"markOrSynth"`: like `"synth"`, but a value whose spine metavariables are all themselves
-  instance-typed is also accepted, provided its type matches at `.instances` transparency.
+  instance-typed or not assignable by `isDefEq` is also accepted, provided its type matches
+  at `.instances` transparency.
 -/
 register_builtin_option backward.isDefEq.instanceTypes : String := {
   defValue := "mark"
@@ -118,7 +119,8 @@ inductive InstanceTypesMode where
   /-- Require an mvar-free value whose type matches at `.instances` transparency; otherwise
   synthesize the instance and unify the value with it. -/
   | synth
-  /-- Like `synth`, but also accept values whose spine metavariables are all instance-typed. -/
+  /-- Like `synth`, but also accept values whose spine metavariables are all instance-typed
+  or not assignable by `isDefEq` (see `spineMVarsAdmissible`). -/
   | markOrSynth
 
 def getInstanceTypesMode : CoreM InstanceTypesMode := do
@@ -579,11 +581,18 @@ where
 
 /--
 Return `true` if all metavariables in type-determining (spine) positions of `e` are
-instance-typed (see `markInstanceTypedSpineMVars` for why only spine positions matter). A
-delayed-assigned spine metavariable need not be instance-typed itself — it will never be
+admissible in a value assigned to an instance-typed metavariable in `markOrSynth` mode (see
+`markInstanceTypedSpineMVars` for why only spine positions matter). Admissible are:
+- instance-typed metavariables: their own assignments are subject to the same restriction;
+- metavariables `isDefEq` cannot assign (from an outer `MetavarContext` depth, or synthetic
+  opaque): the current instance search cannot commit them to a wrong-typed value, and their
+  eventual assignment is governed by whoever created them (e.g. the elaborator's pending
+  instance metavariables, which are synthesized against their recorded type).
+
+A delayed-assigned spine metavariable need not be admissible itself — it will never be
 assigned directly — but the spine of its pending metavariable is checked instead.
 -/
-partial def spineMVarsAreInstanceTyped (e : Expr) : MetaM Bool := go e
+partial def spineMVarsAdmissible (e : Expr) : MetaM Bool := go e
 where
   go (e : Expr) : MetaM Bool := do
     unless e.hasExprMVar do return true
@@ -592,7 +601,7 @@ where
       if let some d ← getDelayedMVarAssignment? mvarId then
         go (mkMVar d.mvarIdPending)
       else
-        mvarId.isInstanceTyped
+        mvarId.isInstanceTyped <||> mvarId.isReadOnlyOrSyntheticOpaque
     | .app f _ => go f
     | .lam _ _ b _ => go b
     | .letE _ _ v b _ => go v <&&> go b
@@ -678,13 +687,13 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     | .synth | .markOrSynth =>
       /- The value of an instance metavariable must be determined by instance synthesis, up
          to defeq at `.instances` transparency: either the candidate value already is such a
-         value — mvar-free (`synth`) resp. with only instance metavariables in its spine
+         value — mvar-free (`synth`) resp. with only admissible metavariables in its spine
          (`markOrSynth`) — and has the right type, or we synthesize the instance now and
          require the candidate to be defeq to the result. -/
       let v ← instantiateMVars v
       let directOk ← match mode with
         | .synth => pure !v.hasExprMVar
-        | _      => spineMVarsAreInstanceTyped v
+        | _      => spineMVarsAdmissible v
       if directOk then
         let mvarType ← inferType mvar
         let vType ← inferType v

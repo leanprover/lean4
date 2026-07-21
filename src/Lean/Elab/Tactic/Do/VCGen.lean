@@ -343,6 +343,9 @@ where
     let .forallE _ φ' .. := jumpGoal | throwError "jumpGoal {jumpGoal} is not a forall"
     trace[Elab.Tactic.Do.vcgen] "φ applied: {φ}, prf applied: {prf}, type: {← inferType prf}"
     let rwPrf ← rwIfOrMatcher info.altIdx φ'
+    if rwPrf.proof?.isNone then
+      throwError "Bug in `mvcgen`: `rwIfOrMatcher` failed to rewrite alternative {info.altIdx} of\
+        {indentExpr φ'}"
     trace[Elab.Tactic.Do.vcgen] "joinPrf: {← inferType info.joinPrf}"
     let jumpPrf := mkAppN info.joinPrf (joinArgs.push (← rwPrf.mkEqMPR prf))
     let prf₁ := mkApp2 (mkConst ``SPred.true_intro [uWP]) σs goal.hyps

@@ -124,8 +124,8 @@ theorem wpCmd_mono {Φ : Env} {c : Cmd} {Q Q' : State → Prop} (hQ : ∀ s, Q s
     intro s h
     simp only [wpCmd] at h ⊢
     split
-    · exact wpCmd_mono hQ s (by rwa [if_pos (by assumption)] at h)
-    · exact wpCmd_mono hQ s (by rwa [if_neg (by assumption)] at h)
+    · exact wpCmd_mono hQ s (by rwa [ite_eq_left (by assumption)] at h)
+    · exact wpCmd_mono hQ s (by rwa [ite_eq_right (by assumption)] at h)
   | Φ, .while cond body =>
     intro s h
     simp only [wpCmd] at h ⊢

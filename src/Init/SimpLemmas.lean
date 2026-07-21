@@ -202,14 +202,14 @@ theorem have_body_congr' {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
     (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
   cases Decidable.em c with
-  | inl h => rw [if_pos h]; subst b; rw [if_pos h]; exact h₂ h
-  | inr h => rw [if_neg h]; subst b; rw [if_neg h]; exact h₃ h
+  | inl h => rw [ite_eq_left h]; subst b; rw [ite_eq_left h]; exact h₂ h
+  | inr h => rw [ite_eq_right h]; subst b; rw [ite_eq_right h]; exact h₃ h
 
 theorem ite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c] {x y : α}
     (h₁ : b = c) : ite b x y = ite c x y := by
   cases Decidable.em c with
-  | inl h => rw [if_pos h]; subst b; rw [if_pos h]
-  | inr h => rw [if_neg h]; subst b; rw [if_neg h]
+  | inl h => rw [ite_eq_left h]; subst b; rw [ite_eq_left h]
+  | inr h => rw [ite_eq_right h]; subst b; rw [ite_eq_right h]
 
 theorem Eq.mpr_prop {p q : Prop} (h₁ : p = q) (h₂ : q)  : p  := h₁ ▸ h₂
 theorem Eq.mpr_not  {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p := h₁ ▸ h₂
@@ -222,15 +222,15 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
     (h₃ : (h : ¬c) → y (h₁.mpr_not h)  = v h) :
     dite b x y = dite c u v := by
   cases Decidable.em c with
-  | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]; exact h₂ h
-  | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]; exact h₃ h
+  | inl h => rw [dite_eq_left h]; subst b; rw [dite_eq_left h]; exact h₂ h
+  | inr h => rw [dite_eq_right h]; subst b; rw [dite_eq_right h]; exact h₃ h
 
 theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
     {x : b → α} {y : ¬ b → α} (h₁ : b = c) :
     dite b x y = dite c (fun h => x (h₁.mpr_prop h)) (fun h => y (h₁.mpr_not h)) := by
   cases Decidable.em c with
-  | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]
-  | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]
+  | inl h => rw [dite_eq_left h]; subst b; rw [dite_eq_left h]
+  | inr h => rw [dite_eq_right h]; subst b; rw [dite_eq_right h]
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq

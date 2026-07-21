@@ -479,6 +479,9 @@ macro_rules
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun _%$h => $t) (fun _%$h => $e))
 
+/-- use `left` for `t` and `right` for `e` -/
+recommended_spelling "dite" for "if h : c then t else e" in [dite, termDepIfThenElse]
+
 @[inherit_doc ite] syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
@@ -487,6 +490,9 @@ macro_rules
   | `(if $c then $t else $e) => do
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite $mvar $t $e)
+
+/-- use `left` for `t` and `right` for `e` -/
+recommended_spelling "ite" for "if c then t else e" in [ite, termIfThenElse]
 
 /--
 `if let pat := d then t else e` is a shorthand syntax for:

@@ -66,9 +66,12 @@ theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat 
   simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat, Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
-theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
+theorem BitVec.ofBool_eq_ite (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
   revert b
   decide
+
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.ofBool_eq_ite (since := "2026-07-21")]
+theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := Std.Tactic.BVDecide.Normalize.BitVec.ofBool_eq_ite b
 
 @[bv_normalize]
 theorem BitVec.sdiv_udiv (x y : BitVec w) :
@@ -363,9 +366,12 @@ theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) 
   have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bitvec_to_nat, hk]
   rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
 
-theorem BitVec.extractLsb'_if {x y : BitVec w} (s l : Nat) :
+theorem BitVec.extractLsb'_ite {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
+
+@[deprecated Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_ite (since := "2026-07-21")]
+theorem BitVec.extractLsb'_if {w : Nat} {c : Bool} {x : BitVec w} {y : BitVec w} (s : Nat) (l : Nat) : BitVec.extractLsb' s l (bif c then x else y) = bif c then BitVec.extractLsb' s l x else BitVec.extractLsb' s l y := Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_ite s l
 
 -- Used in simproc because of - normalization
 theorem BitVec.ones_mul (a : BitVec w) : -1#w * a = -a := by

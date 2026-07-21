@@ -131,7 +131,7 @@ def cnfSatAssignment (aig : AIG Nat) (assign1 : Nat → Bool) : Nat → Bool :=
 @[simp]
 theorem satAssignment_inl : (cnfSatAssignment aig assign1) (x + aig.decls.size) = assign1 x := by
   unfold cnfSatAssignment mixAssigns
-  rw [dif_neg]
+  rw [dite_eq_right]
   · simp
   · omega
 

@@ -122,7 +122,7 @@ theorem getElem_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.
 theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size) (h : k > i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k - 1]'(by omega) := by
   simp [getElem_insertIdx]
-  rw [dif_neg (by omega), dif_neg (by omega)]
+  rw [dite_eq_right (by omega), dite_eq_right (by omega)]
 
 @[grind =]
 theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.size) :
@@ -139,15 +139,15 @@ theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.si
 
 theorem getElem?_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by
-  rw [getElem?_insertIdx, if_pos h]
+  rw [getElem?_insertIdx, ite_eq_left h]
 
 theorem getElem?_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
     (xs.insertIdx i x)[i]? = some x := by
-  rw [getElem?_insertIdx, if_neg (by omega), if_pos rfl, if_pos w]
+  rw [getElem?_insertIdx, ite_eq_right (by omega), ite_eq_left rfl, ite_eq_left w]
 
 theorem getElem?_insertIdx_of_ge {xs : Array α} {x : α} {i k : Nat} (w : i < k) (h : k ≤ xs.size) :
     (xs.insertIdx i x)[k]? = xs[k - 1]? := by
-  rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
+  rw [getElem?_insertIdx, ite_eq_right (by omega), ite_eq_right (by omega)]
 
 end InsertIdx
 

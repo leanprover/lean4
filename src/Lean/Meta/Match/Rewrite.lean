@@ -103,12 +103,17 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
       trace[Meta.Match.debug] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
       return { expr := e }
     let eqnThm := eqns[altIdx]!
-    -- Close `h : a = b` by reflexivity without throwing when it is not reflexive.
-    let tryRefl (h : MVarId) : MetaM Bool := do
-      let some (_, a, b) := (← h.getType).eq? | return false
-      unless ← isDefEq a b do return false
-      h.refl
-      return true
+    -- Close an `Eq`/`HEq` hypothesis `h` by reflexivity without throwing when it is not reflexive.
+    let tryRefl (h : MVarId) (hType : Expr) : MetaM Bool := do
+      if let some (_, a, b) := hType.eq? then
+        unless ← isDefEq a b do return false
+        h.refl
+        return true
+      if let some (α, a, β, b) := hType.heq? then
+        unless ← (isDefEq α β <&&> isDefEq a b) do return false
+        h.hrefl
+        return true
+      return false
     try
       withTraceNode `Meta.Match.debug (fun _ => pure m!"rewriting with {.ofConstName eqnThm} in{indentExpr e}") do
       let eqProof := mkAppN (mkConst eqnThm e.getAppFn.constLevels!) e.getAppArgs
@@ -142,10 +147,8 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
               -- Using unrestricted h.substVars here does not work well; it could
               -- even introduce a dependency on the `oldIH` we want to eliminate
               assumptionProc h
-            else if hType.isEq then
-              assumptionProc h <||> tryRefl h
-            else if hType.isHEq then
-              assumptionProc h <||> (do try h.hrefl; pure true catch _ => pure false)
+            else if hType.isEq || hType.isHEq then
+              assumptionProc h <||> tryRefl h hType
             else
               pure true
           unless discharged do return { expr := e }

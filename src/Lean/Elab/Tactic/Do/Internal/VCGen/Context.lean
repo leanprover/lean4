@@ -152,9 +152,9 @@ public structure JPAltLayout where
 public def JPAltLayout.bodyTeleLen (l : JPAltLayout) : Nat :=
   l.bodyFields + l.bodyOverlaps + l.bodyDiscrEqs + l.bodyExtraEqs
 
-/-- Definition-site info for a `__do_jp` synthetic spec, indexed by the JP's let-fvar. Recorded when
-the JP's synthetic spec is registered and consulted at each jump site to build the jump's payload
-for the alt-specific precondition mvar `hypsMVars[altIdx]`. -/
+/-- Definition-site info for a `__do_jp` join point, indexed by the JP's let-fvar. Recorded when the
+JP is registered and consulted at each jump site to build the jump's payload for the alt-specific
+precondition mvar `hypsMVars[altIdx]`. -/
 public structure JPDefInfo where
   /-- The join point's body proof, `∀ joinParams, Triple ⌜match discrs => ?Hᵢ⌝ (fv joinParams) Q`,
   bound as a local hypothesis. Each jump is closed by `rel_trans` against `jpProof joinArgs`. -/
@@ -178,9 +178,6 @@ public structure JPDefInfo where
   predLevel : Level
   /-- The `CompleteLattice Pred` instance, for instantiating `le_ofProp`. -/
   instCL : Expr
-  /-- State-argument types the postcondition lattice ranges over, for building each jump's
-  constant precondition function. -/
-  stateTys : Array Expr
   deriving Inhabited
 
 public structure VCGen.Scope where

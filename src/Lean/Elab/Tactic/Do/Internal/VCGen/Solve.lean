@@ -221,7 +221,7 @@ private def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVar
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
 /-- `+jp`: wrap the continuation of a `__do_jp` let in `jpGadget`, tagging the join point so the
-usual let-introduction runs (`wpLet?`) and `tryJPGadget?` then sets up the shared spec. -/
+usual let-introduction runs (`wpLet?`) and `tryJPGadget?` then registers it. -/
 private def tryMarkJP? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
   unless (← read).useJP do return none
   let .letE name ty val body nondep := info.prog.getAppFn | return none
@@ -274,12 +274,13 @@ private def computeBodyAltLayouts (sinfo : Lean.Elab.Tactic.Do.SplitInfo) (progT
         pure (mkConst ``True)
     ref.get
 
-/-- `+jp`: at `wp⟦jpGadget fv rest⟧` with `rest` an `if`/`match`, register a `Triple` spec for the
-join point `fv` and split into two subgoals, the JP body and the (gadget-stripped) `rest`. `body`
-is proved once and each jump `fv args` in `rest` closes via `applySpec`.
+/-- `+jp`: at `wp⟦jpGadget fv rest⟧` with `rest` an `if`/`match`, register the join point `fv` and
+split into two subgoals, the JP body (proved once, bound as the `__do_jpProof` hypothesis and closed
+against by every jump) and the (gadget-stripped) `rest`.
 
-The spec's precondition splits the same way as `rest`: in branch `i` it is a fresh metavariable
-`?Hᵢ`, which the jumps in that branch fill in with the facts that hold there. -/
+The body's precondition splits the same way as `rest`: in branch `i` it is a fresh metavariable
+`?Hᵢ`, which the jumps reaching that branch fill in with the facts that hold there, and `finalizeJPs`
+assigns the disjunction of. -/
 private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option SolveResult) := do
   let_expr Std.Internal.Do.jpGadget _α _β fv rest := info.prog | return none
@@ -295,8 +296,7 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let joinTy ← liftMetaM <| Meta.inferType fv
   let numJoinParams ← liftMetaM <| Lean.Elab.Tactic.Do.getNumJoinParams joinTy resTy
 
-  -- Create the `?Hᵢ` mvars in the outer local context so the rule construction's `abstractMVars`
-  -- keeps them shared across jump sites.
+  -- Create the `?Hᵢ` mvars in the outer local context so they stay shared across jump sites.
   let outerLCtx ← liftMetaM getLCtx
   let outerLocalInsts ← liftMetaM getLocalInstances
   let instCL ← liftMetaM <| Meta.synthInstance (← Meta.mkAppM ``Lean.Order.CompleteLattice #[info.Pred])
@@ -342,10 +342,9 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let (jpProofFVar, restGoal) ← liftMetaM <| restGoal.intro1P
 
   let outerLCtxSize := (← restGoal.getDecl).lctx.numIndices
-  let stateTys ← liftMetaM <| info.excessArgs.mapM Meta.inferType
   let jpDefInfo : JPDefInfo :=
     { jpProof := .fvar jpProofFVar, pjpBodyAbs, hypsMVars, splitInfo := sinfo, outerLCtxSize, altLayouts
-      Pred := info.Pred, predLevel, instCL, stateTys }
+      Pred := info.Pred, predLevel, instCL }
   -- `bodyMV` keeps the original scope so its own head is not treated as a JP.
   let restScope := scope.registerJP fvId jpDefInfo
   return some (.goals [(restScope, restGoal), (scope, bodyMV.mvarId!)])
@@ -428,13 +427,16 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
   let joinArgs := e.getAppArgs
   liftMetaM do
     let lctx ← getLCtx
+    -- Locals introduced since the join point was registered. INVARIANT: the enclosing split's alt
+    -- telescope (`fields ++ overlaps ++ discrEqs ++ extraEqs`, of length `bodyTeleLen`) sits at the
+    -- front of this slice, with no implementation-detail decls interspersed, so its (filtered) prefix
+    -- pairs positionally with the recorded `JPAltLayout` and the raw-index window below reaches it.
     let newLocalDecls := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push
       |>.filterMap id
       |>.filter (fun decl => !decl.isImplementationDetail)
-    -- The branch hypotheses a jump needs are the enclosing split's telescope, whose length is at most
-    -- `max bodyTeleLen`; the split introduces it right after the join point was registered. So confining
-    -- the assumption search to `[outerLCtxSize, outerLCtxSize + maxTele)` covers every alt's full
-    -- discriminant evidence in a fixed window, independent of how deep the jump sits in the alt body.
+    -- The branch hypotheses a jump needs are that telescope, whose length is at most `max bodyTeleLen`.
+    -- So confining the assumption search to `[outerLCtxSize, outerLCtxSize + maxTele)` covers every
+    -- alt's full discriminant evidence in a fixed window, independent of how deep the jump sits.
     let maxTele := jpInfo.altLayouts.foldl (fun acc l => max acc l.bodyTeleLen) 0
     let upperBound := jpInfo.outerLCtxSize + maxTele
     let mut found : Option (Nat × Expr × Expr) := none
@@ -544,8 +546,11 @@ The disjunct proof `φPrf : redExpr` is transported across the match reduction (
 private def dischargeJPJump (r : DeferredJump) (idx count : Nat) : VCGenM Unit :=
   r.goal.withContext do
     let φPrf ← liftMetaM <| proveJPDisjunct (← instantiateMVars r.redExpr) idx count r.witnesses.toList
+    -- `matchExpr : Prop`, so its reduction equality lives at `Prop`; `Eq.mpr` transports `φPrf` back.
     let hMatch := mkApp4 (mkConst ``Eq.mpr [.zero]) r.matchExpr r.redExpr r.redProof φPrf
-    let constFn := r.jpInfo.stateTys.foldr (fun ty body => Expr.lam `s ty body .default) r.pre
+    -- `fun _ => pre` at the postcondition lattice, of the state arity `ss` will apply.
+    let stateTys ← liftMetaM <| r.ss.mapM Meta.inferType
+    let constFn := stateTys.foldr (fun ty body => Expr.lam `s ty body .default) r.pre
     let base := mkAppN (mkConst ``Lean.Order.le_ofProp [r.jpInfo.predLevel])
       #[r.jpInfo.Pred, r.jpInfo.instCL, constFn, r.matchExpr, hMatch]
     r.goal.assign (← mkAppNS base r.ss)
@@ -584,8 +589,10 @@ private def tryJPJump? (scope : Scope) (goal : MVarId) (info : WPApp) : VCGenM (
   -- `pjpBodyAbs` is a lambda over the join params; beta-reduce so the head is `⌜·⌝` (`ofProp`).
   -- The precondition carries no post `Q`, so this stays cheap.
   let ofPropMatch := jpInfo.pjpBodyAbs.beta joinArgs
-  let matchExpr := ofPropMatch.getAppArgs[2]!
-  let some jump ← mkJPJumpPayload? jpInfo info.prog matchExpr | return none
+  let_expr Lean.Order.CompleteLattice.ofProp _ _ matchExpr := ofPropMatch
+    | throwError "vcgen +jp: join point precondition is not a `⌜·⌝` embedding{indentExpr ofPropMatch}"
+  let some jump ← mkJPJumpPayload? jpInfo info.prog matchExpr
+    | throwError "vcgen +jp: could not resolve the alternative of jump{indentExpr info.prog}"
   goal.withContext do
     let goalTy ← goal.getType
     let_expr Lean.Order.PartialOrder.rel α inst pre zGoal := goalTy | return none

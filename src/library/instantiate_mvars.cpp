@@ -385,6 +385,70 @@ class instantiate_delayed_fn {
     name_set m_already_normalized;
     std::vector<expr> m_saved;
 
+    /* Fast path for the delayed-assignment collapse. A subterm that contains no
+       fvar currently being abstracted (and no mvar) is returned unchanged at
+       every binder depth, so it is memoized per pointer rather than per
+       (pointer, depth). This turns the collapse of a long delayed chain over a
+       shared, fvar-stable subterm from quadratic into linear.
+
+       m_abstracted_fvars grows monotonically with the fvars of each crossed
+       delayed-assigned MVar. m_free_of_abstracted memoizes, per pointer, whether
+       a subterm is free of all of them. m_encountered records every fvar the
+       freeness scan has seen, so abstracting an fvar that already appeared (the
+       revert-an-outer-fvar case) can invalidate the now-stale memo. */
+    name_set m_abstracted_fvars;
+    name_set m_encountered;
+    lean::unordered_map<lean_object *, bool> m_free_of_abstracted;
+
+    bool free_of_abstracted(expr const & e) {
+        if (!has_fvar(e))
+            return true;
+        if (is_shared(e)) {
+            auto it = m_free_of_abstracted.find(e.raw());
+            if (it != m_free_of_abstracted.end())
+                return it->second;
+        }
+        bool r = free_of_abstracted_core(e);
+        if (is_shared(e))
+            m_free_of_abstracted.insert(mk_pair(e.raw(), r));
+        return r;
+    }
+
+    bool free_of_abstracted_core(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::FVar: {
+            name const & fid = fvar_name(e);
+            m_encountered.insert(fid);
+            return !m_abstracted_fvars.contains(fid);
+        }
+        case expr_kind::App: {
+            /* Visit both children unconditionally (no && short-circuit) so
+               every fvar is recorded in m_encountered. */
+            bool f = free_of_abstracted(app_fn(e));
+            bool a = free_of_abstracted(app_arg(e));
+            return f && a;
+        }
+        case expr_kind::Lambda: case expr_kind::Pi: {
+            bool d = free_of_abstracted(binding_domain(e));
+            bool b = free_of_abstracted(binding_body(e));
+            return d && b;
+        }
+        case expr_kind::Let: {
+            bool t = free_of_abstracted(let_type(e));
+            bool v = free_of_abstracted(let_value(e));
+            bool b = free_of_abstracted(let_body(e));
+            return t && v && b;
+        }
+        case expr_kind::MData:
+            return free_of_abstracted(mdata_expr(e));
+        case expr_kind::Proj:
+            return free_of_abstracted(proj_expr(e));
+        default:
+            /* Sort, Const, Lit, MVar, BVar carry no fvars. */
+            return true;
+        }
+    }
+
     /* Resolvability caches — persistent across all delayed-assigned MVar
        resolutions. A pending MVar is resolvable if its assigned value
        (normalized by pass 1) would become MVar-free after resolution: all
@@ -528,6 +592,7 @@ class instantiate_delayed_fn {
         struct saved_entry { name key; bool had_old; fvar_subst_entry old; };
         std::vector<saved_entry> saved_entries;
         saved_entries.reserve(fvar_count);
+        bool must_invalidate = false;
         for (size_t i = 0; i < fvar_count; i++) {
             name const & fid = fvar_name(fvars[i]);
             auto old_it = m_fvar_subst.find(fid);
@@ -537,7 +602,17 @@ class instantiate_delayed_fn {
                 saved_entries.push_back({fid, false, {0, 0, expr()}});
             }
             m_fvar_subst[fid] = {m_depth, m_cache.scope(), args[args.size() - 1 - i]};
+            /* Grow the abstracted-fvar set. If this fvar already appeared in a
+               freeness scan, a cached "free" verdict may now be stale, so drop
+               the memo. This never fires for freshly-introduced binders. */
+            if (!m_abstracted_fvars.contains(fid)) {
+                m_abstracted_fvars.insert(fid);
+                if (m_encountered.contains(fid))
+                    must_invalidate = true;
+            }
         }
+        if (must_invalidate)
+            m_free_of_abstracted.clear();
 
         /* Get the pending MVar's value directly — it must be assigned (pass 1
            pre-normalized it). No write-back: we are in inner mode. */
@@ -628,7 +703,12 @@ public:
         : m_mctx(mctx), m_depth(0), m_result_scope(0) {}
 
     expr visit(expr const & e) {
-        if ((!has_fvar(e) || in_outer_mode()) && !has_expr_mvar(e))
+        /* In inner mode, a subterm free of every abstracted fvar (and of mvars)
+           is unchanged at any depth; free_of_abstracted memoizes this per
+           pointer, so shared such subterms are not re-traversed once per depth.
+           It is only consulted in inner mode, keeping the outer-mode fast path
+           (and the memo's soundness invariant) intact. */
+        if (!has_expr_mvar(e) && (in_outer_mode() || free_of_abstracted(e)))
             return e;
 
         bool shared = false;

@@ -171,13 +171,14 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
 /--
 Performs fair and data-loss free multiplexing on the `Selectable`s in `selectables`.
 
-The protocol for this is as follows:
-1. The `selectables` are shuffled randomly.
-2. Run `Selector.tryFn` for each element in `selectables`. If any succeed, the corresponding
-  `Selectable.cont` is executed and its result is returned immediately.
-3. If none succeed, a `Waiter` is registered with each `Selector` using `Selector.registerFn`.
-   Once one of them resolves the `Waiter`, all `Selector.unregisterFn` functions are called, and
-   the `Selectable.cont` of the winning `Selector` is executed and returned.
+`selectables` is combined into a single `Selector` via `Selectable.combine`:
+1. If `Selector.tryFn` immediately yields a value, the corresponding `Selectable.cont` is
+   executed and its result is returned immediately.
+2. Otherwise, a single `Waiter` is registered with the combined `Selector` using
+   `Selector.registerFn`. Once the `Waiter` is resolved, `Selector.unregisterFn` is called
+   unconditionally, cleaning up every entry of `selectables`, before the result (or error) is
+   returned to the caller. This holds no matter how the race is decided: a winning result, an
+   error raised while resolving the `Waiter`, or a `registerFn` that throws mid-registration.
 -/
 def Selectable.one (selectables : Array (Selectable α)) : Async α := do
   if selectables.isEmpty then

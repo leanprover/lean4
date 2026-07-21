@@ -78,7 +78,8 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
     | .forallE n type body bi =>
       let type       ← instantiateRevS type fvars
       let fvarId     ← mkFreshFVarId
-      let lctx       := lctx.mkLocalDecl fvarId (← mkName lctx n i) type bi
+      let kind       := if n.isImplementationDetail then .implDetail else .default
+      let lctx       := lctx.mkLocalDecl fvarId (← mkName lctx n i) type bi kind
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type
@@ -91,8 +92,11 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
       We have both dependent and non-dependent `let` expressions result in dependent `ldecl`s.
       This is fine here since we never revert them in the Sym framework.
       **Note**: If `type` is a proposition we could use a `cdecl`.
+      An implementation-detail binder (name prefixed with `__`, e.g. a `__do_jp` join point) is marked
+      so downstream consumers such as `grind` skip it and it stays hidden from the user.
       -/
-      let lctx       := lctx.mkLetDecl fvarId (← mkName lctx n i) type value
+      let kind       := if n.isImplementationDetail then .implDetail else .default
+      let lctx       := lctx.mkLetDecl fvarId (← mkName lctx n i) type value (kind := kind)
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type

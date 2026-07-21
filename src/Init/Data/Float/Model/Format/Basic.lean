@@ -33,7 +33,7 @@ structure Format where
   hm : 0 < mantissaBitsWithoutImplicit := by decide
   /-- The number of bits in the exponent. -/
   exponentBits : Nat
-  he : 0 < exponentBits := by decide
+  he : 2 ≤ exponentBits := by decide
 
 namespace Format
 

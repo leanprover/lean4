@@ -269,7 +269,9 @@ def handleConst : Simproc := fun e => do
   let .const n lvls := e | return .rfl
   let info ← getConstInfo n
   unless info.isDefinition do return .rfl
-  let eType ← Sym.inferType e
+  let eType := info.type
+  -- Fast path: a syntactically functional type cannot whnf to a non-function.
+  if eType matches .forallE .. then return .rfl
   let eType ← whnfD eType
   if eType matches .forallE .. then return .rfl
   unless info.hasValue && info.levelParams.length == lvls.length do return .rfl
@@ -311,11 +313,22 @@ def cbvPost (simprocs : CbvSimprocs) : Simproc :=
 def mkCbvMethods (simprocs : CbvSimprocs) : Methods :=
   { pre := cbvPre simprocs, post := cbvPost simprocs }
 
+/--
+Core `cbv` evaluator. It disables the `shareCommon` invariant checks for the duration
+of the evaluation: `cbv` processes kernel projections natively, so they must not be
+folded into projection function applications, and it continuously constructs fresh
+terms from environment signatures (congruence proofs, `inferType` results) containing
+reducible constants such as `Eq.ndrec` and `Unit`, so each occurrence would trigger a
+full-term repair pass. The checks are disabled here (and in `cbvGoalCore`) rather than
+via the `SymM.run` configuration because `cbv` may run inside an enclosing `SymM`
+session (e.g., inside a `sym` block).
+-/
 def cbvCore (e : Expr) (config : Sym.Simp.Config := {}) : Sym.SymM Result := do
-  let simprocs ← getCbvSimprocs
-  let methods := mkCbvMethods simprocs
-  SimpM.run' (methods := methods) (config := config)
-    <| simp e
+  Sym.withoutShareCommonChecks do
+    let simprocs ← getCbvSimprocs
+    let methods := mkCbvMethods simprocs
+    SimpM.run' (methods := methods) (config := config)
+      <| simp e
 
 /-- Reduce a single expression. Unfolds reducibles, shares subterms, then runs the
 simplifier with `cbvPre`/`cbvPost`. Used by `conv => cbv`. -/
@@ -329,8 +342,10 @@ public def cbvEntry (e : Expr) : MetaM Result := do
   let methods := mkCbvMethods simprocs
   let e ← Sym.unfoldReducible e
   Sym.SymM.run do
-    let e ← Sym.shareCommon e
-    SimpM.run' (simp e) (methods := methods) (config := config)
+    -- See `cbvCore` for why the `shareCommon` invariant checks are disabled.
+    Sym.withoutShareCommonChecks do
+      let e ← Sym.shareCommon e
+      SimpM.run' (simp e) (methods := methods) (config := config)
 
 /--
 Core of `cbvGoal`: reduces the selected hypotheses and/or target of an already
@@ -338,6 +353,8 @@ preprocessed `mvarId` using call-by-value evaluation, within the caller's `SymM`
 -/
 public def cbvGoalCore (mvarId : MVarId) (simplifyTarget : Bool := true)
     (fvarIdsToSimp : Array FVarId := #[]) : Sym.SymM (Option MVarId) := do
+  -- See `cbvCore` for why the `shareCommon` invariant checks are disabled.
+  Sym.withoutShareCommonChecks do
   let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
   mvarId.withContext do
     let mut mvarIdNew := mvarId

@@ -9,7 +9,7 @@ prelude
 import all Init.Data.List.Sort.Basic
 public import Init.Data.List.Sort.Basic
 import Init.Data.List.Sort.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 
 public section
 

@@ -163,9 +163,9 @@ docstring. If code generation will not occur, then it should be done after addin
 to the environment.
 -/
 def addPreDefDocs (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
-  if let some (doc, isVerso) := preDef.modifiers.docString? then
+  if let some doc := preDef.modifiers.docString? then
     withLCtx docCtx.1 docCtx.2 do
-      addDocStringOf isVerso preDef.declName preDef.binders doc
+      addDocString preDef.declName preDef.binders doc
 
 /--
 Adds constant info to the definition name. This should occur after executing post-compilation

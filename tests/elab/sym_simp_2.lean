@@ -1,6 +1,8 @@
 import Lean
 open Lean Meta Elab Tactic
 
+/-! Unit tests for Sym.Simp.EvalGround. -/
+
 elab "sym_simp" : tactic => do
   let methods : Sym.Simp.Methods := { post := Sym.Simp.evalGround }
   liftMetaTactic1 fun mvarId => Sym.SymM.run do
@@ -91,6 +93,12 @@ example : -(1 : Fin 5) = 4 := by sym_simp
 
 -- BitVec
 example : (2 : BitVec 8) + 3 = 5 := by sym_simp
+example : (10 : BitVec 8) - 3 = 7 := by sym_simp
+example : (3 : BitVec 8) - 10 = 249 := by sym_simp  -- underflow
+example : (4 : BitVec 8) * 5 = 20 := by sym_simp
+example : (20 : BitVec 8) / 3 = 6 := by sym_simp
+example : (20 : BitVec 8) % 3 = 2 := by sym_simp
+example : -(1 : BitVec 8) = 255 := by sym_simp
 example : (0x0F : BitVec 8) &&& 0x3C = 0x0C := by sym_simp
 example : (0x0F : BitVec 8) ||| 0x30 = 0x3F := by sym_simp
 example : (0xFF : BitVec 8) ^^^ 0xAA = 0x55 := by sym_simp
@@ -98,6 +106,65 @@ example : ~~~(0x0F : BitVec 8) = 0xF0 := by sym_simp
 example : (1 : BitVec 8) <<< 4 = 16 := by sym_simp
 example : (0x80 : BitVec 8) >>> 4 = 0x08 := by sym_simp
 example : (100 : BitVec 8) + 200 = 44 := by sym_simp  -- overflow
+
+-- BitVec: append / indexing
+example : ((0xAB : BitVec 8) ++ (0xCD : BitVec 8)).toNat = 0xABCD := by sym_simp
+example : (0xAA : BitVec 8)[1] = true := by sym_simp
+
+-- BitVec: named shift/rotate functions
+example : BitVec.shiftLeft (1 : BitVec 8) 4 = 16 := by sym_simp
+example : BitVec.ushiftRight (0x80 : BitVec 8) 4 = 0x08 := by sym_simp
+example : BitVec.sshiftRight (0x80 : BitVec 8) 4 = 0xF8 := by sym_simp
+example : BitVec.sshiftRight' (0x80 : BitVec 8) (4 : BitVec 8) = 0xF8 := by sym_simp
+example : BitVec.rotateLeft (0x81 : BitVec 8) 1 = 0x03 := by sym_simp
+example : BitVec.rotateRight (0x81 : BitVec 8) 1 = 0xC0 := by sym_simp
+
+-- BitVec: division / remainder variants
+example : BitVec.udiv (20 : BitVec 8) 3 = 6 := by sym_simp
+example : BitVec.umod (20 : BitVec 8) 3 = 2 := by sym_simp
+example : BitVec.sdiv (0xEC : BitVec 8) 3 = 0xFA := by sym_simp   -- -20 / 3 = -6
+example : BitVec.smod (0xEC : BitVec 8) 3 = 1 := by sym_simp
+example : BitVec.srem (0xEC : BitVec 8) 3 = 0xFE := by sym_simp   -- -20 rem 3 = -2
+example : BitVec.smtUDiv (20 : BitVec 8) 0 = 0xFF := by sym_simp  -- division by zero
+example : BitVec.smtSDiv (0xEC : BitVec 8) 3 = 0xFA := by sym_simp
+
+-- BitVec: abs / bit-counting
+example : BitVec.abs (0xFB : BitVec 8) = 5 := by sym_simp  -- |-5|
+example : BitVec.clz (0x01 : BitVec 8) = 7 := by sym_simp
+example : BitVec.cpop (0xF0 : BitVec 8) = 4 := by sym_simp
+
+-- BitVec: bit access
+example : (0xAA : BitVec 8).getLsbD 1 = true := by sym_simp
+example : (0xAA : BitVec 8).getMsbD 0 = true := by sym_simp
+
+-- BitVec: width-changing operations
+example : (0xFF : BitVec 8).setWidth 4 = 0xF := by sym_simp
+example : (0xF : BitVec 4).zeroExtend 8 = 0x0F := by sym_simp
+example : (0xF : BitVec 4).signExtend 8 = 0xFF := by sym_simp
+example : BitVec.setWidth' (n := 4) (w := 8) (by omega) (0x0F : BitVec 4) = 0x0F := by sym_simp
+example : BitVec.cast (n := 4) (m := 4) rfl (0x0F : BitVec 4) = 0x0F := by sym_simp
+example : (BitVec.shiftLeftZeroExtend (0x0F : BitVec 4) 4).toNat = 0xF0 := by sym_simp
+example : BitVec.extractLsb' 4 4 (0xAB : BitVec 8) = 0xA := by sym_simp
+example : (BitVec.replicate 2 (0x0F : BitVec 4)).toNat = 0xFF := by sym_simp
+example : BitVec.allOnes 8 = 0xFF := by sym_simp
+
+-- BitVec: Nat/Int/Fin conversions
+example : (200 : BitVec 8).toNat = 200 := by sym_simp
+example : BitVec.ofNat 8 300 = 44 := by sym_simp  -- overflow
+example : (0xFF : BitVec 8).toInt = -1 := by sym_simp
+example : BitVec.ofInt 8 (-1) = 0xFF := by sym_simp
+example : (5 : BitVec 8).toFin = (5 : Fin 256) := by sym_simp
+example : BitVec.ofFin (w := 8) (5 : Fin 256) = 5 := by sym_simp
+
+-- BitVec: fixed-width conversions
+example : (-1 : Int8).toBitVec = 0xFF := by sym_simp
+example : (-1 : Int16).toBitVec = 0xFFFF := by sym_simp
+example : (-1 : Int32).toBitVec = 0xFFFFFFFF := by sym_simp
+example : (-1 : Int64).toBitVec = 0xFFFFFFFFFFFFFFFF := by sym_simp
+example : (255 : UInt8).toBitVec = 0xFF := by sym_simp
+example : (65535 : UInt16).toBitVec = 0xFFFF := by sym_simp
+example : (4294967295 : UInt32).toBitVec = 0xFFFFFFFF := by sym_simp
+example : (18446744073709551615 : UInt64).toBitVec = 0xFFFFFFFFFFFFFFFF := by sym_simp
 
 -- Predicates: Nat
 example : (2 < 3) = True := by sym_simp
@@ -146,7 +213,13 @@ example : ((-50 : Int8) > 50) = False := by sym_simp
 
 -- Predicates: BitVec
 example : ((5 : BitVec 8) < 10) = True := by sym_simp
+example : ((5 : BitVec 8) ≤ 5) = True := by sym_simp
 example : ((255 : BitVec 8) = 255) = True := by sym_simp
+example : ((5 : BitVec 8) ≠ 6) = True := by sym_simp
+example : BitVec.ult (5 : BitVec 8) 10 = true := by sym_simp
+example : BitVec.ule (5 : BitVec 8) 5 = true := by sym_simp
+example : BitVec.slt (0xFF : BitVec 8) 1 = true := by sym_simp  -- -1 < 1 (signed)
+example : BitVec.sle (0xFF : BitVec 8) 0xFF = true := by sym_simp
 
 -- Predicates: Fin
 example : ((2 : Fin 5) < 3) = True := by sym_simp
@@ -165,6 +238,15 @@ example : ((5 : Nat) != 6) = true := by sym_simp
 example : ((5 : Nat) != 5) = false := by sym_simp
 example : ((5 : Int) == 5) = true := by sym_simp
 example : ((0xFF : BitVec 8) == 255) = true := by sym_simp
+example : ((0xFF : BitVec 8) != 0) = true := by sym_simp
+
+-- Bool
+example : Bool.and true false = false := by sym_simp
+example : Bool.or false true = true := by sym_simp
+example : Bool.not true = false := by sym_simp
+example : (true == false) = false := by sym_simp
+example : (true != false) = true := by sym_simp
+example : (true = true) = True := by sym_simp
 
 -- Identity fast path (isSameExpr)
 example : ∀ n : Nat, (n = n) = True := by intro n; sym_simp

@@ -262,7 +262,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
     else
       addAndCompile (Declaration.defnDecl decl) (markMeta := isMeta)
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"
-  -- For Prop-typed instances (theorems), skip `implicit_reducible` since reducibility hints are
+  -- For Prop-typed instances (theorems), skip `instance_reducible` since reducibility hints are
   -- irrelevant for theorems. This matches the behavior of the handwritten `instance` command
   -- (see `MutualDef.lean`).
   if isPropType then

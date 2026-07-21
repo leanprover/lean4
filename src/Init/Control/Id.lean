@@ -36,7 +36,7 @@ def containsFive (xs : List Nat) : Bool := Id.run do
 true
 ```
 -/
-@[expose] def Id (type : Type u) : Type u := type
+@[expose, implicit_reducible] def Id (type : Type u) : Type u := type
 
 namespace Id
 
@@ -49,7 +49,7 @@ instance : Monad Id where
 /--
 The identity monad has a `bind` operator.
 -/
-@[implicit_reducible]
+@[instance_reducible]
 def hasBind : Bind Id :=
   inferInstance
 

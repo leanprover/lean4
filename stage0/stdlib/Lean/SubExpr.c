@@ -2006,7 +2006,7 @@ lean_inc(v_a_589_);
 lean_dec_ref_known(v___x_588_, 1);
 v___x_590_ = ((lean_object*)(l_Lean_SubExpr_Pos_head___closed__0));
 v___x_591_ = ((lean_object*)(l_Lean_SubExpr_Pos_fromString_x21___closed__0));
-v___x_592_ = lean_unsigned_to_nat(142u);
+v___x_592_ = lean_unsigned_to_nat(140u);
 v___x_593_ = lean_unsigned_to_nat(16u);
 v___x_594_ = l_mkPanicMessageWithDecl(v___x_590_, v___x_591_, v___x_592_, v___x_593_, v_a_589_);
 lean_dec(v_a_589_);
@@ -2224,7 +2224,7 @@ _start:
 lean_object* v___x_670_; lean_object* v___x_671_; lean_object* v___x_672_; lean_object* v___x_673_; lean_object* v___x_674_; lean_object* v___x_675_; 
 v___x_670_ = ((lean_object*)(l_Lean_SubExpr_bindingBody_x21___closed__1));
 v___x_671_ = lean_unsigned_to_nat(9u);
-v___x_672_ = lean_unsigned_to_nat(181u);
+v___x_672_ = lean_unsigned_to_nat(179u);
 v___x_673_ = ((lean_object*)(l_Lean_SubExpr_bindingBody_x21___closed__0));
 v___x_674_ = ((lean_object*)(l_Lean_SubExpr_Pos_head___closed__0));
 v___x_675_ = l_mkPanicMessageWithDecl(v___x_674_, v___x_673_, v___x_672_, v___x_671_, v___x_670_);
@@ -2322,7 +2322,7 @@ _start:
 lean_object* v___x_694_; lean_object* v___x_695_; lean_object* v___x_696_; lean_object* v___x_697_; lean_object* v___x_698_; lean_object* v___x_699_; 
 v___x_694_ = ((lean_object*)(l_Lean_SubExpr_bindingBody_x21___closed__1));
 v___x_695_ = lean_unsigned_to_nat(9u);
-v___x_696_ = lean_unsigned_to_nat(186u);
+v___x_696_ = lean_unsigned_to_nat(184u);
 v___x_697_ = ((lean_object*)(l_Lean_SubExpr_bindingDomain_x21___closed__0));
 v___x_698_ = ((lean_object*)(l_Lean_SubExpr_Pos_head___closed__0));
 v___x_699_ = l_mkPanicMessageWithDecl(v___x_698_, v___x_697_, v___x_696_, v___x_695_, v___x_694_);

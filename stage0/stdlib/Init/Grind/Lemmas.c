@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Lemmas
-// Imports: public import Init.Grind.Ring.Basic public import Init.NotationExtra import Init.ByCases import Init.Classical import Init.Data.Bool
+// Imports: public import Init.Grind.Ring.Basic public import Init.NotationExtra public import Init.GetElem import Init.ByCases import Init.Classical import Init.Data.Bool
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -51,6 +51,7 @@ return v___x_18_;
 }
 lean_object* runtime_initialize_Init_Grind_Ring_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* runtime_initialize_Init_GetElem(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Classical(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
@@ -63,6 +64,9 @@ res = runtime_initialize_Init_Grind_Ring_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_NotationExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_GetElem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_ByCases(builtin);
@@ -85,6 +89,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin);
 lean_object* initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* initialize_Init_GetElem(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Classical(uint8_t builtin);
 lean_object* initialize_Init_Data_Bool(uint8_t builtin);
@@ -97,6 +102,9 @@ res = initialize_Init_Grind_Ring_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_NotationExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_GetElem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin);

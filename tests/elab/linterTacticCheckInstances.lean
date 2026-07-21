@@ -28,7 +28,7 @@ set_option linter.tacticCheckInstances true
 
 /--
 @ +4:2...17
-warning: produced tactic goal is not type-correct at `.instances` transparency; consider using propositional rewriting or marking some of the following as `@[implicit_reducible]`:
+warning: produced tactic goal is not type-correct at `.implicit` transparency; consider using propositional rewriting or marking some of the following as `@[implicit_reducible]`:
   composed
   myF
 Full error:
@@ -55,7 +55,7 @@ example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
 
 /--
 @ +3:2...5
-warning: initial tactic goal is not type-correct at `.instances` transparency; consider rephrasing the goal or marking some of the following as `@[implicit_reducible]`:
+warning: initial tactic goal is not type-correct at `.implicit` transparency; consider rephrasing the goal or marking some of the following as `@[implicit_reducible]`:
   composed
   myF
 Full error:

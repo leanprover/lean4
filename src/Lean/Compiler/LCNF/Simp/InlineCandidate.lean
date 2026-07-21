@@ -76,8 +76,9 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
         3. For TC resolution to find it, the scope was active during elaboration
         4. LCNF compilation happens before the scope changes
 
-        We don't want to use `isImplicitReducible` because some `instanceReducible` declarations are
-        **not** instances.
+        We use `Meta.isInstance` rather than `isInstanceReducible` here because we specifically
+        want the TC-scoped notion: declarations active as instances during elaboration. Manual
+        aux decls bearing `[instance_reducible]` without `[instance]` should not count.
         -/
         if (← Meta.isInstance decl.name) then
           unless decl.name == ``instDecidableEqBool do

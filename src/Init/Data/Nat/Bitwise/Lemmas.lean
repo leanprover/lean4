@@ -194,6 +194,11 @@ theorem eq_of_testBit_eq {x y : Nat} (pred : ∀i, testBit x i = testBit y i) : 
     have p := pred i
     contradiction
 
+theorem eq_iff_testBit_eq {n m : Nat} : n = m ↔ ∀ i, Nat.testBit n i = Nat.testBit m i := by
+  refine ⟨?_, Nat.eq_of_testBit_eq⟩
+  rintro rfl
+  simp
+
 theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i ≥ n, testBit x i := by
   induction x using div2Induction generalizing n with
   | ind x hyp =>
@@ -256,7 +261,7 @@ private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
     trivial
   | succ x hyp =>
     have p : 2 ≤ x + 2 := Nat.le_add_left _ _
-    simp [Nat.mod_eq (x+2) 2, p, hyp]
+    simp [Nat.mod_eq_ite (x+2) 2, p, hyp]
     cases Nat.mod_two_eq_zero_or_one x with | _ p => simp [p]
 
 private theorem testBit_succ_zero : testBit (x + 1) 0 = !(testBit x 0) := by
@@ -297,7 +302,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
     testBit (x % 2^j) i = (decide (i < j) && testBit x i) := by
   induction x using Nat.strongRecOn generalizing j i with
   | ind x hyp =>
-    rw [mod_eq]
+    rw [mod_eq_ite]
     rcases Nat.lt_or_ge x (2^j) with x_lt_j | x_ge_j
     · have not_j_le_x := Nat.not_le_of_gt x_lt_j
       simp [not_j_le_x]
@@ -409,9 +414,9 @@ theorem testBit_bitwise (of_false_false : f false false = false) (x y i : Nat) :
           simp [x_zero, p, yi, of_false_false]
     else if y_zero : y = 0 then
       simp [x_zero, y_zero]
-      cases p : f true false <;>
-        cases xi : testBit x i <;>
-          simp [p, xi, of_false_false]
+      cases p : f true false <;> (try simp only [Bool.false_eq_true, ↓reduceIte]) <;>
+        cases testBit x i <;>
+          simp [p, of_false_false]
     else
       simp only [x_zero, y_zero, ←Nat.two_mul]
       cases i with
@@ -630,6 +635,15 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 :=
 theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
   bitwise_mod_two_pow
 
+@[simp]
+theorem or_eq_zero_iff {n m : Nat} : n ||| m = 0 ↔ n = 0 ∧ m = 0 := by
+  simp [Nat.eq_iff_testBit_eq, forall_and]
+
+@[simp]
+theorem or_pos_iff {n m : Nat} : 0 < n ||| m ↔ 0 < n ∨ 0 < m := by
+  rw [Nat.pos_iff_ne_zero, ne_eq, Nat.or_eq_zero_iff, Decidable.not_and_iff_not_or_not,
+    Nat.pos_iff_ne_zero, Nat.pos_iff_ne_zero]
+
 /-! ### xor -/
 
 @[simp, grind =] theorem testBit_xor (x y i : Nat) :
@@ -842,6 +856,10 @@ theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
 @[simp]
 theorem shiftLeft_eq_zero_iff {a n : Nat} : a <<< n = 0 ↔ a = 0 := by
   simp [shiftLeft_eq, mul_eq_zero]
+
+@[simp]
+theorem shiftLeft_pos_iff {n m : Nat} : 0 < n <<< m ↔ 0 < n := by
+  simp [Nat.pos_iff_ne_zero]
 
 instance {a n : Nat} [NeZero a] : NeZero (a <<< n) := ⟨mt shiftLeft_eq_zero_iff.mp (NeZero.ne _)⟩
 

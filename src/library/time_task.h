@@ -8,7 +8,6 @@ Author: Sebastian Ullrich
 #include <string>
 #include "library/profiling.h"
 #include "util/timeit.h"
-#include "util/message_definitions.h"
 
 namespace lean {
 LEAN_EXPORT bool has_no_block_profiling_task();

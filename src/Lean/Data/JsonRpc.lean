@@ -224,7 +224,7 @@ instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
   | RequestID.num _, RequestID.str _            => true
   | _, _ /- str < *, num < null, null < null -/ => false
 
-@[expose, implicit_reducible] def RequestID.ltProp : LT RequestID :=
+@[expose, instance_reducible] def RequestID.ltProp : LT RequestID :=
   ⟨fun a b => RequestID.lt a b = true⟩
 
 instance : LT RequestID :=
@@ -420,8 +420,9 @@ def MessageKind.ofMessage : Message → MessageKind
 
 end Lean.JsonRpc
 
-namespace IO.FS.Stream
+namespace Lean.IO.FS.Stream
 
+open _root_.IO
 open Lean
 open Lean.JsonRpc
 
@@ -493,4 +494,4 @@ section
     h.writeMessage e
 end
 
-end IO.FS.Stream
+end Lean.IO.FS.Stream

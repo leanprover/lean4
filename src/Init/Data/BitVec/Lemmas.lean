@@ -16,6 +16,7 @@ import Init.Data.List.Nat.TakeDrop
 public import Init.Data.BitVec.Basic
 import Init.ByCases
 import Init.Data.BitVec.Bootstrap
+import Init.Grind.Norm  -- shake: keep (`grind` norm theorems must be active when the patterns of the `[grind =]` theorems about `BitVec.ofNatLT` below are computed)
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
@@ -328,6 +329,11 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 @[simp] theorem ofBool_xor_ofBool : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
   cases b <;> cases b' <;> rfl
 
+-- The attribute is attached here (instead of at the declaration in `Init.Data.BitVec.Bootstrap`)
+-- because the pattern must be normalized with respect to the `grind` normalization theorem
+-- `ofNatLT_eq_ofNat`.
+attribute [grind =] BitVec.toNat_ofNatLT
+
 @[simp, grind =] theorem getLsbD_ofNatLT {n : Nat} (x : Nat) (lt : x < 2^n) (i : Nat) :
   getLsbD (x#'lt) i = x.testBit i := by
   simp [getLsbD, BitVec.ofNatLT]
@@ -335,10 +341,6 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 @[simp, grind =] theorem getMsbD_ofNatLT {n x i : Nat} (h : x < 2^n) :
     getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
   simp [getMsbD, getLsbD]
-
-@[grind =]
-theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
-  eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
 
 @[simp, grind =] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat (2^w) x := rfl
 
@@ -2076,7 +2078,7 @@ theorem shiftLeft_ofNat_eq {x : BitVec w} {k : Nat} : x <<< (BitVec.ofNat w k) =
 /-! ### ushiftRight -/
 
 @[simp, bitvec_to_nat, grind =] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
-    (x >>> i).toNat = x.toNat >>> i := rfl
+    (x >>> i).toNat = x.toNat >>> i := (rfl)
 
 @[simp, grind =] theorem getLsbD_ushiftRight (x : BitVec n) (i j : Nat) :
     getLsbD (x >>> i) j = getLsbD x (i+j) := by
@@ -2127,7 +2129,6 @@ theorem ushiftRight_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) :
   simp only [toNat_eq, toNat_ushiftRight, toNat_ofNat, Nat.zero_mod]
   have : 2^w ≤ 2^n := Nat.pow_le_pow_of_le Nat.one_lt_two hn
   rw [Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt (by omega)]
-
 
 /--
 Unsigned shift right by at least one bit makes the interpretations of the bitvector as an `Int` or `Nat` agree,
@@ -3914,6 +3915,28 @@ theorem neg_one_eq_allOnes : -1#w = allOnes w := by
     have r : (2^w - 1) < 2^w := by omega
     simp [Nat.mod_eq_of_lt q, Nat.mod_eq_of_lt r]
 
+@[simp]
+theorem zero_eq_neg_one_iff {w : Nat} : 0#w = (-1#w) ↔ w = 0 := by
+  simp only [← toNat_inj, toNat_ofNat, Nat.zero_mod, toNat_neg]
+  match w with
+  | 0 => simp
+  | w + 1 =>
+    suffices 0 ≠ 2 ^ (w + 1) - 1 by simpa
+    have : 2 ≤ 2 ^ (w + 1) := Nat.le_pow (by simp)
+    omega
+
+@[simp]
+theorem neg_one_eq_zero_iff {w : Nat} : (-1#w) = 0#w ↔ w = 0 := by
+  rw [eq_comm, zero_eq_neg_one_iff]
+
+@[simp]
+theorem zero_eq_allOnes_iff {w : Nat} : 0#w = allOnes w ↔ w = 0 := by
+  rw [← neg_one_eq_allOnes, zero_eq_neg_one_iff]
+
+@[simp]
+theorem allOnes_eq_zero_iff : allOnes w = 0#w ↔ w = 0 := by
+  rw [← neg_one_eq_allOnes, neg_one_eq_zero_iff]
+
 theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1#w := by
   apply eq_of_toNat_eq
   simp only [toNat_neg, toNat_add, toNat_not, toNat_ofNat, Nat.add_mod_mod]
@@ -4406,6 +4429,12 @@ theorem lt_add_one {b : BitVec w} (h : b ≠ allOnes w) : b < b + 1 := by
   · have := b.toNat_lt_twoPow_of_le (Nat.le_refl _)
     omega
 
+theorem toNat_pos {n : Nat} (b : BitVec n) : 0 < b.toNat ↔ 0#_ < b := by
+  simp [BitVec.lt_def]
+
+theorem pos_iff_ne_zero {n : Nat} (b : BitVec n) : 0#_ < b ↔ b ≠ 0#_ := by
+  rw [BitVec.lt_def, Ne, ← BitVec.toNat_inj, BitVec.toNat_zero, Nat.pos_iff_ne_zero]
+
 /-! ### udiv -/
 
 theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) := by
@@ -4850,7 +4879,7 @@ theorem smod_eq (x y : BitVec w) : x.smod y =
     let u := umod (- x) y
     (if u = 0#w then u else y - u)
   | true, true => - ((- x).umod (- y)) := by
-  rw [BitVec.smod]
+  rw [BitVec.smod, BitVec.zero_eq]
   rcases x.msb <;> rcases y.msb <;> simp
 
 @[bitvec_to_nat]
@@ -5920,7 +5949,7 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
-/-
+/--
 The absolute value of `x : BitVec w` is naively a case split on the sign of `x`.
 However, recall that when `x = intMin w`, `-x = x`.
 Thus, the full value of `abs x` is computed by the case split:
@@ -5943,7 +5972,7 @@ theorem toInt_abs_eq_ite {x : BitVec w} :
 
 
 
-/-
+/--
 The absolute value of `x : BitVec w` is a case split on the sign of `x`, when `x ≠ intMin w`.
 This is a variant of `toInt_abs_eq_ite`.
 -/
@@ -5978,7 +6007,7 @@ theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
         exact msb_eq_false_iff_two_mul_lt.mp (by simp [h])
       omega
 
-/-
+/--
 The absolute value of `(x : BitVec w)`, when interpreted as an integer,
 is the absolute value of `x.toInt` when `(x ≠ intMin)`.
 -/

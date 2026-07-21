@@ -43,7 +43,7 @@ lean_object* l_Lean_Options_set___redArg(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Elab_pushInfoLeaf___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 lean_object* l_Lean_getOptionDecl___boxed(lean_object*, lean_object*);
 lean_object* l_IO_toEIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -1260,7 +1260,8 @@ _start:
 {
 lean_object* v___x_415_; lean_object* v_optionName_416_; lean_object* v___f_417_; lean_object* v___x_418_; lean_object* v___x_419_; lean_object* v___x_420_; lean_object* v___x_421_; 
 v___x_415_ = l_Lean_Syntax_getId(v_id_405_);
-v_optionName_416_ = lean_erase_macro_scopes(v___x_415_);
+v_optionName_416_ = l_Lean_Name_eraseMacroScopes(v___x_415_);
+lean_dec(v___x_415_);
 lean_inc(v_toBind_411_);
 lean_inc(v_optionName_416_);
 v___f_417_ = lean_alloc_closure((void*)(l_Lean_Elab_elabSetOption___redArg___lam__2), 9, 8);

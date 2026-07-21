@@ -9,6 +9,8 @@ module
 prelude
 
 public import Lean.DocString.Types
+public import Lean.DocString.Extension
+public import Lean.CoreM
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Search
 public import Init.Data.String.Length
@@ -20,11 +22,20 @@ set_option linter.missingDocs true
 namespace Lean.Doc
 
 /--
-A monad for accumulating footnotes while rendering Markdown. Footnote labels are paired with their
-already-rendered bodies, in order of first reference. `MarkdownM.run'` flushes them at the end of
-the document.
+The internal rendering state for `MarkdownM`.
 -/
-public abbrev MarkdownM := StateM (Array (String × String))
+public structure MarkdownM.State where
+  private footnotes : Array (String × String) := #[]
+
+/--
+The monad in which docstring Markdown is rendered. This is used when showing Verso docstrings as
+plain Markdown, such as in the language server.
+-/
+public abbrev MarkdownM := StateRefT MarkdownM.State CoreM
+
+/-- Records a footnote and its rendered body. Internal to the renderer. -/
+private def MarkdownM.addFootnote (name body : String) : MarkdownM Unit :=
+  modify fun s => { s with footnotes := s.footnotes.push (name, body) }
 
 namespace MarkdownM
 
@@ -48,14 +59,14 @@ open MarkdownM in
 Renders an action that produces an array of lines into a single Markdown string, appending any
 accumulated footnotes after the main body.
 -/
-public def MarkdownM.run' (act : MarkdownM (Array String)) : String :=
-  let (lines, footnotes) := act #[]
+public def MarkdownM.run' (act : MarkdownM (Array String)) : CoreM String := do
+  let (lines, st) ← act.run {}
   let main := "\n".intercalate lines.toList
-  if footnotes.isEmpty then
-    main
+  if st.footnotes.isEmpty then
+    return main
   else
-    let foots := footnotes.toList.map fun (n, t) => s!"[^{n}]:{t}"
-    main ++ "\n\n" ++ "\n\n".intercalate foots
+    let foots := st.footnotes.toList.map fun (n, t) => s!"[^{n}]:{t}"
+    return main ++ "\n\n" ++ "\n\n".intercalate foots
 
 /--
 Drops trailing ASCII spaces (`' '`) from a string. Used to compute the "empty line" form of a
@@ -363,7 +374,7 @@ partial def inlineMarkdown [MarkdownInline i] :
   | ctx, .footnote name content => do
     let parts ← content.mapM (inlineMarkdown ctx)
     let footnoteContent := "\n".intercalate (joinInlines parts).toList
-    modify (·.push (name, footnoteContent))
+    MarkdownM.addFootnote name footnoteContent
     return #[s!"[^{name}]"]
   | _, .code str => return #[quoteCode str]
   | _, .math .display m => return #[s!"$${m}$$"]
@@ -433,3 +444,222 @@ public partial def partMarkdown [MarkdownInline i] [MarkdownBlock i b] (level : 
 
 public instance [MarkdownInline i] [MarkdownBlock i b] : ToMarkdown (Part i b p) where
   toMarkdown part := partMarkdown 0 part
+
+/--
+A renderer for custom inline elements of type `α`. It receives a renderer for inline content, the
+custom element, and the element's fallback content.
+-/
+public abbrev InlineMdRendererOf (α : Type) :=
+  (Inline ElabInline → MarkdownM (Array String)) → α → Array (Inline ElabInline) →
+    MarkdownM (Array String)
+
+/--
+A renderer for custom block elements of type `α`. It receives renderers for inline and block
+content, the custom element, and the element's fallback content.
+-/
+public abbrev BlockMdRendererOf (α : Type) :=
+  (Inline ElabInline → MarkdownM (Array String)) →
+    (Block ElabInline ElabBlock → MarkdownM (Array String)) →
+    α → Array (Block ElabInline ElabBlock) → MarkdownM (Array String)
+
+/--
+Renders a custom inline element to Markdown. It receives a renderer for inline content, the saved
+`Dynamic` description of the custom element, and the element's fallback content.
+-/
+public abbrev InlineMdRenderer := InlineMdRendererOf Dynamic
+
+/--
+Renders a custom block element to Markdown. It receives renderers for inline and block content, the
+saved `Dynamic` description of the custom element, and the element's fallback content.
+-/
+public abbrev BlockMdRenderer := BlockMdRendererOf Dynamic
+
+/--
+Wraps a typed inline renderer as an `InlineMdRenderer` by decoding the `Dynamic` custom element as
+`α`.
+-/
+public def mkInlineMdRenderer (α : Type) [TypeName α] (f : InlineMdRendererOf α) : InlineMdRenderer :=
+  fun go val content =>
+    match val.get? α with
+    | some x => f go x content
+    | none => return joinInlines (← content.mapM go)
+
+/--
+Wraps a typed block renderer as a `BlockMdRenderer` by decoding the `Dynamic` custom element as `α`.
+-/
+public def mkBlockMdRenderer (α : Type) [TypeName α] (f : BlockMdRendererOf α) : BlockMdRenderer :=
+  fun goI goB val content =>
+    match val.get? α with
+    | some x => f goI goB x content
+    | none => return joinBlocks (← content.mapM goB)
+
+/--
+A set of registered Markdown renderers, keyed by custom element type names.
+-/
+public structure MdRendererState where
+  /-- Renderers registered in imported modules. -/
+  imported : NameMap Name := {}
+  /-- Renderers registered in the current module. -/
+  current : NameMap Name := {}
+  deriving Inhabited
+
+private def foldEntries (init : NameMap Name) (es : Array (Array (Name × Name))) : NameMap Name :=
+  es.foldl (init := init) fun m arr =>
+    arr.foldl (init := m) fun m (tag, w) =>
+      m.insert tag w
+
+/-- Registry for custom inline element renderers that maps element type names to renderer names. -/
+public builtin_initialize docInlineMdExt :
+    PersistentEnvExtension (Name × Name) (Name × Name) MdRendererState ←
+  registerPersistentEnvExtension {
+    mkInitial := pure {}
+    addImportedFn := fun es => return { imported := foldEntries {} es }
+    addEntryFn := fun s (tag, w) => { s with current := s.current.insert tag w }
+    exportEntriesFn := fun s => s.current.toArray
+  }
+
+/-- Registry for custom block element renderers that maps element type names to renderer names. -/
+public builtin_initialize docBlockMdExt :
+    PersistentEnvExtension (Name × Name) (Name × Name) MdRendererState ←
+  registerPersistentEnvExtension {
+    mkInitial := pure {}
+    addImportedFn := fun es => return { imported := foldEntries {} es }
+    addEntryFn := fun s (tag, w) => { s with current := s.current.insert tag w }
+    exportEntriesFn := fun s => s.current.toArray
+  }
+
+/-- Builtin inline renderers, for bootstrapping. -/
+builtin_initialize builtinInlineMdRenderers : IO.Ref (NameMap InlineMdRenderer) ← IO.mkRef {}
+
+/-- Builtin block renderers, for bootstrapping. -/
+builtin_initialize builtinBlockMdRenderers : IO.Ref (NameMap BlockMdRenderer) ← IO.mkRef {}
+
+/-- Registers a builtin inline Markdown renderer. -/
+public def addBuiltinInlineMdRenderer (type : Name) (r : InlineMdRenderer) : IO Unit :=
+  builtinInlineMdRenderers.modify (·.insert type r)
+
+/-- Registers a builtin block Markdown renderer. -/
+public def addBuiltinBlockMdRenderer (type : Name) (r : BlockMdRenderer) : IO Unit :=
+  builtinBlockMdRenderers.modify (·.insert type r)
+
+private unsafe def inlineRendererForUnsafe (type : Name) : CoreM (Option InlineMdRenderer) := do
+  let s := docInlineMdExt.getState (← getEnv)
+  match s.current.find? type <|> s.imported.find? type with
+  | some d => return some (← evalConst InlineMdRenderer d)
+  | none => return (← builtinInlineMdRenderers.get).find? type
+
+/-- Looks up the inline Markdown renderer registered for `typeName`, if any. -/
+@[implemented_by inlineRendererForUnsafe]
+public opaque inlineRendererFor (typeName : Name) : CoreM (Option InlineMdRenderer)
+
+private unsafe def blockRendererForUnsafe (typeName : Name) : CoreM (Option BlockMdRenderer) := do
+  let s := docBlockMdExt.getState (← getEnv)
+  match s.current.find? typeName <|> s.imported.find? typeName with
+  | some d => return some (← evalConst BlockMdRenderer d)
+  | none => return (← builtinBlockMdRenderers.get).find? typeName
+
+/-- Looks up the block Markdown renderer registered for `typeName`, if any. -/
+@[implemented_by blockRendererForUnsafe]
+public opaque blockRendererFor (typeName : Name) : CoreM (Option BlockMdRenderer)
+
+/--
+A small, fixed heartbeat budget applied afresh to each custom element renderer.
+
+Docstrings are rendered constantly (e.g. on every hover), and renderers may run arbitrary `MetaM`,
+so this bounds the work any single element can impose.
+-/
+public def mdRendererHeartbeats : Nat := 200000
+
+/--
+Runs an element renderer with a fresh `mdRendererHeartbeats` budget.
+
+The budget applies to each renderer separately.
+-/
+public def withMdRendererBudget (x : MarkdownM α) : MarkdownM α := do
+  let now ← IO.getNumHeartbeats
+  withTheReader Core.Context
+    ({ · with maxHeartbeats := mdRendererHeartbeats, initHeartbeats := now }) x
+
+/--
+Runs a renderer with a fallback.
+
+If the renderer fails or exceeds its heartbeat budget, then the fallback content is rendered
+instead.
+-/
+public def withRendererFallback (fallback : MarkdownM (Array String)) (act : MarkdownM (Array String)) :
+    MarkdownM (Array String) := do
+  -- `tryCatchRuntimeEx` catches ordinary errors and runtime timeouts (the heartbeat budget) while
+  -- letting interrupts (cancellation) propagate so the enclosing request still aborts. On failure
+  -- the state is restored so any partial output the renderer accumulated (e.g. footnotes) is
+  -- discarded before the fallback content is rendered.
+  let saved ← getThe MarkdownM.State
+  tryCatchRuntimeEx (withMdRendererBudget act) fun _ => do
+    set saved
+    fallback
+
+public instance : MarkdownInline ElabInline where
+  toMarkdown go container content := do
+    let fallback := do return joinInlines (← content.mapM go)
+    match container with
+    | .deferred _ => fallback
+    | .custom val =>
+      match (← inlineRendererFor val.typeName) with
+      | some r => withRendererFallback fallback (r go val content)
+      | none => fallback
+
+public instance : MarkdownBlock ElabInline ElabBlock where
+  toMarkdown goI goB container content := do
+    let fallback := do return joinBlocks (← content.mapM goB)
+    match container with
+    | .deferred _ => fallback
+    | .custom val =>
+      match (← blockRendererFor val.typeName) with
+      | some r => withRendererFallback fallback (r goI goB val content)
+      | none => fallback
+
+open Lean Doc ToMarkdown in
+public instance : ToMarkdown Lean.VersoDocString where
+  toMarkdown
+    | { text, subsections } => do
+      let blockLines ← text.mapM toMarkdown
+      let partLines ← subsections.mapM toMarkdown
+      return joinBlocks (blockLines ++ partLines)
+
+open Lean Doc ToMarkdown in
+public instance : ToMarkdown Lean.VersoModuleDocs.Snippet where
+  toMarkdown
+    | {text, sections, ..} => do
+      let textBlocks ← text.mapM toMarkdown
+      let sectionBlocks ← sections.mapM fun (level, _, part) => partMarkdown level part
+      return joinBlocks (textBlocks ++ sectionBlocks)
+
+/--
+Runs a Markdown-rendering action against an environment, building a minimal `CoreM` context.
+-/
+public def runMarkdown (env : Environment) (act : CoreM α)
+    (options : Options := {}) (currNamespace : Name := .anonymous)
+    (openDecls : List OpenDecl := []) (cancelTk? : Option IO.CancelToken := none) : IO α :=
+  Lean.Core.CoreM.toIO' act
+    { fileName := "<docstring>", fileMap := default, options, currNamespace, openDecls, cancelTk? }
+    { env }
+
+end Doc
+
+/--
+Finds a docstring without performing any alias resolution or enrichment with extra metadata. The
+result is rendered as Markdown.
+
+Docstrings to be shown to a user should be looked up with `Lean.findDocString?` instead.
+-/
+public def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin := true)
+    (options : Options := {}) (currNamespace : Name := .anonymous)
+    (openDecls : List OpenDecl := []) (cancelTk? : Option IO.CancelToken := none) :
+    IO (Option String) := do
+  match (← findInternalDocString? env declName (includeBuiltin := includeBuiltin)) with
+  | some (.inl str) => return some str
+  | some (.inr verso) =>
+    let act := Doc.ToMarkdown.toMarkdown verso
+    return some (← Doc.runMarkdown env (Doc.MarkdownM.run' act) options currNamespace openDecls cancelTk?)
+  | none => return none
+
+end Lean

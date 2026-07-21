@@ -242,6 +242,7 @@ error: Unknown constant `b`
 Hint: Insert a fully-qualified name:
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲S̲t̲d̲.̲T̲i̲m̲e̲.̲M̲o̲d̲i̲f̲i̲e̲r̲.̲b̲)̲}`b`
 -/
 #guard_msgs in
 /--
@@ -309,13 +310,15 @@ error: Unknown attribute `int`
 Hint: Use a known attribute:
   • ini̲t
   • i̵n̵e̲x̲t
+  • i̵n̵t̵l̲i̲a̲
 ---
 error: Unknown attribute `samp`
 
 Hint: Use a known attribute:
   • s̵a̵m̵p̵s̲i̲m̲p̲
-  • s̵a̵m̵p̵s̲y̲m̲m̲
   • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵l̲i̲a̲
 ---
 error: Unknown attribute `inlone`
 
@@ -668,24 +671,30 @@ private def docCodeStr (dc : DocCode) : String :=
 
 private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if container.name == name then
-      if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap (findInInline name)
   | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
 
 private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
   | .other container _ =>
-    if container.name == name then
-      if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
-        #[lb.commands]
-      else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lb : Data.LeanBlock) := val.get? Data.LeanBlock then
+          #[lb.commands]
+        else if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .para inlines => inlines.flatMap (findInInline name)
   | .concat blocks | .blockquote blocks => blocks.flatMap (findInBlock name)
   | .dl items => items.flatMap fun ⟨x, y⟩ => x.flatMap (findInInline name) ++ y.flatMap (findInBlock name)
@@ -765,8 +774,10 @@ open Doc Elab
 
 private partial def findSetOptionInInline : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if let some (so : Data.SetOption) := container.val.get? Data.SetOption then
-      #[so.term]
+    if let .custom val := container then
+      if let some (so : Data.SetOption) := val.get? Data.SetOption then
+        #[so.term]
+      else #[]
     else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap findSetOptionInInline
@@ -865,8 +876,10 @@ open Doc Elab
 
 private partial def findAtomInInline : Inline ElabInline → Array (Name × Data.Atom)
   | .other container _ =>
-    if let some (a : Data.Atom) := container.val.get? Data.Atom then
-      #[(container.name, a)]
+    if let .custom val := container then
+      if let some (a : Data.Atom) := val.get? Data.Atom then
+        #[(val.typeName, a)]
+      else #[]
     else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap findAtomInInline

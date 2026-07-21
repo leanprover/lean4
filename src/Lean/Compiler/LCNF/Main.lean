@@ -139,14 +139,20 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
 
   for declName in declNames do
     if let some fnName := Compiler.getImplementedBy? (← getEnv) declName then
-      if !isDeclPublic (← getEnv) fnName then
-        if let some decl ← getLocalDeclAt? fnName .base then
-          trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
-          LCNF.markDeclPublicRec .base decl
-          if let some decl ← getLocalDeclAt? fnName .mono then
-            LCNF.markDeclPublicRec .mono decl
-            if let some decl ← getLocalDeclAt? fnName .impure then
-              LCNF.markDeclPublicRec .impure decl
+      if (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
+        -- must postpone here as well so that visibility marking happens in the correct process
+        modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := #[declName], options := ← getOptions })
+      else
+        -- Ensure the impl target is compiled first so `getLocalDeclAt?` succeeds
+        resumeCompilation fnName baseOpts
+        if !isDeclPublic (← getEnv) fnName then
+          if let some decl ← getLocalDeclAt? fnName .base then
+            trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
+            LCNF.markDeclPublicRec .base decl
+            if let some decl ← getLocalDeclAt? fnName .mono then
+              LCNF.markDeclPublicRec .mono decl
+              if let some decl ← getLocalDeclAt? fnName .impure then
+                LCNF.markDeclPublicRec .impure decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return
   for declName in declNames do

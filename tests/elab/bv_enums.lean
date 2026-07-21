@@ -36,6 +36,7 @@ info: Ex1.State.eq_iff_enumToBitVec_eq✝ (x y : State) : x = y ↔ x.enumToBitV
 #guard_msgs in
 #check State.enumToBitVec_le
 
+@[ext]
 structure Pair where
   x : BitVec 16
   s : State

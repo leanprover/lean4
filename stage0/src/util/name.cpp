@@ -357,7 +357,7 @@ optional<pair<name, unsigned>> name::is_subscripted() const {
     if (it != s.end()) return none;
 
     name prefix(get_prefix(), string_ref(s.substr(0, underscore_pos)));
-    return optional<pair<name, unsigned>>(prefix, idx);
+    return optional<pair<name, unsigned>>(std::in_place, prefix, idx);
 }
 
 name name::replace_prefix(name const & prefix, name const & new_prefix) const {

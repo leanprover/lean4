@@ -21,8 +21,12 @@ jobs:
           # never interpolated into shell commands, eval'd, or written to GITHUB_ENV/GITHUB_OUTPUT.
           script: |
             const { title, body, labels, draft } = context.payload.pull_request;
+            const changelogLabels = labels.filter(label => label.name.startsWith("changelog-"));
+            if (changelogLabels.length > 1) {
+              core.setFailed('PR must not have more than one `changelog-*` label (found: ' + changelogLabels.map(label => label.name).join(', ') + ')');
+            }
             if (!draft && /^(feat|fix):/.test(title) && !labels.some(label => label.name == "changelog-no")) {
-              if (!labels.some(label => label.name.startsWith("changelog-"))) {
+              if (changelogLabels.length === 0) {
                 core.setFailed('feat/fix PR must have a `changelog-*` label');
               }
               if (!/^This PR [^<]/.test(body)) {

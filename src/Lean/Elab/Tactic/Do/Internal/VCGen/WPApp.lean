@@ -45,12 +45,18 @@ public def Value (info : WPApp) : Expr := info.args[1]!
 public def Pred (info : WPApp) : Expr := info.args[2]!
 /-- Exception postcondition type argument of `wp`. -/
 public def EPred (info : WPApp) : Expr := info.args[3]!
+/-- Assertion-lattice instance argument of `wp`. -/
+public def instAL (info : WPApp) : Expr := info.args[4]!
+/-- Exception-assertion-lattice instance argument of `wp`. -/
+public def instEAL (info : WPApp) : Expr := info.args[5]!
 /-- `WP` instance argument of `wp`. -/
 public def instWP (info : WPApp) : Expr := info.args[6]!
 /-- Program expression classified by VCGen. -/
 public def prog (info : WPApp) : Expr := info.args[7]!
 /-- Postcondition argument of `wp`. -/
 public def post (info : WPApp) : Expr := info.args[8]!
+/-- Exception postcondition argument of `wp`. -/
+public def epost (info : WPApp) : Expr := info.args[9]!
 
 end VCGen.WPApp
 

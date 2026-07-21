@@ -257,20 +257,28 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
       | throwError "Failed to intro hoisted let"
     return some goal
 
-/-- Per-alt segment sizes of the alt telescope the body split (`mkBackwardRuleForSplit`, splitter
-form with added equalities) introduces at each jump site, computed the same way over the abstracted
-split. -/
+/-- The per-alt body-side binder segment sizes of `JPAltLayout` (`bodyFields`/`bodyOverlaps`/
+`bodyDiscrEqs`/`bodyExtraEqs`), computed the same way the actual jump-site split introduces them
+(`mkBackwardRuleForSplit`, splitter form with added equalities). `specBinders` is left `0` and filled
+by the caller from the spec-side split. -/
 private def computeBodyAltLayouts (sinfo : Lean.Elab.Tactic.Do.SplitInfo) (progTy : Expr) :
-    MetaM (Array (Nat × Nat × Nat × Nat)) := do
+    MetaM (Array JPAltLayout) := do
   match sinfo with
-  | .ite _ | .dite _ => return #[(1, 0, 0, 0), (1, 0, 0, 0)]
+  | .ite _ | .dite _ =>
+    -- The body split forces the splitter (`dite`) form, whose alt telescope is exactly the single
+    -- condition proof; the spec-side split leaves 0 alt binders, reconciled by the `min`-based pairing.
+    let one : JPAltLayout :=
+      { bodyFields := 1, bodyOverlaps := 0, bodyDiscrEqs := 0, bodyExtraEqs := 0, specBinders := 0 }
+    return #[one, one]
   | .matcher _ =>
-    let ref ← IO.mkRef (#[] : Array (Nat × Nat × Nat × Nat))
+    let ref ← IO.mkRef (#[] : Array JPAltLayout)
     discard <| sinfo.withAbstract progTy fun abstractInfo _ =>
       abstractInfo.splitWith (mkSort .zero) (useSplitter := true)
           fun _name _expAltType _idx altFVars => do
-        ref.modify (·.push (altFVars.fields.size, altFVars.overlaps.size,
-          altFVars.discrEqs.size, altFVars.extraEqs.size))
+        ref.modify (·.push
+          { bodyFields := altFVars.fields.size, bodyOverlaps := altFVars.overlaps.size
+            bodyDiscrEqs := altFVars.discrEqs.size, bodyExtraEqs := altFVars.extraEqs.size
+            specBinders := 0 })
         pure (mkConst ``True)
     ref.get
 
@@ -319,17 +327,15 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
       -- `ofProp` and `le_ofProp` share the auto-bound `l : Type u`, so this const level instantiates both.
       let predLevel := pjpBody.getAppFn.constLevels!.head!
       let tripleTy ← Meta.mkAppOptM ``Std.Internal.Do.Triple
-        #[info.Pred, info.EPred, info.Prog, info.Value, info.args[4]!, info.args[5]!,
-          mkAppN fv joinParams, info.instWP, pjpBody, Q, info.args[9]!]
+        #[info.Pred, info.EPred, info.Prog, info.Value, info.instAL, info.instEAL,
+          mkAppN fv joinParams, info.instWP, pjpBody, Q, info.epost]
       pure (← Meta.mkForallFVars joinParams tripleTy, ← Meta.mkLambdaFVars joinParams pjpBody,
         ← hypsMVarsRef.get, ← specSizesRef.get, predLevel)
 
-  let bodySizes ← liftMetaM <| computeBodyAltLayouts sinfo info.Prog
-  unless bodySizes.size == specSizes.size do
+  let bodyLayouts ← liftMetaM <| computeBodyAltLayouts sinfo info.Prog
+  unless bodyLayouts.size == specSizes.size do
     throwError "vcgen +jp: alt count mismatch between spec and body splits of{indentExpr rest}"
-  let altLayouts := bodySizes.zipWith (fun (bF, bO, bD, bE) sB =>
-    { bodyFields := bF, bodyOverlaps := bO, bodyDiscrEqs := bD, bodyExtraEqs := bE
-      specBinders := sB : JPAltLayout }) specSizes
+  let altLayouts := bodyLayouts.zipWith (fun layout sB => { layout with specBinders := sB }) specSizes
 
   -- `finalizeJPs` assigns each `?Hᵢ` the disjunction of its recorded jump payloads (`False` when
   -- no jump reaches the alt, e.g. behind an early `return` or a `throw`).

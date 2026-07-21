@@ -72,7 +72,15 @@ equation theorem cannot be discharged by assumption or reflixivity.
 See `Lean.Meta.Tactic.FunInd.buildInductionBody` and `Lean.Elab.Tactic.Do.VCGen.Split` for examples
 of how to coerce `MatherApp.transform` into doing the substitution on the motive for you.
 -/
-def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
+def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
+    (assumptionUpperBound : Nat := 0) : MetaM Simp.Result := do
+  -- Close `g` by an assumption at context index in `[assumptionLowerBound, assumptionUpperBound)`, so
+  -- the search for the congruence-equation hypotheses is confined to a window of the local context.
+  let assumptionProc (g : MVarId) : MetaM Bool := g.withContext do
+    match ← findLocalDeclWithType? (← g.getType) (lowerBound := assumptionLowerBound)
+        (upperBound := assumptionUpperBound) with
+    | some fvarId => g.assign (mkFVar fvarId); return true
+    | none => return false
   if e.isAppOf ``PSum.casesOn || e.isAppOf ``PSigma.casesOn then
     let mut e := e
     while true do
@@ -124,11 +132,11 @@ def rwMatcher (altIdx : Nat) (e : Expr) : MetaM Simp.Result := do
           if Simp.isEqnThmHypothesis hType then
             -- Using unrestricted h.substVars here does not work well; it could
             -- even introduce a dependency on the `oldIH` we want to eliminate
-            h.assumption <|> throwError "Failed to discharge `{h}`"
+            unless ← assumptionProc h do throwError "Failed to discharge `{h}`"
           else if hType.isEq then
-            h.assumption <|> h.refl <|> throwError m!"Failed to resolve `{h}`"
+            unless ← assumptionProc h do h.refl <|> throwError m!"Failed to resolve `{h}`"
           else if hType.isHEq then
-            h.assumption <|> h.hrefl <|> throwError m!"Failed to resolve `{h}`"
+            unless ← assumptionProc h do h.hrefl <|> throwError m!"Failed to resolve `{h}`"
       let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
       unless unassignedHyps.isEmpty do
         throwError m!"Not all hypotheses of `{.ofConstName eqnThm}` could be discharged: {unassignedHyps}"

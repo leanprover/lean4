@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ExprPtr
 import Lean.Meta.SynthInstance
 import Lean.Meta.Sym.SynthInstance
+import Lean.Meta.Sym.Arith.EvalNum
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Sym.Eta
@@ -459,9 +460,9 @@ where
 
   postReduce (e : Expr) : CanonM Expr := do
     if isNatArithApp e then
-      if let some e ← evalNat e |>.run then
+      if let some e ← Sym.Arith.evalNat? e |>.run then
         return mkNatLit e
-      else if let some (e, k) ← isOffset? e |>.run then
+      else if let some (e, k) ← Sym.Arith.isOffset? e |>.run then
         mkOffset e k
       else
         return e

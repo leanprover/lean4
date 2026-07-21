@@ -751,7 +751,6 @@ theorem two_mul_toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
-grind_pattern two_mul_toInt_lt => x.toInt
 
 theorem two_mul_toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
   Int.le_sub_one_of_lt two_mul_toInt_lt
@@ -779,7 +778,6 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
-grind_pattern le_two_mul_toInt => x.toInt
 
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   by_cases h : w = 0

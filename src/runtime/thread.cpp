@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <iostream>
-#include <sstream>
 #include <cstring>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
@@ -20,6 +19,7 @@ Author: Leonardo de Moura
 #include "runtime/exception.h"
 #include "runtime/alloc.h"
 #include "runtime/stack_overflow.h"
+#include "runtime/sstream.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
 #ifdef LEAN_EMSCRIPTEN

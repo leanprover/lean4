@@ -68,7 +68,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       cadical
       PREFIX cadical
       GIT_REPOSITORY https://github.com/arminbiere/cadical
-      GIT_TAG rel-3.0.0
+      GIT_TAG rel-3.0.1
       CONFIGURE_COMMAND ""
       BUILD_COMMAND
         $(MAKE) -f ${CMAKE_SOURCE_DIR}/src/cadical.mk CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}

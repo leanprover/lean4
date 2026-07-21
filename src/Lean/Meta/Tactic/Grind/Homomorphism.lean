@@ -26,35 +26,37 @@ structure State where
   and re-marking a term whose class already has a solver term re-fires `newEq`; the
   visited set also avoids repeated `inferType` calls on revisits. -/
   visited : PHashSet ExprPtr := {}
+  -- **Note**: Consider changing `mkInitial` to `CoreM`. Then, we can initialize the fields `thms`, `preds`, and `sourceTypes`
+  -- at `mkInitial` and avoid this `initialized` flag.
+  initialized : Bool := false
   /-- `[grind hom]` rules, retrieved once per goal. -/
-  thms? : Option Sym.Simp.Theorems := none
+  thms : Sym.Simp.Theorems := {}
   /-- `[grind hom_pred]` predicates, retrieved once per goal. -/
-  preds? : Option HomoPredTheorems := none
+  preds : HomoPredTheorems := {}
   /-- Head constants of the homomorphism source types, retrieved once per goal. -/
-  sourceTypes? : Option NameSet := none
+  sourceTypes : NameSet := {}
 
-builtin_initialize stateExt : SolverExtension State ← registerSolverExtension (return {})
+builtin_initialize homExt : SolverExtension State ← registerSolverExtension (return {})
+
+private def init : GoalM Unit := do
+  if (← homExt.getState).initialized then
+    return ()
+  let thms ← getHomoTheorems
+  let preds ← getHomoPredTheorems
+  let sourceTypes ← getHomoSourceTypes
+  homExt.modifyState fun s => { s with initialized := true, thms, preds, sourceTypes }
 
 private def getThms : GoalM Sym.Simp.Theorems := do
-  if let some thms := (← stateExt.getState).thms? then
-    return thms
-  let thms ← getHomoTheorems
-  stateExt.modifyState fun s => { s with thms? := some thms }
-  return thms
+  init
+  return (← homExt.getState).thms
 
 private def getPreds : GoalM HomoPredTheorems := do
-  if let some preds := (← stateExt.getState).preds? then
-    return preds
-  let preds ← getHomoPredTheorems
-  stateExt.modifyState fun s => { s with preds? := some preds }
-  return preds
+  init
+  return (← homExt.getState).preds
 
 private def getSourceTypes : GoalM NameSet := do
-  if let some tys := (← stateExt.getState).sourceTypes? then
-    return tys
-  let tys ← getHomoSourceTypes
-  stateExt.modifyState fun s => { s with sourceTypes? := some tys }
-  return tys
+  init
+  return (← homExt.getState).sourceTypes
 
 /--
 Marks `e` and its arguments as solver terms when their types are homomorphism source
@@ -71,12 +73,12 @@ private def markSourceTerm (e : Expr) : GoalM Unit := do
     markIfSource tys arg
 where
   markIfSource (tys : NameSet) (e : Expr) : GoalM Unit := do
-    if (← stateExt.getState).visited.contains { expr := e } then return ()
-    stateExt.modifyState fun s => { s with visited := s.visited.insert { expr := e } }
+    if (← homExt.getState).visited.contains { expr := e } then return ()
+    homExt.modifyState fun s => { s with visited := s.visited.insert { expr := e } }
     let τ ← inferType e
     let .const F _ := τ.getAppFn | return ()
     if tys.contains F then
-      stateExt.markTerm e
+      homExt.markTerm e
 
 /--
 Rewriter for the `[grind hom]` rules with the stop condition: `grind` internalizes
@@ -102,11 +104,11 @@ the caller.
 private def applyHomo? (e : Expr) : GoalM (Option (Expr × Expr)) := do
   let rw ← mkRewriter
   let methods : Sym.Simp.Methods := { pre := rw, post := rw }
-  let persistentCache := (← stateExt.getState).cache
-  stateExt.modifyState fun s => { s with cache := {} }
+  let persistentCache := (← homExt.getState).cache
+  homExt.modifyState fun s => { s with cache := {} }
   let (r, simpState) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) (methods := methods)
     (s := { persistentCache })
-  stateExt.modifyState fun s => { s with cache := simpState.persistentCache }
+  homExt.modifyState fun s => { s with cache := simpState.persistentCache }
   let .step e' h _ _ := r | return none
   return some (e', h)
 
@@ -117,8 +119,8 @@ resulting facts. Each term is processed at most once per goal.
 private def firePreds (e : Expr) (generation : Nat) : GoalM Unit := do
   let .const declName _ := e.getAppFn | return ()
   unless (← getPreds).contains declName do return ()
-  if (← stateExt.getState).processed.contains { expr := e } then return ()
-  stateExt.modifyState fun s => { s with processed := s.processed.insert { expr := e } }
+  if (← homExt.getState).processed.contains { expr := e } then return ()
+  homExt.modifyState fun s => { s with processed := s.processed.insert { expr := e } }
   for (proof, prop) in ← mkHomoPredInstances e do
     trace_goal[grind.homo.pred] "{prop}"
     addNewRawFact proof prop generation .input .other
@@ -183,7 +185,7 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
   addNewRawFact fact (mkNot t) generation .input .other
 
 builtin_initialize
-  stateExt.setMethods
+  homExt.setMethods
     (internalize := Homo.internalize)
     (newEq       := Homo.processNewEq)
     (newDiseq    := Homo.processNewDiseq)

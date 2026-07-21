@@ -52,7 +52,7 @@ private def getPreds : GoalM HomoPredTheorems := do
 private def getSourceTypes : GoalM NameSet := do
   if let some tys := (← stateExt.getState).sourceTypes? then
     return tys
-  let tys := (← getThms).homoSourceTypes
+  let tys ← getHomoSourceTypes
   stateExt.modifyState fun s => { s with sourceTypes? := some tys }
   return tys
 

@@ -1,7 +1,7 @@
 import Lean
 
 /-!
-Tests for the `[grind homo]`/`[grind homo_pred]` engine: homomorphism rules are applied
+Tests for the `[grind hom]`/`[grind hom_pred]` engine: homomorphism rules are applied
 during internalization (to fixpoint, outside the E-graph), and predicates are
 instantiated for terms in homomorphism normal form.
 -/
@@ -17,8 +17,8 @@ axiom wu_add (x y : W) : wu (wadd x y) = wu x + wu y
 axiom wu_eq (x y : W) : (x = y) ↔ (wu x = wu y)
 axiom wu_pos (x : W) : 0 ≤ wu x
 
-attribute [grind homo] wu_add wu_eq
-attribute [grind homo_pred] wu_pos
+attribute [grind hom] wu_add wu_eq
+attribute [grind hom_pred] wu_pos
 
 example (x y z : W) : wadd (wadd x y) z = wadd x (wadd y z) := by grind
 example (x y : W) : wadd x y = wadd y x := by grind

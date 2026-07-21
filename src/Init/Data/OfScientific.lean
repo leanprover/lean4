@@ -81,7 +81,7 @@ instance : OfNat Float n := ⟨Float.ofNat n⟩
 @[inherit_doc Float.ofNat] abbrev Nat.toFloat (n : Nat) : Float :=
   Float.ofNat n
 
-@[inherit_doc Float.ofInt] abbrev Int.toFloat (n : Nat) : Float :=
+@[inherit_doc Float.ofInt] abbrev Int.toFloat (n : Int) : Float :=
   Float.ofInt n
 
 /--

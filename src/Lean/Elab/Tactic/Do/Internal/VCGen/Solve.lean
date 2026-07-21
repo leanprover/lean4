@@ -414,7 +414,7 @@ introduced since the join point was registered (context index `≥ outerLCtxSize
 `__do_jp` let is always outer to the split whose branches jump to it, that slice holds exactly the
 enclosing split's hypotheses, so the search is bounded by the local nesting rather than the whole
 context. -/
-private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e : Expr) :
+private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
     VCGenM (Option (Nat × Expr × Array Expr × Expr × Expr)) := do
   let info := jpInfo.splitInfo
   let joinArgs := e.getAppArgs
@@ -423,7 +423,6 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e : Expr) :
     let newLocalDecls := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push
       |>.filterMap id
       |>.filter (fun decl => !decl.isImplementationDetail)
-    let matchExpr := (jpInfo.pjpBodyAbs.beta joinArgs).getAppArgs[2]!
     -- The branch hypotheses a jump needs are the enclosing split's telescope, whose length is at most
     -- `max bodyTeleLen`; the split introduces it right after the join point was registered. So confining
     -- the assumption search to `[outerLCtxSize, outerLCtxSize + maxTele)` covers every alt's full
@@ -571,21 +570,22 @@ in the size of the continuation. -/
 private def tryJPJump? (scope : Scope) (goal : MVarId) (info : WPApp) : VCGenM (Option SolveResult) := do
   let some fvId := info.prog.getAppFn.fvarId? | return none
   let some jpInfo := scope.knownJP? fvId | return none
-  let some (altIdx, payload, witnesses, redExpr, redProof) ← mkJPJumpPayload? jpInfo info.prog
+  let joinArgs := info.prog.getAppArgs
+  -- `pjpBodyAbs` is a lambda over the join params; beta-reduce so the head is `⌜·⌝` (`ofProp`).
+  -- The precondition carries no post `Q`, so this stays cheap.
+  let ofPropMatch := jpInfo.pjpBodyAbs.beta joinArgs
+  let matchExpr := ofPropMatch.getAppArgs[2]!
+  let some (altIdx, payload, witnesses, redExpr, redProof) ← mkJPJumpPayload? jpInfo info.prog matchExpr
     | return none
   goal.withContext do
     let goalTy ← goal.getType
     let_expr Lean.Order.PartialOrder.rel α inst pre zGoal := goalTy | return none
     let lvls := goalTy.getAppFn.constLevels!
     let ss := info.excessArgs
-    let joinArgs := info.prog.getAppArgs
     -- `jpProof joinArgs : Triple …` is a one-field structure; project its `⊑ wp` field (`Triple.le_wp`)
     -- before applying the excess state args, which the function-lattice `⊑` accepts pointwise.
     let jpRel := Expr.proj ``Std.Internal.Do.Triple 0 (← mkAppNS jpInfo.jpProof joinArgs)
     let jpAppliedSS ← mkAppNS jpRel ss
-    -- `pjpBodyAbs` is a lambda over the join params; beta-reduce so the head is `⌜·⌝` (`ofProp`).
-    -- The precondition carries no post `Q`, so this stays cheap.
-    let ofPropMatch := jpInfo.pjpBodyAbs.beta joinArgs
     let yBase ← mkAppNS ofPropMatch ss
     let hPreTy ← mkAppNS (mkConst ``Lean.Order.PartialOrder.rel lvls) #[α, inst, pre, yBase]
     let hPre ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar hPreTy (← goal.getTag)
@@ -594,7 +594,6 @@ private def tryJPJump? (scope : Scope) (goal : MVarId) (info : WPApp) : VCGenM (
     goal.assign proof
     -- Record the jump's precondition subgoal for `finalizeJPs`, storing the constant precondition
     -- `fun _ => pre` for the by-construction close.
-    let matchExpr := ofPropMatch.getAppArgs[2]!
     let constFn := jpInfo.stateTys.foldr (fun ty body => Expr.lam `s ty body .default) pre
     -- `ofProp` and `le_ofProp` share the auto-bound `l : Type u`, so the const's level instantiates both.
     let predLevel := ofPropMatch.getAppFn.constLevels!.head!

@@ -18,27 +18,21 @@ first. With `lowerBound > 0` and/or `upperBound > 0`, only declarations at conte
 the scan is confined to a window of the local context rather than the whole of it. -/
 def findLocalDeclWithType? (type : Expr) (lowerBound : Nat := 0) (upperBound : Nat := 0) :
     MetaM (Option FVarId) := do
+  let check (localDecl : LocalDecl) : MetaM (Option FVarId) := do
+    if localDecl.isImplementationDetail then
+      return none
+    else if (← isDefEq type localDecl.type) then
+      return some localDecl.fvarId
+    else
+      return none
   let lctx ← getLCtx
   if lowerBound == 0 && upperBound == 0 then
-    lctx.findDeclRevM? fun localDecl => do
-      if localDecl.isImplementationDetail then
-        return none
-      else if (← isDefEq type localDecl.type) then
-        return some localDecl.fvarId
-      else
-        return none
+    lctx.findDeclRevM? check
   else
     let hi := if upperBound == 0 then lctx.decls.size else min upperBound lctx.decls.size
     let slice := (lctx.decls.foldl (init := (#[] : Array (Option LocalDecl))) (start := lowerBound)
       Array.push).take (hi - lowerBound)
-    slice.findSomeRevM? fun localDecl? => do
-      let some localDecl := localDecl? | return none
-      if localDecl.isImplementationDetail then
-        return none
-      else if (← isDefEq type localDecl.type) then
-        return some localDecl.fvarId
-      else
-        return none
+    slice.findSomeRevM? fun localDecl? => localDecl?.elim (pure none) check
 
 /-- Return `true` if managed to close goal `mvarId` using an assumption. -/
 def _root_.Lean.MVarId.assumptionCore (mvarId : MVarId) : MetaM Bool :=

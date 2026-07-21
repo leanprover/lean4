@@ -19,7 +19,7 @@ modular wrappers produced by the `BitVec.toNat` injection.
 
 attribute [grind hom]
   Nat.shiftLeft_eq Nat.shiftRight_eq_div_pow
-  Nat.mod_add_mod Nat.add_mod_mod Nat.mod_mul_mod Nat.mul_mod_mod
+  Nat.mod_add_mod Nat.add_mod_mod Nat.mod_mul_mod Nat.mul_mod_mod Nat.zero_mod
   Nat.testBit_and Nat.testBit_or Nat.testBit_xor
   Nat.testBit_shiftLeft Nat.testBit_shiftRight
   Nat.zero_testBit Nat.testBit_one_eq_true_iff_self_eq_zero

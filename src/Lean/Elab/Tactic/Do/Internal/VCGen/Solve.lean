@@ -300,7 +300,7 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let outerLCtx ← liftMetaM getLCtx
   let outerLocalInsts ← liftMetaM getLocalInstances
   let instCL ← liftMetaM <| Meta.synthInstance (← Meta.mkAppM ``Lean.Order.CompleteLattice #[info.Pred])
-  let (bodyTy, hypsMVars, specSizes) ← liftMetaM <|
+  let (bodyTy, pjpBodyAbs, hypsMVars, specSizes) ← liftMetaM <|
     Meta.forallBoundedTelescope joinTy numJoinParams fun joinParams _ => do
       let hypsMVarsRef ← IO.mkRef (#[] : Array MVarId)
       let specSizesRef ← IO.mkRef (#[] : Array Nat)
@@ -319,7 +319,8 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
       let tripleTy ← Meta.mkAppOptM ``Std.Internal.Do.Triple
         #[info.Pred, info.EPred, info.Prog, info.Value, info.args[4]!, info.args[5]!,
           mkAppN fv joinParams, info.instWP, pjpBody, Q, info.args[9]!]
-      pure (← Meta.mkForallFVars joinParams tripleTy, ← hypsMVarsRef.get, ← specSizesRef.get)
+      pure (← Meta.mkForallFVars joinParams tripleTy, ← Meta.mkLambdaFVars joinParams pjpBody,
+        ← hypsMVarsRef.get, ← specSizesRef.get)
 
   let bodySizes ← liftMetaM <| computeBodyAltLayouts sinfo info.Prog
   unless bodySizes.size == specSizes.size do
@@ -337,13 +338,12 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   -- keeping the shared continuation proof in one `let` binding that survives proof-term instantiation.
   let restGoal ← liftMetaM <| restGoal.define `jpProof bodyTy bodyMV
   let (jpProofFVar, restGoal) ← liftMetaM <| restGoal.intro1P
-  let some joinSpec ← liftMetaM <| restGoal.withContext <| SpecAttr.mkSpecTheoremFromLocal jpProofFVar
-    | return some (.goalsInScope scope [restGoal])
 
   let outerLCtxSize := (← restGoal.getDecl).lctx.numIndices
-  let jpDefInfo : JPDefInfo := { hypsMVars, splitInfo := sinfo, outerLCtxSize, altLayouts }
+  let jpDefInfo : JPDefInfo :=
+    { jpProof := .fvar jpProofFVar, pjpBodyAbs, hypsMVars, splitInfo := sinfo, outerLCtxSize, altLayouts }
   -- `bodyMV` keeps the original scope so its own head is not treated as a JP.
-  let restScope := (scope.insertSpec joinSpec).registerJP fvId jpDefInfo
+  let restScope := scope.registerJP fvId jpDefInfo
   return some (.goals [(restScope, restGoal), (scope, bodyMV.mvarId!)])
 
 /-- Strategy 11b: split an `ite`/`dite`/match program, or iota-reduce a matcher with a concrete
@@ -587,6 +587,39 @@ public def finalizeJPs : VCGenM Unit := do
         mv.assign (← Meta.mkLambdaFVars bs φ)
     for h : i in [:records.size] do
       dischargeJPJump sctx records[i] i records.size
+
+/-- Close a JP jump `fv joinArgs` directly against the join point's body proof, bypassing the spec
+and backward-rule machinery. Join points are tail-called, so the use-site post equals the body's post
+up to definitional equality; the proof is `rel_trans hPre (jpProof joinArgs ss)` with `hPre` the
+recorded precondition VC `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss`, and the post equality is left to the kernel.
+Building the proof term touches neither the post nor a discrimination-tree pattern, so it stays O(1)
+in the size of the continuation. -/
+private def tryJPJump? (scope : Scope) (goal : MVarId) (info : WPApp) : VCGenM (Option SolveResult) := do
+  let some fvId := info.prog.getAppFn.fvarId? | return none
+  let some jpInfo := scope.knownJP? fvId | return none
+  let some (altIdx, payload, witnesses) ← mkJPJumpPayload? jpInfo info.prog | return none
+  goal.withContext do
+    let goalTy ← goal.getType
+    let_expr Lean.Order.PartialOrder.rel α inst pre zGoal := goalTy | return none
+    let lvls := goalTy.getAppFn.constLevels!
+    let ss := info.excessArgs
+    let joinArgs := info.prog.getAppArgs
+    -- `jpProof joinArgs : Triple …` is a one-field structure; project its `⊑ wp` field (`Triple.le_wp`)
+    -- before applying the excess state args, which the function-lattice `⊑` accepts pointwise.
+    let jpRel := Expr.proj ``Std.Internal.Do.Triple 0 (← mkAppNS jpInfo.jpProof joinArgs)
+    let jpAppliedSS ← mkAppNS jpRel ss
+    -- `pjpBodyAbs` is a lambda over the join params; beta-reduce so the head is `⌜·⌝` (`ofProp`), which
+    -- `tryDeferJPPrecond` matches. The precondition carries no post `Q`, so this stays cheap.
+    let yBase ← mkAppNS (jpInfo.pjpBodyAbs.beta joinArgs) ss
+    let hPreTy ← mkAppNS (mkConst ``Lean.Order.PartialOrder.rel lvls) #[α, inst, pre, yBase]
+    let hPre ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar hPreTy (← goal.getTag)
+    let proof ← mkAppNS (mkConst ``Lean.Order.PartialOrder.rel_trans lvls)
+      #[α, inst, pre, yBase, zGoal, hPre, jpAppliedSS]
+    goal.assign proof
+    let hypsMVar := jpInfo.hypsMVars[altIdx]!
+    unless ← tryDeferJPPrecond hPre.mvarId! hypsMVar altIdx payload witnesses do
+      throwError "vcgen +jp: jump{indentExpr info.prog}\nyielded no precondition subgoal to defer"
+    return some (.goalsInScope scope [])
 
 /-- Select the highest-priority `@[spec]` theorem matching `prog`, or a stop result when none matches.
 Hands `findSpecs` the sole reference to the spec database so its in-place pattern internalization does
@@ -890,6 +923,9 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
     if let some g ← wpHeadReduce? goal info then
       VCGen.burnOne
       return .goalsInScope scope [g]
+    if let some r ← tryJPJump? scope goal info then
+      VCGen.burnOne
+      return r
     let f := info.prog.getAppFn
     if f.isConst || f.isFVar then
       VCGen.burnOne

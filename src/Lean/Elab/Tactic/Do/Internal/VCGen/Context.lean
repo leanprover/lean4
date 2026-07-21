@@ -156,6 +156,12 @@ public def JPAltLayout.bodyTeleLen (l : JPAltLayout) : Nat :=
 the JP's synthetic spec is registered and consulted at each jump site to build the jump's payload
 for the alt-specific precondition mvar `hypsMVars[altIdx]`. -/
 public structure JPDefInfo where
+  /-- The join point's body proof, `∀ joinParams, Triple ⌜match discrs => ?Hᵢ⌝ (fv joinParams) Q`,
+  bound as a local hypothesis. Each jump is closed by `rel_trans` against `jpProof joinArgs`. -/
+  jpProof : Expr
+  /-- The precondition abstracted over the join params, `fun joinParams => ⌜match discrs => ?Hᵢ⌝`.
+  Applied at each jump to form the mid-point of the `rel_trans`, avoiding a walk over the post `Q`. -/
+  pjpBodyAbs : Expr
   /-- Per-alt synthetic-opaque precondition mvars. Each has type
   `(joinParams ++ altParams) → Prop`, assigned by `finalizeJPs`. -/
   hypsMVars : Array MVarId

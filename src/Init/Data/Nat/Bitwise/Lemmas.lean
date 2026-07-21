@@ -501,7 +501,6 @@ theorem bitwise_mod_two_pow (of_false_false : f false false = false := by rfl) :
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem and_comm (x y : Nat) : x &&& y = y &&& x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_comm]
@@ -509,12 +508,6 @@ protected theorem and_comm (x y : Nat) : x &&& y = y &&& x := by
 protected theorem and_assoc (x y z : Nat) : (x &&& y) &&& z = x &&& (y &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_assoc]
-
-grind_pattern Nat.and_assoc => (x &&& y) &&& z where
-  x =/= 0; y =/= 0; z =/= 0
-
-grind_pattern Nat.and_assoc => x &&& (y &&& z) where
-  x =/= 0; y =/= 0; z =/= 0
 
 instance : Std.Associative (α := Nat) (· &&& ·) where
   assoc := Nat.and_assoc
@@ -577,12 +570,10 @@ theorem and_mod_two_pow : (a &&& b) % 2 ^ n = (a % 2 ^ n) &&& (b % 2 ^ n) :=
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem or_comm (x y : Nat) : x ||| y = y ||| x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_comm]
 
-@[grind _=_]
 protected theorem or_assoc (x y z : Nat) : (x ||| y) ||| z = x ||| (y ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_assoc]
@@ -662,12 +653,10 @@ theorem or_pos_iff {n m : Nat} : 0 < n ||| m ↔ 0 < n ∨ 0 < m := by
    apply Nat.eq_of_testBit_eq
    simp
 
-@[grind =]
 protected theorem xor_comm (x y : Nat) : x ^^^ y = y ^^^ x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.xor_comm]
 
-@[grind _=_]
 protected theorem xor_assoc (x y z : Nat) : (x ^^^ y) ^^^ z = x ^^^ (y ^^^ z) := by
    apply Nat.eq_of_testBit_eq
    simp

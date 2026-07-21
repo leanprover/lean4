@@ -431,11 +431,11 @@ return v_a_94_;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_Gate_eval___boxed(lean_object* v_x_98_, lean_object* v_a_99_, lean_object* v_a_100_){
 _start:
 {
-uint8_t v_x_237__boxed_101_; uint8_t v_a_238__boxed_102_; uint8_t v_a_239__boxed_103_; uint8_t v_res_104_; lean_object* v_r_105_; 
-v_x_237__boxed_101_ = lean_unbox(v_x_98_);
-v_a_238__boxed_102_ = lean_unbox(v_a_99_);
-v_a_239__boxed_103_ = lean_unbox(v_a_100_);
-v_res_104_ = l_Std_Tactic_BVDecide_Gate_eval(v_x_237__boxed_101_, v_a_238__boxed_102_, v_a_239__boxed_103_);
+uint8_t v_x_229__boxed_101_; uint8_t v_a_230__boxed_102_; uint8_t v_a_231__boxed_103_; uint8_t v_res_104_; lean_object* v_r_105_; 
+v_x_229__boxed_101_ = lean_unbox(v_x_98_);
+v_a_230__boxed_102_ = lean_unbox(v_a_99_);
+v_a_231__boxed_103_ = lean_unbox(v_a_100_);
+v_res_104_ = l_Std_Tactic_BVDecide_Gate_eval(v_x_229__boxed_101_, v_a_230__boxed_102_, v_a_231__boxed_103_);
 v_r_105_ = lean_box(v_res_104_);
 return v_r_105_;
 }
@@ -956,9 +956,9 @@ return v___x_301_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter___redArg___boxed(lean_object* v_x_302_, lean_object* v_h__1_303_, lean_object* v_h__2_304_, lean_object* v_h__3_305_, lean_object* v_h__4_306_){
 _start:
 {
-uint8_t v_x_46__boxed_307_; lean_object* v_res_308_; 
-v_x_46__boxed_307_ = lean_unbox(v_x_302_);
-v_res_308_ = l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter___redArg(v_x_46__boxed_307_, v_h__1_303_, v_h__2_304_, v_h__3_305_, v_h__4_306_);
+uint8_t v_x_42__boxed_307_; lean_object* v_res_308_; 
+v_x_42__boxed_307_ = lean_unbox(v_x_302_);
+v_res_308_ = l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter___redArg(v_x_42__boxed_307_, v_h__1_303_, v_h__2_304_, v_h__3_305_, v_h__4_306_);
 return v_res_308_;
 }
 }
@@ -1013,9 +1013,9 @@ return v___x_322_;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter___boxed(lean_object* v_motive_323_, lean_object* v_x_324_, lean_object* v_h__1_325_, lean_object* v_h__2_326_, lean_object* v_h__3_327_, lean_object* v_h__4_328_){
 _start:
 {
-uint8_t v_x_65__boxed_329_; lean_object* v_res_330_; 
-v_x_65__boxed_329_ = lean_unbox(v_x_324_);
-v_res_330_ = l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter(v_motive_323_, v_x_65__boxed_329_, v_h__1_325_, v_h__2_326_, v_h__3_327_, v_h__4_328_);
+uint8_t v_x_61__boxed_329_; lean_object* v_res_330_; 
+v_x_61__boxed_329_ = lean_unbox(v_x_324_);
+v_res_330_ = l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter(v_motive_323_, v_x_61__boxed_329_, v_h__1_325_, v_h__2_326_, v_h__3_327_, v_h__4_328_);
 return v_res_330_;
 }
 }

@@ -169,6 +169,105 @@ def getStructId? (type : Expr) : GoalM (Option Nat) := do
     return id?
 where
   go? : GoalM (Option Nat) := do
+    if type.isAppOfArity ``Grind.IntModule.OfNatModule.Q 2 then
+      goQ? type.appFn!.appArg! type.appArg!
+    else
+      goCore?
+  /-
+  Fast path for `grind`'s internal envelope type `IntModule.OfNatModule.Q base`.
+  Motivation: synthesizing `IntModule.OfNatModule.Q base` instances is very expensive in Mathlib.
+  We construct the instances manually to avoid the overhead.
+  -/
+  goQ? (base natModuleInst : Expr) : GoalM (Option Nat) := do
+    let some u ← getDecLevel? base | return none
+    -- `base`-level premises. These queries are shared with `getNatStructId?` via the
+    -- `synthInstance` cache.
+    let leInst? ← getInst? ``LE u base
+    let isPreorderInst? ← mkIsPreorderInst? u base leInst?
+    let orderedAddInst? ← match leInst?, isPreorderInst? with
+      | some leInst, some isPreorderInst =>
+        let addInst ← getBinHomoInst ``HAdd u base
+        synthInstance? <| mkApp4 (mkConst ``Grind.OrderedAdd [u]) base addInst leInst isPreorderInst
+      | _, _ => pure none
+    let ordPremises? : Option (Expr × Expr × Expr) := do
+      return (← leInst?, ← isPreorderInst?, ← orderedAddInst?)
+    let mkQOrderInst (declName : Name) (le mid ord : Expr) : Expr :=
+      mkApp5 (mkConst declName [u]) base natModuleInst le mid ord
+    let leInstQ? := ordPremises?.map fun (le, pre, ord) =>
+      mkQOrderInst ``Grind.IntModule.OfNatModule.instLEQOfOrderedAdd le pre ord
+    let ltInstQ? := ordPremises?.map fun (le, pre, ord) =>
+      mkQOrderInst ``Grind.IntModule.OfNatModule.instLTQOfOrderedAdd le pre ord
+    let isPreorderInstQ? := ordPremises?.map fun (le, pre, ord) =>
+      mkQOrderInst ``Grind.IntModule.OfNatModule.instIsPreorderQ le pre ord
+    let orderedAddInstQ? := ordPremises?.map fun (le, pre, ord) =>
+      mkQOrderInst ``Grind.IntModule.OfNatModule.instOrderedAddQ le pre ord
+    -- `LT (Q base)` is implemented via `≤`, so the classical instance applies.
+    let lawfulOrderLTInstQ? := leInstQ?.map fun leInstQ =>
+      mkApp2 (mkConst ``Classical.Order.instLawfulOrderLT [u]) type leInstQ
+    let isLinearInstQ? ← match ordPremises? with
+      | some (le, _, ord) =>
+        let isLinearInst? ← mkIsLinearOrderInst? u base leInst?
+        pure <| isLinearInst?.map fun lin =>
+          mkQOrderInst ``Grind.IntModule.OfNatModule.instIsLinearOrderQ le lin ord
+      | none => pure none
+    let noNatDivInstQ? ← do
+      -- Premises of `instNoNatZeroDivisorsQOfAddRightCancel`.
+      let some addInst ← synthInstance? (mkApp (mkConst ``Add [u]) base) | pure none
+      let some addRightCancelInst ← synthInstance? (mkApp2 (mkConst ``Grind.AddRightCancel [u]) base addInst) | pure none
+      let some noNatDivInst ← synthInstance? (mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) base natModuleInst) | pure none
+      pure <| some <| mkApp4 (mkConst ``Grind.IntModule.OfNatModule.instNoNatZeroDivisorsQOfAddRightCancel [u])
+        base natModuleInst addRightCancelInst noNatDivInst
+    let intModuleInst := mkApp2 (mkConst ``Grind.IntModule.OfNatModule.ofNatModule [u]) base natModuleInst
+    let addCommGroupInst := mkApp2 (mkConst ``Grind.IntModule.toAddCommGroup [u]) type intModuleInst
+    let addCommMonoidInst := mkApp2 (mkConst ``Grind.AddCommGroup.toAddCommMonoid [u]) type addCommGroupInst
+    let zeroInst := mkApp2 (mkConst ``Grind.AddCommMonoid.toZero [u]) type addCommMonoidInst
+    let ofNatZeroInst := mkApp2 (mkConst ``Zero.toOfNat0 [u]) type zeroInst
+    let addInst := mkApp2 (mkConst ``instHAdd [u]) type (mkApp2 (mkConst ``Grind.AddCommMonoid.toAdd [u]) type addCommMonoidInst)
+    let subInst := mkApp2 (mkConst ``instHSub [u]) type (mkApp2 (mkConst ``Grind.AddCommGroup.toSub [u]) type addCommGroupInst)
+    let negInst := mkApp2 (mkConst ``Grind.AddCommGroup.toNeg [u]) type addCommGroupInst
+    let zsmulInst := mkApp3 (mkConst ``instHSMul [0, u]) Int.mkType type (mkApp2 (mkConst ``Grind.IntModule.zsmul [u]) type intModuleInst)
+    let nsmulInst := mkApp3 (mkConst ``instHSMul [0, u]) Nat.mkType type (mkApp2 (mkConst ``Grind.IntModule.nsmul [u]) type intModuleInst)
+    -- Register the constructed instances so that `Sym.synthInstance?` (and hence `canon`'s
+    -- instance resynthesis) returns them without running typeclass resolution.
+    registerInstance (mkApp (mkConst ``Grind.IntModule [u]) type) intModuleInst
+    registerInstance (mkApp (mkConst ``Zero [u]) type) zeroInst
+    registerInstance (mkApp2 (mkConst ``OfNat [u]) type (mkRawNatLit 0)) ofNatZeroInst
+    registerInstance (mkApp3 (mkConst ``HAdd [u, u, u]) type type type) addInst
+    registerInstance (mkApp3 (mkConst ``HSub [u, u, u]) type type type) subInst
+    registerInstance (mkApp (mkConst ``Neg [u]) type) negInst
+    registerInstance (mkApp3 (mkConst ``HSMul [0, u, u]) Int.mkType type type) zsmulInst
+    registerInstance (mkApp3 (mkConst ``HSMul [0, u, u]) Nat.mkType type type) nsmulInst
+    if let some leInstQ := leInstQ? then
+      registerInstance (mkApp (mkConst ``LE [u]) type) leInstQ
+    if let some ltInstQ := ltInstQ? then
+      registerInstance (mkApp (mkConst ``LT [u]) type) ltInstQ
+    let zero ← internalizeConst <| mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
+    let ofNatZero ← preprocess <| mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0) ofNatZeroInst
+    let addFn ← internalizeFn <| mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type addInst
+    let subFn ← internalizeFn <| mkApp4 (mkConst ``HSub.hSub [u, u, u]) type type type subInst
+    let negFn ← internalizeFn <| mkApp2 (mkConst ``Neg.neg [u]) type negInst
+    let zsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Int.mkType type type zsmulInst
+    let nsmulFn ← internalizeFn <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) Nat.mkType type type nsmulInst
+    let leFn? ← leInstQ?.mapM fun leInstQ =>
+      internalizeFn <| mkApp2 (mkConst ``LE.le [u]) type leInstQ
+    let ltFn? ← ltInstQ?.mapM fun ltInstQ =>
+      internalizeFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInstQ
+    let id := (← get').structs.size
+    let struct : Struct := {
+      id, type, u, intModuleInst,
+      leInst? := leInstQ?, ltInst? := ltInstQ?, lawfulOrderLTInst? := lawfulOrderLTInstQ?,
+      isPreorderInst? := isPreorderInstQ?, orderedAddInst? := orderedAddInstQ?,
+      isLinearInst? := isLinearInstQ?, noNatDivInst? := noNatDivInstQ?,
+      leFn?, ltFn?, addFn, subFn, negFn, zsmulFn, nsmulFn,
+      zsmulFn? := some zsmulFn, nsmulFn? := some nsmulFn,
+      zero, ofNatZero, one? := none,
+      ringInst? := none, commRingInst? := none, orderedRingInst? := none, charInst? := none,
+      ringId? := none, fieldInst? := none, homomulFn? := none
+    }
+    modify' fun s => { s with structs := s.structs.push struct }
+    return some id
+
+  goCore? : GoalM (Option Nat) := do
     let some u ← getDecLevel? type | return none
     let ringId? ← CommRing.getCommRingId? type
     let leInst? ← getInst? ``LE u type

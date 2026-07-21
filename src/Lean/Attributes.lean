@@ -458,7 +458,6 @@ builtin_initialize attributeExtension : AttributeExtension ←
   }
 
 /-- Return true iff `n` is the name of a registered attribute. -/
-@[export lean_is_attribute]
 def isBuiltinAttribute (n : Name) : IO Bool := do
   let m ← attributeMapRef.get; pure (m.contains n)
 
@@ -471,11 +470,6 @@ def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   match m[attrName]? with
   | some attr => pure attr
   | none      => throw (IO.userError s!"Unknown attribute `{attrName}`")
-
-@[export lean_attribute_application_time]
-def getBuiltinAttributeApplicationTime (n : Name) : IO AttributeApplicationTime := do
-  let attr ← getBuiltinAttributeImpl n
-  pure attr.applicationTime
 
 def isAttribute (env : Environment) (attrName : Name) : Bool :=
   (attributeExtension.getState env).map.contains attrName

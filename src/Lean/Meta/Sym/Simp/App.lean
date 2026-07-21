@@ -12,7 +12,7 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.CongrInfo
 import Init.Omega
 namespace Lean.Meta.Sym.Simp
-open Internal
+open Lean.Meta.Sym.Internal
 
 /-!
 # Simplifying Application Arguments and Congruence Lemma Application

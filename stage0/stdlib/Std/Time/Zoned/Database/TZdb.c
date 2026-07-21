@@ -229,7 +229,6 @@ v_a_14_ = lean_ctor_get(v___x_5_, 0);
 lean_inc(v_a_14_);
 lean_dec_ref_known(v___x_5_, 1);
 v___x_15_ = l_Std_Time_TimeZone_convertTZif(v_a_14_, v_id_3_);
-lean_dec(v_a_14_);
 return v___x_15_;
 }
 }

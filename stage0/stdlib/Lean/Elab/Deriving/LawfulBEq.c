@@ -2288,9 +2288,9 @@ return v___x_845_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_LawfulBEq_0__Lean_Elab_Deriving_LawfulBEq_mkLawfulBEqInstanceHandler___lam__0___boxed(lean_object* v_____do__lift_846_, lean_object* v___y_847_, lean_object* v___y_848_, lean_object* v___y_849_){
 _start:
 {
-uint8_t v_____do__lift_1736__boxed_850_; lean_object* v_res_851_; 
-v_____do__lift_1736__boxed_850_ = lean_unbox(v_____do__lift_846_);
-v_res_851_ = l___private_Lean_Elab_Deriving_LawfulBEq_0__Lean_Elab_Deriving_LawfulBEq_mkLawfulBEqInstanceHandler___lam__0(v_____do__lift_1736__boxed_850_, v___y_847_, v___y_848_);
+uint8_t v_____do__lift_1737__boxed_850_; lean_object* v_res_851_; 
+v_____do__lift_1737__boxed_850_ = lean_unbox(v_____do__lift_846_);
+v_res_851_ = l___private_Lean_Elab_Deriving_LawfulBEq_0__Lean_Elab_Deriving_LawfulBEq_mkLawfulBEqInstanceHandler___lam__0(v_____do__lift_1737__boxed_850_, v___y_847_, v___y_848_);
 lean_dec(v___y_848_);
 lean_dec_ref(v___y_847_);
 return v_res_851_;

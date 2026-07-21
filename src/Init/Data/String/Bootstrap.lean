@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.ByteArray.Bootstrap
+public import Init.Data.UInt.BasicAux
 import Init.Data.Char.Basic
 
 public section
@@ -29,7 +30,7 @@ Examples:
 * `"abc".push 'd' = "abcd"`
 * `"".push 'a' = "a"`
 -/
-@[extern "lean_string_push", expose]
+@[extern "lean_string_push", expose, implicit_reducible]
 def push : String → Char → String
   | ⟨b, h⟩, c => ⟨b.append (List.utf8Encode [c]), ?pf⟩
 where finally
@@ -48,7 +49,7 @@ Examples:
  * `String.singleton '"' = "\""`
  * `String.singleton '𝒫' = "𝒫"`
 -/
-@[inline, expose] def singleton (c : Char) : String :=
+@[inline, expose, implicit_reducible] def singleton (c : Char) : String :=
   "".push c
 
 end String
@@ -136,6 +137,13 @@ opaque dropRight (s : String) (n : Nat) : String
 @[extern "lean_string_get_byte_fast"]
 opaque getUTF8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
 
+/--
+Variant of `getUTF8Byte` that takes the byte index as a `USize`, which avoids `Nat` boxing
+in tight loops over the bytes of a string.
+-/
+@[extern "lean_string_uget_byte_fast"]
+opaque ugetUTF8Byte (s : @& String) (n : USize) (h : n.toNat < s.utf8ByteSize) : UInt8
+
 end String.Internal
 
 @[extern "lean_string_mk", expose, deprecated String.ofList (since := "2025-10-30")]
@@ -219,7 +227,7 @@ Examples:
  * `'L'.toString = "L"`
  * `'"'.toString = "\""`
 -/
-@[inline, expose] protected def toString (c : Char) : String :=
+@[inline, expose, implicit_reducible] protected def toString (c : Char) : String :=
   String.singleton c
 
 end Char

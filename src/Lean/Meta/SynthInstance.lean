@@ -12,6 +12,7 @@ public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Init.While
+import Lean.Util.CollectFVars
 
 public section
 namespace Lean.Meta
@@ -371,8 +372,50 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
       we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
       -/
       let instVal ← mkLambdaFVars xs instVal (etaReduce := true)
-      if (← isDefEq mvar instVal) then
-        return some ((← getMCtx), subgoals)
+      /-
+      When the goal type is metavariable-free, we assign `instVal` directly: the final
+      `isDefEq mvar instVal` recheck is redundant (the goal type and `instTypeBody` have
+      just been unified, and the type of `instVal` is `instTypeBody` by construction) and
+      can be very expensive, since it re-infers the type of `instVal` and re-unifies it
+      with the goal type.
+
+      When the goal type contains metavariables, re-unifying the two (definitionally equal, but not
+      necessarily syntactically equal) types has side effects that elaboration relies on.
+      In particular, `isDefEqArgs` runs `trySynthPending` on metavariables in
+      instance-implicit argument positions of the applications it descends into. Example:
+      the goal `IsPredArchimedean ι ?pre ?pd` (from Mathlib) — created when elaborating a class
+      projection, whose class parameters are demoted to plain implicit binders — matches a
+      candidate by assigning the candidate's fresh metavariables to `?pre`/`?pd` without
+      determining them. No other component is responsible for these metavariables, and the
+      recheck's `trySynthPending` is what synthesizes them; without it, the answer is
+      parametric in `?pd` and elaboration fails with "don't know how to synthesize
+      implicit argument" (see `tests/elab/synthPendingClassMVars.lean`).
+
+      Moreover, the set of metavariables the recheck synthesizes is not a function of the
+      goal alone: `isDefEqArgs` only descends into subterms whose two spellings differ
+      (e.g. rechecking `C (f a ?m) =?= C (f a' ?m)` pends `?m` iff `a` and `a'` are
+      syntactically different), so the side effects cannot be replayed after a direct
+      assignment, which has only one spelling. Explicit replacements fail in both
+      directions: synthesizing all pending class metavariables in the goal breaks stage2
+      (`Init/Internal/Order/Basic.lean`: a higher-order `[Nonempty ε]` metavariable inside
+      the goal's subject argument must be left to unification), and synthesizing none
+      breaks Mathlib (`Mathlib/Order/SuccPred/LinearLocallyFinite.lean`). Hence we keep
+      the recheck whenever the goal type contains metavariables.
+
+      **Note**: We should consider eliminating this nasty side effect and fixing
+      Mathlib in the few places that rely on it. There are ~10 such places.
+
+      Remark: we check only `mvarTypeBody`. The goal's hypotheses could contain
+      metavariables too, but checking the body is cheaper and good enough in practice,
+      and we want to remove this check altogether (see note above).
+      -/
+      if !(← instantiateMVars mvarTypeBody).hasExprMVar then
+        -- Remark: `mvar` is not assigned here: `tryResolve` runs on the generator node's
+        -- metavariable context snapshot, in which `mvar` is fresh.
+        mvar.mvarId!.assign instVal
+      else
+        unless (← isDefEq mvar instVal) do return none
+      return some ((← getMCtx), subgoals)
     return none
 
 /--
@@ -802,6 +845,33 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   return defEq
 
 /--
+Returns `true` if the `check` at `applyAbstractResult?` may have observable side effects
+for `result`. The unifications performed by the check operate on expressions derived from
+`result` itself, from the types (and values) of its free variables, and from constant type
+schemes instantiated with `result`'s own universe levels. Thus, if no metavariable is
+reachable through `result` or through the (transitive) types and values of its free
+variables, every unification is between ground expressions and cannot assign anything, so
+the check is redundant. Note that mere absence of metavariables in `result` is not enough:
+in issue #796, the universe constraint flows through the type `E.{?v} a` of a local
+instance occurring in `result`.
+-/
+private def checkMayHaveSideEffects (result : Expr) : MetaM Bool := do
+  if result.hasExprMVar || result.hasLevelMVar then return true
+  let mut s := collectFVars {} result
+  let mut i := 0
+  while h : i < s.fvarIds.size do
+    let localDecl ← s.fvarIds[i].getDecl
+    let type ← instantiateMVars localDecl.type
+    if type.hasExprMVar || type.hasLevelMVar then return true
+    s := collectFVars s type
+    if let some value := localDecl.value? then
+      let value ← instantiateMVars value
+      if value.hasExprMVar || value.hasLevelMVar then return true
+      s := collectFVars s value
+    i := i + 1
+  return false
+
+/--
 Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 -/
 private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
@@ -809,13 +879,11 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   let (_, _, result) ← openAbstractMVarsResult abstResult
   unless (← assignOutParams type result) do return none
   let result ← instantiateMVars result
+  unless (← checkMayHaveSideEffects result) do
+    return some result
   /- We use `check` to propagate universe constraints implied by the `result`.
       Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
       but these assignments are discarded by `withNewMCtxDepth`.
-
-      TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether
-            a universe metavariable from previous universe levels have been assigned or not during TC resolution.
-            We only need to perform the `check` if this kind of assignment have been performed.
 
       The example in the issue #796 exposed this issue.
       ```
@@ -833,6 +901,22 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
       Note that the `e` has type `E.{?v} a`, and `E` is universe polymorphic,
       but the universe does not occur in the parameter `a`. We have that `?v := u` is implied by `@c.{u} a e α b`,
       but this assignment is lost.
+
+      **Note**: We tried to skip this `check` by tracking whether a universe metavariable
+      from a lower depth was assigned during the search (a flag set by the level-unification
+      procedures; such assignments can only happen during TC resolution and are exactly the
+      ones discarded by `withNewMCtxDepth`). The tracking is insufficient: without
+      `checkMayHaveSideEffects`, a clean Mathlib build produced 5 failures
+      (`CategoryTheory/Limits/FilteredColimitCommutesProduct`, `CategoryTheory/Limits/Presheaf`,
+      `Topology/Category/CompHausLike/SigmaComparison`, `Algebra/Category/ModuleCat/Colimits`,
+      `Analysis/CStarAlgebra/ContinuousFunctionalCalculus/Isometric`), ranging from
+      declarations with leaked universe metavariables and kernel type mismatches to
+      "don't know how to synthesize implicit argument". We suspect the situation is
+      analogous to the `isDefEq` test at `tryResolve` (see the **Note** there): the `check`
+      produces unintended side effects (e.g., `trySynthPending` on expression metavariables,
+      universe assignments the search itself never derived) that these few Mathlib places
+      rely on, possibly by accident. We should diagnose whether they work by accident and,
+      if so, fix Mathlib and remove (or further weaken) this `check`.
   -/
   check result
   return some result
@@ -897,7 +981,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
           /-
           **Note**: The expensive `preprocessOutParam` step is morally **not** needed here because
           the output params should be uniquely determined by the input params. During type class
-          resolution, definitional equality only unfolds `[reducible]` and `[implicit_reducible]`
+          resolution, definitional equality only unfolds `[reducible]` and `[instance_reducible]`
           declarations. This is a contract with our users to ensure performance is reasonable.
           However, the same `OrderDual` declaration that creates problems for `assignOutParams`
           also prevents us from using this optimization. As an example, suppose we are trying to

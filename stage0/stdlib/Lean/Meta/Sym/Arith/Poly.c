@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.Arith.Poly
-// Imports: public import Init.Grind.Ring.CommSolver import Init.Data.Nat.Gcd import Init.Data.Nat.Lemmas import Init.Data.Nat.Linear import Init.WFTactics
+// Imports: public import Init.Grind.Ring.CommSolver import Init.Data.Nat.Gcd import Init.Data.Nat.Lemmas import Init.Data.Nat.Internal.Linear import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -286,9 +286,9 @@ return v___x_53_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Arith_Poly_0__Lean_Grind_CommRing_Mon_sharesVar_match__1_splitter___redArg___boxed(lean_object* v_x_54_, lean_object* v_h__1_55_, lean_object* v_h__2_56_, lean_object* v_h__3_57_){
 _start:
 {
-uint8_t v_x_36__boxed_58_; lean_object* v_res_59_; 
-v_x_36__boxed_58_ = lean_unbox(v_x_54_);
-v_res_59_ = l___private_Lean_Meta_Sym_Arith_Poly_0__Lean_Grind_CommRing_Mon_sharesVar_match__1_splitter___redArg(v_x_36__boxed_58_, v_h__1_55_, v_h__2_56_, v_h__3_57_);
+uint8_t v_x_33__boxed_58_; lean_object* v_res_59_; 
+v_x_33__boxed_58_ = lean_unbox(v_x_54_);
+v_res_59_ = l___private_Lean_Meta_Sym_Arith_Poly_0__Lean_Grind_CommRing_Mon_sharesVar_match__1_splitter___redArg(v_x_33__boxed_58_, v_h__1_55_, v_h__2_56_, v_h__3_57_);
 return v_res_59_;
 }
 }
@@ -330,9 +330,9 @@ return v___x_70_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Arith_Poly_0__Lean_Grind_CommRing_Mon_sharesVar_match__1_splitter___boxed(lean_object* v_motive_71_, lean_object* v_x_72_, lean_object* v_h__1_73_, lean_object* v_h__2_74_, lean_object* v_h__3_75_){
 _start:
 {
-uint8_t v_x_51__boxed_76_; lean_object* v_res_77_; 
-v_x_51__boxed_76_ = lean_unbox(v_x_72_);
-v_res_77_ = l___private_Lean_Meta_Sym_Arith_Poly_0__Lean_Grind_CommRing_Mon_sharesVar_match__1_splitter(v_motive_71_, v_x_51__boxed_76_, v_h__1_73_, v_h__2_74_, v_h__3_75_);
+uint8_t v_x_48__boxed_76_; lean_object* v_res_77_; 
+v_x_48__boxed_76_ = lean_unbox(v_x_72_);
+v_res_77_ = l___private_Lean_Meta_Sym_Arith_Poly_0__Lean_Grind_CommRing_Mon_sharesVar_match__1_splitter(v_motive_71_, v_x_48__boxed_76_, v_h__1_73_, v_h__2_74_, v_h__3_75_);
 return v_res_77_;
 }
 }
@@ -1989,7 +1989,7 @@ return v_res_502_;
 lean_object* runtime_initialize_Init_Grind_Ring_CommSolver(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Gcd(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_Arith_Poly(uint8_t builtin) {
@@ -2005,7 +2005,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_WFTactics(builtin);
@@ -2023,7 +2023,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Grind_Ring_CommSolver(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_Arith_Poly(uint8_t builtin) {
@@ -2039,7 +2039,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_WFTactics(builtin);

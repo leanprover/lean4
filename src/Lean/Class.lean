@@ -74,7 +74,6 @@ builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry Clas
   }
 
 /-- Return `true` if `n` is the name of type class in the given environment. -/
-@[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
   (classExtension.getState env).outParamMap.contains n
 
@@ -83,7 +82,6 @@ def getOutParamPositions? (env : Environment) (declName : Name) : Option (Array 
   (classExtension.getState env).outParamMap.find? declName
 
 /-- Return `true` if the given `declName` is a type class with output parameters. -/
-@[export lean_has_out_params]
 def hasOutParams (env : Environment) (declName : Name) : Bool :=
   match getOutParamPositions? env declName with
   | some outParams => !outParams.isEmpty
@@ -124,41 +122,6 @@ private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (ou
     else
       checkOutParam (i+1) outParamFVarIds outParams b
   | _ => return outParams
-
-/--
-Mark `outParam`s in `type` as implicit. Note that it also marks instance implicit arguments that depend on `outParam`s as implicit.
-
-Remark: this function consumes the `outParam` annotations.
-
-This function uses the same logic used as `checkOutParam`.
-See issue #1901
--/
-@[export lean_mk_outparam_args_implicit]
-partial def mkOutParamArgsImplicit (type : Expr) : Expr :=
-  go type type #[]
-where
-  go (type : Expr) (typeAux : Expr) (outParamFVarIds : Array FVarId) : Expr :=
-    match typeAux with
-    | .forallE _ d b bi =>
-      let mkOutParamImplicit (dNew : Expr) :=
-        let fvarId := { name := Name.mkNum `_fvar outParamFVarIds.size }
-        let fvar      := mkFVar fvarId
-        let b         := b.instantiate1 fvar
-        let bNew      := go type.bindingBody! b (outParamFVarIds.push fvarId)
-        type.updateForall! .implicit dNew bNew
-      let keepBinderInfo (_ : Unit) :=
-        let bNew := go type.bindingBody! b outParamFVarIds
-        type.updateForallE! type.bindingDomain! bNew
-      if d.isOutParam then
-        mkOutParamImplicit type.bindingDomain!.appArg! -- consume `outParam` annotation
-      else if d.hasAnyFVar fun fvarId => outParamFVarIds.contains fvarId then
-        if bi.isInstImplicit then
-          mkOutParamImplicit type.bindingDomain!
-        else
-          keepBinderInfo ()
-      else
-        keepBinderInfo ()
-    | _ => type
 
 /--
 Compute positions of universe level parameters that only appear in output parameter types.

@@ -19,6 +19,7 @@ SECTIONS = [
     "Library",
     "Tactics",
     "Compiler",
+    "FFI",
     "Pretty Printing",
     "Documentation",
     "Server",
@@ -120,6 +121,8 @@ def get_category(labels: set[str]) -> str | None:
         return "Documentation"
     if cat == "pp":
         return "Pretty Printing"
+    if cat == "ffi":
+        return "FFI"
     return cat.capitalize()
 
 
@@ -139,8 +142,11 @@ def load_commits(version: Version, repo: Repo, grepo: Repository) -> list[Commit
         title, _ = get_commit_message(commit)
         print_commit(commit, title)
 
-        if title == "chore: update stage0" or title.startswith("chore: CI: bump "):
-            print("[blue]Ignored[/]")
+        if title == "chore: update stage0":
+            print("[blue]Ignored, stage0 update[/]")
+            continue
+        if title.startswith("chore: CI: bump "):
+            print("[blue]Ignored, CI bump[/]")
             continue
 
         pr_number = parse_pr_number(title)
@@ -260,7 +266,7 @@ def main(version: Version, refman: Path):
     repo = Repo(Path(__file__).parent.parent.parent)
     grepo = github.get_repo(repos.LEAN4.gh_full_name)
     release = grepo.get_release(version.tag)
-    date = release.created_at.astimezone(datetime.timezone.utc)
+    date = release.published_at.astimezone(datetime.timezone.utc)
     title = util.get_release_notes_title_for(version, release)
 
     commits = load_commits(version, repo, grepo)

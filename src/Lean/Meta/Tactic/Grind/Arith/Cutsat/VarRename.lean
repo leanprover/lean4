@@ -7,7 +7,7 @@ module
 prelude
 public import Init.Data.Int.Linear
 public import Lean.Meta.Tactic.Grind.VarRename
-namespace Int.Linear
+namespace Int.Internal.Linear
 open Lean.Meta.Grind
 
 public def Poly.renameVars (p : Poly) (f : VarRename) : Poly :=
@@ -37,4 +37,4 @@ public def Expr.collectVars (e : Expr) : VarCollector :=
   | .neg a | .mulL _ a | .mulR a _ => a.collectVars
   | .add a b | .sub a b => a.collectVars >> b.collectVars
 
-end Int.Linear
+end Int.Internal.Linear

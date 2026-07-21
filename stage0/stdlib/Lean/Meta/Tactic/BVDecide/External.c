@@ -4312,24 +4312,24 @@ v___x_1173_ = lean_obj_once(&l_Lean_Meta_Tactic_BVDecide_External_satQuery___clo
 v___x_1174_ = lean_nat_dec_le(v___x_1173_, v___x_1172_);
 if (v___x_1174_ == 0)
 {
-v___y_1156_ = v___y_1168_;
+v___y_1156_ = v___y_1167_;
 v___y_1157_ = v___y_1169_;
 goto v___jp_1155_;
 }
 else
 {
 uint8_t v___x_1175_; 
-v___x_1175_ = lean_string_memcmp(v___y_1169_, v___x_1171_, v___y_1167_, v___y_1167_, v___x_1173_);
+v___x_1175_ = lean_string_memcmp(v___y_1169_, v___x_1171_, v___y_1168_, v___y_1168_, v___x_1173_);
 if (v___x_1175_ == 0)
 {
-v___y_1156_ = v___y_1168_;
+v___y_1156_ = v___y_1167_;
 v___y_1157_ = v___y_1169_;
 goto v___jp_1155_;
 }
 else
 {
 lean_object* v___x_1176_; lean_object* v___x_1177_; lean_object* v___x_1178_; 
-lean_dec_ref(v___y_1168_);
+lean_dec_ref(v___y_1167_);
 v___x_1176_ = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_BVDecide_External_0__Lean_Meta_Tactic_BVDecide_External_ModelParser_parse), 1, 0);
 v___x_1177_ = lean_string_to_utf8(v___y_1169_);
 v___x_1178_ = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg(v___x_1176_, v___x_1177_);
@@ -4439,7 +4439,7 @@ else
 {
 lean_object* v___x_1203_; lean_object* v___x_1204_; 
 lean_dec_ref(v___y_1169_);
-lean_dec_ref(v___y_1168_);
+lean_dec_ref(v___y_1167_);
 v___x_1203_ = lean_box(1);
 v___x_1204_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1204_, 0, v___x_1203_);
@@ -4524,8 +4524,8 @@ v___x_1242_ = lean_obj_once(&l_Lean_Meta_Tactic_BVDecide_External_satQuery___clo
 v___x_1243_ = lean_nat_dec_le(v___x_1242_, v___x_1241_);
 if (v___x_1243_ == 0)
 {
-v___y_1167_ = v___x_1224_;
-v___y_1168_ = v_stderr_1237_;
+v___y_1167_ = v_stderr_1237_;
+v___y_1168_ = v___x_1224_;
 v___y_1169_ = v_stdout_1236_;
 v___y_1170_ = v___x_1239_;
 goto v___jp_1166_;
@@ -4534,8 +4534,8 @@ else
 {
 uint8_t v___x_1244_; 
 v___x_1244_ = lean_string_memcmp(v_stdout_1236_, v___x_1240_, v___x_1224_, v___x_1224_, v___x_1242_);
-v___y_1167_ = v___x_1224_;
-v___y_1168_ = v_stderr_1237_;
+v___y_1167_ = v_stderr_1237_;
+v___y_1168_ = v___x_1224_;
 v___y_1169_ = v_stdout_1236_;
 v___y_1170_ = v___x_1244_;
 goto v___jp_1166_;

@@ -944,7 +944,7 @@ def mkTokenAndFixPos (startPos : String.Pos.Raw) (tk : Option Token) : ParserFn 
   match tk with
   | none    => s.mkErrorAt "token" startPos
   | some tk =>
-    if c.forbiddenTk? == some tk then
+    if c.forbiddenTks.contains tk then
       s.mkErrorAt "forbidden token" startPos
     else
       let leading   := c.mkEmptySubstringAt startPos
@@ -1295,7 +1295,20 @@ def nameLitNoAntiquot : Parser := {
   info := mkAtomicInfo "name"
 }
 
-def identFn : ParserFn := expectTokenFn identKind "identifier"
+def identFn : ParserFn := fun c s =>
+  if c.forbiddenTks.isEmpty then
+    expectTokenFn identKind "identifier" c s
+  else
+    -- A forbidden token used as an identifier (e.g. a non-reserved clause keyword like
+    -- `invariant`) stops the enclosing term, mirroring `mkTokenAndFixPos`.
+    let iniSz  := s.stackSize
+    let iniPos := s.pos
+    let s := expectTokenFn identKind "identifier" c s
+    if s.hasError then s
+    else match s.stxStack.back with
+      | .ident _ rawVal _ _ =>
+        if c.forbiddenTks.contains rawVal.toString then s.mkErrorAt "forbidden token" iniPos iniSz else s
+      | _ => s
 
 def identNoAntiquot : Parser := {
   fn   := identFn
@@ -1578,7 +1591,9 @@ would be treated as an application.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withForbidden (tk : Token) (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with forbiddenTk? := tk }) p
+  adaptCacheableContext
+    (fun c => if c.forbiddenTks.contains tk then c
+              else { c with forbiddenTks := c.forbiddenTks.push tk }) p
 
 /-- `withoutForbidden(p)` runs `p` disabling the "forbidden token" (see `withForbidden`), if any.
 This is usually used by bracketing constructs like `(...)` because there is no parsing ambiguity
@@ -1586,7 +1601,7 @@ inside these nested constructs.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withoutForbidden (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with forbiddenTk? := none }) p
+  adaptCacheableContext ({ · with forbiddenTks := #[] }) p
 
 def eoiFn : ParserFn := fun c s =>
   let i := s.pos

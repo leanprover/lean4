@@ -12,7 +12,7 @@ public import Std.Data.DTreeMap.Internal.Ordered
 public import Init.BinderPredicates
 public import Init.Data.Option.BasicAux
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Init.RCases
 import Init.WFTactics

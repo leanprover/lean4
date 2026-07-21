@@ -12,6 +12,7 @@ import Lean.Meta.Sym.Simp.Telescope
 import Lean.Meta.Sym.Simp.ControlFlow
 import Lean.Meta.Sym.Simp.Forall
 import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Grind
 namespace Lean.Elab.Tactic.Grind
 open Meta Sym.Simp
 
@@ -95,5 +96,11 @@ def elabDischNone : SymDischargerElab := fun _ =>
 def elabDischParen : SymDischargerElab := fun stx => do
   let `(sym_discharger| ( $d ) ) := stx | throwUnsupportedSyntax
   elabSymDischarger d
+
+@[builtin_sym_discharger dischGrind]
+def elabDischGrind : SymDischargerElab := fun _ => do
+  if (← getGoals).isEmpty then return dischargeNone
+  let goal ← getMainGoal
+  liftGrindM <| goal.mkSymSimpDischarger
 
 end Lean.Elab.Tactic.Grind

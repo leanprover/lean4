@@ -132,6 +132,7 @@ theorem BitVec.le_eq_false (a b : BitVec n) (h : decide (a ≤ b) = false) : (a 
 theorem String.le_eq_false (a b : String) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
 theorem Char.le_eq_false (a b : Char) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
 
+theorem Bool.eq_eq_true (a b : Bool) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Nat.eq_eq_true (a b : Nat) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Int.eq_eq_true (a b : Int) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Rat.eq_eq_true (a b : Rat) (h : decide (a = b) = true) : (a = b) = True := by simp_all
@@ -148,6 +149,7 @@ theorem BitVec.eq_eq_true (a b : BitVec n) (h : decide (a = b) = true) : (a = b)
 theorem String.eq_eq_true (a b : String) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Char.eq_eq_true (a b : Char) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 
+theorem Bool.eq_eq_false (a b : Bool) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Nat.eq_eq_false (a b : Nat) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Int.eq_eq_false (a b : Int) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Rat.eq_eq_false (a b : Rat) (h : decide (a = b) = false) : (a = b) = False := by simp_all

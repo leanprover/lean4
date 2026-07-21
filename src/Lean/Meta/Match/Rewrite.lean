@@ -103,6 +103,12 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
       trace[Meta.Match.debug] "When trying to reduce arm {altIdx}, only {eqns.size} equations for {.ofConstName matcherDeclName}"
       return { expr := e }
     let eqnThm := eqns[altIdx]!
+    -- Close `h : a = b` by reflexivity without throwing when it is not reflexive.
+    let tryRefl (h : MVarId) : MetaM Bool := do
+      let some (_, a, b) := (← h.getType).eq? | return false
+      unless ← isDefEq a b do return false
+      h.refl
+      return true
     try
       withTraceNode `Meta.Match.debug (fun _ => pure m!"rewriting with {.ofConstName eqnThm} in{indentExpr e}") do
       let eqProof := mkAppN (mkConst eqnThm e.getAppFn.constLevels!) e.getAppArgs
@@ -114,8 +120,10 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
         if let some (_, lhs, _, rhs) := eqType.heq? then pure (true, lhs, rhs) else
         if let some (_, lhs, rhs) := eqType.eq? then pure (false, lhs, rhs) else
         throwError m!"Type of `{.ofConstName eqnThm}` is not an equality"
-      if !(← isDefEq e lhs) then
-        throwError m!"Left-hand side `{lhs}` of `{.ofConstName eqnThm}` does not apply to `{e}`"
+      -- The alternative not applying here (`isDefEq`/discharge failure below) is a normal outcome
+      -- reported via `proof? := none`, not an error: callers probing alternatives must not pay for
+      -- exception handling on each miss.
+      if !(← isDefEq e lhs) then return { expr := e }
       /-
       Here we instantiate the hypotheses of the congruence equation theorem
       There are two sets of hypotheses to instantiate:
@@ -129,17 +137,20 @@ def rwMatcher (altIdx : Nat) (e : Expr) (assumptionLowerBound : Nat := 0)
       for h in hyps do
         unless (← h.isAssigned) do
           let hType ← h.getType
-          if Simp.isEqnThmHypothesis hType then
-            -- Using unrestricted h.substVars here does not work well; it could
-            -- even introduce a dependency on the `oldIH` we want to eliminate
-            unless ← assumptionProc h do throwError "Failed to discharge `{h}`"
-          else if hType.isEq then
-            unless ← assumptionProc h do h.refl <|> throwError m!"Failed to resolve `{h}`"
-          else if hType.isHEq then
-            unless ← assumptionProc h do h.hrefl <|> throwError m!"Failed to resolve `{h}`"
-      let unassignedHyps ← hyps.filterM fun h => return !(← h.isAssigned)
-      unless unassignedHyps.isEmpty do
-        throwError m!"Not all hypotheses of `{.ofConstName eqnThm}` could be discharged: {unassignedHyps}"
+          let discharged ←
+            if Simp.isEqnThmHypothesis hType then
+              -- Using unrestricted h.substVars here does not work well; it could
+              -- even introduce a dependency on the `oldIH` we want to eliminate
+              assumptionProc h
+            else if hType.isEq then
+              assumptionProc h <||> tryRefl h
+            else if hType.isHEq then
+              assumptionProc h <||> (do try h.hrefl; pure true catch _ => pure false)
+            else
+              pure true
+          unless discharged do return { expr := e }
+      unless (← hyps.filterM fun h => return !(← h.isAssigned)).isEmpty do
+        return { expr := e }
       let rhs ← instantiateMVars rhs
       let proof ← instantiateMVars proof
       let proof ← if isHeq then

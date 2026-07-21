@@ -174,6 +174,8 @@ public structure JPDefInfo where
   altLayouts : Array JPAltLayout
   /-- The postcondition lattice, `wp`'s `Pred` argument. Each jump's precondition proof lives here. -/
   Pred : Expr
+  /-- Universe level of `Pred` (the `l : Type u` of `le_ofProp`/`ofProp`), for instantiating `le_ofProp`. -/
+  predLevel : Level
   /-- The `CompleteLattice Pred` instance, for instantiating `le_ofProp`. -/
   instCL : Expr
   /-- State-argument types the postcondition lattice ranges over, for building each jump's
@@ -199,6 +201,9 @@ payload's existentials, the reduction of the subgoal's precondition match to the
 and the data needed to close the subgoal `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss` by construction.
 Resolved by `finalizeJPs`. -/
 public structure JPJumpRecord where
+  /-- The join point this jump targets, supplying the `Pred`/`predLevel`/`instCL`/`stateTys` shared
+  by all of its jumps. -/
+  jpInfo : JPDefInfo
   hypsMVar : MVarId
   goal : MVarId
   payload : Expr
@@ -207,13 +212,8 @@ public structure JPJumpRecord where
   redProof : Expr
   /-- The proposition `match discrs => ?Hᵢ` the jump's precondition embeds via `⌜·⌝`. -/
   matchExpr : Expr
-  /-- Constant function `fun _ => pre` at the postcondition lattice, so `le_ofProp` applied to the
-  state args reproduces the jump's precondition `pre`. -/
-  constFn : Expr
-  /-- The postcondition lattice `Pred`, its universe level, and its `CompleteLattice` instance. -/
-  Pred : Expr
-  predLevel : Level
-  instCL : Expr
+  /-- The jump's precondition; `le_ofProp` at the constant function `fun _ => pre` reproduces it. -/
+  pre : Expr
   /-- The state arguments the postcondition lattice is applied to. -/
   ss : Array Expr
 

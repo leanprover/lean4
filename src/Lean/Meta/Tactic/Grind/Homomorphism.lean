@@ -16,19 +16,19 @@ namespace Lean.Meta.Grind.Homo
 builtin_initialize registerTraceClass `grind.homo
 builtin_initialize registerTraceClass `grind.homo.pred (inherited := true)
 
-/-- Per-goal state for the `[grind homo]`/`[grind homo_pred]` solver extension. -/
+/-- Per-goal state for the `[grind hom]`/`[grind hom_pred]` solver extension. -/
 structure State where
   /-- Persistent `Sym.simp` cache, reused across internalizations. -/
   cache : Sym.Simp.Cache := {}
-  /-- Terms for which the `[grind homo_pred]` predicates have already been instantiated. -/
+  /-- Terms for which the `[grind hom_pred]` predicates have already been instantiated. -/
   processed : PHashSet ExprPtr := {}
   /-- Terms already visited by `markSourceTerm`. `Solvers.internalize` revisits terms,
   and re-marking a term whose class already has a solver term re-fires `newEq`; the
   visited set also avoids repeated `inferType` calls on revisits. -/
   visited : PHashSet ExprPtr := {}
-  /-- `[grind homo]` rules, retrieved once per goal. -/
+  /-- `[grind hom]` rules, retrieved once per goal. -/
   thms? : Option Sym.Simp.Theorems := none
-  /-- `[grind homo_pred]` predicates, retrieved once per goal. -/
+  /-- `[grind hom_pred]` predicates, retrieved once per goal. -/
   preds? : Option HomoPredTheorems := none
   /-- Head constants of the homomorphism source types, retrieved once per goal. -/
   sourceTypes? : Option NameSet := none
@@ -79,7 +79,7 @@ where
       stateExt.markTerm e
 
 /--
-Rewriter for the `[grind homo]` rules with the stop condition: `grind` internalizes
+Rewriter for the `[grind hom]` rules with the stop condition: `grind` internalizes
 terms bottom-up, so when no rule applies to a term that is already in the E-graph, the
 term and all its subterms have already been processed by the engine, and there is
 nothing to do at any depth. Traversal cost is thus proportional to the new terms
@@ -94,7 +94,7 @@ private def mkRewriter : GoalM Sym.Simp.Simproc := do
     return .rfl (done := s.enodeMap.contains { expr := e })
 
 /--
-Applies the `[grind homo]` rules to `e` to fixpoint outside the E-graph.
+Applies the `[grind hom]` rules to `e` to fixpoint outside the E-graph.
 Returns `some (e', h)` with `h : e = e'` if any rule was applied.
 Intermediate terms do not enter the E-graph: only the final form is internalized by
 the caller.
@@ -111,7 +111,7 @@ private def applyHomo? (e : Expr) : GoalM (Option (Expr × Expr)) := do
   return some (e', h)
 
 /--
-Instantiates the `[grind homo_pred]` predicates triggered by `e` and asserts the
+Instantiates the `[grind hom_pred]` predicates triggered by `e` and asserts the
 resulting facts. Each term is processed at most once per goal.
 -/
 private def firePreds (e : Expr) (generation : Nat) : GoalM Unit := do
@@ -124,9 +124,9 @@ private def firePreds (e : Expr) (generation : Nat) : GoalM Unit := do
     addNewRawFact proof prop generation .input .other
 
 /--
-Internalization hook. Applies the `[grind homo]` rules to `e` to fixpoint; if a rule
+Internalization hook. Applies the `[grind hom]` rules to `e` to fixpoint; if a rule
 applied, the final form is preprocessed, internalized, and merged with `e` in the
-E-graph. Otherwise `e` is in homomorphism normal form, and the `[grind homo_pred]`
+E-graph. Otherwise `e` is in homomorphism normal form, and the `[grind hom_pred]`
 predicates are instantiated for it: rewriting has precedence over predicates, so
 predicates fire only on normal forms.
 
@@ -148,7 +148,7 @@ def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
   pushEq e r.expr h
 
 /--
-Equality hook: when the classes of `a` and `b` are merged and the `[grind homo]` set
+Equality hook: when the classes of `a` and `b` are merged and the `[grind hom]` set
 translates `a = b`, asserts the translated (and fully reduced) equality. This is the
 `=`-injection of the homomorphism: one fact per union, so a class with `n` elements
 produces `n - 1` translated equalities; the transitive closure is handled by the
@@ -165,7 +165,7 @@ def processNewEq (a b : Expr) : GoalM Unit := do
   addNewRawFact fact t generation .input .other
 
 /--
-Disequality hook: when `a ≠ b` is asserted and the `[grind homo]` set translates
+Disequality hook: when `a ≠ b` is asserted and the `[grind hom]` set translates
 `a = b`, asserts the negation of the translated equality. Unlike equalities,
 disequalities are not propagated by congruence, and the target-domain solvers consume
 them directly (e.g. `cutsat` case splits on `x ≠ 0`). The translation is justified by

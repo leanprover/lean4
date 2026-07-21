@@ -9,6 +9,7 @@ import Init.Grind.Attr
 public import Init.Data.BitVec.Bootstrap
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Bitblast
+public section
 
 /-!
 Homomorphism rules for `BitVec` used by the `grind` tactic.

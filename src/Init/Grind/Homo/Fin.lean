@@ -27,6 +27,9 @@ attribute [grind hom]
     (if c then x else y).val = if c then x.val else y.val := by
   split <;> rfl
 
+@[grind hom] theorem Lean.Grind.Fin.val_OfNat_ofNat (n : Nat) [NeZero n] (a : Nat) : (OfNat.ofNat a : Fin n).val = a % n := by
+  dsimp [OfNat.ofNat]
+
 /-! Homomorphism predicate: the range fact for `Fin.val`, instantiated by `grind` for
 the terms it internalizes. -/
 

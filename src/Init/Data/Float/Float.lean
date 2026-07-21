@@ -60,13 +60,13 @@ Note: While there are many bit patterns that represent a “not a number” valu
 in the logical model of `Float`, that is, all floating-point values `f : Float` with `f.isNaN`
 are propositionally equal to `nan`.
 -/
-def Float.nan : Float := ⟨.nan⟩
+def Float.nan : Float := .ofModel .nan
 
 /--
-The special floating-point value `Inf`, short for infinity, used as a result for overflowing
-computations like `1 / 0`.
+The special floating-point value `+Inf`, short for positive infinity, used as a result for
+overflowing computations like `1 / 0`.
 -/
-def Float.inf : Float := ⟨.inf⟩
+def Float.inf : Float := .ofModel .inf
 
 /--
 Adds two 64-bit floating-point numbers according to IEEE 754. Typically used via the `+` operator.

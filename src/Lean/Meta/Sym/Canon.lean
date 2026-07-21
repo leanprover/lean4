@@ -207,6 +207,12 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
   else
     return .visit
 
+def mkOffset (e : Expr) (offset : Nat) : Expr :=
+  if offset == 0 then
+    e
+  else
+    mkNatAdd e (mkNatLit offset)
+
 /--
 Reduce a projection function application (e.g., `@Sigma.fst _ _ ⟨a, b⟩` → `a`).
 Class projections are not reduced — they are support elements handled by instance synthesis.
@@ -463,7 +469,7 @@ where
       if let some e ← Sym.Arith.evalNat? e |>.run then
         return mkNatLit e
       else if let some (e, k) ← Sym.Arith.isOffset? e |>.run then
-        mkOffset e k
+        return mkOffset e k
       else
         return e
     else

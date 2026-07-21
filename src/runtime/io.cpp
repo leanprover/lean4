@@ -257,7 +257,14 @@ extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_lean_obj_arg f
 }
 
 extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname) {
+#if defined(LEAN_EMSCRIPTEN)
+    // uv_strerror is not available in Emscripten WASM builds
+    char buf[64];
+    snprintf(buf, sizeof(buf), "libuv error %d", errnum);
+    object * details = mk_string(buf);
+#else
     object * details = mk_string(uv_strerror(errnum));
+#endif
     // Keep in sync with lean_decode_io_error above
     switch (errnum) {
     case UV_EINTR:
@@ -1250,6 +1257,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_hard_link(b_obj_arg orig, b_obj_arg link)
 
 /* createTempFile : IO (Handle × FilePath) */
 extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
+#if defined(LEAN_EMSCRIPTEN)
+    return io_result_mk_error(lean_mk_io_error_unsupported_operation(0,
+        mk_string("createTempFile is not supported in Emscripten")));
+#else
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
@@ -1292,10 +1303,15 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
         uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
     }
+#endif
 }
 
 /* createTempDir : IO FilePath */
 extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
+#if defined(LEAN_EMSCRIPTEN)
+    return io_result_mk_error(lean_mk_io_error_unsupported_operation(0,
+        mk_string("createTempDir is not supported in Emscripten")));
+#else
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
@@ -1337,6 +1353,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
         uv_fs_req_cleanup(&req);
         return res;
     }
+#endif
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg filename) {

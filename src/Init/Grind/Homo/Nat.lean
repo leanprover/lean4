@@ -11,10 +11,13 @@ public import Init.Data.Nat.Bitwise.Lemmas
 public section
 
 /-!
-Homomorphism rules for `Nat` used by the `grind` tactic.
-These are target-domain rules: shifts are normalized to arithmetic, `testBit`
-decomposes bitwise operations, and the `%`-cleanup rules remove the redundant
-modular wrappers produced by the `BitVec.toNat` injection.
+**Note**: the rules in this file are *not* a homomorphism. `Nat` is not a
+homomorphism source type (it is not registered in `getHomoSourceTypes`): `grind` has builtin
+support for `Nat` in its `cutsat` solver, so there is no injection out of `Nat` and none should
+be added. These are support rules for the `BitVec` and `Fin` source types, applied to the `Nat`
+images their injections produce: shifts are normalized to arithmetic, `testBit` decomposes
+bitwise operations, and the `%`-cleanup rules remove the redundant modular wrappers produced
+by the `BitVec.toNat` and `Fin.val` injections.
 -/
 
 attribute [grind hom]

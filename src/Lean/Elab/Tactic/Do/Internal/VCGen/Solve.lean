@@ -433,13 +433,10 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
   let joinArgs := e.getAppArgs
   liftMetaM do
     let lctx ← getLCtx
-    -- Locals introduced since the join point was registered. INVARIANT: the enclosing split's alt
-    -- telescope (`fields ++ overlaps ++ discrEqs ++ extraEqs`, of length `bodyTeleLen`) sits at the
-    -- front of this slice, with no implementation-detail decls interspersed, so its (filtered) prefix
-    -- pairs positionally with the recorded `JPAltLayout` and the raw-index window below reaches it.
-    let newLocalDecls := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push
-      |>.filterMap id
-      |>.filter (fun decl => !decl.isImplementationDetail)
+    -- Locals introduced since the join point was registered. The enclosing split's alt telescope
+    -- (`fields ++ overlaps ++ discrEqs ++ extraEqs`, of length `bodyTeleLen`) sits at the front and
+    -- pairs positionally with the recorded `JPAltLayout`; the locals past it are `∃`-closed below.
+    let slice := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push |>.filterMap id
     -- The branch hypotheses a jump needs are that telescope, whose length is at most `max bodyTeleLen`.
     -- So confining the assumption search to `[outerLCtxSize, outerLCtxSize + maxTele)` covers every
     -- alt's full discriminant evidence in a fixed window, independent of how deep the jump sits.
@@ -474,21 +471,24 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
       let pairedFields := min layout.specBinders layout.bodyFields
       let pairedEqs := min (layout.specBinders - pairedFields) layout.bodyDiscrEqs
       unless altBinders.size == layout.specBinders &&
-          layout.bodyTeleLen ≤ newLocalDecls.size &&
+          layout.bodyTeleLen ≤ slice.size &&
           layout.specBinders - pairedFields - pairedEqs ≤ 1 do
         throwError "vcgen +jp: jump-site telescope does not match the recorded alt layout for \
           {indentExpr e}"
       let mut matchedLocals : Array Expr := #[]
       let mut matchedBinders : Array Expr := #[]
       for i in [:pairedFields] do
-        matchedLocals := matchedLocals.push newLocalDecls[i]!.toExpr
+        matchedLocals := matchedLocals.push slice[i]!.toExpr
         matchedBinders := matchedBinders.push altBinders[i]!
       for i in [:pairedEqs] do
         matchedLocals := matchedLocals.push
-          newLocalDecls[layout.bodyFields + layout.bodyOverlaps + i]!.toExpr
+          slice[layout.bodyFields + layout.bodyOverlaps + i]!.toExpr
         matchedBinders := matchedBinders.push altBinders[pairedFields + i]!
       let eqs ← (jpBinders.mapIdx fun i jp => (jp, i)).mapM fun (jp, i) => Meta.mkEq jp joinArgs[i]!
-      let restDecls := newLocalDecls.extract layout.bodyTeleLen newLocalDecls.size
+      -- Locals past the telescope are `∃`/`let`-closed. Implementation-detail decls (compiler
+      -- internal) must never become `∃` binders or witnesses, so drop them here.
+      let restDecls := (slice.extract layout.bodyTeleLen slice.size).filter
+        (fun decl => !decl.isImplementationDetail)
       let restLocals := restDecls.map LocalDecl.toExpr
       -- `∃ rest, joinParams = joinArgs`, existentially/let-closing the kept locals; the paired ones
       -- are then rewritten to the mvar's own alt binders.

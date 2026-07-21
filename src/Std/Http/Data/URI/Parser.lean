@@ -36,8 +36,8 @@ namespace Std.Http.URI.Parser
 
 set_option linter.all true
 
-open Internal Char
-open Std Internal Parsec ByteArray
+open Std.Http.Internal Std.Http.Internal.Char
+open Std Std.Internal Parsec Std.Internal.Parsec.ByteArray
 
 @[inline]
 private def tryOpt (p : Parser α) : Parser (Option α) :=

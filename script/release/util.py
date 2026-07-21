@@ -91,21 +91,21 @@ class Version:
         return f"v{self.raw}"
 
     @property
-    def base(self) -> Self:
+    def base(self) -> "Version":
         return Version(major=self.major, minor=self.minor, patch=0, rc=None)
 
     @property
-    def next_minor(self) -> Self:
+    def next_minor(self) -> "Version":
         return Version(major=self.major, minor=self.minor + 1, patch=0, rc=None)
 
     @property
-    def prev(self) -> Self:
+    def prev(self) -> "Version":
         if self.patch > 0:
             return Version(major=self.major, minor=self.minor, patch=self.patch - 1)
         return Version(major=self.major, minor=self.minor - 1, patch=0)
 
     @property
-    def stable(self) -> Self:
+    def stable(self) -> "Version":
         return Version(major=self.major, minor=self.minor, patch=self.patch, rc=None)
 
     @property
@@ -127,8 +127,11 @@ class ReleaseRepo:
     # repo instead of the main repo.
     nightly: Self | None = None
 
-    # Use "bump/v4.X.0" branches for rc1 releases. Respect `nightly` if set.
-    bump_branch: bool = False
+    # What to base the rc1 bump PR on.
+    # - "default": Use the repo's default branch, usually master/main.
+    # - "bump": Use the bump/v4.X.0 branch.
+    # - "downstream": Extract the bump branch from the downstream-lean4 repo.
+    rc1_pr_base: Literal["default", "bump", "downstream"] = "default"
 
     # When set, the version bump commit should be tagged. When set to "lean",
     # use the lean version tag as release tag. When set to "proofwidgets", use

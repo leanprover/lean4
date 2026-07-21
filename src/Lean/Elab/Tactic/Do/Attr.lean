@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
 public import Std.Internal.Do.Triple.Basic
+public import Lean.Elab.Tactic.Do.ConjunctivePre
 import Init.While
 import Init.Syntax
 import Lean.Meta.Sym.Simp.DiscrTree
@@ -338,6 +339,10 @@ structure SpecTheorem where
   proof : SpecProof
   /-- The kind of spec theorem: triple or simp. -/
   kind : SpecTheoremKind := .triple
+  /-- Whether the precondition is conjunctive in the spec's postconditions, so applying the spec
+  directly carries any frame and `vcgen` skips the frame machinery. Opt out with a trivial `Q = Q`
+  premise. -/
+  conjunctivePre : Bool := false
   priority : Nat := eval_prio default
   deriving Inhabited
 
@@ -461,13 +466,14 @@ def mkSpecPatternFromExpr (expr : Expr)
 private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM (Option SpecTheorem) := do
   let (levelParams, expr) ← proof.getProof
   let type ← instantiateMVars type
-  let (_, _, type) ← forallMetaTelescope type
+  let (binders, _, type) ← forallMetaTelescope type
   -- Reduce reducible abbreviations so a proof whose type is an abbreviation like
   -- `abbrev s := ⦃P⦄ prog ⦃Q⦄` is recognized as a triple spec.
   let type ← whnfR type
   let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
-  return some { pattern, proof, priority := prio }
+  let conjunctivePre ← isConjunctiveInPosts type binders
+  return some { pattern, proof, priority := prio, conjunctivePre }
 
 def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
   let info ← getConstInfo declName

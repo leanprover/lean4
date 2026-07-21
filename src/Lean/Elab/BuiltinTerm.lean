@@ -374,7 +374,12 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
     -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
+    -- The auxiliary definitions `wrapInstance` introduces bridge `type` and `expectedType`, so their
+    -- bodies are only well-typed when the definitions whose unfolding the bridge requires are
+    -- exposed (#14147).
+    let exposedDefEq ← withExporting <| isDefEqGuarded type expectedType
     wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+      (exposeAux := exposedDefEq)
   else
     pure inst
   ensureHasType expectedType? inst

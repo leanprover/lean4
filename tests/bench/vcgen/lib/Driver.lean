@@ -41,9 +41,9 @@ def driver (goal : Name) (unfold : List Name) (n : Nat) (discharge : MetaM (TSyn
         let ([], _) ← Lean.Elab.runTactic mvarId discharge.raw {} {}
           | throwError "{dischargePp} failed to solve {mvarId}"
   let (expr, instMs) ← timeItMs (instantiateMVars mvar)
-  -- Emulate the shareCommonPreDefs step before sending the term to the kernel.
-  -- If we don't do this, kernel checking time balloons.
-  let expr ← SymM.run (shareCommon expr)
+  -- Apply the `shareCommonPreDefs` structural sharing before sending the term to the
+  -- kernel. If we don't do this, kernel checking time balloons.
+  let expr := Lean.ShareCommon.shareCommon expr
   let (_, kernelMs) ← timeItMs (checkWithKernel expr)
   let label := s!"{goal.getPrefix}({n}):"
   let pad := "".pushn ' ' (24 - min label.length 24)

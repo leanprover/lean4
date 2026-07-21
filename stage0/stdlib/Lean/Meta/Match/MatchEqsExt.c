@@ -52,7 +52,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Match_instInhabitedMatcherInfo_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_Lean_Name_eraseMacroScopes(lean_object*);
 uint8_t l_Lean_Meta_isEqnLikeSuffix(lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_array_object l_Lean_Meta_Match_instInhabitedMatchEqns_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
@@ -1862,8 +1862,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Match_isMatchEqnTheorem(lean_object* v_env_598_,
 _start:
 {
 lean_object* v___x_600_; 
-lean_inc(v_declName_599_);
-v___x_600_ = lean_erase_macro_scopes(v_declName_599_);
+v___x_600_ = l_Lean_Name_eraseMacroScopes(v_declName_599_);
 if (lean_obj_tag(v___x_600_) == 1)
 {
 lean_object* v_str_601_; uint8_t v___x_602_; 

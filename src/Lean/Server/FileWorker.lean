@@ -47,10 +47,12 @@ If a task that the request task waits for is terminated, a change occurred somew
 command that the request is looking for and the request sends a "content changed" error.
 -/
 
+open IO
+
 namespace Lean.Server.FileWorker
 
 open Lsp
-open IO FS.Stream.Internal
+open Lean Lean.IO
 open Snapshots
 open JsonRpc
 
@@ -522,7 +524,7 @@ section Initialization
 
           -- note that because of `server.reportDelayMs`, we cannot simply set `maxDocVersion` here
           -- as that would allow outdated messages to be reported until the delay is over
-        writeSerializedLspMessage o serialized |>.catchExceptions (fun _ => pure ())
+        o.writeSerializedLspMessage serialized |>.catchExceptions (fun _ => pure ())
       return chanOut
 
     getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
@@ -925,7 +927,7 @@ section MainLoop
   variable (hIn : FS.Stream) in
   partial def mainLoop : WorkerM Unit := do
     let mut st ← get
-    let msg ← readLspMessage hIn
+    let msg ← hIn.readLspMessage
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : ServerTask (Except IO.Error Unit))
         : IO PendingRequestMap := do
       if ← task.hasFinished then
@@ -1035,8 +1037,8 @@ where
     return false
 
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
-  let initParams ← readLspRequestAs i "initialize" InitializeParams
-  let ⟨_, param⟩ ← readLspNotificationAs i "textDocument/didOpen" LeanDidOpenTextDocumentParams
+  let initParams ← i.readLspRequestAs "initialize" InitializeParams
+  let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
 
   let doc : DocumentMeta := {
@@ -1067,7 +1069,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
       throw err
 where
   writeErrorDiag (doc : DocumentMeta) (err : Error) : IO Unit := do
-    writeLspMessage o <| mkPublishDiagnosticsNotification doc #[{
+    o.writeLspMessage <| mkPublishDiagnosticsNotification doc #[{
       range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
       fullRange? := some ⟨⟨0, 0⟩, doc.text.utf8PosToLspPos doc.text.source.rawEndPos⟩
       severity? := DiagnosticSeverity.error

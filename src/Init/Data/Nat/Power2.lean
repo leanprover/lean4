@@ -8,3 +8,4 @@ module
 prelude
 public import Init.Data.Nat.Power2.Basic
 public import Init.Data.Nat.Power2.Lemmas
+public import Init.Data.Nat.Power2.Bitwise

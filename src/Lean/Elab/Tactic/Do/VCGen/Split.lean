@@ -159,7 +159,11 @@ def splitWith
     let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 { args := #[h], fields := #[h] })
     return mkApp5 (mkConst ``_root_.dite [u]) resTy c h t e
   | matcher matcherApp => do
-    let mask := matcherApp.discrs.map (·.isFVar)
+    -- Do not abstract `match h :` discriminants: the alternatives' equality binders
+    -- `h : discr = pattern` mention the discriminant, so substituting it in the motive would be
+    -- ill-typed. These equalities let `rwMatcher` discharge the congruence hypotheses instead.
+    let mask := matcherApp.discrs.mapIdx fun i d =>
+      d.isFVar && matcherApp.discrInfos[i]?.all (·.hName?.isNone)
     let maskedDiscrs := Array.mask mask matcherApp.discrs
     let absMotiveBody ← resTy.abstractM maskedDiscrs
     (·.toExpr) <$> matcherApp.transform

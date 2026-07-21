@@ -56,10 +56,10 @@ abbrev AlphaShareBuilderM := ReaderT Bool AlphaShareCommonM
 Helper function for lifting a `AlphaShareBuilderM` action to `GrindM`
 -/
 abbrev liftBuilderM (k : AlphaShareBuilderM α) : SymM α := do
-  let share ← modifyGet fun s => (s.share, { s with share := {} })
-  let (a, share) := k (← isDebugEnabled) share
-  modify fun s => { s with share }
-  return a
+  -- The builder functions are a trusted layer, so invariant checks are disabled.
+  match (← runShareCommonM (k (← isDebugEnabled)) { env := (← getEnv) }) with
+  | .ok a => return a
+  | .error _ => unreachable! -- checks are disabled
 
 protected def Builder.share1 (e : Expr) : AlphaShareBuilderM Expr := do
   let prev := (← get).set.findD { expr := e } dummy
@@ -78,7 +78,7 @@ instance : MonadShareCommon AlphaShareBuilderM where
   assertShared := Builder.assertShared
   isDebugEnabled := read
 
-open MonadShareCommon (share1 assertShared)
+open Lean.Meta.Sym.Internal.MonadShareCommon (share1 assertShared)
 
 variable [MonadShareCommon m]
 

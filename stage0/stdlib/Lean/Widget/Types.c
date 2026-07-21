@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 lean_object* l_Lean_Name_fromJson_x3f(lean_object*);
-lean_object* l_UInt64_fromJson_x3f(lean_object*);
+lean_object* l_Lean_UInt64_fromJson_x3f(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* l_Lean_bignumToJson(lean_object*);
@@ -438,7 +438,7 @@ lean_object* v_a_122_; lean_object* v___x_123_;
 v_a_122_ = lean_ctor_get(v___x_113_, 0);
 lean_inc(v_a_122_);
 lean_dec_ref_known(v___x_113_, 1);
-v___x_123_ = l_UInt64_fromJson_x3f(v_javascriptHash_111_);
+v___x_123_ = l_Lean_UInt64_fromJson_x3f(v_javascriptHash_111_);
 if (lean_obj_tag(v___x_123_) == 0)
 {
 lean_object* v_a_124_; lean_object* v___x_126_; uint8_t v_isShared_127_; uint8_t v_isSharedCheck_131_; 

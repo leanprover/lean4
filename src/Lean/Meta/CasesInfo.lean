@@ -11,6 +11,8 @@ import Init.Data.Range.Polymorphic.Iterators
 
 open Lean Meta
 
+namespace Lean
+
 /-!
 This modules defines the `CasesInfo` data structure and functions to obtain it.
 It contains information about the structure of casesOn-like functions, namely of
@@ -81,3 +83,5 @@ public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
             let ctorVal ← getConstInfoCtor ctorName
             return .ctor ctorName ctorVal.numFields
       return some { declName, indName, arity, discrPos, altsRange, altNumParams }
+
+end Lean

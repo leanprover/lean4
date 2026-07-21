@@ -214,7 +214,7 @@ LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_toFileMap(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_String_toFileMap(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqPosition_decEq(lean_object* v_x_5_, lean_object* v_x_6_){
 _start:
 {
@@ -1600,7 +1600,7 @@ lean_dec_ref(v_map_500_);
 return v_res_502_;
 }
 }
-LEAN_EXPORT lean_object* l_String_toFileMap(lean_object* v_s_503_){
+LEAN_EXPORT lean_object* l_Lean_String_toFileMap(lean_object* v_s_503_){
 _start:
 {
 lean_object* v___x_504_; 

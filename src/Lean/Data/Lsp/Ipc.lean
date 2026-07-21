@@ -19,9 +19,10 @@ public section
 /-! Provides an IpcM monad for interacting with an external LSP process.
 Used for testing the Lean server. -/
 
+open IO Lean
+
 namespace Lean.Lsp.Ipc
 
-open IO FS.Stream.Internal
 open JsonRpc
 
 def ipcStdioConfig : Process.StdioConfig where
@@ -40,33 +41,33 @@ def stdout : IpcM FS.Stream := do
   return FS.Stream.ofHandle (←read).stdout
 
 def writeRequest (r : Request α) : IpcM Unit := do
-  writeLspRequest (←stdin) r
+  (←stdin).writeLspRequest r
 
 def writeNotification (n : Notification α) : IpcM Unit := do
-  writeLspNotification (←stdin) n
+  (←stdin).writeLspNotification n
 
 def shutdown (requestNo : Nat) : IpcM Unit := do
   let hIn ← stdout
   let hOut ← stdin
-  writeLspRequest hOut ⟨requestNo, "shutdown", Json.null⟩
+  hOut.writeLspRequest ⟨requestNo, "shutdown", Json.null⟩
   repeat
-    let shutMsg ← readLspMessage hIn
+    let shutMsg ← hIn.readLspMessage
     match shutMsg with
     | Message.response id result =>
       assert! result.isNull
       if id != requestNo then
         throw <| IO.userError s!"Expected id {requestNo}, got id {id}"
 
-      writeLspNotification hOut ⟨"exit", Json.null⟩
+      hOut.writeLspNotification ⟨"exit", Json.null⟩
       break
     | _ =>  -- ignore other messages in between.
       pure ()
 
 def readMessage : IpcM JsonRpc.Message := do
-  readLspMessage (←stdout)
+  (←stdout).readLspMessage
 
 def readRequestAs (expectedMethod : String) (α) [FromJson α] : IpcM (Request α) := do
-  readLspRequestAs (←stdout) expectedMethod α
+  (←stdout).readLspRequestAs expectedMethod α
 
 /--
 Reads response, discarding notifications and server-to-client requests in between.
@@ -75,7 +76,7 @@ if we do care about such notifications.
 -/
 partial def readResponseAs (expectedID : RequestID) (α) [FromJson α] :
     IpcM (Response α) := do
-  let m ← readLspMessage (←stdout)
+  let m ← (←stdout).readLspMessage
   match m with
   | Message.response id result =>
     if id == expectedID then

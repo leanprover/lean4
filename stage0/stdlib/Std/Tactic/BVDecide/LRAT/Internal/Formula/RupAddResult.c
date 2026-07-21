@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult
-// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas public import Init.GrindInstances.ToInt import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Fin.Lemmas import Init.Data.Int.OfNat import Init.Data.Nat.Linear import Init.Data.Nat.Simproc
+// Imports: public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas public import Init.GrindInstances.ToInt import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Fin.Lemmas import Init.Data.Int.OfNat import Init.Data.Nat.Internal.Linear import Init.Data.Nat.Simproc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -375,7 +375,7 @@ lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddResult(uint8_t builtin) {
@@ -400,7 +400,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Simproc(builtin);
@@ -421,7 +421,7 @@ lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_LRAT_Internal_Formula_RupAddResult(uint8_t builtin) {
@@ -446,7 +446,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Int_OfNat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Simproc(builtin);

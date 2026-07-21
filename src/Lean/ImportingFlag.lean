@@ -28,17 +28,17 @@ Remark: Compacted module regions must not be freed when using this flag as the
 Remark: The Lean frontend executes this method at startup time.
 -/
 @[export lean_enable_initializer_execution]
-unsafe def enableInitializersExecution : IO Unit :=
+unsafe def enableInitializersExecution : BaseIO Unit :=
   runInitializersRef.set true
 
-def isInitializerExecutionEnabled : IO Bool :=
+def isInitializerExecutionEnabled : BaseIO Bool :=
   runInitializersRef.get
 
 /--
 We say Lean is "initializing" when it is executing `builtin_initialize` declarations or importing modules.
 Recall that Lean executes `initialize` declarations while importing modules.
 -/
-def initializing : IO Bool :=
+def initializing : BaseIO Bool :=
   IO.initializing <||> importingRef.get
 
 /--
@@ -67,7 +67,7 @@ As with `withImporting`, users must make sure there is only one execution thread
 the global references.
 -/
 @[export lean_set_initializing]
-private def setInitializing (b : Bool) : BaseIO Unit :=
-  importingRef.set b
+private def setInitializing (initializing : Bool) : BaseIO Unit :=
+  importingRef.set initializing
 
 end Lean

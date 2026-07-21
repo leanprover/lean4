@@ -474,8 +474,8 @@ We define the basic functional programming operations on `List`:
 
 /-! ### map -/
 
-@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := rfl
-@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
+@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := id rfl
+@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := id rfl
 
 /-! ### filter -/
 
@@ -702,6 +702,7 @@ Creates a list that contains `n` copies of `a`.
 * `List.replicate 0 "zero" = []`
 * `List.replicate 2 ' ' = [' ', ' ']`
 -/
+@[implicit_reducible]
 def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
@@ -769,6 +770,7 @@ Examples:
 * `["grape"].isEmpty = false`
 * `["apple", "banana"].isEmpty = false`
 -/
+@[implicit_reducible]
 def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
@@ -937,8 +939,8 @@ def drop : (n : Nat) → (xs : List α) → List α
 
 @[simp, grind =] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
-@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
-@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
+@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := id rfl
+@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := id rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with
@@ -1055,11 +1057,11 @@ def dropLast {α} : List α → List α
   | [_]   => []
   | a::as => a :: dropLast as
 
-@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
-@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := rfl
+@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := (rfl)
+@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := (rfl)
 
 @[simp, grind =] theorem dropLast_cons_cons :
-    (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
+    (x::y::zs).dropLast = x :: (y::zs).dropLast := (rfl)
 
 @[deprecated dropLast_cons_cons (since := "2026-02-26")]
 theorem dropLast_cons₂ : (x::y::zs).dropLast = x :: (y::zs).dropLast := dropLast_cons_cons
@@ -2124,10 +2126,10 @@ def range' : (start len : Nat) → (step : Nat := 1) → List Nat
   | _, 0, _ => []
   | s, n+1, step => s :: range' (s+step) n step
 
-@[simp, grind =] theorem range'_zero : range' s 0 step = [] := rfl
-@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
+@[simp, grind =] theorem range'_zero : range' s 0 step = [] := (rfl)
+@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := (rfl)
 -- The following theorem is intentionally not a simp lemma.
-theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := rfl
+theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := (rfl)
 
 /-! ### zipIdx -/
 

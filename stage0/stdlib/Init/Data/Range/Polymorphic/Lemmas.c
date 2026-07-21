@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Lemmas
-// Imports: import Init.Data.Iterators.Lemmas.Consumers.Collect import all Init.Data.Range.Polymorphic.Basic import all Init.Data.Range.Polymorphic.RangeIterator public import Init.Data.Range.Polymorphic.Iterators import all Init.Data.Range.Polymorphic.Iterators import all Init.Data.Iterators.Consumers.Loop import Init.Data.Array.Monadic public import Init.Data.List.Control public import Init.Data.Order.Lemmas import Init.Data.Array.Bootstrap import Init.Data.Iterators.Lemmas.Basic import Init.Data.Iterators.Lemmas.Consumers.Loop import Init.Data.List.Pairwise import Init.Data.Nat.Linear import Init.Omega
+// Imports: import Init.Data.Iterators.Lemmas.Consumers.Collect import all Init.Data.Range.Polymorphic.Basic import all Init.Data.Range.Polymorphic.RangeIterator public import Init.Data.Range.Polymorphic.Iterators import all Init.Data.Range.Polymorphic.Iterators import all Init.Data.Iterators.Consumers.Loop import Init.Data.Array.Monadic public import Init.Data.List.Control public import Init.Data.Order.Lemmas import Init.Data.Array.Bootstrap import Init.Data.Iterators.Lemmas.Basic import Init.Data.Iterators.Lemmas.Consumers.Loop import Init.Data.List.Pairwise import Init.Data.Nat.Internal.Linear import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -549,7 +549,7 @@ lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin) {
@@ -595,7 +595,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
@@ -623,7 +623,7 @@ lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Loop(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin) {
@@ -669,7 +669,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

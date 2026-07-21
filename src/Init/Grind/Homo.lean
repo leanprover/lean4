@@ -9,7 +9,6 @@ public import Init.Grind.Homo.BitVec
 public import Init.Grind.Homo.Fin
 public import Init.Grind.Homo.Nat
 public import Init.Grind.Homo.Int
-public import Init.Grind.Homo.List
 public import Init.Grind.Homo.UInt8
 public import Init.Grind.Homo.UInt16
 public import Init.Grind.Homo.UInt32

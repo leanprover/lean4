@@ -200,7 +200,7 @@ subgoal, the payload proposition (abstracted over the mvar's binders), the witne
 payload's existentials, the reduction of the subgoal's precondition match to the applicable alt,
 and the data needed to close the subgoal `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss` by construction.
 Resolved by `finalizeJPs`. -/
-public structure JPJumpRecord where
+public structure DeferredJump where
   /-- The join point this jump targets, supplying the `Pred`/`predLevel`/`instCL`/`stateTys` shared
   by all of its jumps. -/
   jpInfo : JPDefInfo
@@ -281,7 +281,7 @@ public structure VCGen.State where
   /-- All join-point alt-precondition mvars, in registration order. Assigned by `finalizeJPs`. -/
   jpHypsMVars : Array MVarId := #[]
   /-- Deferred join-point jumps, in jump order. Discharged by `finalizeJPs`. -/
-  jpJumps : Array JPJumpRecord := #[]
+  jpJumps : Array DeferredJump := #[]
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 

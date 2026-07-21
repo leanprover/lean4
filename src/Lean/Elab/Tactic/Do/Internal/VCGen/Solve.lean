@@ -406,14 +406,14 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
 closure of the join-argument equalities, abstracted over the alt-precondition mvar's binders), the
 witnesses for the payload's existentials, and the reduction `redProof : matchExpr = redExpr` of the
 precondition match to the alternative. -/
-private structure JPJump where
+private structure ResolvedJump where
   altIdx : Nat
   payload : Expr
   witnesses : Array Expr
   redExpr : Expr
   redProof : Expr
 
-/-- At a JP jump site `__do_jp args`, build this jump's `JPJump`. `finalizeJPs` assigns `?Hᵢ` the
+/-- At a JP jump site `__do_jp args`, build this jump's `ResolvedJump`. `finalizeJPs` assigns `?Hᵢ` the
 disjunction of its jumps' payloads and discharges each jump by construction.
 
 The applicable alt and its reduction are found by rewriting the precondition match, discharging the
@@ -423,7 +423,7 @@ introduced since the join point was registered (context index `≥ outerLCtxSize
 enclosing split's hypotheses, so the search is bounded by the local nesting rather than the whole
 context. -/
 private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e matchExpr : Expr) :
-    VCGenM (Option JPJump) := do
+    VCGenM (Option ResolvedJump) := do
   let info := jpInfo.splitInfo
   let joinArgs := e.getAppArgs
   liftMetaM do
@@ -541,7 +541,7 @@ The disjunct proof `φPrf : redExpr` is transported across the match reduction (
 `hMatch : matchExpr`, then `le_ofProp` at the postcondition lattice with the constant precondition
 `fun _ => pre` yields `(fun _ => pre) ⊑ ⌜matchExpr⌝`; applying the state args reduces the sides to
 `pre` and the goal's `rhs` by `β`-reduction, which the kernel discharges. -/
-private def dischargeJPJump (r : JPJumpRecord) (idx count : Nat) : VCGenM Unit :=
+private def dischargeJPJump (r : DeferredJump) (idx count : Nat) : VCGenM Unit :=
   r.goal.withContext do
     let φPrf ← liftMetaM <| proveJPDisjunct (← instantiateMVars r.redExpr) idx count r.witnesses.toList
     let hMatch := mkApp4 (mkConst ``Eq.mpr [.zero]) r.matchExpr r.redExpr r.redProof φPrf
@@ -556,7 +556,7 @@ then discharge each recorded jump goal with its own disjunct. -/
 public def finalizeJPs : VCGenM Unit := do
   let s ← get
   if s.jpHypsMVars.isEmpty then return
-  let grouped : Std.HashMap MVarId (Array JPJumpRecord) :=
+  let grouped : Std.HashMap MVarId (Array DeferredJump) :=
     s.jpJumps.foldl (init := {}) fun m r =>
       m.alter r.hypsMVar (fun rs? => some ((rs?.getD #[]).push r))
   for mv in s.jpHypsMVars do
@@ -602,7 +602,7 @@ private def tryJPJump? (scope : Scope) (goal : MVarId) (info : WPApp) : VCGenM (
       #[α, inst, pre, yBase, zGoal, hPre, jpAppliedSS]
     goal.assign proof
     -- Record the jump's precondition subgoal for `finalizeJPs`.
-    let record : JPJumpRecord :=
+    let record : DeferredJump :=
       { jpInfo, hypsMVar := jpInfo.hypsMVars[jump.altIdx]!, goal := hPre.mvarId!,
         payload := jump.payload, witnesses := jump.witnesses, redExpr := jump.redExpr,
         redProof := jump.redProof, matchExpr, pre, ss }

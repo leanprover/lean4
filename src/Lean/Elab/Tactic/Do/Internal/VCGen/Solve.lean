@@ -336,12 +336,14 @@ private def tryJPGadget? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let bodyMV ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar bodyTy (← goal.getTag)
   -- Bind the body proof as a local hypothesis so each jump references it by fvar (`jpProof joinArgs`),
   -- keeping the shared continuation proof in one `let` binding that survives proof-term instantiation.
-  let restGoal ← liftMetaM <| restGoal.define `jpProof bodyTy bodyMV
+  let restGoal ← liftMetaM <| restGoal.define `__do_jpProof bodyTy bodyMV
   let (jpProofFVar, restGoal) ← liftMetaM <| restGoal.intro1P
 
   let outerLCtxSize := (← restGoal.getDecl).lctx.numIndices
+  let stateTys ← liftMetaM <| info.excessArgs.mapM Meta.inferType
   let jpDefInfo : JPDefInfo :=
-    { jpProof := .fvar jpProofFVar, pjpBodyAbs, hypsMVars, splitInfo := sinfo, outerLCtxSize, altLayouts }
+    { jpProof := .fvar jpProofFVar, pjpBodyAbs, hypsMVars, splitInfo := sinfo, outerLCtxSize, altLayouts
+      Pred := info.Pred, instCL, stateTys }
   -- `bodyMV` keeps the original scope so its own head is not treated as a JP.
   let restScope := scope.registerJP fvId jpDefInfo
   return some (.goals [(restScope, restGoal), (scope, bodyMV.mvarId!)])
@@ -400,35 +402,48 @@ private def stopOrErrorOnMissingSpec (prog monad : Expr) (thms : Array SpecTheor
 
 /-- At a JP jump site `__do_jp args`, build this jump's payload for the applicable alt's
 precondition mvar `?Hᵢ`: an existential closure of the join-argument equalities over the jump
-site's local context, abstracted over the mvar's binders. Returns `(altIdx, payload, witnesses)`
-where `witnesses` are the actual locals for the payload's `∃` binders; `finalizeJPs` assigns
-`?Hᵢ` the disjunction of its jumps' payloads and discharges each jump goal by construction. -/
+site's local context, abstracted over the mvar's binders. Returns `(altIdx, payload, witnesses,
+redExpr, redProof)`, where `witnesses` are the actual locals for the payload's `∃` binders and
+`redExpr`/`redProof` reduce the precondition match `⌜match discrs => ?Hᵢ⌝` to the applicable alt.
+`finalizeJPs` assigns `?Hᵢ` the disjunction of its jumps' payloads and discharges each jump by
+construction.
+
+The applicable alt and its reduction are found by rewriting the precondition match, discharging the
+branch condition / matcher congruence hypotheses by an assumption search bounded to the locals
+introduced since the join point was registered (context index `≥ outerLCtxSize`). Because the
+`__do_jp` let is always outer to the split whose branches jump to it, that slice holds exactly the
+enclosing split's hypotheses, so the search is bounded by the local nesting rather than the whole
+context. -/
 private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e : Expr) :
-    VCGenM (Option (Nat × Expr × Array Expr)) := do
+    VCGenM (Option (Nat × Expr × Array Expr × Expr × Expr)) := do
   let info := jpInfo.splitInfo
   let joinArgs := e.getAppArgs
-  -- The applicable alt is the one whose discriminant `rwIfOrMatcher` succeeds on here.
-  let mut altIdx? : Option Nat := none
-  for idx in [:info.altInfos.size] do
-    let resOpt ← liftMetaM <| try
-      some <$> Lean.Elab.Tactic.Do.rwIfOrMatcher idx info.expr
-    catch _ => pure none
-    let some res := resOpt | continue
-    if res.proof?.isNone then continue
-    altIdx? := some idx
-    break
-  let some altIdx := altIdx? | return none
-  unless altIdx < jpInfo.hypsMVars.size do return none
-  let hypsMVar := jpInfo.hypsMVars[altIdx]!
-  trace[Elab.Tactic.Do.vcgen] "JP jump: alt {altIdx} args={joinArgs}"
-  let layout := jpInfo.altLayouts[altIdx]!
   liftMetaM do
-    let mvarTy ← hypsMVar.getType
     let lctx ← getLCtx
     let newLocalDecls := lctx.decls.foldl (init := #[]) (start := jpInfo.outerLCtxSize) Array.push
       |>.filterMap id
       |>.filter (fun decl => !decl.isImplementationDetail)
-    Meta.forallTelescopeReducing mvarTy fun allBinders _ => do
+    let matchExpr := (jpInfo.pjpBodyAbs.beta joinArgs).getAppArgs[2]!
+    -- The branch hypotheses a jump needs are the enclosing split's telescope, whose length is at most
+    -- `max bodyTeleLen`; the split introduces it right after the join point was registered. So confining
+    -- the assumption search to `[outerLCtxSize, outerLCtxSize + maxTele)` covers every alt's full
+    -- discriminant evidence in a fixed window, independent of how deep the jump sits in the alt body.
+    let maxTele := jpInfo.altLayouts.foldl (fun acc l => max acc l.bodyTeleLen) 0
+    let upperBound := jpInfo.outerLCtxSize + maxTele
+    let mut found : Option (Nat × Expr × Expr) := none
+    for idx in [:info.altInfos.size] do
+      let red? ← observing? <| Lean.Elab.Tactic.Do.rwIfOrMatcher idx matchExpr
+        (assumptionLowerBound := jpInfo.outerLCtxSize) (assumptionUpperBound := upperBound)
+      let some red := red? | continue
+      let some redProof := red.proof? | continue
+      found := some (idx, red.expr, redProof)
+      break
+    let some (altIdx, redExpr, redProof) := found | return none
+    unless altIdx < jpInfo.hypsMVars.size do return none
+    let hypsMVar := jpInfo.hypsMVars[altIdx]!
+    trace[Elab.Tactic.Do.vcgen] "JP jump: alt {altIdx} args={joinArgs}"
+    let layout := jpInfo.altLayouts[altIdx]!
+    Meta.forallTelescopeReducing (← hypsMVar.getType) fun allBinders _ => do
       let numJP := joinArgs.size
       unless numJP ≤ allBinders.size do return none
       let jpBinders := allBinders.extract 0 numJP
@@ -477,7 +492,7 @@ private def mkJPJumpPayload? (jpInfo : JPDefInfo) (e : Expr) :
       let φPropClosed := φPropClosed.replaceFVars matchedLocals matchedBinders
       -- The `∃` binders are exactly the non-let rest locals, in order; hand them back as witnesses.
       return some (altIdx, ← Meta.mkLambdaFVars allBinders φPropClosed,
-        (restDecls.filter (·.value?.isNone)).map LocalDecl.toExpr)
+        (restDecls.filter (·.value?.isNone)).map LocalDecl.toExpr, redExpr, redProof)
 
 /-- Prove `∃ locals, ⋀ joinArgs = joinArgs` by supplying each `∃` binder from `witnesses` (the actual
 locals) and closing the residual equalities by `rfl`. -/
@@ -499,39 +514,6 @@ private partial def fillJPExists (g : MVarId) (witnesses : List Expr) : MetaM Un
   | Eq _ lhs _ => g.assign (← Meta.mkEqRefl lhs)
   | _ => throwError "JP witness: unexpected residual{indentExpr ty}"
 
-/-- Close a JP jump's post-monotonicity premise `∀ xs, lhs ⊑ rhs` by reflexivity. Both sides are the
-shared continuation the synthetic spec carries as its postcondition, defeq up to the join-point `let`s
-and eta, so `rel_refl lhs` is assigned and the kernel discharges the defeq. Left to the worklist, the
-target simp would re-verify that continuation at every jump. -/
-private def tryCloseTrivialRefl (g : MVarId) : VCGenM Bool :=
-  g.withContext do
-    forallTelescope (← g.getType) fun xs body => do
-      let_expr PartialOrder.rel α inst lhs _rhs := body | return false
-      let prf ← mkAppOptM ``Lean.Order.PartialOrder.rel_refl #[α, inst, lhs]
-      g.assign (← mkLambdaFVars xs prf)
-      return true
-
-/-- Record a JP jump's precondition VC `pre ⊑ ⌜match discrs => ?Hᵢ⌝` for `finalizeJPs`, verifying
-that the match reduces to the applicable alt with the jump's discriminant evidence. Returns `true`
-when `g` was recorded (and thus withheld from the worklist); other subgoals are left. -/
-private def tryDeferJPPrecond (g hypsMVar : MVarId) (altIdx : Nat) (payload : Expr)
-    (witnesses : Array Expr) : VCGenM Bool :=
-  g.withContext do
-    let_expr PartialOrder.rel _l _inst _pre rhs := ← g.getType | return false
-    -- `rhs` is `⌜match discrs => ?Hᵢ⌝`, on a stateful assertion applied to the introduced state args.
-    let rhsArgs := rhs.getAppArgs
-    unless rhs.getAppFn.isConstOf ``CompleteLattice.ofProp && rhsArgs.size ≥ 3 do return false
-    let matchExpr := rhsArgs[2]!
-    let some red ← liftMetaM <| (try
-        some <$> Lean.Elab.Tactic.Do.rwIfOrMatcher altIdx matchExpr
-      catch _ => pure none)
-      | return false
-    let some redProof := red.proof? | return false
-    let record : JPJumpRecord :=
-      { hypsMVar, goal := g, payload, witnesses, redExpr := red.expr, redProof }
-    modify fun s => { s with jpJumps := s.jpJumps.push record }
-    return true
-
 /-- Prove disjunct `idx` of the `count`-fold right-nested disjunction `φ`, witnessing the selected
 disjunct via `fillJPExists`. -/
 private partial def proveJPDisjunct (φ : Expr) (idx count : Nat) (witnesses : List Expr) :
@@ -546,24 +528,18 @@ private partial def proveJPDisjunct (φ : Expr) (idx count : Nat) (witnesses : L
   | idx + 1 => return mkApp3 (mkConst ``Or.inr) a b (← proveJPDisjunct b idx (count - 1) witnesses)
 
 /-- Discharge a recorded JP jump: prove its own disjunct (number `idx` of `count`) of the assigned
-`?Hᵢ`, then close the jump goal `pre ⊑ ⌜match discrs => ?Hᵢ⌝` with it. The state args a stateful
-assertion is applied to are stripped with `ofProp_apply` (`⌜φ⌝ s = ⌜φ⌝`) and the proof transported
-back to the original goal. -/
-private def dischargeJPJump (sctx : Meta.Simp.Context) (r : JPJumpRecord) (idx count : Nat) :
-    VCGenM Unit :=
-  r.goal.withContext do liftMetaM do
-    let_expr PartialOrder.rel _l _inst pre rhs := ← r.goal.getType
-      | throwError "JP finalization: unexpected jump goal{indentExpr (← r.goal.getType)}"
-    let φPrf ← proveJPDisjunct (← instantiateMVars r.redExpr) idx count r.witnesses.toList
-    let hMatch ← Meta.mkEqMP (← Meta.mkEqSymm r.redProof) φPrf
-    let leProof ← Meta.mkAppM ``Lean.Order.le_ofProp #[pre, ← Meta.inferType hMatch, hMatch]
-    let (res, _) ← Meta.simp rhs sctx
-    match res.proof? with
-    | some rhsEq =>
-      let motive ← Meta.withLocalDeclD `x (← Meta.inferType rhs) fun x => do
-        Meta.mkLambdaFVars #[x] (← Meta.mkAppM ``PartialOrder.rel #[pre, x])
-      r.goal.assign (← Meta.mkEqMPR (← Meta.mkCongrArg motive rhsEq) leProof)
-    | none => r.goal.assign leProof
+`?Hᵢ`, then close the jump goal `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss` with it, built by construction.
+The disjunct proof `φPrf : redExpr` is transported across the match reduction (`Eq.mpr redProof`) to
+`hMatch : matchExpr`, then `le_ofProp` at the postcondition lattice with the constant precondition
+`fun _ => pre` yields `(fun _ => pre) ⊑ ⌜matchExpr⌝`; applying the state args reduces the sides to
+`pre` and the goal's `rhs` by `β`-reduction, which the kernel discharges. -/
+private def dischargeJPJump (r : JPJumpRecord) (idx count : Nat) : VCGenM Unit :=
+  r.goal.withContext do
+    let φPrf ← liftMetaM <| proveJPDisjunct (← instantiateMVars r.redExpr) idx count r.witnesses.toList
+    let hMatch := mkApp4 (mkConst ``Eq.mpr [.zero]) r.matchExpr r.redExpr r.redProof φPrf
+    let base := mkAppN (mkConst ``Lean.Order.le_ofProp [r.predLevel])
+      #[r.Pred, r.instCL, r.constFn, r.matchExpr, hMatch]
+    r.goal.assign (← mkAppNS base r.ss)
 
 /-- Assign every `+jp` alt-precondition mvar `?Hᵢ` the disjunction of the payloads its recorded
 jumps provided (`False` when no jump reaches the alt, e.g. behind an early `return` or a `throw`),
@@ -571,8 +547,6 @@ then discharge each recorded jump goal with its own disjunct. -/
 public def finalizeJPs : VCGenM Unit := do
   let s ← get
   if s.jpHypsMVars.isEmpty then return
-  let sthms ← ({} : Meta.SimpTheorems).addConst ``Lean.Order.CompleteLattice.ofProp_apply
-  let sctx ← Meta.Simp.mkContext (simpTheorems := #[sthms])
   let grouped : Std.HashMap MVarId (Array JPJumpRecord) :=
     s.jpJumps.foldl (init := {}) fun m r =>
       m.alter r.hypsMVar (fun rs? => some ((rs?.getD #[]).push r))
@@ -586,7 +560,7 @@ public def finalizeJPs : VCGenM Unit := do
           | some last => props.pop.foldr (init := last) mkOr
         mv.assign (← Meta.mkLambdaFVars bs φ)
     for h : i in [:records.size] do
-      dischargeJPJump sctx records[i] i records.size
+      dischargeJPJump records[i] i records.size
 
 /-- Close a JP jump `fv joinArgs` directly against the join point's body proof, bypassing the spec
 and backward-rule machinery. Join points are tail-called, so the use-site post equals the body's post
@@ -597,7 +571,8 @@ in the size of the continuation. -/
 private def tryJPJump? (scope : Scope) (goal : MVarId) (info : WPApp) : VCGenM (Option SolveResult) := do
   let some fvId := info.prog.getAppFn.fvarId? | return none
   let some jpInfo := scope.knownJP? fvId | return none
-  let some (altIdx, payload, witnesses) ← mkJPJumpPayload? jpInfo info.prog | return none
+  let some (altIdx, payload, witnesses, redExpr, redProof) ← mkJPJumpPayload? jpInfo info.prog
+    | return none
   goal.withContext do
     let goalTy ← goal.getType
     let_expr Lean.Order.PartialOrder.rel α inst pre zGoal := goalTy | return none
@@ -608,17 +583,26 @@ private def tryJPJump? (scope : Scope) (goal : MVarId) (info : WPApp) : VCGenM (
     -- before applying the excess state args, which the function-lattice `⊑` accepts pointwise.
     let jpRel := Expr.proj ``Std.Internal.Do.Triple 0 (← mkAppNS jpInfo.jpProof joinArgs)
     let jpAppliedSS ← mkAppNS jpRel ss
-    -- `pjpBodyAbs` is a lambda over the join params; beta-reduce so the head is `⌜·⌝` (`ofProp`), which
-    -- `tryDeferJPPrecond` matches. The precondition carries no post `Q`, so this stays cheap.
-    let yBase ← mkAppNS (jpInfo.pjpBodyAbs.beta joinArgs) ss
+    -- `pjpBodyAbs` is a lambda over the join params; beta-reduce so the head is `⌜·⌝` (`ofProp`).
+    -- The precondition carries no post `Q`, so this stays cheap.
+    let ofPropMatch := jpInfo.pjpBodyAbs.beta joinArgs
+    let yBase ← mkAppNS ofPropMatch ss
     let hPreTy ← mkAppNS (mkConst ``Lean.Order.PartialOrder.rel lvls) #[α, inst, pre, yBase]
     let hPre ← liftMetaM <| Meta.mkFreshExprSyntheticOpaqueMVar hPreTy (← goal.getTag)
     let proof ← mkAppNS (mkConst ``Lean.Order.PartialOrder.rel_trans lvls)
       #[α, inst, pre, yBase, zGoal, hPre, jpAppliedSS]
     goal.assign proof
-    let hypsMVar := jpInfo.hypsMVars[altIdx]!
-    unless ← tryDeferJPPrecond hPre.mvarId! hypsMVar altIdx payload witnesses do
-      throwError "vcgen +jp: jump{indentExpr info.prog}\nyielded no precondition subgoal to defer"
+    -- Record the jump's precondition subgoal for `finalizeJPs`, storing the constant precondition
+    -- `fun _ => pre` for the by-construction close.
+    let matchExpr := ofPropMatch.getAppArgs[2]!
+    let constFn := jpInfo.stateTys.foldr (fun ty body => Expr.lam `s ty body .default) pre
+    -- `ofProp` and `le_ofProp` share the auto-bound `l : Type u`, so the const's level instantiates both.
+    let predLevel := ofPropMatch.getAppFn.constLevels!.head!
+    let record : JPJumpRecord :=
+      { hypsMVar := jpInfo.hypsMVars[altIdx]!, goal := hPre.mvarId!, payload, witnesses,
+        redExpr, redProof, matchExpr, constFn,
+        Pred := jpInfo.Pred, predLevel, instCL := jpInfo.instCL, ss }
+    modify fun s => { s with jpJumps := s.jpJumps.push record }
     return some (.goalsInScope scope [])
 
 /-- Select the highest-priority `@[spec]` theorem matching `prog`, or a stop result when none matches.
@@ -646,17 +630,8 @@ a stop result when no rule matches the goal's monad. Reached from `applyFrameOrS
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
     VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Applying spec {thm.proof} for {info.prog}. Excess args: {info.excessArgs}"
-  -- At a JP jump site, build its alt-precondition payload, then build the rule at a fresh mvar depth
-  -- so the synthetic body/precondition mvars survive `abstractMVars` as constants (shared across jump
-  -- sites).
-  let jpInfo? := info.prog.getAppFn.fvarId?.bind scope.knownJP?
-  let jpJump? ← match jpInfo? with
-    | some jpInfo => mkJPJumpPayload? jpInfo info.prog
-    | none => pure none
   let some rule ←
-    try
-      let build := (mkBackwardRuleFromSpecCached thm info).run
-      if jpInfo?.isSome then Meta.withNewMCtxDepth (allowLevelAssignments := false) build else build
+    try (mkBackwardRuleFromSpecCached thm info).run
     catch ex =>
       throwError "Failed to construct rule {thm.proof} for {indentExpr info.prog}\n\
         error: {ex.toMessageData}\n\
@@ -677,20 +652,6 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm 
         Pred:{indentExpr info.Pred}\n\
         excessArgs: {info.excessArgs}\n\
         rule type:{indentExpr ruleType}"
-  if let some (altIdx, payload, witnesses) := jpJump? then
-    let hypsMVar := (jpInfo?.get!).hypsMVars[altIdx]!
-    let mut remaining := #[]
-    let mut deferred := false
-    for g in goals do
-      if ← tryDeferJPPrecond g hypsMVar altIdx payload witnesses then
-        deferred := true
-      else if ← tryCloseTrivialRefl g then
-        pure ()
-      else
-        remaining := remaining.push g
-    unless deferred do
-      throwError "vcgen +jp: jump {indentExpr info.prog}\nyielded no precondition subgoal to defer"
-    return .goalsInScope scope remaining.toList
   return .goalsInScope scope goals
 
 /-- True iff the program matches the `until` pattern, in which case VC generation stops at this
@@ -806,9 +767,7 @@ private def applyFrameOrSpec (scope : VCGen.Scope) (goal : MVarId) (pre : Expr) 
   let thm ← match spec with
     | .ok thm => pure thm
     | .error res => return res
-  -- A JP jump site applies its synthetic spec directly, bypassing framing.
-  let isJP := (info.prog.getAppFn.fvarId?.bind scope.knownJP?).isSome
-  if thm.conjunctivePre || isFramedPost info.post || isJP then
+  if thm.conjunctivePre || isFramedPost info.post then
     return ← applySpec scope goal info thm
   let procs := (← read).frameProcs.byProg
   let fp := info.M.getAppFn.constName?.bind (procs[·]?) |>.getD meetFrameProc

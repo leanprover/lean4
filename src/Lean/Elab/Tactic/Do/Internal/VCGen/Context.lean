@@ -172,6 +172,13 @@ public structure JPDefInfo where
   outerLCtxSize : Nat
   /-- Per-alt binder layouts, aligned with `hypsMVars`. -/
   altLayouts : Array JPAltLayout
+  /-- The postcondition lattice, `wp`'s `Pred` argument. Each jump's precondition proof lives here. -/
+  Pred : Expr
+  /-- The `CompleteLattice Pred` instance, for instantiating `le_ofProp`. -/
+  instCL : Expr
+  /-- State-argument types the postcondition lattice ranges over, for building each jump's
+  constant precondition function. -/
+  stateTys : Array Expr
   deriving Inhabited
 
 public structure VCGen.Scope where
@@ -188,8 +195,9 @@ public structure VCGen.Scope where
 
 /-- A deferred join-point jump: the alt-precondition mvar it targets, its open precondition
 subgoal, the payload proposition (abstracted over the mvar's binders), the witnesses for the
-payload's existentials, and the reduction of the subgoal's precondition match to the applicable
-alt. Resolved by `finalizeJPs`. -/
+payload's existentials, the reduction of the subgoal's precondition match to the applicable alt,
+and the data needed to close the subgoal `pre ⊑ ⌜match discrs => ?Hᵢ⌝ ss` by construction.
+Resolved by `finalizeJPs`. -/
 public structure JPJumpRecord where
   hypsMVar : MVarId
   goal : MVarId
@@ -197,6 +205,17 @@ public structure JPJumpRecord where
   witnesses : Array Expr
   redExpr : Expr
   redProof : Expr
+  /-- The proposition `match discrs => ?Hᵢ` the jump's precondition embeds via `⌜·⌝`. -/
+  matchExpr : Expr
+  /-- Constant function `fun _ => pre` at the postcondition lattice, so `le_ofProp` applied to the
+  state args reproduces the jump's precondition `pre`. -/
+  constFn : Expr
+  /-- The postcondition lattice `Pred`, its universe level, and its `CompleteLattice` instance. -/
+  Pred : Expr
+  predLevel : Level
+  instCL : Expr
+  /-- The state arguments the postcondition lattice is applied to. -/
+  ss : Array Expr
 
 public structure VCGen.State where
   /--
@@ -285,7 +304,10 @@ public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scop
     let lctx ← getLCtx
     if scope.nextDeclIdx == lctx.decls.size then return scope
     let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
-      if decl.isAuxDecl then return scope
+      -- Skip implementation-detail hypotheses (e.g. the `+jp` body proof `__do_jpProof`, the
+      -- `__do_jp` continuation): they are never user specs, and building a spec pattern from one
+      -- runs `preprocessType` over its post, scaling with the continuation.
+      if decl.isAuxDecl || decl.userName.isImplementationDetail then return scope
       try
         if let some thm ← mkSpecTheoremFromLocal decl.fvarId (eval_prio low) then
           return scope.insertSpec thm

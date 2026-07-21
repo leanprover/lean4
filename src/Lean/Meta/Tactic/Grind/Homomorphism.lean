@@ -20,12 +20,8 @@ builtin_initialize registerTraceClass `grind.homo.pred (inherited := true)
 structure State where
   /-- Persistent `Sym.simp` cache, reused across internalizations. -/
   cache : Sym.Simp.Cache := {}
-  /-- Terms for which the `[grind hom_pred]` predicates have already been instantiated. -/
-  processed : PHashSet ExprPtr := {}
-  /-- Terms already visited by `markSourceTerm`. `Solvers.internalize` revisits terms,
-  and re-marking a term whose class already has a solver term re-fires `newEq`; the
-  visited set also avoids repeated `inferType` calls on revisits. -/
-  visited : PHashSet ExprPtr := {}
+  /-- Terms already visited during internalization. -/
+  internalized : PHashSet ExprPtr := {}
   -- **Note**: Consider changing `mkInitial` to `CoreM`. Then, we can initialize the fields `thms`, `preds`, and `sourceTypes`
   -- at `mkInitial` and avoid this `initialized` flag.
   initialized : Bool := false
@@ -59,26 +55,27 @@ private def getSourceTypes : GoalM NameSet := do
   return (← homExt.getState).sourceTypes
 
 /--
-Marks `e` and its arguments as solver terms when their types are homomorphism source
-types, so that the E-graph reports equalities and disequalities involving them to the
-`processNewEq` and `processNewDiseq` hooks. Arguments must be marked here as well:
-free variables are not internalized through the solver hooks, and become visible only
-as arguments of internalized applications (e.g. `x` in `wu x`).
+Marks `e` when its type is a homomorphism source type, so that the core notifies this extension
+of equalities and disequalities involving `e`.
 -/
 private def markSourceTerm (e : Expr) : GoalM Unit := do
   let tys ← getSourceTypes
   if tys.isEmpty then return ()
-  markIfSource tys e
-  for arg in e.getAppArgs do
-    markIfSource tys arg
-where
-  markIfSource (tys : NameSet) (e : Expr) : GoalM Unit := do
-    if (← homExt.getState).visited.contains { expr := e } then return ()
-    homExt.modifyState fun s => { s with visited := s.visited.insert { expr := e } }
-    let τ ← inferType e
-    let .const F _ := τ.getAppFn | return ()
-    if tys.contains F then
-      homExt.markTerm e
+  let α ← Sym.inferType e
+  let .const F _ := α.getAppFn | return ()
+  if tys.contains F then
+    homExt.markTerm e
+
+/--
+Instantiates the `[grind hom_pred]` predicates triggered by `e` and asserts the
+resulting facts. Each term is processed at most once per goal.
+-/
+private def firePreds (e : Expr) (generation : Nat) : GoalM Unit := do
+  let .const declName _ := e.getAppFn | return ()
+  unless (← getPreds).contains declName do return ()
+  for (proof, prop) in ← mkHomoPredInstances e do
+    trace_goal[grind.homo.pred] "{prop}"
+    addNewRawFact proof prop generation .input .other
 
 /--
 Rewriter for the `[grind hom]` rules with the stop condition: `grind` internalizes
@@ -112,42 +109,22 @@ private def applyHomo? (e : Expr) : GoalM (Option (Expr × Expr)) := do
   let .step e' h _ _ := r | return none
   return some (e', h)
 
-/--
-Instantiates the `[grind hom_pred]` predicates triggered by `e` and asserts the
-resulting facts. Each term is processed at most once per goal.
--/
-private def firePreds (e : Expr) (generation : Nat) : GoalM Unit := do
-  let .const declName _ := e.getAppFn | return ()
-  unless (← getPreds).contains declName do return ()
-  if (← homExt.getState).processed.contains { expr := e } then return ()
-  homExt.modifyState fun s => { s with processed := s.processed.insert { expr := e } }
-  for (proof, prop) in ← mkHomoPredInstances e do
-    trace_goal[grind.homo.pred] "{prop}"
-    addNewRawFact proof prop generation .input .other
-
-/--
-Internalization hook. Applies the `[grind hom]` rules to `e` to fixpoint; if a rule
-applied, the final form is preprocessed, internalized, and merged with `e` in the
-E-graph. Otherwise `e` is in homomorphism normal form, and the `[grind hom_pred]`
-predicates are instantiated for it: rewriting has precedence over predicates, so
-predicates fire only on normal forms.
-
-Equality applications are skipped: equalities and disequalities are translated by the
-`processNewEq` and `processNewDiseq` hooks, driven by the polarity the E-graph assigns
-to them.
--/
 def internalize (e : Expr) (_parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).homo do return ()
-  unless e.isApp do return ()
-  if e.isAppOf ``Eq then return ()
+  if e.isAppOf ``Eq then return () -- We do not internalize equalities
+  -- Check whether term has already been internalized by this solver extension.
+  if (← homExt.getState).internalized.contains { expr := e } then return ()
+  homExt.modifyState fun s => { s with internalized := s.internalized.insert { expr := e } }
   markSourceTerm e
   let generation ← getGeneration e
-  let some (e₁, h₁) ← applyHomo? e | firePreds e generation
-  let r ← preprocess e₁
-  let h ← mkEqTrans h₁ (← r.getProof)
-  Grind.internalize r.expr generation
-  trace_goal[grind.homo] "{e}\n===>\n{r.expr}"
-  pushEq e r.expr h
+  if let some (e₁, h₁) ← applyHomo? e then
+    let r ← preprocess e₁
+    let h ← mkEqTrans h₁ (← r.getProof)
+    Grind.internalize r.expr generation
+    trace_goal[grind.homo] "{e}\n===>\n{r.expr}"
+    pushEq e r.expr h
+  else
+    firePreds e generation
 
 /--
 Equality hook: when the classes of `a` and `b` are merged and the `[grind hom]` set

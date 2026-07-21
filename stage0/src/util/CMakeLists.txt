@@ -6,9 +6,7 @@ add_library(
   name.cpp
   name_set.cpp
   escaped.cpp
-  bit_tricks.cpp
   ascii.cpp
-  path.cpp
   lbool.cpp
   init_module.cpp
   list_fn.cpp

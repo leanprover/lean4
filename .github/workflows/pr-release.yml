@@ -77,8 +77,13 @@ jobs:
           git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
 
           git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
+          # `lean4-pr-releases` is not a fork of `lean4`, so without negotiation `git push` cannot
+          # tell which objects it already has (this repo only fetched `master` and the PR commit)
+          # and sends the entire history, exceeding GitHub's 2 GiB pack limit. `push.negotiate`
+          # discovers a recent common commit from the remote's tags, shrinking the pack to the PR delta.
+          # TODO: Should we even push sources here at all?
+          git -C lean4.git -c push.negotiate=true push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+          git -C lean4.git -c push.negotiate=true push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
       - name: Delete existing releases if present
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |

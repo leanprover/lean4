@@ -27,12 +27,13 @@ builtin_initialize lintLogExt :
     mkInitial     := pure #[]
     addImportedFn := fun _ => pure #[]
     addEntryFn    := Array.push
-    exportEntriesFn := id
+    exportEntriesFnEx := fun _ entries =>
+      { exported := #[], server := entries, «private» := entries }
   }
 
 def getAllLints (env : Environment) : Array (Name × Array LintEntry) :=
   env.header.moduleNames.mapIdx fun i mod =>
-    (mod, lintLogExt.getModuleEntries env i)
+    (mod, lintLogExt.getModuleEntries env i (level := .server))
 
 instance : MonadFileMap (ReaderT FileMap BaseIO) := ⟨read⟩
 

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <lean/lean.h>
 
 namespace lean {
-void init_thread_heap();
 LEAN_EXPORT void * alloc(size_t sz);
 LEAN_EXPORT void dealloc(void * o, size_t sz);
 LEAN_EXPORT void set_heartbeats(uint64_t count);

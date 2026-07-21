@@ -6,6 +6,7 @@
 
 /.github/ @kim-em
 /RELEASES.md @kim-em
+/script/release @Garmelon
 /src/kernel/ @leodemoura
 /src/library/compiler/ @hargoniX
 /src/lake/ @tydeu

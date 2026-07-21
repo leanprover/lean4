@@ -9,6 +9,9 @@ module
 prelude
 import Init.Prelude
 
+-- This needs to be top-level, but the only way to get this is to do the all-encompassing
+-- `import Lean`, so we just accept the pollution.
+set_option linter.coreInternal.internalModule false in
 public def LeanServerTestRefsTest0 := Nat
 
 public def Lean.Server.Test.LeanServerTestRefsTest0' := Nat

@@ -3596,3 +3596,9 @@ theorem UInt64.lt_add_one {c : UInt64} (h : c ≠ -1) : c < c + 1 :=
 theorem USize.lt_add_one {c : USize} (h : c ≠ -1) : c < c + 1 :=
   USize.lt_iff_toBitVec_lt.2 (BitVec.lt_add_one
     (by simpa [← USize.toBitVec_inj, BitVec.neg_one_eq_allOnes] using h))
+
+theorem UInt8.toNat_ofNat_le {n : Nat} : (UInt8.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem UInt16.toNat_ofNat_le {n : Nat} : (UInt16.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem UInt32.toNat_ofNat_le {n : Nat} : (UInt32.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem UInt64.toNat_ofNat_le {n : Nat} : (UInt64.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+theorem USize.toNat_ofNat_le {n : Nat} : (USize.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..

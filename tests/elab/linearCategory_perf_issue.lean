@@ -275,6 +275,7 @@ class Preadditive where
   add_comp : ∀ (P Q R : C) (f f' : P ⟶ Q) (g : Q ⟶ R), (f + f') ≫ g = f ≫ g + f' ≫ g
   comp_add : ∀ (P Q R : C) (f : P ⟶ Q) (g g' : Q ⟶ R), f ≫ (g + g') = f ≫ g + f ≫ g'
 
+set_option warn.classDefReducibility false in
 attribute [instance] Preadditive.homGroup
 
 end CategoryTheory
@@ -382,6 +383,7 @@ class Linear (R : Type w) [Semiring R] (C : Type u₁) [Category.{v₁} C] [Prea
   smul_comp : ∀ (X Y Z : C) (r : R) (f : X ⟶ Y) (g : Y ⟶ Z), (r • f) ≫ g = r • f ≫ g
   comp_smul : ∀ (X Y Z : C) (f : X ⟶ Y) (r : R) (g : Y ⟶ Z), f ≫ (r • g) = r • f ≫ g
 
+set_option warn.classDefReducibility false in
 attribute [instance] Linear.homModule
 
 end CategoryTheory

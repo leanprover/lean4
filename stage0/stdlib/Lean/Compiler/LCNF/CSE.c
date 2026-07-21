@@ -98,7 +98,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, le
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instMonadCompilerM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instMonadCompilerM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateRefT_x27_instMonad___aux__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CSE_instMonadFVarSubstMPureFalse___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CSE_instMonadFVarSubstMPureFalse___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l_Lean_Compiler_LCNF_CSE_instMonadFVarSubstMPureFalse___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -525,15 +525,14 @@ v_reusejp_88_:
 {
 lean_object* v___x_90_; lean_object* v___x_91_; 
 v___x_90_ = ((lean_object*)(l_Lean_Compiler_LCNF_CSE_instMonadFVarSubstMPureFalse___closed__18));
-v___x_91_ = lean_alloc_closure((void*)(l_StateRefT_x27_instMonad___aux__13___boxed), 9, 8);
+v___x_91_ = lean_alloc_closure((void*)(l_ReaderT_bind___boxed), 8, 7);
 lean_closure_set(v___x_91_, 0, lean_box(0));
 lean_closure_set(v___x_91_, 1, lean_box(0));
-lean_closure_set(v___x_91_, 2, lean_box(0));
-lean_closure_set(v___x_91_, 3, v___x_89_);
+lean_closure_set(v___x_91_, 2, v___x_89_);
+lean_closure_set(v___x_91_, 3, lean_box(0));
 lean_closure_set(v___x_91_, 4, lean_box(0));
-lean_closure_set(v___x_91_, 5, lean_box(0));
-lean_closure_set(v___x_91_, 6, v___x_90_);
-lean_closure_set(v___x_91_, 7, v___f_77_);
+lean_closure_set(v___x_91_, 5, v___x_90_);
+lean_closure_set(v___x_91_, 6, v___f_77_);
 return v___x_91_;
 }
 }

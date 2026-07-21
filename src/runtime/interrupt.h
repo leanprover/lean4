@@ -42,6 +42,29 @@ public:
 
 LEAN_EXPORT void check_heartbeat();
 
+/** \brief Threshold on the kernel type checker's recursion depth. `scope_rec_depth` throws a
+    `stack_space_exception` when a thread exceeds the limit. `0` means unlimited (the default).
+
+    This is a thread local value, set from the `maxRecDepth` option at the kernel entry points. */
+LEAN_EXPORT void set_max_rec_depth(size_t max);
+LEAN_EXPORT size_t get_max_rec_depth();
+
+/* Set the thread local max recursion depth and reset the current depth to 0. */
+class LEAN_EXPORT scope_max_rec_depth {
+    flet<size_t> m_max;
+    flet<size_t> m_curr;
+public:
+    LEAN_EXPORT scope_max_rec_depth(size_t max);
+};
+
+/* RAII guard that increments the thread local recursion depth for the duration of its scope,
+   throwing a `stack_space_exception` if the configured maximum is exceeded. */
+class LEAN_EXPORT scope_rec_depth {
+public:
+    LEAN_EXPORT scope_rec_depth();
+    LEAN_EXPORT ~scope_rec_depth();
+};
+
 /* Update the thread local `IO.CancelToken` (`nullptr` if unset) */
 class LEAN_EXPORT scope_cancel_tk : flet<lean_object *> {
 public:

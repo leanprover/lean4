@@ -11,13 +11,14 @@ def Time24Hour : GenericFormat .any := datespec("HH:mm:ss")
 def Time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
 def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, uuuu HH:mm:ss ZZZ")
 def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM uuuu HH:mm")
-
 def Full12HourWrong : GenericFormat .any := datespec("MM/dd/uuuu hh:mm:ss aa XXX")
 
 -- Dates
 
 def brTZ : TimeZone := timezone("America/Sao_Paulo -03:00")
 def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
+def zMW := zoned("2002-07-14T23:13:12.324354679-09:30")  -- Marquesas −09:30
+def zIN := zoned("2002-07-14T23:13:12.324354679+05:30")  -- India +05:30
 
 def date₁ := zoned("2014-06-16T03:03:03-03:00")
 
@@ -202,3 +203,25 @@ info: Except.error "offset 13: need a natural number in the interval of 1 to 12"
 #eval
     let t2 := Full12HourWrong.parse "05/10/1993 20:30:23 PM +03:00"
     (ISO8601UTC.format ·) <$> t2
+
+def fO : GenericFormat .any :=
+  datespec("O")
+
+def fOOOO : GenericFormat .any :=
+  datespec("OOOO")
+
+/--
+info: true
+-/
+#guard_msgs in #eval (fO.parse (fO.format zIN)).isOk
+
+/--
+info: true
+-/
+#guard_msgs in #eval (fO.parse (fO.format (zoned("2002-07-14T23:13:12+05:00")))).isOk
+
+-- OOOO round-trips
+/--
+info: true
+-/
+#guard_msgs in #eval (fOOOO.parse (fOOOO.format zIN)).isOk

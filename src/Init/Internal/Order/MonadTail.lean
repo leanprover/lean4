@@ -103,7 +103,7 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] [MonadTail m] :
 
 set_option linter.missingDocs false in
 noncomputable def ST.bot' [Nonempty α] (s : Void σ) : @FlatOrder (ST.Out σ α) (.mk Classical.ofNonempty (Classical.choice ⟨s⟩)) :=
-  .mk Classical.ofNonempty (Classical.choice ⟨s⟩)
+  .mk _ (.mk Classical.ofNonempty (Classical.choice ⟨s⟩))
 
 instance [Nonempty α] : CCPO (ST σ α) where
   rel := PartialOrder.rel (α := ∀ s, FlatOrder (ST.bot' s))

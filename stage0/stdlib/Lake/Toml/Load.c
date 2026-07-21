@@ -24,7 +24,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 extern lean_object* l_Lean_diagnostics;
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* lean_mk_empty_environment(uint32_t);
+lean_object* l_Lean_mkEmptyEnvironment(uint32_t);
 extern lean_object* l_Lake_Toml_toml;
 lean_object* l_Lean_Parser_mkParserState(lean_object*);
 lean_object* l_Lean_Parser_ParserFn_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -338,7 +338,7 @@ _start:
 {
 uint32_t v___x_84_; lean_object* v___x_85_; 
 v___x_84_ = 0;
-v___x_85_ = lean_mk_empty_environment(v___x_84_);
+v___x_85_ = l_Lean_mkEmptyEnvironment(v___x_84_);
 if (lean_obj_tag(v___x_85_) == 0)
 {
 lean_object* v_a_86_; lean_object* v___x_88_; uint8_t v_isShared_89_; uint8_t v_isSharedCheck_209_; 

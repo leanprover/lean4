@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
 public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
+public import Lean.Elab.Tactic.Do.Internal.VCGen.LatticeOp
 public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
 import Lean.Meta.Sym.InferType
 
@@ -33,7 +34,7 @@ an equality spec to `⊑ wp` form using the supplied `wp` metadata before buildi
 
 Cache key: `(proof key, instWP, excessArgs.size)`.
 -/
-public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPInfo) :
+public def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (info : WPApp) :
     OptionT VCGenM BackwardRule := do
   let key := (specThm.proof.key, ExprPtr.mk info.instWP, info.excessArgs.size)
   let s := (← get).specBackwardRuleCache
@@ -50,7 +51,7 @@ Cached version of `mkBackwardRuleForSplit`.
 
 Cache key: `(splitter name, instWP, excessArgs.size)`.
 -/
-public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) :
+public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPApp) :
     VCGenM BackwardRule := do
   let cacheKey := match splitInfo with
     | .ite .. => ``ite
@@ -66,19 +67,31 @@ public def mkBackwardRuleForSplitCached (splitInfo : SplitInfo) (info : WPInfo) 
   return rule
 
 /--
-Cached version of `LatticeSplit.mkBackwardRuleForLattice`.
+Cached construction of a lattice-split backward rule for the operator heading `rhs`. On a cache miss
+the rewrite and terminal sets are assembled from the built-in seeds and the operator's `@[frameproc]`
+contributions (`fp?`); a cache hit skips that work.
 
-Cache key: `(distribution lemma, argument types, excessArgs.size)`.
+Cache key: the `head … cₙ` prefix built from the constant arguments (which the rule bakes in verbatim)
+and the argument count (which fixes the schematic operand and state count).
 -/
-public def mkBackwardRuleForLatticeCached (c : LatticeSplit) (as excessArgs : Array Expr)
-    (resultType? : Option Expr := none) : VCGenM BackwardRule := do
-  let s := (← get).latticeBackwardRuleCache
-  let asTypes ← (as.mapM Sym.inferType : SymM (Array Expr))
-  let key := (c.applyLemma, asTypes.map ExprPtr.mk, excessArgs.size)
-  if let some rule := s[key]? then return rule
-  let rule ← c.mkBackwardRuleForLattice as excessArgs resultType?
-  let rule ← rule.shareCommon
+public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
+    VCGenM BackwardRule := do
+  let key := (ExprPtr.mk (rhs.getAppPrefix op.numConst), rhs.getAppNumArgs)
+  if let some rule := (← get).latticeBackwardRuleCache[key]? then return rule
+  let rule ← (← mkLatticeOpRule rhs op).shareCommon
   modify fun st => { st with latticeBackwardRuleCache := st.latticeBackwardRuleCache.insert key rule }
+  return rule
+
+/--
+Cached version of `mkFrameBackwardRule`.
+
+Cache key: `(instWP, excessArgs.size)` (the operator is determined by the monad).
+-/
+public def mkFrameBackwardRuleCached (op : Expr) (info : WPApp) : VCGenM BackwardRule := do
+  let key := (ExprPtr.mk info.instWP, info.excessArgs.size)
+  if let some rule := (← get).frameBackwardRuleCache[key]? then return rule
+  let rule ← (← mkFrameBackwardRule op info).shareCommon
+  modify fun st => { st with frameBackwardRuleCache := st.frameBackwardRuleCache.insert key rule }
   return rule
 
 end VCGen

@@ -165,19 +165,6 @@ theorem wp_tryCatch_Except_apply_eq (x : Except ε α) (h : ε → Except ε α)
   simp only [wp, WP.wpTrans, MonadExceptOf.tryCatch, Except.tryCatch]
   cases x <;> simp
 
--- TODO: Upstream
-omit [Monad m] in
-@[simp] theorem _root_.ExceptT.run_tryCatch [Monad m] [LawfulMonad m]
-    (x : ExceptT ε m α) (h : ε → ExceptT ε m α) :
-    (tryCatch x h : ExceptT ε m α).run =
-      (do
-        let r ← x.run
-        match r with
-        | .ok a => pure (.ok a)
-        | .error e => (h e).run) := by
-  simp only [tryCatch, tryCatchThe, MonadExceptOf.tryCatch, ExceptT.tryCatch, ExceptT.run_mk]
-  rfl
-
 theorem le_wp_tryCatch_ExceptT_apply (x : ExceptT ε m α)
     (h : ε → ExceptT ε m α) :
     wp x post ⟨fun e => wp (h e) post epost, epost.tail⟩ ⊑
@@ -407,11 +394,6 @@ theorem wp_liftWith_ReaderT_apply_eq
     wp (MonadControl.liftWith (m:=m) f : ReaderT ρ m α) post epost r =
       wp (f (fun x => x.run r)) (fun a => post a r) epost := by
   simp [MonadControl.liftWith, ReaderT.run]
-
--- TODO: Upstream
-omit [Monad m] in
-@[simp] theorem _root_.ExceptT.run_liftM [Monad m] [LawfulMonad m] (x : m α) :
-    (liftM x : ExceptT ε m α).run = (Except.ok <$> x : m (Except ε α)) := rfl
 
 @[simp]
 theorem wp_liftWith_ExceptT_apply_eq
@@ -646,17 +628,6 @@ theorem wp_orElse_Except_apply_eq (x : Except ε α) (h : Unit → Except ε α)
       wp x post epost⟨fun _ => wp (h ()) post epost⟩ := by
   simp only [wp, OrElse.orElse, MonadExcept.orElse]
   cases x <;> rfl
-
--- TODO: Upstream
-variable {m : Type u → Type v} in
-@[simp] theorem _root_.ExceptT.run_orElse [Monad m] [LawfulMonad m]
-    (x : ExceptT ε m α) (h : Unit → ExceptT ε m α) :
-    (OrElse.orElse x h : ExceptT ε m α).run = (do
-      let r ← x.run
-      match r with
-      | .ok a => pure (.ok a)
-      | .error _ => (h ()).run) := by
-  simp [OrElse.orElse, MonadExcept.orElse]
 
 section
 variable {m : Type u → Type v} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]

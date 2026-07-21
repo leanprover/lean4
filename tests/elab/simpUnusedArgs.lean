@@ -12,7 +12,7 @@ warning: This simp argument is unused:
   id_eq
 
 Hint: Omit it from the simp argument list.
-  simp ̵[̵i̵d̵_̵e̵q̵]̵
+  [apply] simp
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -24,7 +24,7 @@ warning: This simp argument is unused:
   id_eq
 
 Hint: Omit it from the simp argument list.
-  simp [i̵d̵_̵e̵q̵,̵ ̵and_self]
+  [apply] simp [and_self]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -39,7 +39,7 @@ warning: This simp argument is unused:
   some_def
 
 Hint: Omit it from the simp argument list.
-  simp ̵[̵s̵o̵m̵e̵_̵d̵e̵f̵]̵
+  [apply] simp
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -58,7 +58,7 @@ warning: This simp argument is unused:
   some_def.eq_def
 
 Hint: Omit it from the simp argument list.
-  simp [some_def, some_def.eq_def,̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+  [apply] simp [some_def, some_def.eq_def]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 ---
@@ -66,7 +66,7 @@ warning: This simp argument is unused:
   some_def.eq_def
 
 Hint: Omit it from the simp argument list.
-  simp [some_def, some_def.eq_def,̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+  [apply] simp [some_def, some_def.eq_def]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -77,7 +77,7 @@ warning: This simp argument is unused:
   (some_def.eq_def)
 
 Hint: Omit it from the simp argument list.
-  simp [some_def, (̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵)̵,̵ ̵some_def.eq_def]
+  [apply] simp [some_def, some_def.eq_def]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 ---
@@ -85,7 +85,7 @@ warning: This simp argument is unused:
   some_def.eq_def
 
 Hint: Omit it from the simp argument list.
-  simp [some_def, (some_def.eq_def),̵ ̵s̵o̵m̵e̵_̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+  [apply] simp [some_def, (some_def.eq_def)]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -106,7 +106,7 @@ warning: This simp argument is unused:
   some_rdef
 
 Hint: Omit it from the simp argument list.
-  simp -failIfUnchanged ̵[̵s̵o̵m̵e̵_̵r̵d̵e̵f̵]̵
+  [apply] simp -failIfUnchanged
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -121,7 +121,7 @@ warning: This simp argument is unused:
   some_rdef.eq_def
 
 Hint: Omit it from the simp argument list.
-  simp -failIfUnchanged [some_rdef,̵ ̵s̵o̵m̵e̵_̵r̵d̵e̵f̵.̵e̵q̵_̵d̵e̵f̵]
+  [apply] simp -failIfUnchanged [some_rdef]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -160,7 +160,7 @@ warning: This simp argument is unused:
   _h
 
 Hint: Omit it from the simp argument list.
-  simp -failIfUnchanged ̵[̵_̵h̵]̵
+  [apply] simp -failIfUnchanged
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -178,7 +178,7 @@ warning: This simp argument is unused:
   ↓reduceIte
 
 Hint: Omit it from the simp argument list.
-  simp only [↓reduceI̵t̵e̵,̵ ̵↓̵r̵e̵d̵u̵c̵e̵DIte]
+  [apply] simp only [↓reduceDIte]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -202,7 +202,7 @@ warning: This simp argument is unused:
   x
 
 Hint: Omit it from the simp argument list.
-  simp ̵[̵x̵]̵
+  [apply] simp
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -216,7 +216,7 @@ warning: This simp argument is unused:
   h3
 
 Hint: Omit it from the simp argument list.
-  simp [h1, h2,̵ ̵h̵3̵]
+  [apply] simp [h1, h2]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -229,7 +229,7 @@ warning: This simp argument is unused:
   h2
 
 Hint: Omit it from the simp argument list.
-  simp [h1,̵ ̵h̵2̵]
+  [apply] simp [h1]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 ---
@@ -237,7 +237,7 @@ warning: This simp argument is unused:
   h1
 
 Hint: Omit it from the simp argument list.
-  simp [h1̵,̵ ̵h̵2]
+  [apply] simp [h2]
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -257,7 +257,7 @@ warning: This simp argument is unused:
   h
 
 Hint: Omit it from the simp argument list.
-  simp ̵[̵h̵]̵
+  [apply] simp
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -304,7 +304,7 @@ warning: This simp argument is unused:
   ← ab
 
 Hint: Omit it from the simp argument list.
-  simp ̵[̵←̵ ̵a̵b̵]̵
+  [apply] simp
 
 Note: Simp arguments with `←` have the additional effect of removing the other direction from the simp set, even if the simp argument itself is unused. If the hint above does not work, try replacing `←` with `-` to only get that effect and silence this warning.
 

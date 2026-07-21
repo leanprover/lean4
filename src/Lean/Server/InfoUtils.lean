@@ -168,25 +168,6 @@ def InfoTree.getCompletionInfos (infoTree : InfoTree) : Array (ContextInfo × Co
     | Info.ofCompletionInfo info => result.push (ctx, info)
     | _ => result
 
-def Info.stx : Info → Syntax
-  | ofTacticInfo i         => i.stx
-  | ofTermInfo i           => i.stx
-  | ofPartialTermInfo i    => i.stx
-  | ofCommandInfo i        => i.stx
-  | ofMacroExpansionInfo i => i.stx
-  | ofOptionInfo i         => i.stx
-  | ofErrorNameInfo i      => i.stx
-  | ofFieldInfo i          => i.stx
-  | ofCompletionInfo i     => i.stx
-  | ofCustomInfo i         => i.stx
-  | ofUserWidgetInfo i     => i.stx
-  | ofFVarAliasInfo _      => .missing
-  | ofFieldRedeclInfo i    => i.stx
-  | ofDelabTermInfo i      => i.stx
-  | ofChoiceInfo i         => i.stx
-  | ofDocInfo i            => i.stx
-  | ofDocElabInfo i        => i.stx
-
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx
   | .ofFieldInfo i          => i.lctx

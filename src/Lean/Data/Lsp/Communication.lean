@@ -16,7 +16,9 @@ public section
 
 /-! Reading/writing LSP messages from/to IO handles. -/
 
-namespace IO.FS.Stream
+open IO
+
+namespace Lean.IO.FS.Stream
 
 open Lean
 open Lean.JsonRpc
@@ -135,4 +137,4 @@ section
     h.writeLspMessage e
 end
 
-end IO.FS.Stream
+end Lean.IO.FS.Stream

@@ -43,7 +43,7 @@ lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(lean_object*
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hash___boxed(lean_object*);
-extern lean_object* l_Lean_Meta_Tactic_BVDecide_intToBitVecExt;
+extern lean_object* l_Lean_Meta_Tactic_BVDecide_metaIntToBitVecExt;
 lean_object* l_Lean_Meta_SimpExtension_getTheorems___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -2032,7 +2032,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_BVDecide_Normalize_intToBitVecPass__
 _start:
 {
 lean_object* v___x_606_; lean_object* v___x_607_; 
-v___x_606_ = l_Lean_Meta_Tactic_BVDecide_intToBitVecExt;
+v___x_606_ = l_Lean_Meta_Tactic_BVDecide_metaIntToBitVecExt;
 v___x_607_ = l_Lean_Meta_SimpExtension_getTheorems___redArg(v___x_606_, v___y_604_);
 if (lean_obj_tag(v___x_607_) == 0)
 {

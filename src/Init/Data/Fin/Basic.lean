@@ -40,7 +40,7 @@ Examples:
  * `(2 : Fin 3).succ = (3 : Fin 4)`
  * `(2 : Fin 3) + 1 = (0 : Fin 3)`
 -/
-def succ : Fin n → Fin (n + 1)
+@[implicit_reducible] def succ : Fin n → Fin (n + 1)
   | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
 
 variable {n : Nat}
@@ -50,6 +50,7 @@ Returns `a` modulo `n` as a `Fin n`.
 
 The assumption `NeZero n` ensures that `Fin n` is nonempty.
 -/
+@[implicit_reducible]
 protected def ofNat (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
 
@@ -85,6 +86,7 @@ Examples:
  * `(2 : Fin 8) + (2 : Fin 8) = (4 : Fin 8)`
  * `(2 : Fin 3) + (2 : Fin 3) = (1 : Fin 3)`
 -/
+@[implicit_reducible]
 protected def add : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + b) % n, by exact mlt h⟩
 
@@ -96,6 +98,7 @@ Examples:
  * `(2 : Fin 10) * (7 : Fin 10) = (4 : Fin 10)`
  * `(3 : Fin 10) * (7 : Fin 10) = (1 : Fin 10)`
 -/
+@[implicit_reducible]
 protected def mul : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a * b) % n, by exact mlt h⟩
 
@@ -106,6 +109,7 @@ Examples:
  * `(5 : Fin 11) - (3 : Fin 11) = (2 : Fin 11)`
  * `(3 : Fin 11) - (5 : Fin 11) = (9 : Fin 11)`
 -/
+@[implicit_reducible]
 protected def sub : Fin n → Fin n → Fin n
   /-
   The definition of `Fin.sub` has been updated to improve performance.
@@ -137,6 +141,7 @@ Modulus of bounded numbers, usually invoked via the `%` operator.
 
 The resulting value is that computed by the `%` operator on `Nat`.
 -/
+@[implicit_reducible]
 protected def mod : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b, by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
@@ -151,6 +156,7 @@ Examples:
  * `(5 : Fin 10) / (0 : Fin 10) = (0 : Fin 10)`
  * `(5 : Fin 10) / (7 : Fin 10) = (0 : Fin 10)`
 -/
+@[implicit_reducible]
 protected def div : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨a / b, by exact Nat.lt_of_le_of_lt (Nat.div_le_self _ _) h⟩
 
@@ -165,18 +171,21 @@ def modn : Fin n → Nat → Fin n
 /--
 Bitwise and.
 -/
+@[implicit_reducible]
 def land : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.land a b) % n, by exact mlt h⟩
 
 /--
 Bitwise or.
 -/
+@[implicit_reducible]
 def lor : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.lor a b) % n, by exact mlt h⟩
 
 /--
 Bitwise xor (“exclusive or”).
 -/
+@[implicit_reducible]
 def xor : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.xor a b) % n, by exact mlt h⟩
 
@@ -188,6 +197,7 @@ Examples:
  * `(1 : Fin 10) <<< (3 : Fin 10) = (8 : Fin 10)`
  * `(1 : Fin 10) <<< (4 : Fin 10) = (6 : Fin 10)`
 -/
+@[implicit_reducible]
 def shiftLeft : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a <<< b) % n, by exact mlt h⟩
 
@@ -202,6 +212,7 @@ Examples:
  * `(15 : Fin 16) >>> (2 : Fin 16) = (3 : Fin 16)`
  * `(15 : Fin 17) >>> (2 : Fin 17) = (3 : Fin 17)`
 -/
+@[implicit_reducible]
 def shiftRight : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a >>> b) % n, by exact mlt h⟩
 
@@ -276,7 +287,7 @@ Examples:
  * `Fin.last 4 = (4 : Fin 5)`
  * `(Fin.last 0).val = (0 : Nat)`
 -/
-@[inline] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩
+@[inline, implicit_reducible] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩
 
 /--
 Replaces the bound with another that is suitable for the value.
@@ -294,7 +305,7 @@ example (i : Fin 10) : Fin 12 :=
     cases i; simp; omega
 ```
 -/
-@[inline] def castLT (i : Fin m) (h : i.1 < n) : Fin n := ⟨i.1, h⟩
+@[inline, implicit_reducible] def castLT (i : Fin m) (h : i.1 < n) : Fin n := ⟨i.1, h⟩
 
 /--
 Coarsens a bound to one at least as large.
@@ -302,14 +313,14 @@ Coarsens a bound to one at least as large.
 See also `Fin.castAdd` for a version that represents the larger bound with addition rather than an
 explicit inequality proof.
 -/
-@[inline] def castLE (h : n ≤ m) (i : Fin n) : Fin m := ⟨i, Nat.lt_of_lt_of_le i.2 h⟩
+@[inline, implicit_reducible] def castLE (h : n ≤ m) (i : Fin n) : Fin m := ⟨i, Nat.lt_of_lt_of_le i.2 h⟩
 
 /--
 Uses a proof that two bounds are equal to allow a value bounded by one to be used with the other.
 
 In other words, when `eq : n = m`, `Fin.cast eq i` converts `i : Fin n` into a `Fin m`.
 -/
-@[inline] protected def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
+@[inline, implicit_reducible] protected def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
 
 /--
 Coarsens a bound to one at least as large.
@@ -317,13 +328,13 @@ Coarsens a bound to one at least as large.
 See also `Fin.natAdd` and `Fin.addNat` for addition functions that increase the bound, and
 `Fin.castLE` for a version that uses an explicit inequality proof.
 -/
-@[inline] def castAdd (m) : Fin n → Fin (n + m) :=
+@[inline, implicit_reducible] def castAdd (m) : Fin n → Fin (n + m) :=
   castLE <| Nat.le_add_right n m
 
 /--
 Coarsens a bound by one.
 -/
-@[inline] def castSucc : Fin n → Fin (n + 1) := castAdd 1
+@[inline, implicit_reducible] def castSucc : Fin n → Fin (n + 1) := castAdd 1
 
 /--
 Adds a natural number to a `Fin`, increasing the bound.
@@ -338,6 +349,7 @@ Examples:
  * `Fin.addNat (1 : Fin 8) 2 = (3 : Fin 10)`
 
 -/
+@[implicit_reducible]
 def addNat (i : Fin n) (m) : Fin (n + m) := ⟨i + m, Nat.add_lt_add_right i.2 _⟩
 
 /--
@@ -352,6 +364,7 @@ Examples:
  * `Fin.natAdd 1 (0 : Fin 8) = (1 : Fin 9)`
  * `Fin.natAdd 1 (2 : Fin 8) = (3 : Fin 9)`
 -/
+@[implicit_reducible]
 def natAdd (n) (i : Fin m) : Fin (n + m) := ⟨n + i, Nat.add_lt_add_left i.2 _⟩
 
 /--
@@ -366,7 +379,7 @@ Examples:
  * `(0 : Fin 6).rev = (5 : Fin 6)`
  * `(2 : Fin 5).rev = (2 : Fin 5)`
 -/
-@[inline] def rev (i : Fin n) : Fin n := ⟨n - (i + 1), Nat.sub_lt i.pos (Nat.succ_pos _)⟩
+@[inline, implicit_reducible] def rev (i : Fin n) : Fin n := ⟨n - (i + 1), Nat.sub_lt i.pos (Nat.succ_pos _)⟩
 
 /--
 Subtraction of a natural number from a `Fin`, with the bound narrowed.
@@ -378,7 +391,7 @@ Examples:
  * `(5 : Fin 9).subNat 0 (by decide) = (5 : Fin 9)`
  * `(3 : Fin 9).subNat 3 (by decide) = (0 : Fin 6)`
 -/
-@[inline] def subNat (m) (i : Fin (n + m)) (h : m ≤ i) : Fin n :=
+@[inline, implicit_reducible] def subNat (m) (i : Fin (n + m)) (h : m ≤ i) : Fin n :=
   ⟨i - m, Nat.sub_lt_right_of_lt_add h i.2⟩
 
 /--
@@ -388,7 +401,7 @@ Examples:
  * `(4 : Fin 8).pred (by decide) = (3 : Fin 7)`
  * `(1 : Fin 2).pred (by decide) = (0 : Fin 1)`
 -/
-@[inline] def pred {n : Nat} (i : Fin (n + 1)) (h : i ≠ 0) : Fin n :=
+@[inline, implicit_reducible] def pred {n : Nat} (i : Fin (n + 1)) (h : i ≠ 0) : Fin n :=
   subNat 1 i <| Nat.pos_of_ne_zero <| mt (Fin.eq_of_val_eq (j := 0)) h
 
 theorem val_inj {a b : Fin n} : a.1 = b.1 ↔ a = b := ⟨Fin.eq_of_val_eq, Fin.val_eq_of_eq⟩

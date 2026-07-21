@@ -242,6 +242,7 @@ error: Unknown constant `b`
 Hint: Insert a fully-qualified name:
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲S̲t̲d̲.̲T̲i̲m̲e̲.̲M̲o̲d̲i̲f̲i̲e̲r̲.̲b̲)̲}`b`
 -/
 #guard_msgs in
 /--

@@ -27,7 +27,7 @@ theorem Nat.div2_lt (h : n ≠ 0) : n / 2 < n := by
   | 2   => decide
   | 3   => decide
   | n+4 =>
-    rw [div_eq, if_pos]
+    rw [div_eq_ite, if_pos]
     refine succ_lt_succ (Nat.lt_trans ?_ (lt_succ_self _))
     exact @div2_lt (n+2) (by simp +arith)
     simp +arith

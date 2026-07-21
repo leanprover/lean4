@@ -489,19 +489,21 @@ def inLeapYear (date : PlainDateTime) : Bool :=
   date.year.isLeap
 
 /--
-Determines the week of the year for the given `PlainDateTime`, using `firstDay` as the start of the week.
+Determines the week of the year for the given `PlainDateTime`, using `firstDay` as the start of the week
+and `minDays` as the minimum number of days a week must have in the new year to count as week 1.
 -/
 @[inline]
-def weekOfYear (date : PlainDateTime) (firstDay : Weekday := .monday) : Week.OfYear.Ordinal :=
-  date.date.weekOfYear firstDay
+def weekOfYear (date : PlainDateTime) (firstDay : Weekday := .monday) (minDays : Bounded.LE 0 6 := Bounded.LE.mk 4 (by decide)) : Week.OfYear.Ordinal :=
+  PlainDate.weekOfYear date.date firstDay minDays
 
 /--
-Returns the week-based year for the given `PlainDateTime`, using `firstDay` as the start of the week.
+Returns the week-based year for the given `PlainDateTime`, using `firstDay` as the start of the week
+and `minDays` as the minimum number of days a week must have in the new year to count as week 1.
 The week-based year may differ from the calendar year for dates near the start or end of the year.
 -/
 @[inline]
-def weekYear (date : PlainDateTime) (firstDay : Weekday := .monday) : Year.Offset :=
-  date.date.weekYear firstDay
+def weekYear (date : PlainDateTime) (firstDay : Weekday := .monday) (minDays : Bounded.LE 0 6 := Bounded.LE.mk 4 (by decide)) : Year.Offset :=
+  date.date.weekYear firstDay minDays
 
 /--
 Returns the aligned week of the month for a `PlainDateTime`. Weeks are fixed 7-day slots

@@ -13393,7 +13393,6 @@ return v___x_3_;
 else
 {
 uint8_t v___x_4_; 
-lean_dec_ref_known(v_x_2_, 1);
 v___x_4_ = 0;
 return v___x_4_;
 }
@@ -13403,7 +13402,6 @@ else
 if (lean_obj_tag(v_x_2_) == 0)
 {
 uint8_t v___x_5_; 
-lean_dec_ref_known(v_x_1_, 1);
 v___x_5_ = 0;
 return v___x_5_;
 }
@@ -13411,11 +13409,7 @@ else
 {
 lean_object* v_val_6_; lean_object* v_val_7_; uint8_t v___x_8_; 
 v_val_6_ = lean_ctor_get(v_x_1_, 0);
-lean_inc(v_val_6_);
-lean_dec_ref_known(v_x_1_, 1);
 v_val_7_ = lean_ctor_get(v_x_2_, 0);
-lean_inc(v_val_7_);
-lean_dec_ref_known(v_x_2_, 1);
 v___x_8_ = l_Lean_Parser_instBEqError_beq(v_val_6_, v_val_7_);
 return v___x_8_;
 }
@@ -13427,6 +13421,8 @@ _start:
 {
 uint8_t v_res_11_; lean_object* v_r_12_; 
 v_res_11_ = l_Option_instBEq_beq___at___00Lean_Parser_Command_versoCommentBodyFn_spec__0(v_x_9_, v_x_10_);
+lean_dec(v_x_10_);
+lean_dec(v_x_9_);
 v_r_12_ = lean_box(v_res_11_);
 return v_r_12_;
 }
@@ -13516,6 +13512,7 @@ v_errorMsg_60_ = lean_ctor_get(v_s_58_, 4);
 lean_inc(v_errorMsg_60_);
 v___x_61_ = lean_box(0);
 v___x_62_ = l_Option_instBEq_beq___at___00Lean_Parser_Command_versoCommentBodyFn_spec__0(v_errorMsg_60_, v___x_61_);
+lean_dec(v_errorMsg_60_);
 if (v___x_62_ == 0)
 {
 lean_dec(v_pos_59_);

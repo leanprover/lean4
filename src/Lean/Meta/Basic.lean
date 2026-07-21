@@ -80,6 +80,16 @@ def ProjReductionKind.toUInt64 : ProjReductionKind → UInt64
   | .yesWithDelta => 2
   | .yesWithDeltaI => 3
 
+structure CanUnfoldPredicateConfig where
+  toBool : Bool
+deriving Inhabited, Repr
+
+@[inline, expose, match_pattern]
+def CanUnfoldPredicateConfig.default : CanUnfoldPredicateConfig := ⟨false⟩
+
+@[inline, expose, match_pattern]
+def CanUnfoldPredicateConfig.atMatcher : CanUnfoldPredicateConfig := ⟨true⟩
+
 /--
 Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
@@ -194,6 +204,11 @@ structure Config where
   When `zeta := true`, then `zetaHave := false` disables zeta reduction of `have` expressions.
   -/
   zetaHave : Bool := true
+  /--
+  A predicate to control whether a constant can be unfolded or not at `whnf`.
+  Ignored if `Context.customCanUnfoldPredicate?` is set.
+  -/
+  canUnfoldPredicateConfig : CanUnfoldPredicateConfig := .default
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
@@ -216,7 +231,8 @@ private def Config.toKey (c : Config) : UInt64 :=
   (c.etaStruct.toUInt64 <<< 17) |||
   (c.proj.toUInt64 <<< 19) |||
   (c.zetaHave.toUInt64 <<< 21) |||
-  (c.zetaUnused.toUInt64 <<< 22)
+  (c.zetaUnused.toUInt64 <<< 22) |||
+  (c.canUnfoldPredicateConfig.toBool.toUInt64 <<< 23)
 
 /-- Configuration with key produced by `Config.toKey`. -/
 structure ConfigWithKey where
@@ -229,6 +245,16 @@ instance : Inhabited ConfigWithKey where  -- #9463
 
 def Config.toConfigWithKey (c : Config) : ConfigWithKey :=
   { config := c }
+
+def ConfigWithKey.withCanUnfoldAtMatcherPred (c : ConfigWithKey) : ConfigWithKey :=
+  { config := { c.config with canUnfoldPredicateConfig := .atMatcher },
+    key :=
+      have : CanUnfoldPredicateConfig.atMatcher.toBool = true := rfl
+      c.key ||| ((1 : UInt64) <<< 23) }
+
+def ConfigWithKey.setTransparency (transparency : TransparencyMode) (c : ConfigWithKey) : ConfigWithKey :=
+  { config := { c.config with transparency }
+    key := ((c.key >>> (3 : UInt64)) <<< 3) ||| transparency.toUInt64 }
 
 /--
 Function parameter information cache.
@@ -494,16 +520,20 @@ structure Context where
   /-- Not `none` when inside of an `isDefEq` test. See `PostponedEntry`. -/
   defEqCtx?         : Option DefEqContext  := none
   /--
-    Track the number of nested `synthPending` invocations. Nested invocations can happen
-    when the type class resolution invokes `synthPending`.
+  Track the number of nested `synthPending` invocations. Nested invocations can happen
+  when the type class resolution invokes `synthPending`.
 
-    Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
+  Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
   /--
-    A predicate to control whether a constant can be unfolded or not at `whnf`.
-    Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
-  canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
+  A predicate to control whether a constant can be unfolded or not at `whnf`.
+  If set, overrides `Config.canUnfoldPredicateConfig`.
+  Note that we do not cache results at `whnf` when `canUnfold?` is not `none`.
+  This field lives outside `Config` because it is not cacheable and its type does not have a `Repr`
+  instance.
+  -/
+  customCanUnfoldPredicate? : Option (Config → ConstantInfo → CoreM Bool) := none
   /--
   When `Config.univApprox := true`, this flag is set to `true` when there is no
   progress processing universe constraints.
@@ -511,8 +541,8 @@ structure Context where
   univApprox        : Bool := false
   /--
   `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
-   resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
-   This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
+  resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
+  This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
   /--
@@ -1172,7 +1202,12 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
     { ctx with keyedConfig := { config } }
 
 @[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
-  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
+  mapMetaM <| withReader (fun ctx => { ctx with customCanUnfoldPredicate? := some p })
+
+@[inline] def withCanUnfoldAtMatcherPred : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with
+    customCanUnfoldPredicate? := none,
+    keyedConfig := ctx.keyedConfig.withCanUnfoldAtMatcherPred })
 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
@@ -1264,11 +1299,9 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
 
-@[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
-  let config := { ctx.config with transparency }
-  -- Recall that `transparency` is stored in the first 3 bits (it has 5 values).
-  let key : UInt64 := ((ctx.configKey >>> (3 : UInt64)) <<< 3) ||| transparency.toUInt64
-  { ctx with keyedConfig := { config, key } }
+@[inline]
+private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
+  { ctx with keyedConfig := ctx.keyedConfig.setTransparency transparency }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
   -- We avoid `withConfig` for performance reasons.

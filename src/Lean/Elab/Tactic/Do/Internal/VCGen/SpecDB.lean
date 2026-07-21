@@ -24,7 +24,7 @@ side of `@[spec]` into the same database, and looking up the specs matching a pr
 
 namespace Lean.Elab.Tactic.Do.Internal
 
-open SpecAttr
+open Lean.Elab.Tactic.Do.Internal.SpecAttr
 
 /-- Returns `true` if `e` is already internalized into the current `SymM` share table, in which case
 `shareCommon e` returns `e` unchanged. -/

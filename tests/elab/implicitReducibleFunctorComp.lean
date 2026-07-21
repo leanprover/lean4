@@ -140,7 +140,7 @@ X Y : C
 f : X ⟶ Y
 ⊢ G.map (F.map f) ≫ α.app (F.obj Y) = α.app (F.obj X) ≫ H.map (F.map f)
 
-Note: The target expression is not type-correct under the `instances` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
+Note: The target expression is not type-correct under the `implicit` transparency level, which may have triggered the failure. This is usually caused by unfolding of semireducible definitions in prior tactic steps. Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.
 Full error:
   Application type mismatch: The argument
     G.map (F.map f)

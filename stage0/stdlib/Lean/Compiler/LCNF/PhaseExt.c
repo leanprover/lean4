@@ -66,7 +66,7 @@ lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instInhabitedDecl_default(uint8_t);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l___private_Lean_Environment_0__Lean_PersistentEnvExtension_getModuleIREntries_unsafe__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_getModuleIREntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
@@ -4530,7 +4530,7 @@ goto v_resetjp_1567_;
 v_resetjp_1567_:
 {
 lean_object* v___x_1570_; lean_object* v___x_1571_; lean_object* v___x_1572_; uint8_t v___x_1573_; 
-v___x_1570_ = l___private_Lean_Environment_0__Lean_PersistentEnvExtension_getModuleIREntries_unsafe__1(lean_box(0), lean_box(0), lean_box(0), v___x_1512_, v_ext_1510_, v_env_1509_, v_val_1520_);
+v___x_1570_ = l_Lean_PersistentEnvExtension_getModuleIREntries___redArg(v___x_1512_, v_ext_1510_, v_env_1509_, v_val_1520_);
 v___x_1571_ = lean_unsigned_to_nat(0u);
 v___x_1572_ = lean_array_get_size(v___x_1570_);
 v___x_1573_ = lean_nat_dec_lt(v___x_1571_, v___x_1572_);
@@ -4849,7 +4849,7 @@ lean_object* v_val_1680_; lean_object* v___x_1704_; lean_object* v___x_1705_; le
 v_val_1680_ = lean_ctor_get(v___x_1679_, 0);
 lean_inc(v_val_1680_);
 lean_dec_ref_known(v___x_1679_, 1);
-v___x_1704_ = l___private_Lean_Environment_0__Lean_PersistentEnvExtension_getModuleIREntries_unsafe__1(lean_box(0), lean_box(0), lean_box(0), v___x_1672_, v_ext_1670_, v_env_1669_, v_val_1680_);
+v___x_1704_ = l_Lean_PersistentEnvExtension_getModuleIREntries___redArg(v___x_1672_, v_ext_1670_, v_env_1669_, v_val_1680_);
 v___x_1705_ = lean_unsigned_to_nat(0u);
 v___x_1706_ = lean_array_get_size(v___x_1704_);
 v___x_1707_ = lean_nat_dec_lt(v___x_1705_, v___x_1706_);

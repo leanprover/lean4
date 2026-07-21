@@ -8,7 +8,7 @@ module
 prelude
 public import Init.ByCases
 public import Std.Internal.Do.Order.Basic
-public import Std.Internal.Do.Order.Frame
+public import Std.Internal.Do.Order.Heyting
 import Init.Classical
 import Init.TacticsExtra
 
@@ -54,27 +54,26 @@ theorem le_of_le_bot (h : P ⊑ (⊥ : l)) : P ⊑ Q := rel_trans h (bot_le _)
 /-! ## Connectives requiring `Frame` -/
 
 section Frame
-variable [Frame l]
+variable [∀ a : l, PreservesSup (meet a)]
 
-theorem le_himp (h : P ⊓ Q ⊑ R) : P ⊑ Q ⇨ R := himp_complete _ _ _ (rel_trans meet_le_comm h)
-theorem le_himp_of_meet_le_comm (h : Q ⊓ P ⊑ R) : P ⊑ Q ⇨ R := himp_complete _ _ _ h
+theorem le_himp_comm (h : P ⊓ Q ⊑ R) : P ⊑ Q ⇨ R := le_himp (rel_trans meet_le_comm h)
+theorem le_himp_of_meet_le_comm (h : Q ⊓ P ⊑ R) : P ⊑ Q ⇨ R := le_himp h
 theorem meet_le_of_le_himp (h : P ⊑ Q ⇨ R) : P ⊓ Q ⊑ R := rel_trans
   (le_meet _ _ _ (meet_le_right _ _) (meet_le_of_left_le h))
-  (himp_sound _ _)
+  meet_himp_le
 theorem meet_le_of_le_himp_comm (h : Q ⊑ P ⇨ R) : P ⊓ Q ⊑ R :=
   rel_trans meet_le_comm (meet_le_of_le_himp h)
 theorem himp_meet_le : (P ⇨ Q) ⊓ P ⊑ Q := meet_le_of_le_himp rel_refl
-theorem meet_himp_le : P ⊓ (P ⇨ Q) ⊑ Q := meet_le_of_le_himp_comm rel_refl
 theorem le_himp_mp (h₁ : P ⊑ Q ⇨ R) (h₂ : P ⊑ Q) : P ⊑ R :=
   le_trans_meet h₂ (meet_le_of_le_himp h₁)
 
 theorem meet_join_le_left (hleft : P ⊓ R ⊑ T) (hright : Q ⊓ R ⊑ T) : (P ⊔ Q) ⊓ R ⊑ T :=
-  meet_le_of_le_himp (join_le _ _ _ (le_himp hleft) (le_himp hright))
+  meet_le_of_le_himp (join_le _ _ _ (le_himp_comm hleft) (le_himp_comm hright))
 theorem meet_join_le_right (hleft : P ⊓ Q ⊑ T) (hright : P ⊓ R ⊑ T) : P ⊓ (Q ⊔ R) ⊑ T :=
   meet_le_of_le_himp_comm
     (join_le _ _ _
-      (le_himp (rel_trans meet_le_comm hleft))
-      (le_himp (rel_trans meet_le_comm hright)))
+      (le_himp_comm (rel_trans meet_le_comm hleft))
+      (le_himp_comm (rel_trans meet_le_comm hright)))
 
 end Frame
 
@@ -96,10 +95,10 @@ theorem iSup_mono {α} {Φ Ψ : α → l} (h : ∀ a, Φ a ⊑ Ψ a) : iSup Φ �
   iSup_le _ _ fun a => rel_trans (h a) (le_iSup _ a)
 
 section Frame
-variable [Frame l]
+variable [∀ a : l, PreservesSup (meet a)]
 
 theorem himp_mono (h1 : Q ⊑ P) (h2 : P' ⊑ Q') : (P ⇨ P') ⊑ Q ⇨ Q' :=
-  le_himp <| rel_trans (meet_mono_right h1) <| rel_trans himp_meet_le h2
+  le_himp_comm <| rel_trans (meet_mono_right h1) <| rel_trans himp_meet_le h2
 theorem himp_mono_left (h : P' ⊑ P) : (P ⇨ Q) ⊑ (P' ⇨ Q) := himp_mono h rel_refl
 theorem himp_mono_right (h : Q ⊑ Q') : (P ⇨ Q) ⊑ (P ⇨ Q') := himp_mono rel_refl h
 
@@ -156,8 +155,8 @@ theorem bot_join : (⊥ : l) ⊔ P = P :=
   rel_antisymm (join_le _ _ _ (bot_le _) rel_refl) (right_le_join _ _)
 theorem join_bot : P ⊔ (⊥ : l) = P := join_comm.trans bot_join
 
-section Frame
-variable [Frame l]
+section PreservesSup
+variable [∀ a : l, PreservesSup (meet a)]
 
 theorem meet_join_left : P ⊓ (Q ⊔ R) = (P ⊓ Q) ⊔ (P ⊓ R) :=
   rel_antisymm
@@ -182,22 +181,22 @@ theorem join_meet_right : (P ⊓ Q) ⊔ R = (P ⊔ R) ⊓ (Q ⊔ R) :=
 theorem top_himp : ((⊤ : l) ⇨ P) = P :=
   rel_antisymm
     (rel_trans (le_meet _ _ _ (le_top _) rel_refl) meet_himp_le)
-    (le_himp (meet_le_of_left_le rel_refl))
-theorem le_himp_self : Q ⊑ P ⇨ P := le_himp (meet_le_right _ _)
+    (le_himp_comm (meet_le_of_left_le rel_refl))
+theorem le_himp_self : Q ⊑ P ⇨ P := le_himp_comm (meet_le_right _ _)
 theorem le_himp_self_iff : (Q ⊑ P ⇨ P) ↔ True := iff_true_intro le_himp_self
 theorem himp_meet_himp_le : (P ⇨ Q) ⊓ (Q ⇨ R) ⊑ P ⇨ R :=
   le_himp_of_meet_le_comm <|
     rel_trans (rel_of_eq meet_assoc.symm) <|
       rel_trans (meet_mono_left meet_himp_le) meet_himp_le
 theorem bot_himp : ((⊥ : l) ⇨ P) = ⊤ :=
-  rel_antisymm (le_top _) (le_himp (meet_le_of_right_le (bot_le _)))
+  rel_antisymm (le_top _) (le_himp_comm (meet_le_of_right_le (bot_le _)))
 
 theorem meet_himp_le_meet : P' ⊓ (P' ⇨ Q') ⊑ P' ⊓ Q' :=
   le_meet _ _ _ (meet_le_left _ _) (rel_trans meet_le_comm himp_meet_le)
 theorem meet_le_meet_of_le_himp (hp : P ⊑ P') (hq : Q ⊑ (P' ⇨ Q')) : P ⊓ Q ⊑ P' ⊓ Q' :=
   rel_trans (meet_mono hp hq) meet_himp_le_meet
 
-end Frame
+end PreservesSup
 
 /-! # Propositional embedding (`CompleteLattice.ofProp`) -/
 
@@ -261,10 +260,10 @@ theorem ofProp_forall {α} {Φ : α → Prop} :
   · exact ofProp_forall_le
 
 section Frame
-variable [Frame l]
+variable [∀ a : l, PreservesSup (meet a)]
 
 theorem himp_ofProp_le {φ₁ φ₂ : Prop} : (⌜φ₁ → φ₂⌝ : l) ⊑ (⌜φ₁⌝ ⇨ ⌜φ₂⌝) :=
-  le_himp (rel_trans (rel_of_eq ofProp_and) (ofProp_mono (And.elim id)))
+  le_himp_comm (rel_trans (rel_of_eq ofProp_and) (ofProp_mono (And.elim id)))
 
 theorem himp_ofProp {φ₁ φ₂ : Prop} : ((⌜φ₁⌝ : l) ⇨ ⌜φ₂⌝) = ⌜φ₁ → φ₂⌝ := by
   apply rel_antisymm
@@ -293,12 +292,12 @@ theorem meet_right_comm : (P ⊓ Q) ⊓ R = (P ⊓ R) ⊓ Q := by
 /-! # Working with entailment -/
 
 /-- `⊤ ⊑ (P ⇨ Q)` iff `P ⊑ Q`. -/
-@[simp] theorem top_le_himp_iff [Frame l] (P Q : l) :
+@[simp] theorem top_le_himp_iff [∀ a : l, PreservesSup (meet a)] (P Q : l) :
     ((⊤ : l) ⊑ P ⇨ Q) ↔ (P ⊑ Q) :=
   ⟨fun h => rel_trans
     (le_meet _ _ _ (le_top _) rel_refl)
     (rel_trans (meet_mono_left h) himp_meet_le),
-   fun h => le_himp (meet_le_of_right_le h)⟩
+   fun h => le_himp_comm (meet_le_of_right_le h)⟩
 
 @[simp] theorem le_top_iff : (Q ⊑ (⊤ : l)) ↔ True := iff_true_intro (le_top _)
 

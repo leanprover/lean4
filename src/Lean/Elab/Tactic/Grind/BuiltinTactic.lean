@@ -83,7 +83,7 @@ def evalGrindSeq : GrindTactic := fun stx =>
 @[builtin_grind_tactic paren] def evalParen : GrindTactic := fun stx =>
   evalGrindTactic stx[1]
 
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 @[builtin_grind_tactic finish] def evalFinish : GrindTactic := fun stx => withMainContext do
   let `(grind| finish $[$configItems]* $[only%$only]? $[[$params?,*]]?) := stx | throwUnsupportedSyntax
@@ -252,7 +252,7 @@ where
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do

@@ -14,7 +14,7 @@ public import Lean.Meta.Sym.Canon
 meta import Init.Data.String.Basic
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Lean.Util.ShareCommon
 public section

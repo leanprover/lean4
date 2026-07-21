@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Sort.Lemmas
-// Imports: public import Init.Data.List.Sort.Basic import all Init.Data.List.Sort.Basic public import Init.BinderPredicates public import Init.Data.Bool import Init.Data.List.Nat.Range import Init.Data.List.Pairwise import Init.Data.List.Perm import Init.Data.List.Range import Init.Data.List.Sublist import Init.Data.Nat.Linear import Init.Data.Prod
+// Imports: public import Init.Data.List.Sort.Basic import all Init.Data.List.Sort.Basic public import Init.BinderPredicates public import Init.Data.Bool import Init.Data.List.Nat.Range import Init.Data.List.Pairwise import Init.Data.List.Perm import Init.Data.List.Range import Init.Data.List.Sublist import Init.Data.Nat.Internal.Linear import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -248,7 +248,7 @@ lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Range(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin) {
@@ -282,7 +282,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Prod(builtin);
@@ -306,7 +306,7 @@ lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Prod(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Sort_Lemmas(uint8_t builtin) {
@@ -340,7 +340,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Prod(builtin);

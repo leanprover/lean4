@@ -8,7 +8,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
-set(LEAN_VERSION_MINOR 33 CACHE STRING "")
+set(LEAN_VERSION_MINOR 34 CACHE STRING "")
 set(LEAN_VERSION_PATCH 0 CACHE STRING "")
 set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -103,7 +103,6 @@ option(TRACK_LIVE_EXPRS "TRACK_LIVE_EXPRS" OFF)
 option(CUSTOM_ALLOCATORS "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO "SAVE_INFO" ON)
-option(SMALL_ALLOCATOR "SMALL_ALLOCATOR" OFF)
 option(MMAP "MMAP" ON)
 option(LAZY_RC "LAZY_RC" OFF)
 option(RUNTIME_STATS "RUNTIME_STATS" OFF)
@@ -122,6 +121,14 @@ set(LEAN_EXTRA_LAKE_OPTS "" CACHE STRING "extra options to lake")
 set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to leanmake")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 
+# Core-only flags.
+# We want to ship `prefer_native=true` but disable it in all stage builds for consistent behavior.
+# Note that currently this could lead to inconsistent behavior in server mode with `USE_LAKE=OFF`
+# but that option is not used anymore and should likely be deleted.
+string(APPEND LEAN_EXTRA_OPTS " -Dinterpreter.prefer_native=false")
+# More useful for devs than users
+string(APPEND LEAN_EXTRA_OPTS " -Dpp.rawOnError=true")
+
 # option used by the CI to fail on warnings
 option(WFAIL "Fail build if warnings are emitted by Lean" ON)
 if(WFAIL MATCHES "ON")
@@ -134,12 +141,7 @@ if(LAZY_RC MATCHES "ON")
 endif()
 
 if(USE_MIMALLOC)
-  set(SMALL_ALLOCATOR OFF)
   set(LEAN_MIMALLOC "#define LEAN_MIMALLOC")
-endif()
-
-if(SMALL_ALLOCATOR MATCHES "ON")
-  set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -1019,7 +1021,7 @@ add_custom_target(clean-olean DEPENDS clean-stdlib)
 if(USE_LAKE_CACHE)
   add_custom_target(
     cache-get
-    COMMAND ${PREV_STAGE}/bin/lake${CMAKE_EXECUTABLE_SUFFIX} cache get --repo=leanprover/lean4
+    COMMAND ${PREV_STAGE}/bin/lake${CMAKE_EXECUTABLE_SUFFIX} cache get --repo=leanprover/lean4 $$LAKE_CACHE_EXTRA_ARGS
   )
 endif()
 

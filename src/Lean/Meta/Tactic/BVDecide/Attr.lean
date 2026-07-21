@@ -9,7 +9,9 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Simp
 public import Std.Tactic.BVDecide.Syntax
+public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Elab.ConfigEval
+import Lean.Meta.Sym.Simp.Attr
 
 public section
 
@@ -41,8 +43,26 @@ declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.BVDecideConfig
 builtin_initialize bvNormalizeExt : Meta.SimpExtension ←
   Meta.registerSimpAttr `bv_normalize "simp theorems used by bv_normalize"
 
-builtin_initialize intToBitVecExt : Meta.SimpExtension ←
-  Meta.registerSimpAttr `int_toBitVec "simp theorems used to convert UIntX/IntX statements into BitVec ones"
+def symIntToBitVecName : Name := `int_toBitVec_sym
+def metaIntToBitVecName : Name := `int_toBitVec_meta
+
+builtin_initialize symIntToBitVecExt : Sym.Simp.SymSimpExtension ←
+  Sym.Simp.registerSymSimpAttr symIntToBitVecName "sym simp theorems used to convert UIntX/IntX statements into BitVec ones"
+
+builtin_initialize metaIntToBitVecExt : Meta.SimpExtension ←
+  Meta.registerSimpAttr metaIntToBitVecName "meta simp theorems used to convert UIntX/IntX statements into BitVec ones"
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name := `int_toBitVec
+    descr := "simp theorems used to convert UIntX/IntX statements into BitVec ones"
+    add := fun declName stx attrKind => do
+      let env ← getEnv
+      let metaImpl ← IO.ofExcept <| getAttributeImpl env metaIntToBitVecName
+      metaImpl.add declName stx attrKind
+      let symImpl ← IO.ofExcept <| getAttributeImpl env symIntToBitVecName
+      symImpl.add declName stx attrKind
+  }
 
 /-- Builtin `bv_normalize` simprocs. -/
 builtin_initialize builtinBVNormalizeSimprocsRef : IO.Ref Meta.Simp.Simprocs ← IO.mkRef {}

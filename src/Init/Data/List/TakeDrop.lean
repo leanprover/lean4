@@ -230,10 +230,10 @@ theorem take_left' {l₁ l₂ : List α} {i} (h : length l₁ = i) : take i (l�
 theorem take_add_one {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := by
   induction l generalizing i with
   | nil =>
-    simp only [take_nil, Option.toList, getElem?_nil, append_nil]
+    simp only [take_nil, Option.toList, append_nil, getElem?_nil]
   | cons hd tl hl =>
     cases i
-    · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
+    · simp only [take, Option.toList, nil_append, getElem?_cons, ↓reduceIte]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
 @[deprecated take_add_one (since := "2025-10-26")]
@@ -256,7 +256,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | [], i => by simp
   | l, 0 => by simp
   | _ :: tl, n + 1 => by
-    dsimp
+    simp
     rw [map_drop]
 
 theorem drop_eq_extract {l : List α} {k : Nat} :

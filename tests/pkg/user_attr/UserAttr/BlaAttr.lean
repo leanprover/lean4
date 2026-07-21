@@ -63,3 +63,5 @@ public meta initialize registerBuiltinAttribute {
 }
 
 register_grind_attr my_grind
+
+register_grind_attr compact_set

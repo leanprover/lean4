@@ -85,13 +85,11 @@ termination_by w - curr
 instance : AIG.LawfulOperator α OverflowInput mkOverflowBit where
   le_size := by
     intros
-    unfold mkOverflowBit
-    dsimp only
+    simp only [mkOverflowBit]
     apply go_le_size
   decl_eq := by
     intros
-    unfold mkOverflowBit
-    dsimp only
+    simp only [mkOverflowBit]
     rw [go_decl_eq]
 
 end mkOverflowBit

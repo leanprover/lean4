@@ -90,7 +90,7 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 
 @[simp, grind =] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
 
-@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
+@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.toList.length) : xs.toList[i] = xs[i] := rfl
 
 @[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
   simp only [getElem?_def, getElem_toList]
@@ -170,7 +170,7 @@ Low-level indexing operator which is as fast as a C array read.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uget", simp, expose]
+@[extern "lean_array_uget", simp, expose, implicit_reducible]
 def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
   xs[i.toNat]
 
@@ -189,7 +189,7 @@ in-place when the reference to the array is unique.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uset", expose]
+@[extern "lean_array_uset", expose, implicit_reducible]
 def uset (xs : Array α) (i : USize) (v : α) (h : i.toNat < xs.size) : Array α :=
   xs.set i.toNat v h
 

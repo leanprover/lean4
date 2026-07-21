@@ -7,7 +7,6 @@ import resource
 import subprocess
 import sys
 import tempfile
-from argparse import Namespace
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple
@@ -184,8 +183,7 @@ def main(
     return measured.stdout, measured.stderr
 
 
-@dataclass
-class Args(Namespace):
+class Args:
     topic: list[str]
     metric: list[str]
     default_metrics: bool
@@ -243,7 +241,7 @@ if __name__ == "__main__":
         default=[],
         help="arguments to pass to the command",
     )
-    args = parser.parse_args(namespace=Args)
+    args = parser.parse_args(namespace=Args())
 
     metrics = set(args.metric)
     if args.default_metrics:

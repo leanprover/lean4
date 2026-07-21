@@ -36,7 +36,7 @@ instance : ToString Era where
 /--
 `Offset` represents a year offset, defined as an `Int`.
 -/
-@[expose] def Offset : Type := Int
+@[expose, implicit_reducible] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 set_option backward.inferInstanceAs.wrap.instances false in

@@ -20,12 +20,12 @@ CommRing interface for cutsat. We use it to normalize nonlinear polynomials.
 -/
 
 /-- Returns `true` if `p` contains a nonlinear monomial. -/
-def _root_.Int.Linear.Poly.isNonlinear (p : Poly) : GoalM Bool := do
+def _root_.Int.Internal.Linear.Poly.isNonlinear (p : Poly) : GoalM Bool := do
   let .add _ x p := p | return false
   if (← getVar x).isAppOf ``HMul.hMul || (← getVar x).isAppOf ``HPow.hPow then return true
   p.isNonlinear
 
-def _root_.Int.Linear.Poly.getGeneration (p : Poly) : GoalM Nat := do
+def _root_.Int.Internal.Linear.Poly.getGeneration (p : Poly) : GoalM Nat := do
   go p 0
 where
   go : Poly → Nat → GoalM Nat
@@ -36,7 +36,7 @@ def getIntRingId? : GoalM (Option Nat) := do
   CommRing.getCommRingId? (← getIntExpr)
 
 /-- Normalize the polynomial using `CommRing`-/
-def _root_.Int.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.RingExpr × CommRing.Poly × Poly)) := do
+def _root_.Int.Internal.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.RingExpr × CommRing.Poly × Poly)) := do
   unless (← p.isNonlinear) do return none
   let some ringId ← getIntRingId? | return none
   CommRing.RingM.run ringId do

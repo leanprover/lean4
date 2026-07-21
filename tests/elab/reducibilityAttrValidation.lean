@@ -1,7 +1,7 @@
 def f (x : Nat) := x + 1
 
 /--
-error: failed to set `[semireducible]` for `f`, declarations are `[semireducible]` by default
+error: failed to set `[semireducible]` for `f` because it already is `[semireducible]`
 
 Note: Use `set_option allowUnsafeReducibility true` to override reducibility status validation
 -/

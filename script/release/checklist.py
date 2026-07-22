@@ -859,6 +859,17 @@ class LeanChecker(RepoChecker):
 
         self.cl.success(f"{what} posted")
 
+    def check_release_notes_updated(self) -> None:
+        # This is only applicable to patch releases, otherwise the release notes
+        # are already updated in the reference manual bump PR.
+        if self.version.patch == 0:
+            return
+
+        if self.prompt("Update release notes manually."):
+            self.cl.success("Release notes updated")
+        else:
+            self.cl.fail("Release notes not updated")
+
     def check_notify_ashley(self) -> None:
         if not self.version.is_stable:
             return
@@ -896,6 +907,7 @@ class LeanChecker(RepoChecker):
 
         self.cl.section("Post release")
         self.check_api_docs_workflow()
+        self.check_release_notes_updated()
         self.check_zulip_post()
         self.check_notify_ashley()
 

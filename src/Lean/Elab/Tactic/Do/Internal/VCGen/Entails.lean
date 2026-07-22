@@ -106,7 +106,6 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
 public def splitForallLe? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (List MVarId)) := do
   unless rhs.isForall do return none
-  unless (← Meta.inferType rhs).isProp do return none
   match ← (← read).backwardRules.forallIntro.applyChecked goal with
   | .goals goals => return some goals
   | .failed => return none

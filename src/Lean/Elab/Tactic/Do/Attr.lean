@@ -539,6 +539,20 @@ def mkSpecTheoremFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option Sp
   return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
 
 /--
+Create a `SpecTheorem` from an elaborated equational proof term `proof : ∀ xs, lhs = rhs`, keyed on
+the LHS. Mirrors `mkSpecTheoremFromSimpDecl?` for proofs supplied as terms rather than declaration
+names. Returns `none` for a no-op equation whose LHS key equals its RHS.
+-/
+def mkSpecTheoremFromSimpExpr? (ref : Syntax) (proof : Expr) (levelParams : List Name := [])
+    (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromExprWithKey proof levelParams fun body => do
+    let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
+    return (lhs, (eqTy, rhs))
+  if pattern.pattern == rhs then return none
+  let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
+  return some { pattern, proof := .stx (← mkFreshId) ref proof, kind := .simp etaArgs, priority := prio }
+
+/--
 The unfold theorem `declName.eq_def` through which a definition in a simp set's `toUnfold`
 rewrites, the spec-database counterpart of `simp`'s delta unfolding. `none` for a recursive
 definition, whose unconditional unfolding would not terminate.
@@ -550,9 +564,10 @@ def unfoldSpecEqn? (declName : Name) : MetaM (Option Name) := do
 /--
 The spec theorems the simp entries `entries` contribute, the single place a `vcgen [...]` argument or
 an `attribute [spec] f` definition (through `mkSimpEntryOfDeclToUnfold`) turns into specs:
-- each `.thm` entry, keyed on its left-hand side (`mkSpecTheoremFromSimpDecl?`) at `prio`, skipping
-  wildcard-row equations guarded by an overlap hypothesis (as a spec such an equation matches any
-  call and strands the hypothesis as a verification condition),
+- each `.thm` entry, keyed on its left-hand side at `prio`, skipping wildcard-row equations guarded
+  by an overlap hypothesis (as a spec such an equation matches any call and strands the hypothesis as
+  a verification condition). A declaration equation is keyed via `mkSpecTheoremFromSimpDecl?`; an
+  equation supplied as a `vcgen [...]` term carries its proof directly (`mkSpecTheoremFromSimpExpr?`),
 - each `.toUnfold` definition through its unfold theorem `f.eq_def` (`unfoldSpecEqn?`) at priority
   `0`, below every equation, so a call with an opaque discriminant still rewrites to the underlying
   `match` expression, which `vcgen` then splits.
@@ -563,7 +578,8 @@ def simpSpecTheorems (entries : Array SimpEntry) (prio : Nat) : MetaM (Array Spe
   for entry in entries do
     match entry with
     | .thm thm =>
-      if let .decl declName .. := thm.origin then
+      match thm.origin with
+      | .decl declName .. =>
         try
           if hasOverlapHypothesis (← getConstInfo declName).type then
             trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {declName}"
@@ -571,6 +587,15 @@ def simpSpecTheorems (entries : Array SimpEntry) (prio : Nat) : MetaM (Array Spe
             result := result.push spec
         catch e =>
           trace[Elab.Tactic.Do.specAttr] "Failed to add simp spec {declName}: {e.toMessageData}"
+      | .stx .. =>
+        try
+          if hasOverlapHypothesis (← inferType thm.proof) then
+            trace[Elab.Tactic.Do.specAttr] "Skipping overlap-hypothesis equation {thm.origin.key}"
+          else if let some spec ← mkSpecTheoremFromSimpExpr? .missing thm.proof thm.levelParams.toList prio then
+            result := result.push spec
+        catch e =>
+          trace[Elab.Tactic.Do.specAttr] "Failed to add simp spec {thm.origin.key}: {e.toMessageData}"
+      | _ => pure ()
     | .toUnfold declName =>
       try
         if let some eqDef ← unfoldSpecEqn? declName then

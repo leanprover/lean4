@@ -48,6 +48,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
     TermElabM (VCGen.Context × VCGen.Scope) := do
   let mut specThms ← getSpecTheorems
   let mut simpStuff := #[]
+  let mut simpTermThms : Array SimpTheorem := #[]
   let mut starArg := false
   for arg in lemmas[1].getSepArgs do
     if arg.getKind == ``simpErase then
@@ -91,7 +92,28 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
           specThms := specThms.insert thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
-      | _ => withRef term <| throwError "Could not resolve spec theorem `{term}`"
+      | _ =>
+        -- A term that is not a bare identifier (e.g. `show l = r from h`, `foo x`, `@foo`).
+        -- Mirror `simp`: elaborate once, register a spec proof as a spec, and any other proof as a
+        -- simp lemma (which `addSimpSpecs` turns into an equational spec).
+        let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef term do
+          let e ← Term.elabTerm term .none
+          Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
+          let e ← instantiateMVars e
+          if e.hasSyntheticSorry then
+            return none
+          let e := e.eta
+          if e.hasMVar then
+            let r ← abstractMVars e
+            return some (r.paramNames, r.expr)
+          else
+            return some (#[], e)
+        if let some (levelParams, proof) := thm? then
+          if let some thm ← mkSpecTheoremFromStx term proof then
+            specThms := specThms.insert thm
+          else
+            let thms ← mkSimpTheoremFromExpr (.stx (← mkFreshId) arg) levelParams proof
+            simpTermThms := simpTermThms ++ thms
     else if arg.getKind == ``simpStar then
       starArg := true
       simpStuff := simpStuff.push ⟨arg⟩
@@ -105,7 +127,9 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
     (eraseLocal := false)
     (simpTheorems := pure {})
     (ignoreStarArg := ignoreStarArg)
-  let simpThms := res.ctx.simpTheorems[0]?.getD {}
+  let mut simpThms := res.ctx.simpTheorems[0]?.getD {}
+  for thm in simpTermThms do
+    simpThms := simpThms.addSimpTheorem thm
   -- Add local spec hypotheses when `*` is used.
   if starArg && !ignoreStarArg then
     let fvars ← getPropHyps

@@ -701,7 +701,7 @@ theorem find?_eq_map_findFinIdx?_getElem {xs : Array α} {p : α → Bool} :
     xs.find? p = (xs.findFinIdx? p).map (xs[·]) := by
   cases xs
   simp [List.find?_eq_map_findFinIdx?_getElem]
-  rfl
+  try rfl
 
 theorem find?_eq_bind_findIdx?_getElem? {xs : Array α} {p : α → Bool} :
     xs.find? p = (xs.findIdx? p).bind (xs[·]?) := by

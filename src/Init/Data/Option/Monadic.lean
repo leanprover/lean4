@@ -103,6 +103,7 @@ theorem forIn'_eq_pelim [Monad m] [LawfulMonad m]
     forIn' (o.map g) init f = forIn' o init fun a h y => f (g a) (mem_map_of_mem g h) y := by
   cases o <;> simp
 
+set_option linter.unnecessarySimpa false in -- TODO: use `simp` after stage0 update
 theorem forIn'_join [Monad m] [LawfulMonad m] (b : β) (o : Option (Option α))
     (f : (a : α) → a ∈ o.join → β → m (ForInStep β)) :
     forIn' o.join b f = forIn' o b (fun o' ho' b => ForInStep.yield <$> forIn' o' b (fun a ha b' => f a (by simp_all) b')) := by

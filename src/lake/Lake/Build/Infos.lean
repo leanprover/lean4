@@ -111,8 +111,9 @@ builtin_facet precompileImports : Module => Array Module
 /-- Shared library for `--load-dynlib`. -/
 builtin_facet dynlib : Module => Dynlib
 
-/-- A Lean library's Lean modules. -/
-builtin_facet modules : LeanLib => Array Module
+/-- A Lean library's Lean modules, topologically sorted
+(`A` comes before `B` when `B` imports `A`). -/
+builtin_facet modules : LeanLib => OrdModuleSet
 
 /-- The package's array of dependencies. -/
 builtin_facet deps : Package => Array Package

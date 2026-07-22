@@ -30,6 +30,9 @@ public instance : EmptyCollection (OrdHashSet α) := ⟨empty⟩
 public def mkEmpty (size : Nat) : OrdHashSet α :=
   ⟨∅, .mkEmpty size⟩
 
+public def contains (self : OrdHashSet α) (a : α) : Bool :=
+  self.toHashSet.contains a
+
 public def insert (self : OrdHashSet α) (a : α) : OrdHashSet α :=
   if self.toHashSet.contains a then
     self

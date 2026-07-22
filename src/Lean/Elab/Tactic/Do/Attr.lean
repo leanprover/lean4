@@ -352,13 +352,24 @@ instance : BEq SpecTheorem where
 
 abbrev SpecEntry := SpecTheorem
 
+/-- Priority for a spec named explicitly in a `vcgen [...]` argument list. -/
+def explicitSpecPrio : Nat := eval_prio high + 20
+
+/-- Priority for a local hypothesis pulled into `vcgen`'s spec set by `*`. -/
+def starSpecPrio : Nat := eval_prio high + 10
+
 structure SpecTheorems where
   specs : DiscrTree SpecTheorem := DiscrTree.empty
   erased : PHashSet SpecProof := {}
   deriving Inhabited
 
+/-- Insert `e`, keeping the higher priority when a spec with the same proof is already stored, so
+re-inserting a spec at a lower band never demotes it. The stored `SpecTheorem` is the single source
+of truth for the priority; `Sym.getMatch` retrieves the current entries for `e`'s program. -/
 def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := Sym.insertPattern d.specs e.pattern e }
+  let priority := (Sym.getMatch d.specs e.pattern.pattern).foldl (init := e.priority) fun pr s =>
+    if s.proof == e.proof then max pr s.priority else pr
+  { d with specs := Sym.insertPattern d.specs e.pattern { e with priority } }
 
 def SpecTheorems.isErased (d : SpecTheorems) (thmId : SpecProof) : Bool :=
   d.erased.contains thmId

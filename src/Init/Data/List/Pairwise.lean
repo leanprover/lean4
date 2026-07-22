@@ -329,21 +329,21 @@ theorem Nodup.getElem!_inj [Inhabited α] {xs : List α}
     (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs[i]! = xs[j]! ↔ i = j := by
   simp only [getElem!_eq_getElem?_getD, ← getD_eq_getElem?_getD, h₂.getD_inj h₀ h₁]
 
-@[deprecated Nodup.getElem?_inj (since := "2026-15-07")]
+@[deprecated Nodup.getElem?_inj (since := "2026-07-15")]
 theorem getElem?_inj {l : List α} (h₀ : i < l.length) (h₁ : List.Nodup l) :
     l[i]? = l[j]? ↔ i = j := h₁.getElem?_inj h₀
 
-@[deprecated Nodup.getElem_inj (since := "2026-15-07")]
+@[deprecated Nodup.getElem_inj (since := "2026-07-15")]
 theorem getElem_inj {xs : List α}
     {h₀ : i < xs.length} {h₁ : j < xs.length} (h : Nodup xs) : xs[i] = xs[j] ↔ i = j :=
   h.getElem_inj
 
-@[deprecated Nodup.getD_inj (since := "2026-15-07")]
+@[deprecated Nodup.getD_inj (since := "2026-07-15")]
 theorem getD_inj {xs : List α}
     (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) :
     xs.getD i fallback = xs.getD j fallback ↔ i = j := h₂.getD_inj h₀ h₁
 
-@[deprecated Nodup.getElem!_inj (since := "2026-15-07")]
+@[deprecated Nodup.getElem!_inj (since := "2026-07-15")]
 theorem getElem!_inj [Inhabited α] {xs : List α}
     (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs[i]! = xs[j]! ↔ i = j :=
   h₂.getElem!_inj h₀ h₁

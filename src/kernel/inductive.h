@@ -84,10 +84,24 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     recursor_val const & rec_val = rec_info->to_recursor_val();
     unsigned major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
-    expr major     = rec_args[major_idx];
     if (rec_val.is_k()) {
-        major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
+        expr const & e = mk_app(rec_fn, rec_val.get_major_idx() + 1, rec_args.data());
+        expr const & e_type = infer_type(e);
+        unsigned minor_idx = rec_val.get_first_minor_idx();
+        expr const & minor = rec_args[minor_idx];
+        expr const & minor_type = infer_type(minor);
+        if (is_def_eq(e_type, minor_type)) {
+            expr rhs = minor;
+            if (rec_args.size() > major_idx + 1) {
+                /* recursor application has more arguments after major premise */
+                unsigned nextra = rec_args.size() - major_idx - 1;
+                rhs = mk_app(rhs, nextra, rec_args.data() + major_idx + 1);
+            }
+            return rhs;
+        } else
+            return none_expr();
     }
+    expr major     = rec_args[major_idx];
     major = whnf(major);
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);

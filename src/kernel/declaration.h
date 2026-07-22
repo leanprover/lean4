@@ -380,6 +380,8 @@ public:
     unsigned get_nmotives() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
     unsigned get_nminors() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
+    unsigned get_first_minor_idx() const { return get_nparams() + get_nmotives(); }
+    unsigned get_first_index_idx() const { return get_nparams() + get_nmotives() + get_nminors(); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
     bool is_k() const;
     bool is_unsafe() const;

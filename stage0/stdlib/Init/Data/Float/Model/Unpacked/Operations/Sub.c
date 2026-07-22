@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Float_Model_UnpackedFloat_instBEqSign_beq(uint8_t, uint8_t);
+uint8_t l_Float_Model_UnpackedFloat_instDecidableEqSign(uint8_t, uint8_t);
 lean_object* l_Float_Model_UnpackedFloat_decreaseExponent(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Float_Model_UnpackedFloat_Sign_apply(uint8_t, lean_object*);
@@ -88,7 +88,7 @@ return v_x_10_;
 v___jp_17_:
 {
 uint8_t v___x_19_; 
-v___x_19_ = l_Float_Model_UnpackedFloat_instBEqSign_beq(v_sign_16_, v___y_18_);
+v___x_19_ = l_Float_Model_UnpackedFloat_instDecidableEqSign(v_sign_16_, v___y_18_);
 if (v___x_19_ == 0)
 {
 lean_object* v___x_20_; 
@@ -249,7 +249,7 @@ return v___x_51_;
 v___jp_25_:
 {
 uint8_t v___x_27_; 
-v___x_27_ = l_Float_Model_UnpackedFloat_instBEqSign_beq(v_sign_24_, v___y_26_);
+v___x_27_ = l_Float_Model_UnpackedFloat_instDecidableEqSign(v_sign_24_, v___y_26_);
 if (v___x_27_ == 0)
 {
 lean_object* v___x_28_; 

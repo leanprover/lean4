@@ -124,7 +124,7 @@ def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Modul
 public def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
   mkFacetJobConfig recComputePrecompileImports (buildable := false)
 
-/-- Whether this modules is included in `lib.modules` for its parent library `lib`.
+/-- Whether this module is included in `lib.modules` for its parent library `lib`.
 This is false of "orphaned" modules not imported by their parent library's root module. -/
 def Module.containedInLibModules (mod : Module) : FetchM Bool := do
   return (← (← mod.lib.modules.fetch).await).contains mod
@@ -167,7 +167,7 @@ def fetchImportLibs
 := do
   let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if imp.shouldPrecompile then
-      if ← imp.includedInSharedTarget then
+      if ← imp.containedInLibModules then
         if libs.contains imp.lib.name then
           return (libs, jobs)
         else

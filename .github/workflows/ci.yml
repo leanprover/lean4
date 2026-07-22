@@ -342,6 +342,20 @@ jobs:
                 "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|elab_bench/'"
               },
               {
+                "name": "Linux tsanitize",
+                // Always run on large if available, more reliable regarding timeouts.
+                // Building stage 2 with tsanitize needs > 32GB.
+                "os": large ? (target_stage >= 2 ? "nscloud-ubuntu-24.04-amd64-32x64" : "nscloud-ubuntu-24.04-amd64-8x16") : "ubuntu-latest",
+                "enabled": level >= 2 || fsanitize,
+                "test": true,
+                // turn off custom allocator & symbolic functions to make TSAN do its magic
+                "CMAKE_PRESET": "sanitize-thread",
+                // We take a small subset of tests for tsan and run with reduced test parallelism.
+                // This is necessary as running tsan in parallel on all of our test suite would
+                // easily OOM the runner.
+                "CTEST_OPTIONS": "-R 'elab/(async.*|sync_.*|task.*|bv_bitwise|net_addr|networkInterfaces|openssl|idbg.*|Process|handleLocking|ioNulBytes|ioRandomBytes|libuv|readDir|realPath|st_test|stateRef|grind_list_count|vcgenSymBlock|doControlInfoAggregate)'"
+              },
+              {
                 "name": "macOS",
                 "os": "macos-15-intel",
                 "release": true,

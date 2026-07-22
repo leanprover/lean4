@@ -430,6 +430,39 @@ class DownstreamChecker(RepoChecker):
         self.cl.success(f"{what} created")
         return tag
 
+    def _check_patch_release_tag(self) -> GitRef | None:
+        # Patch releases (v4.X.Y with Y>0) skip the usual bump-PR flow: the
+        # new tag's commit is created directly from the previous patch's tag,
+        # bumping only the toolchain file, and pushed straight to the repo.
+        tag_name = self.version.tag
+        what = f"Toolchain tag [b]{tag_name}[/b]"
+
+        try:
+            tag = self.grepo.get_git_ref(f"tags/{tag_name}")
+            self.cl.success(f"{what} exists")
+            return tag
+        except UnknownObjectException:
+            pass
+
+        if not self.prompt(f"{what} not found. Create?"):
+            self.cl.fail(f"{what} not found")
+            return
+
+        self.lrepo.prepare()
+        self.lrepo.git("checkout", "--detach", self.version.prev.tag)
+        util.set_toolchain(self.lrepo.path, self.version.tag)
+        self.lrepo.commit(util.get_toolchain_bump_message(self.version))
+        sha = self.lrepo.git_stdout("rev-parse", "HEAD").strip()
+        self.lrepo.create_tag(tag_name, sha)
+
+        if not self.prompt(f"Push tag [b]{tag_name}[/b]?"):
+            self.cl.fatal(f"{what} does not exist")
+        self.lrepo.push(tag_name, upstream=False)
+
+        tag = self.grepo.get_git_ref(f"tags/{tag_name}")
+        self.cl.success(f"{what} created")
+        return tag
+
     def _check_proofwidgets_release_tag(self) -> GitRef | None:
         what = f"Proofwidgets release with toolchain {self.version}"
 
@@ -477,6 +510,17 @@ class DownstreamChecker(RepoChecker):
             self.cl.success(f"{what} points to toolchain tag")
             return
 
+        if self.version.patch > 0:
+            # Patch releases may be on older stable releases, so we have to be a
+            # bit careful here
+            if not self.prompt(
+                f"Is [b]{e(self.version.tag)}[/b] the latest stable release?"
+            ):
+                self.cl.success(
+                    f"{what} not updated, {e(self.version.tag)} is not the latest"
+                )
+                return
+
         if not self.prompt(f"{what} does not point to toolchain tag. Update?"):
             self.cl.fail(f"{what} does not point to toolchain tag")
             return
@@ -511,6 +555,22 @@ class DownstreamChecker(RepoChecker):
 
     def check(self) -> None:
         self.check_dependencies_completed()
+
+        # Patch releases are a bit special
+        if self.version.patch > 0:
+            # They only apply to some repos
+            if not self.rrepo.patch_release:
+                self.cl.success("Nothing to do, this is a patch release")
+                self.rrepo.completed = True
+                return
+
+            # They work differently from normal toolchain bumps
+            release_tag = self._check_patch_release_tag()
+            if release_tag:
+                self.check_stable_branch_points_to_release_tag(release_tag)
+            self.cl.ensure_success()
+            self.rrepo.completed = True
+            return
 
         toolchain = self.check_toolchain()
         if not toolchain:

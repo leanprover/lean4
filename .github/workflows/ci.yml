@@ -353,7 +353,7 @@ jobs:
                 // We take a small subset of tests for tsan and run with reduced test parallelism.
                 // This is necessary as running tsan in parallel on all of our test suite would
                 // easily OOM the runner.
-                "CTEST_OPTIONS": "-j1 -E 'async_http_body|async_http_dispatch|async_http_encode|async_http_fuzz|async_http_response_framing|async_http_hang_regressions|task_iterators' -R 'elab/(async.*|sync_.*|task.*|bv_bitwise|net_addr|networkInterfaces|openssl|idbg.*|Process|handleLocking|ioNulBytes|ioRandomBytes|libuv|readDir|realPath|st_test|stateRef|grind_list_count|vcgenSymBlock|doControlInfoAggregate)'"
+                "CTEST_OPTIONS": "-j2 -E 'async_http_body|async_http_dispatch|async_http_encode|async_http_fuzz|async_http_response_framing|async_http_hang_regressions|task_iterators' -R '(compile/534)|(elab/(async.*|sync_.*|task.*|bv_bitwise|net_addr|networkInterfaces|openssl|idbg.*|Process|handleLocking|ioNulBytes|ioRandomBytes|libuv|readDir|realPath|st_test|stateRef|grind_list_count|vcgenSymBlock|doControlInfoAggregate))'"
               },
               {
                 "name": "macOS",

@@ -52,17 +52,7 @@ attribute [local spec] wild in
 example (n m : Option Nat) : ⦃ True ⦄ wild n m ⦃ fun r => r > 0 ⦄ := by
   vcgen with finish
 
-/--
-error: Failed to apply rule SpecProof.global recf.eq_2 for
-  recf n
-target:
-  ⊤ ⊑ wp (recf n) (LT.lt 0) ⊥
-Pred:
-  Prop
-excessArgs: []
-rule type:
-  ∀ (Pre : Prop) (n_2 : Nat) (Q : Nat → Prop) (E : EPost⟨⟩), Pre ⊑ wp (recf n_2) Q E → Pre ⊑ wp (recf n_2.succ) Q E
--/
+/-- error: No spec matching the monad Id found for program recf n. Candidates were [SpecProof.global recf.eq_2]. -/
 #guard_msgs (whitespace := lax) in
 example (n : Nat) : ⦃ True ⦄ recf n ⦃ fun r => r > 0 ⦄ := by
   vcgen [recf] with finish

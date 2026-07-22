@@ -309,6 +309,13 @@ private def findSpec (scope : VCGen.Scope) (prog monad : Expr) :
   | .ok thm => return (scope, .ok thm)
   | .error thms => return (scope, .error (← stopOrErrorOnMissingSpec prog monad thms))
 
+/-- True iff the spec's pattern unifies with the program, mirroring the match performed in
+`findSpecs`. Distinguishes a spurious discrimination-tree candidate, whose pattern does not unify,
+from a spec whose pattern matches yet whose backward rule fails to apply. -/
+private def specPatternMatches (thm : SpecTheorem) (prog : Expr) : SymM Bool :=
+  withNewMCtxDepth do
+    return (← thm.pattern.match? prog).isSome
+
 /-- Apply the cached backward rule of the selected `@[spec]` theorem `thm`, returning its subgoals, or
 a stop result when no rule matches the goal's monad. Reached from `applyFrameOrSpec`. -/
 private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm : SpecTheorem) :
@@ -326,6 +333,11 @@ private def applySpec (scope : VCGen.Scope) (goal : MVarId) (info : WPApp) (thm 
     | return ← stopOrErrorOnMissingSpec info.prog info.M #[thm]
   let .goals goals ← rule.applyChecked goal m!"spec rule for{indentExpr info.prog}"
     | do
+      -- The discrimination tree over-approximates, so a selected spec may not unify with the program
+      -- (e.g. an offset-keyed equation against a variable discriminant). That is no matching spec, not
+      -- a rule failure. A spec whose pattern does match yet whose rule fails to apply is a genuine bug.
+      unless ← specPatternMatches thm info.prog do
+        return ← stopOrErrorOnMissingSpec info.prog info.M #[thm]
       let ruleType ← Meta.inferType rule.expr
       throwError "Failed to apply rule {thm.proof} for {indentExpr info.prog}\n\
         target:{indentExpr (← goal.getType)}\n\

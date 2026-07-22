@@ -53,9 +53,9 @@ USAGE:
 -/
 script mkBuild (args : List String) := do
   let argc := args.length
-  let some layers := if h : argc > 0 then args[0].toNat? else some 40
+  let some layers := if h : argc > 0 then args[0].toNat? else some 20
     | return 1
-  let some width  := if h : argc > 1 then args[1].toNat? else some 40
+  let some width  := if h : argc > 1 then args[1].toNat? else some 20
     | return 1
 
   let mkImportsFor (layer : Nat) := Id.run do

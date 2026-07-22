@@ -19,6 +19,8 @@
       "name": "dev-release",
       "displayName": "Default development optimized build config",
       "cacheVariables": {
+        "LEAN_EXTRA_CXX_FLAGS": "-g3",
+        "LEANC_EXTRA_CC_FLAGS": "-g3",
         "STRIP_BINARIES": "OFF",
         "WFAIL": "OFF"
       },
@@ -30,7 +32,8 @@
       "displayName": "Debug build config",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "LEAN_EXTRA_CXX_FLAGS": "-DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
+        "LEAN_EXTRA_CXX_FLAGS": "-g3 -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
+        "LEANC_EXTRA_CC_FLAGS": "-g3",
         "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
@@ -50,8 +53,8 @@
       "name": "sanitize",
       "displayName": "Sanitize build config",
       "cacheVariables": {
-        "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
-        "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined",
+        "LEAN_EXTRA_CXX_FLAGS": "-g3 -fsanitize=address,undefined -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
+        "LEANC_EXTRA_CC_FLAGS": "-g3 -fsanitize=address,undefined",
         "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
         "STRIP_BINARIES": "OFF",
         "USE_MIMALLOC": "OFF",

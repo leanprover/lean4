@@ -171,6 +171,15 @@ public structure VCGen.State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
+  /--
+  A cache mapping `∀`-RHS splits to their backward rule, keyed by the binder domain (held concrete
+  in the rule) and the total argument count (0 for a bare `Prop` forall; non-zero when a Pi into a
+  function lattice is applied to excess state arguments).
+
+  The binder domain is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
+  This is sound because it is a subterm of the hash-consed goal target.
+  -/
+  forallBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
   /-- Caches the `F`-abstract upper-adjoint frame rule (`op_wp_upperAdjoint_le_wp`), keyed by the
   `WPMonad` instance and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}

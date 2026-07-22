@@ -82,7 +82,7 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`) or a registered frame operator on the
+Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`) or a registered frame operator on the
 RHS of `pre ⊑ rhs` by saturating it with the built-in and `@[frameproc]` rewrites, closing it with a
 terminal, and point-framing any excess state arguments. Returns `none` if the head is neither a
 built-in connective nor a frame operator, or its rule does not apply.
@@ -98,6 +98,21 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
   -- A split applies only for a built-in connective or a registered frame operator.
   let some op := (← read).latticeOps[headName]? | return none
   let rule ← mkLatticeOpRuleCached rhs op
+  match ← rule.applyChecked goal with
+  | .goals goals => return some goals
+  | .failed => return none
+
+/--
+Decompose a `∀`/`→` on the RHS of a `Prop` entailment `pre ⊑ (∀ x, q x)` via the cached
+`le_forall` backward rule. Returns `none` if the RHS is not a `Prop`-valued forall, or the rule
+does not apply. Forall-like goals on a `Pi` assertion lattice should use the `iInf` lattice op
+(after `fun_forall_eq_iInf`) instead, which point-frames excess state arguments.
+-/
+public def splitForallLe? (goal : MVarId) (rhs : Expr) :
+    VCGenM (Option (List MVarId)) := do
+  unless rhs.isForall do return none
+  unless (← Meta.inferType rhs).isProp do return none
+  let rule ← mkForallLeRuleCached rhs
   match ← rule.applyChecked goal with
   | .goals goals => return some goals
   | .failed => return none

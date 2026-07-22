@@ -83,6 +83,22 @@ public def mkLatticeOpRuleCached (rhs : Expr) (op : LatticeOp) :
   return rule
 
 /--
+Cached construction of a `∀`-RHS split rule for `pre ⊑ (∀ x, q x) …`. On a cache miss, builds the
+rule via `mkForallLeRule` (schematic `q`/`pre`, point-framing of excess state args).
+
+Cache key: `(binder domain, arg count)`.
+-/
+public def mkForallLeRuleCached (rhs : Expr) : VCGenM BackwardRule := do
+  let fn := rhs.getAppFn
+  let .forallE _ α _ _ := fn
+    | throwError "forall-le cache expects a `∀` head{indentExpr rhs}"
+  let key := (ExprPtr.mk α, rhs.getAppNumArgs)
+  if let some rule := (← get).forallBackwardRuleCache[key]? then return rule
+  let rule ← (← mkForallLeRule rhs).shareCommon
+  modify fun st => { st with forallBackwardRuleCache := st.forallBackwardRuleCache.insert key rule }
+  return rule
+
+/--
 Cached version of `mkFrameBackwardRule`.
 
 Cache key: `(instWP, excessArgs.size)` (the operator is determined by the monad).

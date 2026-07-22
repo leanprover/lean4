@@ -49,9 +49,7 @@ public def LatticeOp.top : LatticeOp :=
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
     terminal? := ``Lean.Order.PreservesSup.le_upperAdjoint }
-/-- Indexed infimum `iInf`/`⨅`: distributes via `iInf_apply`, closes with `le_iInf`. The index type
-`ι` is held constant (`numConst := 3` for `α`/instance/`ι`) so the operand `f` and excess state
-arguments stay schematic. -/
+/-- Indexed infimum `iInf`/`⨅`: distributes via `iInf_apply`, closes with `le_iInf`. -/
 public def LatticeOp.iInf : LatticeOp :=
   { head := ``Lean.Order.iInf, numConst := 3,
     rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
@@ -182,29 +180,6 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
         pure (mkApp eqMp termProof)
     let res ← abstractMVars prf
     mkBackwardRuleFromExpr res.expr res.paramNames.toList
-
-/--
-Build a reusable backward rule decomposing `pre ⊑ (∀ x, q x)` on the `Prop` lattice. The binder
-domain is held concrete; `q` and `pre` are schematic. Mirrors `mkLatticeOpRule` (schematic operands,
-`mkPointFrameApply` terminal, `abstractMVars`) so the rule is cached per binder domain rather than
-installed as a single static `BackwardRule`.
-
-Produces `∀ q pre, (∀ x, pre ⊑ q x) → pre ⊑ (∀ x, q x)`. Forall-like goals on a `Pi` assertion
-lattice (with excess state arguments) go through the `iInf` lattice op instead, via
-`fun_forall_eq_iInf`.
--/
-public def mkForallLeRule (rhs : Expr) : SymM BackwardRule := do
-  let .forallE n α _body bi := rhs
-    | throwError "forall-le rule expects a bare `∀`{indentExpr rhs}"
-  unless (← Meta.inferType rhs).isProp do
-    throwError "forall-le rule expects a `Prop`-valued right-hand side{indentExpr rhs}"
-  let q ← mkFreshExprMVar (← mkArrow α (mkSort .zero))
-  let forallCore ← withLocalDecl n bi α fun x => do
-    mkForallFVars #[x] (mkApp q x)
-  let pre ← mkFreshExprMVar (mkSort .zero)
-  let prf ← mkPointFrameApply ``Lean.Order.le_forall forallCore pre []
-  let res ← abstractMVars prf
-  mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 end VCGen
 end Lean.Elab.Tactic.Do.Internal

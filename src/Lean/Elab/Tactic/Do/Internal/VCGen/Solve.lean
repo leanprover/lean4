@@ -541,7 +541,7 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   let scope ← scope.collectLocalSpecs goal
 
   -- Phase 3: shape the `rhs` (reduce an EPost projection, decompose a lattice connective or a
-  -- `Prop`-forall, then discharge a residual entailment against the lifted hypothesis).
+  -- forall, then discharge a residual entailment against the lifted hypothesis).
   if let some g ← reduceEPostHead? goal target α inst pre rhs then return .goals scope [g]
   if let some gs ← splitLatticeOp? goal rhs then return .goals scope gs
   if let some gs ← splitForallLe? goal rhs then return .goals scope gs

@@ -299,28 +299,10 @@ theorem true_le_of_top_le (x : Prop) : ((⊤ : Prop) ⊑ x) → (True : Prop) �
   · intro hall
     exact (le_iInf f (x := ∀ i, f i) (fun i h => h i)) hall
 
-/-- Introduction rule for a `∀` on the RHS of a `Prop` entailment: prove the binder-wise
-entailments `p ⊑ q x`, then reassemble. Dual to using `le_iInf` after rewriting through
-`iInf_prop_eq_forall`; needed because raw `∀`/`→` have no constant head for `splitLatticeOp?`. -/
+/-- Introduction rule for a `∀` on the RHS of a `Prop` entailment. -/
 theorem le_forall {α : Sort u} (p : Prop) (q : α → Prop)
     (h : ∀ x, p ⊑ q x) : p ⊑ (∀ x, q x) :=
   fun hp x => h x hp
-
-/-- Function-lattice form of `le_forall`: `p ⊑ fun s => ∀ x, q x s`. Together with point-framing of
-excess state arguments this is the `Pi` analogue of `le_forall`; definitionally `le_iInf` after
-`fun_forall_eq_iInf`. -/
-theorem le_fun_forall {α : Sort u} {σ : Type v} (q : α → σ → Prop) (p : σ → Prop)
-    (h : ∀ x, p ⊑ q x) : p ⊑ (fun s => ∀ x, q x s) := by
-  intro s hs x
-  exact h x s hs
-
-/-- A state-indexed family of `Prop`-foralls is an indexed infimum. Lets `vcgen` rewrite
-`fun s => ∀ i, f i s` into `iInf f` so the `iInf` lattice split (and its point-framing of excess
-state arguments) applies on any `Pi` assertion lattice. -/
-theorem fun_forall_eq_iInf {ι : Type v} {σ : Type w} (f : ι → σ → Prop) :
-    (fun s => ∀ i, f i s) = iInf f := by
-  funext s
-  rw [iInf_apply, iInf_prop_eq_forall]
 
 @[simp] theorem iSup_prop_eq_exists {ι : Type u} (f : ι → Prop) :
     (iSup f : Prop) = (∃ i, f i) := by

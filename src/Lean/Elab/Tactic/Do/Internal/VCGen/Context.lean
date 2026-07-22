@@ -74,6 +74,9 @@ public structure VCGen.BackwardRules where
   /-- The backward rule for `meet_top_le_of_le`. Cancels a redundant `⊓ ⊤` on the left of an
   entailment, turning `P ⊓ ⊤ ⊑ Q` into `P ⊑ Q`. -/
   meetTop : BackwardRule
+  /-- The backward rule for `Lean.Order.le_forall`. Splits a `∀`/`→` on the RHS of a `Prop`
+  entailment. -/
+  forallIntro : BackwardRule
 
 /-- Build the backward rules used by `solve` from their underlying lemmas. -/
 public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
@@ -87,6 +90,7 @@ public def VCGen.mkBackwardRules : MetaM VCGen.BackwardRules := do
     andIntro := ← mkBackwardRuleFromDecl ``And.intro
     refl := ← mkBackwardRuleFromDecl ``Lean.Order.PartialOrder.rel_refl
     meetTop := ← mkBackwardRuleFromDecl ``Std.Internal.Do.CompleteLattice.meet_top_le_of_le
+    forallIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_forall
   }
 
 public structure VCGen.Context where
@@ -171,15 +175,6 @@ public structure VCGen.State where
   sound because it is a subterm of the hash-consed goal target.
   -/
   latticeBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
-  /--
-  A cache mapping `∀`-RHS splits to their backward rule, keyed by the binder domain (held concrete
-  in the rule) and the total argument count (0 for a bare `Prop` forall; non-zero when a Pi into a
-  function lattice is applied to excess state arguments).
-
-  The binder domain is keyed by `ExprPtr`, so lookups compare it by pointer rather than structurally.
-  This is sound because it is a subterm of the hash-consed goal target.
-  -/
-  forallBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}
   /-- Caches the `F`-abstract upper-adjoint frame rule (`op_wp_upperAdjoint_le_wp`), keyed by the
   `WPMonad` instance and the number of excess state arguments. -/
   frameBackwardRuleCache : Std.HashMap (ExprPtr × Nat) BackwardRule := {}

@@ -102,18 +102,12 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
   | .goals goals => return some goals
   | .failed => return none
 
-/--
-Decompose a `∀`/`→` on the RHS of a `Prop` entailment `pre ⊑ (∀ x, q x)` via the cached
-`le_forall` backward rule. Returns `none` if the RHS is not a `Prop`-valued forall, or the rule
-does not apply. Forall-like goals on a `Pi` assertion lattice should use the `iInf` lattice op
-(after `fun_forall_eq_iInf`) instead, which point-frames excess state arguments.
--/
+/-- Decompose a `∀`/`→` on the RHS of `pre ⊑ (∀ x, q x)` via `le_forall`. -/
 public def splitForallLe? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (List MVarId)) := do
   unless rhs.isForall do return none
   unless (← Meta.inferType rhs).isProp do return none
-  let rule ← mkForallLeRuleCached rhs
-  match ← rule.applyChecked goal with
+  match ← (← read).backwardRules.forallIntro.applyChecked goal with
   | .goals goals => return some goals
   | .failed => return none
 

@@ -275,3 +275,25 @@ example [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
 
 example : ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateM AppState Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝ ⦄ := recovers_snd
+
+/-! ## Assertion universe independent of the value universe
+
+`Pred` and `EPred` are quantified at their own universes `w`/`w'`, independent of the value type
+`Nat : Type 0`. `Triple`'s four independent universes admit such a spec, and `vcgen` reasons over
+the abstract assertion universe. -/
+
+/-- Only `get` and state-introduction, exercising `Spec.get_StateT` at an abstract assertion
+universe. -/
+example {m : Type → Type v} {Pred : Type w} {EPred : Type w'} [Monad m] [Assertion Pred]
+    [Assertion EPred] [WPMonad m Pred EPred] (P : Nat → Pred) :
+    ⦃P⦄ (get : StateT Nat m Nat) ⦃fun _ => P⦄ := by
+  vcgen
+
+/-- The lossy spec of `mkFreshNat` at an abstract assertion universe: `vcgen` threads
+`pure`/`bind`/`map`/`modifyGet`/`get` over `Pred : Type w`. -/
+example {m : Type → Type v} {Pred : Type w} {EPred : Type w'} [Monad m] [Assertion Pred]
+    [Assertion EPred] [WPMonad m Pred EPred] (n : Nat) :
+    ⦃ fun s => ⌜s.1 = n⌝ ⦄ (mkFreshNat : StateT AppState m Nat)
+    ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝ ⦄ := by
+  unfold mkFreshNat
+  vcgen <;> simp_all

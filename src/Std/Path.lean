@@ -22,10 +22,7 @@ public section
 /-!
 # Path
 
-A platform-neutral file system path library for Lean, inspired by Python's `pathlib` and Rust's
-`std::path`.
-
-## Design
+A platform-neutral file system path library for Lean.
 
 `Std.Path` replaces `System.FilePath` with a richer representation. Instead of a plain `String`
 wrapper, paths are stored as `Array Path.Component`.
@@ -59,6 +56,15 @@ def main : IO Unit := do
   let home ← Path.fromString ((← IO.getEnv "HOME").getD "")
   let cfg := home / (Path.ofPosixString ".config/lean" |>.get!)
   IO.println (← cfg.toString)
+```
+
+## Glob matching
+
+`Path.matchGlob` tests a path against a `/`-separated glob pattern, supporting `*`, `?`,
+`[abc]`/`[a-z]`/`[!abc]` character classes, and `**` for zero or more whole segments:
+
+```lean
+#eval (Path.ofPosixString "src/Std/Path.lean" |>.get!).matchGlob "src/**/*.lean"  -- true
 ```
 -/
 
@@ -550,9 +556,10 @@ instance : HDiv Path Path Path where
 /--
 Test `p` against a glob pattern.
 
-The pattern always uses `/` to separate segments, regardless of platform. Drive prefixes are
-ignored and an absolute root matches an empty leading segment (so use a leading `**/` or `/` to match
-absolute paths).
+The pattern always uses `/` to separate segments, regardless of platform. By default, drive
+prefixes are ignored and an absolute root matches an empty leading segment (so use a leading
+`**/` or `/` to match absolute paths); pass `matchDrivePrefix := true` to instead require the
+pattern to match the drive prefix (e.g. `"C:"`) as its own leading segment.
 
 Supported wildcards:
 - `*` — matches any sequence of characters within a single component (not `/`)
@@ -564,16 +571,13 @@ Supported wildcards:
 Returns `true` if the pattern matches the full path. A syntactically invalid pattern (e.g. an
 unterminated `[...]` class) matches nothing.
 -/
-def matchGlob (p : Path) (pattern : String) : Bool :=
+def matchGlob (p : Path) (pattern : String) (matchDrivePrefix : Bool := false) : Bool :=
   match Internal.parseGlob pattern with
   | none => false
   | some glob =>
-    let comps : Array String := p.components.filterMap fun
-      | .drivePrefix _ => none
-      | .root _ => some ""
-      | .current => some "."
-      | .parent => some ".."
-      | .normal v => some v
+    let comps := p.components.filter fun
+      | .drivePrefix _ => matchDrivePrefix
+      | _ => true
 
     Internal.matchSegments glob comps 0 0
 

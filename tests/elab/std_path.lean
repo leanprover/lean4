@@ -499,6 +499,14 @@ section Glob
 -- by a pattern that also has a segment there.
 #guard (posix "a/./b").matchGlob "a/b" = false
 #guard (posix "a/./b").matchGlob "a/*/b" = true
+-- by default, a Windows drive prefix is ignored: a generic pattern matches without mentioning it,
+-- and a pattern that does mention it fails (the drive component isn't there to match against)
+#guard (win "C:\\Users\\foo").matchGlob "**/Users/foo" = true
+#guard (win "C:\\Users\\foo").matchGlob "C:/**/Users/foo" = false
+-- matchDrivePrefix := true instead requires the drive to appear as its own leading segment
+#guard (win "C:\\Users\\foo").matchGlob "C:/**/Users/foo" (matchDrivePrefix := true) = true
+#guard (win "C:\\Users\\foo").matchGlob "**/Users/foo" (matchDrivePrefix := true) = true
+#guard (win "D:\\Users\\foo").matchGlob "C:/**/Users/foo" (matchDrivePrefix := true) = false
 
 end Glob
 

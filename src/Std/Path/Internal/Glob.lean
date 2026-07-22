@@ -15,6 +15,24 @@ public section
 # Path.Glob
 
 Internal glob pattern representation and matching for `Path.matchGlob`.
+
+## Supported combinators
+
+| Pattern   | Matches |
+|-----------|---------|
+| `*`       | any run of characters within a single path segment (never crosses `/`) |
+| `?`       | any single character within a segment (never `/`) |
+| `[abc]`   | any one of the listed characters |
+| `[a-z]`   | any character in the given range |
+| `[!abc]`  | negated class: any character *not* listed |
+| `**`      | any number of whole path segments, including zero, as its own segment |
+| `/`       | separates segments |
+
+## Example
+
+`src/**/*.lean` matches every path that starts with `src/`, ends with a segment matching
+`*.lean`, and has any number of segments (including none) in between, e.g. `src/Foo.lean` and
+`src/Std/Path/Internal/Glob.lean`, but not `src/Foo.txt` or `other/Foo.lean`.
 -/
 
 namespace Std.Path.Internal
@@ -112,17 +130,28 @@ private def matchParts (parts : Array GlobPart) (s : String) : Bool :=
   | .ok _ => true
   | .error _ => false
 
-partial def matchSegments (glob : Glob) (comps : Array String) (gi ci : Nat) : Bool :=
-  if h : gi >= glob.size then ci >= comps.size
-  else match glob[gi]'(Nat.lt_of_not_le h) with
-  | .doublestar =>
-    let rec tryFrom (ci' : Nat) : Bool :=
-      matchSegments glob comps (gi + 1) ci' ||
-      (ci' < comps.size && tryFrom (ci' + 1))
-    tryFrom ci
-  | .pattern parts =>
-    ci < comps.size &&
-    matchParts parts comps[ci]! &&
-    matchSegments glob comps (gi + 1) (ci + 1)
+/-- The string a glob pattern segment is matched against for a given path component. -/
+private def componentSegment : Path.Component → String
+  | .drivePrefix v => v
+  | .root _ => ""
+  | .current => "."
+  | .parent => ".."
+  | .normal v => v
+
+partial def matchSegments (glob : Glob) (comps : Array Path.Component) (gi ci : Nat) : Bool :=
+  if h : gi >= glob.size then
+    ci >= comps.size
+  else
+    match glob[gi]'(Nat.lt_of_not_le h) with
+    | .doublestar =>
+      let rec tryFrom (ci' : Nat) : Bool :=
+        matchSegments glob comps (gi + 1) ci' ||
+        (ci' < comps.size && tryFrom (ci' + 1))
+      tryFrom ci
+
+    | .pattern parts =>
+      ci < comps.size &&
+      matchParts parts (componentSegment comps[ci]!) &&
+      matchSegments glob comps (gi + 1) (ci + 1)
 
 end Std.Path.Internal

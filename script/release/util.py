@@ -141,6 +141,10 @@ class ReleaseRepo:
     # When set, this branch should be updated to point to the version bump commit.
     stable_branch: str | None = None
 
+    # When set, this repo should be updated in patch releases (which are
+    # releases of the form v4.X.Y with Y > 0).
+    patch_release: bool = False
+
     # Strong deps are dependencies that *must* be updated before a new version
     # of the repo can be released. Strong deps include all dependencies
     # specified in the lakefile, as well as those used by CI involved in merging

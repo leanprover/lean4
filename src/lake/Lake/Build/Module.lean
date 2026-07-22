@@ -124,7 +124,9 @@ def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Modul
 public def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
   mkFacetJobConfig recComputePrecompileImports (buildable := false)
 
-private def Module.includedInSharedTarget (mod : Module) : FetchM Bool := do
+/-- Whether this modules is included in `lib.modules` for its parent library `lib`.
+This is false of "orphaned" modules not imported by their parent library's root module. -/
+def Module.containedInLibModules (mod : Module) : FetchM Bool := do
   return (← (← mod.lib.modules.fetch).await).contains mod
 
 /--
@@ -141,13 +143,14 @@ def Module.fetchImportLibs
       let job ← imp.dynlib.fetch
       return (libs, jobs.push job)
     else if compileSelf || imp.shouldPrecompile then
-      if ← imp.includedInSharedTarget then
+      if ← imp.containedInLibModules then
         if libs.contains imp.lib.name then
           return (libs, jobs)
         else
           let job ← imp.lib.shared.fetch
           return (libs.insert imp.lib.name, jobs.push job)
       else
+        -- TODO: consider linting for orphaned modules
         let job ← imp.dynlib.fetch
         return (libs, jobs.push job)
     else

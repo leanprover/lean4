@@ -139,6 +139,11 @@
       "inherits": "release"
     },
     {
+      "name": "sanitize-thread",
+      "configurePreset": "sanitize-thread",
+      "inherits": "release"
+    },
+    {
       "name": "sandebug",
       "configurePreset": "sandebug",
       "inherits": "release"

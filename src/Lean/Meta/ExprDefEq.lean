@@ -83,6 +83,29 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
 }
 
 /--
+Controls whether the transparency bump for implicit arguments is also applied in the first pass
+of `isDefEqArgs`, where an argument pair is unified eagerly because one side is an unassigned
+metavariable (the "easy cases" of `isDefEqArgsFirstPass`).
+
+Without the bump, such pairs are unified at the caller's transparency: inside type class
+resolution, the metavariable assignment — including the type check and the
+`backward.isDefEq.instanceTypes` fallbacks it triggers — then runs at `.instances`, even though
+the same argument pair would have been checked at `.implicit` had it been postponed to the
+second pass. Whether an argument gets the bump should not depend on which side happens to be an
+unassigned metavariable.
+
+Which arguments are bumped follows the same rules as the second pass: instance-implicit
+arguments always (when `backward.isDefEq.respectTransparency` is `true`), other implicit
+arguments only if `backward.isDefEq.implicitBump` is `true`. This option only has an effect when
+`backward.isDefEq.respectTransparency` is `true`.
+-/
+register_builtin_option backward.isDefEq.firstPassBump : Bool := {
+  defValue := true
+  descr    := "if true, apply the `.implicit` transparency bump for implicit arguments also in \
+  the eager (unassigned-metavariable) cases of the first pass of `isDefEqArgs`"
+}
+
+/--
 Controls how assignments to instance-typed metavariables (see
 `MetavarContext.instanceTypedMVars`) are restricted so that the final value of a
 metavariable created for an instance-implicit argument has the type the metavariable was
@@ -101,12 +124,16 @@ Valid values:
 - `"markOrSynth"`: like `"synth"`, but a value whose spine metavariables are all themselves
   instance-typed or not assignable by `isDefEq` is also accepted, provided its type matches
   at `.instances` transparency.
+- `"synthOrStuck"`/`"markOrSynthOrStuck"`: like `"synth"`/`"markOrSynth"`, except that when
+  the fallback synthesis fails while the metavariable's type still contains metavariables,
+  the enclosing type class resolution is treated as stuck (postponed and retried by the
+  elaborator once more metavariables are solved) instead of failing definitively.
 -/
 register_builtin_option backward.isDefEq.instanceTypes : String := {
   defValue := "mark"
   descr    := "controls how assignments to instance metavariables are restricted to \
   preserve the type up to `.instances` transparency; valid values: \"none\", \"mark\", \
-  \"synth\", \"markOrSynth\""
+  \"synth\", \"markOrSynth\", \"synthOrStuck\", \"markOrSynthOrStuck\""
 }
 
 /-- Assignment policy for instance-typed metavariables. See `backward.isDefEq.instanceTypes`. -/
@@ -122,14 +149,22 @@ inductive InstanceTypesMode where
   /-- Like `synth`, but also accept values whose spine metavariables are all instance-typed
   or not assignable by `isDefEq` (see `spineMVarsAdmissible`). -/
   | markOrSynth
+  /-- Like `synth`, but report the problem as stuck instead of failing when the fallback
+  synthesis fails while the metavariable's type is not fully determined. -/
+  | synthOrStuck
+  /-- Like `markOrSynth`, but report the problem as stuck instead of failing when the
+  fallback synthesis fails while the metavariable's type is not fully determined. -/
+  | markOrSynthOrStuck
 
 def getInstanceTypesMode : CoreM InstanceTypesMode := do
   match backward.isDefEq.instanceTypes.get (← getOptions) with
-  | "none"        => return .none
-  | "mark"        => return .mark
-  | "synth"       => return .synth
-  | "markOrSynth" => return .markOrSynth
-  | val => throwError "invalid value `{val}` for option `backward.isDefEq.instanceTypes`, valid values are \"none\", \"mark\", \"synth\", and \"markOrSynth\""
+  | "none"               => return .none
+  | "mark"               => return .mark
+  | "synth"              => return .synth
+  | "markOrSynth"        => return .markOrSynth
+  | "synthOrStuck"       => return .synthOrStuck
+  | "markOrSynthOrStuck" => return .markOrSynthOrStuck
+  | val => throwError "invalid value `{val}` for option `backward.isDefEq.instanceTypes`, valid values are \"none\", \"mark\", \"synth\", \"markOrSynth\", \"synthOrStuck\", and \"markOrSynthOrStuck\""
 
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
@@ -335,6 +370,23 @@ inductive DefEqArgsFirstPassResult where
   | ok (postponedImplicit : Array Nat) (postponedHO : Array Nat)
 
 /--
+Ensure `MetaM` configuration is strong enough for checking definitional equality of
+implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
+least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
+-/
+@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
+  let old ← getTransparency
+  if old.lt .implicit then
+    trace[Meta.isDefEq.transparency]
+      "raising transparency {toString old} → implicit"
+  withAtLeastTransparency .implicit do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+
+/--
   First pass for `isDefEqArgs`. We unify explicit arguments, *and* easy cases
   Here, we say a case is easy if it is of the form
 
@@ -367,6 +419,10 @@ inductive DefEqArgsFirstPassResult where
 -/
 private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
+  let opts ← getOptions
+  let firstPassBump := backward.isDefEq.respectTransparency.get opts
+    && backward.isDefEq.firstPassBump.get opts
+  let implicitBump := backward.isDefEq.implicitBump.get opts
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
   for h : i in *...paramInfo.size do
@@ -387,8 +443,17 @@ private def isDefEqArgsFirstPass
       unless (← Meta.isExprDefEqAux a₁ a₂) do
         return .failed
     else if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
-      unless (← Meta.isExprDefEqAux a₁ a₂) do
-        return .failed
+      /- Easy cases are still argument unifications at an implicit position, so they get the same
+         transparency bump as the second pass: whether an argument is checked at `.implicit`
+         should not depend on which side happens to be an unassigned metavariable. In particular,
+         the assignment triggered here — including the type check and `instanceTypes` fallbacks
+         run by `checkTypesAndAssign` — sees the bumped ambient transparency. -/
+      if firstPassBump && (info.binderInfo.isInstImplicit || implicitBump) then
+        unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do
+          return .failed
+      else
+        unless (← Meta.isExprDefEqAux a₁ a₂) do
+          return .failed
     else
       if info.isProp then
         unless ← isAbstractedUnassignedMVar a₁ <||> isAbstractedUnassignedMVar a₂ do
@@ -399,23 +464,6 @@ private def isDefEqArgsFirstPass
           continue
       postponedImplicit := postponedImplicit.push i
   return .ok postponedImplicit postponedHO
-
-/--
-Ensure `MetaM` configuration is strong enough for checking definitional equality of
-implicit and instance-implict arguments as well as assigned mvar types. Bumps transparency to at
-least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unfold.
--/
-@[inline] def withImplicitConfig (x : MetaM α) : MetaM α := do
-  let old ← getTransparency
-  if old.lt .implicit then
-    trace[Meta.isDefEq.transparency]
-      "raising transparency {toString old} → implicit"
-  withAtLeastTransparency .implicit do
-    let cfg ← getConfig
-    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
-      x
-    else
-      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
 
 /--
 Like `withImplicitConfig`, but sets transparency to exactly `.instances`: instance-typed
@@ -640,13 +688,22 @@ modes of `backward.isDefEq.instanceTypes` when the candidate value `v` is not di
 acceptable: synthesize the instance for the metavariable's type, assign it, and require `v`
 to be definitionally equal to the synthesized instance. This mirrors the elaboration order
 in which instance arguments were synthesized first and only then unified. Fails without
-modifying the state if synthesis fails — e.g. because the metavariable's type still contains
-metavariables, or because of the `maxSynthPendingDepth` limit — or if `v` does not match the
-synthesized instance.
+modifying the state if synthesis fails or if `v` does not match the synthesized instance.
+
+With `stuckOnUndeterminedType := true` (the `synthOrStuck`/`markOrSynthOrStuck` modes), when
+synthesis fails while the metavariable's type still contains metavariables, the goal may
+simply not be determined enough yet (e.g. `BEq ?α` for a still-unknown `?α`), so under
+`isDefEqStuckEx` we throw the `isDefEqStuck` exception instead of failing: the enclosing
+type class resolution then reports "undecidable for now" and is postponed and retried by the
+elaborator once more metavariables are solved. This mirrors what `isDefEqQuick` does for a
+unification of two nonassignable metavariables.
 -/
-private def synthInstanceTypedMVarAndUnify (mvar v : Expr) : MetaM Bool := do
+private def synthInstanceTypedMVarAndUnify (mvar v : Expr) (stuckOnUndeterminedType : Bool) : MetaM Bool := do
   checkpointDefEq do
     unless (← Meta.synthPending mvar.mvarId!) do
+      if stuckOnUndeterminedType && (← getConfig).isDefEqStuckEx
+          && (← instantiateMVars (← inferType mvar)).hasExprMVar then
+        Meta.throwIsDefEqStuck
       if (← isDiagnosticsEnabled) then
         trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr (← inferType mvar)}\nthe candidate value{indentExpr v}\nwas rejected and the instance could not be synthesized directly.\nWorkaround: `set_option backward.isDefEq.instanceTypes \"none\"`"
       return false
@@ -684,16 +741,16 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
           if (← Meta.isExprDefEqAux mvarType vType) then
             trace[diagnostics] "failure when assigning instance metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.instances` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.instanceTypes \"none\"`"
         return false
-    | .synth | .markOrSynth =>
+    | .synth | .markOrSynth | .synthOrStuck | .markOrSynthOrStuck =>
       /- The value of an instance metavariable must be determined by instance synthesis, up
          to defeq at `.instances` transparency: either the candidate value already is such a
-         value — mvar-free (`synth`) resp. with only admissible metavariables in its spine
-         (`markOrSynth`) — and has the right type, or we synthesize the instance now and
+         value — mvar-free (`synth*`) resp. with only admissible metavariables in its spine
+         (`markOrSynth*`) — and has the right type, or we synthesize the instance now and
          require the candidate to be defeq to the result. -/
       let v ← instantiateMVars v
       let directOk ← match mode with
-        | .synth => pure !v.hasExprMVar
-        | _      => spineMVarsAdmissible v
+        | .synth | .synthOrStuck => pure !v.hasExprMVar
+        | _                      => spineMVarsAdmissible v
       if directOk then
         let mvarType ← inferType mvar
         let vType ← inferType v
@@ -701,6 +758,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
           mvar.mvarId!.assign v
           return true
       synthInstanceTypedMVarAndUnify mvar v
+        (stuckOnUndeterminedType := mode matches .synthOrStuck | .markOrSynthOrStuck)
     | .none =>
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar

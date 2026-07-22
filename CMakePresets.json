@@ -68,8 +68,8 @@
       "name": "sanitize-thread",
       "displayName": "Thread Sanitize build config",
       "cacheVariables": {
-        "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=thread",
-        "LEANC_EXTRA_CC_FLAGS": "-fsanitize=thread",
+        "LEAN_EXTRA_CXX_FLAGS": "-g3 -fsanitize=thread",
+        "LEANC_EXTRA_CC_FLAGS": "-g3 -fsanitize=thread",
         "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=thread",
         "STRIP_BINARIES": "OFF",
         "SMALL_ALLOCATOR": "OFF",

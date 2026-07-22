@@ -166,7 +166,9 @@ search's subgoal metavariables. These caller metavariables are not assignable du
 search, so `"markOrSynth"` accepts them in the spine; the elaborator synthesizes them later,
 once `useBox x` determines the type argument. `"synth"` cannot accept the assignment (the
 value is not mvar-free) and its fallback cannot synthesize `R ?α` with `?α` undetermined, so
-it fails.
+it fails. The `"synthOrStuck"`/`"markOrSynthOrStuck"` variants instead report the
+not-yet-determined problem as stuck, so the whole synthesis is postponed and succeeds when
+retried with `?α := Nat`.
 -/
 
 class R (α : Type) where
@@ -207,10 +209,22 @@ example : Nat :=
   let x : Box _ := Init.init
   useBox x
 
+#guard_msgs in
+set_option backward.isDefEq.instanceTypes "synthOrStuck" in
+example : Nat :=
+  let x : Box _ := Init.init
+  useBox x
+
+#guard_msgs in
+set_option backward.isDefEq.instanceTypes "markOrSynthOrStuck" in
+example : Nat :=
+  let x : Box _ := Init.init
+  useBox x
+
 /-! An invalid option value is reported when the check is first consulted. -/
 
 /--
-error: invalid value `bogus` for option `backward.isDefEq.instanceTypes`, valid values are "none", "mark", "synth", and "markOrSynth"
+error: invalid value `bogus` for option `backward.isDefEq.instanceTypes`, valid values are "none", "mark", "synth", "markOrSynth", "synthOrStuck", and "markOrSynthOrStuck"
 -/
 #guard_msgs in
 set_option backward.isDefEq.instanceTypes "bogus" in
